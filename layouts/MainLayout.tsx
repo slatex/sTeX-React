@@ -2,7 +2,7 @@ import { Toolbar } from "@mui/material";
 import Head from "next/head";
 import Link from "next/link";
 
-export default function MainLayout({ title, children }: { title: string; children: any }) {
+export default function MainLayout({ title, children }: { title?: string; children: any }) {
   return (
     <div>
       <Head>

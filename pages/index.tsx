@@ -8,7 +8,7 @@ import { localStore } from "utils";
 
 const Home: NextPage = () => {
   return (
-    <MainLayout>
+    <MainLayout title="VoLL-KI Home">
       <Box textAlign="center" m="20px">
         <Image src="/voll-ki.png" alt="VoLL-KI Logo" width={650} height={300} />
       </Box>
