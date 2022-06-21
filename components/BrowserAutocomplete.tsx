@@ -33,7 +33,7 @@ function getBrowserItems() {
 const BROWSER_ITEMS = getBrowserItems();
 
 function OptionDisplay({ item }: { item: BrowserItem }) {
-  const flag = { de: "de", en: "gb", zhs: "cn" }[item.language] || "gb";
+  const flag = { de: "de", en: "gb", zhs: "cn", fr: "fr" }[item.language] || "gb";
   return (
     <>
       {/* eslint-disable-next-line @next/next/no-img-element*/}

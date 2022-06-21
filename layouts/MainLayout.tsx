@@ -2,11 +2,11 @@ import { Toolbar } from "@mui/material";
 import Head from "next/head";
 import Link from "next/link";
 
-export default function MainLayout({ children }: { children: any }) {
+export default function MainLayout({ title, children }: { title: string; children: any }) {
   return (
     <div>
       <Head>
-        <title>sTeX Documents</title>
+        <title>{title || "sTeX Documents"}</title>
         <meta name="description" content="VoLL-KI" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
