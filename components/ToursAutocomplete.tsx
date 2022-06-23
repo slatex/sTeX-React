@@ -1,6 +1,7 @@
 import { Autocomplete, Box, createFilterOptions, TextField } from "@mui/material";
+import { mmtHTMLToReact } from "mmtParser";
 import { useRouter } from "next/router";
-import { fixDuplicateLabels, mmtHTMLToReact } from "utils";
+import { fixDuplicateLabels } from "utils";
 import { RAW_TOURS } from "../tours";
 
 export const TOURS = fixDuplicateLabels(RAW_TOURS);

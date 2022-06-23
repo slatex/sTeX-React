@@ -4,9 +4,11 @@ import { ToursAutocomplete } from "components/ToursAutocomplete";
 import MainLayout from "layouts/MainLayout";
 import type { NextPage } from "next";
 import Image from "next/image";
+import { useReducer } from "react";
 import { localStore } from "utils";
 
 const Home: NextPage = () => {
+  const [, forceUpdate] = useReducer((x) => x + 1, 0);
   return (
     <MainLayout title="VoLL-KI Home">
       <Box textAlign="center" m="20px">
@@ -27,6 +29,7 @@ const Home: NextPage = () => {
             onClick={() => {
               if (localStore?.getItem("no-responsive")) localStore.removeItem("no-responsive");
               else localStore?.setItem("no-responsive", "yes");
+              forceUpdate();
             }}
           >
             {(localStore?.getItem("no-responsive") ? "Use" : "Remove") + " Responsive Hack"}

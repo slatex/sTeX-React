@@ -11,8 +11,16 @@ body {
   font-family: STIXgeneral, Times, Symbol, cmr10, CMSY10, CMEX10, serif;
 }
 
-.sidenote-container {
-  font-size: 80%;
+.sidebarexpanded {
+  position: relative;
+  left: 550px;
+  font-size: small;
+}
+
+.sidebarbuttonwrapper {
+  position: relative;
+  left: -40px;
+  font-size: small;
 }
 
 .sidenote-container div {

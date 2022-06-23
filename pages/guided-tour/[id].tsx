@@ -4,10 +4,8 @@ import { getOuterHTML } from "domutils";
 import { parseDocument } from "htmlparser2";
 import MainLayout from "layouts/MainLayout";
 import type { NextPage } from "next";
-import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { fixSelfClosingTags } from "utils";
 import { TourDisplay, TourItem } from "../../components/TourDisplay";
 import { ToursAutocomplete } from "../../components/ToursAutocomplete";
 import { BASE_URL, BG_COLOR } from "../../constants";
@@ -18,7 +16,7 @@ function filterByName(nodes: any[], name: string): any[] {
 
 function getTourItems(tourResponse: string) {
   const tourItems = [];
-  const items = parseDocument(fixSelfClosingTags(tourResponse)).children;
+  const items = parseDocument(tourResponse).children;
   const trNodes = filterByName(items, "tr");
   for (const trNode of trNodes) {
     const tdNode = filterByName((trNode as any).childNodes, "td")[0];
@@ -52,42 +50,44 @@ const GuidedTourPage: NextPage = () => {
 
   return (
     <MainLayout title="Guided Tour">
-      <ToursAutocomplete />
-      <FormControl style={{ minWidth: "100px", margin: "10px 20px 10px 0" }}>
-        <InputLabel id="user-select-label">User Model</InputLabel>
-        <Select
-          labelId="user-select-label"
-          id="user-select"
-          name="userModel"
-          label="User Model"
-          value={userModel}
-          onChange={(e) => setUserModel(e.target.value)}
-        >
-          {USER_MODELS.map((userModel) => (
-            <MenuItem key={userModel} value={userModel}>
-              {userModel}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      <FormControl style={{ minWidth: "100px", margin: "10px 0" }}>
-        <InputLabel id="lang-select-label">Language</InputLabel>
-        <Select
-          labelId="lang-select-label"
-          id="lang-select"
-          name="language"
-          label="Language"
-          value={language}
-          onChange={(e) => setLanguage(e.target.value)}
-        >
-          <MenuItem value="en">English</MenuItem>
-          <MenuItem value="de">German</MenuItem>
-          <MenuItem value="fr">French</MenuItem>
-        </Select>
-      </FormControl>
-      <Box display="flex">
-        <Box flexGrow={1} bgcolor={BG_COLOR}>
-          <TourDisplay items={tourItems} lang={language} />
+      <Box m="10px">
+        <ToursAutocomplete />
+        <FormControl style={{ minWidth: "100px", margin: "10px 20px 10px 0" }}>
+          <InputLabel id="user-select-label">User Model</InputLabel>
+          <Select
+            labelId="user-select-label"
+            id="user-select"
+            name="userModel"
+            label="User Model"
+            value={userModel}
+            onChange={(e) => setUserModel(e.target.value)}
+          >
+            {USER_MODELS.map((userModel) => (
+              <MenuItem key={userModel} value={userModel}>
+                {userModel}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <FormControl style={{ minWidth: "100px", margin: "10px 0" }}>
+          <InputLabel id="lang-select-label">Language</InputLabel>
+          <Select
+            labelId="lang-select-label"
+            id="lang-select"
+            name="language"
+            label="Language"
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+          >
+            <MenuItem value="en">English</MenuItem>
+            <MenuItem value="de">German</MenuItem>
+            <MenuItem value="fr">French</MenuItem>
+          </Select>
+        </FormControl>
+        <Box display="flex">
+          <Box flexGrow={1} bgcolor={BG_COLOR}>
+            <TourDisplay items={tourItems} lang={language} />
+          </Box>
         </Box>
       </Box>
     </MainLayout>

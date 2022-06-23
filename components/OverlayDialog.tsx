@@ -8,13 +8,6 @@ export interface OverlayDialogProps {
   displayNode: ReactNode;
 }
 
-// HACK: Get appropriate content from MMT to remove this.
-function getContent(htmlNode: JSX.Element) {
-  const body = htmlNode?.props?.children[1];
-  // Skip the arrow.
-  return body?.props?.children.slice(1);
-}
-
 export function OverlayDialog({ contentUrl, displayNode }: OverlayDialogProps) {
   const [open, setOpen] = useState(false);
   return (
@@ -28,7 +21,7 @@ export function OverlayDialog({ contentUrl, displayNode }: OverlayDialogProps) {
             <OpenInNew />
           </IconButton>
         </a>
-        <ContentFromUrl url={contentUrl} process={(n) => getContent(n)} />
+        <ContentFromUrl url={contentUrl} modifyRendered={(bodyNode) => bodyNode?.props?.children} />
 
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Close</Button>

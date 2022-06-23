@@ -17,7 +17,7 @@ export default function MainLayout({ title, children }: { title?: string; childr
             <span style={{ color: "white", fontSize: "24px", cursor: "pointer" }}>VoLL-KI</span>
           </Link>
         </Toolbar>
-        <div style={{ margin: "10px" }}>{children}</div>
+        <div>{children}</div>
       </main>
     </div>
   );

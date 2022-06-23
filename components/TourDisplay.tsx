@@ -3,7 +3,7 @@ import MuiAccordion, { AccordionProps } from "@mui/material/Accordion";
 import MuiAccordionDetails from "@mui/material/AccordionDetails";
 import MuiAccordionSummary, { AccordionSummaryProps } from "@mui/material/AccordionSummary";
 import { styled } from "@mui/material/styles";
-import { mmtHTMLToReact } from "utils";
+import { mmtHTMLToReact } from "mmtParser";
 import { BASE_URL, BG_COLOR } from "../constants";
 import { ContentFromUrl } from "./ContentFromHtml";
 
@@ -55,7 +55,7 @@ function TourItemDisplay({ item, lang = "en" }: { item: TourItem; lang?: string 
         <b>{mmtHTMLToReact(item.display)}</b>
       </AccordionSummary>
       <AccordionDetails>
-        <ContentFromUrl url={`${BASE_URL}/:vollki/frag?path=${item.uri}&lang=${lang}`} />
+        <ContentFromUrl url={`${BASE_URL}/:vollki/frag?path=${item.uri}&lang=${lang}`} skipSidebar={true} />
       </AccordionDetails>
     </Accordion>
   );

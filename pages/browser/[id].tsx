@@ -1,73 +1,14 @@
-import MenuIcon from "@mui/icons-material/Menu";
-import { Box, CircularProgress, Drawer, IconButton } from "@mui/material";
-import axios from "axios";
+import { Box, CircularProgress } from "@mui/material";
 import { BrowserAutocomplete } from "components/BrowserAutocomplete";
-import { OverlayDialog } from "components/OverlayDialog";
-import HTMLReactParser, { DOMNode, domToReact, Element } from "html-react-parser";
+import { ContentFromUrl } from "components/ContentFromHtml";
 import MainLayout from "layouts/MainLayout";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
-import { ReactNode, useEffect, useState } from "react";
-import { fixSelfClosingTags, replace } from "utils";
+import { useEffect, useState } from "react";
 import { BASE_URL, BG_COLOR } from "../../constants";
 
-const getSidePanel = (domNode: DOMNode) => {
-  if (!(domNode instanceof Element)) return;
-  if (domNode.name === "body" || domNode.name === "html") return;
-  let isFromSideNote = false;
-  for (let parent: any = domNode; parent; parent = parent.parent) {
-    if (parent.attribs?.id === "sidenote-container") {
-      isFromSideNote = true;
-      break;
-    }
-  }
-  if (!isFromSideNote) return <></>;
-
-  if (!domNode.attribs?.onclick) return undefined;
-  const rx = /stexMainOverlayOn\('(.*)'/g;
-  const matches = rx.exec(domNode.attribs.onclick);
-  const path = BASE_URL + matches?.[1];
-  return <OverlayDialog contentUrl={path} displayNode={<>{domToReact([domNode])}</>} />;
-};
-
-function SideContentDrawer({ drawerContent }: { drawerContent: ReactNode }) {
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
-    if (
-      event.type === "keydown" &&
-      ((event as React.KeyboardEvent).key === "Tab" ||
-        (event as React.KeyboardEvent).key === "Shift")
-    ) {
-      return;
-    }
-
-    setDrawerOpen(open);
-  };
-  return (
-    <Box display={{ xs: "block", md: "none" }} sx={{ float: "right" }} bgcolor={BG_COLOR}>
-      <IconButton
-        onClick={toggleDrawer(true)}
-        sx={{
-          position: "fixed",
-          top: "132px",
-          right: "10px",
-          marginLeft: "15px",
-          border: "1px solid #CCC",
-        }}
-      >
-        <MenuIcon />
-      </IconButton>
-      <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
-        <Box p="40px 10px 0">{drawerContent}</Box>
-      </Drawer>
-    </Box>
-  );
-}
-
 const BrowserPage: NextPage = () => {
-  const [content, setContent] = useState(null as any);
-  const [sideContent, setSideContent] = useState(null as any);
-  const [isFetchingDoc, setIsFetchingDoc] = useState(true);
+  const [contentUrl, setContentUrl] = useState("");
   const router = useRouter();
   const id = router.query.id as string;
 
@@ -80,52 +21,24 @@ const BrowserPage: NextPage = () => {
     if (!router.isReady) return;
     const decoded = decodeURI(id);
     const url = decoded.startsWith(":sTeX") ? BASE_URL + "/" + decoded : decoded;
-    const getContent = () => {
-      setIsFetchingDoc(true);
-      try {
-        return axios.get(url).then((r) => {
-          setIsFetchingDoc(false);
-          const html = fixSelfClosingTags(r.data);
-
-          setContent(
-            (HTMLReactParser(html, { replace }) as any)?.props?.children[1].props.children
-          );
-          setSideContent(
-            (HTMLReactParser(html, { replace: getSidePanel }) as any)?.props?.children[1].props
-              .children
-          );
-        });
-      } catch (e) {
-        setIsFetchingDoc(false);
-        setContent("Error fetching/parsing input");
-      }
-    };
-    getContent();
+    setContentUrl(url);
   }, [id, router.isReady]);
-  
+
   return (
-    <MainLayout title='sTeX Browser'>
+    <MainLayout title="sTeX Browser">
       <Box m="10px 0 45px 50px">
         <BrowserAutocomplete />
       </Box>
-
       <Box display="flex">
-        <Box flexGrow={1} bgcolor={BG_COLOR}>
-          <SideContentDrawer drawerContent={sideContent} />
-          {isFetchingDoc && <CircularProgress />}
-          <Box px="20px" maxWidth="520px" m="0 auto" bgcolor={BG_COLOR}>
-            {content}
+        <Box flexGrow={1} flexBasis={600} bgcolor={BG_COLOR}>
+          <Box p="0 10px 0 40px" maxWidth="520px" m="0 auto" bgcolor={BG_COLOR}>
+            <ContentFromUrl
+              url={contentUrl}
+              modifyRendered={(bodyNode) => bodyNode?.props?.children}
+            />
           </Box>
         </Box>
-        <Box
-          display={{ xs: "none", md: "block" }}
-          p="0 10px 10px"
-          border="1px solid #CCC"
-          borderRadius="5px"
-          bgcolor={BG_COLOR}
-        >
-          {sideContent}
-        </Box>
+        <Box flexBasis={300} display={{ xs: "none", md: "block" }} bgcolor={BG_COLOR}></Box>
       </Box>
     </MainLayout>
   );

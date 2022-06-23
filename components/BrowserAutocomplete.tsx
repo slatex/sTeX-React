@@ -88,7 +88,7 @@ export function BrowserAutocomplete() {
       onChange={(_e, n) => {
         const item = n as BrowserItem;
         const fPath = item.filepath.substring(1, item.filepath.length - 3) + "xhtml";
-        const path = `:sTeX/browser?archive=${item.project}&filepath=${fPath}`;
+        const path = `:sTeX/document?archive=${item.project}&filepath=${fPath}`;
         const encoded = encodeURIComponent(path);
         router.push("/browser/" + encoded);
       }}
