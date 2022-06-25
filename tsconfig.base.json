@@ -14,7 +14,11 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@stex-react/stex-react-renderer": [
+        "libs/stex-react-renderer/src/index.ts"
+      ]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }
