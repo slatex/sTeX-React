@@ -2,6 +2,7 @@
   "$schema": "./node_modules/nx/schemas/workspace-schema.json",
   "version": 2,
   "projects": {
+    "mmt-viewer": "apps/mmt-viewer",
     "stex-frontend": "apps/stex-frontend",
     "stex-frontend-e2e": "apps/stex-frontend-e2e",
     "stex-react-renderer": "libs/stex-react-renderer"

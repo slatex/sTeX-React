@@ -1,5 +1,5 @@
-const ISSERVER = typeof window === "undefined";
-export const localStore = ISSERVER ? undefined : localStorage;
+export const IS_SERVER = typeof window === "undefined";
+export const localStore = IS_SERVER ? undefined : localStorage;
 
 export function fixDuplicateLabels(RAW: { label: string }[]) {
   const fixed = [...RAW]; // create a copy;

@@ -11,9 +11,9 @@ import HTMLReactParser, {
 import { forwardRef, createContext, useContext } from 'react';
 import { OverlayDialog } from './OverlayDialog';
 
-export const BASE_URL = 'https://overleaf.beta.vollki.kwarc.info';
-const ISSERVER = typeof window === 'undefined';
-export const localStore = ISSERVER ? undefined : localStorage;
+const IS_SERVER = typeof window === 'undefined';
+export const BASE_URL = (IS_SERVER ? null : (window as any).BASE_URL) ?? 'https://overleaf.beta.vollki.kwarc.info';
+export const localStore = IS_SERVER ? undefined : localStorage;
 
 const NoMaxWidthTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
@@ -34,7 +34,7 @@ function removeStyleTag(style: string, tag: string) {
 
 // HACK: Return only the appropriate XHTML from MMT.
 function getChildrenOfBodyNode(htmlNode: JSX.Element) {
-  const body = htmlNode?.props?.children[1];
+  const body = htmlNode?.props?.children?.[1];
   return body?.props?.children;
 }
 
@@ -52,12 +52,11 @@ function isVisible(node: Element) {
 function isLeafNode(node: Element) {
   if (!node) return false;
   if (!node.children?.length) return true;
-  if (node.name === 'paragraph' || isSidebar(node)) return true;
+  return node.name === 'paragraph' || isSidebar(node);
 }
 
 function getFirstDisplayNode(node: Element): any {
   if (!node || !isVisible(node)) {
-    console.log('invis');
     return null;
   }
   if (isLeafNode(node)) return node;
@@ -78,7 +77,6 @@ function getNextNode(domNode: Element) {
     }
     current = current.parent;
   }
-  console.log(nextAncestor);
   if (!nextAncestor) return null;
   return getFirstDisplayNode(nextAncestor);
 }
@@ -248,6 +246,7 @@ const replace = (domNode: DOMNode, skipSidebar = false) => {
       />
     );
   }
+  return;
 };
 
 export function mmtHTMLToReact(html: string, skipSidebar = false) {

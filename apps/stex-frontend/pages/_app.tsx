@@ -1,5 +1,7 @@
 import { createTheme, ThemeProvider } from '@mui/material';
 import { AppProps } from 'next/app';
+import { BASE_URL } from '../constants';
+import { IS_SERVER } from '../utils';
 import './styles.scss';
 
 const theme = createTheme({
@@ -23,6 +25,7 @@ const theme = createTheme({
 });
 
 function CustomApp({ Component, pageProps }: AppProps) {
+  if(!IS_SERVER) (window as any).BASE_URL = BASE_URL;
   return (
     <ThemeProvider theme={theme}>
       {' '}
