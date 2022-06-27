@@ -2,6 +2,7 @@
 @import '../../../styles/highlights.css';
 @import '../../../styles/overlay.css';
 @import '../../../styles/browser.css';
+@import '../../../styles/sidebar.css';
 
 html,
 body {
@@ -9,20 +10,4 @@ body {
   margin: 0;
   /*font-family: Noto Serif, serif, STIXgeneral, Times, Symbol, cmr10, CMSY10, CMEX10, serif;*/
   font-family: STIXgeneral, Times, Symbol, cmr10, CMSY10, CMEX10, serif;
-}
-
-.sidebarexpanded {
-  position: relative;
-  left: 550px;
-  font-size: small;
-}
-
-.sidebarbuttonwrapper {
-  position: relative;
-  left: -40px;
-  font-size: small;
-}
-
-.sidenote-container div {
-  margin-top: 10px;
 }

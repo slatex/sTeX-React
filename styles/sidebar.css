@@ -1,0 +1,13 @@
+
+.sidebarexpanded {
+  position: relative;
+  left: 550px;
+  font-size: small;
+}
+
+.sidebarbuttonwrapper {
+  display: inline-block;
+  position: relative;
+  left: -40px;
+  font-size: small;
+}

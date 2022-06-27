@@ -1,15 +1,15 @@
 import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Tooltip, { tooltipClasses, TooltipProps } from '@mui/material/Tooltip';
-import { ButtonAndDialog } from './ButtonAndDialog';
-import { ContentFromUrl } from './ContentFromUrl';
 import HTMLReactParser, {
   DOMNode,
   domToReact,
-  Element,
+  Element
 } from 'html-react-parser';
-import { forwardRef, createContext, useContext } from 'react';
+import { createContext, forwardRef, useContext } from 'react';
+import { ContentFromUrl } from './ContentFromUrl';
 import { OverlayDialog } from './OverlayDialog';
+import { SidebarButton } from './SidebarButton';
 
 const IS_SERVER = typeof window === 'undefined';
 export const BASE_URL = (IS_SERVER ? null : (window as any).BASE_URL) ?? 'https://overleaf.beta.vollki.kwarc.info';
@@ -81,10 +81,15 @@ function getNextNode(domNode: Element) {
   return getFirstDisplayNode(nextAncestor);
 }
 
-function assignShiftParam(domNode: Element, param = 0) {
-  domNode.attribs['shiftparam'] = `${param}`;
-  const next = getNextNode(domNode);
-  if (isSidebar(next)) assignShiftParam(next, param + 1);
+function collectNeighbours(domNode: Element) {
+  const neighbours = [];
+  let next = getNextNode(domNode);
+  while (isSidebar(next)) {
+    next.attribs['isattached'] = true;
+    neighbours.push(next);
+    next = getNextNode(next);
+  }
+  return neighbours;
 }
 
 export const HighlightContext = createContext({
@@ -119,32 +124,33 @@ function Highlightable({
 const replace = (domNode: DOMNode, skipSidebar = false) => {
   if (!(domNode instanceof Element)) return;
 
-  if (domNode.attribs?.['class'] === 'sidebar') {
+  if (isSidebar(domNode)) {
     if (skipSidebar) return <></>;
 
-    if (!domNode.attribs?.['shiftparam']) {
-      assignShiftParam(domNode);
+    if (domNode.attribs?.['isattached']) {
+      return <></>;
     }
-    const shift = Number(domNode.attribs?.['shiftparam']) * 40;
+    const neighbours = collectNeighbours(domNode);
+
     return (
       <>
-        <Box
-          height="0px"
-          maxWidth="300px"
-          display={{ xs: 'none', md: 'block' }}
-        >
-          <div className="sidebarexpanded" style={{ marginTop: `${shift}px` }}>
-            {domToReact(domNode.children, { replace })}
-          </div>
-        </Box>
-        <Box height="0px" display={{ xs: 'block', md: 'none' }}>
-          <div
-            className="sidebarbuttonwrapper"
-            style={{ marginTop: `${shift}px` }}
+        {[domNode, ...neighbours].map((sidebarNode, idx) =>
+          <Box
+            key={idx}
+            height="0px"
+            maxWidth="300px"
+            display={{ xs: 'none', md: 'block' }}
           >
-            <ButtonAndDialog
-              content={domToReact(domNode.children, { replace })}
-            />
+            <div className="sidebarexpanded" style={{ marginTop: `${idx * 40}px` }}>
+              {domToReact(sidebarNode.children, { replace })}
+            </div>
+          </Box>
+        )}
+
+        <Box height="0px" display={{ xs: 'block', md: 'none' }}>
+          <div className="sidebarbuttonwrapper">
+            <SidebarButton sidebarContents={[domNode, ...neighbours].map(
+              content => domToReact(content.children, { replace }))} />
           </div>
         </Box>
       </>
