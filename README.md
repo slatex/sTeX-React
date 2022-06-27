@@ -1,6 +1,37 @@
 
-
 # StexReact
+This workspace contains the applications and library related to rendering of sTeX documents (more precisely, RusTeX generated xhtml) using React library. There are two main applications:
+
+## stex-frontend
+This is a next.js frontend for browsing sTeX files served from MMT server.
+
+
+#### Local Development
+```
+$ npm start stex-frontend
+```
+
+#### Serve for production
+stex-frontend is currently being served at https://stex-active-doc.kwarc.info using the following commands:
+```
+$ npm run build stex-frontend
+$ nx serve stex-frontend --prod --port=<PORT_NUMBER>
+```
+
+## mmt-viewer
+mmt-viewer is a single react webpage built using the `stex-react-renderer` library. The production build of this application (html and js) are copied into MMT (with minor modifications) to serve active docs directly from MMT. This is a stand alone app that can be used for viewing active sTeX docs by replacing `CONTENT_URL_PLACEHOLDER` and `BASE_URL_PLACEHOLDER` with appropriate paths in [`index.html`](apps/mmt-viewer/src/index.html).
+
+#### Development
+```
+npm start mmt-viewer
+```
+
+#### Production Build
+```
+npm run build mmt-viewer
+```
+
+# Generic NX documentation follows:
 
 This project was generated using [Nx](https://nx.dev).
 
