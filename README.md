@@ -1,10 +1,9 @@
 
-# StexReact
-This workspace contains the applications and library related to rendering of sTeX documents (more precisely, RusTeX generated xhtml) using React library. There are two main applications:
+# sTeX-React
+This workspace contains the applications and library related to rendering of sTeX documents (more precisely, RusTeX generated xhtml) using React library. The package manager used here is npm, so install the dependencies using `npm install` before running any other commands. There are two applications in this workspace:
 
 ## stex-frontend
 This is a next.js frontend for browsing sTeX files served from MMT server.
-
 
 #### Local Development
 ```
