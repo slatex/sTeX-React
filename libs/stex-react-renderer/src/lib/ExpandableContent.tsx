@@ -1,6 +1,6 @@
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import { Box } from '@mui/material';
+import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
+import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/IndeterminateCheckBoxOutlined';
+import { Box, IconButton } from '@mui/material';
 import { useState } from 'react';
 import { ContentFromUrl } from './ContentFromUrl';
 
@@ -14,31 +14,41 @@ export function ExpandableContent({
   const [openAtLeastOnce, setOpenAtLeastOnce] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
+  const changeState = () => {
+    setOpenAtLeastOnce(true);
+    setIsOpen((v) => !v);
+  };
+
   return (
     <Box m="4px 0">
       <Box
         display="flex"
         alignItems="center"
-        onClick={() => {
-          setOpenAtLeastOnce(true);
-          setIsOpen((v) => !v);
-        }}
-        sx={{
-          '&:hover': { background: '#DDD' },
-          cursor: 'pointer',
-          width: 'fit-content',
-          paddingRight: '6px',
-          borderRadius: '5px',
-        }}
+        sx={{ cursor: 'pointer' }}
+        onClick={changeState}
       >
-        <Box sx={{ color: 'gray', marginBottom: '-3px' }}>
+        <IconButton
+          sx={{ color: 'gray', p: '0' }}
+          onClick={(e) => {
+            e.stopPropagation();
+            changeState();
+          }}
+        >
           {isOpen ? (
-            <KeyboardArrowDownIcon sx={{ fontSize: '20px' }} />
+            <IndeterminateCheckBoxOutlinedIcon sx={{ fontSize: '20px' }} />
           ) : (
-            <KeyboardArrowRightIcon sx={{ fontSize: '20px' }} />
+            <AddBoxOutlinedIcon sx={{ fontSize: '20px' }} />
           )}
-        </Box>
-        <Box>
+        </IconButton>
+        <Box
+          sx={{
+            '&:hover': { background: '#DDD' },
+            width: 'fit-content',
+            px: '4px',
+            ml: '-2px',
+            borderRadius: '5px',
+          }}
+        >
           <b style={{ fontSize: 'large' }}>{title}</b>
         </Box>
       </Box>
