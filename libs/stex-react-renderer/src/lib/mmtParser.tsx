@@ -4,15 +4,18 @@ import Tooltip, { tooltipClasses, TooltipProps } from '@mui/material/Tooltip';
 import HTMLReactParser, {
   DOMNode,
   domToReact,
-  Element
+  Element,
 } from 'html-react-parser';
 import { createContext, forwardRef, useContext } from 'react';
 import { ContentFromUrl } from './ContentFromUrl';
+import { ExpandableContent } from './ExpandableContent';
 import { OverlayDialog } from './OverlayDialog';
 import { SidebarButton } from './SidebarButton';
 
 const IS_SERVER = typeof window === 'undefined';
-export const BASE_URL = (IS_SERVER ? null : (window as any).BASE_URL) ?? 'https://overleaf.beta.vollki.kwarc.info';
+export const BASE_URL =
+  (IS_SERVER ? null : (window as any).BASE_URL) ??
+  'https://overleaf.beta.vollki.kwarc.info';
 export const localStore = IS_SERVER ? undefined : localStorage;
 
 const NoMaxWidthTooltip = styled(({ className, ...props }: TooltipProps) => (
@@ -134,23 +137,29 @@ const replace = (domNode: DOMNode, skipSidebar = false) => {
 
     return (
       <>
-        {[domNode, ...neighbours].map((sidebarNode, idx) =>
+        {[domNode, ...neighbours].map((sidebarNode, idx) => (
           <Box
             key={idx}
             height="0px"
             maxWidth="300px"
             display={{ xs: 'none', md: 'block' }}
           >
-            <div className="sidebarexpanded" style={{ marginTop: `${idx * 40}px` }}>
+            <div
+              className="sidebarexpanded"
+              style={{ marginTop: `${idx * 40}px` }}
+            >
               {domToReact(sidebarNode.children, { replace })}
             </div>
           </Box>
-        )}
+        ))}
 
         <Box height="0px" display={{ xs: 'block', md: 'none' }}>
           <div className="sidebarbuttonwrapper">
-            <SidebarButton sidebarContents={[domNode, ...neighbours].map(
-              content => domToReact(content.children, { replace }))} />
+            <SidebarButton
+              sidebarContents={[domNode, ...neighbours].map((content) =>
+                domToReact(content.children, { replace })
+              )}
+            />
           </div>
         </Box>
       </>
@@ -249,6 +258,15 @@ const replace = (domNode: DOMNode, skipSidebar = false) => {
       <OverlayDialog
         contentUrl={path}
         displayNode={<>{domToReact([domNode])}</>}
+      />
+    );
+  }
+  if (domNode.attribs?.['class'] === 'inputref') {
+    const inputRef = domNode.attribs['data-inputref-url'];
+    return (
+      <ExpandableContent
+        contentUrl={BASE_URL + inputRef}
+        title={domToReact(domNode.children, { replace }) as any}
       />
     );
   }
