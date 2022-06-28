@@ -1,7 +1,7 @@
-import { Box, IconButton } from '@mui/material';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import { Box } from '@mui/material';
 import { useState } from 'react';
-import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
-import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/IndeterminateCheckBoxOutlined';
 import { ContentFromUrl } from './ContentFromUrl';
 
 export function ExpandableContent({
@@ -16,28 +16,35 @@ export function ExpandableContent({
 
   return (
     <Box m="4px 0">
-      <Box display="flex" alignItems="center">
-        <IconButton
-          sx={{ p: '4px 4px 4px 0' }}
-          size="small"
-          onClick={() => {
-            setOpenAtLeastOnce(true);
-            setIsOpen((v) => !v);
-          }}
-        >
+      <Box
+        display="flex"
+        alignItems="center"
+        onClick={() => {
+          setOpenAtLeastOnce(true);
+          setIsOpen((v) => !v);
+        }}
+        sx={{
+          '&:hover': { background: '#DDD' },
+          cursor: 'pointer',
+          width: 'fit-content',
+          paddingRight: '6px',
+          borderRadius: '5px',
+        }}
+      >
+        <Box sx={{ color: 'gray', marginBottom: '-3px' }}>
           {isOpen ? (
-            <IndeterminateCheckBoxOutlinedIcon />
+            <KeyboardArrowDownIcon sx={{ fontSize: '20px' }} />
           ) : (
-            <AddBoxOutlinedIcon />
+            <KeyboardArrowRightIcon sx={{ fontSize: '20px' }} />
           )}
-        </IconButton>
+        </Box>
         <Box>
           <b style={{ fontSize: 'large' }}>{title}</b>
         </Box>
       </Box>
 
       {openAtLeastOnce && (
-        <Box hidden={!isOpen} ml="4px" pl="7px" borderLeft="1px solid #DDD">
+        <Box hidden={!isOpen} ml="9px" pl="10px" borderLeft="1px solid #DDD">
           {/*The extra margin consumed by each layer is equal to (ml+pl) above */}
           <ContentFromUrl
             url={contentUrl}
