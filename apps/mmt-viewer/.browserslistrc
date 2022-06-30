@@ -14,3 +14,8 @@ last 2 Safari major version
 last 2 iOS major versions
 Firefox ESR
 not IE 9-11 # For IE 9-11 support, remove 'not'.
+
+# For the vscode plugin, we want to target Electron. 
+# Not entirely sure if 2 electron versions are sufficient;
+# we might want to bump the future. 
+last 2 Electron versions
