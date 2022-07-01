@@ -1,7 +1,7 @@
-import { LinearProgress } from "@mui/material";
-import axios from "axios";
-import { HighlightContext, mmtHTMLToReact } from "./mmtParser";
-import { useEffect, useMemo, useState } from "react";
+import { LinearProgress } from '@mui/material';
+import axios from 'axios';
+import { useEffect, useMemo, useState } from 'react';
+import { HighlightContext, mmtHTMLToReact } from './mmtParser';
 
 export function ContentFromUrl({
   url,
@@ -15,7 +15,7 @@ export function ContentFromUrl({
   const [rendered, setRendered] = useState<any>(<></>);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [highlightedParentId, setHighlightedParentId] = useState("");
+  const [highlightedParentId, setHighlightedParentId] = useState('');
   const value = useMemo(
     () => ({ highlightedParentId, setHighlightedParentId }),
     [highlightedParentId]
@@ -38,7 +38,7 @@ export function ContentFromUrl({
   if (isLoading) {
     return (
       <>
-        <span style={{ fontSize: "smaller" }}>{url}</span>
+        <span style={{ fontSize: 'smaller' }}>{url}</span>
         <LinearProgress />
       </>
     );

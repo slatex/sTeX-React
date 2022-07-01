@@ -1,4 +1,5 @@
 import { createTheme, ThemeProvider } from '@mui/material';
+import { MathJaxContext } from '@stex-react/stex-react-renderer';
 import { AppProps } from 'next/app';
 import { BASE_URL } from '../constants';
 import { IS_SERVER } from '../utils';
@@ -25,11 +26,12 @@ const theme = createTheme({
 });
 
 function CustomApp({ Component, pageProps }: AppProps) {
-  if(!IS_SERVER) (window as any).BASE_URL = BASE_URL;
+  if (!IS_SERVER) (window as any).BASE_URL = BASE_URL;
   return (
     <ThemeProvider theme={theme}>
-      {' '}
-      <Component {...pageProps} />
+      <MathJaxContext>
+        <Component {...pageProps} />
+      </MathJaxContext>
     </ThemeProvider>
   );
 }

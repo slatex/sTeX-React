@@ -1,14 +1,12 @@
 import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Tooltip, { tooltipClasses, TooltipProps } from '@mui/material/Tooltip';
-import HTMLReactParser, {
-  DOMNode,
-  domToReact,
-  Element,
-} from 'html-react-parser';
+import { getOuterHTML } from 'domutils';
+import parse, { DOMNode, domToReact, Element } from 'html-react-parser';
 import { createContext, forwardRef, useContext } from 'react';
 import { ContentFromUrl } from './ContentFromUrl';
 import { ExpandableContent } from './ExpandableContent';
+import MathJaxHack from './MathJaxHack';
 import { OverlayDialog } from './OverlayDialog';
 import { SidebarButton } from './SidebarButton';
 
@@ -27,7 +25,13 @@ const NoMaxWidthTooltip = styled(({ className, ...props }: TooltipProps) => (
   },
 });
 
-function removeStyleTag(style: string, tag: string) {
+function removeStyleTag(style: any, tag: string) {
+  if (typeof style === 'object') {
+    if (style[tag]) delete style[tag];
+    return style;
+  }
+  if (!style || !style.indexOf || !tag) return style;
+
   const start = style.indexOf(tag);
   if (start === -1) return style;
   const end = style.indexOf(';', start + 1);
@@ -101,7 +105,6 @@ export const HighlightContext = createContext({
     /**/
   },
 });
-
 function Highlightable({
   highlightId,
   domNode,
@@ -112,7 +115,25 @@ function Highlightable({
   const { highlightedParentId, setHighlightedParentId } =
     useContext(HighlightContext);
   const backgroundColor =
-    highlightedParentId === highlightId ? 'yellow' : undefined;
+    highlightedParentId === highlightId ? 'yellow' : 'unset';
+
+  /*// Fix setStyleProp in node_modules\html-react-parser\lib\utilities.js
+    function setStyleProp(style, props) {
+      if (style === null || style === undefined || (typeof style !== 'string')) {
+        return style;
+      }
+      try {
+        props.style = styleToJS(style, styleToJSOptions);
+      } catch (err) {
+        props.style = {};
+      }
+    }
+  */
+
+  if (domNode.attribs) {
+    // Needed because the highlight in the span is misaligned in case of math nodes.
+    domNode.attribs.style = `pointer:cursor; background-color: ${backgroundColor};`;
+  }
   return (
     <span
       onMouseOver={() => setHighlightedParentId(highlightId)}
@@ -124,7 +145,29 @@ function Highlightable({
   );
 }
 
-const replace = (domNode: DOMNode, skipSidebar = false) => {
+function fixMtextNodes(domNode: DOMNode, indexInParent = 0) {
+  if (!(domNode instanceof Element)) return;
+  if (domNode.name === 'mtext') {
+    const mtext = domNode;
+    const child = mtext.children?.[0] as Element;
+    if (child?.attribs?.['xmlns'] === 'http://www.w3.org/1999/xhtml') {
+      const semantics = new Element('semantics', {}, [
+        new Element(
+          'annotation-xml',
+          { encoding: 'application/xhtml+xml' },
+          mtext.childNodes
+        ),
+      ]);
+      if (mtext.parent) mtext.parent.children[indexInParent] = semantics;
+    }
+  } else {
+    for (const [idx, child] of domNode.children.entries()) {
+      fixMtextNodes(child, idx);
+    }
+  }
+}
+
+const replace = (domNode: DOMNode, skipSidebar = false): any => {
   if (!(domNode instanceof Element)) return;
 
   if (isSidebar(domNode)) {
@@ -193,10 +236,15 @@ const replace = (domNode: DOMNode, skipSidebar = false) => {
     }
 
     if (domNode.attribs?.['style']) {
-      domNode.attribs['style'] = removeStyleTag(
-        removeStyleTag(domNode.attribs?.['style'], 'min-width'),
-        'width'
-      );
+      const className = domNode.attribs?.['class'];
+      // TODO: Ask Dennis for a more complete list.
+      const barred = ['hkern', 'vrule', 'hrule'];
+      if (!className || barred.every((b) => !className.includes(b))) {
+        domNode.attribs['style'] = removeStyleTag(
+          removeStyleTag(domNode.attribs?.['style'], 'min-width'),
+          'width'
+        );
+      }
     }
   }
 
@@ -270,11 +318,28 @@ const replace = (domNode: DOMNode, skipSidebar = false) => {
       />
     );
   }
+  if (domNode.name === 'math') {
+    if ((domNode.parent as any)?.name === 'mjx-assistive-mml')
+      return domToReact([domNode]);
+    if (!domNode.attribs['processed']) {
+      domNode.attribs['processed'] = 'true';
+      fixMtextNodes(domNode);
+      const mathJaxRendered = (window as any).MathJax.mathml2chtml(
+        getOuterHTML(domNode)
+      );
+      return (
+        <>
+          {parse(mathJaxRendered.outerHTML, { replace })}
+          <MathJaxHack>{domToReact([domNode])}</MathJaxHack>
+        </>
+      );
+    }
+  }
   return;
 };
 
 export function mmtHTMLToReact(html: string, skipSidebar = false) {
-  return HTMLReactParser(html, {
+  return parse(html, {
     replace: (d: any) => replace(d, skipSidebar),
   });
 }

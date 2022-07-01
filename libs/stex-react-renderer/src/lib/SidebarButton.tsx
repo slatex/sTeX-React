@@ -1,6 +1,6 @@
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import { IconButton, Menu, MenuItem } from "@mui/material";
-import { useState } from "react";
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { IconButton, Menu, MenuItem } from '@mui/material';
+import { useState } from 'react';
 
 export function SidebarButton({ sidebarContents }: { sidebarContents: any[] }) {
   // Menu crap start
@@ -25,12 +25,14 @@ export function SidebarButton({ sidebarContents }: { sidebarContents: any[] }) {
         open={open}
         onClose={handleClose}
         MenuListProps={{
-          "aria-labelledby": "basic-button",
+          'aria-labelledby': 'basic-button',
         }}
       >
-        {sidebarContents.map(content =>
-          <MenuItem style={{ fontSize: "small" }}>{content}</MenuItem>
-        )}
+        {sidebarContents.map((content, idx) => (
+          <MenuItem key={`${idx}`} style={{ fontSize: 'small' }}>
+            {content}
+          </MenuItem>
+        ))}
       </Menu>
     </>
   );

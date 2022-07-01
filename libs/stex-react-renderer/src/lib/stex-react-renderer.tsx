@@ -1,5 +1,6 @@
 import { Box } from '@mui/material';
 import { ContentFromUrl } from './ContentFromUrl';
+import MathJaxContext from './MathJaxContext';
 import { mmtHTMLToReact } from './mmtParser';
 
 export const BG_COLOR = 'hsl(210, 20%, 98%)';
@@ -24,4 +25,4 @@ export function StexReactRenderer({ contentUrl }: { contentUrl: string }) {
   );
 }
 
-export { ContentFromUrl, mmtHTMLToReact };
+export { ContentFromUrl, mmtHTMLToReact, MathJaxContext };
