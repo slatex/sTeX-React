@@ -7,6 +7,7 @@ import { createContext, forwardRef, useContext } from 'react';
 import { ContentFromUrl } from './ContentFromUrl';
 import { ExpandableContent } from './ExpandableContent';
 import MathJaxHack from './MathJaxHack';
+import { MathMLDisplay } from './MathMLDisplay';
 import { OverlayDialog } from './OverlayDialog';
 import { SidebarButton } from './SidebarButton';
 
@@ -324,12 +325,9 @@ const replace = (domNode: DOMNode, skipSidebar = false): any => {
     if (!domNode.attribs['processed']) {
       domNode.attribs['processed'] = 'true';
       fixMtextNodes(domNode);
-      const mathJaxRendered = (window as any).MathJax.mathml2chtml(
-        getOuterHTML(domNode)
-      );
       return (
         <>
-          {parse(mathJaxRendered.outerHTML, { replace })}
+          <MathMLDisplay mathMLDomNode={domNode} />
           <MathJaxHack>{domToReact([domNode])}</MathJaxHack>
         </>
       );
