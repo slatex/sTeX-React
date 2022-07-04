@@ -39,7 +39,7 @@ const MathJaxContext = ({ children }: { children?: ReactNode }) => {
   }
 
   if (typeof mjContext.current === 'undefined') {
-    if (typeof v3Promise === 'undefined') {
+    if (typeof v3Promise === 'undefined' && typeof document !== 'undefined') {
       v3Promise = new Promise<MathJaxObject>(scriptInjector);
       v3Promise.catch((e) => {
         throw Error(

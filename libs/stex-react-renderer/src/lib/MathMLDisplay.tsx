@@ -6,7 +6,7 @@ import { mmtHTMLToReact } from './mmtParser';
 export function MathMLDisplay({ mathMLDomNode }: { mathMLDomNode: any }) {
   const [mathNode, setMathNode] = useState<
     string | JSX.Element | JSX.Element[]
-  >('MATH...');
+  >(<span className="blink">…</span>);
   const mjPromise = useContext(MathJaxBaseContext);
   const onError = (err: any) =>
     console.log(`TypesettingFailed : ${err?.message || err?.toString()}`);
@@ -17,11 +17,13 @@ export function MathMLDisplay({ mathMLDomNode }: { mathMLDomNode: any }) {
       .then((mathJax) => {
         mathJax.startup.promise
           .then(() => {
-            const mathJaxRendered = (window as any).MathJax.mathml2chtml(
+            (window as any).MathJax.mathml2chtmlPromise(
               getOuterHTML(mathMLDomNode)
-            );
-
-            setMathNode(mmtHTMLToReact(mathJaxRendered.outerHTML));
+            )
+              .then((mathJaxRendered: any) =>
+                setMathNode(mmtHTMLToReact(mathJaxRendered.outerHTML))
+              )
+              .catch(onError);
           })
           .catch(onError);
       })
