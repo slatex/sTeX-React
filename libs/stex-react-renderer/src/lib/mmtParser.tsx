@@ -5,6 +5,7 @@ import { getOuterHTML } from 'domutils';
 import parse, { DOMNode, domToReact, Element } from 'html-react-parser';
 import { createContext, forwardRef, useContext } from 'react';
 import { ContentFromUrl } from './ContentFromUrl';
+import { ErrorBoundary } from './ErrorBoundary';
 import { ExpandableContent } from './ExpandableContent';
 import MathJaxHack from './MathJaxHack';
 import { MathMLDisplay } from './MathMLDisplay';
@@ -320,14 +321,15 @@ const replace = (domNode: DOMNode, skipSidebar = false): any => {
     );
   }
   if (domNode.name === 'math') {
-    if ((domNode.parent as any)?.name === 'mjx-assistive-mml')
-      return domToReact([domNode]);
+    if ((domNode.parent as any)?.name === 'mjx-assistive-mml') return <></>;
     if (!domNode.attribs['processed']) {
       domNode.attribs['processed'] = 'true';
       fixMtextNodes(domNode);
       return (
         <>
-          <MathMLDisplay mathMLDomNode={domNode} />
+          <ErrorBoundary hidden={false}>
+            <MathMLDisplay mathMLDomNode={domNode} />
+          </ErrorBoundary>
           <MathJaxHack>{domToReact([domNode])}</MathJaxHack>
         </>
       );

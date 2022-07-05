@@ -1,5 +1,6 @@
 // Derived from https://github.com/fast-reflexes/better-react-mathjax
 import { useContext, useEffect, useRef } from 'react';
+import { ErrorBoundary } from './ErrorBoundary';
 import { MathJaxBaseContext } from './MathJaxContext';
 
 // This component is not displayed. It is only used as a workaround.
@@ -35,7 +36,9 @@ const MathJaxHack = ({ children }: { children: any }) => {
           .then(onTypesetDone)
           .catch((err) => {
             onTypesetDone();
-            console.log(`TypesettingFailed : ${err?.message || err?.toString()}`);
+            console.log(
+              `TypesettingFailed : ${err?.message || err?.toString()}`
+            );
           });
       })
       .catch((err) => {
@@ -44,10 +47,15 @@ const MathJaxHack = ({ children }: { children: any }) => {
       });
   });
 
+  // The VSCode plugin uses a webview that doesn't like mathml. This span contains mathml before
+  // it is typeset. This component is not even dispalyed, just used as a hack as explained in the
+  // component comment. So if it fails, just ignore it using the ErrorBoundary
   return (
-    <span style={{ display: 'none' }} ref={ref}>
-      {children}
-    </span>
+    <ErrorBoundary hidden={true}>
+      <span style={{ display: 'none' }} ref={ref}>
+        {children}
+      </span>
+    </ErrorBoundary>
   );
 };
 
