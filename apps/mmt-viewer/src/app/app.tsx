@@ -1,13 +1,28 @@
 import {
   MathJaxContext,
   StexReactRenderer,
+  TourDisplay
 } from '@stex-react/stex-react-renderer';
 
 export function App() {
-  const contentUrl = (window as any).BASE_URL + (window as any).CONTENT_URL;
+  const W = window as any;
+  const baseUrl = W.BASE_URL;
+  const contentUrl = W.CONTENT_URL;
+  const tourId = W.TOUR_ID;
+  const userModel = W.USER_MODEL;
+  const language = W.LANGUAGE;
+
   return (
     <MathJaxContext>
-      <StexReactRenderer contentUrl={contentUrl} />
+      {contentUrl?.length ? (
+        <StexReactRenderer contentUrl={baseUrl + contentUrl} />
+      ) : (
+        <TourDisplay
+          tourId={tourId}
+          userModel={userModel}
+          language={language}
+        />
+      )}
     </MathJaxContext>
   );
 }

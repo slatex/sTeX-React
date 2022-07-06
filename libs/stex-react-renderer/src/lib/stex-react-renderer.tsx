@@ -2,6 +2,7 @@ import { Box } from '@mui/material';
 import { ContentFromUrl } from './ContentFromUrl';
 import MathJaxContext from './MathJaxContext';
 import { mmtHTMLToReact } from './mmtParser';
+import { TourDisplay } from './TourDisplay';
 
 export const BG_COLOR = 'hsl(210, 20%, 98%)';
 
@@ -25,4 +26,4 @@ export function StexReactRenderer({ contentUrl }: { contentUrl: string }) {
   );
 }
 
-export { ContentFromUrl, mmtHTMLToReact, MathJaxContext };
+export { ContentFromUrl, mmtHTMLToReact, MathJaxContext, TourDisplay };

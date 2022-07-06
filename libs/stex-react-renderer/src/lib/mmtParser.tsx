@@ -102,6 +102,7 @@ function collectNeighbours(domNode: Element) {
 }
 
 function updateBackgroundColorAndCursorPointer(style: string, bgColor: string) {
+  if (typeof style !== 'string') return style;
   if (style) {
     style = removeStyleTag(removeStyleTag(style, 'background-color'), 'cursor');
   }
