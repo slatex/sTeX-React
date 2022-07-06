@@ -101,6 +101,13 @@ function collectNeighbours(domNode: Element) {
   return neighbours;
 }
 
+function updateBackgroundColorAndCursorPointer(style: string, bgColor: string) {
+  if (style) {
+    style = removeStyleTag(removeStyleTag(style, 'background-color'), 'cursor');
+  }
+  return (style || '') + ` background-color: ${bgColor}; cursor: pointer;`;
+}
+
 export const HighlightContext = createContext({
   highlightedParentId: '',
   setHighlightedParentId: (_id: string) => {
@@ -134,7 +141,10 @@ function Highlightable({
 
   if (domNode.attribs) {
     // Needed because the highlight in the span is misaligned in case of math nodes.
-    domNode.attribs.style = `pointer:cursor; background-color: ${backgroundColor};`;
+    domNode.attribs.style = updateBackgroundColorAndCursorPointer(
+      domNode.attribs.style,
+      backgroundColor
+    );
   }
   return (
     <span
