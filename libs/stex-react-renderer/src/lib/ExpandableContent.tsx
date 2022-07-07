@@ -12,7 +12,6 @@ import {
   useState,
 } from 'react';
 import { ContentFromUrl } from './ContentFromUrl';
-import { copyText } from './utils';
 
 const ExpandContext = createContext([] as string[]);
 function hash(str: string) {
@@ -108,7 +107,8 @@ export function ExpandableContent({
         <IconButton
           size="small"
           onClick={() => {
-            copyText(getInDocumentLink(childContext));
+            const link = getInDocumentLink(childContext);
+            navigator.clipboard.writeText(link);
             setSnackbarOpen(true);
           }}
         >

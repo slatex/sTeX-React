@@ -1,7 +1,6 @@
 import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Tooltip, { tooltipClasses, TooltipProps } from '@mui/material/Tooltip';
-import { getOuterHTML } from 'domutils';
 import parse, { DOMNode, domToReact, Element } from 'html-react-parser';
 import { createContext, forwardRef, useContext } from 'react';
 import { ContentFromUrl } from './ContentFromUrl';
@@ -332,6 +331,8 @@ const replace = (domNode: DOMNode, skipSidebar = false): any => {
     );
   }
   if (domNode.name === 'math') {
+    if (typeof MathMLElement === 'function' && !localStore?.getItem('forceMathJax'))
+      return;
     if ((domNode.parent as any)?.name === 'mjx-assistive-mml') return <></>;
     if (!domNode.attribs['processed']) {
       domNode.attribs['processed'] = 'true';
