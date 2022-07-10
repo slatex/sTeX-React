@@ -48,7 +48,7 @@ export function ExpandableContent({
 }) {
   const router = useRouter();
   const toOpenContentHash = getToOpenContentHash(
-    router.query['inDocPath'] as string
+    router?.query?.['inDocPath'] as string
   );
 
   const urlHash = hash(contentUrl);
@@ -65,10 +65,10 @@ export function ExpandableContent({
   const contentRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!router.isReady) return;
+    if (!router?.isReady) return;
     if (isDefaultOpen)
       contentRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [router.isReady, isDefaultOpen]);
+  }, [router?.isReady, isDefaultOpen]);
 
   const changeState = (e: MouseEvent) => {
     e.stopPropagation();
