@@ -14,7 +14,7 @@ import { SidebarButton } from './SidebarButton';
 const IS_SERVER = typeof window === 'undefined';
 export const BASE_URL =
   (IS_SERVER ? null : (window as any).BASE_URL) ??
-  'https://overleaf.beta.vollki.kwarc.info';
+  'https://mmt.beta.vollki.kwarc.info';
 export const localStore = IS_SERVER ? undefined : localStorage;
 
 const NoMaxWidthTooltip = styled(({ className, ...props }: TooltipProps) => (
@@ -331,7 +331,10 @@ const replace = (domNode: DOMNode, skipSidebar = false): any => {
     );
   }
   if (domNode.name === 'math') {
-    if (typeof MathMLElement === 'function' && !localStore?.getItem('forceMathJax'))
+    if (
+      typeof MathMLElement === 'function' &&
+      !localStore?.getItem('forceMathJax')
+    )
       return;
     if ((domNode.parent as any)?.name === 'mjx-assistive-mml') return <></>;
     if (!domNode.attribs['processed']) {

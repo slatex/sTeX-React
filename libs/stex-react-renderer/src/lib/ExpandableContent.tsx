@@ -12,6 +12,7 @@ import {
   useState,
 } from 'react';
 import { ContentFromUrl } from './ContentFromUrl';
+import { ErrorBoundary } from './ErrorBoundary';
 
 const ExpandContext = createContext([] as string[]);
 function hash(str: string) {
@@ -51,6 +52,7 @@ export function ExpandableContent({
     router?.query?.['inDocPath'] as string
   );
 
+  // TODO: hash should be of the content URI (archive, filepath). Not the full url.
   const urlHash = hash(contentUrl);
   // Oversimplied logic of isDefaultOpen: Should check if parents match too.
   const isDefaultOpen = toOpenContentHash.includes(urlHash);
@@ -77,77 +79,79 @@ export function ExpandableContent({
   };
 
   return (
-    <Box m="4px 0" ref={contentRef}>
-      <Box display="flex" justifyContent="space-between">
-        <Box
-          display="flex"
-          alignItems="center"
-          sx={{ cursor: 'pointer' }}
-          onClick={changeState}
-        >
-          <IconButton sx={{ color: 'gray', p: '0' }} onClick={changeState}>
-            {isOpen ? (
-              <IndeterminateCheckBoxOutlinedIcon sx={{ fontSize: '20px' }} />
-            ) : (
-              <AddBoxOutlinedIcon sx={{ fontSize: '20px' }} />
-            )}
-          </IconButton>
+    <ErrorBoundary hidden={false}>
+      <Box m="4px 0" ref={contentRef}>
+        <Box display="flex" justifyContent="space-between">
           <Box
-            sx={{
-              '& > *:hover': { background: '#DDD' },
-              width: 'fit-content',
-              px: '4px',
-              ml: '-2px',
-              borderRadius: '5px',
-            }}
-          >
-            <b style={{ fontSize: 'large' }}>{title}</b>
-          </Box>
-        </Box>
-        <IconButton
-          size="small"
-          onClick={() => {
-            const link = getInDocumentLink(childContext);
-            navigator.clipboard.writeText(link);
-            setSnackbarOpen(true);
-          }}
-        >
-          <LinkIcon />
-        </IconButton>
-      </Box>
-
-      {/*Snackbar only displayed on copy link button click.*/}
-      <Snackbar
-        open={snackBarOpen}
-        autoHideDuration={4000}
-        onClose={() => setSnackbarOpen(false)}
-        message="Link Copied to Clipboard"
-      />
-
-      {openAtLeastOnce && (
-        <Box display={isOpen ? 'flex' : 'none'}>
-          <Box
-            minWidth="20px"
-            sx={{
-              cursor: 'pointer',
-              '&:hover *': { borderLeft: '1px solid #333' },
-            }}
+            display="flex"
+            alignItems="center"
+            sx={{ cursor: 'pointer' }}
             onClick={changeState}
           >
-            <Box width="0" m="auto" borderLeft="1px solid #CCC" height="100%">
-              &nbsp;
+            <IconButton sx={{ color: 'gray', p: '0' }} onClick={changeState}>
+              {isOpen ? (
+                <IndeterminateCheckBoxOutlinedIcon sx={{ fontSize: '20px' }} />
+              ) : (
+                <AddBoxOutlinedIcon sx={{ fontSize: '20px' }} />
+              )}
+            </IconButton>
+            <Box
+              sx={{
+                '& > *:hover': { background: '#DDD' },
+                width: 'fit-content',
+                px: '4px',
+                ml: '-2px',
+                borderRadius: '5px',
+              }}
+            >
+              <b style={{ fontSize: 'large' }}>{title}</b>
             </Box>
           </Box>
-          <Box>
-            <ExpandContext.Provider value={childContext}>
-              <ContentFromUrl
-                url={contentUrl}
-                modifyRendered={(bodyNode) => bodyNode?.props?.children}
-              />
-            </ExpandContext.Provider>
-          </Box>
+          <IconButton
+            size="small"
+            onClick={() => {
+              const link = getInDocumentLink(childContext);
+              navigator.clipboard.writeText(link);
+              setSnackbarOpen(true);
+            }}
+          >
+            <LinkIcon />
+          </IconButton>
         </Box>
-      )}
-    </Box>
+
+        {/*Snackbar only displayed on copy link button click.*/}
+        <Snackbar
+          open={snackBarOpen}
+          autoHideDuration={4000}
+          onClose={() => setSnackbarOpen(false)}
+          message="Link Copied to Clipboard"
+        />
+
+        {openAtLeastOnce && (
+          <Box display={isOpen ? 'flex' : 'none'}>
+            <Box
+              minWidth="20px"
+              sx={{
+                cursor: 'pointer',
+                '&:hover *': { borderLeft: '1px solid #333' },
+              }}
+              onClick={changeState}
+            >
+              <Box width="0" m="auto" borderLeft="1px solid #CCC" height="100%">
+                &nbsp;
+              </Box>
+            </Box>
+            <Box>
+              <ExpandContext.Provider value={childContext}>
+                <ContentFromUrl
+                  url={contentUrl}
+                  modifyRendered={(bodyNode) => bodyNode?.props?.children}
+                />
+              </ExpandContext.Provider>
+            </Box>
+          </Box>
+        )}
+      </Box>
+    </ErrorBoundary>
   );
 }
