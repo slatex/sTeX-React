@@ -26,10 +26,25 @@ function shallowDiff(prev: any, next: any) {
   return false
 }
 
+function offsetBasedOnScroll(rect: ClientRect) {
+  const scrolledTop = document.documentElement.scrollTop || document.body.scrollTop;
+  const scrolledLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
+  rect.y += scrolledTop;
+  rect.top += scrolledTop;
+  rect.bottom += scrolledTop;
+
+  rect.x += scrolledLeft;
+  rect.left += scrolledLeft;
+  rect.right += scrolledLeft;
+  return rect;
+}
+
+
 type TextSelectionState = {
   clientRect?: ClientRect,
   isCollapsed?: boolean,
-  textContent?: string
+  textContent?: string,
+  commonAncestor?: Node,
 }
 
 const defaultState: TextSelectionState = {}
@@ -47,6 +62,7 @@ export function useTextSelection(target?: HTMLElement) {
     clientRect,
     isCollapsed,
     textContent,
+    commonAncestor
   }, setState] = useState<TextSelectionState>(defaultState)
 
   const reset = useCallback(() => {
@@ -90,10 +106,12 @@ export function useTextSelection(target?: HTMLElement) {
       if (rects.length < 1) return
       newRect = roundValues(rects[0].toJSON())
     }
+    newRect = offsetBasedOnScroll(newRect)
     if (shallowDiff(clientRect, newRect)) {
       newState.clientRect = newRect
     }
     newState.isCollapsed = range.collapsed
+    newState.commonAncestor = range.commonAncestorContainer;
 
     setState(newState)
   }, [target])
@@ -115,6 +133,7 @@ export function useTextSelection(target?: HTMLElement) {
   return {
     clientRect,
     isCollapsed,
-    textContent
+    textContent,
+    commonAncestor
   }
 }
