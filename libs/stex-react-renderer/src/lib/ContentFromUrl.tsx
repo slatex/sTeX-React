@@ -22,6 +22,7 @@ export function ContentFromUrl({
   );
 
   useEffect(() => {
+    if (!url?.length) return;
     setIsLoading(true);
     axios
       .get(url)
@@ -44,6 +45,8 @@ export function ContentFromUrl({
     );
   }
   return (
-    <HighlightContext.Provider value={value}>{modifyRendered(rendered)}</HighlightContext.Provider>
+    <HighlightContext.Provider value={value}>
+      <div {...{ 'section-url': url }}>{modifyRendered(rendered)}</div>
+    </HighlightContext.Provider>
   );
 }

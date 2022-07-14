@@ -1,22 +1,34 @@
-import { Toolbar } from "@mui/material";
-import Head from "next/head";
-import Link from "next/link";
+import { Toolbar } from '@mui/material';
+import { ReportProblemPopover } from '@stex-react/report-a-problem';
+import Head from 'next/head';
+import Link from 'next/link';
 
-export default function MainLayout({ title, children }: { title?: string; children: any }) {
+export default function MainLayout({
+  title,
+  children,
+}: {
+  title?: string;
+  children: any;
+}) {
   return (
     <div>
       <Head>
-        <title>{title || "sTeX Documents"}</title>
+        <title>{title || 'sTeX Documents'}</title>
         <meta name="description" content="VoLL-KI" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <main>
-        <Toolbar sx={{ background: "#3f51b5" }}>
+        <Toolbar sx={{ background: '#3f51b5' }}>
           <Link href="/">
-            <span style={{ color: "white", fontSize: "24px", cursor: "pointer" }}>VoLL-KI</span>
+            <span
+              style={{ color: 'white', fontSize: '24px', cursor: 'pointer' }}
+            >
+              VoLL-KI
+            </span>
           </Link>
         </Toolbar>
+        <ReportProblemPopover />
         <div>{children}</div>
       </main>
     </div>
