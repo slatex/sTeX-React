@@ -1,6 +1,4 @@
 import axios, { AxiosRequestHeaders } from 'axios';
-const CONTENT_ISSUES_GITLAB_PERSONAL_ACCESS_TOKEN = 'TODO';
-const STEX_REACT_PERSONAL_ACCESS_TOKEN = 'TODO';
 
 const THREE_BACKTICKS = '```';
 
@@ -87,16 +85,6 @@ function createIssueData(
     ...(category === IssueCategory.DISPLAY ? { body } : { description: body }),
   };
 }
-function getHeaders(category: IssueCategory): AxiosRequestHeaders {
-  if (category === IssueCategory.CONTENT) {
-    return {
-      'PRIVATE-TOKEN': CONTENT_ISSUES_GITLAB_PERSONAL_ACCESS_TOKEN,
-    };
-  } else {
-    return { Authorization: `token ${STEX_REACT_PERSONAL_ACCESS_TOKEN}` };
-  }
-}
-
 export async function createNewIssue(
   type: IssueType,
   category: IssueCategory,
@@ -114,11 +102,14 @@ export async function createNewIssue(
     context,
     title
   );
-  const headers = getHeaders(category);
   try {
     const createNewIssueUrl = getNewIssueUrl(category, projectId);
-    const response = await axios.post(createNewIssueUrl, data, { headers });
-    return response.data['web_url'] || response.data['html_url'];
+    const response = await axios.post('/api/create-issue', {
+      data,
+      createNewIssueUrl,
+      category: category.toString(),
+    });
+    return response.data['issue_url'];
   } catch (err) {
     console.log(err);
     return null;
