@@ -110,19 +110,25 @@ export function ExpandableContent({
                 borderRadius: '5px',
               }}
             >
-              <b style={{ fontSize: 'large' }}>{title}</b>
+              {contentUrl ? (
+                <b style={{ fontSize: 'large' }}>{title}</b>
+              ) : (
+                title
+              )}
             </Box>
           </Box>
-          <IconButton
-            size="small"
-            onClick={() => {
-              const link = getInDocumentLink(childContext);
-              navigator.clipboard.writeText(link);
-              setSnackbarOpen(true);
-            }}
-          >
-            <LinkIcon />
-          </IconButton>
+          {contentUrl && (
+            <IconButton
+              size="small"
+              onClick={() => {
+                const link = getInDocumentLink(childContext);
+                navigator.clipboard.writeText(link);
+                setSnackbarOpen(true);
+              }}
+            >
+              <LinkIcon />
+            </IconButton>
+          )}
         </Box>
 
         {/*Snackbar only displayed on copy link button click.*/}
