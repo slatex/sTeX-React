@@ -350,6 +350,24 @@ const replace = (domNode: DOMNode, skipSidebar = false): any => {
       );
     }
   }
+
+  const collapsibleDefaultState = domNode.attribs['data-collapsible'];
+  if (collapsibleDefaultState) {
+    const defaultOpen = collapsibleDefaultState === 'true';
+    const titleNodes = domNode.children.filter(
+      (child) => !!(child as any).attribs?.['data-collapse-title']
+    );
+    const bodyNodes = domNode.children.filter(
+      (child) => !!(child as any).attribs?.['data-collapse-body']
+    );
+    return (
+      <ExpandableContent
+        title={domToReact(titleNodes, { replace }) as any}
+        defaultOpen={defaultOpen}
+        staticContent={domToReact(bodyNodes, { replace }) as any}
+      />
+    );
+  }
   return;
 };
 

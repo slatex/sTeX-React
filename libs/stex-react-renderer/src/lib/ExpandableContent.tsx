@@ -15,8 +15,8 @@ import { ContentFromUrl } from './ContentFromUrl';
 import { ErrorBoundary } from './ErrorBoundary';
 
 const ExpandContext = createContext([] as string[]);
-function hash(str: string) {
-  if (str?.length === 0) return '0';
+function hash(str?: string) {
+  if (!str?.length) return '0';
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     const chr = str.charCodeAt(i);
@@ -42,9 +42,13 @@ function getToOpenContentHash(inDocPath: string) {
 
 export function ExpandableContent({
   contentUrl,
+  staticContent,
+  defaultOpen = false,
   title,
 }: {
-  contentUrl: string;
+  contentUrl?: string;
+  staticContent?: any;
+  defaultOpen?: boolean;
   title: any;
 }) {
   const router = useRouter();
@@ -55,9 +59,11 @@ export function ExpandableContent({
   // TODO: hash should be of the content URI (archive, filepath). Not the full url.
   const urlHash = hash(contentUrl);
   // Oversimplied logic of isDefaultOpen: Should check if parents match too.
-  const isDefaultOpen = toOpenContentHash.includes(urlHash);
-  const [openAtLeastOnce, setOpenAtLeastOnce] = useState(isDefaultOpen);
-  const [isOpen, setIsOpen] = useState(isDefaultOpen);
+  const openDueToUrl = toOpenContentHash.includes(urlHash);
+  const openInitially = defaultOpen || openDueToUrl;
+  const [openAtLeastOnce, setOpenAtLeastOnce] = useState(openInitially);
+  const [isOpen, setIsOpen] = useState(openInitially);
+
   const parentContext = useContext(ExpandContext);
   const childContext = [...parentContext, urlHash];
 
@@ -68,9 +74,9 @@ export function ExpandableContent({
 
   useEffect(() => {
     if (!router?.isReady) return;
-    if (isDefaultOpen)
+    if (openDueToUrl)
       contentRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [router?.isReady, isDefaultOpen]);
+  }, [router?.isReady, openDueToUrl]);
 
   const changeState = (e: MouseEvent) => {
     e.stopPropagation();
@@ -104,19 +110,25 @@ export function ExpandableContent({
                 borderRadius: '5px',
               }}
             >
-              <b style={{ fontSize: 'large' }}>{title}</b>
+              {contentUrl ? (
+                <b style={{ fontSize: 'large' }}>{title}</b>
+              ) : (
+                title
+              )}
             </Box>
           </Box>
-          <IconButton
-            size="small"
-            onClick={() => {
-              const link = getInDocumentLink(childContext);
-              navigator.clipboard.writeText(link);
-              setSnackbarOpen(true);
-            }}
-          >
-            <LinkIcon />
-          </IconButton>
+          {contentUrl && (
+            <IconButton
+              size="small"
+              onClick={() => {
+                const link = getInDocumentLink(childContext);
+                navigator.clipboard.writeText(link);
+                setSnackbarOpen(true);
+              }}
+            >
+              <LinkIcon />
+            </IconButton>
+          )}
         </Box>
 
         {/*Snackbar only displayed on copy link button click.*/}
@@ -142,12 +154,16 @@ export function ExpandableContent({
               </Box>
             </Box>
             <Box>
-              <ExpandContext.Provider value={childContext}>
-                <ContentFromUrl
-                  url={contentUrl}
-                  modifyRendered={(bodyNode) => bodyNode?.props?.children}
-                />
-              </ExpandContext.Provider>
+              {contentUrl ? (
+                <ExpandContext.Provider value={childContext}>
+                  <ContentFromUrl
+                    url={contentUrl}
+                    modifyRendered={(bodyNode) => bodyNode?.props?.children}
+                  />
+                </ExpandContext.Provider>
+              ) : (
+                staticContent
+              )}
             </Box>
           </Box>
         )}

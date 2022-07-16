@@ -31,7 +31,7 @@ export function ContentFromUrl({
         setIsLoading(false);
         let toShow;
         if (r) toShow = mmtHTMLToReact(r.data, skipSidebar);
-        else toShow = <span style={{ color: "red" }}>Error loading: {url}</span>;
+        else toShow = <span style={{ color: 'red' }}>Error loading: {url}</span>;
         setRendered(toShow);
       });
   }, [url, skipSidebar]);
