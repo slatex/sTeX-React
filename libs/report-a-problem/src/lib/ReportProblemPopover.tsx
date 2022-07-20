@@ -89,7 +89,7 @@ export function ReportProblemPopover(props: Props) {
 
       <Snackbar
         open={snackBarOpen}
-        autoHideDuration={6000}
+        autoHideDuration={60000}
         onClose={() => setSnackbarOpen(false)}
         message={newIssueUrl ? 'New issue created.' : 'Something went wrong!.'}
         action={

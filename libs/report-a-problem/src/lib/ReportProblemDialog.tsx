@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -37,6 +38,7 @@ export function ReportProblemDialog({
   const [description, setDescription] = useState('');
   const [type, setType] = useState('');
   const [category, setCategory] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
 
   const typeError = !type?.length;
   const categoryError = !category?.length;
@@ -44,7 +46,7 @@ export function ReportProblemDialog({
   const anyError = typeError || categoryError || descriptionError;
 
   return (
-    <Dialog onClose={() => setOpen(false)} open={open} sx={{zIndex: 20000}}>
+    <Dialog onClose={() => setOpen(false)} open={open} sx={{ zIndex: 20000 }}>
       <DialogContent>
         <TextField
           fullWidth
@@ -149,10 +151,13 @@ export function ReportProblemDialog({
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => setOpen(false)}>Cancel</Button>
+        <Button disabled={isCreating} onClick={() => setOpen(false)}>
+          Cancel
+        </Button>
         <Button
-          disabled={anyError}
+          disabled={anyError || isCreating}
           onClick={async () => {
+            setIsCreating(true);
             const issueLink = await createNewIssue(
               IssueType[type as keyof typeof IssueType],
               IssueCategory[category as keyof typeof IssueCategory],
@@ -162,12 +167,18 @@ export function ReportProblemDialog({
               title?.trim().length > 0 ? title.trim() : undefined
             );
             onCreateIssue(issueLink);
+            setIsCreating(false);
             setOpen(false);
           }}
           autoFocus
         >
           Create Issue
         </Button>
+        {isCreating ? (
+          <CircularProgress size={20} sx={{ ml: '5px' }} />
+        ) : (
+          <Box width={25}></Box>
+        )}
       </DialogActions>
     </Dialog>
   );
