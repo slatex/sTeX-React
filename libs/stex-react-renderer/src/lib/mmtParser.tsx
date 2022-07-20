@@ -188,11 +188,12 @@ const replace = (domNode: DOMNode, skipSidebar = false): any => {
     if (domNode.attribs?.['isattached']) {
       return <></>;
     }
-    const neighbours = collectNeighbours(domNode);
-
+    const renderedSideNodes = [domNode, ...collectNeighbours(domNode)].map(
+      (node) => domToReact(node.children, { replace })
+    );
     return (
       <>
-        {[domNode, ...neighbours].map((sidebarNode, idx) => (
+        {renderedSideNodes.map((renderedSideNode, idx) => (
           <Box
             key={idx}
             height="0px"
@@ -203,18 +204,14 @@ const replace = (domNode: DOMNode, skipSidebar = false): any => {
               className="sidebarexpanded"
               style={{ marginTop: `${idx * 40}px` }}
             >
-              {domToReact(sidebarNode.children, { replace })}
+              {renderedSideNode}
             </div>
           </Box>
         ))}
 
         <Box height="0px" display={{ xs: 'block', md: 'none' }}>
           <div className="sidebarbuttonwrapper">
-            <SidebarButton
-              sidebarContents={[domNode, ...neighbours].map((content) =>
-                domToReact(content.children, { replace })
-              )}
-            />
+            <SidebarButton sidebarContents={renderedSideNodes} />
           </div>
         </Box>
       </>
@@ -223,14 +220,6 @@ const replace = (domNode: DOMNode, skipSidebar = false): any => {
 
   if (!isVisible(domNode)) return <></>;
 
-  const previous = domNode.previousSibling as any;
-  if (
-    previous?.attribs?.class === 'sidebar' &&
-    domNode.attribs?.['class'] !== 'sidebar'
-  ) {
-    //if(domNode.attribs?.['style']) domNode.attribs['style']+=";margin-top: -20px;";
-    //else domNode.attribs['style'] ="margin-top: -20px;";
-  }
   if (
     domNode.name === 'head' ||
     domNode.name === 'iframe' ||
@@ -334,8 +323,9 @@ const replace = (domNode: DOMNode, skipSidebar = false): any => {
     if (
       typeof MathMLElement === 'function' &&
       !localStore?.getItem('forceMathJax')
-    )
+    ) {
       return;
+    }
     if ((domNode.parent as any)?.name === 'mjx-assistive-mml') return <></>;
     if (!domNode.attribs['processed']) {
       domNode.attribs['processed'] = 'true';
