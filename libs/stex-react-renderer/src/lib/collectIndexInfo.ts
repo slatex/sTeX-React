@@ -1,8 +1,6 @@
-import { getOuterHTML } from 'domutils';
-
 export interface IndexNode {
   hash: string;
-  parentNode: IndexNode|undefined;
+  parentNode: IndexNode | undefined;
   childNodes: Map<string, IndexNode>;
   title: string;
 }
@@ -14,18 +12,8 @@ export const TOP_LEVEL: IndexNode = {
   title: 'HIDE ME',
 };
 
-function convertToPlain(html: any) {
-  // Create a new div element
-  const tempDivElement = document.createElement('div');
-  // Set the HTML content with the given value
-  tempDivElement.innerHTML = getOuterHTML(html);
-  // Retrieve the text property of the element
-  return tempDivElement.textContent || tempDivElement.innerText || '';
-}
-
 function addToNode(node: IndexNode, context: string[], title: string) {
   if (!node || !context?.length) return;
-  console.log(title);
   const first = context[0];
   const rest = context.slice(1);
 
@@ -50,10 +38,7 @@ function addToNode(node: IndexNode, context: string[], title: string) {
   }
 }
 
-export function reportContext(context: string[], title: any) {
-  if (!title) return;
-  const titleText = convertToPlain(title);
+export function reportContext(context: string[], titleText: any) {
   if (titleText.startsWith('http')) return;
   addToNode(TOP_LEVEL, context, titleText);
-  console.log(TOP_LEVEL.childNodes);
 }

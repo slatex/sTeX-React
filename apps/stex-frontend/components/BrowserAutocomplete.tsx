@@ -1,7 +1,13 @@
-import { Autocomplete, Box, createFilterOptions, TextField } from "@mui/material";
-import { useRouter } from "next/router";
-import { fixDuplicateLabels } from "../utils";
-import { BROWSER_FILES } from "../files";
+import {
+  Autocomplete,
+  Box,
+  createFilterOptions,
+  TextField,
+} from '@mui/material';
+import { useRouter } from 'next/router';
+import { fixDuplicateLabels } from '../utils';
+import { BROWSER_FILES } from '../files';
+import styles from '../index.module.scss';
 
 interface BrowserItem {
   project: string;
@@ -14,11 +20,11 @@ function getBrowserItems() {
   const items: BrowserItem[] = [];
   for (const [project, files] of Object.entries(BROWSER_FILES)) {
     for (const filepath of files) {
-      const filename = filepath.substring(filepath.lastIndexOf("/") + 1);
+      const filename = filepath.substring(filepath.lastIndexOf('/') + 1);
       let label = filename.substring(0, filename.length - 4);
 
-      const langStart = label.lastIndexOf(".");
-      const language = langStart === -1 ? "" : label.substring(langStart + 1);
+      const langStart = label.lastIndexOf('.');
+      const language = langStart === -1 ? '' : label.substring(langStart + 1);
 
       if (langStart !== -1) {
         label = label.substring(0, langStart) + ` (${language})`;
@@ -33,7 +39,8 @@ function getBrowserItems() {
 const BROWSER_ITEMS = getBrowserItems();
 
 function OptionDisplay({ item }: { item: BrowserItem }) {
-  const flag = { de: "de", en: "gb", zhs: "cn", fr: "fr" }[item.language] || "gb";
+  const flag =
+    { de: 'de', en: 'gb', zhs: 'cn', fr: 'fr' }[item.language] || 'gb';
   return (
     <>
       {/* eslint-disable-next-line @next/next/no-img-element*/}
@@ -43,20 +50,10 @@ function OptionDisplay({ item }: { item: BrowserItem }) {
         src={`https://flagcdn.com/w20/${flag}.png`}
         srcSet={`https://flagcdn.com/w40/${flag}.png 2x`}
         alt=""
-        style={{ marginRight: "10px" }}
+        style={{ marginRight: '10px' }}
       />
       <span>{item.label}</span>
-      <span
-        style={{
-          color: "white",
-          backgroundColor: "gray",
-          display: "inline",
-          borderRadius: "5px",
-          fontSize: "10px",
-          padding: "4px",
-          marginLeft: "10px",
-        }}
-      >
+      <span className={styles['brower_autocomplete_project']}>
         {item.project}
       </span>
     </>
@@ -65,7 +62,7 @@ function OptionDisplay({ item }: { item: BrowserItem }) {
 
 // Limit number of options rendered at a time to improve performance.
 const filterOptions = createFilterOptions({
-  matchFrom: "any",
+  matchFrom: 'any',
   limit: 300,
 });
 
@@ -73,10 +70,11 @@ export function BrowserAutocomplete() {
   const router = useRouter();
   return (
     <Autocomplete
+      size="small"
       id="combo-box-demo"
       filterOptions={filterOptions}
       options={BROWSER_ITEMS}
-      sx={{ minWidth: 100, maxWidth: 600, m: "auto", backgroundColor: "white", borderRadius: '5px' }}
+      className={styles['browser_autocomplete']}
       renderInput={(params) => <TextField {...params} label="Browse Article" />}
       renderOption={(props, option) => {
         return (
@@ -87,10 +85,11 @@ export function BrowserAutocomplete() {
       }}
       onChange={(_e, n) => {
         const item = n as BrowserItem;
-        const fPath = item.filepath.substring(1, item.filepath.length - 3) + "xhtml";
+        const fPath =
+          item.filepath.substring(1, item.filepath.length - 3) + 'xhtml';
         const path = `:sTeX/document?archive=${item.project}&filepath=${fPath}`;
         const encoded = encodeURIComponent(path);
-        router.push("/browser/" + encoded);
+        router.push('/browser/' + encoded);
       }}
     />
   );

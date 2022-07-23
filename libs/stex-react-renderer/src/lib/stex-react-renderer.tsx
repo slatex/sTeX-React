@@ -1,11 +1,12 @@
+import ListIcon from '@mui/icons-material/List';
 import { Box, Drawer, IconButton } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { TOP_LEVEL } from './collectIndexInfo';
 import { ContentDashboard } from './ContentDashboard';
 import { ContentFromUrl } from './ContentFromUrl';
 import MathJaxContext from './MathJaxContext';
 import { mmtHTMLToReact } from './mmtParser';
 import { TourDisplay } from './TourDisplay';
-import ListIcon from '@mui/icons-material/List';
 
 export const BG_COLOR = 'hsl(210, 20%, 98%)';
 const W = typeof window === 'undefined' ? undefined : window;
@@ -19,12 +20,22 @@ export function StexReactRenderer({
 }) {
   const [showDashboard, setShowDashboard] = useState(false);
   const [windowSize, setWindowSize] = useState(0);
+  const [isEmptyDash, setIsEmptyDash] = useState(true);
+
   useEffect(() => {
     function handleResize() {
       setWindowSize(W?.innerWidth || 0);
     }
     setWindowSize(W?.innerWidth || 0);
     W?.addEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(
+      () => setIsEmptyDash(TOP_LEVEL.childNodes.size === 0),
+      3000
+    );
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -41,14 +52,15 @@ export function StexReactRenderer({
         />
       </Drawer>
 
-      {showDashboard ? (
+      {showDashboard && (
         <Box display={{ xs: 'none', md: 'block' }}>
           <ContentDashboard
             onClose={() => setShowDashboard(false)}
             topOffset={topOffset}
           />
         </Box>
-      ) : (
+      )}
+      {!showDashboard && !isEmptyDash && (
         <IconButton
           onClick={() => setShowDashboard(true)}
           sx={{ position: 'fixed', top: `${topOffset + 2}px`, left: '5px' }}
@@ -57,7 +69,7 @@ export function StexReactRenderer({
         </IconButton>
       )}
 
-      <Box  display="flex" px="10px" bgcolor={BG_COLOR}>
+      <Box display="flex" px="10px" bgcolor={BG_COLOR}>
         {showDashboard && (
           <Box flex="0 0 300px" display={{ xs: 'none', md: 'block' }}></Box>
         )}
@@ -65,6 +77,7 @@ export function StexReactRenderer({
           <ContentFromUrl
             url={contentUrl}
             modifyRendered={(bodyNode) => bodyNode?.props?.children}
+            topLevel={true}
           />
         </Box>
       </Box>

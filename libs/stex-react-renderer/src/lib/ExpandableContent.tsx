@@ -14,6 +14,7 @@ import {
 import { reportContext } from './collectIndexInfo';
 import { ContentFromUrl } from './ContentFromUrl';
 import { ErrorBoundary } from './ErrorBoundary';
+import { getOuterHTML } from 'domutils';
 
 const SEPARATOR_inDocPath = '.';
 const ExpandContext = createContext([] as string[]);
@@ -37,9 +38,19 @@ function getInDocumentLink(childContext: string[]) {
     childContext.join(SEPARATOR_inDocPath)
   );
 }
+
 function getToOpenContentHash(inDocPath: string) {
   if (!inDocPath?.length) return [];
   return inDocPath.split(SEPARATOR_inDocPath);
+}
+
+function convertToPlain(html: any) {
+  // Create a new div element
+  const tempDivElement = document.createElement('div');
+  // Set the HTML content with the given value
+  tempDivElement.innerHTML = getOuterHTML(html);
+  // Retrieve the text property of the element
+  return tempDivElement.textContent || tempDivElement.innerText || '';
 }
 
 export function ExpandableContent({
@@ -64,9 +75,12 @@ export function ExpandableContent({
   const childContext = [...parentContext, urlHash];
   const [snackBarOpen, setSnackbarOpen] = useState(false);
 
+  const titleText = convertToPlain(htmlTitle);
+  const autoExpand = !titleText || titleText.startsWith('http');
+
   // Reference to the top most Box.
   const contentRef = useRef<HTMLInputElement>(null);
-  reportContext(childContext, htmlTitle);
+  reportContext(childContext, titleText);
 
   useEffect(() => {
     const inDocPath = router?.query?.['inDocPath'] as string;
@@ -90,6 +104,21 @@ export function ExpandableContent({
     setOpenAtLeastOnce(true);
     setIsOpen((v) => !v);
   };
+
+  if (autoExpand) {
+    return (
+      <ErrorBoundary hidden={false}>
+        {contentUrl ? (
+          <ContentFromUrl
+            url={contentUrl}
+            modifyRendered={(bodyNode) => bodyNode?.props?.children}
+          />
+        ) : (
+          { staticContent }
+        )}
+      </ErrorBoundary>
+    );
+  }
 
   return (
     <ErrorBoundary hidden={false}>

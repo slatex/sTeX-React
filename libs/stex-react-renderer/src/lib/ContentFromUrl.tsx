@@ -1,16 +1,19 @@
 import { LinearProgress } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useMemo, useState } from 'react';
+import { TOP_LEVEL } from './collectIndexInfo';
 import { HighlightContext, mmtHTMLToReact } from './mmtParser';
 
 export function ContentFromUrl({
   url,
   modifyRendered = (n) => n,
   skipSidebar = false,
+  topLevel = false,
 }: {
   url: string;
   modifyRendered?: (node: any) => any;
   skipSidebar?: boolean;
+  topLevel?: boolean;
 }) {
   const [rendered, setRendered] = useState<any>(<></>);
   const [isLoading, setIsLoading] = useState(false);
@@ -29,12 +32,17 @@ export function ContentFromUrl({
       .catch((_e) => null)
       .then((r) => {
         setIsLoading(false);
+        if (topLevel) TOP_LEVEL.childNodes = new Map();
+
         let toShow;
-        if (r) toShow = mmtHTMLToReact(r.data, skipSidebar);
-        else toShow = <span style={{ color: 'red' }}>Error loading: {url}</span>;
+        if (!r) {
+          toShow = <span style={{ color: 'red' }}>Error loading: {url}</span>;
+        } else {
+          toShow = mmtHTMLToReact(r.data, skipSidebar);
+        }
         setRendered(toShow);
       });
-  }, [url, skipSidebar]);
+  }, [url, skipSidebar, topLevel]);
 
   if (isLoading) {
     return (
