@@ -296,6 +296,7 @@ const replace = (domNode: DOMNode, skipSidebar = false): any => {
     const inputRef = domNode.attribs['data-inputref-url'];
     return (
       <ExpandableContent
+        htmlTitle={domNode}
         contentUrl={BASE_URL + inputRef}
         title={domToReact(domNode.children, { replace }) as any}
       />
@@ -334,6 +335,7 @@ const replace = (domNode: DOMNode, skipSidebar = false): any => {
     );
     return (
       <ExpandableContent
+        htmlTitle={titleNodes}
         title={domToReact(titleNodes, { replace }) as any}
         defaultOpen={defaultOpen}
         staticContent={domToReact(bodyNodes, { replace }) as any}

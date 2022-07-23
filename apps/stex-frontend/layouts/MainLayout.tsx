@@ -1,14 +1,17 @@
-import { Toolbar } from '@mui/material';
+import { Box, Toolbar } from '@mui/material';
 import { ReportProblemPopover } from '@stex-react/report-a-problem';
 import Head from 'next/head';
 import Link from 'next/link';
+import { BrowserAutocomplete } from '../components/BrowserAutocomplete';
 
 export default function MainLayout({
   title,
   children,
+  showBrowserAutocomplete = false,
 }: {
   title?: string;
   children: any;
+  showBrowserAutocomplete?: boolean;
 }) {
   return (
     <div>
@@ -19,17 +22,20 @@ export default function MainLayout({
       </Head>
 
       <main>
-        <Toolbar sx={{ background: '#3f51b5' }}>
+        <Toolbar className="toolbar">
           <Link href="/">
-            <span
-              style={{ color: 'white', fontSize: '24px', cursor: 'pointer' }}
-            >
+            <span className="toolbar_logo">
               VoLL-KI
             </span>
           </Link>
+          {showBrowserAutocomplete && (
+            <Box sx={{ mx: '40px' }} flex="1">
+              <BrowserAutocomplete />
+            </Box>
+          )}
         </Toolbar>
         <ReportProblemPopover />
-        <div>{children}</div>
+        <Box sx={{ mt: `64px` }}>{children}</Box>
       </main>
     </div>
   );

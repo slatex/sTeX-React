@@ -11,9 +11,11 @@ import {
   useRef,
   useState,
 } from 'react';
+import { reportContext } from './collectIndexInfo';
 import { ContentFromUrl } from './ContentFromUrl';
 import { ErrorBoundary } from './ErrorBoundary';
 
+const SEPARATOR_inDocPath = '.';
 const ExpandContext = createContext([] as string[]);
 function hash(str?: string) {
   if (!str?.length) return '0';
@@ -32,12 +34,12 @@ function getInDocumentLink(childContext: string[]) {
     window.location.origin +
     window.location.pathname +
     '?inDocPath=' +
-    childContext.join('|')
+    childContext.join(SEPARATOR_inDocPath)
   );
 }
 function getToOpenContentHash(inDocPath: string) {
   if (!inDocPath?.length) return [];
-  return inDocPath.split('|');
+  return inDocPath.split(SEPARATOR_inDocPath);
 }
 
 export function ExpandableContent({
@@ -45,38 +47,43 @@ export function ExpandableContent({
   staticContent,
   defaultOpen = false,
   title,
+  htmlTitle,
 }: {
   contentUrl?: string;
   staticContent?: any;
   defaultOpen?: boolean;
   title: any;
+  htmlTitle: any;
 }) {
-  const router = useRouter();
-  const toOpenContentHash = getToOpenContentHash(
-    router?.query?.['inDocPath'] as string
-  );
-
   // TODO: hash should be of the content URI (archive, filepath). Not the full url.
   const urlHash = hash(contentUrl);
-  // Oversimplied logic of isDefaultOpen: Should check if parents match too.
-  const openDueToUrl = toOpenContentHash.includes(urlHash);
-  const openInitially = defaultOpen || openDueToUrl;
-  const [openAtLeastOnce, setOpenAtLeastOnce] = useState(openInitially);
-  const [isOpen, setIsOpen] = useState(openInitially);
-
+  const [openAtLeastOnce, setOpenAtLeastOnce] = useState(defaultOpen);
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  const router = useRouter();
   const parentContext = useContext(ExpandContext);
   const childContext = [...parentContext, urlHash];
-
   const [snackBarOpen, setSnackbarOpen] = useState(false);
 
   // Reference to the top most Box.
   const contentRef = useRef<HTMLInputElement>(null);
+  reportContext(childContext, htmlTitle);
 
   useEffect(() => {
-    if (!router?.isReady) return;
-    if (openDueToUrl)
-      contentRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [router?.isReady, openDueToUrl]);
+    const inDocPath = router?.query?.['inDocPath'] as string;
+    const toOpenContentHash = getToOpenContentHash(inDocPath);
+    // Oversimplied logic of openDueToUrl: Should check if parents match too.
+    const openDueToUrl = toOpenContentHash.includes(urlHash);
+    if (openDueToUrl) {
+      setIsOpen(true);
+      setOpenAtLeastOnce(true);
+      if (toOpenContentHash.at(-1) === urlHash) {
+        setTimeout(
+          () => contentRef.current?.scrollIntoView({ behavior: 'smooth' }),
+          200
+        );
+      }
+    }
+  }, [router.isReady, router?.query, urlHash]);
 
   const changeState = (e: MouseEvent) => {
     e.stopPropagation();

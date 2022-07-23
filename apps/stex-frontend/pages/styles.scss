@@ -12,3 +12,19 @@ body {
   /*font-family: Noto Serif, serif, STIXgeneral, Times, Symbol, cmr10, CMSY10, CMEX10, serif;*/
   font-family: STIXgeneral, Times, Symbol, cmr10, CMSY10, CMEX10, serif;
 }
+
+.toolbar {
+  background: #3f51b5;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1;
+  display: flex;
+}
+
+.toolbar_logo {
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  white-space: nowrap;
+}
