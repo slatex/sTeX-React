@@ -50,7 +50,7 @@ export function ReportProblemDialog({
       <DialogContent>
         <TextField
           fullWidth
-          id="outlined-error-helper-text"
+          id="bug-title-text"
           label="Title (optional)"
           value={title}
           onChange={(e) => setTitle(e.target.value)}

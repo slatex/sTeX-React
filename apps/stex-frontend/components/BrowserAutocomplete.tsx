@@ -76,7 +76,7 @@ export function BrowserAutocomplete() {
       id="combo-box-demo"
       filterOptions={filterOptions}
       options={BROWSER_ITEMS}
-      sx={{ minWidth: 300, maxWidth: 600, m: "auto" }}
+      sx={{ minWidth: 100, maxWidth: 600, m: "auto", backgroundColor: "white", borderRadius: '5px' }}
       renderInput={(params) => <TextField {...params} label="Browse Article" />}
       renderOption={(props, option) => {
         return (

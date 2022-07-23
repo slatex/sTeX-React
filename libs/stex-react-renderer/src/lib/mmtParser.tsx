@@ -192,29 +192,11 @@ const replace = (domNode: DOMNode, skipSidebar = false): any => {
       (node) => domToReact(node.children, { replace })
     );
     return (
-      <>
-        {renderedSideNodes.map((renderedSideNode, idx) => (
-          <Box
-            key={idx}
-            height="0px"
-            maxWidth="300px"
-            display={{ xs: 'none', md: 'block' }}
-          >
-            <div
-              className="sidebarexpanded"
-              style={{ marginTop: `${idx * 40}px` }}
-            >
-              {renderedSideNode}
-            </div>
-          </Box>
-        ))}
-
-        <Box height="0px" display={{ xs: 'block', md: 'none' }}>
-          <div className="sidebarbuttonwrapper">
-            <SidebarButton sidebarContents={renderedSideNodes} />
-          </div>
-        </Box>
-      </>
+      <Box height="0px">
+        <div className="sidebarbuttonwrapper">
+          <SidebarButton sidebarContents={renderedSideNodes} />
+        </div>
+      </Box>
     );
   }
 
