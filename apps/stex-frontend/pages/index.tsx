@@ -20,7 +20,9 @@ const Home: NextPage = () => {
       </Box>
       <div>
         <main style={{ margin: '10px' }}>
-          <BrowserAutocomplete />
+          <Box m="10px auto" maxWidth="600px" textAlign="center">
+            <BrowserAutocomplete />
+          </Box>
           <Box m="10px auto" maxWidth="600px" textAlign="center">
             <ToursAutocomplete />
           </Box>

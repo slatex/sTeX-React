@@ -1,7 +1,7 @@
 import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
 import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/IndeterminateCheckBoxOutlined';
-import LinkIcon from '@mui/icons-material/Link';
-import { Box, IconButton, Snackbar } from '@mui/material';
+import { Box, IconButton } from '@mui/material';
+import { getOuterHTML } from 'domutils';
 import { useRouter } from 'next/router';
 import {
   createContext,
@@ -9,12 +9,12 @@ import {
   useContext,
   useEffect,
   useRef,
-  useState,
+  useState
 } from 'react';
 import { reportContext } from './collectIndexInfo';
 import { ContentFromUrl } from './ContentFromUrl';
 import { ErrorBoundary } from './ErrorBoundary';
-import { getOuterHTML } from 'domutils';
+import { ExpandableContextMenu } from './ExpandableContextMenu';
 
 const SEPARATOR_inDocPath = '.';
 const ExpandContext = createContext([] as string[]);
@@ -73,7 +73,6 @@ export function ExpandableContent({
   const router = useRouter();
   const parentContext = useContext(ExpandContext);
   const childContext = [...parentContext, urlHash];
-  const [snackBarOpen, setSnackbarOpen] = useState(false);
 
   const titleText = convertToPlain(htmlTitle);
   const autoExpand = !titleText || titleText.startsWith('http');
@@ -154,26 +153,12 @@ export function ExpandableContent({
             </Box>
           </Box>
           {contentUrl && (
-            <IconButton
-              size="small"
-              onClick={() => {
-                const link = getInDocumentLink(childContext);
-                navigator.clipboard.writeText(link);
-                setSnackbarOpen(true);
-              }}
-            >
-              <LinkIcon />
-            </IconButton>
+            <ExpandableContextMenu
+              sectionLink={getInDocumentLink(childContext)}
+              contentUrl={contentUrl}
+            />
           )}
         </Box>
-
-        {/*Snackbar only displayed on copy link button click.*/}
-        <Snackbar
-          open={snackBarOpen}
-          autoHideDuration={4000}
-          onClose={() => setSnackbarOpen(false)}
-          message="Link Copied to Clipboard"
-        />
 
         {openAtLeastOnce && (
           <Box display={isOpen ? 'flex' : 'none'}>

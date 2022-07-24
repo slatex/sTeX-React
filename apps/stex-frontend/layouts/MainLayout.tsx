@@ -22,14 +22,12 @@ export default function MainLayout({
       </Head>
 
       <main>
-        <Toolbar className="toolbar">
+        <Toolbar className="toolbar" sx={{ position: 'fixed' }}>
           <Link href="/">
-            <span className="toolbar_logo">
-              VoLL-KI
-            </span>
+            <span className="toolbar_logo">VoLL-KI</span>
           </Link>
           {showBrowserAutocomplete && (
-            <Box sx={{ mx: '40px' }} flex="1">
+            <Box sx={{ mx: '40px', maxWidth: '600px' }} flex="1">
               <BrowserAutocomplete />
             </Box>
           )}

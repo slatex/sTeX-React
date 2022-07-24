@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { TOP_LEVEL } from './collectIndexInfo';
 import { ContentDashboard } from './ContentDashboard';
 import { ContentFromUrl } from './ContentFromUrl';
+import { ExpandableContextMenu } from './ExpandableContextMenu';
 import MathJaxContext from './MathJaxContext';
 import { mmtHTMLToReact } from './mmtParser';
 import { TourDisplay } from './TourDisplay';
@@ -74,6 +75,9 @@ export function StexReactRenderer({
           <Box flex="0 0 300px" display={{ xs: 'none', md: 'block' }}></Box>
         )}
         <Box maxWidth="520px" m="0 auto">
+          <Box display="flex" flexDirection="row-reverse">
+            <ExpandableContextMenu contentUrl={contentUrl} />
+          </Box>
           <ContentFromUrl
             url={contentUrl}
             modifyRendered={(bodyNode) => bodyNode?.props?.children}

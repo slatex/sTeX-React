@@ -16,6 +16,7 @@ export function ToursAutocomplete() {
   const router = useRouter();
   return (
     <Autocomplete
+      size="small"
       id="combo-box-demo"
       filterOptions={filterOptions}
       options={TOURS}
