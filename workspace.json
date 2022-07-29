@@ -6,6 +6,7 @@
     "report-a-problem": "libs/report-a-problem",
     "stex-frontend": "apps/stex-frontend",
     "stex-frontend-e2e": "apps/stex-frontend-e2e",
-    "stex-react-renderer": "libs/stex-react-renderer"
+    "stex-react-renderer": "libs/stex-react-renderer",
+    "utils": "libs/utils"
   }
 }

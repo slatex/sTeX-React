@@ -1,5 +1,6 @@
 import ListIcon from '@mui/icons-material/List';
 import { Box, Drawer, IconButton } from '@mui/material';
+import { BG_COLOR } from '@stex-react/utils';
 import { useEffect, useState } from 'react';
 import { TOP_LEVEL } from './collectIndexInfo';
 import { ContentDashboard } from './ContentDashboard';
@@ -9,7 +10,6 @@ import MathJaxContext from './MathJaxContext';
 import { mmtHTMLToReact } from './mmtParser';
 import { TourDisplay } from './TourDisplay';
 
-export const BG_COLOR = 'hsl(210, 20%, 98%)';
 const W = typeof window === 'undefined' ? undefined : window;
 
 export function StexReactRenderer({
@@ -64,7 +64,12 @@ export function StexReactRenderer({
       {!showDashboard && !isEmptyDash && (
         <IconButton
           onClick={() => setShowDashboard(true)}
-          sx={{ position: 'fixed', top: `${topOffset + 2}px`, left: '5px' }}
+          sx={{
+            position: 'fixed',
+            top: `${topOffset + 2}px`,
+            left: '5px',
+            border: '2px solid #777',
+          }}
         >
           <ListIcon />
         </IconButton>

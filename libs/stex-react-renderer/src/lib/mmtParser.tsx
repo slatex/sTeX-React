@@ -1,6 +1,7 @@
 import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Tooltip, { tooltipClasses, TooltipProps } from '@mui/material/Tooltip';
+import { DEFAULT_BASE_URL } from '@stex-react/utils';
 import parse, { DOMNode, domToReact, Element } from 'html-react-parser';
 import { createContext, forwardRef, useContext } from 'react';
 import { ContentFromUrl } from './ContentFromUrl';
@@ -12,9 +13,7 @@ import { OverlayDialog } from './OverlayDialog';
 import { SidebarButton } from './SidebarButton';
 
 const IS_SERVER = typeof window === 'undefined';
-export const BASE_URL =
-  (IS_SERVER ? null : (window as any).BASE_URL) ??
-  'https://mmt.beta.vollki.kwarc.info';
+export const PARSER_BASE_URL = (IS_SERVER ? null : (window as any).BASE_URL) ?? DEFAULT_BASE_URL;
 export const localStore = IS_SERVER ? undefined : localStorage;
 
 const NoMaxWidthTooltip = styled(({ className, ...props }: TooltipProps) => (
@@ -236,8 +235,8 @@ const replace = (domNode: DOMNode, skipSidebar = false): any => {
   const hoverParent = domNode.attribs['data-highlight-parent'];
   if ((hoverLink || clickLink) && !domNode.attribs['processed']) {
     domNode.attribs['processed'] = 'first';
-    const tooltipPath = BASE_URL + hoverLink;
-    const dialogPath = BASE_URL + clickLink;
+    const tooltipPath = PARSER_BASE_URL + hoverLink;
+    const dialogPath = PARSER_BASE_URL + clickLink;
     // eslint-disable-next-line react/display-name
     const WithHighlightable = forwardRef((props, ref) => {
       return (
@@ -284,7 +283,7 @@ const replace = (domNode: DOMNode, skipSidebar = false): any => {
   if (domNode.attribs['onclick']) {
     const rx = /stexMainOverlayOn\('(.*)'/g;
     const matches = rx.exec(domNode.attribs['onclick']);
-    const path = BASE_URL + matches?.[1];
+    const path = PARSER_BASE_URL + matches?.[1];
     return (
       <OverlayDialog
         contentUrl={path}
@@ -297,7 +296,7 @@ const replace = (domNode: DOMNode, skipSidebar = false): any => {
     return (
       <ExpandableContent
         htmlTitle={domNode}
-        contentUrl={BASE_URL + inputRef}
+        contentUrl={PARSER_BASE_URL + inputRef}
         title={domToReact(domNode.children, { replace }) as any}
       />
     );

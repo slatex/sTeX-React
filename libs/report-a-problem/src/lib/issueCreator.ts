@@ -1,13 +1,7 @@
+import { SectionInfo } from '@stex-react/utils';
 import axios from 'axios';
 
 const THREE_BACKTICKS = '```';
-
-export interface SectionInfo {
-  url: string;
-  archive?: string;
-  filepath?: string;
-  source?: string;
-}
 
 export enum IssueType {
   ERROR = 'ERROR',

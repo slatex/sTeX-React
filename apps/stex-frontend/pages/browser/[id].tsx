@@ -1,8 +1,8 @@
 import { StexReactRenderer } from '@stex-react/stex-react-renderer';
+import { DEFAULT_BASE_URL } from '@stex-react/utils';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { BASE_URL } from '../../constants';
 import MainLayout from '../../layouts/MainLayout';
 
 const BrowserPage: NextPage = () => {
@@ -14,7 +14,7 @@ const BrowserPage: NextPage = () => {
     if (!router.isReady) return;
     const decoded = decodeURI(id);
     const url = decoded.startsWith(':sTeX')
-      ? BASE_URL + '/' + decoded
+      ? DEFAULT_BASE_URL + '/' + decoded
       : decoded;
     setContentUrl(url);
   }, [id, router.isReady]);

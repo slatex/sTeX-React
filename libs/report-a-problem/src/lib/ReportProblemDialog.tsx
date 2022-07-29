@@ -13,13 +13,9 @@ import {
 } from '@mui/material';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
+import { SectionInfo } from '@stex-react/utils';
 import { Dispatch, SetStateAction, useState } from 'react';
-import {
-  createNewIssue,
-  IssueCategory,
-  IssueType,
-  SectionInfo,
-} from './issueCreator';
+import { createNewIssue, IssueCategory, IssueType } from './issueCreator';
 
 export function ReportProblemDialog({
   open,

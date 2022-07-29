@@ -1,10 +1,10 @@
 import { Box, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import { TourDisplay } from '@stex-react/stex-react-renderer';
+import { BG_COLOR } from '@stex-react/utils';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { ToursAutocomplete } from '../../components/ToursAutocomplete';
-import { BG_COLOR } from '../../constants';
 import MainLayout from '../../layouts/MainLayout';
 
 // HACK: Get this from MMT server.
@@ -52,14 +52,14 @@ const GuidedTourPage: NextPage = () => {
             <MenuItem value="fr">French</MenuItem>
           </Select>
         </FormControl>
-        <Box display="flex">
-          <Box flexGrow={1} bgcolor={BG_COLOR}>
-            <TourDisplay
-              tourId={tourId}
-              userModel={userModel}
-              language={language}
-            />
-          </Box>
+      </Box>
+      <Box display="flex">
+        <Box flexGrow={1} bgcolor={BG_COLOR}>
+          <TourDisplay
+            tourId={tourId}
+            userModel={userModel}
+            language={language}
+          />
         </Box>
       </Box>
     </MainLayout>

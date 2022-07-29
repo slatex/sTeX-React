@@ -4,14 +4,7 @@ import IntegrationInstructionsIcon from '@mui/icons-material/IntegrationInstruct
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { IconButton, Menu, MenuItem, Snackbar } from '@mui/material';
 import { useState } from 'react';
-
-function getSourceUrl(contentUrl: string) {
-  const match = /archive=([^&]+)&filepath=(.+)/g.exec(contentUrl);
-  const archive = match?.[1] || '';
-  const filepath = match?.[2] || '';
-  const sourcePath = filepath.replace('xhtml', 'tex');
-  return `https://gl.mathhub.info/${archive}/-/blob/main/source/${sourcePath}`;
-}
+import { getSectionInfo } from '@stex-react/utils';
 
 export function ExpandableContextMenu({
   sectionLink,
@@ -34,7 +27,7 @@ export function ExpandableContextMenu({
 
   const [snackBarOpen, setSnackbarOpen] = useState(false);
 
-  const sourceUrl = getSourceUrl(contentUrl);
+  const sourceUrl = getSectionInfo(contentUrl).source;
 
   return (
     <>

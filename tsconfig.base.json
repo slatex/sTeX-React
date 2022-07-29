@@ -18,7 +18,8 @@
       "@stex-react/report-a-problem": ["libs/report-a-problem/src/index.ts"],
       "@stex-react/stex-react-renderer": [
         "libs/stex-react-renderer/src/index.ts"
-      ]
+      ],
+      "@stex-react/utils": ["libs/utils/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

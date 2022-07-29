@@ -1,7 +1,7 @@
 import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
 import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/IndeterminateCheckBoxOutlined';
 import { Box, IconButton } from '@mui/material';
-import { getOuterHTML } from 'domutils';
+import { convertToPlain, simpleHash } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import {
   createContext,
@@ -9,7 +9,7 @@ import {
   useContext,
   useEffect,
   useRef,
-  useState
+  useState,
 } from 'react';
 import { reportContext } from './collectIndexInfo';
 import { ContentFromUrl } from './ContentFromUrl';
@@ -18,16 +18,6 @@ import { ExpandableContextMenu } from './ExpandableContextMenu';
 
 const SEPARATOR_inDocPath = '.';
 const ExpandContext = createContext([] as string[]);
-function hash(str?: string) {
-  if (!str?.length) return '0';
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const chr = str.charCodeAt(i);
-    hash = (hash << 5) - hash + chr;
-    hash |= 0; // Convert to 32bit integer
-  }
-  return hash.toString(36);
-}
 
 function getInDocumentLink(childContext: string[]) {
   if (typeof window === 'undefined') return '';
@@ -44,15 +34,6 @@ function getToOpenContentHash(inDocPath: string) {
   return inDocPath.split(SEPARATOR_inDocPath);
 }
 
-function convertToPlain(html: any) {
-  // Create a new div element
-  const tempDivElement = document.createElement('div');
-  // Set the HTML content with the given value
-  tempDivElement.innerHTML = getOuterHTML(html);
-  // Retrieve the text property of the element
-  return tempDivElement.textContent || tempDivElement.innerText || '';
-}
-
 export function ExpandableContent({
   contentUrl,
   staticContent,
@@ -67,7 +48,7 @@ export function ExpandableContent({
   htmlTitle: any;
 }) {
   // TODO: hash should be of the content URI (archive, filepath). Not the full url.
-  const urlHash = hash(contentUrl);
+  const urlHash = simpleHash(contentUrl);
   const [openAtLeastOnce, setOpenAtLeastOnce] = useState(defaultOpen);
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const router = useRouter();
