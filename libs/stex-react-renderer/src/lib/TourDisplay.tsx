@@ -214,9 +214,28 @@ export function TourDisplay({
               <NavBar items={items} itemVisibility={itemVisibility} />
             </Drawer>
           ) : (
-            <Box sx={{ position: 'fixed', bottom: `20px`, left: '5px' }}>
+            <Box
+              sx={{
+                position: 'fixed',
+                bottom: `20px`,
+                left: '5px',
+                zIndex: 1000,
+              }}
+            >
               <IconButton
-                className={styles['nav-bar-button']}
+                sx={{
+                  border: '2px solid #3f51b5',
+                  borderRadius: '500px',
+                  color: '#3f51b5',
+                  backgroundColor: 'white',
+                  boxShadow: '0px 8px 15px rgba(0, 0, 0, 0.5)',
+                  transition: 'all 0.3s ease 0s',
+                  ':hover': {
+                    boxShadow: '0px 15px 20px rgba(0, 0, 0, 0.4)',
+                    transform: 'translateY(1px)',
+                    backgroundColor: 'white',
+                  },
+                }}
                 onClick={() => setShowDashboard(true)}
               >
                 <ListIcon />

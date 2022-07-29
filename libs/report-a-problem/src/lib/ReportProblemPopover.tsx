@@ -7,7 +7,6 @@ import { createPortal } from 'react-dom';
 import { issuesUrlList } from './issueCreator';
 import { ReportProblemDialog } from './ReportProblemDialog';
 import { useTextSelection } from './useTextSelection';
-import styles from './report-a-problem.module.scss';
 
 type Props = {
   target?: HTMLElement;
@@ -49,7 +48,20 @@ export function ReportProblemPopover(props: Props) {
             }}
           >
             <IconButton
-              className={styles['report-problem-button']}
+              sx={{
+                border: '2px solid #f2c300',
+                borderRadius: '500px',
+                color: '#f2c300',
+                backgroundColor: 'white',
+                boxShadow: '0px 8px 15px rgba(0, 0, 0, 0.5)',
+                transition: 'all 0.3s ease 0s',
+                zIndex: 10000,
+                ':hover': {
+                  boxShadow: '0px 15px 20px rgba(0, 0, 0, 0.4)',
+                  transform: 'translateY(1px)',
+                  backgroundColor: 'white',
+                },
+              }}
               onClick={() => {
                 setSelectedText(textContent.trim());
                 setContext(getContext(commonAncestor));
