@@ -28,7 +28,7 @@ export function getSectionInfo(url: string): SectionInfo {
   const archive = match?.[1] || '';
   const filepath = match?.[2] || '';
   const sourcePath = filepath.replace('xhtml', 'tex');
-  const source = `https://gl.mathhub.info/${archive}/-/blob/main/source/${sourcePath}`;
+  const source = sourceFileUrl(archive, sourcePath);
   return {
     url: url.replace('/document?', '/fulldocument?'),
     archive,
@@ -49,7 +49,23 @@ export function simpleHash(str?: string) {
   return hash.toString(36);
 }
 
-export function PathToArticle(project: string, filepath: string) {
-  const path = `:sTeX/document?archive=${project}&filepath=${filepath}`;
+export function XhtmlContentUrl(baseUrl: string, projectId: string, xhtmlFilepath: string) {
+  return `${baseUrl}/:sTeX/document?archive=${projectId}&filepath=${xhtmlFilepath}`;
+}
+
+export function PathToArticle(projectId: string, xhtmlFilepath: string) {
+  const path = `:sTeX/document?archive=${projectId}&filepath=${xhtmlFilepath}`;
   return `/browser/${encodeURIComponent(path)}`;
+}
+
+export function texPathToXhtml(texFilepath: string) {
+  return texFilepath.slice(0, -3) + 'xhtml';
+}
+
+export function xhtmlPathToTex(xhtmlFilepath: string) {
+  return xhtmlFilepath.slice(0, -5) + 'tex';
+}
+
+export function sourceFileUrl(projectId: string, texFilepath: string) {
+  return `https://gl.mathhub.info/${projectId}/-/blob/main/source/${texFilepath}`;
 }
