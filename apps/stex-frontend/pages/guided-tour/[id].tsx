@@ -16,7 +16,7 @@ const GuidedTourPage: NextPage = () => {
 
   return (
     <MainLayout title="Guided Tour">
-      <Box display="flex" alignItems="center">
+      <Box display="flex" alignItems="center" mx="10px">
         <Box flexGrow={1} mr="15px">
           <ToursAutocomplete />
         </Box>

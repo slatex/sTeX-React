@@ -1,13 +1,45 @@
 // Derived from https://css-tricks.com/triangle-breadcrumbs/ and
 // https://codepen.io/team/css-tricks/pen/xRmmdr
-$totalHeight: 12px;
+$totalHeight: 13px;
 $arrowWidth: 7px;
 $triangleBorder: 11px;
 
 .steps {
+  // This is needed for the blur.
+  // https://stackoverflow.com/questions/10487292/position-absolute-but-relative-to-parent
+  position: relative;
+
   padding: 0;
   margin: 0 0 3px 0;
+  max-height: 30px;
   overflow: hidden;
+  transition: max-height 0.15s ease-out;
+}
+
+.steps:hover {
+  max-height: 120px;
+  transition-delay: 3s;
+
+  transition: max-height 0.25s ease-in;
+  transition-delay: 1s;
+
+  .steps-blur {
+    // Keep the blur div vanished when user has mouse over this.
+    // Without this. The this the div flickers in and out of existence.
+    display: none;
+  }
+}
+
+.steps-blur {
+  position: absolute;
+  background: linear-gradient(180deg, #ffffff00 17%, #ffffff 25%);
+  z-index: 1;
+  height: 120px;
+  width: 100%;
+}
+
+.steps-blur:hover {
+  display: none;
 }
 
 .steps a {
@@ -73,9 +105,9 @@ $triangleBorder: 11px;
 
 /* Setup colors (both the background and the arrow) */
 .steps li {
-  background-color: #3f51b5;
+  background-color: #727fc7;
 }
 
 .steps li::after {
-  border-left-color: #3f51b5;
+  border-left-color: #727fc7;
 }

@@ -5,14 +5,14 @@ import {
   CircularProgress,
   Divider,
   Drawer,
-  IconButton
+  IconButton,
 } from '@mui/material';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import {
   ContentFromUrl,
-  mmtHTMLToReact
+  mmtHTMLToReact,
 } from '@stex-react/stex-react-renderer';
 import { simpleHash } from '@stex-react/utils';
 import axios from 'axios';
@@ -87,6 +87,8 @@ function ItemBreadcrumbs({
   return (
     <>
       <ul className={styles['steps']}>
+        {/* The box below gives the blur effect in case the breadcrumbs go over one line */}
+        <Box className={styles['steps-blur']}></Box>
         {succChain.map((uri) => {
           const item = allItemsMap.get(uri);
           if (!item) return null;
