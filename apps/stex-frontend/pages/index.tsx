@@ -1,9 +1,10 @@
 import SettingsIcon from '@mui/icons-material/Settings';
-import { Box, IconButton } from '@mui/material';
+import { Box, Button, IconButton } from '@mui/material';
 import type { NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { BrowserAutocomplete } from '../components/BrowserAutocomplete';
+import { SearchBar } from '../components/SearchBar';
 import { ToursAutocomplete } from '../components/ToursAutocomplete';
 import MainLayout from '../layouts/MainLayout';
 
@@ -21,9 +22,15 @@ const Home: NextPage = () => {
       <div>
         <main style={{ margin: '10px' }}>
           <Box m="10px auto" maxWidth="600px" textAlign="center">
+            <SearchBar />
+            <br />
+            <br />
+            <Link href="/file-browser">
+              <Button variant="contained">View article browser</Button>
+            </Link>
+            <br />
+            <br />
             <BrowserAutocomplete />
-          </Box>
-          <Box m="10px auto" maxWidth="600px" textAlign="center">
             <ToursAutocomplete />
           </Box>
         </main>
