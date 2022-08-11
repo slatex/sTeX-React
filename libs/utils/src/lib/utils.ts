@@ -1,6 +1,6 @@
 import { getOuterHTML } from 'domutils';
 
-export const DEFAULT_BASE_URL = 'https://mmt.beta.vollki.kwarc.info';
+export const DEFAULT_BASE_URL = 'https://overleaf.beta.vollki.kwarc.info';
 export const BG_COLOR = 'hsl(210, 20%, 98%)';
 
 export interface SectionInfo {
@@ -10,11 +10,15 @@ export interface SectionInfo {
   source?: string;
 }
 
-export function convertToPlain(html: any) {
+export function convertHtmlNodeToPlain(htmlNode: any) {
+  return convertHtmlStringToPlain(getOuterHTML(htmlNode));
+}
+
+export function convertHtmlStringToPlain(htmlStr: string) {
   // Create a new div element
   const tempDivElement = document.createElement('div');
   // Set the HTML content with the given value
-  tempDivElement.innerHTML = getOuterHTML(html);
+  tempDivElement.innerHTML = htmlStr;
   // Retrieve the text property of the element
   return tempDivElement.textContent || tempDivElement.innerText || '';
 }
@@ -43,4 +47,9 @@ export function simpleHash(str?: string) {
     hash |= 0; // Convert to 32bit integer
   }
   return hash.toString(36);
+}
+
+export function PathToArticle(project: string, filepath: string) {
+  const path = `:sTeX/document?archive=${project}&filepath=${filepath}`;
+  return `/browser/${encodeURIComponent(path)}`;
 }

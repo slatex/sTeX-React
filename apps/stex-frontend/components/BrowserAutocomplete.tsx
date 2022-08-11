@@ -4,10 +4,11 @@ import {
   createFilterOptions,
   TextField,
 } from '@mui/material';
+import { PathToArticle } from '@stex-react/utils';
 import { useRouter } from 'next/router';
-import { fixDuplicateLabels } from '../utils';
-import { BROWSER_FILES } from '../files';
+import { ARTICLE_LIST } from '../article-list';
 import styles from '../index.module.scss';
+import { fixDuplicateLabels } from '../utils';
 
 interface BrowserItem {
   project: string;
@@ -16,12 +17,12 @@ interface BrowserItem {
   language: string;
 }
 
-function getBrowserItems() {
+function getBrowserItems(browserItems: { [project: string]: string[] }) {
   const items: BrowserItem[] = [];
-  for (const [project, files] of Object.entries(BROWSER_FILES)) {
+  for (const [project, files] of Object.entries(browserItems)) {
     for (const filepath of files) {
       const filename = filepath.substring(filepath.lastIndexOf('/') + 1);
-      let label = filename.substring(0, filename.length - 4);
+      let label = filename.substring(0, filename.length - 6);
 
       const langStart = label.lastIndexOf('.');
       const language = langStart === -1 ? '' : label.substring(langStart + 1);
@@ -36,7 +37,7 @@ function getBrowserItems() {
   return fixDuplicateLabels(items);
 }
 
-const BROWSER_ITEMS = getBrowserItems();
+const BROWSER_ITEMS = getBrowserItems(ARTICLE_LIST);
 
 function OptionDisplay({ item }: { item: BrowserItem }) {
   const flag =
@@ -68,6 +69,7 @@ const filterOptions = createFilterOptions({
 
 export function BrowserAutocomplete() {
   const router = useRouter();
+
   return (
     <Autocomplete
       size="small"
@@ -75,7 +77,7 @@ export function BrowserAutocomplete() {
       filterOptions={filterOptions}
       options={BROWSER_ITEMS}
       className={styles['browser_autocomplete']}
-      renderInput={(params) => <TextField {...params} label="Browse Article" />}
+      renderInput={(params) => <TextField {...params} label="Open Article" />}
       renderOption={(props, option) => {
         return (
           <Box component="li" {...props}>
@@ -84,12 +86,9 @@ export function BrowserAutocomplete() {
         );
       }}
       onChange={(_e, n) => {
+        if (!n) return;
         const item = n as BrowserItem;
-        const fPath =
-          item.filepath.substring(1, item.filepath.length - 3) + 'xhtml';
-        const path = `:sTeX/document?archive=${item.project}&filepath=${fPath}`;
-        const encoded = encodeURIComponent(path);
-        router.push('/browser/' + encoded);
+        router.push(PathToArticle(item.project, item.filepath));
       }}
     />
   );

@@ -20,7 +20,7 @@ export function ToursAutocomplete() {
       id="combo-box-demo"
       filterOptions={filterOptions}
       options={TOURS}
-      renderInput={(params) => <TextField {...params} label="Browse Tour" />}
+      renderInput={(params) => <TextField {...params} label="Start Tour" />}
       renderOption={(props, option) => (
         <Box component="li" {...props}>
           {mmtHTMLToReact((option as any).label)}

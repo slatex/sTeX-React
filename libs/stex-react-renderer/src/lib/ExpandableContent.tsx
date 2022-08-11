@@ -1,7 +1,7 @@
 import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
 import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/IndeterminateCheckBoxOutlined';
 import { Box, IconButton } from '@mui/material';
-import { convertToPlain, simpleHash } from '@stex-react/utils';
+import { convertHtmlNodeToPlain, simpleHash } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import {
   createContext,
@@ -55,7 +55,7 @@ export function ExpandableContent({
   const parentContext = useContext(ExpandContext);
   const childContext = [...parentContext, urlHash];
 
-  const titleText = convertToPlain(htmlTitle);
+  const titleText = convertHtmlNodeToPlain(htmlTitle);
   const autoExpand = !titleText || titleText.startsWith('http');
 
   // Reference to the top most Box.
