@@ -1,7 +1,7 @@
 import {
   MathJaxContext,
   StexReactRenderer,
-  TourDisplay
+  TourDisplay,
 } from '@stex-react/stex-react-renderer';
 
 export function App() {
@@ -9,7 +9,6 @@ export function App() {
   const baseUrl = W.BASE_URL;
   const contentUrl = W.CONTENT_URL;
   const tourId = W.TOUR_ID;
-  const userModel = W.USER_MODEL;
   const language = W.LANGUAGE;
 
   return (
@@ -17,11 +16,7 @@ export function App() {
       {contentUrl?.length ? (
         <StexReactRenderer contentUrl={baseUrl + contentUrl} />
       ) : (
-        <TourDisplay
-          tourId={tourId}
-          userModel={userModel}
-          language={language}
-        />
+        <TourDisplay tourId={tourId} language={language} />
       )}
     </MathJaxContext>
   );

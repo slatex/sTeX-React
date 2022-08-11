@@ -5,14 +5,14 @@ import {
   CircularProgress,
   Divider,
   Drawer,
-  IconButton,
+  IconButton
 } from '@mui/material';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import {
   ContentFromUrl,
-  mmtHTMLToReact,
+  mmtHTMLToReact
 } from '@stex-react/stex-react-renderer';
 import { simpleHash } from '@stex-react/utils';
 import axios from 'axios';
@@ -67,7 +67,7 @@ function scrollToItem(item: TourItem) {
 }
 
 function getSuccessorChain(item: TourItem, allItemsMap: Map<string, TourItem>) {
-  const succChain: string[] = [item.uri];
+  const succChain: string[] = [];
   let succ: TourItem | undefined = item;
   while (succ) {
     succChain.push(succ.uri);
