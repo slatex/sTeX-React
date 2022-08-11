@@ -146,7 +146,17 @@ function TourItemDisplay({
 
   return (
     <Box id={expandedItemId(item)} maxWidth="600px" ref={ref}>
-      <h3 style={{ marginBottom: 0 }}>{mmtHTMLToReact(item.header)}</h3>
+      <Box display="flex" alignItems="center" mt="15px" mb="5px" justifyContent="space-between">
+        <h3 style={{ margin: 0 }}>{mmtHTMLToReact(item.header)}</h3>
+        <Button
+          size="small"
+          onClick={() => onUnderstood()}
+          variant="outlined"
+          sx={{ mx: '10px', height: '30px'}}
+        >
+          I understand
+        </Button>
+      </Box>
       <ItemBreadcrumbs item={item} allItemsMap={allItemsMap} />
       <Box sx={{ mt: '20px' }}>
         <ContentFromUrl
@@ -154,16 +164,7 @@ function TourItemDisplay({
           skipSidebar={true}
         />
       </Box>
-      <Button
-        onClick={() => onUnderstood()}
-        variant="outlined"
-        sx={{ my: '10px' }}
-      >
-        I understand&nbsp;
-        <i>
-          <b style={{ textTransform: 'none' }}>{mmtHTMLToReact(item.header)}</b>
-        </i>
-      </Button>
+
       <Divider />
     </Box>
   );
