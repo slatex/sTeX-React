@@ -1,6 +1,7 @@
 import ListIcon from '@mui/icons-material/List';
 import {
   Box,
+  Button,
   CircularProgress,
   Divider,
   Drawer,
@@ -15,11 +16,9 @@ import {
 } from '@stex-react/stex-react-renderer';
 import { simpleHash } from '@stex-react/utils';
 import axios from 'axios';
-import { getOuterHTML } from 'domutils';
-import { parseDocument } from 'htmlparser2';
 import { useEffect, useRef, useState } from 'react';
 import { PARSER_BASE_URL } from './mmtParser';
-import styles from './stex-react-renderer.module.scss';
+import styles from './styles/tour-display.module.scss';
 
 const NAV_MENU_ID = 'list-container';
 const EXPANSION_BOX_ID = 'expansion-box';
@@ -29,6 +28,9 @@ export interface TourItem {
   uri: string;
   header: string;
   hash: string;
+  dependencies: string[];
+  successors: string[];
+  level: number;
 }
 
 function navMenuItemId(item: TourItem) {
@@ -39,7 +41,7 @@ function expandedItemId(item: TourItem) {
   return `expand-${item.hash}`;
 }
 
-export default function useOnScreen(ref: any) {
+function useOnScreen(ref: any) {
   const [isIntersecting, setIntersecting] = useState(false);
 
   const observer = new IntersectionObserver(([entry]) =>
@@ -57,54 +59,223 @@ export default function useOnScreen(ref: any) {
   return isIntersecting;
 }
 
-function TourItemDisplay({
+function scrollToItem(item: TourItem) {
+  const container = document.getElementById(EXPANSION_BOX_ID);
+  const displayItem = document.getElementById(expandedItemId(item));
+  if (!container || !displayItem) return;
+  container.scrollTop = displayItem.offsetTop - container.offsetTop;
+}
+
+function getSuccessorChain(item: TourItem, allItemsMap: Map<string, TourItem>) {
+  const succChain: string[] = [item.uri];
+  let succ: TourItem | undefined = item;
+  while (succ) {
+    succChain.push(succ.uri);
+    succ = allItemsMap.get(succ.successors?.[0]);
+  }
+  return succChain;
+}
+
+function ItemBreadcrumbs({
   item,
-  lang = 'en',
-  visibilityUpdate,
+  allItemsMap,
 }: {
   item: TourItem;
+  allItemsMap: Map<string, TourItem>;
+}) {
+  const succChain = getSuccessorChain(item, allItemsMap);
+  return (
+    <>
+      <ul className={styles['steps']}>
+        {succChain.map((uri) => {
+          const item = allItemsMap.get(uri);
+          if (!item) return null;
+          return (
+            <li onClick={() => scrollToItem(item)}>
+              <a>{mmtHTMLToReact(item.header)}</a>
+            </li>
+          );
+        })}
+      </ul>
+      {!!item.dependencies.length && (
+        <Box display="flex" alignItems="center" flexWrap="wrap">
+          Needs:&nbsp;
+          {item.dependencies.map((depUri) => {
+            const dep = allItemsMap.get(depUri);
+            if (!dep) return null;
+            return (
+              <Button
+                size="small"
+                key={depUri}
+                variant="outlined"
+                sx={{ m: '0 2px 2px 4px', textTransform: 'none', p: '0px 8px' }}
+                onClick={() => scrollToItem(dep)}
+              >
+                {mmtHTMLToReact(dep.header)}
+              </Button>
+            );
+          })}
+        </Box>
+      )}
+    </>
+  );
+}
+
+function TourItemDisplay({
+  item,
+  allItemsMap,
+  lang = 'en',
+  visibilityUpdate,
+  onUnderstood,
+  onExpand,
+}: {
+  item: TourItem;
+  allItemsMap: Map<string, TourItem>;
   lang?: string;
   visibilityUpdate: (a: boolean) => void;
+  onUnderstood: () => void;
+  onExpand: (uri: string) => void;
 }) {
   const ref = useRef();
   const isVisible = useOnScreen(ref);
   useEffect(() => {
     visibilityUpdate(isVisible);
   }, [isVisible]);
+
   return (
     <Box id={expandedItemId(item)} maxWidth="600px" ref={ref}>
-      <h3>{mmtHTMLToReact(item.header)}</h3>
-      <ContentFromUrl
-        url={`${PARSER_BASE_URL}/:vollki/frag?path=${item.uri}&lang=${lang}`}
-        skipSidebar={true}
-      />
+      <h3 style={{ marginBottom: 0 }}>{mmtHTMLToReact(item.header)}</h3>
+      <ItemBreadcrumbs item={item} allItemsMap={allItemsMap} />
+      <Box sx={{ mt: '20px' }}>
+        <ContentFromUrl
+          url={`${PARSER_BASE_URL}/:vollki/frag?path=${item.uri}&lang=${lang}`}
+          skipSidebar={true}
+        />
+      </Box>
+      <Button
+        onClick={() => onUnderstood()}
+        variant="outlined"
+        sx={{ my: '10px' }}
+      >
+        I understand&nbsp;
+        <i>
+          <b style={{ textTransform: 'none' }}>{mmtHTMLToReact(item.header)}</b>
+        </i>
+      </Button>
       <Divider />
     </Box>
   );
 }
 
-function filterByName(nodes: any[], name: string): any[] {
-  return nodes.filter((node) => (node as any).name === name);
+export interface TourAPIEntry {
+  id: string;
+  title: string;
+  successors: string[];
 }
 
-function getTourItems(tourResponse: string) {
-  const tourItems: TourItem[] = [];
-  const items = parseDocument(tourResponse).children;
-  const trNodes = filterByName(items, 'tr');
-  for (const trNode of trNodes) {
-    const tdNode = filterByName((trNode as any).childNodes, 'td')[0];
-    const aNode = filterByName((tdNode as any).childNodes, 'a')[0];
-    const header = getOuterHTML(aNode.childNodes[0].childNodes[1]);
-    const href: string = aNode.attribs?.href?.substring();
-    const uri = href.substring(21, href.length - 2);
-    tourItems.push({ uri, header, hash: simpleHash(uri) });
+function computeOrderedList(
+  tourItems: Map<string, TourItem>,
+  understoodUri: string[],
+  currentId: string,
+  level: number,
+  orderedList: TourItem[]
+): void {
+  const deps = tourItems.get(currentId)?.dependencies || [];
+  const alreadyPreset = orderedList.some((item) => item.uri === currentId);
+  if (alreadyPreset) return;
+  if (understoodUri.includes(currentId)) return;
+  for (const d of deps) {
+    computeOrderedList(tourItems, understoodUri, d, level + 1, orderedList);
+  }
+  const currentItem = tourItems.get(currentId);
+  if (!currentItem) {
+    console.log('Not possible');
+    return;
+  }
+  currentItem.level = level;
+  orderedList.push(currentItem);
+}
+
+function getTourItemMap(tourAPIEntries: TourAPIEntry[]) {
+  const tourItems: Map<string, TourItem> = new Map();
+  for (const n of tourAPIEntries) {
+    tourItems.set(n.id, {
+      uri: n.id,
+      header: n.title,
+      hash: simpleHash(n.id),
+      dependencies: [],
+      successors: n.successors,
+      level: 0,
+    });
+  }
+  for (const n of tourAPIEntries) {
+    for (const s of n.successors) {
+      tourItems.get(s)?.dependencies?.push(n.id);
+    }
   }
   return tourItems;
 }
 
+function getDisplayItemList(
+  tourItemMap: Map<string, TourItem>,
+  understoodUri: string[]
+): TourItem[] {
+  const rootItem = Array.from(tourItemMap.values()).find(
+    (item) => !item.successors?.length
+  );
+  if (!rootItem) return [];
+
+  if (understoodUri.includes(rootItem.uri)) {
+    return [rootItem];
+  }
+  const orderedList: TourItem[] = [];
+  computeOrderedList(tourItemMap, understoodUri, rootItem.uri, 0, orderedList);
+  return orderedList;
+}
+
 function listItemText(item: TourItem, isIntersecting: boolean) {
   const header = mmtHTMLToReact(item.header);
-  return isIntersecting ? <b>{header}</b> : header;
+  return <Box>{isIntersecting ? <b>{header}</b> : header}</Box>;
+}
+
+function LeftGuide({ children, level }: { children: any; level: number }) {
+  return (
+    <Box display="flex">
+      {Array(level)
+        .fill(0)
+        .map((_, idx) => (
+          <Box
+            display="inline"
+            key={idx}
+            sx={{ ml: `10px`, borderLeft: '1px solid #BBB' }}
+          ></Box>
+        ))}
+      <Box display="flex" p="0" alignItems="center">
+        <span
+          style={{
+            color: '#BBB',
+            fontSize: '10px',
+            whiteSpace: 'nowrap',
+            marginRight: '1px',
+            display: 'inline',
+          }}
+        >
+          {level !== 0 && '--'}
+        </span>
+        <Box
+          sx={{
+            px: '4px',
+            py: '2px',
+            mb: '4px',
+            border: '1px solid #BBB',
+            borderRadius: '5px',
+          }}
+        >
+          {children}
+        </Box>
+      </Box>
+    </Box>
+  );
 }
 
 export function NavBar({
@@ -125,17 +296,16 @@ export function NavBar({
           disablePadding
           id={navMenuItemId(item)}
           sx={{ cursor: 'pointer' }}
-          onClick={() => {
-            const container = document.getElementById(EXPANSION_BOX_ID);
-            const displayItem = document.getElementById(expandedItemId(item));
-            if (!container || !displayItem) return;
-            container.scrollTop = displayItem.offsetTop - container.offsetTop;
-          }}
+          onClick={() => scrollToItem(item)}
         >
-          <ListItemText
-            sx={{ mx: '10px' }}
-            primary={listItemText(item, itemVisibility[item.hash])}
-          />
+          <Box sx={{ mx: '10px' }}>
+            <LeftGuide level={item.level}>
+              <ListItemText
+                sx={{ m: '0' }}
+                primary={listItemText(item, itemVisibility[item.hash])}
+              />
+            </LeftGuide>
+          </Box>
         </ListItem>
       ))}
     </List>
@@ -158,14 +328,13 @@ function scrollNavToShowVisibleItems(
 
 export function TourDisplay({
   tourId,
-  userModel,
   language = 'en',
 }: {
   tourId: string;
-  userModel: string;
   language?: string;
 }) {
-  const [items, setItems] = useState([] as TourItem[]);
+  const [allItemsMap, setAllItemsMap] = useState(new Map<string, TourItem>());
+  const [displayItemList, setDisplayItemList] = useState([] as TourItem[]);
   // Object to hold each item's current visibility. Keys are hashes of the item's uri.
   const [itemVisibility, setItemVisibility] = useState<{
     [hash: string]: boolean;
@@ -173,6 +342,7 @@ export function TourDisplay({
   const [showDashboard, setShowDashboard] = useState(false);
   const [fetchingItems, setFetchingItems] = useState(false);
   const [windowSize, setWindowSize] = useState(0);
+  const [understoodUri, setUnderstoodUriList] = useState([] as string[]);
 
   useEffect(() => {
     function handleResize() {
@@ -185,20 +355,35 @@ export function TourDisplay({
   useEffect(() => {
     if (!tourId?.length) return;
     // https://mmt.beta.vollki.kwarc.info/:vollki/tour?path=http://mathhub.info/sTeX/Algebra/General/mod/props?Absorption&user=nulluser&lang=en
-    const tourInfoUrl = `${PARSER_BASE_URL}/:vollki/tour?path=${tourId}&user=${userModel}&lang=${language}`;
+    const tourInfoUrl = `${PARSER_BASE_URL}/:vollki/tour?path=${tourId}&user=nulluser&lang=${language}`;
     setFetchingItems(true);
     axios.get(tourInfoUrl).then((r) => {
       setFetchingItems(false);
-      setItems(getTourItems(r.data));
+      setAllItemsMap(getTourItemMap(r.data));
     });
-  }, [tourId, userModel, language]);
+  }, [tourId, language]);
 
   useEffect(() => {
-    scrollNavToShowVisibleItems(items, itemVisibility);
+    setDisplayItemList(getDisplayItemList(allItemsMap, understoodUri));
+  }, [allItemsMap, understoodUri]);
+
+  useEffect(() => {
+    scrollNavToShowVisibleItems(displayItemList, itemVisibility);
   }, [itemVisibility]);
 
+  function addToUnderstoodList(uri: string) {
+    setUnderstoodUriList((previous) => {
+      if (previous.includes(uri)) return previous;
+      return [...previous, uri];
+    });
+  }
+
+  function removeFromUnderstoodList(uri: string) {
+    setUnderstoodUriList((previous) => previous.filter((u) => u !== uri));
+  }
+
   if (fetchingItems) return <CircularProgress />;
-  if (!items?.length) return null;
+  if (!displayItemList?.length) return null;
 
   const showSidePanel = windowSize >= 650;
   return (
@@ -211,7 +396,7 @@ export function TourDisplay({
               open={showDashboard}
               onClose={() => setShowDashboard(false)}
             >
-              <NavBar items={items} itemVisibility={itemVisibility} />
+              <NavBar items={displayItemList} itemVisibility={itemVisibility} />
             </Drawer>
           ) : (
             <Box
@@ -245,25 +430,30 @@ export function TourDisplay({
         </>
       )}
 
-      <Box display="flex" maxHeight="calc(100vh - 190px)" overflow="hidden">
+      <Box display="flex" maxHeight="calc(100vh - 125px)" overflow="hidden">
         {showSidePanel && (
-          <NavBar items={items} itemVisibility={itemVisibility} />
+          <NavBar items={displayItemList} itemVisibility={itemVisibility} />
         )}
         <Box id={EXPANSION_BOX_ID} sx={{ overflowY: 'scroll' }} flexGrow={1}>
           <Box mx="10px">
-            {items.map((item) => (
-              <TourItemDisplay
-                key={item.hash}
-                item={item}
-                lang={language}
-                visibilityUpdate={(visibility) => {
-                  setItemVisibility((prev) => {
-                    const newV = { ...prev };
-                    newV[item.hash] = visibility;
-                    return newV;
-                  });
-                }}
-              />
+            {displayItemList.map((item, idx) => (
+              <>
+                <TourItemDisplay
+                  key={item.hash}
+                  item={item}
+                  allItemsMap={allItemsMap}
+                  lang={language}
+                  onUnderstood={() => addToUnderstoodList(item.uri)}
+                  onExpand={(uri) => removeFromUnderstoodList(uri)}
+                  visibilityUpdate={(visibility) => {
+                    setItemVisibility((prev) => {
+                      const newV = { ...prev };
+                      newV[item.hash] = visibility;
+                      return newV;
+                    });
+                  }}
+                />
+              </>
             ))}
           </Box>
         </Box>
