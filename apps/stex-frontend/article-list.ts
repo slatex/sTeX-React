@@ -1,4 +1,5 @@
-import ROOT_NODES, { FileNode } from './file-structure.preval';
+import { FileNode } from '@stex-react/stex-react-renderer';
+import ROOT_NODES from './file-structure.preval';
 
 function populateBrowserFiles(
   nodes: FileNode[],

@@ -1,4 +1,5 @@
 import {
+  FileBrowser,
   MathJaxContext,
   StexReactRenderer,
   TourDisplay,
@@ -10,10 +11,13 @@ export function App() {
   const contentUrl = W.CONTENT_URL;
   const tourId = W.TOUR_ID;
   const language = W.LANGUAGE;
+  const showBrowser = W.SHOW_FILE_BROWSER.toLowerCase() === 'true';
 
   return (
     <MathJaxContext>
-      {contentUrl?.length ? (
+      {showBrowser ? (
+        <FileBrowser defaultRootNodes={[]} topOffset={64} baseUrl={baseUrl} />
+      ) : contentUrl?.length ? (
         <StexReactRenderer contentUrl={baseUrl + contentUrl} />
       ) : (
         <TourDisplay tourId={tourId} language={language} />

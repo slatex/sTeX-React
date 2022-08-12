@@ -3,23 +3,33 @@ import { Box, Button } from '@mui/material';
 import { ContentFromUrl } from '@stex-react/stex-react-renderer';
 import {
   BG_COLOR,
-  DEFAULT_BASE_URL,
   PathToArticle,
   sourceFileUrl,
   XhtmlContentUrl,
-  xhtmlPathToTex
+  xhtmlPathToTex,
 } from '@stex-react/utils';
 import { useState } from 'react';
+import { FileNode } from './FileNode';
 import { FileTree } from './FileTree';
 
-export function FileBrowser() {
+export function FileBrowser({
+  defaultRootNodes,
+  baseUrl,
+  topOffset
+}: {
+  defaultRootNodes: FileNode[];
+  baseUrl: string;
+  topOffset: number;
+}) {
   const [selectedFilepath, setSelectedFilepath] = useState('');
   const [selectedProject, setSelectedProject] = useState('');
 
   return (
     <>
       <FileTree
-        topOffset={64}
+        topOffset={topOffset}
+        defaultRootNodes={defaultRootNodes}
+        baseUrl={baseUrl}
         selectedFile={{
           project: selectedProject,
           filepath: selectedFilepath,
@@ -56,11 +66,7 @@ export function FileBrowser() {
               </Button>
             </a>
             <ContentFromUrl
-              url={XhtmlContentUrl(
-                DEFAULT_BASE_URL,
-                selectedProject,
-                selectedFilepath
-              )}
+              url={XhtmlContentUrl(baseUrl, selectedProject, selectedFilepath)}
               skipSidebar={true}
               modifyRendered={(bodyNode) => bodyNode?.props?.children}
             />

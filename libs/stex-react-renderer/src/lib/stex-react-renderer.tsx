@@ -6,6 +6,8 @@ import { TOP_LEVEL } from './collectIndexInfo';
 import { ContentDashboard } from './ContentDashboard';
 import { ContentFromUrl } from './ContentFromUrl';
 import { ExpandableContextMenu } from './ExpandableContextMenu';
+import { FileBrowser } from './FileBrowser';
+import { FileNode } from './FileNode';
 import MathJaxContext from './MathJaxContext';
 import { mmtHTMLToReact } from './mmtParser';
 import { TourDisplay } from './TourDisplay';
@@ -94,4 +96,11 @@ export function StexReactRenderer({
   );
 }
 
-export { ContentFromUrl, mmtHTMLToReact, MathJaxContext, TourDisplay };
+export {
+  ContentFromUrl,
+  mmtHTMLToReact,
+  MathJaxContext,
+  TourDisplay,
+  FileBrowser,
+};
+export type { FileNode };

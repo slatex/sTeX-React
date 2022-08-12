@@ -5,15 +5,10 @@ import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { Box, IconButton, TextField } from '@mui/material';
-import { DEFAULT_BASE_URL } from '@stex-react/utils';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import ROOT_NODES, { FileNode } from '../file-structure.preval';
-import styles from '../styles/file-browser.module.scss';
-
-const IS_SERVER = typeof window === 'undefined';
-const PARSER_BASE_URL =
-  (IS_SERVER ? null : (window as any).BASE_URL) ?? DEFAULT_BASE_URL;
+import styles from './styles/file-browser.module.scss';
+import { FileNode } from './FileNode';
 
 export type SetSelectedFileFunction = (
   projectId: string,
@@ -142,14 +137,18 @@ function applyFilter(nodes: FileNode[], searchTerms: string[]) {
 
 export function FileTree({
   topOffset,
+  defaultRootNodes,
+  baseUrl,
   selectedFile,
   onSelectedFile,
 }: {
   topOffset: number;
+  defaultRootNodes: FileNode[];
+  baseUrl: string;
   selectedFile: SelectedFile;
   onSelectedFile: SetSelectedFileFunction;
 }) {
-  const [fileTree, setFileTree] = useState(ROOT_NODES);
+  const [fileTree, setFileTree] = useState(defaultRootNodes);
   const [filterStr, setFilterStr] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -163,11 +162,17 @@ export function FileTree({
 
   function refreshFileTree() {
     setIsRefreshing(true);
-    axios.get(`${PARSER_BASE_URL}/:sTeX/browser?menu`).then((r) => {
+    axios.get(`${baseUrl}/:sTeX/browser?menu`).then((r) => {
       setIsRefreshing(false);
       setFileTree(r.data);
     });
   }
+
+  useEffect(() => {
+    if (!defaultRootNodes?.length) {
+      refreshFileTree();
+    }
+  }, [defaultRootNodes]);
 
   return (
     <Box className={styles['dash_outer_box']}>
