@@ -12,12 +12,26 @@ export function App() {
   const tourId = W.TOUR_ID;
   const language = W.LANGUAGE;
   const showBrowser = W.SHOW_FILE_BROWSER.toLowerCase() === 'true';
+  if (showBrowser) {
+    return (
+      <MathJaxContext>
+        <h2 style={{ textAlign: 'center', margin: '10px' }}>sTeX Browser</h2>
+        <hr style={{ width: '98%'}} />
+        <FileBrowser
+          defaultRootNodes={[]}
+          topOffset={48}
+          baseUrl={baseUrl}
+          standaloneLink={(archive: string, filepath: string) =>
+            `${baseUrl}/:sTeX/browser/fulldocument?archive=${archive}&filepath=${filepath}`
+          }
+        />
+      </MathJaxContext>
+    );
+  }
 
   return (
     <MathJaxContext>
-      {showBrowser ? (
-        <FileBrowser defaultRootNodes={[]} topOffset={64} baseUrl={baseUrl} />
-      ) : contentUrl?.length ? (
+      {contentUrl?.length ? (
         <StexReactRenderer contentUrl={baseUrl + contentUrl} />
       ) : (
         <TourDisplay tourId={tourId} language={language} />

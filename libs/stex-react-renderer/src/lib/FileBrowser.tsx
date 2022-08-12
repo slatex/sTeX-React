@@ -15,11 +15,13 @@ import { FileTree } from './FileTree';
 export function FileBrowser({
   defaultRootNodes,
   baseUrl,
-  topOffset
+  topOffset,
+  standaloneLink,
 }: {
   defaultRootNodes: FileNode[];
   baseUrl: string;
   topOffset: number;
+  standaloneLink: (archive: string, filepath: string) => string;
 }) {
   const [selectedFilepath, setSelectedFilepath] = useState('');
   const [selectedProject, setSelectedProject] = useState('');
@@ -40,40 +42,47 @@ export function FileBrowser({
         }}
       />
       <Box ml="300px" p="10px" sx={{ backgroundColor: BG_COLOR }}>
-        {selectedProject && selectedFilepath ? (
-          <>
-            <a
-              href={PathToArticle(selectedProject, selectedFilepath)}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Button>
-                Open Article
-                <OpenInNewIcon />
-              </Button>
-            </a>
-            <a
-              href={sourceFileUrl(
-                selectedProject,
-                xhtmlPathToTex(selectedFilepath)
-              )}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Button>
-                View Source
-                <OpenInNewIcon />
-              </Button>
-            </a>
-            <ContentFromUrl
-              url={XhtmlContentUrl(baseUrl, selectedProject, selectedFilepath)}
-              skipSidebar={true}
-              modifyRendered={(bodyNode) => bodyNode?.props?.children}
-            />
-          </>
-        ) : (
-          <i>No Article Selected</i>
-        )}
+        <Box maxWidth="520px" m="auto">
+          {selectedProject && selectedFilepath ? (
+            <>
+              <a
+                href={standaloneLink(selectedProject, selectedFilepath)}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Button>
+                  Open Article
+                  <OpenInNewIcon />
+                </Button>
+              </a>
+              <a
+                href={sourceFileUrl(
+                  selectedProject,
+                  xhtmlPathToTex(selectedFilepath)
+                )}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Button>
+                  View Source
+                  <OpenInNewIcon />
+                </Button>
+              </a>
+              <hr/>
+              <ContentFromUrl
+                url={XhtmlContentUrl(
+                  baseUrl,
+                  selectedProject,
+                  selectedFilepath
+                )}
+                skipSidebar={true}
+                modifyRendered={(bodyNode) => bodyNode?.props?.children}
+              />
+            </>
+          ) : (
+            <i>No Article Selected</i>
+          )}
+        </Box>
       </Box>
     </>
   );

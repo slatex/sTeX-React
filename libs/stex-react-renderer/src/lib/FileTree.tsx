@@ -4,7 +4,7 @@ import FolderIcon from '@mui/icons-material/Folder';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import RemoveIcon from '@mui/icons-material/Remove';
-import { Box, IconButton, TextField } from '@mui/material';
+import { Box, IconButton, LinearProgress, TextField } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import styles from './styles/file-browser.module.scss';
@@ -169,7 +169,7 @@ export function FileTree({
   }
 
   useEffect(() => {
-    if (!defaultRootNodes?.length) {
+    if (!defaultRootNodes?.length && !isRefreshing) {
       refreshFileTree();
     }
   }, [defaultRootNodes]);
@@ -194,6 +194,7 @@ export function FileTree({
           </IconButton>
         </Box>
         <Box className={styles['dash_scroll_area_box']}>
+          {isRefreshing && <LinearProgress />}
           <NodesDisplay
             nodes={fileTree}
             selectedFile={selectedFile}
