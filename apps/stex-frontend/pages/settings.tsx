@@ -11,10 +11,12 @@ const Home: NextPage = () => {
   return (
     <MainLayout title="VoLL-KI Home">
       <div>
-        <main style={{ margin: '10px' }}>
+        <main>
+          <br />
           <Button
             variant="contained"
             size="small"
+            sx={{ m: '5px' }}
             onClick={() => {
               if (localStore?.getItem(NO_RESPONSIVE))
                 localStore.removeItem(NO_RESPONSIVE);
@@ -28,7 +30,7 @@ const Home: NextPage = () => {
           <Button
             variant="contained"
             size="small"
-            sx={{ m: '0 10px' }}
+            sx={{ m: '5px' }}
             onClick={() => {
               if (localStore?.getItem(FORCE_MATHJAX))
                 localStore.removeItem(FORCE_MATHJAX);

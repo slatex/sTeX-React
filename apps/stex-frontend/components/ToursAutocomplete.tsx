@@ -20,13 +20,14 @@ export function ToursAutocomplete() {
       id="combo-box-demo"
       filterOptions={filterOptions}
       options={TOURS}
-      renderInput={(params) => <TextField {...params} label="Start Tour" />}
+      renderInput={(params) => <TextField {...params} label="Select Guided Tour" />}
       renderOption={(props, option) => (
         <Box component="li" {...props}>
           {mmtHTMLToReact((option as any).label)}
         </Box>
       )}
       onChange={(_e, n: any) => {
+        if(!n) return;
         const encoded = encodeURIComponent(n.value);
         if (encoded) router.push("/guided-tour/" + encoded);
       }}

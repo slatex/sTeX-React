@@ -66,6 +66,7 @@ $triangleBorder: 11px;
   /* width: gap between arrows, color: background of document */
   position: relative;
   cursor: pointer;
+  user-select: none;
 }
 
 /* remove extra padding on the first object since it doesn't have an arrow to the left */

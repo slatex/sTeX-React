@@ -49,7 +49,11 @@ export function simpleHash(str?: string) {
   return hash.toString(36);
 }
 
-export function XhtmlContentUrl(baseUrl: string, projectId: string, xhtmlFilepath: string) {
+export function XhtmlContentUrl(
+  baseUrl: string,
+  projectId: string,
+  xhtmlFilepath: string
+) {
   return `${baseUrl}/:sTeX/document?archive=${projectId}&filepath=${xhtmlFilepath}`;
 }
 
