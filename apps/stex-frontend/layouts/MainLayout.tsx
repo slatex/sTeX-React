@@ -1,8 +1,7 @@
-import { Box, Toolbar } from '@mui/material';
+import { Box } from '@mui/material';
 import { ReportProblemPopover } from '@stex-react/report-a-problem';
 import Head from 'next/head';
-import Link from 'next/link';
-import { BrowserAutocomplete } from '../components/BrowserAutocomplete';
+import { Header } from '../components/Header';
 
 export default function MainLayout({
   title,
@@ -22,18 +21,9 @@ export default function MainLayout({
       </Head>
 
       <main>
-        <Toolbar className="toolbar" sx={{ position: 'fixed' }}>
-          <Link href="/">
-            <span className="toolbar_logo">VoLL-KI</span>
-          </Link>
-          {showBrowserAutocomplete && (
-            <Box sx={{ mx: '40px', maxWidth: '600px' }} flex="1">
-              <BrowserAutocomplete />
-            </Box>
-          )}
-        </Toolbar>
+        <Header showBrowserAutocomplete={showBrowserAutocomplete} />
         <ReportProblemPopover />
-        <Box sx={{ mt: `64px` }}>{children}</Box>
+        <Box>{children}</Box>
       </main>
     </div>
   );
