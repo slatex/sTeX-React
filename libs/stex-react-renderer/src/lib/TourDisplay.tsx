@@ -31,6 +31,7 @@ export interface TourItem {
   dependencies: string[];
   successors: string[];
   level: number;
+  weight: number;
 }
 
 function navMenuItemId(item: TourItem) {
@@ -79,9 +80,11 @@ function getSuccessorChain(item: TourItem, allItemsMap: Map<string, TourItem>) {
 function ItemBreadcrumbs({
   item,
   allItemsMap,
+  addToTempShowUri,
 }: {
   item: TourItem;
   allItemsMap: Map<string, TourItem>;
+  addToTempShowUri: (uri: string) => void;
 }) {
   const succChain = getSuccessorChain(item, allItemsMap);
   return (
@@ -93,7 +96,7 @@ function ItemBreadcrumbs({
           const item = allItemsMap.get(uri);
           if (!item) return null;
           return (
-            <li onClick={() => scrollToItem(item)}>
+            <li key={uri} onClick={() => scrollToItem(item)}>
               <a>{mmtHTMLToReact(item.header)}</a>
             </li>
           );
@@ -111,7 +114,10 @@ function ItemBreadcrumbs({
                 key={depUri}
                 variant="outlined"
                 sx={{ m: '0 2px 2px 4px', textTransform: 'none', p: '0px 8px' }}
-                onClick={() => scrollToItem(dep)}
+                onClick={() => {
+                  addToTempShowUri(depUri);
+                  scrollToItem(dep);
+                }}
               >
                 {mmtHTMLToReact(dep.header)}
               </Button>
@@ -126,17 +132,23 @@ function ItemBreadcrumbs({
 function TourItemDisplay({
   item,
   allItemsMap,
+  isTempShow,
   lang = 'en',
   visibilityUpdate,
   onUnderstood,
-  onExpand,
+  onMoreDetails,
+  onHideTemp,
+  addToTempShowUri,
 }: {
   item: TourItem;
   allItemsMap: Map<string, TourItem>;
+  isTempShow: boolean;
   lang?: string;
   visibilityUpdate: (a: boolean) => void;
   onUnderstood: () => void;
-  onExpand: (uri: string) => void;
+  onMoreDetails: () => void;
+  onHideTemp: () => void;
+  addToTempShowUri: (uri: string) => void;
 }) {
   const ref = useRef();
   const isVisible = useOnScreen(ref);
@@ -146,18 +158,48 @@ function TourItemDisplay({
 
   return (
     <Box id={expandedItemId(item)} maxWidth="600px" ref={ref}>
-      <Box display="flex" alignItems="center" mt="15px" mb="5px" justifyContent="space-between">
+      <Box
+        display="flex"
+        alignItems="center"
+        mt="15px"
+        mb="5px"
+        justifyContent="space-between"
+      >
         <h3 style={{ margin: 0 }}>{mmtHTMLToReact(item.header)}</h3>
-        <Button
-          size="small"
-          onClick={() => onUnderstood()}
-          variant="outlined"
-          sx={{ mx: '10px', height: '30px'}}
-        >
-          I understand
-        </Button>
+        <Box mx="10px" height="30px" sx={{ whiteSpace: 'nowrap' }}>
+          {!isTempShow ? (
+            <Button
+              size="small"
+              onClick={() => onUnderstood()}
+              variant="outlined"
+            >
+              I understand
+            </Button>
+          ) : (
+            <Button
+              size="small"
+              onClick={() => onHideTemp()}
+              variant="outlined"
+              sx={{ mr: '10px' }}
+            >
+              Hide
+            </Button>
+          )}
+          {/*
+              <Button
+                size="small"
+                onClick={() => onMoreDetails()}
+                variant="outlined"
+              >
+                More Details
+          </Button>*/}
+        </Box>
       </Box>
-      <ItemBreadcrumbs item={item} allItemsMap={allItemsMap} />
+      <ItemBreadcrumbs
+        item={item}
+        allItemsMap={allItemsMap}
+        addToTempShowUri={addToTempShowUri}
+      />
       <Box sx={{ mt: '20px' }}>
         <ContentFromUrl
           url={`${PARSER_BASE_URL}/:vollki/frag?path=${item.uri}&lang=${lang}`}
@@ -179,36 +221,50 @@ export interface TourAPIEntry {
 function computeOrderedList(
   tourItems: Map<string, TourItem>,
   understoodUri: string[],
+  tempShowUri: string[],
   currentId: string,
   level: number,
-  orderedList: TourItem[]
+  orderedList: TourItem[],
+  addOnlyTemp: boolean
 ): void {
   const deps = tourItems.get(currentId)?.dependencies || [];
   const alreadyPreset = orderedList.some((item) => item.uri === currentId);
   if (alreadyPreset) return;
-  if (understoodUri.includes(currentId)) return;
+  const isUnderstood = understoodUri.includes(currentId);
+
   for (const d of deps) {
-    computeOrderedList(tourItems, understoodUri, d, level + 1, orderedList);
+    computeOrderedList(
+      tourItems,
+      understoodUri,
+      tempShowUri,
+      d,
+      level + 1,
+      orderedList,
+      addOnlyTemp || isUnderstood
+    );
   }
-  const currentItem = tourItems.get(currentId);
-  if (!currentItem) {
-    console.log('Not possible');
-    return;
+  if ((!isUnderstood && !addOnlyTemp) || tempShowUri.includes(currentId)) {
+    const currentItem = tourItems.get(currentId);
+    if (!currentItem) {
+      console.log('Not possible');
+      return;
+    }
+    currentItem.level = level;
+    orderedList.push(currentItem);
   }
-  currentItem.level = level;
-  orderedList.push(currentItem);
 }
 
-function getTourItemMap(tourAPIEntries: TourAPIEntry[]) {
+function getTourItemMap(tourAPIEntries: TourAPIEntry[], weights: number[]) {
   const tourItems: Map<string, TourItem> = new Map();
-  for (const n of tourAPIEntries) {
-    tourItems.set(n.id, {
-      uri: n.id,
-      header: n.title,
-      hash: simpleHash(n.id),
+  for (const [idx, entry] of tourAPIEntries.entries()) {
+    tourItems.set(entry.id, {
+      uri: entry.id,
+      header: entry.title,
+      hash: simpleHash(entry.id),
       dependencies: [],
-      successors: n.successors,
+      successors: entry.successors,
       level: 0,
+      weight: weights[idx],
     });
   }
   for (const n of tourAPIEntries) {
@@ -221,7 +277,8 @@ function getTourItemMap(tourAPIEntries: TourAPIEntry[]) {
 
 function getDisplayItemList(
   tourItemMap: Map<string, TourItem>,
-  understoodUri: string[]
+  understoodUri: string[],
+  tempShowUri: string[]
 ): TourItem[] {
   const rootItem = Array.from(tourItemMap.values()).find(
     (item) => !item.successors?.length
@@ -232,7 +289,15 @@ function getDisplayItemList(
     return [rootItem];
   }
   const orderedList: TourItem[] = [];
-  computeOrderedList(tourItemMap, understoodUri, rootItem.uri, 0, orderedList);
+  computeOrderedList(
+    tourItemMap,
+    understoodUri,
+    tempShowUri,
+    rootItem.uri,
+    0,
+    orderedList,
+    false
+  );
   return orderedList;
 }
 
@@ -297,6 +362,7 @@ export function NavBar({
       {items.map((item) => (
         <ListItem
           disablePadding
+          key={item.hash}
           id={navMenuItemId(item)}
           sx={{ cursor: 'pointer' }}
           onClick={() => scrollToItem(item)}
@@ -332,9 +398,13 @@ function scrollNavToShowVisibleItems(
 export function TourDisplay({
   tourId,
   language = 'en',
+  getUriWeights,
+  setUriWeights,
 }: {
   tourId: string;
   language?: string;
+  getUriWeights: (uri: string[]) => Promise<number[]>;
+  setUriWeights: (uriData: { [uri: string]: number }) => Promise<void>;
 }) {
   const [allItemsMap, setAllItemsMap] = useState(new Map<string, TourItem>());
   const [displayItemList, setDisplayItemList] = useState([] as TourItem[]);
@@ -346,6 +416,7 @@ export function TourDisplay({
   const [fetchingItems, setFetchingItems] = useState(false);
   const [windowSize, setWindowSize] = useState(0);
   const [understoodUri, setUnderstoodUriList] = useState([] as string[]);
+  const [tempShowUri, setTempShowUri] = useState([] as string[]);
 
   useEffect(() => {
     function handleResize() {
@@ -362,13 +433,29 @@ export function TourDisplay({
     setFetchingItems(true);
     axios.get(tourInfoUrl).then((r) => {
       setFetchingItems(false);
-      setAllItemsMap(getTourItemMap(r.data));
+      const apiEntries: TourAPIEntry[] = r.data;
+      const tourUris = apiEntries.map((e) => e.id);
+      getUriWeights(tourUris).then((weights) => {
+        const understood = [];
+        for (const [idx, w] of weights.entries()) {
+          weights[idx] = +w;
+        }
+        for (const [idx, weight] of weights.entries()) {
+          if (weight > 0.5) {
+            understood.push(tourUris[idx]);
+          }
+        }
+        setUnderstoodUriList(understood);
+        setAllItemsMap(getTourItemMap(apiEntries, weights));
+      });
     });
   }, [tourId, language]);
 
   useEffect(() => {
-    setDisplayItemList(getDisplayItemList(allItemsMap, understoodUri));
-  }, [allItemsMap, understoodUri]);
+    setDisplayItemList(
+      getDisplayItemList(allItemsMap, understoodUri, tempShowUri)
+    );
+  }, [allItemsMap, understoodUri, tempShowUri]);
 
   useEffect(() => {
     scrollNavToShowVisibleItems(displayItemList, itemVisibility);
@@ -379,10 +466,26 @@ export function TourDisplay({
       if (previous.includes(uri)) return previous;
       return [...previous, uri];
     });
+    setUriWeights({ [uri]: 1 }).then(console.log);
+    const item = allItemsMap.get(uri);
+    if (item) item.weight = 1;
   }
-
   function removeFromUnderstoodList(uri: string) {
     setUnderstoodUriList((previous) => previous.filter((u) => u !== uri));
+    setUriWeights({ [uri]: 0.0 }).then(console.log);
+    const item = allItemsMap.get(uri);
+    if (item) item.weight = 0;
+  }
+
+  function addToTempShowUri(uri: string) {
+    setTempShowUri((previous) => {
+      if (previous.includes(uri)) return previous;
+      return [...previous, uri];
+    });
+  }
+
+  function removeFromTempShowUri(uri: string) {
+    setTempShowUri((previous) => previous.filter((u) => u !== uri));
   }
 
   if (fetchingItems) return <CircularProgress />;
@@ -439,24 +542,25 @@ export function TourDisplay({
         )}
         <Box id={EXPANSION_BOX_ID} sx={{ overflowY: 'scroll' }} flexGrow={1}>
           <Box mx="10px">
-            {displayItemList.map((item, idx) => (
-              <>
-                <TourItemDisplay
-                  key={item.hash}
-                  item={item}
-                  allItemsMap={allItemsMap}
-                  lang={language}
-                  onUnderstood={() => addToUnderstoodList(item.uri)}
-                  onExpand={(uri) => removeFromUnderstoodList(uri)}
-                  visibilityUpdate={(visibility) => {
-                    setItemVisibility((prev) => {
-                      const newV = { ...prev };
-                      newV[item.hash] = visibility;
-                      return newV;
-                    });
-                  }}
-                />
-              </>
+            {displayItemList.map((item) => (
+              <TourItemDisplay
+                key={item.hash}
+                item={item}
+                allItemsMap={allItemsMap}
+                lang={language}
+                isTempShow={tempShowUri.includes(item.uri)}
+                onUnderstood={() => addToUnderstoodList(item.uri)}
+                onMoreDetails={() => removeFromUnderstoodList(item.uri)}
+                onHideTemp={() => removeFromTempShowUri(item.uri)}
+                addToTempShowUri={addToTempShowUri}
+                visibilityUpdate={(visibility) => {
+                  setItemVisibility((prev) => {
+                    const newV = { ...prev };
+                    newV[item.hash] = visibility;
+                    return newV;
+                  });
+                }}
+              />
             ))}
           </Box>
         </Box>
