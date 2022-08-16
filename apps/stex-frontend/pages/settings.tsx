@@ -1,8 +1,8 @@
 import { Button } from '@mui/material';
+import { localStore } from '@stex-react/utils';
 import type { NextPage } from 'next';
 import { useReducer } from 'react';
 import MainLayout from '../layouts/MainLayout';
-import { localStore } from '../utils';
 
 const FORCE_MATHJAX = 'forceMathJax';
 const NO_RESPONSIVE = 'no-responsive';
