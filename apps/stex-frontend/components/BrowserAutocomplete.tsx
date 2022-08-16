@@ -4,11 +4,10 @@ import {
   createFilterOptions,
   TextField,
 } from '@mui/material';
-import { PathToArticle } from '@stex-react/utils';
+import { fixDuplicateLabels, PathToArticle } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { ARTICLE_LIST } from '../article-list';
 import styles from '../index.module.scss';
-import { fixDuplicateLabels } from '../utils';
 
 interface BrowserItem {
   project: string;

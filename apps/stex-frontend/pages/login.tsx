@@ -5,9 +5,12 @@ import { useRouter } from 'next/router';
 import { useState } from 'react';
 
 import {
-  fakeLoginUsingRedirect, isLoggedIn,
+  fakeLoginUsingRedirect,
+  getUriWeights,
+  isLoggedIn,
   loginUsingRedirect,
-  logout
+  logout,
+  setUriWeights
 } from '../api/ums';
 import MainLayout from '../layouts/MainLayout';
 
@@ -73,6 +76,34 @@ const LoginPage: NextPage = () => {
               </>
             )}
           </Box>
+          <br />
+
+          <Button
+            variant="contained"
+            size="small"
+            sx={{ m: '5px' }}
+            onClick={async () => {
+              const resp = await setUriWeights({
+                testUri1: 0.5,
+                testUri2: 0.7,
+              });
+              console.log(resp);
+            }}
+          >
+            Set URI
+          </Button>
+
+          <Button
+            variant="contained"
+            size="small"
+            sx={{ m: '5px' }}
+            onClick={async () => {
+              const resp = await getUriWeights(['testUri1', 'testUri2']);
+              console.log(resp);
+            }}
+          >
+            Get URI
+          </Button>
         </Box>
       </Box>
     </MainLayout>

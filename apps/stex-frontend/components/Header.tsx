@@ -2,8 +2,8 @@ import { Box, Button, Menu, MenuItem, Toolbar } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
-import { isLoggedIn, logout } from '../api/ums';
+import { useEffect, useState } from 'react';
+import { getUserName, isLoggedIn, logout } from '../api/ums';
 import { BrowserAutocomplete } from '../components/BrowserAutocomplete';
 import styles from '../styles/header.module.scss';
 
@@ -18,13 +18,23 @@ function UserButton() {
     setAnchorEl(null);
   };
   // Menu crap End
+
+  const [userName, setUserName] = useState('User');
+  useEffect(() => {
+    getUserName().then(setUserName);
+  }, []);
+
   return (
     <div>
       <Button
-        sx={{ color: 'white', border: '1px solid white' }}
+        sx={{
+          color: 'white',
+          border: '1px solid white',
+          textTransform: 'none',
+        }}
         onClick={handleClick}
       >
-        User
+        {userName}
       </Button>
       <Menu
         id="basic-menu"

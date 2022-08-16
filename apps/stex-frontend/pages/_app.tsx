@@ -1,8 +1,7 @@
 import { createTheme, ThemeProvider } from '@mui/material';
 import { MathJaxContext } from '@stex-react/stex-react-renderer';
-import { DEFAULT_BASE_URL } from '@stex-react/utils';
+import { DEFAULT_BASE_URL, IS_SERVER } from '@stex-react/utils';
 import { AppProps } from 'next/app';
-import { IS_SERVER } from '../utils';
 import './styles.scss';
 
 const theme = createTheme({

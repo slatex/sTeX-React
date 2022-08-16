@@ -57,14 +57,22 @@ export function fakeLoginUsingRedirect(fakeId: string, returnBackUrl?: string) {
   window.location.replace(redirectUrl);
 }
 
-async function umsPostRequest(apiUrl: string, data: any, defaultVal: any) {
+async function umsRequest(
+  apiUrl: string,
+  requestType: string,
+  defaultVal: any,
+  data?: any
+) {
   const headers = getAuthHeaders();
   if (!headers) {
     return Promise.resolve(defaultVal);
   }
   try {
     const fullUrl = `${umsServerAddress}/${apiUrl}`;
-    const resp = await axios.post(fullUrl, data, { headers });
+    const resp =
+      requestType === 'POST'
+        ? await axios.post(fullUrl, data, { headers })
+        : await axios.get(fullUrl, { headers });
     return resp.data;
   } catch (err) {
     const error = err as Error | AxiosError;
@@ -77,14 +85,19 @@ async function umsPostRequest(apiUrl: string, data: any, defaultVal: any) {
 }
 
 export async function getUriWeights(uris: string[]) {
-  const vals = await umsPostRequest(
-    'usermodel/getUriWeights',
-    uris,
-    Array(uris.length).fill(0)
+  const vals = await umsRequest(
+    'usermodel/geturiweights',
+    'POST',
+    Array(uris.length).fill(0),
+    uris
   );
   return vals.map((val) => (val ? val : 0));
 }
 
 export async function setUriWeights(uriData: { [uri: string]: number }) {
-  return await umsPostRequest('usermodel/setUriWeights', uriData, {});
+  return await umsRequest('usermodel/seturiweights', 'POST', {}, uriData);
+}
+
+export async function getUserName() {
+  return await umsRequest('getusername', 'GET', 'Not logged in');
 }

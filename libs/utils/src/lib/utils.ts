@@ -2,6 +2,8 @@ import { getOuterHTML } from 'domutils';
 
 export const DEFAULT_BASE_URL = 'https://overleaf.beta.vollki.kwarc.info';
 export const BG_COLOR = 'hsl(210, 20%, 98%)';
+export const IS_SERVER = typeof window === 'undefined';
+export const localStore = IS_SERVER ? undefined : localStorage;
 
 export interface SectionInfo {
   url: string;
@@ -72,4 +74,23 @@ export function xhtmlPathToTex(xhtmlFilepath: string) {
 
 export function sourceFileUrl(projectId: string, texFilepath: string) {
   return `https://gl.mathhub.info/${projectId}/-/blob/main/source/${texFilepath}`;
+}
+
+export function fixDuplicateLabels(RAW: { label: string }[]) {
+  const fixed = [...RAW]; // create a copy;
+  const labelToIndex = new Map<string, number[]>();
+  for (const [idx, item] of fixed.entries()) {
+    if (labelToIndex.has(item.label)) {
+      labelToIndex.get(item.label)?.push(idx);
+    } else {
+      labelToIndex.set(item.label, [idx]);
+    }
+  }
+  for (const [label, indexes] of labelToIndex.entries()) {
+    if (indexes?.length <= 1) continue;
+    for (const [idx, index] of indexes.entries()) {
+      fixed[index].label = `${label} (${idx + 1})`;
+    }
+  }
+  return fixed;
 }

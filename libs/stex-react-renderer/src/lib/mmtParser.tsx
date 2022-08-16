@@ -1,7 +1,7 @@
 import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Tooltip, { tooltipClasses, TooltipProps } from '@mui/material/Tooltip';
-import { DEFAULT_BASE_URL } from '@stex-react/utils';
+import { DEFAULT_BASE_URL, IS_SERVER, localStore } from '@stex-react/utils';
 import parse, { DOMNode, domToReact, Element } from 'html-react-parser';
 import { createContext, forwardRef, useContext } from 'react';
 import { ContentFromUrl } from './ContentFromUrl';
@@ -12,9 +12,7 @@ import { MathMLDisplay } from './MathMLDisplay';
 import { OverlayDialog } from './OverlayDialog';
 import { SidebarButton } from './SidebarButton';
 
-const IS_SERVER = typeof window === 'undefined';
 export const PARSER_BASE_URL = (IS_SERVER ? null : (window as any).BASE_URL) ?? DEFAULT_BASE_URL;
-export const localStore = IS_SERVER ? undefined : localStorage;
 
 const NoMaxWidthTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
