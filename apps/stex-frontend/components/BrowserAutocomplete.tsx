@@ -63,7 +63,7 @@ function OptionDisplay({ item }: { item: BrowserItem }) {
 // Limit number of options rendered at a time to improve performance.
 const filterOptions = createFilterOptions({
   matchFrom: 'any',
-  limit: 300,
+  limit: 70,
 });
 
 export function BrowserAutocomplete() {

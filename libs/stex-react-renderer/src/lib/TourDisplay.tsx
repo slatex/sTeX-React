@@ -358,7 +358,7 @@ export function NavBar({
   }, [items]);
 
   return (
-    <List id={NAV_MENU_ID} sx={{ overflowY: 'scroll', width: '250px' }}>
+    <List id={NAV_MENU_ID}>
       {items.map((item) => (
         <ListItem
           disablePadding
@@ -538,9 +538,21 @@ export function TourDisplay({
 
       <Box display="flex" maxHeight="calc(100vh - 125px)" overflow="hidden">
         {showSidePanel && (
-          <NavBar items={displayItemList} itemVisibility={itemVisibility} />
+          <Box
+            maxWidth="325px"
+            flexGrow={1}
+            flexBasis="300px"
+            sx={{ overflowY: 'scroll' }}
+          >
+            <NavBar items={displayItemList} itemVisibility={itemVisibility} />
+          </Box>
         )}
-        <Box id={EXPANSION_BOX_ID} sx={{ overflowY: 'scroll' }} flexGrow={1}>
+        <Box
+          id={EXPANSION_BOX_ID}
+          sx={{ overflowY: 'scroll' }}
+          flexGrow={1}
+          flexBasis="600px"
+        >
           <Box mx="10px">
             {displayItemList.map((item) => (
               <TourItemDisplay

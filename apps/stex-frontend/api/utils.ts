@@ -9,6 +9,6 @@ export function getCookie(name: string) {
 export function deleteCookie(name: string) {
   document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
   // HACK: In prod, the cookie can comes from 'sp.kwarc.info'. This server sets the cookie to the
-  // parent domain (kwarc.info) so that we can access it.
+  // parent domain (kwarc.info) so that any of its subdomains can access it.
   document.cookie = name + `=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; domain=kwarc.info;`
 }

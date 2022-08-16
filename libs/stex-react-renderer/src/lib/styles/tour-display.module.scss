@@ -21,7 +21,7 @@ $triangleBorder: 11px;
   transition-delay: 3s;
 
   transition: max-height 0.25s ease-in;
-  transition-delay: 1s;
+  transition-delay: 0.5s;
 
   .steps-blur {
     // Keep the blur div vanished when user has mouse over this.
@@ -32,7 +32,8 @@ $triangleBorder: 11px;
 
 .steps-blur {
   position: absolute;
-  background: linear-gradient(180deg, #ffffff00 17%, #ffffff 25%);
+  // f9fafb is BG_COLOR
+  background: linear-gradient(180deg, #f9fafb00 17%, #f9fafbff 25%);
   z-index: 2;
   height: 120px;
   width: 100%;

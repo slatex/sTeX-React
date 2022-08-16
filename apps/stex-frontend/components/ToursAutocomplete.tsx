@@ -14,7 +14,7 @@ export const TOURS = fixDuplicateLabels(RAW_TOURS);
 // Limit number of options rendered at a time to improve performance.
 const filterOptions = createFilterOptions({
   matchFrom: 'any',
-  limit: 300,
+  limit: 70,
 });
 
 export function ToursAutocomplete() {

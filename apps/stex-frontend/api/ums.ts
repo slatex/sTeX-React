@@ -1,8 +1,10 @@
 import axios, { AxiosError } from 'axios';
 import { deleteCookie, getCookie } from './utils';
 
-const umsServerAddress = 'https://sp.kwarc.info' ;
-//const umsServerAddress = 'http://localhost:5000';
+const umsServerAddress =
+  process.env.NODE_ENV === 'development'
+    ? 'http://localhost:5000'
+    : 'https://sp.kwarc.info';
 
 export function getAccessToken() {
   return getCookie('access_token');
