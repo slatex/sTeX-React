@@ -30,6 +30,11 @@ const Home: NextPage = () => {
             </Link>
             <br />
             <br />
+            <Link href="/quiz">
+              <Button variant="contained">Quiz Demo</Button>
+            </Link>
+            <br />
+            <br />
             <BrowserAutocomplete />
             <ToursAutocomplete />
           </Box>

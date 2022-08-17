@@ -48,6 +48,7 @@ export function QuizDisplay({ path }: { path: string }) {
     setQuestionStatuses(
       new Array(urls.length).fill({ selectedIndex: -1, isCorrect: false })
     );
+    setIsSubmitted(false);
   }, [path]);
 
   function onSelectedIndexUpdate(
