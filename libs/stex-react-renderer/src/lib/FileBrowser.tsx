@@ -80,7 +80,7 @@ export function FileBrowser({
               />
             </>
           ) : (
-            <i>No Article Selected</i>
+            <i>Click an article for preview</i>
           )}
         </Box>
       </Box>

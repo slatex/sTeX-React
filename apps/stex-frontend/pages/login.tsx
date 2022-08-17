@@ -5,12 +5,9 @@ import { useRouter } from 'next/router';
 import { useState } from 'react';
 
 import {
-  fakeLoginUsingRedirect,
-  getUriWeights,
-  isLoggedIn,
+  fakeLoginUsingRedirect, isLoggedIn,
   loginUsingRedirect,
-  logout,
-  setUriWeights
+  logout
 } from '../api/ums';
 import MainLayout from '../layouts/MainLayout';
 
@@ -27,12 +24,14 @@ const LoginPage: NextPage = () => {
         <Box sx={{ m: 'auto', maxWidth: '550px', backgroundColor: BG_COLOR }}>
           <Box p="3rem" borderRadius="0.3rem" border="1px solid #dee2e6">
             <br />
-            <TextField
-              label="FakeId"
-              value={fakeId}
-              onChange={(e) => setFakeId(e.target.value)}
-              sx={{ my: '10px' }}
-            />
+            {!loggedIn && (
+              <TextField
+                label="FakeId"
+                value={fakeId}
+                onChange={(e) => setFakeId(e.target.value)}
+                sx={{ my: '10px' }}
+              />
+            )}
             {loggedIn ? (
               <Button
                 fullWidth
@@ -69,7 +68,7 @@ const LoginPage: NextPage = () => {
                   <br />
                   <br />
                   <i style={{ color: 'red' }}>
-                    Warning: Logging out from FAU IdM-Portal will not log you
+                    Warning: Logging out from FAU IdM-Portal will NOT log you
                     out here.
                   </i>
                 </span>
@@ -77,33 +76,6 @@ const LoginPage: NextPage = () => {
             )}
           </Box>
           <br />
-
-          <Button
-            variant="contained"
-            size="small"
-            sx={{ m: '5px' }}
-            onClick={async () => {
-              const resp = await setUriWeights({
-                testUri1: 0.5,
-                testUri2: 0.7,
-              });
-              console.log(resp);
-            }}
-          >
-            Set URI
-          </Button>
-
-          <Button
-            variant="contained"
-            size="small"
-            sx={{ m: '5px' }}
-            onClick={async () => {
-              const resp = await getUriWeights(['testUri1', 'testUri2']);
-              console.log(resp);
-            }}
-          >
-            Get URI
-          </Button>
         </Box>
       </Box>
     </MainLayout>

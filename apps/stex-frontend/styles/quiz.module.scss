@@ -1,0 +1,26 @@
+.option {
+  border: 1px solid #AAA;
+  border-radius: 10px;
+  margin: 10px;
+  padding-right: 10px;
+  user-select: none;
+}
+
+.option_unfrozen {
+  border-color: gray!important;
+  border-width: 3px!important;
+  margin: 8px!important;
+}
+
+.correct {
+  border-color: green!important;
+  border-width: 3px!important;
+  margin: 8px!important;
+}
+
+
+.incorrect {
+  border-color: red!important;
+  border-width: 3px!important;
+  margin: 8px!important;
+}
