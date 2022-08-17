@@ -111,13 +111,16 @@ function getClassNames(
   isSubmitted: boolean,
   isCorrect: boolean
 ) {
-  if (!isSelected) return styles['option'];
-  const second = isSubmitted
-    ? isCorrect
-      ? styles['correct']
-      : styles['incorrect']
-    : styles['option_selected'];
-  return styles['option'] + ' ' + second;
+  if (isSubmitted) {
+    if (isCorrect) return styles['option'] + ' ' + styles['correct'];
+    if (!isSelected && !isCorrect) return styles['option'];
+    if (isSelected && !isCorrect)
+      return styles['option'] + ' ' + styles['incorrect'];
+  } else {
+    return !isSelected
+      ? styles['option']
+      : styles['option'] + ' ' + styles['option_selected'];
+  }
 }
 
 export function QuestionDisplay({
@@ -177,7 +180,7 @@ export function QuestionDisplay({
               className={getClassNames(
                 selectedIdx === optionIdx,
                 isSubmitted,
-                question.correctOptionIdx === selectedIdx
+                question.correctOptionIdx === optionIdx
               )}
               label={
                 <>
@@ -198,7 +201,16 @@ export function QuestionDisplay({
       <br />
 
       {isSubmitted && feedback && (
-        <span style={{ marginLeft: '20px', fontSize: '20px' }}>
+        <span
+          style={{
+            textAlign: 'center',
+            fontSize: '20px',
+            padding: '3px',
+            backgroundColor: '#333',
+            color: 'white',
+            borderRadius: '10px'
+          }}
+        >
           {mmtHTMLToReact(feedback.outerHTML)}
         </span>
       )}

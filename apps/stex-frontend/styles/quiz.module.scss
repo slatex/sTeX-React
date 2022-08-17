@@ -6,21 +6,24 @@
   user-select: none;
 }
 
-.option_unfrozen {
+.option_selected {
+  background-color: #999;
   border-color: gray!important;
   border-width: 3px!important;
   margin: 8px!important;
 }
 
 .correct {
-  border-color: green!important;
+  background-color: #23cb23;
+  border-color: #178717!important;
   border-width: 3px!important;
   margin: 8px!important;
 }
 
 
 .incorrect {
-  border-color: red!important;
+  background-color: #eb6262;
+  border-color: #da1010!important;
   border-width: 3px!important;
   margin: 8px!important;
 }
