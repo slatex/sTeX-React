@@ -93,7 +93,7 @@ export async function getUriWeights(uris: string[]) {
     Array(uris.length).fill(0),
     uris
   );
-  return vals.map((val) => (val ? val : 0));
+  return vals.map((val) => (val ? +val : 0));
 }
 
 export async function setUriWeights(uriData: { [uri: string]: number }) {

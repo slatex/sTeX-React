@@ -10,7 +10,7 @@ import { FileBrowser } from './FileBrowser';
 import { FileNode } from './FileNode';
 import MathJaxContext from './MathJaxContext';
 import { mmtHTMLToReact } from './mmtParser';
-import { TourDisplay } from './TourDisplay';
+import { TourAPIEntry, TourDisplay } from './TourDisplay';
 
 const W = typeof window === 'undefined' ? undefined : window;
 
@@ -103,4 +103,4 @@ export {
   TourDisplay,
   FileBrowser,
 };
-export type { FileNode };
+export type { FileNode, TourAPIEntry };

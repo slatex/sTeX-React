@@ -7,7 +7,7 @@ import {
 import { useRouter } from 'next/router';
 import { RAW_TOURS } from '../tours';
 import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
-import { fixDuplicateLabels } from '@stex-react/utils';
+import { fixDuplicateLabels, PathToTour } from '@stex-react/utils';
 
 export const TOURS = fixDuplicateLabels(RAW_TOURS);
 
@@ -17,7 +17,11 @@ const filterOptions = createFilterOptions({
   limit: 70,
 });
 
-export function ToursAutocomplete() {
+export function ToursAutocomplete({
+  onSelect,
+}: {
+  onSelect?: (tourId: string) => void;
+}) {
   const router = useRouter();
   return (
     <Autocomplete
@@ -34,9 +38,12 @@ export function ToursAutocomplete() {
         </Box>
       )}
       onChange={(_e, n: any) => {
-        if (!n) return;
-        const encoded = encodeURIComponent(n.value);
-        if (encoded) router.push('/guided-tour/' + encoded);
+        if (!n?.value) return;
+        if (onSelect) {
+          onSelect(n.value);
+        } else {
+          router.push(PathToTour(n.value));
+        }
       }}
     />
   );

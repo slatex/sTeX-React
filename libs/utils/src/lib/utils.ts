@@ -64,6 +64,11 @@ export function PathToArticle(projectId: string, xhtmlFilepath: string) {
   return `/browser/${encodeURIComponent(path)}`;
 }
 
+export function PathToTour(tourId: string) {
+  const encoded = encodeURIComponent(tourId);
+  return `/guided-tour/${encoded}`;
+}
+
 export function texPathToXhtml(texFilepath: string) {
   return texFilepath.slice(0, -3) + 'xhtml';
 }
