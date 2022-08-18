@@ -398,13 +398,14 @@ function scrollNavToShowVisibleItems(
 export function TourDisplay({
   tourId,
   language = 'en',
-  getUriWeights,
-  setUriWeights,
+  getUriWeights = (uri: string[]) =>
+    Promise.resolve(new Array(uri.length).fill(0)),
+  setUriWeights = (_) => Promise.resolve(),
 }: {
   tourId: string;
   language?: string;
-  getUriWeights: (uri: string[]) => Promise<number[]>;
-  setUriWeights: (uriData: { [uri: string]: number }) => Promise<void>;
+  getUriWeights?: (uri: string[]) => Promise<number[]>;
+  setUriWeights?: (uriData: { [uri: string]: number }) => Promise<void>;
 }) {
   const [allItemsMap, setAllItemsMap] = useState(new Map<string, TourItem>());
   const [displayItemList, setDisplayItemList] = useState([] as TourItem[]);
