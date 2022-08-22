@@ -542,7 +542,7 @@ export function TourDisplay({
           <Box
             maxWidth="325px"
             flexGrow={1}
-            flexBasis="300px"
+            flexBasis="250px"
             sx={{ overflowY: 'scroll' }}
           >
             <NavBar items={displayItemList} itemVisibility={itemVisibility} />

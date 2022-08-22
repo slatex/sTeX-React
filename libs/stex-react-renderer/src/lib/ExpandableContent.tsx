@@ -77,7 +77,7 @@ export function ExpandableContent({
         );
       }
     }
-  }, [router.isReady, router?.query, urlHash]);
+  }, [router?.isReady, router?.query, urlHash]);
 
   const changeState = (e: MouseEvent) => {
     e.stopPropagation();
