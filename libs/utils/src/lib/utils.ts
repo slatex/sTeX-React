@@ -1,6 +1,6 @@
 import { getOuterHTML } from 'domutils';
 
-export const DEFAULT_BASE_URL = 'https://overleaf.beta.vollki.kwarc.info';
+export const DEFAULT_BASE_URL = 'https://mmt.beta.vollki.kwarc.info';
 export const BG_COLOR = 'hsl(210, 20%, 98%)';
 export const IS_SERVER = typeof window === 'undefined';
 export const localStore = IS_SERVER ? undefined : localStorage;
