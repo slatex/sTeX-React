@@ -16,7 +16,7 @@ import {
 } from '@stex-react/stex-react-renderer';
 import { simpleHash } from '@stex-react/utils';
 import axios from 'axios';
-import { useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { PARSER_BASE_URL } from './mmtParser';
 import styles from './styles/tour-display.module.scss';
 
@@ -76,6 +76,9 @@ function getSuccessorChain(item: TourItem, allItemsMap: Map<string, TourItem>) {
   }
   return succChain;
 }
+const RenderedMmtMemo = memo(({ html }: { html: string }) => {
+  return <>{mmtHTMLToReact(html)}</>;
+});
 
 function ItemBreadcrumbs({
   item,
@@ -97,7 +100,9 @@ function ItemBreadcrumbs({
           if (!item) return null;
           return (
             <li key={uri} onClick={() => scrollToItem(item)}>
-              <a>{mmtHTMLToReact(item.header)}</a>
+              <a>
+                <RenderedMmtMemo html={item.header} />
+              </a>
             </li>
           );
         })}
@@ -119,7 +124,7 @@ function ItemBreadcrumbs({
                   scrollToItem(dep);
                 }}
               >
-                {mmtHTMLToReact(dep.header)}
+                <RenderedMmtMemo html={dep.header} />
               </Button>
             );
           })}
@@ -165,7 +170,9 @@ function TourItemDisplay({
         mb="5px"
         justifyContent="space-between"
       >
-        <h3 style={{ margin: 0 }}>{mmtHTMLToReact(item.header)}</h3>
+        <h3 style={{ margin: 0 }}>
+          <RenderedMmtMemo html={item.header} />
+        </h3>
         <Box mx="10px" height="30px" sx={{ whiteSpace: 'nowrap' }}>
           {!isTempShow ? (
             <Button
@@ -302,8 +309,14 @@ function getDisplayItemList(
 }
 
 function listItemText(item: TourItem, isIntersecting: boolean) {
-  const header = mmtHTMLToReact(item.header);
-  return <Box>{isIntersecting ? <b>{header}</b> : header}</Box>;
+  const fontWeight = isIntersecting ? 'bold' : undefined;
+  return (
+    <Box>
+      <span style={{ fontWeight }}>
+        <RenderedMmtMemo html={item.header} />
+      </span>
+    </Box>
+  );
 }
 
 function LeftGuide({ children, level }: { children: any; level: number }) {
@@ -346,7 +359,7 @@ function LeftGuide({ children, level }: { children: any; level: number }) {
   );
 }
 
-export function NavBar({
+function NavBar({
   items,
   itemVisibility,
 }: {

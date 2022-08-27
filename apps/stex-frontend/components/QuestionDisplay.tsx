@@ -2,14 +2,12 @@ import { Box, Card } from '@mui/material';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio, { RadioProps } from '@mui/material/Radio';
-import FormLabel from '@mui/material/FormLabel';
 import RadioGroup from '@mui/material/RadioGroup';
 import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
-import { BG_COLOR, convertHtmlStringToPlain } from '@stex-react/utils';
+import { convertHtmlStringToPlain } from '@stex-react/utils';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import styles from '../styles/quiz.module.scss';
-import { OPTIONS } from 'mathjax-full/js/util/Options';
 
 export interface Option {
   shouldSelect: boolean;

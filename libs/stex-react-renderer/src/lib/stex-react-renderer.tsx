@@ -24,6 +24,16 @@ export function StexReactRenderer({
   const [showDashboard, setShowDashboard] = useState(false);
   const [windowSize, setWindowSize] = useState(0);
   const [isEmptyDash, setIsEmptyDash] = useState(true);
+  const [offset, setOffset] = useState(topOffset);
+
+  useEffect(() => {
+    const onScroll = () =>
+      setOffset(Math.max(topOffset - (W?.pageYOffset || 0), 0));
+    // clean up code
+    window.removeEventListener('scroll', onScroll);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [topOffset]);
 
   useEffect(() => {
     function handleResize() {
@@ -51,7 +61,7 @@ export function StexReactRenderer({
       >
         <ContentDashboard
           onClose={() => setShowDashboard(false)}
-          topOffset={topOffset}
+          topOffset={offset}
         />
       </Drawer>
 
@@ -59,7 +69,7 @@ export function StexReactRenderer({
         <Box display={{ xs: 'none', md: 'block' }}>
           <ContentDashboard
             onClose={() => setShowDashboard(false)}
-            topOffset={topOffset}
+            topOffset={offset}
           />
         </Box>
       )}
@@ -68,7 +78,7 @@ export function StexReactRenderer({
           onClick={() => setShowDashboard(true)}
           sx={{
             position: 'fixed',
-            top: `${topOffset + 2}px`,
+            top: `${offset + 2}px`,
             left: '5px',
             border: '2px solid #777',
           }}
@@ -91,6 +101,7 @@ export function StexReactRenderer({
             topLevel={true}
           />
         </Box>
+        {offset}
       </Box>
     </>
   );
