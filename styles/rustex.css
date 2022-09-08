@@ -101,7 +101,6 @@
     align-self: center;
   }
   .hbox {
-    white-space:pre;
     display: inline-flex;
     flex-direction: row;
     justify-content: flex-start;
