@@ -12,7 +12,8 @@ import { MathMLDisplay } from './MathMLDisplay';
 import { OverlayDialog } from './OverlayDialog';
 import { SidebarButton } from './SidebarButton';
 
-export const PARSER_BASE_URL = (IS_SERVER ? null : (window as any).BASE_URL) ?? DEFAULT_BASE_URL;
+export const PARSER_BASE_URL =
+  (IS_SERVER ? null : (window as any).BASE_URL) ?? DEFAULT_BASE_URL;
 
 const NoMaxWidthTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />

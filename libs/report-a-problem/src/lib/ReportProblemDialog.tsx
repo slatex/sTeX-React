@@ -125,7 +125,7 @@ export function ReportProblemDialog({
             color: '#777',
             borderRadius: '5px',
             maxHeight: '100px',
-            overflowY: 'scroll',
+            overflowY: 'auto',
           }}
         >
           {selectedText}

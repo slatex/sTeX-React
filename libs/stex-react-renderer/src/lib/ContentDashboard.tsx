@@ -79,10 +79,7 @@ export function ContentDashboard({
     });
   return (
     <Box className={styles['dash_outer_box']}>
-      <Box
-        className={styles['dash_inner_box']}
-        sx={{ marginTop: `${topOffset}px` }}
-      >
+      <Box className={styles['dash_inner_box']} mt={`${topOffset}px`}>
         <Box display="flex" alignItems="baseline">
           <IconButton sx={{ m: '2px 0 0 5px' }} onClick={() => onClose()}>
             <ArrowBackIcon />
