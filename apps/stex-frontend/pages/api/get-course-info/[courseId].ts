@@ -13,7 +13,7 @@ export default async function handler(req, res) {
   const { courseId } = req.query;
 
   if (COURSE_INFO_CACHE.has(courseId)) {
-    return res.status(200).json(COURSE_INFO_CACHE[courseId]);
+    return res.status(200).json(COURSE_INFO_CACHE.get(courseId));
   }
 
   if (courseId !== 'ai-1') {
