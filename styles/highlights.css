@@ -19,8 +19,26 @@
 .frame {
     border: 2px solid black;
     display: flex;
-    margin: 5px auto;
+    margin: 0px auto;
     background-color: white;
+
+    flex-direction: column;
+    padding: 0 10px 10px 10px;
+    overflow-y: auto;
+    height: 555px;
+    border-radius: 5px;
+}
+
+.text-frame {
+    padding: 10px;
+    height: 545px;
+    overflow-y: auto;
+    border: 2px solid black;
+    border-radius: 5px;
+}
+
+.text-frame span {
+    font-size: 18px!important;
 }
 
 .solution {}

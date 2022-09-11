@@ -1,0 +1,25 @@
+.dash_outer_box {
+  position: fixed;
+  top: 0;
+  margin-bottom: 10px;
+  height: 100%;
+  z-index: 1;
+
+  // flex makes sure that height is equal to window.
+  display: flex;
+
+  width: 300px;
+  max-width: 300px;
+}
+
+.dash_inner_box {
+  background-color: white;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+.dash_scroll_area_box {
+  overflow-y: auto;
+  height: 100%;
+}
