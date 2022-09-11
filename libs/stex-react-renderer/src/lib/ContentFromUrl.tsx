@@ -1,8 +1,7 @@
 import { LinearProgress } from '@mui/material';
 import axios from 'axios';
-import { memo, useEffect, useMemo, useState } from 'react';
-import { TOP_LEVEL } from './collectIndexInfo';
-import { HighlightContext, mmtHTMLToReact } from './mmtParser';
+import { memo, useEffect, useState } from 'react';
+import { ContentWithHighlight } from './ContentWithHightlight';
 
 export const ContentFromUrl = memo(
   ({
@@ -16,15 +15,8 @@ export const ContentFromUrl = memo(
     skipSidebar?: boolean;
     topLevel?: boolean;
   }) => {
-    const [rendered, setRendered] = useState<any>(<></>);
     const [isLoading, setIsLoading] = useState(false);
-    console.log(url);
-
-    const [highlightedParentId, setHighlightedParentId] = useState('');
-    const value = useMemo(
-      () => ({ highlightedParentId, setHighlightedParentId }),
-      [highlightedParentId]
-    );
+    const [mmtHtml, setMmtHtml] = useState('');
 
     useEffect(() => {
       if (!url?.length) return;
@@ -34,17 +26,11 @@ export const ContentFromUrl = memo(
         .catch((_e) => null)
         .then((r) => {
           setIsLoading(false);
-          if (topLevel) TOP_LEVEL.childNodes = new Map();
-
-          let toShow;
-          if (!r) {
-            toShow = <span style={{ color: 'red' }}>Error loading: {url}</span>;
-          } else {
-            toShow = mmtHTMLToReact(r.data, skipSidebar);
-          }
-          setRendered(toShow);
+          let html = `<span style={{ color: 'red' }}>Error loading: ${url}</span>`;
+          if (r?.data) html = r.data;
+          setMmtHtml(html);
         });
-    }, [url, skipSidebar, topLevel]);
+    }, [url, topLevel]);
 
     if (isLoading) {
       return (
@@ -55,9 +41,13 @@ export const ContentFromUrl = memo(
       );
     }
     return (
-      <HighlightContext.Provider value={value}>
-        <div {...{ 'section-url': url }}>{modifyRendered(rendered)}</div>
-      </HighlightContext.Provider>
+      <ContentWithHighlight
+        mmtHtml={mmtHtml}
+        modifyRendered={modifyRendered}
+        skipSidebar={skipSidebar}
+        topLevel={topLevel}
+        renderWrapperParams={{ 'section-url': url }}
+      />
     );
   }
 );

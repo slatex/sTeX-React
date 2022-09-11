@@ -11,6 +11,7 @@ import { FileNode } from './FileNode';
 import MathJaxContext from './MathJaxContext';
 import { mmtHTMLToReact } from './mmtParser';
 import { TourAPIEntry, TourDisplay } from './TourDisplay';
+import { ContentWithHighlight } from './ContentWithHightlight';
 
 const W = typeof window === 'undefined' ? undefined : window;
 
@@ -101,14 +102,13 @@ export function StexReactRenderer({
             topLevel={true}
           />
         </Box>
-        {offset}
       </Box>
     </>
   );
 }
-
 export {
   ContentFromUrl,
+  ContentWithHighlight,
   mmtHTMLToReact,
   MathJaxContext,
   TourDisplay,
