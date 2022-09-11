@@ -9,7 +9,9 @@ import {
   deckIdToNodeId,
   findNode,
   getFileContent,
-  NodeId, nodeId, nodeIdToDeckId
+  NodeId,
+  nodeId,
+  nodeIdToDeckId,
 } from '../../notesHelpers';
 
 function FrameSlide(slideContent: any): Slide {
@@ -25,7 +27,7 @@ function TextSlide(slideContent: any, titleElement?: any): Slide {
   let autoExpand = false;
   if (titleElement) {
     const titleText = textContent(titleElement);
-    autoExpand = !titleText || titleText.startsWith('http');
+    autoExpand = !titleText.trim().length || titleText.startsWith('http');
   }
   return {
     slideContent: getOuterHTML(slideContent),
@@ -43,7 +45,7 @@ function trimElements(elements: string[]) {
 
 async function getSlidesForDocNodeAfterRef(
   node: any,
-  isDoc: boolean,
+  isDoc: string,
   titleElement?: Element,
   afterThisRef?: NodeId
 ): Promise<SlideReturn> {
@@ -103,7 +105,7 @@ async function getSlidesForDocNodeAfterRef(
       sectionHasEnded: sectionEnd,
     } = await getSlidesForDocNodeAfterRef(
       child,
-      false,
+      undefined,
       undefined,
       afterThisRef2
     );
@@ -129,11 +131,11 @@ async function getSlidesForDocNodeAfterRef(
     slides[slides.length - 1].postNotes.push(...preNotes);
   }
   const numFrameOrExpandableSlides = slides.filter(
-    (s) => s.slideType === SlideType.FRAME || s.autoExpand
+    (s) => s.slideType === SlideType.FRAME || !s.autoExpand
   ).length;
   if (
-    !afterThisRef &&
     isDoc &&
+    !afterThisRef &&
     numFrameOrExpandableSlides === 0 &&
     !sectionHasEnded
   ) {
@@ -164,7 +166,13 @@ async function getSlidesForDocAfterRef(
   //console.log(`slides from ${curr.filepath} after ${afterThisRef?.filepath}`);
   const data = await getFileContent(curr);
   const htmlDoc = htmlparser2.parseDocument(data);
-  return await getSlidesForDocNodeAfterRef(htmlDoc, true, title, afterThisRef);
+
+  return await getSlidesForDocNodeAfterRef(
+    htmlDoc,
+    curr.filepath,
+    title,
+    afterThisRef
+  );
 }
 
 export default async function handler(req, res) {
@@ -174,11 +182,15 @@ export default async function handler(req, res) {
     res.status(404).json({ error: 'Course not found!' });
     return;
   }
+  // console.log(`===${deckId}===`);
 
   const lastSectionEndNode = deckIdToNodeId(deckId);
   const slides: Slide[] = [];
   const node = findNode(lastSectionEndNode, AI_ROOT_NODE);
-  // console.log(node);
+  if (!node && deckId !== 'initial') {
+    res.status(500).json({ error: `Not found: ${deckId}` });
+    return;
+  }
   if (!node) {
     const slideReturn = await getSlidesForDocAfterRef(nodeId(AI_ROOT_NODE));
     slides.push(...slideReturn.slides);

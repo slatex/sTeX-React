@@ -81,7 +81,7 @@ export const AI_1_PREVALUATED_VIDEO_INFO: {
     r720: 'https://cdn.video.uni-erlangen.de/symlinks/c8c711db-c232-4f99-b882-84b80f4b7e79.m4v',
     r360: 'https://cdn.video.uni-erlangen.de/symlinks/11a0ba95-3b43-486e-bf76-44bf79e54996.m4v'
   },
-  'MiKoMH/AI||prolog/mod/kb-query.en.xhtml': {
+  'MiKoMH/AI||prolog/mod/DFS-back-ex.en.xhtml': {
     timestampSec: 8,
     r1080: 'https://cdn.video.uni-erlangen.de/symlinks/6a8a9713-9650-4e0f-9924-a2995c4e5cf0.m4v',
     r720: 'https://cdn.video.uni-erlangen.de/symlinks/d37cdac2-f5cb-48f0-ab1a-933f3857750d.m4v',

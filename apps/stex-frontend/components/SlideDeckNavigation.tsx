@@ -3,7 +3,7 @@ import { List, ListItem } from '@mui/material';
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import MuiAccordionSummary, {
-  AccordionSummaryProps
+  AccordionSummaryProps,
 } from '@mui/material/AccordionSummary';
 import { styled } from '@mui/material/styles';
 import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
@@ -59,7 +59,7 @@ export function SlideDeckNavigation({
   );
   return (
     <>
-      {sections.map((section, sectionIdx) => (
+      {sections.slice(0, -1).map((section, sectionIdx) => (
         <Accordion key={section.sectionTitle} defaultExpanded={true}>
           <AccordionSummary>
             <span

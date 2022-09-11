@@ -24,7 +24,10 @@ export const AI_1_COURSE_SECTIONS: {
     'MiKoMH/AI||course/snip/recruiting.en.xhtml': { clipId: '21752' },
     'MiKoMH/AI||prolog/snip/intro.en.xhtml': { clipId: '21753' },
     'MiKoMH/AI||prolog/mod/fallible-greeks.en.xhtml': { clipId: '21754' },
-    'MiKoMH/AI||prolog/mod/kb-query.en.xhtml': { clipId: '21827' },
+    'MiKoMH/AI||prolog/mod/DFS-back-ex.en.xhtml': { clipId: '21827' },
+  },
+  'Dont show me, i am just to end the last deck': {
+    'MiKoMH/AI||prolog/mod/rtfm.en.xhtml': { },
   }
   /*
    '': { clipId: '' },
