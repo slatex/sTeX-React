@@ -1,6 +1,6 @@
 import { Box, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import { localStore } from '@stex-react/utils';
-import { Dispatch, SetStateAction, useRef, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { DeckAndVideoInfo } from '../shared/slides';
 
 function ToggleResolution({
@@ -51,12 +51,15 @@ function getVideoId(
 }
 
 export function VideoDisplay({ deckInfo }: { deckInfo: DeckAndVideoInfo }) {
-  const [resolution, setResolution] = useState(
-    +(localStore.getItem('defaultResolution') || '720')
-  );
+  const [resolution, setResolution] = useState(720);
   const videoRef = useRef<HTMLVideoElement>(null);
   const availableRes = getAvailableRes(deckInfo);
   const videoId = getVideoId(deckInfo, resolution, availableRes);
+
+  useEffect(
+    () => setResolution(+(localStore?.getItem('defaultResolution') || '720')),
+    []
+  );
   if (!videoId) return <span>Video not available for this section</span>;
   return (
     <>
@@ -69,7 +72,7 @@ export function VideoDisplay({ deckInfo }: { deckInfo: DeckAndVideoInfo }) {
           if (deckInfo.timestampSec)
             videoRef.current.currentTime = deckInfo.timestampSec;
         }}
-        style={{ width: '100%', height: '100%' }}
+        style={{ width: '100%', height: '100%', border: '1px solid black', borderRadius: '5px' }}
         ref={videoRef}
       ></video>
       <Box sx={{ display: 'flex', m: '-5px 0 5px' }}>

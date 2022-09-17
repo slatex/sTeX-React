@@ -2,7 +2,7 @@ import ListIcon from '@mui/icons-material/List';
 import { Box, Drawer, IconButton } from '@mui/material';
 import { BG_COLOR } from '@stex-react/utils';
 import { useEffect, useState } from 'react';
-import { TOP_LEVEL } from './collectIndexInfo';
+import { IndexNode, TOP_LEVEL } from './collectIndexInfo';
 import { ContentDashboard } from './ContentDashboard';
 import { ContentFromUrl } from './ContentFromUrl';
 import { ExpandableContextMenu } from './ExpandableContextMenu';
@@ -18,9 +18,11 @@ const W = typeof window === 'undefined' ? undefined : window;
 export function StexReactRenderer({
   contentUrl,
   topOffset = 0,
+  dashInfo = undefined,
 }: {
   contentUrl: string;
   topOffset?: number;
+  dashInfo?: IndexNode;
 }) {
   const [showDashboard, setShowDashboard] = useState(false);
   const [windowSize, setWindowSize] = useState(0);
@@ -45,12 +47,15 @@ export function StexReactRenderer({
   }, []);
 
   useEffect(() => {
-    const interval = setInterval(
-      () => setIsEmptyDash(TOP_LEVEL.childNodes.size === 0),
-      3000
-    );
+    if (dashInfo?.childNodes?.size) {
+      setIsEmptyDash(false);
+      return;
+    }
+    const interval = setInterval(() => {
+      setIsEmptyDash(TOP_LEVEL.childNodes.size === 0);
+    }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [dashInfo]);
 
   return (
     <>
@@ -63,6 +68,7 @@ export function StexReactRenderer({
         <ContentDashboard
           onClose={() => setShowDashboard(false)}
           topOffset={offset}
+          dashInfo={dashInfo}
         />
       </Drawer>
 
@@ -71,6 +77,7 @@ export function StexReactRenderer({
           <ContentDashboard
             onClose={() => setShowDashboard(false)}
             topOffset={offset}
+            dashInfo={dashInfo}
           />
         </Box>
       )}
@@ -114,4 +121,4 @@ export {
   TourDisplay,
   FileBrowser,
 };
-export type { FileNode, TourAPIEntry };
+export type { FileNode, TourAPIEntry, IndexNode };

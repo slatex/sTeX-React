@@ -7,6 +7,7 @@ import { AI_1_NOTES_PREVALUATED_TREE } from './course_info/ai-1-notes';
 const DEFAULT_BASE_URL = 'https://mmt.beta.vollki.kwarc.info';
 const ROOT_DOC =
   '/:sTeX/document?archive=MiKoMH/AI&filepath=course/notes/notes.xhtml';
+// '/:sTeX/document?archive=MiKoMH/AI&filepath=course/fragments/lecturing.en.xhtml';
 //'/:sTeX/document?archive=MiKoMH/AI&filepath=course/fragments/overview.en.xhtml';
 const fromPrevaluated = true;
 
@@ -110,7 +111,7 @@ async function getDocumentTree(
   }
   fetchedDocs++;
   const docContent = await axios.get(fullUrl).then((r) => r.data);
-  const {archive, filepath} = archiveAndFilepathFromUrl(docUrl);
+  const { archive, filepath } = archiveAndFilepathFromUrl(docUrl);
 
   // DOMParser is not available on nodejs.
   const htmlDoc = htmlparser2.parseDocument(docContent);

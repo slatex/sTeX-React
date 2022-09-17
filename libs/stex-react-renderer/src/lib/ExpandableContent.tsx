@@ -1,7 +1,11 @@
 import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
 import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/IndeterminateCheckBoxOutlined';
 import { Box, IconButton } from '@mui/material';
-import { convertHtmlNodeToPlain, simpleHash } from '@stex-react/utils';
+import {
+  convertHtmlNodeToPlain,
+  getSectionInfo,
+  simpleHash,
+} from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import {
   createContext,
@@ -15,6 +19,7 @@ import { reportContext } from './collectIndexInfo';
 import { ContentFromUrl } from './ContentFromUrl';
 import { ErrorBoundary } from './ErrorBoundary';
 import { ExpandableContextMenu } from './ExpandableContextMenu';
+import { useOnScreen } from './useOnScreen';
 
 const SEPARATOR_inDocPath = '.';
 const ExpandContext = createContext([] as string[]);
@@ -33,6 +38,9 @@ function getToOpenContentHash(inDocPath: string) {
   if (!inDocPath?.length) return [];
   return inDocPath.split(SEPARATOR_inDocPath);
 }
+function createHash({ archive = '', filepath = '' }) {
+  return simpleHash(`${archive}||${filepath}`);
+}
 
 export function ExpandableContent({
   contentUrl,
@@ -47,8 +55,7 @@ export function ExpandableContent({
   title: any;
   htmlTitle: any;
 }) {
-  // TODO: hash should be of the content URI (archive, filepath). Not the full url.
-  const urlHash = simpleHash(contentUrl);
+  const urlHash = createHash(getSectionInfo(contentUrl || ''));
   const [openAtLeastOnce, setOpenAtLeastOnce] = useState(defaultOpen);
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const router = useRouter();
@@ -59,7 +66,15 @@ export function ExpandableContent({
   const autoExpand = !titleText || titleText.startsWith('http');
 
   // Reference to the top most Box.
-  const contentRef = useRef<HTMLInputElement>(null);
+  const contentRef = useRef<HTMLInputElement>();
+  const isVisible = useOnScreen(contentRef);
+  useEffect(() => {
+    if (isVisible && !openAtLeastOnce) {
+      setIsOpen(true);
+      setOpenAtLeastOnce(true);
+    }
+  }, [contentUrl, openAtLeastOnce, isVisible]);
+
   reportContext(childContext, titleText);
 
   useEffect(() => {

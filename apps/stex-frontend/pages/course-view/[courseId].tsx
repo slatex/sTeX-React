@@ -1,7 +1,13 @@
 import MergeIcon from '@mui/icons-material/Merge';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
 import VideoCameraFrontIcon from '@mui/icons-material/VideoCameraFront';
-import { Box, ToggleButton, ToggleButtonGroup, Toolbar } from '@mui/material';
+import {
+  Box,
+  ToggleButton,
+  ToggleButtonGroup,
+  Toolbar,
+  Tooltip,
+} from '@mui/material';
 import { ContentWithHighlight } from '@stex-react/stex-react-renderer';
 import { localStore } from '@stex-react/utils';
 import { SlideDeckNavigation } from '../../components/SlideDeckNavigation';
@@ -46,17 +52,23 @@ function ToggleModeButton({
       onChange={(event, newVal) => {
         if (newVal !== null) updateViewMode(newVal);
       }}
-      aria-label="text alignment"
+      sx={{ m: '5px 0', border: '1px solid black' }}
     >
-      <ToggleButton value={ViewMode.VIDEO_MODE}>
-        <VideoCameraFrontIcon />
-      </ToggleButton>
-      <ToggleButton value={ViewMode.SLIDE_MODE}>
-        <SlideshowIcon />
-      </ToggleButton>
-      <ToggleButton value={ViewMode.COMBINED_MODE}>
-        <MergeIcon />
-      </ToggleButton>
+      <Tooltip title="Show video">
+        <ToggleButton value={ViewMode.VIDEO_MODE}>
+          <VideoCameraFrontIcon />
+        </ToggleButton>
+      </Tooltip>
+      <Tooltip title="Show slides">
+        <ToggleButton value={ViewMode.SLIDE_MODE}>
+          <SlideshowIcon />
+        </ToggleButton>
+      </Tooltip>
+      <Tooltip title="Show slides and video">
+        <ToggleButton value={ViewMode.COMBINED_MODE}>
+          <MergeIcon />
+        </ToggleButton>
+      </Tooltip>
     </ToggleButtonGroup>
   );
 }
@@ -71,9 +83,14 @@ const CourseViewPage: NextPage = () => {
   const [offset, setOffset] = useState(64);
   const [courseInfo, setCourseInfo] = useState(undefined as CourseInfo);
   const [deckInfo, setDeckInfo] = useState(undefined as DeckAndVideoInfo);
-  const [viewMode, setViewMode] = useState(
-    ViewMode[localStore?.getItem('defaultMode') as keyof typeof ViewMode] ||
-      ViewMode.SLIDE_MODE
+  const [viewMode, setViewMode] = useState(ViewMode.SLIDE_MODE);
+  useEffect(
+    () =>
+      setViewMode(
+        ViewMode[localStore?.getItem('defaultMode') as keyof typeof ViewMode] ||
+          ViewMode.SLIDE_MODE
+      ),
+    []
   );
 
   useEffect(() => {

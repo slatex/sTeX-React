@@ -1,15 +1,15 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, IconButton, TextField } from '@mui/material';
 import { useRouter } from 'next/router';
-import { useReducer, useState } from 'react';
-import { IndexNode, TOP_LEVEL } from './collectIndexInfo';
+import { useEffect, useReducer, useState } from 'react';
+import { IndexNode, TOP_LEVEL, INDEX_UPDATE_COUNT } from './collectIndexInfo';
 import styles from './stex-react-renderer.module.scss';
 
 function applyFilter(
-  node: IndexNode,
-  searchTerms: string[]
+  node?: IndexNode,
+  searchTerms?: string[]
 ): IndexNode | undefined {
-  if (!searchTerms?.length) return node;
+  if (!node || !searchTerms?.length) return node;
   const newChildren = new Map<string, IndexNode>();
   for (const [key, childNode] of node.childNodes.entries()) {
     const newChild = applyFilter(childNode, searchTerms);
@@ -32,16 +32,28 @@ function applyFilter(
 export function ContentDashboard({
   onClose,
   topOffset = 0,
+  dashInfo = undefined,
 }: {
   onClose: () => void;
   topOffset?: number;
+  dashInfo?: IndexNode;
 }) {
   const router = useRouter();
   const [filterStr, setFilterStr] = useState('');
-  const [, forceUpdate] = useReducer((x) => x + 1, 0);
-  setTimeout(() => forceUpdate(), 1000);
+  const [updatedCount, setUpdatedCount] = useState(-1);
+
+  useEffect(() => {
+    if (dashInfo) return;
+    const timerId = setInterval(() => {
+      if (!dashInfo && INDEX_UPDATE_COUNT !== updatedCount) {
+        setUpdatedCount(INDEX_UPDATE_COUNT);
+      }
+    }, 2000);
+    return () => clearInterval(timerId);
+  }, [dashInfo]);
+
   const rootPage = applyFilter(
-    TOP_LEVEL,
+    dashInfo || TOP_LEVEL,
     filterStr
       .toLowerCase()
       .split(' ')

@@ -12,6 +12,8 @@ export const TOP_LEVEL: IndexNode = {
   title: 'HIDE ME',
 };
 
+export let INDEX_UPDATE_COUNT = 0;
+
 function addToNode(node: IndexNode, context: string[], title: string) {
   if (!node || !context?.length) return;
   const first = context[0];
@@ -41,4 +43,5 @@ function addToNode(node: IndexNode, context: string[], title: string) {
 export function reportContext(context: string[], titleText: any) {
   if (titleText.startsWith('http')) return;
   addToNode(TOP_LEVEL, context, titleText);
+  INDEX_UPDATE_COUNT++;
 }

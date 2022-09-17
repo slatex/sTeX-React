@@ -19,6 +19,7 @@ import axios from 'axios';
 import { memo, useEffect, useRef, useState } from 'react';
 import { PARSER_BASE_URL } from './mmtParser';
 import styles from './styles/tour-display.module.scss';
+import { useOnScreen } from './useOnScreen';
 
 const NAV_MENU_ID = 'list-container';
 const EXPANSION_BOX_ID = 'expansion-box';
@@ -40,24 +41,6 @@ function navMenuItemId(item: TourItem) {
 
 function expandedItemId(item: TourItem) {
   return `expand-${item.hash}`;
-}
-
-function useOnScreen(ref: any) {
-  const [isIntersecting, setIntersecting] = useState(false);
-
-  const observer = new IntersectionObserver(([entry]) =>
-    setIntersecting(entry.isIntersecting)
-  );
-
-  useEffect(() => {
-    observer.observe(ref.current);
-    // Remove the observer as soon as the component is unmounted
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
-
-  return isIntersecting;
 }
 
 function scrollToItem(item: TourItem) {
