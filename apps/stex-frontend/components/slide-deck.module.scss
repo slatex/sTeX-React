@@ -1,0 +1,8 @@
+.deck-box {
+  display: flex;
+  justify-content: space-between;
+}
+
+.deck-box > :first-child > :first-child { /* The 'frame' or 'text-frame' */
+  height: 550px !important;
+}

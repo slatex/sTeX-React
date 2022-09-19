@@ -21,12 +21,10 @@
     display: flex;
     margin: 0px auto;
     background-color: white;
-
-    flex-direction: column;
-    padding: 0 10px 10px 10px;
-    overflow-y: auto;
-    height: 560px;
     border-radius: 5px;
+    flex-direction: column;
+    padding: 10px;
+    overflow-y: auto;
 }
 
 .text-frame {
