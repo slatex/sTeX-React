@@ -1,6 +1,6 @@
 import ListIcon from '@mui/icons-material/List';
 import { Box, Drawer, IconButton } from '@mui/material';
-import { BG_COLOR } from '@stex-react/utils';
+import { BG_COLOR, getChildrenOfBodyNode } from '@stex-react/utils';
 import { useEffect, useState } from 'react';
 import { IndexNode, TOP_LEVEL } from './collectIndexInfo';
 import { ContentDashboard } from './ContentDashboard';
@@ -42,7 +42,6 @@ export function StexReactRenderer({
     function handleResize() {
       setWindowSize(W?.innerWidth || 0);
     }
-    setWindowSize(W?.innerWidth || 0);
     W?.addEventListener('resize', handleResize);
   }, []);
 
@@ -56,6 +55,7 @@ export function StexReactRenderer({
     }, 3000);
     return () => clearInterval(interval);
   }, [dashInfo]);
+  if(!contentUrl?.length) return;
 
   return (
     <>
@@ -99,13 +99,13 @@ export function StexReactRenderer({
         {showDashboard && (
           <Box flex="0 0 300px" display={{ xs: 'none', md: 'block' }}></Box>
         )}
-        <Box maxWidth="520px" m="0 auto">
+        <Box maxWidth="600px" m="0 auto">
           <Box display="flex" flexDirection="row-reverse">
             <ExpandableContextMenu contentUrl={contentUrl} />
           </Box>
           <ContentFromUrl
             url={contentUrl}
-            modifyRendered={(bodyNode) => bodyNode?.props?.children}
+            modifyRendered={getChildrenOfBodyNode}
             topLevel={true}
           />
         </Box>

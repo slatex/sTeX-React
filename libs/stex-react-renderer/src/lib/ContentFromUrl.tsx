@@ -1,4 +1,4 @@
-import { LinearProgress } from '@mui/material';
+import { Box, LinearProgress } from '@mui/material';
 import axios from 'axios';
 import { memo, useEffect, useState } from 'react';
 import { ContentWithHighlight } from './ContentWithHightlight';
@@ -6,7 +6,7 @@ import { ContentWithHighlight } from './ContentWithHightlight';
 export const ContentFromUrl = memo(
   ({
     url,
-    modifyRendered = (n) => n,
+    modifyRendered = undefined,
     skipSidebar = false,
     topLevel = false,
   }: {
@@ -15,29 +15,26 @@ export const ContentFromUrl = memo(
     skipSidebar?: boolean;
     topLevel?: boolean;
   }) => {
-    const [isLoading, setIsLoading] = useState(false);
-    const [mmtHtml, setMmtHtml] = useState('');
+    const [mmtHtml, setMmtHtml] = useState<string | undefined>(undefined);
 
     useEffect(() => {
       if (!url?.length) return;
-      setIsLoading(true);
       axios
         .get(url)
         .catch((_e) => null)
         .then((r) => {
-          setIsLoading(false);
           let html = `<span style={{ color: 'red' }}>Error loading: ${url}</span>`;
           if (r?.data) html = r.data;
           setMmtHtml(html);
         });
-    }, [url, topLevel]);
+    }, [url]);
 
-    if (isLoading) {
+    if (mmtHtml === undefined) {
       return (
-        <>
+        <Box height="800px">
           <span style={{ fontSize: 'smaller' }}>{url}</span>
           <LinearProgress />
-        </>
+        </Box>
       );
     }
     return (

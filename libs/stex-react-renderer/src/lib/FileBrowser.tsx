@@ -3,6 +3,7 @@ import { Box, Button } from '@mui/material';
 import { ContentFromUrl } from '@stex-react/stex-react-renderer';
 import {
   BG_COLOR,
+  getChildrenOfBodyNode,
   PathToArticle,
   sourceFileUrl,
   XhtmlContentUrl,
@@ -76,7 +77,7 @@ export function FileBrowser({
                   selectedFilepath
                 )}
                 skipSidebar={true}
-                modifyRendered={(bodyNode) => bodyNode?.props?.children}
+                modifyRendered={getChildrenOfBodyNode}
               />
             </>
           ) : (

@@ -59,7 +59,7 @@ export function ExpandableContextMenu({
             }}
           >
             <LinkIcon />
-            &nbsp;Copy Link
+            &nbsp;Copy Section Link
           </MenuItem>
         )}
         <MenuItem

@@ -257,7 +257,7 @@ const replace = (domNode: DOMNode, skipSidebar = false): any => {
               <div style={{ minWidth: '300px', maxWidth: '600px' }}>
                 <ContentFromUrl
                   url={tooltipPath}
-                  modifyRendered={(n) => getChildrenOfBodyNode(n)}
+                  modifyRendered={getChildrenOfBodyNode}
                 />
               </div>
             }

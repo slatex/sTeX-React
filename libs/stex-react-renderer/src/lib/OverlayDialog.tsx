@@ -1,5 +1,6 @@
 import { OpenInNew } from '@mui/icons-material';
 import { Button, Dialog, DialogActions, IconButton } from '@mui/material';
+import { getChildrenOfBodyNode } from '@stex-react/utils';
 import { ReactNode, useState } from 'react';
 import { ContentFromUrl } from './ContentFromUrl';
 import { ErrorBoundary } from './ErrorBoundary';
@@ -29,7 +30,7 @@ export function OverlayDialog({ contentUrl, displayNode }: OverlayDialogProps) {
         </a>
         <ContentFromUrl
           url={contentUrl}
-          modifyRendered={(bodyNode) => bodyNode?.props?.children}
+          modifyRendered={getChildrenOfBodyNode}
         />
 
         <DialogActions>

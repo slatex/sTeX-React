@@ -100,3 +100,7 @@ export function fixDuplicateLabels(RAW: { label: string }[]) {
   }
   return fixed;
 }
+
+export function getChildrenOfBodyNode(bodyNode: any) {
+  return bodyNode?.props?.children;
+}

@@ -3,6 +3,7 @@ import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/Indeterminate
 import { Box, IconButton } from '@mui/material';
 import {
   convertHtmlNodeToPlain,
+  getChildrenOfBodyNode,
   getSectionInfo,
   simpleHash,
 } from '@stex-react/utils';
@@ -66,7 +67,7 @@ export function ExpandableContent({
   const autoExpand = !titleText || titleText.startsWith('http');
 
   // Reference to the top most Box.
-  const contentRef = useRef<HTMLInputElement>();
+  const contentRef = useRef<HTMLElement>();
   const isVisible = useOnScreen(contentRef);
   useEffect(() => {
     if (isVisible && !openAtLeastOnce) {
@@ -106,7 +107,7 @@ export function ExpandableContent({
         {contentUrl ? (
           <ContentFromUrl
             url={contentUrl}
-            modifyRendered={(bodyNode) => bodyNode?.props?.children}
+            modifyRendered={getChildrenOfBodyNode}
           />
         ) : (
           { staticContent }
@@ -175,7 +176,7 @@ export function ExpandableContent({
                 <ExpandContext.Provider value={childContext}>
                   <ContentFromUrl
                     url={contentUrl}
-                    modifyRendered={(bodyNode) => bodyNode?.props?.children}
+                    modifyRendered={getChildrenOfBodyNode}
                   />
                 </ExpandContext.Provider>
               ) : (
