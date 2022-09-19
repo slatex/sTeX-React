@@ -38,9 +38,44 @@ function TextSlide(slideContent: any, titleElement?: any): Slide {
   };
 }
 
+function getText(html: string) {
+  const handler = new htmlparser2.DomHandler();
+  const parser = new htmlparser2.Parser(handler);
+
+  parser.write(html);
+  parser.end();
+  const nodes: any = handler.root.childNodes.filter(
+    (n: any) => !n.attribs?.['style']?.includes('display:none')
+  );
+  return textContent(nodes);
+}
+
 function trimElements(elements: string[]) {
-  /* TODO: remove whitespace elements at beginning and end. */
-  return elements;
+  const filtered = [] as string[];
+  let state = 'START';
+  const buffer = [] as string[];
+
+  console.log('\n'.repeat(4));
+  for (const elementStr of elements) {
+    const trimmed = getText(elementStr)
+      .replace(/[\u200B-\u200D\uFEFF]/g, '') // nbsp type elements
+      .trim();
+    if (trimmed.length) {
+      console.log(elementStr);
+      console.log(`${trimmed.length}[${trimmed}]`);
+    }
+    const isSpace = trimmed.length === 0;
+    if (isSpace) {
+      if (state !== 'START') {
+        buffer.push(elementStr);
+      }
+    } else {
+      if (state === 'START') state = 'STARTED';
+      filtered.push(...buffer, elementStr);
+      buffer.length = 0;
+    }
+  }
+  return filtered;
 }
 
 async function getSlidesForDocNodeAfterRef(
