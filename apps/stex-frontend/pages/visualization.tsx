@@ -1,18 +1,10 @@
-import {
-  dagStratify,
-  sugiyama,
-  decrossOpt /*DagNode, zherebko, grid*/,
-} from 'd3-dag';
-import * as d3 from 'd3';
-import { NextPage } from 'next';
-import { useEffect, useState } from 'react';
-import MainLayout from '../layouts/MainLayout';
-import { DEFAULT_BASE_URL, PathToTour } from '@stex-react/utils';
-import axios from 'axios';
 import { Box, Link } from '@mui/material';
-import { getUriWeights } from '../api/ums';
-import { UserModelVisualization } from '../components/UserModelVisualization';
+import { PathToTour } from '@stex-react/utils';
+import { NextPage } from 'next';
+import { useState } from 'react';
 import { ToursAutocomplete } from '../components/ToursAutocomplete';
+import { UserModelVisualization } from '../components/UserModelVisualization';
+import MainLayout from '../layouts/MainLayout';
 
 /*
  */

@@ -1,8 +1,8 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, IconButton, TextField } from '@mui/material';
 import { useRouter } from 'next/router';
-import { useEffect, useReducer, useState } from 'react';
-import { IndexNode, TOP_LEVEL, INDEX_UPDATE_COUNT } from './collectIndexInfo';
+import { useEffect, useState } from 'react';
+import { IndexNode, INDEX_UPDATE_COUNT, TOP_LEVEL } from './collectIndexInfo';
 import styles from './stex-react-renderer.module.scss';
 
 function applyFilter(
@@ -50,7 +50,7 @@ export function ContentDashboard({
       }
     }, 2000);
     return () => clearInterval(timerId);
-  }, [dashInfo]);
+  }, [dashInfo]); // No need to add updatedCount.
 
   const rootPage = applyFilter(
     dashInfo || TOP_LEVEL,
@@ -78,7 +78,7 @@ export function ContentDashboard({
             for (let n: IndexNode | undefined = node; n; n = n.parentNode) {
               if (n.hash) paths.push(n.hash);
             }
-            router.query['inDocPath'] = paths.reverse().join('.');
+            router.query['inDocPath'] = paths.reverse().slice(1).join('.');
             router.push(router);
           }}
         >

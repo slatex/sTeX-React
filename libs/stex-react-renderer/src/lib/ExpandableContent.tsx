@@ -7,7 +7,6 @@ import {
   getSectionInfo,
   simpleHash,
 } from '@stex-react/utils';
-import { useRouter } from 'next/router';
 import {
   createContext,
   MouseEvent,
@@ -16,15 +15,14 @@ import {
   useRef,
   useState,
 } from 'react';
-import { reportContext } from './collectIndexInfo';
+import { reportIndexInfo, SEPARATOR_inDocPath } from './collectIndexInfo';
 import { ContentFromUrl } from './ContentFromUrl';
 import { ErrorBoundary } from './ErrorBoundary';
 import { ExpandableContextMenu } from './ExpandableContextMenu';
+import { DisplayMode } from './stex-react-renderer';
 import { useOnScreen } from './useOnScreen';
 
-const SEPARATOR_inDocPath = '.';
 const ExpandContext = createContext([] as string[]);
-
 function getInDocumentLink(childContext: string[]) {
   if (typeof window === 'undefined') return '';
   return (
@@ -35,10 +33,6 @@ function getInDocumentLink(childContext: string[]) {
   );
 }
 
-function getToOpenContentHash(inDocPath: string) {
-  if (!inDocPath?.length) return [];
-  return inDocPath.split(SEPARATOR_inDocPath);
-}
 function createHash({ archive = '', filepath = '' }) {
   return simpleHash(`${archive}||${filepath}`);
 }
@@ -59,41 +53,26 @@ export function ExpandableContent({
   const urlHash = createHash(getSectionInfo(contentUrl || ''));
   const [openAtLeastOnce, setOpenAtLeastOnce] = useState(defaultOpen);
   const [isOpen, setIsOpen] = useState(defaultOpen);
-  const router = useRouter();
   const parentContext = useContext(ExpandContext);
   const childContext = [...parentContext, urlHash];
 
   const titleText = convertHtmlNodeToPlain(htmlTitle);
   const autoExpand = !titleText || titleText.startsWith('http');
+  const { expandOnVisible } = useContext(DisplayMode);
 
-  // Reference to the top most Box.
+  // Reference to the top-most box.
   const contentRef = useRef<HTMLElement>();
   const isVisible = useOnScreen(contentRef);
   useEffect(() => {
-    if (isVisible && !openAtLeastOnce) {
+    if (expandOnVisible && isVisible && !openAtLeastOnce) {
       setIsOpen(true);
       setOpenAtLeastOnce(true);
     }
-  }, [contentUrl, openAtLeastOnce, isVisible]);
-
-  reportContext(childContext, titleText);
+  }, [expandOnVisible, openAtLeastOnce, isVisible]);
 
   useEffect(() => {
-    const inDocPath = router?.query?.['inDocPath'] as string;
-    const toOpenContentHash = getToOpenContentHash(inDocPath);
-    // Oversimplied logic of openDueToUrl: Should check if parents match too.
-    const openDueToUrl = toOpenContentHash.includes(urlHash);
-    if (openDueToUrl) {
-      setIsOpen(true);
-      setOpenAtLeastOnce(true);
-      if (toOpenContentHash.at(-1) === urlHash) {
-        setTimeout(
-          () => contentRef.current?.scrollIntoView({ behavior: 'smooth' }),
-          200
-        );
-      }
-    }
-  }, [router?.isReady, router?.query, urlHash]);
+    reportIndexInfo(childContext, titleText, contentRef?.current);
+  }, [childContext, titleText, contentRef?.current]); // Keep contentRef?.current here to make sure that the ref is reported when loaded.
 
   const changeState = (e: MouseEvent) => {
     e.stopPropagation();
@@ -105,10 +84,13 @@ export function ExpandableContent({
     return (
       <ErrorBoundary hidden={false}>
         {contentUrl ? (
-          <ContentFromUrl
-            url={contentUrl}
-            modifyRendered={getChildrenOfBodyNode}
-          />
+          <Box ref={contentRef}>
+            <ContentFromUrl
+              url={contentUrl}
+              modifyRendered={getChildrenOfBodyNode}
+              minLoadingHeight={expandOnVisible ? '800px' : undefined}
+            />
+          </Box>
         ) : (
           { staticContent }
         )}
@@ -118,49 +100,67 @@ export function ExpandableContent({
 
   return (
     <ErrorBoundary hidden={false}>
-      <Box m="4px 0" ref={contentRef}>
-        <Box display="flex" justifyContent="space-between">
-          <Box
-            display="flex"
-            alignItems="center"
-            sx={{ cursor: 'pointer' }}
-            onClick={changeState}
-          >
-            <IconButton sx={{ color: 'gray', p: '0' }} onClick={changeState}>
-              {isOpen ? (
-                <IndeterminateCheckBoxOutlinedIcon sx={{ fontSize: '20px' }} />
-              ) : (
-                <AddBoxOutlinedIcon sx={{ fontSize: '20px' }} />
-              )}
-            </IconButton>
-            <Box
-              sx={{
-                '& > *:hover': { background: '#DDD' },
-                width: 'fit-content',
-                px: '4px',
-                ml: '-2px',
-                borderRadius: '5px',
-              }}
-            >
-              {contentUrl ? (
-                <b style={{ fontSize: 'large' }}>{title}</b>
-              ) : (
-                title
-              )}
+      <Box
+        m="4px 0"
+        ref={contentRef}
+        minHeight={!openAtLeastOnce && expandOnVisible ? '1000px' : undefined}
+      >
+        {expandOnVisible ? (
+          contentUrl && (
+            <Box position='absolute' right='10px'>
+              <ExpandableContextMenu
+                sectionLink={getInDocumentLink(childContext)}
+                contentUrl={contentUrl}
+              />
             </Box>
+          )
+        ) : (
+          <Box display="flex" justifyContent="space-between">
+            <Box
+              display="flex"
+              alignItems="center"
+              sx={{ cursor: 'pointer' }}
+              onClick={changeState}
+            >
+              <IconButton sx={{ color: 'gray', p: '0' }} onClick={changeState}>
+                {isOpen ? (
+                  <IndeterminateCheckBoxOutlinedIcon
+                    sx={{ fontSize: '20px' }}
+                  />
+                ) : (
+                  <AddBoxOutlinedIcon sx={{ fontSize: '20px' }} />
+                )}
+              </IconButton>
+              <Box
+                sx={{
+                  '& > *:hover': { background: '#DDD' },
+                  width: 'fit-content',
+                  px: '4px',
+                  ml: '-2px',
+                  borderRadius: '5px',
+                }}
+              >
+                {contentUrl ? (
+                  <b style={{ fontSize: 'large' }}>{title}</b>
+                ) : (
+                  title
+                )}
+              </Box>
+            </Box>
+            {contentUrl && (
+              <ExpandableContextMenu
+                sectionLink={getInDocumentLink(childContext)}
+                contentUrl={contentUrl}
+              />
+            )}
           </Box>
-          {contentUrl && (
-            <ExpandableContextMenu
-              sectionLink={getInDocumentLink(childContext)}
-              contentUrl={contentUrl}
-            />
-          )}
-        </Box>
+        )}
 
-        {openAtLeastOnce && (
+        {openAtLeastOnce ? (
           <Box display={isOpen ? 'flex' : 'none'}>
             <Box
               minWidth="20px"
+              display={expandOnVisible ? 'none' : undefined}
               sx={{
                 cursor: 'pointer',
                 '&:hover *': { borderLeft: '1px solid #333' },
@@ -171,12 +171,13 @@ export function ExpandableContent({
                 &nbsp;
               </Box>
             </Box>
-            <Box>
+            <Box overflow="auto">
               {contentUrl ? (
                 <ExpandContext.Provider value={childContext}>
                   <ContentFromUrl
                     url={contentUrl}
                     modifyRendered={getChildrenOfBodyNode}
+                    minLoadingHeight={expandOnVisible ? '800px' : undefined}
                   />
                 </ExpandContext.Provider>
               ) : (
@@ -184,6 +185,8 @@ export function ExpandableContent({
               )}
             </Box>
           </Box>
+        ) : (
+          expandOnVisible && <>Loading...</>
         )}
       </Box>
     </ErrorBoundary>

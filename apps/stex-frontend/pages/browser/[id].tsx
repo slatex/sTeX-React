@@ -1,3 +1,4 @@
+import { Checkbox, FormControlLabel, FormGroup } from '@mui/material';
 import { IndexNode, StexReactRenderer } from '@stex-react/stex-react-renderer';
 import {
   convertHtmlStringToPlain,
@@ -25,8 +26,7 @@ function getDashInfo(
   dashFromServer: DashFromServer,
   parentNode = undefined as IndexNode
 ): IndexNode | undefined {
-  const title =
-    convertHtmlStringToPlain(dashFromServer.titleAsHtml).trim();
+  const title = convertHtmlStringToPlain(dashFromServer.titleAsHtml).trim();
   if (!title?.length && parentNode) return;
   const hash = createHash(dashFromServer);
   const childNodes = new Map<string, IndexNode>();
@@ -45,10 +45,11 @@ function getDashInfo(
 }
 
 const BrowserPage: NextPage = () => {
-  const [contentUrl, setContentUrl] = useState('');
   const router = useRouter();
   const id = router.query.id as string;
+  const [contentUrl, setContentUrl] = useState(undefined as string);
   const [dashInfo, setDashInfo] = useState(undefined as IndexNode);
+  const [continuous, setContinuous] = useState(true);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -66,14 +67,27 @@ const BrowserPage: NextPage = () => {
       const d = r.data ? getDashInfo(r.data) : undefined;
       setDashInfo(d);
     });
-  }, [id, contentUrl, router.isReady]);
+  }, [id, router.isReady]);
+  if (!contentUrl?.length) return;
 
   return (
     <MainLayout title="sTeX Browser" showBrowserAutocomplete={true}>
+      <FormGroup sx={{ alignItems: 'center' }}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={continuous}
+              onChange={(e) => setContinuous(e.target.checked)}
+            />
+          }
+          label="Continuous Mode"
+        />
+      </FormGroup>
       <StexReactRenderer
         contentUrl={contentUrl}
         topOffset={64}
         dashInfo={dashInfo}
+        expandOnVisible={continuous}
       />
     </MainLayout>
   );

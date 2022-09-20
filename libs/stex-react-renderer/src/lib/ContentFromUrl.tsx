@@ -9,11 +9,13 @@ export const ContentFromUrl = memo(
     modifyRendered = undefined,
     skipSidebar = false,
     topLevel = false,
+    minLoadingHeight = undefined,
   }: {
     url: string;
     modifyRendered?: (node: any) => any;
     skipSidebar?: boolean;
     topLevel?: boolean;
+    minLoadingHeight?: string;
   }) => {
     const [mmtHtml, setMmtHtml] = useState<string | undefined>(undefined);
 
@@ -31,7 +33,7 @@ export const ContentFromUrl = memo(
 
     if (mmtHtml === undefined) {
       return (
-        <Box height="800px">
+        <Box minHeight={minLoadingHeight}>
           <span style={{ fontSize: 'smaller' }}>{url}</span>
           <LinearProgress />
         </Box>

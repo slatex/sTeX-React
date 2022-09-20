@@ -1,8 +1,8 @@
 import ListIcon from '@mui/icons-material/List';
 import { Box, Drawer, IconButton } from '@mui/material';
 import { BG_COLOR, getChildrenOfBodyNode } from '@stex-react/utils';
-import { useEffect, useState } from 'react';
-import { IndexNode, TOP_LEVEL } from './collectIndexInfo';
+import { createContext, useEffect, useState } from 'react';
+import { IndexNode, scrollToClosestAncestorAndSetPending, TOP_LEVEL } from './collectIndexInfo';
 import { ContentDashboard } from './ContentDashboard';
 import { ContentFromUrl } from './ContentFromUrl';
 import { ExpandableContextMenu } from './ExpandableContextMenu';
@@ -12,22 +12,33 @@ import MathJaxContext from './MathJaxContext';
 import { mmtHTMLToReact } from './mmtParser';
 import { TourAPIEntry, TourDisplay } from './TourDisplay';
 import { ContentWithHighlight } from './ContentWithHightlight';
+import { useRouter } from 'next/router';
 
 const W = typeof window === 'undefined' ? undefined : window;
+
+export const DisplayMode = createContext({ expandOnVisible: true });
+
+function getToOpenContentHash(inDocPath: string) {
+  if (!inDocPath?.length) return [];
+  return inDocPath.split('.');
+}
 
 export function StexReactRenderer({
   contentUrl,
   topOffset = 0,
   dashInfo = undefined,
+  expandOnVisible = true,
 }: {
   contentUrl: string;
   topOffset?: number;
   dashInfo?: IndexNode;
+  expandOnVisible?: boolean;
 }) {
   const [showDashboard, setShowDashboard] = useState(false);
-  const [windowSize, setWindowSize] = useState(0);
+  const [windowWidth, setWindowWidth] = useState(0);
   const [isEmptyDash, setIsEmptyDash] = useState(true);
   const [offset, setOffset] = useState(topOffset);
+  const router = useRouter();
 
   useEffect(() => {
     const onScroll = () =>
@@ -40,8 +51,9 @@ export function StexReactRenderer({
 
   useEffect(() => {
     function handleResize() {
-      setWindowSize(W?.innerWidth || 0);
+      setWindowWidth(W?.innerWidth || 0);
     }
+    setWindowWidth(W?.innerWidth || 0);
     W?.addEventListener('resize', handleResize);
   }, []);
 
@@ -55,14 +67,19 @@ export function StexReactRenderer({
     }, 3000);
     return () => clearInterval(interval);
   }, [dashInfo]);
-  if(!contentUrl?.length) return;
+
+  useEffect(() => {
+    if(!router?.isReady) return;
+    const inDocPath = router?.query?.['inDocPath'] as string;
+    scrollToClosestAncestorAndSetPending(getToOpenContentHash(inDocPath))
+  }, [router?.isReady, router?.query]);
 
   return (
     <>
       <Drawer
         anchor="left"
         // 800 is the size 'md'
-        open={windowSize < 800 && showDashboard}
+        open={windowWidth < 800 && showDashboard}
         onClose={() => setShowDashboard(false)}
       >
         <ContentDashboard
@@ -103,11 +120,13 @@ export function StexReactRenderer({
           <Box display="flex" flexDirection="row-reverse">
             <ExpandableContextMenu contentUrl={contentUrl} />
           </Box>
-          <ContentFromUrl
-            url={contentUrl}
-            modifyRendered={getChildrenOfBodyNode}
-            topLevel={true}
-          />
+          <DisplayMode.Provider value={{ expandOnVisible }}>
+            <ContentFromUrl
+              url={contentUrl}
+              modifyRendered={getChildrenOfBodyNode}
+              topLevel={true}
+            />
+          </DisplayMode.Provider>
         </Box>
       </Box>
     </>

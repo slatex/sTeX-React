@@ -1,5 +1,5 @@
 import { memo, useEffect, useMemo, useState } from 'react';
-import { TOP_LEVEL } from './collectIndexInfo';
+import { resetIndexInfo } from './collectIndexInfo';
 import { HighlightContext, mmtHTMLToReact } from './mmtParser';
 
 export const ContentWithHighlight = memo(
@@ -25,7 +25,7 @@ export const ContentWithHighlight = memo(
     );
 
     useEffect(() => {
-      if (topLevel) TOP_LEVEL.childNodes = new Map();
+      if (topLevel) resetIndexInfo();
     }, [topLevel]);
 
     useEffect(() => {
