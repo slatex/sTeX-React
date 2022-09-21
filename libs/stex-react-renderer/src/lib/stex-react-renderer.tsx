@@ -1,22 +1,28 @@
 import ListIcon from '@mui/icons-material/List';
 import { Box, Drawer, IconButton } from '@mui/material';
-import { BG_COLOR, getChildrenOfBodyNode } from '@stex-react/utils';
-import { createContext, useEffect, useState } from 'react';
-import { IndexNode, scrollToClosestAncestorAndSetPending, TOP_LEVEL } from './collectIndexInfo';
+import { BG_COLOR, getChildrenOfBodyNode, localStore } from '@stex-react/utils';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import {
+  IndexNode,
+  scrollToClosestAncestorAndSetPending,
+  TOP_LEVEL,
+} from './collectIndexInfo';
 import { ContentDashboard } from './ContentDashboard';
 import { ContentFromUrl } from './ContentFromUrl';
+import { ContentWithHighlight } from './ContentWithHightlight';
 import { ExpandableContextMenu } from './ExpandableContextMenu';
 import { FileBrowser } from './FileBrowser';
 import { FileNode } from './FileNode';
 import MathJaxContext from './MathJaxContext';
 import { mmtHTMLToReact } from './mmtParser';
+import {
+  RendererDisplayOptions,
+  RenderOptions,
+} from './RendererDisplayOptions';
 import { TourAPIEntry, TourDisplay } from './TourDisplay';
-import { ContentWithHighlight } from './ContentWithHightlight';
-import { useRouter } from 'next/router';
 
 const W = typeof window === 'undefined' ? undefined : window;
-
-export const DisplayMode = createContext({ expandOnVisible: true });
 
 function getToOpenContentHash(inDocPath: string) {
   if (!inDocPath?.length) return [];
@@ -27,17 +33,21 @@ export function StexReactRenderer({
   contentUrl,
   topOffset = 0,
   dashInfo = undefined,
-  expandOnVisible = true,
 }: {
   contentUrl: string;
   topOffset?: number;
   dashInfo?: IndexNode;
-  expandOnVisible?: boolean;
 }) {
-  const [showDashboard, setShowDashboard] = useState(false);
+  const [showDrawerDash, setShowDrawerDash] = useState(false);
+  const [showFixedDash, setShowFixedDash] = useState(true);
   const [windowWidth, setWindowWidth] = useState(0);
   const [isEmptyDash, setIsEmptyDash] = useState(true);
   const [offset, setOffset] = useState(topOffset);
+  const [renderOptions, setRenderOptions] = useState({
+    expandOnScroll:
+      (localStore?.getItem('expandOnScroll') || 'true') === 'true',
+    allowFolding: (localStore?.getItem('allowFolding') || 'false') === 'true',
+  });
   const router = useRouter();
 
   useEffect(() => {
@@ -69,38 +79,47 @@ export function StexReactRenderer({
   }, [dashInfo]);
 
   useEffect(() => {
-    if(!router?.isReady) return;
+    if (!router?.isReady) return;
     const inDocPath = router?.query?.['inDocPath'] as string;
-    scrollToClosestAncestorAndSetPending(getToOpenContentHash(inDocPath))
+    scrollToClosestAncestorAndSetPending(getToOpenContentHash(inDocPath));
   }, [router?.isReady, router?.query]);
 
   return (
-    <>
+    <RenderOptions.Provider
+      value={{
+        renderOptions,
+        setRenderOptions: (o) => {
+          localStore?.setItem('expandOnScroll', o.expandOnScroll.toString());
+          localStore?.setItem('allowFolding', o.allowFolding.toString());
+          setRenderOptions(o);
+        },
+      }}
+    >
       <Drawer
         anchor="left"
         // 800 is the size 'md'
-        open={windowWidth < 800 && showDashboard}
-        onClose={() => setShowDashboard(false)}
+        open={windowWidth < 800 && showDrawerDash}
+        onClose={() => setShowDrawerDash(false)}
       >
         <ContentDashboard
-          onClose={() => setShowDashboard(false)}
+          onClose={() => setShowDrawerDash(false)}
           topOffset={offset}
           dashInfo={dashInfo}
         />
       </Drawer>
 
-      {showDashboard && (
+      {showFixedDash && (
         <Box display={{ xs: 'none', md: 'block' }}>
           <ContentDashboard
-            onClose={() => setShowDashboard(false)}
+            onClose={() => setShowFixedDash(false)}
             topOffset={offset}
             dashInfo={dashInfo}
           />
         </Box>
       )}
-      {!showDashboard && !isEmptyDash && (
+      {!showFixedDash && !isEmptyDash && (
         <IconButton
-          onClick={() => setShowDashboard(true)}
+          onClick={() => setShowFixedDash(true)}
           sx={{
             position: 'fixed',
             top: `${offset + 2}px`,
@@ -113,23 +132,21 @@ export function StexReactRenderer({
       )}
 
       <Box display="flex" px="10px" bgcolor={BG_COLOR}>
-        {showDashboard && (
+        {showFixedDash && (
           <Box flex="0 0 300px" display={{ xs: 'none', md: 'block' }}></Box>
         )}
         <Box maxWidth="600px" m="0 auto">
           <Box display="flex" flexDirection="row-reverse">
             <ExpandableContextMenu contentUrl={contentUrl} />
           </Box>
-          <DisplayMode.Provider value={{ expandOnVisible }}>
-            <ContentFromUrl
-              url={contentUrl}
-              modifyRendered={getChildrenOfBodyNode}
-              topLevel={true}
-            />
-          </DisplayMode.Provider>
+          <ContentFromUrl
+            url={contentUrl}
+            modifyRendered={getChildrenOfBodyNode}
+            topLevel={true}
+          />
         </Box>
       </Box>
-    </>
+    </RenderOptions.Provider>
   );
 }
 export {

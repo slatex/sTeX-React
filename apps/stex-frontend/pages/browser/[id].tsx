@@ -1,16 +1,16 @@
-import { Checkbox, FormControlLabel, FormGroup } from '@mui/material';
 import { IndexNode, StexReactRenderer } from '@stex-react/stex-react-renderer';
 import {
   convertHtmlStringToPlain,
   DEFAULT_BASE_URL,
   getSectionInfo,
-  simpleHash,
+  simpleHash
 } from '@stex-react/utils';
 import axios from 'axios';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
+
 interface DashFromServer {
   archive: string;
   filepath: string;
@@ -49,7 +49,6 @@ const BrowserPage: NextPage = () => {
   const id = router.query.id as string;
   const [contentUrl, setContentUrl] = useState(undefined as string);
   const [dashInfo, setDashInfo] = useState(undefined as IndexNode);
-  const [continuous, setContinuous] = useState(true);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -72,22 +71,10 @@ const BrowserPage: NextPage = () => {
 
   return (
     <MainLayout title="sTeX Browser" showBrowserAutocomplete={true}>
-      <FormGroup sx={{ alignItems: 'center' }}>
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={continuous}
-              onChange={(e) => setContinuous(e.target.checked)}
-            />
-          }
-          label="Continuous Mode"
-        />
-      </FormGroup>
       <StexReactRenderer
         contentUrl={contentUrl}
         topOffset={64}
         dashInfo={dashInfo}
-        expandOnVisible={continuous}
       />
     </MainLayout>
   );

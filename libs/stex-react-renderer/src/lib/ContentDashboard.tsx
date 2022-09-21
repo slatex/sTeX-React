@@ -1,8 +1,13 @@
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { Box, IconButton, TextField } from '@mui/material';
+import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
+import CloseIcon from '@mui/icons-material/Close';
+import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/IndeterminateCheckBoxOutlined';
+import { Box, IconButton, TextField, Tooltip } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { IndexNode, INDEX_UPDATE_COUNT, TOP_LEVEL } from './collectIndexInfo';
+import { RendererDisplayOptions } from './RendererDisplayOptions';
+import UnfoldLessDoubleIcon from '@mui/icons-material/UnfoldLessDouble';
+import UnfoldMoreDoubleIcon from '@mui/icons-material/UnfoldMoreDouble';
 import styles from './stex-react-renderer.module.scss';
 
 function applyFilter(
@@ -29,6 +34,82 @@ function applyFilter(
   };
 }
 
+function RenderTree({
+  node,
+  level,
+  defaultOpen,
+}: {
+  node: IndexNode;
+  level: number;
+  defaultOpen: boolean;
+}) {
+  const router = useRouter();
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  useEffect(() => {
+    setIsOpen(defaultOpen);
+  }, [defaultOpen]);
+
+  const itemClassName =
+    level === 0 ? styles['level0_dashboard_item'] : styles['dashboard_item'];
+  return (
+    <Box key={node.hash} sx={{ my: '6px' }}>
+      <Box display="flex" ml={node.childNodes.size > 0 ? undefined : '23px'}>
+        {node.childNodes.size > 0 && (
+          <IconButton
+            sx={{ color: 'gray', p: '0', mr: '3px' }}
+            onClick={() => setIsOpen((v) => !v)}
+          >
+            {isOpen ? (
+              <IndeterminateCheckBoxOutlinedIcon sx={{ fontSize: '20px' }} />
+            ) : (
+              <AddBoxOutlinedIcon sx={{ fontSize: '20px' }} />
+            )}
+          </IconButton>
+        )}
+        <span
+          className={itemClassName}
+          style={{ cursor: 'pointer' }}
+          onClick={(e) => {
+            e.stopPropagation();
+            const paths: string[] = [];
+            for (let n: IndexNode | undefined = node; n; n = n.parentNode) {
+              if (n.hash) paths.push(n.hash);
+            }
+            router.query['inDocPath'] = paths.reverse().slice(1).join('.');
+            router.push(router);
+          }}
+        >
+          {node.title}
+        </span>
+      </Box>
+      {isOpen && node.childNodes.size > 0 && (
+        <Box display="flex" ml="3px">
+          <Box
+            minWidth="12px"
+            sx={{
+              cursor: 'pointer',
+              '&:hover *': { borderLeft: '1px solid #333' },
+            }}
+            onClick={() => setIsOpen((v) => !v)}
+          >
+            <Box width="0" m="auto" borderLeft="1px solid #CCC" height="100%">
+              &nbsp;
+            </Box>
+          </Box>
+          <Box>
+            {Array.from(node.childNodes.values()).map((child) => (
+              <RenderTree
+                node={child}
+                level={level + 1}
+                defaultOpen={defaultOpen}
+              />
+            ))}
+          </Box>
+        </Box>
+      )}
+    </Box>
+  );
+}
 export function ContentDashboard({
   onClose,
   topOffset = 0,
@@ -38,11 +119,13 @@ export function ContentDashboard({
   topOffset?: number;
   dashInfo?: IndexNode;
 }) {
-  const router = useRouter();
   const [filterStr, setFilterStr] = useState('');
   const [updatedCount, setUpdatedCount] = useState(-1);
+  const [defaultOpen, setDefaultOpen] = useState(true);
 
   useEffect(() => {
+    // This is required only when we use dynmically created index info.
+    // If dashboard info is precomputed, we don't need to do refresh ContentDashboard.
     if (dashInfo) return;
     const timerId = setInterval(() => {
       if (!dashInfo && INDEX_UPDATE_COUNT !== updatedCount) {
@@ -61,52 +144,43 @@ export function ContentDashboard({
       .filter((t) => !!t?.length)
   );
 
-  const renderTree = (nodes: IndexNode[], level = 0) =>
-    nodes.map((node) => {
-      const marginLeft = `${level * 20}px`;
-      const itemClassName =
-        level === 0
-          ? styles['level0_dashboard_item']
-          : styles['dashboard_item'];
-      return (
-        <Box
-          key={node.hash}
-          sx={{ my: '6px', cursor: 'pointer' }}
-          onClick={(e) => {
-            e.stopPropagation();
-            const paths: string[] = [];
-            for (let n: IndexNode | undefined = node; n; n = n.parentNode) {
-              if (n.hash) paths.push(n.hash);
-            }
-            router.query['inDocPath'] = paths.reverse().slice(1).join('.');
-            router.push(router);
-          }}
-        >
-          <span style={{ marginLeft }} className={itemClassName}>
-            {node.title}
-          </span>
-          {renderTree(Array.from(node.childNodes.values()), level + 1)}
-        </Box>
-      );
-    });
   return (
     <Box className={styles['dash_outer_box']}>
       <Box className={styles['dash_inner_box']} mt={`${topOffset}px`}>
-        <Box display="flex" alignItems="baseline">
+        <Box display="flex" alignItems="center">
           <IconButton sx={{ m: '2px 0 0 5px' }} onClick={() => onClose()}>
-            <ArrowBackIcon />
+            <CloseIcon />
           </IconButton>
           <TextField
             id="tree-filter-string"
             label="Search"
             value={filterStr}
             onChange={(e) => setFilterStr(e.target.value)}
-            sx={{ m: '10px 5px' }}
+            sx={{ m: '10px', width: '100%' }}
             size="small"
           />
         </Box>
+        <Box display="flex" justifyContent="space-between" mx="10px">
+          <Tooltip title="Expand/collapse all">
+            <IconButton
+              onClick={() => setDefaultOpen((v) => !v)}
+              sx={{ border: '1px solid #CCC', borderRadius: '40px' }}
+            >
+              {defaultOpen ? (
+                <UnfoldLessDoubleIcon />
+              ) : (
+                <UnfoldMoreDoubleIcon />
+              )}
+            </IconButton>
+          </Tooltip>
+          <RendererDisplayOptions />
+        </Box>
         <Box className={styles['dash_scroll_area_box']}>
-          {renderTree(Array.from(rootPage?.childNodes.values() || []))}
+          <Box sx={{ overflowX: 'hidden' }}>
+            {Array.from(rootPage?.childNodes.values() || []).map((child) => (
+              <RenderTree node={child} level={0} defaultOpen={defaultOpen} />
+            ))}
+          </Box>
         </Box>
       </Box>
     </Box>

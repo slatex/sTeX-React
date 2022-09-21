@@ -55,15 +55,10 @@ function trimElements(elements: string[]) {
   let state = 'START';
   const buffer = [] as string[];
 
-  console.log('\n'.repeat(4));
   for (const elementStr of elements) {
     const trimmed = getText(elementStr)
       .replace(/[\u200B-\u200D\uFEFF]/g, '') // nbsp type elements
       .trim();
-    if (trimmed.length) {
-      console.log(elementStr);
-      console.log(`${trimmed.length}[${trimmed}]`);
-    }
     const isSpace = trimmed.length === 0;
     if (isSpace) {
       if (state !== 'START') {

@@ -19,7 +19,7 @@ import { reportIndexInfo, SEPARATOR_inDocPath } from './collectIndexInfo';
 import { ContentFromUrl } from './ContentFromUrl';
 import { ErrorBoundary } from './ErrorBoundary';
 import { ExpandableContextMenu } from './ExpandableContextMenu';
-import { DisplayMode } from './stex-react-renderer';
+import { RenderOptions } from './RendererDisplayOptions';
 import { useOnScreen } from './useOnScreen';
 
 const ExpandContext = createContext([] as string[]);
@@ -58,17 +58,19 @@ export function ExpandableContent({
 
   const titleText = convertHtmlNodeToPlain(htmlTitle);
   const autoExpand = !titleText || titleText.startsWith('http');
-  const { expandOnVisible } = useContext(DisplayMode);
+  const {
+    renderOptions: { expandOnScroll, allowFolding },
+  } = useContext(RenderOptions);
 
   // Reference to the top-most box.
   const contentRef = useRef<HTMLElement>();
   const isVisible = useOnScreen(contentRef);
   useEffect(() => {
-    if (expandOnVisible && isVisible && !openAtLeastOnce) {
+    if (expandOnScroll && isVisible && !openAtLeastOnce) {
       setIsOpen(true);
       setOpenAtLeastOnce(true);
     }
-  }, [expandOnVisible, openAtLeastOnce, isVisible]);
+  }, [expandOnScroll, openAtLeastOnce, isVisible]);
 
   useEffect(() => {
     reportIndexInfo(childContext, titleText, contentRef?.current);
@@ -88,7 +90,7 @@ export function ExpandableContent({
             <ContentFromUrl
               url={contentUrl}
               modifyRendered={getChildrenOfBodyNode}
-              minLoadingHeight={expandOnVisible ? '800px' : undefined}
+              minLoadingHeight={expandOnScroll ? '1000px' : undefined}
             />
           </Box>
         ) : (
@@ -103,11 +105,11 @@ export function ExpandableContent({
       <Box
         m="4px 0"
         ref={contentRef}
-        minHeight={!openAtLeastOnce && expandOnVisible ? '1000px' : undefined}
+        minHeight={!openAtLeastOnce && expandOnScroll ? '1000px' : undefined}
       >
-        {expandOnVisible ? (
+        {!allowFolding ? (
           contentUrl && (
-            <Box position='absolute' right='10px'>
+            <Box position="absolute" right="10px">
               <ExpandableContextMenu
                 sectionLink={getInDocumentLink(childContext)}
                 contentUrl={contentUrl}
@@ -160,7 +162,7 @@ export function ExpandableContent({
           <Box display={isOpen ? 'flex' : 'none'}>
             <Box
               minWidth="20px"
-              display={expandOnVisible ? 'none' : undefined}
+              display={allowFolding ? undefined : 'none'}
               sx={{
                 cursor: 'pointer',
                 '&:hover *': { borderLeft: '1px solid #333' },
@@ -177,7 +179,7 @@ export function ExpandableContent({
                   <ContentFromUrl
                     url={contentUrl}
                     modifyRendered={getChildrenOfBodyNode}
-                    minLoadingHeight={expandOnVisible ? '800px' : undefined}
+                    minLoadingHeight={expandOnScroll ? '800px' : undefined}
                   />
                 </ExpandContext.Provider>
               ) : (
@@ -186,7 +188,7 @@ export function ExpandableContent({
             </Box>
           </Box>
         ) : (
-          expandOnVisible && <>Loading...</>
+          expandOnScroll && <>Loading...</>
         )}
       </Box>
     </ErrorBoundary>

@@ -67,12 +67,13 @@ export function ExpandableContextMenu({
             e.stopPropagation();
             handleClose();
           }}
+          sx={{ p: '0' }}
         >
           <a
             href={sourceUrl}
             target="_blank"
             rel="noreferrer"
-            style={{ display: 'flex' }}
+            style={{ display: 'flex', padding: '6px 16px', width: '100%' }}
           >
             <IntegrationInstructionsIcon />
             &nbsp;View Source&nbsp;
