@@ -16,10 +16,7 @@ import { FileBrowser } from './FileBrowser';
 import { FileNode } from './FileNode';
 import MathJaxContext from './MathJaxContext';
 import { mmtHTMLToReact } from './mmtParser';
-import {
-  RendererDisplayOptions,
-  RenderOptions,
-} from './RendererDisplayOptions';
+import { RenderOptions } from './RendererDisplayOptions';
 import { TourAPIEntry, TourDisplay } from './TourDisplay';
 
 const W = typeof window === 'undefined' ? undefined : window;
@@ -38,8 +35,7 @@ export function StexReactRenderer({
   topOffset?: number;
   dashInfo?: IndexNode;
 }) {
-  const [showDrawerDash, setShowDrawerDash] = useState(false);
-  const [showFixedDash, setShowFixedDash] = useState(true);
+  const [showDashboard, setShowDashboard] = useState(true);
   const [windowWidth, setWindowWidth] = useState(0);
   const [isEmptyDash, setIsEmptyDash] = useState(true);
   const [offset, setOffset] = useState(topOffset);
@@ -49,6 +45,7 @@ export function StexReactRenderer({
     allowFolding: (localStore?.getItem('allowFolding') || 'false') === 'true',
   });
   const router = useRouter();
+  const useDrawer = windowWidth < 800;
 
   useEffect(() => {
     const onScroll = () =>
@@ -63,7 +60,9 @@ export function StexReactRenderer({
     function handleResize() {
       setWindowWidth(W?.innerWidth || 0);
     }
-    setWindowWidth(W?.innerWidth || 0);
+    const intiialWidth = W?.innerWidth || 0;
+    setWindowWidth(intiialWidth);
+    if (intiialWidth < 800) setShowDashboard(false);
     W?.addEventListener('resize', handleResize);
   }, []);
 
@@ -97,32 +96,31 @@ export function StexReactRenderer({
     >
       <Drawer
         anchor="left"
-        // 800 is the size 'md'
-        open={windowWidth < 800 && showDrawerDash}
-        onClose={() => setShowDrawerDash(false)}
+        open={useDrawer && showDashboard}
+        onClose={() => setShowDashboard(false)}
       >
         <ContentDashboard
-          onClose={() => setShowDrawerDash(false)}
+          onClose={() => setShowDashboard(false)}
           topOffset={offset}
           dashInfo={dashInfo}
         />
       </Drawer>
 
-      {showFixedDash && (
+      {!useDrawer && showDashboard && (
         <Box display={{ xs: 'none', md: 'block' }}>
           <ContentDashboard
-            onClose={() => setShowFixedDash(false)}
+            onClose={() => setShowDashboard(false)}
             topOffset={offset}
             dashInfo={dashInfo}
           />
         </Box>
       )}
-      {!showFixedDash && !isEmptyDash && (
+      {!showDashboard && !isEmptyDash && (
         <IconButton
-          onClick={() => setShowFixedDash(true)}
+          onClick={() => setShowDashboard(true)}
           sx={{
             position: 'fixed',
-            top: `${offset + 2}px`,
+            top: `${offset + 10}px`,
             left: '5px',
             border: '2px solid #777',
           }}
@@ -132,7 +130,7 @@ export function StexReactRenderer({
       )}
 
       <Box display="flex" px="10px" bgcolor={BG_COLOR}>
-        {showFixedDash && (
+        {!useDrawer && showDashboard && (
           <Box flex="0 0 300px" display={{ xs: 'none', md: 'block' }}></Box>
         )}
         <Box maxWidth="600px" m="0 auto">
