@@ -60,6 +60,11 @@ export function VideoDisplay({ deckInfo }: { deckInfo: DeckAndVideoInfo }) {
     () => setResolution(+(localStore?.getItem('defaultResolution') || '720')),
     []
   );
+  useEffect(() => {
+    if (deckInfo?.timestampSec) {
+      videoRef.current.currentTime = deckInfo.timestampSec;
+    }
+  }, [deckInfo?.timestampSec]);
   if (!videoId) return <span>Video not available for this section</span>;
   return (
     <>
@@ -72,7 +77,12 @@ export function VideoDisplay({ deckInfo }: { deckInfo: DeckAndVideoInfo }) {
           if (deckInfo.timestampSec)
             videoRef.current.currentTime = deckInfo.timestampSec;
         }}
-        style={{ width: '100%', height: '100%', border: '1px solid black', borderRadius: '5px' }}
+        style={{
+          width: '100%',
+          height: '100%',
+          border: '1px solid black',
+          borderRadius: '5px',
+        }}
         ref={videoRef}
       ></video>
       <Box sx={{ display: 'flex', m: '-5px 0 5px' }}>

@@ -13,39 +13,35 @@ export function SlideNavBar({
   slideNumber,
   setSlideNumber,
   numSlides,
+  goToNextSection = undefined,
+  goToPrevSection = undefined,
 }: {
   slideNumber: number;
   setSlideNumber: Dispatch<SetStateAction<number>>;
   numSlides: number;
+  goToNextSection?: () => void;
+  goToPrevSection?: () => void;
 }) {
   return (
     <Box display="flex" justifyContent="flex-end" alignItems="center">
       <IconButton
-        disabled={slideNumber === 0}
-        onClick={() => setSlideNumber(0)}
+        onClick={() => {
+          if (slideNumber > 0) setSlideNumber((curr) => curr - 1);
+          else goToPrevSection();
+        }}
       >
-        <FirstPageIcon />
-      </IconButton>
-      <IconButton
-        disabled={slideNumber === 0}
-        onClick={() => setSlideNumber((curr) => curr - 1)}
-      >
-        <NavigateBeforeIcon />
+        {slideNumber == 0 ? <FirstPageIcon /> : <NavigateBeforeIcon />}
       </IconButton>
       <span style={{ fontSize: '18px' }}>
         {slideNumber + 1} / {numSlides}
       </span>
       <IconButton
-        disabled={slideNumber >= numSlides - 1}
-        onClick={() => setSlideNumber((curr) => curr + 1)}
+        onClick={() => {
+          if (slideNumber < numSlides - 1) setSlideNumber((curr) => curr + 1);
+          else goToNextSection();
+        }}
       >
-        <NavigateNextIcon />
-      </IconButton>
-      <IconButton
-        disabled={slideNumber >= numSlides - 1}
-        onClick={() => setSlideNumber(numSlides - 1)}
-      >
-        <LastPageIcon />
+        {slideNumber >= numSlides - 1 ? <LastPageIcon /> : <NavigateNextIcon />}
       </IconButton>
     </Box>
   );
@@ -55,13 +51,19 @@ export const SlideDeck = memo(function SlidesFromUrl({
   courseId,
   deckInfo,
   navOnTop = false,
+  fromLastSlide = false,
   onSlideChange = undefined,
+  goToNextSection = undefined,
+  goToPrevSection = undefined,
 }: {
   courseId: string;
   deckInfo: DeckAndVideoInfo;
   navOnTop?: boolean;
+  fromLastSlide?: boolean;
   onSlideChange?: (slide: Slide) => void;
   modifyRendered?: (node: any) => any;
+  goToNextSection?: () => void;
+  goToPrevSection?: () => void;
 }) {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [slideNumber, setSlideNumber] = useState(0);
@@ -81,8 +83,9 @@ export const SlideDeck = memo(function SlidesFromUrl({
         const slides: Slide[] = r.data || [];
         setIsLoading(false);
         setSlides(slides);
+        setSlideNumber(fromLastSlide ? slides.length - 1 : 0);
       });
-  }, [courseId, deckId]);
+  }, [courseId, deckId, fromLastSlide]);
 
   useEffect(() => {
     if (!slides?.length || slideNumber < 0 || slideNumber >= slides.length)
@@ -113,6 +116,8 @@ export const SlideDeck = memo(function SlidesFromUrl({
         slideNumber={slideNumber}
         numSlides={slides.length}
         setSlideNumber={setSlideNumber}
+        goToNextSection={goToNextSection}
+        goToPrevSection={goToPrevSection}
       />
     </Box>
   );

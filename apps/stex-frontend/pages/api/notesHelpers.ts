@@ -1,7 +1,9 @@
-import axios from 'axios';
-import { AI_1_DECK_IDS } from '../../course_info/ai-1-notes';
-import AI_NOTES_TREE, { TreeNode } from '../../ai-notes.preval';
 import { DEFAULT_BASE_URL } from '@stex-react/utils';
+import axios from 'axios';
+import { textContent } from 'domutils';
+import * as htmlparser2 from 'htmlparser2';
+import AI_NOTES_TREE, { TreeNode } from '../../ai-notes.preval';
+import { AI_1_DECK_IDS } from '../../course_info/ai-1-notes';
 
 export interface NodeId {
   archive: string;
@@ -81,6 +83,19 @@ export function nextNode(node: TreeNode): TreeNode {
   }
 }
 
+export function getText(html: string) {
+  const handler = new htmlparser2.DomHandler();
+  const parser = new htmlparser2.Parser(handler);
+
+  parser.write(html);
+  parser.end();
+  const nodes: any = handler.root.childNodes.filter(
+    (n: any) => !n.attribs?.['style']?.includes('display:none')
+  );
+  return textContent(nodes);
+}
+
+
 export function getTitle(deckId: string) {
   if (!deckId) return 'Error';
   const nodeId = deckIdToNodeId(deckId);
@@ -88,8 +103,8 @@ export function getTitle(deckId: string) {
   while (node) {
     node = nextNode(node);
     if (node?.titleAsHtml?.length) {
-      //const text = convertHtmlStringToPlain(node.titleAsHtml);
-      //if (text.length)
+      const text = getText(node.titleAsHtml);
+      if (text.length)
       return node.titleAsHtml;
     }
   }

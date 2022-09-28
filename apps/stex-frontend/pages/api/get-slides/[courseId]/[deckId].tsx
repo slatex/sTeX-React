@@ -9,6 +9,7 @@ import {
   deckIdToNodeId,
   findNode,
   getFileContent,
+  getText,
   NodeId,
   nodeId,
   nodeIdToDeckId,
@@ -36,18 +37,6 @@ function TextSlide(slideContent: any, titleElement?: any): Slide {
     preNotes: [],
     postNotes: [],
   };
-}
-
-function getText(html: string) {
-  const handler = new htmlparser2.DomHandler();
-  const parser = new htmlparser2.Parser(handler);
-
-  parser.write(html);
-  parser.end();
-  const nodes: any = handler.root.childNodes.filter(
-    (n: any) => !n.attribs?.['style']?.includes('display:none')
-  );
-  return textContent(nodes);
 }
 
 function trimElements(elements: string[]) {

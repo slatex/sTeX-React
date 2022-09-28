@@ -3,7 +3,7 @@ import {
   convertHtmlStringToPlain,
   DEFAULT_BASE_URL,
   getSectionInfo,
-  simpleHash
+  simpleHash,
 } from '@stex-react/utils';
 import axios from 'axios';
 import type { NextPage } from 'next';
@@ -64,6 +64,11 @@ const BrowserPage: NextPage = () => {
     axios.get(contentDashUrl).then((r) => {
       console.log(r.data);
       const d = r.data ? getDashInfo(r.data) : undefined;
+      // Remove hash of top level node. This causes the top level node to be
+      // skipped in the inDocPath used for navigation. This makes it consistent
+      // with dynamically loaded hash info, where top level node doesn't have
+      // a hash value set.
+      d.hash = '';
       setDashInfo(d);
     });
   }, [id, router.isReady]);

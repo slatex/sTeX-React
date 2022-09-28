@@ -29,14 +29,15 @@ async function getVideoInfo(clipId: string, timestampSec = 8) {
     const matches = /http\S+m4v/gm.exec(embedableLinkData);
     videoInfo['r' + res] = matches[0];
   }
-  CACHED_CLIP_INFO[clipId] = videoInfo;
+  CACHED_CLIP_INFO.set(clipId, videoInfo);
   return videoInfo;
 }
 
 async function getAiVideoInfo() {
   if (fromPrevaluated) return AI_1_PREVALUATED_VIDEO_INFO;
 
-  // May need to uncomment this when getting video info.
+  // May need to uncomment this line when getting video info because of
+  // 'Error: unable to verify the first certificate'
   // When building for serving in production, use the prevaluated video info
   // and keep this unsafe line commented.
   // process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';

@@ -3,6 +3,7 @@ import SlideshowIcon from '@mui/icons-material/Slideshow';
 import VideoCameraFrontIcon from '@mui/icons-material/VideoCameraFront';
 import {
   Box,
+  Button,
   ToggleButton,
   ToggleButtonGroup,
   Toolbar,
@@ -13,6 +14,8 @@ import { localStore } from '@stex-react/utils';
 import { SlideDeckNavigation } from '../../components/SlideDeckNavigation';
 import axios from 'axios';
 import { NextPage } from 'next';
+import Link from 'next/link';
+import ArticleIcon from '@mui/icons-material/Article';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { SlideDeck } from '../../components/SlideDeck';
@@ -78,6 +81,7 @@ const CourseViewPage: NextPage = () => {
   const courseId = router.query.courseId as string;
 
   const [selectedDeckId, setSelectedDeckId] = useState('initial');
+  const [fromLastSlide, setFromLastSlide] = useState(false);
   const [preNotes, setPreNotes] = useState([] as string[]);
   const [postNotes, setPostNotes] = useState([] as string[]);
   const [offset, setOffset] = useState(64);
@@ -120,18 +124,70 @@ const CourseViewPage: NextPage = () => {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  function findCurrentLocation() {
+    for (const [secIdx, section] of courseInfo?.sections?.entries() || [])
+      for (const [deckIdx, deck] of section.decks.entries())
+        if (deck.deckId === selectedDeckId) return { secIdx, deckIdx };
+    return { secIdx: undefined, deckIdx: undefined };
+  }
+
+  function goToPrevSection() {
+    const { secIdx, deckIdx } = findCurrentLocation();
+    if (secIdx === undefined || deckIdx === undefined) return;
+    if (deckIdx !== 0) {
+      setSelectedDeckId(courseInfo.sections[secIdx].decks[deckIdx - 1].deckId);
+      setFromLastSlide(true);
+      return;
+    }
+    if (secIdx === 0) return;
+    const prevDecks = courseInfo.sections[secIdx - 1].decks;
+    setSelectedDeckId(prevDecks[prevDecks.length - 1].deckId);
+    setFromLastSlide(true);
+  }
+
+  function goToNextSection() {
+    const { secIdx, deckIdx } = findCurrentLocation();
+    if (secIdx === undefined || deckIdx === undefined) return;
+    const currSectionDecks = courseInfo.sections[secIdx].decks;
+    if (deckIdx < currSectionDecks.length - 1) {
+      setSelectedDeckId(currSectionDecks[deckIdx + 1].deckId);
+      setFromLastSlide(false);
+      return;
+    }
+    // last section is the "dummy" section. dont switch to that.
+    if (secIdx >= courseInfo.sections.length - 2) return;
+    const nextDecks = courseInfo.sections[secIdx + 1].decks;
+    setSelectedDeckId(nextDecks[0].deckId);
+    setFromLastSlide(false);
+  }
+
   return (
     <MainLayout>
       <Box display="flex">
         <Box flexBasis="600px" flexGrow={1} overflow="hidden">
           <Box maxWidth="800px" margin="auto">
-            <ToggleModeButton
-              viewMode={viewMode}
-              updateViewMode={(mode) => {
-                setViewMode(mode);
-                localStore?.setItem('defaultMode', ViewMode[mode]);
-              }}
-            />
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+            >
+              <ToggleModeButton
+                viewMode={viewMode}
+                updateViewMode={(mode) => {
+                  setViewMode(mode);
+                  localStore?.setItem('defaultMode', ViewMode[mode]);
+                }}
+              />
+              <Link
+                href="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FAI%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml"
+                passHref
+              >
+                <Button size="small" variant="contained" sx={{ mr: '10px' }}>
+                  Notes&nbsp;
+                  <ArticleIcon />
+                </Button>
+              </Link>
+            </Box>
             {(viewMode === ViewMode.VIDEO_MODE ||
               viewMode === ViewMode.COMBINED_MODE) && (
               <VideoDisplay deckInfo={deckInfo} />
@@ -146,6 +202,9 @@ const CourseViewPage: NextPage = () => {
                   setPreNotes(slide?.preNotes || []);
                   setPostNotes(slide?.postNotes || []);
                 }}
+                goToNextSection={goToNextSection}
+                goToPrevSection={goToPrevSection}
+                fromLastSlide={fromLastSlide}
               />
             )}
             <hr />
@@ -180,6 +239,7 @@ const CourseViewPage: NextPage = () => {
                   selected={selectedDeckId}
                   onSelect={(i) => {
                     setSelectedDeckId(i);
+                    setFromLastSlide(false);
                     setPreNotes([]);
                     setPostNotes([]);
                   }}

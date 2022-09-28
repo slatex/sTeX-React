@@ -20,7 +20,7 @@ let COMPLETED_SCROLL: string | undefined = undefined;
 let PENDING_SCROLL: string | undefined = undefined;
 
 function addToNode(node: IndexNode, context: string[], title: string) {
-  if (title.startsWith('http')) return;
+  if (!title.trim().length || title.startsWith('http')) return;
   if (!node || !context?.length) return;
   const first = context[0];
   const rest = context.slice(1);
@@ -96,6 +96,7 @@ export function scrollToClosestAncestorAndSetPending(sectionHashes: string[]) {
     const key = sectionHashes.join(SEPARATOR_inDocPath);
     const ref = REF_MAP.get(key);
     if (ref) {
+      // console.log(`Scroll: ${key}`);
       ref.scrollIntoView({ behavior: 'auto' });
       if (key !== fullKey) setPendingScroll(fullKey, key);
       return;

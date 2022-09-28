@@ -5,9 +5,35 @@ export const AI_1_PREVALUATED_VIDEO_INFO: {
     r720: string;
     r1080?: string;
   };
-} = {
+} =
+{
   initial: {
     timestampSec: 8,
+    r720: 'https://cdn.video.uni-erlangen.de/symlinks/1f5aab96-f1b2-4ad8-bed6-52a06fb51489.m4v',
+    r360: 'https://cdn.video.uni-erlangen.de/symlinks/28cb139e-4366-44c0-a72a-f62cea241951.m4v'
+  },
+  'MiKoMH/AI||course/snip/admin-intro.en.xhtml': {
+    timestampSec: 80,
+    r720: 'https://cdn.video.uni-erlangen.de/symlinks/1f5aab96-f1b2-4ad8-bed6-52a06fb51489.m4v',
+    r360: 'https://cdn.video.uni-erlangen.de/symlinks/28cb139e-4366-44c0-a72a-f62cea241951.m4v'
+  },
+  'MiKoMH/AI||course/mod/prerequisites.en.xhtml': {
+    timestampSec: 412,
+    r720: 'https://cdn.video.uni-erlangen.de/symlinks/1f5aab96-f1b2-4ad8-bed6-52a06fb51489.m4v',
+    r360: 'https://cdn.video.uni-erlangen.de/symlinks/28cb139e-4366-44c0-a72a-f62cea241951.m4v'
+  },
+  'MiKoMH/AI||course/mod/grading.en.xhtml': {
+    timestampSec: 818,
+    r720: 'https://cdn.video.uni-erlangen.de/symlinks/1f5aab96-f1b2-4ad8-bed6-52a06fb51489.m4v',
+    r360: 'https://cdn.video.uni-erlangen.de/symlinks/28cb139e-4366-44c0-a72a-f62cea241951.m4v'
+  },
+  'MiKoMH/AI||course/mod/homeworks.en.xhtml': {
+    timestampSec: 1474,
+    r720: 'https://cdn.video.uni-erlangen.de/symlinks/1f5aab96-f1b2-4ad8-bed6-52a06fb51489.m4v',
+    r360: 'https://cdn.video.uni-erlangen.de/symlinks/28cb139e-4366-44c0-a72a-f62cea241951.m4v'
+  },
+  'MiKoMH/AI||course/mod/uebungen.en.xhtml': {
+    timestampSec: 1490,
     r720: 'https://cdn.video.uni-erlangen.de/symlinks/1f5aab96-f1b2-4ad8-bed6-52a06fb51489.m4v',
     r360: 'https://cdn.video.uni-erlangen.de/symlinks/28cb139e-4366-44c0-a72a-f62cea241951.m4v'
   },
@@ -16,8 +42,38 @@ export const AI_1_PREVALUATED_VIDEO_INFO: {
     r720: 'https://cdn.video.uni-erlangen.de/symlinks/8899dd67-a2f8-4135-80c4-ea3b6da4bd5b.m4v',
     r360: 'https://cdn.video.uni-erlangen.de/symlinks/a0eaa20f-0117-4eac-9979-55e4cbba44d1.m4v'
   },
+  'MiKoMH/AI||course/mod/special-admin.en.xhtml': {
+    timestampSec: 8,
+    r720: 'https://cdn.video.uni-erlangen.de/symlinks/78d92a32-58fb-424a-8ff9-8ae0b1e20ceb.m4v',
+    r360: 'https://cdn.video.uni-erlangen.de/symlinks/00e7f2e4-ff42-41d1-9cee-1a3175873680.m4v'
+  },
   'MiKoMH/AI||course/snip/lecturing.en.xhtml': {
     timestampSec: 8,
+    r720: 'https://cdn.video.uni-erlangen.de/symlinks/78d92a32-58fb-424a-8ff9-8ae0b1e20ceb.m4v',
+    r360: 'https://cdn.video.uni-erlangen.de/symlinks/00e7f2e4-ff42-41d1-9cee-1a3175873680.m4v'
+  },
+  'MiKoMH/AI||course/snip/lecturing-style-intro.en.xhtml': {
+    timestampSec: 8,
+    r720: 'https://cdn.video.uni-erlangen.de/symlinks/78d92a32-58fb-424a-8ff9-8ae0b1e20ceb.m4v',
+    r360: 'https://cdn.video.uni-erlangen.de/symlinks/00e7f2e4-ff42-41d1-9cee-1a3175873680.m4v'
+  },
+  'MiKoMH/AI||course/snip/lecturing-style-trans.en.xhtml': {
+    timestampSec: 8,
+    r720: 'https://cdn.video.uni-erlangen.de/symlinks/78d92a32-58fb-424a-8ff9-8ae0b1e20ceb.m4v',
+    r360: 'https://cdn.video.uni-erlangen.de/symlinks/00e7f2e4-ff42-41d1-9cee-1a3175873680.m4v'
+  },
+  'MiKoMH/AI||course/mod/my-lectures.en.xhtml': {
+    timestampSec: 354,
+    r720: 'https://cdn.video.uni-erlangen.de/symlinks/78d92a32-58fb-424a-8ff9-8ae0b1e20ceb.m4v',
+    r360: 'https://cdn.video.uni-erlangen.de/symlinks/00e7f2e4-ff42-41d1-9cee-1a3175873680.m4v'
+  },
+  'MiKoMH/AI||course/snip/questions-intro.en.xhtml': {
+    timestampSec: 554,
+    r720: 'https://cdn.video.uni-erlangen.de/symlinks/78d92a32-58fb-424a-8ff9-8ae0b1e20ceb.m4v',
+    r360: 'https://cdn.video.uni-erlangen.de/symlinks/00e7f2e4-ff42-41d1-9cee-1a3175873680.m4v'
+  },
+  'MiKoMH/AI||course/mod/questions.en.xhtml': {
+    timestampSec: 554,
     r720: 'https://cdn.video.uni-erlangen.de/symlinks/78d92a32-58fb-424a-8ff9-8ae0b1e20ceb.m4v',
     r360: 'https://cdn.video.uni-erlangen.de/symlinks/00e7f2e4-ff42-41d1-9cee-1a3175873680.m4v'
   },
@@ -57,6 +113,12 @@ export const AI_1_PREVALUATED_VIDEO_INFO: {
     r720: 'https://cdn.video.uni-erlangen.de/symlinks/d0e5cb49-320c-49e2-b49a-953fbfcdaf90.m4v',
     r360: 'https://cdn.video.uni-erlangen.de/symlinks/fc8c393b-d5f6-429d-b909-b25c3a5f8fc8.m4v'
   },
+  'MiKoMH/AI||course/mod/ai2-topics.en.xhtml': {
+    timestampSec: 8,
+    r1080: 'https://cdn.video.uni-erlangen.de/symlinks/dd6e1126-3bcd-44ae-bddd-a4ec1690b155.m4v',
+    r720: 'https://cdn.video.uni-erlangen.de/symlinks/d0e5cb49-320c-49e2-b49a-953fbfcdaf90.m4v',
+    r360: 'https://cdn.video.uni-erlangen.de/symlinks/fc8c393b-d5f6-429d-b909-b25c3a5f8fc8.m4v'
+  },
   'MiKoMH/AI||course/mod/ai1sysproj.en.xhtml': {
     timestampSec: 8,
     r1080: 'https://cdn.video.uni-erlangen.de/symlinks/defd76ee-be6f-41a2-8ded-2789cb72fb09.m4v',
@@ -86,5 +148,5 @@ export const AI_1_PREVALUATED_VIDEO_INFO: {
     r1080: 'https://cdn.video.uni-erlangen.de/symlinks/6a8a9713-9650-4e0f-9924-a2995c4e5cf0.m4v',
     r720: 'https://cdn.video.uni-erlangen.de/symlinks/d37cdac2-f5cb-48f0-ab1a-933f3857750d.m4v',
     r360: 'https://cdn.video.uni-erlangen.de/symlinks/295b8e8a-3c7c-43f8-9efe-5ad24bed7ec5.m4v'
-  }
+  },
 };

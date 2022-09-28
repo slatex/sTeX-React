@@ -5,11 +5,21 @@ export const AI_1_COURSE_SECTIONS: {
 } = {
   'Administrativa': {
     initial: {clipId: '22801'},
-    'MiKoMH/AI||course/snip/discussion.en.xhtml': {clipId: '22802'},
-
+    'MiKoMH/AI||course/snip/admin-intro.en.xhtml': { clipId: '22801', timestampSec: 80 },
+    'MiKoMH/AI||course/mod/prerequisites.en.xhtml': { clipId: '22801', timestampSec: 412 },
+    'MiKoMH/AI||course/mod/grading.en.xhtml': { clipId: '22801', timestampSec: 818 },
+    'MiKoMH/AI||course/mod/homeworks.en.xhtml': { clipId: '22801', timestampSec: 1474 },
+    'MiKoMH/AI||course/mod/uebungen.en.xhtml': {clipId: '22801', timestampSec: 1490 },
+    'MiKoMH/AI||course/snip/discussion.en.xhtml': { clipId: '22802' },
   },
   'Format of AI Course/Lecturing': {
-    'MiKoMH/AI||course/snip/lecturing.en.xhtml': {clipId: '22803'}
+    'MiKoMH/AI||course/mod/special-admin.en.xhtml': {clipId: '22803'},
+    'MiKoMH/AI||course/snip/lecturing.en.xhtml': {clipId: '22803'},
+    'MiKoMH/AI||course/snip/lecturing-style-intro.en.xhtml': {clipId: '22803'},
+    'MiKoMH/AI||course/snip/lecturing-style-trans.en.xhtml': {clipId: '22803'},
+    'MiKoMH/AI||course/mod/my-lectures.en.xhtml': {clipId: '22803', timestampSec: 354},
+    'MiKoMH/AI||course/snip/questions-intro.en.xhtml': {clipId: '22803', timestampSec: 554},
+    'MiKoMH/AI||course/mod/questions.en.xhtml': {clipId: '22803', timestampSec: 554},
   },
   'Artificial Intelligence - Who?, What?, When?, Where?, and Why?': {
     'MiKoMH/AI||course/mod/questionnaire-call.en.xhtml': { clipId: '21467' },
@@ -18,6 +28,7 @@ export const AI_1_COURSE_SECTIONS: {
     'MiKoMH/AI||intro/mod/ai-conundrum.en.xhtml': { clipId: '21717' },
     'MiKoMH/AI||course/mod/alphago-here.en.xhtml': { clipId: '21724' },
     'MiKoMH/AI||intro/mod/agi.en.xhtml': { clipId: '21719' },
+    'MiKoMH/AI||course/mod/ai2-topics.en.xhtml': { clipId: '21719' },
     'MiKoMH/AI||course/mod/ai1sysproj.en.xhtml': { clipId: '21725' },
   },
   'Logic Programming': {
@@ -25,6 +36,7 @@ export const AI_1_COURSE_SECTIONS: {
     'MiKoMH/AI||prolog/snip/intro.en.xhtml': { clipId: '21753' },
     'MiKoMH/AI||prolog/mod/fallible-greeks.en.xhtml': { clipId: '21754' },
     'MiKoMH/AI||prolog/mod/DFS-back-ex.en.xhtml': { clipId: '21827' },
+    'MiKoMH/AI||prolog/mod/relational-programming.en.xhtml': {}
   },
   'Dont show me, i am just to end the last deck': {
     'MiKoMH/AI||prolog/mod/rtfm.en.xhtml': { },

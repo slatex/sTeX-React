@@ -1,5 +1,3 @@
-import { Element } from 'domhandler';
-
 export interface DeckAndVideoInfo {
   deckId?: string;
   titleAsHtml: string;

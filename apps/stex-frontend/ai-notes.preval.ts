@@ -4,7 +4,7 @@ import * as htmlparser2 from 'htmlparser2';
 import { getOuterHTML } from 'domutils';
 import { AI_1_NOTES_PREVALUATED_TREE } from './course_info/ai-1-notes';
 
-const DEFAULT_BASE_URL = 'https://mmt.beta.vollki.kwarc.info';
+const DEFAULT_BASE_URL = 'http://stexmmt.mathhub.info';
 const ROOT_DOC =
   '/:sTeX/document?archive=MiKoMH/AI&filepath=course/notes/notes.xhtml';
 // '/:sTeX/document?archive=MiKoMH/AI&filepath=course/fragments/lecturing.en.xhtml';

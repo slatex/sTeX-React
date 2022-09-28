@@ -75,7 +75,7 @@ function RenderTree({
             for (let n: IndexNode | undefined = node; n; n = n.parentNode) {
               if (n.hash) paths.push(n.hash);
             }
-            router.query['inDocPath'] = paths.reverse().slice(1).join('.');
+            router.query['inDocPath'] = paths.reverse().join('.');
             router.push(router);
           }}
         >
@@ -160,7 +160,7 @@ export function ContentDashboard({
             size="small"
           />
         </Box>
-        <Box display="flex" justifyContent="space-between" mx="10px">
+        <Box display="flex" justifyContent="space-between" m="10px">
           <Tooltip title="Expand/collapse all">
             <IconButton
               onClick={() => setDefaultOpen((v) => !v)}
@@ -177,7 +177,7 @@ export function ContentDashboard({
         </Box>
         <Box className={styles['dash_scroll_area_box']}>
           <Box sx={{ overflowX: 'hidden' }}>
-            {Array.from(rootPage?.childNodes.values() || []).map((child) => (
+            {Array.from(rootPage?.childNodes?.values() || []).map((child) => (
               <RenderTree node={child} level={0} defaultOpen={defaultOpen} />
             ))}
           </Box>
