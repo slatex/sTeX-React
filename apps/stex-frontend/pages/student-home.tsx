@@ -79,7 +79,7 @@ const StudentHomePage: NextPage = () => {
           <Box display="flex" flexWrap="wrap">
             <CourseThumb
               courseName="Artificial Intelligence - I"
-              imageLink="/kamen-luke-arm.jpg"
+              imageLink="/ai-1.jpg"
               notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FAI%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml"
               slidesLink="/course-view/ai-1"
             />
@@ -98,7 +98,7 @@ const StudentHomePage: NextPage = () => {
           <Box display="flex" flexWrap="wrap">
             <CourseThumb
               courseName="Artificial Intelligence - II"
-              imageLink="/marsrover.jpg"
+              imageLink="/ai-2.jpg"
               notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FAI%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml?inDocPath=-kpmihn"
             />
             <CourseThumb
