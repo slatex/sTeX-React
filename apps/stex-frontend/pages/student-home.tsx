@@ -8,16 +8,6 @@ import { ToursAutocomplete } from '../components/ToursAutocomplete';
 import MainLayout from '../layouts/MainLayout';
 import styles from './student-home.module.scss';
 
-function SimpleLink({ href, children }: { href: string; children: any }) {
-  // Needed because the global css (added for stex) has links that have
-  // special style attributes that we don't need here.
-  return (
-    <a className={styles['slink']} href={href}>
-      {children}
-    </a>
-  );
-}
-
 function CourseThumb({
   courseName,
   imageLink,
@@ -39,7 +29,12 @@ function CourseThumb({
         width: '203px',
       }}
     >
-      <Box display="flex" flexDirection="column" justifyContent="space-between" height="100%">
+      <Box
+        display="flex"
+        flexDirection="column"
+        justifyContent="space-between"
+        height="100%"
+      >
         <Box>
           <Image src={imageLink} width={200} height={140} alt={courseName} />
           <span style={{ fontSize: '20px' }}>{courseName}</span>
@@ -69,16 +64,12 @@ const StudentHomePage: NextPage = () => {
   return (
     <MainLayout>
       <Box m="0 auto" maxWidth="800px">
-        <Box mx="10px">
-          <h1>Courses</h1>
-          The{' '}
-          <SimpleLink href="https://voll-ki.fau.de">
-            VoLL-KI Project
-          </SimpleLink>{' '}
-          supplies{' '}
-          <SimpleLink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/acm">
+        <Box mx="10px" className={styles['descriptive-box']}>
+          <h1>Voll-KI based Courses at FAU</h1>
+          The <a href="https://voll-ki.fau.de">VoLL-KI Project</a> supplies{' '}
+          <a href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/acm">
             AI-enhanced course materials
-          </SimpleLink>{' '}
+          </a>{' '}
           for courses in Computer Science and Artificial Intelligence at FAU.
           These are interactive documents that adapt to the users preferences
           and competencies focused on the knowledge conveyed in a particular
@@ -117,39 +108,41 @@ const StudentHomePage: NextPage = () => {
             />
           </Box>
           <hr />
-          <h1>Free Style Learning</h1>
+          <h1>Topic-Based, Free Style Learning</h1>
           <ToursAutocomplete />
+          <br />
           <hr />
-          <Box>
-            <SimpleLink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/acm">
+          <br />
+          <Box className={styles['descriptive-box']}>
+            <a href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/acm">
               Active course materials
-            </SimpleLink>{' '}
+            </a>{' '}
             incorporate{' '}
-            <SimpleLink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/lss">
+            <a href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/lss">
               learning support services
-            </SimpleLink>{' '}
+            </a>{' '}
             based on a{' '}
-            <SimpleLink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/um">
+            <a href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/um">
               model
-            </SimpleLink>{' '}
+            </a>{' '}
             that is updated with every interaction with the materials. Such{' '}
-            <SimpleLink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/um">
+            <a href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/um">
               models of a user&apos;s preferences and competencies
-            </SimpleLink>{' '}
+            </a>{' '}
             contain highly sensitive personal data. Therefore the{' '}
-            <SimpleLink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/lss">
+            <a href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/lss">
               learning support services
-            </SimpleLink>{' '}
+            </a>{' '}
             (and corresponding user model data collection) are only enabled when
             the user is logged in via the{' '}
-            <SimpleLink href="https://www.sso.uni-erlangen.de/">
+            <a href="https://www.sso.uni-erlangen.de/">
               FAU Single-Signon Service
-            </SimpleLink>{' '}
+            </a>{' '}
             and are kept secure and under exclusive control of the respective
             user in the{' '}
-            <SimpleLink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/trust-zone">
+            <a href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/trust-zone">
               Voll-KI Trust Zone
-            </SimpleLink>
+            </a>
             .
           </Box>
         </Box>
