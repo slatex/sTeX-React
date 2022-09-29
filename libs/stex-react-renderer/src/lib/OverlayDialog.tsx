@@ -1,5 +1,5 @@
 import { OpenInNew } from '@mui/icons-material';
-import { Button, Dialog, DialogActions, IconButton } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, IconButton } from '@mui/material';
 import { getChildrenOfBodyNode } from '@stex-react/utils';
 import { ReactNode, useState } from 'react';
 import { ContentFromUrl } from './ContentFromUrl';
@@ -18,24 +18,26 @@ export function OverlayDialog({ contentUrl, displayNode }: OverlayDialogProps) {
         {displayNode}
       </div>
       <Dialog onClose={() => setOpen(false)} open={open} maxWidth="lg">
-        <a
-          style={{ marginLeft: 'auto' }}
-          href={contentUrl}
-          target="_blank"
-          rel="noreferrer"
-        >
-          <IconButton>
-            <OpenInNew />
-          </IconButton>
-        </a>
-        <ContentFromUrl
-          url={contentUrl}
-          modifyRendered={getChildrenOfBodyNode}
-        />
+        <Box display="flex" flexDirection="column" m="5px" maxWidth="800px">
+          <a
+            style={{ marginLeft: 'auto' }}
+            href={contentUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <IconButton>
+              <OpenInNew />
+            </IconButton>
+          </a>
+          <ContentFromUrl
+            url={contentUrl}
+            modifyRendered={getChildrenOfBodyNode}
+          />
 
-        <DialogActions>
-          <Button onClick={() => setOpen(false)}>Close</Button>
-        </DialogActions>
+          <DialogActions sx={{ p: '0' }}>
+            <Button onClick={() => setOpen(false)}>Close</Button>
+          </DialogActions>
+        </Box>
       </Dialog>
     </ErrorBoundary>
   );

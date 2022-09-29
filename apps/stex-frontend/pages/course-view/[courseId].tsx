@@ -1,3 +1,4 @@
+import ArticleIcon from '@mui/icons-material/Article';
 import MergeIcon from '@mui/icons-material/Merge';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
 import VideoCameraFrontIcon from '@mui/icons-material/VideoCameraFront';
@@ -6,23 +7,20 @@ import {
   Button,
   ToggleButton,
   ToggleButtonGroup,
-  Toolbar,
   Tooltip,
 } from '@mui/material';
 import { ContentWithHighlight } from '@stex-react/stex-react-renderer';
 import { localStore } from '@stex-react/utils';
-import { SlideDeckNavigation } from '../../components/SlideDeckNavigation';
 import axios from 'axios';
 import { NextPage } from 'next';
 import Link from 'next/link';
-import ArticleIcon from '@mui/icons-material/Article';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { SlideDeck } from '../../components/SlideDeck';
+import { SlideDeckNavigation } from '../../components/SlideDeckNavigation';
 import { VideoDisplay } from '../../components/VideoDisplay';
 import MainLayout from '../../layouts/MainLayout';
 import { CourseInfo, DeckAndVideoInfo, Slide } from '../../shared/slides';
-import styles from './course-view.module.scss';
 
 const W = typeof window === 'undefined' ? undefined : window;
 
@@ -219,34 +217,17 @@ const CourseViewPage: NextPage = () => {
           </Box>
         </Box>
         <Box flexBasis="200px" maxWidth="300px" flexGrow={1} overflow="auto">
-          <Box className={styles['dash_outer_box']}>
-            <Box className={styles['dash_inner_box']} mt={`${offset}px`}>
-              <Toolbar
-                variant="dense"
-                sx={{
-                  borderLeft: '2px solid #777',
-                  fontFamily: 'Open Sans,Verdana,sans-serif',
-                }}
-              >
-                Course Content
-              </Toolbar>
-              <Box
-                className={styles['dash_scroll_area_box']}
-                sx={{ border: '2px solid #777' }}
-              >
-                <SlideDeckNavigation
-                  sections={courseInfo?.sections || []}
-                  selected={selectedDeckId}
-                  onSelect={(i) => {
-                    setSelectedDeckId(i);
-                    setFromLastSlide(false);
-                    setPreNotes([]);
-                    setPostNotes([]);
-                  }}
-                />
-              </Box>
-            </Box>
-          </Box>
+          <SlideDeckNavigation
+            sections={courseInfo?.sections || []}
+            selected={selectedDeckId}
+            topOffset={offset}
+            onSelect={(i) => {
+              setSelectedDeckId(i);
+              setFromLastSlide(false);
+              setPreNotes([]);
+              setPostNotes([]);
+            }}
+          />
         </Box>
       </Box>
     </MainLayout>

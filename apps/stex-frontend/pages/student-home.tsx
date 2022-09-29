@@ -8,6 +8,13 @@ import { ToursAutocomplete } from '../components/ToursAutocomplete';
 import MainLayout from '../layouts/MainLayout';
 import styles from './student-home.module.scss';
 
+function ELink({ href, children }: { href: string; children: any }) {
+  return (
+    <a href={href} target="_blank" rel="noreferrer">
+      {children}
+    </a>
+  );
+}
 function CourseThumb({
   courseName,
   imageLink,
@@ -36,8 +43,10 @@ function CourseThumb({
         height="100%"
       >
         <Box>
-          <Image src={imageLink} width={200} height={140} alt={courseName} />
-          <span style={{ fontSize: '20px' }}>{courseName}</span>
+          <Image src={imageLink} width={200} height={100} alt={courseName} />
+          <span style={{ fontSize: '18px', textAlign: 'center' }}>
+            {courseName}
+          </span>
         </Box>
         <Box display="flex" justifyContent="flex-end" mt="5px">
           <Link href={notesLink} passHref>
@@ -66,10 +75,11 @@ const StudentHomePage: NextPage = () => {
       <Box m="0 auto" maxWidth="800px">
         <Box mx="10px" className={styles['descriptive-box']}>
           <h1>Voll-KI based Courses at FAU</h1>
-          The <a href="https://voll-ki.fau.de">VoLL-KI Project</a> supplies{' '}
-          <a href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/acm">
+          The <ELink href="https://voll-ki.fau.de">VoLL-KI Project</ELink>{' '}
+          supplies{' '}
+          <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/acm">
             AI-enhanced course materials
-          </a>{' '}
+          </ELink>{' '}
           for courses in Computer Science and Artificial Intelligence at FAU.
           These are interactive documents that adapt to the users preferences
           and competencies focused on the knowledge conveyed in a particular
@@ -84,7 +94,7 @@ const StudentHomePage: NextPage = () => {
               slidesLink="/course-view/ai-1"
             />
             <CourseThumb
-              courseName="IWGS-I"
+              courseName="IWGS - I"
               imageLink="/iwgs-1.jpg"
               notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FIWGS%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml"
             />
@@ -102,7 +112,7 @@ const StudentHomePage: NextPage = () => {
               notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FAI%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml?inDocPath=-kpmihn"
             />
             <CourseThumb
-              courseName="IWGS-II"
+              courseName="IWGS - II"
               imageLink="/iwgs-2.jpg"
               notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FIWGS%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml?inDocPath=-9o7e"
             />
@@ -114,35 +124,35 @@ const StudentHomePage: NextPage = () => {
           <hr />
           <br />
           <Box className={styles['descriptive-box']}>
-            <a href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/acm">
+            <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/acm">
               Active course materials
-            </a>{' '}
+            </ELink>{' '}
             incorporate{' '}
-            <a href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/lss">
+            <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/lss">
               learning support services
-            </a>{' '}
+            </ELink>{' '}
             based on a{' '}
-            <a href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/um">
+            <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/um">
               model
-            </a>{' '}
+            </ELink>{' '}
             that is updated with every interaction with the materials. Such{' '}
-            <a href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/um">
+            <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/um">
               models of a user&apos;s preferences and competencies
-            </a>{' '}
+            </ELink>{' '}
             contain highly sensitive personal data. Therefore the{' '}
-            <a href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/lss">
+            <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/lss">
               learning support services
-            </a>{' '}
+            </ELink>{' '}
             (and corresponding user model data collection) are only enabled when
             the user is logged in via the{' '}
-            <a href="https://www.sso.uni-erlangen.de/">
+            <ELink href="https://www.sso.uni-erlangen.de/">
               FAU Single-Signon Service
-            </a>{' '}
+            </ELink>{' '}
             and are kept secure and under exclusive control of the respective
             user in the{' '}
-            <a href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/trust-zone">
+            <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/trust-zone">
               Voll-KI Trust Zone
-            </a>
+            </ELink>
             .
           </Box>
         </Box>

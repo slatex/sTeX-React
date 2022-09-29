@@ -1,16 +1,22 @@
-import { Box } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Tooltip, { tooltipClasses, TooltipProps } from '@mui/material/Tooltip';
 import { DEFAULT_BASE_URL, IS_SERVER, localStore } from '@stex-react/utils';
 import parse, { DOMNode, domToReact, Element } from 'html-react-parser';
 import { createContext, forwardRef, useContext } from 'react';
 import { ContentFromUrl } from './ContentFromUrl';
+import Link from 'next/link';
+import TourIcon from '@mui/icons-material/Tour';
 import { ErrorBoundary } from './ErrorBoundary';
 import { ExpandableContent } from './ExpandableContent';
 import MathJaxHack from './MathJaxHack';
 import { MathMLDisplay } from './MathMLDisplay';
 import { OverlayDialog } from './OverlayDialog';
 import { SidebarButton } from './SidebarButton';
+
+const IS_MMT_VIEWER = IS_SERVER
+  ? false
+  : (window as any).SHOW_FILE_BROWSER !== undefined;
 
 export const PARSER_BASE_URL =
   (IS_SERVER ? null : (window as any).BASE_URL) ?? DEFAULT_BASE_URL;
@@ -106,6 +112,15 @@ function updateBackgroundColorAndCursorPointer(style: string, bgColor: string) {
     style = removeStyleTag(removeStyleTag(style, 'background-color'), 'cursor');
   }
   return (style || '') + ` background-color: ${bgColor}; cursor: pointer;`;
+}
+
+function getGuidedTourPath(href?: string) {
+  // TODO: This is a lousy hack to check if guided tour and if not in MMT viewer.
+  if (!IS_MMT_VIEWER && href?.startsWith('/:vollki?path=')) {
+    const uri = href.substring('/:vollki?path='.length);
+    return `/guided-tour/${encodeURIComponent(uri)}`;
+  }
+  return undefined;
 }
 
 export const HighlightContext = createContext({
@@ -300,6 +315,18 @@ const replace = (domNode: DOMNode, skipSidebar = false): any => {
       />
     );
   }
+
+  const guidedTourPath = getGuidedTourPath(domNode.attribs?.['href']);
+  if (guidedTourPath) {
+    return (
+      <Link href={guidedTourPath} passHref>
+        <Button sx={{m:'5px'}} size="small" variant="contained">
+          <TourIcon>&nbsp;</TourIcon>Guided Tour
+        </Button>
+      </Link>
+    );
+  }
+
   if (domNode.attribs?.['class'] === 'inputref') {
     const inputRef = domNode.attribs['data-inputref-url'];
     return (

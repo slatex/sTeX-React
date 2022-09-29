@@ -4,7 +4,7 @@ import * as htmlparser2 from 'htmlparser2';
 import { getOuterHTML } from 'domutils';
 import { AI_1_NOTES_PREVALUATED_TREE } from './course_info/ai-1-notes';
 
-const DEFAULT_BASE_URL = 'http://stexmmt.mathhub.info';
+const SCRIPT_BASE_URL = 'https://stexmmt.mathhub.info';
 const ROOT_DOC =
   '/:sTeX/document?archive=MiKoMH/AI&filepath=course/notes/notes.xhtml';
 // '/:sTeX/document?archive=MiKoMH/AI&filepath=course/fragments/lecturing.en.xhtml';
@@ -104,7 +104,7 @@ async function getDocumentTree(
     }
     return root;
   }
-  const fullUrl = `${DEFAULT_BASE_URL}${docUrl}`;
+  const fullUrl = `${SCRIPT_BASE_URL}${docUrl}`;
   if (fetchedDocs % 100 === 0) {
     const elapsed = Math.round((Date.now() - startTime) / 1000);
     console.log(`${fetchedDocs}: ${elapsed}s\n${docUrl}`);
