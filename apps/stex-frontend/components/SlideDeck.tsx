@@ -74,17 +74,23 @@ export const SlideDeck = memo(function SlidesFromUrl({
   const deckId = deckInfo?.deckId;
 
   useEffect(() => {
+    let isCancelled = false;
     if (!deckId?.length) return;
     setSlideNumber(0);
     setIsLoading(true);
     axios
       .get(`/api/get-slides/${courseId}/${encodeURIComponent(deckId)}`)
       .then((r) => {
+        if (isCancelled) return;
         const slides: Slide[] = r.data || [];
         setIsLoading(false);
         setSlides(slides);
         setSlideNumber(fromLastSlide ? slides.length - 1 : 0);
       });
+
+    return () => {
+      isCancelled = true; // avoids race condition on rapid deckId changes.
+    };
   }, [courseId, deckId, fromLastSlide]);
 
   useEffect(() => {

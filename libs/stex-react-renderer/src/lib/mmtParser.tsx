@@ -20,7 +20,9 @@ const NoMaxWidthTooltip = styled(({ className, ...props }: TooltipProps) => (
 ))({
   [`& .${tooltipClasses.tooltip}`]: {
     maxWidth: 'none',
-    backgroundColor: '#616161',
+    margin: '0',
+    padding: '0',
+    backgroundColor: 'white',
   },
 });
 
@@ -254,12 +256,20 @@ const replace = (domNode: DOMNode, skipSidebar = false): any => {
         displayNode={
           <NoMaxWidthTooltip
             title={
-              <div style={{ minWidth: '300px', maxWidth: '600px' }}>
+              <Box
+                maxWidth="300px"
+                minWidth="600px"
+                color="black"
+                border="1px solid #CCC"
+                p="5px"
+                borderRadius="5px"
+                boxShadow="2px 7px 31px 8px rgba(0,0,0,0.33)"
+              >
                 <ContentFromUrl
                   url={tooltipPath}
                   modifyRendered={getChildrenOfBodyNode}
                 />
-              </div>
+              </Box>
             }
           >
             {hoverParent ? (
