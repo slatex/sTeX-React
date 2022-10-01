@@ -20,11 +20,13 @@ function CourseThumb({
   imageLink,
   notesLink,
   slidesLink = undefined,
+  width = 200,
 }: {
   courseName: string;
   imageLink: string;
   notesLink: string;
   slidesLink?: string;
+  width?: number;
 }) {
   return (
     <Card
@@ -42,9 +44,9 @@ function CourseThumb({
         justifyContent="space-between"
         height="100%"
       >
-        <Box>
-          <Image src={imageLink} width={200} height={100} alt={courseName} />
-          <span style={{ fontSize: '18px', textAlign: 'center' }}>
+        <Box display="flex" flexDirection="column" alignItems="center">
+          <Image src={imageLink} width={width} height={100} alt={courseName} />
+          <span style={{ fontSize: '18px', marginTop: '5px' }}>
             {courseName}
           </span>
         </Box>
@@ -97,6 +99,7 @@ const StudentHomePage: NextPage = () => {
               courseName="IWGS - I"
               imageLink="/iwgs-1.jpg"
               notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FIWGS%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml"
+              width={83}
             />
             <CourseThumb
               courseName="Logik-Basierte Sprachverarbeitung"
@@ -115,6 +118,7 @@ const StudentHomePage: NextPage = () => {
               courseName="IWGS - II"
               imageLink="/iwgs-2.jpg"
               notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FIWGS%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml?inDocPath=-9o7e"
+              width={165}
             />
           </Box>
           <hr />

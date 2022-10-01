@@ -80,6 +80,8 @@ export function Header({
             <Button
               sx={{ color: 'white', border: '1px solid white' }}
               onClick={() => {
+                // Don't change target when user reclicks 'Login' button.
+                if (window.location.pathname === '/login') return;
                 router.push(
                   '/login?target=' + encodeURIComponent(window.location.href)
                 );
