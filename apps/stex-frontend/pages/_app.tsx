@@ -7,7 +7,7 @@ import './styles.scss';
 
 const instance = createInstance({
   urlBase: 'https://sp.kwarc.info',
-  siteId: 3,
+  siteId: 1,
   // userId: 'UID76903202', optional, default value: `undefined`.
   trackerUrl: 'https://sp.kwarc.info/index.php',// optional, default value: `${urlBase}matomo.php`
   // srcUrl: 'https://sp.kwarc.info/tracking.js', optional, default value: `${urlBase}matomo.js`
