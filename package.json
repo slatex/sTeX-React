@@ -11,6 +11,7 @@
   "dependencies": {
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.9.3",
+    "@jonkoops/matomo-tracker-react": "^0.7.0",
     "@mui/icons-material": "^5.10.6",
     "@mui/material": "^5.8.5",
     "@nrwl/next": "14.3.6",

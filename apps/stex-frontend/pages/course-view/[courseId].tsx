@@ -21,6 +21,7 @@ import { SlideDeckNavigation } from '../../components/SlideDeckNavigation';
 import { VideoDisplay } from '../../components/VideoDisplay';
 import MainLayout from '../../layouts/MainLayout';
 import { CourseInfo, DeckAndVideoInfo, Slide } from '../../shared/slides';
+import { useMatomo } from '@jonkoops/matomo-tracker-react';
 
 const W = typeof window === 'undefined' ? undefined : window;
 
@@ -46,12 +47,20 @@ function ToggleModeButton({
   viewMode: ViewMode;
   updateViewMode: (mode: ViewMode) => void;
 }) {
+  const { trackEvent } = useMatomo();
   return (
     <ToggleButtonGroup
       value={viewMode}
       exclusive
       onChange={(event, newVal) => {
-        if (newVal !== null) updateViewMode(newVal);
+        if (newVal !== null) {
+          updateViewMode(newVal);
+          trackEvent({
+            category: 'slide-view-event',
+            action: 'mode-change',
+            name: newVal.toString(),
+          });
+        }
       }}
       sx={{ m: '5px 0', border: '1px solid black' }}
     >
@@ -86,6 +95,14 @@ const CourseViewPage: NextPage = () => {
   const [courseInfo, setCourseInfo] = useState(undefined as CourseInfo);
   const [deckInfo, setDeckInfo] = useState(undefined as DeckAndVideoInfo);
   const [viewMode, setViewMode] = useState(ViewMode.SLIDE_MODE);
+
+  const { trackPageView } = useMatomo();
+
+  // Track page view
+  useEffect(() => {
+    trackPageView();
+  }, []);
+
   useEffect(
     () =>
       setViewMode(
