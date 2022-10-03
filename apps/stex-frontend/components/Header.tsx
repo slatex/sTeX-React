@@ -1,5 +1,6 @@
 import { Box, Button, Menu, MenuItem, Toolbar } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -66,7 +67,12 @@ export function Header({
     <AppBar position="static">
       <Toolbar className={styles['toolbar']}>
         <Link href="/">
-          <span className={styles['toolbar_logo']}>VoLL-KI</span>
+          <Image
+            src="/voll-ki-courses.svg"
+            alt="VoLL-KI Logo"
+            width={128}
+            height={40}
+          />
         </Link>
         {showBrowserAutocomplete && (
           <Box sx={{ mx: '40px', maxWidth: '600px' }} flex="1">

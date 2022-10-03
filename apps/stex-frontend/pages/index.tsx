@@ -17,7 +17,7 @@ const Home: NextPage = () => {
         </Link>
       </IconButton>
       <Box textAlign="center" m="20px">
-        <Image src="/voll-ki.png" alt="VoLL-KI Logo" width={650} height={300} />
+        <Image src="/voll-ki.svg" alt="VoLL-KI Logo" width={650} height={300} />
       </Box>
       <div>
         <main style={{ margin: '10px' }}>

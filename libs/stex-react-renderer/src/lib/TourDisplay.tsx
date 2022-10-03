@@ -512,9 +512,9 @@ export function TourDisplay({
             >
               <IconButton
                 sx={{
-                  border: '2px solid #3f51b5',
+                  border: '2px solid #203360',
                   borderRadius: '500px',
-                  color: '#3f51b5',
+                  color: '#203360',
                   backgroundColor: 'white',
                   boxShadow: '0px 8px 15px rgba(0, 0, 0, 0.5)',
                   transition: 'all 0.3s ease 0s',

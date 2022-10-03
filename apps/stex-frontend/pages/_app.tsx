@@ -9,7 +9,7 @@ const instance = createInstance({
   urlBase: 'https://sp.kwarc.info',
   siteId: 1,
   // userId: 'UID76903202', optional, default value: `undefined`.
-  trackerUrl: 'https://sp.kwarc.info/index.php',// optional, default value: `${urlBase}matomo.php`
+  // trackerUrl: 'https://sp.kwarc.info/index.php',// optional, default value: `${urlBase}matomo.php`
   // srcUrl: 'https://sp.kwarc.info/tracking.js', optional, default value: `${urlBase}matomo.js`
   disabled: false, // optional, false by default. Makes all tracking calls no-ops if set to true.
   // heartBeat: {
@@ -39,10 +39,10 @@ const theme = createTheme({
   },
   palette: {
     primary: {
-      main: '#3f51b5',
+      main: '#203360',
     },
     secondary: {
-      main: '#ffc107',
+      main: '#8c9fb1',
     },
   },
 });

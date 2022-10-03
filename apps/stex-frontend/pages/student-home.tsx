@@ -85,8 +85,8 @@ const StudentHomePage: NextPage = () => {
           for courses in Computer Science and Artificial Intelligence at FAU.
           These are interactive documents that adapt to the users preferences
           and competencies focused on the knowledge conveyed in a particular
-          wledge unit. On this page we supply entry points for FAU courses and
-          the underlying CS/AI Curriculum by topic.
+          knowledge unit. On this page we supply entry points for FAU courses
+          and the underlying CS/AI Curriculum by topic.
           <h2>Current semester &#40;WS 22/23&#41;</h2>
           <Box display="flex" flexWrap="wrap">
             <CourseThumb
