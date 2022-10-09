@@ -31,12 +31,14 @@ export default function MainLayout({
       </main>
       <footer id="footer">
         <Toolbar
+          variant="dense"
           sx={{
             mt: '10px',
             background: '#203360',
             color: '#8c9fb1',
             display: 'flex',
             flexDirection: 'row-reverse',
+            zIndex: 1,
           }}
         >
           <Link href="/privacy">Privacy Policy</Link>

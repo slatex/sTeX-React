@@ -1,14 +1,9 @@
+import { useMatomo } from '@jonkoops/matomo-tracker-react';
 import ArticleIcon from '@mui/icons-material/Article';
 import MergeIcon from '@mui/icons-material/Merge';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
 import VideoCameraFrontIcon from '@mui/icons-material/VideoCameraFront';
-import {
-  Box,
-  Button,
-  ToggleButton,
-  ToggleButtonGroup,
-  Tooltip,
-} from '@mui/material';
+import { Box, Button, ToggleButtonGroup } from '@mui/material';
 import { ContentWithHighlight } from '@stex-react/stex-react-renderer';
 import { localStore } from '@stex-react/utils';
 import axios from 'axios';
@@ -18,10 +13,10 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { SlideDeck } from '../../components/SlideDeck';
 import { SlideDeckNavigation } from '../../components/SlideDeckNavigation';
+import { TooltipToggleButton } from '../../components/TooltipToggleButton';
 import { VideoDisplay } from '../../components/VideoDisplay';
 import MainLayout from '../../layouts/MainLayout';
 import { CourseInfo, DeckAndVideoInfo, Slide } from '../../shared/slides';
-import { useMatomo } from '@jonkoops/matomo-tracker-react';
 
 const W = typeof window === 'undefined' ? undefined : window;
 
@@ -64,21 +59,18 @@ function ToggleModeButton({
       }}
       sx={{ m: '5px 0', border: '1px solid black' }}
     >
-      <Tooltip title="Show video">
-        <ToggleButton value={ViewMode.VIDEO_MODE}>
-          <VideoCameraFrontIcon />
-        </ToggleButton>
-      </Tooltip>
-      <Tooltip title="Show slides">
-        <ToggleButton value={ViewMode.SLIDE_MODE}>
-          <SlideshowIcon />
-        </ToggleButton>
-      </Tooltip>
-      <Tooltip title="Show slides and video">
-        <ToggleButton value={ViewMode.COMBINED_MODE}>
-          <MergeIcon />
-        </ToggleButton>
-      </Tooltip>
+      <TooltipToggleButton value={ViewMode.SLIDE_MODE} title="Show slides">
+        <SlideshowIcon />
+      </TooltipToggleButton>
+      <TooltipToggleButton value={ViewMode.VIDEO_MODE} title="Show video">
+        <VideoCameraFrontIcon />
+      </TooltipToggleButton>
+      <TooltipToggleButton
+        value={ViewMode.COMBINED_MODE}
+        title="Show slides and video"
+      >
+        <MergeIcon />
+      </TooltipToggleButton>
     </ToggleButtonGroup>
   );
 }
@@ -177,7 +169,9 @@ const CourseViewPage: NextPage = () => {
   }
 
   return (
-    <MainLayout title={(courseId|| '').toUpperCase() + ' Course Slides | VoLL-KI'}>
+    <MainLayout
+      title={(courseId || '').toUpperCase() + ' Course Slides | VoLL-KI'}
+    >
       <Box display="flex">
         <Box flexBasis="600px" flexGrow={1} overflow="hidden">
           <Box maxWidth="800px" margin="auto">
