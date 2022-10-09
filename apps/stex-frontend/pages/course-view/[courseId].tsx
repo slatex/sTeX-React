@@ -177,7 +177,7 @@ const CourseViewPage: NextPage = () => {
   }
 
   return (
-    <MainLayout>
+    <MainLayout title={(courseId|| '').toUpperCase() + ' Course Slides | VoLL-KI'}>
       <Box display="flex">
         <Box flexBasis="600px" flexGrow={1} overflow="hidden">
           <Box maxWidth="800px" margin="auto">

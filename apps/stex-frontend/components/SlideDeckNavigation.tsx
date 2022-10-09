@@ -8,7 +8,7 @@ import MuiAccordionSummary, {
 import { styled } from '@mui/material/styles';
 import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import { CourseSection } from '../shared/slides';
-import styles from '../pages/course-view/course-view.module.scss';
+import styles from '../styles/course-view.module.scss';
 
 const Accordion = styled((props: AccordionProps) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />

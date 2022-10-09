@@ -72,6 +72,7 @@ export function Header({
             alt="VoLL-KI Logo"
             width={128}
             height={40}
+            style={{ cursor: 'pointer' }}
           />
         </Link>
         {showBrowserAutocomplete && (

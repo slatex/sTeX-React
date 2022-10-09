@@ -6,7 +6,7 @@ import MainLayout from '../layouts/MainLayout';
 
 const Browser: NextPage = () => {
   return (
-    <MainLayout title="VoLL-KI Home">
+    <MainLayout title="sTeX File Browser | VoLL-KI">
       <FileBrowser
         defaultRootNodes={ROOT_NODES}
         topOffset={64}

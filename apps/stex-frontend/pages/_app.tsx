@@ -6,11 +6,11 @@ import { MatomoProvider, createInstance } from '@jonkoops/matomo-tracker-react';
 import './styles.scss';
 
 const instance = createInstance({
-  urlBase: 'https://sp.kwarc.info',
+  urlBase: 'https://matomo.kwarc.info',
   siteId: 1,
   // userId: 'UID76903202', optional, default value: `undefined`.
-  // trackerUrl: 'https://sp.kwarc.info/index.php',// optional, default value: `${urlBase}matomo.php`
-  // srcUrl: 'https://sp.kwarc.info/tracking.js', optional, default value: `${urlBase}matomo.js`
+  // trackerUrl: 'https://matomo.kwarc.info/index.php',// optional, default value: `${urlBase}matomo.php`
+  // srcUrl: 'https://matomo.kwarc.info/tracking.js', optional, default value: `${urlBase}matomo.js`
   disabled: false, // optional, false by default. Makes all tracking calls no-ops if set to true.
   // heartBeat: {
     // optional, enabled by default

@@ -7,7 +7,7 @@ import MainLayout from '../layouts/MainLayout';
 const QuizPage: NextPage = () => {
   const [path, setPath] = useState('problems/IWGS/digdocs/quiz');
   return (
-    <MainLayout title="VoLL-KI Home">
+    <MainLayout title="Quizzes | VoLL-KI">
       <Box mx="10px">
         <Box m="auto" maxWidth="520px">
           <Select

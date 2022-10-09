@@ -7,7 +7,7 @@ import { ContentWithHighlight } from '@stex-react/stex-react-renderer';
 import axios from 'axios';
 import { Dispatch, memo, SetStateAction, useEffect, useState } from 'react';
 import { DeckAndVideoInfo, Slide } from '../shared/slides';
-import styles from './slide-deck.module.scss';
+import styles from '../styles/slide-deck.module.scss';
 
 export function SlideNavBar({
   slideNumber,
