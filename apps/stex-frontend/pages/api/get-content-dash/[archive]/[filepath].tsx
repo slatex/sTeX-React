@@ -17,6 +17,6 @@ export default async function handler(req, res) {
   const nodeId = { archive, filepath };
 
   const node = findNode(nodeId, AI_ROOT_NODE);
-  if (!node) res.status(200);
+  if (!node) res.status(204).send();
   else res.status(200).json(createInfoForNode(node));
 }

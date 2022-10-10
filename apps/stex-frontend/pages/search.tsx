@@ -10,7 +10,7 @@ import { SearchResult, SearchResultView } from '../components/SearchResultView';
 import MainLayout from '../layouts/MainLayout';
 
 function getSearchRequest(query: string, types: string) {
-  const url = `${DEFAULT_BASE_URL}/:stexsearch?query=${encodeURIComponent(
+  const url = `${DEFAULT_BASE_URL}/:sTeX/search?query=${encodeURIComponent(
     query
   )}`;
   if (!types) return url;

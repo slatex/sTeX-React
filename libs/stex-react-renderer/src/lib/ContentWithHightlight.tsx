@@ -26,7 +26,7 @@ export const ContentWithHighlight = memo(
 
     useEffect(() => {
       if (topLevel) resetIndexInfo();
-    }, [topLevel]);
+    }, [mmtHtml, topLevel]);
 
     useEffect(() => {
       let rendered = mmtHTMLToReact(mmtHtml, skipSidebar);
