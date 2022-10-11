@@ -239,7 +239,7 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
   ) {
     return <></>;
   }
-  if (!localStore?.getItem('no-responsive')) {
+  if (!IS_MMT_VIEWER && !localStore?.getItem('no-responsive')) {
     // HACK: Make MMT return appropriate (X)HTML for responsive page.
     if (domNode.attribs?.['class'] === 'body') {
       domNode.attribs['style'] = removeStyleTag(
