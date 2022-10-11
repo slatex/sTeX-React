@@ -1,12 +1,13 @@
+import TourIcon from '@mui/icons-material/Tour';
 import { Box, Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Tooltip, { tooltipClasses, TooltipProps } from '@mui/material/Tooltip';
 import { DEFAULT_BASE_URL, IS_SERVER, localStore } from '@stex-react/utils';
 import parse, { DOMNode, domToReact, Element } from 'html-react-parser';
+import { ElementType } from 'htmlparser2';
+import Link from 'next/link';
 import { createContext, forwardRef, useContext } from 'react';
 import { ContentFromUrl } from './ContentFromUrl';
-import Link from 'next/link';
-import TourIcon from '@mui/icons-material/Tour';
 import { ErrorBoundary } from './ErrorBoundary';
 import { ExpandableContent } from './ExpandableContent';
 import MathJaxHack from './MathJaxHack';
@@ -32,6 +33,17 @@ const NoMaxWidthTooltip = styled(({ className, ...props }: TooltipProps) => (
   },
 });
 
+function getElement(domNode: DOMNode): Element | undefined {
+  // (domNode instanceof Element) doesn't work.
+  // Perhaps, there is some versioning issue. But we still use the type 'Element'
+  // because it helps with code completion which seems to work fine so far.
+  const type = domNode.type;
+  if ([ElementType.Tag, ElementType.Script, ElementType.Style].includes(type)) {
+    return domNode as Element;
+  }
+  return undefined;
+}
+
 function removeStyleTag(style: any, tag: string) {
   if (typeof style === 'object') {
     if (style[tag]) delete style[tag];
@@ -56,7 +68,7 @@ function isSidebar(node: Element) {
   return node?.attribs?.['class'] === 'sidebar';
 }
 
-function isVisible(node: Element) {
+function isVisible(node: any) {
   if (node?.type === 'text' && (node as any)?.data?.trim().length === 0)
     return false;
   const visibilityAttrib = node?.attribs?.['stex:visible'];
@@ -69,7 +81,7 @@ function isLeafNode(node: Element) {
   return node.name === 'paragraph' || isSidebar(node);
 }
 
-function getFirstDisplayNode(node: Element): any {
+function getFirstDisplayNode(node: any): any {
   if (!node || !isVisible(node)) {
     return null;
   }
@@ -172,8 +184,9 @@ function Highlightable({
   );
 }
 
-function fixMtextNodes(domNode: DOMNode, indexInParent = 0) {
-  if (!(domNode instanceof Element)) return;
+function fixMtextNodes(d: DOMNode, indexInParent = 0) {
+  const domNode = getElement(d);
+  if (!domNode) return;
   if (domNode.name === 'mtext') {
     const mtext = domNode;
     const child = mtext.children?.[0] as Element;
@@ -194,8 +207,10 @@ function fixMtextNodes(domNode: DOMNode, indexInParent = 0) {
   }
 }
 
-const replace = (domNode: DOMNode, skipSidebar = false): any => {
-  if (!(domNode instanceof Element)) return;
+const replace = (d: DOMNode, skipSidebar = false): any => {
+  const domNode = getElement(d);
+
+  if (!domNode) return;
 
   if (isSidebar(domNode)) {
     if (skipSidebar) return <></>;
@@ -236,7 +251,7 @@ const replace = (domNode: DOMNode, skipSidebar = false): any => {
     if (domNode.attribs?.['style']) {
       const className = domNode.attribs?.['class'];
       // TODO: Ask Dennis for a more complete list.
-      const barred = ['hkern', 'vrule', 'hrule'];
+      const barred = ['hkern', 'hbox', 'vrule', 'hrule'];
       if (!className || barred.every((b) => !className.includes(b))) {
         domNode.attribs['style'] = removeStyleTag(
           removeStyleTag(domNode.attribs?.['style'], 'min-width'),
@@ -245,7 +260,6 @@ const replace = (domNode: DOMNode, skipSidebar = false): any => {
       }
     }
   }
-
   const hoverLink = domNode.attribs['data-overlay-link-hover'];
   const clickLink = domNode.attribs['data-overlay-link-click'];
   const hoverParent = domNode.attribs['data-highlight-parent'];
@@ -320,7 +334,7 @@ const replace = (domNode: DOMNode, skipSidebar = false): any => {
   if (guidedTourPath) {
     return (
       <Link href={guidedTourPath} passHref>
-        <Button sx={{m:'5px'}} size="small" variant="contained">
+        <Button sx={{ m: '5px' }} size="small" variant="contained">
           <TourIcon>&nbsp;</TourIcon>Guided Tour
         </Button>
       </Link>

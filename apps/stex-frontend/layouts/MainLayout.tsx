@@ -38,6 +38,7 @@ export default function MainLayout({
             color: '#8c9fb1',
             display: 'flex',
             flexDirection: 'row-reverse',
+            fontFamily: '"Roboto"',
             zIndex: 1,
           }}
         >

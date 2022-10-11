@@ -1,6 +1,6 @@
-import axios, { AxiosRequestHeaders } from 'axios';
+import axios, { RawAxiosRequestHeaders } from 'axios';
 
-function getHeaders(category: string): AxiosRequestHeaders {
+function getHeaders(category: string): RawAxiosRequestHeaders {
   if (category === 'CONTENT') {
     return {
       'PRIVATE-TOKEN': process.env['CONTENT_ISSUES_GITLAB_PAT'] as string,
