@@ -265,7 +265,6 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
   const hoverParent = domNode.attribs['data-highlight-parent'];
   if ((hoverLink || clickLink) && !domNode.attribs['processed']) {
     domNode.attribs['processed'] = 'first';
-    const tooltipPath = PARSER_BASE_URL + hoverLink;
     const dialogPath = PARSER_BASE_URL + clickLink;
     // eslint-disable-next-line react/display-name
     const WithHighlightable = forwardRef((props, ref) => {
@@ -285,20 +284,24 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
         displayNode={
           <NoMaxWidthTooltip
             title={
-              <Box
-                maxWidth="300px"
-                minWidth="600px"
-                color="black"
-                border="1px solid #CCC"
-                p="5px"
-                borderRadius="5px"
-                boxShadow="2px 7px 31px 8px rgba(0,0,0,0.33)"
-              >
-                <ContentFromUrl
-                  url={tooltipPath}
-                  modifyRendered={getChildrenOfBodyNode}
-                />
-              </Box>
+              hoverLink ? (
+                <Box
+                  maxWidth="300px"
+                  minWidth="600px"
+                  color="black"
+                  border="1px solid #CCC"
+                  p="5px"
+                  borderRadius="5px"
+                  boxShadow="2px 7px 31px 8px rgba(0,0,0,0.33)"
+                >
+                  <ContentFromUrl
+                    url={PARSER_BASE_URL + hoverLink}
+                    modifyRendered={getChildrenOfBodyNode}
+                  />
+                </Box>
+              ) : (
+                <></>
+              )
             }
           >
             {hoverParent ? (
