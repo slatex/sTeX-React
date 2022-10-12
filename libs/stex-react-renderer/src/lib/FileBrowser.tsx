@@ -10,6 +10,7 @@ import {
   xhtmlPathToTex,
 } from '@stex-react/utils';
 import { useState } from 'react';
+import { LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 import { FileNode } from './FileNode';
 import { FileTree } from './FileTree';
 
@@ -24,26 +25,34 @@ export function FileBrowser({
   topOffset: number;
   standaloneLink: (archive: string, filepath: string) => string;
 }) {
+  const [showDashboard, setShowDashboard] = useState(true);
   const [selectedFilepath, setSelectedFilepath] = useState('');
   const [selectedProject, setSelectedProject] = useState('');
 
   return (
-    <>
-      <FileTree
-        topOffset={topOffset}
-        defaultRootNodes={defaultRootNodes}
-        baseUrl={baseUrl}
-        selectedFile={{
-          project: selectedProject,
-          filepath: selectedFilepath,
-        }}
-        onSelectedFile={(project, filepath) => {
-          setSelectedProject(project);
-          setSelectedFilepath(filepath);
-        }}
-      />
-      <Box ml="300px" p="10px" sx={{ backgroundColor: BG_COLOR }}>
-        <Box maxWidth="520px" m="auto">
+    <LayoutWithFixedMenu
+      topOffset={64}
+      showDashboard={showDashboard}
+      setShowDashboard={setShowDashboard}
+      alwaysShowWhenNotDrawer={true}
+      menu={
+        <FileTree
+          topOffset={topOffset}
+          defaultRootNodes={defaultRootNodes}
+          baseUrl={baseUrl}
+          selectedFile={{
+            project: selectedProject,
+            filepath: selectedFilepath,
+          }}
+          onSelectedFile={(project, filepath) => {
+            setSelectedProject(project);
+            setSelectedFilepath(filepath);
+          }}
+        />
+      }
+    >
+      <Box flex={1} p="10px" sx={{ backgroundColor: BG_COLOR }}>
+        <Box maxWidth="600px" m="auto">
           {selectedProject && selectedFilepath ? (
             <>
               <a
@@ -69,7 +78,7 @@ export function FileBrowser({
                   <OpenInNewIcon />
                 </Button>
               </a>
-              <hr/>
+              <hr />
               <ContentFromUrl
                 url={XhtmlContentUrl(
                   baseUrl,
@@ -81,10 +90,10 @@ export function FileBrowser({
               />
             </>
           ) : (
-            <i>Click an article for preview</i>
+            <i>Select an article for preview</i>
           )}
         </Box>
       </Box>
-    </>
+    </LayoutWithFixedMenu>
   );
 }

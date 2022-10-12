@@ -4,7 +4,10 @@ import MergeIcon from '@mui/icons-material/Merge';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
 import VideoCameraFrontIcon from '@mui/icons-material/VideoCameraFront';
 import { Box, Button, ToggleButtonGroup } from '@mui/material';
-import { ContentWithHighlight } from '@stex-react/stex-react-renderer';
+import {
+  ContentWithHighlight,
+  LayoutWithFixedMenu,
+} from '@stex-react/stex-react-renderer';
 import { localStore } from '@stex-react/utils';
 import axios from 'axios';
 import { NextPage } from 'next';
@@ -17,8 +20,6 @@ import { TooltipToggleButton } from '../../components/TooltipToggleButton';
 import { VideoDisplay } from '../../components/VideoDisplay';
 import MainLayout from '../../layouts/MainLayout';
 import { CourseInfo, DeckAndVideoInfo, Slide } from '../../shared/slides';
-
-const W = typeof window === 'undefined' ? undefined : window;
 
 function RenderElements({ elements }: { elements: string[] }) {
   return (
@@ -79,18 +80,17 @@ const CourseViewPage: NextPage = () => {
   const router = useRouter();
   const courseId = router.query.courseId as string;
 
+  const [showDashboard, setShowDashboard] = useState(true);
   const [selectedDeckId, setSelectedDeckId] = useState('initial');
   const [fromLastSlide, setFromLastSlide] = useState(false);
   const [preNotes, setPreNotes] = useState([] as string[]);
   const [postNotes, setPostNotes] = useState([] as string[]);
-  const [offset, setOffset] = useState(64);
   const [courseInfo, setCourseInfo] = useState(undefined as CourseInfo);
   const [deckInfo, setDeckInfo] = useState(undefined as DeckAndVideoInfo);
   const [viewMode, setViewMode] = useState(ViewMode.SLIDE_MODE);
 
   const { trackPageView } = useMatomo();
 
-  // Track page view
   useEffect(() => {
     trackPageView();
   }, []);
@@ -122,14 +122,6 @@ const CourseViewPage: NextPage = () => {
     }
     setDeckInfo(undefined);
   }, [courseInfo, selectedDeckId]);
-
-  useEffect(() => {
-    const onScroll = () => setOffset(Math.max(64 - (W?.pageYOffset || 0), 0));
-    // clean up code
-    window.removeEventListener('scroll', onScroll);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
 
   function findCurrentLocation() {
     for (const [secIdx, section] of courseInfo?.sections?.entries() || [])
@@ -172,8 +164,26 @@ const CourseViewPage: NextPage = () => {
     <MainLayout
       title={(courseId || '').toUpperCase() + ' Course Slides | VoLL-KI'}
     >
-      <Box display="flex">
-        <Box flexBasis="600px" flexGrow={1} overflow="hidden">
+      <LayoutWithFixedMenu
+        menu={
+          <SlideDeckNavigation
+            sections={courseInfo?.sections || []}
+            selected={selectedDeckId}
+            onSelect={(i) => {
+              setSelectedDeckId(i);
+              setFromLastSlide(false);
+              setPreNotes([]);
+              setPostNotes([]);
+            }}
+          />
+        }
+        topOffset={64}
+        showDashboard={showDashboard}
+        setShowDashboard={setShowDashboard}
+        alwaysShowWhenNotDrawer={true}
+        drawerAnchor="right"
+      >
+        <Box flexBasis="600px" flex={1} overflow="hidden">
           <Box maxWidth="800px" margin="auto">
             <Box
               display="flex"
@@ -227,20 +237,7 @@ const CourseViewPage: NextPage = () => {
             )}
           </Box>
         </Box>
-        <Box flexBasis="200px" maxWidth="300px" flexGrow={1} overflow="auto">
-          <SlideDeckNavigation
-            sections={courseInfo?.sections || []}
-            selected={selectedDeckId}
-            topOffset={offset}
-            onSelect={(i) => {
-              setSelectedDeckId(i);
-              setFromLastSlide(false);
-              setPreNotes([]);
-              setPostNotes([]);
-            }}
-          />
-        </Box>
-      </Box>
+      </LayoutWithFixedMenu>
     </MainLayout>
   );
 };

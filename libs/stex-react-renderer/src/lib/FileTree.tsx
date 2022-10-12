@@ -7,8 +7,9 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import { Box, IconButton, LinearProgress, TextField } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import styles from './styles/file-browser.module.scss';
+import styles from './stex-react-renderer.module.scss';
 import { FileNode } from './FileNode';
+import { FixedPositionMenu } from './LayoutWithFixedMenu';
 
 export type SetSelectedFileFunction = (
   projectId: string,
@@ -54,7 +55,10 @@ export function NodeDisplay({
         onClick={() => onSelectedFile(projectId, filepath)}
       >
         <ArticleIcon />
-        <span className={styles['dashboard_item']} style={{ color }}>
+        <span
+          className={styles['dashboard_item']}
+          style={{ color, display: 'inline' }}
+        >
           {node.label}
         </span>
       </Box>
@@ -80,7 +84,12 @@ export function NodeDisplay({
             <FolderIcon fontSize="small" sx={{ color: '#eeae4a' }} />
           </>
         )}
-        <span className={styles['dashboard_item']}>{node.label}</span>
+        <span
+          className={styles['dashboard_item']}
+          style={{ display: 'inline' }}
+        >
+          {node.label}
+        </span>
       </Box>
       {isOpen && (
         <Box marginLeft="18px">
@@ -175,11 +184,8 @@ export function FileTree({
   }, [defaultRootNodes]);
 
   return (
-    <Box className={styles['dash_outer_box']}>
-      <Box
-        className={styles['dash_inner_box']}
-        sx={{ marginTop: `${topOffset}px` }}
-      >
+    <FixedPositionMenu
+      staticContent={
         <Box display="flex" alignItems="baseline">
           <TextField
             id="tree-filter-string"
@@ -193,16 +199,15 @@ export function FileTree({
             <RefreshIcon />
           </IconButton>
         </Box>
-        <Box className={styles['dash_scroll_area_box']}>
-          {isRefreshing && <LinearProgress />}
-          <NodesDisplay
-            nodes={fileTree}
-            selectedFile={selectedFile}
-            onSelectedFile={onSelectedFile}
-            searchTerms={searchTerms}
-          />
-        </Box>
-      </Box>
-    </Box>
+      }
+    >
+      {isRefreshing && <LinearProgress />}
+      <NodesDisplay
+        nodes={fileTree}
+        selectedFile={selectedFile}
+        onSelectedFile={onSelectedFile}
+        searchTerms={searchTerms}
+      />
+    </FixedPositionMenu>
   );
 }

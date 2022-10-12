@@ -12,7 +12,7 @@
   max-width: 300px;
 
   // For removing the ugly scrollbar (see below)
-  overflow: hidden;
+  //overflow: hidden;
 
   // Uncomment below for debugging
   //border: 1px solid black,
@@ -31,8 +31,8 @@
   height: 100%;
   margin-left: 10px;
   // This margin/padding combination removes the ugly scrollbar.
-  margin-right: -50px;
-  padding-right: 50px;
+  //margin-right: -50px;
+  //padding-right: 50px;
 }
 
 .dashboard_item {

@@ -1,22 +1,20 @@
-import ListIcon from '@mui/icons-material/List';
 import {
   Box,
   Button,
   CircularProgress,
-  Divider,
-  Drawer,
-  IconButton,
+  Divider
 } from '@mui/material';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import {
   ContentFromUrl,
-  mmtHTMLToReact,
+  mmtHTMLToReact
 } from '@stex-react/stex-react-renderer';
 import { simpleHash } from '@stex-react/utils';
 import axios from 'axios';
 import { memo, useEffect, useRef, useState } from 'react';
+import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 import { PARSER_BASE_URL } from './mmtParser';
 import styles from './styles/tour-display.module.scss';
 import { useOnScreen } from './useOnScreen';
@@ -24,7 +22,6 @@ import { useOnScreen } from './useOnScreen';
 const NAV_MENU_ID = 'list-container';
 const EXPANSION_BOX_ID = 'expansion-box';
 
-const W = typeof window === 'undefined' ? undefined : window;
 export interface TourItem {
   uri: string;
   header: string;
@@ -354,26 +351,28 @@ function NavBar({
   }, [items]);
 
   return (
-    <List id={NAV_MENU_ID}>
-      {items.map((item) => (
-        <ListItem
-          disablePadding
-          key={item.hash}
-          id={navMenuItemId(item)}
-          sx={{ cursor: 'pointer' }}
-          onClick={() => scrollToItem(item)}
-        >
-          <Box sx={{ mx: '10px' }}>
-            <LeftGuide level={item.level}>
-              <ListItemText
-                sx={{ m: '0' }}
-                primary={listItemText(item, itemVisibility[item.hash])}
-              />
-            </LeftGuide>
-          </Box>
-        </ListItem>
-      ))}
-    </List>
+    <FixedPositionMenu>
+      <List id={NAV_MENU_ID}>
+        {items.map((item) => (
+          <ListItem
+            disablePadding
+            key={item.hash}
+            id={navMenuItemId(item)}
+            sx={{ cursor: 'pointer' }}
+            onClick={() => scrollToItem(item)}
+          >
+            <Box sx={{ mx: '10px' }}>
+              <LeftGuide level={item.level}>
+                <ListItemText
+                  sx={{ m: '0' }}
+                  primary={listItemText(item, itemVisibility[item.hash])}
+                />
+              </LeftGuide>
+            </Box>
+          </ListItem>
+        ))}
+      </List>
+    </FixedPositionMenu>
   );
 }
 
@@ -409,19 +408,10 @@ export function TourDisplay({
   const [itemVisibility, setItemVisibility] = useState<{
     [hash: string]: boolean;
   }>({});
-  const [showDashboard, setShowDashboard] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(true);
   const [fetchingItems, setFetchingItems] = useState(false);
-  const [windowSize, setWindowSize] = useState(0);
   const [understoodUri, setUnderstoodUriList] = useState([] as string[]);
   const [tempShowUri, setTempShowUri] = useState([] as string[]);
-
-  useEffect(() => {
-    function handleResize() {
-      setWindowSize(W?.innerWidth || 0);
-    }
-    setWindowSize(W?.innerWidth || 0);
-    W?.addEventListener('resize', handleResize);
-  }, []);
 
   useEffect(() => {
     if (!tourId?.length) return;
@@ -488,92 +478,43 @@ export function TourDisplay({
   if (fetchingItems) return <CircularProgress />;
   if (!displayItemList?.length) return null;
 
-  const showSidePanel = windowSize >= 650;
   return (
-    <>
-      {!showSidePanel && (
-        <>
-          {showDashboard ? (
-            <Drawer
-              anchor="left"
-              open={showDashboard}
-              onClose={() => setShowDashboard(false)}
-            >
-              <NavBar items={displayItemList} itemVisibility={itemVisibility} />
-            </Drawer>
-          ) : (
-            <Box
-              sx={{
-                position: 'fixed',
-                bottom: `20px`,
-                left: '5px',
-                zIndex: 1000,
+    <LayoutWithFixedMenu
+      topOffset={125}
+      menu={<NavBar items={displayItemList} itemVisibility={itemVisibility} />}
+      showDashboard={showDashboard}
+      setShowDashboard={setShowDashboard}
+      alwaysShowWhenNotDrawer={true}
+    >
+      <Box
+        id={EXPANSION_BOX_ID}
+        sx={{ overflowY: 'auto' }}
+        flexGrow={1}
+        flexBasis="600px"
+      >
+        <Box mx="10px">
+          {displayItemList.map((item) => (
+            <TourItemDisplay
+              key={item.hash}
+              item={item}
+              allItemsMap={allItemsMap}
+              lang={language}
+              isTempShow={tempShowUri.includes(item.uri)}
+              onUnderstood={() => addToUnderstoodList(item.uri)}
+              onMoreDetails={() => removeFromUnderstoodList(item.uri)}
+              onHideTemp={() => removeFromTempShowUri(item.uri)}
+              addToTempShowUri={addToTempShowUri}
+              visibilityUpdate={(visibility) => {
+                setItemVisibility((prev) => {
+                  const newV = { ...prev };
+                  newV[item.hash] = visibility;
+                  return newV;
+                });
               }}
-            >
-              <IconButton
-                sx={{
-                  border: '2px solid #203360',
-                  borderRadius: '500px',
-                  color: '#203360',
-                  backgroundColor: 'white',
-                  boxShadow: '0px 8px 15px rgba(0, 0, 0, 0.5)',
-                  transition: 'all 0.3s ease 0s',
-                  ':hover': {
-                    boxShadow: '0px 15px 20px rgba(0, 0, 0, 0.4)',
-                    transform: 'translateY(1px)',
-                    backgroundColor: 'white',
-                  },
-                }}
-                onClick={() => setShowDashboard(true)}
-              >
-                <ListIcon />
-              </IconButton>
-            </Box>
-          )}
-        </>
-      )}
-
-      <Box display="flex" maxHeight="calc(100vh - 125px)" overflow="hidden">
-        {showSidePanel && (
-          <Box
-            maxWidth="325px"
-            flexGrow={1}
-            flexBasis="250px"
-            sx={{ overflowY: 'auto' }}
-          >
-            <NavBar items={displayItemList} itemVisibility={itemVisibility} />
-          </Box>
-        )}
-        <Box
-          id={EXPANSION_BOX_ID}
-          sx={{ overflowY: 'auto' }}
-          flexGrow={1}
-          flexBasis="600px"
-        >
-          <Box mx="10px">
-            {displayItemList.map((item) => (
-              <TourItemDisplay
-                key={item.hash}
-                item={item}
-                allItemsMap={allItemsMap}
-                lang={language}
-                isTempShow={tempShowUri.includes(item.uri)}
-                onUnderstood={() => addToUnderstoodList(item.uri)}
-                onMoreDetails={() => removeFromUnderstoodList(item.uri)}
-                onHideTemp={() => removeFromTempShowUri(item.uri)}
-                addToTempShowUri={addToTempShowUri}
-                visibilityUpdate={(visibility) => {
-                  setItemVisibility((prev) => {
-                    const newV = { ...prev };
-                    newV[item.hash] = visibility;
-                    return newV;
-                  });
-                }}
-              />
-            ))}
-          </Box>
+            />
+          ))}
         </Box>
       </Box>
-    </>
+    </LayoutWithFixedMenu>
   );
 }

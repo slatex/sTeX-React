@@ -1,14 +1,15 @@
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
-import { Box, List, ListItem, Toolbar } from '@mui/material';
+import { List, ListItem, Toolbar } from '@mui/material';
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import MuiAccordionSummary, {
-  AccordionSummaryProps,
+  AccordionSummaryProps
 } from '@mui/material/AccordionSummary';
 import { styled } from '@mui/material/styles';
-import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
+import {
+  FixedPositionMenu, mmtHTMLToReact
+} from '@stex-react/stex-react-renderer';
 import { CourseSection } from '../shared/slides';
-import styles from '../styles/course-view.module.scss';
 
 const Accordion = styled((props: AccordionProps) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -50,19 +51,17 @@ export function SlideDeckNavigation({
   sections,
   selected,
   onSelect,
-  topOffset,
 }: {
   sections: CourseSection[];
   selected: string;
   onSelect: (item: string) => void;
-  topOffset: number;
 }) {
   const selectedSectionIdx = sections.findIndex((section) =>
     section.decks.some((deck) => deck.deckId === selected)
   );
   return (
-    <Box className={styles['dash_outer_box']}>
-      <Box className={styles['dash_inner_box']} mt={`${topOffset}px`}>
+    <FixedPositionMenu
+      staticContent={
         <Toolbar
           variant="dense"
           sx={{
@@ -72,49 +71,44 @@ export function SlideDeckNavigation({
         >
           Course Content
         </Toolbar>
-        <Box
-          className={styles['dash_scroll_area_box']}
-          sx={{ border: '2px solid #777' }}
-        >
-          {sections.slice(0, -1).map((section, sectionIdx) => (
-            <Accordion key={section.sectionTitle} defaultExpanded={true}>
-              <AccordionSummary>
-                <span
-                  style={{
-                    fontWeight:
-                      selectedSectionIdx == sectionIdx ? 'bold' : undefined,
+      }
+    >
+      {sections.slice(0, -1).map((section, sectionIdx) => (
+        <Accordion key={section.sectionTitle} defaultExpanded={true}>
+          <AccordionSummary>
+            <span
+              style={{
+                fontWeight:
+                  selectedSectionIdx == sectionIdx ? 'bold' : undefined,
+              }}
+            >
+              {section.sectionTitle}
+            </span>
+          </AccordionSummary>
+          <AccordionDetails>
+            <List sx={{ p: '0' }}>
+              {section.decks.map((deck, idx) => (
+                <ListItem
+                  key={deck.deckId}
+                  sx={{
+                    cursor: 'pointer',
+                    fontWeight: selected === deck.deckId ? 'bold' : undefined,
+                    display: 'flex',
+                    alignItems: 'baseline',
+                    borderBottom: '1px solid #00000020',
                   }}
+                  onClick={() => onSelect(deck.deckId)}
                 >
-                  {section.sectionTitle}
-                </span>
-              </AccordionSummary>
-              <AccordionDetails>
-                <List sx={{ p: '0' }}>
-                  {section.decks.map((deck, idx) => (
-                    <ListItem
-                      key={deck.deckId}
-                      sx={{
-                        cursor: 'pointer',
-                        fontWeight:
-                          selected === deck.deckId ? 'bold' : undefined,
-                        display: 'flex',
-                        alignItems: 'baseline',
-                        borderBottom: '1px solid #00000020',
-                      }}
-                      onClick={() => onSelect(deck.deckId)}
-                    >
-                      <span>
-                        {sectionIdx + 1}.{idx + 1}&nbsp;
-                      </span>
-                      {mmtHTMLToReact(deck.titleAsHtml)}
-                    </ListItem>
-                  ))}
-                </List>
-              </AccordionDetails>
-            </Accordion>
-          ))}
-        </Box>
-      </Box>
-    </Box>
+                  <span>
+                    {sectionIdx + 1}.{idx + 1}&nbsp;
+                  </span>
+                  {mmtHTMLToReact(deck.titleAsHtml)}
+                </ListItem>
+              ))}
+            </List>
+          </AccordionDetails>
+        </Accordion>
+      ))}
+    </FixedPositionMenu>
   );
 }
