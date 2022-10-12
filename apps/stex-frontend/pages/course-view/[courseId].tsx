@@ -181,7 +181,7 @@ const CourseViewPage: NextPage = () => {
         showDashboard={showDashboard}
         setShowDashboard={setShowDashboard}
         alwaysShowWhenNotDrawer={true}
-        drawerAnchor="right"
+        drawerAnchor="left"
       >
         <Box flexBasis="600px" flex={1} overflow="hidden">
           <Box maxWidth="800px" margin="auto">
