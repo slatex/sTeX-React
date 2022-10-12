@@ -1,6 +1,6 @@
 export const AI_1_COURSE_SECTIONS: {
   [sectionTitle: string]: {
-    [deckId: string]: { clipId?: string; timestampSec?: number };
+    [deckId: string]: { clipId?: string; timestampSec?: number, sec?: string };
   };
 } = {
   'Administrativa': {
@@ -23,20 +23,20 @@ export const AI_1_COURSE_SECTIONS: {
   },
   'Artificial Intelligence - Who?, What?, When?, Where?, and Why?': {
     'MiKoMH/AI||course/mod/questionnaire-call.en.xhtml': { clipId: '21467' },
-    'MiKoMH/AI||course/mod/plot.en.xhtml': { clipId: '21701' },
-    'MiKoMH/AI||intro/mod/whatisai-parts.en.xhtml': { clipId: '21697' },
-    'MiKoMH/AI||intro/mod/ai-conundrum.en.xhtml': { clipId: '21717' },
-    'MiKoMH/AI||course/mod/alphago-here.en.xhtml': { clipId: '21724' },
-    'MiKoMH/AI||intro/mod/agi.en.xhtml': { clipId: '21719' },
+    'MiKoMH/AI||course/mod/plot.en.xhtml': { clipId: '21701', sec: '1' },
+    'MiKoMH/AI||intro/mod/whatisai-parts.en.xhtml': { clipId: '21697', sec: '2' },
+    'MiKoMH/AI||intro/mod/ai-conundrum.en.xhtml': { clipId: '21717', sec: '3' },
+    'MiKoMH/AI||course/mod/alphago-here.en.xhtml': { clipId: '21724', sec: '4' },
+    'MiKoMH/AI||intro/mod/agi.en.xhtml': { clipId: '21719', sec: '5' },
     'MiKoMH/AI||course/mod/ai2-topics.en.xhtml': { clipId: '21719' },
-    'MiKoMH/AI||course/mod/ai1sysproj.en.xhtml': { clipId: '21725' },
+    'MiKoMH/AI||course/mod/ai1sysproj.en.xhtml': { clipId: '21725', sec: '6' },
   },
   'Logic Programming': {
     'MiKoMH/AI||course/snip/recruiting.en.xhtml': { clipId: '21752' },
-    'MiKoMH/AI||prolog/snip/intro.en.xhtml': { clipId: '21753' },
-    'MiKoMH/AI||prolog/mod/fallible-greeks.en.xhtml': { clipId: '21754' },
-    'MiKoMH/AI||prolog/mod/DFS-back-ex.en.xhtml': { clipId: '21827' },
-    'MiKoMH/AI||prolog/mod/relational-programming.en.xhtml': {}
+    'MiKoMH/AI||logic/snip/declarative-programming.en.xhtml': { clipId: '21753', sec: '1' },
+    'MiKoMH/AI||prolog/mod/fallible-greeks.en.xhtml': { clipId: '21754', sec: '2' },
+    'MiKoMH/AI||prolog/mod/DFS-back-ex.en.xhtml': { clipId: '21827', sec: '2.2' },
+    'MiKoMH/AI||prolog/mod/relational-programming.en.xhtml': { sec: '2.3'}
   },
   'Dont show me, i am just to end the last deck': {
     'MiKoMH/AI||prolog/mod/rtfm.en.xhtml': { },

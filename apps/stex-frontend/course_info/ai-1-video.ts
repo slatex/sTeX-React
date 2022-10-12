@@ -131,7 +131,7 @@ export const AI_1_PREVALUATED_VIDEO_INFO: {
     r720: 'https://cdn.video.uni-erlangen.de/symlinks/081c61b7-5506-4496-859d-ba3832d0d1dc.m4v',
     r360: 'https://cdn.video.uni-erlangen.de/symlinks/db4dd294-ede9-42b2-bbf4-42b7532ce6f8.m4v'
   },
-  'MiKoMH/AI||prolog/snip/intro.en.xhtml': {
+  'MiKoMH/AI||logic/snip/declarative-programming.en.xhtml': {
     timestampSec: 8,
     r1080: 'https://cdn.video.uni-erlangen.de/symlinks/a6152dfc-2def-45b0-8a08-5683e8e71b00.m4v',
     r720: 'https://cdn.video.uni-erlangen.de/symlinks/70278808-b7c6-4e97-b530-2b943f8befb5.m4v',
