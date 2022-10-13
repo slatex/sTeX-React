@@ -49,14 +49,18 @@ function ToggleModeButton({
       value={viewMode}
       exclusive
       onChange={(event, newVal) => {
-        if (newVal !== null) {
-          updateViewMode(newVal);
-          trackEvent({
-            category: 'slide-view-event',
-            action: 'mode-change',
-            name: newVal.toString(),
-          });
+        if (!newVal) {
+          newVal =
+            viewMode === ViewMode.COMBINED_MODE
+              ? ViewMode.SLIDE_MODE
+              : ViewMode.COMBINED_MODE;
         }
+        updateViewMode(newVal);
+        trackEvent({
+          category: 'slide-view-event',
+          action: 'mode-change',
+          name: newVal.toString(),
+        });
       }}
       sx={{ m: '5px 0', border: '1px solid black' }}
     >
