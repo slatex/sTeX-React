@@ -1,6 +1,6 @@
 import ListIcon from '@mui/icons-material/List';
 import { Box, Drawer, IconButton } from '@mui/material';
-import { Window } from '@stex-react/utils';
+import { shouldUseDrawer, Window } from '@stex-react/utils';
 import { createContext, useContext, useEffect, useState } from 'react';
 import styles from './stex-react-renderer.module.scss';
 
@@ -14,6 +14,24 @@ export function FixedPositionMenu({
   children: any;
 }) {
   const { offset, inDrawer } = useContext(MenuContext);
+  const staticSection = (
+    <Box
+      sx={{
+        border: '2px solid #CCC',
+        fontFamily: 'Open Sans,Verdana,sans-serif',
+      }}
+    >
+      {staticContent}
+    </Box>
+  );
+  const scrollSection = (
+    <>
+      {children}
+      <br />
+      <br />
+      <br />
+    </>
+  );
   if (inDrawer) {
     return (
       <Box
@@ -22,12 +40,9 @@ export function FixedPositionMenu({
         display="flex"
         flexDirection="column"
       >
-        {staticContent}
+        {staticSection}
         <Box sx={{ overflowY: 'scroll', overflowX: 'hidden' }}>
-          {children}
-          <br />
-          <br />
-          <br />
+          {scrollSection}
         </Box>
       </Box>
     );
@@ -35,14 +50,9 @@ export function FixedPositionMenu({
   return (
     <Box className={styles['dash_outer_box']}>
       <Box className={styles['dash_inner_box']} mt={`${offset}px`}>
-        {staticContent}
+        {staticSection}
         <Box className={styles['dash_scroll_area_box']}>
-          <Box sx={{ overflowX: 'hidden' }}>
-            {children}
-            <br />
-            <br />
-            <br />
-          </Box>
+          <Box sx={{ overflowX: 'hidden' }}>{scrollSection}</Box>
         </Box>
       </Box>
     </Box>
@@ -55,7 +65,6 @@ export function LayoutWithFixedMenu({
   showDashboard,
   setShowDashboard,
   topOffset,
-  alwaysShowWhenNotDrawer = false,
   drawerAnchor = 'left',
 }: {
   menu: any;
@@ -63,7 +72,6 @@ export function LayoutWithFixedMenu({
   showDashboard: boolean;
   setShowDashboard: any;
   topOffset: number;
-  alwaysShowWhenNotDrawer?: boolean;
   drawerAnchor?: 'left' | 'right';
 }) {
   const [windowSize, setWindowSize] = useState(0);
@@ -86,8 +94,7 @@ export function LayoutWithFixedMenu({
     Window?.addEventListener('resize', handleResize);
   }, []);
 
-  const useDrawer = windowSize < 800;
-  const dashVisible = showDashboard || (!useDrawer && alwaysShowWhenNotDrawer);
+  const useDrawer = shouldUseDrawer(windowSize);
 
   return (
     <>
@@ -101,7 +108,7 @@ export function LayoutWithFixedMenu({
         </MenuContext.Provider>
       </Drawer>
 
-      {!dashVisible && (
+      {!showDashboard && (
         <Box
           sx={{
             position: 'fixed',
@@ -137,14 +144,14 @@ export function LayoutWithFixedMenu({
         display="flex"
         flexDirection={drawerAnchor === 'left' ? 'row' : 'row-reverse'}
       >
-        {!useDrawer && dashVisible && (
+        {!useDrawer && showDashboard && (
           <Box width="300px" minWidth="300px" sx={{ overflowY: 'auto' }}>
             <MenuContext.Provider value={{ offset, inDrawer: false }}>
               {menu}
             </MenuContext.Provider>
           </Box>
         )}
-        {children}
+        <Box flex={1}>{children}</Box>
       </Box>
     </>
   );

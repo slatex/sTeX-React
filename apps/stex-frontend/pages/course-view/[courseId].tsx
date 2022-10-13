@@ -8,7 +8,7 @@ import {
   ContentWithHighlight,
   LayoutWithFixedMenu,
 } from '@stex-react/stex-react-renderer';
-import { localStore } from '@stex-react/utils';
+import { localStore, shouldUseDrawer } from '@stex-react/utils';
 import axios from 'axios';
 import { NextPage } from 'next';
 import Link from 'next/link';
@@ -80,7 +80,7 @@ const CourseViewPage: NextPage = () => {
   const router = useRouter();
   const courseId = router.query.courseId as string;
 
-  const [showDashboard, setShowDashboard] = useState(true);
+  const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
   const [selectedDeckId, setSelectedDeckId] = useState('initial');
   const [fromLastSlide, setFromLastSlide] = useState(false);
   const [preNotes, setPreNotes] = useState([] as string[]);
@@ -175,67 +175,65 @@ const CourseViewPage: NextPage = () => {
               setPreNotes([]);
               setPostNotes([]);
             }}
+            onClose={() => setShowDashboard(false)}
           />
         }
         topOffset={64}
         showDashboard={showDashboard}
         setShowDashboard={setShowDashboard}
-        alwaysShowWhenNotDrawer={true}
         drawerAnchor="left"
       >
-        <Box flexBasis="600px" flex={1} overflow="hidden">
-          <Box maxWidth="800px" margin="auto">
-            <Box
-              display="flex"
-              alignItems="center"
-              justifyContent="space-between"
+        <Box maxWidth="800px" margin="auto">
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <ToggleModeButton
+              viewMode={viewMode}
+              updateViewMode={(mode) => {
+                setViewMode(mode);
+                localStore?.setItem('defaultMode', ViewMode[mode]);
+              }}
+            />
+            <Link
+              href="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FAI%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml"
+              passHref
             >
-              <ToggleModeButton
-                viewMode={viewMode}
-                updateViewMode={(mode) => {
-                  setViewMode(mode);
-                  localStore?.setItem('defaultMode', ViewMode[mode]);
-                }}
-              />
-              <Link
-                href="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FAI%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml"
-                passHref
-              >
-                <Button size="small" variant="contained" sx={{ mr: '10px' }}>
-                  Notes&nbsp;
-                  <ArticleIcon />
-                </Button>
-              </Link>
-            </Box>
-            {(viewMode === ViewMode.VIDEO_MODE ||
-              viewMode === ViewMode.COMBINED_MODE) && (
-              <VideoDisplay deckInfo={deckInfo} />
-            )}
-            {(viewMode === ViewMode.SLIDE_MODE ||
-              viewMode === ViewMode.COMBINED_MODE) && (
-              <SlideDeck
-                courseId={courseId}
-                navOnTop={viewMode === ViewMode.COMBINED_MODE}
-                deckInfo={deckInfo}
-                onSlideChange={(slide: Slide) => {
-                  setPreNotes(slide?.preNotes || []);
-                  setPostNotes(slide?.postNotes || []);
-                }}
-                goToNextSection={goToNextSection}
-                goToPrevSection={goToPrevSection}
-                fromLastSlide={fromLastSlide}
-              />
-            )}
-            <hr />
-
-            {viewMode !== ViewMode.VIDEO_MODE && (
-              <Box p="5px">
-                <RenderElements elements={preNotes} />
-                {preNotes.length > 0 && postNotes.length > 0 && <hr />}
-                <RenderElements elements={postNotes} />
-              </Box>
-            )}
+              <Button size="small" variant="contained" sx={{ mr: '10px' }}>
+                Notes&nbsp;
+                <ArticleIcon />
+              </Button>
+            </Link>
           </Box>
+          {(viewMode === ViewMode.VIDEO_MODE ||
+            viewMode === ViewMode.COMBINED_MODE) && (
+            <VideoDisplay deckInfo={deckInfo} />
+          )}
+          {(viewMode === ViewMode.SLIDE_MODE ||
+            viewMode === ViewMode.COMBINED_MODE) && (
+            <SlideDeck
+              courseId={courseId}
+              navOnTop={viewMode === ViewMode.COMBINED_MODE}
+              deckInfo={deckInfo}
+              onSlideChange={(slide: Slide) => {
+                setPreNotes(slide?.preNotes || []);
+                setPostNotes(slide?.postNotes || []);
+              }}
+              goToNextSection={goToNextSection}
+              goToPrevSection={goToPrevSection}
+              fromLastSlide={fromLastSlide}
+            />
+          )}
+          <hr />
+
+          {viewMode !== ViewMode.VIDEO_MODE && (
+            <Box p="5px">
+              <RenderElements elements={preNotes} />
+              {preNotes.length > 0 && postNotes.length > 0 && <hr />}
+              <RenderElements elements={postNotes} />
+            </Box>
+          )}
         </Box>
       </LayoutWithFixedMenu>
     </MainLayout>

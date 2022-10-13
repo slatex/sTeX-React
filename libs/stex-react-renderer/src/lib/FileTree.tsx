@@ -1,5 +1,6 @@
 import AddIcon from '@mui/icons-material/Add';
 import ArticleIcon from '@mui/icons-material/Article';
+import CloseIcon from '@mui/icons-material/Close';
 import FolderIcon from '@mui/icons-material/Folder';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -7,9 +8,9 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import { Box, IconButton, LinearProgress, TextField } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import styles from './stex-react-renderer.module.scss';
 import { FileNode } from './FileNode';
 import { FixedPositionMenu } from './LayoutWithFixedMenu';
+import styles from './stex-react-renderer.module.scss';
 
 export type SetSelectedFileFunction = (
   projectId: string,
@@ -145,17 +146,17 @@ function applyFilter(nodes: FileNode[], searchTerms: string[]) {
 }
 
 export function FileTree({
-  topOffset,
   defaultRootNodes,
   baseUrl,
   selectedFile,
   onSelectedFile,
+  onClose,
 }: {
-  topOffset: number;
   defaultRootNodes: FileNode[];
   baseUrl: string;
   selectedFile: SelectedFile;
   onSelectedFile: SetSelectedFileFunction;
+  onClose: () => void;
 }) {
   const [fileTree, setFileTree] = useState(defaultRootNodes);
   const [filterStr, setFilterStr] = useState('');
@@ -186,13 +187,16 @@ export function FileTree({
   return (
     <FixedPositionMenu
       staticContent={
-        <Box display="flex" alignItems="baseline">
+        <Box display="flex" alignItems="center">
+           <IconButton sx={{ m: '2px' }} onClick={() => onClose()}>
+            <CloseIcon />
+          </IconButton>
           <TextField
             id="tree-filter-string"
             label="Search"
             value={filterStr}
             onChange={(e) => setFilterStr(e.target.value)}
-            sx={{ m: '10px 5px' }}
+            sx={{ m: '3px' }}
             size="small"
           />
           <IconButton onClick={() => refreshFileTree()} disabled={isRefreshing}>

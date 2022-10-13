@@ -1,13 +1,15 @@
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
-import { List, ListItem, Toolbar } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import { Box, IconButton, List, ListItem } from '@mui/material';
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import MuiAccordionSummary, {
-  AccordionSummaryProps
+  AccordionSummaryProps,
 } from '@mui/material/AccordionSummary';
 import { styled } from '@mui/material/styles';
 import {
-  FixedPositionMenu, mmtHTMLToReact
+  FixedPositionMenu,
+  mmtHTMLToReact,
 } from '@stex-react/stex-react-renderer';
 import { CourseSection } from '../shared/slides';
 
@@ -51,10 +53,12 @@ export function SlideDeckNavigation({
   sections,
   selected,
   onSelect,
+  onClose,
 }: {
   sections: CourseSection[];
   selected: string;
   onSelect: (item: string) => void;
+  onClose: () => void;
 }) {
   const selectedSectionIdx = sections.findIndex((section) =>
     section.decks.some((deck) => deck.deckId === selected)
@@ -62,15 +66,12 @@ export function SlideDeckNavigation({
   return (
     <FixedPositionMenu
       staticContent={
-        <Toolbar
-          variant="dense"
-          sx={{
-            borderLeft: '2px solid #777',
-            fontFamily: 'Open Sans,Verdana,sans-serif',
-          }}
-        >
+        <Box display="flex" alignItems="center">
+          <IconButton sx={{ m: '2px' }} onClick={() => onClose()}>
+            <CloseIcon />
+          </IconButton>
           Course Content
-        </Toolbar>
+        </Box>
       }
     >
       {sections.slice(0, -1).map((section, sectionIdx) => (
@@ -82,7 +83,7 @@ export function SlideDeckNavigation({
                   selectedSectionIdx == sectionIdx ? 'bold' : undefined,
               }}
             >
-              {section.sectionTitle}
+              {sectionIdx+1}. {section.sectionTitle}
             </span>
           </AccordionSummary>
           <AccordionDetails>
@@ -99,9 +100,11 @@ export function SlideDeckNavigation({
                   }}
                   onClick={() => onSelect(deck.deckId)}
                 >
-                  <span>
-                    {sectionIdx + 1}.{idx + 1}&nbsp;
-                  </span>
+                  {deck.sec && (
+                    <span>
+                      {sectionIdx + 1}.{deck.sec}&nbsp;
+                    </span>
+                  )}
                   {mmtHTMLToReact(deck.titleAsHtml)}
                 </ListItem>
               ))}

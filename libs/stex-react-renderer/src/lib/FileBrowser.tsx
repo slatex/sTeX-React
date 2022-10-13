@@ -1,18 +1,19 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Button } from '@mui/material';
-import { ContentFromUrl } from '@stex-react/stex-react-renderer';
 import {
   BG_COLOR,
   getChildrenOfBodyNode,
-  PathToArticle,
+  shouldUseDrawer,
   sourceFileUrl,
+  Window,
   XhtmlContentUrl,
   xhtmlPathToTex,
 } from '@stex-react/utils';
 import { useState } from 'react';
-import { LayoutWithFixedMenu } from './LayoutWithFixedMenu';
+import { ContentFromUrl } from './ContentFromUrl';
 import { FileNode } from './FileNode';
 import { FileTree } from './FileTree';
+import { LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 
 export function FileBrowser({
   defaultRootNodes,
@@ -25,19 +26,17 @@ export function FileBrowser({
   topOffset: number;
   standaloneLink: (archive: string, filepath: string) => string;
 }) {
-  const [showDashboard, setShowDashboard] = useState(true);
+  const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
   const [selectedFilepath, setSelectedFilepath] = useState('');
   const [selectedProject, setSelectedProject] = useState('');
 
   return (
     <LayoutWithFixedMenu
-      topOffset={64}
+      topOffset={topOffset}
       showDashboard={showDashboard}
       setShowDashboard={setShowDashboard}
-      alwaysShowWhenNotDrawer={true}
       menu={
         <FileTree
-          topOffset={topOffset}
           defaultRootNodes={defaultRootNodes}
           baseUrl={baseUrl}
           selectedFile={{
@@ -48,6 +47,7 @@ export function FileBrowser({
             setSelectedProject(project);
             setSelectedFilepath(filepath);
           }}
+          onClose={() => setShowDashboard(false)}
         />
       }
     >

@@ -1,10 +1,15 @@
 import { Box } from '@mui/material';
-import { BG_COLOR, getChildrenOfBodyNode, localStore } from '@stex-react/utils';
+import {
+  BG_COLOR,
+  getChildrenOfBodyNode,
+  localStore,
+  shouldUseDrawer
+} from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import {
   IndexNode,
-  scrollToClosestAncestorAndSetPending,
+  scrollToClosestAncestorAndSetPending
 } from './collectIndexInfo';
 import { ContentDashboard } from './ContentDashboard';
 import { ContentFromUrl } from './ContentFromUrl';
@@ -32,7 +37,7 @@ export function StexReactRenderer({
   topOffset?: number;
   dashInfo?: IndexNode;
 }) {
-  const [showDashboard, setShowDashboard] = useState(true);
+  const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
   const [renderOptions, setRenderOptions] = useState({
     expandOnScroll:
       (localStore?.getItem('expandOnScroll') || 'true') === 'true',
@@ -61,7 +66,6 @@ export function StexReactRenderer({
         menu={
           <ContentDashboard
             onClose={() => setShowDashboard(false)}
-            topOffset={topOffset}
             dashInfo={dashInfo}
           />
         }
@@ -69,7 +73,7 @@ export function StexReactRenderer({
         showDashboard={showDashboard}
         setShowDashboard={setShowDashboard}
       >
-        <Box px="10px" flex={1} bgcolor={BG_COLOR}>
+        <Box px="10px" bgcolor={BG_COLOR}>
           <Box maxWidth="600px" m="0 auto">
             <Box display="flex" flexDirection="row-reverse">
               <ExpandableContextMenu contentUrl={contentUrl} />
@@ -96,3 +100,4 @@ export {
   FileBrowser,
 };
 export type { FileNode, TourAPIEntry, IndexNode };
+

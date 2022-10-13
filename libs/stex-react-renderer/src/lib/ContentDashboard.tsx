@@ -113,11 +113,9 @@ function RenderTree({
 }
 export function ContentDashboard({
   onClose,
-  topOffset = 0,
   dashInfo = undefined,
 }: {
   onClose: () => void;
-  topOffset?: number;
   dashInfo?: IndexNode;
 }) {
   const [filterStr, setFilterStr] = useState('');
@@ -149,8 +147,8 @@ export function ContentDashboard({
     <FixedPositionMenu
       staticContent={
         <>
-          <Box display="flex" alignItems="center">
-            <IconButton sx={{ m: '2px 0 0 5px' }} onClick={() => onClose()}>
+          <Box display="flex" alignItems="center" sx={{ m: '5px' }}>
+            <IconButton sx={{ m: '2px' }} onClick={() => onClose()}>
               <CloseIcon />
             </IconButton>
             <TextField
@@ -158,11 +156,11 @@ export function ContentDashboard({
               label="Search"
               value={filterStr}
               onChange={(e) => setFilterStr(e.target.value)}
-              sx={{ m: '10px', width: '100%' }}
+              sx={{ mx: '5px', width: '100%' }}
               size="small"
             />
           </Box>
-          <Box display="flex" justifyContent="space-between" m="10px">
+          <Box display="flex" justifyContent="space-between" m="5px 10px">
             <Tooltip title="Expand/collapse all">
               <IconButton
                 onClick={() => setDefaultOpen((v) => !v)}

@@ -1,21 +1,20 @@
+import CloseIcon from '@mui/icons-material/Close';
 import {
   Box,
   Button,
   CircularProgress,
-  Divider
+  Divider,
+  IconButton
 } from '@mui/material';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
-import {
-  ContentFromUrl,
-  mmtHTMLToReact
-} from '@stex-react/stex-react-renderer';
-import { simpleHash } from '@stex-react/utils';
+import { shouldUseDrawer, simpleHash } from '@stex-react/utils';
 import axios from 'axios';
 import { memo, useEffect, useRef, useState } from 'react';
+import { ContentFromUrl } from './ContentFromUrl';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
-import { PARSER_BASE_URL } from './mmtParser';
+import { mmtHTMLToReact, PARSER_BASE_URL } from './mmtParser';
 import styles from './styles/tour-display.module.scss';
 import { useOnScreen } from './useOnScreen';
 
@@ -342,16 +341,27 @@ function LeftGuide({ children, level }: { children: any; level: number }) {
 function NavBar({
   items,
   itemVisibility,
+  onClose,
 }: {
   items: TourItem[];
   itemVisibility: any;
+  onClose: () => void;
 }) {
   useEffect(() => {
     scrollNavToShowVisibleItems(items, itemVisibility);
   }, [items]);
 
   return (
-    <FixedPositionMenu>
+    <FixedPositionMenu
+      staticContent={
+        <Box display="flex" alignItems="center">
+          <IconButton sx={{ m: '2px' }} onClick={() => onClose()}>
+            <CloseIcon />
+          </IconButton>
+          Guided Tour
+        </Box>
+      }
+    >
       <List id={NAV_MENU_ID}>
         {items.map((item) => (
           <ListItem
@@ -408,7 +418,7 @@ export function TourDisplay({
   const [itemVisibility, setItemVisibility] = useState<{
     [hash: string]: boolean;
   }>({});
-  const [showDashboard, setShowDashboard] = useState(true);
+  const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
   const [fetchingItems, setFetchingItems] = useState(false);
   const [understoodUri, setUnderstoodUriList] = useState([] as string[]);
   const [tempShowUri, setTempShowUri] = useState([] as string[]);
@@ -481,10 +491,15 @@ export function TourDisplay({
   return (
     <LayoutWithFixedMenu
       topOffset={125}
-      menu={<NavBar items={displayItemList} itemVisibility={itemVisibility} />}
+      menu={
+        <NavBar
+          items={displayItemList}
+          itemVisibility={itemVisibility}
+          onClose={() => setShowDashboard(false)}
+        />
+      }
       showDashboard={showDashboard}
       setShowDashboard={setShowDashboard}
-      alwaysShowWhenNotDrawer={true}
     >
       <Box
         id={EXPANSION_BOX_ID}
