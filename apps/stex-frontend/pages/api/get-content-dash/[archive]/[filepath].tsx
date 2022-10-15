@@ -1,3 +1,4 @@
+import { SECTION_IDS } from '../../../../course_info/ai-1-notes';
 import { TreeNode } from '../../../../ai-notes.preval';
 import { AI_ROOT_NODE, findNode } from '../../notesHelpers';
 
@@ -7,6 +8,7 @@ function createInfoForNode(node: TreeNode) {
     filepath: node.filepath,
     titleAsHtml: node.titleAsHtml,
     children: (node.children || []).map(createInfoForNode),
+    secId: SECTION_IDS[`${node.archive}||${node.filepath}`]
   };
 }
 

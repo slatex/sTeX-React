@@ -15,6 +15,7 @@ interface DashFromServer {
   archive: string;
   filepath: string;
   titleAsHtml: string;
+  secId?: string;
   children: DashFromServer[];
 }
 
@@ -26,7 +27,9 @@ function getDashInfo(
   dashFromServer: DashFromServer,
   parentNode = undefined as IndexNode
 ): IndexNode | undefined {
-  const title = convertHtmlStringToPlain(dashFromServer.titleAsHtml).trim();
+  const secPrefix = dashFromServer.secId ? dashFromServer.secId + '. ' : '';
+  const title =
+    secPrefix + convertHtmlStringToPlain(dashFromServer.titleAsHtml).trim();
   if (!title?.length && parentNode) return;
   const hash = createHash(dashFromServer);
   const childNodes = new Map<string, IndexNode>();

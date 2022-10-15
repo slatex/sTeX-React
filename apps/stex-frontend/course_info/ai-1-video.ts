@@ -12,7 +12,7 @@ export const AI_1_PREVALUATED_VIDEO_INFO: {
     r720: 'https://cdn.video.uni-erlangen.de/symlinks/1f5aab96-f1b2-4ad8-bed6-52a06fb51489.m4v',
     r360: 'https://cdn.video.uni-erlangen.de/symlinks/28cb139e-4366-44c0-a72a-f62cea241951.m4v'
   },
-  'MiKoMH/AI||course/snip/admin-intro.en.xhtml': {
+  'MiKoMH/AI||course/fragments/syllabus1.en.xhtml': {
     timestampSec: 80,
     r720: 'https://cdn.video.uni-erlangen.de/symlinks/1f5aab96-f1b2-4ad8-bed6-52a06fb51489.m4v',
     r360: 'https://cdn.video.uni-erlangen.de/symlinks/28cb139e-4366-44c0-a72a-f62cea241951.m4v'

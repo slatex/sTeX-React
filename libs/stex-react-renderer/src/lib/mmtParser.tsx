@@ -2,7 +2,13 @@ import TourIcon from '@mui/icons-material/Tour';
 import { Box, Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Tooltip, { tooltipClasses, TooltipProps } from '@mui/material/Tooltip';
-import { DEFAULT_BASE_URL, IS_SERVER, localStore } from '@stex-react/utils';
+import {
+  BG_COLOR,
+  DEFAULT_BASE_URL,
+  getSectionInfo,
+  IS_SERVER,
+  localStore,
+} from '@stex-react/utils';
 import parse, { DOMNode, domToReact, Element } from 'html-react-parser';
 import { ElementType } from 'htmlparser2';
 import Link from 'next/link';
@@ -21,6 +27,36 @@ const IS_MMT_VIEWER = IS_SERVER
 
 export const PARSER_BASE_URL =
   (IS_SERVER ? null : (window as any).BASE_URL) ?? DEFAULT_BASE_URL;
+
+let SECTION_IDS: {
+  [nodeId: string]: string;
+} = {};
+
+export function setSectionIds(v: { [nodeId: string]: string }) {
+  SECTION_IDS = v;
+}
+
+function SectionIdHackObject({ inputRef }: { inputRef: string }) {
+  const { archive, filepath } = getSectionInfo(inputRef);
+  const nodeId = `${archive}||${filepath}`;
+  const secId = SECTION_IDS[nodeId];
+  if (!secId) return null;
+  const isChapter = !secId?.includes('.');
+  return (
+    <span
+      style={{
+        fontSize: isChapter ? '36px' : '24px',
+        background: BG_COLOR,
+        fontWeight: 'bold',
+        marginBottom: isChapter ? undefined : '-52px',
+        zIndex: '10',
+        width: isChapter ? undefined : '52px',
+      }}
+    >
+      {(isChapter ? 'Chapter ' : '') + secId}
+    </span>
+  );
+}
 
 const NoMaxWidthTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
@@ -212,6 +248,27 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
 
   if (!domNode) return;
 
+  // Remove section numbers;
+  if (
+    !IS_MMT_VIEWER &&
+    domNode.childNodes.length === 3 &&
+    domNode.attribs['class'] === 'hbox' &&
+    domNode.childNodes[1].type === 'text'
+  ) {
+    return <span>{'\xa0\xa0\xa0\u2015\xa0\xa0\xa0'}</span>;
+  }
+
+  // Remove slide numbers.
+  if (
+    !IS_MMT_VIEWER &&
+    domNode.childNodes.length === 8 &&
+    (domNode.childNodes[4] as any).attribs?.['class'] === 'HFill' &&
+    (domNode.childNodes[6] as any).attribs?.['class'] === 'HFill' &&
+    domNode.childNodes[5].type === 'text'
+  ) {
+    domNode.childNodes[5].data = '';
+  }
+
   if (isSidebar(domNode)) {
     if (skipSidebar) return <></>;
 
@@ -347,11 +404,15 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
   if (domNode.attribs?.['class'] === 'inputref') {
     const inputRef = domNode.attribs['data-inputref-url'];
     return (
-      <ExpandableContent
-        htmlTitle={domNode}
-        contentUrl={PARSER_BASE_URL + inputRef}
-        title={domToReact(domNode.children, { replace }) as any}
-      />
+      <>
+        <SectionIdHackObject inputRef={inputRef} />
+        <ExpandableContent
+          htmlTitle={domNode}
+          contentUrl={PARSER_BASE_URL + inputRef}
+          title={domToReact(domNode.children, { replace }) as any}
+        />
+        &nbsp;
+      </>
     );
   }
   if (domNode.name === 'math') {

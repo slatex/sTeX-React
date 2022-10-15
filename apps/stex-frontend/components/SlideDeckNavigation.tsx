@@ -83,7 +83,7 @@ export function SlideDeckNavigation({
                   selectedSectionIdx == sectionIdx ? 'bold' : undefined,
               }}
             >
-              {sectionIdx+1}. {section.sectionTitle}
+              {sectionIdx}. {section.sectionTitle}
             </span>
           </AccordionSummary>
           <AccordionDetails>
@@ -102,7 +102,7 @@ export function SlideDeckNavigation({
                 >
                   {deck.sec && (
                     <span>
-                      {sectionIdx + 1}.{deck.sec}&nbsp;
+                      {sectionIdx}.{deck.sec}&nbsp;
                     </span>
                   )}
                   {mmtHTMLToReact(deck.titleAsHtml)}

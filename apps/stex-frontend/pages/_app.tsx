@@ -1,8 +1,10 @@
+import { createInstance, MatomoProvider } from '@jonkoops/matomo-tracker-react';
 import { createTheme, ThemeProvider } from '@mui/material';
-import { MathJaxContext } from '@stex-react/stex-react-renderer';
+import { MathJaxContext, setSectionIds } from '@stex-react/stex-react-renderer';
 import { DEFAULT_BASE_URL, IS_SERVER } from '@stex-react/utils';
+import axios from 'axios';
 import { AppProps } from 'next/app';
-import { MatomoProvider, createInstance } from '@jonkoops/matomo-tracker-react';
+import { useEffect } from 'react';
 import './styles.scss';
 
 const instance = createInstance({
@@ -13,9 +15,9 @@ const instance = createInstance({
   // srcUrl: 'https://matomo.kwarc.info/tracking.js', optional, default value: `${urlBase}matomo.js`
   disabled: false, // optional, false by default. Makes all tracking calls no-ops if set to true.
   // heartBeat: {
-    // optional, enabled by default
-    // active: true, optional, default value: true
-    // seconds: 10, optional, default value: `15
+  // optional, enabled by default
+  // active: true, optional, default value: true
+  // seconds: 10, optional, default value: `15
   //},
   // linkTracking: false, optional, default value: true
   configurations: {
@@ -48,6 +50,11 @@ const theme = createTheme({
 });
 
 function CustomApp({ Component, pageProps }: AppProps) {
+  useEffect(() => {
+    axios.get(`/api/get-section-ids`).then((r) => {
+      setSectionIds(r.data);
+    });
+  });
   if (!IS_SERVER) (window as any).BASE_URL = DEFAULT_BASE_URL;
   return (
     <MatomoProvider value={instance}>
