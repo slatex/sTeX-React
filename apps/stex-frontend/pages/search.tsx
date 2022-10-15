@@ -56,7 +56,7 @@ export const SearchPage: NextPage = () => {
           <Box width="100%" maxWidth="500px" m="auto">
             <SearchBar />
           </Box>
-          <hr />
+          <hr style={{ width: '90%' }} />
           {totalHits > 0 && (
             <span className={styles.info_line}>{totalHits} Results</span>
           )}

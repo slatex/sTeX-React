@@ -51,7 +51,7 @@ export function FileBrowser({
         />
       }
     >
-      <Box flex={1} p="10px" sx={{ backgroundColor: BG_COLOR }}>
+      <Box width="100%" p="10px" sx={{ backgroundColor: BG_COLOR }}>
         <Box maxWidth="600px" m="auto">
           {selectedProject && selectedFilepath ? (
             <>

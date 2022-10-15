@@ -187,7 +187,7 @@ const CourseViewPage: NextPage = () => {
         setShowDashboard={setShowDashboard}
         drawerAnchor="left"
       >
-        <Box maxWidth="800px" margin="auto">
+        <Box maxWidth="800px" margin="auto" width="100%">
           <Box
             display="flex"
             alignItems="center"
@@ -229,12 +229,14 @@ const CourseViewPage: NextPage = () => {
               fromLastSlide={fromLastSlide}
             />
           )}
-          <hr />
+          <hr style={{ width: '90%' }} />
 
           {viewMode !== ViewMode.VIDEO_MODE && (
-            <Box p="5px">
+            <Box p="5px" sx={{ overflowX: 'auto' }}>
               <RenderElements elements={preNotes} />
-              {preNotes.length > 0 && postNotes.length > 0 && <hr />}
+              {preNotes.length > 0 && postNotes.length > 0 && (
+                <hr style={{ width: '90%' }} />
+              )}
               <RenderElements elements={postNotes} />
             </Box>
           )}

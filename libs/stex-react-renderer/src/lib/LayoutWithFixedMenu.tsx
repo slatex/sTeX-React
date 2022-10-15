@@ -5,7 +5,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import styles from './stex-react-renderer.module.scss';
 
 const MenuContext = createContext({ offset: 0, inDrawer: false });
-
+const MENU_WIDTH = '300px';
 export function FixedPositionMenu({
   staticContent = undefined,
   children,
@@ -145,13 +145,24 @@ export function LayoutWithFixedMenu({
         flexDirection={drawerAnchor === 'left' ? 'row' : 'row-reverse'}
       >
         {!useDrawer && showDashboard && (
-          <Box width="300px" minWidth="300px" sx={{ overflowY: 'auto' }}>
+          <Box
+            width={MENU_WIDTH}
+            minWidth={MENU_WIDTH}
+            sx={{ overflowY: 'auto' }}
+          >
             <MenuContext.Provider value={{ offset, inDrawer: false }}>
               {menu}
             </MenuContext.Provider>
           </Box>
         )}
-        <Box flex={1}>{children}</Box>
+        <Box
+          flex={1}
+          width={
+            !useDrawer && showDashboard ? `calc(100% - ${MENU_WIDTH})` : '100%'
+          }
+        >
+          {children}
+        </Box>
       </Box>
     </>
   );
