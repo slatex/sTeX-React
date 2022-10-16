@@ -12,7 +12,7 @@ import { localStore, shouldUseDrawer } from '@stex-react/utils';
 import axios from 'axios';
 import { NextPage } from 'next';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { NextRouter, useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { SlideDeck } from '../../components/SlideDeck';
 import { SlideDeckNavigation } from '../../components/SlideDeckNavigation';
@@ -80,18 +80,36 @@ function ToggleModeButton({
   );
 }
 
+export function setSlideNumAndDeckId(
+  router: NextRouter,
+  slideNum: number,
+  deckId?: string
+) {
+  const courseId = router.query.courseId as string;
+  if (deckId) {
+    router.query.deckId = deckId;
+    localStore?.setItem(`lastReadDeckId-${courseId}`, deckId);
+  }
+  router.query.slideNum = `${slideNum}`;
+  localStore?.setItem(`lastReadSlideNum-${courseId}`, `${slideNum}`);
+  router.push(router);
+}
+
 const CourseViewPage: NextPage = () => {
   const router = useRouter();
   const courseId = router.query.courseId as string;
+  const deckId = router.query.deckId as string;
+  const slideNum = +((router.query.slideNum as string) || 0);
+  const viewModeStr = router.query.viewMode as string;
+  const viewMode = ViewMode[viewModeStr as keyof typeof ViewMode];
+  const audioOnlyStr = router.query.audioOnly as string;
+  const audioOnly = audioOnlyStr === 'true';
 
   const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
-  const [selectedDeckId, setSelectedDeckId] = useState('initial');
-  const [fromLastSlide, setFromLastSlide] = useState(false);
   const [preNotes, setPreNotes] = useState([] as string[]);
   const [postNotes, setPostNotes] = useState([] as string[]);
   const [courseInfo, setCourseInfo] = useState(undefined as CourseInfo);
   const [deckInfo, setDeckInfo] = useState(undefined as DeckAndVideoInfo);
-  const [viewMode, setViewMode] = useState(ViewMode.SLIDE_MODE);
 
   const { trackPageView } = useMatomo();
 
@@ -99,14 +117,34 @@ const CourseViewPage: NextPage = () => {
     trackPageView();
   }, []);
 
-  useEffect(
-    () =>
-      setViewMode(
-        ViewMode[localStore?.getItem('defaultMode') as keyof typeof ViewMode] ||
-          ViewMode.SLIDE_MODE
-      ),
-    []
-  );
+  useEffect(() => {
+    if (!router.isReady) return;
+    if (deckId && slideNum && viewMode && audioOnlyStr) return;
+    if (!deckId) {
+      router.query.deckId =
+        localStore?.getItem(`lastReadDeckId-${courseId}`) || 'initial';
+    }
+    if (!slideNum) {
+      router.query.slideNum =
+        localStore?.getItem(`lastReadSlideNum-${courseId}`) || '1';
+    }
+    if (!viewMode) {
+      router.query.viewMode =
+        localStore?.getItem('defaultMode') || ViewMode.SLIDE_MODE.toString();
+    }
+    if (!audioOnlyStr) {
+      router.query.audioOnly = localStore?.getItem('audioOnly') || 'false';
+    }
+    router.push(router);
+  }, [
+    router,
+    router.isReady,
+    deckId,
+    slideNum,
+    viewMode,
+    courseId,
+    audioOnlyStr,
+  ]);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -118,19 +156,19 @@ const CourseViewPage: NextPage = () => {
   useEffect(() => {
     for (const section of courseInfo?.sections || []) {
       for (const deck of section.decks) {
-        if (deck.deckId === selectedDeckId) {
+        if (deck.deckId === deckId) {
           setDeckInfo(deck);
           return;
         }
       }
     }
     setDeckInfo(undefined);
-  }, [courseInfo, selectedDeckId]);
+  }, [courseInfo, deckId]);
 
   function findCurrentLocation() {
     for (const [secIdx, section] of courseInfo?.sections?.entries() || [])
       for (const [deckIdx, deck] of section.decks.entries())
-        if (deck.deckId === selectedDeckId) return { secIdx, deckIdx };
+        if (deck.deckId === deckId) return { secIdx, deckIdx };
     return { secIdx: undefined, deckIdx: undefined };
   }
 
@@ -138,14 +176,14 @@ const CourseViewPage: NextPage = () => {
     const { secIdx, deckIdx } = findCurrentLocation();
     if (secIdx === undefined || deckIdx === undefined) return;
     if (deckIdx !== 0) {
-      setSelectedDeckId(courseInfo.sections[secIdx].decks[deckIdx - 1].deckId);
-      setFromLastSlide(true);
+      const deckId = courseInfo.sections[secIdx].decks[deckIdx - 1].deckId;
+      setSlideNumAndDeckId(router, -1, deckId);
       return;
     }
     if (secIdx === 0) return;
     const prevDecks = courseInfo.sections[secIdx - 1].decks;
-    setSelectedDeckId(prevDecks[prevDecks.length - 1].deckId);
-    setFromLastSlide(true);
+    const deckId = prevDecks[prevDecks.length - 1].deckId;
+    setSlideNumAndDeckId(router, -1, deckId);
   }
 
   function goToNextSection() {
@@ -153,15 +191,15 @@ const CourseViewPage: NextPage = () => {
     if (secIdx === undefined || deckIdx === undefined) return;
     const currSectionDecks = courseInfo.sections[secIdx].decks;
     if (deckIdx < currSectionDecks.length - 1) {
-      setSelectedDeckId(currSectionDecks[deckIdx + 1].deckId);
-      setFromLastSlide(false);
+      const deckId = currSectionDecks[deckIdx + 1].deckId;
+      setSlideNumAndDeckId(router, 1, deckId);
       return;
     }
     // last section is the "dummy" section. dont switch to that.
     if (secIdx >= courseInfo.sections.length - 2) return;
     const nextDecks = courseInfo.sections[secIdx + 1].decks;
-    setSelectedDeckId(nextDecks[0].deckId);
-    setFromLastSlide(false);
+    const deckId = nextDecks[0].deckId;
+    setSlideNumAndDeckId(router, 1, deckId);
   }
 
   return (
@@ -172,10 +210,9 @@ const CourseViewPage: NextPage = () => {
         menu={
           <SlideDeckNavigation
             sections={courseInfo?.sections || []}
-            selected={selectedDeckId}
-            onSelect={(i) => {
-              setSelectedDeckId(i);
-              setFromLastSlide(false);
+            selected={deckId}
+            onSelect={(deckId) => {
+              setSlideNumAndDeckId(router, 1, deckId);
               setPreNotes([]);
               setPostNotes([]);
             }}
@@ -196,8 +233,10 @@ const CourseViewPage: NextPage = () => {
             <ToggleModeButton
               viewMode={viewMode}
               updateViewMode={(mode) => {
-                setViewMode(mode);
-                localStore?.setItem('defaultMode', ViewMode[mode]);
+                const modeStr = mode.toString();
+                localStore?.setItem('defaultMode', modeStr);
+                router.query.viewMode = modeStr;
+                router.push(router);
               }}
             />
             <Link
@@ -212,21 +251,18 @@ const CourseViewPage: NextPage = () => {
           </Box>
           {(viewMode === ViewMode.VIDEO_MODE ||
             viewMode === ViewMode.COMBINED_MODE) && (
-            <VideoDisplay deckInfo={deckInfo} />
+            <VideoDisplay deckInfo={deckInfo} audioOnly={audioOnly} />
           )}
           {(viewMode === ViewMode.SLIDE_MODE ||
             viewMode === ViewMode.COMBINED_MODE) && (
             <SlideDeck
               courseId={courseId}
               navOnTop={viewMode === ViewMode.COMBINED_MODE}
+              deckId={deckId}
               deckInfo={deckInfo}
-              onSlideChange={(slide: Slide) => {
-                setPreNotes(slide?.preNotes || []);
-                setPostNotes(slide?.postNotes || []);
-              }}
               goToNextSection={goToNextSection}
               goToPrevSection={goToPrevSection}
-              fromLastSlide={fromLastSlide}
+              slideNum={slideNum}
             />
           )}
           <hr style={{ width: '90%' }} />
