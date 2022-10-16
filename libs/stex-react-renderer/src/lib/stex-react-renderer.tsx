@@ -3,13 +3,13 @@ import {
   BG_COLOR,
   getChildrenOfBodyNode,
   localStore,
-  shouldUseDrawer
+  shouldUseDrawer,
 } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import {
   IndexNode,
-  scrollToClosestAncestorAndSetPending
+  scrollToClosestAncestorAndSetPending,
 } from './collectIndexInfo';
 import { ContentDashboard } from './ContentDashboard';
 import { ContentFromUrl } from './ContentFromUrl';
@@ -48,8 +48,15 @@ export function StexReactRenderer({
   useEffect(() => {
     if (!router?.isReady) return;
     const inDocPath = router?.query?.['inDocPath'] as string;
+    if (!inDocPath && router) {
+      const fileId = router.query['id'];
+      router.query['inDocPath'] =
+        localStore?.getItem(`inDocPath-${fileId}`) || '0';
+      router.push(router);
+      return;
+    }
     scrollToClosestAncestorAndSetPending(getToOpenContentHash(inDocPath));
-  }, [router?.isReady, router?.query]);
+  }, [router, router?.isReady, router?.query]);
 
   return (
     <RenderOptions.Provider
@@ -101,4 +108,3 @@ export {
   setSectionIds,
 };
 export type { FileNode, TourAPIEntry, IndexNode };
-

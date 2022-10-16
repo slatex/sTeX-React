@@ -8,7 +8,7 @@ import {
   fakeLoginUsingRedirect,
   isLoggedIn,
   loginUsingRedirect,
-  logout
+  logout,
 } from '../api/ums';
 import MainLayout from '../layouts/MainLayout';
 
@@ -80,7 +80,7 @@ const LoginPage: NextPage = () => {
                     marginTop: '10px',
                   }}
                 >
-                  <hr />
+                  <hr style={{ width: '90%' }} />
                   Please{' '}
                   <span
                     style={{ display: 'inline' }}

@@ -10,6 +10,7 @@ import UnfoldLessDoubleIcon from '@mui/icons-material/UnfoldLessDouble';
 import UnfoldMoreDoubleIcon from '@mui/icons-material/UnfoldMoreDouble';
 import styles from './stex-react-renderer.module.scss';
 import { FixedPositionMenu } from './LayoutWithFixedMenu';
+import { localStore } from '@stex-react/utils';
 
 function applyFilter(
   node?: IndexNode,
@@ -76,8 +77,13 @@ function RenderTree({
             for (let n: IndexNode | undefined = node; n; n = n.parentNode) {
               if (n.hash) paths.push(n.hash);
             }
-            router.query['inDocPath'] = paths.reverse().join('.');
-            router.push(router);
+            if (router) {
+              const inDocPath = paths.reverse().join('.');
+              const fileId = router.query['id'];
+              localStore?.setItem(`inDocPath-${fileId}`, inDocPath);
+              router.query['inDocPath'] = inDocPath;
+              router.push(router);
+            }
           }}
         >
           {node.title}

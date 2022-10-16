@@ -6,6 +6,7 @@ import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { DeckAndVideoInfo } from '../shared/slides';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CheckIcon from '@mui/icons-material/Check';
+import { useRouter } from 'next/router';
 
 function ToggleResolution({
   audioOnly,
@@ -26,7 +27,7 @@ function ToggleResolution({
       display="inline-block"
       border={audioOnly ? undefined : '1px solid #CCC'}
     >
-      <IconButton onClick={() => setAudioOnly((v) => !v)}>
+      <IconButton onClick={() => setAudioOnly(!audioOnly)}>
         <Tooltip title={audioOnly ? 'Show Video' : 'Audio Only'}>
           {audioOnly ? <VideocamIcon /> : <VideocamOffIcon />}
         </Tooltip>
@@ -125,15 +126,20 @@ export function MediaItem({
   );
 }
 
-export function VideoDisplay({ deckInfo }: { deckInfo: DeckAndVideoInfo }) {
+export function VideoDisplay({
+  deckInfo,
+  audioOnly,
+}: {
+  deckInfo: DeckAndVideoInfo;
+  audioOnly: boolean;
+}) {
   const [resolution, setResolution] = useState(720);
-  const [audioOnly, setAudioOnly] = useState(false);
   const availableRes = getAvailableRes(deckInfo);
   const videoId = getVideoId(deckInfo, resolution, availableRes);
+  const router = useRouter();
 
   useEffect(() => {
     setResolution(+(localStore?.getItem('defaultResolution') || '720'));
-    setAudioOnly(localStore?.getItem('audioOnly') === true.toString());
   }, []);
   if (!videoId) return <i>Video not available for this section</i>;
   return (
@@ -146,9 +152,11 @@ export function VideoDisplay({ deckInfo }: { deckInfo: DeckAndVideoInfo }) {
       <Box sx={{ m: '-4px 0 5px' }}>
         <ToggleResolution
           audioOnly={audioOnly}
-          setAudioOnly={(audioOnly: boolean) => {
-            setAudioOnly(audioOnly);
-            localStore?.setItem('audioOnly', audioOnly.toString());
+          setAudioOnly={(v: boolean) => {
+            const audioOnlyStr = v.toString();
+            localStore?.setItem('audioOnly', audioOnlyStr);
+            router.query.audioOnly = audioOnlyStr;
+            router.push(router);
           }}
           resolution={resolution}
           setResolution={(res: number) => {

@@ -78,7 +78,7 @@ export function FileBrowser({
                   <OpenInNewIcon />
                 </Button>
               </a>
-              <hr />
+              <hr style={{ width: '90%' }} />
               <ContentFromUrl
                 url={XhtmlContentUrl(
                   baseUrl,
