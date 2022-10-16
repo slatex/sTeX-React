@@ -4,6 +4,12 @@ export const DEFAULT_BASE_URL = 'https://stexmmt.mathhub.info';
 export const BG_COLOR = 'hsl(210, 20%, 98%)';
 export const IS_SERVER = typeof window === 'undefined';
 export const localStore = IS_SERVER ? undefined : localStorage;
+export const Window = IS_SERVER ? undefined : window;
+
+export function shouldUseDrawer(windowWidth?: number) {
+  if (!windowWidth) windowWidth = Window?.innerWidth;
+  return windowWidth ? windowWidth < 800 : true;
+}
 
 export interface SectionInfo {
   url: string;

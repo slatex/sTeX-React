@@ -5,43 +5,50 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { Box, IconButton, LinearProgress } from '@mui/material';
 import { ContentWithHighlight } from '@stex-react/stex-react-renderer';
 import axios from 'axios';
-import { Dispatch, memo, SetStateAction, useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import { memo, useEffect, useState } from 'react';
+import { setSlideNumAndDeckId } from '../pages/course-view/[courseId]';
 import { DeckAndVideoInfo, Slide } from '../shared/slides';
 import styles from '../styles/slide-deck.module.scss';
 
 export function SlideNavBar({
-  slideNumber,
-  setSlideNumber,
+  slideNum,
   numSlides,
   goToNextSection = undefined,
   goToPrevSection = undefined,
 }: {
-  slideNumber: number;
-  setSlideNumber: Dispatch<SetStateAction<number>>;
+  slideNum: number;
   numSlides: number;
   goToNextSection?: () => void;
   goToPrevSection?: () => void;
 }) {
+  const router = useRouter();
   return (
     <Box display="flex" justifyContent="flex-end" alignItems="center">
       <IconButton
         onClick={() => {
-          if (slideNumber > 0) setSlideNumber((curr) => curr - 1);
-          else goToPrevSection();
+          if (slideNum > 1) {
+            setSlideNumAndDeckId(router, slideNum - 1);
+          } else {
+            goToPrevSection();
+          }
         }}
       >
-        {slideNumber == 0 ? <FirstPageIcon /> : <NavigateBeforeIcon />}
+        {slideNum == 1 ? <FirstPageIcon /> : <NavigateBeforeIcon />}
       </IconButton>
       <span style={{ fontSize: '18px' }}>
-        {slideNumber + 1} / {numSlides}
+        {slideNum} / {numSlides}
       </span>
       <IconButton
         onClick={() => {
-          if (slideNumber < numSlides - 1) setSlideNumber((curr) => curr + 1);
-          else goToNextSection();
+          if (slideNum < numSlides) {
+            setSlideNumAndDeckId(router, slideNum + 1);
+          } else {
+            goToNextSection();
+          }
         }}
       >
-        {slideNumber >= numSlides - 1 ? <LastPageIcon /> : <NavigateNextIcon />}
+        {slideNum >= numSlides ? <LastPageIcon /> : <NavigateNextIcon />}
       </IconButton>
     </Box>
   );
@@ -50,55 +57,63 @@ export function SlideNavBar({
 export const SlideDeck = memo(function SlidesFromUrl({
   courseId,
   deckInfo,
+  deckId,
   navOnTop = false,
-  fromLastSlide = false,
-  onSlideChange = undefined,
+  slideNum = 1,
   goToNextSection = undefined,
   goToPrevSection = undefined,
 }: {
   courseId: string;
   deckInfo: DeckAndVideoInfo;
+  deckId: string;
   navOnTop?: boolean;
-  fromLastSlide?: boolean;
-  onSlideChange?: (slide: Slide) => void;
+  slideNum?: number;
   modifyRendered?: (node: any) => any;
   goToNextSection?: () => void;
   goToPrevSection?: () => void;
 }) {
   const [slides, setSlides] = useState<Slide[]>([]);
-  const [slideNumber, setSlideNumber] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadedSlideDeck, setLoadedSlideDeck] = useState('');
   const [currentSlide, setCurrentSlide] = useState(
     undefined as Slide | undefined
   );
-  const deckId = deckInfo?.deckId;
+  const router = useRouter();
 
   useEffect(() => {
     let isCancelled = false;
     if (!deckId?.length) return;
-    setSlideNumber(0);
     setIsLoading(true);
+    setSlides([]);
+    const loadingDeck = deckId;
     axios
-      .get(`/api/get-slides/${courseId}/${encodeURIComponent(deckId)}`)
+      .get(`/api/get-slides/${courseId}/${encodeURIComponent(loadingDeck)}`)
       .then((r) => {
         if (isCancelled) return;
         const slides: Slide[] = r.data || [];
+
         setIsLoading(false);
         setSlides(slides);
-        setSlideNumber(fromLastSlide ? slides.length - 1 : 0);
+        setLoadedSlideDeck(loadingDeck);
       });
 
     return () => {
       isCancelled = true; // avoids race condition on rapid deckId changes.
     };
-  }, [courseId, deckId, fromLastSlide]);
+  }, [courseId, deckId]);
 
   useEffect(() => {
-    if (!slides?.length || slideNumber < 0 || slideNumber >= slides.length)
+    if (!slides?.length || loadedSlideDeck !== deckId) return;
+    if (slideNum < 1) {
+      setSlideNumAndDeckId(router, slides.length);
       return;
-    if (onSlideChange) onSlideChange(slides[slideNumber]);
-    setCurrentSlide(slides[slideNumber]);
-  }, [slides, slideNumber, onSlideChange]);
+    }
+    if (slideNum > slides.length) {
+      setSlideNumAndDeckId(router, 1);
+      return;
+    }
+    setCurrentSlide(slides[slideNum - 1]);
+  }, [deckId, loadedSlideDeck, slides, slideNum, router]);
 
   if (isLoading) {
     return (
@@ -119,9 +134,8 @@ export const SlideDeck = memo(function SlidesFromUrl({
         renderWrapperParams={{ 'section-url': deckId }}
       />
       <SlideNavBar
-        slideNumber={slideNumber}
+        slideNum={slideNum}
         numSlides={slides.length}
-        setSlideNumber={setSlideNumber}
         goToNextSection={goToNextSection}
         goToPrevSection={goToPrevSection}
       />

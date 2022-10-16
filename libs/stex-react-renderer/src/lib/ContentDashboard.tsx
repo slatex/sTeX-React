@@ -9,6 +9,8 @@ import { RendererDisplayOptions } from './RendererDisplayOptions';
 import UnfoldLessDoubleIcon from '@mui/icons-material/UnfoldLessDouble';
 import UnfoldMoreDoubleIcon from '@mui/icons-material/UnfoldMoreDouble';
 import styles from './stex-react-renderer.module.scss';
+import { FixedPositionMenu } from './LayoutWithFixedMenu';
+import { localStore } from '@stex-react/utils';
 
 function applyFilter(
   node?: IndexNode,
@@ -75,8 +77,13 @@ function RenderTree({
             for (let n: IndexNode | undefined = node; n; n = n.parentNode) {
               if (n.hash) paths.push(n.hash);
             }
-            router.query['inDocPath'] = paths.reverse().join('.');
-            router.push(router);
+            if (router) {
+              const inDocPath = paths.reverse().join('.');
+              const fileId = router.query['id'];
+              localStore?.setItem(`inDocPath-${fileId}`, inDocPath);
+              router.query['inDocPath'] = inDocPath;
+              router.push(router);
+            }
           }}
         >
           {node.title}
@@ -112,11 +119,9 @@ function RenderTree({
 }
 export function ContentDashboard({
   onClose,
-  topOffset = 0,
   dashInfo = undefined,
 }: {
   onClose: () => void;
-  topOffset?: number;
   dashInfo?: IndexNode;
 }) {
   const [filterStr, setFilterStr] = useState('');
@@ -145,44 +150,43 @@ export function ContentDashboard({
   );
 
   return (
-    <Box className={styles['dash_outer_box']}>
-      <Box className={styles['dash_inner_box']} mt={`${topOffset}px`}>
-        <Box display="flex" alignItems="center">
-          <IconButton sx={{ m: '2px 0 0 5px' }} onClick={() => onClose()}>
-            <CloseIcon />
-          </IconButton>
-          <TextField
-            id="tree-filter-string"
-            label="Search"
-            value={filterStr}
-            onChange={(e) => setFilterStr(e.target.value)}
-            sx={{ m: '10px', width: '100%' }}
-            size="small"
-          />
-        </Box>
-        <Box display="flex" justifyContent="space-between" m="10px">
-          <Tooltip title="Expand/collapse all">
-            <IconButton
-              onClick={() => setDefaultOpen((v) => !v)}
-              sx={{ border: '1px solid #CCC', borderRadius: '40px' }}
-            >
-              {defaultOpen ? (
-                <UnfoldLessDoubleIcon />
-              ) : (
-                <UnfoldMoreDoubleIcon />
-              )}
+    <FixedPositionMenu
+      staticContent={
+        <>
+          <Box display="flex" alignItems="center" sx={{ m: '5px' }}>
+            <IconButton sx={{ m: '2px' }} onClick={() => onClose()}>
+              <CloseIcon />
             </IconButton>
-          </Tooltip>
-          <RendererDisplayOptions />
-        </Box>
-        <Box className={styles['dash_scroll_area_box']}>
-          <Box sx={{ overflowX: 'hidden' }}>
-            {Array.from(rootPage?.childNodes?.values() || []).map((child) => (
-              <RenderTree node={child} level={0} defaultOpen={defaultOpen} />
-            ))}
+            <TextField
+              id="tree-filter-string"
+              label="Search"
+              value={filterStr}
+              onChange={(e) => setFilterStr(e.target.value)}
+              sx={{ mx: '5px', width: '100%' }}
+              size="small"
+            />
           </Box>
-        </Box>
-      </Box>
-    </Box>
+          <Box display="flex" justifyContent="space-between" m="5px 10px">
+            <Tooltip title="Expand/collapse all">
+              <IconButton
+                onClick={() => setDefaultOpen((v) => !v)}
+                sx={{ border: '1px solid #CCC', borderRadius: '40px' }}
+              >
+                {defaultOpen ? (
+                  <UnfoldLessDoubleIcon />
+                ) : (
+                  <UnfoldMoreDoubleIcon />
+                )}
+              </IconButton>
+            </Tooltip>
+            <RendererDisplayOptions />
+          </Box>
+        </>
+      }
+    >
+      {Array.from(rootPage?.childNodes?.values() || []).map((child) => (
+        <RenderTree node={child} level={0} defaultOpen={defaultOpen} />
+      ))}
+    </FixedPositionMenu>
   );
 }

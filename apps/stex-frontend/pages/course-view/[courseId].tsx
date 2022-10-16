@@ -4,8 +4,11 @@ import MergeIcon from '@mui/icons-material/Merge';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
 import VideoCameraFrontIcon from '@mui/icons-material/VideoCameraFront';
 import { Box, Button, ToggleButtonGroup } from '@mui/material';
-import { ContentWithHighlight } from '@stex-react/stex-react-renderer';
-import { localStore } from '@stex-react/utils';
+import {
+  ContentWithHighlight,
+  LayoutWithFixedMenu,
+} from '@stex-react/stex-react-renderer';
+import { localStore, shouldUseDrawer } from '@stex-react/utils';
 import axios from 'axios';
 import { NextPage } from 'next';
 import Link from 'next/link';
@@ -17,8 +20,6 @@ import { TooltipToggleButton } from '../../components/TooltipToggleButton';
 import { VideoDisplay } from '../../components/VideoDisplay';
 import MainLayout from '../../layouts/MainLayout';
 import { CourseInfo, DeckAndVideoInfo, Slide } from '../../shared/slides';
-
-const W = typeof window === 'undefined' ? undefined : window;
 
 function RenderElements({ elements }: { elements: string[] }) {
   return (
@@ -48,14 +49,18 @@ function ToggleModeButton({
       value={viewMode}
       exclusive
       onChange={(event, newVal) => {
-        if (newVal !== null) {
-          updateViewMode(newVal);
-          trackEvent({
-            category: 'slide-view-event',
-            action: 'mode-change',
-            name: newVal.toString(),
-          });
+        if (!newVal) {
+          newVal =
+            viewMode === ViewMode.COMBINED_MODE
+              ? ViewMode.SLIDE_MODE
+              : ViewMode.COMBINED_MODE;
         }
+        updateViewMode(newVal);
+        trackEvent({
+          category: 'slide-view-event',
+          action: 'mode-change',
+          name: newVal.toString(),
+        });
       }}
       sx={{ m: '5px 0', border: '1px solid black' }}
     >
@@ -79,18 +84,17 @@ const CourseViewPage: NextPage = () => {
   const router = useRouter();
   const courseId = router.query.courseId as string;
 
+  const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
   const [selectedDeckId, setSelectedDeckId] = useState('initial');
   const [fromLastSlide, setFromLastSlide] = useState(false);
   const [preNotes, setPreNotes] = useState([] as string[]);
   const [postNotes, setPostNotes] = useState([] as string[]);
-  const [offset, setOffset] = useState(64);
   const [courseInfo, setCourseInfo] = useState(undefined as CourseInfo);
   const [deckInfo, setDeckInfo] = useState(undefined as DeckAndVideoInfo);
   const [viewMode, setViewMode] = useState(ViewMode.SLIDE_MODE);
 
   const { trackPageView } = useMatomo();
 
-  // Track page view
   useEffect(() => {
     trackPageView();
   }, []);
@@ -122,14 +126,6 @@ const CourseViewPage: NextPage = () => {
     }
     setDeckInfo(undefined);
   }, [courseInfo, selectedDeckId]);
-
-  useEffect(() => {
-    const onScroll = () => setOffset(Math.max(64 - (W?.pageYOffset || 0), 0));
-    // clean up code
-    window.removeEventListener('scroll', onScroll);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
 
   function findCurrentLocation() {
     for (const [secIdx, section] of courseInfo?.sections?.entries() || [])
@@ -172,75 +168,80 @@ const CourseViewPage: NextPage = () => {
     <MainLayout
       title={(courseId || '').toUpperCase() + ' Course Slides | VoLL-KI'}
     >
-      <Box display="flex">
-        <Box flexBasis="600px" flexGrow={1} overflow="hidden">
-          <Box maxWidth="800px" margin="auto">
-            <Box
-              display="flex"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <ToggleModeButton
-                viewMode={viewMode}
-                updateViewMode={(mode) => {
-                  setViewMode(mode);
-                  localStore?.setItem('defaultMode', ViewMode[mode]);
-                }}
-              />
-              <Link
-                href="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FAI%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml"
-                passHref
-              >
-                <Button size="small" variant="contained" sx={{ mr: '10px' }}>
-                  Notes&nbsp;
-                  <ArticleIcon />
-                </Button>
-              </Link>
-            </Box>
-            {(viewMode === ViewMode.VIDEO_MODE ||
-              viewMode === ViewMode.COMBINED_MODE) && (
-              <VideoDisplay deckInfo={deckInfo} />
-            )}
-            {(viewMode === ViewMode.SLIDE_MODE ||
-              viewMode === ViewMode.COMBINED_MODE) && (
-              <SlideDeck
-                courseId={courseId}
-                navOnTop={viewMode === ViewMode.COMBINED_MODE}
-                deckInfo={deckInfo}
-                onSlideChange={(slide: Slide) => {
-                  setPreNotes(slide?.preNotes || []);
-                  setPostNotes(slide?.postNotes || []);
-                }}
-                goToNextSection={goToNextSection}
-                goToPrevSection={goToPrevSection}
-                fromLastSlide={fromLastSlide}
-              />
-            )}
-            <hr />
-
-            {viewMode !== ViewMode.VIDEO_MODE && (
-              <Box p="5px">
-                <RenderElements elements={preNotes} />
-                {preNotes.length > 0 && postNotes.length > 0 && <hr />}
-                <RenderElements elements={postNotes} />
-              </Box>
-            )}
-          </Box>
-        </Box>
-        <Box flexBasis="200px" maxWidth="300px" flexGrow={1} overflow="auto">
+      <LayoutWithFixedMenu
+        menu={
           <SlideDeckNavigation
             sections={courseInfo?.sections || []}
             selected={selectedDeckId}
-            topOffset={offset}
             onSelect={(i) => {
               setSelectedDeckId(i);
               setFromLastSlide(false);
               setPreNotes([]);
               setPostNotes([]);
             }}
+            onClose={() => setShowDashboard(false)}
           />
+        }
+        topOffset={64}
+        showDashboard={showDashboard}
+        setShowDashboard={setShowDashboard}
+        drawerAnchor="left"
+      >
+        <Box maxWidth="800px" margin="auto" width="100%">
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <ToggleModeButton
+              viewMode={viewMode}
+              updateViewMode={(mode) => {
+                setViewMode(mode);
+                localStore?.setItem('defaultMode', ViewMode[mode]);
+              }}
+            />
+            <Link
+              href="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FAI%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml"
+              passHref
+            >
+              <Button size="small" variant="contained" sx={{ mr: '10px' }}>
+                Notes&nbsp;
+                <ArticleIcon />
+              </Button>
+            </Link>
+          </Box>
+          {(viewMode === ViewMode.VIDEO_MODE ||
+            viewMode === ViewMode.COMBINED_MODE) && (
+            <VideoDisplay deckInfo={deckInfo} />
+          )}
+          {(viewMode === ViewMode.SLIDE_MODE ||
+            viewMode === ViewMode.COMBINED_MODE) && (
+            <SlideDeck
+              courseId={courseId}
+              navOnTop={viewMode === ViewMode.COMBINED_MODE}
+              deckInfo={deckInfo}
+              onSlideChange={(slide: Slide) => {
+                setPreNotes(slide?.preNotes || []);
+                setPostNotes(slide?.postNotes || []);
+              }}
+              goToNextSection={goToNextSection}
+              goToPrevSection={goToPrevSection}
+              fromLastSlide={fromLastSlide}
+            />
+          )}
+          <hr style={{ width: '90%' }} />
+
+          {viewMode !== ViewMode.VIDEO_MODE && (
+            <Box p="5px" sx={{ overflowX: 'auto' }}>
+              <RenderElements elements={preNotes} />
+              {preNotes.length > 0 && postNotes.length > 0 && (
+                <hr style={{ width: '90%' }} />
+              )}
+              <RenderElements elements={postNotes} />
+            </Box>
+          )}
         </Box>
-      </Box>
+      </LayoutWithFixedMenu>
     </MainLayout>
   );
 };

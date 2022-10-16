@@ -4,12 +4,20 @@ import {
   createFilterOptions,
   TextField,
 } from '@mui/material';
-import { useRouter } from 'next/router';
-import { RAW_TOURS } from '../tours';
 import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import { fixDuplicateLabels, PathToTour } from '@stex-react/utils';
+import { useRouter } from 'next/router';
+import RAW_TOURS from '../guided-tour-list.preval';
 
-export const TOURS = fixDuplicateLabels(RAW_TOURS);
+function simplifyLabelsWithSpan(RAW: { value: string; label: string }[]) {
+  const updated: { value: string; label: string }[] = [];
+  for (const item of RAW) {
+    const m = item.label.match(/^<span[^>]*>(.+)<\/span>$/);
+    updated.push({ value: item.value, label: m ? m[1] : item.label });
+  }
+  return updated;
+}
+export const TOURS = fixDuplicateLabels(simplifyLabelsWithSpan(RAW_TOURS));
 
 // Limit number of options rendered at a time to improve performance.
 const filterOptions = createFilterOptions({

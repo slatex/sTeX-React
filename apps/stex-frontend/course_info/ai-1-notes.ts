@@ -1,11 +1,16 @@
-export const AI_1_COURSE_SECTIONS: {
+export interface CourseSectionInfo  {
   [sectionTitle: string]: {
-    [deckId: string]: { clipId?: string; timestampSec?: number };
+    [deckId: string]: { clipId?: string; timestampSec?: number, sec?: string };
   };
-} = {
+};
+
+export const AI_1_COURSE_SECTIONS: CourseSectionInfo = {
+  'Preface': {
+    initial: { },
+    'MiKoMH/AI||course/fragments/acknowledgements.en.xhtml': { },
+  },
   'Administrativa': {
-    initial: {clipId: '22801'},
-    'MiKoMH/AI||course/snip/admin-intro.en.xhtml': { clipId: '22801', timestampSec: 80 },
+    'MiKoMH/AI||course/fragments/syllabus1.en.xhtml': { clipId: '22801', timestampSec: 80 },
     'MiKoMH/AI||course/mod/prerequisites.en.xhtml': { clipId: '22801', timestampSec: 412 },
     'MiKoMH/AI||course/mod/grading.en.xhtml': { clipId: '22801', timestampSec: 818 },
     'MiKoMH/AI||course/mod/homeworks.en.xhtml': { clipId: '22801', timestampSec: 1474 },
@@ -23,20 +28,20 @@ export const AI_1_COURSE_SECTIONS: {
   },
   'Artificial Intelligence - Who?, What?, When?, Where?, and Why?': {
     'MiKoMH/AI||course/mod/questionnaire-call.en.xhtml': { clipId: '21467' },
-    'MiKoMH/AI||course/mod/plot.en.xhtml': { clipId: '21701' },
-    'MiKoMH/AI||intro/mod/whatisai-parts.en.xhtml': { clipId: '21697' },
-    'MiKoMH/AI||intro/mod/ai-conundrum.en.xhtml': { clipId: '21717' },
-    'MiKoMH/AI||course/mod/alphago-here.en.xhtml': { clipId: '21724' },
-    'MiKoMH/AI||intro/mod/agi.en.xhtml': { clipId: '21719' },
+    'MiKoMH/AI||course/mod/plot.en.xhtml': { clipId: '21701', sec: '1' },
+    'MiKoMH/AI||intro/mod/whatisai-parts.en.xhtml': { clipId: '21697', sec: '2' },
+    'MiKoMH/AI||intro/mod/ai-conundrum.en.xhtml': { clipId: '21717', sec: '3' },
+    'MiKoMH/AI||course/mod/alphago-here.en.xhtml': { clipId: '21724', sec: '4' },
+    'MiKoMH/AI||intro/mod/agi.en.xhtml': { clipId: '21719', sec: '5' },
     'MiKoMH/AI||course/mod/ai2-topics.en.xhtml': { clipId: '21719' },
-    'MiKoMH/AI||course/mod/ai1sysproj.en.xhtml': { clipId: '21725' },
+    'MiKoMH/AI||course/mod/ai1sysproj.en.xhtml': { clipId: '21725', sec: '6' },
   },
   'Logic Programming': {
     'MiKoMH/AI||course/snip/recruiting.en.xhtml': { clipId: '21752' },
-    'MiKoMH/AI||prolog/snip/intro.en.xhtml': { clipId: '21753' },
-    'MiKoMH/AI||prolog/mod/fallible-greeks.en.xhtml': { clipId: '21754' },
-    'MiKoMH/AI||prolog/mod/DFS-back-ex.en.xhtml': { clipId: '21827' },
-    'MiKoMH/AI||prolog/mod/relational-programming.en.xhtml': {}
+    'MiKoMH/AI||logic/snip/declarative-programming.en.xhtml': { clipId: '21753', sec: '1' },
+    'MiKoMH/AI||prolog/mod/fallible-greeks.en.xhtml': { clipId: '21754', sec: '2' },
+    'MiKoMH/AI||prolog/mod/DFS-back-ex.en.xhtml': { clipId: '21827', sec: '2.2' },
+    'MiKoMH/AI||prolog/mod/relational-programming.en.xhtml': { sec: '2.3'}
   },
   'Dont show me, i am just to end the last deck': {
     'MiKoMH/AI||prolog/mod/rtfm.en.xhtml': { },
@@ -45,6 +50,38 @@ export const AI_1_COURSE_SECTIONS: {
    '': { clipId: '' },
   */
 };
+
+function getNextId(id:string, allIds: string[]) {
+  for(const [idx,v] of allIds.entries()) {
+    if(v==id) return allIds[idx+1];
+  }
+  return '';
+}
+
+function getSectionIds(courseSections: CourseSectionInfo, notesTree:string) {
+  const allIds = notesTree.split('\n').map(line=>{
+    const parts = line.split('||');
+    return `${parts[1]}||${parts[2]}`;
+  });
+  const sectionIds: { [nodeId: string]: string } = {};
+  for (const [secIdx, [secName, secEntries]] of Object.entries(
+    Object.entries(courseSections)
+  )) {
+    for (const [deckIdx, [id, secInfo]] of Object.entries(
+      Object.entries(secEntries)
+    )) {
+      if (secInfo.sec){
+        const nextId = getNextId(id, allIds);
+        sectionIds[nextId] = `${+secIdx}.${secInfo.sec}`;
+      }
+      else if (+deckIdx === 0) {
+        const nextId = getNextId(id, allIds);
+        sectionIds[nextId] = `${+secIdx}`;
+      }
+    }
+  }
+  return sectionIds;
+}
 
 export const AI_1_DECK_IDS = ([] as string[]).concat(
   ...Object.values(AI_1_COURSE_SECTIONS).map((v) => Object.keys(v))
@@ -1464,3 +1501,5 @@ export const AI_1_NOTES_PREVALUATED_TREE = `.||MiKoMH/AI||course/notes/notes.xht
 ...||MiKoMH/AI||course/mod/ai2-topics.en.xhtml||<div><span xmlns:om="http://www.openmath.org/OpenMath">Topics of AI-2 (Summer Semester)</span></div>
 ...||MiKoMH/AI||course/mod/ai2-hindsight.en.xhtml||<div><span xmlns:om="http://www.openmath.org/OpenMath">Statistical AI: Adding Uncertainty and Learning</span></div>
 ...||MiKoMH/AI||course/mod/ai3-topics.en.xhtml||<div><span xmlns:om="http://www.openmath.org/OpenMath">Topics of AI-3 - A Course not taught at FAU<span style="font-size:100%;" class="resetfont">&#x1F641;</span></span></div>`;
+
+export const SECTION_IDS = getSectionIds(AI_1_COURSE_SECTIONS, AI_1_NOTES_PREVALUATED_TREE);

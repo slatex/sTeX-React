@@ -1,5 +1,6 @@
 import AddIcon from '@mui/icons-material/Add';
 import ArticleIcon from '@mui/icons-material/Article';
+import CloseIcon from '@mui/icons-material/Close';
 import FolderIcon from '@mui/icons-material/Folder';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -7,8 +8,9 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import { Box, IconButton, LinearProgress, TextField } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import styles from './styles/file-browser.module.scss';
 import { FileNode } from './FileNode';
+import { FixedPositionMenu } from './LayoutWithFixedMenu';
+import styles from './stex-react-renderer.module.scss';
 
 export type SetSelectedFileFunction = (
   projectId: string,
@@ -54,7 +56,10 @@ export function NodeDisplay({
         onClick={() => onSelectedFile(projectId, filepath)}
       >
         <ArticleIcon />
-        <span className={styles['dashboard_item']} style={{ color }}>
+        <span
+          className={styles['dashboard_item']}
+          style={{ color, display: 'inline' }}
+        >
           {node.label}
         </span>
       </Box>
@@ -80,7 +85,12 @@ export function NodeDisplay({
             <FolderIcon fontSize="small" sx={{ color: '#eeae4a' }} />
           </>
         )}
-        <span className={styles['dashboard_item']}>{node.label}</span>
+        <span
+          className={styles['dashboard_item']}
+          style={{ display: 'inline' }}
+        >
+          {node.label}
+        </span>
       </Box>
       {isOpen && (
         <Box marginLeft="18px">
@@ -136,17 +146,17 @@ function applyFilter(nodes: FileNode[], searchTerms: string[]) {
 }
 
 export function FileTree({
-  topOffset,
   defaultRootNodes,
   baseUrl,
   selectedFile,
   onSelectedFile,
+  onClose,
 }: {
-  topOffset: number;
   defaultRootNodes: FileNode[];
   baseUrl: string;
   selectedFile: SelectedFile;
   onSelectedFile: SetSelectedFileFunction;
+  onClose: () => void;
 }) {
   const [fileTree, setFileTree] = useState(defaultRootNodes);
   const [filterStr, setFilterStr] = useState('');
@@ -175,34 +185,33 @@ export function FileTree({
   }, [defaultRootNodes]);
 
   return (
-    <Box className={styles['dash_outer_box']}>
-      <Box
-        className={styles['dash_inner_box']}
-        sx={{ marginTop: `${topOffset}px` }}
-      >
-        <Box display="flex" alignItems="baseline">
+    <FixedPositionMenu
+      staticContent={
+        <Box display="flex" alignItems="center">
+           <IconButton sx={{ m: '2px' }} onClick={() => onClose()}>
+            <CloseIcon />
+          </IconButton>
           <TextField
             id="tree-filter-string"
             label="Search"
             value={filterStr}
             onChange={(e) => setFilterStr(e.target.value)}
-            sx={{ m: '10px 5px' }}
+            sx={{ m: '3px' }}
             size="small"
           />
           <IconButton onClick={() => refreshFileTree()} disabled={isRefreshing}>
             <RefreshIcon />
           </IconButton>
         </Box>
-        <Box className={styles['dash_scroll_area_box']}>
-          {isRefreshing && <LinearProgress />}
-          <NodesDisplay
-            nodes={fileTree}
-            selectedFile={selectedFile}
-            onSelectedFile={onSelectedFile}
-            searchTerms={searchTerms}
-          />
-        </Box>
-      </Box>
-    </Box>
+      }
+    >
+      {isRefreshing && <LinearProgress />}
+      <NodesDisplay
+        nodes={fileTree}
+        selectedFile={selectedFile}
+        onSelectedFile={onSelectedFile}
+        searchTerms={searchTerms}
+      />
+    </FixedPositionMenu>
   );
 }

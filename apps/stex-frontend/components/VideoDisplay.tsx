@@ -1,9 +1,12 @@
+import VideocamIcon from '@mui/icons-material/Videocam';
 import VideocamOffIcon from '@mui/icons-material/VideocamOff';
-import { Box, ToggleButtonGroup } from '@mui/material';
+import { Box, IconButton, Menu, MenuItem, Tooltip } from '@mui/material';
 import { localStore } from '@stex-react/utils';
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { DeckAndVideoInfo } from '../shared/slides';
-import { TooltipToggleButton } from './TooltipToggleButton';
+import SettingsIcon from '@mui/icons-material/Settings';
+import CheckIcon from '@mui/icons-material/Check';
+import { useRouter } from 'next/router';
 
 function ToggleResolution({
   audioOnly,
@@ -18,31 +21,40 @@ function ToggleResolution({
   setResolution: Dispatch<SetStateAction<number>>;
   availableResolutions: number[];
 }) {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   return (
-    <ToggleButtonGroup
-      size="small"
-      value={audioOnly ? 0 : resolution}
-      exclusive
-      onChange={(_event, newVal) => {
-        if (newVal === null) return;
-        if (newVal === 0) {
-          setResolution(availableResolutions[0]);
-          setAudioOnly(true);
-        } else {
-          setResolution(newVal);
-          setAudioOnly(false);
-        }
-      }}
+    <Box
+      display="inline-block"
+      border={audioOnly ? undefined : '1px solid #CCC'}
     >
-      <TooltipToggleButton title="Audio Only" value={0} key="audioOnly">
-        <VideocamOffIcon />
-      </TooltipToggleButton>
-      {availableResolutions.map((res) => (
-        <TooltipToggleButton title={res + 'p video'} value={res} key={res}>
-          {res}
-        </TooltipToggleButton>
-      ))}
-    </ToggleButtonGroup>
+      <IconButton onClick={() => setAudioOnly(!audioOnly)}>
+        <Tooltip title={audioOnly ? 'Show Video' : 'Audio Only'}>
+          {audioOnly ? <VideocamIcon /> : <VideocamOffIcon />}
+        </Tooltip>
+      </IconButton>
+      {!audioOnly && (
+        <>
+          <IconButton onClick={(e) => setAnchorEl(e.currentTarget)}>
+            <SettingsIcon />
+          </IconButton>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={() => setAnchorEl(null)}
+          >
+            {availableResolutions.map((res) => (
+              <MenuItem key={res} onClick={() => setResolution(res)}>
+                <CheckIcon
+                  fontSize="small"
+                  sx={{ color: res === resolution ? undefined : '#00000000' }}
+                />
+                &nbsp;{res}p
+              </MenuItem>
+            ))}
+          </Menu>
+        </>
+      )}
+    </Box>
   );
 }
 
@@ -114,17 +126,22 @@ export function MediaItem({
   );
 }
 
-export function VideoDisplay({ deckInfo }: { deckInfo: DeckAndVideoInfo }) {
+export function VideoDisplay({
+  deckInfo,
+  audioOnly,
+}: {
+  deckInfo: DeckAndVideoInfo;
+  audioOnly: boolean;
+}) {
   const [resolution, setResolution] = useState(720);
-  const [audioOnly, setAudioOnly] = useState(false);
   const availableRes = getAvailableRes(deckInfo);
   const videoId = getVideoId(deckInfo, resolution, availableRes);
+  const router = useRouter();
 
   useEffect(() => {
     setResolution(+(localStore?.getItem('defaultResolution') || '720'));
-    setAudioOnly(localStore?.getItem('audioOnly') === true.toString());
   }, []);
-  if (!videoId) return <span>Video not available for this section</span>;
+  if (!videoId) return <i>Video not available for this section</i>;
   return (
     <>
       <MediaItem
@@ -132,12 +149,14 @@ export function VideoDisplay({ deckInfo }: { deckInfo: DeckAndVideoInfo }) {
         timestampSec={deckInfo?.timestampSec}
         audioOnly={audioOnly}
       />
-      <Box sx={{ display: 'flex', m: '-5px 0 5px' }}>
+      <Box sx={{ m: '-4px 0 5px' }}>
         <ToggleResolution
           audioOnly={audioOnly}
-          setAudioOnly={(audioOnly: boolean) => {
-            setAudioOnly(audioOnly);
-            localStore?.setItem('audioOnly', audioOnly.toString());
+          setAudioOnly={(v: boolean) => {
+            const audioOnlyStr = v.toString();
+            localStore?.setItem('audioOnly', audioOnlyStr);
+            router.query.audioOnly = audioOnlyStr;
+            router.push(router);
           }}
           resolution={resolution}
           setResolution={(res: number) => {

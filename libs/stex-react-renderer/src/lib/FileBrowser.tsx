@@ -1,17 +1,19 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Button } from '@mui/material';
-import { ContentFromUrl } from '@stex-react/stex-react-renderer';
 import {
   BG_COLOR,
   getChildrenOfBodyNode,
-  PathToArticle,
+  shouldUseDrawer,
   sourceFileUrl,
+  Window,
   XhtmlContentUrl,
   xhtmlPathToTex,
 } from '@stex-react/utils';
 import { useState } from 'react';
+import { ContentFromUrl } from './ContentFromUrl';
 import { FileNode } from './FileNode';
 import { FileTree } from './FileTree';
+import { LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 
 export function FileBrowser({
   defaultRootNodes,
@@ -24,26 +26,33 @@ export function FileBrowser({
   topOffset: number;
   standaloneLink: (archive: string, filepath: string) => string;
 }) {
+  const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
   const [selectedFilepath, setSelectedFilepath] = useState('');
   const [selectedProject, setSelectedProject] = useState('');
 
   return (
-    <>
-      <FileTree
-        topOffset={topOffset}
-        defaultRootNodes={defaultRootNodes}
-        baseUrl={baseUrl}
-        selectedFile={{
-          project: selectedProject,
-          filepath: selectedFilepath,
-        }}
-        onSelectedFile={(project, filepath) => {
-          setSelectedProject(project);
-          setSelectedFilepath(filepath);
-        }}
-      />
-      <Box ml="300px" p="10px" sx={{ backgroundColor: BG_COLOR }}>
-        <Box maxWidth="520px" m="auto">
+    <LayoutWithFixedMenu
+      topOffset={topOffset}
+      showDashboard={showDashboard}
+      setShowDashboard={setShowDashboard}
+      menu={
+        <FileTree
+          defaultRootNodes={defaultRootNodes}
+          baseUrl={baseUrl}
+          selectedFile={{
+            project: selectedProject,
+            filepath: selectedFilepath,
+          }}
+          onSelectedFile={(project, filepath) => {
+            setSelectedProject(project);
+            setSelectedFilepath(filepath);
+          }}
+          onClose={() => setShowDashboard(false)}
+        />
+      }
+    >
+      <Box width="100%" p="10px" sx={{ backgroundColor: BG_COLOR }}>
+        <Box maxWidth="600px" m="auto">
           {selectedProject && selectedFilepath ? (
             <>
               <a
@@ -69,7 +78,7 @@ export function FileBrowser({
                   <OpenInNewIcon />
                 </Button>
               </a>
-              <hr/>
+              <hr style={{ width: '90%' }} />
               <ContentFromUrl
                 url={XhtmlContentUrl(
                   baseUrl,
@@ -81,10 +90,10 @@ export function FileBrowser({
               />
             </>
           ) : (
-            <i>Click an article for preview</i>
+            <i>Select an article for preview</i>
           )}
         </Box>
       </Box>
-    </>
+    </LayoutWithFixedMenu>
   );
 }

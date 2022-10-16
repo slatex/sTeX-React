@@ -33,7 +33,7 @@
   
     text-rendering: optimizeLegibility;
     align-content: inherit;
-    justify-content: start;
+    justify-content: flex-start;
     grid-auto-flow:row;
     text-align:justify;
     display: flex;

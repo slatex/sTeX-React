@@ -125,11 +125,11 @@ const StudentHomePage: NextPage = () => {
               width={165}
             />
           </Box>
-          <hr />
+          <hr style={{ width: '90%' }} />
           <h1>Topic-Based, Free Style Learning</h1>
           <ToursAutocomplete />
           <br />
-          <hr />
+          <hr style={{ width: '90%' }} />
           <br />
           <Box className={styles['descriptive-box']}>
             <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/acm">

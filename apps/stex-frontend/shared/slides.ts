@@ -1,5 +1,6 @@
 export interface DeckAndVideoInfo {
   deckId?: string;
+  sec?: string;
   titleAsHtml: string;
 
   r360?: string;
