@@ -1,4 +1,4 @@
-import { Box, Button, Menu, MenuItem, Toolbar } from '@mui/material';
+import { Box, Button, Menu, MenuItem, Toolbar, Tooltip } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { getUserName, isLoggedIn, logout } from '../api/ums';
 import { BrowserAutocomplete } from '../components/BrowserAutocomplete';
 import styles from '../styles/header.module.scss';
+import ScienceIcon from '@mui/icons-material/Science';
 
 function UserButton() {
   // Menu crap Start
@@ -67,13 +68,21 @@ export function Header({
     <AppBar position="static">
       <Toolbar className={styles['toolbar']}>
         <Link href="/">
-          <Image
-            src="/voll-ki-courses.svg"
-            alt="VoLL-KI Logo"
-            width={128}
-            height={40}
-            style={{ cursor: 'pointer' }}
-          />
+          <Tooltip title="WARNING: Research Prototype">
+            <Box>
+              <Image
+                src="/voll-ki-courses.svg"
+                alt="VoLL-KI Logo"
+                width={128}
+                height={40}
+                style={{ cursor: 'pointer' }}
+              />
+              <ScienceIcon
+                fontSize="large"
+                sx={{ cursor: 'pointer', mb: '-2px', color: 'green' }}
+              />
+            </Box>
+          </Tooltip>
         </Link>
         {showBrowserAutocomplete && (
           <Box sx={{ mx: '40px', maxWidth: '600px' }} flex="1">

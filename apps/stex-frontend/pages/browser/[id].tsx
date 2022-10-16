@@ -80,7 +80,7 @@ const BrowserPage: NextPage = () => {
   if (!contentUrl?.length) return;
 
   return (
-    <MainLayout title="sTeX Browser" showBrowserAutocomplete={true}>
+    <MainLayout title="sTeX Browser">
       <StexReactRenderer
         contentUrl={contentUrl}
         topOffset={64}
