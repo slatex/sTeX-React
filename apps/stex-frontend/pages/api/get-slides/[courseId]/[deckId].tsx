@@ -1,7 +1,7 @@
 import { getSectionInfo } from '@stex-react/utils';
 import { getOuterHTML, textContent } from 'domutils';
 import * as htmlparser2 from 'htmlparser2';
-import { TreeNode } from '../../../../ai-notes.preval';
+import { TreeNode } from '../../../../notes-trees.preval';
 import { AI_1_DECK_IDS } from '../../../../course_info/ai-1-notes';
 import { Slide, SlideReturn, SlideType } from '../../../../shared/slides';
 import {
