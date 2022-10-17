@@ -11,10 +11,10 @@ $ npm start stex-frontend
 ```
 
 #### Serve for production
-stex-frontend is currently being served at https://stex-active-doc.kwarc.info using the following commands:
+stex-frontend is currently being served at https://courses.voll-ki.fau.de using the following commands:
 ```
 $ npm run build stex-frontend
-$ nx serve stex-frontend --prod --port=<PORT_NUMBER>
+$ nx serve stex-frontend --prod --port=<PORT_NUMBER> --hostname=0.0.0.0
 ```
 
 ## mmt-viewer
