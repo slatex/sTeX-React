@@ -1,3 +1,4 @@
+import WarningIcon from '@mui/icons-material/Warning';
 import { Box, Button, Menu, MenuItem, Toolbar, Tooltip } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import Image from 'next/image';
@@ -7,8 +8,9 @@ import { useEffect, useState } from 'react';
 import { getUserName, isLoggedIn, logout } from '../api/ums';
 import { BrowserAutocomplete } from '../components/BrowserAutocomplete';
 import styles from '../styles/header.module.scss';
-import ScienceIcon from '@mui/icons-material/Science';
 
+const HEADER_WARNING =
+  'WARNING: Research Prototype, it may misbehave, crash, delete data, ... or even make you happy without warning at any time!';
 function UserButton() {
   // Menu crap Start
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -67,8 +69,8 @@ export function Header({
   return (
     <AppBar position="static">
       <Toolbar className={styles['toolbar']}>
-        <Link href="/">
-          <Tooltip title="WARNING: Research Prototype">
+        <Link href="/" passHref>
+          <Tooltip title={HEADER_WARNING}>
             <Box>
               <Image
                 src="/voll-ki-courses.svg"
@@ -77,9 +79,9 @@ export function Header({
                 height={40}
                 style={{ cursor: 'pointer' }}
               />
-              <ScienceIcon
+              <WarningIcon
                 fontSize="large"
-                sx={{ cursor: 'pointer', mb: '-2px', color: 'green' }}
+                sx={{ cursor: 'pointer', mb: '-2px', color: '#ffee00' }}
               />
             </Box>
           </Tooltip>

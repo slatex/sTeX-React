@@ -106,7 +106,7 @@ const StudentHomePage: NextPage = () => {
               width={83}
             />
             <CourseThumb
-              courseName="Logik-Basierte Sprachverarbeitung"
+              courseName="Logic-based Natural Language Semantics"
               imageLink="/lbs.jpg"
               notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FLBS%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml"
             />
