@@ -10,21 +10,14 @@ import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
-
-interface DashFromServer {
-  archive: string;
-  filepath: string;
-  titleAsHtml: string;
-  secId?: string;
-  children: DashFromServer[];
-}
+import { DocumentDashInfo } from '../../shared/slides';
 
 function createHash({ archive = '', filepath = '' }) {
   return simpleHash(`${archive}||${filepath}`);
 }
 
 function getDashInfo(
-  dashFromServer: DashFromServer,
+  dashFromServer: DocumentDashInfo,
   parentNode = undefined as IndexNode
 ): IndexNode | undefined {
   const secPrefix = dashFromServer.secId ? dashFromServer.secId + '. ' : '';
@@ -66,8 +59,6 @@ const BrowserPage: NextPage = () => {
     )}/${encodeURIComponent(filepath)}`;
     setDashInfo(undefined);
     axios.get(contentDashUrl).then((r) => {
-      console.log(r.data);
-
       const d = r.data ? getDashInfo(r.data) : undefined;
       // Remove hash of top level node. This causes the top level node to be
       // skipped in the inDocPath used for navigation. This makes it consistent

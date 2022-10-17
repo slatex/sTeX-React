@@ -124,6 +124,11 @@ const StudentHomePage: NextPage = () => {
               notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FIWGS%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml?inDocPath=-9o7e"
               width={165}
             />
+            <CourseThumb
+              courseName="Knowledge Representation for Mathematical Theories"
+              imageLink="/krmt.jpg"
+              notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FKRMT%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml"
+            />
           </Box>
           <hr style={{ width: '90%' }} />
           <h1>Topic-Based, Free Style Learning</h1>

@@ -81,7 +81,7 @@ export function Header({
               />
               <WarningIcon
                 fontSize="large"
-                sx={{ cursor: 'pointer', mb: '-2px', color: '#ffee00' }}
+                sx={{ cursor: 'pointer', color: '#e20' }}
               />
             </Box>
           </Tooltip>
