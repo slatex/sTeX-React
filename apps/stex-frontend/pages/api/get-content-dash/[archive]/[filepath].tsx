@@ -5,6 +5,7 @@ import {
   findNode,
   IWGS_ROOT_NODE,
   LBS_ROOT_NODE,
+  KRMT_ROOT_NODE
 } from '../../notesHelpers';
 import { DocumentDashInfo } from '../../../../shared/slides';
 
@@ -31,7 +32,7 @@ export default async function handler(req, res) {
     res.status(200).json(cached);
     return;
   }
-  for (const tree of [AI_ROOT_NODE, IWGS_ROOT_NODE, LBS_ROOT_NODE]) {
+  for (const tree of [AI_ROOT_NODE, IWGS_ROOT_NODE, LBS_ROOT_NODE, KRMT_ROOT_NODE]) {
     const node = findNode(nodeId, tree);
     if (node) {
       const dashInfo = createInfoForNode(node);

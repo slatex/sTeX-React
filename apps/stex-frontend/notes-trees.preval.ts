@@ -9,6 +9,7 @@ const COURSE_ROOTS = {
   'ai-1': '/:sTeX/document?archive=MiKoMH/AI&filepath=course/notes/notes.xhtml',
   iwgs: '/:sTeX/document?archive=MiKoMH/IWGS&filepath=course/notes/notes.xhtml',
   lbs: '/:sTeX/document?archive=MiKoMH/LBS&filepath=course/notes/notes.xhtml',
+  krmt: '/:sTeX/document?archive=MiKoMH/KRMT&filepath=course/notes/notes.xhtml',
 };
 const fromPrevaluated = true;
 

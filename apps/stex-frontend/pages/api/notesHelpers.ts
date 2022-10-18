@@ -12,6 +12,7 @@ export interface NodeId {
 export const AI_ROOT_NODE = getCourseRootNode('ai-1');
 export const IWGS_ROOT_NODE = getCourseRootNode('iwgs');
 export const LBS_ROOT_NODE = getCourseRootNode('lbs');
+export const KRMT_ROOT_NODE = getCourseRootNode('krmt');
 
 const SLIDE_DOC_CACHE = new Map<string, string>();
 export async function getFileContent(nodeId: NodeId): Promise<string> {
