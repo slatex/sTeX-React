@@ -1,7 +1,10 @@
+import { useMatomo } from '@jonkoops/matomo-tracker-react';
 import { Box, Toolbar } from '@mui/material';
 import { ReportProblemPopover } from '@stex-react/report-a-problem';
 import Head from 'next/head';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import { Header } from '../components/Header';
 
 export default function MainLayout({
@@ -13,6 +16,17 @@ export default function MainLayout({
   children: any;
   showBrowserAutocomplete?: boolean;
 }) {
+  const { trackPageView } = useMatomo();
+  const router = useRouter();
+  const [prevLoc, setPrevLoc] = useState('');
+
+  useEffect(() => {
+    const loc = router.asPath;
+    if (!router.isReady || prevLoc === loc) return;
+    trackPageView();
+    setPrevLoc(loc);
+  }, [router.isReady, router.asPath]);
+
   return (
     <Box minHeight="100vh" display="flex" flexDirection="column">
       <Head>

@@ -1,4 +1,3 @@
-import { useMatomo } from '@jonkoops/matomo-tracker-react';
 import ArticleIcon from '@mui/icons-material/Article';
 import MergeIcon from '@mui/icons-material/Merge';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
@@ -6,7 +5,7 @@ import VideoCameraFrontIcon from '@mui/icons-material/VideoCameraFront';
 import { Box, Button, ToggleButtonGroup } from '@mui/material';
 import {
   ContentWithHighlight,
-  LayoutWithFixedMenu,
+  LayoutWithFixedMenu
 } from '@stex-react/stex-react-renderer';
 import { localStore, shouldUseDrawer } from '@stex-react/utils';
 import axios from 'axios';
@@ -19,7 +18,7 @@ import { SlideDeckNavigation } from '../../components/SlideDeckNavigation';
 import { TooltipToggleButton } from '../../components/TooltipToggleButton';
 import { VideoDisplay } from '../../components/VideoDisplay';
 import MainLayout from '../../layouts/MainLayout';
-import { CourseInfo, DeckAndVideoInfo, Slide } from '../../shared/slides';
+import { CourseInfo, DeckAndVideoInfo } from '../../shared/slides';
 
 function RenderElements({ elements }: { elements: string[] }) {
   return (
@@ -43,7 +42,6 @@ function ToggleModeButton({
   viewMode: ViewMode;
   updateViewMode: (mode: ViewMode) => void;
 }) {
-  const { trackEvent } = useMatomo();
   return (
     <ToggleButtonGroup
       value={viewMode}
@@ -56,11 +54,6 @@ function ToggleModeButton({
               : ViewMode.COMBINED_MODE;
         }
         updateViewMode(newVal);
-        trackEvent({
-          category: 'slide-view-event',
-          action: 'mode-change',
-          name: newVal.toString(),
-        });
       }}
       sx={{ m: '5px 0', border: '1px solid black' }}
     >
@@ -111,11 +104,6 @@ const CourseViewPage: NextPage = () => {
   const [courseInfo, setCourseInfo] = useState(undefined as CourseInfo);
   const [deckInfo, setDeckInfo] = useState(undefined as DeckAndVideoInfo);
 
-  const { trackPageView } = useMatomo();
-
-  useEffect(() => {
-    trackPageView();
-  }, []);
 
   useEffect(() => {
     if (!router.isReady) return;
