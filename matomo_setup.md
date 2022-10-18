@@ -1,7 +1,8 @@
 # Matomo Setup Commands
-This document describes the steps taken to install matomo on Cortana. The following guides where followed for the setup:
-https://www.cloudbooklet.com/how-to-install-mysql-on-debian-11/
-https://www.vultr.com/docs/install-matomo-on-ubuntu-20-04/
+This document describes the steps taken to install matomo on Cortana. The following guides were followed for the setup:
+
+- https://www.cloudbooklet.com/how-to-install-mysql-on-debian-11/
+- https://www.vultr.com/docs/install-matomo-on-ubuntu-20-04/
 
 ## Setting up SQL server
 ```
@@ -45,9 +46,10 @@ exit;
 ## matomo.kwarc.info setup
   - Asked Tom to update DNS to point `matomo.kwarc.info` to cortana:443 
   - Note: I wrote file /etc/apache2/sites-available/matomo.voll-ki.fau.de.conf but it doesn't seem to be used. 
-  `matomo.kwarc.info` is serving files in the `\var\www\html` directory
-  - Got the latest release from https://matomo.org/download/ and moved it to `\var\www\html`
+  `matomo.kwarc.info` is serving files in the `/var/www/html` directory
+  - Got the latest release from https://matomo.org/download/ and moved it to `/var/www/html`
  
 ## WebUI setup
-Once `matomo.kwarc.info` started working I used the SQL information (which was setup above)
-Created superuser:<Password3>
+Once `matomo.kwarc.info` started working I used the SQL information (which was setup above).
+
+Created a superuser with `<Password3>`
