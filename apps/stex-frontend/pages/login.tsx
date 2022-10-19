@@ -32,6 +32,8 @@ const LoginPage: NextPage = () => {
               backgroundColor: BG_COLOR,
             }}
           >
+            <i>You will soon be able to login.</i>
+            <br />
             <br />
             {!loggedIn && fakeLogin && (
               <TextField
@@ -61,6 +63,7 @@ const LoginPage: NextPage = () => {
                   variant="contained"
                   size="large"
                   sx={{ fontSize: '32x' }}
+                  disabled
                   onClick={() => {
                     if (fakeLogin) {
                       if (fakeId) fakeLoginUsingRedirect(fakeId, returnBackUrl);
