@@ -48,8 +48,9 @@ function SectionIdHackObject({ inputRef }: { inputRef: string }) {
         fontSize: isChapter ? '36px' : '24px',
         background: BG_COLOR,
         fontWeight: 'bold',
-        marginBottom: isChapter ? undefined : '-52px',
-        zIndex: '10',
+        zIndex: '1',
+        position: isChapter ? undefined : 'relative',
+        bottom: isChapter ? undefined : '-72px',
         width: isChapter ? undefined : '52px',
       }}
     >
@@ -253,7 +254,8 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
     !IS_MMT_VIEWER &&
     domNode.childNodes.length === 3 &&
     domNode.attribs['class'] === 'hbox' &&
-    domNode.childNodes[1].type === 'text'
+    (domNode.childNodes[1] as any).childNodes?.[0]?.type === 'text' &&
+    (domNode.childNodes[1] as any).childNodes?.[0]?.data === '1'
   ) {
     return <span>{'\xa0\xa0\xa0\u2015\xa0\xa0\xa0'}</span>;
   }

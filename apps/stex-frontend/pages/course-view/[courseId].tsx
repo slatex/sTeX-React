@@ -247,7 +247,10 @@ const CourseViewPage: NextPage = () => {
               courseId={courseId}
               navOnTop={viewMode === ViewMode.COMBINED_MODE}
               deckId={deckId}
-              deckInfo={deckInfo}
+              onSlideChange={(slide: Slide) => {
+                setPreNotes(slide?.preNotes || []);
+                setPostNotes(slide?.postNotes || []);
+              }}
               goToNextSection={goToNextSection}
               goToPrevSection={goToPrevSection}
               slideNum={slideNum}

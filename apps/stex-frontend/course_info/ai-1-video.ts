@@ -7,7 +7,7 @@ export const AI_1_PREVALUATED_VIDEO_INFO: {
   };
 } =
 {
-  'MiKoMH/AI||course/sec/syllabus1.en.xhtml': {
+  'course/sec/syllabus21-22.en.xhtml': {
     timestampSec: 80,
     r720: 'https://cdn.video.uni-erlangen.de/symlinks/1f5aab96-f1b2-4ad8-bed6-52a06fb51489.m4v',
     r360: 'https://cdn.video.uni-erlangen.de/symlinks/28cb139e-4366-44c0-a72a-f62cea241951.m4v'
@@ -120,7 +120,7 @@ export const AI_1_PREVALUATED_VIDEO_INFO: {
     r720: 'https://cdn.video.uni-erlangen.de/symlinks/acca4bb3-ac65-4f23-abae-fba7f1fa8bfe.m4v',
     r360: 'https://cdn.video.uni-erlangen.de/symlinks/eab6c7ff-be57-4737-8bbf-e40c7984b161.m4v'
   },
-  'MiKoMH/AI||course/snip/recruiting.en.xhtml': {
+  'MiKoMH/AI||course/slides/enough.en.xhtml': {
     timestampSec: 8,
     r1080: 'https://cdn.video.uni-erlangen.de/symlinks/0b5265ea-2df6-40fe-8d5c-1ffc2ed668ae.m4v',
     r720: 'https://cdn.video.uni-erlangen.de/symlinks/081c61b7-5506-4496-859d-ba3832d0d1dc.m4v',

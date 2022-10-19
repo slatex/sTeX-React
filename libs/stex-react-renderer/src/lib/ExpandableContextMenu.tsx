@@ -31,7 +31,7 @@ export function ExpandableContextMenu({
 
   return (
     <>
-      <IconButton size="small" onClick={handleClick}>
+      <IconButton size="small" onClick={handleClick} sx={{ zIndex: '1' }}>
         <MoreVertIcon />
       </IconButton>
 

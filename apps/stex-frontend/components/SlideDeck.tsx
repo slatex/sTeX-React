@@ -56,19 +56,18 @@ export function SlideNavBar({
 
 export const SlideDeck = memo(function SlidesFromUrl({
   courseId,
-  deckInfo,
   deckId,
   navOnTop = false,
   slideNum = 1,
+  onSlideChange,
   goToNextSection = undefined,
   goToPrevSection = undefined,
 }: {
   courseId: string;
-  deckInfo: DeckAndVideoInfo;
   deckId: string;
   navOnTop?: boolean;
   slideNum?: number;
-  modifyRendered?: (node: any) => any;
+  onSlideChange?: (slide: Slide) => void;
   goToNextSection?: () => void;
   goToPrevSection?: () => void;
 }) {
@@ -112,8 +111,10 @@ export const SlideDeck = memo(function SlidesFromUrl({
       setSlideNumAndDeckId(router, 1);
       return;
     }
-    setCurrentSlide(slides[slideNum - 1]);
-  }, [deckId, loadedSlideDeck, slides, slideNum, router]);
+    const selectedSlide = slides[slideNum - 1];
+    setCurrentSlide(selectedSlide);
+    if (onSlideChange) onSlideChange(selectedSlide);
+  }, [deckId, loadedSlideDeck, slides, slideNum, router, onSlideChange]);
 
   if (isLoading) {
     return (

@@ -12,7 +12,7 @@ export const AI_1_COURSE_SECTIONS: CourseSectionInfo = {
     'MiKoMH/AI||course/sec/acknowledgements.en.xhtml': { },
   },
   'Administrativa': {
-    'MiKoMH/AI||course/sec/syllabus1.en.xhtml': { clipId: '22801', timestampSec: 80 },
+    'MiKoMH/AI||course/sec/syllabus21-22.en.xhtml': { clipId: '22801', timestampSec: 80 },
     'MiKoMH/AI||course/slides/prerequisites.en.xhtml': { clipId: '22801', timestampSec: 412 },
     'MiKoMH/AI||course/slides/grading.en.xhtml': { clipId: '22801', timestampSec: 818 },
     'MiKoMH/AI||course/slides/homeworks.en.xhtml': { clipId: '22801', timestampSec: 1474 },
@@ -39,7 +39,7 @@ export const AI_1_COURSE_SECTIONS: CourseSectionInfo = {
     'MiKoMH/AI||course/slides/ai1sysproj.en.xhtml': { clipId: '21725', sec: '6' },
   },
   'Logic Programming': {
-    'MiKoMH/AI||course/snip/recruiting.en.xhtml': { clipId: '21752' },
+    'MiKoMH/AI||course/slides/enough.en.xhtml': { clipId: '21752' },
     'MiKoMH/AI||logic/snip/declarative-programming.en.xhtml': { clipId: '21753', sec: '1' },
     'MiKoMH/AI||prolog/slides/fallible-greeks.en.xhtml': { clipId: '21754', sec: '2' },
     'MiKoMH/AI||prolog/slides/DFS-back-ex.en.xhtml': { clipId: '21827', sec: '2.2' },
