@@ -18,7 +18,7 @@ import { SlideDeckNavigation } from '../../components/SlideDeckNavigation';
 import { TooltipToggleButton } from '../../components/TooltipToggleButton';
 import { VideoDisplay } from '../../components/VideoDisplay';
 import MainLayout from '../../layouts/MainLayout';
-import { CourseInfo, DeckAndVideoInfo } from '../../shared/slides';
+import { CourseInfo, DeckAndVideoInfo, Slide } from '../../shared/slides';
 
 function RenderElements({ elements }: { elements: string[] }) {
   return (
