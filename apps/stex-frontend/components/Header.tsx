@@ -1,4 +1,5 @@
-import { Box, Button, Menu, MenuItem, Toolbar } from '@mui/material';
+import WarningIcon from '@mui/icons-material/Warning';
+import { Box, Button, Menu, MenuItem, Toolbar, Tooltip } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -8,6 +9,8 @@ import { getUserName, isLoggedIn, logout } from '../api/ums';
 import { BrowserAutocomplete } from '../components/BrowserAutocomplete';
 import styles from '../styles/header.module.scss';
 
+const HEADER_WARNING =
+  'WARNING: Research Prototype, it may misbehave, crash, delete data, ... or even make you happy without warning at any time!';
 function UserButton() {
   // Menu crap Start
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -66,14 +69,22 @@ export function Header({
   return (
     <AppBar position="static">
       <Toolbar className={styles['toolbar']}>
-        <Link href="/">
-          <Image
-            src="/voll-ki-courses.svg"
-            alt="VoLL-KI Logo"
-            width={128}
-            height={40}
-            style={{ cursor: 'pointer' }}
-          />
+        <Link href="/" passHref>
+          <Tooltip title={HEADER_WARNING}>
+            <Box>
+              <Image
+                src="/voll-ki-courses.svg"
+                alt="VoLL-KI Logo"
+                width={128}
+                height={40}
+                style={{ cursor: 'pointer' }}
+              />
+              <WarningIcon
+                fontSize="large"
+                sx={{ cursor: 'pointer', color: '#e20' }}
+              />
+            </Box>
+          </Tooltip>
         </Link>
         {showBrowserAutocomplete && (
           <Box sx={{ mx: '40px', maxWidth: '600px' }} flex="1">

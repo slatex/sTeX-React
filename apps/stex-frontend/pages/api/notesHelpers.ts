@@ -2,14 +2,17 @@ import { DEFAULT_BASE_URL } from '@stex-react/utils';
 import axios from 'axios';
 import { textContent } from 'domutils';
 import * as htmlparser2 from 'htmlparser2';
-import AI_NOTES_TREE, { TreeNode } from '../../ai-notes.preval';
+import NOTES_TREES, { TreeNode } from '../../notes-trees.preval';
 import { AI_1_DECK_IDS } from '../../course_info/ai-1-notes';
 
 export interface NodeId {
   archive: string;
   filepath: string;
 }
-export const AI_ROOT_NODE = getAiRootNode();
+export const AI_ROOT_NODE = getCourseRootNode('ai-1');
+export const IWGS_ROOT_NODE = getCourseRootNode('iwgs');
+export const LBS_ROOT_NODE = getCourseRootNode('lbs');
+export const KRMT_ROOT_NODE = getCourseRootNode('krmt');
 
 const SLIDE_DOC_CACHE = new Map<string, string>();
 export async function getFileContent(nodeId: NodeId): Promise<string> {
@@ -32,8 +35,8 @@ function fixTree(node: TreeNode) {
   }
 }
 
-function getAiRootNode() {
-  const root: TreeNode = AI_NOTES_TREE;
+function getCourseRootNode(courseId: string) {
+  const root: TreeNode = NOTES_TREES[courseId];
   fixTree(root);
   return root;
 }

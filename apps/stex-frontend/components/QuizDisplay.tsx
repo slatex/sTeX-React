@@ -17,7 +17,6 @@ function getAllQuestionUrls(
         const filepath = match?.[2];
         if (!archive || !filepath) return null;
         return `${DEFAULT_BASE_URL}/:sTeX/document?archive=${archive}&filepath=${filepath}`;
-        // https://overleaf.beta.vollki.kwarc.info/:sTeX/document?archive=problems/IWGS&filepath=progintro/quiz/comments.de.xhtml
       })
       .filter((x) => x);
   }

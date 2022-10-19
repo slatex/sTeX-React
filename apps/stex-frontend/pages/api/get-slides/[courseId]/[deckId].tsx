@@ -1,7 +1,7 @@
 import { getSectionInfo } from '@stex-react/utils';
 import { getOuterHTML, textContent } from 'domutils';
 import * as htmlparser2 from 'htmlparser2';
-import { TreeNode } from '../../../../ai-notes.preval';
+import { TreeNode } from '../../../../notes-trees.preval';
 import { AI_1_DECK_IDS } from '../../../../course_info/ai-1-notes';
 import { Slide, SlideReturn, SlideType } from '../../../../shared/slides';
 import {
@@ -24,6 +24,7 @@ function FrameSlide(slideContent: any): Slide {
     postNotes: [],
   };
 }
+
 function TextSlide(slideContent: any, titleElement?: any): Slide {
   let autoExpand = false;
   if (titleElement) {
@@ -194,6 +195,8 @@ async function getSlidesForDocAfterRef(
   );
 }
 
+const CACHED_SLIDES = new Map<string, Slide[]>();
+
 export default async function handler(req, res) {
   const { courseId, deckId: deckIdEncoded } = req.query;
   const deckId = decodeURIComponent(deckIdEncoded);
@@ -201,8 +204,12 @@ export default async function handler(req, res) {
     res.status(404).json({ error: 'Course not found!' });
     return;
   }
-  // console.log(`===${deckId}===`);
-
+  const cacheKey = `${courseId}||${deckId}`;
+  const cached = CACHED_SLIDES.get(cacheKey);
+  if(cached) {
+    res.status(200).json(cached);
+    return;
+  }
   const lastSectionEndNode = deckIdToNodeId(deckId);
   const slides: Slide[] = [];
   const node = findNode(lastSectionEndNode, AI_ROOT_NODE);
@@ -216,7 +223,6 @@ export default async function handler(req, res) {
   }
   let ancestorElement: TreeNode | null = node;
   while (ancestorElement?.parent) {
-    //console.log(ancestorElement);
     const slideReturn = await getSlidesForDocAfterRef(
       nodeId(ancestorElement.parent),
       undefined,
@@ -230,7 +236,7 @@ export default async function handler(req, res) {
     slide.preNotes = trimElements(slide.preNotes);
     slide.postNotes = trimElements(slide.postNotes);
   }
-  //console.log(slides);
+  CACHED_SLIDES.set(cacheKey, slides);
 
   return res.status(200).json(slides);
 }

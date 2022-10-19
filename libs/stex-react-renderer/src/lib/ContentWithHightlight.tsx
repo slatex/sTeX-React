@@ -36,7 +36,9 @@ export const ContentWithHighlight = memo(
 
     return (
       <HighlightContext.Provider value={value}>
-        <div {...renderWrapperParams}>{rendered}</div>
+        <div {...renderWrapperParams} style={{ overflowX: 'auto' }}>
+          {rendered}
+        </div>
       </HighlightContext.Provider>
     );
   }

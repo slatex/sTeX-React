@@ -106,7 +106,7 @@ const StudentHomePage: NextPage = () => {
               width={83}
             />
             <CourseThumb
-              courseName="Logik-Basierte Sprachverarbeitung"
+              courseName="Logic-based Natural Language Semantics"
               imageLink="/lbs.jpg"
               notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FLBS%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml"
             />
@@ -123,6 +123,11 @@ const StudentHomePage: NextPage = () => {
               imageLink="/iwgs-2.jpg"
               notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FIWGS%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml?inDocPath=-9o7e"
               width={165}
+            />
+            <CourseThumb
+              courseName="Knowledge Representation for Mathematical Theories"
+              imageLink="/krmt.jpg"
+              notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FKRMT%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml"
             />
           </Box>
           <hr style={{ width: '90%' }} />

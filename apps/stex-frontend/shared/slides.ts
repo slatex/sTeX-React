@@ -9,6 +9,14 @@ export interface DeckAndVideoInfo {
   timestampSec?: number;
 }
 
+export interface DocumentDashInfo {
+  archive: string;
+  filepath: string;
+  titleAsHtml: string;
+  secId?: string;
+  children: DocumentDashInfo[];
+}
+
 export interface CourseSection {
   sectionTitle: string;
   decks: DeckAndVideoInfo[];

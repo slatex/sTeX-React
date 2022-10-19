@@ -425,7 +425,6 @@ export function TourDisplay({
 
   useEffect(() => {
     if (!tourId?.length) return;
-    // https://mmt.beta.vollki.kwarc.info/:vollki/tour?path=http://mathhub.info/sTeX/Algebra/General/mod/props?Absorption&user=nulluser&lang=en
     const tourInfoUrl = `${PARSER_BASE_URL}/:vollki/tour?path=${tourId}&user=nulluser&lang=${language}`;
     setFetchingItems(true);
     axios.get(tourInfoUrl).then((r) => {

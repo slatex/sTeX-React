@@ -2,13 +2,15 @@ import axios from 'axios';
 import preval from 'next-plugin-preval';
 import * as htmlparser2 from 'htmlparser2';
 import { getOuterHTML } from 'domutils';
-import { AI_1_NOTES_PREVALUATED_TREE } from './course_info/ai-1-notes';
+import { PREVALUATED_COURSE_TREES } from './course_info/prevaluated-course-trees';
 
 const SCRIPT_BASE_URL = 'https://stexmmt.mathhub.info';
-const ROOT_DOC =
-  '/:sTeX/document?archive=MiKoMH/AI&filepath=course/notes/notes.xhtml';
-// '/:sTeX/document?archive=MiKoMH/AI&filepath=course/fragments/lecturing.en.xhtml';
-//'/:sTeX/document?archive=MiKoMH/AI&filepath=course/fragments/overview.en.xhtml';
+const COURSE_ROOTS = {
+  'ai-1': '/:sTeX/document?archive=MiKoMH/AI&filepath=course/notes/notes.xhtml',
+  iwgs: '/:sTeX/document?archive=MiKoMH/IWGS&filepath=course/notes/notes.xhtml',
+  lbs: '/:sTeX/document?archive=MiKoMH/LBS&filepath=course/notes/notes.xhtml',
+  krmt: '/:sTeX/document?archive=MiKoMH/KRMT&filepath=course/notes/notes.xhtml',
+};
 const fromPrevaluated = true;
 
 export interface TreeNode {
@@ -27,6 +29,10 @@ function archiveAndFilepathFromUrl(url: string) {
   const archive = match?.[1] || '';
   const filepath = match?.[2] || '';
   return { archive, filepath };
+}
+
+async function delay(timeMs: number) {
+  return new Promise((resolve) => setTimeout(resolve, timeMs));
 }
 
 async function getChildNodesOfDocNode(
@@ -95,22 +101,22 @@ async function getDocumentTree(
   level: number,
   titleAsHtml = ''
 ): Promise<TreeNode> {
-  if (fromPrevaluated) {
-    let root = null;
-    const parents = [];
-    for (const line of AI_1_NOTES_PREVALUATED_TREE.split('\n')) {
-      const n = createNode(parents, line);
-      if (!root) root = n;
-    }
-    return root;
-  }
   const fullUrl = `${SCRIPT_BASE_URL}${docUrl}`;
   if (fetchedDocs % 100 === 0) {
     const elapsed = Math.round((Date.now() - startTime) / 1000);
     console.log(`${fetchedDocs}: ${elapsed}s\n${docUrl}`);
   }
   fetchedDocs++;
-  const docContent = await axios.get(fullUrl).then((r) => r.data);
+  let docContent;
+  for (let i = 0; i < 10; i++) {
+    try {
+      docContent = await axios.get(fullUrl).then((r) => r.data);
+      break;
+    } catch (e) {
+      console.log(`\nFailed\n${fullUrl}`);
+      await delay(3000 * i);
+    }
+  }
   const { archive, filepath } = archiveAndFilepathFromUrl(docUrl);
 
   // DOMParser is not available on nodejs.
@@ -125,9 +131,30 @@ async function getDocumentTree(
     filepath,
     endsSection: false,
   };
-
-  if (docUrl === ROOT_DOC) console.log(printTree(node));
   return node;
 }
 
-export default preval(getDocumentTree(ROOT_DOC, 0));
+async function getCourseTrees() {
+  const trees = {};
+  if (fromPrevaluated) {
+    for (const [id, preval] of Object.entries(PREVALUATED_COURSE_TREES)) {
+      let root = null;
+      const parents = [];
+      for (const line of preval.split('\n')) {
+        const n = createNode(parents, line);
+        if (!root) root = n;
+      }
+      trees[id] = root;
+    }
+    return trees;
+  }
+  for (const [courseId, courseRoot] of Object.entries(COURSE_ROOTS)) {
+    const docTree = await getDocumentTree(courseRoot, 0);
+    trees[courseId] = docTree;
+    console.log(`${courseId} tree:\n`);
+    console.log(printTree(docTree));
+  }
+  return trees;
+}
+
+export default preval(getCourseTrees());
