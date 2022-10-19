@@ -78,7 +78,7 @@ function getVideoId(
   return info[`r${res}`];
 }
 
-export function MediaItem({
+function MediaItem({
   audioOnly,
   videoId,
   timestampSec,

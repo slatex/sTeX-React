@@ -1,5 +1,6 @@
+import PlayCircleFilledWhiteIcon from '@mui/icons-material/PlayCircleFilledWhite';
 import TourIcon from '@mui/icons-material/Tour';
-import { Box, Button } from '@mui/material';
+import { Box, Button, IconButton } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Tooltip, { tooltipClasses, TooltipProps } from '@mui/material/Tooltip';
 import {
@@ -12,7 +13,7 @@ import {
 import parse, { DOMNode, domToReact, Element } from 'html-react-parser';
 import { ElementType } from 'htmlparser2';
 import Link from 'next/link';
-import { createContext, forwardRef, useContext } from 'react';
+import { createContext, forwardRef, useContext, useState } from 'react';
 import { ContentFromUrl } from './ContentFromUrl';
 import { ErrorBoundary } from './ErrorBoundary';
 import { ExpandableContent } from './ExpandableContent';
@@ -244,10 +245,59 @@ function fixMtextNodes(d: DOMNode, indexInParent = 0) {
   }
 }
 
+function IframedFauClip({ clipId }: { clipId: string }) {
+  const [expand, setExpand] = useState(false);
+
+  if (!expand) {
+    return (
+      <IconButton onClick={() => setExpand(true)}>
+        <PlayCircleFilledWhiteIcon />
+      </IconButton>
+    );
+  }
+  return (
+    <Box width="95%" m="auto">
+      <Box position="relative" pb="56.25%" my="5px">
+        <iframe
+          src={`https://www.fau.tv/clip/multistream/${clipId}`}
+          frameBorder="0"
+          allowFullScreen={true}
+          style={{
+            position: 'absolute',
+            top: '0',
+            left: '0',
+            width: '100%',
+            height: '100%',
+          }}
+          title={`Clip ${clipId}`}
+        ></iframe>
+      </Box>
+    </Box>
+  );
+}
+function FauClipWithLink({ href }: { href: string }) {
+  const clipId = href.substring('https://fau.tv/clip/id/'.length);
+  return (
+    <>
+      <a href={href} target="_blank" rel="noreferrer" className="monospaced">
+        {href}
+      </a>
+      <IframedFauClip clipId={clipId} />
+    </>
+  );
+}
+
 const replace = (d: DOMNode, skipSidebar = false): any => {
   const domNode = getElement(d);
 
   if (!domNode) return;
+
+  if (domNode.name === 'a') {
+    const href = domNode.attribs['href'];
+    if (href?.startsWith('https://fau.tv/clip/id/')) {
+      return <FauClipWithLink href={href} />;
+    }
+  }
 
   // Remove section numbers;
   if (
