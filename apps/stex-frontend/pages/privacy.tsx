@@ -77,9 +77,9 @@ const StudentHomePage: NextPage = () => {
             <br />
             <br />
             These personalized data will only be accessible to agents that are
-            authenticated with your personal IDM credentials. In particular, no
-            personal data will be transmitted outside the system without your
-            consent.
+            authenticated with SSO provided by a public/academic identity
+            provider like IDM or edugain.org. In particular, no personal data
+            will be transmitted outside the system without your consent.
             <br />
             <br />
             The VoLL-KI research project will use this data in aggregated,

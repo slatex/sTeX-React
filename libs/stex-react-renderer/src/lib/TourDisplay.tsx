@@ -4,7 +4,7 @@ import {
   Button,
   CircularProgress,
   Divider,
-  IconButton
+  IconButton,
 } from '@mui/material';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -40,10 +40,8 @@ function expandedItemId(item: TourItem) {
 }
 
 function scrollToItem(item: TourItem) {
-  const container = document.getElementById(EXPANSION_BOX_ID);
   const displayItem = document.getElementById(expandedItemId(item));
-  if (!container || !displayItem) return;
-  container.scrollTop = displayItem.offsetTop - container.offsetTop;
+  displayItem?.scrollIntoView();
 }
 
 function getSuccessorChain(item: TourItem, allItemsMap: Map<string, TourItem>) {
