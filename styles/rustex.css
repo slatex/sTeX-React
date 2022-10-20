@@ -3,14 +3,14 @@
 }
 .mskip {}
 .resetfont {
-    font-family: STIXgeneral, Times, Times New Roman, Symbol, cmr10, CMSY10, CMEX10, serif;
+    font-family: Latin Modern, STIXgeneral, Times, Times New Roman, Symbol, cmr10, CMSY10, CMEX10, serif;
     font-style: normal;
     font-weight: normal;
     font-variant: normal;
 }
   
   .monospaced {
-    font-family: FreeMono, Courier New, monospace;
+    font-family: Latin Modern Mono, FreeMono, Courier New, monospace;
   }
   
   .blackboard {
@@ -22,7 +22,7 @@
   }
   
   .sansserif {
-    font-family: sans-serif;
+    font-family: Latin Modern Sans, sans-serif;
   }
   
   .body {
@@ -199,7 +199,7 @@
   }
   
   .font-normal {
-    font-family: STIXgeneral, Times, Times New Roman, Symbol, cmr10, CMSY10, CMEX10, serif;
+    font-family: Latin Modern, STIXgeneral, Times, Times New Roman, Symbol, cmr10, CMSY10, CMEX10, serif;
     font-style: normal;
     font-weight: normal;
     font-variant: normal;
