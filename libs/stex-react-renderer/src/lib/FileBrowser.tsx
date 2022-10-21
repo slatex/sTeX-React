@@ -3,6 +3,7 @@ import { Box, Button } from '@mui/material';
 import {
   BG_COLOR,
   getChildrenOfBodyNode,
+  IS_MMT_VIEWER,
   shouldUseDrawer,
   sourceFileUrl,
   Window,
@@ -51,8 +52,8 @@ export function FileBrowser({
         />
       }
     >
-      <Box width="100%" p="10px" sx={{ backgroundColor: BG_COLOR }}>
-        <Box maxWidth="600px" m="auto">
+      <Box width="100%" sx={{ backgroundColor: BG_COLOR }}>
+        <Box maxWidth={IS_MMT_VIEWER ? undefined : '600px'} p="10px" m="auto">
           {selectedProject && selectedFilepath ? (
             <>
               <a

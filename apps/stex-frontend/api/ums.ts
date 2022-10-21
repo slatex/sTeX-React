@@ -4,7 +4,7 @@ import { deleteCookie, getCookie } from './utils';
 const umsServerAddress =
   process.env.NODE_ENV === 'development'
     ? 'http://localhost:5000'
-    : 'https://ums.voll-ki.fau.de';
+    : 'https://lms.voll-ki.fau.de';
 
 export function getAccessToken() {
   return getCookie('access_token');
