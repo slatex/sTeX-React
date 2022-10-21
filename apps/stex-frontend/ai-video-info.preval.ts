@@ -1,5 +1,6 @@
 import axios from 'axios';
 import preval from 'next-plugin-preval';
+import { exit } from 'process';
 import { AI_1_COURSE_SECTIONS } from './course_info/ai-1-notes';
 import { AI_1_PREVALUATED_VIDEO_INFO } from './course_info/ai-1-video';
 
@@ -27,8 +28,19 @@ async function getVideoInfo(clipId: string, timestampSec = 8) {
     const embedableLinkData = (await axios.get(embedableLink)).data;
 
     const matches = /http\S+m4v/gm.exec(embedableLinkData);
-    videoInfo['r' + res] = matches[0];
+    // There are multiple video versions. Eg "Slides and video", "Slides only" etc.
+    // Hope that the first link is always "Slides & Video"
+    if (matches?.[0] && !videoInfo['r' + res])
+      videoInfo['r' + res] = matches[0];
   }
+  const subLinks = clipPageContent.match(/http.*vosk-cc.vtt/g);
+  const uniqSubLinks = [...new Set(subLinks || [])];
+
+  if (uniqSubLinks.length >= 2) {
+    console.log('More than one subtitle for video')
+    exit(-1);
+  }
+  if (uniqSubLinks.length === 1) videoInfo['sub'] = uniqSubLinks[0];
   CACHED_CLIP_INFO.set(clipId, videoInfo);
   return videoInfo;
 }

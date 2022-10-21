@@ -7,6 +7,7 @@ export interface DeckAndVideoInfo {
   r720?: string;
   r1080?: string;
   timestampSec?: number;
+  sub?: string;
 }
 
 export interface DocumentDashInfo {

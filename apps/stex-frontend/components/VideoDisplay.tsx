@@ -81,10 +81,12 @@ function getVideoId(
 function MediaItem({
   audioOnly,
   videoId,
+  sub,
   timestampSec,
 }: {
   audioOnly: boolean;
   videoId: string;
+  sub?: string;
   timestampSec: number;
 }) {
   const mediaRef = useRef<HTMLVideoElement | HTMLAudioElement>(null);
@@ -110,6 +112,7 @@ function MediaItem({
     <video
       autoPlay={true}
       src={videoId}
+      crossOrigin="anonymous"
       preload="auto"
       controls
       onLoadedMetadata={() => {
@@ -122,7 +125,17 @@ function MediaItem({
         borderRadius: '5px',
       }}
       ref={mediaRef as any}
-    ></video>
+    >
+      {sub && (
+        <track
+          src={sub}
+          label="English"
+          kind="captions"
+          srcLang="en-us"
+          default
+        ></track>
+      )}
+    </video>
   );
 }
 
@@ -148,6 +161,7 @@ export function VideoDisplay({
         videoId={videoId}
         timestampSec={deckInfo?.timestampSec}
         audioOnly={audioOnly}
+        sub={deckInfo?.sub}
       />
       <Box sx={{ m: '-4px 0 5px' }}>
         <ToggleResolution
