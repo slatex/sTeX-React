@@ -7,6 +7,7 @@ import {
   BG_COLOR,
   DEFAULT_BASE_URL,
   getSectionInfo,
+  IS_MMT_VIEWER,
   IS_SERVER,
   localStore,
 } from '@stex-react/utils';
@@ -21,10 +22,6 @@ import MathJaxHack from './MathJaxHack';
 import { MathMLDisplay } from './MathMLDisplay';
 import { OverlayDialog } from './OverlayDialog';
 import { SidebarButton } from './SidebarButton';
-
-const IS_MMT_VIEWER = IS_SERVER
-  ? false
-  : (window as any).SHOW_FILE_BROWSER !== undefined;
 
 export const PARSER_BASE_URL =
   (IS_SERVER ? null : (window as any).BASE_URL) ?? DEFAULT_BASE_URL;
@@ -50,6 +47,7 @@ function SectionIdHackObject({ inputRef }: { inputRef: string }) {
         background: BG_COLOR,
         fontWeight: 'bold',
         zIndex: '1',
+        marginTop: isChapter? '100px': undefined,
         position: isChapter ? undefined : 'relative',
         bottom: isChapter ? undefined : '-72px',
         width: isChapter ? undefined : '52px',
@@ -395,8 +393,7 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
             title={
               hoverLink ? (
                 <Box
-                  maxWidth="300px"
-                  minWidth="600px"
+                  maxWidth='600px'
                   color="black"
                   border="1px solid #CCC"
                   p="5px"

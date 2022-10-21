@@ -2,6 +2,7 @@ import { Box } from '@mui/material';
 import {
   BG_COLOR,
   getChildrenOfBodyNode,
+  IS_MMT_VIEWER,
   localStore,
   shouldUseDrawer,
 } from '@stex-react/utils';
@@ -37,7 +38,9 @@ export function StexReactRenderer({
   topOffset?: number;
   dashInfo?: IndexNode;
 }) {
-  const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
+  const [showDashboard, setShowDashboard] = useState(
+    !shouldUseDrawer() && !IS_MMT_VIEWER
+  );
   const [renderOptions, setRenderOptions] = useState({
     expandOnScroll:
       (localStore?.getItem('expandOnScroll') || 'true') === 'true',
@@ -81,7 +84,11 @@ export function StexReactRenderer({
         setShowDashboard={setShowDashboard}
       >
         <Box px="10px" bgcolor={BG_COLOR}>
-          <Box maxWidth="600px" m="0 auto">
+          <Box
+            maxWidth={IS_MMT_VIEWER ? undefined : '600px'}
+            m="0 auto"
+            sx={{ overflowWrap: 'anywhere' }}
+          >
             <Box display="flex" flexDirection="row-reverse">
               <ExpandableContextMenu contentUrl={contentUrl} />
             </Box>

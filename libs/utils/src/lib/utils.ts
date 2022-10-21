@@ -5,6 +5,9 @@ export const BG_COLOR = 'hsl(210, 20%, 98%)';
 export const IS_SERVER = typeof window === 'undefined';
 export const localStore = IS_SERVER ? undefined : localStorage;
 export const Window = IS_SERVER ? undefined : window;
+export const IS_MMT_VIEWER = IS_SERVER
+  ? false
+  : (window as any).SHOW_FILE_BROWSER !== undefined;
 
 export function shouldUseDrawer(windowWidth?: number) {
   if (!windowWidth) windowWidth = Window?.innerWidth;
