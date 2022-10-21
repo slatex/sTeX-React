@@ -82,7 +82,7 @@ const StudentHomePage: NextPage = () => {
               VoLL-KI Project
             </ELink>{' '}
             supplies{' '}
-            <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/acm">
+            <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/Adaptive-Course-Materials">
               AI-enhanced course materials
             </ELink>{' '}
             for courses in Computer Science and Artificial Intelligence at FAU.
@@ -137,23 +137,23 @@ const StudentHomePage: NextPage = () => {
           <hr style={{ width: '90%' }} />
           <br />
           <Box className={styles['descriptive-box']}>
-            <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/acm">
+            <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/Adaptive-Course-Materials">
               Active course materials
             </ELink>{' '}
             incorporate{' '}
-            <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/lss">
+            <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/Learning-Support-Services">
               learning support services
             </ELink>{' '}
             based on a{' '}
-            <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/um">
+            <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/Learner-Model">
               model
             </ELink>{' '}
             that is updated with every interaction with the materials. Such{' '}
-            <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/um">
+            <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/Learner-Model">
               models of a user&apos;s preferences and competencies
             </ELink>{' '}
             contain highly sensitive personal data. Therefore the{' '}
-            <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/lss">
+            <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/Learning-Support-Services">
               learning support services
             </ELink>{' '}
             (and corresponding user model data collection) are only enabled when
@@ -163,7 +163,7 @@ const StudentHomePage: NextPage = () => {
             </ELink>{' '}
             and are kept secure and under exclusive control of the respective
             user in the{' '}
-            <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/trust-zone">
+            <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/Trust-Zone">
               Voll-KI Trust Zone
             </ELink>
             .
