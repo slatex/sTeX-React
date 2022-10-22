@@ -93,6 +93,7 @@
     width: 100%;
   }
   .vbox {
+    overflow-wrap:initial;
     display: inline-flex;
     flex-direction: column;
     flex-wrap: nowrap;
@@ -104,6 +105,7 @@
     align-self: center;
   }
   .hbox {
+    overflow-wrap:initial;
     display: inline-flex;
     flex-direction: row;
     justify-content: flex-start;
