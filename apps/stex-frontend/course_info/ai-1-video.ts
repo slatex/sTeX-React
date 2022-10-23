@@ -7,137 +7,133 @@ export const AI_1_PREVALUATED_VIDEO_INFO: {
     sub?: string;
   };
 } = {
-  'MiKoMH/AI||course/sec/syllabus21-22.en.xhtml': {
-    timestampSec: 8,
+  initial: {
+    timestampSec: 14,
     r1080:
       'https://cdn.video.uni-erlangen.de/symlinks/c1ecf44e-6411-4aca-89f6-c7008e3e9b3c.m4v',
     r720: 'https://cdn.video.uni-erlangen.de/symlinks/2cd0f772-e30f-4433-a0dc-353490840c04.m4v',
     r360: 'https://cdn.video.uni-erlangen.de/symlinks/4eb84517-2dd0-4c60-9af4-81ba4e1f15cc.m4v',
-    sub: 'https://vp-cdn-balance.rrze.uni-erlangen.de/media/47d03dd9b26c28eaa71ddd4b1f45bb91/63519177/2022/10/19/FAU_W22_AI1_ClipID_43840/20221019-AI1-Kohlhase-vosk-cc.vtt',
+    sub: 'https://vp-cdn-balance.rrze.uni-erlangen.de/media/1c6f2d146d68207fb7bb958319ccc864/635518a2/2022/10/19/FAU_W22_AI1_ClipID_43840/20221019-AI1-Kohlhase-vosk-cc.vtt',
+  },
+  'MiKoMH/AI||course/sec/acknowledgements.en.xhtml': {
+    timestampSec: 120,
+    r1080:
+      'https://cdn.video.uni-erlangen.de/symlinks/c1ecf44e-6411-4aca-89f6-c7008e3e9b3c.m4v',
+    r720: 'https://cdn.video.uni-erlangen.de/symlinks/2cd0f772-e30f-4433-a0dc-353490840c04.m4v',
+    r360: 'https://cdn.video.uni-erlangen.de/symlinks/4eb84517-2dd0-4c60-9af4-81ba4e1f15cc.m4v',
+    sub: 'https://vp-cdn-balance.rrze.uni-erlangen.de/media/1c6f2d146d68207fb7bb958319ccc864/635518a2/2022/10/19/FAU_W22_AI1_ClipID_43840/20221019-AI1-Kohlhase-vosk-cc.vtt',
+  },
+  'MiKoMH/AI||course/sec/syllabus21-22.en.xhtml': {
+    timestampSec: 685,
+    r1080:
+      'https://cdn.video.uni-erlangen.de/symlinks/c1ecf44e-6411-4aca-89f6-c7008e3e9b3c.m4v',
+    r720: 'https://cdn.video.uni-erlangen.de/symlinks/2cd0f772-e30f-4433-a0dc-353490840c04.m4v',
+    r360: 'https://cdn.video.uni-erlangen.de/symlinks/4eb84517-2dd0-4c60-9af4-81ba4e1f15cc.m4v',
+    sub: 'https://vp-cdn-balance.rrze.uni-erlangen.de/media/1c6f2d146d68207fb7bb958319ccc864/635518a2/2022/10/19/FAU_W22_AI1_ClipID_43840/20221019-AI1-Kohlhase-vosk-cc.vtt',
   },
   'MiKoMH/AI||course/slides/prerequisites.en.xhtml': {
-    timestampSec: 8,
+    timestampSec: 1262,
     r1080:
       'https://cdn.video.uni-erlangen.de/symlinks/c1ecf44e-6411-4aca-89f6-c7008e3e9b3c.m4v',
     r720: 'https://cdn.video.uni-erlangen.de/symlinks/2cd0f772-e30f-4433-a0dc-353490840c04.m4v',
     r360: 'https://cdn.video.uni-erlangen.de/symlinks/4eb84517-2dd0-4c60-9af4-81ba4e1f15cc.m4v',
-    sub: 'https://vp-cdn-balance.rrze.uni-erlangen.de/media/47d03dd9b26c28eaa71ddd4b1f45bb91/63519177/2022/10/19/FAU_W22_AI1_ClipID_43840/20221019-AI1-Kohlhase-vosk-cc.vtt',
+    sub: 'https://vp-cdn-balance.rrze.uni-erlangen.de/media/1c6f2d146d68207fb7bb958319ccc864/635518a2/2022/10/19/FAU_W22_AI1_ClipID_43840/20221019-AI1-Kohlhase-vosk-cc.vtt',
   },
   'MiKoMH/AI||course/slides/grading.en.xhtml': {
-    timestampSec: 8,
+    timestampSec: 1682,
     r1080:
       'https://cdn.video.uni-erlangen.de/symlinks/c1ecf44e-6411-4aca-89f6-c7008e3e9b3c.m4v',
     r720: 'https://cdn.video.uni-erlangen.de/symlinks/2cd0f772-e30f-4433-a0dc-353490840c04.m4v',
     r360: 'https://cdn.video.uni-erlangen.de/symlinks/4eb84517-2dd0-4c60-9af4-81ba4e1f15cc.m4v',
-    sub: 'https://vp-cdn-balance.rrze.uni-erlangen.de/media/47d03dd9b26c28eaa71ddd4b1f45bb91/63519177/2022/10/19/FAU_W22_AI1_ClipID_43840/20221019-AI1-Kohlhase-vosk-cc.vtt',
+    sub: 'https://vp-cdn-balance.rrze.uni-erlangen.de/media/1c6f2d146d68207fb7bb958319ccc864/635518a2/2022/10/19/FAU_W22_AI1_ClipID_43840/20221019-AI1-Kohlhase-vosk-cc.vtt',
   },
   'MiKoMH/AI||course/slides/homeworks.en.xhtml': {
-    timestampSec: 8,
+    timestampSec: 1956,
     r1080:
       'https://cdn.video.uni-erlangen.de/symlinks/c1ecf44e-6411-4aca-89f6-c7008e3e9b3c.m4v',
     r720: 'https://cdn.video.uni-erlangen.de/symlinks/2cd0f772-e30f-4433-a0dc-353490840c04.m4v',
     r360: 'https://cdn.video.uni-erlangen.de/symlinks/4eb84517-2dd0-4c60-9af4-81ba4e1f15cc.m4v',
-    sub: 'https://vp-cdn-balance.rrze.uni-erlangen.de/media/47d03dd9b26c28eaa71ddd4b1f45bb91/63519177/2022/10/19/FAU_W22_AI1_ClipID_43840/20221019-AI1-Kohlhase-vosk-cc.vtt',
+    sub: 'https://vp-cdn-balance.rrze.uni-erlangen.de/media/1c6f2d146d68207fb7bb958319ccc864/635518a2/2022/10/19/FAU_W22_AI1_ClipID_43840/20221019-AI1-Kohlhase-vosk-cc.vtt',
   },
   'MiKoMH/AI||course/slides/uebungen.en.xhtml': {
-    timestampSec: 8,
+    timestampSec: 3179,
     r1080:
       'https://cdn.video.uni-erlangen.de/symlinks/c1ecf44e-6411-4aca-89f6-c7008e3e9b3c.m4v',
     r720: 'https://cdn.video.uni-erlangen.de/symlinks/2cd0f772-e30f-4433-a0dc-353490840c04.m4v',
     r360: 'https://cdn.video.uni-erlangen.de/symlinks/4eb84517-2dd0-4c60-9af4-81ba4e1f15cc.m4v',
-    sub: 'https://vp-cdn-balance.rrze.uni-erlangen.de/media/47d03dd9b26c28eaa71ddd4b1f45bb91/63519177/2022/10/19/FAU_W22_AI1_ClipID_43840/20221019-AI1-Kohlhase-vosk-cc.vtt',
+    sub: 'https://vp-cdn-balance.rrze.uni-erlangen.de/media/1c6f2d146d68207fb7bb958319ccc864/635518a2/2022/10/19/FAU_W22_AI1_ClipID_43840/20221019-AI1-Kohlhase-vosk-cc.vtt',
   },
   'MiKoMH/AI||course/snip/discussion.en.xhtml': {
-    timestampSec: 8,
+    timestampSec: 3558,
     r1080:
       'https://cdn.video.uni-erlangen.de/symlinks/c1ecf44e-6411-4aca-89f6-c7008e3e9b3c.m4v',
     r720: 'https://cdn.video.uni-erlangen.de/symlinks/2cd0f772-e30f-4433-a0dc-353490840c04.m4v',
     r360: 'https://cdn.video.uni-erlangen.de/symlinks/4eb84517-2dd0-4c60-9af4-81ba4e1f15cc.m4v',
-    sub: 'https://vp-cdn-balance.rrze.uni-erlangen.de/media/47d03dd9b26c28eaa71ddd4b1f45bb91/63519177/2022/10/19/FAU_W22_AI1_ClipID_43840/20221019-AI1-Kohlhase-vosk-cc.vtt',
+    sub: 'https://vp-cdn-balance.rrze.uni-erlangen.de/media/1c6f2d146d68207fb7bb958319ccc864/635518a2/2022/10/19/FAU_W22_AI1_ClipID_43840/20221019-AI1-Kohlhase-vosk-cc.vtt',
   },
   'MiKoMH/AI||course/slides/special-admin.en.xhtml': {
-    timestampSec: 8,
+    timestampSec: 3723,
     r1080:
       'https://cdn.video.uni-erlangen.de/symlinks/c1ecf44e-6411-4aca-89f6-c7008e3e9b3c.m4v',
     r720: 'https://cdn.video.uni-erlangen.de/symlinks/2cd0f772-e30f-4433-a0dc-353490840c04.m4v',
     r360: 'https://cdn.video.uni-erlangen.de/symlinks/4eb84517-2dd0-4c60-9af4-81ba4e1f15cc.m4v',
-    sub: 'https://vp-cdn-balance.rrze.uni-erlangen.de/media/47d03dd9b26c28eaa71ddd4b1f45bb91/63519177/2022/10/19/FAU_W22_AI1_ClipID_43840/20221019-AI1-Kohlhase-vosk-cc.vtt',
+    sub: 'https://vp-cdn-balance.rrze.uni-erlangen.de/media/1c6f2d146d68207fb7bb958319ccc864/635518a2/2022/10/19/FAU_W22_AI1_ClipID_43840/20221019-AI1-Kohlhase-vosk-cc.vtt',
   },
   'MiKoMH/AI||course/snip/lecturing.en.xhtml': {
-    timestampSec: 8,
+    timestampSec: 3723,
     r1080:
       'https://cdn.video.uni-erlangen.de/symlinks/c1ecf44e-6411-4aca-89f6-c7008e3e9b3c.m4v',
     r720: 'https://cdn.video.uni-erlangen.de/symlinks/2cd0f772-e30f-4433-a0dc-353490840c04.m4v',
     r360: 'https://cdn.video.uni-erlangen.de/symlinks/4eb84517-2dd0-4c60-9af4-81ba4e1f15cc.m4v',
-    sub: 'https://vp-cdn-balance.rrze.uni-erlangen.de/media/47d03dd9b26c28eaa71ddd4b1f45bb91/63519177/2022/10/19/FAU_W22_AI1_ClipID_43840/20221019-AI1-Kohlhase-vosk-cc.vtt',
+    sub: 'https://vp-cdn-balance.rrze.uni-erlangen.de/media/1c6f2d146d68207fb7bb958319ccc864/635518a2/2022/10/19/FAU_W22_AI1_ClipID_43840/20221019-AI1-Kohlhase-vosk-cc.vtt',
   },
   'MiKoMH/AI||course/snip/lecturing-style-intro.en.xhtml': {
-    timestampSec: 8,
+    timestampSec: 3900,
     r1080:
       'https://cdn.video.uni-erlangen.de/symlinks/c1ecf44e-6411-4aca-89f6-c7008e3e9b3c.m4v',
     r720: 'https://cdn.video.uni-erlangen.de/symlinks/2cd0f772-e30f-4433-a0dc-353490840c04.m4v',
     r360: 'https://cdn.video.uni-erlangen.de/symlinks/4eb84517-2dd0-4c60-9af4-81ba4e1f15cc.m4v',
-    sub: 'https://vp-cdn-balance.rrze.uni-erlangen.de/media/47d03dd9b26c28eaa71ddd4b1f45bb91/63519177/2022/10/19/FAU_W22_AI1_ClipID_43840/20221019-AI1-Kohlhase-vosk-cc.vtt',
-  },
-  'MiKoMH/AI||course/snip/lecturing-style-trans.en.xhtml': {
-    timestampSec: 8,
-    r1080:
-      'https://cdn.video.uni-erlangen.de/symlinks/c1ecf44e-6411-4aca-89f6-c7008e3e9b3c.m4v',
-    r720: 'https://cdn.video.uni-erlangen.de/symlinks/2cd0f772-e30f-4433-a0dc-353490840c04.m4v',
-    r360: 'https://cdn.video.uni-erlangen.de/symlinks/4eb84517-2dd0-4c60-9af4-81ba4e1f15cc.m4v',
-    sub: 'https://vp-cdn-balance.rrze.uni-erlangen.de/media/47d03dd9b26c28eaa71ddd4b1f45bb91/63519177/2022/10/19/FAU_W22_AI1_ClipID_43840/20221019-AI1-Kohlhase-vosk-cc.vtt',
+    sub: 'https://vp-cdn-balance.rrze.uni-erlangen.de/media/1c6f2d146d68207fb7bb958319ccc864/635518a2/2022/10/19/FAU_W22_AI1_ClipID_43840/20221019-AI1-Kohlhase-vosk-cc.vtt',
   },
   'MiKoMH/AI||course/slides/my-lectures.en.xhtml': {
-    timestampSec: 8,
+    timestampSec: 4012,
     r1080:
       'https://cdn.video.uni-erlangen.de/symlinks/c1ecf44e-6411-4aca-89f6-c7008e3e9b3c.m4v',
     r720: 'https://cdn.video.uni-erlangen.de/symlinks/2cd0f772-e30f-4433-a0dc-353490840c04.m4v',
     r360: 'https://cdn.video.uni-erlangen.de/symlinks/4eb84517-2dd0-4c60-9af4-81ba4e1f15cc.m4v',
-    sub: 'https://vp-cdn-balance.rrze.uni-erlangen.de/media/47d03dd9b26c28eaa71ddd4b1f45bb91/63519177/2022/10/19/FAU_W22_AI1_ClipID_43840/20221019-AI1-Kohlhase-vosk-cc.vtt',
-  },
-  'MiKoMH/AI||course/snip/questions-intro.en.xhtml': {
-    timestampSec: 8,
-    r1080:
-      'https://cdn.video.uni-erlangen.de/symlinks/c1ecf44e-6411-4aca-89f6-c7008e3e9b3c.m4v',
-    r720: 'https://cdn.video.uni-erlangen.de/symlinks/2cd0f772-e30f-4433-a0dc-353490840c04.m4v',
-    r360: 'https://cdn.video.uni-erlangen.de/symlinks/4eb84517-2dd0-4c60-9af4-81ba4e1f15cc.m4v',
-    sub: 'https://vp-cdn-balance.rrze.uni-erlangen.de/media/47d03dd9b26c28eaa71ddd4b1f45bb91/63519177/2022/10/19/FAU_W22_AI1_ClipID_43840/20221019-AI1-Kohlhase-vosk-cc.vtt',
-  },
-  'MiKoMH/AI||course/slides/questions.en.xhtml': {
-    timestampSec: 8,
-    r1080:
-      'https://cdn.video.uni-erlangen.de/symlinks/c1ecf44e-6411-4aca-89f6-c7008e3e9b3c.m4v',
-    r720: 'https://cdn.video.uni-erlangen.de/symlinks/2cd0f772-e30f-4433-a0dc-353490840c04.m4v',
-    r360: 'https://cdn.video.uni-erlangen.de/symlinks/4eb84517-2dd0-4c60-9af4-81ba4e1f15cc.m4v',
-    sub: 'https://vp-cdn-balance.rrze.uni-erlangen.de/media/47d03dd9b26c28eaa71ddd4b1f45bb91/63519177/2022/10/19/FAU_W22_AI1_ClipID_43840/20221019-AI1-Kohlhase-vosk-cc.vtt',
+    sub: 'https://vp-cdn-balance.rrze.uni-erlangen.de/media/1c6f2d146d68207fb7bb958319ccc864/635518a2/2022/10/19/FAU_W22_AI1_ClipID_43840/20221019-AI1-Kohlhase-vosk-cc.vtt',
   },
   'MiKoMH/AI||course/slides/questionnaire-call.en.xhtml': {
-    timestampSec: 8,
+    timestampSec: 700,
     r1080:
-      'https://cdn.video.uni-erlangen.de/symlinks/6f8997e5-75e3-4c8e-a99b-f8ec3d28253d.m4v',
-    r720: 'https://cdn.video.uni-erlangen.de/symlinks/b1b8d853-c96c-4fc8-b1e9-cc1ce0325c1e.m4v',
-    r360: 'https://cdn.video.uni-erlangen.de/symlinks/ea37be4e-3273-4d59-8f4e-84ad2c125a26.m4v',
+      'https://cdn.video.uni-erlangen.de/symlinks/0a47c055-f1d7-4a03-8d9f-b2c0189264fe.m4v',
+    r720: 'https://cdn.video.uni-erlangen.de/symlinks/0d3a0c1a-fc42-4c67-a480-e9a7b6040e5a.m4v',
+    r360: 'https://cdn.video.uni-erlangen.de/symlinks/e789d2e0-3f20-4492-ae75-a40d65d5f6b7.m4v',
+    sub: 'https://vp-cdn-balance.rrze.uni-erlangen.de/media/161b2054c7e3d6107439d60bb02bed52/635518a9/2022/10/20/FAU_W22_AI1_ClipID_44933/20221020-AI1-Kohlhase-vosk-cc.vtt',
   },
   'MiKoMH/AI||course/slides/plot.en.xhtml': {
-    timestampSec: 8,
+    timestampSec: 752,
     r1080:
-      'https://cdn.video.uni-erlangen.de/symlinks/6f5a3969-d894-4879-a5dd-a06f14408f06.m4v',
-    r720: 'https://cdn.video.uni-erlangen.de/symlinks/c947fe11-a5d2-4e88-93bd-14717501cf00.m4v',
-    r360: 'https://cdn.video.uni-erlangen.de/symlinks/ea73f631-db15-4eb3-a09c-f0202eb28250.m4v',
+      'https://cdn.video.uni-erlangen.de/symlinks/0a47c055-f1d7-4a03-8d9f-b2c0189264fe.m4v',
+    r720: 'https://cdn.video.uni-erlangen.de/symlinks/0d3a0c1a-fc42-4c67-a480-e9a7b6040e5a.m4v',
+    r360: 'https://cdn.video.uni-erlangen.de/symlinks/e789d2e0-3f20-4492-ae75-a40d65d5f6b7.m4v',
+    sub: 'https://vp-cdn-balance.rrze.uni-erlangen.de/media/161b2054c7e3d6107439d60bb02bed52/635518a9/2022/10/20/FAU_W22_AI1_ClipID_44933/20221020-AI1-Kohlhase-vosk-cc.vtt',
   },
   'MiKoMH/AI||intro/slides/whatisai-parts.en.xhtml': {
-    timestampSec: 8,
+    timestampSec: 2718,
     r1080:
-      'https://cdn.video.uni-erlangen.de/symlinks/3aad0afe-8196-422a-a0cb-92c3f7ffea8a.m4v',
-    r720: 'https://cdn.video.uni-erlangen.de/symlinks/a2ba0360-c54a-448d-8a98-d5a0bbcf466e.m4v',
-    r360: 'https://cdn.video.uni-erlangen.de/symlinks/c2290b3d-0ebc-4bb8-88f9-3de55765bb1f.m4v',
+      'https://cdn.video.uni-erlangen.de/symlinks/0a47c055-f1d7-4a03-8d9f-b2c0189264fe.m4v',
+    r720: 'https://cdn.video.uni-erlangen.de/symlinks/0d3a0c1a-fc42-4c67-a480-e9a7b6040e5a.m4v',
+    r360: 'https://cdn.video.uni-erlangen.de/symlinks/e789d2e0-3f20-4492-ae75-a40d65d5f6b7.m4v',
+    sub: 'https://vp-cdn-balance.rrze.uni-erlangen.de/media/161b2054c7e3d6107439d60bb02bed52/635518a9/2022/10/20/FAU_W22_AI1_ClipID_44933/20221020-AI1-Kohlhase-vosk-cc.vtt',
   },
   'MiKoMH/AI||intro/slides/ai-conundrum.en.xhtml': {
-    timestampSec: 8,
+    timestampSec: 3863,
     r1080:
-      'https://cdn.video.uni-erlangen.de/symlinks/0acbaac6-5420-44fc-9125-8acaacf35a3a.m4v',
-    r720: 'https://cdn.video.uni-erlangen.de/symlinks/00126fff-6f37-43b5-812b-c46eca4168b8.m4v',
-    r360: 'https://cdn.video.uni-erlangen.de/symlinks/9185c3a0-0aed-4d24-b299-c9f2e1c94eed.m4v',
+      'https://cdn.video.uni-erlangen.de/symlinks/0a47c055-f1d7-4a03-8d9f-b2c0189264fe.m4v',
+    r720: 'https://cdn.video.uni-erlangen.de/symlinks/0d3a0c1a-fc42-4c67-a480-e9a7b6040e5a.m4v',
+    r360: 'https://cdn.video.uni-erlangen.de/symlinks/e789d2e0-3f20-4492-ae75-a40d65d5f6b7.m4v',
+    sub: 'https://vp-cdn-balance.rrze.uni-erlangen.de/media/161b2054c7e3d6107439d60bb02bed52/635518a9/2022/10/20/FAU_W22_AI1_ClipID_44933/20221020-AI1-Kohlhase-vosk-cc.vtt',
   },
   'MiKoMH/AI||course/slides/alphago-here.en.xhtml': {
     timestampSec: 8,

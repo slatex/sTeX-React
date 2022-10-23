@@ -157,7 +157,7 @@ function TourItemDisplay({
               onClick={() => onUnderstood()}
               variant="outlined"
             >
-              I understand
+              I know
             </Button>
           ) : (
             <Button

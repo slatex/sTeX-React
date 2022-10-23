@@ -26,6 +26,7 @@ function ToggleResolution({
     <Box
       display="inline-block"
       border={audioOnly ? undefined : '1px solid #CCC'}
+      zIndex="1"
     >
       <IconButton onClick={() => setAudioOnly(!audioOnly)}>
         <Tooltip title={audioOnly ? 'Show Video' : 'Audio Only'}>
