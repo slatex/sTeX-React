@@ -11,7 +11,7 @@ import MainLayout from '../layouts/MainLayout';
 import { DEFAULT_BASE_URL, simpleHash } from '@stex-react/utils';
 import axios from 'axios';
 import { Box, Button, IconButton } from '@mui/material';
-import { getUriWeights } from '../api/ums';
+import { getUriWeights } from '../api/lms';
 import { TourAPIEntry } from '@stex-react/stex-react-renderer';
 import ReplayIcon from '@mui/icons-material/Replay';
 

@@ -9,7 +9,7 @@ import {
   isLoggedIn,
   loginUsingRedirect,
   logout,
-} from '../api/ums';
+} from '../api/lms';
 import MainLayout from '../layouts/MainLayout';
 
 const LoginPage: NextPage = () => {
@@ -32,8 +32,6 @@ const LoginPage: NextPage = () => {
               backgroundColor: BG_COLOR,
             }}
           >
-            <i>You will soon be able to login.</i>
-            <br />
             <br />
             {!loggedIn && fakeLogin && (
               <TextField
@@ -63,7 +61,6 @@ const LoginPage: NextPage = () => {
                   variant="contained"
                   size="large"
                   sx={{ fontSize: '32x' }}
-                  disabled
                   onClick={() => {
                     if (fakeLogin) {
                       if (fakeId) fakeLoginUsingRedirect(fakeId, returnBackUrl);

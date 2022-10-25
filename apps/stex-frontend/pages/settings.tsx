@@ -4,7 +4,7 @@ import type { NextPage } from 'next';
 import { useReducer } from 'react';
 import {
   getUriWeights, setUriWeights
-} from '../api/ums';
+} from '../api/lms';
 import MainLayout from '../layouts/MainLayout';
 
 const FORCE_MATHJAX = 'forceMathJax';
