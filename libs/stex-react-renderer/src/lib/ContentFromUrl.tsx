@@ -1,7 +1,8 @@
 import { Box, LinearProgress } from '@mui/material';
 import axios from 'axios';
-import { memo, useEffect, useState } from 'react';
+import { memo, useContext, useEffect, useState } from 'react';
 import { ContentWithHighlight } from './ContentWithHightlight';
+import { ServerLinksContext } from './stex-react-renderer';
 
 export const ContentFromUrl = memo(
   ({
@@ -18,18 +19,19 @@ export const ContentFromUrl = memo(
     minLoadingHeight?: string;
   }) => {
     const [mmtHtml, setMmtHtml] = useState<string | undefined>(undefined);
+    const { mmtUrl } = useContext(ServerLinksContext);
 
     useEffect(() => {
       if (!url?.length) return;
       axios
-        .get(url)
+        .get(`${mmtUrl}/${url}`)
         .catch((_e) => null)
         .then((r) => {
           let html = `<span style={{ color: 'red' }}>Error loading: ${url}</span>`;
           if (r?.data) html = r.data;
           setMmtHtml(html);
         });
-    }, [url]);
+    }, [mmtUrl, url]);
 
     if (mmtHtml === undefined) {
       return (

@@ -184,7 +184,7 @@ async function getSlidesForDocAfterRef(
   afterThisRef?: NodeId
 ): Promise<SlideReturn> {
   //console.log(`slides from ${curr.filepath} after ${afterThisRef?.filepath}`);
-  const data = await getFileContent(curr);
+  const data = await getFileContent(curr, process.env.NEXT_PUBLIC_MMT_URL);
   const htmlDoc = htmlparser2.parseDocument(data);
 
   return await getSlidesForDocNodeAfterRef(

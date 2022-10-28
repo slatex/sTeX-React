@@ -9,12 +9,13 @@ import {
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
-import { shouldUseDrawer, simpleHash } from '@stex-react/utils';
+import { IS_MMT_VIEWER, shouldUseDrawer, simpleHash } from '@stex-react/utils';
 import axios from 'axios';
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useContext, useEffect, useRef, useState } from 'react';
 import { ContentFromUrl } from './ContentFromUrl';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
-import { mmtHTMLToReact, PARSER_BASE_URL } from './mmtParser';
+import { mmtHTMLToReact } from './mmtParser';
+import { ServerLinksContext } from './stex-react-renderer';
 import styles from './styles/tour-display.module.scss';
 import { useOnScreen } from './useOnScreen';
 
@@ -139,7 +140,12 @@ function TourItemDisplay({
   }, [isVisible]);
 
   return (
-    <Box id={expandedItemId(item)} maxWidth="600px" ref={ref}>
+    <Box
+      id={expandedItemId(item)}
+      maxWidth={IS_MMT_VIEWER ? undefined : '600px'}
+      width="fit-content"
+      ref={ref}
+    >
       <Box
         display="flex"
         alignItems="center"
@@ -186,7 +192,7 @@ function TourItemDisplay({
       />
       <Box sx={{ mt: '20px' }}>
         <ContentFromUrl
-          url={`${PARSER_BASE_URL}/:vollki/frag?path=${item.uri}&lang=${lang}`}
+          url={`/:vollki/frag?path=${item.uri}&lang=${lang}`}
           skipSidebar={true}
         />
       </Box>
@@ -404,11 +410,13 @@ export function TourDisplay({
   getUriWeights = (uri: string[]) =>
     Promise.resolve(new Array(uri.length).fill(0)),
   setUriWeights = (_) => Promise.resolve(),
+  topOffset,
 }: {
   tourId: string;
   language?: string;
   getUriWeights?: (uri: string[]) => Promise<number[]>;
   setUriWeights?: (uriData: { [uri: string]: number }) => Promise<void>;
+  topOffset: number;
 }) {
   const [allItemsMap, setAllItemsMap] = useState(new Map<string, TourItem>());
   const [displayItemList, setDisplayItemList] = useState([] as TourItem[]);
@@ -420,10 +428,11 @@ export function TourDisplay({
   const [fetchingItems, setFetchingItems] = useState(false);
   const [understoodUri, setUnderstoodUriList] = useState([] as string[]);
   const [tempShowUri, setTempShowUri] = useState([] as string[]);
+  const { mmtUrl } = useContext(ServerLinksContext);
 
   useEffect(() => {
     if (!tourId?.length) return;
-    const tourInfoUrl = `${PARSER_BASE_URL}/:vollki/tour?path=${tourId}&user=nulluser&lang=${language}`;
+    const tourInfoUrl = `${mmtUrl}/:vollki/tour?path=${tourId}&user=nulluser&lang=${language}`;
     setFetchingItems(true);
     axios.get(tourInfoUrl).then((r) => {
       setFetchingItems(false);
@@ -443,7 +452,7 @@ export function TourDisplay({
         setAllItemsMap(getTourItemMap(apiEntries, weights));
       });
     });
-  }, [tourId, language]);
+  }, [tourId, language, mmtUrl]);
 
   useEffect(() => {
     setDisplayItemList(
@@ -487,7 +496,7 @@ export function TourDisplay({
 
   return (
     <LayoutWithFixedMenu
-      topOffset={125}
+      topOffset={topOffset}
       menu={
         <NavBar
           items={displayItemList}

@@ -6,9 +6,8 @@ import {
   IS_MMT_VIEWER,
   shouldUseDrawer,
   sourceFileUrl,
-  Window,
   XhtmlContentUrl,
-  xhtmlPathToTex,
+  xhtmlPathToTex
 } from '@stex-react/utils';
 import { useState } from 'react';
 import { ContentFromUrl } from './ContentFromUrl';
@@ -18,12 +17,10 @@ import { LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 
 export function FileBrowser({
   defaultRootNodes,
-  baseUrl,
   topOffset,
   standaloneLink,
 }: {
   defaultRootNodes: FileNode[];
-  baseUrl: string;
   topOffset: number;
   standaloneLink: (archive: string, filepath: string) => string;
 }) {
@@ -39,7 +36,6 @@ export function FileBrowser({
       menu={
         <FileTree
           defaultRootNodes={defaultRootNodes}
-          baseUrl={baseUrl}
           selectedFile={{
             project: selectedProject,
             filepath: selectedFilepath,
@@ -81,11 +77,7 @@ export function FileBrowser({
               </a>
               <hr style={{ width: '90%' }} />
               <ContentFromUrl
-                url={XhtmlContentUrl(
-                  baseUrl,
-                  selectedProject,
-                  selectedFilepath
-                )}
+                url={XhtmlContentUrl(selectedProject, selectedFilepath)}
                 skipSidebar={true}
                 modifyRendered={getChildrenOfBodyNode}
               />

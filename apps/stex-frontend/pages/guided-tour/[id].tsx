@@ -44,6 +44,7 @@ const GuidedTourPage: NextPage = () => {
           language={language}
           getUriWeights={getUriWeights}
           setUriWeights={setUriWeights}
+          topOffset={125}
         />
       </Box>
     </MainLayout>

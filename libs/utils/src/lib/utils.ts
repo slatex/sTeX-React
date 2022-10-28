@@ -1,6 +1,5 @@
 import { getOuterHTML } from 'domutils';
 
-export const DEFAULT_BASE_URL = 'https://stexmmt.mathhub.info';
 export const BG_COLOR = 'hsl(210, 20%, 98%)';
 export const IS_SERVER = typeof window === 'undefined';
 export const localStore = IS_SERVER ? undefined : localStorage;
@@ -62,11 +61,10 @@ export function simpleHash(str?: string) {
 }
 
 export function XhtmlContentUrl(
-  baseUrl: string,
   projectId: string,
   xhtmlFilepath: string
 ) {
-  return `${baseUrl}/:sTeX/document?archive=${projectId}&filepath=${xhtmlFilepath}`;
+  return `/:sTeX/document?archive=${projectId}&filepath=${xhtmlFilepath}`;
 }
 
 export function PathToArticle(projectId: string, xhtmlFilepath: string) {

@@ -1,7 +1,6 @@
 import { IndexNode, StexReactRenderer } from '@stex-react/stex-react-renderer';
 import {
   convertHtmlStringToPlain,
-  DEFAULT_BASE_URL,
   getSectionInfo,
   simpleHash,
 } from '@stex-react/utils';
@@ -48,10 +47,7 @@ const BrowserPage: NextPage = () => {
 
   useEffect(() => {
     if (!router.isReady) return;
-    const decoded = decodeURI(id);
-    const url = decoded.startsWith(':sTeX')
-      ? DEFAULT_BASE_URL + '/' + decoded
-      : decoded;
+    const url = decodeURI(id);
     setContentUrl(url);
     const { archive, filepath } = getSectionInfo(url);
     const contentDashUrl = `/api/get-content-dash/${encodeURIComponent(

@@ -7,7 +7,7 @@ import {
   shouldUseDrawer,
 } from '@stex-react/utils';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import {
   IndexNode,
   scrollToClosestAncestorAndSetPending,
@@ -28,6 +28,8 @@ function getToOpenContentHash(inDocPath: string) {
   if (!inDocPath?.length) return [];
   return inDocPath.split('.');
 }
+
+export const ServerLinksContext = createContext({ mmtUrl: '', lmsUrl: '' });
 
 export function StexReactRenderer({
   contentUrl,

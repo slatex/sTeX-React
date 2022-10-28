@@ -1,10 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import { deleteCookie, getCookie } from './utils';
 
-const umsServerAddress =
-  process.env.NODE_ENV === 'development'
-    ? 'http://localhost:5000'
-    : 'https://lms.voll-ki.fau.de';
+const lmsServerAddress = process.env.NEXT_PUBLIC_LMS_URL;
 
 export function getAccessToken() {
   return getCookie('access_token');
@@ -41,7 +38,7 @@ function getAuthHeaders() {
 export function loginUsingRedirect(returnBackUrl?: string) {
   if (!returnBackUrl) returnBackUrl = window.location.href;
 
-  const redirectUrl = `${umsServerAddress}/login?target=${encodeURIComponent(
+  const redirectUrl = `${lmsServerAddress}/login?target=${encodeURIComponent(
     returnBackUrl
   )}`;
 
@@ -52,7 +49,7 @@ export function fakeLoginUsingRedirect(fakeId: string, returnBackUrl?: string) {
   if (!returnBackUrl) returnBackUrl = window.location.href;
   fakeId = fakeId.replace(/\W/g, '');
 
-  const redirectUrl = `${umsServerAddress}/fake-login?fake-id=${fakeId}&target=${encodeURIComponent(
+  const redirectUrl = `${lmsServerAddress}/fake-login?fake-id=${fakeId}&target=${encodeURIComponent(
     returnBackUrl
   )}`;
 
@@ -70,7 +67,7 @@ async function umsRequest(
     return Promise.resolve(defaultVal);
   }
   try {
-    const fullUrl = `${umsServerAddress}/${apiUrl}`;
+    const fullUrl = `${lmsServerAddress}/${apiUrl}`;
     const resp =
       requestType === 'POST'
         ? await axios.post(fullUrl, data, { headers })

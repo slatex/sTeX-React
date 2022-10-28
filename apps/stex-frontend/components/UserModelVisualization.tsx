@@ -1,19 +1,20 @@
-import {
-  dagStratify,
-  sugiyama,
-  decrossOpt /*DagNode, zherebko, grid*/,
-  Dag,
-} from 'd3-dag';
-import * as d3 from 'd3';
-import { NextPage } from 'next';
-import { useEffect, useReducer, useState } from 'react';
-import MainLayout from '../layouts/MainLayout';
-import { DEFAULT_BASE_URL, simpleHash } from '@stex-react/utils';
-import axios from 'axios';
-import { Box, Button, IconButton } from '@mui/material';
-import { getUriWeights } from '../api/lms';
-import { TourAPIEntry } from '@stex-react/stex-react-renderer';
 import ReplayIcon from '@mui/icons-material/Replay';
+import { Box, IconButton } from '@mui/material';
+import {
+  ServerLinksContext,
+  TourAPIEntry,
+} from '@stex-react/stex-react-renderer';
+import { simpleHash } from '@stex-react/utils';
+import axios from 'axios';
+import * as d3 from 'd3';
+import {
+  Dag,
+  dagStratify,
+  decrossOpt /*DagNode, zherebko, grid*/,
+  sugiyama,
+} from 'd3-dag';
+import { useContext, useEffect, useReducer, useState } from 'react';
+import { getUriWeights } from '../api/lms';
 
 const nodeRadius = 20;
 
@@ -52,9 +53,10 @@ interface D3DagInfo {
 
 async function fetchDataForDag(
   tourId: string,
-  language: string
+  language: string,
+  mmtUrl: string
 ): Promise<D3DagInfo> {
-  const tourInfoUrl = `${DEFAULT_BASE_URL}/:vollki/tour?path=${tourId}&user=nulluser&lang=${language}`;
+  const tourInfoUrl = `${mmtUrl}/:vollki/tour?path=${tourId}&user=nulluser&lang=${language}`;
   const apiEntries: TourAPIEntry[] = (await axios.get(tourInfoUrl)).data;
   const tourUris = apiEntries.map((e) => e.id);
   const weights = await getUriWeights(tourUris);
@@ -170,18 +172,19 @@ export function UserModelVisualization({
 }) {
   const [d3DagInfo, setD3DagInfo] = useState(null as D3DagInfo);
   const [forceCount, forceUpdate] = useReducer((x) => x + 1, 0);
+  const { mmtUrl } = useContext(ServerLinksContext);
 
   renderD3Dag(d3DagInfo);
   useEffect(() => {
     console.log(forceCount);
-    fetchDataForDag(tourId, language).then((i) => setD3DagInfo(i));
+    fetchDataForDag(tourId, language, mmtUrl).then((i) => setD3DagInfo(i));
     // set node size instead of constraining to fit
-  }, [tourId, language, forceCount]);
+  }, [tourId, language, forceCount, mmtUrl]);
 
   return (
     <Box sx={{ backgroundColor: 'black' }}>
       {d3DagInfo && (
-        <IconButton sx={{color: 'white'}} onClick={forceUpdate}>
+        <IconButton sx={{ color: 'white' }} onClick={forceUpdate}>
           <ReplayIcon />
         </IconButton>
       )}

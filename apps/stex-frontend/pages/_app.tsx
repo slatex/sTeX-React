@@ -1,7 +1,10 @@
 import { createInstance, MatomoProvider } from '@jonkoops/matomo-tracker-react';
 import { createTheme, ThemeProvider } from '@mui/material';
-import { MathJaxContext, setSectionIds } from '@stex-react/stex-react-renderer';
-import { DEFAULT_BASE_URL, IS_SERVER } from '@stex-react/utils';
+import {
+  MathJaxContext,
+  ServerLinksContext,
+  setSectionIds
+} from '@stex-react/stex-react-renderer';
 import axios from 'axios';
 import { AppProps } from 'next/app';
 import { useEffect } from 'react';
@@ -55,15 +58,21 @@ function CustomApp({ Component, pageProps }: AppProps) {
       setSectionIds(r.data);
     });
   });
-  if (!IS_SERVER) (window as any).BASE_URL = DEFAULT_BASE_URL;
   return (
-    <MatomoProvider value={instance}>
-      <ThemeProvider theme={theme}>
-        <MathJaxContext>
-          <Component {...pageProps} />
-        </MathJaxContext>
-      </ThemeProvider>
-    </MatomoProvider>
+    <ServerLinksContext.Provider
+      value={{
+        mmtUrl: process.env.NEXT_PUBLIC_MMT_URL,
+        lmsUrl: process.env.NEXT_PUBLIC_LMS_URL,
+      }}
+    >
+      <MatomoProvider value={instance}>
+        <ThemeProvider theme={theme}>
+          <MathJaxContext>
+            <Component {...pageProps} />
+          </MathJaxContext>
+        </ThemeProvider>
+      </MatomoProvider>
+    </ServerLinksContext.Provider>
   );
 }
 

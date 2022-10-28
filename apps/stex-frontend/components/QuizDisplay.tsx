@@ -1,13 +1,13 @@
 import { Box, Button } from '@mui/material';
-import { FileNode } from '@stex-react/stex-react-renderer';
-import { DEFAULT_BASE_URL } from '@stex-react/utils';
-import { useEffect, useState } from 'react';
+import { FileNode, ServerLinksContext } from '@stex-react/stex-react-renderer';
+import { useContext, useEffect, useState } from 'react';
 import ROOT_NODES from '../file-structure.preval';
 import { QuestionDisplay } from './QuestionDisplay';
 
 function getAllQuestionUrls(
   nodes: FileNode[],
-  pathSegments: string[]
+  pathSegments: string[],
+  mmtUrl: string
 ): string[] {
   if (pathSegments.length === 0) {
     return nodes
@@ -16,14 +16,14 @@ function getAllQuestionUrls(
         const archive = match?.[1];
         const filepath = match?.[2];
         if (!archive || !filepath) return null;
-        return `${DEFAULT_BASE_URL}/:sTeX/document?archive=${archive}&filepath=${filepath}`;
+        return `${mmtUrl}/:sTeX/document?archive=${archive}&filepath=${filepath}`;
       })
       .filter((x) => x);
   }
   const top = pathSegments[0];
   for (const node of nodes) {
     if (node.label === top)
-      return getAllQuestionUrls(node.children, pathSegments.slice(1));
+      return getAllQuestionUrls(node.children, pathSegments.slice(1), mmtUrl);
   }
   return [];
 }
@@ -39,10 +39,11 @@ export function QuizDisplay({ path }: { path: string }) {
     [] as QuestionStatus[]
   );
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const { mmtUrl } = useContext(ServerLinksContext);
 
   useEffect(() => {
     if (!path?.length) return;
-    const urls = getAllQuestionUrls(ROOT_NODES, path.split('/'));
+    const urls = getAllQuestionUrls(ROOT_NODES, path.split('/'), mmtUrl);
     setQuestionUrls(urls);
     setQuestionStatuses(
       new Array(urls.length).fill({ selectedIndex: -1, isCorrect: false })

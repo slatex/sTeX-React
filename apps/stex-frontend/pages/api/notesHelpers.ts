@@ -1,4 +1,3 @@
-import { DEFAULT_BASE_URL } from '@stex-react/utils';
 import axios from 'axios';
 import { textContent } from 'domutils';
 import * as htmlparser2 from 'htmlparser2';
@@ -15,8 +14,11 @@ export const LBS_ROOT_NODE = getCourseRootNode('lbs');
 export const KRMT_ROOT_NODE = getCourseRootNode('krmt');
 
 const SLIDE_DOC_CACHE = new Map<string, string>();
-export async function getFileContent(nodeId: NodeId): Promise<string> {
-  const url = `${DEFAULT_BASE_URL}/:sTeX/document?archive=${nodeId.archive}&filepath=${nodeId.filepath}`;
+export async function getFileContent(
+  nodeId: NodeId,
+  mmtUrl: string
+): Promise<string> {
+  const url = `${mmtUrl}/:sTeX/document?archive=${nodeId.archive}&filepath=${nodeId.filepath}`;
   if (SLIDE_DOC_CACHE.has(url)) return SLIDE_DOC_CACHE.get(url);
   console.log('Fetching ' + url);
   const resp = await axios.get(url);
@@ -98,7 +100,6 @@ export function getText(html: string) {
   return textContent(nodes);
 }
 
-
 export function getTitle(deckId: string) {
   if (!deckId) return 'Error';
   const nodeId = deckIdToNodeId(deckId);
@@ -107,8 +108,7 @@ export function getTitle(deckId: string) {
     node = nextNode(node);
     if (node?.titleAsHtml?.length) {
       const text = getText(node.titleAsHtml);
-      if (text.length)
-      return node.titleAsHtml;
+      if (text.length) return node.titleAsHtml;
     }
   }
   return 'Unknown';

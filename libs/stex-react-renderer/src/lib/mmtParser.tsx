@@ -5,7 +5,6 @@ import { styled } from '@mui/material/styles';
 import Tooltip, { tooltipClasses, TooltipProps } from '@mui/material/Tooltip';
 import {
   BG_COLOR,
-  DEFAULT_BASE_URL,
   getSectionInfo,
   IS_MMT_VIEWER,
   IS_SERVER,
@@ -22,9 +21,6 @@ import MathJaxHack from './MathJaxHack';
 import { MathMLDisplay } from './MathMLDisplay';
 import { OverlayDialog } from './OverlayDialog';
 import { SidebarButton } from './SidebarButton';
-
-export const PARSER_BASE_URL =
-  (IS_SERVER ? null : (window as any).BASE_URL) ?? DEFAULT_BASE_URL;
 
 let SECTION_IDS: {
   [nodeId: string]: string;
@@ -47,7 +43,7 @@ function SectionIdHackObject({ inputRef }: { inputRef: string }) {
         background: BG_COLOR,
         fontWeight: 'bold',
         zIndex: '1',
-        marginTop: isChapter? '100px': undefined,
+        marginTop: isChapter ? '100px' : undefined,
         position: isChapter ? undefined : 'relative',
         bottom: isChapter ? undefined : '-72px',
         width: isChapter ? undefined : '52px',
@@ -372,7 +368,7 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
   const hoverParent = domNode.attribs['data-highlight-parent'];
   if ((hoverLink || clickLink) && !domNode.attribs['processed']) {
     domNode.attribs['processed'] = 'first';
-    const dialogPath = PARSER_BASE_URL + clickLink;
+    const dialogPath = clickLink;
     // eslint-disable-next-line react/display-name
     const WithHighlightable = forwardRef((props, ref) => {
       return (
@@ -393,7 +389,7 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
             title={
               hoverLink ? (
                 <Box
-                  maxWidth='600px'
+                  maxWidth="600px"
                   color="black"
                   border="1px solid #CCC"
                   p="5px"
@@ -401,7 +397,7 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
                   boxShadow="2px 7px 31px 8px rgba(0,0,0,0.33)"
                 >
                   <ContentFromUrl
-                    url={PARSER_BASE_URL + hoverLink}
+                    url={hoverLink}
                     modifyRendered={getChildrenOfBodyNode}
                   />
                 </Box>
@@ -430,12 +426,14 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
   if (domNode.attribs['onclick']) {
     const rx = /stexMainOverlayOn\('(.*)'/g;
     const matches = rx.exec(domNode.attribs['onclick']);
-    const path = PARSER_BASE_URL + matches?.[1];
+    const path = matches?.[1];
     return (
-      <OverlayDialog
-        contentUrl={path}
-        displayNode={<>{domToReact([domNode])}</>}
-      />
+      path && (
+        <OverlayDialog
+          contentUrl={path}
+          displayNode={<>{domToReact([domNode])}</>}
+        />
+      )
     );
   }
 
@@ -457,7 +455,7 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
         <SectionIdHackObject inputRef={inputRef} />
         <ExpandableContent
           htmlTitle={domNode}
-          contentUrl={PARSER_BASE_URL + inputRef}
+          contentUrl={inputRef}
           title={domToReact(domNode.children, { replace }) as any}
         />
         &nbsp;
