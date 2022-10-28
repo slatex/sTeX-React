@@ -26,20 +26,20 @@ export const AI_1_COURSE_SECTIONS: CourseSectionInfo = {
   },
   'Artificial Intelligence - Who?, What?, When?, Where?, and Why?': {
     'MiKoMH/AI||course/slides/questionnaire-call.en.xhtml': { clipId: '44933', timestampSec: 700 },
-    'MiKoMH/AI||course/slides/plot.en.xhtml': { clipId: '44933', sec: '1', timestampSec: 752 },
-    'MiKoMH/AI||intro/slides/whatisai-parts.en.xhtml': { clipId: '44933', sec: '2', timestampSec: 2718 },
-    'MiKoMH/AI||intro/slides/ai-conundrum.en.xhtml': { clipId: '44933', sec: '3' , timestampSec: 3863 },
-    'MiKoMH/AI||course/slides/alphago-here.en.xhtml': { clipId: '21724', sec: '4' },
-    'MiKoMH/AI||intro/slides/agi.en.xhtml': { clipId: '21719', sec: '5' },
-    'MiKoMH/AI||course/slides/ai2-topics.en.xhtml': { clipId: '21719' },
-    'MiKoMH/AI||course/slides/ai1sysproj.en.xhtml': { clipId: '21725', sec: '6' },
+    'MiKoMH/AI||course/slides/plot.en.xhtml': { sec: '1', clipId: '44933', timestampSec: 752 },
+    'MiKoMH/AI||intro/slides/whatisai-parts.en.xhtml': { sec: '2', clipId: '44933', timestampSec: 2718 },
+    'MiKoMH/AI||intro/slides/ai-conundrum.en.xhtml': { sec: '3', clipId: '44933', timestampSec: 3863 },
+    'MiKoMH/AI||course/slides/alphago-here.en.xhtml': { sec: '4', clipId: '44934', timestampSec: 5 },
+    'MiKoMH/AI||intro/slides/agi.en.xhtml': { sec: '5', clipId: '44934', timestampSec: 996 },
+    'MiKoMH/AI||course/slides/ai2-topics.en.xhtml': { clipId: '44934', timestampSec: 1753 },
+    'MiKoMH/AI||course/slides/ai1sysproj.en.xhtml': { sec: '6', clipId: '44934', timestampSec: 2081 },
   },
   'Logic Programming': {
-    'MiKoMH/AI||course/slides/enough.en.xhtml': { clipId: '21752' },
-    'MiKoMH/AI||logic/snip/declarative-programming.en.xhtml': { clipId: '21753', sec: '1' },
-    'MiKoMH/AI||prolog/slides/fallible-greeks.en.xhtml': { clipId: '21754', sec: '2' },
-    'MiKoMH/AI||prolog/slides/DFS-back-ex.en.xhtml': { clipId: '21827', sec: '2.2' },
-    'MiKoMH/AI||prolog/slides/relational-programming.en.xhtml': { sec: '2.3'}
+    'MiKoMH/AI||course/snip/recruiting.en.xhtml': { clipId: '44934', timestampSec: 2634 },
+    'MiKoMH/AI||logic/snip/declarative-programming.en.xhtml': { sec: '1', clipId: '44934', timestampSec: 2827 },
+    'MiKoMH/AI||prolog/slides/fallible-greeks.en.xhtml': { sec: '2', clipId: '44934', timestampSec: 4723 },
+    'MiKoMH/AI||prolog/slides/DFS-back-ex.en.xhtml': { sec: '2.2', clipId: '44934', timestampSec: 5077 },
+    'MiKoMH/AI||prolog/slides/relational-programming.en.xhtml': { sec: '2.3', clipId: '44935', timestampSec: 2681 }
   },
   'Dont show me, i am just to end the last deck': {
     'MiKoMH/AI||prolog/slides/rtfm.en.xhtml': { },
