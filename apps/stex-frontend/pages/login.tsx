@@ -18,7 +18,7 @@ const LoginPage: NextPage = () => {
   const [fakeId, setFakeId] = useState(`${Math.floor(Math.random() * 10000)}`);
   const returnBackUrl = router.query.target as string;
   const [clickCount, updateClickCount] = useReducer((x) => x + 1, 0);
-  const fakeLogin = clickCount >= 3;
+  const fakeLogin = clickCount >= 1;
   return (
     <MainLayout>
       <br />
