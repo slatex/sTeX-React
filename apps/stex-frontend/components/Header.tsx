@@ -1,3 +1,4 @@
+import { useMatomo } from '@jonkoops/matomo-tracker-react';
 import WarningIcon from '@mui/icons-material/Warning';
 import { Box, Button, Menu, MenuItem, Toolbar, Tooltip } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
@@ -5,7 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { getUserName, isLoggedIn, logout } from '../api/lms';
+import { getUserId, getUserName, isLoggedIn, logout } from '../api/lms';
 import { BrowserAutocomplete } from '../components/BrowserAutocomplete';
 import styles from '../styles/header.module.scss';
 
@@ -24,8 +25,13 @@ function UserButton() {
   // Menu crap End
 
   const [userName, setUserName] = useState('User');
+  const { pushInstruction } = useMatomo();
+
   useEffect(() => {
     getUserName().then(setUserName);
+    getUserId().then((userId) => {
+      pushInstruction('setUserId', userId);
+    });
   }, []);
 
   return (

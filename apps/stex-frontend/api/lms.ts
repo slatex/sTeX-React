@@ -56,7 +56,7 @@ export function fakeLoginUsingRedirect(fakeId: string, returnBackUrl?: string) {
   window.location.replace(redirectUrl);
 }
 
-async function umsRequest(
+async function lmsRequest(
   apiUrl: string,
   requestType: string,
   defaultVal: any,
@@ -84,7 +84,7 @@ async function umsRequest(
 }
 
 export async function getUriWeights(uris: string[]) {
-  const vals = await umsRequest(
+  const vals = await lmsRequest(
     'usermodel/geturiweights',
     'POST',
     Array(uris.length).fill(0),
@@ -94,9 +94,13 @@ export async function getUriWeights(uris: string[]) {
 }
 
 export async function setUriWeights(uriData: { [uri: string]: number }) {
-  return await umsRequest('usermodel/seturiweights', 'POST', {}, uriData);
+  return await lmsRequest('usermodel/seturiweights', 'POST', {}, uriData);
 }
 
 export async function getUserName() {
-  return await umsRequest('getusername', 'GET', 'Not logged in');
+  return await lmsRequest('getusername', 'GET', 'Not logged in');
+}
+
+export async function getUserId() {
+  return await lmsRequest('getuserid', 'GET', 'Not logged in');
 }
