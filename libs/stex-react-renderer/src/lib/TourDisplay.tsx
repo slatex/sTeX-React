@@ -467,7 +467,7 @@ export function TourDisplay({
       if (previous.includes(uri)) return previous;
       return [...previous, uri];
     });
-    reportEvent({ type: 'i-know', uri }).then(console.log);
+    reportEvent({ type: 'i-know', URI: uri }).then(console.log);
     const item = allItemsMap.get(uri);
     if (item) item.weight = 1;
   }

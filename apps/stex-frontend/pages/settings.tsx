@@ -51,7 +51,7 @@ const Home: NextPage = () => {
             onClick={async () => {
               const resp = await reportEvent({
                 type: 'i-know',
-                uri: 'testUri1',
+                URI: 'testUri1',
               });
               console.log(resp);
             }}

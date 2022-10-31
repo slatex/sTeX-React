@@ -4,7 +4,7 @@ import { deleteCookie, getCookie } from './utils';
 const lmsServerAddress = process.env.NEXT_PUBLIC_LMS_URL;
 export interface LMSEvent {
   type: 'i-know' | 'question-answered';
-  uri: string; // The uri that "i-know" or the question answered filename.
+  URI: string; // The uri that "i-know" or the question answered filename.
   answers?: any; // The answer of the question. Type TBD.
 }
 
