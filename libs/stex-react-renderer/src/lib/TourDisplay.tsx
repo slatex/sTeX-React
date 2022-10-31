@@ -119,7 +119,6 @@ function TourItemDisplay({
   lang = 'en',
   visibilityUpdate,
   onUnderstood,
-  onMoreDetails,
   onHideTemp,
   addToTempShowUri,
 }: {
@@ -129,7 +128,6 @@ function TourItemDisplay({
   lang?: string;
   visibilityUpdate: (a: boolean) => void;
   onUnderstood: () => void;
-  onMoreDetails: () => void;
   onHideTemp: () => void;
   addToTempShowUri: (uri: string) => void;
 }) {
@@ -409,13 +407,13 @@ export function TourDisplay({
   language = 'en',
   getUriWeights = (uri: string[]) =>
     Promise.resolve(new Array(uri.length).fill(0)),
-  setUriWeights = (_) => Promise.resolve(),
+  reportEvent = (_) => Promise.resolve(),
   topOffset,
 }: {
   tourId: string;
   language?: string;
   getUriWeights?: (uri: string[]) => Promise<number[]>;
-  setUriWeights?: (uriData: { [uri: string]: number }) => Promise<void>;
+  reportEvent?: (event: any) => Promise<void>;
   topOffset: number;
 }) {
   const [allItemsMap, setAllItemsMap] = useState(new Map<string, TourItem>());
@@ -469,16 +467,17 @@ export function TourDisplay({
       if (previous.includes(uri)) return previous;
       return [...previous, uri];
     });
-    setUriWeights({ [uri]: 1 }).then(console.log);
+    reportEvent({ type: 'i-know', uri }).then(console.log);
     const item = allItemsMap.get(uri);
     if (item) item.weight = 1;
   }
-  function removeFromUnderstoodList(uri: string) {
+
+  /*function removeFromUnderstoodList(uri: string) {
     setUnderstoodUriList((previous) => previous.filter((u) => u !== uri));
     setUriWeights({ [uri]: 0.0 }).then(console.log);
     const item = allItemsMap.get(uri);
     if (item) item.weight = 0;
-  }
+  }*/
 
   function addToTempShowUri(uri: string) {
     setTempShowUri((previous) => {
@@ -522,7 +521,6 @@ export function TourDisplay({
               lang={language}
               isTempShow={tempShowUri.includes(item.uri)}
               onUnderstood={() => addToUnderstoodList(item.uri)}
-              onMoreDetails={() => removeFromUnderstoodList(item.uri)}
               onHideTemp={() => removeFromTempShowUri(item.uri)}
               addToTempShowUri={addToTempShowUri}
               visibilityUpdate={(visibility) => {

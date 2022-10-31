@@ -26,7 +26,7 @@ interface D3DagEntry {
   weight: number;
 }
 
-function getD3DagEntries(tourAPIEntries: TourAPIEntry[], weights: number) {
+function getD3DagEntries(tourAPIEntries: TourAPIEntry[], weights: number[]) {
   const tourItems: Map<string, D3DagEntry> = new Map();
   for (const [idx, entry] of tourAPIEntries.entries()) {
     tourItems.set(entry.id, {

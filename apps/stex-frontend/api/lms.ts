@@ -2,6 +2,11 @@ import axios, { AxiosError } from 'axios';
 import { deleteCookie, getCookie } from './utils';
 
 const lmsServerAddress = process.env.NEXT_PUBLIC_LMS_URL;
+export interface LMSEvent {
+  type: 'i-know' | 'question-answered';
+  uri: string; // The uri that "i-know" or the question answered filename.
+  answers?: any; // The answer of the question. Type TBD.
+}
 
 export function getAccessToken() {
   return getCookie('access_token');
@@ -83,18 +88,25 @@ async function lmsRequest(
   }
 }
 
-export async function getUriWeights(uris: string[]) {
-  const vals = await lmsRequest(
-    'usermodel/geturiweights',
+export async function getUriWeights(URIs: string[]) {
+  const resp = await lmsRequest(
+    'lms/output/multiple',
     'POST',
-    Array(uris.length).fill(0),
-    uris
+    {
+      competencies: URIs.map((URI) => {
+        return { URI, competency: 0 };
+      }),
+    },
+    { URIs }
   );
-  return vals.map((val) => (val ? +val : 0));
+  const compMap = new Map<string, any>();
+  console.log(resp);
+  resp.competencies.forEach((c) => compMap.set(c.URI, c.competency));
+  return URIs.map((URI) => +(compMap.get(URI) || 0));
 }
 
-export async function setUriWeights(uriData: { [uri: string]: number }) {
-  return await lmsRequest('usermodel/seturiweights', 'POST', {}, uriData);
+export async function reportEvent(event: LMSEvent) {
+  return await lmsRequest('lms/input/events', 'POST', {}, event);
 }
 
 export async function getUserName() {

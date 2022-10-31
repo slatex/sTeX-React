@@ -2,9 +2,7 @@ import { Button } from '@mui/material';
 import { localStore } from '@stex-react/utils';
 import type { NextPage } from 'next';
 import { useReducer } from 'react';
-import {
-  getUriWeights, setUriWeights
-} from '../api/lms';
+import { getUriWeights, reportEvent } from '../api/lms';
 import MainLayout from '../layouts/MainLayout';
 
 const FORCE_MATHJAX = 'forceMathJax';
@@ -51,9 +49,9 @@ const Home: NextPage = () => {
             size="small"
             sx={{ m: '5px' }}
             onClick={async () => {
-              const resp = await setUriWeights({
-                testUri1: 0.5,
-                testUri2: 0.7,
+              const resp = await reportEvent({
+                type: 'i-know',
+                uri: 'testUri1',
               });
               console.log(resp);
             }}
