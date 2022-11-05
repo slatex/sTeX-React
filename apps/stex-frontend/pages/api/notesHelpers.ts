@@ -70,9 +70,33 @@ export function findNode(nodeId: NodeId, tree: TreeNode): TreeNode | null {
   return null;
 }
 
+function lastDescendent(node: TreeNode): TreeNode {
+  if (node.children?.length) {
+    return lastDescendent(node.children[node.children.length - 1]);
+  }
+  return node;
+}
+
+export function previousNode(node: TreeNode): TreeNode {
+  if (!node.parent) return undefined;
+  while (node) {
+    const parent = node.parent;
+
+    let previousSibling = undefined as TreeNode;
+    for (const c of parent.children) {
+      if (c == node) break;
+      previousSibling = c;
+    }
+    if (previousSibling) return lastDescendent(previousSibling);
+
+    node = node.parent;
+  }
+  return undefined;
+}
+
 export function nextNode(node: TreeNode): TreeNode {
   if (node.children?.length > 0) return node.children[0];
-  if (!node?.parent) return null;
+  if (!node?.parent) return undefined;
   while (node) {
     const parent = node.parent;
     let found = false;
@@ -86,6 +110,7 @@ export function nextNode(node: TreeNode): TreeNode {
     }
     node = node.parent;
   }
+  return undefined;
 }
 
 export function getText(html: string) {
@@ -105,11 +130,11 @@ export function getTitle(deckId: string) {
   const nodeId = deckIdToNodeId(deckId);
   let node = nodeId ? findNode(nodeId, AI_ROOT_NODE) : AI_ROOT_NODE;
   while (node) {
-    node = nextNode(node);
-    if (node?.titleAsHtml?.length) {
+    if (node.titleAsHtml?.length) {
       const text = getText(node.titleAsHtml);
       if (text.length) return node.titleAsHtml;
     }
+    node = nextNode(node);
   }
   return 'Unknown';
 }

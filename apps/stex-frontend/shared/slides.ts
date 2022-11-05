@@ -6,6 +6,7 @@ export interface DeckAndVideoInfo {
   r360?: string;
   r720?: string;
   r1080?: string;
+  clipId?: string;
   timestampSec?: number;
   sub?: string;
 }

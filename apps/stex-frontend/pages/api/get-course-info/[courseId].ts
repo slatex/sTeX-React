@@ -26,7 +26,8 @@ export default async function handler(req, res) {
     for (const deckId of Object.keys(deckList)) {
       const videoInfo = AI_VIDEO_INFO[deckId] || {};
       const sec = deckList[deckId].sec;
-      decks.push({ sec, deckId, titleAsHtml: getTitle(deckId), ...videoInfo });
+      const clipId = deckList[deckId].clipId;
+      decks.push({ sec, clipId, deckId, titleAsHtml: getTitle(deckId), ...videoInfo });
     }
     sections.push({ sectionTitle, decks });
   }

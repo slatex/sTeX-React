@@ -12,7 +12,7 @@ import {
   getText,
   NodeId,
   nodeId,
-  nodeIdToDeckId,
+  previousNode,
 } from '../../notesHelpers';
 
 function FrameSlide(slideContent: any): Slide {
@@ -66,6 +66,7 @@ function trimElements(elements: string[]) {
 async function getSlidesForDocNodeAfterRef(
   node: any,
   isDoc: string,
+  endWith: NodeId,
   titleElement?: Element,
   afterThisRef?: NodeId
 ): Promise<SlideReturn> {
@@ -99,9 +100,14 @@ async function getSlidesForDocNodeAfterRef(
         };
       }
       const nodeId = { archive, filepath };
-      //console.log(`Fetching from: ${nodeId.filepath}`);
-      const ret = await getSlidesForDocAfterRef(nodeId, node, undefined);
-      if (AI_1_DECK_IDS.indexOf(nodeIdToDeckId(nodeId)) !== -1) {
+      // console.log(`Found: ${nodeId.filepath}`);
+      const ret = await getSlidesForDocAfterRef(
+        nodeId,
+        endWith,
+        node,
+        undefined
+      );
+      if (endWith.archive === archive && endWith.filepath === filepath) {
         //console.log(`ended with ${nodeId.filepath}`);
         ret.sectionHasEnded = true;
       }
@@ -126,6 +132,7 @@ async function getSlidesForDocNodeAfterRef(
     } = await getSlidesForDocNodeAfterRef(
       child,
       undefined,
+      endWith,
       undefined,
       afterThisRef2
     );
@@ -180,6 +187,7 @@ async function getSlidesForDocNodeAfterRef(
 
 async function getSlidesForDocAfterRef(
   curr: NodeId,
+  endWith: NodeId,
   title?: Element,
   afterThisRef?: NodeId
 ): Promise<SlideReturn> {
@@ -190,6 +198,7 @@ async function getSlidesForDocAfterRef(
   return await getSlidesForDocNodeAfterRef(
     htmlDoc,
     curr.filepath,
+    endWith,
     title,
     afterThisRef
   );
@@ -206,25 +215,44 @@ export default async function handler(req, res) {
   }
   const cacheKey = `${courseId}||${deckId}`;
   const cached = CACHED_SLIDES.get(cacheKey);
-  if(cached) {
+  if (cached) {
     res.status(200).json(cached);
     return;
   }
-  const lastSectionEndNode = deckIdToNodeId(deckId);
+  const deckNodeId = deckIdToNodeId(deckId);
   const slides: Slide[] = [];
-  const node = findNode(lastSectionEndNode, AI_ROOT_NODE);
-  if (!node && deckId !== 'initial') {
-    res.status(500).json({ error: `Not found: ${deckId}` });
+  const node = findNode(deckNodeId, AI_ROOT_NODE);
+  const deckIdx = AI_1_DECK_IDS.indexOf(deckId);
+  if (!node || deckIdx === -1 || deckIdx >= AI_1_DECK_IDS.length - 1) {
+    res.status(400).json({ error: `Not found: ${deckId}` });
     return;
   }
-  if (!node) {
-    const slideReturn = await getSlidesForDocAfterRef(nodeId(AI_ROOT_NODE));
+  const endingNode = previousNode(
+    findNode(deckIdToNodeId(AI_1_DECK_IDS[deckIdx + 1]), AI_ROOT_NODE)
+  );
+  if (!endingNode) {
+    res.status(500).json({ error: 'Ending node not found.' });
+    return;
+  }
+
+  const previousDeckLastNode = previousNode(node);
+  console.log(
+    `${node.filepath} --> [${previousDeckLastNode?.filepath || 'initial'},
+    ${endingNode?.filepath}]`
+  );
+
+  if (!previousDeckLastNode) {
+    const slideReturn = await getSlidesForDocAfterRef(
+      nodeId(AI_ROOT_NODE),
+      endingNode
+    );
     slides.push(...slideReturn.slides);
   }
-  let ancestorElement: TreeNode | null = node;
+  let ancestorElement: TreeNode | null = previousDeckLastNode;
   while (ancestorElement?.parent) {
     const slideReturn = await getSlidesForDocAfterRef(
       nodeId(ancestorElement.parent),
+      endingNode,
       undefined,
       nodeId(ancestorElement)
     );

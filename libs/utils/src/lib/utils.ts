@@ -25,7 +25,7 @@ export function convertHtmlNodeToPlain(htmlNode: any) {
 }
 
 export function convertHtmlStringToPlain(htmlStr: string) {
-  if (!htmlStr) return htmlStr;
+  if (IS_SERVER || !htmlStr) return htmlStr;
   // Create a new div element
   const tempDivElement = document.createElement('div');
   // Set the HTML content with the given value
