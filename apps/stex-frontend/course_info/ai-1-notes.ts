@@ -48,7 +48,7 @@ export const AI_1_COURSE_SECTIONS: CourseSectionInfo = {
     'MiKoMH/AI||rational-agents/sec/rational-agents.en.xhtml': { clipId: '44936', timestampSec: 4942 },
     'MiKoMH/AI||rational-agents/sec/intro.en.xhtml': { secNo: '1', clipId: '44936', timestampSec: 5001 },
     'MiKoMH/AI||rational-agents/sec/agentenv-framework.en.xhtml': { secNo: '2', clipId: '44937', timestampSec: 888 },
-    'MiKoMH/AI||rational-agents/sec/rationality.en.xhtml': { secNo: '3', clipId: '44937', timestampSec: 2120 },
+    'MiKoMH/AI||rational-agents/sec/rationality.en.xhtml': { secNo: '3', clipId: '44937', timestampSec: 2128 },
     'MiKoMH/AI||rational-agents/sec/envtypes.en.xhtml': { secNo: '4', clipId: '44937', timestampSec: 3116 },
     'MiKoMH/AI||rational-agents/sec/agenttypes.en.xhtml': { secNo: '5', clipId: '44937', timestampSec: 3972 },
     'MiKoMH/AI||rational-agents/sec/agent-states.en.xhtml': { secNo: '6' },
@@ -58,8 +58,6 @@ export const AI_1_COURSE_SECTIONS: CourseSectionInfo = {
     'MiKoMH/AI||prereq/sec/why-complexity-analysis.en.xhtml': { secNo: '1', clipId: '44936', timestampSec: 486 },
     'MiKoMH/AI||prereq/slides/complexity-recap.en.xhtml': { clipId: '44936', timestampSec: 687 },
     'MiKoMH/AI||prereq/sec/grammar.en.xhtml': { secNo: '2', clipId: '44936', timestampSec: 2185 },
-    'MiKoMH/GenCS||codes/slides/string-math.en.xhtml': { clipId: '44936', timestampSec: 2267 },
-    'MiKoMH/GenCS||codes/slides/formal-language.en.xhtml': { clipId: '44936', timestampSec: 2394 },
     'MiKoMH/AI||nlp/slides/grammar.en.xhtml': { clipId: '44936', timestampSec: 2866 },
     'MiKoMH/AI||prereq/sec/mathlang.en.xhtml': { secNo: '3', clipId: '44936', timestampSec: 4521 },
   },
@@ -71,18 +69,7 @@ export const AI_1_COURSE_SECTIONS: CourseSectionInfo = {
   */
 };
 
-function getNextId(id:string, allIds: string[]) {
-  for(const [idx,v] of allIds.entries()) {
-    if(v==id) return allIds[idx+1];
-  }
-  return '';
-}
-
 function getSectionIds(courseSections: CourseSectionInfo, notesTree:string) {
-  const allIds = notesTree.split('\n').map(line=>{
-    const parts = line.split('||');
-    return `${parts[1]}||${parts[2]}`;
-  });
   const sectionIds: { [nodeId: string]: string } = {};
   for (const [secIdx, [secName, secEntries]] of Object.entries(
     Object.entries(courseSections)
@@ -91,12 +78,10 @@ function getSectionIds(courseSections: CourseSectionInfo, notesTree:string) {
       Object.entries(secEntries)
     )) {
       if (secInfo.secNo){
-        const nextId = getNextId(id, allIds);
-        sectionIds[nextId] = `${+secIdx}.${secInfo.secNo}`;
+        sectionIds[id] = `${+secIdx}.${secInfo.secNo}`;
       }
       else if (+deckIdx === 0) {
-        const nextId = getNextId(id, allIds);
-        sectionIds[nextId] = `${+secIdx}`;
+        sectionIds[id] = `${+secIdx}`;
       }
     }
   }

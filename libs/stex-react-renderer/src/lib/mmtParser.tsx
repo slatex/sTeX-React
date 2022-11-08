@@ -7,7 +7,6 @@ import {
   BG_COLOR,
   getSectionInfo,
   IS_MMT_VIEWER,
-  IS_SERVER,
   localStore,
 } from '@stex-react/utils';
 import parse, { DOMNode, domToReact, Element } from 'html-react-parser';
@@ -43,7 +42,7 @@ function SectionIdHackObject({ inputRef }: { inputRef: string }) {
         background: BG_COLOR,
         fontWeight: 'bold',
         zIndex: '1',
-        marginTop: isChapter ? '100px' : undefined,
+        marginTop: isChapter ? '200px' : undefined,
         position: isChapter ? undefined : 'relative',
         bottom: isChapter ? undefined : '-72px',
         width: isChapter ? undefined : '52px',
