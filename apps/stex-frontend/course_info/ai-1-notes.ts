@@ -25,7 +25,7 @@ export const AI_1_COURSE_SECTIONS: CourseSectionInfo = {
     'MiKoMH/AI||course/snip/questionnaire-intro.en.xhtml': { clipId: '43840', timestampSec: 4012 },
   },
   'Resources': {
-    'MiKoMH/AI||course/sec/resources.en.xhtml': {  },
+    'MiKoMH/AI||course/sec/resources.en.xhtml': { clipId: '43840', timestampSec: 4344 },
   },
   'Artificial Intelligence - Who?, What?, When?, Where?, and Why?': {
     'MiKoMH/AI||course/sec/overview.en.xhtml': { clipId: '44933', timestampSec: 700 },
