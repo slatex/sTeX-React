@@ -160,6 +160,7 @@ export function LayoutWithFixedMenu({
           width={
             !useDrawer && showDashboard ? `calc(100% - ${MENU_WIDTH})` : '100%'
           }
+          margin="0 5px"
         >
           {children}
         </Box>

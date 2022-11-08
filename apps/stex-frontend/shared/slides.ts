@@ -1,13 +1,16 @@
 export interface DeckAndVideoInfo {
   deckId?: string;
-  sec?: string;
+  secNo?: string;
   titleAsHtml: string;
 
+  clipId?: string;
+  timestampSec?: number;
+}
+
+export interface ClipDetails {
   r360?: string;
   r720?: string;
   r1080?: string;
-  clipId?: string;
-  timestampSec?: number;
   sub?: string;
 }
 
@@ -25,6 +28,7 @@ export interface CourseSection {
 }
 
 export interface CourseInfo {
+  courseId: string;
   sections: CourseSection[];
 }
 

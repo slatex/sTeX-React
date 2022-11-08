@@ -1,19 +1,18 @@
 import { getSectionInfo } from '@stex-react/utils';
 import { getOuterHTML, textContent } from 'domutils';
 import * as htmlparser2 from 'htmlparser2';
-import { TreeNode } from '../../../../notes-trees.preval';
-import { AI_1_DECK_IDS } from '../../../../course_info/ai-1-notes';
-import { Slide, SlideReturn, SlideType } from '../../../../shared/slides';
+import { TreeNode } from '../../../../../notes-trees.preval';
+import { Slide, SlideReturn, SlideType } from '../../../../../shared/slides';
 import {
-  AI_ROOT_NODE,
-  deckIdToNodeId,
+  strNodeIdToNodeId,
   findNode,
+  getCourseRootNode,
   getFileContent,
   getText,
   NodeId,
   nodeId,
-  previousNode,
-} from '../../notesHelpers';
+  previousNode
+} from '../../../notesHelpers';
 
 function FrameSlide(slideContent: any): Slide {
   return {
@@ -206,53 +205,69 @@ async function getSlidesForDocAfterRef(
 
 const CACHED_SLIDES = new Map<string, Slide[]>();
 
+//
+// startWith: This function returns the content after the end of the node
+// just before the node specified by 'startWith'.
+// This means that it not only includes content from the slide specified by
+// 'startWith' but also the content between predecessor node of 'startWith' and
+// 'startWith'. Thus, the start can be said to be 'inclusive++' :D
+//
+// endWith: The functions returns the content till the end of the node just
+// before the node specified by 'endWith'. Notably, the content in between
+// 'endWith' and its predecessor is not included.
+// Thus the end can said to be 'exclusive--' :D
 export default async function handler(req, res) {
-  const { courseId, deckId: deckIdEncoded } = req.query;
-  const deckId = decodeURIComponent(deckIdEncoded);
-  if (courseId !== 'ai-1') {
-    res.status(404).json({ error: 'Course not found!' });
+  const {
+    courseId,
+    startWith: startWithEncoded,
+    endWith: endWithEncoded,
+  } = req.query;
+  const startWithStrNodeId = decodeURIComponent(startWithEncoded);
+  const endWithStrNodeId = decodeURIComponent(endWithEncoded);
+  const courseRootNode = getCourseRootNode(courseId);
+  if (!courseRootNode) {
+    res.status(404).json({ error: `[${courseId}] Course not found!` });
     return;
   }
-  const cacheKey = `${courseId}||${deckId}`;
+  const cacheKey = `${courseId}||${startWithStrNodeId}||${endWithStrNodeId}`;
   const cached = CACHED_SLIDES.get(cacheKey);
   if (cached) {
     res.status(200).json(cached);
     return;
   }
-  const deckNodeId = deckIdToNodeId(deckId);
   const slides: Slide[] = [];
-  const node = findNode(deckNodeId, AI_ROOT_NODE);
-  const deckIdx = AI_1_DECK_IDS.indexOf(deckId);
-  if (!node || deckIdx === -1 || deckIdx >= AI_1_DECK_IDS.length - 1) {
-    res.status(400).json({ error: `Not found: ${deckId}` });
+  const startNode = findNode(strNodeIdToNodeId(startWithStrNodeId), courseRootNode);
+  if (!startNode) {
+    res.status(400).json({ error: `Not found: ${startWithEncoded}` });
     return;
   }
-  const endingNode = previousNode(
-    findNode(deckIdToNodeId(AI_1_DECK_IDS[deckIdx + 1]), AI_ROOT_NODE)
+  const exclusiveStartNode = previousNode(startNode);
+
+  const inclusiveEndNode = previousNode(
+    findNode(strNodeIdToNodeId(endWithStrNodeId), courseRootNode)
   );
-  if (!endingNode) {
-    res.status(500).json({ error: 'Ending node not found.' });
+  if (!inclusiveEndNode) {
+    res.status(500).json({ error: `Ending node ${endWithStrNodeId} not found.` });
     return;
   }
 
-  const previousDeckLastNode = previousNode(node);
   console.log(
-    `${node.filepath} --> [${previousDeckLastNode?.filepath || 'initial'},
-    ${endingNode?.filepath}]`
+    `${startNode.filepath} --> (${exclusiveStartNode?.filepath || 'initial'},
+    ${inclusiveEndNode?.filepath}]`
   );
 
-  if (!previousDeckLastNode) {
+  if (!exclusiveStartNode) {
     const slideReturn = await getSlidesForDocAfterRef(
-      nodeId(AI_ROOT_NODE),
-      endingNode
+      nodeId(courseRootNode),
+      nodeId(inclusiveEndNode)
     );
     slides.push(...slideReturn.slides);
   }
-  let ancestorElement: TreeNode | null = previousDeckLastNode;
+  let ancestorElement: TreeNode | null = exclusiveStartNode;
   while (ancestorElement?.parent) {
     const slideReturn = await getSlidesForDocAfterRef(
       nodeId(ancestorElement.parent),
-      endingNode,
+      nodeId(inclusiveEndNode),
       undefined,
       nodeId(ancestorElement)
     );

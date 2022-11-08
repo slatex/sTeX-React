@@ -1,12 +1,20 @@
 import VideocamIcon from '@mui/icons-material/Videocam';
 import VideocamOffIcon from '@mui/icons-material/VideocamOff';
-import { Box, IconButton, Menu, MenuItem, Tooltip } from '@mui/material';
+import {
+  Box,
+  CircularProgress,
+  IconButton,
+  Menu,
+  MenuItem,
+  Tooltip,
+} from '@mui/material';
 import { localStore } from '@stex-react/utils';
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
-import { DeckAndVideoInfo } from '../shared/slides';
+import { ClipDetails, DeckAndVideoInfo } from '../shared/slides';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CheckIcon from '@mui/icons-material/Check';
 import { useRouter } from 'next/router';
+import axios from 'axios';
 
 function ToggleResolution({
   audioOnly,
@@ -59,7 +67,7 @@ function ToggleResolution({
   );
 }
 
-function getAvailableRes(info?: DeckAndVideoInfo) {
+function getAvailableRes(info?: ClipDetails) {
   if (!info) return [];
   return Object.keys(info)
     .map((k) => {
@@ -70,11 +78,11 @@ function getAvailableRes(info?: DeckAndVideoInfo) {
 }
 
 function getVideoId(
-  info: DeckAndVideoInfo,
+  info: ClipDetails,
   needRes: number,
   availableRes: number[]
 ) {
-  if (!availableRes?.length) return;
+  if (!info || !availableRes?.length) return;
   const res = availableRes.includes(needRes) ? needRes : availableRes[0];
   return info[`r${res}`];
 }
@@ -121,7 +129,6 @@ function MediaItem({
       }}
       style={{
         width: '100%',
-        height: '100%',
         border: '1px solid black',
         borderRadius: '5px',
       }}
@@ -148,13 +155,28 @@ export function VideoDisplay({
   audioOnly: boolean;
 }) {
   const [resolution, setResolution] = useState(720);
-  const availableRes = getAvailableRes(deckInfo);
-  const videoId = getVideoId(deckInfo, resolution, availableRes);
+  const [clipDetails, setClipDetails] = useState(undefined as ClipDetails);
+  const availableRes = getAvailableRes(clipDetails);
+  const videoId = getVideoId(clipDetails, resolution, availableRes);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+
+  useEffect(() => {
+    if (!deckInfo?.clipId) {
+      setIsLoading(false);
+      return;
+    }
+    setIsLoading(true);
+    axios.get(`/api/get-fau-clip-info/${deckInfo.clipId}`).then((resp) => {
+      setIsLoading(false);
+      setClipDetails(resp.data);
+    });
+  }, [deckInfo?.clipId]);
 
   useEffect(() => {
     setResolution(+(localStore?.getItem('defaultResolution') || '720'));
   }, []);
+  if (isLoading) return <CircularProgress />;
   if (!videoId) return <i>Video not available for this section</i>;
   return (
     <>
@@ -162,7 +184,7 @@ export function VideoDisplay({
         videoId={videoId}
         timestampSec={deckInfo?.timestampSec}
         audioOnly={audioOnly}
-        sub={deckInfo?.sub}
+        sub={clipDetails?.sub}
       />
       <Box sx={{ m: '-4px 0 5px' }}>
         <ToggleResolution

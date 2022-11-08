@@ -1,4 +1,3 @@
-import AI_VIDEO_INFO from '../../../ai-video-info.preval';
 import { AI_1_COURSE_SECTIONS } from '../../../course_info/ai-1-notes';
 import {
   CourseInfo,
@@ -24,14 +23,13 @@ export default async function handler(req, res) {
   for (const [sectionTitle, deckList] of Object.entries(AI_1_COURSE_SECTIONS)) {
     const decks: DeckAndVideoInfo[] = [];
     for (const deckId of Object.keys(deckList)) {
-      const videoInfo = AI_VIDEO_INFO[deckId] || {};
-      const sec = deckList[deckId].sec;
-      const clipId = deckList[deckId].clipId;
-      decks.push({ sec, clipId, deckId, titleAsHtml: getTitle(deckId), ...videoInfo });
+      const { secNo, clipId, timestampSec } = deckList[deckId];
+      const titleAsHtml = getTitle(deckId);
+      decks.push({ secNo, clipId, timestampSec, deckId, titleAsHtml });
     }
     sections.push({ sectionTitle, decks });
   }
-  COURSE_INFO_CACHE.set(courseId, { sections });
+  COURSE_INFO_CACHE.set(courseId, { courseId, sections });
 
-  res.status(200).json({ sections });
+  res.status(200).json({ courseId, sections });
 }

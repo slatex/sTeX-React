@@ -8,7 +8,7 @@ import axios from 'axios';
 import { useRouter } from 'next/router';
 import { memo, useEffect, useState } from 'react';
 import { setSlideNumAndDeckId } from '../pages/course-view/[courseId]';
-import { DeckAndVideoInfo, Slide } from '../shared/slides';
+import { Slide } from '../shared/slides';
 import styles from '../styles/slide-deck.module.scss';
 
 export function SlideNavBar({
@@ -56,7 +56,8 @@ export function SlideNavBar({
 
 export const SlideDeck = memo(function SlidesFromUrl({
   courseId,
-  deckId,
+  deckStartNodeId,
+  deckEndNodeId,
   navOnTop = false,
   slideNum = 1,
   onSlideChange,
@@ -64,7 +65,8 @@ export const SlideDeck = memo(function SlidesFromUrl({
   goToPrevSection = undefined,
 }: {
   courseId: string;
-  deckId: string;
+  deckStartNodeId: string;
+  deckEndNodeId: string;
   navOnTop?: boolean;
   slideNum?: number;
   onSlideChange?: (slide: Slide) => void;
@@ -78,15 +80,20 @@ export const SlideDeck = memo(function SlidesFromUrl({
     undefined as Slide | undefined
   );
   const router = useRouter();
+  console.log(`[${deckStartNodeId}]-[${deckEndNodeId}]`);
 
   useEffect(() => {
     let isCancelled = false;
-    if (!deckId?.length) return;
+    if (!deckStartNodeId?.length || !deckEndNodeId?.length) return;
     setIsLoading(true);
     setSlides([]);
-    const loadingDeck = deckId;
+    const loadingDeck = deckStartNodeId;
     axios
-      .get(`/api/get-slides/${courseId}/${encodeURIComponent(loadingDeck)}`)
+      .get(
+        `/api/get-slides/${courseId}/${encodeURIComponent(
+          loadingDeck
+        )}/${encodeURIComponent(deckEndNodeId)}`
+      )
       .then((r) => {
         if (isCancelled) return;
         const slides: Slide[] = r.data || [];
@@ -99,10 +106,10 @@ export const SlideDeck = memo(function SlidesFromUrl({
     return () => {
       isCancelled = true; // avoids race condition on rapid deckId changes.
     };
-  }, [courseId, deckId]);
+  }, [courseId, deckStartNodeId, deckEndNodeId]);
 
   useEffect(() => {
-    if (!slides?.length || loadedSlideDeck !== deckId) return;
+    if (!slides?.length || loadedSlideDeck !== deckStartNodeId) return;
     if (slideNum < 1) {
       setSlideNumAndDeckId(router, slides.length);
       return;
@@ -114,12 +121,12 @@ export const SlideDeck = memo(function SlidesFromUrl({
     const selectedSlide = slides[slideNum - 1];
     setCurrentSlide(selectedSlide);
     if (onSlideChange) onSlideChange(selectedSlide);
-  }, [deckId, loadedSlideDeck, slides, slideNum, router, onSlideChange]);
+  }, [deckStartNodeId, loadedSlideDeck, slides, slideNum, router, onSlideChange]);
 
   if (isLoading) {
     return (
       <Box height="614px">
-        <span style={{ fontSize: 'smaller' }}>{deckId}</span>
+        <span style={{ fontSize: 'smaller' }}>{deckStartNodeId}</span>
         <LinearProgress />
       </Box>
     );
@@ -132,7 +139,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
     >
       <ContentWithHighlight
         mmtHtml={currentSlide?.slideContent || ''}
-        renderWrapperParams={{ 'section-url': deckId }}
+        renderWrapperParams={{ 'section-url': deckStartNodeId }}
       />
       <SlideNavBar
         slideNum={slideNum}

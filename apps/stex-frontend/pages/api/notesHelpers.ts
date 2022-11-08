@@ -8,10 +8,10 @@ export interface NodeId {
   archive: string;
   filepath: string;
 }
-export const AI_ROOT_NODE = getCourseRootNode('ai-1');
-export const IWGS_ROOT_NODE = getCourseRootNode('iwgs');
-export const LBS_ROOT_NODE = getCourseRootNode('lbs');
-export const KRMT_ROOT_NODE = getCourseRootNode('krmt');
+export const AI_ROOT_NODE = fixCourseRootNode('ai-1');
+export const IWGS_ROOT_NODE = fixCourseRootNode('iwgs');
+export const LBS_ROOT_NODE = fixCourseRootNode('lbs');
+export const KRMT_ROOT_NODE = fixCourseRootNode('krmt');
 
 const SLIDE_DOC_CACHE = new Map<string, string>();
 export async function getFileContent(
@@ -37,10 +37,24 @@ function fixTree(node: TreeNode) {
   }
 }
 
-function getCourseRootNode(courseId: string) {
+function fixCourseRootNode(courseId: string) {
   const root: TreeNode = NOTES_TREES[courseId];
   fixTree(root);
   return root;
+}
+
+export function getCourseRootNode(courseId: string) {
+  switch (courseId) {
+    case 'ai-1':
+      return AI_ROOT_NODE;
+    case 'iwgs':
+      return IWGS_ROOT_NODE;
+    case 'lbs':
+      return LBS_ROOT_NODE;
+    case 'krmt':
+      return KRMT_ROOT_NODE;
+  }
+  return undefined;
 }
 
 export function nodeId(node: TreeNode) {
@@ -52,7 +66,7 @@ export function nodeIdToDeckId(nodeId: NodeId) {
   return `${nodeId.archive}||${nodeId.filepath}`;
 }
 
-export function deckIdToNodeId(s: string): NodeId | undefined {
+export function strNodeIdToNodeId(s: string): NodeId | undefined {
   if (s === 'initial') return;
   const parts = s.split('||');
   if (parts.length != 2) return;
@@ -78,7 +92,7 @@ function lastDescendent(node: TreeNode): TreeNode {
 }
 
 export function previousNode(node: TreeNode): TreeNode {
-  if (!node.parent) return undefined;
+  if (!node?.parent) return undefined;
   while (node) {
     const parent = node.parent;
 
@@ -127,7 +141,7 @@ export function getText(html: string) {
 
 export function getTitle(deckId: string) {
   if (!deckId) return 'Error';
-  const nodeId = deckIdToNodeId(deckId);
+  const nodeId = strNodeIdToNodeId(deckId);
   let node = nodeId ? findNode(nodeId, AI_ROOT_NODE) : AI_ROOT_NODE;
   while (node) {
     if (node.titleAsHtml?.length) {

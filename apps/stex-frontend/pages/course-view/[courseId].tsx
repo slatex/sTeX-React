@@ -88,6 +88,30 @@ export function setSlideNumAndDeckId(
   router.push(router);
 }
 
+function courseInfoFromLocalStorage(courseId: string): CourseInfo {
+  const retrieved = localStore?.getItem(`course-info-${courseId}`);
+  return retrieved ? JSON.parse(retrieved) : undefined;
+}
+
+function getDeckEndNodeId(deckStartNodeId: string, courseInfo: CourseInfo) {
+  if (!courseInfo) return undefined;
+  for (const [secIdx, sec] of courseInfo?.sections.entries() || []) {
+    for (const [deckIdx, deck] of sec.decks.entries()) {
+      if (deck.deckId !== deckStartNodeId) continue;
+      if (deckIdx < sec.decks.length - 1) {
+        return sec.decks[deckIdx + 1].deckId;
+      } else if (secIdx < courseInfo.sections.length - 1) {
+        return courseInfo.sections[secIdx + 1].decks[0].deckId;
+      } else {
+        console.error(`handling end not implemented [${deckStartNodeId}]!`);
+        return undefined;
+      }
+    }
+  }
+  console.error(`Error: deck [${deckStartNodeId}] not found!`);
+  return undefined;
+}
+
 const CourseViewPage: NextPage = () => {
   const router = useRouter();
   const courseId = router.query.courseId as string;
@@ -104,6 +128,7 @@ const CourseViewPage: NextPage = () => {
   const [courseInfo, setCourseInfo] = useState(undefined as CourseInfo);
   const [deckInfo, setDeckInfo] = useState(undefined as DeckAndVideoInfo);
 
+  const deckEndNodeId = getDeckEndNodeId(deckId, courseInfo);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -136,9 +161,14 @@ const CourseViewPage: NextPage = () => {
 
   useEffect(() => {
     if (!router.isReady) return;
-    axios.get(`/api/get-course-info/${courseId}`).then((r) => {
-      setCourseInfo(r.data);
-    });
+    const fromLocalStorage = courseInfoFromLocalStorage(courseId);
+    if (fromLocalStorage) {
+      setCourseInfo(fromLocalStorage);
+    } else {
+      axios.get(`/api/get-course-info/${courseId}`).then((r) => {
+        setCourseInfo(r.data);
+      });
+    }
   }, [router.isReady, courseId]);
 
   useEffect(() => {
@@ -212,7 +242,7 @@ const CourseViewPage: NextPage = () => {
         setShowDashboard={setShowDashboard}
         drawerAnchor="left"
       >
-        <Box maxWidth="800px" margin="auto" width="100%">
+        <Box maxWidth="800px" margin="0 auto" width="100%">
           <Box
             display="flex"
             alignItems="center"
@@ -246,7 +276,8 @@ const CourseViewPage: NextPage = () => {
             <SlideDeck
               courseId={courseId}
               navOnTop={viewMode === ViewMode.COMBINED_MODE}
-              deckId={deckId}
+              deckStartNodeId={deckId}
+              deckEndNodeId={deckEndNodeId}
               onSlideChange={(slide: Slide) => {
                 setPreNotes(slide?.preNotes || []);
                 setPostNotes(slide?.postNotes || []);

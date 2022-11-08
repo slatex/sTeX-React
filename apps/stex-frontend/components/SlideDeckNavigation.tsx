@@ -100,9 +100,9 @@ export function SlideDeckNavigation({
                   }}
                   onClick={() => onSelect(deck.deckId)}
                 >
-                  {deck.sec && (
+                  {deck.secNo && (
                     <span>
-                      {sectionIdx}.{deck.sec}&nbsp;
+                      {sectionIdx}.{deck.secNo}&nbsp;
                     </span>
                   )}
                   {mmtHTMLToReact(deck.titleAsHtml)}
