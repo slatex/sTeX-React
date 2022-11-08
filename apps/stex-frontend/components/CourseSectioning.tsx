@@ -1,6 +1,7 @@
 import OutputIcon from '@mui/icons-material/Output';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import TimerIcon from '@mui/icons-material/Timer';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import {
   Box,
   Checkbox,
@@ -27,6 +28,15 @@ function saveToLocalStorage(courseInfo: CourseInfo) {
     JSON.stringify(courseInfo)
   );
   console.log(courseInfo);
+}
+
+function removeFromLocalStorage(courseId: string) {
+  localStore?.removeItem(`course-info-${courseId}`);
+}
+
+export function courseInfoFromLocalStorage(courseId: string): CourseInfo {
+  const retrieved = localStore?.getItem(`course-info-${courseId}`);
+  return retrieved ? JSON.parse(retrieved) : undefined;
 }
 
 function updateDeckData(
@@ -213,10 +223,7 @@ function NotesSidePanel({
     const idx = sec.decks.findIndex((d) => d.deckId === id);
     if (idx !== -1) {
       deck = sec.decks[idx];
-      if (idx === 0) {
-        console.log(sec.decks);
-        secTitle = sec.sectionTitle;
-      }
+      if (idx === 0) secTitle = sec.sectionTitle;
     }
   }
   const fontWeight = deck ? 'bold' : undefined;
@@ -437,8 +444,21 @@ export function CourseSectioning({
         <IconButton onClick={() => console.log(courseInfoToConfig(courseInfo))}>
           <OutputIcon />
         </IconButton>
+        <IconButton
+          onClick={() => {
+            if (confirm('Do you want to permanently discard your changes?')) {
+              removeFromLocalStorage(courseInfo?.courseId);
+              location.reload();
+            }
+          }}
+        >
+          <DeleteForeverIcon />
+        </IconButton>
       </Box>
-      <Box maxHeight="calc(100vh - 110px)" sx={{ overflowY: 'scroll', overflowX: 'clip' }}>
+      <Box
+        maxHeight="calc(100vh - 110px)"
+        sx={{ overflowY: 'scroll', overflowX: 'clip' }}
+      >
         <NotesSidePanel
           notesNode={NOTES_TREES['ai-1']}
           courseInfo={courseInfo}

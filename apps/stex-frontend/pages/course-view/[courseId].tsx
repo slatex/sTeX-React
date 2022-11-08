@@ -8,7 +8,7 @@ import {
   LayoutWithFixedMenu,
 } from '@stex-react/stex-react-renderer';
 import { localStore, shouldUseDrawer } from '@stex-react/utils';
-import { CourseSectioning } from '../../components/CourseSectioning';
+import { courseInfoFromLocalStorage, CourseSectioning } from '../../components/CourseSectioning';
 import axios from 'axios';
 import { NextPage } from 'next';
 import Link from 'next/link';
@@ -87,11 +87,6 @@ export function setSlideNumAndDeckId(
   router.query.slideNum = `${slideNum}`;
   localStore?.setItem(`lastReadSlideNum-${courseId}`, `${slideNum}`);
   router.push(router);
-}
-
-function courseInfoFromLocalStorage(courseId: string): CourseInfo {
-  const retrieved = localStore?.getItem(`course-info-${courseId}`);
-  return retrieved ? JSON.parse(retrieved) : undefined;
 }
 
 function getDeckEndNodeId(deckStartNodeId: string, courseInfo: CourseInfo) {
