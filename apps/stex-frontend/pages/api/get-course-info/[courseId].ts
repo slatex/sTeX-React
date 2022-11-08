@@ -3,7 +3,7 @@ import {
   CourseInfo,
   CourseSection,
   DeckAndVideoInfo,
-} from '../../../shared/slides';
+} from '../../../shared/types';
 import { getTitle } from '../notesHelpers';
 
 const COURSE_INFO_CACHE = new Map<string, CourseInfo>();

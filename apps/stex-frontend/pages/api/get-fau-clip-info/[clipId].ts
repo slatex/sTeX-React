@@ -1,4 +1,4 @@
-import { ClipDetails } from '../../../shared/slides';
+import { ClipDetails } from '../../../shared/types';
 import axios from 'axios';
 
 interface CachedObject {

@@ -9,7 +9,7 @@ import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
-import { DocumentDashInfo } from '../../shared/slides';
+import { DocumentDashInfo } from '../../shared/types';
 
 function createHash({ archive = '', filepath = '' }) {
   return simpleHash(`${archive}||${filepath}`);

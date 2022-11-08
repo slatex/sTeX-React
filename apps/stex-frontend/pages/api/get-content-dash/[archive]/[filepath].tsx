@@ -7,7 +7,7 @@ import {
   LBS_ROOT_NODE,
   KRMT_ROOT_NODE
 } from '../../notesHelpers';
-import { DocumentDashInfo } from '../../../../shared/slides';
+import { DocumentDashInfo } from '../../../../shared/types';
 
 function createInfoForNode(node: TreeNode): DocumentDashInfo {
   return {

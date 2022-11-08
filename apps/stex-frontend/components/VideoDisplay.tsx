@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import { localStore } from '@stex-react/utils';
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
-import { ClipDetails, DeckAndVideoInfo } from '../shared/slides';
+import { ClipDetails, DeckAndVideoInfo } from '../shared/types';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CheckIcon from '@mui/icons-material/Check';
 import { useRouter } from 'next/router';

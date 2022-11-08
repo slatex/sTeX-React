@@ -11,7 +11,7 @@ import {
   FixedPositionMenu,
   mmtHTMLToReact,
 } from '@stex-react/stex-react-renderer';
-import { CourseSection } from '../shared/slides';
+import { CourseSection } from '../shared/types';
 
 const Accordion = styled((props: AccordionProps) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />

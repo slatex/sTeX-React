@@ -2,7 +2,7 @@ import { getSectionInfo } from '@stex-react/utils';
 import { getOuterHTML, textContent } from 'domutils';
 import * as htmlparser2 from 'htmlparser2';
 import { TreeNode } from '../../../../../notes-trees.preval';
-import { Slide, SlideReturn, SlideType } from '../../../../../shared/slides';
+import { Slide, SlideReturn, SlideType } from '../../../../../shared/types';
 import {
   strNodeIdToNodeId,
   findNode,
