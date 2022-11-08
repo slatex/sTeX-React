@@ -108,6 +108,7 @@ export function StexReactRenderer({
 export {
   ContentFromUrl,
   ContentWithHighlight,
+  ExpandableContextMenu,
   FixedPositionMenu,
   LayoutWithFixedMenu,
   mmtHTMLToReact,

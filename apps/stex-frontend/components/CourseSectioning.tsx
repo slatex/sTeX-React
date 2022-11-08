@@ -424,7 +424,6 @@ export function CourseSectioning({
     if (!courseId) return;
     axios.get(`/api/get-tree-info/${courseId}`).then((resp) => {
       setCourseTreeInfo(resp.data);
-      console.log(resp.data);
     });
   }, [courseId]);
 

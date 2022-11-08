@@ -3,6 +3,6 @@
   justify-content: space-between;
 }
 
-.deck-box > :first-child > :first-child { /* The 'frame' or 'text-frame' */
+.deck-box > :nth-child(2) > :first-child { /* The 'frame' or 'text-frame' */
   height: 550px !important;
 }

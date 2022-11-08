@@ -11,20 +11,29 @@ import {
   getText,
   NodeId,
   nodeId,
-  previousNode
+  previousNode,
 } from '../../../notesHelpers';
 
-function FrameSlide(slideContent: any): Slide {
+function FrameSlide(
+  slideContent: any,
+  nodeId: NodeId
+): Slide {
   return {
     slideContent: getOuterHTML(slideContent),
     slideType: SlideType.FRAME,
     autoExpand: false,
     preNotes: [],
     postNotes: [],
+    archive: nodeId.archive,
+    filepath: nodeId.filepath,
   };
 }
 
-function TextSlide(slideContent: any, titleElement?: any): Slide {
+function TextSlide(
+  slideContent: any,
+  nodeId: NodeId,
+  titleElement?: any
+): Slide {
   let autoExpand = false;
   if (titleElement) {
     const titleText = textContent(titleElement);
@@ -36,6 +45,8 @@ function TextSlide(slideContent: any, titleElement?: any): Slide {
     autoExpand,
     preNotes: [],
     postNotes: [],
+    archive: nodeId.archive,
+    filepath: nodeId.filepath,
   };
 }
 
@@ -63,6 +74,7 @@ function trimElements(elements: string[]) {
 }
 
 async function getSlidesForDocNodeAfterRef(
+  nodeId: NodeId,
   node: any,
   isDoc: string,
   endWith: NodeId,
@@ -78,7 +90,7 @@ async function getSlidesForDocNodeAfterRef(
     const property = node.attribs['property'];
     if (property === 'stex:frame' && foundSection) {
       return {
-        slides: [FrameSlide(node)],
+        slides: [FrameSlide(node, nodeId)],
         foundSection,
         sectionHasEnded,
       };
@@ -129,6 +141,7 @@ async function getSlidesForDocNodeAfterRef(
       foundSection: found,
       sectionHasEnded: sectionEnd,
     } = await getSlidesForDocNodeAfterRef(
+      nodeId,
       child,
       undefined,
       endWith,
@@ -175,7 +188,7 @@ async function getSlidesForDocNodeAfterRef(
       body.attribs['style'] = 'display: block;'; // was width:921.4425px
       body.attribs['class'] = 'text-frame';
       return {
-        slides: [TextSlide(body, titleElement)],
+        slides: [TextSlide(body, nodeId, titleElement)],
         foundSection,
         sectionHasEnded,
       };
@@ -195,6 +208,7 @@ async function getSlidesForDocAfterRef(
   const htmlDoc = htmlparser2.parseDocument(data);
 
   return await getSlidesForDocNodeAfterRef(
+    curr,
     htmlDoc,
     curr.filepath,
     endWith,
@@ -236,7 +250,10 @@ export default async function handler(req, res) {
     return;
   }
   const slides: Slide[] = [];
-  const startNode = findNode(strNodeIdToNodeId(startWithStrNodeId), courseRootNode);
+  const startNode = findNode(
+    strNodeIdToNodeId(startWithStrNodeId),
+    courseRootNode
+  );
   if (!startNode) {
     res.status(400).json({ error: `Not found: ${startWithEncoded}` });
     return;
@@ -247,7 +264,9 @@ export default async function handler(req, res) {
     findNode(strNodeIdToNodeId(endWithStrNodeId), courseRootNode)
   );
   if (!inclusiveEndNode) {
-    res.status(500).json({ error: `Ending node ${endWithStrNodeId} not found.` });
+    res
+      .status(500)
+      .json({ error: `Ending node ${endWithStrNodeId} not found.` });
     return;
   }
 

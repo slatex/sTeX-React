@@ -43,6 +43,9 @@ export interface Slide {
   autoExpand: boolean;
   preNotes: string[];
   postNotes: string[];
+
+  archive: string;
+  filepath: string;
 }
 
 export interface SlideReturn {

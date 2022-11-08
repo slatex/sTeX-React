@@ -3,7 +3,10 @@ import LastPageIcon from '@mui/icons-material/LastPage';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { Box, IconButton, LinearProgress } from '@mui/material';
-import { ContentWithHighlight } from '@stex-react/stex-react-renderer';
+import {
+  ContentWithHighlight,
+  ExpandableContextMenu,
+} from '@stex-react/stex-react-renderer';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { memo, useEffect, useState } from 'react';
@@ -107,6 +110,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
       isCancelled = true; // avoids race condition on rapid deckId changes.
     };
   }, [courseId, deckStartNodeId, deckEndNodeId]);
+  const contentUrl = `archive=${currentSlide?.archive}&filepath=${currentSlide?.filepath}`;
 
   useEffect(() => {
     if (!slides?.length || loadedSlideDeck !== deckStartNodeId) return;
@@ -121,7 +125,14 @@ export const SlideDeck = memo(function SlidesFromUrl({
     const selectedSlide = slides[slideNum - 1];
     setCurrentSlide(selectedSlide);
     if (onSlideChange) onSlideChange(selectedSlide);
-  }, [deckStartNodeId, loadedSlideDeck, slides, slideNum, router, onSlideChange]);
+  }, [
+    deckStartNodeId,
+    loadedSlideDeck,
+    slides,
+    slideNum,
+    router,
+    onSlideChange,
+  ]);
 
   if (isLoading) {
     return (
@@ -137,6 +148,9 @@ export const SlideDeck = memo(function SlidesFromUrl({
       flexDirection={navOnTop ? 'column-reverse' : 'column'}
       mt={navOnTop ? '-40px' : '0px'}
     >
+      <Box sx={{ position: 'absolute', right: '0' }}>
+        <ExpandableContextMenu contentUrl={contentUrl} />
+      </Box>
       <ContentWithHighlight
         mmtHtml={currentSlide?.slideContent || ''}
         renderWrapperParams={{ 'section-url': deckStartNodeId }}
