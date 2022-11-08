@@ -5,14 +5,15 @@ import VideoCameraFrontIcon from '@mui/icons-material/VideoCameraFront';
 import { Box, Button, ToggleButtonGroup } from '@mui/material';
 import {
   ContentWithHighlight,
-  LayoutWithFixedMenu
+  LayoutWithFixedMenu,
 } from '@stex-react/stex-react-renderer';
 import { localStore, shouldUseDrawer } from '@stex-react/utils';
+import { CourseSectioning } from '../../components/CourseSectioning';
 import axios from 'axios';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { NextRouter, useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import { SlideDeck } from '../../components/SlideDeck';
 import { SlideDeckNavigation } from '../../components/SlideDeckNavigation';
 import { TooltipToggleButton } from '../../components/TooltipToggleButton';
@@ -127,6 +128,8 @@ const CourseViewPage: NextPage = () => {
   const [postNotes, setPostNotes] = useState([] as string[]);
   const [courseInfo, setCourseInfo] = useState(undefined as CourseInfo);
   const [deckInfo, setDeckInfo] = useState(undefined as DeckAndVideoInfo);
+  const [showSectioning, setShowSectioning] = useState(false);
+  const [, forceUpdate] = useReducer((x) => x + 1, 0);
 
   const deckEndNodeId = getDeckEndNodeId(deckId, courseInfo);
 
@@ -242,61 +245,72 @@ const CourseViewPage: NextPage = () => {
         setShowDashboard={setShowDashboard}
         drawerAnchor="left"
       >
-        <Box maxWidth="800px" margin="0 auto" width="100%">
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            <ToggleModeButton
-              viewMode={viewMode}
-              updateViewMode={(mode) => {
-                const modeStr = mode.toString();
-                localStore?.setItem('defaultMode', modeStr);
-                router.query.viewMode = modeStr;
-                router.push(router);
-              }}
-            />
-            <Link
-              href="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FAI%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml"
-              passHref
+        <Box display="flex">
+          <Box maxWidth="800px" margin="0 auto" width="100%">
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
             >
-              <Button size="small" variant="contained" sx={{ mr: '10px' }}>
-                Notes&nbsp;
-                <ArticleIcon />
-              </Button>
-            </Link>
-          </Box>
-          {(viewMode === ViewMode.VIDEO_MODE ||
-            viewMode === ViewMode.COMBINED_MODE) && (
-            <VideoDisplay deckInfo={deckInfo} audioOnly={audioOnly} />
-          )}
-          {(viewMode === ViewMode.SLIDE_MODE ||
-            viewMode === ViewMode.COMBINED_MODE) && (
-            <SlideDeck
-              courseId={courseId}
-              navOnTop={viewMode === ViewMode.COMBINED_MODE}
-              deckStartNodeId={deckId}
-              deckEndNodeId={deckEndNodeId}
-              onSlideChange={(slide: Slide) => {
-                setPreNotes(slide?.preNotes || []);
-                setPostNotes(slide?.postNotes || []);
-              }}
-              goToNextSection={goToNextSection}
-              goToPrevSection={goToPrevSection}
-              slideNum={slideNum}
-            />
-          )}
-          <hr style={{ width: '90%' }} />
-
-          {viewMode !== ViewMode.VIDEO_MODE && (
-            <Box p="5px" sx={{ overflowX: 'auto' }}>
-              <RenderElements elements={preNotes} />
-              {preNotes.length > 0 && postNotes.length > 0 && (
-                <hr style={{ width: '90%' }} />
-              )}
-              <RenderElements elements={postNotes} />
+              <ToggleModeButton
+                viewMode={viewMode}
+                updateViewMode={(mode) => {
+                  const modeStr = mode.toString();
+                  localStore?.setItem('defaultMode', modeStr);
+                  router.query.viewMode = modeStr;
+                  router.push(router);
+                }}
+              />
+              <Link
+                href="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FAI%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml"
+                passHref
+              >
+                <Button size="small" variant="contained" sx={{ mr: '10px' }}>
+                  Notes&nbsp;
+                  <ArticleIcon />
+                </Button>
+              </Link>
             </Box>
+            {(viewMode === ViewMode.VIDEO_MODE ||
+              viewMode === ViewMode.COMBINED_MODE) && (
+              <VideoDisplay deckInfo={deckInfo} audioOnly={audioOnly} />
+            )}
+            {(viewMode === ViewMode.SLIDE_MODE ||
+              viewMode === ViewMode.COMBINED_MODE) && (
+              <SlideDeck
+                courseId={courseId}
+                navOnTop={viewMode === ViewMode.COMBINED_MODE}
+                deckStartNodeId={deckId}
+                deckEndNodeId={deckEndNodeId}
+                onSlideChange={(slide: Slide) => {
+                  setPreNotes(slide?.preNotes || []);
+                  setPostNotes(slide?.postNotes || []);
+                }}
+                goToNextSection={goToNextSection}
+                goToPrevSection={goToPrevSection}
+                slideNum={slideNum}
+              />
+            )}
+            <hr
+              style={{ width: '90%', padding: '1px 0', cursor: 'pointer' }}
+              onClick={() => setShowSectioning(prompt('Code:') === 'go')}
+            />
+
+            {viewMode !== ViewMode.VIDEO_MODE && (
+              <Box p="5px" sx={{ overflowX: 'auto' }}>
+                <RenderElements elements={preNotes} />
+                {preNotes.length > 0 && postNotes.length > 0 && (
+                  <hr style={{ width: '90%' }} />
+                )}
+                <RenderElements elements={postNotes} />
+              </Box>
+            )}
+          </Box>
+          {showSectioning && (
+            <CourseSectioning
+              courseInfo={courseInfo}
+              forceUpdate={forceUpdate}
+            />
           )}
         </Box>
       </LayoutWithFixedMenu>
