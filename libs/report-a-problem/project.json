@@ -1,4 +1,5 @@
 {
+  "name": "report-a-problem",
   "$schema": "..\\..\\node_modules\\nx\\schemas\\project-schema.json",
   "sourceRoot": "libs/report-a-problem/src",
   "projectType": "library",
@@ -13,7 +14,7 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/report-a-problem"],
+      "outputs": ["{workspaceRoot}/coverage/libs/report-a-problem"],
       "options": {
         "jestConfig": "libs/report-a-problem/jest.config.ts",
         "passWithNoTests": true

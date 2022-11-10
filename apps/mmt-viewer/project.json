@@ -1,4 +1,5 @@
 {
+  "name": "mmt-viewer",
   "$schema": "..\\..\\node_modules\\nx\\schemas\\project-schema.json",
   "sourceRoot": "apps/mmt-viewer/src",
   "projectType": "application",
@@ -15,9 +16,7 @@
         "main": "apps/mmt-viewer/src/main.tsx",
         "polyfills": "apps/mmt-viewer/src/polyfills.ts",
         "tsConfig": "apps/mmt-viewer/tsconfig.app.json",
-        "assets": [
-          "apps/mmt-viewer/src/assets"
-        ],
+        "assets": ["apps/mmt-viewer/src/assets"],
         "styles": ["apps/mmt-viewer/src/styles.scss"],
         "scripts": [],
         "webpackConfig": "@nrwl/react/plugins/webpack"
@@ -71,7 +70,7 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/mmt-viewer"],
+      "outputs": ["{workspaceRoot}/coverage/apps/mmt-viewer"],
       "options": {
         "jestConfig": "apps/mmt-viewer/jest.config.ts",
         "passWithNoTests": true
