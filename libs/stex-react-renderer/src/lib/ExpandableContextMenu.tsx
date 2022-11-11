@@ -31,7 +31,20 @@ export function ExpandableContextMenu({
 
   return (
     <>
-      <IconButton size="small" onClick={handleClick} sx={{ zIndex: '1' }}>
+      <IconButton
+        size="small"
+        onClick={handleClick}
+        sx={{
+          zIndex: '1',
+          color: '#0004',
+          '&:hover': {
+            backgroundColor: '#FFF',
+            color: 'black',
+            border: '1px solid #CCC',
+            boxShadow: '#0005 0px 8px 15px',
+          },
+        }}
+      >
         <MoreVertIcon />
       </IconButton>
 
