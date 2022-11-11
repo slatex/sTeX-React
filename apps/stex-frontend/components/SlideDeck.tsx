@@ -148,7 +148,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
       flexDirection={navOnTop ? 'column-reverse' : 'column'}
       mt={navOnTop ? '-40px' : '0px'}
     >
-      <Box sx={{ position: 'absolute', right: '0' }}>
+      <Box sx={{ position: 'absolute', right: '20px' }}>
         <ExpandableContextMenu contentUrl={contentUrl} />
       </Box>
       <ContentWithHighlight
