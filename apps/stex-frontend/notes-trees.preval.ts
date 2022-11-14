@@ -4,7 +4,7 @@ import * as htmlparser2 from 'htmlparser2';
 import { getOuterHTML } from 'domutils';
 import { PREVALUATED_COURSE_TREES } from './course_info/prevaluated-course-trees';
 
-const SCRIPT_MMT_URL = 'https://stexmmt.mathhub.info';
+const SCRIPT_MMT_URL = 'https://mmt.beta.vollki.kwarc.info';
 const COURSE_ROOTS = {
   'ai-1': '/:sTeX/document?archive=MiKoMH/AI&filepath=course/notes/notes.xhtml',
   iwgs: '/:sTeX/document?archive=MiKoMH/IWGS&filepath=course/notes/notes.xhtml',
@@ -66,9 +66,10 @@ async function getChildNodesOfDocNode(
 }
 
 function printTree(node: TreeNode, level = 1) {
+  const noNewLines = node.titleAsHtml?.replace(/\n/g, '');
   let line =
     '.'.repeat(level) +
-    `||${node.archive}||${node.filepath}||${node.titleAsHtml || ''}\n`;
+    `||${node.archive}||${node.filepath}||${noNewLines || ''}\n`;
   for (const c of node.children) line += printTree(c, level + 1);
   return line;
 }
