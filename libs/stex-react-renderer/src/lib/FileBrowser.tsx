@@ -7,7 +7,8 @@ import {
   shouldUseDrawer,
   sourceFileUrl,
   XhtmlContentUrl,
-  xhtmlPathToTex
+  xhtmlPathToTex,
+  XhtmlTopDocumentContentUrl
 } from '@stex-react/utils';
 import { useState } from 'react';
 import { ContentFromUrl } from './ContentFromUrl';
@@ -77,7 +78,7 @@ export function FileBrowser({
               </a>
               <hr style={{ width: '90%' }} />
               <ContentFromUrl
-                url={XhtmlContentUrl(selectedProject, selectedFilepath)}
+                url={XhtmlTopDocumentContentUrl(selectedProject, selectedFilepath)}
                 skipSidebar={true}
                 modifyRendered={getChildrenOfBodyNode}
               />

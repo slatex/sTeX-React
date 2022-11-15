@@ -67,6 +67,13 @@ export function XhtmlContentUrl(
   return `/:sTeX/document?archive=${projectId}&filepath=${xhtmlFilepath}`;
 }
 
+export function XhtmlTopDocumentContentUrl(
+  projectId: string,
+  xhtmlFilepath: string
+) {
+  return `/:sTeX/documentTop?archive=${projectId}&filepath=${xhtmlFilepath}`;
+}
+
 export function PathToArticle(projectId: string, xhtmlFilepath: string) {
   const path = `:sTeX/document?archive=${projectId}&filepath=${xhtmlFilepath}`;
   return `/browser/${encodeURIComponent(path)}`;
