@@ -20,12 +20,12 @@ export const ContentFromUrl = memo(
   }) => {
     const [mmtHtml, setMmtHtml] = useState<string | undefined>(undefined);
     const { mmtUrl } = useContext(ServerLinksContext);
-
     useEffect(() => {
       if (!url?.length) return;
+      const fullUrl = mmtUrl?.length ? `${mmtUrl}/${url}` : url;
       axios
-        .get(`${mmtUrl}/${url}`)
-        .catch((_e) => null)
+        .get(fullUrl)
+        .catch(console.log)
         .then((r) => {
           let html = `<span style={{ color: 'red' }}>Error loading: ${url}</span>`;
           if (r?.data) html = r.data;
