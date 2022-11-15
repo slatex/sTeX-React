@@ -25,7 +25,10 @@ export const ContentFromUrl = memo(
       const fullUrl = mmtUrl?.length ? `${mmtUrl}/${url}` : url;
       axios
         .get(fullUrl)
-        .catch(console.log)
+        .catch((e) => {
+          console.log(e);
+          return null;
+        })
         .then((r) => {
           let html = `<span style={{ color: 'red' }}>Error loading: ${url}</span>`;
           if (r?.data) html = r.data;
