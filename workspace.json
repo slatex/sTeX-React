@@ -3,6 +3,7 @@
   "version": 2,
   "projects": {
     "markdown": "libs/markdown",
+    "mathjax": "libs/mathjax",
     "mmt-viewer": "apps/mmt-viewer",
     "report-a-problem": "libs/report-a-problem",
     "stex-frontend": "apps/stex-frontend",

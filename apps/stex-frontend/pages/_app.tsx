@@ -1,10 +1,7 @@
 import { createInstance, MatomoProvider } from '@jonkoops/matomo-tracker-react';
 import { createTheme, ThemeProvider } from '@mui/material';
-import {
-  MathJaxContext,
-  ServerLinksContext,
-  setSectionIds
-} from '@stex-react/stex-react-renderer';
+import { MathJaxContext } from '@stex-react/mathjax';
+import { ServerLinksContext, setSectionIds } from '@stex-react/stex-react-renderer';
 import axios from 'axios';
 import { AppProps } from 'next/app';
 import { useEffect } from 'react';

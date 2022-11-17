@@ -1,6 +1,6 @@
+import { MathJaxContext } from '@stex-react/mathjax';
 import {
   FileBrowser,
-  MathJaxContext,
   ServerLinksContext,
   StexReactRenderer,
   TourDisplay,

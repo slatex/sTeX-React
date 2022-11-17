@@ -19,7 +19,6 @@ import { ExpandableContextMenu } from './ExpandableContextMenu';
 import { FileBrowser } from './FileBrowser';
 import { FileNode } from './FileNode';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
-import MathJaxContext from './MathJaxContext';
 import { mmtHTMLToReact, setSectionIds } from './mmtParser';
 import { RenderOptions } from './RendererDisplayOptions';
 import { TourAPIEntry, TourDisplay } from './TourDisplay';
@@ -112,7 +111,6 @@ export {
   FixedPositionMenu,
   LayoutWithFixedMenu,
   mmtHTMLToReact,
-  MathJaxContext,
   TourDisplay,
   FileBrowser,
   setSectionIds,

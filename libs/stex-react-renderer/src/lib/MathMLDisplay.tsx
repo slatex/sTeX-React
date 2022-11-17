@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import { MathJaxBaseContext } from './MathJaxContext';
+import { MathJaxBaseContext } from '@stex-react/mathjax';
 import { getOuterHTML } from 'domutils';
 import { mmtHTMLToReact } from './mmtParser';
 
