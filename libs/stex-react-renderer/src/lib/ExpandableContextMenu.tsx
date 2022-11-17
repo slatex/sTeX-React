@@ -37,6 +37,7 @@ export function ExpandableContextMenu({
         sx={{
           zIndex: '1',
           color: '#0004',
+          border: '1px solid transparent',
           '&:hover': {
             backgroundColor: '#FFF',
             color: 'black',

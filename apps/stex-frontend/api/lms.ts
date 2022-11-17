@@ -34,7 +34,7 @@ export function login() {
   location.reload();
 }
 
-function getAuthHeaders() {
+export function getAuthHeaders() {
   const token = getAccessToken();
   if (!token) return null;
   return { Authorization: 'JWT ' + token };
@@ -81,7 +81,7 @@ async function lmsRequest(
   } catch (err) {
     const error = err as Error | AxiosError;
     if (axios.isAxiosError(error)) {
-      if (error.response.status === 401) {
+      if (error.response?.status === 401) {
         logoutAndGetToLoginPage();
       }
     }

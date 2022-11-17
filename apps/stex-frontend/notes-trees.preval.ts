@@ -4,7 +4,7 @@ import * as htmlparser2 from 'htmlparser2';
 import { getOuterHTML } from 'domutils';
 import { PREVALUATED_COURSE_TREES } from './course_info/prevaluated-course-trees';
 
-const SCRIPT_MMT_URL = 'https://mmt.beta.vollki.kwarc.info';
+const SCRIPT_MMT_URL = 'https://stexmmt.mathhub.info';
 const COURSE_ROOTS = {
   'ai-1': '/:sTeX/document?archive=MiKoMH/AI&filepath=course/notes/notes.xhtml',
   iwgs: '/:sTeX/document?archive=MiKoMH/IWGS&filepath=course/notes/notes.xhtml',
@@ -149,6 +149,8 @@ async function getCourseTrees() {
     }
     return trees;
   }
+
+  console.log(`\n\n\nGetting courseTrees from ${SCRIPT_MMT_URL}\n\n\n`);
   for (const [courseId, courseRoot] of Object.entries(COURSE_ROOTS)) {
     const docTree = await getDocumentTree(courseRoot, 0);
     trees[courseId] = docTree;
