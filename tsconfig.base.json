@@ -15,6 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@stex-react/markdown": ["libs/markdown/src/index.ts"],
       "@stex-react/report-a-problem": ["libs/report-a-problem/src/index.ts"],
       "@stex-react/stex-react-renderer": [
         "libs/stex-react-renderer/src/index.ts"
