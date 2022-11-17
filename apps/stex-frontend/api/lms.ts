@@ -109,10 +109,18 @@ export async function reportEvent(event: LMSEvent) {
   return await lmsRequest('lms/input/events', 'POST', {}, event);
 }
 
+let cachedUserName = undefined;
 export async function getUserName() {
-  return await lmsRequest('getusername', 'GET', 'Not logged in');
+  if (!cachedUserName) {
+    cachedUserName = await lmsRequest('getusername', 'GET', undefined);
+  }
+  return cachedUserName;
 }
 
+let cachedUserId = undefined;
 export async function getUserId() {
-  return await lmsRequest('getuserid', 'GET', 'Not logged in');
+  if (!cachedUserId) {
+    cachedUserId = await lmsRequest('getuserid', 'GET', undefined);
+  }
+  return cachedUserId;
 }
