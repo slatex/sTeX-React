@@ -15,6 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@stex-react/api": ["libs/api/src/index.ts"],
       "@stex-react/comments": ["libs/comments/src/index.ts"],
       "@stex-react/markdown": ["libs/markdown/src/index.ts"],
       "@stex-react/mathjax": ["libs/mathjax/src/index.ts"],
