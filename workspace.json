@@ -2,6 +2,7 @@
   "$schema": "./node_modules/nx/schemas/workspace-schema.json",
   "version": 2,
   "projects": {
+    "comments": "libs/comments",
     "markdown": "libs/markdown",
     "mathjax": "libs/mathjax",
     "mmt-viewer": "apps/mmt-viewer",
