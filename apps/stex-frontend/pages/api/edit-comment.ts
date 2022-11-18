@@ -1,4 +1,4 @@
-import { EditCommentRequest } from '../../shared/comment';
+import { EditCommentRequest } from '@stex-react/api';
 import {
   checkIfPostOrSetError,
   executeQuerySet500OnError,

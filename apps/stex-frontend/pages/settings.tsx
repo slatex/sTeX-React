@@ -1,8 +1,8 @@
 import { Button } from '@mui/material';
+import { getUriWeights, reportEvent } from '@stex-react/api';
 import { localStore } from '@stex-react/utils';
 import type { NextPage } from 'next';
 import { useReducer } from 'react';
-import { getUriWeights, reportEvent } from '../api/lms';
 import MainLayout from '../layouts/MainLayout';
 
 const FORCE_MATHJAX = 'forceMathJax';

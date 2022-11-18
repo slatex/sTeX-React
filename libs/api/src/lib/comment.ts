@@ -1,3 +1,11 @@
+export const MODERATORS = [
+  'yp70uzyj', // Michael
+  'yn06uhoc', // Jonas
+  'ub59asib', // Dominic
+  'do45qahi', // Dennis
+  'ym23eqaw', // Abhishek
+];
+
 export enum HiddenStatus {
   UNKNOWN = 'UNKNOWN',
   UNHIDDEN = 'UNHIDDEN',
@@ -9,9 +17,9 @@ export enum HiddenStatus {
 }
 
 export interface Comment {
+  commentId: number;
   archive?: string;
   filepath?: string;
-  commentId?: number;
   parentCommentId?: number;
   selectedText?: string;
 

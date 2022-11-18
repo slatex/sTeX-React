@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { getUserId, getUserName, isLoggedIn, logout } from '../api/lms';
+import { getUserId, getUserName, isLoggedIn, logout } from '@stex-react/api';
 import { BrowserAutocomplete } from '../components/BrowserAutocomplete';
 import styles from '../styles/header.module.scss';
 

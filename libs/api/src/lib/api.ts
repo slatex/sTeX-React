@@ -1,3 +1,3 @@
-export function api(): string {
-  return 'api';
-}
+export * from './comment';
+export * from './comments_api';
+export * from './lms';

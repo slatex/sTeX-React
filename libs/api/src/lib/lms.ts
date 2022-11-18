@@ -1,6 +1,8 @@
 import axios, { AxiosError } from 'axios';
-import { deleteCookie, getCookie } from './utils';
+import { deleteCookie, getCookie } from '@stex-react/utils';
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 const lmsServerAddress = process.env.NEXT_PUBLIC_LMS_URL;
 export interface LMSEvent {
   type: 'i-know' | 'question-answered';
@@ -36,7 +38,7 @@ export function login() {
 
 export function getAuthHeaders() {
   const token = getAccessToken();
-  if (!token) return null;
+  if (!token) return undefined;
   return { Authorization: 'JWT ' + token };
 }
 
@@ -101,7 +103,7 @@ export async function getUriWeights(URIs: string[]) {
   );
   const compMap = new Map<string, any>();
   console.log(resp);
-  resp.competencies.forEach((c) => compMap.set(c.URI, c.competency));
+  resp.competencies.forEach((c: any) => compMap.set(c.URI, c.competency));
   return URIs.map((URI) => +(compMap.get(URI) || 0));
 }
 
@@ -109,7 +111,7 @@ export async function reportEvent(event: LMSEvent) {
   return await lmsRequest('lms/input/events', 'POST', {}, event);
 }
 
-let cachedUserName = undefined;
+let cachedUserName: string | undefined = undefined;
 export async function getUserName() {
   if (!cachedUserName) {
     cachedUserName = await lmsRequest('getusername', 'GET', undefined);
@@ -117,7 +119,7 @@ export async function getUserName() {
   return cachedUserName;
 }
 
-let cachedUserId = undefined;
+let cachedUserId: string | undefined = undefined;
 export async function getUserId() {
   if (!cachedUserId) {
     cachedUserId = await lmsRequest('getuserid', 'GET', undefined);

@@ -1,4 +1,4 @@
-import { Comment } from '../../shared/comment';
+import { Comment } from '@stex-react/api';
 import {
   checkIfPostOrSetError,
   executeQuerySet500OnError,

@@ -1,4 +1,4 @@
-import { UpdateCommentStateRequest } from '../../shared/comment';
+import { MODERATORS, UpdateCommentStateRequest } from '@stex-react/api';
 import {
   checkIfPostOrSetError,
   executeQuerySet500OnError,
@@ -6,13 +6,6 @@ import {
   isPublicComment,
 } from './comment-utils';
 
-const MODERATORS = [
-  'yp70uzyj', // Michael
-  'yn06uhoc', // Jonas
-  'ub59asib', // Dominic
-  'do45qahi', // Dennis
-  'ym23eqaw', // Abhishek
-];
 export default async function handler(req, res) {
   if (!checkIfPostOrSetError(req, res)) return;
   const userId = await getUserIdOrSetError(req, res);

@@ -14,7 +14,7 @@ import {
   sugiyama,
 } from 'd3-dag';
 import { useContext, useEffect, useReducer, useState } from 'react';
-import { getUriWeights } from '../api/lms';
+import { getUriWeights } from '@stex-react/api';
 
 const nodeRadius = 20;
 

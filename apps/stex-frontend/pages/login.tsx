@@ -9,7 +9,7 @@ import {
   isLoggedIn,
   loginUsingRedirect,
   logout,
-} from '../api/lms';
+} from '@stex-react/api';
 import MainLayout from '../layouts/MainLayout';
 
 const LoginPage: NextPage = () => {

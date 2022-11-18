@@ -1,4 +1,4 @@
-import { Comment } from '../../../../shared/comment';
+import { Comment } from '@stex-react/api';
 import { executeQuerySet500OnError, getUserId } from '../../comment-utils';
 
 export default async function handler(req, res) {

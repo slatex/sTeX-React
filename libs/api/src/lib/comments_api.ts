@@ -4,7 +4,7 @@ import {
   EditCommentRequest,
   HiddenStatus,
   UpdateCommentStateRequest,
-} from '../shared/comment';
+} from './comment';
 import { getAuthHeaders, logoutAndGetToLoginPage } from './lms';
 
 async function commentRequest(apiUrl: string, requestType: string, data?: any) {
@@ -18,7 +18,7 @@ async function commentRequest(apiUrl: string, requestType: string, data?: any) {
   } catch (err) {
     const error = err as Error | AxiosError;
     if (axios.isAxiosError(error)) {
-      if (error.response.status === 401) {
+      if (error.response?.status === 401) {
         logoutAndGetToLoginPage();
       }
     }

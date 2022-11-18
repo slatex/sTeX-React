@@ -1,7 +1,7 @@
 import { Box, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import { TourDisplay } from '@stex-react/stex-react-renderer';
 import { BG_COLOR } from '@stex-react/utils';
-import { getUriWeights, reportEvent } from '../../api/lms';
+import { getUriWeights, reportEvent } from '@stex-react/api';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
