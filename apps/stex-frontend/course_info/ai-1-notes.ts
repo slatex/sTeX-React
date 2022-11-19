@@ -75,10 +75,27 @@ export const AI_1_COURSE_SECTIONS: CourseSectionInfo = {
     'MiKoMH/AI||search/sec/heuristics.en.xhtml': { secNo: '5.2', clipId: '44939', timestampSec: 3306 },
     'MiKoMH/AI||search/sec/a-star.en.xhtml': { secNo: '5.3', clipId: '44939', timestampSec: 3945 },
     'MiKoMH/AI||search/sec/finding-heuristics.en.xhtml': { secNo: '5.4', clipId: '44939', timestampSec: 4732 },
-    'MiKoMH/AI||search/sec/local-search.en.xhtml': { secNo: '6' },
+    'MiKoMH/AI||search/sec/local-search.en.xhtml': { secNo: '6', clipId: '44940' },
   },
-  'In AI-1 we use a mixture between Math and Programming Styles': {
-    'MiKoMH/AI||game-play/sec/game-play.en.xhtml': {  },
+  'Adversarial Search for Game Playing': {
+    'MiKoMH/AI||game-play/sec/game-play.en.xhtml': { clipId: '44940', timestampSec: 1790 },
+    'MiKoMH/AI||game-play/sec/minimax.en.xhtml': { secNo: '2', clipId: '44940', timestampSec: 3533 },
+    'MiKoMH/AI||game-play/sec/evaluation-functions.en.xhtml': { secNo: '3', clipId: '44940', timestampSec: 4457 },
+    'MiKoMH/AI||game-play/sec/alphabeta.en.xhtml': { secNo: '4', clipId: '44941', timestampSec: 642 },
+    'MiKoMH/AI||game-play/sec/mcts.en.xhtml': { secNo: '5', clipId: '44941', timestampSec: 1964 },
+    'MiKoMH/AI||game-play/sec/soa.en.xhtml': { secNo: '6', clipId: '44941', timestampSec: 4042 },
+    'MiKoMH/AI||game-play/sec/concl.en.xhtml': { secNo: '7', clipId: '44941', timestampSec: 4169 },
+  },
+  'Constraint Satisfaction Problems': {
+    'MiKoMH/AI||csp/sec/csp.en.xhtml': { clipId: '44941', timestampSec: 4338 },
+    'MiKoMH/AI||csp/sec/csp-motivation.en.xhtml': { secNo: '1', clipId: '44941', timestampSec: 4437 },
+    'MiKoMH/AI||csp/sec/waltz-algorithm.en.xhtml': { secNo: '2' },
+    'MiKoMH/AI||csp/sec/csp-def.en.xhtml': { secNo: '3' },
+    'MiKoMH/AI||csp/sec/csp-search.en.xhtml': { secNo: '4' },
+    'MiKoMH/AI||csp/sec/concl.en.xhtml': { secNo: '5' },
+  },
+  'Constraint Propagation': {
+    'MiKoMH/AI||csp/sec/cspropagation.en.xhtml': {  },
   },
   /*
    '': { clipId: '' },
