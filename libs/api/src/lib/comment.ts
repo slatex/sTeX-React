@@ -43,14 +43,14 @@ export interface Comment {
   // TODO: Someway to specify location in the doc.
 }
 
-export function isHiddenNotSpam(status: HiddenStatus) {
-  return [
+export function isHiddenNotSpam(status?: HiddenStatus) {
+  return !!status && [
     HiddenStatus.UNKNOWN,
     HiddenStatus.UNHIDDEN,
     HiddenStatus.SPAM,
   ].includes(status);
 }
-export function isSpam(status: HiddenStatus) {
+export function isSpam(status?: HiddenStatus) {
   return status === HiddenStatus.SPAM;
 }
 

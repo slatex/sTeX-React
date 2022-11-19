@@ -1,0 +1,231 @@
+import CheckIcon from '@mui/icons-material/Check';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Dialog,
+  IconButton,
+  Menu,
+  MenuItem,
+} from '@mui/material';
+import { Comment, getUserId, MODERATORS } from '@stex-react/api';
+import { ReactNode, useEffect, useReducer, useRef, useState } from 'react';
+import { CommentFilters } from './comment-filters';
+import { getHierarchialComments } from './comment-store-manager';
+import { CommentReply } from './CommentReply';
+import { CommentView } from './CommentView';
+
+import styles from './comments.module.scss';
+
+function RenderTree({
+  comment,
+  archive,
+  filepath,
+}: {
+  comment: Comment;
+  archive: string;
+  filepath: string;
+}) {
+  return (
+    <>
+      {comment && (
+        <CommentView comment={comment} archive={archive} filepath={filepath} />
+      )}
+      <Box pl="7px" ml="3px" sx={{ borderLeft: '1px solid #CCC' }}>
+        {(comment.childComments || []).map((child) => (
+          <RenderTree
+            key={child.commentId}
+            comment={child}
+            archive={archive}
+            filepath={filepath}
+          />
+        ))}
+      </Box>
+    </>
+  );
+}
+
+interface CommentSectionProps {
+  archive: string;
+  filepath: string;
+  startDisplay?: boolean;
+}
+
+function CommentTree({
+  comments,
+  archive,
+  filepath,
+}: {
+  comments: Comment[];
+  archive: string;
+  filepath: string;
+}) {
+  return (
+    <>
+      {comments.map((comment) => (
+        <RenderTree
+          key={comment.commentId}
+          comment={comment}
+          archive={archive}
+          filepath={filepath}
+        />
+      ))}
+    </>
+  );
+}
+
+function getFilteredComments(comments: Comment[], filters: CommentFilters) {
+  if (!comments) return [];
+  const topShadowComment: Comment = { commentId: -1 };
+  topShadowComment.childComments = comments.map(
+    (comment) => structuredClone(comment) as Comment
+  );
+  filters.filterHidden(topShadowComment);
+  return topShadowComment.childComments;
+}
+
+function treeSize(comment: Comment): number {
+  if (!comment) return 0;
+  if (!comment.childComments) return 1;
+  return comment.childComments.reduce((sum, child) => sum + treeSize(child), 1);
+}
+
+export function ButtonAndDialog({
+  buttonText,
+  isDisabled,
+  dialogContentCreator,
+  onClose,
+}: {
+  buttonText: string;
+  isDisabled: boolean;
+  dialogContentCreator: (onClose1: (val: any) => void) => ReactNode;
+  onClose: (val: any) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button
+        sx={{ mx: '5px' }}
+        variant="contained"
+        onClick={() => setOpen(true)}
+        disabled={isDisabled}
+      >
+        {buttonText}
+      </Button>
+      <Dialog
+        onClose={() => {
+          setOpen(false);
+          onClose(null);
+        }}
+        open={open}
+      >
+        {dialogContentCreator((val: any) => {
+          setOpen(false);
+          onClose(val);
+        })}
+      </Dialog>
+    </>
+  );
+}
+
+export function CommentSection({
+  archive,
+  filepath,
+  startDisplay = false,
+}: CommentSectionProps) {
+  const [, forceUpdate] = useReducer((x) => x + 1, 0);
+
+  // Menu Crap start
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  function closeAnd(func: any) {
+    return () => {
+      handleClose();
+      func();
+    };
+  }
+  // Menu Crap end
+
+  // If the value wrapped in useRef actually never changes, we can dereference right in the declaration.
+  const filters = useRef(new CommentFilters(forceUpdate)).current;
+  const [commentsFromStore, setCommentsFromStore] = useState([] as Comment[]);
+  const [canAddComment, setCanAddComment] = useState(false);
+  const [canModerate, setCanModerate] = useState(false);
+
+  const filteredComments = getFilteredComments(commentsFromStore, filters);
+  const numComments = filteredComments.reduce(
+    (sum, comment) => sum + treeSize(comment),
+    0
+  );
+
+  useEffect(() => {
+    getUserId().then((userId) => {
+      setCanAddComment(!!userId);
+      setCanModerate(!!userId && MODERATORS.includes(userId));
+    });
+  }, []);
+  useEffect(() => {
+    getHierarchialComments(archive, filepath, false).then((comments) => {
+      setCommentsFromStore(comments);
+    });
+  }, [archive, filepath, filters]);
+
+  if (commentsFromStore == null && startDisplay) {
+    return <CircularProgress size={40} />;
+  }
+
+  return (
+    <div hidden={commentsFromStore == null || !startDisplay}>
+      <div className={styles['header']}>
+        <span style={{ marginBottom: '2px' }}>{numComments} comments</span>
+        <IconButton onClick={handleClick} sx={{ p: '2px' }}>
+          <FilterAltIcon sx={{ fontSize: '2.25rem' }} />
+        </IconButton>
+      </div>
+
+      <hr style={{ margin: '0 0 15px' }} />
+      {canAddComment && (
+        <CommentReply
+          placeholder={
+            numComments ? 'Join the discussion' : 'Start the discussion'
+          }
+          parentId={0}
+          archive={archive}
+          filepath={filepath}
+        />
+      )}
+      <br />
+
+      <CommentTree
+        comments={filteredComments}
+        archive={archive}
+        filepath={filepath}
+      />
+      <Menu
+        id="filter-menu"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+      >
+        <MenuItem onClick={closeAnd(filters.onShowHidden)}>
+          {filters.showHidden ? <CheckIcon /> : <CheckBoxOutlineBlankIcon />}
+          &nbsp;Show hidden comments
+        </MenuItem>
+        {canModerate && (
+          <MenuItem onClick={closeAnd(filters.onShowSpam)}>
+            {filters.showSpam ? <CheckIcon /> : <CheckBoxOutlineBlankIcon />}
+            &nbsp;Show spam
+          </MenuItem>
+        )}
+      </Menu>
+    </div>
+  );
+}

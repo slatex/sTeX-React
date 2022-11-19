@@ -1,7 +1,114 @@
-/*
- * Replace this with your own classes
- *
- * e.g.
- * .container {
- * }
-*/
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  //font-size: mat.font-size($config, title);
+  //font-family: mat.font-family($config);
+}
+
+.stretchy_div {
+  flex-grow: 1;
+  //margin-left: 5px
+}
+
+.guest_form_input {
+  display: block;
+  border: medium solid darkgray;
+  border-radius: 5px;
+  padding: 3px;
+  font-size: 14px;
+  margin-bottom: 3px;
+}
+
+.guest_caption {
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.avatar_container {
+  display: inline;
+  flex-flow: column;
+  flex: 0 0;
+  margin-right: 10px;
+}
+
+.stub_indicator {
+  width: 35px;
+  padding-left: 15px;
+  color: #e0e0e0;
+  font-size: 30px;
+  margin: auto;
+}
+
+.vertical_line {
+  border-left: 1.5px solid #eeeeee;
+  border-right: 1.5px solid #eeeeee;
+  margin: auto;
+}
+
+.vertical_line_div {
+  @extend .vertical_line;
+  margin-top: 5px;
+  flex-grow: 1;
+}
+
+.vertical_line_div_truncated {
+  @extend .vertical_line_div;
+  margin-bottom: 15px;
+}
+
+.deleted_message {
+  padding: 10px 0px;
+  display: block;
+  color: grey;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+
+.user_link {
+  display: inline;
+  text-decoration: none;
+  color: black;
+  font-size: small;
+  font-weight: bold;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+.small_horz_margin {
+  margin: 0px 5px;
+}
+
+
+.action_button_div {
+  padding: 5px 5px 10px 5px;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.disable_gray {
+  user-select: none;
+  font-size: 14px;
+  color: dimgray;
+}
+
+.action_button {
+  @extend .disable_gray;
+  cursor: pointer;
+}
+
+.action_button_down {
+  @extend .action_button;
+  font-weight: bold;
+}
+
+.fake_link {
+  color: #357aff;
+  cursor: pointer;
+  // margin: 0px 5px;
+}
+
+.fake_link:hover {
+  color: #2355b3;
+  text-decoration: underline;
+  cursor: pointer;
+}
