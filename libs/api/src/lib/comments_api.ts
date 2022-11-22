@@ -65,3 +65,7 @@ export async function updateCommentState(
   };
   await commentRequest('/api/update-comment-state', 'POST', body);
 }
+
+export async function getLatestUpdatedSections() {
+  return await commentRequest('/api/get-latest-updated-sections', 'GET');
+}

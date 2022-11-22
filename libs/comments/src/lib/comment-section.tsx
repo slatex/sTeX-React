@@ -142,12 +142,14 @@ export function CommentSection({
   startDisplay = true,
   selectedText = undefined,
   selectedElement = undefined,
+  hideNewCommentBox = false
 }: {
   archive: string;
   filepath: string;
   startDisplay?: boolean;
   selectedText?: string;
   selectedElement?: any;
+  hideNewCommentBox?: boolean;
 }) {
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
 
@@ -217,7 +219,7 @@ export function CommentSection({
       </div>
 
       <hr style={{ margin: '0 0 15px' }} />
-      {canAddComment && (
+      {canAddComment && !hideNewCommentBox && (
         <CommentReply
           placeholder={
             numComments ? 'Join the discussion' : 'Start the discussion'
