@@ -11,10 +11,12 @@ export function CommentLabel({
   comment,
   setEditingComment,
   setOpenReply,
+  onDelete,
 }: {
   comment: Comment;
-  setEditingComment: any;
-  setOpenReply: any;
+  setEditingComment: (editing: boolean) => void;
+  setOpenReply: (open: boolean) => void;
+  onDelete: () => void;
 }) {
   const [fromCurrentUser, setFromCurrentUser] = useState(false);
   const [canModerate, setCanModerate] = useState(false);
@@ -23,9 +25,10 @@ export function CommentLabel({
   useEffect(() => {
     getUserId().then(
       (userId) => {
-        setFromCurrentUser(!userId && userId === comment?.userId);
-        setCanModerate(!!userId && MODERATORS.includes(userId));
-        setIsLoggedIn(!!userId);
+        const isLoggedIn = !!userId;
+        setIsLoggedIn(isLoggedIn);
+        setFromCurrentUser(isLoggedIn && userId === comment?.userId);
+        setCanModerate(isLoggedIn && MODERATORS.includes(userId));
       },
       () => setFromCurrentUser(false)
     );
@@ -43,6 +46,7 @@ export function CommentLabel({
       onClick={(e) => e.stopPropagation()}
     >
       <Box display="flex">
+        {/*comment.commentId*/}
         <span className={styles['user_link']}>{comment.userName}</span>
         &nbsp;
         <DateView timestampMs={(comment.postedTimestampSec || 0) * 1000} />
@@ -66,12 +70,13 @@ export function CommentLabel({
         )}
       </Box>
       <Box>
-        {isLoggedIn && (
+        {(canModerate || fromCurrentUser) && (
           <CommentMenu
             comment={comment}
             canModerate={canModerate}
             canEditComment={fromCurrentUser}
             setEditingComment={setEditingComment}
+            onDelete={onDelete}
           />
         )}
       </Box>

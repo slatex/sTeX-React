@@ -24,7 +24,7 @@ export default async function handler(req, res) {
 
   const commentUpdate = await executeQuerySet500OnError(
     `UPDATE comments
-    SET statement='', userId='', userName='', userEmail='', isDeleted=1
+    SET statement=NULL, userId=NULL, userName=NULL, userEmail=NULL, selectedText=NULL, isDeleted=1
     WHERE commentId=?`,
     [commentId],
     res

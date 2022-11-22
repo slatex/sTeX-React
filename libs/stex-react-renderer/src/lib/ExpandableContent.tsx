@@ -7,6 +7,7 @@ import {
   getSectionInfo,
   simpleHash,
 } from '@stex-react/utils';
+import { CommentButton } from './comment-button';
 import {
   createContext,
   MouseEvent,
@@ -107,6 +108,9 @@ export function ExpandableContent({
         ref={contentRef}
         minHeight={!openAtLeastOnce && expandOnScroll ? '1000px' : undefined}
       >
+        <Box position="absolute" right="47px" zIndex={10}>
+          <CommentButton url={contentUrl} />
+        </Box>
         {!allowFolding ? (
           contentUrl && (
             <Box position="absolute" right="10px">

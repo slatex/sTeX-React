@@ -1,4 +1,4 @@
-import { Button } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { discardDraft, retrieveDraft, saveDraft } from './comment-helpers';
 import { MdEditor } from '@stex-react/markdown';
@@ -8,25 +8,29 @@ interface EditViewProps {
   archive: string;
   filepath: string;
   parentId?: number;
+  selectedText?: string;
   existingComment?: Comment;
   placeholder?: string;
   hidden?: boolean;
   onCancel?: () => void;
+  onUpdate: () => void;
 }
 
 export function EditView({
   archive,
   filepath,
+  selectedText = undefined,
   parentId = 0,
   existingComment = undefined,
   placeholder = '',
   hidden = false,
-  onCancel,
+  onCancel = undefined,
+  onUpdate,
 }: EditViewProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<any>(undefined);
   const [inputText, setInputText] = useState(existingComment?.statement || '');
-  const [userName, setUserName] = useState<string|undefined>(undefined);
+  const [userName, setUserName] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     getUserName().then(setUserName);
@@ -46,6 +50,7 @@ export function EditView({
       parentCommentId: parentId,
       statement: inputText,
       isPrivate: false, // TODOX
+      selectedText,
       userName,
     };
     return comment;
@@ -60,6 +65,7 @@ export function EditView({
         const newComment = getNewComment();
         await addComment(newComment);
       }
+      onUpdate();
     } catch (err) {
       setIsLoading(false);
       setError(err);
@@ -89,7 +95,7 @@ export function EditView({
         />
       </div>
 
-      <div style={{ textAlign: 'right' }}>
+      <Box textAlign="right" mb="10px">
         {onCancel && (
           <Button
             variant="contained"
@@ -110,7 +116,7 @@ export function EditView({
         >
           {existingComment ? 'Update' : 'Post'}
         </Button>
-      </div>
+      </Box>
     </fieldset>
   );
 }

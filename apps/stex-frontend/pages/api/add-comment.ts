@@ -15,6 +15,7 @@ export default async function handler(req, res) {
     filepath,
     statement,
     parentCommentId,
+    selectedText,
     userEmail,
     userName,
     isPrivate,
@@ -25,13 +26,14 @@ export default async function handler(req, res) {
   }
   const results = await executeQuerySet500OnError(
     `INSERT INTO comments
-      (archive, filepath, statement, parentCommentId, isPrivate, userId, userName, userEmail)
-      VALUES(?, ?, ?, ?, ?, ?, ?, ?)`,
+      (archive, filepath, statement, parentCommentId, selectedText, isPrivate, userId, userName, userEmail)
+      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       archive,
       filepath,
       statement,
       parentCommentId,
+      selectedText,
       isPrivate ? 1 : 0,
       userId,
       userName,

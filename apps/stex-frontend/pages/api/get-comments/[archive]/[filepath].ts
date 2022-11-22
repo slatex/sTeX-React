@@ -8,8 +8,6 @@ export default async function handler(req, res) {
   const userId = (await getUserId(req)) || '';
   const results: Comment[] = await executeQuerySet500OnError(
     `SELECT * FROM comments WHERE archive = ? AND filepath = ?
-      AND (hiddenStatus IS NULL OR hiddenStatus = 'UNHIDDEN')
-      AND (isDeleted IS NULL OR isDeleted = 0)
       AND (isPrivate != 1 OR userId = ? )`,
     [archive, filepath, userId],
     res

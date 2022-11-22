@@ -2,6 +2,7 @@ import { Box } from '@mui/material';
 import {
   BG_COLOR,
   getChildrenOfBodyNode,
+  getSectionInfo,
   IS_MMT_VIEWER,
   localStore,
   shouldUseDrawer,
@@ -22,6 +23,8 @@ import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 import { mmtHTMLToReact, setSectionIds } from './mmtParser';
 import { RenderOptions } from './RendererDisplayOptions';
 import { TourAPIEntry, TourDisplay } from './TourDisplay';
+import MessageIcon from '@mui/icons-material/Message';
+import { CommentButton } from './comment-button';
 
 function getToOpenContentHash(inDocPath: string) {
   if (!inDocPath?.length) return [];
@@ -48,7 +51,7 @@ export function StexReactRenderer({
     allowFolding: (localStore?.getItem('allowFolding') || 'false') === 'true',
   });
   const router = useRouter();
-
+  const { archive, filepath } = getSectionInfo(contentUrl);
   useEffect(() => {
     if (!router?.isReady) return;
     const inDocPath = router?.query?.['inDocPath'] as string;
@@ -92,6 +95,7 @@ export function StexReactRenderer({
           >
             <Box display="flex" flexDirection="row-reverse">
               <ExpandableContextMenu contentUrl={contentUrl} />
+              <CommentButton url={contentUrl} />
             </Box>
             <ContentFromUrl
               url={contentUrl}

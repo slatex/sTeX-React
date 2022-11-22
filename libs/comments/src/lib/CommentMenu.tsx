@@ -63,11 +63,13 @@ export function CommentMenu({
   canModerate,
   canEditComment,
   setEditingComment,
+  onDelete,
 }: {
   comment: Comment;
   canModerate: boolean;
   canEditComment: boolean;
   setEditingComment: any;
+  onDelete: () => void;
 }) {
   // menu crap start
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -93,6 +95,7 @@ export function CommentMenu({
     deleteComment(comment.commentId).then(
       (_success) => {
         // asyncState.endProcess(P_DELETE);
+        onDelete();
       },
       (err) => alert('Failed to delete comment')
       //(err) => asyncState.failProcess(err, 'Failed to delete comment', P_DELETE)

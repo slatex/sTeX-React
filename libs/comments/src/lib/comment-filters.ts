@@ -24,12 +24,12 @@ export class CommentFilters {
 
   filterHidden(comment: Comment) {
     comment.childComments = comment.childComments?.filter((c) =>
-      this.isCommentHidden(c)
+      this.isCommentVisible(c)
     );
     comment.childComments?.forEach((c) => this.filterHidden(c));
   }
 
-  private isCommentHidden(comment: Comment) {
+  private isCommentVisible(comment: Comment) {
     if (!comment) return false;
     if (!this.showSpam && isSpam(comment.hiddenStatus)) {
       return false;

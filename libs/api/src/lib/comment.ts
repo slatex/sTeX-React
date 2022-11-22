@@ -7,7 +7,6 @@ export const MODERATORS = [
 ];
 
 export enum HiddenStatus {
-  UNKNOWN = 'UNKNOWN',
   UNHIDDEN = 'UNHIDDEN',
   SPAM = 'SPAM',
   INCORRECT = 'INCORRECT',
@@ -44,11 +43,9 @@ export interface Comment {
 }
 
 export function isHiddenNotSpam(status?: HiddenStatus) {
-  return !!status && [
-    HiddenStatus.UNKNOWN,
-    HiddenStatus.UNHIDDEN,
-    HiddenStatus.SPAM,
-  ].includes(status);
+  return (
+    !!status && ![HiddenStatus.UNHIDDEN, HiddenStatus.SPAM].includes(status)
+  );
 }
 export function isSpam(status?: HiddenStatus) {
   return status === HiddenStatus.SPAM;

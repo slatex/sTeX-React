@@ -12,8 +12,11 @@
     isPrivate tinyint,
     isDeleted tinyint,
 
-    hiddenStatus enum('UNKNOWN', 'UNHIDDEN', 'SPAM', 'INCORRECT', 'IRRELEVANT', 'ABUSE','OTHER'),
+    hiddenStatus enum('UNHIDDEN', 'SPAM', 'INCORRECT', 'IRRELEVANT', 'ABUSE','OTHER'),
     hiddenJustification varchar(255),
+
+    selectedText text,
+    selectedElement text,
 
     userId varchar(255),
     userName varchar(255),

@@ -6,14 +6,19 @@ import { CommentReply } from './CommentReply';
 import { EditView } from './EditView';
 
 import styles from './comments.module.scss';
+import { SelectedInfo } from './selected-info';
 
-interface CommentViewProps {
+export function CommentView({
+  comment,
+  archive,
+  filepath,
+  onUpdate,
+}: {
   comment: Comment;
   archive: string;
   filepath: string;
-}
-
-export function CommentView({ comment, archive, filepath }: CommentViewProps) {
+  onUpdate: () => void;
+}) {
   const [commentReplyOpen, setCommentReplyOpen] = useState(false);
   const [editingComment, setEditingComment] = useState(false);
 
@@ -23,11 +28,13 @@ export function CommentView({ comment, archive, filepath }: CommentViewProps) {
         comment={comment}
         setEditingComment={setEditingComment}
         setOpenReply={setCommentReplyOpen}
+        onDelete={onUpdate}
       />
       <div style={{ display: 'flex' }}>
         <div className={styles['stretchy_div']}>
           {!comment.isDeleted && (
             <div>
+              <SelectedInfo text={comment.selectedText} />
               {!editingComment && (
                 <div style={{ margin: '-1em 0 0' }}>
                   <MdViewer content={comment.statement || ''} />
@@ -40,6 +47,10 @@ export function CommentView({ comment, archive, filepath }: CommentViewProps) {
                 filepath={filepath}
                 existingComment={comment}
                 onCancel={() => setEditingComment(false)}
+                onUpdate={() => {
+                  setEditingComment(false);
+                  onUpdate && onUpdate();
+                }}
               />
               <CommentReply
                 hidden={!commentReplyOpen}
@@ -47,6 +58,10 @@ export function CommentView({ comment, archive, filepath }: CommentViewProps) {
                 archive={archive}
                 filepath={filepath}
                 onCancel={() => setCommentReplyOpen(false)}
+                onUpdate={() => {
+                  setCommentReplyOpen(false);
+                  onUpdate && onUpdate();
+                }}
               />
             </div>
           )}

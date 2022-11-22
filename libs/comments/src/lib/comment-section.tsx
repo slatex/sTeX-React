@@ -18,20 +18,28 @@ import { CommentReply } from './CommentReply';
 import { CommentView } from './CommentView';
 
 import styles from './comments.module.scss';
+import { Refresh } from '@mui/icons-material';
 
 function RenderTree({
   comment,
   archive,
   filepath,
+  refreshComments,
 }: {
   comment: Comment;
   archive: string;
   filepath: string;
+  refreshComments: () => void;
 }) {
   return (
     <>
       {comment && (
-        <CommentView comment={comment} archive={archive} filepath={filepath} />
+        <CommentView
+          comment={comment}
+          archive={archive}
+          filepath={filepath}
+          onUpdate={refreshComments}
+        />
       )}
       <Box pl="7px" ml="3px" sx={{ borderLeft: '1px solid #CCC' }}>
         {(comment.childComments || []).map((child) => (
@@ -40,6 +48,7 @@ function RenderTree({
             comment={child}
             archive={archive}
             filepath={filepath}
+            refreshComments={refreshComments}
           />
         ))}
       </Box>
@@ -47,20 +56,16 @@ function RenderTree({
   );
 }
 
-interface CommentSectionProps {
-  archive: string;
-  filepath: string;
-  startDisplay?: boolean;
-}
-
 function CommentTree({
   comments,
   archive,
   filepath,
+  refreshComments,
 }: {
   comments: Comment[];
   archive: string;
   filepath: string;
+  refreshComments: () => void;
 }) {
   return (
     <>
@@ -70,6 +75,7 @@ function CommentTree({
           comment={comment}
           archive={archive}
           filepath={filepath}
+          refreshComments={refreshComments}
         />
       ))}
     </>
@@ -133,8 +139,16 @@ export function ButtonAndDialog({
 export function CommentSection({
   archive,
   filepath,
-  startDisplay = false,
-}: CommentSectionProps) {
+  startDisplay = true,
+  selectedText = undefined,
+  selectedElement = undefined,
+}: {
+  archive: string;
+  filepath: string;
+  startDisplay?: boolean;
+  selectedText?: string;
+  selectedElement?: any;
+}) {
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
 
   // Menu Crap start
@@ -178,6 +192,12 @@ export function CommentSection({
     });
   }, [archive, filepath, filters]);
 
+  const refreshComments = () => {
+    getHierarchialComments(archive, filepath, true).then((comments) => {
+      setCommentsFromStore(comments);
+    });
+  };
+
   if (commentsFromStore == null && startDisplay) {
     return <CircularProgress size={40} />;
   }
@@ -186,9 +206,14 @@ export function CommentSection({
     <div hidden={commentsFromStore == null || !startDisplay}>
       <div className={styles['header']}>
         <span style={{ marginBottom: '2px' }}>{numComments} comments</span>
-        <IconButton onClick={handleClick} sx={{ p: '2px' }}>
-          <FilterAltIcon sx={{ fontSize: '2.25rem' }} />
-        </IconButton>
+        <Box>
+          <IconButton onClick={() => refreshComments()}>
+            <Refresh />
+          </IconButton>
+          <IconButton onClick={handleClick} sx={{ p: '2px' }}>
+            <FilterAltIcon sx={{ fontSize: '2.25rem' }} />
+          </IconButton>
+        </Box>
       </div>
 
       <hr style={{ margin: '0 0 15px' }} />
@@ -200,6 +225,10 @@ export function CommentSection({
           parentId={0}
           archive={archive}
           filepath={filepath}
+          selectedText={selectedText}
+          selectedElement={selectedElement}
+          onUpdate={() => refreshComments()}
+          onCancel={undefined}
         />
       )}
       <br />
@@ -208,6 +237,7 @@ export function CommentSection({
         comments={filteredComments}
         archive={archive}
         filepath={filepath}
+        refreshComments={() => refreshComments()}
       />
       <Menu
         id="filter-menu"
@@ -215,12 +245,12 @@ export function CommentSection({
         open={open}
         onClose={handleClose}
       >
-        <MenuItem onClick={closeAnd(filters.onShowHidden)}>
+        <MenuItem onClick={closeAnd(() => filters.onShowHidden())}>
           {filters.showHidden ? <CheckIcon /> : <CheckBoxOutlineBlankIcon />}
           &nbsp;Show hidden comments
         </MenuItem>
         {canModerate && (
-          <MenuItem onClick={closeAnd(filters.onShowSpam)}>
+          <MenuItem onClick={closeAnd(() => filters.onShowSpam())}>
             {filters.showSpam ? <CheckIcon /> : <CheckBoxOutlineBlankIcon />}
             &nbsp;Show spam
           </MenuItem>
