@@ -43,6 +43,8 @@ export function CommentView({
               <EditView
                 hidden={!editingComment}
                 parentId={comment.commentId}
+                isPrivateNote={!!comment.isPrivate}
+                postAnonymously={comment.isAnonymous}
                 archive={archive}
                 filepath={filepath}
                 existingComment={comment}
@@ -55,6 +57,7 @@ export function CommentView({
               <CommentReply
                 hidden={!commentReplyOpen}
                 parentId={comment.commentId}
+                isPrivateNote={!!comment.isPrivate}
                 archive={archive}
                 filepath={filepath}
                 onCancel={() => setCommentReplyOpen(false)}

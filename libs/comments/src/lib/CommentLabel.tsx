@@ -27,10 +27,11 @@ export function CommentLabel({
   const [fromCurrentUser, setFromCurrentUser] = useState(false);
   const [canModerate, setCanModerate] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const isPrivateNote = !!comment?.isPrivate;
 
   const hiddenStatus = comment?.hiddenStatus;
   const showHiddenStatus =
-    isSpam(hiddenStatus) || isHiddenNotSpam(hiddenStatus);
+    !isPrivateNote && (isSpam(hiddenStatus) || isHiddenNotSpam(hiddenStatus));
   const statusStyle = isSpam(hiddenStatus) ? 'spam_status' : 'hidden_status';
 
   useEffect(() => {
@@ -58,15 +59,21 @@ export function CommentLabel({
     >
       <Box display="flex">
         {/*comment.commentId*/}
-        <span className={styles['user_link']}>{comment.userName}</span>
-        &nbsp;
+        {!isPrivateNote && (
+          <>
+            <span className={styles['user_link']}>
+              {comment.isAnonymous ? <i>Anonymous</i> : comment.userName}
+            </span>
+            &nbsp;
+          </>
+        )}
         <DateView timestampMs={(comment.postedTimestampSec || 0) * 1000} />
         {comment.isEdited && (
           <span style={{ display: 'inline', fontSize: '12px', color: 'grey' }}>
             &nbsp;&#x2022; edited
           </span>
         )}
-        {isLoggedIn && (
+        {isLoggedIn && !isPrivateNote && (
           <>
             &nbsp; &nbsp;
             <Button

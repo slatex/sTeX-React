@@ -13,16 +13,28 @@ function addStore(archive: string, filepath: string, store: CommentStore) {
   return commentStoreMap.set(key, store);
 }
 
-export async function getHierarchialComments(
+function getExistingOrNewStore(archive: string, filepath: string) {
+  const store = getStore(archive, filepath);
+  if (store) return store;
+  const newStore = new CommentStore(archive, filepath);
+  addStore(archive, filepath, newStore);
+  return newStore;
+}
+
+export async function getPublicCommentTrees(
   archive: string,
   filepath: string,
   forceRefresh: boolean
 ): Promise<Comment[]> {
-  let store = getStore(archive, filepath);
-  if (!store) {
-    // console.log('new store');
-    store = new CommentStore(archive, filepath);
-    addStore(archive, filepath, store);
-  }
-  return await store.getHierarchialComments(forceRefresh);
+  const store = getExistingOrNewStore(archive, filepath);
+  return await store.getPublicCommentTrees(forceRefresh);
+}
+
+export async function getPrivateNotes(
+  archive: string,
+  filepath: string,
+  forceRefresh: boolean
+): Promise<Comment[]> {
+  const store = getExistingOrNewStore(archive, filepath);
+  return await store.getPrivateNotes(forceRefresh);
 }

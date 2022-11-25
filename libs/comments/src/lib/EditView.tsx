@@ -7,6 +7,8 @@ import { getUserName, Comment, addComment, editComment } from '@stex-react/api';
 interface EditViewProps {
   archive: string;
   filepath: string;
+  isPrivateNote: boolean;
+  postAnonymously: boolean;
   parentId?: number;
   selectedText?: string;
   existingComment?: Comment;
@@ -19,6 +21,8 @@ interface EditViewProps {
 export function EditView({
   archive,
   filepath,
+  isPrivateNote,
+  postAnonymously = false,
   selectedText = undefined,
   parentId = 0,
   existingComment = undefined,
@@ -42,18 +46,18 @@ export function EditView({
     setInputText(retreived || '');
   }, [archive, filepath, parentId, existingComment]);
 
-  function getNewComment() {
-    const comment: Comment = {
+  function getNewComment(): Comment {
+    return {
       commentId: -1,
       archive,
       filepath,
       parentCommentId: parentId,
       statement: inputText,
-      isPrivate: false, // TODOX
+      isPrivate: isPrivateNote,
+      isAnonymous: postAnonymously,
       selectedText,
       userName,
     };
-    return comment;
   }
 
   const addUpdateComment = async () => {
@@ -62,8 +66,7 @@ export function EditView({
       if (existingComment) {
         await editComment(existingComment.commentId, inputText);
       } else {
-        const newComment = getNewComment();
-        await addComment(newComment);
+        await addComment(getNewComment());
       }
       onUpdate();
     } catch (err) {

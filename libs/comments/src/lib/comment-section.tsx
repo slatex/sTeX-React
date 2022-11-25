@@ -13,7 +13,7 @@ import {
 import { Comment, getUserId, MODERATORS } from '@stex-react/api';
 import { ReactNode, useEffect, useReducer, useRef, useState } from 'react';
 import { CommentFilters } from './comment-filters';
-import { getHierarchialComments } from './comment-store-manager';
+import { getPublicCommentTrees } from './comment-store-manager';
 import { CommentReply } from './CommentReply';
 import { CommentView } from './CommentView';
 
@@ -84,7 +84,11 @@ function CommentTree({
 
 function getFilteredComments(comments: Comment[], filters: CommentFilters) {
   if (!comments) return [];
-  const topShadowComment: Comment = { commentId: -1 };
+  const topShadowComment: Comment = {
+    commentId: -1,
+    isAnonymous: false,
+    isPrivate: false,
+  };
   topShadowComment.childComments = comments.map(
     (comment) => structuredClone(comment) as Comment
   );
@@ -191,13 +195,13 @@ export function CommentSection({
     });
   }, []);
   useEffect(() => {
-    getHierarchialComments(archive, filepath, false).then((comments) => {
+    getPublicCommentTrees(archive, filepath, false).then((comments) => {
       setCommentsFromStore(comments);
     });
   }, [archive, filepath, filters]);
 
   const refreshComments = () => {
-    getHierarchialComments(archive, filepath, true).then((comments) => {
+    getPublicCommentTrees(archive, filepath, true).then((comments) => {
       setCommentsFromStore(comments);
     });
   };
@@ -229,6 +233,7 @@ export function CommentSection({
           parentId={0}
           archive={archive}
           filepath={filepath}
+          isPrivateNote={false}
           selectedText={selectedText}
           selectedElement={selectedElement}
           onUpdate={() => refreshComments()}

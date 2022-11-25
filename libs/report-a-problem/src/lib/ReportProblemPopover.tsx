@@ -1,3 +1,5 @@
+import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import {
@@ -6,16 +8,17 @@ import {
   Dialog,
   DialogActions,
   IconButton,
-  Snackbar,
+  Snackbar
 } from '@mui/material';
+import {
+  CommentNoteToggleView
+} from '@stex-react/comments';
 import { getSectionInfo, SectionInfo } from '@stex-react/utils';
 import { PropsWithChildren, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { issuesUrlList } from './issueCreator';
 import { ReportProblemDialog } from './ReportProblemDialog';
 import { useTextSelection } from './useTextSelection';
-import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
-import { CommentSection } from '@stex-react/comments';
 
 type Props = {
   target?: HTMLElement;
@@ -65,6 +68,7 @@ export function ReportProblemPopover(props: Props) {
 
   const [snackBarOpen, setSnackbarOpen] = useState(false);
   const [newIssueUrl, setNewIssueUrl] = useState('');
+  const [isPrivate, setIsPrivate] = useState(false);
 
   return (
     <>
@@ -77,6 +81,32 @@ export function ReportProblemPopover(props: Props) {
               top: `${clientRect.top - 50}px`,
             }}
           >
+            {context?.[0]?.archive && (
+              <>
+                <IconButton
+                  sx={{ ...buttonProps('#8c9fb1'), ml: '5px' }}
+                  onClick={() => {
+                    setIsPrivate(true);
+                    setSelectedText(textContent.trim());
+                    setSelectedContext(context);
+                    setNcdOpen(true);
+                  }}
+                >
+                  <FormatListBulletedIcon color="secondary" />
+                </IconButton>
+                <IconButton
+                  sx={{ ...buttonProps('#8c9fb1'), ml: '5px' }}
+                  onClick={() => {
+                    setIsPrivate(false);
+                    setSelectedText(textContent.trim());
+                    setSelectedContext(context);
+                    setNcdOpen(true);
+                  }}
+                >
+                  <ChatBubbleIcon color="secondary" />
+                </IconButton>
+              </>
+            )}
             <IconButton
               sx={buttonProps('#f2c300')}
               onClick={() => {
@@ -87,18 +117,6 @@ export function ReportProblemPopover(props: Props) {
             >
               <ReportProblemIcon />
             </IconButton>
-            {context?.length > 0 && (
-              <IconButton
-                sx={{ ...buttonProps('#8c9fb1'), ml: '5px' }}
-                onClick={() => {
-                  setSelectedText(textContent.trim());
-                  setSelectedContext(context);
-                  setNcdOpen(true);
-                }}
-              >
-                <ChatBubbleIcon color="secondary" />
-              </IconButton>
-            )}
           </Box>
         )}
       </Portal>
@@ -136,8 +154,9 @@ export function ReportProblemPopover(props: Props) {
       />
       {selectedContext?.[0]?.archive && selectedContext[0].filepath && ncdOpen && (
         <Dialog onClose={() => setNcdOpen(false)} open={ncdOpen} maxWidth="lg">
-          <Box m="15px" onClick={(e) => e.stopPropagation()}>
-            <CommentSection
+          <Box onClick={(e) => e.stopPropagation()}>
+            <CommentNoteToggleView
+              defaultPrivate={isPrivate}
               archive={selectedContext[0].archive}
               filepath={selectedContext[0].filepath}
               selectedText={selectedText}

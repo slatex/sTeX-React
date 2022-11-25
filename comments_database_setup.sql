@@ -18,6 +18,7 @@
     selectedText text,
     selectedElement text,
 
+    isAnonymous tinyint,
     userId varchar(255),
     userName varchar(255),
     userEmail varchar(255),

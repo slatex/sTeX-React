@@ -25,12 +25,13 @@ export interface Comment {
   statement?: string;
 
   isEdited?: boolean;
-  isPrivate?: boolean;
+  isPrivate: boolean;
   isDeleted?: boolean;
 
   hiddenStatus?: HiddenStatus;
   hiddenJustification?: string;
 
+  isAnonymous: boolean;
   userId?: string;
   userName?: string;
   userEmail?: string;
