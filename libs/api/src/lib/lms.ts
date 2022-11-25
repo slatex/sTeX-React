@@ -91,19 +91,10 @@ async function lmsRequest(
 }
 
 export async function getUriWeights(URIs: string[]) {
-  const resp = await lmsRequest(
-    'lms/output/multiple',
-    'POST',
-    {
-      competencies: URIs.map((URI) => {
-        return { URI, competency: 0 };
-      }),
-    },
-    { URIs }
-  );
+  const resp = await lmsRequest('lms/output/multiple', 'POST', null, { URIs });
+  if (!resp?.competencies) return new Array(URIs.length).fill(0);
   const compMap = new Map<string, any>();
-  console.log(resp);
-  resp.competencies.forEach((c: any) => compMap.set(c.URI, c.competency));
+  resp.competencies.forEach((c: any) => compMap.set(c.URI, c.competence));
   return URIs.map((URI) => +(compMap.get(URI) || 0));
 }
 
