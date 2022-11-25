@@ -69,3 +69,7 @@ export async function updateCommentState(
 export async function getLatestUpdatedSections() {
   return await commentRequest('/api/get-latest-updated-sections', 'GET');
 }
+
+export async function getMyNotesSections() {
+  return await commentRequest('/api/get-my-notes-sections', 'GET');
+}

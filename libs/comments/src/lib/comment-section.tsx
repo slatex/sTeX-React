@@ -33,14 +33,7 @@ function RenderTree({
 }) {
   return (
     <>
-      {comment && (
-        <CommentView
-          comment={comment}
-          archive={archive}
-          filepath={filepath}
-          onUpdate={refreshComments}
-        />
-      )}
+      {comment && <CommentView comment={comment} onUpdate={refreshComments} />}
       <Box pl="7px" ml="3px" sx={{ borderLeft: '1px solid #CCC' }}>
         {(comment.childComments || []).map((child) => (
           <RenderTree

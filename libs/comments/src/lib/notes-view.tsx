@@ -82,9 +82,8 @@ export function NotesView({
 
       {notes.map((note) => (
         <CommentView
+          key={note.commentId}
           comment={note}
-          archive={archive}
-          filepath={filepath}
           onUpdate={() => refreshNotes()}
         />
       ))}

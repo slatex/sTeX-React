@@ -10,13 +10,9 @@ import { SelectedInfo } from './selected-info';
 
 export function CommentView({
   comment,
-  archive,
-  filepath,
   onUpdate,
 }: {
   comment: Comment;
-  archive: string;
-  filepath: string;
   onUpdate: () => void;
 }) {
   const [commentReplyOpen, setCommentReplyOpen] = useState(false);
@@ -45,8 +41,8 @@ export function CommentView({
                 parentId={comment.commentId}
                 isPrivateNote={!!comment.isPrivate}
                 postAnonymously={comment.isAnonymous}
-                archive={archive}
-                filepath={filepath}
+                archive={comment.archive || ''}
+                filepath={comment.filepath || ''}
                 existingComment={comment}
                 onCancel={() => setEditingComment(false)}
                 onUpdate={() => {
@@ -58,8 +54,8 @@ export function CommentView({
                 hidden={!commentReplyOpen}
                 parentId={comment.commentId}
                 isPrivateNote={!!comment.isPrivate}
-                archive={archive}
-                filepath={filepath}
+                archive={comment.archive || ''}
+                filepath={comment.filepath || ''}
                 onCancel={() => setCommentReplyOpen(false)}
                 onUpdate={() => {
                   setCommentReplyOpen(false);
