@@ -1,3 +1,4 @@
+import { Comment } from '@stex-react/api';
 import axios from 'axios';
 import mysql from 'serverless-mysql';
 const db = mysql({
@@ -33,6 +34,40 @@ export async function executeQuery<T>(query: string, values: any[]) {
   }
 }
 
+export async function executeTransaction(
+  query1: string,
+  values1: any[],
+  query2: string,
+  values2: any[]
+) {
+  try {
+    const results = await db
+      .transaction()
+      .query(query1, values1)
+      .query(query2, values2)
+      .commit();
+    await db.end();
+    return results;
+  } catch (error) {
+    return { error };
+  }
+}
+
+export async function executeTransactionSet500OnError(
+  query1: string,
+  values1: any[],
+  query2: string,
+  values2: any[],
+  res
+) {
+  const results = await executeTransaction(query1, values1, query2, values2);
+  if (results['error']) {
+    res.status(500).send(results);
+    return undefined;
+  }
+  return results;
+}
+
 export async function getUserId(req) {
   if (!req.headers.authorization) return undefined;
   const headers = { Authorization: req.headers.authorization };
@@ -41,18 +76,22 @@ export async function getUserId(req) {
   return resp.data;
 }
 
-export async function isPublicComment(commentId: number): Promise<boolean> {
+export async function getExistingComment(
+  commentId: number
+): Promise<{ existing: Comment; error?: number }> {
   const existingComments = await executeQuery(
-    'SELECT userId, isPrivate, isDeleted FROM comments WHERE commentId = ?',
+    'SELECT * FROM comments WHERE commentId = ? AND (isDeleted IS NULL OR isDeleted !=1)',
     [commentId]
   );
-  if (existingComments['error']) return false;
+  if (existingComments['error']) {
+    console.error(existingComments['error']);
+    return { existing: undefined, error: 500 };
+  }
 
-  return (
-    existingComments['length'] === 1 &&
-    existingComments[0]['isDeleted'] !== 1 &&
-    existingComments[0]['isPrivate'] !== 1
-  );
+  if (existingComments['length'] !== 1) {
+    return { existing: undefined, error: 404 };
+  }
+  return { existing: existingComments[0], error: undefined };
 }
 
 export async function getCommentOwner(

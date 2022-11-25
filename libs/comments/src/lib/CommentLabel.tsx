@@ -1,26 +1,37 @@
 import ReplyIcon from '@mui/icons-material/Reply';
 import { useEffect, useState } from 'react';
-import { Comment, getUserId, MODERATORS } from '@stex-react/api';
+import {
+  Comment,
+  getUserId,
+  isHiddenNotSpam,
+  isSpam,
+  MODERATORS,
+} from '@stex-react/api';
 import { DateView } from '@stex-react/react-utils';
 import { CommentMenu } from './CommentMenu';
 
-import { Box, Button } from '@mui/material';
+import { Box, Button, Tooltip } from '@mui/material';
 import styles from './comments.module.scss';
 
 export function CommentLabel({
   comment,
   setEditingComment,
   setOpenReply,
-  onDelete,
+  onUpdate,
 }: {
   comment: Comment;
   setEditingComment: (editing: boolean) => void;
   setOpenReply: (open: boolean) => void;
-  onDelete: () => void;
+  onUpdate: () => void;
 }) {
   const [fromCurrentUser, setFromCurrentUser] = useState(false);
   const [canModerate, setCanModerate] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const hiddenStatus = comment?.hiddenStatus;
+  const showHiddenStatus =
+    isSpam(hiddenStatus) || isHiddenNotSpam(hiddenStatus);
+  const statusStyle = isSpam(hiddenStatus) ? 'spam_status' : 'hidden_status';
 
   useEffect(() => {
     getUserId().then(
@@ -68,6 +79,11 @@ export function CommentLabel({
             </Button>
           </>
         )}
+        {showHiddenStatus && (
+          <Tooltip title={comment.hiddenJustification}>
+            <span className={styles[statusStyle]}>{hiddenStatus}</span>
+          </Tooltip>
+        )}
       </Box>
       <Box>
         {(canModerate || fromCurrentUser) && (
@@ -76,7 +92,7 @@ export function CommentLabel({
             canModerate={canModerate}
             canEditComment={fromCurrentUser}
             setEditingComment={setEditingComment}
-            onDelete={onDelete}
+            onUpdate={onUpdate}
           />
         )}
       </Box>

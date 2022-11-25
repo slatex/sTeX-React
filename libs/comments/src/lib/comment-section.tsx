@@ -142,14 +142,14 @@ export function CommentSection({
   startDisplay = true,
   selectedText = undefined,
   selectedElement = undefined,
-  hideNewCommentBox = false
+  allCommentsMode = false,
 }: {
   archive: string;
   filepath: string;
   startDisplay?: boolean;
   selectedText?: string;
   selectedElement?: any;
-  hideNewCommentBox?: boolean;
+  allCommentsMode?: boolean;
 }) {
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
 
@@ -171,7 +171,9 @@ export function CommentSection({
   // Menu Crap end
 
   // If the value wrapped in useRef actually never changes, we can dereference right in the declaration.
-  const filters = useRef(new CommentFilters(forceUpdate)).current;
+  const filters = useRef(
+    new CommentFilters(forceUpdate, allCommentsMode, allCommentsMode)
+  ).current;
   const [commentsFromStore, setCommentsFromStore] = useState([] as Comment[]);
   const [canAddComment, setCanAddComment] = useState(false);
   const [canModerate, setCanModerate] = useState(false);
@@ -219,7 +221,7 @@ export function CommentSection({
       </div>
 
       <hr style={{ margin: '0 0 15px' }} />
-      {canAddComment && !hideNewCommentBox && (
+      {canAddComment && !allCommentsMode && (
         <CommentReply
           placeholder={
             numComments ? 'Join the discussion' : 'Start the discussion'

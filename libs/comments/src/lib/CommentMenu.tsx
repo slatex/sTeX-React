@@ -43,6 +43,8 @@ export function MenuItemAndDialog({
           onClose(null);
         }}
         open={open}
+        onKeyDown={(e) => e.stopPropagation()}
+        onKeyUp={(e) => e.stopPropagation()}
       >
         {dialogContentCreator((val: any) => {
           setOpen(false);
@@ -63,13 +65,13 @@ export function CommentMenu({
   canModerate,
   canEditComment,
   setEditingComment,
-  onDelete,
+  onUpdate,
 }: {
   comment: Comment;
   canModerate: boolean;
   canEditComment: boolean;
   setEditingComment: any;
-  onDelete: () => void;
+  onUpdate: () => void;
 }) {
   // menu crap start
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -95,14 +97,14 @@ export function CommentMenu({
     deleteComment(comment.commentId).then(
       (_success) => {
         // asyncState.endProcess(P_DELETE);
-        onDelete();
+        onUpdate();
       },
       (err) => alert('Failed to delete comment')
       //(err) => asyncState.failProcess(err, 'Failed to delete comment', P_DELETE)
     );
   }
 
-  function updateHiddenState(state: HiddenState) {
+  function updateHiddenState(state: HiddenState, onUpdate: () => void) {
     if (!state) {
       return;
     }
@@ -113,6 +115,7 @@ export function CommentMenu({
       state.hiddenJustification
     ).then(
       (success) => {
+        onUpdate();
         // asyncState.endProcess(P_HIDE);
       },
       (err) => alert('Failed to update comment')
@@ -146,6 +149,7 @@ export function CommentMenu({
           <MenuItem
             onClick={() => {
               setEditingComment(true);
+              handleClose();
             }}
           >
             <EditIcon />
@@ -193,7 +197,7 @@ export function CommentMenu({
             )}
             onClose={(state) => {
               handleClose();
-              updateHiddenState(state);
+              updateHiddenState(state, onUpdate);
             }}
           />
         )}
@@ -215,7 +219,7 @@ export function CommentMenu({
             )}
             onClose={(state) => {
               handleClose();
-              updateHiddenState(state);
+              updateHiddenState(state, onUpdate);
             }}
           />
         )}
@@ -237,7 +241,7 @@ export function CommentMenu({
             )}
             onClose={(state) => {
               handleClose();
-              updateHiddenState(state);
+              updateHiddenState(state, onUpdate);
             }}
           />
         )}

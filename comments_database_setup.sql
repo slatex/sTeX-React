@@ -25,7 +25,16 @@
     postedTimestamp timestamp DEFAULT CURRENT_TIMESTAMP,
     updatedTimestamp timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+4. CREATE TABLE updateHistory (
+    updateId int PRIMARY KEY AUTO_INCREMENT,
+    updaterId int NOT NULL,
+    commentId int NOT NULL,
+    previousStatement text,
+    previousHiddenStatus enum('UNHIDDEN', 'SPAM', 'INCORRECT', 'IRRELEVANT', 'ABUSE','OTHER'),
+    previousHiddenJustification varchar(255),
 
+    updatedTimestamp timestamp DEFAULT CURRENT_TIMESTAMP
+)
 
 local installation
 - Development Computer

@@ -112,3 +112,21 @@
   text-decoration: underline;
   cursor: pointer;
 }
+.comment_status {
+  margin-left: 10px;
+  font-size: small;
+  border: 1px solid black;
+  border-radius: 5px;
+  padding: 3px;
+  color: white;
+}
+
+.spam_status {
+  @extend .comment_status;
+  background: darkred;
+}
+
+.hidden_status {
+  @extend .comment_status;
+  background: goldenrod;
+}

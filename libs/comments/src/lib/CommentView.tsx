@@ -28,7 +28,7 @@ export function CommentView({
         comment={comment}
         setEditingComment={setEditingComment}
         setOpenReply={setCommentReplyOpen}
-        onDelete={onUpdate}
+        onUpdate={onUpdate}
       />
       <div style={{ display: 'flex' }}>
         <div className={styles['stretchy_div']}>

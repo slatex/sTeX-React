@@ -1,14 +1,10 @@
-import SettingsIcon from '@mui/icons-material/Settings';
-import { Box, Button, IconButton } from '@mui/material';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import { Box } from '@mui/material';
 import { getLatestUpdatedSections } from '@stex-react/api';
 import { CommentSection } from '@stex-react/comments';
+import { PathToArticle } from '@stex-react/utils';
 import type { NextPage } from 'next';
-import Image from 'next/image';
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { BrowserAutocomplete } from '../components/BrowserAutocomplete';
-import { SearchBar } from '../components/SearchBar';
-import { ToursAutocomplete } from '../components/ToursAutocomplete';
 import MainLayout from '../layouts/MainLayout';
 
 export interface CommentSection {
@@ -33,13 +29,19 @@ const AllCommentsPage: NextPage = () => {
             p="10px"
             m="10px"
           >
-            <span style={{ fontSize: '20px' }}>
+            <a
+              style={{ fontSize: '20px' }}
+              href={PathToArticle(section.archive, section.filepath)}
+              target="_blank"
+              rel="noreferrer"
+            >
               {section.archive}||{section.filepath}
-            </span>
+              <OpenInNewIcon />
+            </a>
             <CommentSection
               archive={section.archive}
               filepath={section.filepath}
-              hideNewCommentBox={true}
+              allCommentsMode={true}
             />
           </Box>
         ))}

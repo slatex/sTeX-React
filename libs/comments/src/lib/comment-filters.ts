@@ -1,10 +1,13 @@
 import { Comment, isHiddenNotSpam, isSpam } from '@stex-react/api';
 
 export class CommentFilters {
-  showHidden = false;
-  showSpam = false;
 
-  constructor(private onResetNeeded: () => void) {}
+  constructor(
+    private onResetNeeded: () => void,
+    public showHidden = false,
+    public showSpam = false
+  ) {
+  }
 
   onShowHidden() {
     this.showHidden = !this.showHidden;

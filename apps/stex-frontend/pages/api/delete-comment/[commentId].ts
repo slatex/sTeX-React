@@ -1,6 +1,6 @@
 import {
   checkIfPostOrSetError,
-  executeQuerySet500OnError,
+  executeTransactionSet500OnError,
   getCommentOwner,
   getUserIdOrSetError,
 } from '../comment-utils';
@@ -22,10 +22,12 @@ export default async function handler(req, res) {
     return;
   }
 
-  const commentUpdate = await executeQuerySet500OnError(
+  const commentUpdate = await executeTransactionSet500OnError(
     `UPDATE comments
     SET statement=NULL, userId=NULL, userName=NULL, userEmail=NULL, selectedText=NULL, isDeleted=1
     WHERE commentId=?`,
+    [commentId],
+    `DELETE FROM updateHistory WHERE commentId=?`,
     [commentId],
     res
   );
