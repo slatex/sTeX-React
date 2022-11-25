@@ -1,11 +1,7 @@
-import {
-  Box, IconButton
-} from '@mui/material';
-import { Comment } from '@stex-react/api';
+import { Box, IconButton } from '@mui/material';
+import { Comment, getUserId } from '@stex-react/api';
 import { useEffect, useState } from 'react';
-import {
-  getPrivateNotes
-} from './comment-store-manager';
+import { getPrivateNotes } from './comment-store-manager';
 import { CommentReply } from './CommentReply';
 import { CommentView } from './CommentView';
 
@@ -25,6 +21,7 @@ export function NotesView({
   selectedElement?: any;
   allNotesMode?: boolean;
 }) {
+  const [userId, setUserId] = useState<string | undefined>(undefined);
   const [notes, setNotes] = useState([] as Comment[]);
 
   const refreshNotes = () => {
@@ -34,10 +31,27 @@ export function NotesView({
     });
   };
   useEffect(() => {
+    getUserId().then(setUserId);
+  }, []);
+  useEffect(() => {
+    if (!userId) return;
     getPrivateNotes(archive, filepath, false).then((comments) => {
       setNotes(comments);
     });
-  }, [archive, filepath]);
+  }, [archive, filepath, userId]);
+
+  if (!userId)
+    return (
+      <Box m="10px">
+        <i>
+          Please{' '}
+          <a href="/login" style={{ textDecoration: 'underline' }}>
+            <b>login</b>
+          </a>{' '}
+          to save notes.
+        </i>
+      </Box>
+    );
 
   return (
     <div>
