@@ -1,13 +1,13 @@
 import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import { Box, Button, Dialog, DialogActions, IconButton } from '@mui/material';
-import {
-  CommentNoteToggleView, getPrivateNotes,
-  getPublicCommentTrees
-} from '@stex-react/comments';
 import { getSectionInfo } from '@stex-react/utils';
 import { useEffect, useState } from 'react';
-import { ErrorBoundary } from './ErrorBoundary';
+import { CommentNoteToggleView } from './comment-note-toggle-view';
+import {
+  getPrivateNotes,
+  getPublicCommentTrees
+} from './comment-store-manager';
 
 const buttonProps = {
   zIndex: '1',
@@ -46,43 +46,41 @@ export function CommentButton({ url = '' }: { url?: string }) {
     return null;
 
   return (
-    <ErrorBoundary hidden={false}>
-      <Box>
-        {hasPrivateNotes && (
-          <IconButton
-            onClick={() => {
-              setDefaultPrivate(true);
-              setOpen(true);
-            }}
-            sx={buttonProps}
-          >
-            <FormatListBulletedIcon />
-          </IconButton>
-        )}
-        {hasPublicComments && (
-          <IconButton
-            onClick={() => {
-              setDefaultPrivate(false);
-              setOpen(true);
-            }}
-            sx={buttonProps}
-          >
-            <ChatBubbleIcon />
-          </IconButton>
-        )}
-        {open && (
-          <Dialog onClose={() => setOpen(false)} open={open} maxWidth="lg">
-            <CommentNoteToggleView
-              defaultPrivate={defaultPrivate}
-              archive={archive}
-              filepath={filepath}
-            />
-            <DialogActions sx={{ p: '0' }}>
-              <Button onClick={() => setOpen(false)}>Close</Button>
-            </DialogActions>
-          </Dialog>
-        )}
-      </Box>
-    </ErrorBoundary>
+    <Box>
+      {hasPrivateNotes && (
+        <IconButton
+          onClick={() => {
+            setDefaultPrivate(true);
+            setOpen(true);
+          }}
+          sx={buttonProps}
+        >
+          <FormatListBulletedIcon />
+        </IconButton>
+      )}
+      {hasPublicComments && (
+        <IconButton
+          onClick={() => {
+            setDefaultPrivate(false);
+            setOpen(true);
+          }}
+          sx={buttonProps}
+        >
+          <ChatBubbleIcon />
+        </IconButton>
+      )}
+      {open && (
+        <Dialog onClose={() => setOpen(false)} open={open} maxWidth="lg">
+          <CommentNoteToggleView
+            defaultPrivate={defaultPrivate}
+            archive={archive}
+            filepath={filepath}
+          />
+          <DialogActions sx={{ p: '0' }}>
+            <Button onClick={() => setOpen(false)}>Close</Button>
+          </DialogActions>
+        </Dialog>
+      )}
+    </Box>
   );
 }

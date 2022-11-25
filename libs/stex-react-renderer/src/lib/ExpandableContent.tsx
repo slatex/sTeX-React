@@ -7,7 +7,7 @@ import {
   getSectionInfo,
   simpleHash,
 } from '@stex-react/utils';
-import { CommentButton } from './comment-button';
+import { CommentButton } from '@stex-react/comments';
 import {
   createContext,
   MouseEvent,

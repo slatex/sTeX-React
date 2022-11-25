@@ -1,17 +1,18 @@
 import { Box } from '@mui/material';
+import { CommentButton } from '@stex-react/comments';
 import {
   BG_COLOR,
   getChildrenOfBodyNode,
   getSectionInfo,
   IS_MMT_VIEWER,
   localStore,
-  shouldUseDrawer,
+  shouldUseDrawer
 } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { createContext, useEffect, useState } from 'react';
 import {
   IndexNode,
-  scrollToClosestAncestorAndSetPending,
+  scrollToClosestAncestorAndSetPending
 } from './collectIndexInfo';
 import { ContentDashboard } from './ContentDashboard';
 import { ContentFromUrl } from './ContentFromUrl';
@@ -23,8 +24,6 @@ import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 import { mmtHTMLToReact, setSectionIds } from './mmtParser';
 import { RenderOptions } from './RendererDisplayOptions';
 import { TourAPIEntry, TourDisplay } from './TourDisplay';
-import MessageIcon from '@mui/icons-material/Message';
-import { CommentButton } from './comment-button';
 
 function getToOpenContentHash(inDocPath: string) {
   if (!inDocPath?.length) return [];
@@ -120,3 +119,4 @@ export {
   setSectionIds,
 };
 export type { FileNode, TourAPIEntry, IndexNode };
+
