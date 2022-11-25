@@ -60,10 +60,7 @@ export function simpleHash(str?: string) {
   return hash.toString(36);
 }
 
-export function XhtmlContentUrl(
-  projectId: string,
-  xhtmlFilepath: string
-) {
+export function XhtmlContentUrl(projectId: string, xhtmlFilepath: string) {
   return `/:sTeX/document?archive=${projectId}&filepath=${xhtmlFilepath}`;
 }
 
@@ -128,11 +125,13 @@ export function getCookie(name: string) {
 }
 
 export function deleteCookie(name: string) {
-  document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+  const EXPIRY_STRING = '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+  document.cookie = name + EXPIRY_STRING;
   // HACK: In prod, the cookie can comes from 'lms.voll-ki.fau.de'. This server
   // sets the cookie to the parent domain (voll-ki.fau.de) so that any of its
   // subdomains can access it.
-  document.cookie =
-    name +
-    '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; domain=voll-ki.fau.de;';
+  document.cookie = name + `${EXPIRY_STRING} domain=voll-ki.fau.de;`;
+
+  // For a short while cookie domain was set to 'fau.de'. This would allow those users to logout.
+  document.cookie = name + `${EXPIRY_STRING} domain=fau.de;`;
 }
