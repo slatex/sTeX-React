@@ -10,6 +10,13 @@ export interface LMSEvent {
   answers?: any; // The answer of the question. Type TBD.
 }
 
+export interface UserInfo {
+  userId: string;
+  givenName: string;
+  sn: string;
+  fullName: string;
+}
+
 export function getAccessToken() {
   return getCookie('access_token');
 }
@@ -102,18 +109,16 @@ export async function reportEvent(event: LMSEvent) {
   return await lmsRequest('lms/input/events', 'POST', {}, event);
 }
 
-let cachedUserName: string | undefined = undefined;
-export async function getUserName() {
-  if (!cachedUserName) {
-    cachedUserName = await lmsRequest('getusername', 'GET', undefined);
+let cachedUserInfo: UserInfo | undefined = undefined;
+export async function getUserInfo() {
+  if (!cachedUserInfo) {
+    const v = await lmsRequest('getusername', 'GET', undefined);
+    cachedUserInfo = {
+      userId: v['user_id'],
+      givenName: v['given_name'],
+      sn: v['sn'],
+      fullName: `${v['given_name']} ${v['sn']}`
+    };
   }
-  return cachedUserName;
-}
-
-let cachedUserId: string | undefined = undefined;
-export async function getUserId() {
-  if (!cachedUserId) {
-    cachedUserId = await lmsRequest('getuserid', 'GET', undefined);
-  }
-  return cachedUserId;
+  return cachedUserInfo;
 }

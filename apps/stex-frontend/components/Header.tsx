@@ -2,11 +2,11 @@ import { useMatomo } from '@jonkoops/matomo-tracker-react';
 import WarningIcon from '@mui/icons-material/Warning';
 import { Box, Button, Menu, MenuItem, Toolbar, Tooltip } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
+import { getUserInfo, isLoggedIn, logout, UserInfo } from '@stex-react/api';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { getUserId, getUserName, isLoggedIn, logout } from '@stex-react/api';
 import { BrowserAutocomplete } from '../components/BrowserAutocomplete';
 import styles from '../styles/header.module.scss';
 
@@ -28,9 +28,9 @@ function UserButton() {
   const { pushInstruction } = useMatomo();
 
   useEffect(() => {
-    getUserName().then(setUserName);
-    getUserId().then((userId) => {
-      pushInstruction('setUserId', userId);
+    getUserInfo().then((userInfo) => {
+      setUserName(userInfo.givenName);
+      pushInstruction('setUserId', userInfo.userId);
     });
   }, []);
 

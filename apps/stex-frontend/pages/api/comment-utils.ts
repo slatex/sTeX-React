@@ -72,8 +72,8 @@ export async function getUserId(req) {
   if (!req.headers.authorization) return undefined;
   const headers = { Authorization: req.headers.authorization };
   const lmsServerAddress = process.env.NEXT_PUBLIC_LMS_URL;
-  const resp = await axios.get(`${lmsServerAddress}/getuserid`, { headers });
-  return resp.data;
+  const resp = await axios.get(`${lmsServerAddress}/getuserinfo`, { headers });
+  return resp.data?.['user_id'];
 }
 
 export async function getExistingComment(

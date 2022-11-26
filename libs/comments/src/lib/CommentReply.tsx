@@ -1,11 +1,11 @@
-import { getUserName } from '@stex-react/api';
-import { useEffect, useState } from 'react';
-import { EditView } from './EditView';
 import TextsmsIcon from '@mui/icons-material/Textsms';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
+import { getUserInfo } from '@stex-react/api';
+import { useEffect, useState } from 'react';
+import { EditView } from './EditView';
 
-import styles from './comments.module.scss';
 import { Box, Checkbox, FormControlLabel } from '@mui/material';
+import styles from './comments.module.scss';
 import { SelectedInfo } from './selected-info';
 
 interface CommentReplyProps {
@@ -36,7 +36,9 @@ export function CommentReply({
   const [name, setName] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    getUserName().then(setName);
+    getUserInfo().then((userInfo) => {
+      setName(userInfo.fullName);
+    });
   }, []);
 
   const [postAnonymously, setPostAnonymously] = useState(false);

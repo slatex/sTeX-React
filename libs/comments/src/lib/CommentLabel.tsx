@@ -1,13 +1,13 @@
 import ReplyIcon from '@mui/icons-material/Reply';
-import { useEffect, useState } from 'react';
 import {
   Comment,
-  getUserId,
+  getUserInfo,
   isHiddenNotSpam,
   isSpam,
-  MODERATORS,
+  MODERATORS
 } from '@stex-react/api';
 import { DateView } from '@stex-react/react-utils';
+import { useEffect, useState } from 'react';
 import { CommentMenu } from './CommentMenu';
 
 import { Box, Button, Tooltip } from '@mui/material';
@@ -35,8 +35,9 @@ export function CommentLabel({
   const statusStyle = isSpam(hiddenStatus) ? 'spam_status' : 'hidden_status';
 
   useEffect(() => {
-    getUserId().then(
-      (userId) => {
+    getUserInfo().then(
+      (userInfo) => {
+        const userId = userInfo.userId;
         const isLoggedIn = !!userId;
         setIsLoggedIn(isLoggedIn);
         setFromCurrentUser(isLoggedIn && userId === comment?.userId);

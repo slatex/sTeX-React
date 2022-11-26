@@ -8,17 +8,17 @@ import {
   Dialog,
   IconButton,
   Menu,
-  MenuItem,
+  MenuItem
 } from '@mui/material';
-import { Comment, getUserId, MODERATORS } from '@stex-react/api';
+import { Comment, getUserInfo, MODERATORS } from '@stex-react/api';
 import { ReactNode, useEffect, useReducer, useRef, useState } from 'react';
 import { CommentFilters } from './comment-filters';
 import { getPublicCommentTrees } from './comment-store-manager';
 import { CommentReply } from './CommentReply';
 import { CommentView } from './CommentView';
 
-import styles from './comments.module.scss';
 import { Refresh } from '@mui/icons-material';
+import styles from './comments.module.scss';
 
 function RenderTree({
   comment,
@@ -182,7 +182,8 @@ export function CommentSection({
   );
 
   useEffect(() => {
-    getUserId().then((userId) => {
+    getUserInfo().then((userInfo) => {
+      const userId = userInfo?.userId;
       setCanAddComment(!!userId);
       setCanModerate(!!userId && MODERATORS.includes(userId));
     });

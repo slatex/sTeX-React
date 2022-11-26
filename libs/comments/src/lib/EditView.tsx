@@ -1,8 +1,8 @@
 import { Box, Button } from '@mui/material';
+import { addComment, Comment, editComment, getUserInfo } from '@stex-react/api';
+import { MdEditor } from '@stex-react/markdown';
 import { useEffect, useState } from 'react';
 import { discardDraft, retrieveDraft, saveDraft } from './comment-helpers';
-import { MdEditor } from '@stex-react/markdown';
-import { getUserName, Comment, addComment, editComment } from '@stex-react/api';
 
 interface EditViewProps {
   archive: string;
@@ -37,7 +37,9 @@ export function EditView({
   const [userName, setUserName] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    getUserName().then(setUserName);
+    getUserInfo().then((userInfo) => {
+      setUserName(userInfo.fullName);
+    });
   }, []);
 
   useEffect(() => {

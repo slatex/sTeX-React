@@ -1,5 +1,5 @@
 import { Box, IconButton } from '@mui/material';
-import { Comment, getUserId } from '@stex-react/api';
+import { Comment, getUserInfo } from '@stex-react/api';
 import { useEffect, useState } from 'react';
 import { getPrivateNotes } from './comment-store-manager';
 import { CommentReply } from './CommentReply';
@@ -31,7 +31,7 @@ export function NotesView({
     });
   };
   useEffect(() => {
-    getUserId().then(setUserId);
+    getUserInfo().then((info) => setUserId(info.userId));
   }, []);
   useEffect(() => {
     if (!userId) return;
