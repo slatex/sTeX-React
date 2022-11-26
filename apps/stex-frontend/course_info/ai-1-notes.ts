@@ -88,15 +88,25 @@ export const AI_1_COURSE_SECTIONS: CourseSectionInfo = {
   },
   'Constraint Satisfaction Problems': {
     'MiKoMH/AI||csp/sec/csp.en.xhtml': { clipId: '44941', timestampSec: 4338 },
-    'MiKoMH/AI||csp/sec/csp-motivation.en.xhtml': { secNo: '1', clipId: '44941', timestampSec: 4437 },
-    'MiKoMH/AI||csp/sec/waltz-algorithm.en.xhtml': { secNo: '2' },
-    'MiKoMH/AI||csp/sec/csp-def.en.xhtml': { secNo: '3' },
-    'MiKoMH/AI||csp/sec/csp-search.en.xhtml': { secNo: '4' },
-    'MiKoMH/AI||csp/sec/concl.en.xhtml': { secNo: '5' },
+    'MiKoMH/AI||csp/sec/csp-motivation.en.xhtml': { secNo: '1', clipId: '44942', timestampSec: 190 },
+    'MiKoMH/AI||csp/sec/waltz-algorithm.en.xhtml': { secNo: '2', clipId: '44942', timestampSec: 923 },
+    'MiKoMH/AI||csp/sec/csp-def.en.xhtml': { secNo: '3', clipId: '44942', timestampSec: 1474 },
+    'MiKoMH/AI||csp/sec/csp-search.en.xhtml': { secNo: '4', clipId: '44942', timestampSec: 2986 },
+    'MiKoMH/AI||csp/sec/concl.en.xhtml': { secNo: '5', clipId: '44942', timestampSec: 4606 },
   },
   'Constraint Propagation': {
-    'MiKoMH/AI||csp/sec/cspropagation.en.xhtml': {  },
+    'MiKoMH/AI||csp/sec/cspropagation.en.xhtml': { clipId: '44942', timestampSec: 4642 },
+    'MiKoMH/AI||csp/sec/csprop-inference.en.xhtml': { secNo: '2', clipId: '44943', timestampSec: 11 },
+    'MiKoMH/AI||csp/sec/csprop-fwdcheck.en.xhtml': { secNo: '3', clipId: '44943', timestampSec: 1755 },
+    'MiKoMH/AI||csp/sec/csprop-arc-consistency.en.xhtml': { secNo: '4', clipId: '44943', timestampSec: 2372 },
+    'MiKoMH/AI||csp/sec/csprop-decomposition.en.xhtml': { secNo: '5', clipId: '44943', timestampSec: 4665 },
+    'MiKoMH/AI||csp/sec/csprop-cutset.en.xhtml': { secNo: '6' },
+    'MiKoMH/AI||csp/sec/csprop-localsearch.en.xhtml': { secNo: '7' },
+    'MiKoMH/AI||csp/sec/csprop-concl.en.xhtml': { secNo: '8' },
   },
+  'Propositional Reasoning': {
+    'MiKoMH/AI||logic/snip/partintro.en.xhtml': {  },
+  }
   /*
    '': { clipId: '' },
   */

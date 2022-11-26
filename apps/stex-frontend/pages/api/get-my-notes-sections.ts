@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   const results: Comment[] = await executeQuerySet500OnError(
     `SELECT archive, filepath, MAX(updatedtimestamp) AS updatedTimestamp
     FROM comments
-    WHERE isPrivate = 1 AND userId = userId
+    WHERE isPrivate = 1 AND userId = ?
     GROUP BY archive, filepath
     ORDER BY updatedTimestamp DESC`,
     [userId],

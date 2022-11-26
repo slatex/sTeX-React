@@ -13,6 +13,7 @@ import styles from '../styles/header.module.scss';
 const HEADER_WARNING =
   'WARNING: Research Prototype, it may misbehave, crash, delete data, ... or even make you happy without warning at any time!';
 function UserButton() {
+  const router = useRouter();
   // Menu crap Start
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -52,6 +53,14 @@ function UserButton() {
         open={open}
         onClose={handleClose}
       >
+        <MenuItem
+          onClick={() => {
+            router.push('/my-profile');
+            handleClose();
+          }}
+        >
+          Profile
+        </MenuItem>
         <MenuItem
           onClick={() => {
             handleClose();

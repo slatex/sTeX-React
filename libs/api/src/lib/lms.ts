@@ -109,6 +109,19 @@ export async function reportEvent(event: LMSEvent) {
   return await lmsRequest('lms/input/events', 'POST', {}, event);
 }
 
+export async function getAllMyData() {
+  return await lmsRequest('/lms/output/all_my_data', 'POST', {}, {});
+}
+
+export async function purgeAllMyData() {
+  return await lmsRequest(
+    '/lms/output/all_my_data',
+    'POST',
+    {},
+    { type: 'purge' }
+  );
+}
+
 let cachedUserInfo: UserInfo | undefined = undefined;
 export async function getUserInfo() {
   if (!cachedUserInfo) {
@@ -117,7 +130,7 @@ export async function getUserInfo() {
       userId: v['user_id'],
       givenName: v['given_name'],
       sn: v['sn'],
-      fullName: `${v['given_name']} ${v['sn']}`
+      fullName: `${v['given_name']} ${v['sn']}`,
     };
   }
   return cachedUserInfo;

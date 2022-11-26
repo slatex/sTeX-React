@@ -1,7 +1,5 @@
 import { Comment } from '@stex-react/api';
 
-const sortFun = (c1: Comment, c2: Comment) =>
-  (c1.postedTimestampSec || 0) - (c2.postedTimestampSec || 0);
 export function organizeHierarchically(flatComments: Comment[]) {
   // console.log('organizeHierarchically triggered');
   const commentMap = new Map<number, Comment>();
@@ -27,7 +25,10 @@ export function organizeHierarchically(flatComments: Comment[]) {
     if (directChildMap.get(0)?.indexOf(comment.commentId) !== -1)
       topLevel.push(comment);
   });
-  topLevel.sort(sortFun);
+  topLevel.sort(
+    (c1: Comment, c2: Comment) =>
+      (c2.postedTimestampSec || 0) - (c1.postedTimestampSec || 0)
+  );
   topLevel.forEach((comment) =>
     generateCommentHierarchy(comment, directChildMap, commentMap)
   );
@@ -51,7 +52,11 @@ function generateCommentHierarchy(
     flatComment.childComments.push(childComment);
     generateCommentHierarchy(childComment, childMap, commentMap);
   }
-  flatComment.childComments?.sort(sortFun);
+  // Reverse order at the top level.
+  flatComment.childComments?.sort(
+    (c1: Comment, c2: Comment) =>
+      (c1.postedTimestampSec || 0) - (c2.postedTimestampSec || 0)
+  );
 }
 
 const DRAFT_KEY_PREFIX = 'DRAFT';
