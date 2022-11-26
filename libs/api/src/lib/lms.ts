@@ -18,9 +18,7 @@ export interface UserInfo {
 }
 
 export function getAccessToken() {
-  return 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoiZmFrZV9hYmMiLCJ1c2VyX25hbWUiOiJGYWtlIFVzZXI6IGFiYyIsImlzc3VlZCI6MTY2NzIxNDgyMC43ODk0NjZ9.hININTS2CUNH6PPdH_YAz5Jlnft8dNUnj5czEp8tD9g';
-  //return 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoieW0yM2VxYXciLCJ1c2VyX25hbWUiOiJBYmhpc2hlayIsImlzc3VlZCI6MTY2NzIxMzU2NS41MjMzNjV9.oE1O6MEESJOMUWdK3JDu6c4XfdIDnyDJ6I1cIZCsEhA';
-  //return getCookie('access_token');
+  return getCookie('access_token');
 }
 
 export function isLoggedIn() {
