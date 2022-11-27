@@ -32,6 +32,7 @@ export function CommentNoteToggleView({
   selectedText = undefined,
   selectedElement = undefined,
   allNotesMode = false,
+  extraPanel = undefined,
 }: {
   archive: string;
   filepath: string;
@@ -39,8 +40,12 @@ export function CommentNoteToggleView({
   selectedText?: string;
   selectedElement?: any;
   allNotesMode?: boolean;
+  extraPanel?: {
+    label: any;
+    panelContent: any;
+  };
 }) {
-  const [value, setValue] = useState(defaultPrivate ? 0 : 1);
+  const [value, setValue] = useState(extraPanel ? 2 : defaultPrivate ? 0 : 1);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
@@ -70,6 +75,9 @@ export function CommentNoteToggleView({
               </Box>
             }
           />
+          {extraPanel && (
+            <Tab sx={{ flexGrow: '1' }} label={extraPanel.label} />
+          )}
         </Tabs>
       </Box>
       <TabPanel value={value} index={0}>
@@ -78,6 +86,7 @@ export function CommentNoteToggleView({
           filepath={filepath}
           selectedText={selectedText}
           selectedElement={selectedElement}
+          allNotesMode={allNotesMode}
         />
       </TabPanel>
       <TabPanel value={value} index={1}>
@@ -86,8 +95,14 @@ export function CommentNoteToggleView({
           filepath={filepath}
           selectedText={selectedText}
           selectedElement={selectedElement}
+          allCommentsMode={allNotesMode}
         />
       </TabPanel>
+      {extraPanel && (
+        <TabPanel value={value} index={2}>
+          {extraPanel.panelContent}
+        </TabPanel>
+      )}
     </Box>
   );
 }

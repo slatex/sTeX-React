@@ -146,7 +146,7 @@ export function getTitle(deckId: string) {
   while (node) {
     if (node.titleAsHtml?.length) {
       const text = getText(node.titleAsHtml);
-      if (text.length) return node.titleAsHtml;
+      if (text.trim().length) return node.titleAsHtml;
     }
     node = nextNode(node);
   }

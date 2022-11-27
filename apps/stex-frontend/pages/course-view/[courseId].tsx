@@ -7,8 +7,11 @@ import {
   ContentWithHighlight,
   LayoutWithFixedMenu,
 } from '@stex-react/stex-react-renderer';
-import { localStore, shouldUseDrawer } from '@stex-react/utils';
-import { courseInfoFromLocalStorage, CourseSectioning } from '../../components/CourseSectioning';
+import { getSectionInfo, localStore, shouldUseDrawer } from '@stex-react/utils';
+import {
+  courseInfoFromLocalStorage,
+  CourseSectioning,
+} from '../../components/CourseSectioning';
 import axios from 'axios';
 import { NextPage } from 'next';
 import Link from 'next/link';
@@ -20,6 +23,7 @@ import { TooltipToggleButton } from '../../components/TooltipToggleButton';
 import { VideoDisplay } from '../../components/VideoDisplay';
 import MainLayout from '../../layouts/MainLayout';
 import { CourseInfo, DeckAndVideoInfo, Slide } from '../../shared/types';
+import { CommentNoteToggleView } from '@stex-react/comments';
 
 function RenderElements({ elements }: { elements: string[] }) {
   return (
@@ -125,6 +129,8 @@ const CourseViewPage: NextPage = () => {
   const [deckInfo, setDeckInfo] = useState(undefined as DeckAndVideoInfo);
   const [showSectioning, setShowSectioning] = useState(false);
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
+  const [slideArchive, setSlideArchive] = useState('');
+  const [slideFilepath, setSlideFilepath] = useState('');
 
   const deckEndNodeId = getDeckEndNodeId(deckId, courseInfo);
 
@@ -280,6 +286,8 @@ const CourseViewPage: NextPage = () => {
                 onSlideChange={(slide: Slide) => {
                   setPreNotes(slide?.preNotes || []);
                   setPostNotes(slide?.postNotes || []);
+                  setSlideArchive(slide?.archive);
+                  setSlideFilepath(slide?.filepath);
                 }}
                 goToNextSection={goToNextSection}
                 goToPrevSection={goToPrevSection}
@@ -292,13 +300,23 @@ const CourseViewPage: NextPage = () => {
             />
 
             {viewMode !== ViewMode.VIDEO_MODE && (
-              <Box p="5px" sx={{ overflowX: 'auto' }}>
-                <RenderElements elements={preNotes} />
-                {preNotes.length > 0 && postNotes.length > 0 && (
-                  <hr style={{ width: '90%' }} />
-                )}
-                <RenderElements elements={postNotes} />
-              </Box>
+              <CommentNoteToggleView
+                archive={slideArchive}
+                filepath={slideFilepath}
+                defaultPrivate={true}
+                extraPanel={{
+                  label: "Instructor's notes",
+                  panelContent: (
+                    <Box p="5px" sx={{ overflowX: 'auto' }}>
+                      <RenderElements elements={preNotes} />
+                      {preNotes.length > 0 && postNotes.length > 0 && (
+                        <hr style={{ width: '90%' }} />
+                      )}
+                      <RenderElements elements={postNotes} />
+                    </Box>
+                  ),
+                }}
+              />
             )}
           </Box>
           {showSectioning && (

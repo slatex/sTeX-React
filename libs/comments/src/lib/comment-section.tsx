@@ -8,7 +8,7 @@ import {
   Dialog,
   IconButton,
   Menu,
-  MenuItem
+  MenuItem,
 } from '@mui/material';
 import { Comment, getUserInfo, MODERATORS } from '@stex-react/api';
 import { ReactNode, useEffect, useReducer, useRef, useState } from 'react';
@@ -174,6 +174,7 @@ export function CommentSection({
   const [commentsFromStore, setCommentsFromStore] = useState([] as Comment[]);
   const [canAddComment, setCanAddComment] = useState(false);
   const [canModerate, setCanModerate] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const filteredComments = getFilteredComments(commentsFromStore, filters);
   const numComments = filteredComments.reduce(
@@ -194,10 +195,17 @@ export function CommentSection({
     });
   }, [archive, filepath, filters]);
 
-  const refreshComments = () => {
-    getPublicCommentTrees(archive, filepath, true).then((comments) => {
-      setCommentsFromStore(comments);
-    });
+  const refreshComments = async () => {
+    setIsRefreshing(true);
+    try {
+      await getPublicCommentTrees(archive, filepath, true).then((comments) => {
+        setCommentsFromStore(comments);
+        setIsRefreshing(false);
+      });
+    } catch (err) {
+      console.log(err);
+      setIsRefreshing(false);
+    }
   };
 
   if (commentsFromStore == null && startDisplay) {
@@ -209,16 +217,16 @@ export function CommentSection({
       <div className={styles['header']}>
         <span style={{ marginBottom: '2px' }}>{numComments} comments</span>
         <Box>
-          <IconButton onClick={() => refreshComments()}>
+          <IconButton disabled={isRefreshing} onClick={() => refreshComments()}>
             <Refresh />
           </IconButton>
           <IconButton onClick={handleClick} sx={{ p: '2px' }}>
-            <FilterAltIcon sx={{ fontSize: '2.25rem' }} />
+            <FilterAltIcon />
           </IconButton>
         </Box>
       </div>
 
-      <hr style={{ margin: '0 0 15px' }} />
+      <hr style={{ margin: '0 0 10px' }} />
       {canAddComment && !allCommentsMode && (
         <CommentReply
           placeholder={
@@ -234,7 +242,6 @@ export function CommentSection({
           onCancel={undefined}
         />
       )}
-      <br />
 
       <CommentTree
         comments={filteredComments}

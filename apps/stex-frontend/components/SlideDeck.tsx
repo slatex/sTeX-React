@@ -7,9 +7,11 @@ import {
   ContentWithHighlight,
   ExpandableContextMenu,
 } from '@stex-react/stex-react-renderer';
+import { XhtmlContentUrl } from '@stex-react/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { memo, useEffect, useState } from 'react';
+import { strNodeIdToNodeId } from '../pages/api/notesHelpers';
 import { setSlideNumAndDeckId } from '../pages/course-view/[courseId]';
 import { Slide } from '../shared/types';
 import styles from '../styles/slide-deck.module.scss';
@@ -153,7 +155,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
       </Box>
       <ContentWithHighlight
         mmtHtml={currentSlide?.slideContent || ''}
-        renderWrapperParams={{ 'section-url': deckStartNodeId }}
+        renderWrapperParams={{ 'section-url': contentUrl }}
       />
       <SlideNavBar
         slideNum={slideNum}
