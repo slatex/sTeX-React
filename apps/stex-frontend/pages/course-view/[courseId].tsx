@@ -295,7 +295,7 @@ const CourseViewPage: NextPage = () => {
               />
             )}
             <hr
-              style={{ width: '90%', padding: '1px 0', cursor: 'pointer' }}
+              style={{ width: '98%', padding: '1px 0', cursor: 'pointer' }}
               onClick={() => setShowSectioning(prompt('Code:') === 'go')}
             />
 
@@ -310,7 +310,7 @@ const CourseViewPage: NextPage = () => {
                     <Box p="5px" sx={{ overflowX: 'auto' }}>
                       <RenderElements elements={preNotes} />
                       {preNotes.length > 0 && postNotes.length > 0 && (
-                        <hr style={{ width: '90%' }} />
+                        <hr style={{ width: '98%' }} />
                       )}
                       <RenderElements elements={postNotes} />
                     </Box>

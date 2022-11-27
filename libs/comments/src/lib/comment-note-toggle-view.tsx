@@ -53,7 +53,18 @@ export function CommentNoteToggleView({
   return (
     <Box>
       <Box>
-        <Tabs value={value} onChange={handleChange}>
+        <Tabs
+          value={value}
+          onChange={handleChange}
+          sx={{
+            '& .MuiTab-root': {
+              fontWeight: 'bold',
+              borderRadius: extraPanel ? '8px 8px 0 0' : undefined,
+              ':hover': { background: '#DDD' },
+            },
+            '& .Mui-selected': { background: '#8c9fb1 !important' },
+          }}
+        >
           <Tab
             sx={{ flexGrow: '1' }}
             label={
