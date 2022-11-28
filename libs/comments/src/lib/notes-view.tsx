@@ -81,7 +81,6 @@ export function NotesView({
           onCancel={undefined}
         />
       )}
-      <br />
 
       {notes.map((note) => (
         <CommentView

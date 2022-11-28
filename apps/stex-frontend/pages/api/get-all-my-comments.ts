@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     res
   );
   const history = await executeQuerySet500OnError(
-    `SELECT * FROM updateHistory WHERE updaterId = ?`,
+    `SELECT * FROM updateHistory WHERE ownerId = ?`,
     [userId],
     res
   );

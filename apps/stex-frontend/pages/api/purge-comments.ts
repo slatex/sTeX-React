@@ -22,8 +22,7 @@ export default async function handler(req, res) {
     SET statement=NULL, userId=NULL, userName=NULL, userEmail=NULL, selectedText=NULL, isDeleted=1
     WHERE userId=?`,
     [userId],
-    // This is okay for now because people can update only their own comments. Moderators should not be purged.
-    `DELETE FROM updateHistory WHERE updaterId=?`,
+    `DELETE FROM updateHistory WHERE ownerId=?`,
     [userId],
     res
   );

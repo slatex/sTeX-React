@@ -28,6 +28,7 @@
 );
 4. CREATE TABLE updateHistory (
     updateId int PRIMARY KEY AUTO_INCREMENT,
+    ownerId int,
     updaterId int NOT NULL,
     commentId int NOT NULL,
     previousStatement text,

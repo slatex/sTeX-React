@@ -28,10 +28,11 @@ export default async function handler(req, res) {
     'UPDATE comments SET statement=?, isEdited=1 WHERE commentId=?',
     [statement, commentId],
     `INSERT INTO updateHistory
-    (commentId, updaterId, previousStatement, previousHiddenStatus, previousHiddenJustification)
-    VALUES(?, ?, ?, ?, ?)`,
+    (commentId, ownerId, updaterId, previousStatement, previousHiddenStatus, previousHiddenJustification)
+    VALUES(?, ?, ?, ?, ?, ?)`,
     [
       commentId,
+      ownerId,
       userId,
       existing.statement,
       existing.hiddenStatus,
