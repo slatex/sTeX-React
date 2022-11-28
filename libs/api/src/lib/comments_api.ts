@@ -73,3 +73,11 @@ export async function getLatestUpdatedSections() {
 export async function getMyNotesSections() {
   return await commentRequest('/api/get-my-notes-sections', 'GET');
 }
+
+export async function purgeComments() {
+  return await commentRequest('/api/purge-comments', 'POST');
+}
+
+export async function getAllMyComments() {
+  return await commentRequest('/api/get-all-my-comments', 'GET');
+}

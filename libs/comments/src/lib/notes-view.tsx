@@ -45,7 +45,10 @@ export function NotesView({
       <Box m="10px">
         <i>
           Please{' '}
-          <a href="/login" style={{ textDecoration: 'underline' }}>
+          <a
+            href={'/login?target=' + encodeURIComponent(window.location.href)}
+            style={{ textDecoration: 'underline' }}
+          >
             <b>login</b>
           </a>{' '}
           to save notes.

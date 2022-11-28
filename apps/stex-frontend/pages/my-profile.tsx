@@ -9,9 +9,11 @@ import {
   TextField,
 } from '@mui/material';
 import {
+  getAllMyComments,
   getAllMyData,
   getUserInfo,
   purgeAllMyData,
+  purgeComments,
   UserInfo,
 } from '@stex-react/api';
 import { downloadFile } from '@stex-react/utils';
@@ -32,8 +34,8 @@ export function ConfirmPurgeDialogContent({
       <DialogTitle>Confirm Data Purge</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Warning: This will permanantly delete all your data and may
-          significantly affect the content that is presented to you.
+          WARNING: This will permanantly delete all your data (including notes
+          and comments) and may significantly degrade your learning experience.
           <br />
           <br />
           Enter the text <b>Purge my data</b> in the box below to confirm.
@@ -93,16 +95,32 @@ const MyProfilePage: NextPage = () => {
         <Button
           variant="contained"
           onClick={() => {
-            getAllMyData().then((data) => {
+            getAllMyComments().then((data) => {
               downloadFile(
                 JSON.stringify(data, undefined, 2),
-                `${userInfo.userId}-${Date.now()}.json`,
+                `${userInfo.userId}-comments-${Date.now()}.json`,
                 'text/json'
               );
             });
           }}
         >
-          Download your data
+          Download your notes and comments
+        </Button>
+        <br />
+        <br />
+        <Button
+          variant="contained"
+          onClick={() => {
+            getAllMyData().then((data) => {
+              downloadFile(
+                JSON.stringify(data, undefined, 2),
+                `${userInfo.userId}-lms-${Date.now()}.json`,
+                'text/json'
+              );
+            });
+          }}
+        >
+          Download your profile data
         </Button>
         <br />
         <br />
@@ -121,6 +139,7 @@ const MyProfilePage: NextPage = () => {
               }
               try {
                 await purgeAllMyData();
+                await purgeComments();
                 alert('Data purged');
                 setOpenPurgeDialog(false);
               } catch (err) {
