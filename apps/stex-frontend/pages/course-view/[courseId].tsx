@@ -139,7 +139,7 @@ const CourseViewPage: NextPage = () => {
     if (deckId && slideNum && viewMode && audioOnlyStr) return;
     if (!deckId) {
       router.query.deckId =
-        localStore?.getItem(`lastReadDeckId-${courseId}`) || 'initial';
+        localStore?.getItem(`lastReadDeckId-${courseId}`) || 'MiKoMH/AI||course/notes/notes.xhtml';
     }
     if (!slideNum) {
       router.query.slideNum =
@@ -274,26 +274,26 @@ const CourseViewPage: NextPage = () => {
             </Box>
             {(viewMode === ViewMode.VIDEO_MODE ||
               viewMode === ViewMode.COMBINED_MODE) && (
-              <VideoDisplay deckInfo={deckInfo} audioOnly={audioOnly} />
-            )}
+                <VideoDisplay deckInfo={deckInfo} audioOnly={audioOnly} />
+              )}
             {(viewMode === ViewMode.SLIDE_MODE ||
               viewMode === ViewMode.COMBINED_MODE) && (
-              <SlideDeck
-                courseId={courseId}
-                navOnTop={viewMode === ViewMode.COMBINED_MODE}
-                deckStartNodeId={deckId}
-                deckEndNodeId={deckEndNodeId}
-                onSlideChange={(slide: Slide) => {
-                  setPreNotes(slide?.preNotes || []);
-                  setPostNotes(slide?.postNotes || []);
-                  setSlideArchive(slide?.archive);
-                  setSlideFilepath(slide?.filepath);
-                }}
-                goToNextSection={goToNextSection}
-                goToPrevSection={goToPrevSection}
-                slideNum={slideNum}
-              />
-            )}
+                <SlideDeck
+                  courseId={courseId}
+                  navOnTop={viewMode === ViewMode.COMBINED_MODE}
+                  deckStartNodeId={deckId}
+                  deckEndNodeId={deckEndNodeId}
+                  onSlideChange={(slide: Slide) => {
+                    setPreNotes(slide?.preNotes || []);
+                    setPostNotes(slide?.postNotes || []);
+                    setSlideArchive(slide?.archive);
+                    setSlideFilepath(slide?.filepath);
+                  }}
+                  goToNextSection={goToNextSection}
+                  goToPrevSection={goToPrevSection}
+                  slideNum={slideNum}
+                />
+              )}
             <hr
               style={{ width: '98%', padding: '1px 0', cursor: 'pointer' }}
               onClick={() => setShowSectioning(prompt('Code:') === 'go')}

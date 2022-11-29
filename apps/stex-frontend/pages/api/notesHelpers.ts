@@ -62,12 +62,11 @@ export function nodeId(node: TreeNode) {
 }
 
 export function nodeIdToDeckId(nodeId: NodeId) {
-  if (!nodeId) return 'initial';
+  if (!nodeId) return 'MiKoMH/AI||course/notes/notes.xhtml';
   return `${nodeId.archive}||${nodeId.filepath}`;
 }
 
 export function strNodeIdToNodeId(s: string): NodeId | undefined {
-  if (s === 'initial') return;
   const parts = s.split('||');
   if (parts.length != 2) return;
   return { archive: parts[0], filepath: parts[1] };
