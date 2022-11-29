@@ -8,7 +8,8 @@ import {
   Dialog,
   DialogActions,
   IconButton,
-  Snackbar
+  Snackbar,
+  Tooltip
 } from '@mui/material';
 import {
   CommentNoteToggleView
@@ -82,18 +83,7 @@ export function ReportProblemPopover(props: Props) {
             }}
           >
             {context?.[0]?.archive && (
-              <>
-                <IconButton
-                  sx={{ ...buttonProps('#8c9fb1'), ml: '5px' }}
-                  onClick={() => {
-                    setIsPrivate(true);
-                    setSelectedText(textContent.trim());
-                    setSelectedContext(context);
-                    setNcdOpen(true);
-                  }}
-                >
-                  <FormatListBulletedIcon color="secondary" />
-                </IconButton>
+              <Tooltip title="Personal notes and comments">
                 <IconButton
                   sx={{ ...buttonProps('#8c9fb1'), ml: '5px' }}
                   onClick={() => {
@@ -105,18 +95,20 @@ export function ReportProblemPopover(props: Props) {
                 >
                   <ChatBubbleIcon color="secondary" />
                 </IconButton>
-              </>
+              </Tooltip>
             )}
-            <IconButton
-              sx={buttonProps('#f2c300')}
-              onClick={() => {
-                setSelectedText(textContent.trim());
-                setSelectedContext(context);
-                setOpen(true);
-              }}
-            >
-              <ReportProblemIcon />
-            </IconButton>
+            <Tooltip title="Report a problem">
+              <IconButton
+                sx={buttonProps('#f2c300')}
+                onClick={() => {
+                  setSelectedText(textContent.trim());
+                  setSelectedContext(context);
+                  setOpen(true);
+                }}
+              >
+                <ReportProblemIcon />
+              </IconButton>
+            </Tooltip>
           </Box>
         )}
       </Portal>

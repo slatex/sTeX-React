@@ -119,7 +119,7 @@ export function EditView({
           hidden={hidden}
           onClick={(_) => addUpdateComment()}
         >
-          {existingComment ? 'Update' : 'Post'}
+          {existingComment ? 'Update' : (isPrivateNote ? 'Save' : 'Post')}
         </Button>
       </Box>
     </fieldset>

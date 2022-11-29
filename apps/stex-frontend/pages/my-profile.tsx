@@ -34,15 +34,17 @@ export function ConfirmPurgeDialogContent({
       <DialogTitle>Confirm Data Purge</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          WARNING: This will permanantly delete all your data (including notes
-          and comments) and may significantly degrade your learning experience.
+          WARNING: This will delete all data the system has on you (learner
+          model, interaction logs, comments, and notes) except for the
+          information that/when you purged the data. Your learning experience
+          may be significantly affected.
           <br />
           <br />
           Enter the text <b>Purge my data</b> in the box below to confirm.
           <br /> <br />
         </DialogContentText>
         <TextField
-          label="Name"
+          label="Confirmation"
           value={text}
           onChange={(e) => setText(e.target.value)}
         />
@@ -51,7 +53,8 @@ export function ConfirmPurgeDialogContent({
         <Button onClick={() => onClose(false)}>Cancel</Button>
         <Button
           onClick={() => onClose(true)}
-          disabled={text.toLowerCase() != 'purge my data'}
+          disabled={text.toLowerCase() !== 'purge my data'}
+          variant="contained"
         >
           Purge
         </Button>

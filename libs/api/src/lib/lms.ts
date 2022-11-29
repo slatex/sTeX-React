@@ -126,6 +126,7 @@ let cachedUserInfo: UserInfo | undefined = undefined;
 export async function getUserInfo() {
   if (!cachedUserInfo) {
     const v = await lmsRequest('getuserinfo', 'GET', undefined);
+    if(!v) return undefined;
     cachedUserInfo = {
       userId: v['user_id'],
       givenName: v['given_name'],
