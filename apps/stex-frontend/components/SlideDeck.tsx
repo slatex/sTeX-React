@@ -5,13 +5,11 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { Box, IconButton, LinearProgress } from '@mui/material';
 import {
   ContentWithHighlight,
-  ExpandableContextMenu,
+  ExpandableContextMenu
 } from '@stex-react/stex-react-renderer';
-import { XhtmlContentUrl } from '@stex-react/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { memo, useEffect, useState } from 'react';
-import { strNodeIdToNodeId } from '../pages/api/notesHelpers';
 import { setSlideNumAndDeckId } from '../pages/course-view/[courseId]';
 import { Slide } from '../shared/types';
 import styles from '../styles/slide-deck.module.scss';

@@ -5,6 +5,7 @@ export interface DeckAndVideoInfo {
 
   clipId?: string;
   timestampSec?: number;
+  skipIfCompetency?: string[];
 }
 
 export interface ClipDetails {
@@ -25,6 +26,7 @@ export interface DocumentDashInfo {
 export interface CourseSection {
   sectionTitle: string;
   decks: DeckAndVideoInfo[];
+  isAddlSuggestion: boolean;
 }
 
 export interface CourseInfo {

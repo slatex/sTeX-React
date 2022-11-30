@@ -2,7 +2,7 @@ import { PREVALUATED_COURSE_TREES } from "./prevaluated-course-trees";
 
 export interface CourseSectionInfo  {
   [sectionTitle: string]: {
-    [deckId: string]: { clipId?: string; timestampSec?: number, secNo?: string };
+    [deckId: string]: { clipId?: string; timestampSec?: number, secNo?: string, skipIfCompetency?: string[] };
   };
 };
 
@@ -45,12 +45,36 @@ export const AI_1_COURSE_SECTIONS: CourseSectionInfo = {
     'MiKoMH/AI||prolog/sec/prolog-more.en.xhtml': { secNo: '2.3', clipId: '44935', timestampSec: 2681 },
   },
   'Recap': {
-    'MiKoMH/AI||prereq/sec/theoinf.en.xhtml': { clipId: '44936', timestampSec: 476 },
-    'MiKoMH/AI||prereq/sec/why-complexity-analysis.en.xhtml': { secNo: '1', clipId: '44936', timestampSec: 486 },
-    'MiKoMH/AI||prereq/slides/complexity-recap.en.xhtml': { clipId: '44936', timestampSec: 687 },
-    'MiKoMH/AI||prereq/sec/grammar.en.xhtml': { secNo: '2', clipId: '44936', timestampSec: 2185 },
-    'MiKoMH/AI||nlp/slides/grammar.en.xhtml': { clipId: '44936', timestampSec: 2866 },
-    'MiKoMH/AI||prereq/sec/mathlang.en.xhtml': { secNo: '3', clipId: '44936', timestampSec: 4521 },
+    'MiKoMH/AI||prereq/sec/theoinf.en.xhtml': { clipId: '44936', timestampSec: 476,
+      skipIfCompetency: [
+        'http://mathhub.info/smglom/complexity/mod?timespace-complexity'
+      ]
+    },
+    'MiKoMH/AI||prereq/sec/why-complexity-analysis.en.xhtml': { clipId: '44936', timestampSec: 486,
+      skipIfCompetency: [
+        'http://mathhub.info/smglom/complexity/mod?timespace-complexity'
+      ] 
+    },
+    'MiKoMH/AI||prereq/slides/complexity-recap.en.xhtml': { clipId: '44936', timestampSec: 687,
+      skipIfCompetency: [
+        'http://mathhub.info/smglom/complexity/mod?timespace-complexity'
+      ] 
+    },
+    'MiKoMH/AI||prereq/sec/grammar.en.xhtml': { clipId: '44936', timestampSec: 2185,
+      skipIfCompetency: [
+        'http://mathhub.info/smglom/sets/mod?formal-language'
+      ]
+    },
+    'MiKoMH/AI||nlp/slides/grammar.en.xhtml': { clipId: '44936', timestampSec: 2866,
+      skipIfCompetency: [
+        'http://mathhub.info/smglom/sets/mod?formal-language'
+      ] 
+    },
+    'MiKoMH/AI||prereq/sec/mathlang.en.xhtml': { clipId: '44936', timestampSec: 4521,
+      skipIfCompetency: [
+        'http://mathhub.info/smglom/mv/mod?structure?mathematical-structure'
+      ] 
+    },
   },
   'Rational Agents: a Unifying Framework for Artificial Intelligence': {
     'MiKoMH/AI||rational-agents/sec/rational-agents.en.xhtml': { clipId: '44936', timestampSec: 4942 },

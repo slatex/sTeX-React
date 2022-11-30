@@ -14,6 +14,7 @@ import {
   getUserInfo,
   purgeAllMyData,
   purgeComments,
+  resetFakeUserData,
   UserInfo,
 } from '@stex-react/api';
 import { downloadFile } from '@stex-react/utils';
@@ -94,6 +95,12 @@ const MyProfilePage: NextPage = () => {
         </Link>
         .
         <br />
+        See your{' '}
+        <Link href="/my-learner-model" passHref>
+          <span style={{ textDecoration: 'underline' }}>competency data</span>
+        </Link>
+        .
+        <br />
         <br />
         <Button
           variant="contained"
@@ -130,6 +137,15 @@ const MyProfilePage: NextPage = () => {
         <Button variant="contained" onClick={() => setOpenPurgeDialog(true)}>
           Purge your data
         </Button>
+        {
+          userInfo?.userId?.startsWith('fake_') && <Box>
+          <br />
+          <br />
+          <Button variant="contained" onClick={() => resetFakeUserData()}>
+            Reset Fake User Data
+          </Button>
+          </Box>
+        }
         <Dialog
           onClose={() => setOpenPurgeDialog(false)}
           open={openPurgeDialog}

@@ -1,6 +1,6 @@
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 import CloseIcon from '@mui/icons-material/Close';
-import { Box, IconButton, List, ListItem } from '@mui/material';
+import { Box, IconButton, List, ListItem, Tooltip } from '@mui/material';
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import MuiAccordionSummary, {
@@ -11,7 +11,10 @@ import {
   FixedPositionMenu,
   mmtHTMLToReact,
 } from '@stex-react/stex-react-renderer';
-import { CourseSection } from '../shared/types';
+import { CourseSection, DeckAndVideoInfo } from '../shared/types';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import { useEffect, useReducer, useRef } from 'react';
+import { getUriWeights } from '@stex-react/api';
 
 const Accordion = styled((props: AccordionProps) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -49,6 +52,27 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
   borderTop: '2px solid #00000020',
 }));
 
+function isDeckNeeded(
+  deck: DeckAndVideoInfo,
+  competencyMap: Map<string, number | undefined>
+) {
+  if (!deck.skipIfCompetency?.length) return true;
+  for (const uri of deck.skipIfCompetency) {
+    if ((competencyMap.get(uri) || 0) === 0) return true;
+  }
+  return false;
+}
+
+function isSectionNeeded(
+  section: CourseSection,
+  competencyMap: Map<string, number | undefined>
+) {
+  for (const deck of section?.decks || []) {
+    if (isDeckNeeded(deck, competencyMap)) return true;
+  }
+  return false;
+}
+
 export function SlideDeckNavigation({
   sections,
   selected,
@@ -63,6 +87,26 @@ export function SlideDeckNavigation({
   const selectedSectionIdx = sections.findIndex((section) =>
     section.decks.some((deck) => deck.deckId === selected)
   );
+  const [, forceRerender] = useReducer((x) => x + 1, 0);
+  const competencyMap = useRef(new Map<string, number | undefined>()).current;
+  useEffect(() => {
+    if (!sections?.length) return;
+    for (const section of sections) {
+      for (const deck of section.decks || []) {
+        for (const uri of deck.skipIfCompetency || [])
+          competencyMap.set(uri, undefined);
+      }
+    }
+    const competencyMapUris = Array.from(competencyMap.keys());
+    getUriWeights(competencyMapUris).then((competencyValues) => {
+      for (const [idx, val] of competencyValues.entries()) {
+        const uri = competencyMapUris[idx];
+        competencyMap.set(uri, val);
+        forceRerender();
+      }
+    });
+  }, [sections]);
+
   return (
     <FixedPositionMenu
       staticContent={
@@ -75,43 +119,81 @@ export function SlideDeckNavigation({
       }
     >
       {sections.slice(0, -1).map((section, sectionIdx) => (
-        <Accordion key={section.sectionTitle} defaultExpanded={true}>
-          <AccordionSummary>
-            <span
-              style={{
-                fontWeight:
-                  selectedSectionIdx == sectionIdx ? 'bold' : undefined,
-              }}
-            >
-              {sectionIdx}. {section.sectionTitle}
-            </span>
-          </AccordionSummary>
-          <AccordionDetails>
-            <List sx={{ p: '0' }}>
-              {section.decks.map((deck, idx) => (
-                <ListItem
-                  key={deck.deckId}
-                  sx={{
-                    cursor: 'pointer',
-                    fontWeight: selected === deck.deckId ? 'bold' : undefined,
-                    display: 'flex',
-                    alignItems: 'baseline',
-                    borderBottom: '1px solid #00000020',
-                  }}
-                  onClick={() => onSelect(deck.deckId)}
-                >
-                  {deck.secNo && (
-                    <span>
-                      {sectionIdx}.{deck.secNo}&nbsp;
-                    </span>
-                  )}
-                  {mmtHTMLToReact(deck.titleAsHtml)}
-                </ListItem>
-              ))}
-            </List>
-          </AccordionDetails>
-        </Accordion>
+        <SectionAccordion
+          key={section.sectionTitle}
+          selectedSectionIdx={selectedSectionIdx}
+          selectedDeckId={selected}
+          section={section}
+          sectionIdx={sectionIdx}
+          competencyMap={competencyMap}
+          onSelect={onSelect}
+        />
       ))}
     </FixedPositionMenu>
+  );
+}
+
+function SectionAccordion({
+  section,
+  sectionIdx,
+  selectedDeckId,
+  selectedSectionIdx,
+  competencyMap,
+  onSelect
+}: {
+  section: CourseSection;
+  sectionIdx: number;
+  selectedDeckId: string;
+  selectedSectionIdx: number;
+  competencyMap: Map<string, number | undefined>;
+  onSelect: (item: string) => void;
+}) {
+  if (section.isAddlSuggestion && !isSectionNeeded(section, competencyMap)) return <></>;
+
+  return (
+    <Accordion defaultExpanded={true}>
+      <AccordionSummary>
+        {section.isAddlSuggestion && (
+          <Tooltip title="Personalized Suggestion">
+            <AutoAwesomeIcon
+              sx={{ color: 'green', fontSize: '18px', pr: '5px' }}
+            />
+          </Tooltip>
+        )}
+        <span
+          style={{
+            fontWeight: selectedSectionIdx == sectionIdx ? 'bold' : undefined,
+          }}
+        >
+          {sectionIdx}. {section.sectionTitle}
+        </span>
+      </AccordionSummary>
+      <AccordionDetails>
+        <List sx={{ p: '0' }}>
+          {section.decks
+            .filter((deck) => isDeckNeeded(deck, competencyMap))
+            .map((deck) => (
+              <ListItem
+                key={deck.deckId}
+                sx={{
+                  cursor: 'pointer',
+                  fontWeight: selectedDeckId === deck.deckId ? 'bold' : undefined,
+                  display: 'flex',
+                  alignItems: 'baseline',
+                  borderBottom: '1px solid #00000020',
+                }}
+                onClick={() => onSelect(deck.deckId)}
+              >
+                {deck.secNo && (
+                  <span>
+                    {sectionIdx}.{deck.secNo}&nbsp;
+                  </span>
+                )}
+                {mmtHTMLToReact(deck.titleAsHtml)}
+              </ListItem>
+            ))}
+        </List>
+      </AccordionDetails>
+    </Accordion>
   );
 }

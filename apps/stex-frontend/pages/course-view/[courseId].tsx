@@ -3,27 +3,27 @@ import MergeIcon from '@mui/icons-material/Merge';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
 import VideoCameraFrontIcon from '@mui/icons-material/VideoCameraFront';
 import { Box, Button, ToggleButtonGroup } from '@mui/material';
+import { CommentNoteToggleView } from '@stex-react/comments';
 import {
   ContentWithHighlight,
   LayoutWithFixedMenu,
 } from '@stex-react/stex-react-renderer';
-import { getSectionInfo, localStore, shouldUseDrawer } from '@stex-react/utils';
-import {
-  courseInfoFromLocalStorage,
-  CourseSectioning,
-} from '../../components/CourseSectioning';
+import { localStore, shouldUseDrawer } from '@stex-react/utils';
 import axios from 'axios';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { NextRouter, useRouter } from 'next/router';
 import { useEffect, useReducer, useState } from 'react';
+import {
+  courseInfoFromLocalStorage,
+  CourseSectioning,
+} from '../../components/CourseSectioning';
 import { SlideDeck } from '../../components/SlideDeck';
 import { SlideDeckNavigation } from '../../components/SlideDeckNavigation';
 import { TooltipToggleButton } from '../../components/TooltipToggleButton';
 import { VideoDisplay } from '../../components/VideoDisplay';
 import MainLayout from '../../layouts/MainLayout';
 import { CourseInfo, DeckAndVideoInfo, Slide } from '../../shared/types';
-import { CommentNoteToggleView } from '@stex-react/comments';
 
 function RenderElements({ elements }: { elements: string[] }) {
   return (
@@ -139,7 +139,8 @@ const CourseViewPage: NextPage = () => {
     if (deckId && slideNum && viewMode && audioOnlyStr) return;
     if (!deckId) {
       router.query.deckId =
-        localStore?.getItem(`lastReadDeckId-${courseId}`) || 'MiKoMH/AI||course/notes/notes.xhtml';
+        localStore?.getItem(`lastReadDeckId-${courseId}`) ||
+        'MiKoMH/AI||course/notes/notes.xhtml';
     }
     if (!slideNum) {
       router.query.slideNum =
@@ -274,26 +275,26 @@ const CourseViewPage: NextPage = () => {
             </Box>
             {(viewMode === ViewMode.VIDEO_MODE ||
               viewMode === ViewMode.COMBINED_MODE) && (
-                <VideoDisplay deckInfo={deckInfo} audioOnly={audioOnly} />
-              )}
+              <VideoDisplay deckInfo={deckInfo} audioOnly={audioOnly} />
+            )}
             {(viewMode === ViewMode.SLIDE_MODE ||
               viewMode === ViewMode.COMBINED_MODE) && (
-                <SlideDeck
-                  courseId={courseId}
-                  navOnTop={viewMode === ViewMode.COMBINED_MODE}
-                  deckStartNodeId={deckId}
-                  deckEndNodeId={deckEndNodeId}
-                  onSlideChange={(slide: Slide) => {
-                    setPreNotes(slide?.preNotes || []);
-                    setPostNotes(slide?.postNotes || []);
-                    setSlideArchive(slide?.archive);
-                    setSlideFilepath(slide?.filepath);
-                  }}
-                  goToNextSection={goToNextSection}
-                  goToPrevSection={goToPrevSection}
-                  slideNum={slideNum}
-                />
-              )}
+              <SlideDeck
+                courseId={courseId}
+                navOnTop={viewMode === ViewMode.COMBINED_MODE}
+                deckStartNodeId={deckId}
+                deckEndNodeId={deckEndNodeId}
+                onSlideChange={(slide: Slide) => {
+                  setPreNotes(slide?.preNotes || []);
+                  setPostNotes(slide?.postNotes || []);
+                  setSlideArchive(slide?.archive);
+                  setSlideFilepath(slide?.filepath);
+                }}
+                goToNextSection={goToNextSection}
+                goToPrevSection={goToPrevSection}
+                slideNum={slideNum}
+              />
+            )}
             <hr
               style={{ width: '98%', padding: '1px 0', cursor: 'pointer' }}
               onClick={() => setShowSectioning(prompt('Code:') === 'go')}

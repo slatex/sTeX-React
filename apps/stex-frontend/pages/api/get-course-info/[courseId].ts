@@ -23,11 +23,11 @@ export default async function handler(req, res) {
   for (const [sectionTitle, deckList] of Object.entries(AI_1_COURSE_SECTIONS)) {
     const decks: DeckAndVideoInfo[] = [];
     for (const deckId of Object.keys(deckList)) {
-      const { secNo, clipId, timestampSec } = deckList[deckId];
+      const { secNo, clipId, timestampSec, skipIfCompetency } = deckList[deckId];
       const titleAsHtml = getTitle(deckId);
-      decks.push({ secNo, clipId, timestampSec, deckId, titleAsHtml });
+      decks.push({ secNo, clipId, timestampSec, deckId, titleAsHtml, skipIfCompetency });
     }
-    sections.push({ sectionTitle, decks });
+    sections.push({ sectionTitle, decks, isAddlSuggestion: sectionTitle.includes('Recap') });
   }
   COURSE_INFO_CACHE.set(courseId, { courseId, sections });
 

@@ -21,6 +21,19 @@ export function getAccessToken() {
   return getCookie('access_token');
 }
 
+const FAKE_USER_DEFAULT_COMPETENCIES: {[id: string]: string[]} = {
+  fake_abc: ['http://mathhub.info/smglom/sets/mod?set'],
+  fake_joy: ['http://mathhub.info/smglom/complexity/mod?timespace-complexity'],
+  fake_sabrina: [
+    'http://mathhub.info/smglom/complexity/mod?timespace-complexity',
+    'http://mathhub.info/smglom/sets/mod?formal-language',
+    'http://mathhub.info/smglom/mv/mod?structure?mathematical-structure',
+  ],
+  fake_anushka: [
+    'http://mathhub.info/smglom/mv/mod?structure?mathematical-structure',
+  ],
+};
+
 export function isLoggedIn() {
   return !!getAccessToken();
 }
@@ -114,19 +127,29 @@ export async function getAllMyData() {
 }
 
 export async function purgeAllMyData() {
-  return await lmsRequest(
-    '/lms/output/all_my_data',
-    'POST',
-    {},
-    { type: 'purge' }
-  );
+  return await lmsRequest('/lms/input/events', 'POST', {}, { type: 'purge' });
+}
+
+export async function resetFakeUserData() {
+  const userInfo = await getUserInfo();
+  const userId = userInfo?.userId;
+  if (!userId) return;
+  if (!(userId in FAKE_USER_DEFAULT_COMPETENCIES)) {
+    alert(`No defaults found for ${userId}`);
+  }
+  const URIs = FAKE_USER_DEFAULT_COMPETENCIES[userId];
+  await purgeAllMyData();
+  for(const URI of URIs) {
+    await reportEvent({type: 'i-know', URI})
+  }
+  alert(`User reset: ${userId}`);
 }
 
 let cachedUserInfo: UserInfo | undefined = undefined;
 export async function getUserInfo() {
   if (!cachedUserInfo) {
     const v = await lmsRequest('getuserinfo', 'GET', undefined);
-    if(!v) return undefined;
+    if (!v) return undefined;
     cachedUserInfo = {
       userId: v['user_id'],
       givenName: v['given_name'],
