@@ -161,6 +161,7 @@ function makeChapter(
           getTitle(nodeIndex, courseTreeInfo)
         ),
         decks: newChapterDecks,
+        isAddlSuggestion: false,
       });
       saveToLocalStorage(courseInfo);
       return;
