@@ -16,7 +16,7 @@ const PresetProfiles = [
 const LoginPage: NextPage = () => {
   const loggedIn = isLoggedIn();
   const router = useRouter();
-  const [fakeId, setFakeId] = useState(`${Math.floor(Math.random() * 10000)}`);
+  const [fakeId, setFakeId] = useState('');
   const returnBackUrl = router.query.target as string;
   const [clickCount, updateClickCount] = useReducer((x) => x + 1, 0);
   const fakeLogin = clickCount >= 1;

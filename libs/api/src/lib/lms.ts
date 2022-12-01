@@ -21,7 +21,7 @@ export function getAccessToken() {
   return getCookie('access_token');
 }
 
-const FAKE_USER_DEFAULT_COMPETENCIES: {[id: string]: string[]} = {
+const FAKE_USER_DEFAULT_COMPETENCIES: { [id: string]: string[] } = {
   fake_abc: ['http://mathhub.info/smglom/sets/mod?set'],
   fake_joy: ['http://mathhub.info/smglom/complexity/mod?timespace-complexity'],
   fake_sabrina: [
@@ -139,8 +139,8 @@ export async function resetFakeUserData() {
   }
   const URIs = FAKE_USER_DEFAULT_COMPETENCIES[userId];
   await purgeAllMyData();
-  for(const URI of URIs) {
-    await reportEvent({type: 'i-know', URI})
+  for (const URI of URIs) {
+    await reportEvent({ type: 'i-know', URI });
   }
   alert(`User reset: ${userId}`);
 }
