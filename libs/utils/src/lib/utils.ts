@@ -134,6 +134,9 @@ export function deleteCookie(name: string) {
 
   // For a short while cookie domain was set to 'fau.de'. This would allow those users to logout.
   document.cookie = name + `${EXPIRY_STRING} domain=fau.de;`;
+
+  // For staging server.
+  document.cookie = name + `${EXPIRY_STRING} domain=kwarc.info;`;
 }
 
 export function downloadFile(data: any, fileName: string, fileType: string) {

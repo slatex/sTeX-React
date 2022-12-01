@@ -20,10 +20,8 @@ const LoginPage: NextPage = () => {
   const returnBackUrl = router.query.target as string;
   const [clickCount, updateClickCount] = useReducer((x) => x + 1, 0);
   const fakeLogin = clickCount >= 1;
-  if (loggedIn) {
-    router.push('/');
-    return <></>;
-  }
+  if (loggedIn) router.push('/');
+  
   return (
     <MainLayout>
       <br />
