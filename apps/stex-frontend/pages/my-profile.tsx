@@ -82,7 +82,7 @@ const MyProfilePage: NextPage = () => {
   if (!userInfo) return <></>;
   return (
     <MainLayout title={`${userInfo.fullName} | VoLL-KI`}>
-      <Box p="10px" m="0 auto" maxWidth="800px">
+      <Box p="10px" m="0 auto" maxWidth="800px" fontSize="1.2em">
         <h2>{userInfo.fullName}</h2>
         <h3 style={{ marginTop: '-15px' }}>
           <i>{userInfo.userId}</i>
@@ -95,11 +95,23 @@ const MyProfilePage: NextPage = () => {
         </Link>
         .
         <br />
+        <br />
         See your{' '}
         <Link href="/my-learner-model" passHref>
           <span style={{ textDecoration: 'underline' }}>competency data</span>
         </Link>
         .
+        <br />
+        <br />
+        <h2
+          style={{
+            borderBottom: '1px solid #AAA',
+            padding: '7px 0',
+            display: 'inline',
+          }}
+        >
+          Download your Data
+        </h2>
         <br />
         <br />
         <Button
@@ -134,18 +146,30 @@ const MyProfilePage: NextPage = () => {
         </Button>
         <br />
         <br />
+        <h2
+          style={{
+            borderBottom: '1px solid #AAA',
+            padding: '7px 0',
+            display: 'inline',
+          }}
+        >
+          Data Deletion
+        </h2>
+        <br />
+        <br />
         <Button variant="contained" onClick={() => setOpenPurgeDialog(true)}>
           Purge your data
         </Button>
-        {
-          userInfo?.userId?.startsWith('fake_') && <Box>
-          <br />
-          <br />
-          <Button variant="contained" onClick={() => resetFakeUserData()}>
-            Reset Fake User Data
-          </Button>
+        {userInfo?.userId?.startsWith('fake_') && (
+          <Box>
+            <br />
+            <br />
+            <hr />
+            <Button variant="contained" onClick={() => resetFakeUserData()}>
+              Reset Fake User Data
+            </Button>
           </Box>
-        }
+        )}
         <Dialog
           onClose={() => setOpenPurgeDialog(false)}
           open={openPurgeDialog}

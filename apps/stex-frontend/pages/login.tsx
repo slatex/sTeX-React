@@ -1,16 +1,17 @@
-import { Box, Button, TextField } from '@mui/material';
+import { Autocomplete, Box, Button, TextField } from '@mui/material';
+import { fakeLoginUsingRedirect, isLoggedIn, loginUsingRedirect, logout } from '@stex-react/api';
 import { BG_COLOR } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useReducer, useState } from 'react';
-import styles from '../styles/utils.module.scss';
-import {
-  fakeLoginUsingRedirect,
-  isLoggedIn,
-  loginUsingRedirect,
-  logout,
-} from '@stex-react/api';
 import MainLayout from '../layouts/MainLayout';
+import styles from '../styles/utils.module.scss';
+
+const PresetProfiles = [
+  { label: 'sabrina', info: 'FAU CS student' },
+  { label: 'joy', info: 'Engineering background' },
+  { label: 'anushka', info: 'Philosophy background' },
+];
 
 const LoginPage: NextPage = () => {
   const loggedIn = isLoggedIn();
@@ -19,6 +20,10 @@ const LoginPage: NextPage = () => {
   const returnBackUrl = router.query.target as string;
   const [clickCount, updateClickCount] = useReducer((x) => x + 1, 0);
   const fakeLogin = clickCount >= 1;
+  if (loggedIn) {
+    router.push('/');
+    return <></>;
+  }
   return (
     <MainLayout>
       <br />
@@ -34,11 +39,26 @@ const LoginPage: NextPage = () => {
           >
             <br />
             {!loggedIn && fakeLogin && (
-              <TextField
-                label="FakeId"
-                value={fakeId}
-                onChange={(e) => setFakeId(e.target.value)}
+              <Autocomplete
+                id="free-solo-demo"
+                freeSolo
+                getOptionLabel={(option) =>
+                  typeof option === 'string' ? option : option.label
+                }
+                inputValue={fakeId}
+                onInputChange={(event, newInputValue) => {
+                  setFakeId(newInputValue);
+                }}
                 sx={{ my: '10px' }}
+                options={PresetProfiles}
+                renderInput={(params) => (
+                  <TextField {...params} label="FakeId" />
+                )}
+                renderOption={(props, option) => (
+                  <Box component="li" {...props}>
+                    {option.label}&nbsp;<i>({option.info})</i>
+                  </Box>
+                )}
               />
             )}
             {loggedIn ? (
