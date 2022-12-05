@@ -124,12 +124,24 @@ export const AI_1_COURSE_SECTIONS: CourseSectionInfo = {
     'MiKoMH/AI||csp/sec/csprop-fwdcheck.en.xhtml': { secNo: '3', clipId: '44943', timestampSec: 1755 },
     'MiKoMH/AI||csp/sec/csprop-arc-consistency.en.xhtml': { secNo: '4', clipId: '44943', timestampSec: 2372 },
     'MiKoMH/AI||csp/sec/csprop-decomposition.en.xhtml': { secNo: '5', clipId: '44943', timestampSec: 4665 },
-    'MiKoMH/AI||csp/sec/csprop-cutset.en.xhtml': { secNo: '6' },
-    'MiKoMH/AI||csp/sec/csprop-localsearch.en.xhtml': { secNo: '7' },
-    'MiKoMH/AI||csp/sec/csprop-concl.en.xhtml': { secNo: '8' },
+    'MiKoMH/AI||csp/sec/csprop-cutset.en.xhtml': { secNo: '6', clipId: '44944', timestampSec: 2249 },
+    'MiKoMH/AI||csp/sec/csprop-localsearch.en.xhtml': { secNo: '7', clipId: '44944', timestampSec: 3322 },
+    'MiKoMH/AI||csp/sec/csprop-concl.en.xhtml': { secNo: '8', clipId: '44944', timestampSec: 3663 },
   },
   'Propositional Reasoning': {
-    'MiKoMH/AI||logic/snip/partintro.en.xhtml': {  },
+    'MiKoMH/AI||logic/snip/partintro.en.xhtml': { clipId: '44944', timestampSec: 4068 },
+    'MiKoMH/AI||logic/sec/proplog-formal.en.xhtml': { secNo: '2', clipId: '44945', timestampSec: 1621 },
+    'MiKoMH/AI||logic/sec/pl0-inference.en.xhtml': { secNo: '3' },
+    'MiKoMH/AI||logic/sec/proplog-nd.en.xhtml': { secNo: '4' },
+    'MiKoMH/AI||logic/sec/atp0.en.xhtml': { secNo: '5' },
+    'MiKoMH/AI||logic/sec/normal-forms.en.xhtml': { secNo: '5.1' },
+    'MiKoMH/AI||logic/sec/tab0.en.xhtml': { secNo: '5.2' },
+    'MiKoMH/AI||logic/sec/resolution0.en.xhtml': { secNo: '5.3' },
+    'MiKoMH/AI||logic/sec/wumpus-resolution.en.xhtml': { secNo: '6' },
+    'MiKoMH/AI||logic/sec/proplog-concl.en.xhtml': { secNo: '7' },
+  },
+  'Formal Systems (Syntax, Semantics, Entailment, and Derivation in General)': {
+    'MiKoMH/AI||logic/sec/formal-systems.en.xhtml': {  },
   }
   /*
    '': { clipId: '' },
