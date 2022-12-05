@@ -11,7 +11,7 @@ const COURSE_ROOTS = {
   lbs: '/:sTeX/document?archive=MiKoMH/LBS&filepath=course/notes/notes.xhtml',
   krmt: '/:sTeX/document?archive=MiKoMH/KRMT&filepath=course/notes/notes.xhtml',
 };
-const fromPrevaluated = true;
+const fromPrevaluated = false;
 
 export interface TreeNode {
   parent?: TreeNode; // Can't be filled during preval.
@@ -151,12 +151,22 @@ async function getCourseTrees() {
   }
 
   console.log(`\n\n\nGetting courseTrees from ${SCRIPT_MMT_URL}\n\n\n`);
+  const docTrees = {};
   for (const [courseId, courseRoot] of Object.entries(COURSE_ROOTS)) {
     const docTree = await getDocumentTree(courseRoot, 0);
     trees[courseId] = docTree;
+    const printedTree= printTree(docTree);
     console.log(`${courseId} tree:\n`);
     console.log(printTree(docTree));
+    docTrees[courseId] = printedTree;
   }
+
+
+  console.log(`export const PREVALUATED_COURSE_TREES = {`)
+  for(const [courseId, printedTree] of Object.entries(docTrees)) {
+    console.log(`'${courseId}': ` + '`' + printedTree +'`, \n');
+  }
+  console.log(`};`)
   return trees;
 }
 
