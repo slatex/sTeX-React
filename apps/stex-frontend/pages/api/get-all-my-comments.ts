@@ -1,17 +1,22 @@
 import {
-  executeQuerySet500OnError,
+  executeDontEndSet500OnError,
+  executeAndEndSet500OnError,
   getUserIdOrSetError,
 } from './comment-utils';
+import { processResults } from './get-comments/[archive]/[filepath]';
 
 export default async function handler(req, res) {
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
-  const comments = await executeQuerySet500OnError(
+  const comments: Comment[] = await executeDontEndSet500OnError(
     `SELECT * FROM comments WHERE userId = ?`,
     [userId],
     res
   );
-  const history = await executeQuerySet500OnError(
+  processResults(comments);
+  if (!comments) return;
+
+  const history = await executeAndEndSet500OnError(
     `SELECT * FROM updateHistory WHERE ownerId = ?`,
     [userId],
     res

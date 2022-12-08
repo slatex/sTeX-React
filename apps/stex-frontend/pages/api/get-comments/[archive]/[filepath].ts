@@ -1,5 +1,5 @@
 import { Comment } from '@stex-react/api';
-import { executeQuerySet500OnError, getUserId } from '../../comment-utils';
+import { executeAndEndSet500OnError, getUserId } from '../../comment-utils';
 
 export function processResults(results: any[]) {
   for (const c of results) {
@@ -15,7 +15,7 @@ export default async function handler(req, res) {
   const archive = decodeURIComponent(archiveEncoded);
   const filepath = decodeURIComponent(filepathEncoded);
   const userId = (await getUserId(req)) || '';
-  const results: Comment[] = await executeQuerySet500OnError(
+  const results: Comment[] = await executeAndEndSet500OnError(
     `SELECT * FROM comments WHERE archive = ? AND filepath = ?
       AND (isPrivate != 1 OR userId = ? )`,
     [archive, filepath, userId],

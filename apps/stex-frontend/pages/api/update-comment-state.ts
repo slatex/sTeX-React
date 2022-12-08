@@ -1,8 +1,8 @@
 import { MODERATORS, UpdateCommentStateRequest } from '@stex-react/api';
 import {
   checkIfPostOrSetError,
-  executeTransactionSet500OnError,
-  getExistingComment,
+  executeTxnAndEndSet500OnError,
+  getExistingCommentDontEnd,
   getUserIdOrSetError
 } from './comment-utils';
 
@@ -21,12 +21,12 @@ export default async function handler(req, res) {
     res.status(401).send({ message: 'Invalid comment id' });
     return;
   }
-  const { existing, error } = await getExistingComment(commentId);
+  const { existing, error } = await getExistingCommentDontEnd(commentId);
   if (!existing || existing.isPrivate) {
     res.status(error || 404).send({ message: 'Comment not found' });
     return;
   }
-  const results = await executeTransactionSet500OnError(
+  const results = await executeTxnAndEndSet500OnError(
     'UPDATE comments SET hiddenStatus=?, hiddenJustification=? WHERE commentId=?',
     [hiddenStatus, hiddenJustification, commentId],
     `INSERT INTO updateHistory

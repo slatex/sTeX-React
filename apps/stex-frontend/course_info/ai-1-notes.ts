@@ -131,8 +131,8 @@ export const AI_1_COURSE_SECTIONS: CourseSectionInfo = {
   'Propositional Reasoning': {
     'MiKoMH/AI||logic/snip/partintro.en.xhtml': { clipId: '44944', timestampSec: 4068 },
     'MiKoMH/AI||logic/sec/proplog-formal.en.xhtml': { secNo: '2', clipId: '44945', timestampSec: 1621 },
-    'MiKoMH/AI||logic/sec/pl0-inference.en.xhtml': { secNo: '3' },
-    'MiKoMH/AI||logic/sec/proplog-nd.en.xhtml': { secNo: '4' },
+    'MiKoMH/AI||logic/sec/pl0-inference.en.xhtml': { secNo: '3', clipId: '44946', timestampSec: 1085 },
+    'MiKoMH/AI||logic/sec/proplog-nd.en.xhtml': { secNo: '4', clipId: '44946', timestampSec: 3268 },
     'MiKoMH/AI||logic/sec/atp0.en.xhtml': { secNo: '5' },
     'MiKoMH/AI||logic/sec/normal-forms.en.xhtml': { secNo: '5.1' },
     'MiKoMH/AI||logic/sec/tab0.en.xhtml': { secNo: '5.2' },

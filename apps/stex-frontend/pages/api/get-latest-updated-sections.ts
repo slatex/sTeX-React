@@ -1,8 +1,8 @@
 import { Comment } from '@stex-react/api';
-import { executeQuerySet500OnError } from './comment-utils';
+import { executeAndEndSet500OnError } from './comment-utils';
 
 export default async function handler(req, res) {
-  const results: Comment[] = await executeQuerySet500OnError(
+  const results: Comment[] = await executeAndEndSet500OnError(
     `SELECT archive, filepath, MAX(updatedtimestamp) AS updatedTimestamp
     FROM comments
     WHERE isPrivate !=1

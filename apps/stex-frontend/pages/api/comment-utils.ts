@@ -11,7 +11,39 @@ const db = mysql({
   },
 });
 
-export async function executeQuerySet500OnError<T>(
+export async function executeQuery<T>(query: string, values: any[]) {
+  try {
+    const results = await db.query<T>(query, values);
+    return results;
+  } catch (error) {
+    return { error };
+  }
+}
+
+export async function executeQueryAndEnd<T>(query: string, values: any[]) {
+  try {
+    const results = await db.query<T>(query, values);
+    await db.end();
+    return results;
+  } catch (error) {
+    return { error };
+  }
+}
+
+export async function executeAndEndSet500OnError<T>(
+  query: string,
+  values: any[],
+  res
+): Promise<T> {
+  const results = await executeQueryAndEnd<T>(query, values);
+  if (results['error']) {
+    res.status(500).send(results);
+    return undefined;
+  }
+  return results as T;
+}
+
+export async function executeDontEndSet500OnError<T>(
   query: string,
   values: any[],
   res
@@ -24,17 +56,7 @@ export async function executeQuerySet500OnError<T>(
   return results as T;
 }
 
-export async function executeQuery<T>(query: string, values: any[]) {
-  try {
-    const results = await db.query<T>(query, values);
-    await db.end();
-    return results;
-  } catch (error) {
-    return { error };
-  }
-}
-
-export async function executeTransaction(
+export async function executeTxnAndEnd(
   query1: string,
   values1: any[],
   query2: string,
@@ -53,14 +75,14 @@ export async function executeTransaction(
   }
 }
 
-export async function executeTransactionSet500OnError(
+export async function executeTxnAndEndSet500OnError(
   query1: string,
   values1: any[],
   query2: string,
   values2: any[],
   res
 ) {
-  const results = await executeTransaction(query1, values1, query2, values2);
+  const results = await executeTxnAndEnd(query1, values1, query2, values2);
   if (results['error']) {
     res.status(500).send(results);
     return undefined;
@@ -76,7 +98,13 @@ export async function getUserId(req) {
   return resp.data?.['user_id'];
 }
 
-export async function getExistingComment(
+export async function getUserIdOrSetError(req, res) {
+  const userId = await getUserId(req);
+  if (!userId) res.status(403).send({ message: 'Could not get userId' });
+  return userId;
+}
+
+export async function getExistingCommentDontEnd(
   commentId: number
 ): Promise<{ existing: Comment; error?: number }> {
   const existingComments = await executeQuery(
@@ -94,35 +122,10 @@ export async function getExistingComment(
   return { existing: existingComments[0], error: undefined };
 }
 
-export async function getCommentOwner(
-  commentId: number
-): Promise<{ ownerId: string; error?: number }> {
-  const existingComments = await executeQuery(
-    'SELECT userId, isDeleted FROM comments WHERE commentId = ?',
-    [commentId]
-  );
-  if (existingComments['error']) {
-    console.log(existingComments['error']);
-    return { ownerId: undefined, error: 500 };
-  }
-
-  if (existingComments['length'] !== 1 || existingComments[0]['isDeleted']) {
-    return { ownerId: undefined, error: 404 };
-  }
-  const ownerId = existingComments[0]['userId'];
-  return { ownerId, error: ownerId ? undefined : 403 };
-}
-
 export function checkIfPostOrSetError(req, res) {
   if (req.method !== 'POST') {
     res.status(405).send({ message: 'Only POST requests allowed' });
     return false;
   }
   return true;
-}
-
-export async function getUserIdOrSetError(req, res) {
-  const userId = await getUserId(req);
-  if (!userId) res.status(403).send({ message: 'Could not get userId' });
-  return userId;
 }

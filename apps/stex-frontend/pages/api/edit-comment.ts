@@ -1,8 +1,8 @@
 import { EditCommentRequest } from '@stex-react/api';
 import {
   checkIfPostOrSetError,
-  executeTransactionSet500OnError,
-  getExistingComment,
+  executeTxnAndEndSet500OnError,
+  getExistingCommentDontEnd,
   getUserIdOrSetError,
 } from './comment-utils';
 
@@ -17,14 +17,14 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { existing, error } = await getExistingComment(commentId);
+  const { existing, error } = await getExistingCommentDontEnd(commentId);
   const ownerId = existing?.userId;
   if (!ownerId || userId !== ownerId) {
     res.status(error || 403).end();
     return;
   }
 
-  const commentUpdate = await executeTransactionSet500OnError(
+  const commentUpdate = await executeTxnAndEndSet500OnError(
     'UPDATE comments SET statement=?, isEdited=1 WHERE commentId=?',
     [statement, commentId],
     `INSERT INTO updateHistory

@@ -1,7 +1,7 @@
 import { Comment } from '@stex-react/api';
 import {
   checkIfPostOrSetError,
-  executeQuerySet500OnError,
+  executeAndEndSet500OnError,
   getUserIdOrSetError,
 } from './comment-utils';
 
@@ -36,7 +36,7 @@ export default async function handler(req, res) {
     res.status(400).send({ message: 'Anonymous comments can not be private!' });
     return;
   }
-  const results = await executeQuerySet500OnError(
+  const results = await executeAndEndSet500OnError(
     `INSERT INTO comments
       (archive, filepath, statement, parentCommentId, selectedText, isPrivate, isAnonymous, userId, userName, userEmail)
       VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,

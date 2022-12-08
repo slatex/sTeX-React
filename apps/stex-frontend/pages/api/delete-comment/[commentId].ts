@@ -1,7 +1,7 @@
 import {
   checkIfPostOrSetError,
-  executeTransactionSet500OnError,
-  getCommentOwner,
+  executeTxnAndEndSet500OnError,
+  getExistingCommentDontEnd,
   getUserIdOrSetError,
 } from '../comment-utils';
 
@@ -16,13 +16,14 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { ownerId, error } = await getCommentOwner(commentId);
+  const { existing, error } = await getExistingCommentDontEnd(commentId);
+  const ownerId = existing?.userId;
   if (!ownerId || userId !== ownerId) {
     res.status(error || 403).send({ message: 'User not authorized' });
     return;
   }
 
-  const commentUpdate = await executeTransactionSet500OnError(
+  const commentUpdate = await executeTxnAndEndSet500OnError(
     `UPDATE comments
     SET statement=NULL, userId=NULL, userName=NULL, userEmail=NULL, selectedText=NULL, isDeleted=1
     WHERE commentId=?`,

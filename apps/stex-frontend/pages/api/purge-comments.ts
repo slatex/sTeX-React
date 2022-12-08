@@ -1,7 +1,7 @@
 import { MODERATORS } from '@stex-react/api';
 import {
   checkIfPostOrSetError,
-  executeTransactionSet500OnError,
+  executeTxnAndEndSet500OnError,
   getUserIdOrSetError,
 } from './comment-utils';
 
@@ -17,7 +17,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const commentUpdate = await executeTransactionSet500OnError(
+  const commentUpdate = await executeTxnAndEndSet500OnError(
     `UPDATE comments
     SET statement=NULL, userId=NULL, userName=NULL, userEmail=NULL, selectedText=NULL, isDeleted=1
     WHERE userId=?`,
