@@ -12,14 +12,14 @@ export default async function handler(req, res) {
 
   const commentId = +req.query.commentId;
   if (!commentId) {
-    res.status(401).send({ message: 'Invalid comment id' });
+    res.status(404).json({ message: 'Invalid comment id' });
     return;
   }
 
   const { existing, error } = await getExistingCommentDontEnd(commentId);
   const ownerId = existing?.userId;
   if (!ownerId || userId !== ownerId) {
-    res.status(error || 403).send({ message: 'User not authorized' });
+    res.status(error || 403).json({ message: 'User not authorized' });
     return;
   }
 

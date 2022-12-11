@@ -29,17 +29,17 @@ export default async function handler(req, res) {
     isPrivate === undefined ||
     isAnonymous === undefined
   ) {
-    res.status(400).send({ message: 'Some fields missing!' });
+    res.status(400).json({ message: 'Some fields missing!' });
     return;
   }
   if (isPrivate && isAnonymous) {
-    res.status(400).send({ message: 'Anonymous comments can not be private!' });
+    res.status(400).json({ message: 'Anonymous comments can not be private!' });
     return;
   }
   const results = await executeAndEndSet500OnError(
     `INSERT INTO comments
-      (archive, filepath, statement, parentCommentId, selectedText, isPrivate, isAnonymous, userId, userName, userEmail)
-      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (archive, filepath, statement, parentCommentId, selectedText, isPrivate, isAnonymous, userId, userName, userEmail, isDeleted, isEdited)
+      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       archive,
       filepath,
@@ -51,6 +51,8 @@ export default async function handler(req, res) {
       isAnonymous ? null : userId,
       isAnonymous ? null : userName,
       isAnonymous ? null : userEmail,
+      0,
+      0,
     ],
     res
   );

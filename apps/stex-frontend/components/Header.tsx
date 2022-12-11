@@ -30,6 +30,7 @@ function UserButton() {
 
   useEffect(() => {
     getUserInfo().then((userInfo) => {
+      if(!userInfo) return;
       setUserName(userInfo.givenName);
       pushInstruction('setUserId', userInfo.userId);
     });

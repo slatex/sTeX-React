@@ -1,5 +1,5 @@
-1. create database comments_staging;
-2. use comments_staging;
+1. CREATE DATABASE comments_test;
+2. USE comments_test;
 3. CREATE TABLE comments (
     commentId int PRIMARY KEY AUTO_INCREMENT,
     archive varchar(255),
@@ -28,15 +28,20 @@
 );
 4. CREATE TABLE updateHistory (
     updateId int PRIMARY KEY AUTO_INCREMENT,
-    ownerId int,
-    updaterId int NOT NULL,
+    ownerId varchar(255),
+    updaterId varchar(255) NOT NULL,
     commentId int NOT NULL,
     previousStatement text,
     previousHiddenStatus enum('UNHIDDEN', 'SPAM', 'INCORRECT', 'IRRELEVANT', 'ABUSE','OTHER'),
     previousHiddenJustification varchar(255),
 
     updatedTimestamp timestamp DEFAULT CURRENT_TIMESTAMP
-)
+);
+5. You may have to run the following command. See https://stackoverflow.com/questions/50093144/mysql-8-0-client-does-not-support-authentication-protocol-requested-by-server
+
+```
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';
+```
 
 local installation
 - Development Computer

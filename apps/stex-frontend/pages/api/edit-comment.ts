@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   const { existing, error } = await getExistingCommentDontEnd(commentId);
   const ownerId = existing?.userId;
   if (!ownerId || userId !== ownerId) {
-    res.status(error || 403).end();
+    res.status(error || 403).json({ message: 'User not authorized' });
     return;
   }
 

@@ -12,18 +12,18 @@ export default async function handler(req, res) {
   if (!userId) return;
 
   if (!MODERATORS.includes(userId)) {
-    res.status(403).send({ message: 'Not a moderator' });
+    res.status(403).json({ message: 'Not a moderator' });
     return;
   }
   const { commentId, hiddenStatus, hiddenJustification } =
     req.body as UpdateCommentStateRequest;
   if (!commentId) {
-    res.status(401).send({ message: 'Invalid comment id' });
+    res.status(401).json({ message: 'Invalid comment id' });
     return;
   }
   const { existing, error } = await getExistingCommentDontEnd(commentId);
   if (!existing || existing.isPrivate) {
-    res.status(error || 404).send({ message: 'Comment not found' });
+    res.status(error || 404).json({ message: 'Comment not found' });
     return;
   }
   const results = await executeTxnAndEndSet500OnError(

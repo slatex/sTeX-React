@@ -3,6 +3,10 @@ import { executeAndEndSet500OnError, getUserId } from '../../comment-utils';
 
 export function processResults(results: any[]) {
   for (const c of results) {
+    c.isPrivate = !!c.isPrivate;
+    c.isAnonymous = !!c.isAnonymous;
+    c.isDeleted = !!c.isDeleted;
+    c.isEdited = !!c.isEdited;
     c.postedTimestampSec = Date.parse(c['postedTimestamp']) / 1000;
     c.updatedTimestampSec = Date.parse(c['updatedTimestamp']) / 1000;
     delete c['postedTimestamp'];

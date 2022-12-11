@@ -63,6 +63,7 @@
     "eslint-plugin-react-hooks": "4.6.0",
     "jest": "28.1.1",
     "jest-environment-jsdom": "28.1.1",
+    "node-mocks-http": "^1.12.1",
     "nx": "15.0.13",
     "prettier": "^2.7.1",
     "react-test-renderer": "18.2.0",
