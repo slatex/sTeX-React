@@ -1,5 +1,5 @@
-import axios, { AxiosError } from 'axios';
 import { deleteCookie, getCookie } from '@stex-react/utils';
+import axios, { AxiosError } from 'axios';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -112,9 +112,21 @@ async function lmsRequest(
 
 export async function getUriWeights(URIs: string[]) {
   const resp = await lmsRequest('lms/output/multiple', 'POST', null, { URIs });
-  if (!resp?.competencies) return new Array(URIs.length).fill(0);
+  if (!resp?.model && !resp?.competencies)
+    return new Array(URIs.length).fill(0);
+
   const compMap = new Map<string, any>();
-  resp.competencies.forEach((c: any) => compMap.set(c.URI, c.competence));
+  if (resp.model) {
+    resp.model.forEach((c: any) => {
+      const vals: string[] = Object.values(c.values);
+      if (!vals.length) return;
+      const avg =
+        vals.reduce((s: number, a: string) => s + +a, 0) / vals.length;
+      compMap.set(c.URI, avg);
+    });
+  } else {
+    resp.competencies.forEach((c: any) => compMap.set(c.URI, c.competence));
+  }
   return URIs.map((URI) => +(compMap.get(URI) || 0));
 }
 
