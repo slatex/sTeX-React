@@ -112,21 +112,15 @@ async function lmsRequest(
 
 export async function getUriWeights(URIs: string[]) {
   const resp = await lmsRequest('lms/output/multiple', 'POST', null, { URIs });
-  if (!resp?.model && !resp?.competencies)
-    return new Array(URIs.length).fill(0);
+  if (!resp?.model) return new Array(URIs.length).fill(0);
 
   const compMap = new Map<string, any>();
-  if (resp.model) {
-    resp.model.forEach((c: any) => {
-      const vals: string[] = Object.values(c.values);
-      if (!vals.length) return;
-      const avg =
-        vals.reduce((s: number, a: string) => s + +a, 0) / vals.length;
-      compMap.set(c.URI, avg);
-    });
-  } else {
-    resp.competencies.forEach((c: any) => compMap.set(c.URI, c.competence));
-  }
+  resp.model.forEach((c: any) => {
+    const vals: string[] = Object.values(c.values);
+    if (!vals.length) return;
+    const avg = vals.reduce((s: number, a: string) => s + +a, 0) / vals.length;
+    compMap.set(c.URI, avg);
+  });
   return URIs.map((URI) => +(compMap.get(URI) || 0));
 }
 

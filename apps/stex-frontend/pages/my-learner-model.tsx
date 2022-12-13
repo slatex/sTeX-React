@@ -1,9 +1,9 @@
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { Box, CircularProgress, IconButton } from '@mui/material';
 import { getAllMyData } from '@stex-react/api';
 import type { NextPage } from 'next';
 import { useEffect, useState } from 'react';
 import MainLayout from '../layouts/MainLayout';
-import RefreshIcon from '@mui/icons-material/Refresh';
 
 export interface NotesSection {
   archive: string;
@@ -14,7 +14,7 @@ export interface NotesSection {
 const MyLearnerModelPage: NextPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [competenceInfo, setCompetenceInfo] = useState<
-    { URI: number; competence: string }[]
+    { URI: number; values: { [key: string]: string } }[]
   >([]);
 
   function refresh() {
@@ -22,13 +22,14 @@ const MyLearnerModelPage: NextPage = () => {
 
     getAllMyData().then((d) => {
       setIsLoading(false);
-      setCompetenceInfo(d.competencies);
+      setCompetenceInfo(d.model || []);
     });
   }
   useEffect(() => {
     refresh();
   }, []);
 
+  const comptenceTypes = Object.keys(competenceInfo?.[0]?.values || {});
   return (
     <MainLayout title="My Learner Model | VoLL-KI">
       <Box p="10px" m="0 auto" maxWidth="800px">
@@ -42,15 +43,21 @@ const MyLearnerModelPage: NextPage = () => {
             <table>
               <tr>
                 <th>URI</th>
-                <th>Competence</th>
+                {comptenceTypes.map((type) => (
+                  <th key={type}>{type}</th>
+                ))}
               </tr>
               <tr>
                 <td>&nbsp;</td>
               </tr>
               {competenceInfo.map((v) => (
                 <tr key={v.URI}>
-                  <td style={{ marginRight: '5px' }}>{v.URI} &nbsp;</td>
-                  <td>{v.competence}</td>
+                  <td>{v.URI} &nbsp;</td>
+                  {comptenceTypes.map((type) => (
+                    <td key={type}>
+                      {v.values[type]}&nbsp;
+                    </td>
+                  ))}
                 </tr>
               ))}
             </table>
