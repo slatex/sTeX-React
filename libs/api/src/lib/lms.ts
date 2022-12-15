@@ -9,6 +9,14 @@ export interface LMSEvent {
   URI: string; // The uri that "i-know" or the question answered filename.
   answers?: any; // The answer of the question. Type TBD.
 }
+export const COGNITIVE_DIMENSIONS = [
+  'Remember',
+  'Understand',
+  'Apply',
+  'Analyse',
+  'Evaluate',
+  'Create',
+];
 
 export interface UserInfo {
   userId: string;

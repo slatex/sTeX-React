@@ -1475,9 +1475,7 @@ export const PREVALUATED_COURSE_TREES = {
 ...||MiKoMH/AI||course/slides/ai1-hindsight.en.xhtml||<div>        <span xmlns:om="http://www.openmath.org/OpenMath">Symbolic AI: Adding Knowledge to Algorithms</span>      </div>
 ...||MiKoMH/AI||course/slides/ai2-topics.en.xhtml||<div>        <span xmlns:om="http://www.openmath.org/OpenMath">Topics of AI-2 (Summer Semester)</span>      </div>
 ...||MiKoMH/AI||course/slides/ai2-hindsight.en.xhtml||<div>        <span xmlns:om="http://www.openmath.org/OpenMath">Statistical AI: Adding Uncertainty and Learning</span>      </div>
-...||MiKoMH/AI||course/slides/ai3-topics.en.xhtml||<div>        <span xmlns:om="http://www.openmath.org/OpenMath">Topics of AI-3 &#x2014; A Course not taught at FAU<span style="font-size:100%;" class="resetfont">&#x1f641;</span></span>      </div>
-`, 
-
+...||MiKoMH/AI||course/slides/ai3-topics.en.xhtml||<div>        <span xmlns:om="http://www.openmath.org/OpenMath">Topics of AI-3 &#x2014; A Course not taught at FAU<span style="font-size:100%;" class="resetfont">&#x1f641;</span></span>      </div>`,
 'iwgs': `.||MiKoMH/IWGS||course/notes/notes.xhtml||
 ..||MiKoMH/IWGS||course/sec/pre.en.xhtml||<div>      <span xmlns:om="http://www.openmath.org/OpenMath">Preface</span>    </div>
 ...||MiKoMH/IWGS||course/sec/concept.en.xhtml||<div>        <span xmlns:om="http://www.openmath.org/OpenMath">Course Concept</span>      </div>
@@ -2005,9 +2003,7 @@ export const PREVALUATED_COURSE_TREES = {
 ...||MiKoMH/IWGS||legal/sec/exercises.en.xhtml||<div>        <span xmlns:om="http://www.openmath.org/OpenMath">Exercises</span>      </div>
 ..||MiKoMH/IWGS||course/sec/concl2.en.xhtml||<div>        <span xmlns:om="http://www.openmath.org/OpenMath">What did we learn in IWGS?</span>      </div>
 ...||MiKoMH/IWGS||course/slides/outline.en.xhtml||<div>        <span xmlns:om="http://www.openmath.org/OpenMath">Outline of IWGS 1:</span>      </div>
-...||MiKoMH/IWGS||course/slides/outline2.en.xhtml||<div>        <span xmlns:om="http://www.openmath.org/OpenMath">Outline of IWGS-II:</span>      </div>
-`, 
-
+...||MiKoMH/IWGS||course/slides/outline2.en.xhtml||<div>        <span xmlns:om="http://www.openmath.org/OpenMath">Outline of IWGS-II:</span>      </div>`, 
 'lbs': `.||MiKoMH/LBS||course/notes/notes.xhtml||
 ..||MiKoMH/LBS||course/sec/pre.en.xhtml||<div>      <span xmlns:om="http://www.openmath.org/OpenMath">Preface</span>    </div>
 ...||MiKoMH/LBS||course/sec/thisdoc.en.xhtml||<div>        <span xmlns:om="http://www.openmath.org/OpenMath">This Document</span>      </div>
@@ -2688,9 +2684,7 @@ export const PREVALUATED_COURSE_TREES = {
 ..||MiKoMH/LBS||course/sec/concl.en.xhtml||<div>        <span xmlns:om="http://www.openmath.org/OpenMath">Conclusion</span>      </div>
 ...||MiKoMH/ComSem||nlsem/slides/modeling-nlsem.en.xhtml||<div>        <span xmlns:om="http://www.openmath.org/OpenMath">Modeling Natural Language Semantics</span>      </div>
 ...||MiKoMH/LBS||gf/slides/syntactic-semantic.en.xhtml||<div>        <span xmlns:om="http://www.openmath.org/OpenMath">Syntactic and Semantic Grammars</span>      </div>
-...||MiKoMH/ComSem||nlsem/slides/what-overview.en.xhtml||<div>        <span xmlns:om="http://www.openmath.org/OpenMath">Natural Language Semantics?</span>      </div>
-`, 
-
+...||MiKoMH/ComSem||nlsem/slides/what-overview.en.xhtml||<div>        <span xmlns:om="http://www.openmath.org/OpenMath">Natural Language Semantics?</span>      </div>`, 
 'krmt': `.||MiKoMH/KRMT||course/notes/notes.xhtml||
 ..||MiKoMH/KRMT||course/sec/pre.en.xhtml||<div>      <span xmlns:om="http://www.openmath.org/OpenMath">Preface</span>    </div>
 ...||MiKoMH/KRMT||course/sec/concept.en.xhtml||<div>        <span xmlns:om="http://www.openmath.org/OpenMath">Course Concept</span>      </div>
@@ -3033,6 +3027,5 @@ export const PREVALUATED_COURSE_TREES = {
 ...||MiKoMH/talks||mmt/slides/elalg-nat-graph.en.xhtml||<div>        <span xmlns:om="http://www.openmath.org/OpenMath">Modular Representation of Math (<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow id="-424047538" resource="http://mathhub.info/MiKoMH/talks/mmt/slides/nutshell?mmt-nutshell?MMTformat#" property="stex:OMID" intent="http://mathhub.info/MiKoMH/talks/mmt/slides/nutshell?mmt-nutshell?MMTformat" class="hasoverlay-parent"><mtext resource="http://mathhub.info/MiKoMH/talks/mmt/slides/nutshell?mmt-nutshell?MMTformat" data-overlay-link-click="/:sTeX/declaration?http://mathhub.info/MiKoMH/talks/mmt/slides/nutshell?mmt-nutshell?MMTformat&amp;language=en" data-overlay-link-hover="/:sTeX/fragment?http://mathhub.info/MiKoMH/talks/mmt/slides/nutshell?mmt-nutshell?MMTformat&amp;language=en" data-highlight-parent="-424047538" property="stex:comp" class="group-highlight symcomp"><span xmlns="http://www.w3.org/1999/xhtml"><div style="font-size:100%;" class="hbox resetfont sansserif">MMT</div></span></mtext></mrow></math>Example)</span>      </div>
 ...||MiKoMH/talks||mws/slides/flatsearch-ui-ex.en.xhtml||<div>        <span xmlns:om="http://www.openmath.org/OpenMath">Example: Explaining a<span property="stex:OMID" resource="http://mathhub.info/MiKoMH/talks/mmt/slides?mmturis?MMT-URI#CUSTOM-" id="-753080633" mml:intent="http://mathhub.info/MiKoMH/talks/mmt/slides?mmturis?MMT-URI" class="hasoverlay-parent"><span data-highlight-parent="-753080633" property="stex:comp" resource="http://mathhub.info/MiKoMH/talks/mmt/slides?mmturis?MMT-URI" data-overlay-link-click="/:sTeX/declaration?http://mathhub.info/MiKoMH/talks/mmt/slides?mmturis?MMT-URI&amp;language=en" data-overlay-link-hover="/:sTeX/fragment?http://mathhub.info/MiKoMH/talks/mmt/slides?mmturis?MMT-URI&amp;language=en" class="group-highlight symcomp">MMT URI</span></span></span>      </div>
 ...||MiKoMH/talks||mws/slides/latin-flatsearch.en.xhtml||<div>        <span xmlns:om="http://www.openmath.org/OpenMath"><math xmlns="http://www.w3.org/1998/Math/MathML"><mrow id="-1415646341" resource="http://mathhub.info/MiKoMH/talks/mws/slides?flatsearch?flatsearch#" property="stex:OMID" intent="http://mathhub.info/MiKoMH/talks/mws/slides?flatsearch?flatsearch" class="hasoverlay-parent"><mrow resource="http://mathhub.info/MiKoMH/talks/mws/slides?flatsearch?flatsearch" data-overlay-link-click="/:sTeX/declaration?http://mathhub.info/MiKoMH/talks/mws/slides?flatsearch?flatsearch&amp;language=en" data-overlay-link-hover="/:sTeX/fragment?http://mathhub.info/MiKoMH/talks/mws/slides?flatsearch?flatsearch&amp;language=en" data-highlight-parent="-1415646341" property="stex:comp" class="group-highlight symcomp"><mi stretchy="false" mathvariant="italic">&#x266d;</mi><mtext><span xmlns="http://www.w3.org/1999/xhtml"><div style="font-size:100%;" class="hbox resetfont sansserif">search</div></span></mtext></mrow></mrow></math>on the<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow id="-1133831627" resource="http://mathhub.info/MiKoMH/talks/latin/slides/nutshell?latin-nutshell?LATINproject#" property="stex:OMID" intent="http://mathhub.info/MiKoMH/talks/latin/slides/nutshell?latin-nutshell?LATINproject" class="hasoverlay-parent"><mtext resource="http://mathhub.info/MiKoMH/talks/latin/slides/nutshell?latin-nutshell?LATINproject" data-overlay-link-click="/:sTeX/declaration?http://mathhub.info/MiKoMH/talks/latin/slides/nutshell?latin-nutshell?LATINproject&amp;language=en" data-overlay-link-hover="/:sTeX/fragment?http://mathhub.info/MiKoMH/talks/latin/slides/nutshell?latin-nutshell?LATINproject&amp;language=en" data-highlight-parent="-1133831627" property="stex:comp" class="group-highlight symcomp"><span xmlns="http://www.w3.org/1999/xhtml"><div style="font-size:100%;" class="hbox resetfont sansserif">LATIN</div></span></mtext></mrow></math>Logic Atlas</span>      </div>
-...||MiKoMH/talks||kwarc/slides/projectplan.en.xhtml||<div>        <span xmlns:om="http://www.openmath.org/OpenMath">Overview: KWARC Research and Projects</span>      </div>
-`, 
+...||MiKoMH/talks||kwarc/slides/projectplan.en.xhtml||<div>        <span xmlns:om="http://www.openmath.org/OpenMath">Overview: KWARC Research and Projects</span>      </div>`, 
 };
