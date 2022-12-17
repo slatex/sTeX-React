@@ -100,7 +100,7 @@ export function previousNode(node: TreeNode): TreeNode {
       if (c == node) break;
       previousSibling = c;
     }
-    if (previousSibling) return lastDescendent(previousSibling);
+    if (previousSibling) return previousSibling;
 
     node = node.parent;
   }

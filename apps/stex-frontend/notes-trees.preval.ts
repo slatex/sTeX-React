@@ -164,7 +164,7 @@ async function getCourseTrees() {
 
   console.log(`export const PREVALUATED_COURSE_TREES = {`)
   for(const [courseId, printedTree] of Object.entries(docTrees)) {
-    console.log(`'${courseId}': ` + '`' + printedTree +'`, \n');
+    console.log(`'${courseId}': ` + '`' + (printedTree as string).trim() +'`, \n');
   }
   console.log(`};`)
   return trees;

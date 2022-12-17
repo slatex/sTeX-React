@@ -271,8 +271,8 @@ export default async function handler(req, res) {
   }
 
   console.log(
-    `${startNode.filepath} --> (${exclusiveStartNode?.filepath || 'initial'},
-    ${inclusiveEndNode?.filepath}]`
+    `${startNode.filepath} --> (${exclusiveStartNode?.archive}||${exclusiveStartNode?.filepath || 'initial'},
+    ${inclusiveEndNode?.archive}||${inclusiveEndNode?.filepath}]`
   );
 
   if (!exclusiveStartNode) {
@@ -284,6 +284,7 @@ export default async function handler(req, res) {
   }
   let ancestorElement: TreeNode | null = exclusiveStartNode;
   while (ancestorElement?.parent) {
+    console.log(`big loop: ${ancestorElement.parent.filepath} after ${ancestorElement.filepath}`);
     const slideReturn = await getSlidesForDocAfterRef(
       nodeId(ancestorElement.parent),
       nodeId(inclusiveEndNode),
@@ -293,6 +294,8 @@ export default async function handler(req, res) {
     slides.push(...slideReturn.slides);
     if (slideReturn.sectionHasEnded) break;
     ancestorElement = ancestorElement.parent;
+    // fix properly using sectionhasended. this is a hack.
+    if(ancestorElement.filepath === inclusiveEndNode.filepath) break;
   }
   for (const slide of slides) {
     slide.preNotes = trimElements(slide.preNotes);

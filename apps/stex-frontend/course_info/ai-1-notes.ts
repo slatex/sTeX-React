@@ -135,15 +135,27 @@ export const AI_1_COURSE_SECTIONS: CourseSectionInfo = {
     'MiKoMH/AI||logic/sec/proplog-nd.en.xhtml': { secNo: '4', clipId: '44946', timestampSec: 3268 },
     'MiKoMH/AI||logic/sec/atp0.en.xhtml': { secNo: '5', clipId: '44947', timestampSec: 1011 },
     'MiKoMH/AI||logic/sec/normal-forms.en.xhtml': { secNo: '5.1', clipId: '44947', timestampSec: 2123 },
-    'MiKoMH/AI||logic/sec/tab0.en.xhtml': { secNo: '5.2', clipId: '44947', timestampSec: 2213 },
+    'MiKoMH/AI||logic/sec/tableaux-intro.en.xhtml': { secNo: '5.2', clipId: '44947', timestampSec: 2213 },
     'MiKoMH/AI||logic/sec/resolution0.en.xhtml': { secNo: '5.3', clipId: '44948', timestampSec: 2348 },
     'MiKoMH/AI||logic/sec/wumpus-resolution.en.xhtml': { secNo: '6', clipId: '44948', timestampSec: 4330 },
-    'MiKoMH/AI||logic/sec/proplog-concl.en.xhtml': { secNo: '7' },
+    'MiKoMH/AI||logic/sec/proplog-concl.en.xhtml': { secNo: '7', clipId: '44949', timestampSec: 43 },
   },
   'Formal Systems (Syntax, Semantics, Entailment, and Derivation in General)': {
-    'MiKoMH/AI||logic/sec/formal-systems.en.xhtml': {  },
-  }
-  /*
+    'MiKoMH/AI||logic/sec/formal-systems.en.xhtml': { clipId: '44949', timestampSec: 784 },
+  },
+  'Propositional Reasoning: SAT Solvers': {
+    'MiKoMH/AI||logic/sec/propsat.en.xhtml': { clipId: '44949', timestampSec: 2211 },
+    'MiKoMH/AI||logic/sec/dpll-intro.en.xhtml': { secNo: '2', clipId: '44949', timestampSec: 3653 },
+    'MiKoMH/AI||logic/sec/dpll-resolution.en.xhtml': { secNo: '3', clipId: '44949', timestampSec: 5176 },
+    'MiKoMH/AI||logic/sec/dpll-conflict-analysis.en.xhtml': { secNo: '4' },
+    'MiKoMH/AI||logic/sec/dpll-clause-learning.en.xhtml': { secNo: '5' },
+    'MiKoMH/AI||logic/sec/SAT-phase-transitions.en.xhtml': { secNo: '6' },
+    'MiKoMH/AI||logic/sec/propsat-concl.en.xhtml': { secNo: '7' },
+  },
+  'First Order Predicate Logic': {
+    'MiKoMH/AI||logic/sec/pl1.en.xhtml': { },
+  },
+  /*  
    '': { clipId: '' },
   */
 };
