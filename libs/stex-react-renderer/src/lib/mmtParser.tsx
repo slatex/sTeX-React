@@ -89,6 +89,20 @@ function removeStyleTag(style: any, tag: string) {
   return style.substring(0, start) + style.substring(end + 1);
 }
 
+function getStyleTag(style: string, tag: string) {
+  if (typeof style === 'object') {
+    if (style[tag]) delete style[tag];
+    return '';
+  }
+  if (!style || !style.indexOf || !tag) return '';
+
+  const start = style.indexOf(tag);
+  if (start === -1) return style;
+  const end = style.indexOf(';', start + 1);
+  if (end === -1) return style;
+  return style.substring(start + tag.length + 1, end).trim();
+}
+
 // HACK: Return only the appropriate XHTML from MMT.
 function getChildrenOfBodyNode(htmlNode: JSX.Element) {
   const body = htmlNode?.props?.children?.[1];
@@ -342,23 +356,18 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
     return <></>;
   }
   if (!IS_MMT_VIEWER && !localStore?.getItem('no-responsive')) {
-    // HACK: Make MMT return appropriate (X)HTML for responsive page.
-    if (domNode.attribs?.['class'] === 'body') {
-      domNode.attribs['style'] = removeStyleTag(
-        removeStyleTag(domNode.attribs?.['style'], 'padding-left'),
-        'padding-right'
-      );
-    }
-
-    if (domNode.attribs?.['style']) {
-      const className = domNode.attribs?.['class'];
-      // TODO: Ask Dennis for a more complete list.
-      const barred = ['hkern', 'hbox', 'vrule', 'hrule'];
-      if (!className || barred.every((b) => !className.includes(b))) {
-        domNode.attribs['style'] = removeStyleTag(
-          removeStyleTag(domNode.attribs?.['style'], 'min-width'),
-          'width'
-        );
+    // HACK: MMT will fix the 'CALC' issue soon
+    const customStyle = domNode.attribs?.['style'];
+    if (domNode.attribs?.['class'] === 'paragraph' && customStyle) {
+      const rightM = getStyleTag(customStyle, 'margin-right');
+      const leftM = getStyleTag(customStyle, 'margin-left');
+      if (leftM?.endsWith('px') && leftM === rightM) {
+        const width = getStyleTag(customStyle, 'width');
+        if (width?.endsWith('%')) {
+          const newWidth = `;width: calc(100% - ${2 * +leftM.slice(0, -2)}px)`;
+          domNode.attribs['style'] =
+            removeStyleTag(customStyle, 'width') + newWidth;
+        }
       }
     }
   }

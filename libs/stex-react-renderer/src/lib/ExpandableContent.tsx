@@ -5,9 +5,9 @@ import {
   convertHtmlNodeToPlain,
   getChildrenOfBodyNode,
   getSectionInfo,
+  IS_SERVER,
   simpleHash,
 } from '@stex-react/utils';
-import { CommentButton } from '@stex-react/comments';
 import {
   createContext,
   MouseEvent,
@@ -20,8 +20,10 @@ import { reportIndexInfo, SEPARATOR_inDocPath } from './collectIndexInfo';
 import { ContentFromUrl } from './ContentFromUrl';
 import { ErrorBoundary } from './ErrorBoundary';
 import { ExpandableContextMenu } from './ExpandableContextMenu';
+import { DocSectionContext } from './InfoSidebar';
 import { RenderOptions } from './RendererDisplayOptions';
 import { useOnScreen } from './useOnScreen';
+import { useRect } from './useRect';
 
 const ExpandContext = createContext([] as string[]);
 function getInDocumentLink(childContext: string[]) {
@@ -63,8 +65,10 @@ export function ExpandableContent({
     renderOptions: { expandOnScroll, allowFolding },
   } = useContext(RenderOptions);
 
+  const { addSectionLoc } = useContext(DocSectionContext);
   // Reference to the top-most box.
   const contentRef = useRef<HTMLElement>();
+  const rect = useRect(contentRef);
   const isVisible = useOnScreen(contentRef);
   useEffect(() => {
     if (expandOnScroll && isVisible && !openAtLeastOnce) {
@@ -82,6 +86,12 @@ export function ExpandableContent({
     setOpenAtLeastOnce(true);
     setIsOpen((v) => !v);
   };
+  const positionFromTop =
+    rect && !IS_SERVER ? rect.top + window.scrollY : undefined;
+  useEffect(() => {
+    if (contentUrl && positionFromTop)
+      addSectionLoc({ contentUrl, positionFromTop });
+  }, [contentUrl, positionFromTop]);
 
   if (autoExpand) {
     return (
@@ -108,9 +118,6 @@ export function ExpandableContent({
         ref={contentRef}
         minHeight={!openAtLeastOnce && expandOnScroll ? '1000px' : undefined}
       >
-        <Box position="absolute" right="47px" zIndex={10}>
-          <CommentButton url={contentUrl} />
-        </Box>
         {!allowFolding ? (
           contentUrl && (
             <Box position="absolute" right="10px">

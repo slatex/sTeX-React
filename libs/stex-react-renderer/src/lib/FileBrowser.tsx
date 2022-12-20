@@ -6,7 +6,6 @@ import {
   IS_MMT_VIEWER,
   shouldUseDrawer,
   sourceFileUrl,
-  XhtmlContentUrl,
   xhtmlPathToTex,
   XhtmlTopDocumentContentUrl
 } from '@stex-react/utils';
@@ -50,7 +49,7 @@ export function FileBrowser({
       }
     >
       <Box width="100%" sx={{ backgroundColor: BG_COLOR }}>
-        <Box maxWidth={IS_MMT_VIEWER ? undefined : '600px'} p="10px" m="auto">
+        <Box maxWidth={IS_MMT_VIEWER ? undefined : '650px'} p="10px" m="auto">
           {selectedProject && selectedFilepath ? (
             <>
               <a

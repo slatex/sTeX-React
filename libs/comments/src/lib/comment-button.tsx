@@ -1,23 +1,30 @@
 import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
-import { Box, Button, Dialog, DialogActions, IconButton } from '@mui/material';
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  IconButton,
+  Tooltip,
+} from '@mui/material';
 import { getSectionInfo } from '@stex-react/utils';
 import { useEffect, useState } from 'react';
 import { CommentNoteToggleView } from './comment-note-toggle-view';
 import {
   getPrivateNotes,
-  getPublicCommentTrees
+  getPublicCommentTrees,
 } from './comment-store-manager';
+import AddCommentIcon from '@mui/icons-material/AddComment';
 
 const buttonProps = {
   zIndex: '1',
   color: 'grey',
-  border: '1px solid transparent',
+  backgroundColor: '#FFF',
+  mb: '3px',
   '&:hover': {
     backgroundColor: '#FFF',
-    color: 'grey',
-    border: '1px solid #CCC',
-    boxShadow: '#0005 0px 8px 15px',
+    boxShadow: '#0005 0px 3px 7px',
   },
 };
 export function CommentButton({ url = '' }: { url?: string }) {
@@ -42,32 +49,43 @@ export function CommentButton({ url = '' }: { url?: string }) {
       );
     });
   }, [archive, filepath]);
-  if (!archive || !filepath || !(hasPublicComments || hasPrivateNotes))
-    return null;
+
+  if (!archive || !filepath) return null;
 
   return (
     <Box>
       {hasPrivateNotes && (
-        <IconButton
-          onClick={() => {
-            setDefaultPrivate(true);
-            setOpen(true);
-          }}
-          sx={buttonProps}
-        >
-          <FormatListBulletedIcon />
-        </IconButton>
+        <Tooltip title="My notes">
+          <IconButton
+            onClick={() => {
+              setDefaultPrivate(true);
+              setOpen(true);
+            }}
+            sx={buttonProps}
+          >
+            <FormatListBulletedIcon
+              sx={{ color: '#4d97dd' }}
+              fontSize="small"
+            />
+          </IconButton>
+        </Tooltip>
       )}
-      {hasPublicComments && (
-        <IconButton
-          onClick={() => {
-            setDefaultPrivate(false);
-            setOpen(true);
-          }}
-          sx={buttonProps}
-        >
-          <ChatBubbleIcon />
-        </IconButton>
+      {(!hasPrivateNotes || hasPublicComments) && (
+        <Tooltip title={hasPublicComments ? 'Comments' : 'Add a comment'}>
+          <IconButton
+            onClick={() => {
+              setDefaultPrivate(false);
+              setOpen(true);
+            }}
+            sx={buttonProps}
+          >
+            {hasPublicComments ? (
+              <ChatBubbleIcon sx={{ color: '#4d97dd' }} fontSize="small" />
+            ) : (
+              <AddCommentIcon fontSize="small" />
+            )}
+          </IconButton>
+        </Tooltip>
       )}
       {open && (
         <Dialog onClose={() => setOpen(false)} open={open} maxWidth="lg">

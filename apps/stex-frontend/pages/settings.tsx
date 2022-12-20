@@ -6,7 +6,6 @@ import { useReducer } from 'react';
 import MainLayout from '../layouts/MainLayout';
 
 const FORCE_MATHJAX = 'forceMathJax';
-const NO_RESPONSIVE = 'no-responsive';
 const Home: NextPage = () => {
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
   return (
@@ -14,20 +13,6 @@ const Home: NextPage = () => {
       <div>
         <main>
           <br />
-          <Button
-            variant="contained"
-            size="small"
-            sx={{ m: '5px' }}
-            onClick={() => {
-              if (localStore?.getItem(NO_RESPONSIVE))
-                localStore.removeItem(NO_RESPONSIVE);
-              else localStore?.setItem(NO_RESPONSIVE, 'yes');
-              forceUpdate();
-            }}
-          >
-            {(localStore?.getItem(NO_RESPONSIVE) ? 'Use' : 'Remove') +
-              ' Responsive Hack'}
-          </Button>
           <Button
             variant="contained"
             size="small"

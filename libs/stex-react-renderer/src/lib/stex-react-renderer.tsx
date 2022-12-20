@@ -3,7 +3,6 @@ import { CommentButton } from '@stex-react/comments';
 import {
   BG_COLOR,
   getChildrenOfBodyNode,
-  getSectionInfo,
   IS_MMT_VIEWER,
   localStore,
   shouldUseDrawer
@@ -20,6 +19,7 @@ import { ContentWithHighlight } from './ContentWithHightlight';
 import { ExpandableContextMenu } from './ExpandableContextMenu';
 import { FileBrowser } from './FileBrowser';
 import { FileNode } from './FileNode';
+import { DocSectionContext } from './InfoSidebar';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 import { mmtHTMLToReact, setSectionIds } from './mmtParser';
 import { RenderOptions } from './RendererDisplayOptions';
@@ -49,8 +49,13 @@ export function StexReactRenderer({
       (localStore?.getItem('expandOnScroll') || 'true') === 'true',
     allowFolding: (localStore?.getItem('allowFolding') || 'false') === 'true',
   });
+
+  const [sectionLocs, setSectionLocs] = useState<{
+    [contentUrl: string]: number;
+  }>({});
+  useEffect(() => setSectionLocs({}), [contentUrl]);
+
   const router = useRouter();
-  const { archive, filepath } = getSectionInfo(contentUrl);
   useEffect(() => {
     if (!router?.isReady) return;
     const inDocPath = router?.query?.['inDocPath'] as string;
@@ -65,46 +70,74 @@ export function StexReactRenderer({
   }, [router, router?.isReady, router?.query]);
 
   return (
-    <RenderOptions.Provider
+    <DocSectionContext.Provider
       value={{
-        renderOptions,
-        setRenderOptions: (o) => {
-          localStore?.setItem('expandOnScroll', o.expandOnScroll.toString());
-          localStore?.setItem('allowFolding', o.allowFolding.toString());
-          setRenderOptions(o);
+        sectionLocs,
+        addSectionLoc: (sec) => {
+          const { contentUrl: url, positionFromTop: pos } = sec;
+          if (url in sectionLocs && Math.abs(pos - sectionLocs[url]) < 1) {
+            return;
+          }
+          setSectionLocs((prev) => {
+            return { ...prev, [url]: pos };
+          });
         },
       }}
     >
-      <LayoutWithFixedMenu
-        menu={
-          <ContentDashboard
-            onClose={() => setShowDashboard(false)}
-            dashInfo={dashInfo}
-          />
-        }
-        topOffset={topOffset}
-        showDashboard={showDashboard}
-        setShowDashboard={setShowDashboard}
+      <RenderOptions.Provider
+        value={{
+          renderOptions,
+          setRenderOptions: (o) => {
+            localStore?.setItem('expandOnScroll', o.expandOnScroll.toString());
+            localStore?.setItem('allowFolding', o.allowFolding.toString());
+            setRenderOptions(o);
+          },
+        }}
       >
-        <Box px="10px" bgcolor={BG_COLOR}>
-          <Box
-            maxWidth={IS_MMT_VIEWER ? undefined : '600px'}
-            m="0 auto"
-            sx={{ overflowWrap: 'anywhere' }}
-          >
-            <Box display="flex" flexDirection="row-reverse">
-              <ExpandableContextMenu contentUrl={contentUrl} />
-              <CommentButton url={contentUrl} />
-            </Box>
-            <ContentFromUrl
-              url={contentUrl}
-              modifyRendered={getChildrenOfBodyNode}
-              topLevel={true}
+        <LayoutWithFixedMenu
+          menu={
+            <ContentDashboard
+              onClose={() => setShowDashboard(false)}
+              dashInfo={dashInfo}
             />
+          }
+          topOffset={topOffset}
+          showDashboard={showDashboard}
+          setShowDashboard={setShowDashboard}
+        >
+          <Box px="10px" bgcolor={BG_COLOR}>
+            <Box
+              maxWidth={IS_MMT_VIEWER ? undefined : '650px'}
+              m="0 auto"
+              sx={{ overflowWrap: 'anywhere' }}
+            >
+              <Box position="absolute" right="40px">
+                <ExpandableContextMenu contentUrl={contentUrl} />
+              </Box>
+              <Box display="flex">
+                <ContentFromUrl
+                  url={contentUrl}
+                  modifyRendered={getChildrenOfBodyNode}
+                  topLevel={true}
+                />
+                <Box width="40px" position="relative">
+                  <CommentButton url={contentUrl} />
+                  {Object.entries(sectionLocs || {}).map((v, idx) => (
+                    <Box
+                      key={v[0]}
+                      position="absolute"
+                      top={`${v[1] - topOffset}px`}
+                    >
+                      <CommentButton url={v[0] as string} />
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+            </Box>
           </Box>
-        </Box>
-      </LayoutWithFixedMenu>
-    </RenderOptions.Provider>
+        </LayoutWithFixedMenu>
+      </RenderOptions.Provider>
+    </DocSectionContext.Provider>
   );
 }
 export {

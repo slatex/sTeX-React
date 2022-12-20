@@ -1,6 +1,6 @@
 import { Autocomplete, Box, Button, TextField } from '@mui/material';
 import { fakeLoginUsingRedirect, isLoggedIn, loginUsingRedirect, logout } from '@stex-react/api';
-import { BG_COLOR } from '@stex-react/utils';
+import { BG_COLOR, IS_SERVER } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useReducer, useState } from 'react';
@@ -20,7 +20,7 @@ const LoginPage: NextPage = () => {
   const returnBackUrl = router.query.target as string;
   const [clickCount, updateClickCount] = useReducer((x) => x + 1, 0);
   const fakeLogin = clickCount >= 1;
-  if (loggedIn) router.push('/');
+  if (loggedIn && !IS_SERVER) router.push('/');
   
   return (
     <MainLayout>
