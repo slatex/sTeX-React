@@ -31,7 +31,7 @@ export function NotesView({
     });
   };
   useEffect(() => {
-    getUserInfo().then((info) => setUserId(info.userId));
+    getUserInfo().then((info) => setUserId(info?.userId));
   }, []);
   useEffect(() => {
     if (!userId) return;

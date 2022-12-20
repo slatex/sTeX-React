@@ -37,7 +37,7 @@ export function CommentLabel({
   useEffect(() => {
     getUserInfo().then(
       (userInfo) => {
-        const userId = userInfo.userId;
+        const userId = userInfo?.userId;
         const isLoggedIn = !!userId;
         setIsLoggedIn(isLoggedIn);
         setFromCurrentUser(isLoggedIn && userId === comment?.userId);

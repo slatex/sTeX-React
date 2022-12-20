@@ -38,7 +38,7 @@ export function EditView({
 
   useEffect(() => {
     getUserInfo().then((userInfo) => {
-      setUserName(userInfo.fullName);
+      setUserName(userInfo?.fullName);
     });
   }, []);
 

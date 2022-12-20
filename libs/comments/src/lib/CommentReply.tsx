@@ -37,7 +37,7 @@ export function CommentReply({
 
   useEffect(() => {
     getUserInfo().then((userInfo) => {
-      setName(userInfo.fullName);
+      setName(userInfo?.fullName);
     });
   }, []);
 
