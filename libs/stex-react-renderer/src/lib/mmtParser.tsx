@@ -180,6 +180,12 @@ function getGuidedTourPath(href?: string) {
   return undefined;
 }
 
+function isInMath(domNode?: any): boolean {
+  if (!domNode) return false;
+  if (domNode.name === 'math') return true;
+  return isInMath(domNode.parent);
+}
+
 export const HighlightContext = createContext({
   highlightedParentId: '',
   setHighlightedParentId: (_id: string) => {
@@ -193,6 +199,7 @@ function Highlightable({
   highlightId: string;
   domNode: any;
 }) {
+  const isMath = isInMath(domNode);
   const { highlightedParentId, setHighlightedParentId } =
     useContext(HighlightContext);
   const backgroundColor =
@@ -218,7 +225,17 @@ function Highlightable({
       backgroundColor
     );
   }
-  return (
+  return isMath ? (
+    /* @ts-expect-error: 'mrow is MathML which does not exist on JSX.IntrinsicElements(ts2339) */
+    <mrow
+      onMouseOver={() => setHighlightedParentId(highlightId)}
+      onMouseOut={() => setHighlightedParentId('')}
+      style={{ backgroundColor, cursor: 'pointer' }}
+    >
+      {domToReact([domNode], { replace })}
+      {/* @ts-expect-error: 'mrow is MathML which does not exist on JSX.IntrinsicElements(ts2339) */}
+    </mrow>
+  ) : (
     <span
       onMouseOver={() => setHighlightedParentId(highlightId)}
       onMouseOut={() => setHighlightedParentId('')}
@@ -377,9 +394,20 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
   if ((hoverLink || clickLink) && !domNode.attribs['processed']) {
     domNode.attribs['processed'] = 'first';
     const dialogPath = clickLink;
+    const isMath = isInMath(domNode);
     // eslint-disable-next-line react/display-name
     const WithHighlightable = forwardRef((props, ref) => {
-      return (
+      return isMath ? (
+        /* @ts-expect-error: 'mrow is MathML which does not exist on JSX.IntrinsicElements(ts2339) */
+        <mrow
+          {...props}
+          style={{ display: 'inline', cursor: 'pointer' }}
+          ref={ref as any}
+        >
+          <Highlightable domNode={domNode} highlightId={hoverParent} />
+          {/* @ts-expect-error: 'mrow is MathML which does not exist on JSX.IntrinsicElements(ts2339) */}
+        </mrow>
+      ) : (
         <div
           {...props}
           style={{ display: 'inline', cursor: 'pointer' }}
@@ -392,6 +420,7 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
     return (
       <OverlayDialog
         contentUrl={dialogPath}
+        isMath={isMath}
         displayNode={
           <NoMaxWidthTooltip
             title={
@@ -440,6 +469,7 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
         <OverlayDialog
           contentUrl={path}
           displayNode={<>{domToReact([domNode])}</>}
+          isMath={isInMath(domNode)}
         />
       )
     );

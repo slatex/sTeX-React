@@ -8,18 +8,31 @@ import { ServerLinksContext } from './stex-react-renderer';
 
 export interface OverlayDialogProps {
   contentUrl: string;
+  isMath: boolean;
   displayNode: ReactNode;
 }
 
-export function OverlayDialog({ contentUrl, displayNode }: OverlayDialogProps) {
+export function OverlayDialog({
+  contentUrl,
+  displayNode,
+  isMath,
+}: OverlayDialogProps) {
   const [open, setOpen] = useState(false);
-  const {mmtUrl} = useContext(ServerLinksContext);
+  const { mmtUrl } = useContext(ServerLinksContext);
 
   return (
     <ErrorBoundary hidden={false}>
-      <div style={{ display: 'inline' }} onClick={() => setOpen(true)}>
-        {displayNode}
-      </div>
+      {isMath ? (
+        /* @ts-expect-error: 'mrow is MathML which does not exist on JSX.IntrinsicElements(ts2339) */
+        <mrow style={{ display: 'inline' }} onClick={() => setOpen(true)}>
+          {displayNode}
+          {/* @ts-expect-error: 'mrow is MathML which does not exist on JSX.IntrinsicElements(ts2339) */}
+        </mrow>
+      ) : (
+        <span style={{ display: 'inline' }} onClick={() => setOpen(true)}>
+          {displayNode}
+        </span>
+      )}
       <Dialog onClose={() => setOpen(false)} open={open} maxWidth="lg">
         <Box display="flex" flexDirection="column" m="5px" maxWidth="800px">
           <a
