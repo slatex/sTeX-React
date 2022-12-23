@@ -147,14 +147,22 @@ export const AI_1_COURSE_SECTIONS: CourseSectionInfo = {
     'MiKoMH/AI||logic/sec/propsat.en.xhtml': { clipId: '44949', timestampSec: 2211 },
     'MiKoMH/AI||logic/sec/dpll-intro.en.xhtml': { secNo: '2', clipId: '44949', timestampSec: 3653 },
     'MiKoMH/AI||logic/sec/dpll-resolution.en.xhtml': { secNo: '3', clipId: '44949', timestampSec: 5176 },
-    'MiKoMH/AI||logic/sec/dpll-conflict-analysis.en.xhtml': { secNo: '4' },
-    'MiKoMH/AI||logic/sec/dpll-clause-learning.en.xhtml': { secNo: '5' },
-    'MiKoMH/AI||logic/sec/SAT-phase-transitions.en.xhtml': { secNo: '6' },
-    'MiKoMH/AI||logic/sec/propsat-concl.en.xhtml': { secNo: '7' },
+    'MiKoMH/AI||logic/sec/dpll-conflict-analysis.en.xhtml': { secNo: '4', clipId: '44950', timestampSec: 1367 },
+    'MiKoMH/AI||logic/sec/dpll-clause-learning.en.xhtml': { secNo: '5', clipId: '44950', timestampSec: 2506 },
+    'MiKoMH/AI||logic/sec/SAT-phase-transitions.en.xhtml': { secNo: '6', clipId: '44950', timestampSec: 3726 },
+    'MiKoMH/AI||logic/sec/propsat-concl.en.xhtml': { secNo: '7', clipId: '44950', timestampSec: 4068 },
   },
   'First Order Predicate Logic': {
-    'MiKoMH/AI||logic/sec/pl1.en.xhtml': { },
+    'MiKoMH/AI||logic/sec/pl1.en.xhtml': { clipId: '44950',  timestampSec: 4173 },
+    'MiKoMH/AI||logic/sec/fol-alpha-implicit.en.xhtml': { secNo: '2', clipId: '44951', timestampSec: 720 },
+    'MiKoMH/AI||logic/sec/basics-alpha-implicit.en.xhtml': { secNo: '2.1', clipId: '44951', timestampSec: 1193 },
+    'MiKoMH/AI||logic/sec/substitutions-alpha-implicit.en.xhtml': { secNo: '2.2', clipId: '44951', timestampSec: 3419 },
+    'MiKoMH/AI||logic/sec/nd1.en.xhtml': { secNo: '3' },
+    'MiKoMH/AI||logic/sec/pl1-conclusion.en.xhtml': { secNo: '4' },
   },
+  'Automated Theorem Proving in First-Order Logic': {
+    'MiKoMH/AI||logic/sec/atp1.en.xhtml': {  },
+  }
   /*  
    '': { clipId: '' },
   */
