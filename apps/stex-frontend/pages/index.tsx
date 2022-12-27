@@ -77,7 +77,7 @@ const StudentHomePage: NextPage = () => {
       <Box m="0 auto" maxWidth="800px">
         <Box mx="10px">
           <Box className={styles['descriptive-box']}>
-            <h1>Voll-KI based Courses at FAU</h1>
+            <h1>VoLL-KI based Courses at FAU</h1>
             The <ELink href="https://voll-ki.fau.de">
               VoLL-KI Project
             </ELink>{' '}

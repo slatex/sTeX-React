@@ -37,6 +37,19 @@ const Home: NextPage = () => {
             </Link>
             <br />
             <br />
+            <Link href="/drill-cards/ai-1">
+              <Button variant="contained">Drills - AI</Button>
+            </Link>
+            &nbsp;
+            <Link href="/drill-cards/iwgs">
+              <Button variant="contained">Drills - IWGS</Button>
+            </Link>
+            &nbsp;
+            <Link href="/drill-cards/krmt">
+              <Button variant="contained">Drills - KRMT</Button>
+            </Link>
+            <br />
+            <br />
             <BrowserAutocomplete />
             <ToursAutocomplete />
             <br />

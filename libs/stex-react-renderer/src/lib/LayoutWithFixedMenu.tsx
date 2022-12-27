@@ -1,6 +1,6 @@
 import ListIcon from '@mui/icons-material/List';
 import { Box, Drawer, IconButton } from '@mui/material';
-import { shouldUseDrawer, Window } from '@stex-react/utils';
+import { BG_COLOR, shouldUseDrawer, Window } from '@stex-react/utils';
 import { createContext, useContext, useEffect, useState } from 'react';
 import styles from './stex-react-renderer.module.scss';
 
@@ -160,6 +160,7 @@ export function LayoutWithFixedMenu({
           width={
             !useDrawer && showDashboard ? `calc(100% - ${MENU_WIDTH})` : '100%'
           }
+          sx={{backgroundColor: BG_COLOR}}
           margin="0 5px"
         >
           {children}
