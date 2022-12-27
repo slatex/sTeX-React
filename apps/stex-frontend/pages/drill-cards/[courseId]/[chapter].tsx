@@ -1,12 +1,13 @@
-import { Box, CircularProgress } from '@mui/material';
+import { Box, Button, CircularProgress } from '@mui/material';
 import { BG_COLOR } from '@stex-react/utils';
 import axios from 'axios';
 import type { NextPage } from 'next';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { DrillCards } from '../../../components/DrillCards';
-import DEFINITIONS from '../../../definitions.preval';
 import MainLayout from '../../../layouts/MainLayout';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const GuidedTourPage: NextPage = () => {
   const router = useRouter();
@@ -20,10 +21,12 @@ const GuidedTourPage: NextPage = () => {
   useEffect(() => {
     if (!router.isReady) return;
     setIsLoading(true);
-    axios.get(`/api/get-drill-items/${courseId}/${encodeURIComponent(chapter)}`).then((r) => {
-      setIsLoading(false);
-      setDrillItems(r.data);
-    });
+    axios
+      .get(`/api/get-drill-items/${courseId}/${encodeURIComponent(chapter)}`)
+      .then((r) => {
+        setIsLoading(false);
+        setDrillItems(r.data);
+      });
   }, [router.isReady, courseId, chapter]);
 
   return (
@@ -35,6 +38,11 @@ const GuidedTourPage: NextPage = () => {
           <DrillCards drillItems={drillItems} />
         )}
       </Box>
+      <Link href={`/drill-cards/${courseId}`}>
+        <Button variant="contained" sx={{ m: '10px' }}>
+          <ArrowBackIcon fontSize="small" />&nbsp;All Course Drills
+        </Button>
+      </Link>
     </MainLayout>
   );
 };
