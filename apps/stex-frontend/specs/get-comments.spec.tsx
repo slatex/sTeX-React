@@ -31,7 +31,7 @@ async function setupTestData(archive: string, filepath: string) {
   );
 }
 
-describe('/api/get-comment', () => {
+describe('/api/get-commenta', () => {
   test('only public comments for non-logged in users', async () => {
     const archive = 't1_archive';
     const filepath = 't1_filepath';
