@@ -5,7 +5,8 @@
   "scripts": {
     "start": "nx serve",
     "build": "nx build",
-    "test": "nx test"
+    "test": "nx test",
+    "nxgraph": "nx graph"
   },
   "private": true,
   "dependencies": {
@@ -27,6 +28,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "regenerator-runtime": "0.13.7",
+    "rxjs": "^7.8.0",
     "serverless-mysql": "^1.5.4",
     "tslib": "^2.3.0"
   },

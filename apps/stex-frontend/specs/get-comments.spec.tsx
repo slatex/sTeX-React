@@ -2,7 +2,7 @@ import axios from 'axios';
 import { createMocks } from 'node-mocks-http';
 import { mockCommentData } from './add-comment.spec';
 import { addCommentFromUser } from './delete-comments.spec';
-import getComments from '../pages/api/get-comments/[archive]/[filepath]';
+import getComments from '../pages/api/get-comments';
 import { executeQuery } from '../pages/api/comment-utils';
 
 jest.mock('axios');
@@ -31,14 +31,14 @@ async function setupTestData(archive: string, filepath: string) {
   );
 }
 
-describe('/api/get-commenta', () => {
+describe('/api/get-comments', () => {
   test('only public comments for non-logged in users', async () => {
     const archive = 't1_archive';
     const filepath = 't1_filepath';
     await setupTestData(archive, filepath);
     const { req, res } = createMocks({
-      method: 'GET',
-      query: { archive, filepath },
+      method: 'POST',
+      body: { files: [{ archive, filepath }] },
     });
     await getComments(req, res);
     expect(res._getStatusCode()).toBe(200);
@@ -64,7 +64,7 @@ describe('/api/get-commenta', () => {
     const { req, res } = createMocks({
       method: 'GET',
       headers: { Authorization: 'JWT token1' },
-      query: { archive, filepath },
+      body: { files: [{ archive, filepath }] },
     });
     mockedAxios.get.mockResolvedValueOnce({ data: { user_id: 'user1' } });
     await getComments(req, res);
@@ -92,17 +92,21 @@ describe('/api/get-commenta', () => {
     const { req, res } = createMocks({
       method: 'GET',
       headers: { Authorization: 'JWT token1' },
-      query: { archive: archive1, filepath: filepath1 },
+      body: { files: [{ archive: archive1, filepath: filepath1 }] },
     });
     mockedAxios.get.mockResolvedValueOnce({ data: { user_id: 'user1' } });
     await getComments(req, res);
     expect(res._getStatusCode()).toBe(200);
     const comments = JSON.parse(res._getData());
     expect(comments).toEqual(
-      expect.arrayContaining([expect.objectContaining({ archive: archive1, filepath: filepath1 })])
+      expect.arrayContaining([
+        expect.objectContaining({ archive: archive1, filepath: filepath1 }),
+      ])
     );
     expect(comments).not.toEqual(
-      expect.arrayContaining([expect.objectContaining({ archive: archive2, filepath: filepath2 })])
+      expect.arrayContaining([
+        expect.objectContaining({ archive: archive2, filepath: filepath2 }),
+      ])
     );
   });
 });

@@ -3,7 +3,7 @@ import addComment from '../pages/api/add-comment';
 import { createMocks } from 'node-mocks-http';
 import { executeQuery } from '../pages/api/comment-utils';
 import { Comment } from '@stex-react/api';
-import { processResults } from '../pages/api/get-comments/[archive]/[filepath]';
+import { processResults } from '../pages/api/get-comments';
 
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;

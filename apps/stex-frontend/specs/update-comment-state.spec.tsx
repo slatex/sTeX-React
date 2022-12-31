@@ -2,7 +2,7 @@ import { HiddenStatus } from '@stex-react/api';
 import axios from 'axios';
 import { createMocks } from 'node-mocks-http';
 import { executeQuery } from '../pages/api/comment-utils';
-import { processResults } from '../pages/api/get-comments/[archive]/[filepath]';
+import { processResults } from '../pages/api/get-comments';
 import updateCommentState from '../pages/api/update-comment-state';
 import { mockCommentData } from './add-comment.spec';
 import { addCommentFromUser } from './delete-comments.spec';

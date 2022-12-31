@@ -3,7 +3,7 @@ import {
   executeAndEndSet500OnError,
   getUserIdOrSetError,
 } from './comment-utils';
-import { processResults } from './get-comments/[archive]/[filepath]';
+import { processResults } from './get-comments';
 
 export default async function handler(req, res) {
   const userId = await getUserIdOrSetError(req, res);

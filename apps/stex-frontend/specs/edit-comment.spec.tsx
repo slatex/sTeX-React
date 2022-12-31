@@ -4,7 +4,7 @@ import editComment from '../pages/api/edit-comment';
 import { executeQuery } from '../pages/api/comment-utils';
 import { mockCommentData } from './add-comment.spec';
 import { addCommentFromUser } from './delete-comments.spec';
-import { processResults } from '../pages/api/get-comments/[archive]/[filepath]';
+import { processResults } from '../pages/api/get-comments';
 
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
