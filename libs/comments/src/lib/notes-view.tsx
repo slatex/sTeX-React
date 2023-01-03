@@ -1,7 +1,7 @@
 import { Box, IconButton } from '@mui/material';
 import { Comment, getUserInfo } from '@stex-react/api';
 import { useEffect, useState } from 'react';
-import { getPrivateNotes } from './comment-store-manager';
+import { getPrivateNotes, refreshAllComments } from './comment-store-manager';
 import { CommentReply } from './CommentReply';
 import { CommentView } from './CommentView';
 
@@ -24,9 +24,8 @@ export function NotesView({
   const [notes, setNotes] = useState([] as Comment[]);
 
   const refreshNotes = () => {
-    console.log('refreshing');
-    getPrivateNotes(file, true).then((comments) => {
-      setNotes(comments);
+    refreshAllComments().then((_) => {
+      getPrivateNotes(file).then((c) => setNotes(c));
     });
   };
   useEffect(() => {
@@ -34,9 +33,7 @@ export function NotesView({
   }, []);
   useEffect(() => {
     if (!userId) return;
-    getPrivateNotes(file, false).then((comments) => {
-      setNotes(comments);
-    });
+    getPrivateNotes(file).then((c) => setNotes(c));
   }, [file?.archive, file?.filepath, userId]);
 
   if (!userId)

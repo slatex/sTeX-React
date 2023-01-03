@@ -41,14 +41,11 @@ export async function deleteComment(commentId: number) {
   await commentRequest(`/api/delete-comment/${commentId}`, 'POST');
 }
 
-export async function getComments({
-  archive,
-  filepath,
-}: FileLocation): Promise<Comment[]> {
+export async function getComments(files: FileLocation[]): Promise<Comment[]> {
   const comments: Comment[] = await commentRequest(
     `/api/get-comments`,
     'POST',
-    { files: [{ archive, filepath }] }
+    { files }
   );
   return comments;
 }

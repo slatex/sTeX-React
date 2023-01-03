@@ -13,7 +13,10 @@ import {
 import { Comment, getUserInfo, MODERATORS } from '@stex-react/api';
 import { ReactNode, useEffect, useReducer, useRef, useState } from 'react';
 import { CommentFilters } from './comment-filters';
-import { getPublicCommentTrees } from './comment-store-manager';
+import {
+  getPublicCommentTrees,
+  refreshAllComments,
+} from './comment-store-manager';
 import { CommentReply } from './CommentReply';
 import { CommentView } from './CommentView';
 
@@ -182,16 +185,16 @@ export function CommentSection({
       setCanModerate(!!userId && MODERATORS.includes(userId));
     });
   }, []);
+
   useEffect(() => {
-    getPublicCommentTrees(file, false).then((comments) => {
-      setCommentsFromStore(comments);
-    });
-  }, [file, filters]);
+    getPublicCommentTrees(file).then((c) => setCommentsFromStore(c));
+  }, [file?.archive, file?.filepath, filters]);
 
   const refreshComments = async () => {
     setIsRefreshing(true);
     try {
-      await getPublicCommentTrees(file, true).then((comments) => {
+      await refreshAllComments();
+      getPublicCommentTrees(file).then((comments) => {
         setCommentsFromStore(comments);
         setIsRefreshing(false);
       });
