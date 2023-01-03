@@ -1,6 +1,7 @@
 import { IndexNode, StexReactRenderer } from '@stex-react/stex-react-renderer';
 import {
   convertHtmlStringToPlain,
+  fileLocToString,
   getSectionInfo,
   simpleHash,
 } from '@stex-react/utils';
@@ -12,7 +13,7 @@ import MainLayout from '../../layouts/MainLayout';
 import { DocumentDashInfo } from '../../shared/types';
 
 function createHash({ archive = '', filepath = '' }) {
-  return simpleHash(`${archive}||${filepath}`);
+  return simpleHash(fileLocToString({ archive, filepath }));
 }
 
 function getDashInfo(

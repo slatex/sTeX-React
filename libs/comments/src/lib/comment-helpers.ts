@@ -1,5 +1,5 @@
 import { Comment } from '@stex-react/api';
-import { FileLocation } from '@stex-react/utils';
+import { FileLocation, fileLocToString } from '@stex-react/utils';
 
 export function organizeHierarchically(flatComments: Comment[]) {
   // console.log('organizeHierarchically triggered');
@@ -63,7 +63,7 @@ function generateCommentHierarchy(
 const DRAFT_KEY_PREFIX = 'DRAFT';
 
 function getDraftKey(f: FileLocation, commentId: number) {
-  const parts = [DRAFT_KEY_PREFIX, `${f.archive}||${f.filepath}`];
+  const parts = [DRAFT_KEY_PREFIX, fileLocToString(f)];
   if (commentId) parts.push(commentId.toString());
   return parts.join(':');
 }

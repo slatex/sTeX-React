@@ -5,6 +5,7 @@ import { styled } from '@mui/material/styles';
 import Tooltip, { tooltipClasses, TooltipProps } from '@mui/material/Tooltip';
 import {
   BG_COLOR,
+  fileLocToString,
   getSectionInfo,
   IS_MMT_VIEWER,
   localStore,
@@ -31,7 +32,7 @@ export function setSectionIds(v: { [nodeId: string]: string }) {
 
 function SectionIdHackObject({ inputRef }: { inputRef: string }) {
   const { archive, filepath } = getSectionInfo(inputRef);
-  const nodeId = `${archive}||${filepath}`;
+  const nodeId = fileLocToString({archive, filepath});
   const secId = SECTION_IDS[nodeId];
   if (!secId) return null;
   const isChapter = !secId?.includes('.');

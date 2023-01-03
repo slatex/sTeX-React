@@ -3,6 +3,8 @@ import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/Indeterminate
 import { Box, IconButton } from '@mui/material';
 import {
   convertHtmlNodeToPlain,
+  FileLocation,
+  fileLocToString,
   getChildrenOfBodyNode,
   getSectionInfo,
   IS_SERVER,
@@ -36,8 +38,8 @@ function getInDocumentLink(childContext: string[]) {
   );
 }
 
-function createHash({ archive = '', filepath = '' }) {
-  return simpleHash(`${archive}||${filepath}`);
+function createHash(f: FileLocation) {
+  return simpleHash(fileLocToString(f));
 }
 
 export function ExpandableContent({

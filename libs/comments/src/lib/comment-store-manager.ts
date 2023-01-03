@@ -1,17 +1,15 @@
 import { CommentStore } from './comment-store';
 import { Comment } from '@stex-react/api';
-import { FileLocation } from '@stex-react/utils';
+import { FileLocation, fileLocToString } from '@stex-react/utils';
 
 const commentStoreMap = new Map<string, CommentStore>();
 
 function getStore(f: FileLocation) {
-  const key = `${f.archive}||${f.filepath}`;
-  return commentStoreMap.get(key);
+  return commentStoreMap.get(fileLocToString(f));
 }
 
 function addStore(f: FileLocation, store: CommentStore) {
-  const key = `${f.archive}||${f.filepath}`;
-  return commentStoreMap.set(key, store);
+  return commentStoreMap.set(fileLocToString(f), store);
 }
 
 function getExistingOrNewStore(f: FileLocation) {

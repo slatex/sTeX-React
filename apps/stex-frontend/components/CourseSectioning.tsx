@@ -11,7 +11,7 @@ import {
   TextField,
   Tooltip,
 } from '@mui/material';
-import { convertHtmlStringToPlain, localStore } from '@stex-react/utils';
+import { convertHtmlStringToPlain, fileLocToString, localStore } from '@stex-react/utils';
 import axios from 'axios';
 import { useEffect, useReducer, useState } from 'react';
 import NOTES_TREES, { TreeNode } from '../notes-trees.preval';
@@ -216,7 +216,7 @@ function NotesSidePanel({
   courseTreeInfo: CourseTreeInfo;
 }) {
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
-  const id = `${notesNode.archive}||${notesNode.filepath}`;
+  const id = fileLocToString(notesNode);
   let deck: DeckAndVideoInfo = null;
 
   let secTitle = undefined;
