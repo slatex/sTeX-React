@@ -1,13 +1,14 @@
 import { Comment, getComments } from '@stex-react/api';
+import { FileLocation } from '@stex-react/utils';
 import { organizeHierarchically } from './comment-helpers';
 
 export class CommentStore {
   private storedPublicComments: Comment[] | undefined = undefined;
   private storedPrivateNotes: Comment[] | undefined = undefined;
-  constructor(private archive: string, private filepath: string) {}
+  constructor(private fileLoc: FileLocation) {}
 
   private async fetchFromServer() {
-    const flatComments = await getComments(this.archive, this.filepath);
+    const flatComments = await getComments(this.fileLoc);
     this.storedPublicComments = organizeHierarchically(
       flatComments.filter((c) => !c.isPrivate)
     );

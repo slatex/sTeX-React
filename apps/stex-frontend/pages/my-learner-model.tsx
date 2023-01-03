@@ -1,13 +1,12 @@
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { Box, CircularProgress, IconButton, Tooltip } from '@mui/material';
 import { COGNITIVE_DIMENSIONS, getAllMyData } from '@stex-react/api';
+import { FileLocation } from '@stex-react/utils';
 import type { NextPage } from 'next';
 import { useEffect, useState } from 'react';
 import MainLayout from '../layouts/MainLayout';
 
-export interface NotesSection {
-  archive: string;
-  filepath: string;
+export interface NotesSection extends FileLocation {
   updatedTimestampSec: number;
 }
 

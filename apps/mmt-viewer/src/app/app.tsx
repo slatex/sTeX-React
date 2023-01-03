@@ -20,7 +20,7 @@ export function App() {
       <FileBrowser
         defaultRootNodes={[]}
         topOffset={48}
-        standaloneLink={(archive: string, filepath: string) =>
+        standaloneLink={({ archive, filepath }) =>
           `${baseUrl}/:sTeX/browser/fulldocument?archive=${archive}&filepath=${filepath}`
         }
       />

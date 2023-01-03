@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 import { useState } from 'react';
 import { CommentSection } from './comment-section';
 import { NotesView } from './notes-view';
+import { FileLocation } from '@stex-react/utils';
 
 function TabPanel(props: {
   children?: React.ReactNode;
@@ -26,16 +27,14 @@ function TabPanel(props: {
 }
 
 export function CommentNoteToggleView({
-  archive,
-  filepath,
+  file,
   defaultPrivate,
   selectedText = undefined,
   selectedElement = undefined,
   allNotesMode = false,
   extraPanel = undefined,
 }: {
-  archive: string;
-  filepath: string;
+  file: FileLocation,
   defaultPrivate: boolean;
   selectedText?: string;
   selectedElement?: any;
@@ -93,8 +92,7 @@ export function CommentNoteToggleView({
       </Box>
       <TabPanel value={value} index={0}>
         <NotesView
-          archive={archive}
-          filepath={filepath}
+          file={file}
           selectedText={selectedText}
           selectedElement={selectedElement}
           allNotesMode={allNotesMode}
@@ -102,8 +100,7 @@ export function CommentNoteToggleView({
       </TabPanel>
       <TabPanel value={value} index={1}>
         <CommentSection
-          archive={archive}
-          filepath={filepath}
+          file={file}
           selectedText={selectedText}
           selectedElement={selectedElement}
           allCommentsMode={allNotesMode}

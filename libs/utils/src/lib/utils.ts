@@ -1,4 +1,5 @@
 import { getOuterHTML } from 'domutils';
+import { FileLocation } from './file-location';
 
 export const BG_COLOR = 'hsl(210, 20%, 98%)';
 export const IS_SERVER = typeof window === 'undefined';
@@ -13,10 +14,8 @@ export function shouldUseDrawer(windowWidth?: number) {
   return windowWidth ? windowWidth < 800 : true;
 }
 
-export interface SectionInfo {
+export interface SectionInfo extends FileLocation {
   url: string;
-  archive?: string;
-  filepath?: string;
   source?: string;
 }
 
@@ -64,15 +63,15 @@ export function XhtmlContentUrl(projectId: string, xhtmlFilepath: string) {
   return `/:sTeX/document?archive=${projectId}&filepath=${xhtmlFilepath}`;
 }
 
-export function XhtmlTopDocumentContentUrl(
-  projectId: string,
-  xhtmlFilepath: string
-) {
-  return `/:sTeX/documentTop?archive=${projectId}&filepath=${xhtmlFilepath}`;
+export function XhtmlTopDocumentContentUrl({
+  archive,
+  filepath,
+}: FileLocation) {
+  return `/:sTeX/documentTop?archive=${archive}&filepath=${filepath}`;
 }
 
-export function PathToArticle(projectId: string, xhtmlFilepath: string) {
-  const path = `:sTeX/document?archive=${projectId}&filepath=${xhtmlFilepath}`;
+export function PathToArticle({ archive, filepath }: FileLocation) {
+  const path = `:sTeX/document?archive=${archive}&filepath=${filepath}`;
   return `/browser/${encodeURIComponent(path)}`;
 }
 

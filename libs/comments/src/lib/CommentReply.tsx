@@ -7,10 +7,10 @@ import { EditView } from './EditView';
 import { Box, Checkbox, FormControlLabel } from '@mui/material';
 import styles from './comments.module.scss';
 import { SelectedInfo } from './selected-info';
+import { FileLocation } from '@stex-react/utils';
 
 interface CommentReplyProps {
-  archive: string;
-  filepath: string;
+  file: FileLocation;
   isPrivateNote: boolean;
   parentId?: number;
   placeholder?: string;
@@ -22,8 +22,7 @@ interface CommentReplyProps {
 }
 
 export function CommentReply({
-  archive,
-  filepath,
+  file,
   isPrivateNote,
   parentId = 0,
   placeholder = '',
@@ -77,8 +76,7 @@ export function CommentReply({
         <SelectedInfo text={selectedText} />
         <EditView
           parentId={parentId}
-          archive={archive}
-          filepath={filepath}
+          file={file}
           isPrivateNote={isPrivateNote}
           postAnonymously={postAnonymously}
           selectedText={selectedText}

@@ -3,11 +3,8 @@ import { textContent } from 'domutils';
 import * as htmlparser2 from 'htmlparser2';
 import NOTES_TREES, { TreeNode } from '../../notes-trees.preval';
 import { AI_1_DECK_IDS } from '../../course_info/ai-1-notes';
+import { FileLocation, fileLocToString, stringToFileLoc } from '@stex-react/utils';
 
-export interface NodeId {
-  archive: string;
-  filepath: string;
-}
 export const AI_ROOT_NODE = fixCourseRootNode('ai-1');
 export const IWGS_ROOT_NODE = fixCourseRootNode('iwgs');
 export const LBS_ROOT_NODE = fixCourseRootNode('lbs');
@@ -15,7 +12,7 @@ export const KRMT_ROOT_NODE = fixCourseRootNode('krmt');
 
 const SLIDE_DOC_CACHE = new Map<string, string>();
 export async function getFileContent(
-  nodeId: NodeId,
+  nodeId: FileLocation,
   mmtUrl: string
 ): Promise<string> {
   const url = `${mmtUrl}/:sTeX/document?archive=${nodeId.archive}&filepath=${nodeId.filepath}`;
@@ -27,7 +24,7 @@ export async function getFileContent(
 }
 
 function fixTree(node: TreeNode) {
-  const v = nodeIdToDeckId({ archive: node.archive, filepath: node.filepath });
+  const v = fileLocToString(node);
   if (AI_1_DECK_IDS.includes(v)) {
     node.endsSection = true;
   }
@@ -57,22 +54,7 @@ export function getCourseRootNode(courseId: string) {
   return undefined;
 }
 
-export function nodeId(node: TreeNode) {
-  return { archive: node.archive, filepath: node.filepath };
-}
-
-export function nodeIdToDeckId(nodeId: NodeId) {
-  if (!nodeId) return 'MiKoMH/AI||course/notes/notes.xhtml';
-  return `${nodeId.archive}||${nodeId.filepath}`;
-}
-
-export function strNodeIdToNodeId(s: string): NodeId | undefined {
-  const parts = s.split('||');
-  if (parts.length != 2) return;
-  return { archive: parts[0], filepath: parts[1] };
-}
-
-export function findNode(nodeId: NodeId, tree: TreeNode): TreeNode | null {
+export function findNode(nodeId: FileLocation, tree: TreeNode): TreeNode | null {
   if (!nodeId) return null;
   if (nodeId.archive === tree.archive && nodeId.filepath === tree.filepath)
     return tree;
@@ -140,7 +122,7 @@ export function getText(html: string) {
 
 export function getTitle(deckId: string) {
   if (!deckId) return 'Error';
-  const nodeId = strNodeIdToNodeId(deckId);
+  const nodeId = stringToFileLoc(deckId);
   let node = nodeId ? findNode(nodeId, AI_ROOT_NODE) : AI_ROOT_NODE;
   while (node) {
     if (node.titleAsHtml?.length) {

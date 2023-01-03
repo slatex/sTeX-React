@@ -74,7 +74,7 @@ export const SearchPage: NextPage = () => {
           )}
           {results.map((result) => (
             <SearchResultView
-              key={result.archive + result.sourcefile}
+              key={result.archive + result.filepath}
               result={result}
             />
           ))}

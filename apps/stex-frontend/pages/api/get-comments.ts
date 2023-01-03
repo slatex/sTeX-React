@@ -1,4 +1,5 @@
 import { Comment } from '@stex-react/api';
+import { FileLocation } from '@stex-react/utils';
 import { executeAndEndSet500OnError, getUserId } from './comment-utils';
 
 export function processResults(results: any[]) {
@@ -15,7 +16,7 @@ export function processResults(results: any[]) {
 }
 
 export interface GetCommentsRequest {
-  files: { archive: string; filepath: string }[];
+  files: FileLocation[];
 }
 
 export default async function handler(req, res) {
@@ -40,8 +41,6 @@ export default async function handler(req, res) {
   queryValues.push(archive, filepath)
   );
 
-  console.log(query);
-  console.log(queryValues);
   const results = await executeAndEndSet500OnError(query, queryValues, res);
   if (!results) return;
   processResults(results as Comment[]);

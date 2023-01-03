@@ -4,21 +4,19 @@ import {
   createFilterOptions,
   TextField,
 } from '@mui/material';
-import { fixDuplicateLabels, PathToArticle } from '@stex-react/utils';
+import { FileLocation, fixDuplicateLabels, PathToArticle } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { ARTICLE_LIST } from '../article-list';
 import styles from '../index.module.scss';
 
-interface BrowserItem {
-  project: string;
-  filepath: string;
+interface BrowserItem extends FileLocation {
   label: string;
   language: string;
 }
 
-function getBrowserItems(browserItems: { [project: string]: string[] }) {
+function getBrowserItems(browserItems: { [archive: string]: string[] }) {
   const items: BrowserItem[] = [];
-  for (const [project, files] of Object.entries(browserItems)) {
+  for (const [archive, files] of Object.entries(browserItems)) {
     for (const filepath of files) {
       const filename = filepath.substring(filepath.lastIndexOf('/') + 1);
       let label = filename.substring(0, filename.length - 6);
@@ -30,7 +28,7 @@ function getBrowserItems(browserItems: { [project: string]: string[] }) {
         label = label.substring(0, langStart) + ` (${language})`;
       }
 
-      items.push({ project, filepath, label, language });
+      items.push({ archive, filepath, label, language });
     }
   }
   return fixDuplicateLabels(items);
@@ -54,7 +52,7 @@ function OptionDisplay({ item }: { item: BrowserItem }) {
       />
       <span>{item.label}</span>
       <span className={styles['brower_autocomplete_project']}>
-        {item.project}
+        {item.archive}
       </span>
     </>
   );
@@ -87,7 +85,7 @@ export function BrowserAutocomplete() {
       onChange={(_e, n) => {
         if (!n) return;
         const item = n as BrowserItem;
-        router.push(PathToArticle(item.project, item.filepath));
+        router.push(PathToArticle(item));
       }}
     />
   );

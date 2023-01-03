@@ -302,8 +302,7 @@ const CourseViewPage: NextPage = () => {
 
             {viewMode !== ViewMode.VIDEO_MODE && (
               <CommentNoteToggleView
-                archive={slideArchive}
-                filepath={slideFilepath}
+                file={{archive: slideArchive, filepath: slideFilepath}}
                 defaultPrivate={true}
                 extraPanel={{
                   label: "Instructor's notes",

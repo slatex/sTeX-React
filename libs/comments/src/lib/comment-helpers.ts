@@ -1,4 +1,5 @@
 import { Comment } from '@stex-react/api';
+import { FileLocation } from '@stex-react/utils';
 
 export function organizeHierarchically(flatComments: Comment[]) {
   // console.log('organizeHierarchically triggered');
@@ -61,36 +62,30 @@ function generateCommentHierarchy(
 
 const DRAFT_KEY_PREFIX = 'DRAFT';
 
-function getDraftKey(archive: string, filepath: string, commentId: number) {
-  const parts = [DRAFT_KEY_PREFIX, `${archive}||${filepath}`];
+function getDraftKey(f: FileLocation, commentId: number) {
+  const parts = [DRAFT_KEY_PREFIX, `${f.archive}||${f.filepath}`];
   if (commentId) parts.push(commentId.toString());
   return parts.join(':');
 }
 
-export function retrieveDraft(
-  archive: string,
-  filepath: string,
-  commentId: number
-) {
-  const key = getDraftKey(archive, filepath, commentId);
+export function retrieveDraft(f: FileLocation, commentId: number) {
+  const key = getDraftKey(f, commentId);
   return localStorage.getItem(key);
 }
 
 export function saveDraft(
-  archive: string,
-  filepath: string,
+  f: FileLocation,
   commentId: number,
   draft: string
 ) {
-  const key = getDraftKey(archive, filepath, commentId);
+  const key = getDraftKey(f, commentId);
   localStorage.setItem(key, draft);
 }
 
 export function discardDraft(
-  archive: string,
-  filepath: string,
+  f: FileLocation,
   commentId: number
 ) {
-  const key = getDraftKey(archive, filepath, commentId);
+  const key = getDraftKey(f, commentId);
   localStorage.removeItem(key);
 }

@@ -1,3 +1,4 @@
+import { FileLocation } from '@stex-react/utils';
 import axios, { AxiosError } from 'axios';
 import {
   Comment,
@@ -6,11 +7,6 @@ import {
   UpdateCommentStateRequest,
 } from './comment';
 import { getAuthHeaders, logoutAndGetToLoginPage } from './lms';
-
-export interface CommentLocation {
-  archive: string;
-  filepath: string;
-};
 
 async function commentRequest(apiUrl: string, requestType: string, data?: any) {
   const headers = getAuthHeaders();
@@ -45,10 +41,10 @@ export async function deleteComment(commentId: number) {
   await commentRequest(`/api/delete-comment/${commentId}`, 'POST');
 }
 
-export async function getComments(
-  archive: string,
-  filepath: string
-): Promise<Comment[]> {
+export async function getComments({
+  archive,
+  filepath,
+}: FileLocation): Promise<Comment[]> {
   const comments: Comment[] = await commentRequest(
     `/api/get-comments`,
     'POST',

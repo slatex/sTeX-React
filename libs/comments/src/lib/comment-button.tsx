@@ -89,13 +89,13 @@ export function CommentButton({ url = '' }: { url?: string }) {
       setNumPublicComments(0);
       return;
     }
-    getPublicCommentTrees(archive, filepath, false).then((comments) => {
+    getPublicCommentTrees({archive, filepath}, false).then((comments) => {
       setNumPublicComments(comments?.length);
       setTopComment(comments?.[0]);
 
       // This is a hack. We get private notes after fetching public comments to make sure that
       // we use the cached copy. Ideally, the comment store manager should be made smarter.
-      getPrivateNotes(archive, filepath, false).then((comments) => {
+      getPrivateNotes({archive, filepath}, false).then((comments) => {
         setNumPrivateNotes(comments?.length);
         setTopNote(comments?.[0]);
       });
@@ -165,8 +165,7 @@ export function CommentButton({ url = '' }: { url?: string }) {
         <Dialog onClose={() => setOpen(false)} open={open} maxWidth="lg">
           <CommentNoteToggleView
             defaultPrivate={defaultPrivate}
-            archive={archive}
-            filepath={filepath}
+            file={{archive, filepath}}
           />
           <DialogActions sx={{ p: '0' }}>
             <Button onClick={() => setOpen(false)}>Close</Button>

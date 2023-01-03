@@ -41,8 +41,10 @@ export function CommentView({
                 parentId={comment.commentId}
                 isPrivateNote={!!comment.isPrivate}
                 postAnonymously={comment.isAnonymous}
-                archive={comment.archive || ''}
-                filepath={comment.filepath || ''}
+                file={{
+                  archive: comment.archive || '',
+                  filepath: comment.filepath || '',
+                }}
                 existingComment={comment}
                 onCancel={() => setEditingComment(false)}
                 onUpdate={() => {
@@ -54,8 +56,10 @@ export function CommentView({
                 hidden={!commentReplyOpen}
                 parentId={comment.commentId}
                 isPrivateNote={!!comment.isPrivate}
-                archive={comment.archive || ''}
-                filepath={comment.filepath || ''}
+                file={{
+                  archive: comment.archive || '',
+                  filepath: comment.filepath || '',
+                }}
                 onCancel={() => setCommentReplyOpen(false)}
                 onUpdate={() => {
                   setCommentReplyOpen(false);

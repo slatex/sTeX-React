@@ -1,23 +1,21 @@
-import { getSectionInfo } from '@stex-react/utils';
+import {
+  FileLocation,
+  getSectionInfo,
+  stringToFileLoc,
+} from '@stex-react/utils';
 import { getOuterHTML, textContent } from 'domutils';
 import * as htmlparser2 from 'htmlparser2';
 import { TreeNode } from '../../../../../notes-trees.preval';
 import { Slide, SlideReturn, SlideType } from '../../../../../shared/types';
 import {
-  strNodeIdToNodeId,
   findNode,
   getCourseRootNode,
   getFileContent,
   getText,
-  NodeId,
-  nodeId,
   previousNode,
 } from '../../../notesHelpers';
 
-function FrameSlide(
-  slideContent: any,
-  nodeId: NodeId
-): Slide {
+function FrameSlide(slideContent: any, nodeId: FileLocation): Slide {
   return {
     slideContent: getOuterHTML(slideContent),
     slideType: SlideType.FRAME,
@@ -31,7 +29,7 @@ function FrameSlide(
 
 function TextSlide(
   slideContent: any,
-  nodeId: NodeId,
+  nodeId: FileLocation,
   titleElement?: any
 ): Slide {
   let autoExpand = false;
@@ -74,12 +72,12 @@ function trimElements(elements: string[]) {
 }
 
 async function getSlidesForDocNodeAfterRef(
-  nodeId: NodeId,
+  nodeId: FileLocation,
   node: any,
   isDoc: string,
-  endWith: NodeId,
+  endWith: FileLocation,
   titleElement?: Element,
-  afterThisRef?: NodeId
+  afterThisRef?: FileLocation
 ): Promise<SlideReturn> {
   //console.log(`docNodeAfter: ${afterThisRef?.filepath}`);
   const slides = [];
@@ -198,10 +196,10 @@ async function getSlidesForDocNodeAfterRef(
 }
 
 async function getSlidesForDocAfterRef(
-  curr: NodeId,
-  endWith: NodeId,
+  curr: FileLocation,
+  endWith: FileLocation,
   title?: Element,
-  afterThisRef?: NodeId
+  afterThisRef?: FileLocation
 ): Promise<SlideReturn> {
   //console.log(`slides from ${curr.filepath} after ${afterThisRef?.filepath}`);
   const data = await getFileContent(curr, process.env.NEXT_PUBLIC_MMT_URL);
@@ -251,7 +249,7 @@ export default async function handler(req, res) {
   }
   const slides: Slide[] = [];
   const startNode = findNode(
-    strNodeIdToNodeId(startWithStrNodeId),
+    stringToFileLoc(startWithStrNodeId),
     courseRootNode
   );
   if (!startNode) {
@@ -261,7 +259,7 @@ export default async function handler(req, res) {
   const exclusiveStartNode = previousNode(startNode);
 
   const inclusiveEndNode = previousNode(
-    findNode(strNodeIdToNodeId(endWithStrNodeId), courseRootNode)
+    findNode(stringToFileLoc(endWithStrNodeId), courseRootNode)
   );
   if (!inclusiveEndNode) {
     res
@@ -271,31 +269,35 @@ export default async function handler(req, res) {
   }
 
   console.log(
-    `${startNode.filepath} --> (${exclusiveStartNode?.archive}||${exclusiveStartNode?.filepath || 'initial'},
+    `${startNode.filepath} --> (${exclusiveStartNode?.archive}||${
+      exclusiveStartNode?.filepath || 'initial'
+    },
     ${inclusiveEndNode?.archive}||${inclusiveEndNode?.filepath}]`
   );
 
   if (!exclusiveStartNode) {
     const slideReturn = await getSlidesForDocAfterRef(
-      nodeId(courseRootNode),
-      nodeId(inclusiveEndNode)
+      courseRootNode,
+      inclusiveEndNode
     );
     slides.push(...slideReturn.slides);
   }
   let ancestorElement: TreeNode | null = exclusiveStartNode;
   while (ancestorElement?.parent) {
-    console.log(`big loop: ${ancestorElement.parent.filepath} after ${ancestorElement.filepath}`);
+    console.log(
+      `big loop: ${ancestorElement.parent.filepath} after ${ancestorElement.filepath}`
+    );
     const slideReturn = await getSlidesForDocAfterRef(
-      nodeId(ancestorElement.parent),
-      nodeId(inclusiveEndNode),
+      ancestorElement.parent,
+      inclusiveEndNode,
       undefined,
-      nodeId(ancestorElement)
+      ancestorElement
     );
     slides.push(...slideReturn.slides);
     if (slideReturn.sectionHasEnded) break;
     ancestorElement = ancestorElement.parent;
     // fix properly using sectionhasended. this is a hack.
-    if(ancestorElement.filepath === inclusiveEndNode.filepath) break;
+    if (ancestorElement.filepath === inclusiveEndNode.filepath) break;
   }
   for (const slide of slides) {
     slide.preNotes = trimElements(slide.preNotes);

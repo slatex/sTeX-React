@@ -1,12 +1,12 @@
 import { Box, Button } from '@mui/material';
 import { addComment, Comment, editComment, getUserInfo } from '@stex-react/api';
 import { MdEditor } from '@stex-react/markdown';
+import { FileLocation } from '@stex-react/utils';
 import { useEffect, useState } from 'react';
 import { discardDraft, retrieveDraft, saveDraft } from './comment-helpers';
 
 interface EditViewProps {
-  archive: string;
-  filepath: string;
+  file: FileLocation;
   isPrivateNote: boolean;
   postAnonymously: boolean;
   parentId?: number;
@@ -19,8 +19,7 @@ interface EditViewProps {
 }
 
 export function EditView({
-  archive,
-  filepath,
+  file,
   isPrivateNote,
   postAnonymously = false,
   selectedText = undefined,
@@ -44,15 +43,15 @@ export function EditView({
 
   useEffect(() => {
     if (existingComment) return;
-    const retreived = retrieveDraft(archive, filepath, parentId);
+    const retreived = retrieveDraft(file, parentId);
     setInputText(retreived || '');
-  }, [archive, filepath, parentId, existingComment]);
+  }, [file, parentId, existingComment]);
 
   function getNewComment(): Comment {
     return {
       commentId: -1,
-      archive,
-      filepath,
+      archive: file?.archive,
+      filepath: file?.filepath,
       parentCommentId: parentId,
       statement: inputText,
       isPrivate: isPrivateNote,
@@ -77,7 +76,7 @@ export function EditView({
       alert('Comment could not be updated');
       return;
     }
-    discardDraft(archive, filepath, parentId);
+    discardDraft(file, parentId);
     setIsLoading(false);
     setInputText('');
   };
@@ -95,7 +94,7 @@ export function EditView({
           value={inputText}
           onValueChange={(v) => {
             setInputText(v);
-            saveDraft(archive, filepath, parentId, v);
+            saveDraft(file, parentId, v);
           }}
         />
       </div>

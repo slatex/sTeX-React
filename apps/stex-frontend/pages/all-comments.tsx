@@ -2,14 +2,12 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box } from '@mui/material';
 import { getLatestUpdatedSections } from '@stex-react/api';
 import { CommentSection } from '@stex-react/comments';
-import { PathToArticle } from '@stex-react/utils';
+import { FileLocation, PathToArticle } from '@stex-react/utils';
 import type { NextPage } from 'next';
 import { useEffect, useState } from 'react';
 import MainLayout from '../layouts/MainLayout';
 
-export interface CommentSection {
-  archive: string;
-  filepath: string;
+export interface CommentSection extends FileLocation {
   updatedTimestampSec: number;
 }
 
@@ -31,18 +29,14 @@ const AllCommentsPage: NextPage = () => {
           >
             <a
               style={{ fontSize: '20px' }}
-              href={PathToArticle(section.archive, section.filepath)}
+              href={PathToArticle(section)}
               target="_blank"
               rel="noreferrer"
             >
               {section.archive}||{section.filepath}
               <OpenInNewIcon />
             </a>
-            <CommentSection
-              archive={section.archive}
-              filepath={section.filepath}
-              allCommentsMode={true}
-            />
+            <CommentSection file={section} allCommentsMode={true} />
           </Box>
         ))}
       </Box>

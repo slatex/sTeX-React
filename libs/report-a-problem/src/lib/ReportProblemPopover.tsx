@@ -149,8 +149,7 @@ export function ReportProblemPopover(props: Props) {
           <Box onClick={(e) => e.stopPropagation()}>
             <CommentNoteToggleView
               defaultPrivate={isPrivate}
-              archive={selectedContext[0].archive}
-              filepath={selectedContext[0].filepath}
+              file={selectedContext[0]}
               selectedText={selectedText}
               selectedElement={commonAncestor}
             />

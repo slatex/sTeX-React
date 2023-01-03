@@ -6,6 +6,7 @@ import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { Box, IconButton, LinearProgress, TextField } from '@mui/material';
+import { FileLocation } from '@stex-react/utils';
 import axios from 'axios';
 import { useContext, useEffect, useState } from 'react';
 import { FileNode } from './FileNode';
@@ -13,15 +14,7 @@ import { FixedPositionMenu } from './LayoutWithFixedMenu';
 import { ServerLinksContext } from './stex-react-renderer';
 import styles from './stex-react-renderer.module.scss';
 
-export type SetSelectedFileFunction = (
-  projectId: string,
-  filepath: string
-) => void;
-
-interface SelectedFile {
-  project: string;
-  filepath: string;
-}
+export type SetSelectedFileFunction = (f: FileLocation) => void;
 
 export function NodeDisplay({
   node,
@@ -30,7 +23,7 @@ export function NodeDisplay({
   searchTerms,
 }: {
   node: FileNode;
-  selectedFile: SelectedFile;
+  selectedFile: FileLocation;
   onSelectedFile: SetSelectedFileFunction;
   searchTerms: string[];
 }) {
@@ -40,11 +33,11 @@ export function NodeDisplay({
   }, [node.autoOpen]);
 
   const match = /archive=([^&]+)&filepath=([^"]+xhtml)/g.exec(node.link);
-  const projectId = match?.[1];
+  const archive = match?.[1];
   const filepath = match?.[2];
-  if (projectId && filepath) {
+  if (archive && filepath) {
     const isSelected =
-      projectId === selectedFile.project && filepath === selectedFile.filepath;
+      archive === selectedFile.archive && filepath === selectedFile.filepath;
     const fontWeight = node.autoOpen || isSelected ? 'bold' : undefined;
     const backgroundColor = isSelected ? '#CCC' : undefined;
     const color = node.autoOpen ? 'black' : undefined;
@@ -54,7 +47,7 @@ export function NodeDisplay({
         alignItems="center"
         ml="18px"
         sx={{ cursor: 'pointer', fontWeight, backgroundColor }}
-        onClick={() => onSelectedFile(projectId, filepath)}
+        onClick={() => onSelectedFile({archive, filepath})}
       >
         <ArticleIcon />
         <span
@@ -114,7 +107,7 @@ export function NodesDisplay({
   searchTerms,
 }: {
   nodes: FileNode[];
-  selectedFile: { project: string; filepath: string };
+  selectedFile: FileLocation;
   onSelectedFile: SetSelectedFileFunction;
   searchTerms: string[];
 }) {
@@ -153,7 +146,7 @@ export function FileTree({
   onClose,
 }: {
   defaultRootNodes: FileNode[];
-  selectedFile: SelectedFile;
+  selectedFile: FileLocation;
   onSelectedFile: SetSelectedFileFunction;
   onClose: () => void;
 }) {

@@ -1,3 +1,5 @@
+import { FileLocation } from "@stex-react/utils";
+
 export interface DeckAndVideoInfo {
   deckId?: string;
   secNo?: string;
@@ -15,9 +17,7 @@ export interface ClipDetails {
   sub?: string;
 }
 
-export interface DocumentDashInfo {
-  archive: string;
-  filepath: string;
+export interface DocumentDashInfo extends FileLocation {
   titleAsHtml: string;
   secId?: string;
   children: DocumentDashInfo[];
@@ -39,15 +39,12 @@ export enum SlideType {
   TEXT = 'TEXT',
 }
 
-export interface Slide {
+export interface Slide extends FileLocation {
   slideContent: string;
   slideType: SlideType;
   autoExpand: boolean;
   preNotes: string[];
   postNotes: string[];
-
-  archive: string;
-  filepath: string;
 }
 
 export interface SlideReturn {

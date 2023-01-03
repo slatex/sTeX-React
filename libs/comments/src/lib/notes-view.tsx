@@ -7,16 +7,15 @@ import { CommentView } from './CommentView';
 
 import { Refresh } from '@mui/icons-material';
 import styles from './comments.module.scss';
+import { FileLocation } from '@stex-react/utils';
 
 export function NotesView({
-  archive,
-  filepath,
+  file,
   selectedText = undefined,
   selectedElement = undefined,
   allNotesMode = false,
 }: {
-  archive: string;
-  filepath: string;
+  file: FileLocation;
   selectedText?: string;
   selectedElement?: any;
   allNotesMode?: boolean;
@@ -26,7 +25,7 @@ export function NotesView({
 
   const refreshNotes = () => {
     console.log('refreshing');
-    getPrivateNotes(archive, filepath, true).then((comments) => {
+    getPrivateNotes(file, true).then((comments) => {
       setNotes(comments);
     });
   };
@@ -35,10 +34,10 @@ export function NotesView({
   }, []);
   useEffect(() => {
     if (!userId) return;
-    getPrivateNotes(archive, filepath, false).then((comments) => {
+    getPrivateNotes(file, false).then((comments) => {
       setNotes(comments);
     });
-  }, [archive, filepath, userId]);
+  }, [file?.archive, file?.filepath, userId]);
 
   if (!userId)
     return (
@@ -72,8 +71,7 @@ export function NotesView({
         <CommentReply
           placeholder="Create a private note here…"
           parentId={0}
-          archive={archive}
-          filepath={filepath}
+          file={file}
           isPrivateNote={true}
           selectedText={selectedText}
           selectedElement={selectedElement}
