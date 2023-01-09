@@ -72,10 +72,10 @@ function createIssueData(
   context: SectionInfo[],
   title?: string
 ) {
-  const filepath = context?.[0]?.filepath || 'sTeX file';
+  const filepath = context?.[0]?.filepath;
   const body = createIssueBody(type, desc, selectedText, context);
   return {
-    title: title || `${type.toString()} in ${filepath}`,
+    title: title || `User reported ${type.toString()} ${filepath}`,
     ...(category === IssueCategory.DISPLAY ? { body } : { description: body }),
   };
 }

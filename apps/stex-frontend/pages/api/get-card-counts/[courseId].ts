@@ -1,5 +1,5 @@
 import DRILLS from '../../../definitions.preval';
-import { EXCLUDED_CHAPTERS } from '../get-drill-items/[courseId]/[chapter]';
+import { EXCLUDED_CHAPTERS } from '../get-cards/[courseId]/[chapter]';
 
 export default async function handler(req, res) {
   res.setHeader(

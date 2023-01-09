@@ -1,0 +1,40 @@
+.card-container {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  box-sizing: border-box;
+}
+.flipped {
+  transform: rotateY(180deg);
+  transition: -webkit-transform ease 500ms;
+  transition: transform ease 500ms;
+}
+.front,
+.back {
+  box-sizing: border-box;
+  height: 100%;
+  width: 100%;
+  background: hsl(210, 20%, 98%);
+  box-shadow: 10px 10px 5px rgb(95, 77, 99);
+  padding: 10px;
+  position: absolute;
+  border-radius: 10px;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+.front {
+  transform: rotateY(0deg);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+
+  /* front tile styles go here! */
+}
+.back {
+  display: block;
+  transform: rotateY(-180deg);
+  /* back tile styles go here! */
+}
