@@ -1,6 +1,6 @@
 import ListIcon from '@mui/icons-material/List';
 import { Box, Drawer, IconButton } from '@mui/material';
-import { BG_COLOR, shouldUseDrawer, Window } from '@stex-react/utils';
+import { BG_COLOR, PRIMARY_COL, shouldUseDrawer, Window } from '@stex-react/utils';
 import { createContext, useContext, useEffect, useState } from 'react';
 import styles from './stex-react-renderer.module.scss';
 
@@ -121,9 +121,9 @@ export function LayoutWithFixedMenu({
         >
           <IconButton
             sx={{
-              border: '2px solid #203360',
+              border: `2px solid ${PRIMARY_COL}`,
               borderRadius: '500px',
-              color: '#203360',
+              color: PRIMARY_COL,
               backgroundColor: 'white',
               boxShadow: '0px 8px 15px rgba(0, 0, 0, 0.5)',
               transition: 'all 0.3s ease 0s',

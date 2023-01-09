@@ -1,6 +1,7 @@
 import { useMatomo } from '@jonkoops/matomo-tracker-react';
 import { Box, Toolbar } from '@mui/material';
 import { ReportProblemPopover } from '@stex-react/report-a-problem';
+import { PRIMARY_COL, SECONDARY_COL } from '@stex-react/utils';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -48,8 +49,8 @@ export default function MainLayout({
           variant="dense"
           sx={{
             mt: '10px',
-            background: '#203360',
-            color: '#8c9fb1',
+            background: PRIMARY_COL,
+            color: SECONDARY_COL,
             display: 'flex',
             flexDirection: 'row-reverse',
             fontFamily: '"Roboto"',

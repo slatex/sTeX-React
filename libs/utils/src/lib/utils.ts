@@ -8,6 +8,8 @@ export const Window = IS_SERVER ? undefined : window;
 export const IS_MMT_VIEWER = IS_SERVER
   ? false
   : (window as any).SHOW_FILE_BROWSER !== undefined;
+  export const PRIMARY_COL = '#203360';
+  export const SECONDARY_COL = '#8c9fb1';
 
 export function shouldUseDrawer(windowWidth?: number) {
   if (!windowWidth) windowWidth = Window?.innerWidth;

@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography';
 import { useState } from 'react';
 import { CommentSection } from './comment-section';
 import { NotesView } from './notes-view';
-import { FileLocation } from '@stex-react/utils';
+import { FileLocation, SECONDARY_COL } from '@stex-react/utils';
 
 function TabPanel(props: {
   children?: React.ReactNode;
@@ -61,7 +61,7 @@ export function CommentNoteToggleView({
               borderRadius: extraPanel ? '8px 8px 0 0' : undefined,
               ':hover': { background: '#DDD' },
             },
-            '& .Mui-selected': { background: '#8c9fb1 !important' },
+            '& .Mui-selected': { background: `${SECONDARY_COL} !important` },
           }}
         >
           <Tab

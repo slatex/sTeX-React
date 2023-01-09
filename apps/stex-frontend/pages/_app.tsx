@@ -2,6 +2,7 @@ import { createInstance, MatomoProvider } from '@jonkoops/matomo-tracker-react';
 import { createTheme, ThemeProvider } from '@mui/material';
 import { MathJaxContext } from '@stex-react/mathjax';
 import { ServerLinksContext, setSectionIds } from '@stex-react/stex-react-renderer';
+import { PRIMARY_COL, SECONDARY_COL } from '@stex-react/utils';
 import axios from 'axios';
 import { AppProps } from 'next/app';
 import { useEffect } from 'react';
@@ -41,10 +42,10 @@ const theme = createTheme({
   },
   palette: {
     primary: {
-      main: '#203360',
+      main: PRIMARY_COL,
     },
     secondary: {
-      main: '#8c9fb1',
+      main: SECONDARY_COL,
     },
   },
 });

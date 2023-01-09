@@ -14,7 +14,7 @@ import {
 import {
   CommentNoteToggleView
 } from '@stex-react/comments';
-import { getSectionInfo, SectionInfo } from '@stex-react/utils';
+import { getSectionInfo, SECONDARY_COL, SectionInfo } from '@stex-react/utils';
 import { PropsWithChildren, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { issuesUrlList } from './issueCreator';
@@ -85,7 +85,7 @@ export function ReportProblemPopover(props: Props) {
             {context?.[0]?.archive && (
               <Tooltip title="Personal notes and comments">
                 <IconButton
-                  sx={{ ...buttonProps('#8c9fb1'), ml: '5px' }}
+                  sx={{ ...buttonProps(SECONDARY_COL), ml: '5px' }}
                   onClick={() => {
                     setIsPrivate(false);
                     setSelectedText(textContent.trim());
