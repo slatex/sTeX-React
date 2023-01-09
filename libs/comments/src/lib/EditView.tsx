@@ -78,7 +78,7 @@ export function EditView({
     }
     discardDraft(file, parentId);
     setIsLoading(false);
-    setInputText('');
+    if (!existingComment) setInputText('');
   };
 
   return (
@@ -118,7 +118,7 @@ export function EditView({
           hidden={hidden}
           onClick={(_) => addUpdateComment()}
         >
-          {existingComment ? 'Update' : (isPrivateNote ? 'Save' : 'Post')}
+          {existingComment ? 'Update' : isPrivateNote ? 'Save' : 'Post'}
         </Button>
       </Box>
     </fieldset>
