@@ -2,13 +2,15 @@
   height: 100%;
   width: 100%;
   position: relative;
-  transform-style: preserve-3d;
+  margin-right: 11px;
+
   box-sizing: border-box;
+  transform-style: preserve-3d;
+  transition: -webkit-transform ease 500ms;
+  transition: transform ease 500ms;
 }
 .flipped {
   transform: rotateY(180deg);
-  transition: -webkit-transform ease 500ms;
-  transition: transform ease 500ms;
 }
 .front,
 .back {
@@ -17,7 +19,6 @@
   width: 100%;
   background: hsl(210, 20%, 98%);
   box-shadow: 10px 10px 5px rgb(95, 77, 99);
-  padding: 10px;
   position: absolute;
   border-radius: 10px;
   backface-visibility: hidden;
@@ -34,7 +35,13 @@
   /* front tile styles go here! */
 }
 .back {
-  display: block;
   transform: rotateY(-180deg);
+  padding: 0;
+
+  
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
   /* back tile styles go here! */
 }

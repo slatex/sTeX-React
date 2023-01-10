@@ -30,7 +30,7 @@ const GuidedTourPage: NextPage = () => {
 
   return (
     <MainLayout title="Flash Cards">
-      <Box flexGrow={1} m="10px">
+      <Box flexGrow={1}>
         {isLoading ? (
           <CircularProgress />
         ) : (

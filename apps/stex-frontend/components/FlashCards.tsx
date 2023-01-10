@@ -1,3 +1,4 @@
+import { CheckBox } from '@mui/icons-material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
@@ -89,7 +90,7 @@ function FlashCardFront({
         <Button
           onClick={onFlip}
           variant="contained"
-          sx={{ display: 'block', m: '10px auto' }}
+          sx={{ display: 'block', m: '5px auto' }}
         >
           Flip!
         </Button>
@@ -102,14 +103,22 @@ function FlashCardBack({
   uri,
   mode,
   onNext,
+  onFlip,
 }: {
   uri: string;
   mode: FlashCardMode;
   onNext: (skipped: boolean, remembered: boolean) => void;
+  onFlip: () => void;
 }) {
   return (
     <Box className={styles['back']}>
-      <Box sx={{ '& *': { fontSize: 'large !important' } }}>
+      <Box
+        sx={{
+          overflowY: 'auto',
+          maxWidth: '100%',
+          '& *': { fontSize: 'large !important' },
+        }}
+      >
         <ContentFromUrl
           url={`/:sTeX/fragment?${uri}`}
           modifyRendered={getChildrenOfBodyNode}
@@ -125,6 +134,13 @@ function FlashCardBack({
           <NavigateNextIcon />
         </Button>
       )}
+      <Button
+        onClick={onFlip}
+        variant="contained"
+        sx={{ display: 'block', m: '5px auto' }}
+      >
+        Flip!
+      </Button>
     </Box>
   );
 }
@@ -133,17 +149,32 @@ function FlashCard({
   uri,
   htmlNode,
   mode,
+  defaultFlipped,
   onNext,
 }: {
   uri: string;
   htmlNode: string;
   mode: FlashCardMode;
+  defaultFlipped: boolean;
   onNext: (skipped: boolean, remembered: boolean) => void;
 }) {
-  const [isFlipped, setIsFlipped] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(defaultFlipped);
   useEffect(() => {
-    setIsFlipped(false);
+    setIsFlipped(defaultFlipped);
   }, [uri]);
+
+  useEffect(() => {
+    const handleEsc = (event) => {
+      if (event.keyCode === 38 || event.keyCode === 40) {
+        setIsFlipped((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleEsc);
+
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+    };
+  }, []);
 
   return (
     <Box
@@ -173,7 +204,12 @@ function FlashCard({
             mode={mode}
             onNext={onNext}
           />
-          <FlashCardBack uri={uri} mode={mode} onNext={onNext} />
+          <FlashCardBack
+            uri={uri}
+            mode={mode}
+            onNext={onNext}
+            onFlip={() => setIsFlipped(false)}
+          />
         </Box>
       </Box>
     </Box>
@@ -207,12 +243,14 @@ export function EntryCard({
   unhiddenItems: FlashCardItem[];
   onStart: (showHidden: boolean, mode: FlashCardMode) => void;
 }) {
-  const [includeHidden, setIncludeHidden] = useState(false);
+  const [includeHidden, setIncludeHidden] = useState(
+    unhiddenItems.length === 0
+  );
   const hiddenCount = hiddenItems.length;
   const unhiddenCount = unhiddenItems.length;
   const totalCount = hiddenCount + unhiddenCount;
   return (
-    <Card>
+    <Card sx={{ m: '10px' }}>
       <CardContent sx={{ backgroundColor: PRIMARY_COL, color: 'white' }}>
         <h2 style={{ textAlign: 'center' }}>{header}</h2>
 
@@ -221,7 +259,6 @@ export function EntryCard({
             <>{totalCount} Concepts</>
           ) : (
             <>
-              {' '}
               {unhiddenItems.length} Concepts ({hiddenCount} hidden)
             </>
           )}
@@ -242,6 +279,7 @@ export function EntryCard({
         <br />
 
         <Button
+          disabled={includeHidden ? totalCount <= 0 : unhiddenCount <= 0}
           onClick={() => onStart(includeHidden, FlashCardMode.REVISION_MODE)}
           variant="contained"
           sx={{ mr: '10px' }}
@@ -250,6 +288,7 @@ export function EntryCard({
           Revise
         </Button>
         <Button
+          disabled={includeHidden ? totalCount <= 0 : unhiddenCount <= 0}
           onClick={() => onStart(includeHidden, FlashCardMode.DRILL_MODE)}
           variant="contained"
           color="secondary"
@@ -274,7 +313,7 @@ export function SummaryCard({
 }) {
   return (
     <Card>
-      <CardContent>
+      <CardContent sx={{ mx: '10px' }}>
         <Box>
           You remembered {rememberedItems.length} concepts, skipped{' '}
           {skippedItems.length} and flipped {flippedItems.length} cards.
@@ -307,6 +346,9 @@ export function FlashCards({
   const [rememberedItems, setRememberedItems] = useState<FlashCardItem[]>([]);
   const [skippedItems, setSkippedItems] = useState<FlashCardItem[]>([]);
   const [flippedItems, setFlippedItems] = useState<FlashCardItem[]>([]);
+  const [defaultFlipped, setDefaultSkipped] = useState(
+    !!localStore?.getItem('default-flipped')
+  );
 
   useEffect(() => {
     setRememberedItems([]);
@@ -315,9 +357,31 @@ export function FlashCards({
   }, [allItems]);
 
   const toShowItems = includeHidden ? allItems : unhiddenItems;
-  console.log(cardNo);
-  console.log(toShowItems);
   const currentItem = toShowItems[cardNo];
+
+  useEffect(() => {
+    if (
+      mode !== FlashCardMode.REVISION_MODE ||
+      cardType !== CardType.ITEM_CARD
+    ) {
+      return;
+    }
+    const handleEsc = (event) => {
+      if (event.keyCode === 37) {
+        setCardNo(
+          (prev) => (prev + toShowItems.length - 1) % toShowItems.length
+        );
+      }
+      if (event.keyCode === 39) {
+        setCardNo((prev) => (prev + 1) % toShowItems.length);
+      }
+    };
+    window.addEventListener('keydown', handleEsc);
+
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+    };
+  }, [cardType, mode]);
   if (cardType === CardType.ENTRY_CARD) {
     return (
       <EntryCard
@@ -350,7 +414,7 @@ export function FlashCards({
     );
   }
   return (
-    <Box m="5px">
+    <Box display="flex" flexDirection="column">
       {!isDrill(mode) ? (
         <Box m="10px 0" display="flex" justifyContent="space-between">
           <IconButton onClick={() => setCardType(CardType.ENTRY_CARD)}>
@@ -373,7 +437,7 @@ export function FlashCards({
             >
               <NavigateNextIcon />
             </IconButton>
-          </Box>{' '}
+          </Box>
           <Box sx={{ m: '10px 20px', color: '#333' }}>
             <b style={{ fontSize: '18px' }}>
               {cardNo + 1} of {toShowItems.length}
@@ -381,16 +445,27 @@ export function FlashCards({
           </Box>
         </Box>
       ) : (
-        <Box sx={{ m: '10px 20px', color: '#333'}}>
-          <b style={{ fontSize: '18px' }}>
-            {cardNo + 1} of {toShowItems.length}
-          </b>
+        <Box m="10px 0" display="flex" justifyContent="space-between">
+          <IconButton
+            onClick={() => {
+              if (confirm('Are you sure you want to leave the drill?'))
+                setCardType(CardType.ENTRY_CARD);
+            }}
+          >
+            <ArrowBackIcon />
+          </IconButton>
+          <Box sx={{ m: '10px 20px', color: '#333' }}>
+            <b style={{ fontSize: '18px' }}>
+              {cardNo + 1} of {toShowItems.length}
+            </b>
+          </Box>
         </Box>
       )}
       <FlashCard
         uri={currentItem.uri}
         htmlNode={currentItem.htmlNode}
         mode={mode}
+        defaultFlipped={defaultFlipped && mode === FlashCardMode.REVISION_MODE}
         onNext={(skipped: boolean, remembered: boolean) => {
           if (cardNo >= toShowItems.length - 1) {
             setCardType(CardType.SUMMARY_CARD);
@@ -408,6 +483,23 @@ export function FlashCards({
           setCardNo((prev) => prev + 1);
         }}
       />
+
+      {mode === FlashCardMode.REVISION_MODE && (
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={defaultFlipped}
+              onChange={(e) => {
+                const v = e.target.checked;
+                if (v) localStore?.setItem('default-flipped', '1');
+                else localStore?.removeItem('default-flipped');
+                setDefaultSkipped(v);
+              }}
+            />
+          }
+          label="Show backface by default"
+        />
+      )}
     </Box>
   );
 }
