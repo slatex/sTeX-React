@@ -116,6 +116,7 @@ function FlashCardBack({
         sx={{
           overflowY: 'auto',
           maxWidth: '100%',
+          m: '10px 5px 0',
           '& *': { fontSize: 'large !important' },
         }}
       >
@@ -415,11 +416,17 @@ export function FlashCards({
   }
   return (
     <Box display="flex" flexDirection="column">
-      {!isDrill(mode) ? (
-        <Box m="10px 0" display="flex" justifyContent="space-between">
-          <IconButton onClick={() => setCardType(CardType.ENTRY_CARD)}>
-            <ArrowBackIcon />
-          </IconButton>
+      <Box m="10px 0" display="flex" justifyContent="space-between">
+        <IconButton
+          onClick={() => {
+            const confirmExit = 'Are you sure you want to leave the drill?';
+            if (!isDrill(mode) || confirm(confirmExit))
+              setCardType(CardType.ENTRY_CARD);
+          }}
+        >
+          <ArrowBackIcon />
+        </IconButton>
+        {!isDrill(mode) ? (
           <Box>
             <IconButton
               onClick={() =>
@@ -438,29 +445,13 @@ export function FlashCards({
               <NavigateNextIcon />
             </IconButton>
           </Box>
-          <Box sx={{ m: '10px 20px', color: '#333' }}>
-            <b style={{ fontSize: '18px' }}>
-              {cardNo + 1} of {toShowItems.length}
-            </b>
-          </Box>
+        ) : null}
+        <Box sx={{ m: '10px 20px', color: '#333', minWidth: '60px' }}>
+          <b style={{ fontSize: '18px' }}>
+            {cardNo + 1} of {toShowItems.length}
+          </b>
         </Box>
-      ) : (
-        <Box m="10px 0" display="flex" justifyContent="space-between">
-          <IconButton
-            onClick={() => {
-              if (confirm('Are you sure you want to leave the drill?'))
-                setCardType(CardType.ENTRY_CARD);
-            }}
-          >
-            <ArrowBackIcon />
-          </IconButton>
-          <Box sx={{ m: '10px 20px', color: '#333' }}>
-            <b style={{ fontSize: '18px' }}>
-              {cardNo + 1} of {toShowItems.length}
-            </b>
-          </Box>
-        </Box>
-      )}
+      </Box>
       <FlashCard
         uri={currentItem.uri}
         htmlNode={currentItem.htmlNode}
@@ -498,6 +489,7 @@ export function FlashCards({
             />
           }
           label="Show backface by default"
+          sx={{ m: '5px auto 0' }}
         />
       )}
     </Box>

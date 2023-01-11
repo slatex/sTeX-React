@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   res.setHeader(
     'Cache-Control',
     'public, s-maxage=3600, stale-while-revalidate=3600'
-  )
+  );
   const { courseId } = req.query;
   const courseInfo = DRILLS[courseId];
   if (!courseInfo) {
