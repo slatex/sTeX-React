@@ -1,12 +1,14 @@
 import ArticleIcon from '@mui/icons-material/Article';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
-import { Box, Button, Card } from '@mui/material';
+import { Box, Button, Card, IconButton, Tooltip } from '@mui/material';
 import { NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ToursAutocomplete } from '../components/ToursAutocomplete';
 import MainLayout from '../layouts/MainLayout';
+import ScienceIcon from '@mui/icons-material/Science';
 import styles from '../styles/utils.module.scss';
+import { useRouter } from 'next/router';
 
 function ELink({ href, children }: { href: string; children: any }) {
   return (
@@ -72,11 +74,30 @@ function CourseThumb({
 }
 
 const StudentHomePage: NextPage = () => {
+  const router = useRouter();
   return (
     <MainLayout title="Courses | VoLL-KI">
       <Box m="0 auto" maxWidth="800px">
         <Box mx="10px">
           <Box className={styles['descriptive-box']}>
+            <Tooltip title="See what's brewing in our laboratory. Exercise Extreme Caution!">
+              <IconButton
+                sx={{ float: 'right', zIndex: 2 }}
+                size="large"
+                onClick={() => router.push('/exp')}
+              >
+                <Image
+                  height={30}
+                  width={30}
+                  src="/experiment.svg"
+                  alt="Experiments"
+                  style={{
+                    filter:
+                      'invert(48%) sepia(79%) saturate(2476%) hue-rotate(86deg) brightness(118%) contrast(119%);',
+                  }}
+                />
+              </IconButton>
+            </Tooltip>
             <h1>VoLL-KI based Courses at FAU</h1>
             The <ELink href="https://voll-ki.fau.de">
               VoLL-KI Project

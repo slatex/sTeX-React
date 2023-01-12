@@ -1,7 +1,7 @@
 import SettingsIcon from '@mui/icons-material/Settings';
+import WarningIcon from '@mui/icons-material/Warning';
 import { Box, Button, IconButton } from '@mui/material';
 import type { NextPage } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
 import { BrowserAutocomplete } from '../components/BrowserAutocomplete';
 import { SearchBar } from '../components/SearchBar';
@@ -17,7 +17,13 @@ const Home: NextPage = () => {
         </Link>
       </IconButton>
       <Box textAlign="center" m="20px">
-        <Image src="/voll-ki.svg" alt="VoLL-KI Logo" width={650} height={300} />
+        <h1>VoLL-KI Experiments</h1>
+        <i>
+          Enter at your own risk!
+          <WarningIcon
+            sx={{ mt: '-10px', color: '#e20', transform: 'translateY(5px)' }}
+          />
+        </i>
       </Box>
       <div>
         <main style={{ margin: '10px' }}>
