@@ -11,6 +11,9 @@ export type SmileyType =
   | 'smiley0'
   | 'smiley1'
   | 'smiley2';
+  
+export type SmileyLevel = -2 | -1 | 0 | 1 | 2;
+export const ALL_SMILEY_LEVELS: SmileyLevel[] = [-2, -1, 0, 1, 2];
 
 export interface NumericCognitiveValues {
   Remember?: number;

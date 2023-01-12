@@ -1,8 +1,6 @@
-import { CheckBox } from '@mui/icons-material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import {
   Box,
   Button,
@@ -10,17 +8,18 @@ import {
   CardContent,
   Checkbox,
   FormControlLabel,
-  IconButton,
+  IconButton
 } from '@mui/material';
+import { BloomDimension } from '@stex-react/api';
 import {
   ContentFromUrl,
   ContentWithHighlight,
+  SelfAssessmentDialog
 } from '@stex-react/stex-react-renderer';
 import {
   getChildrenOfBodyNode,
   localStore,
-  PRIMARY_COL,
-  SECONDARY_COL,
+  PRIMARY_COL
 } from '@stex-react/utils';
 import { useEffect, useState } from 'react';
 import styles from '../styles/flash-card.module.scss';
@@ -46,11 +45,13 @@ export interface FlashCardItem {
 }
 
 function FlashCardFront({
+  uri,
   htmlNode,
   mode,
   onNext,
   onFlip,
 }: {
+  uri: string;
   htmlNode: string;
   mode: FlashCardMode;
   onNext: (skipped: boolean, remembered: boolean) => void;
@@ -69,19 +70,14 @@ function FlashCardFront({
         <ContentWithHighlight mmtHtml={htmlNode} />
       </Box>
       <Box>
-        <Box>
-          <Button onClick={() => onNext(false, true)} variant="contained">
-            I recall, hide&nbsp;
-            <VisibilityOffIcon />
-          </Button>
-
+        <Box display="flex" alignItems="center">
           {isDrill(mode) && (
             <Button
               onClick={() => onNext(true, false)}
               variant="contained"
               sx={{ ml: '10px' }}
             >
-              Skip
+              Next
               <NavigateNextIcon />
             </Button>
           )}
@@ -179,39 +175,45 @@ function FlashCard({
 
   return (
     <Box
-      sx={{
-        display: 'flex',
-        width: '360px',
-        minHeight: '600px',
-        margin: 'auto',
-      }}
+      display="flex"
+      margin="auto"
+      alignItems="center"
+      justifyContent="center"
+      flexWrap="wrap"
     >
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          width: '100%',
-        }}
-      >
+      <Box display="flex" width="360px" minHeight="600px">
         <Box
-          className={`${styles['card-container']} ${
-            isFlipped ? styles['flipped'] : ''
-          }`}
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          width="100%"
         >
-          <FlashCardFront
-            htmlNode={htmlNode}
-            onFlip={() => setIsFlipped(true)}
-            mode={mode}
-            onNext={onNext}
-          />
-          <FlashCardBack
-            uri={uri}
-            mode={mode}
-            onNext={onNext}
-            onFlip={() => setIsFlipped(false)}
-          />
+          <Box
+            className={`${styles['card-container']} ${
+              isFlipped ? styles['flipped'] : ''
+            }`}
+          >
+            <FlashCardFront
+              uri={uri}
+              htmlNode={htmlNode}
+              onFlip={() => setIsFlipped(true)}
+              mode={mode}
+              onNext={onNext}
+            />
+            <FlashCardBack
+              uri={uri}
+              mode={mode}
+              onNext={onNext}
+              onFlip={() => setIsFlipped(false)}
+            />
+          </Box>
         </Box>
+      </Box>
+      <Box bgcolor="white" sx={{ zIndex: 2, mt: '5px' }}>
+        <SelfAssessmentDialog
+          dims={[BloomDimension.Remember, BloomDimension.Understand]}
+          uri={uri}
+        />
       </Box>
     </Box>
   );
@@ -245,7 +247,7 @@ export function EntryCard({
   onStart: (showHidden: boolean, mode: FlashCardMode) => void;
 }) {
   const [includeHidden, setIncludeHidden] = useState(
-    unhiddenItems.length === 0
+    true
   );
   const hiddenCount = hiddenItems.length;
   const unhiddenCount = unhiddenItems.length;
@@ -264,7 +266,7 @@ export function EntryCard({
             </>
           )}
         </h3>
-        <FormControlLabel
+        {/*<FormControlLabel
           control={
             <Checkbox
               checked={includeHidden}
@@ -275,7 +277,7 @@ export function EntryCard({
             />
           }
           label="Include all concepts"
-        />
+        />*/}
         <br />
         <br />
 
@@ -338,7 +340,7 @@ export function FlashCards({
 }) {
   const [mode, setMode] = useState(FlashCardMode.REVISION_MODE);
   const [cardType, setCardType] = useState(CardType.ENTRY_CARD);
-  const [includeHidden, setIncludeHidden] = useState(false);
+  const [includeHidden, setIncludeHidden] = useState(true);
 
   const [cardNo, setCardNo] = useState(0);
   const hiddenItems = allItems.filter((item) => isHidden(item.uri));
