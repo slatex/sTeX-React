@@ -101,7 +101,7 @@ export function SlideDeckNavigation({
     getUriWeights(competencyMapUris).then((competencyValues) => {
       for (const [idx, val] of competencyValues.entries()) {
         const uri = competencyMapUris[idx];
-        competencyMap.set(uri, val);
+        competencyMap.set(uri, val.Remember);
         forceRerender();
       }
     });

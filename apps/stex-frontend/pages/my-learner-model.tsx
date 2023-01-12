@@ -1,6 +1,6 @@
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { Box, CircularProgress, IconButton, Tooltip } from '@mui/material';
-import { COGNITIVE_DIMENSIONS, getAllMyData } from '@stex-react/api';
+import { ALL_DIMENSIONS, getAllMyData } from '@stex-react/api';
 import { FileLocation } from '@stex-react/utils';
 import type { NextPage } from 'next';
 import { useEffect, useState } from 'react';
@@ -75,7 +75,7 @@ const MyLearnerModelPage: NextPage = () => {
             <table>
               <tr>
                 <th>URI</th>
-                {COGNITIVE_DIMENSIONS.map((dim) => (
+                {ALL_DIMENSIONS.map((dim) => (
                   <th key={dim}>{dim}</th>
                 ))}
               </tr>
@@ -85,7 +85,7 @@ const MyLearnerModelPage: NextPage = () => {
               {competenceInfo.map((v) => (
                 <tr key={v.URI}>
                   <td>{v.URI} &nbsp;</td>
-                  {COGNITIVE_DIMENSIONS.map((dim) => (
+                  {ALL_DIMENSIONS.map((dim) => (
                     <td key={dim}>{v.values[dim] || 'err'}&nbsp;</td>
                   ))}
                 </tr>

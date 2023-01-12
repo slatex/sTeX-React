@@ -60,7 +60,10 @@ async function fetchDataForDag(
   const apiEntries: TourAPIEntry[] = (await axios.get(tourInfoUrl)).data;
   const tourUris = apiEntries.map((e) => e.id);
   const weights = await getUriWeights(tourUris);
-  const d3DagEntries = getD3DagEntries(apiEntries, weights);
+  const d3DagEntries = getD3DagEntries(
+    apiEntries,
+    weights.map((d) => d.Remember)
+  );
 
   const dag = dagStratify()(d3DagEntries);
   const layout = sugiyama() // base layout

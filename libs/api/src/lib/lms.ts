@@ -4,19 +4,63 @@ import axios, { AxiosError } from 'axios';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 const lmsServerAddress = process.env.NEXT_PUBLIC_LMS_URL;
+
+export type SmileyType =
+  | 'smiley-2'
+  | 'smiley-1'
+  | 'smiley0'
+  | 'smiley1'
+  | 'smiley2';
+
+export interface NumericCognitiveValues {
+  Remember?: number;
+  Understand?: number;
+  Apply?: number;
+  Analyse?: number;
+  Evaluate?: number;
+  Create?: number;
+}
+export interface SmileyCognitiveValues {
+  Remember?: SmileyType;
+  Understand?: SmileyType;
+  Apply?: SmileyType;
+  Analyse?: SmileyType;
+  Evaluate?: SmileyType;
+  Create?: SmileyType;
+}
+
+export interface GenericCognitiveValues {
+  Remember?: number | SmileyType;
+  Understand?: number | SmileyType;
+  Apply?: number | SmileyType;
+  Analyse?: number | SmileyType;
+  Evaluate?: number | SmileyType;
+  Create?: number | SmileyType;
+}
+
+export enum BloomDimension {
+  Remember = 'Remember',
+  Understand = 'Understand',
+  Apply = 'Apply',
+  Analyse = 'Analyse',
+  Evaluate = 'Evaluate',
+  Create = 'Create',
+}
+export const ALL_DIMENSIONS = [
+  BloomDimension.Remember,
+  BloomDimension.Understand,
+  BloomDimension.Apply,
+  BloomDimension.Analyse,
+  BloomDimension.Evaluate,
+  BloomDimension.Create,
+];
+
 export interface LMSEvent {
-  type: 'i-know' | 'question-answered';
+  type: 'i-know' | 'question-answered' | 'self-assessment-5StepLikertSmileys';
   URI: string; // The uri that "i-know" or the question answered filename.
   answers?: any; // The answer of the question. Type TBD.
+  values?: GenericCognitiveValues;
 }
-export const COGNITIVE_DIMENSIONS = [
-  'Remember',
-  'Understand',
-  'Apply',
-  'Analyse',
-  'Evaluate',
-  'Create',
-];
 
 export interface UserInfo {
   userId: string;
@@ -118,18 +162,62 @@ async function lmsRequest(
   }
 }
 
-export async function getUriWeights(URIs: string[]) {
-  const resp = await lmsRequest('lms/output/multiple', 'POST', null, { URIs });
-  if (!resp?.model) return new Array(URIs.length).fill(0);
+function cleanupNumericCognitiveValues(
+  dim: NumericCognitiveValues
+): NumericCognitiveValues {
+  return {
+    Remember: +(dim.Remember || 0),
+    Understand: +(dim.Understand || 0),
+    Apply: +(dim.Apply || 0),
+    Analyse: +(dim.Analyse || 0),
+    Create: +(dim.Create || 0),
+  };
+}
 
-  const compMap = new Map<string, any>();
-  resp.model.forEach((c: any) => {
-    const vals: string[] = Object.values(c.values);
-    if (!vals.length) return;
-    const avg = vals.reduce((s: number, a: string) => s + +a, 0) / vals.length;
-    compMap.set(c.URI, avg);
+function cleanupSmileyCognitiveValues(
+  dim: SmileyCognitiveValues
+): SmileyCognitiveValues {
+  const defaultSmiley = 'smiley-2';
+  return {
+    Remember: dim.Remember || defaultSmiley,
+    Understand: dim.Understand || defaultSmiley,
+    Apply: dim.Apply || defaultSmiley,
+    Analyse: dim.Analyse || defaultSmiley,
+    Create: dim.Create || defaultSmiley,
+  };
+}
+
+export async function getUriWeights(
+  URIs: string[]
+): Promise<NumericCognitiveValues[]> {
+  const resp = await lmsRequest('lms/output/multiple', 'POST', null, { URIs });
+  if (!resp?.model) return new Array(URIs.length).fill({});
+  const model: { URI: string; values: NumericCognitiveValues }[] = resp.model;
+  const compMap = new Map<string, NumericCognitiveValues>();
+  model.forEach((c) => {
+    compMap.set(c.URI, cleanupNumericCognitiveValues(c.values));
   });
-  return URIs.map((URI) => +(compMap.get(URI) || 0));
+  return URIs.map(
+    (URI) => compMap.get(URI) || cleanupNumericCognitiveValues({})
+  );
+}
+
+export async function getUriSmileys(
+  URIs: string[]
+): Promise<SmileyCognitiveValues[]> {
+  const resp = await lmsRequest('lms/output/multiple', 'POST', null, {
+    URIs,
+    'special-output': '5StepLikertSmileys',
+  });
+  if (!resp?.model) return new Array(URIs.length).fill({});
+  const model: { URI: string; values: SmileyCognitiveValues }[] = resp.model;
+  const compMap = new Map<string, SmileyCognitiveValues>();
+  model.forEach((c) => {
+    compMap.set(c.URI, cleanupSmileyCognitiveValues(c.values));
+  });
+  return URIs.map(
+    (URI) => compMap.get(URI) || cleanupSmileyCognitiveValues({})
+  );
 }
 
 export async function reportEvent(event: LMSEvent) {

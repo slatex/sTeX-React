@@ -4,11 +4,12 @@ import {
   Button,
   CircularProgress,
   Divider,
-  IconButton,
+  IconButton
 } from '@mui/material';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
+import { NumericCognitiveValues } from '@stex-react/api';
 import { IS_MMT_VIEWER, shouldUseDrawer, simpleHash } from '@stex-react/utils';
 import axios from 'axios';
 import { memo, useContext, useEffect, useRef, useState } from 'react';
@@ -412,7 +413,7 @@ export function TourDisplay({
 }: {
   tourId: string;
   language?: string;
-  getUriWeights?: (uri: string[]) => Promise<number[]>;
+  getUriWeights?: (uri: string[]) => Promise<NumericCognitiveValues[]>;
   reportEvent?: (event: any) => Promise<void>;
   topOffset: number;
 }) {
@@ -437,17 +438,15 @@ export function TourDisplay({
       const apiEntries: TourAPIEntry[] = r.data;
       const tourUris = apiEntries.map((e) => e.id);
       getUriWeights(tourUris).then((weights) => {
+        const understoodWeights = weights.map((w) => w.Understand || 0);
         const understood = [];
-        for (const [idx, w] of weights.entries()) {
-          weights[idx] = +w;
-        }
-        for (const [idx, weight] of weights.entries()) {
-          if (weight > 0.5) {
-            understood.push(tourUris[idx]);
+        for (const [idx, uri] of tourUris.entries()) {
+          if (understoodWeights[idx] >= 0.5) {
+            understood.push(uri);
           }
         }
         setUnderstoodUriList(understood);
-        setAllItemsMap(getTourItemMap(apiEntries, weights));
+        setAllItemsMap(getTourItemMap(apiEntries, understoodWeights));
       });
     });
   }, [tourId, language, mmtUrl]);
