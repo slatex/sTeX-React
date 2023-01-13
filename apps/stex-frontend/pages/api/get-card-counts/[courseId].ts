@@ -1,5 +1,5 @@
 import DRILLS from '../../../definitions.preval';
-import { EXCLUDED_CHAPTERS } from '../get-cards/[courseId]/[chapter]';
+import { EXCLUDED_CHAPTERS, removeBadDefs } from '../get-cards/[courseId]/[chapter]';
 
 export default async function handler(req, res) {
   res.setHeader(
@@ -19,7 +19,7 @@ export default async function handler(req, res) {
   const chapCounts = Object.entries(courseInfo)
     .filter(([chapter, _]) => !EXCLUDED_CHAPTERS.includes(chapter))
     .map(([chapter, defs]) => {
-      return { chapter, count: defs.length };
+      return { chapter, count: removeBadDefs(defs).length };
     });
 
   const totalDefs = chapCounts.reduce((p, c) => p + c.count, 0);
