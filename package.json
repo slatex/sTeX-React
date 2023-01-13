@@ -6,6 +6,7 @@
     "start": "nx serve",
     "build": "nx build",
     "test": "nx test",
+    "reset": "nx reset",
     "nxgraph": "nx graph"
   },
   "private": true,

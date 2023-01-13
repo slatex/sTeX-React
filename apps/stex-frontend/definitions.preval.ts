@@ -5,6 +5,7 @@ import { PREVALUATED_DEFINITIONS } from './course_info/prevaluated-definitions';
 import {
   archiveAndFilepathFromUrl,
   COURSE_ROOTS,
+  fetchDocument,
   fetchDocumentCached,
   preFetchDescendentsOfDoc,
   SCRIPT_MMT_URL,
@@ -16,6 +17,8 @@ const fromPrevaluated = false;
 const ENDING_CHAPTER = 'Automated Theorem Proving in First-Order Logic';
 export interface DefInfo {
   chapter: string;
+  isBad: boolean;
+  docUrl: string;
   uri: string;
   htmlNode: string;
 }
@@ -37,12 +40,23 @@ function getChapter(url: string, courseId: string, defaultChap: string) {
   return defaultChap;
 }
 
-function getDefsOfDocNode(node: any, courseId:string, chapter: string): DefsAndLatestChapter {
+function getDefsOfDocNode(
+  docUrl: string,
+  node: any,
+  courseId: string,
+  chapter: string
+): DefsAndLatestChapter {
   if (node.attribs?.['property'] === 'stex:definiendum') {
     if (node.attribs?.['data-overlay-link-click'])
       delete node.attribs['data-overlay-link-click'];
     const htmlNode = getOuterHTML(node);
-    const def = { uri: node.attribs?.['resource'], chapter, htmlNode };
+    const def = {
+      docUrl,
+      uri: node.attribs?.['resource'],
+      chapter,
+      htmlNode,
+      isBad: false,
+    };
     return { defs: [def], chapter };
   }
   const embedUrl = node.attribs?.['data-inputref-url'];
@@ -52,7 +66,7 @@ function getDefsOfDocNode(node: any, courseId:string, chapter: string): DefsAndL
   const children = node.childNodes || node.children || [];
   const defs: DefInfo[] = [];
   for (const child of children) {
-    const v = getDefsOfDocNode(child, courseId, chapter);
+    const v = getDefsOfDocNode(docUrl, child, courseId, chapter);
     defs.push(...v.defs);
     chapter = v.chapter;
     if (chapter === ENDING_CHAPTER) break;
@@ -65,7 +79,7 @@ function printDefinitions(grouped: { [chapter: string]: DefInfo[] }) {
   for (const [chapter, defs] of Object.entries(grouped)) {
     out += `    '${chapter}': [\n`;
     for (const def of defs) {
-      out += `      { uri: \`${def.uri}\`, chapter: \`${def.chapter}\`, htmlNode: \`${def.htmlNode}\`},\n`;
+      out += `      { uri: \`${def.uri}\`, isBad: ${def.isBad}, chapter: \`${def.chapter}\`, docUrl: \`${def.docUrl}\`, htmlNode: \`${def.htmlNode}\`},\n`;
     }
     out += '    ],\n';
   }
@@ -85,7 +99,7 @@ function getDefinitionsOfDoc(
   const docContent = fetchDocumentCached(fullUrl);
   // DOMParser is not available on nodejs.
   const htmlDoc = htmlparser2.parseDocument(docContent);
-  return getDefsOfDocNode(htmlDoc, courseId, chapter);
+  return getDefsOfDocNode(docUrl, htmlDoc, courseId, chapter);
 }
 
 function uriExists(defs: DefInfo[], uri: string) {
@@ -114,6 +128,46 @@ function groupByChapter(defs: DefInfo[]) {
   return byChapter;
 }
 
+function definitionUrl(uri: string) {
+  return `${SCRIPT_MMT_URL}/:sTeX/fragment?${uri}`;
+}
+
+async function preloadDefs(courseDefs: {
+  [courseId: string]: { [chapter: string]: DefInfo[] };
+}) {
+  const promises: Promise<any>[] = [];
+  for (const courseId of Object.keys(COURSE_ROOTS)) {
+    const chapterDefs = courseDefs[courseId];
+
+    for (const defs of Object.values(chapterDefs)) {
+      for (const def of defs) {
+        promises.push(fetchDocument(definitionUrl(def.uri)));
+      }
+    }
+  }
+  await Promise.all(promises);
+}
+
+async function checkBadDefs(courseDefs: {
+  [courseId: string]: { [chapter: string]: DefInfo[] };
+}) {
+  await preloadDefs(courseDefs);
+  for (const courseId of Object.keys(COURSE_ROOTS)) {
+    const chapterDefs = courseDefs[courseId];
+
+    for (const defs of Object.values(chapterDefs)) {
+      for (let idx = 0; idx < defs.length; idx++) {
+        const uri = defs[idx].uri;
+        const data: string = fetchDocumentCached(definitionUrl(uri));
+        if (data.includes('Symbol') && data.includes('module')) {
+          defs[idx].isBad = true;
+          console.log(`${uri} is bad.`);
+        }
+      }
+    }
+  }
+}
+
 async function getDefinitions() {
   if (fromPrevaluated) return PREVALUATED_DEFINITIONS;
 
@@ -126,9 +180,10 @@ async function getDefinitions() {
     //console.log(printDefinitions({ all: ungrouped }));
     courseDefs[courseId] = groupByChapter(ungrouped);
   }
+  await checkBadDefs(courseDefs);
 
   console.log(
-    `export const PREVALUATED_DEFINITIONS: { [courseId: string]: {[chapter:string]: {chapter: string; uri: string, htmlNode: string}[]} } = {`
+    `export const PREVALUATED_DEFINITIONS: { [courseId: string]: {[chapter:string]: {chapter: string; isBad: boolean; docUrl:string; uri: string, htmlNode: string}[]} } = {`
   );
   for (const courseId of Object.keys(COURSE_ROOTS)) {
     const defs = courseDefs[courseId];
