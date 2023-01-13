@@ -213,6 +213,7 @@ function FlashCard({
         <SelfAssessmentDialog
           dims={[BloomDimension.Remember, BloomDimension.Understand]}
           uri={uri}
+          htmlName={htmlNode}
         />
       </Box>
     </Box>

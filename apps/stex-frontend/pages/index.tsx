@@ -80,7 +80,14 @@ const StudentHomePage: NextPage = () => {
       <Box m="0 auto" maxWidth="800px">
         <Box mx="10px">
           <Box className={styles['descriptive-box']}>
-            <Tooltip title="See what's brewing in our laboratory. Exercise Extreme Caution!">
+            <Tooltip
+              title={
+                <Box sx={{fontSize: 'large'}}>
+                  <span>See what&apos;s brewing in our laboratory.</span>
+                  <span>Exercise Extreme Caution!</span>
+                </Box>
+              }
+            >
               <IconButton
                 sx={{ float: 'right', zIndex: 2 }}
                 size="large"
@@ -91,10 +98,6 @@ const StudentHomePage: NextPage = () => {
                   width={30}
                   src="/experiment.svg"
                   alt="Experiments"
-                  style={{
-                    filter:
-                      'invert(48%) sepia(79%) saturate(2476%) hue-rotate(86deg) brightness(118%) contrast(119%);',
-                  }}
                 />
               </IconButton>
             </Tooltip>
