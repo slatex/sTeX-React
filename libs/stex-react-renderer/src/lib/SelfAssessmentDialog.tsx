@@ -1,3 +1,4 @@
+import PendingOutlinedIcon from '@mui/icons-material/PendingOutlined';
 import { Box, Dialog, IconButton } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Tooltip, { tooltipClasses, TooltipProps } from '@mui/material/Tooltip';
@@ -10,13 +11,12 @@ import {
   SmileyLevel,
   SmileyType,
 } from '@stex-react/api';
-import { SECONDARY_COL } from '@stex-react/utils';
+import { PRIMARY_COL, SECONDARY_COL } from '@stex-react/utils';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import PendingOutlinedIcon from '@mui/icons-material/PendingOutlined';
 import { mmtHTMLToReact } from './mmtParser';
 
-const LEVEL_ICON_SIZE = 33;
+const ICON_SIZE = 33;
 
 const CustomTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
@@ -32,24 +32,37 @@ const CustomTooltip = styled(({ className, ...props }: TooltipProps) => (
 function DimIcon({ dim, white }: { dim: BloomDimension; white: boolean }) {
   return (
     <Image
-      width={40}
-      height={40}
+      width={ICON_SIZE}
+      height={ICON_SIZE}
+      title={`I ${dim}`}
       src={`/bloom-dimensions/${dim}${white ? '_white' : ''}.svg`}
       alt={dim}
     />
   );
 }
 
-const LEVEL_TO_COLOR = {
-  '-2': '#ea1f1f',
-  '-1': '#f04f11',
-  '0': '#ffa81d',
-  '1': '#acd600',
-  '2': '#15bc26',
+const SMILEY_TOOLTIPS: {
+  [dim: string]: { [level: number]: string };
+} = {
+  Remember: {
+    '2': 'I am absolutely able to recall',
+    '1': 'I am mostly able to recall',
+    '0': 'I am not sure if I can recall',
+    '-1': 'I am mostly unable to recall',
+    '-2': 'I am not able to recall at all',
+  },
+  Understand: {
+    '2': "I don't understand anything",
+    '1': 'I do not understand major parts',
+    '0': 'I am not sure',
+    '-1': 'I understand for the most part',
+    '-2': 'I fully understand',
+  },
 };
+
 function LevelIcon({
   level,
-  highlighted = false,
+  highlighted,
 }: {
   level?: SmileyLevel;
   highlighted: boolean;
@@ -57,21 +70,18 @@ function LevelIcon({
   if (level === undefined) {
     return (
       <PendingOutlinedIcon
-        sx={{ fontSize: `${LEVEL_ICON_SIZE}px` }}
+        sx={{ fontSize: `${ICON_SIZE}px` }}
         color="disabled"
       />
     );
   }
   return (
     <Image
-      width={LEVEL_ICON_SIZE}
-      height={LEVEL_ICON_SIZE}
-      src={`/likert-icons/${level}.svg`}
+      width={ICON_SIZE}
+      height={ICON_SIZE}
+      src={`/likert-icons/${level}${highlighted ? 'color' : ''}.svg`}
       alt={`${level}`}
-      style={{
-        background: highlighted ? LEVEL_TO_COLOR[level] : undefined,
-        borderRadius: '500px',
-      }}
+      style={{ borderRadius: '500px' }}
     />
   );
 }
@@ -90,16 +100,22 @@ function SelfAssessmentPopup({
   uri,
   smileys,
   htmlName,
+  dimText = true,
   refetchSmileys,
 }: {
   dims: BloomDimension[];
   uri: string;
   smileys: SmileyCognitiveValues | undefined;
   htmlName: string;
+  dimText?: boolean;
   refetchSmileys: () => void;
 }) {
   return (
-    <Box sx={{ background: SECONDARY_COL }} p="5px 0" borderRadius="5px">
+    <Box
+      sx={{ background: SECONDARY_COL, border: `1px solid ${PRIMARY_COL}` }}
+      p="5px 0"
+      borderRadius="5px"
+    >
       {dims.map((dim, idx) => (
         <Box mt={idx ? '5px' : '0'}>
           <SelfAssessmentDialogRow
@@ -108,6 +124,7 @@ function SelfAssessmentPopup({
             uri={uri}
             htmlName={htmlName}
             selectedLevel={smileyToLevel(smileys?.[dim])}
+            dimText={dimText}
             refetchSmileys={refetchSmileys}
           />
         </Box>
@@ -120,56 +137,63 @@ function SelfAssessmentDialogRow({
   dim,
   uri,
   htmlName,
+  dimText,
   selectedLevel,
   refetchSmileys,
 }: {
   dim: BloomDimension;
   uri: string;
   htmlName: string;
+  dimText: boolean;
   selectedLevel?: number;
   refetchSmileys: () => void;
 }) {
   return (
     <Box display="flex">
       <DimIcon dim={dim} white={true} />
+
       <Box>
-        <span
-          style={{
-            color: 'white',
-            fontWeight: 'bold',
-            fontSize: '14px',
-            textAlign: 'left',
-            marginLeft: '5px',
-          }}
-        >
-          I {dim.toLowerCase()}{' '}
-          <Box
-            sx={{
-              mr: '5px',
-              display: 'inline',
-              '& *': { display: 'inline!important' },
+        {dimText && (
+          <span
+            style={{
+              color: 'white',
+              fontWeight: 'bold',
+              fontSize: '14px',
+              textAlign: 'left',
+              marginLeft: '5px',
             }}
           >
-            {mmtHTMLToReact(htmlName, false)}
-          </Box>
-        </span>
+            I {dim.toLowerCase()}{' '}
+            <Box
+              sx={{
+                mr: '5px',
+                display: 'inline',
+                '& *': { display: 'inline!important' },
+              }}
+            >
+              {mmtHTMLToReact(htmlName, false)}
+            </Box>
+          </span>
+        )}
         {ALL_SMILEY_LEVELS.map((l) => (
-          <IconButton
-            key={l}
-            sx={{ p: '0' }}
-            onClick={async () => {
-              await reportEvent({
-                type: 'self-assessment-5StepLikertSmileys',
-                URI: uri,
-                values: {
-                  [dim]: `smiley${l}`,
-                },
-              });
-              refetchSmileys();
-            }}
-          >
-            <LevelIcon level={l} highlighted={l === selectedLevel} />
-          </IconButton>
+          <Tooltip title={SMILEY_TOOLTIPS[dim]?.[l] || `Level ${l}`}>
+            <IconButton
+              key={l}
+              sx={{ p: '0' }}
+              onClick={async () => {
+                await reportEvent({
+                  type: 'self-assessment-5StepLikertSmileys',
+                  URI: uri,
+                  values: {
+                    [dim]: `smiley${l}`,
+                  },
+                });
+                refetchSmileys();
+              }}
+            >
+              <LevelIcon level={l} highlighted={l === selectedLevel} />
+            </IconButton>
+          </Tooltip>
         ))}
       </Box>
     </Box>
@@ -214,7 +238,7 @@ export function SelfAssessmentDialog({
       >
         <Box
           display="flex"
-          p="5px"
+          p="0"
           border="1px solid #AAA"
           borderRadius="10px"
           width="fit-content"
