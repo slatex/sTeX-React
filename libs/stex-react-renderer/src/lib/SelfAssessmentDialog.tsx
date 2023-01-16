@@ -52,11 +52,11 @@ const SMILEY_TOOLTIPS: {
     '-2': 'I am not able to recall at all',
   },
   Understand: {
-    '2': "I don't understand anything",
-    '1': 'I do not understand major parts',
+    '2': 'I fully understand',
+    '1': 'I understand for the most part',
     '0': 'I am not sure',
-    '-1': 'I understand for the most part',
-    '-2': 'I fully understand',
+    '-1': 'I do not understand major parts',
+    '-2': "I don't understand anything",
   },
 };
 
