@@ -23,7 +23,7 @@ import { DocSectionContext } from './InfoSidebar';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 import { mmtHTMLToReact, setSectionIds } from './mmtParser';
 import { RenderOptions } from './RendererDisplayOptions';
-import { SelfAssessmentDialog } from './SelfAssessmentDialog';
+import { SelfAssessment2, SelfAssessmentDialog } from './SelfAssessmentDialog';
 import { TourAPIEntry, TourDisplay } from './TourDisplay';
 
 function getToOpenContentHash(inDocPath: string) {
@@ -149,6 +149,7 @@ export {
   LayoutWithFixedMenu,
   mmtHTMLToReact,
   SelfAssessmentDialog,
+  SelfAssessment2,
   TourDisplay,
   FileBrowser,
   setSectionIds,

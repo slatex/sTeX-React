@@ -200,6 +200,35 @@ function SelfAssessmentDialogRow({
   );
 }
 
+export function SelfAssessment2({
+  dims,
+  uri,
+}: {
+  dims: BloomDimension[];
+  uri: string;
+}) {
+  const [smileys, setSmileys] = useState<SmileyCognitiveValues | undefined>(
+    undefined
+  );
+  function refetchSmileys() {
+    getUriSmileys([uri]).then((v) => setSmileys(v[0]));
+  }
+  useEffect(() => {
+    setSmileys(undefined);
+    refetchSmileys();
+  }, [uri]);
+  return (
+    <SelfAssessmentPopup
+      dims={dims}
+      uri={uri}
+      smileys={smileys}
+      htmlName={''}
+      dimText={false}
+      refetchSmileys={refetchSmileys}
+    />
+  );
+}
+
 export function SelfAssessmentDialog({
   dims,
   uri,

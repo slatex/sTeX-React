@@ -8,21 +8,23 @@ import {
   CardContent,
   Checkbox,
   FormControlLabel,
-  IconButton
+  IconButton,
 } from '@mui/material';
 import { BloomDimension } from '@stex-react/api';
 import {
   ContentFromUrl,
   ContentWithHighlight,
-  SelfAssessmentDialog
+  SelfAssessment2,
+  SelfAssessmentDialog,
 } from '@stex-react/stex-react-renderer';
 import {
   getChildrenOfBodyNode,
   localStore,
-  PRIMARY_COL
+  PRIMARY_COL,
 } from '@stex-react/utils';
 import { useEffect, useState } from 'react';
 import styles from '../styles/flash-card.module.scss';
+import FlipCameraAndroidIcon from '@mui/icons-material/FlipCameraAndroid';
 
 enum CardType {
   ENTRY_CARD,
@@ -42,6 +44,59 @@ function isDrill(mode: FlashCardMode) {
 export interface FlashCardItem {
   uri: string;
   htmlNode: string;
+}
+
+export function FlashCardFooter({
+  uri,
+  htmlNode,
+  onNext,
+  onFlip,
+}: {
+  uri: string;
+  htmlNode: string;
+  onNext: (skipped: boolean, remembered: boolean) => void;
+  onFlip: () => void;
+}) {
+  return (
+    <Box
+      display="flex"
+      flexDirection="column"
+      width="100%"
+      alignItems="center"
+      margin="5px 15px"
+    >
+      <SelfAssessment2
+        dims={[BloomDimension.Remember, BloomDimension.Understand]}
+        uri={uri}
+      />
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        width="100%"
+        px="15px"
+        boxSizing="border-box"
+      >
+        <Box width="78px">&nbsp;</Box>
+        <IconButton onClick={onFlip} color="primary">
+          <FlipCameraAndroidIcon
+            fontSize="large"
+            sx={{ transform: 'rotateX(30deg)' }}
+          />
+        </IconButton>
+        <Box minWidth="72px">
+          <Button
+            onClick={() => onNext(false, false)}
+            size="small"
+            variant="contained"
+          >
+            Next
+            <NavigateNextIcon />
+          </Button>
+        </Box>
+      </Box>
+    </Box>
+  );
 }
 
 function FlashCardFront({
@@ -69,28 +124,12 @@ function FlashCardFront({
       >
         <ContentWithHighlight mmtHtml={htmlNode} />
       </Box>
-      <Box>
-        <Box display="flex" alignItems="center">
-          {isDrill(mode) && (
-            <Button
-              onClick={() => onNext(true, false)}
-              variant="contained"
-              sx={{ ml: '10px' }}
-            >
-              Next
-              <NavigateNextIcon />
-            </Button>
-          )}
-        </Box>
-        <br />
-        <Button
-          onClick={onFlip}
-          variant="contained"
-          sx={{ display: 'block', m: '5px auto' }}
-        >
-          Flip!
-        </Button>
-      </Box>
+      <FlashCardFooter
+        uri={uri}
+        htmlNode={htmlNode}
+        onFlip={onFlip}
+        onNext={onNext}
+      />
     </Box>
   );
 }
@@ -98,11 +137,13 @@ function FlashCardFront({
 function FlashCardBack({
   uri,
   mode,
+  htmlNode,
   onNext,
   onFlip,
 }: {
   uri: string;
   mode: FlashCardMode;
+  htmlNode: string;
   onNext: (skipped: boolean, remembered: boolean) => void;
   onFlip: () => void;
 }) {
@@ -121,23 +162,13 @@ function FlashCardBack({
           modifyRendered={getChildrenOfBodyNode}
         />
       </Box>
-      {isDrill(mode) && (
-        <Button
-          onClick={() => onNext(false, false)}
-          size="small"
-          variant="contained"
-        >
-          Next
-          <NavigateNextIcon />
-        </Button>
-      )}
-      <Button
-        onClick={onFlip}
-        variant="contained"
-        sx={{ display: 'block', m: '5px auto' }}
-      >
-        Flip!
-      </Button>
+
+      <FlashCardFooter
+        uri={uri}
+        htmlNode={htmlNode}
+        onFlip={onFlip}
+        onNext={onNext}
+      />
     </Box>
   );
 }
@@ -161,27 +192,35 @@ function FlashCard({
   }, [uri]);
 
   useEffect(() => {
-    const handleEsc = (event) => {
-      if (event.keyCode === 38 || event.keyCode === 40) {
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.code === 'ArrowDown') {
+        console.log(event.code);
         setIsFlipped((prev) => !prev);
+        event.preventDefault();
       }
     };
-    window.addEventListener('keydown', handleEsc);
+    window.addEventListener('keydown', handleEsc, {capture: true});
 
     return () => {
-      window.removeEventListener('keydown', handleEsc);
+      window.removeEventListener('keydown', handleEsc, {capture: true});
     };
   }, []);
 
   return (
     <Box
       display="flex"
-      margin="auto"
+      margin="0 5px"
       alignItems="center"
       justifyContent="center"
       flexWrap="wrap"
     >
-      <Box display="flex" width="360px" minHeight="600px">
+      <Box
+        display="flex"
+        width="420px"
+        height="700px"
+        maxHeight="calc(100vh - 55px)"
+        margin="auto"
+      >
         <Box
           display="flex"
           justifyContent="center"
@@ -202,19 +241,13 @@ function FlashCard({
             />
             <FlashCardBack
               uri={uri}
+              htmlNode={htmlNode}
               mode={mode}
               onNext={onNext}
               onFlip={() => setIsFlipped(false)}
             />
           </Box>
         </Box>
-      </Box>
-      <Box bgcolor="white" sx={{ zIndex: 2, mt: '5px' }}>
-        <SelfAssessmentDialog
-          dims={[BloomDimension.Remember, BloomDimension.Understand]}
-          uri={uri}
-          htmlName={htmlNode}
-        />
       </Box>
     </Box>
   );
@@ -247,9 +280,7 @@ export function EntryCard({
   unhiddenItems: FlashCardItem[];
   onStart: (showHidden: boolean, mode: FlashCardMode) => void;
 }) {
-  const [includeHidden, setIncludeHidden] = useState(
-    true
-  );
+  const [includeHidden, setIncludeHidden] = useState(true);
   const hiddenCount = hiddenItems.length;
   const unhiddenCount = unhiddenItems.length;
   const totalCount = hiddenCount + unhiddenCount;
@@ -419,7 +450,7 @@ export function FlashCards({
   }
   return (
     <Box display="flex" flexDirection="column">
-      <Box m="10px 0" display="flex" justifyContent="space-between">
+      <Box mb="10px" display="flex" justifyContent="space-between">
         <IconButton
           onClick={() => {
             const confirmExit = 'Are you sure you want to leave the drill?';
