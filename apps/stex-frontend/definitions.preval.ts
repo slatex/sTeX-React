@@ -14,7 +14,7 @@ import { getOuterHTML } from 'domutils';
 import { exit } from 'process';
 
 const fromPrevaluated = false;
-const ENDING_CHAPTER = 'Automated Theorem Proving in First-Order Logic';
+const ENDING_CHAPTER = 'ENDING_CHAPTER';
 export interface DefInfo {
   chapter: string;
   isBad: boolean;
