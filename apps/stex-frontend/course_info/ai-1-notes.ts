@@ -153,16 +153,39 @@ export const AI_1_COURSE_SECTIONS: CourseSectionInfo = {
     'MiKoMH/AI||logic/sec/propsat-concl.en.xhtml': { secNo: '7', clipId: '44950', timestampSec: 4068 },
   },
   'First Order Predicate Logic': {
-    'MiKoMH/AI||logic/sec/pl1.en.xhtml': { clipId: '44950',  timestampSec: 4173 },
+    'MiKoMH/AI||logic/sec/pl1.en.xhtml': { clipId: '44950', timestampSec: 4173 },
     'MiKoMH/AI||logic/sec/fol-alpha-implicit.en.xhtml': { secNo: '2', clipId: '44951', timestampSec: 720 },
     'MiKoMH/AI||logic/sec/basics-alpha-implicit.en.xhtml': { secNo: '2.1', clipId: '44951', timestampSec: 1193 },
     'MiKoMH/AI||logic/sec/substitutions-alpha-implicit.en.xhtml': { secNo: '2.2', clipId: '44951', timestampSec: 3419 },
-    'MiKoMH/AI||logic/sec/nd1.en.xhtml': { secNo: '3' },
+    'MiKoMH/AI||logic/sec/nd1.en.xhtml': { secNo: '3', clipId: '44952', timestampSec: 1795 },
     'MiKoMH/AI||logic/sec/pl1-conclusion.en.xhtml': { secNo: '4' },
   },
   'Automated Theorem Proving in First-Order Logic': {
-    'MiKoMH/AI||logic/sec/atp1.en.xhtml': {  },
-  }
+    'MiKoMH/AI||logic/sec/atp1.en.xhtml': { clipId: '44952', timestampSec: 4037 },
+    'MiKoMH/AI||logic/sec/founif.en.xhtml': { secNo: '1.2', clipId: '44953', timestampSec: 944 },
+    'MiKoMH/AI||logic/sec/unif-efficient.en.xhtml': { secNo: '1.3', clipId: '44953', timestampSec: 4431 },
+    'MiKoMH/AI||logic/sec/fotab-implementation.en.xhtml': { secNo: '1.4', clipId: '44953', timestampSec: 4906 },
+    'MiKoMH/AI||logic/sec/resolution.en.xhtml': { secNo: '2', clipId: '44954', timestampSec: 10 },
+    'MiKoMH/AI||prolog/sec/prolog-inference.en.xhtml': { secNo: '3', clipId: '44954', timestampSec: 844 },
+  },
+  'Knowledge Representation and the Semantic Web': {
+    'MiKoMH/AI||logic/sec/kr.en.xhtml': { clipId: '44955', timestampSec: 0 },
+    'MiKoMH/AI||logic/sec/semantic-networks.en.xhtml': { secNo: '1.2', clipId: '44955', timestampSec: 1516 },
+    'MiKoMH/AI||logic/sec/semweb-intro.en.xhtml': { secNo: '1.3', clipId: '44955', timestampSec: 3010 },
+    'MiKoMH/AI||logic/sec/kr-other.en.xhtml': { secNo: '1.4' },
+    'MiKoMH/AI||logic/sec/logic-based-kr.en.xhtml': { secNo: '2', clipId: '44955', timestampSec: 3814 },
+    'MiKoMH/AI||logic/sec/pl0-set-description.en.xhtml': { secNo: '2.1', clipId: '44955', timestampSec: 3897 },
+    'MiKoMH/AI||logic/sec/ontologies.en.xhtml': { secNo: '2.2', clipId: '44955', timestampSec: 4768 },
+    'MiKoMH/AI||logic/sec/dl-inference-intro.en.xhtml': { secNo: '2.3' },
+    'MiKoMH/AI||logic/sec/alc.en.xhtml': { secNo: '3', clipId: '44955', timestampSec: 4989 },
+    'MiKoMH/AI||logic/sec/alc-inference.en.xhtml': { secNo: '3.2' },
+    'MiKoMH/AI||logic/sec/alc-aboxes.en.xhtml': { secNo: '3.3' },
+    'MiKoMH/AI||logic/sec/semweb-dl.en.xhtml': { secNo: '4' },
+  },
+  'ENDING_CHAPTER': {
+    'MiKoMH/AI||planning/snip/partintro.en.xhtml': {  },
+  },
+  
   /*  
    '': { clipId: '' },
   */
