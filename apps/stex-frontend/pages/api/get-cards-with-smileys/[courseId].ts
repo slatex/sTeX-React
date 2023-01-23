@@ -26,13 +26,16 @@ export default async function handler(req, res) {
       uris.push(...goodDefs.map((def) => def.uri));
     }
   }
-  const smileyValues = await getUriSmileys(uris, { Authorization });
 
-  console.error(`Got ${uris.length} uri smileys`);
+  const smileyValues = Authorization
+    ? await getUriSmileys(uris, { Authorization })
+    : undefined;
+
+  console.log(`Got ${uris.length} uri smileys`);
   const uriMap = new Map<string, SmileyCognitiveValues>();
   for (let idx = 0; idx < uris.length; idx++) {
     const uri = uris[idx];
-    const smileyValue = smileyValues[idx];
+    const smileyValue = smileyValues?.[idx] || {};
     uriMap.set(uri, smileyValue);
   }
   const output: CardsWithSmileys[] = [];

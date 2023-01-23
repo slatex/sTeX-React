@@ -7,7 +7,6 @@ import {
   ListItem,
   Slider,
   Tooltip,
-  useMediaQuery,
 } from '@mui/material';
 import Checkbox from '@mui/material/Checkbox';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -17,6 +16,7 @@ import {
   ALL_SMILEY_LEVELS,
   BloomDimension,
   getAuthHeaders,
+  isLoggedIn,
   SmileyCognitiveValues,
   SmileyLevel,
   smileyToLevel,
@@ -86,15 +86,11 @@ function getSelectedCards(
   understandValue: SmileyLevel
 ) {
   if (!cards) return [];
-  console.log(cards[0]);
-  console.log(checkedChapters.includes(cards[0].chapter));
-  console.log(smileyToLevel(cards[0].Remember) <= rememberValue);
-  console.log(smileyToLevel(cards[0].Analyse) <= understandValue);
   return cards.filter(
     (card) =>
       checkedChapters.includes(card.chapter) &&
-      smileyToLevel(card.Remember) <= rememberValue &&
-      smileyToLevel(card.Analyse) <= understandValue
+      !(smileyToLevel(card.Remember) > rememberValue) &&
+      !(smileyToLevel(card.Analyse) > understandValue)
   );
 }
 
@@ -112,12 +108,14 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
   const [started, setStarted] = useState(false);
   const [mode, setMode] = useState(FlashCardMode.REVISION_MODE);
 
+  const loggedIn = isLoggedIn();
+
   const drillCounts = getDrillCounts(courseCards);
   const selectedCards = getSelectedCards(
     courseCards,
     checked.map((idx) => drillCounts[idx].chapter),
-    useRemember ? rememberValue : 2,
-    useMediaQuery ? understandValue : 2
+    loggedIn && useRemember ? rememberValue : 2,
+    loggedIn && useUnderstand ? understandValue : 2
   );
 
   const handleToggle = (value: number) => () => {
@@ -196,7 +194,7 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
                 <Box display="flex" alignItems="center" gap="5px 10px">
                   <Button
                     size="small"
-                    sx={{fontWeight: 'bold'}}
+                    sx={{ fontWeight: 'bold' }}
                     onClick={(e) => {
                       e.stopPropagation();
                       setChecked([idx]);
@@ -208,72 +206,75 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
                   >
                     Revise
                   </Button>
-                  <Button
-                    size="small"
-                    sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setChecked([idx]);
-                      setRememberValue(2);
-                      setUnderstandValue(2);
-                      setMode(FlashCardMode.DRILL_MODE);
-                      setStarted(true);
-                    }}
-                  >
-                    Drill
-                  </Button>
+                  {loggedIn && (
+                    <Button
+                      size="small"
+                      sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setChecked([idx]);
+                        setRememberValue(2);
+                        setUnderstandValue(2);
+                        setMode(FlashCardMode.DRILL_MODE);
+                        setStarted(true);
+                      }}
+                    >
+                      Drill
+                    </Button>
+                  )}
                 </Box>
               </ListItemButton>
             </ListItem>
           );
         })}
       </List>
-      {[BloomDimension.Remember, BloomDimension.Understand].map((dim) => (
-        <Box
-          key={dim}
-          display="flex"
-          width="250px"
-          m="0 auto 10px"
-          alignItems="center"
-          p="0 20px 20px 0"
-          borderBottom={isRemember(dim) ? '1px solid #DDD' : undefined}
-        >
-          <Tooltip title={`I ${dim}. Click to enable/disable.`}>
-            <IconButton
-              onClick={() => {
-                isRemember(dim)
-                  ? setUseRemember((prev) => !prev)
-                  : setUseUnderstand((prev) => !prev);
+      {loggedIn &&
+        [BloomDimension.Remember, BloomDimension.Understand].map((dim) => (
+          <Box
+            key={dim}
+            display="flex"
+            width="250px"
+            m="0 auto 10px"
+            alignItems="center"
+            p="0 20px 20px 0"
+            borderBottom={isRemember(dim) ? '1px solid #DDD' : undefined}
+          >
+            <Tooltip title={`I ${dim}. Click to enable/disable.`}>
+              <IconButton
+                onClick={() => {
+                  isRemember(dim)
+                    ? setUseRemember((prev) => !prev)
+                    : setUseUnderstand((prev) => !prev);
+                }}
+              >
+                <DimIcon showTitle={false} dim={dim} white={false} />
+              </IconButton>
+            </Tooltip>
+            <Slider
+              step={1}
+              value={isRemember(dim) ? rememberValue : understandValue}
+              valueLabelDisplay="auto"
+              valueLabelFormat={(value) => {
+                return SMILEY_TOOLTIPS[dim][value];
               }}
-            >
-              <DimIcon showTitle={false} dim={dim} white={false} />
-            </IconButton>
-          </Tooltip>
-          <Slider
-            step={1}
-            value={isRemember(dim) ? rememberValue : understandValue}
-            valueLabelDisplay="auto"
-            valueLabelFormat={(value) => {
-              return SMILEY_TOOLTIPS[dim][value];
-            }}
-            onChange={(_e: Event, newValue: SmileyLevel) => {
-              isRemember(dim)
-                ? setRememberValue(newValue)
-                : setUnderstandValue(newValue);
-            }}
-            marks={getMarks(dim, rememberValue, understandValue)}
-            min={-2}
-            max={2}
-            sx={{
-              ml: '20px',
-              filter: isDisabled(dim, useRemember, useUnderstand)
-                ? 'grayscale(1)'
-                : undefined,
-            }}
-            disabled={isDisabled(dim, useRemember, useUnderstand)}
-          />
-        </Box>
-      ))}
+              onChange={(_e: Event, newValue: SmileyLevel) => {
+                isRemember(dim)
+                  ? setRememberValue(newValue)
+                  : setUnderstandValue(newValue);
+              }}
+              marks={getMarks(dim, rememberValue, understandValue)}
+              min={-2}
+              max={2}
+              sx={{
+                ml: '20px',
+                filter: isDisabled(dim, useRemember, useUnderstand)
+                  ? 'grayscale(1)'
+                  : undefined,
+              }}
+              disabled={isDisabled(dim, useRemember, useUnderstand)}
+            />
+          </Box>
+        ))}
       <Box>
         <Box display="flex" gap="10px" justifyContent="center" m="20px 0 5px">
           <Button
@@ -287,17 +288,19 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
           >
             Revise
           </Button>
-          <Button
-            variant="contained"
-            disabled={selectedCards.length === 0}
-            onClick={(e) => {
-              e.stopPropagation();
-              setMode(FlashCardMode.DRILL_MODE);
-              setStarted(true);
-            }}
-          >
-            Drill
-          </Button>
+          {loggedIn && (
+            <Button
+              variant="contained"
+              disabled={selectedCards.length === 0}
+              onClick={(e) => {
+                e.stopPropagation();
+                setMode(FlashCardMode.DRILL_MODE);
+                setStarted(true);
+              }}
+            >
+              Drill
+            </Button>
+          )}
         </Box>
 
         <b
@@ -305,7 +308,7 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
             color: SECONDARY_COL,
             textAlign: 'center',
             display: 'block',
-            fontFamily: "'Roboto'"
+            fontFamily: "'Roboto'",
           }}
         >
           {selectedCards.length} cards selected

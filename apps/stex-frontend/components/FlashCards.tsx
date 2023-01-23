@@ -12,14 +12,27 @@ import {
   IconButton,
   Tooltip,
 } from '@mui/material';
-import { BloomDimension } from '@stex-react/api';
+import {
+  BloomDimension,
+  getUriSmileys,
+  isLoggedIn,
+  SmileyCognitiveValues,
+  smileyToLevel,
+  SmileyType,
+} from '@stex-react/api';
 import {
   ContentFromUrl,
   ContentWithHighlight,
+  LevelIcon,
   SelfAssessment2,
 } from '@stex-react/stex-react-renderer';
-import { getChildrenOfBodyNode, localStore } from '@stex-react/utils';
-import { useEffect, useState } from 'react';
+import {
+  getChildrenOfBodyNode,
+  localStore,
+  PRIMARY_COL,
+  SECONDARY_COL,
+} from '@stex-react/utils';
+import { useEffect, useReducer, useRef, useState } from 'react';
 import styles from '../styles/flash-card.module.scss';
 
 enum CardType {
@@ -43,15 +56,14 @@ export interface FlashCardItem {
 
 export function FlashCardFooter({
   uri,
-  htmlNode,
   onNext,
   onFlip,
 }: {
   uri: string;
-  htmlNode: string;
-  onNext: (skipped: boolean, remembered: boolean) => void;
+  onNext: () => void;
   onFlip: () => void;
 }) {
+  const loggedIn = isLoggedIn();
   return (
     <Box
       display="flex"
@@ -60,10 +72,12 @@ export function FlashCardFooter({
       alignItems="center"
       margin="5px 15px"
     >
-      <SelfAssessment2
-        dims={[BloomDimension.Remember, BloomDimension.Understand]}
-        uri={uri}
-      />
+      {loggedIn && (
+        <SelfAssessment2
+          dims={[BloomDimension.Remember, BloomDimension.Understand]}
+          uri={uri}
+        />
+      )}
       <Box
         display="flex"
         justifyContent="space-between"
@@ -82,11 +96,7 @@ export function FlashCardFooter({
           </Tooltip>
         </IconButton>
         <Box minWidth="72px">
-          <Button
-            onClick={() => onNext(false, false)}
-            size="small"
-            variant="contained"
-          >
+          <Button onClick={() => onNext()} size="small" variant="contained">
             Next
             <NavigateNextIcon />
           </Button>
@@ -99,14 +109,12 @@ export function FlashCardFooter({
 function FlashCardFront({
   uri,
   htmlNode,
-  mode,
   onNext,
   onFlip,
 }: {
   uri: string;
   htmlNode: string;
-  mode: FlashCardMode;
-  onNext: (skipped: boolean, remembered: boolean) => void;
+  onNext: () => void;
   onFlip: () => void;
 }) {
   return (
@@ -121,27 +129,20 @@ function FlashCardFront({
       >
         <ContentWithHighlight mmtHtml={htmlNode} />
       </Box>
-      <FlashCardFooter
-        uri={uri}
-        htmlNode={htmlNode}
-        onFlip={onFlip}
-        onNext={onNext}
-      />
+      <FlashCardFooter uri={uri} onFlip={onFlip} onNext={onNext} />
     </Box>
   );
 }
 
 function FlashCardBack({
   uri,
-  mode,
-  htmlNode,
   onNext,
   onFlip,
 }: {
   uri: string;
   mode: FlashCardMode;
   htmlNode: string;
-  onNext: (skipped: boolean, remembered: boolean) => void;
+  onNext: () => void;
   onFlip: () => void;
 }) {
   return (
@@ -160,12 +161,7 @@ function FlashCardBack({
         />
       </Box>
 
-      <FlashCardFooter
-        uri={uri}
-        htmlNode={htmlNode}
-        onFlip={onFlip}
-        onNext={onNext}
-      />
+      <FlashCardFooter uri={uri} onFlip={onFlip} onNext={onNext} />
     </Box>
   );
 }
@@ -181,7 +177,7 @@ function FlashCard({
   htmlNode: string;
   mode: FlashCardMode;
   defaultFlipped: boolean;
-  onNext: (skipped: boolean, remembered: boolean) => void;
+  onNext: () => void;
 }) {
   const [isFlipped, setIsFlipped] = useState(defaultFlipped);
   useEffect(() => {
@@ -233,7 +229,6 @@ function FlashCard({
               uri={uri}
               htmlNode={htmlNode}
               onFlip={() => setIsFlipped(true)}
-              mode={mode}
               onNext={onNext}
             />
             <FlashCardBack
@@ -250,28 +245,160 @@ function FlashCard({
   );
 }
 
+function filterItems(
+  items: FlashCardItem[],
+  uriMap: Map<string, SmileyCognitiveValues>,
+  rememberValues: SmileyType[],
+  understandValues: SmileyType[]
+) {
+  console.log(uriMap);
+  return items.filter((item) => {
+    const smileyVal = uriMap.get(item.uri);
+    console.log(item);
+    console.log(smileyVal);
+    console.log(rememberValues);
+    console.log(understandValues);
+    return (
+      rememberValues.includes(smileyVal?.Remember) &&
+      understandValues.includes(smileyVal?.Understand)
+    );
+  });
+}
+const GOOD_SMILEYS: SmileyType[] = ['smiley1', 'smiley2'];
+const NOT_GOOD_SMILEYS: SmileyType[] = ['smiley-2', 'smiley-1', 'smiley0'];
+
+export function ItemListWithStatus({
+  items,
+  uriMap,
+}: {
+  items: FlashCardItem[];
+  uriMap: Map<string, SmileyCognitiveValues>;
+}) {
+  return (
+    <table>
+      <tr style={{ color: PRIMARY_COL }}>
+        <th>URI</th>
+        <th>Remember</th>
+        <th>Understand</th>
+      </tr>
+      {items.map((item) => {
+        const smileyLevel = uriMap.get(item.uri);
+        const rememberLevel = smileyToLevel(smileyLevel.Remember);
+        const understandLevel = smileyToLevel(smileyLevel.Understand);
+        return (
+          <tr key={item.uri}>
+            <td>
+              <Box mr="10px">
+                <ContentWithHighlight mmtHtml={item.htmlNode} />
+              </Box>
+            </td>
+            <td>
+              <Box m="auto" textAlign="center">
+                <LevelIcon level={rememberLevel} highlighted={true} />
+              </Box>
+            </td>
+            <td>
+              <Box m="auto" textAlign="center">
+                <LevelIcon level={understandLevel} highlighted={true} />
+              </Box>
+            </td>
+          </tr>
+        );
+      })}
+    </table>
+  );
+}
+
 export function SummaryCard({
-  rememberedItems,
-  skippedItems,
-  flippedItems,
+  items,
   onFinish,
 }: {
-  rememberedItems: FlashCardItem[];
-  skippedItems: FlashCardItem[];
-  flippedItems: FlashCardItem[];
+  items: FlashCardItem[];
   onFinish: () => void;
 }) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [, forceRerender] = useReducer((x) => x + 1, 0);
+  const uriMap = useRef(new Map<string, SmileyCognitiveValues>()).current;
+  useEffect(() => {
+    getUriSmileys(items.map((item) => item.uri)).then((uriSmileys) => {
+      setIsLoading(false);
+      for (const [idx, item] of items.entries()) {
+        uriMap.set(item.uri, uriSmileys[idx]);
+      }
+      console.log(uriSmileys);
+      console.log(uriMap);
+      forceRerender();
+    });
+  }, [items]);
+
+  const rememberAndUnderstand = filterItems(
+    items,
+    uriMap,
+    GOOD_SMILEYS,
+    GOOD_SMILEYS
+  );
+  const rememberNotUnderstand = filterItems(
+    items,
+    uriMap,
+    GOOD_SMILEYS,
+    NOT_GOOD_SMILEYS
+  );
+  const notRememberButUnderstand = filterItems(
+    items,
+    uriMap,
+    NOT_GOOD_SMILEYS,
+    GOOD_SMILEYS
+  );
+  const notRememberNotUnderstand = filterItems(
+    items,
+    uriMap,
+    NOT_GOOD_SMILEYS,
+    NOT_GOOD_SMILEYS
+  );
   return (
     <Card>
       <CardContent sx={{ mx: '10px' }}>
         <Box>
-          You remembered {rememberedItems.length} concepts, skipped{' '}
-          {skippedItems.length} and flipped {flippedItems.length} cards.
-          <br />
           <Button variant="contained" onClick={() => onFinish()}>
             <ArrowBackIcon />
             &nbsp;Go Back
           </Button>
+          {notRememberNotUnderstand.length > 0 && (
+            <>
+              <h2>Concepts neither remembered nor understood</h2>
+              <ItemListWithStatus
+                items={notRememberNotUnderstand}
+                uriMap={uriMap}
+              />
+            </>
+          )}
+          {rememberNotUnderstand.length > 0 && (
+            <>
+              <h2>Concepts remembered but not understood</h2>
+              <ItemListWithStatus
+                items={rememberNotUnderstand}
+                uriMap={uriMap}
+              />
+            </>
+          )}
+          {notRememberButUnderstand.length > 0 && (
+            <>
+              <h2>Concepts understood but not remembered</h2>
+              <ItemListWithStatus
+                items={notRememberButUnderstand}
+                uriMap={uriMap}
+              />
+            </>
+          )}
+          {rememberAndUnderstand.length > 0 && (
+            <>
+              <h2>Concepts remembered and understood</h2>
+              <ItemListWithStatus
+                items={rememberAndUnderstand}
+                uriMap={uriMap}
+              />
+            </>
+          )}
         </Box>
       </CardContent>
     </Card>
@@ -288,21 +415,11 @@ export function FlashCards({
   onCancelOrFinish: () => void;
 }) {
   const [cardType, setCardType] = useState(CardType.ITEM_CARD);
-
   const [cardNo, setCardNo] = useState(0);
 
-  const [rememberedItems, setRememberedItems] = useState<FlashCardItem[]>([]);
-  const [skippedItems, setSkippedItems] = useState<FlashCardItem[]>([]);
-  const [flippedItems, setFlippedItems] = useState<FlashCardItem[]>([]);
   const [defaultFlipped, setDefaultSkipped] = useState(
     !!localStore?.getItem('default-flipped')
   );
-
-  useEffect(() => {
-    setRememberedItems([]);
-    setSkippedItems([]);
-    setFlippedItems([]);
-  }, [items]);
 
   const currentItem = items[cardNo];
 
@@ -330,14 +447,7 @@ export function FlashCards({
   }, [cardType, mode]);
 
   if (cardType === CardType.SUMMARY_CARD) {
-    return (
-      <SummaryCard
-        rememberedItems={rememberedItems}
-        skippedItems={skippedItems}
-        flippedItems={flippedItems}
-        onFinish={() => onCancelOrFinish()}
-      />
-    );
+    return <SummaryCard items={items} onFinish={() => onCancelOrFinish()} />;
   }
   return (
     <Box display="flex" flexDirection="column">
@@ -377,18 +487,10 @@ export function FlashCards({
         htmlNode={currentItem.htmlNode}
         mode={mode}
         defaultFlipped={defaultFlipped && mode === FlashCardMode.REVISION_MODE}
-        onNext={(skipped: boolean, remembered: boolean) => {
+        onNext={() => {
           if (cardNo >= items.length - 1) {
             setCardType(CardType.SUMMARY_CARD);
           }
-          if (skipped) {
-            skippedItems.push(currentItem);
-          } else if (remembered) {
-            rememberedItems.push(currentItem);
-          } else {
-            flippedItems.push(currentItem);
-          }
-
           setCardNo((prev) => prev + 1);
         }}
       />
