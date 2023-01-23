@@ -4,11 +4,10 @@ import { Box, Button, Card, IconButton, Tooltip } from '@mui/material';
 import { NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { ToursAutocomplete } from '../components/ToursAutocomplete';
 import MainLayout from '../layouts/MainLayout';
-import ScienceIcon from '@mui/icons-material/Science';
 import styles from '../styles/utils.module.scss';
-import { useRouter } from 'next/router';
 
 function ELink({ href, children }: { href: string; children: any }) {
   return (
@@ -22,12 +21,14 @@ function CourseThumb({
   imageLink,
   notesLink,
   slidesLink = undefined,
+  cardsLink = undefined,
   width = 200,
 }: {
   courseName: string;
   imageLink: string;
   notesLink: string;
   slidesLink?: string;
+  cardsLink?: string;
   width?: number;
 }) {
   return (
@@ -52,16 +53,35 @@ function CourseThumb({
             {courseName}
           </span>
         </Box>
-        <Box display="flex" justifyContent="flex-end" mt="5px">
+        <Box
+          display="flex"
+          justifyContent="space-evenly"
+          mt="5px"
+          gap="5px"
+          flexWrap="wrap"
+        >
           <Link href={notesLink} passHref>
             <Button size="small" variant="contained">
               Notes&nbsp;
               <ArticleIcon />
             </Button>
           </Link>
+          {cardsLink && (
+            <Link href={cardsLink} passHref>
+              <Button size="small" variant="contained">
+                Cards&nbsp;
+                <Image
+                  src="/noun-flash-cards-2494102.svg"
+                  width={25}
+                  height={25}
+                  alt="Flash Cards"
+                />
+              </Button>
+            </Link>
+          )}
           {slidesLink && (
             <Link href={slidesLink} passHref>
-              <Button size="small" variant="contained" sx={{ ml: '10px' }}>
+              <Button size="small" variant="contained">
                 Slides&nbsp;
                 <SlideshowIcon />
               </Button>
@@ -82,7 +102,7 @@ const StudentHomePage: NextPage = () => {
           <Box className={styles['descriptive-box']}>
             <Tooltip
               title={
-                <Box sx={{fontSize: 'large'}}>
+                <Box sx={{ fontSize: 'large' }}>
                   <span>See what&apos;s brewing in our laboratory.</span>
                   <span>Exercise Extreme Caution!</span>
                 </Box>
@@ -121,17 +141,20 @@ const StudentHomePage: NextPage = () => {
               courseName="Artificial Intelligence - I"
               imageLink="/ai-1.jpg"
               notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FAI%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml"
+              cardsLink="/flash-cards/ai-1"
               slidesLink="/course-view/ai-1"
             />
             <CourseThumb
               courseName="IWGS - I"
               imageLink="/iwgs-1.jpg"
               notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FIWGS%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml"
+              cardsLink="/flash-cards/iwgs"
               width={83}
             />
             <CourseThumb
               courseName="Logic-based Natural Language Semantics"
               imageLink="/lbs.jpg"
+              cardsLink="/flash-cards/lbs"
               notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FLBS%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml"
             />
           </Box>
