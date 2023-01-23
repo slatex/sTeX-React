@@ -23,7 +23,7 @@ import { DocSectionContext } from './InfoSidebar';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 import { mmtHTMLToReact, setSectionIds } from './mmtParser';
 import { RenderOptions } from './RendererDisplayOptions';
-import { SelfAssessment2, SelfAssessmentDialog } from './SelfAssessmentDialog';
+import { DimIcon, LevelIcon, SelfAssessment2, SelfAssessmentDialog } from './SelfAssessmentDialog';
 import { TourAPIEntry, TourDisplay } from './TourDisplay';
 
 function getToOpenContentHash(inDocPath: string) {
@@ -144,9 +144,11 @@ export function StexReactRenderer({
 export {
   ContentFromUrl,
   ContentWithHighlight,
+  DimIcon,
   ExpandableContextMenu,
   FixedPositionMenu,
   LayoutWithFixedMenu,
+  LevelIcon,
   mmtHTMLToReact,
   SelfAssessmentDialog,
   SelfAssessment2,

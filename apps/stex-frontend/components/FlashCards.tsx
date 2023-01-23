@@ -1,4 +1,5 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import FlipCameraAndroidIcon from '@mui/icons-material/FlipCameraAndroid';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import {
@@ -9,30 +10,24 @@ import {
   Checkbox,
   FormControlLabel,
   IconButton,
+  Tooltip,
 } from '@mui/material';
 import { BloomDimension } from '@stex-react/api';
 import {
   ContentFromUrl,
   ContentWithHighlight,
   SelfAssessment2,
-  SelfAssessmentDialog,
 } from '@stex-react/stex-react-renderer';
-import {
-  getChildrenOfBodyNode,
-  localStore,
-  PRIMARY_COL,
-} from '@stex-react/utils';
+import { getChildrenOfBodyNode, localStore } from '@stex-react/utils';
 import { useEffect, useState } from 'react';
 import styles from '../styles/flash-card.module.scss';
-import FlipCameraAndroidIcon from '@mui/icons-material/FlipCameraAndroid';
 
 enum CardType {
-  ENTRY_CARD,
   ITEM_CARD,
   SUMMARY_CARD,
 }
 
-enum FlashCardMode {
+export enum FlashCardMode {
   REVISION_MODE,
   DRILL_MODE,
 }
@@ -79,10 +74,12 @@ export function FlashCardFooter({
       >
         <Box width="78px">&nbsp;</Box>
         <IconButton onClick={onFlip} color="primary">
-          <FlipCameraAndroidIcon
-            fontSize="large"
-            sx={{ transform: 'rotateX(30deg)' }}
-          />
+          <Tooltip title="Flip the card!">
+            <FlipCameraAndroidIcon
+              fontSize="large"
+              sx={{ transform: 'rotateX(30deg)' }}
+            />
+          </Tooltip>
         </IconButton>
         <Box minWidth="72px">
           <Button
@@ -192,17 +189,17 @@ function FlashCard({
   }, [uri]);
 
   useEffect(() => {
-    const handleEsc = (event: KeyboardEvent) => {
-      if (event.code === 'ArrowDown') {
+    const handleFlip = (event: KeyboardEvent) => {
+      if (event.code === 'ArrowDown' || event.code === 'ArrowUp') {
         console.log(event.code);
         setIsFlipped((prev) => !prev);
         event.preventDefault();
       }
     };
-    window.addEventListener('keydown', handleEsc, {capture: true});
+    window.addEventListener('keydown', handleFlip, { capture: true });
 
     return () => {
-      window.removeEventListener('keydown', handleEsc, {capture: true});
+      window.removeEventListener('keydown', handleFlip, { capture: true });
     };
   }, []);
 
@@ -218,7 +215,7 @@ function FlashCard({
         display="flex"
         width="420px"
         height="700px"
-        maxHeight="calc(100vh - 55px)"
+        maxHeight="calc(100vh - 90px)"
         margin="auto"
       >
         <Box
@@ -253,98 +250,16 @@ function FlashCard({
   );
 }
 
-function localStorageKey(url: string) {
-  return `HIDDEN-CONCEPT-${url}`;
-}
-
-function markHidden(url: string) {
-  localStore?.setItem(localStorageKey(url), '1');
-}
-
-function unmarkHidden(url: string) {
-  localStore?.removeItem(localStorageKey(url));
-}
-
-function isHidden(url: string) {
-  return !!localStore?.getItem(localStorageKey(url));
-}
-
-export function EntryCard({
-  header,
-  hiddenItems,
-  unhiddenItems,
-  onStart,
-}: {
-  header: string;
-  hiddenItems: FlashCardItem[];
-  unhiddenItems: FlashCardItem[];
-  onStart: (showHidden: boolean, mode: FlashCardMode) => void;
-}) {
-  const [includeHidden, setIncludeHidden] = useState(true);
-  const hiddenCount = hiddenItems.length;
-  const unhiddenCount = unhiddenItems.length;
-  const totalCount = hiddenCount + unhiddenCount;
-  return (
-    <Card sx={{ m: '10px' }}>
-      <CardContent sx={{ backgroundColor: PRIMARY_COL, color: 'white' }}>
-        <h2 style={{ textAlign: 'center' }}>{header}</h2>
-
-        <h3 style={{ marginBottom: '0' }}>
-          {includeHidden ? (
-            <>{totalCount} Concepts</>
-          ) : (
-            <>
-              {unhiddenItems.length} Concepts ({hiddenCount} hidden)
-            </>
-          )}
-        </h3>
-        {/*<FormControlLabel
-          control={
-            <Checkbox
-              checked={includeHidden}
-              onChange={(e) => setIncludeHidden(e.target.checked)}
-              size="small"
-              sx={{ color: SECONDARY_COL }}
-              color="secondary"
-            />
-          }
-          label="Include all concepts"
-        />*/}
-        <br />
-        <br />
-
-        <Button
-          disabled={includeHidden ? totalCount <= 0 : unhiddenCount <= 0}
-          onClick={() => onStart(includeHidden, FlashCardMode.REVISION_MODE)}
-          variant="contained"
-          sx={{ mr: '10px' }}
-          color="secondary"
-        >
-          Revise
-        </Button>
-        <Button
-          disabled={includeHidden ? totalCount <= 0 : unhiddenCount <= 0}
-          onClick={() => onStart(includeHidden, FlashCardMode.DRILL_MODE)}
-          variant="contained"
-          color="secondary"
-        >
-          Drill me!
-        </Button>
-      </CardContent>
-    </Card>
-  );
-}
-
 export function SummaryCard({
   rememberedItems,
   skippedItems,
   flippedItems,
-  onRestart,
+  onFinish,
 }: {
   rememberedItems: FlashCardItem[];
   skippedItems: FlashCardItem[];
   flippedItems: FlashCardItem[];
-  onRestart: () => void;
+  onFinish: () => void;
 }) {
   return (
     <Card>
@@ -353,7 +268,7 @@ export function SummaryCard({
           You remembered {rememberedItems.length} concepts, skipped{' '}
           {skippedItems.length} and flipped {flippedItems.length} cards.
           <br />
-          <Button variant="contained" onClick={() => onRestart()}>
+          <Button variant="contained" onClick={() => onFinish()}>
             <ArrowBackIcon />
             &nbsp;Go Back
           </Button>
@@ -364,19 +279,17 @@ export function SummaryCard({
 }
 
 export function FlashCards({
-  header,
-  allItems,
+  items,
+  mode,
+  onCancelOrFinish,
 }: {
-  header: string;
-  allItems: FlashCardItem[];
+  mode: FlashCardMode;
+  items: FlashCardItem[];
+  onCancelOrFinish: () => void;
 }) {
-  const [mode, setMode] = useState(FlashCardMode.REVISION_MODE);
-  const [cardType, setCardType] = useState(CardType.ENTRY_CARD);
-  const [includeHidden, setIncludeHidden] = useState(true);
+  const [cardType, setCardType] = useState(CardType.ITEM_CARD);
 
   const [cardNo, setCardNo] = useState(0);
-  const hiddenItems = allItems.filter((item) => isHidden(item.uri));
-  const unhiddenItems = allItems.filter((item) => !isHidden(item.uri));
 
   const [rememberedItems, setRememberedItems] = useState<FlashCardItem[]>([]);
   const [skippedItems, setSkippedItems] = useState<FlashCardItem[]>([]);
@@ -389,10 +302,9 @@ export function FlashCards({
     setRememberedItems([]);
     setSkippedItems([]);
     setFlippedItems([]);
-  }, [allItems]);
+  }, [items]);
 
-  const toShowItems = includeHidden ? allItems : unhiddenItems;
-  const currentItem = toShowItems[cardNo];
+  const currentItem = items[cardNo];
 
   useEffect(() => {
     if (
@@ -401,37 +313,21 @@ export function FlashCards({
     ) {
       return;
     }
-    const handleEsc = (event) => {
-      if (event.keyCode === 37) {
-        setCardNo(
-          (prev) => (prev + toShowItems.length - 1) % toShowItems.length
-        );
+    const handlePrevAndNext = (event: KeyboardEvent) => {
+      if (event.code === 'ArrowLeft') {
+        setCardNo((prev) => (prev + items.length - 1) % items.length);
       }
-      if (event.keyCode === 39) {
-        setCardNo((prev) => (prev + 1) % toShowItems.length);
+      if (event.code === 'ArrowRight') {
+        setCardNo((prev) => (prev + 1) % items.length);
       }
     };
-    window.addEventListener('keydown', handleEsc);
+
+    window.addEventListener('keydown', handlePrevAndNext);
 
     return () => {
-      window.removeEventListener('keydown', handleEsc);
+      window.removeEventListener('keydown', handlePrevAndNext);
     };
   }, [cardType, mode]);
-  if (cardType === CardType.ENTRY_CARD) {
-    return (
-      <EntryCard
-        header={header}
-        hiddenItems={hiddenItems}
-        unhiddenItems={unhiddenItems}
-        onStart={(h: boolean, m: FlashCardMode) => {
-          setIncludeHidden(h);
-          setMode(m);
-          setCardType(CardType.ITEM_CARD);
-          setCardNo(0);
-        }}
-      />
-    );
-  }
 
   if (cardType === CardType.SUMMARY_CARD) {
     return (
@@ -439,12 +335,7 @@ export function FlashCards({
         rememberedItems={rememberedItems}
         skippedItems={skippedItems}
         flippedItems={flippedItems}
-        onRestart={() => {
-          setCardType(CardType.ENTRY_CARD);
-          setRememberedItems([]);
-          setSkippedItems([]);
-          setFlippedItems([]);
-        }}
+        onFinish={() => onCancelOrFinish()}
       />
     );
   }
@@ -454,8 +345,7 @@ export function FlashCards({
         <IconButton
           onClick={() => {
             const confirmExit = 'Are you sure you want to leave the drill?';
-            if (!isDrill(mode) || confirm(confirmExit))
-              setCardType(CardType.ENTRY_CARD);
+            if (!isDrill(mode) || confirm(confirmExit)) onCancelOrFinish();
           }}
         >
           <ArrowBackIcon />
@@ -464,17 +354,13 @@ export function FlashCards({
           <Box>
             <IconButton
               onClick={() =>
-                setCardNo(
-                  (prev) => (prev + toShowItems.length - 1) % toShowItems.length
-                )
+                setCardNo((prev) => (prev + items.length - 1) % items.length)
               }
             >
               <NavigateBeforeIcon />
             </IconButton>
             <IconButton
-              onClick={() =>
-                setCardNo((prev) => (prev + 1) % toShowItems.length)
-              }
+              onClick={() => setCardNo((prev) => (prev + 1) % items.length)}
             >
               <NavigateNextIcon />
             </IconButton>
@@ -482,7 +368,7 @@ export function FlashCards({
         ) : null}
         <Box sx={{ m: '10px 20px', color: '#333', minWidth: '60px' }}>
           <b style={{ fontSize: '18px' }}>
-            {cardNo + 1} of {toShowItems.length}
+            {cardNo + 1} of {items.length}
           </b>
         </Box>
       </Box>
@@ -492,17 +378,15 @@ export function FlashCards({
         mode={mode}
         defaultFlipped={defaultFlipped && mode === FlashCardMode.REVISION_MODE}
         onNext={(skipped: boolean, remembered: boolean) => {
-          if (cardNo >= toShowItems.length - 1) {
+          if (cardNo >= items.length - 1) {
             setCardType(CardType.SUMMARY_CARD);
           }
           if (skipped) {
             skippedItems.push(currentItem);
           } else if (remembered) {
             rememberedItems.push(currentItem);
-            markHidden(currentItem.uri);
           } else {
             flippedItems.push(currentItem);
-            unmarkHidden(currentItem.uri);
           }
 
           setCardNo((prev) => prev + 1);

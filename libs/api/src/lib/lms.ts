@@ -11,9 +11,38 @@ export type SmileyType =
   | 'smiley0'
   | 'smiley1'
   | 'smiley2';
-  
+
 export type SmileyLevel = -2 | -1 | 0 | 1 | 2;
 export const ALL_SMILEY_LEVELS: SmileyLevel[] = [-2, -1, 0, 1, 2];
+
+export const SMILEY_TOOLTIPS: {
+  [dim: string]: { [level: number]: string };
+} = {
+  Remember: {
+    '2': 'I am absolutely able to recall',
+    '1': 'I am mostly able to recall',
+    '0': 'I am not sure if I can recall',
+    '-1': 'I am mostly unable to recall',
+    '-2': 'I am not able to recall at all',
+  },
+  Understand: {
+    '2': 'I fully understand',
+    '1': 'I understand for the most part',
+    '0': 'I am not sure',
+    '-1': 'I do not understand major parts',
+    '-2': "I don't understand anything",
+  },
+};
+
+export function smileyToLevel(smiley?: SmileyType): SmileyLevel | undefined {
+  if (!smiley) return undefined;
+  if (smiley === 'smiley-2') return -2;
+  if (smiley === 'smiley-1') return -1;
+  if (smiley === 'smiley0') return 0;
+  if (smiley === 'smiley1') return 1;
+  if (smiley === 'smiley2') return 2;
+  return -2;
+}
 
 export interface NumericCognitiveValues {
   Remember?: number;
@@ -142,9 +171,10 @@ async function lmsRequest(
   apiUrl: string,
   requestType: string,
   defaultVal: any,
-  data?: any
+  data?: any,
+  inputHeaders?: any
 ) {
-  const headers = getAuthHeaders();
+  const headers = inputHeaders ? inputHeaders : getAuthHeaders();
   if (!headers) {
     return Promise.resolve(defaultVal);
   }
@@ -206,12 +236,19 @@ export async function getUriWeights(
 }
 
 export async function getUriSmileys(
-  URIs: string[]
+  URIs: string[],
+  inputHeaders?: any
 ): Promise<SmileyCognitiveValues[]> {
-  const resp = await lmsRequest('lms/output/multiple', 'POST', null, {
-    URIs,
-    'special-output': '5StepLikertSmileys',
-  });
+  const resp = await lmsRequest(
+    'lms/output/multiple',
+    'POST',
+    null,
+    {
+      URIs,
+      'special-output': '5StepLikertSmileys',
+    },
+    inputHeaders
+  );
   if (!resp?.model) return new Array(URIs.length).fill({});
   const model: { URI: string; values: SmileyCognitiveValues }[] = resp.model;
   const compMap = new Map<string, SmileyCognitiveValues>();

@@ -9,7 +9,9 @@ import {
   reportEvent,
   SmileyCognitiveValues,
   SmileyLevel,
+  smileyToLevel,
   SmileyType,
+  SMILEY_TOOLTIPS,
 } from '@stex-react/api';
 import { PRIMARY_COL, SECONDARY_COL } from '@stex-react/utils';
 import Image from 'next/image';
@@ -29,38 +31,27 @@ const CustomTooltip = styled(({ className, ...props }: TooltipProps) => (
   },
 });
 
-function DimIcon({ dim, white }: { dim: BloomDimension; white: boolean }) {
+export function DimIcon({
+  dim,
+  white,
+  showTitle = true,
+}: {
+  dim: BloomDimension;
+  white: boolean;
+  showTitle?: boolean;
+}) {
   return (
     <Image
       width={ICON_SIZE}
       height={ICON_SIZE}
-      title={`I ${dim}`}
+      title={showTitle ? `I ${dim}` : undefined}
       src={`/bloom-dimensions/${dim}${white ? '_white' : ''}.svg`}
       alt={dim}
     />
   );
 }
 
-const SMILEY_TOOLTIPS: {
-  [dim: string]: { [level: number]: string };
-} = {
-  Remember: {
-    '2': 'I am absolutely able to recall',
-    '1': 'I am mostly able to recall',
-    '0': 'I am not sure if I can recall',
-    '-1': 'I am mostly unable to recall',
-    '-2': 'I am not able to recall at all',
-  },
-  Understand: {
-    '2': 'I fully understand',
-    '1': 'I understand for the most part',
-    '0': 'I am not sure',
-    '-1': 'I do not understand major parts',
-    '-2': "I don't understand anything",
-  },
-};
-
-function LevelIcon({
+export function LevelIcon({
   level,
   highlighted,
 }: {
@@ -84,15 +75,6 @@ function LevelIcon({
       style={{ borderRadius: '500px' }}
     />
   );
-}
-function smileyToLevel(smiley?: SmileyType): SmileyLevel | undefined {
-  if (!smiley) return undefined;
-  if (smiley === 'smiley-2') return -2;
-  if (smiley === 'smiley-1') return -1;
-  if (smiley === 'smiley0') return 0;
-  if (smiley === 'smiley1') return 1;
-  if (smiley === 'smiley2') return 2;
-  return -2;
 }
 
 function SelfAssessmentPopup({
