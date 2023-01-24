@@ -99,9 +99,8 @@ function SelfAssessmentPopup({
       borderRadius="5px"
     >
       {dims.map((dim, idx) => (
-        <Box mt={idx ? '5px' : '0'}>
+        <Box key={dim} mt={idx ? '5px' : '0'}>
           <SelfAssessmentDialogRow
-            key={dim}
             dim={dim}
             uri={uri}
             htmlName={htmlName}
@@ -158,9 +157,8 @@ function SelfAssessmentDialogRow({
           </span>
         )}
         {ALL_SMILEY_LEVELS.map((l) => (
-          <Tooltip title={SMILEY_TOOLTIPS[dim]?.[l] || `Level ${l}`}>
+          <Tooltip key={l} title={SMILEY_TOOLTIPS[dim]?.[l] || `Level ${l}`}>
             <IconButton
-              key={l}
               sx={{ p: '0' }}
               onClick={async () => {
                 await reportEvent({
