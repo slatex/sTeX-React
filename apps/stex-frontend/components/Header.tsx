@@ -1,6 +1,14 @@
 import { useMatomo } from '@jonkoops/matomo-tracker-react';
 import WarningIcon from '@mui/icons-material/Warning';
-import { Box, Button, Menu, MenuItem, Toolbar, Tooltip } from '@mui/material';
+import {
+  Box,
+  Button,
+  IconButton,
+  Menu,
+  MenuItem,
+  Toolbar,
+  Tooltip,
+} from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import { getUserInfo, isLoggedIn, logout } from '@stex-react/api';
 import Image from 'next/image';
@@ -9,6 +17,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { BrowserAutocomplete } from '../components/BrowserAutocomplete';
 import styles from '../styles/header.module.scss';
+import HelpIcon from '@mui/icons-material/Help';
 
 const HEADER_WARNING =
   'WARNING: Research Prototype, it may misbehave, crash, delete data, ... or even make you happy without warning at any time!';
@@ -30,7 +39,7 @@ function UserButton() {
 
   useEffect(() => {
     getUserInfo().then((userInfo) => {
-      if(!userInfo) return;
+      if (!userInfo) return;
       setUserName(userInfo.givenName);
       pushInstruction('setUserId', userInfo.userId);
     });
@@ -108,22 +117,31 @@ export function Header({
           </Box>
         )}
         <Box>
-          {loggedIn ? (
-            <UserButton />
-          ) : (
-            <Button
-              sx={{ color: 'white', border: '1px solid white' }}
-              onClick={() => {
-                // Don't change target when user reclicks 'Login' button.
-                if (window.location.pathname === '/login') return;
-                router.push(
-                  '/login?target=' + encodeURIComponent(window.location.href)
-                );
-              }}
-            >
-              Login
-            </Button>
-          )}
+          <Box display="flex">
+            <Tooltip title="Help Center">
+              <Link href="/help">
+                <IconButton>
+                  <HelpIcon htmlColor="white" />
+                </IconButton>
+              </Link>
+            </Tooltip>
+            {loggedIn ? (
+              <UserButton />
+            ) : (
+              <Button
+                sx={{ color: 'white', border: '1px solid white' }}
+                onClick={() => {
+                  // Don't change target when user reclicks 'Login' button.
+                  if (window.location.pathname === '/login') return;
+                  router.push(
+                    '/login?target=' + encodeURIComponent(window.location.href)
+                  );
+                }}
+              >
+                Login
+              </Button>
+            )}
+          </Box>
         </Box>
       </Toolbar>
     </AppBar>

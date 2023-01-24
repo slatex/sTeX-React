@@ -122,6 +122,10 @@ function LevelConfigurator({
           Choose competency levels
         </Typography>
       </Tooltip>
+      <i style={{ color: 'gray' }}>
+        The selection will put all cards up to the chosen competency level onto
+        the stack.
+      </i>
       {[BloomDimension.Remember, BloomDimension.Understand].map((dim, idx) => (
         <Box
           key={dim}
@@ -389,7 +393,7 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
         justifyContent="center"
         flexDirection="row-reverse"
       >
-        <Box zIndex={1}>
+        <Box zIndex={1} maxWidth="250px">
           {loggedIn && (
             <LevelConfigurator levels={levels} setLevels={setLevels} />
           )}
