@@ -31,9 +31,9 @@ import {
   getChildrenOfBodyNode,
   localStore,
   PRIMARY_COL,
-  SECONDARY_COL,
 } from '@stex-react/utils';
 import { useEffect, useReducer, useRef, useState } from 'react';
+import { useSwipeable } from 'react-swipeable';
 import styles from '../styles/flash-card.module.scss';
 
 enum CardType {
@@ -189,17 +189,28 @@ function FlashCard({
   mode,
   defaultFlipped,
   onNext,
+  onPrev,
 }: {
   uri: string;
   htmlNode: string;
   mode: FlashCardMode;
   defaultFlipped: boolean;
   onNext: () => void;
+  onPrev: () => void;
 }) {
   const [isFlipped, setIsFlipped] = useState(defaultFlipped);
   useEffect(() => {
     setIsFlipped(defaultFlipped);
   }, [uri]);
+
+  const handlers = useSwipeable({
+    onSwipedDown: (e) => setIsFlipped((prev) => !prev),
+    onSwipedUp: (e) => setIsFlipped((prev) => !prev),
+    onSwipedLeft: (e) => onNext(),
+    onSwipedRight: (e) => {
+      if (!isDrill(mode)) onPrev();
+    },
+  });
 
   useEffect(() => {
     const handleFlip = (event: KeyboardEvent) => {
@@ -230,6 +241,7 @@ function FlashCard({
         height="700px"
         maxHeight="calc(100vh - 90px)"
         margin="auto"
+        {...handlers}
       >
         <Box
           display="flex"
@@ -381,16 +393,16 @@ export function SummaryCard({
             &nbsp;Go Back
           </Button>
           <Box m="20px 0">
-            <Typography variant='h6'>
+            <Typography variant="h6">
               You recalled{' '}
               <b>
                 {rememberAndUnderstand.length + rememberNotUnderstand.length}
-              </b>
-              {' '}and understoood{' '}
+              </b>{' '}
+              and understoood{' '}
               <b>
                 {rememberAndUnderstand.length + notRememberButUnderstand.length}
-              </b>
-              {' '} out of <b>{items.length}</b> concepts.
+              </b>{' '}
+              out of <b>{items.length}</b> concepts.
             </Typography>
           </Box>
           {notRememberNotUnderstand.length > 0 && (
@@ -524,13 +536,16 @@ export function FlashCards({
         uri={currentItem.uri}
         htmlNode={currentItem.htmlNode}
         mode={mode}
-        defaultFlipped={defaultFlipped && mode === FlashCardMode.REVISION_MODE}
+        defaultFlipped={defaultFlipped && !isDrill(mode)}
         onNext={() => {
-          if (cardNo >= items.length - 1) {
+          if (cardNo >= items.length - 1 && isDrill(mode)) {
             setCardType(CardType.SUMMARY_CARD);
           }
-          setCardNo((prev) => prev + 1);
+          setCardNo((prev) => (prev + 1) % items.length);
         }}
+        onPrev={() =>
+          setCardNo((prev) => (prev + items.length - 1) % items.length)
+        }
       />
 
       {mode === FlashCardMode.REVISION_MODE && (

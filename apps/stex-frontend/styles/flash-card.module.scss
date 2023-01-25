@@ -9,7 +9,7 @@
   transition: transform ease 500ms;
 }
 .flipped {
-  transform: rotateY(180deg);
+  transform: rotateX(180deg);
 }
 .front,
 .back {
@@ -24,7 +24,7 @@
   transform-style: preserve-3d;
 }
 .front {
-  transform: rotateY(0deg);
+  transform: rotateX(0deg);
 
   display: flex;
   flex-direction: column;
@@ -34,7 +34,7 @@
   /* front tile styles go here! */
 }
 .back {
-  transform: rotateY(-180deg);
+  transform: rotateX(-180deg);
   padding: 0;
 
   
