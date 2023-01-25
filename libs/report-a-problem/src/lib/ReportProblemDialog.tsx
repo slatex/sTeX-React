@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Checkbox,
   CircularProgress,
   Dialog,
   DialogActions,
@@ -13,8 +14,9 @@ import {
 } from '@mui/material';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
+import { getUserInfo } from '@stex-react/api';
 import { SectionInfo } from '@stex-react/utils';
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { createNewIssue, IssueCategory, IssueType } from './issueCreator';
 
 export function ReportProblemDialog({
@@ -35,11 +37,20 @@ export function ReportProblemDialog({
   const [type, setType] = useState('');
   const [category, setCategory] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  const [userName, setUserName] = useState('');
+  const [postAnonymously, setPostAnonymously] = useState(false);
 
   const typeError = !type?.length;
   const categoryError = !category?.length;
   const descriptionError = !description?.length;
   const anyError = typeError || categoryError || descriptionError;
+
+  useEffect(() => {
+    getUserInfo().then((userInfo) => {
+      if (!userInfo) return;
+      setUserName(userInfo.fullName);
+    });
+  }, []);
 
   return (
     <Dialog onClose={() => setOpen(false)} open={open} sx={{ zIndex: 20000 }}>
@@ -145,6 +156,25 @@ export function ReportProblemDialog({
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
+        {!!userName && (
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={postAnonymously}
+                onChange={(e) => setPostAnonymously(e.target.checked)}
+              />
+            }
+            label="Post Anonymously"
+          />
+        )}
+        <i style={{ display: 'block' }}>
+          {!postAnonymously &&
+            !!userName &&
+            `Your name (${userName}) will be shared.`}
+          {postAnonymously &&
+            !!userName &&
+            `Posting anonymously will make it impossible for us to follow-up or thank you.`}
+        </i>
       </DialogContent>
       <DialogActions>
         <Button disabled={isCreating} onClick={() => setOpen(false)}>
@@ -160,6 +190,7 @@ export function ReportProblemDialog({
               description,
               selectedText,
               context,
+              postAnonymously ? '' : userName,
               title?.trim().length > 0 ? title.trim() : undefined
             );
             onCreateIssue(issueLink);

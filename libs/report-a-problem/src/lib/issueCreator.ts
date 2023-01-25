@@ -34,11 +34,13 @@ function createIssueBody(
   type: IssueType,
   desc: string,
   selectedText: string,
+  userName: string,
   context: SectionInfo[]
 ) {
   const sectionHierarchy = createSectionHierarchy(context);
+  const user = userName || 'a user';
 
-  return `A content ${type.toString()} was logged by a user at the following url:
+  return `A content ${type.toString()} was logged by "${user}" at the following url:
 
 ${window.location.href}
 
@@ -70,13 +72,16 @@ function createIssueData(
   desc: string,
   selectedText: string,
   context: SectionInfo[],
+  userName: string,
   title?: string
 ) {
   const filepath = context?.[0]?.filepath;
-  const body = createIssueBody(type, desc, selectedText, context);
+  const body = createIssueBody(type, desc, selectedText, userName, context);
   return {
     title: title || `User reported ${type.toString()} ${filepath}`,
-    ...(category === IssueCategory.DISPLAY ? { body } : { description: body }),
+    ...(category === IssueCategory.DISPLAY
+      ? { body, labels: ['user-reported'] }
+      : { description: body }),
   };
 }
 export async function createNewIssue(
@@ -85,6 +90,7 @@ export async function createNewIssue(
   desc: string,
   selectedText: string,
   context: SectionInfo[],
+  userName: string,
   title?: string
 ) {
   const projectId = context?.[0]?.archive || 'sTeX/meta-inf';
@@ -94,6 +100,7 @@ export async function createNewIssue(
     desc,
     selectedText,
     context,
+    userName,
     title
   );
   try {
