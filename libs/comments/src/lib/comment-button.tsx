@@ -13,6 +13,7 @@ import { Comment } from '@stex-react/api';
 import { MdViewer } from '@stex-react/markdown';
 import { getSectionInfo } from '@stex-react/utils';
 import { useEffect, useState } from 'react';
+import { getTotalComments } from './comment-helpers';
 import { CommentNoteToggleView } from './comment-note-toggle-view';
 import {
   getPrivateNotes,
@@ -90,11 +91,11 @@ export function CommentButton({ url = '' }: { url?: string }) {
       return;
     }
     getPublicCommentTrees({ archive, filepath }).then((comments) => {
-      setNumPublicComments(comments?.length);
+      setNumPublicComments(getTotalComments(comments));
       setTopComment(comments?.[0]);
     });
     getPrivateNotes({ archive, filepath }).then((comments) => {
-      setNumPrivateNotes(comments?.length);
+      setNumPrivateNotes(getTotalComments(comments));
       setTopNote(comments?.[0]);
     });
   }, [archive, filepath, open]);

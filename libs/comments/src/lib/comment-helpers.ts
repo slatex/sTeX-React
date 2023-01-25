@@ -60,6 +60,13 @@ function generateCommentHierarchy(
   );
 }
 
+export function getTotalComments(comments?: Comment[]): number {
+  if (!comments) return 0;
+  return comments
+    .map((c) => getTotalComments(c.childComments) + 1)
+    .reduce((p, c) => p + c, 0);
+}
+
 const DRAFT_KEY_PREFIX = 'DRAFT';
 
 function getDraftKey(f: FileLocation, commentId: number) {
@@ -73,19 +80,12 @@ export function retrieveDraft(f: FileLocation, commentId: number) {
   return localStorage.getItem(key);
 }
 
-export function saveDraft(
-  f: FileLocation,
-  commentId: number,
-  draft: string
-) {
+export function saveDraft(f: FileLocation, commentId: number, draft: string) {
   const key = getDraftKey(f, commentId);
   localStorage.setItem(key, draft);
 }
 
-export function discardDraft(
-  f: FileLocation,
-  commentId: number
-) {
+export function discardDraft(f: FileLocation, commentId: number) {
   const key = getDraftKey(f, commentId);
   localStorage.removeItem(key);
 }

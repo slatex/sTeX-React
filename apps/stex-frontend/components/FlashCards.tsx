@@ -11,6 +11,7 @@ import {
   FormControlLabel,
   IconButton,
   Tooltip,
+  Typography,
 } from '@mui/material';
 import {
   BloomDimension,
@@ -56,10 +57,12 @@ export interface FlashCardItem {
 
 export function FlashCardFooter({
   uri,
+  isFront,
   onNext,
   onFlip,
 }: {
   uri: string;
+  isFront: boolean;
   onNext: () => void;
   onFlip: () => void;
 }) {
@@ -88,7 +91,11 @@ export function FlashCardFooter({
       >
         <Box width="78px">&nbsp;</Box>
         <IconButton onClick={onFlip} color="primary">
-          <Tooltip title="Flip the card!">
+          <Tooltip
+            title={
+              isFront ? 'Flip the card to see the definition!' : 'Flip it back!'
+            }
+          >
             <FlipCameraAndroidIcon
               fontSize="large"
               sx={{ transform: 'rotateX(30deg)' }}
@@ -129,7 +136,12 @@ function FlashCardFront({
       >
         <ContentWithHighlight mmtHtml={htmlNode} />
       </Box>
-      <FlashCardFooter uri={uri} onFlip={onFlip} onNext={onNext} />
+      <FlashCardFooter
+        uri={uri}
+        onFlip={onFlip}
+        onNext={onNext}
+        isFront={true}
+      />
     </Box>
   );
 }
@@ -161,7 +173,12 @@ function FlashCardBack({
         />
       </Box>
 
-      <FlashCardFooter uri={uri} onFlip={onFlip} onNext={onNext} />
+      <FlashCardFooter
+        uri={uri}
+        onFlip={onFlip}
+        onNext={onNext}
+        isFront={false}
+      />
     </Box>
   );
 }
@@ -275,9 +292,9 @@ export function ItemListWithStatus({
   uriMap: Map<string, SmileyCognitiveValues>;
 }) {
   return (
-    <table>
+    <table style={{ marginBottom: '20px' }}>
       <tr style={{ color: PRIMARY_COL }}>
-        <th>URI</th>
+        <th>Concept</th>
         <th>Remember</th>
         <th>Understand</th>
       </tr>
@@ -363,9 +380,24 @@ export function SummaryCard({
             <ArrowBackIcon />
             &nbsp;Go Back
           </Button>
+          <Box m="20px 0">
+            <Typography variant='h6'>
+              You recalled{' '}
+              <b>
+                {rememberAndUnderstand.length + rememberNotUnderstand.length}
+              </b>
+              {' '}and understoood{' '}
+              <b>
+                {rememberAndUnderstand.length + notRememberButUnderstand.length}
+              </b>
+              {' '} out of <b>{items.length}</b> concepts.
+            </Typography>
+          </Box>
           {notRememberNotUnderstand.length > 0 && (
             <>
-              <h2>Concepts neither remembered nor understood</h2>
+              <Typography variant="h5">
+                Concepts neither remembered nor understood
+              </Typography>
               <ItemListWithStatus
                 items={notRememberNotUnderstand}
                 uriMap={uriMap}
@@ -374,7 +406,9 @@ export function SummaryCard({
           )}
           {rememberNotUnderstand.length > 0 && (
             <>
-              <h2>Concepts remembered but not understood</h2>
+              <Typography variant="h5">
+                Concepts remembered but not understood
+              </Typography>
               <ItemListWithStatus
                 items={rememberNotUnderstand}
                 uriMap={uriMap}
@@ -383,7 +417,9 @@ export function SummaryCard({
           )}
           {notRememberButUnderstand.length > 0 && (
             <>
-              <h2>Concepts understood but not remembered</h2>
+              <Typography variant="h5">
+                Concepts understood but not remembered
+              </Typography>
               <ItemListWithStatus
                 items={notRememberButUnderstand}
                 uriMap={uriMap}
@@ -392,7 +428,9 @@ export function SummaryCard({
           )}
           {rememberAndUnderstand.length > 0 && (
             <>
-              <h2>Concepts remembered and understood</h2>
+              <Typography variant="h5">
+                Concepts remembered and understood
+              </Typography>
               <ItemListWithStatus
                 items={rememberAndUnderstand}
                 uriMap={uriMap}
