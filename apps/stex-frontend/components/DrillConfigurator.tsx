@@ -77,10 +77,10 @@ function getChapterCounts(
     selectedCards: CardsWithSmileys[];
   }[] = [];
   for (const card of cards) {
-    const chapter = card.chapter;
-    const idx = counts.findIndex((v) => v.chapter === chapter);
+    const chapter = card.instances[0].chapter;
 
     const selected = cardMeetsLevelReqs(card, loggedIn, levels);
+    const idx = counts.findIndex((v) => v.chapter === chapter);
     if (idx === -1) {
       counts.push({
         chapter,

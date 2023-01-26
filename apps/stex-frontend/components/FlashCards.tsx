@@ -28,6 +28,7 @@ import {
   SelfAssessment2,
 } from '@stex-react/stex-react-renderer';
 import {
+  convertHtmlStringToPlain,
   getChildrenOfBodyNode,
   localStore,
   PRIMARY_COL,
@@ -52,7 +53,7 @@ function isDrill(mode: FlashCardMode) {
 
 export interface FlashCardItem {
   uri: string;
-  htmlNode: string;
+  instances: { htmlNode: string }[];
 }
 
 export function FlashCardFooter({
@@ -112,18 +113,35 @@ export function FlashCardFooter({
     </Box>
   );
 }
+function dedupNodes(nodes: string[]) {
+  if(nodes.length<=1) return nodes;
+  const texts = nodes.map((n) => convertHtmlStringToPlain(n).toLowerCase());
+  const selectedIdxs = [];
+  for(const [idx, textA] of texts.entries()) {
+    let dup = false;
+    for(let i=0;i<idx;i++) {
+      if(textA===texts[i]){
+        dup= true;
+        break;
+      }
+    }
+    if(!dup) selectedIdxs.push(idx);
+  }
+  return selectedIdxs.map(idx=>nodes[idx]);
+}
 
 function FlashCardFront({
   uri,
-  htmlNode,
+  htmlNodes,
   onNext,
   onFlip,
 }: {
   uri: string;
-  htmlNode: string;
+  htmlNodes: string[];
   onNext: () => void;
   onFlip: () => void;
 }) {
+  const synonyms = dedupNodes(htmlNodes);
   return (
     <Box className={styles['front']}>
       &nbsp;
@@ -131,10 +149,27 @@ function FlashCardFront({
         sx={{
           width: 'max-content',
           m: '0 auto',
-          '& *': { fontSize: '32px !important' },
+          textAlign: 'center',
+          maxWidth: '100%'
         }}
       >
-        <ContentWithHighlight mmtHtml={htmlNode} />
+        {synonyms.map((htmlNode, idx) => (
+          <>
+            <Box
+              key={idx}
+              sx={{
+                '& *': { fontSize: `${idx === 0 ? 32 : 20}px !important` },
+              }}
+            >
+              <ContentWithHighlight mmtHtml={htmlNode} />
+            </Box>
+            {idx === 0 && synonyms.length > 1 && (
+              <Typography fontSize="12px" my="5px" color="gray">
+                a.k.a.
+              </Typography>
+            )}
+          </>
+        ))}
       </Box>
       <FlashCardFooter
         uri={uri}
@@ -152,8 +187,6 @@ function FlashCardBack({
   onFlip,
 }: {
   uri: string;
-  mode: FlashCardMode;
-  htmlNode: string;
   onNext: () => void;
   onFlip: () => void;
 }) {
@@ -185,14 +218,14 @@ function FlashCardBack({
 
 function FlashCard({
   uri,
-  htmlNode,
+  htmlNodes,
   mode,
   defaultFlipped,
   onNext,
   onPrev,
 }: {
   uri: string;
-  htmlNode: string;
+  htmlNodes: string[];
   mode: FlashCardMode;
   defaultFlipped: boolean;
   onNext: () => void;
@@ -210,6 +243,8 @@ function FlashCard({
     onSwipedRight: (e) => {
       if (!isDrill(mode)) onPrev();
     },
+    delta: 50,
+    preventScrollOnSwipe: true,
   });
 
   useEffect(() => {
@@ -256,14 +291,12 @@ function FlashCard({
           >
             <FlashCardFront
               uri={uri}
-              htmlNode={htmlNode}
+              htmlNodes={htmlNodes}
               onFlip={() => setIsFlipped(true)}
               onNext={onNext}
             />
             <FlashCardBack
               uri={uri}
-              htmlNode={htmlNode}
-              mode={mode}
               onNext={onNext}
               onFlip={() => setIsFlipped(false)}
             />
@@ -318,7 +351,7 @@ export function ItemListWithStatus({
           <tr key={item.uri}>
             <td>
               <Box mr="10px">
-                <ContentWithHighlight mmtHtml={item.htmlNode} />
+                <ContentWithHighlight mmtHtml={item.instances[0].htmlNode} />
               </Box>
             </td>
             <td>
@@ -534,7 +567,7 @@ export function FlashCards({
       </Box>
       <FlashCard
         uri={currentItem.uri}
-        htmlNode={currentItem.htmlNode}
+        htmlNodes={currentItem.instances.map((i) => i.htmlNode)}
         mode={mode}
         defaultFlipped={defaultFlipped && !isDrill(mode)}
         onNext={() => {

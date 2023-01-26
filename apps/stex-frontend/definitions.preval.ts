@@ -15,12 +15,17 @@ import { exit } from 'process';
 
 const fromPrevaluated = false;
 const ENDING_CHAPTER = 'ENDING_CHAPTER';
-export interface DefInfo {
+
+export interface DefInstance {
   chapter: string;
-  isBad: boolean;
   docUrl: string;
-  uri: string;
   htmlNode: string;
+}
+
+export interface DefInfo {
+  uri: string;
+  isBad: boolean;
+  instances: DefInstance[];
 }
 
 export interface DefsAndLatestChapter {
@@ -51,11 +56,15 @@ function getDefsOfDocNode(
       delete node.attribs['data-overlay-link-click'];
     const htmlNode = getOuterHTML(node);
     const def = {
-      docUrl,
       uri: node.attribs?.['resource'],
-      chapter,
-      htmlNode,
       isBad: false,
+      instances: [
+        {
+          docUrl,
+          chapter,
+          htmlNode,
+        },
+      ],
     };
     return { defs: [def], chapter };
   }
@@ -79,7 +88,11 @@ function printDefinitions(grouped: { [chapter: string]: DefInfo[] }) {
   for (const [chapter, defs] of Object.entries(grouped)) {
     out += `    '${chapter}': [\n`;
     for (const def of defs) {
-      out += `      { uri: \`${def.uri}\`, isBad: ${def.isBad}, chapter: \`${def.chapter}\`, docUrl: \`${def.docUrl}\`, htmlNode: \`${def.htmlNode}\`},\n`;
+      out += `      { uri: \`${def.uri}\`, isBad: ${def.isBad}, instances: [`;
+      for (const inst of def.instances) {
+        out += `{ chapter: \`${inst.chapter}\`, docUrl: \`${inst.docUrl}\`, htmlNode: \`${inst.htmlNode}\`}, `;
+      }
+      out += `]},\n`;
     }
     out += '    ],\n';
   }
@@ -102,16 +115,11 @@ function getDefinitionsOfDoc(
   return getDefsOfDocNode(docUrl, htmlDoc, courseId, chapter);
 }
 
-function uriExists(defs: DefInfo[], uri: string) {
-  for (const def of defs) if (uri === def.uri) return true;
-  return false;
-}
-
 function groupByChapter(defs: DefInfo[]) {
   let chapter = undefined;
   const byChapter: { [chapter: string]: DefInfo[] } = {};
   for (const def of defs) {
-    const defChapter = def.chapter;
+    const defChapter = def.instances[0].chapter;
     if (defChapter !== chapter) {
       if (defChapter in byChapter) {
         console.log(defs);
@@ -121,9 +129,9 @@ function groupByChapter(defs: DefInfo[]) {
       chapter = defChapter;
       byChapter[chapter] = [];
     }
-    if (!uriExists(byChapter[chapter], def.uri)) {
-      byChapter[chapter].push(def);
-    }
+    const idx = byChapter[chapter].findIndex((v) => v.uri === def.uri);
+    if (idx >= 0) byChapter[chapter][idx].instances.push(def.instances[0]);
+    else byChapter[chapter].push(def);
   }
   return byChapter;
 }
@@ -183,7 +191,15 @@ async function getDefinitions() {
   await checkBadDefs(courseDefs);
 
   console.log(
-    `export const PREVALUATED_DEFINITIONS: { [courseId: string]: {[chapter:string]: {chapter: string; isBad: boolean; docUrl:string; uri: string, htmlNode: string}[]} } = {`
+    `export const PREVALUATED_DEFINITIONS: {
+  [courseId: string]: {
+    [chapter: string]: {
+      isBad: boolean;
+      uri: string;
+      instances: { chapter: string; docUrl: string; htmlNode: string }[];
+    }[];
+  };
+} = {`
   );
   for (const courseId of Object.keys(COURSE_ROOTS)) {
     const defs = courseDefs[courseId];

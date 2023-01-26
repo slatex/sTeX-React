@@ -1,5 +1,10 @@
-import DRILLS from '../../../definitions.preval';
-import { EXCLUDED_CHAPTERS, removeBadDefs } from '../get-cards/[courseId]/[chapter]';
+import DRILLS, { DefInfo } from '../../../definitions.preval';
+export const EXCLUDED_CHAPTERS = ['Preface', 'Administrativa', 'Resources'];
+
+export function removeBadDefs(defs?: DefInfo[]) {
+  if (!defs) return undefined;
+  return defs.filter((def) => !def.isBad);
+}
 
 export default async function handler(req, res) {
   res.setHeader(
