@@ -33,7 +33,7 @@ import {
   localStore,
   PRIMARY_COL,
 } from '@stex-react/utils';
-import { useEffect, useReducer, useRef, useState } from 'react';
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { useSwipeable } from 'react-swipeable';
 import styles from '../styles/flash-card.module.scss';
 
@@ -114,20 +114,20 @@ export function FlashCardFooter({
   );
 }
 function dedupNodes(nodes: string[]) {
-  if(nodes.length<=1) return nodes;
+  if (nodes.length <= 1) return nodes;
   const texts = nodes.map((n) => convertHtmlStringToPlain(n).toLowerCase());
   const selectedIdxs = [];
-  for(const [idx, textA] of texts.entries()) {
+  for (const [idx, textA] of texts.entries()) {
     let dup = false;
-    for(let i=0;i<idx;i++) {
-      if(textA===texts[i]){
-        dup= true;
+    for (let i = 0; i < idx; i++) {
+      if (textA === texts[i]) {
+        dup = true;
         break;
       }
     }
-    if(!dup) selectedIdxs.push(idx);
+    if (!dup) selectedIdxs.push(idx);
   }
-  return selectedIdxs.map(idx=>nodes[idx]);
+  return selectedIdxs.map((idx) => nodes[idx]);
 }
 
 function FlashCardFront({
@@ -150,7 +150,7 @@ function FlashCardFront({
           width: 'max-content',
           m: '0 auto',
           textAlign: 'center',
-          maxWidth: '100%'
+          maxWidth: '100%',
         }}
       >
         {synonyms.map((htmlNode, idx) => (
@@ -215,7 +215,6 @@ function FlashCardBack({
     </Box>
   );
 }
-
 function FlashCard({
   uri,
   htmlNodes,
@@ -236,15 +235,28 @@ function FlashCard({
     setIsFlipped(defaultFlipped);
   }, [uri]);
 
+  const timer = useRef(null);
+
+  const tapHandler = useCallback((event) => {
+    if (!timer.current) {
+      timer.current = setTimeout(() => {
+        timer.current = null;
+      }, 300); // the double click/tap threshold
+    } else {
+      clearTimeout(timer.current);
+      timer.current = null;
+      // Do your custom double click/tap stuff here
+      setIsFlipped((prev) => !prev);
+    }
+  }, []);
+
   const handlers = useSwipeable({
-    onSwipedDown: (e) => setIsFlipped((prev) => !prev),
-    onSwipedUp: (e) => setIsFlipped((prev) => !prev),
     onSwipedLeft: (e) => onNext(),
     onSwipedRight: (e) => {
       if (!isDrill(mode)) onPrev();
     },
+    onTap: tapHandler,
     delta: 50,
-    preventScrollOnSwipe: true,
   });
 
   useEffect(() => {
@@ -277,6 +289,7 @@ function FlashCard({
         maxHeight="calc(100vh - 90px)"
         margin="auto"
         {...handlers}
+        onDoubleClick={() => setIsFlipped((prev) => !prev)}
       >
         <Box
           display="flex"
@@ -313,13 +326,8 @@ function filterItems(
   rememberValues: SmileyType[],
   understandValues: SmileyType[]
 ) {
-  console.log(uriMap);
   return items.filter((item) => {
     const smileyVal = uriMap.get(item.uri);
-    console.log(item);
-    console.log(smileyVal);
-    console.log(rememberValues);
-    console.log(understandValues);
     return (
       rememberValues.includes(smileyVal?.Remember) &&
       understandValues.includes(smileyVal?.Understand)

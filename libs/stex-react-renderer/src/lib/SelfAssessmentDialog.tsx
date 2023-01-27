@@ -94,7 +94,11 @@ function SelfAssessmentPopup({
 }) {
   return (
     <Box
-      sx={{ background: SECONDARY_COL, border: `1px solid ${PRIMARY_COL}` }}
+      sx={{
+        background: SECONDARY_COL,
+        border: `1px solid ${PRIMARY_COL}`,
+        userSelect: 'none',
+      }}
       p="5px 0"
       borderRadius="5px"
     >
