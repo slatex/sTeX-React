@@ -214,6 +214,7 @@ function FlashCardBack({
     </Box>
   );
 }
+const start = Date.now();
 function FlashCard({
   uri,
   htmlNodes,
@@ -242,11 +243,14 @@ function FlashCard({
       if (!isDrill(mode)) onPrev();
     },
     onTap: (e) => {
-      const currentTimeMs = Date.now();
+      const currentTimeMs = Date.now() - start;
       if (currentTimeMs - lastTapTimeMs < 300) {
+        
+        console.log(`double tap: ${currentTimeMs} ${lastTapTimeMs} ${currentTimeMs - lastTapTimeMs} `);
         setIsFlipped((prev) => !prev);
         setLastTapTimeMs(0);
       } else {
+        console.log(`noo: ${currentTimeMs} ${lastTapTimeMs} ${currentTimeMs - lastTapTimeMs} `);
         setLastTapTimeMs(currentTimeMs);
       }
     },
