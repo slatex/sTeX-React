@@ -33,7 +33,7 @@ import {
   localStore,
   PRIMARY_COL,
 } from '@stex-react/utils';
-import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { useSwipeable } from 'react-swipeable';
 import styles from '../styles/flash-card.module.scss';
 
@@ -154,9 +154,8 @@ function FlashCardFront({
         }}
       >
         {synonyms.map((htmlNode, idx) => (
-          <>
+          <Fragment key={idx}>
             <Box
-              key={idx}
               sx={{
                 '& *': { fontSize: `${idx === 0 ? 32 : 20}px !important` },
               }}
@@ -168,7 +167,7 @@ function FlashCardFront({
                 a.k.a.
               </Typography>
             )}
-          </>
+          </Fragment>
         ))}
       </Box>
       <FlashCardFooter
@@ -235,27 +234,22 @@ function FlashCard({
     setIsFlipped(defaultFlipped);
   }, [uri]);
 
-  const timer = useRef(null);
-
-  const tapHandler = useCallback((event) => {
-    if (!timer.current) {
-      timer.current = setTimeout(() => {
-        timer.current = null;
-      }, 300); // the double click/tap threshold
-    } else {
-      clearTimeout(timer.current);
-      timer.current = null;
-      // Do your custom double click/tap stuff here
-      setIsFlipped((prev) => !prev);
-    }
-  }, []);
+  const [lastTapTimeMs, setLastTapTimeMs] = useState(0);
 
   const handlers = useSwipeable({
     onSwipedLeft: (e) => onNext(),
     onSwipedRight: (e) => {
       if (!isDrill(mode)) onPrev();
     },
-    onTap: tapHandler,
+    onTap: (e) => {
+      const currentTimeMs = Date.now();
+      if (currentTimeMs - lastTapTimeMs < 300) {
+        setIsFlipped((prev) => !prev);
+        setLastTapTimeMs(0);
+      } else {
+        setLastTapTimeMs(currentTimeMs);
+      }
+    },
     delta: 50,
   });
 
