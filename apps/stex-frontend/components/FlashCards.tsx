@@ -247,7 +247,11 @@ function FlashCard({
       if (currentTimeMs - lastTapTimeMs < 300) {
         
         console.log(`double tap: ${currentTimeMs} ${lastTapTimeMs} ${currentTimeMs - lastTapTimeMs} `);
-        setIsFlipped((prev) => !prev);
+        setIsFlipped((prev) => {
+          console.log(`prev= ${prev}`);
+          console.log(`isFlipped= ${isFlipped}`);
+          return !prev;
+        });
         setLastTapTimeMs(0);
       } else {
         console.log(`noo: ${currentTimeMs} ${lastTapTimeMs} ${currentTimeMs - lastTapTimeMs} `);
