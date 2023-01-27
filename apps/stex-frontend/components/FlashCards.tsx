@@ -291,7 +291,6 @@ function FlashCard({
         maxHeight="calc(100vh - 90px)"
         margin="auto"
         {...handlers}
-        onDoubleClick={() => setIsFlipped((prev) => !prev)}
       >
         <Box
           display="flex"
