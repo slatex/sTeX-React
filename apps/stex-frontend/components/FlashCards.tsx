@@ -33,7 +33,7 @@ import {
   localStore,
   PRIMARY_COL,
 } from '@stex-react/utils';
-import { Fragment, useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import { Fragment, useEffect, useReducer, useRef, useState } from 'react';
 import { useSwipeable } from 'react-swipeable';
 import styles from '../styles/flash-card.module.scss';
 
@@ -214,7 +214,7 @@ function FlashCardBack({
     </Box>
   );
 }
-const start = Date.now();
+
 function FlashCard({
   uri,
   htmlNodes,
@@ -243,18 +243,11 @@ function FlashCard({
       if (!isDrill(mode)) onPrev();
     },
     onTap: (e) => {
-      const currentTimeMs = Date.now() - start;
+      const currentTimeMs = Date.now();
       if (currentTimeMs - lastTapTimeMs < 300) {
-        
-        console.log(`double tap: ${currentTimeMs} ${lastTapTimeMs} ${currentTimeMs - lastTapTimeMs} `);
-        setIsFlipped((prev) => {
-          console.log(`prev= ${prev}`);
-          console.log(`isFlipped= ${isFlipped}`);
-          return !prev;
-        });
+        setIsFlipped((prev) => !prev);
         setLastTapTimeMs(0);
       } else {
-        console.log(`noo: ${currentTimeMs} ${lastTapTimeMs} ${currentTimeMs - lastTapTimeMs} `);
         setLastTapTimeMs(currentTimeMs);
       }
     },
