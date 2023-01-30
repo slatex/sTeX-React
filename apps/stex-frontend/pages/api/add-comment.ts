@@ -1,9 +1,40 @@
 import { Comment } from '@stex-react/api';
+import { PathToArticle } from '@stex-react/utils';
+import axios from 'axios';
 import {
   checkIfPostOrSetError,
   executeAndEndSet500OnError,
   getUserIdOrSetError,
 } from './comment-utils';
+
+async function sendAlert(
+  isPrivate: boolean,
+  archive: string,
+  filepath: string
+) {
+  if (
+    !isPrivate &&
+    process.env.VOLL_KI_ALERTS_CHANNEL_ID &&
+    process.env.VOLL_KI_ALERTS_BOT_TOKEN
+  ) {
+    return;
+  }
+  const articlePath =
+    'https://courses.voll-ki.fau.de' + PathToArticle({ archive, filepath });
+  await axios.post(
+    'https://mattermost.kwarc.info/api/v4/posts',
+    {
+      channel_id: process.env.VOLL_KI_ALERTS_CHANNEL_ID,
+      message: `A new comment was posted at ${articlePath}`,
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.VOLL_KI_ALERTS_BOT_TOKEN}`,
+      },
+    }
+  );
+}
 
 export default async function handler(req, res) {
   if (!checkIfPostOrSetError(req, res)) return;
@@ -59,4 +90,5 @@ export default async function handler(req, res) {
   if (!results) return;
   const newCommentId = results['insertId'];
   res.status(200).json({ newCommentId });
+  await sendAlert(isPrivate, archive, filepath);
 }
