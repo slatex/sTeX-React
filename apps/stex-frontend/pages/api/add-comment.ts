@@ -13,9 +13,9 @@ async function sendAlert(
   filepath: string
 ) {
   if (
-    !isPrivate &&
-    process.env.VOLL_KI_ALERTS_CHANNEL_ID &&
-    process.env.VOLL_KI_ALERTS_BOT_TOKEN
+    isPrivate ||
+    !process.env.VOLL_KI_ALERTS_CHANNEL_ID ||
+    !process.env.VOLL_KI_ALERTS_BOT_TOKEN
   ) {
     return;
   }
