@@ -1,4 +1,5 @@
 import axios, { RawAxiosRequestHeaders } from 'axios';
+import { sendAlert } from './add-comment';
 
 function getHeaders(category: string): RawAxiosRequestHeaders {
   if (category === 'CONTENT') {
@@ -19,7 +20,7 @@ export default async function handler(req, res) {
   const response = await axios.post(body.createNewIssueUrl, body.data, {
     headers,
   });
-  res
-    .status(200)
-    .json({ issue_url: response.data['web_url'] || response.data['html_url'] });
+  const issue_url = response.data['web_url'] || response.data['html_url'];
+  res.status(200).json({ issue_url });
+  await sendAlert(`A user-reported issue was created at ${issue_url}`);
 }

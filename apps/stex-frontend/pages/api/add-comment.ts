@@ -7,25 +7,26 @@ import {
   getUserIdOrSetError,
 } from './comment-utils';
 
-async function sendAlert(
+async function sendCommentAlert(
   isPrivate: boolean,
   archive: string,
   filepath: string
 ) {
-  if (
-    isPrivate ||
-    !process.env.VOLL_KI_ALERTS_CHANNEL_ID ||
-    !process.env.VOLL_KI_ALERTS_BOT_TOKEN
-  ) {
-    return;
-  }
+  if (isPrivate) return;
   const articlePath =
     'https://courses.voll-ki.fau.de' + PathToArticle({ archive, filepath });
-  await axios.post(
+  await sendAlert(`A comment was posted at ${articlePath}`);
+}
+
+export async function sendAlert(message: string) {
+  if (!process.env.VOLL_KI_ALERTS_CHANNEL_ID) return;
+  if (!process.env.VOLL_KI_ALERTS_BOT_TOKEN) return;
+
+  return await axios.post(
     'https://mattermost.kwarc.info/api/v4/posts',
     {
       channel_id: process.env.VOLL_KI_ALERTS_CHANNEL_ID,
-      message: `A new comment was posted at ${articlePath}`,
+      message,
     },
     {
       headers: {
@@ -90,5 +91,5 @@ export default async function handler(req, res) {
   if (!results) return;
   const newCommentId = results['insertId'];
   res.status(200).json({ newCommentId });
-  await sendAlert(isPrivate, archive, filepath);
+  await sendCommentAlert(isPrivate, archive, filepath);
 }
