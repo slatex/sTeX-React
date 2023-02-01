@@ -36,6 +36,7 @@ import {
 import { Fragment, useEffect, useReducer, useRef, useState } from 'react';
 import { useSwipeable } from 'react-swipeable';
 import styles from '../styles/flash-card.module.scss';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 enum CardType {
   ITEM_CARD,
@@ -279,8 +280,8 @@ function FlashCard({
     >
       <Box
         display="flex"
-        width="420px"
-        height="700px"
+        width="600px"
+        height="800px"
         maxHeight="calc(100vh - 90px)"
         margin="auto"
         {...handlers}
@@ -491,22 +492,23 @@ export function SummaryCard({
 }
 
 export function FlashCards({
-  items,
   mode,
-  onCancelOrFinish,
+  cards,
+  onFinish: onFinish,
 }: {
   mode: FlashCardMode;
-  items: FlashCardItem[];
-  onCancelOrFinish: () => void;
+  cards: FlashCardItem[];
+  onFinish: () => void;
 }) {
   const [cardType, setCardType] = useState(CardType.ITEM_CARD);
   const [cardNo, setCardNo] = useState(0);
+  const [drillCardsSeen, setDrillCardsSeen] = useState(0);
 
   const [defaultFlipped, setDefaultSkipped] = useState(
     !!localStore?.getItem('default-flipped')
   );
 
-  const currentItem = items[cardNo];
+  const currentItem = cards[cardNo];
 
   useEffect(() => {
     if (
@@ -517,10 +519,10 @@ export function FlashCards({
     }
     const handlePrevAndNext = (event: KeyboardEvent) => {
       if (event.code === 'ArrowLeft') {
-        setCardNo((prev) => (prev + items.length - 1) % items.length);
+        setCardNo((prev) => (prev + cards.length - 1) % cards.length);
       }
       if (event.code === 'ArrowRight') {
-        setCardNo((prev) => (prev + 1) % items.length);
+        setCardNo((prev) => (prev + 1) % cards.length);
       }
     };
 
@@ -532,30 +534,41 @@ export function FlashCards({
   }, [cardType, mode]);
 
   if (cardType === CardType.SUMMARY_CARD) {
-    return <SummaryCard items={items} onFinish={() => onCancelOrFinish()} />;
+    return (
+      <SummaryCard
+        items={cards.slice(0, drillCardsSeen)}
+        onFinish={() => onFinish()}
+      />
+    );
   }
   return (
     <Box display="flex" flexDirection="column">
       <Box mb="10px" display="flex" justifyContent="space-between">
         <IconButton
           onClick={() => {
-            const confirmExit = 'Are you sure you want to leave the drill?';
-            if (!isDrill(mode) || confirm(confirmExit)) onCancelOrFinish();
+            const earlyFinish =
+              'Are you sure you want to leave the drill early?';
+            if (!isDrill(mode)) {
+              onFinish();
+            } else if (confirm(earlyFinish)) {
+              setDrillCardsSeen(cardNo + 1);
+              setCardType(CardType.SUMMARY_CARD);
+            }
           }}
         >
-          <ArrowBackIcon />
+          {isDrill(mode) ? <CancelIcon /> : <ArrowBackIcon />}
         </IconButton>
         {!isDrill(mode) ? (
           <Box>
             <IconButton
               onClick={() =>
-                setCardNo((prev) => (prev + items.length - 1) % items.length)
+                setCardNo((prev) => (prev + cards.length - 1) % cards.length)
               }
             >
               <NavigateBeforeIcon />
             </IconButton>
             <IconButton
-              onClick={() => setCardNo((prev) => (prev + 1) % items.length)}
+              onClick={() => setCardNo((prev) => (prev + 1) % cards.length)}
             >
               <NavigateNextIcon />
             </IconButton>
@@ -563,7 +576,7 @@ export function FlashCards({
         ) : null}
         <Box sx={{ m: '10px 20px', color: '#333', minWidth: '60px' }}>
           <b style={{ fontSize: '18px' }}>
-            {cardNo + 1} of {items.length}
+            {cardNo + 1} of {cards.length}
           </b>
         </Box>
       </Box>
@@ -573,13 +586,14 @@ export function FlashCards({
         mode={mode}
         defaultFlipped={defaultFlipped && !isDrill(mode)}
         onNext={() => {
-          if (cardNo >= items.length - 1 && isDrill(mode)) {
+          if (cardNo >= cards.length - 1 && isDrill(mode)) {
+            setDrillCardsSeen(cards.length);
             setCardType(CardType.SUMMARY_CARD);
           }
-          setCardNo((prev) => (prev + 1) % items.length);
+          setCardNo((prev) => (prev + 1) % cards.length);
         }}
         onPrev={() =>
-          setCardNo((prev) => (prev + items.length - 1) % items.length)
+          setCardNo((prev) => (prev + cards.length - 1) % cards.length)
         }
       />
 

@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   CircularProgress,
+  FormControlLabel,
   IconButton,
   List,
   ListItem,
@@ -24,11 +25,18 @@ import {
   SMILEY_TOOLTIPS,
 } from '@stex-react/api';
 import { DimIcon, LevelIcon } from '@stex-react/stex-react-renderer';
-import { PRIMARY_COL, SECONDARY_COL } from '@stex-react/utils';
+import { PRIMARY_COL, SECONDARY_COL, stableShuffle } from '@stex-react/utils';
 import axios from 'axios';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { DefInfo } from '../definitions.preval';
+import ShuffleIcon from '@mui/icons-material/Shuffle';
 import { FlashCardMode, FlashCards } from './FlashCards';
+
+export const FLASH_CARDS_INTRO =
+  '"Flash Cards" support reviewing and drilling the concepts of the' +
+  ' course. Learners are shown cards with concept names that can be' +
+  ' flipped to view the definition. Learners self-assess their concept' +
+  ' mastery, which helps us update the cards shown in drills.';
 
 function getMarks(
   dim: BloomDimension,
@@ -55,10 +63,12 @@ function cardMeetsLevelReqs(
   levels: ConfiguredLevel
 ) {
   if (!loggedIn) return true;
-  return ![BloomDimension.Remember, BloomDimension.Understand].some(
-    (dim) =>
-      smileyToLevel(card[dim]) > (levels[dim] === undefined ? 2 : levels[dim])
-  );
+  const dimsToConsider = [
+    BloomDimension.Remember,
+    BloomDimension.Understand,
+  ].filter((dim) => levels[dim] !== undefined);
+  if (!dimsToConsider.length) return true;
+  return dimsToConsider.some((dim) => smileyToLevel(card[dim]) <= levels[dim]);
 }
 
 function getChapterCounts(
@@ -122,7 +132,7 @@ function LevelConfigurator({
           Choose competency levels
         </Typography>
       </Tooltip>
-      <i style={{ color: 'gray' }}>
+      <i style={{ color: '#777' }}>
         The selection will put all cards up to the chosen competency level onto
         the stack.
       </i>
@@ -176,9 +186,9 @@ function LevelConfigurator({
 function CoverageConfigurator({
   chapterCounts,
   checkedChapterIdxs,
-  levels,
   setCheckedChapterIdxs,
   startSingleChapter,
+  shuffle,
 }: {
   chapterCounts: {
     chapter: string;
@@ -186,9 +196,9 @@ function CoverageConfigurator({
     selectedCards: CardsWithSmileys[];
   }[];
   checkedChapterIdxs: number[];
-  levels: ConfiguredLevel;
   setCheckedChapterIdxs: Dispatch<SetStateAction<number[]>>;
   startSingleChapter: (chapterIdx: number, mode: FlashCardMode) => void;
+  shuffle: boolean;
 }) {
   const handleToggle = (value: number) => () => {
     const currentIndex = checkedChapterIdxs.indexOf(value);
@@ -267,7 +277,8 @@ function CoverageConfigurator({
                         startSingleChapter(idx, FlashCardMode.DRILL_MODE);
                       }}
                     >
-                      Drill
+                      Drill&nbsp;
+                      {shuffle && <ShuffleIcon fontSize="small" />}
                     </Button>
                   )}
                 </Box>
@@ -282,16 +293,29 @@ function CoverageConfigurator({
 function ReviseAndDrillButtons({
   selectedCards,
   start,
+  shuffle,
+  setShuffle,
 }: {
   selectedCards: CardsWithSmileys[];
   start: (mode: FlashCardMode) => void;
+  shuffle: boolean;
+  setShuffle: (r: boolean) => void;
 }) {
   const loggedIn = isLoggedIn();
   const isDisabled = selectedCards.length === 0;
 
   return (
-    <Box>
-      <Box display="flex" gap="10px" justifyContent="center" m="20px 0 5px">
+    <Box textAlign={'center'} mt="20px">
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={shuffle}
+            onChange={(e) => setShuffle(e.target.checked)}
+          />
+        }
+        label="Shuffle drill cards"
+      />
+      <Box display="flex" gap="10px" justifyContent="center" mb="5px">
         <Button
           variant="contained"
           disabled={isDisabled}
@@ -311,7 +335,8 @@ function ReviseAndDrillButtons({
               start(FlashCardMode.DRILL_MODE);
             }}
           >
-            Drill
+            Drill&nbsp;
+            {shuffle && <ShuffleIcon fontSize="small" />}
           </Button>
         )}
       </Box>
@@ -329,6 +354,32 @@ function ReviseAndDrillButtons({
     </Box>
   );
 }
+
+function getSelectedCards(
+  mode: FlashCardMode,
+  shuffle: boolean,
+  chapterCounts: {
+    chapter: string;
+    totalCount: number;
+    selectedCards: CardsWithSmileys[];
+  }[],
+  selectedChapters: string[]
+) {
+  const selected = chapterCounts
+    .filter((chap) => selectedChapters.includes(chap.chapter))
+    .map((v) => v.selectedCards)
+    .flat(1);
+  console.log(mode === FlashCardMode.DRILL_MODE);
+  console.log(shuffle);
+  if (shuffle && mode === FlashCardMode.DRILL_MODE) {
+    console.log(selected);
+    const shuff = stableShuffle(selected);
+    console.log(shuff);
+    return shuff;
+  }
+  return selected;
+}
+
 export function DrillConfigurator({ courseId }: { courseId: string }) {
   const [isLoading, setIsLoading] = useState(false);
   const [courseCards, setCourseCards] = useState<
@@ -336,12 +387,13 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
   >(undefined);
 
   const [levels, setLevels] = useState<ConfiguredLevel>({
-    Remember: 2,
-    Understand: 2,
+    Remember: 0,
+    Understand: 0,
   });
   const [checkedChapterIdxs, setCheckedChapterIdxs] = useState<number[]>([]);
   const [started, setStarted] = useState(false);
   const [mode, setMode] = useState(FlashCardMode.REVISION_MODE);
+  const [shuffle, setShuffle] = useState(true);
 
   const loggedIn = isLoggedIn();
 
@@ -349,11 +401,12 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
   const selectedChapters = checkedChapterIdxs.map(
     (idx) => chapterCounts[idx].chapter
   );
-  const selectedCards = chapterCounts
-    .filter((chap) => selectedChapters.includes(chap.chapter))
-    .map((v) => v.selectedCards)
-    .flat(1);
-
+  const selectedCards = getSelectedCards(
+    mode,
+    shuffle,
+    chapterCounts,
+    selectedChapters
+  );
   useEffect(() => {
     if (!courseId) return;
     setIsLoading(true);
@@ -373,18 +426,20 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
     return (
       <FlashCards
         mode={mode}
-        items={selectedCards}
-        onCancelOrFinish={() => setStarted(false)}
+        cards={selectedCards}
+        onFinish={() => setStarted(false)}
       />
     );
   }
 
   return (
     <Box mt="15px">
-      <Typography variant="h5" style={{ textAlign: 'center' }}>
+      <Typography variant="h5" sx={{ textAlign: 'center', mb: '10px' }}>
         Configure your flash card stack for drilling/revising!
       </Typography>
-
+      <Typography variant="body2" sx={{ color: '#777', px: '10px' }}>
+        {FLASH_CARDS_INTRO}
+      </Typography>
       <br />
       <Box
         display="flex"
@@ -398,6 +453,8 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
             <LevelConfigurator levels={levels} setLevels={setLevels} />
           )}
           <ReviseAndDrillButtons
+            shuffle={shuffle}
+            setShuffle={setShuffle}
             selectedCards={selectedCards}
             start={(mode) => {
               setMode(mode);
@@ -409,8 +466,8 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
           <CoverageConfigurator
             chapterCounts={chapterCounts}
             checkedChapterIdxs={checkedChapterIdxs}
-            levels={levels}
             setCheckedChapterIdxs={setCheckedChapterIdxs}
+            shuffle={shuffle}
             startSingleChapter={(idx, mode) => {
               setCheckedChapterIdxs([idx]);
               setMode(mode);
@@ -420,6 +477,8 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
         </Box>
       </Box>
       <ReviseAndDrillButtons
+        shuffle={shuffle}
+        setShuffle={setShuffle}
         selectedCards={selectedCards}
         start={(mode) => {
           setMode(mode);

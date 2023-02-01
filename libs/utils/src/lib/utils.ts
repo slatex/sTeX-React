@@ -8,8 +8,8 @@ export const Window = IS_SERVER ? undefined : window;
 export const IS_MMT_VIEWER = IS_SERVER
   ? false
   : (window as any).SHOW_FILE_BROWSER !== undefined;
-  export const PRIMARY_COL = '#203360';
-  export const SECONDARY_COL = '#8c9fb1';
+export const PRIMARY_COL = '#203360';
+export const SECONDARY_COL = '#8c9fb1';
 
 export function shouldUseDrawer(windowWidth?: number) {
   if (!windowWidth) windowWidth = Window?.innerWidth;
@@ -155,4 +155,37 @@ export function downloadFile(data: any, fileName: string, fileType: string) {
   });
   a.dispatchEvent(clickEvt);
   a.remove();
+}
+
+// A "stable" random function generator. Stable because we can provide it a seed.
+// https://stackoverflow.com/questions/521295/seeding-the-random-number-generator-in-javascript
+function mulberry32(seed: number) {
+  return function () {
+    let t = (seed += 0x6d2b79f5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+export function stableShuffle(array: any[]) {
+  let currentIndex = array.length,
+    randomIndex;
+
+  const randomGen = mulberry32(array.length);
+  // While there remain elements to shuffle.
+  while (currentIndex != 0) {
+    // Pick a remaining element.
+    randomIndex = Math.floor(randomGen() * currentIndex);
+    currentIndex--;
+
+    // And swap it with the current element.
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex],
+      array[currentIndex],
+    ];
+  }
+
+  return array;
 }

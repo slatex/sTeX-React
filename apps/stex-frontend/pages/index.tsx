@@ -5,6 +5,7 @@ import { NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { FLASH_CARDS_INTRO } from '../components/DrillConfigurator';
 import { ToursAutocomplete } from '../components/ToursAutocomplete';
 import MainLayout from '../layouts/MainLayout';
 import styles from '../styles/utils.module.scss';
@@ -67,17 +68,19 @@ function CourseThumb({
             </Button>
           </Link>
           {cardsLink && (
-            <Link href={cardsLink} passHref>
-              <Button size="small" variant="contained">
-                Cards&nbsp;
-                <Image
-                  src="/noun-flash-cards-2494102.svg"
-                  width={25}
-                  height={25}
-                  alt="Flash Cards"
-                />
-              </Button>
-            </Link>
+            <Tooltip title={FLASH_CARDS_INTRO}>
+              <Link href={cardsLink} passHref>
+                <Button size="small" variant="contained">
+                  Cards&nbsp;
+                  <Image
+                    src="/noun-flash-cards-2494102.svg"
+                    width={25}
+                    height={25}
+                    alt="Flash Cards"
+                  />
+                </Button>
+              </Link>
+            </Tooltip>
           )}
           {slidesLink && (
             <Link href={slidesLink} passHref>
