@@ -1,5 +1,5 @@
 import { useMatomo } from '@jonkoops/matomo-tracker-react';
-import { Box, Toolbar } from '@mui/material';
+import { Box, Toolbar, Typography } from '@mui/material';
 import { ReportProblemPopover } from '@stex-react/report-a-problem';
 import { PRIMARY_COL, SECONDARY_COL } from '@stex-react/utils';
 import Head from 'next/head';
@@ -42,6 +42,10 @@ export default function MainLayout({
       <main style={{ flexGrow: 1 }}>
         <Header showBrowserAutocomplete={showBrowserAutocomplete} />
         <ReportProblemPopover />
+        <Typography sx={{ color: 'red', fontWeight: 'bold', textAlign: "center" }}>
+          The system is currently down and we are working to get it resolved. We apologize
+          for the inconvenience.
+        </Typography>
         <Box>{children}</Box>
       </main>
       <footer id="footer">
