@@ -1,29 +1,30 @@
 .option {
   border: 1px solid #AAA;
-  border-radius: 10px;
-  margin: 10px!important;
+  border-radius: 5px;
   padding-right: 10px;
   user-select: none;
 }
 
-.option_selected {
+.option_unsubmitted_selected {
   background-color: #999;
-  border-color: gray!important;
-  border-width: 3px!important;
-  margin: 8px!important;
+}
+
+.option_selected {
+  border-width: 3px !important;
+  margin: 8px;
+}
+
+.option_not_selected {
+  border-width: 1px !important;
+  margin: 10px;
 }
 
 .correct {
-  background-color: #23cb23;
-  border-color: #178717!important;
-  border-width: 3px!important;
-  margin: 8px!important;
+  background-color: #a3e9a0;
+  border-color: #178717 !important;
 }
 
-
 .incorrect {
-  background-color: #eb6262;
-  border-color: #da1010!important;
-  border-width: 3px!important;
-  margin: 8px!important;
+  background-color: #f39797;
+  border-color: #da1010 !important;
 }

@@ -5,7 +5,7 @@ import { QuizDisplay } from '../components/QuizDisplay';
 import MainLayout from '../layouts/MainLayout';
 
 const QuizPage: NextPage = () => {
-  const [path, setPath] = useState('problems/IWGS/digdocs/quiz');
+  const [path, setPath] = useState('MiKoMH/AI/csp/quiz');
   return (
     <MainLayout title="Quizzes | VoLL-KI">
       <Box mx="10px">
@@ -17,12 +17,12 @@ const QuizPage: NextPage = () => {
             label="Age"
             onChange={(e) => setPath(e.target.value)}
           >
-            <MenuItem value={'problems/IWGS/digdocs/quiz'}>
-              {'problems/IWGS/digdocs/quiz'}
+            <MenuItem value={'MiKoMH/AI/csp/quiz'}>
+              {'MiKoMH/AI/csp/quiz'}
             </MenuItem>
-            <MenuItem value={'problems/IWGS/progintro/quiz'}>
+            {/*<MenuItem value={'problems/IWGS/progintro/quiz'}>
               {'problems/IWGS/progintro/quiz'}
-            </MenuItem>
+            </MenuItem>*/}
           </Select>
           <QuizDisplay path={path} />
         </Box>

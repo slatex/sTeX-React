@@ -169,6 +169,7 @@ function mulberry32(seed: number) {
 }
 
 // https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+// Stable because this always returns the same shuffle for a given array.
 export function stableShuffle(array: any[]) {
   let currentIndex = array.length,
     randomIndex;

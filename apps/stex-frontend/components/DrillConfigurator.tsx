@@ -25,7 +25,7 @@ import {
   SMILEY_TOOLTIPS,
 } from '@stex-react/api';
 import { DimIcon, LevelIcon } from '@stex-react/stex-react-renderer';
-import { PRIMARY_COL, SECONDARY_COL, stableShuffle } from '@stex-react/utils';
+import { PRIMARY_COL, SECONDARY_COL, stableShuffle, Window } from '@stex-react/utils';
 import axios from 'axios';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { DefInfo } from '../definitions.preval';
@@ -459,6 +459,7 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
             start={(mode) => {
               setMode(mode);
               setStarted(true);
+              Window?.scrollTo(0, 90);
             }}
           />
         </Box>
@@ -472,6 +473,7 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
               setCheckedChapterIdxs([idx]);
               setMode(mode);
               setStarted(true);
+              Window?.scrollTo(0, 90);
             }}
           />
         </Box>
@@ -483,6 +485,7 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
         start={(mode) => {
           setMode(mode);
           setStarted(true);
+          Window?.scrollTo(0, 90);
         }}
       />
     </Box>

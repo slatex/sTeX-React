@@ -12,7 +12,7 @@ import styles from '../styles/quiz.module.scss';
 export interface Option {
   shouldSelect: boolean;
   value: any[];
-  feedback: Element;
+  feedbackHtml: string;
 }
 
 export interface Question {
@@ -20,83 +20,83 @@ export interface Question {
   options: Option[];
   correctOptionIdx: number;
 }
-function findProblemRootNode(node: Element | Document) {
+function recursivelyFindNodes(
+  node: Element | Document,
+  attrName: string,
+  expected?: any
+): { node: Element; attrVal: any }[] {
   if (node instanceof Element) {
-    const property = node.getAttribute('property');
-    if (property === 'stex:problem') return node;
+    const attrVal = node.getAttribute(attrName);
+    if (attrVal && (expected === undefined || expected === attrVal)) {
+      return [{ node, attrVal }];
+    }
+  }
+  const foundList: { node: Element; attrVal: any }[] = [];
+  const children = node.childNodes;
+  for (let i = 0; i < children.length; i++) {
+    const child = children.item(i);
+    if (child instanceof Element) {
+      const subFoundList = recursivelyFindNodes(child, attrName, expected);
+      if (subFoundList?.length) foundList.push(...subFoundList);
+    }
+  }
+  return foundList;
+}
+
+function removeNodeWithAttrib(node: Element | Document, attrName: string) {
+  if (node instanceof Element) {
+    const attrVal = node.getAttribute(attrName);
+    if (attrVal) {
+      console.log(node);
+      node.setAttribute('style', 'display: none');
+      console.log(node);
+    }
   }
   const children = node.childNodes;
   for (let i = 0; i < children.length; i++) {
     const child = children.item(i);
     if (child instanceof Element) {
-      const found = findProblemRootNode(child);
-      if (found) return found;
+      removeNodeWithAttrib(child, attrName);
     }
   }
 }
 
-function getOptionFromElement(node: Element) {
-  const children = node.childNodes;
-  const option: Option = { shouldSelect: null, value: [], feedback: null };
-  let nextFind = 'hbox'; // ==> hbox ==> HFil ==> resetfont
-  for (let i = 0; i < children.length; i++) {
-    const child = children.item(i);
-    //console.log(i);
-    console.log(child);
+function findProblemRootNode(node: Element | Document) {
+  return recursivelyFindNodes(node, 'data-problem')?.[0]?.node;
+}
 
-    if (child instanceof Element) {
-      const className = child.className;
-      //console.log(nextFind);
-      //console.log(className);
-      if (nextFind === 'hbox' && className === 'hbox') {
-        nextFind = 'HFil';
-        continue;
-      }
-      if (nextFind === 'HFil' && className === 'HFil') {
-        nextFind = 'resetfont';
-        continue;
-      }
-      if (nextFind === 'resetfont' && className === 'resetfont') {
-        if (option.shouldSelect === null) {
-          const val = convertHtmlStringToPlain(child.innerHTML);
-          option.shouldSelect = val === 'Correct!';
-        } else {
-          option.feedback = child;
-        }
-      }
-    }
-    if (nextFind === 'HFil') {
-      option.value.push(child);
-    }
+function findOptions(problemRootNode: Element | Document): Option[] {
+  const mcbNode = recursivelyFindNodes(problemRootNode, 'data-problem-mcb')?.[0]
+    ?.node;
+  removeNodeWithAttrib(problemRootNode, 'data-problem-mcb');
+  if (!mcbNode) {
+    console.error('mcb not found');
+    return [];
   }
-  return option;
+  return recursivelyFindNodes(mcbNode, 'data-problem-mc').map(
+    ({ node, attrVal }) => {
+      const feedbackHtml = recursivelyFindNodes(
+        node,
+        'data-problem-mc-solution'
+      )?.[0].node.outerHTML;
+      removeNodeWithAttrib(node, 'data-problem-mc-solution');
+
+      return { shouldSelect: attrVal === 'true', value: [node], feedbackHtml };
+    }
+  );
 }
 
 function getQuestion(htmlDoc: Document) {
+  // TODO: Free text solution (data-problem-fillinsol, data-problem-solution) not handled
+  // TODO: multiple correct choices not handled.
   const problemRootNode = findProblemRootNode(htmlDoc);
-
-  const rootChildren = problemRootNode.childNodes;
+  const options = findOptions(problemRootNode);
   const question: Question = {
-    statement: null,
-    options: [],
-    correctOptionIdx: -1,
+    statement: problemRootNode, // The mcb block is already marked display:none.
+    options,
+    correctOptionIdx: options.findIndex((o) => o.shouldSelect),
   };
-  for (let i = 0; i < rootChildren.length; i++) {
-    const child = rootChildren.item(i);
-    if (!(child instanceof Element)) continue;
-    if (child.hasAttribute('property')) continue;
-    if (child.childNodes.length === 0) continue;
-
-    if (!question.statement) {
-      question.statement = child;
-    } else {
-      const option = getOptionFromElement(child);
-      question.options.push(option);
-      if (option.shouldSelect) {
-        question.correctOptionIdx = question.options.length - 1;
-      }
-    }
-  }
+  // console.log(question);
   return question;
 }
 
@@ -109,16 +109,17 @@ function getClassNames(
   isSubmitted: boolean,
   isCorrect: boolean
 ) {
+  let style = styles['option'];
+  style +=
+    ' ' +
+    (isSelected ? styles['option_selected'] : styles['option_not_selected']);
   if (isSubmitted) {
-    if (isCorrect) return styles['option'] + ' ' + styles['correct'];
-    if (!isSelected && !isCorrect) return styles['option'];
-    if (isSelected && !isCorrect)
-      return styles['option'] + ' ' + styles['incorrect'];
+    if (isCorrect) style += ' ' + styles['correct'];
+    if (isSelected && !isCorrect) style += ' ' + styles['incorrect'];
   } else {
-    return !isSelected
-      ? styles['option']
-      : styles['option'] + ' ' + styles['option_selected'];
+    if (isSelected) style += ' ' + styles['option_unsubmitted_selected'];
   }
+  return style;
 }
 
 export function QuestionDisplay({
@@ -143,7 +144,8 @@ export function QuestionDisplay({
   }, [questionUrl]);
   if (!question) return;
 
-  const feedback = selectedIdx >= 0 && question?.options[selectedIdx].feedback;
+  const feedback =
+    selectedIdx >= 0 && question?.options[selectedIdx].feedbackHtml;
 
   return (
     <Card
@@ -154,7 +156,9 @@ export function QuestionDisplay({
       }}
     >
       <Box display="inline" fontSize="20px">
-        {mmtHTMLToReact(question.statement.outerHTML)}
+        <Box display="inline">
+          {mmtHTMLToReact(question.statement.outerHTML || '')}
+        </Box>
       </Box>
       <br />
       <FormControl>
@@ -181,7 +185,7 @@ export function QuestionDisplay({
                 question.correctOptionIdx === optionIdx
               )}
               label={
-                <>
+                <Box display="inline">
                   {option.value.map((node, idx) => (
                     <Box display="inline" key={`${idx}`}>
                       {node.outerHTML
@@ -189,7 +193,7 @@ export function QuestionDisplay({
                         : node.textContent}
                     </Box>
                   ))}
-                </>
+                </Box>
               }
             />
           ))}
@@ -199,18 +203,24 @@ export function QuestionDisplay({
       <br />
 
       {isSubmitted && feedback && (
-        <span
-          style={{
-            textAlign: 'center',
-            fontSize: '20px',
-            padding: '3px',
-            backgroundColor: '#333',
-            color: 'white',
-            borderRadius: '10px'
-          }}
+        <Box
+          display="block"
+          padding="3px 10px"
+          bgcolor={
+            selectedIdx === question.correctOptionIdx ? '#a3e9a0' : '#f39797'
+          }
+          borderRadius="10px"
         >
-          {mmtHTMLToReact(feedback.outerHTML)}
-        </span>
+          <span
+            style={{
+              display: 'inline',
+              textAlign: 'center',
+              fontSize: '20px',
+            }}
+          >
+            {mmtHTMLToReact(feedback)}
+          </span>
+        </Box>
       )}
     </Card>
   );
