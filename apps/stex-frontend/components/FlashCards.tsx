@@ -158,7 +158,10 @@ function FlashCardFront({
           <Fragment key={idx}>
             <Box
               sx={{
-                '& *': { fontSize: `${idx === 0 ? 32 : 20}px !important` },
+                '& *': {
+                  fontSize: `${idx === 0 ? 32 : 20}px !important`,
+                  overflowX: 'unset !important', // Fix for https://github.com/slatex/sTeX-React/issues/63
+                },
               }}
             >
               <ContentWithHighlight mmtHtml={htmlNode} />
