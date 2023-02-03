@@ -38,6 +38,7 @@
     text-align:justify;
     display: flex;
     flex-direction: column;
+    overflow:hidden;
   }
   
   span {
@@ -88,6 +89,7 @@
     max-width:100%;
     justify-content:inherit;
     align-content:inherit;
+    white-space: normal;
   }
   hr {
     width: 100%;
@@ -99,7 +101,7 @@
     flex-wrap: nowrap;
     align-content: center;
     justify-content: flex-end;
-    width:max-content;
+    width:fit-content;
     max-width:100%;
     text-align:justify;
     align-self: center;
@@ -111,9 +113,11 @@
     justify-content: flex-start;
     align-content: inherit;
     align-items: baseline;
-    width:max-content;
-    height:max-content;
+    width:fit-content;
+    height:fit-content;
     max-width:100%;
+    align-self:baseline;
+    vertical-align: text-bottom;
   }
   .matrix {
     display: inline-flex;
@@ -144,8 +148,8 @@
   table {
     border-spacing:0;
     white-space:nowrap;
-    width:max-content;
-    height:max-content;
+    width:fit-content;
+    height:fit-content;
     /*display:initial;*/
   }
   td {
@@ -185,8 +189,8 @@
     height:0;
   }
   math {
-    width:max-content;
-    height:max-content;
+    width:fit-content;
+    height:fit-content;
     /*font-size:85%;*/
   }
   .displaymath {
@@ -198,10 +202,168 @@
     justify-content:center;
     align-self:center;
   }
-  
+  .halign {
+    border-collapse:collapse;
+  }
   .font-normal {
     font-family: Latin Modern, STIXgeneral, Times, Times New Roman, Symbol, cmr10, CMSY10, CMEX10, serif;
     font-style: normal;
     font-weight: normal;
     font-variant: normal;
+}
+.rustex-scaled{
+    width: var(--this-width);
+    min-width: var(--this-width);
+}
+.rustex-scaled>*:first-child {
+    --current-width:var(--this-width);
+}
+.shtml-sec-part .shtml-sectitle {
+    font-style: normal;
+    font-weight: bold;
+    font-size: xx-large;
+    margin-bottom: 50px;
+    margin-top: 50px;
+}
+.shtml-sec-part .shtml-sectitle::before {
+    content: 'Part ' counter(shtml-sec-part,upper-roman) '\a';
+    font-size: x-large;
+    white-space: pre;
+}
+.shtml-sec-part .shtml-sectitle::after {
+    content: '\a';
+    white-space: pre;
+}
+.shtml-sec-chapter .shtml-sectitle {
+    font-style: normal;
+    font-weight: bold;
+    font-size: x-large;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+.shtml-sec-chapter .shtml-sectitle::before {
+    content: 'Chapter ' counter(shtml-sec-chapter,upper-roman) ' - ';
+    font-size: x-large;
+    white-space: pre;
+}
+.shtml-sec-chapter .shtml-sectitle::after {
+    content: '\a';
+    white-space: pre;
+}
+.shtml-sec-section .shtml-sectitle {
+    font-style: normal;
+    font-weight: bold;
+    font-size: large;
+}
+.shtml-sec-section .shtml-sectitle::before {
+    content: counter(shtml-sec-section) '  ';
+    font-size: large;
+    white-space: pre;
+}
+.shtml-sec-section .shtml-sectitle::after {
+    content: '\a';
+    white-space: pre;
+}
+.shtml-sec-subsection .shtml-sectitle {
+    font-style: normal;
+    font-weight: bold;
+    font-size: medium;
+}
+.shtml-sec-subsection .shtml-sectitle::before {
+    content: counter(shtml-sec-section) '.' counter(shtml-sec-subsection) '  ';
+    font-size: medium;
+    white-space: pre;
+}
+.shtml-sec-subsection .shtml-sectitle::after {
+    content: '\a';
+    white-space: pre;
+}
+.shtml-sec-subsubsection .shtml-sectitle {
+    font-style: normal;
+    font-weight: bold;
+    font-size: medium;
+}
+.shtml-sec-subsubsection .shtml-sectitle::before {
+    content: counter(shtml-sec-section) '.' counter(shtml-sec-subsection) '.' counter(shtml-sec-subsubsection) ' ';
+    font-size: medium;
+    white-space: pre;
+}
+.shtml-sec-subsubsection .shtml-sectitle::after {
+    content: '\a';
+    white-space: pre;
+}
+.shtml-sectitle {
+    font-style: normal; font-weight: bold; font-size: inherit;
+}
+.shtml-paragraph {
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+.shtml-example {
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+.shtml-definition {
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+.shtml-title-paragraph { font-size: inherit;}
+.shtml-title-paragraph:is(.empty)::before {
+    content:'Remark ' counter(shtml-statement) '. ';
+    white-space:pre;
+    font-size: inherit;
+}
+.shtml-paragraph-symdoc .shtml-title-paragraph:is(.empty)::before {
+    content:'Concept ' counter(shtml-statement) '. ';
+    white-space:pre;
+    font-size: inherit;
+}
+.shtml-title-example { font-size: inherit;}
+.shtml-title-example:is(.empty)::before {
+    content:'Example ' counter(shtml-statement) '. ';
+    white-space:pre;
+    font-size: inherit;
+}
+.shtml-title-definition { font-size: inherit;}
+.shtml-title-definition::before {
+    content:'Definition ' counter(shtml-statement) ' (';
+    white-space:pre;
+    font-size: inherit;
+}
+.shtml-title-definition::after {
+    content:'). ';
+    white-space:pre;
+    font-size: inherit;
+}
+.shtml-title-definition:is(.empty)::before {
+    content:'Definition ' counter(shtml-statement) '. ';
+    white-space:pre;
+    font-size: inherit;
+}
+.shtml-title-definition:is(.empty)::after {
+    content:'';
+}
+.shtml-title-assertion { font-size: inherit;}
+.shtml-title-assertion:is(.empty)::before {
+    content:'Assertion ' counter(shtml-statement) '. ';
+    white-space:pre;
+    font-size: inherit;
+}
+.shtml-assertion-axiom .shtml-title-assertion::before {
+    content:'Axiom ' counter(shtml-statement) ' (';
+    white-space:pre;
+    font-size: inherit;
+}
+.shtml-assertion-axiom .shtml-title-assertion::after {
+    content:'). ';
+    white-space:pre;
+    font-size: inherit;
+}
+.shtml-assertion-axiom .shtml-title-assertion:is(.empty)::before {
+    content:'Axiom ' counter(shtml-statement) '. ';
+    white-space:pre;
+    font-size: inherit;
+}
+.shtml-assertion-axiom .shtml-title-assertion:is(.empty)::after {
+    content:'';
 }
