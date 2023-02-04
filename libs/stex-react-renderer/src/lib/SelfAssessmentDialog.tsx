@@ -10,10 +10,9 @@ import {
   SmileyCognitiveValues,
   SmileyLevel,
   smileyToLevel,
-  SmileyType,
   SMILEY_TOOLTIPS,
 } from '@stex-react/api';
-import { PRIMARY_COL, SECONDARY_COL } from '@stex-react/utils';
+import { BG_COLOR, PRIMARY_COL, SECONDARY_COL } from '@stex-react/utils';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { mmtHTMLToReact } from './mmtParser';
@@ -217,17 +216,22 @@ export function SelfAssessmentDialog({
   dims,
   uri,
   htmlName,
+  onUpdate = undefined,
 }: {
   dims: BloomDimension[];
   uri: string;
   htmlName: string;
+  onUpdate?: (level: SmileyCognitiveValues) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [smileys, setSmileys] = useState<SmileyCognitiveValues | undefined>(
     undefined
   );
   function refetchSmileys() {
-    getUriSmileys([uri]).then((v) => setSmileys(v[0]));
+    getUriSmileys([uri]).then((v) => {
+      setSmileys(v[0]);
+      if (onUpdate) onUpdate(v[0]);
+    });
   }
   useEffect(() => {
     setSmileys(undefined);
@@ -237,6 +241,7 @@ export function SelfAssessmentDialog({
   return (
     <>
       <CustomTooltip
+        disableFocusListener
         title={
           <Box sx={{ boxShadow: '2px 7px 31px 8px rgba(0,0,0,0.75)' }}>
             <SelfAssessmentPopup
@@ -255,6 +260,7 @@ export function SelfAssessmentDialog({
           border="1px solid #AAA"
           borderRadius="10px"
           width="fit-content"
+          bgcolor={BG_COLOR}
           sx={{ cursor: 'pointer' }}
           onClick={() => setOpen(true)}
         >
