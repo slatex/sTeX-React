@@ -106,6 +106,7 @@ export function getAccessToken() {
 }
 
 const FAKE_USER_DEFAULT_COMPETENCIES: { [id: string]: string[] } = {
+  blank: [],
   abc: ['http://mathhub.info/smglom/sets/mod?set'],
   joy: ['http://mathhub.info/smglom/complexity/mod?timespace-complexity'],
   sabrina: [
@@ -160,15 +161,15 @@ export function fakeLoginUsingRedirect(
   fakeId: string,
   name: string | undefined,
   returnBackUrl: string | undefined,
-  profileName?: string
+  persona?: string
 ) {
   if (!returnBackUrl) returnBackUrl = window.location.href;
   fakeId = fakeId.replace(/\W/g, '');
   const encodedReturnBackUrl = encodeURIComponent(returnBackUrl);
-  const target = profileName
+  const target = persona
     ? encodeURIComponent(
         window.location.origin +
-          `/reset-and-redirect?redirectPath=${encodedReturnBackUrl}&profileName=${profileName}`
+          `/reset-and-redirect?redirectPath=${encodedReturnBackUrl}&persona=${persona}`
       )
     : encodedReturnBackUrl;
   const n = name || fakeId;
@@ -285,20 +286,20 @@ export async function purgeAllMyData() {
   return await lmsRequest('/lms/input/events', 'POST', {}, { type: 'purge' });
 }
 
-export async function resetFakeUserData(profileName: string) {
+export async function resetFakeUserData(persona: string) {
   const userInfo = await getUserInfo();
   const userId = userInfo?.userId;
   if (!userId || !userId.startsWith('fake')) return;
-  if (!(profileName in FAKE_USER_DEFAULT_COMPETENCIES)) {
-    alert(`No defaults found for ${profileName}`);
+  if (!(persona in FAKE_USER_DEFAULT_COMPETENCIES)) {
+    alert(`No defaults found for ${persona}`);
     return;
   }
-  const URIs = FAKE_USER_DEFAULT_COMPETENCIES[profileName];
+  const URIs = FAKE_USER_DEFAULT_COMPETENCIES[persona];
   await purgeAllMyData();
   for (const URI of URIs) {
     await reportEvent({ type: 'i-know', URI });
   }
-  alert(`User reset: ${userId} with profile: ${profileName}`);
+  alert(`User reset: ${userId} with persona: ${persona}`);
 }
 
 let cachedUserInfo: UserInfo | undefined = undefined;

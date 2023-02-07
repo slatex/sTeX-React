@@ -23,7 +23,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import MainLayout from '../layouts/MainLayout';
-import { ProfileChooser } from './login';
+import { PersonaChooser } from './login';
 
 export function ConfirmPurgeDialogContent({
   onClose,
@@ -69,7 +69,7 @@ const MyProfilePage: NextPage = () => {
   const router = useRouter();
   const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
   const [openPurgeDialog, setOpenPurgeDialog] = useState(false);
-  const [profileName, setPresetProfileName] = useState<string>('Blank');
+  const [persona, setPresetProfileName] = useState<string>('Blank');
 
   useEffect(() => {
     getUserInfo().then((info) => {
@@ -167,19 +167,17 @@ const MyProfilePage: NextPage = () => {
             <br />
             <br />
             <hr />
-            <ProfileChooser
-              profileName={profileName}
-              onProfileLabelUpdate={(l) => {
+            <PersonaChooser
+              persona={persona}
+              onPersonaUpdate={(l) => {
                 setPresetProfileName(l);
               }}
             />
             <Button
-              disabled={
-                !profileName?.length || profileName === 'Blank'
-              }
+              disabled={!persona?.length}
               variant="contained"
-              onClick={() => resetFakeUserData(profileName)}
-              sx={{ml: '10px'}}
+              onClick={() => resetFakeUserData(persona)}
+              sx={{ ml: '10px' }}
             >
               Reset Fake User Data
             </Button>
