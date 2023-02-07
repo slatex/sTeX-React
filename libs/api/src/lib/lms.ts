@@ -106,14 +106,14 @@ export function getAccessToken() {
 }
 
 const FAKE_USER_DEFAULT_COMPETENCIES: { [id: string]: string[] } = {
-  fake_abc: ['http://mathhub.info/smglom/sets/mod?set'],
-  fake_joy: ['http://mathhub.info/smglom/complexity/mod?timespace-complexity'],
-  fake_sabrina: [
+  abc: ['http://mathhub.info/smglom/sets/mod?set'],
+  joy: ['http://mathhub.info/smglom/complexity/mod?timespace-complexity'],
+  sabrina: [
     'http://mathhub.info/smglom/complexity/mod?timespace-complexity',
     'http://mathhub.info/smglom/sets/mod?formal-language',
     'http://mathhub.info/smglom/mv/mod?structure?mathematical-structure',
   ],
-  fake_anushka: [
+  anushka: [
     'http://mathhub.info/smglom/mv/mod?structure?mathematical-structure',
   ],
 };
@@ -156,13 +156,20 @@ export function loginUsingRedirect(returnBackUrl?: string) {
   window.location.replace(redirectUrl);
 }
 
-export function fakeLoginUsingRedirect(fakeId: string, returnBackUrl?: string) {
+export function fakeLoginUsingRedirect(
+  fakeId: string,
+  name?: string,
+  returnBackUrl?: string
+) {
   if (!returnBackUrl) returnBackUrl = window.location.href;
   fakeId = fakeId.replace(/\W/g, '');
+  const encodedReturnBackUrl = encodeURIComponent(returnBackUrl);
+  const target = encodeURIComponent(
+    `/reset-and-redirect?redirectPath=${encodedReturnBackUrl}&profileName=${name}`
+  );
+  const n = name || fakeId;
 
-  const redirectUrl = `${lmsServerAddress}/fake-login?fake-id=${fakeId}&target=${encodeURIComponent(
-    returnBackUrl
-  )}`;
+  const redirectUrl = `${lmsServerAddress}/fake-login2?fake-id=${fakeId}&target=${target}&name=${n}`;
 
   window.location.replace(redirectUrl);
 }
@@ -272,19 +279,20 @@ export async function purgeAllMyData() {
   return await lmsRequest('/lms/input/events', 'POST', {}, { type: 'purge' });
 }
 
-export async function resetFakeUserData() {
+export async function resetFakeUserData(profileName: string) {
   const userInfo = await getUserInfo();
   const userId = userInfo?.userId;
-  if (!userId) return;
-  if (!(userId in FAKE_USER_DEFAULT_COMPETENCIES)) {
-    alert(`No defaults found for ${userId}`);
+  if (!userId || !userId.startsWith('fake')) return;
+  if (!(profileName in FAKE_USER_DEFAULT_COMPETENCIES)) {
+    alert(`No defaults found for ${profileName}`);
+    return;
   }
-  const URIs = FAKE_USER_DEFAULT_COMPETENCIES[userId];
+  const URIs = FAKE_USER_DEFAULT_COMPETENCIES[profileName];
   await purgeAllMyData();
   for (const URI of URIs) {
     await reportEvent({ type: 'i-know', URI });
   }
-  alert(`User reset: ${userId}`);
+  alert(`User reset: ${userId} with profile: ${profileName}`);
 }
 
 let cachedUserInfo: UserInfo | undefined = undefined;

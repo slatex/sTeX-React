@@ -1,6 +1,18 @@
-import { Autocomplete, Box, Button, TextField } from '@mui/material';
-import { fakeLoginUsingRedirect, isLoggedIn, loginUsingRedirect, logout } from '@stex-react/api';
-import { BG_COLOR, IS_SERVER } from '@stex-react/utils';
+import {
+  Autocomplete,
+  Box,
+  Button,
+  MenuItem,
+  Select,
+  TextField,
+} from '@mui/material';
+import {
+  fakeLoginUsingRedirect,
+  isLoggedIn,
+  loginUsingRedirect,
+  logout,
+} from '@stex-react/api';
+import { BG_COLOR, IS_SERVER, localStore } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useReducer, useState } from 'react';
@@ -13,6 +25,120 @@ const PresetProfiles = [
   { label: 'anushka', info: 'Philosophy background' },
 ];
 
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+export function ProfileChooser({
+  profileName,
+  onProfileLabelUpdate,
+}: {
+  profileName: string;
+  onProfileLabelUpdate: (label: string) => void;
+}) {
+  return (
+    <Select
+      value={profileName}
+      onChange={(e) => {
+        const label = e.target.value;
+        onProfileLabelUpdate(label);
+      }}
+      sx={{ width: '280px' }}
+      variant="standard"
+    >
+      {PresetProfiles.map((profile) => (
+        <MenuItem key={profile.label} value={profile.label}>
+          {profile.label}&nbsp;<i>({profile.info})</i>
+        </MenuItem>
+      ))}
+      <MenuItem value="Blank">Blank</MenuItem>
+    </Select>
+  );
+}
+
+export function GuestLogin({ returnBackUrl }: { returnBackUrl: string }) {
+  const [profileName, setProfileLabel] = useState<string>('Blank');
+  const [guestId, setGuestId] = useState<string>('');
+  const [guestUserName, setGuestUserName] = useState<string>('');
+
+  const [enableGuest, setEnableGuest] = useState(false);
+
+  return (
+    <>
+      {!enableGuest && (
+        <Button
+          fullWidth
+          variant="contained"
+          size="large"
+          sx={{ fontSize: '32x', my: '10px' }}
+          onClick={() => setEnableGuest(true)}
+        >
+          Guest User Login
+        </Button>
+      )}
+      <Box
+        sx={{
+          transition: 'height ease 500ms;',
+          height: enableGuest ? '175px' : '0px',
+          overflow: 'hidden',
+          border: enableGuest ? '1px solid #AAA' : 'undefined',
+          padding: enableGuest ? '5px' : 0,
+          borderRadius: '10px',
+          mt: enableGuest ? '10px' : 0,
+        }}
+      >
+        <Box display="flex" alignItems="baseline" gap="10px">
+          <ProfileChooser
+            profileName={profileName}
+            onProfileLabelUpdate={(label: string) => {
+              setProfileLabel(label);
+              for (const p of PresetProfiles) {
+                if (p.label === label) {
+                  setGuestId(p.label);
+                  setGuestUserName(capitalizeFirstLetter(p.label));
+                }
+              }
+            }}
+          />
+          <TextField
+            label="Guest Id"
+            value={guestId}
+            onChange={(e) => setGuestId(e.target.value)}
+            variant="standard"
+            margin="dense"
+            fullWidth
+          />
+        </Box>
+        <TextField
+          label="Guest Username"
+          value={guestUserName}
+          onChange={(e) => setGuestUserName(e.target.value)}
+          variant="standard"
+          margin="dense"
+          fullWidth
+        />
+        <Button
+          fullWidth
+          variant="contained"
+          size="large"
+          sx={{ fontSize: '32x', mt: '10px' }}
+          onClick={() => {
+            let browserInstance = localStore.getItem('browser-instance');
+            if (!browserInstance) {
+              browserInstance = `${Math.floor(Math.random() * 1e7)}`;
+              localStore.setItem('browser-instance', browserInstance);
+            }
+            const fakeId = `guest_${browserInstance}_${guestId}`;
+            fakeLoginUsingRedirect(fakeId, guestUserName, returnBackUrl);
+          }}
+          disabled={!guestId?.length}
+        >
+          Login as a guest
+        </Button>
+      </Box>
+    </>
+  );
+}
 const LoginPage: NextPage = () => {
   const loggedIn = isLoggedIn();
   const router = useRouter();
@@ -21,7 +147,7 @@ const LoginPage: NextPage = () => {
   const [clickCount, updateClickCount] = useReducer((x) => x + 1, 0);
   const fakeLogin = clickCount >= 1;
   if (loggedIn && !IS_SERVER) router.push('/');
-  
+
   return (
     <MainLayout>
       <br />
@@ -114,6 +240,8 @@ const LoginPage: NextPage = () => {
                     out here.
                   </i>
                 </span>
+
+                {!loggedIn && <GuestLogin returnBackUrl={returnBackUrl} />}
                 <br />
                 <Box className={styles['descriptive-box']}>
                   Note that you are logging into a research prototype system for

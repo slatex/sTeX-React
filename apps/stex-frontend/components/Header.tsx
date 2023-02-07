@@ -54,7 +54,7 @@ function UserButton() {
   }, []);
 
   return (
-    <div>
+    <Box whiteSpace="nowrap">
       <Button
         sx={{
           color: 'white',
@@ -88,7 +88,7 @@ function UserButton() {
           Log out
         </MenuItem>
       </Menu>
-    </div>
+    </Box>
   );
 }
 
@@ -155,7 +155,7 @@ export function Header({
       <Toolbar className={styles['toolbar']}>
         <Link href="/" passHref>
           <Tooltip title={HEADER_WARNING}>
-            <Box>
+            <Box display="flex" flexWrap="nowrap" alignItems="baseline">
               <Image
                 src="/voll-ki-courses.svg"
                 alt="VoLL-KI Logo"
@@ -176,7 +176,7 @@ export function Header({
           </Box>
         )}
         <Box>
-          <Box display="flex">
+          <Box display="flex" alignItems="center">
             <NotificationButton />
             <Tooltip title="Help Center">
               <Link href="/help">
