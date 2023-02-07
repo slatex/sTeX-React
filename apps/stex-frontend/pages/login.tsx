@@ -129,7 +129,7 @@ export function GuestLogin({ returnBackUrl }: { returnBackUrl: string }) {
               localStore.setItem('browser-instance', browserInstance);
             }
             const fakeId = `guest_${browserInstance}_${guestId}`;
-            fakeLoginUsingRedirect(fakeId, guestUserName, returnBackUrl);
+            fakeLoginUsingRedirect(fakeId, guestUserName, returnBackUrl, profileName);
           }}
           disabled={!guestId?.length}
         >
@@ -207,7 +207,7 @@ const LoginPage: NextPage = () => {
                   sx={{ fontSize: '32x' }}
                   onClick={() => {
                     if (fakeLogin) {
-                      if (fakeId) fakeLoginUsingRedirect(fakeId, returnBackUrl);
+                      if (fakeId) fakeLoginUsingRedirect(fakeId, undefined, returnBackUrl);
                     } else {
                       loginUsingRedirect(returnBackUrl);
                     }
