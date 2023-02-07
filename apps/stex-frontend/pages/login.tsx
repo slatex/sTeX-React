@@ -129,7 +129,8 @@ export function GuestLogin({ returnBackUrl }: { returnBackUrl: string }) {
               localStore.setItem('browser-instance', browserInstance);
             }
             const fakeId = `guest_${browserInstance}_${guestId}`;
-            fakeLoginUsingRedirect(fakeId, guestUserName, returnBackUrl, profileName);
+            const guestName = 'Guest: ' + guestUserName;
+            fakeLoginUsingRedirect(fakeId, guestName, returnBackUrl, profileName);
           }}
           disabled={!guestId?.length}
         >
