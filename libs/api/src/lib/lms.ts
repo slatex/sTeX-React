@@ -158,18 +158,24 @@ export function loginUsingRedirect(returnBackUrl?: string) {
 
 export function fakeLoginUsingRedirect(
   fakeId: string,
-  name?: string,
-  returnBackUrl?: string
+  name: string | undefined,
+  returnBackUrl: string | undefined,
+  profileName?: string
 ) {
   if (!returnBackUrl) returnBackUrl = window.location.href;
   fakeId = fakeId.replace(/\W/g, '');
   const encodedReturnBackUrl = encodeURIComponent(returnBackUrl);
-  const target = encodeURIComponent(
-    `/reset-and-redirect?redirectPath=${encodedReturnBackUrl}&profileName=${name}`
-  );
+  const target = profileName
+    ? encodeURIComponent(
+        window.location.origin +
+          `/reset-and-redirect?redirectPath=${encodedReturnBackUrl}&profileName=${profileName}`
+      )
+    : encodedReturnBackUrl;
   const n = name || fakeId;
 
-  const redirectUrl = `${lmsServerAddress}/fake-login2?fake-id=${fakeId}&target=${target}&name=${n}`;
+  const redirectUrl =
+    `${lmsServerAddress}/fake-login?fake-id=${fakeId}&target=${target}` +
+    (name ? `&name=${n}` : '');
 
   window.location.replace(redirectUrl);
 }
