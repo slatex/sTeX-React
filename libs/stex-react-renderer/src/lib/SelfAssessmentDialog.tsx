@@ -186,9 +186,11 @@ function SelfAssessmentDialogRow({
 export function SelfAssessment2({
   dims,
   uri,
+  needUpdateMarker = 0,
 }: {
   dims: BloomDimension[];
   uri: string;
+  needUpdateMarker?: any;
 }) {
   const [smileys, setSmileys] = useState<SmileyCognitiveValues | undefined>(
     undefined
@@ -199,7 +201,7 @@ export function SelfAssessment2({
   useEffect(() => {
     setSmileys(undefined);
     refetchSmileys();
-  }, [uri]);
+  }, [uri, needUpdateMarker]);
   return (
     <SelfAssessmentPopup
       dims={dims}

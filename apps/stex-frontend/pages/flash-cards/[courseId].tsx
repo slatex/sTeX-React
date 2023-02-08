@@ -10,7 +10,7 @@ const FlashCardCoursePage: NextPage = () => {
 
   return (
     <MainLayout title="Flash Cards | VoLL-KI">
-      <Box m="0 auto" maxWidth="800px">
+      <Box m="0 auto">
         <DrillConfigurator courseId={courseId} />
       </Box>
     </MainLayout>

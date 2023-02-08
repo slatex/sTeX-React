@@ -1,3 +1,4 @@
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import SettingsIcon from '@mui/icons-material/Settings';
 import WarningIcon from '@mui/icons-material/Warning';
 import { Box, Button, IconButton } from '@mui/material';
@@ -28,14 +29,31 @@ const Home: NextPage = () => {
       <div>
         <main style={{ margin: '10px' }}>
           <Box m="10px auto" maxWidth="600px" textAlign="center">
+            <a
+              href="https://courses-staging.kwarc.info"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Button variant="contained">
+                Staging server<OpenInNewIcon />
+              </Button>
+            </a>
+            <br/>
+            <br/>
             <Link href="/file-browser">
               <Button variant="contained">View article browser</Button>
             </Link>
             <br />
             <br />
-            <Link href="/quiz">
-              <Button variant="contained">Quiz Demo</Button>
-            </Link>
+            <a
+              href="https://courses-staging.kwarc.info/quiz"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Button variant="contained">
+                Quiz Demo (on staging)<OpenInNewIcon />
+              </Button>
+            </a>
             <br />
             <br />
             <Link href="/visualization">
