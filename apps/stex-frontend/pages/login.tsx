@@ -172,12 +172,6 @@ const LoginPage: NextPage = () => {
       <Box
         sx={{ m: 'auto', maxWidth: '700px', px: '10px', userSelect: 'none' }}
       >
-        <Typography
-          sx={{ color: 'red', fontWeight: 'bold', textAlign: 'center' }}
-        >
-          Unfortunately, the IdM login facility of website is not working. We
-          are working to get it resolved and apologize for the inconvenience.
-        </Typography>
         <Box
           sx={{
             p: '1.5rem',

@@ -1,9 +1,20 @@
 import dayjs from 'dayjs';
 export const SYSTEM_UPDATES = [
   {
+    id: 'login-fixed',
+    header: 'Login issues fixed',
+    content:
+      'Many users were unable to login to our system using their IdM ' +
+      'credentials since Tuesday afternoon. This was caused because of the '+
+      'changes we were making to support wider access via EduGain. This ' +
+      'issue is now resolved.',
+    timestamp: dayjs('2023-02-10T21:45:00+05:30'),
+  },
+  {
     id: 'feb-week-1-lectures',
     header: 'AI-1 slides updated',
-    content: 'Videos and slides for the last two lectures (Feb 1st and 2nd) are now available.',
+    content:
+      'Videos and slides for the last two lectures (Feb 1st and 2nd) are now available.',
     timestamp: dayjs('2023-02-04T21:45:00+05:30'),
   },
   {
