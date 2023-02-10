@@ -22,9 +22,9 @@ function createSectionHierarchy(context: SectionInfo[]) {
   returnVal += context
     .map(
       (sectionInfo, idx) =>
-        `${idx + 1}. GitLab: ${sectionInfo.source}<br/>FetchURL: ${
-          sectionInfo.url
-        }`
+        `${idx + 1}. GitLab: ${
+          sectionInfo.source
+        }<br/>FetchURL: https://stexmmt.mathhub.info/${sectionInfo.url}`
     )
     .join('\n\n');
   return returnVal;

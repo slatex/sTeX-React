@@ -1,6 +1,13 @@
 import dayjs from 'dayjs';
 export const SYSTEM_UPDATES = [
   {
+    id: 'feb-week-2-lectures',
+    header: 'AI-1 slides/videos updated',
+    content:
+      'Videos and slides for the final (Feb 8th and 9th) AI-1 lectures are now available.',
+    timestamp: dayjs('2023-02-11T00:20:00+05:30'),
+  },
+  {
     id: 'login-fixed',
     header: 'Login issues fixed',
     content:
