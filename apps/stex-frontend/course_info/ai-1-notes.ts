@@ -203,12 +203,12 @@ export const AI_1_COURSE_SECTIONS: CourseSectionInfo = {
   'Searching, Planning, and Acting in the Real World': {
     'MiKoMH/AI||planning/sec/acting.en.xhtml': {  },
     'MiKoMH/AI||planning/sec/coloring-ex.en.xhtml': { secNo: '2' },
-    'MiKoMH/AI||planning/sec/nondet-actions.en.xhtml': { secNo: '3' },
-    'MiKoMH/AI||rational-agents/sec/belief-state-agents.en.xhtml': { secNo: '4' },
-    'MiKoMH/AI||planning/sec/conformant-planning.en.xhtml': { secNo: '5' },
-    'MiKoMH/AI||planning/sec/conditional-planning.en.xhtml': { secNo: '6' },
-    'MiKoMH/AI||planning/sec/online-search.en.xhtml': { secNo: '7' },
-    'MiKoMH/AI||planning/sec/replanning.en.xhtml': { secNo: '8' },
+    'MiKoMH/AI||planning/sec/nondet-actions.en.xhtml': { secNo: '3', clipId: '44961', timestampSec: 227 },
+    'MiKoMH/AI||rational-agents/sec/belief-state-agents.en.xhtml': { secNo: '4', clipId: '44961', timestampSec: 1536 },
+    'MiKoMH/AI||planning/sec/conformant-planning.en.xhtml': { secNo: '5', clipId: '44961', timestampSec: 2178 },
+    'MiKoMH/AI||planning/sec/conditional-planning.en.xhtml': { secNo: '6', clipId: '44961', timestampSec: 2568 },
+    'MiKoMH/AI||planning/sec/online-search.en.xhtml': { secNo: '7', clipId: '44961', timestampSec: 3716 },
+    'MiKoMH/AI||planning/sec/replanning.en.xhtml': { secNo: '8', clipId: '44961', timestampSec: 4207 },
   },
   'ENDING_CHAPTER': {
     'MiKoMH/AI||course/sec/concl1.en.xhtml': {  },
