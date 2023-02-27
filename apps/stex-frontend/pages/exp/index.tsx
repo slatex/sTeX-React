@@ -4,10 +4,10 @@ import WarningIcon from '@mui/icons-material/Warning';
 import { Box, Button, IconButton } from '@mui/material';
 import type { NextPage } from 'next';
 import Link from 'next/link';
-import { BrowserAutocomplete } from '../components/BrowserAutocomplete';
-import { SearchBar } from '../components/SearchBar';
-import { ToursAutocomplete } from '../components/ToursAutocomplete';
-import MainLayout from '../layouts/MainLayout';
+import { BrowserAutocomplete } from '../../components/BrowserAutocomplete';
+import { SearchBar } from '../../components/SearchBar';
+import { ToursAutocomplete } from '../../components/ToursAutocomplete';
+import MainLayout from '../../layouts/MainLayout';
 
 const Home: NextPage = () => {
   return (
