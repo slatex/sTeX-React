@@ -1,7 +1,7 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import SettingsIcon from '@mui/icons-material/Settings';
 import WarningIcon from '@mui/icons-material/Warning';
-import { Box, Button, IconButton } from '@mui/material';
+import { Box, Button, IconButton, Typography } from '@mui/material';
 import type { NextPage } from 'next';
 import Link from 'next/link';
 import { BrowserAutocomplete } from '../../components/BrowserAutocomplete';
@@ -9,7 +9,7 @@ import { SearchBar } from '../../components/SearchBar';
 import { ToursAutocomplete } from '../../components/ToursAutocomplete';
 import MainLayout from '../../layouts/MainLayout';
 
-const Home: NextPage = () => {
+const ExperimentsHome: NextPage = () => {
   return (
     <MainLayout title="Experiments | VoLL-KI">
       <IconButton sx={{ float: 'right' }}>
@@ -61,16 +61,9 @@ const Home: NextPage = () => {
             </Link>
             <br />
             <br />
-            <Link href="/flash-cards/ai-1">
-              <Button variant="contained">Flash Cards - AI</Button>
-            </Link>
-            &nbsp;
-            <Link href="/flash-cards/iwgs">
-              <Button variant="contained">Flash Cards - IWGS</Button>
-            </Link>
-            &nbsp;
-            <Link href="/flash-cards/krmt">
-              <Button variant="contained">Flash Cards - KRMT</Button>
+            <Typography variant='h5' mb="10px">Paper Prototypes</Typography>
+            <Link href="/exp/pp_teachers_and_tas">
+              <Button variant="contained">Cohort overview</Button>
             </Link>
             <br />
             <br />
@@ -85,4 +78,4 @@ const Home: NextPage = () => {
   );
 };
 
-export default Home;
+export default ExperimentsHome;

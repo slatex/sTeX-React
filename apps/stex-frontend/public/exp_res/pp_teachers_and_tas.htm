@@ -33,16 +33,11 @@
 
 <body>
 
-<div class="header"> 
-    <img src="res/header_left.png"></img>
-	<img style="float:right;" src="res/header_right.png"></img>
-</div>
-
 <div class="center">
 
 <h1>Course: AI 1</h1>
 <h3>Winter Semester 2022/2023</h3>
-<button>Switch Context</button> <a href="">Campo</a> <a href="">StudOn</a>
+<button>Switch Context</button> <a href="#">Campo</a> <a href="#">StudOn</a>
 </div>
 
 <div class="warning">
@@ -66,8 +61,8 @@ The data represented here only describes people who are actively using the VolL-
 	the exam. Roughly 31% still struggle in places. Approximately 10% are very unlikely to catch up.</p>
 	
 	<div style="display:inline;">
-		<img width="240px" src="src/ai-overview.png" alt="Lernkurve" style="display:inline;"></img>
-		<img width="240px" height="240px" src="src/cohort.png" alt="Lernkurve" style="display:inline;"></img>
+		<img width="240px" src="/exp_res/ai-overview.png" alt="Lernkurve" style="display:inline;"></img>
+		<img width="240px" height="240px" src="/exp_res/cohort.png" alt="Lernkurve" style="display:inline;"></img>
 	</div>
 	
 </div>
@@ -92,9 +87,9 @@ The data represented here only describes people who are actively using the VolL-
 	<h3>Progress over time</h3>
 	Here you can inspect the progress of the selected cohort over the course of the entire semester.
 	Click to cycle.
-	<img id="lernkurve" width="480px" src="src/learning_progess_wireframe.png" alt="Lernkurve" onmousedown="cycleIMG(event)"></img>
-	
-	This marks an <span style="color:blue">improvement of about 4%</span> over last year's cohorts.
+	<img id="lernkurve" width="480px" src="/exp_res/learning_progess_wireframe.png" alt="Lernkurve" onmousedown="cycleIMG(event)"></img>
+	<br/>
+	This marks an <b style="color:blue">improvement of about 4%</b> over last year's cohorts.
 </div>
 
 <div class="center">
@@ -104,34 +99,5 @@ The data represented here only describes people who are actively using the VolL-
 		<li>This couese is <b style="color:green">ahead</b> of where it was last year at this point. <a href="">(Details)</a></li>
 	</ul>
 </div>
-
-<script>
-
-var counter = 0;
-
-function cycleIMG(event) {
-	const pref = "src/learning_progess_";
-	const imgs = ["wireframe", "total", "0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"]; 
-	let v = event.button;
-	
-	if (v == 0) {
-		counter = (counter + 1) % 18;
-	}
-	else if (v == 2) {
-		counter = (counter - 1) % 18;
-	}
-	console.log(counter);
-	let new_src = pref + imgs[counter] + ".png";
-	console.log(new_src);
-	
-	document.getElementById("lernkurve").src = new_src;
-}
-</script>
-
-<div class="footer">
-	<img src="res/footer_center.png"></img>
-	<img style="float:right;" src="res/footer_right.png"></img>
-</div>
-
 </body>
 </html>
