@@ -112,6 +112,7 @@ export function StexReactRenderer({
           topOffset={topOffset}
           showDashboard={showDashboard}
           setShowDashboard={setShowDashboard}
+          noFrills={noFrills}
         >
           <Box px="10px" bgcolor={BG_COLOR}>
             <Box
