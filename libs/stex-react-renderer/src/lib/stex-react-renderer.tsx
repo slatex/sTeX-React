@@ -56,6 +56,7 @@ export function StexReactRenderer({
     expandOnScroll:
       (localStore?.getItem('expandOnScroll') || 'true') === 'true',
     allowFolding: (localStore?.getItem('allowFolding') || 'false') === 'true',
+    noFrills
   });
 
   const [sectionLocs, setSectionLocs] = useState<{

@@ -7,10 +7,12 @@ export const RenderOptions = createContext({
   renderOptions: {
     expandOnScroll: true, // Auto expand sections on scroll
     allowFolding: true, // Allow section folding
+    noFrills: false,
   },
   setRenderOptions: (options: {
     expandOnScroll: boolean;
     allowFolding: boolean;
+    noFrills: boolean;
     // eslint-disable-next-line @typescript-eslint/no-empty-function
   }) => {},
 });
@@ -19,11 +21,11 @@ export enum StringOptions {
   AUTO = 'AUTO', // expandOnScroll
   FOLD = 'FOLD', // allowFolding
 }
-export function RendererDisplayOptions() {
+export function RendererDisplayOptions({noFrills}: {noFrills: boolean}) {
   const { renderOptions, setRenderOptions } = useContext(RenderOptions);
   const optionsList = [
     renderOptions.expandOnScroll ? StringOptions.AUTO : undefined,
-    renderOptions.allowFolding ? StringOptions.FOLD : undefined,
+    renderOptions.allowFolding ? StringOptions.FOLD : undefined
   ].filter((o) => !!o);
 
   return (
@@ -33,6 +35,7 @@ export function RendererDisplayOptions() {
         setRenderOptions({
           expandOnScroll: o.includes(StringOptions.AUTO),
           allowFolding: !o.length || o.includes(StringOptions.FOLD),
+          noFrills
         })
       }
     >
