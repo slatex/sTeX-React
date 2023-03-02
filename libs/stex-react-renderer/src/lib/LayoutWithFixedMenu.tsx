@@ -66,6 +66,7 @@ export function LayoutWithFixedMenu({
   setShowDashboard,
   topOffset,
   drawerAnchor = 'left',
+  noFrills = false
 }: {
   menu: any;
   children: any;
@@ -73,6 +74,7 @@ export function LayoutWithFixedMenu({
   setShowDashboard: any;
   topOffset: number;
   drawerAnchor?: 'left' | 'right';
+  noFrills?: boolean;
 }) {
   const [windowSize, setWindowSize] = useState(0);
   const [offset, setOffset] = useState(topOffset);
@@ -108,7 +110,7 @@ export function LayoutWithFixedMenu({
         </MenuContext.Provider>
       </Drawer>
 
-      {!showDashboard && (
+      {(!showDashboard && !noFrills) && (
         <Box
           sx={{
             position: 'fixed',

@@ -5,13 +5,13 @@ import {
   getChildrenOfBodyNode,
   IS_MMT_VIEWER,
   localStore,
-  shouldUseDrawer
+  shouldUseDrawer,
 } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { createContext, useEffect, useState } from 'react';
 import {
   IndexNode,
-  scrollToClosestAncestorAndSetPending
+  scrollToClosestAncestorAndSetPending,
 } from './collectIndexInfo';
 import { ContentDashboard } from './ContentDashboard';
 import { ContentFromUrl } from './ContentFromUrl';
@@ -23,7 +23,12 @@ import { DocSectionContext } from './InfoSidebar';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 import { mmtHTMLToReact, setSectionIds } from './mmtParser';
 import { RenderOptions } from './RendererDisplayOptions';
-import { DimIcon, LevelIcon, SelfAssessment2, SelfAssessmentDialog } from './SelfAssessmentDialog';
+import {
+  DimIcon,
+  LevelIcon,
+  SelfAssessment2,
+  SelfAssessmentDialog,
+} from './SelfAssessmentDialog';
 import { TourAPIEntry, TourDisplay } from './TourDisplay';
 
 function getToOpenContentHash(inDocPath: string) {
@@ -37,10 +42,12 @@ export function StexReactRenderer({
   contentUrl,
   topOffset = 0,
   dashInfo = undefined,
+  noFrills = false,
 }: {
   contentUrl: string;
   topOffset?: number;
   dashInfo?: IndexNode;
+  noFrills?: boolean;
 }) {
   const [showDashboard, setShowDashboard] = useState(
     !shouldUseDrawer() && !IS_MMT_VIEWER
@@ -112,9 +119,11 @@ export function StexReactRenderer({
               m="0 auto"
               sx={{ overflowWrap: 'anywhere' }}
             >
-              <Box position="absolute" right="40px">
-                <ExpandableContextMenu contentUrl={contentUrl} />
-              </Box>
+              {!noFrills && (
+                <Box position="absolute" right="40px">
+                  <ExpandableContextMenu contentUrl={contentUrl} />
+                </Box>
+              )}
               <Box display="flex">
                 <ContentFromUrl
                   url={contentUrl}
@@ -157,4 +166,3 @@ export {
   setSectionIds,
 };
 export type { FileNode, TourAPIEntry, IndexNode };
-

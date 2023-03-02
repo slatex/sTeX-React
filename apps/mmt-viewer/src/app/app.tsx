@@ -13,6 +13,7 @@ export function App() {
   const tourId = W.TOUR_ID;
   const language = W.LANGUAGE;
   const showBrowser = W.SHOW_FILE_BROWSER.toLowerCase() === 'true';
+  const noFrills = W.NO_FRILLS.toLowerCase() === 'true';
   const content = showBrowser ? (
     <>
       <h2 style={{ textAlign: 'center', margin: '10px' }}>sTeX Browser</h2>
@@ -26,7 +27,7 @@ export function App() {
       />
     </>
   ) : contentUrl?.length ? (
-    <StexReactRenderer contentUrl={contentUrl} />
+    <StexReactRenderer contentUrl={contentUrl} noFrills={noFrills} />
   ) : (
     <TourDisplay tourId={tourId} language={language} topOffset={0} />
   );
