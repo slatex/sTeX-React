@@ -42,9 +42,11 @@ export default function MainLayout({
       <main style={{ flexGrow: 1 }}>
         <Header showBrowserAutocomplete={showBrowserAutocomplete} />
         <ReportProblemPopover />
-        {/*<Typography sx={{ color: 'red', fontWeight: 'bold', textAlign: "center" }}>
-          The system is currently down and we are working to get it resolved. We apologize
-          for the inconvenience.
+        {/*<Typography
+          sx={{ color: 'red', fontWeight: 'bold', textAlign: 'center' }}
+        >
+          Unfortunately, the login facility of website is not working. We are
+          working to get it resolved and apologize for the inconvenience.
         </Typography>*/}
         <Box>{children}</Box>
       </main>

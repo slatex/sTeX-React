@@ -56,7 +56,7 @@ function getMarks(
 }
 
 export interface CardsWithSmileys extends DefInfo, SmileyCognitiveValues {}
-
+const FLASH_CARD_SCROLL_Y = 62;
 function cardMeetsLevelReqs(
   card: CardsWithSmileys,
   loggedIn: boolean,
@@ -369,13 +369,8 @@ function getSelectedCards(
     .filter((chap) => selectedChapters.includes(chap.chapter))
     .map((v) => v.selectedCards)
     .flat(1);
-  console.log(mode === FlashCardMode.DRILL_MODE);
-  console.log(shuffle);
   if (shuffle && mode === FlashCardMode.DRILL_MODE) {
-    console.log(selected);
-    const shuff = stableShuffle(selected);
-    console.log(shuff);
-    return shuff;
+    return stableShuffle(selected);
   }
   return selected;
 }
@@ -433,7 +428,7 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
   }
 
   return (
-    <Box mt="15px">
+    <Box m="15px auto 0" maxWidth="800px">
       <Typography variant="h5" sx={{ textAlign: 'center', mb: '10px' }}>
         Configure your flash card stack for drilling/revising!
       </Typography>
@@ -459,7 +454,7 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
             start={(mode) => {
               setMode(mode);
               setStarted(true);
-              Window?.scrollTo(0, 90);
+              Window?.scrollTo(0, FLASH_CARD_SCROLL_Y);
             }}
           />
         </Box>
@@ -473,7 +468,7 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
               setCheckedChapterIdxs([idx]);
               setMode(mode);
               setStarted(true);
-              Window?.scrollTo(0, 90);
+              Window?.scrollTo(0, FLASH_CARD_SCROLL_Y);
             }}
           />
         </Box>
@@ -485,7 +480,7 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
         start={(mode) => {
           setMode(mode);
           setStarted(true);
-          Window?.scrollTo(0, 90);
+          Window?.scrollTo(0, FLASH_CARD_SCROLL_Y);
         }}
       />
     </Box>

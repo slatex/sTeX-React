@@ -1,4 +1,6 @@
 import { useMatomo } from '@jonkoops/matomo-tracker-react';
+import HelpIcon from '@mui/icons-material/Help';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 import WarningIcon from '@mui/icons-material/Warning';
 import {
   Box,
@@ -8,16 +10,22 @@ import {
   MenuItem,
   Toolbar,
   Tooltip,
+  Typography,
 } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import { getUserInfo, isLoggedIn, logout } from '@stex-react/api';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { BrowserAutocomplete } from '../components/BrowserAutocomplete';
+import { SYSTEM_UPDATES } from '../system-updates';
 import styles from '../styles/header.module.scss';
-import HelpIcon from '@mui/icons-material/Help';
+import { localStore } from '@stex-react/utils';
+
+dayjs.extend(relativeTime);
 
 const HEADER_WARNING =
   'WARNING: Research Prototype, it may misbehave, crash, delete data, ... or even make you happy without warning at any time!';
@@ -46,7 +54,7 @@ function UserButton() {
   }, []);
 
   return (
-    <div>
+    <Box whiteSpace="nowrap">
       <Button
         sx={{
           color: 'white',
@@ -80,7 +88,57 @@ function UserButton() {
           Log out
         </MenuItem>
       </Menu>
-    </div>
+    </Box>
+  );
+}
+
+function NotificationButton() {
+  // System info menu crap start
+  const [anchorEl, setAnchorEl] = useState<any>(null);
+  const open = Boolean(anchorEl);
+  const handleClose = () => setAnchorEl(null);
+  // System info menu crap end
+  return (
+    <>
+      <Tooltip title="System Updates">
+        <IconButton
+          onClick={(e) => {
+            setAnchorEl(e.currentTarget);
+            localStore?.setItem('top-system-update', SYSTEM_UPDATES[0].id);
+          }}
+        >
+          <NotificationsIcon htmlColor="white" />
+          {localStore?.getItem('top-system-update') !==
+            SYSTEM_UPDATES[0].id && (
+            <div
+              style={{
+                color: 'red',
+                position: 'absolute',
+                left: '20px',
+                top: '-2px',
+                fontSize: '30px',
+              }}
+            >
+              &#8226;
+            </div>
+          )}
+        </IconButton>
+      </Tooltip>
+      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+        {SYSTEM_UPDATES.slice(0, 9).map((update, idx) => (
+          <MenuItem key={idx} onClick={handleClose}>
+            <Link href={`/updates#${update.id}`}>
+              <Box>
+                {update.header}
+                <Typography display="block" variant="body2" color="gray">
+                  {update.timestamp.fromNow()}
+                </Typography>
+              </Box>
+            </Link>
+          </MenuItem>
+        ))}
+      </Menu>
+    </>
   );
 }
 
@@ -91,12 +149,13 @@ export function Header({
 }) {
   const loggedIn = isLoggedIn();
   const router = useRouter();
+
   return (
     <AppBar position="static">
       <Toolbar className={styles['toolbar']}>
         <Link href="/" passHref>
           <Tooltip title={HEADER_WARNING}>
-            <Box>
+            <Box display="flex" flexWrap="nowrap" alignItems="baseline">
               <Image
                 src="/voll-ki-courses.svg"
                 alt="VoLL-KI Logo"
@@ -117,7 +176,8 @@ export function Header({
           </Box>
         )}
         <Box>
-          <Box display="flex">
+          <Box display="flex" alignItems="center">
+            <NotificationButton />
             <Tooltip title="Help Center">
               <Link href="/help">
                 <IconButton>

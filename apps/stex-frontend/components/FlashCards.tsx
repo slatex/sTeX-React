@@ -1,4 +1,6 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import CancelIcon from '@mui/icons-material/Cancel';
+import CloseIcon from '@mui/icons-material/Close';
 import FlipCameraAndroidIcon from '@mui/icons-material/FlipCameraAndroid';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
@@ -24,6 +26,8 @@ import {
 import {
   ContentFromUrl,
   ContentWithHighlight,
+  FixedPositionMenu,
+  LayoutWithFixedMenu,
   LevelIcon,
   SelfAssessment2,
 } from '@stex-react/stex-react-renderer';
@@ -33,10 +37,17 @@ import {
   localStore,
   PRIMARY_COL,
 } from '@stex-react/utils';
-import { Fragment, useEffect, useReducer, useRef, useState } from 'react';
+import {
+  Dispatch,
+  Fragment,
+  SetStateAction,
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
+} from 'react';
 import { useSwipeable } from 'react-swipeable';
 import styles from '../styles/flash-card.module.scss';
-import CancelIcon from '@mui/icons-material/Cancel';
 
 enum CardType {
   ITEM_CARD,
@@ -60,12 +71,12 @@ export interface FlashCardItem {
 export function FlashCardFooter({
   uri,
   isFront,
-  onNext,
+  needUpdateMarker,
   onFlip,
 }: {
   uri: string;
   isFront: boolean;
-  onNext: () => void;
+  needUpdateMarker: any;
   onFlip: () => void;
 }) {
   const loggedIn = isLoggedIn();
@@ -78,39 +89,31 @@ export function FlashCardFooter({
       margin="5px 15px"
     >
       {loggedIn && (
-        <SelfAssessment2
-          dims={[BloomDimension.Remember, BloomDimension.Understand]}
-          uri={uri}
-        />
-      )}
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        width="100%"
-        px="15px"
-        boxSizing="border-box"
-      >
-        <Box width="78px">&nbsp;</Box>
-        <IconButton onClick={onFlip} color="primary">
-          <Tooltip
-            title={
-              isFront ? 'Flip the card to see the definition!' : 'Flip it back!'
-            }
-          >
-            <FlipCameraAndroidIcon
-              fontSize="large"
-              sx={{ transform: 'rotateX(30deg)' }}
+        <Box display="flex" alignItems="center" gap="10px" px="10px">
+          <Typography variant="h6" color="gray" textAlign="right">
+            Assess Your Competence:
+          </Typography>
+          <Box flexShrink={0}>
+            <SelfAssessment2
+              dims={[BloomDimension.Remember, BloomDimension.Understand]}
+              uri={uri}
+              needUpdateMarker={needUpdateMarker}
             />
-          </Tooltip>
-        </IconButton>
-        <Box minWidth="72px">
-          <Button onClick={() => onNext()} size="small" variant="contained">
-            Next
-            <NavigateNextIcon />
-          </Button>
+          </Box>
         </Box>
-      </Box>
+      )}
+      <IconButton onClick={onFlip} color="primary" sx={{ m: 'auto' }}>
+        <Tooltip
+          title={
+            isFront ? 'Flip the card to see the definition!' : 'Flip it back!'
+          }
+        >
+          <FlipCameraAndroidIcon
+            fontSize="large"
+            sx={{ transform: 'rotateX(30deg)' }}
+          />
+        </Tooltip>
+      </IconButton>
     </Box>
   );
 }
@@ -134,12 +137,12 @@ function dedupNodes(nodes: string[]) {
 function FlashCardFront({
   uri,
   htmlNodes,
-  onNext,
+  needUpdateMarker,
   onFlip,
 }: {
   uri: string;
   htmlNodes: string[];
-  onNext: () => void;
+  needUpdateMarker: any;
   onFlip: () => void;
 }) {
   const synonyms = dedupNodes(htmlNodes);
@@ -158,7 +161,10 @@ function FlashCardFront({
           <Fragment key={idx}>
             <Box
               sx={{
-                '& *': { fontSize: `${idx === 0 ? 32 : 20}px !important` },
+                '& *': {
+                  fontSize: `${idx === 0 ? 32 : 20}px !important`,
+                  overflowX: 'unset !important', // Fix for https://github.com/slatex/sTeX-React/issues/63
+                },
               }}
             >
               <ContentWithHighlight mmtHtml={htmlNode} />
@@ -174,8 +180,8 @@ function FlashCardFront({
       <FlashCardFooter
         uri={uri}
         onFlip={onFlip}
-        onNext={onNext}
         isFront={true}
+        needUpdateMarker={needUpdateMarker}
       />
     </Box>
   );
@@ -183,11 +189,11 @@ function FlashCardFront({
 
 function FlashCardBack({
   uri,
-  onNext,
+  needUpdateMarker,
   onFlip,
 }: {
   uri: string;
-  onNext: () => void;
+  needUpdateMarker: any;
   onFlip: () => void;
 }) {
   return (
@@ -209,8 +215,8 @@ function FlashCardBack({
       <FlashCardFooter
         uri={uri}
         onFlip={onFlip}
-        onNext={onNext}
         isFront={false}
+        needUpdateMarker={needUpdateMarker}
       />
     </Box>
   );
@@ -258,7 +264,6 @@ function FlashCard({
   useEffect(() => {
     const handleFlip = (event: KeyboardEvent) => {
       if (event.code === 'ArrowDown' || event.code === 'ArrowUp') {
-        console.log(event.code);
         setIsFlipped((prev) => !prev);
         event.preventDefault();
       }
@@ -280,9 +285,10 @@ function FlashCard({
     >
       <Box
         display="flex"
-        width="600px"
+        maxWidth="600px"
+        width="100%"
         height="800px"
-        maxHeight="calc(100vh - 90px)"
+        maxHeight="calc(100vh - 70px)"
         margin="auto"
         {...handlers}
       >
@@ -301,12 +307,12 @@ function FlashCard({
               uri={uri}
               htmlNodes={htmlNodes}
               onFlip={() => setIsFlipped(true)}
-              onNext={onNext}
+              needUpdateMarker={isFlipped}
             />
             <FlashCardBack
               uri={uri}
-              onNext={onNext}
               onFlip={() => setIsFlipped(false)}
+              needUpdateMarker={isFlipped}
             />
           </Box>
         </Box>
@@ -390,8 +396,6 @@ export function SummaryCard({
       for (const [idx, item] of items.entries()) {
         uriMap.set(item.uri, uriSmileys[idx]);
       }
-      console.log(uriSmileys);
-      console.log(uriMap);
       forceRerender();
     });
   }, [items]);
@@ -500,8 +504,92 @@ export function FlashCards({
   cards: FlashCardItem[];
   onFinish: () => void;
 }) {
-  const [cardType, setCardType] = useState(CardType.ITEM_CARD);
+  const [showDashboard, setShowDashboard] = useState(false);
   const [cardNo, setCardNo] = useState(0);
+  return (
+    <LayoutWithFixedMenu
+      menu={
+        <FlashCardNavigation
+          cards={cards}
+          cardNo={cardNo}
+          onClose={() => setShowDashboard(false)}
+          onSelect={isDrill(mode) ? undefined : (c) => setCardNo(c)}
+        />
+      }
+      topOffset={64}
+      showDashboard={showDashboard}
+      setShowDashboard={setShowDashboard}
+      drawerAnchor="left"
+    >
+      <FlashCardsContainer
+        mode={mode}
+        cards={cards}
+        cardNo={cardNo}
+        setCardNo={setCardNo}
+        onFinish={onFinish}
+      />
+    </LayoutWithFixedMenu>
+  );
+}
+
+export function FlashCardNavigation({
+  cards,
+  onClose,
+  onSelect,
+  cardNo,
+}: {
+  cards: FlashCardItem[];
+  cardNo: number;
+  onClose: () => void;
+  onSelect?: (idx: number) => void;
+}) {
+  return (
+    <FixedPositionMenu
+      staticContent={
+        <Box display="flex" alignItems="center">
+          <IconButton sx={{ m: '2px' }} onClick={() => onClose()}>
+            <CloseIcon />
+          </IconButton>
+          Stack ({cards.length} cards)
+        </Box>
+      }
+    >
+      {cards.map((card, cardIdx) => (
+        <Box
+          key={cardIdx}
+          m="5px"
+          sx={{
+            '& *': {
+              fontSize: `20px !important`,
+              cursor: onSelect ? undefined : 'auto !important',
+              userSelect: 'none',
+              color:
+                !onSelect && cardIdx < cardNo ? 'gray !important' : undefined,
+            },
+          }}
+          onClick={() => onSelect(cardIdx)}
+        >
+          <ContentWithHighlight mmtHtml={card.instances[0].htmlNode} />
+        </Box>
+      ))}
+    </FixedPositionMenu>
+  );
+}
+
+function FlashCardsContainer({
+  mode,
+  cards,
+  cardNo,
+  setCardNo,
+  onFinish: onFinish,
+}: {
+  mode: FlashCardMode;
+  cards: FlashCardItem[];
+  cardNo: number;
+  setCardNo: Dispatch<SetStateAction<number>>;
+  onFinish: () => void;
+}) {
+  const [cardType, setCardType] = useState(CardType.ITEM_CARD);
   const [drillCardsSeen, setDrillCardsSeen] = useState(0);
 
   const [defaultFlipped, setDefaultSkipped] = useState(
@@ -542,44 +630,7 @@ export function FlashCards({
     );
   }
   return (
-    <Box display="flex" flexDirection="column">
-      <Box mb="10px" display="flex" justifyContent="space-between">
-        <IconButton
-          onClick={() => {
-            const earlyFinish =
-              'Are you sure you want to leave the drill early?';
-            if (!isDrill(mode)) {
-              onFinish();
-            } else if (confirm(earlyFinish)) {
-              setDrillCardsSeen(cardNo + 1);
-              setCardType(CardType.SUMMARY_CARD);
-            }
-          }}
-        >
-          {isDrill(mode) ? <CancelIcon /> : <ArrowBackIcon />}
-        </IconButton>
-        {!isDrill(mode) ? (
-          <Box>
-            <IconButton
-              onClick={() =>
-                setCardNo((prev) => (prev + cards.length - 1) % cards.length)
-              }
-            >
-              <NavigateBeforeIcon />
-            </IconButton>
-            <IconButton
-              onClick={() => setCardNo((prev) => (prev + 1) % cards.length)}
-            >
-              <NavigateNextIcon />
-            </IconButton>
-          </Box>
-        ) : null}
-        <Box sx={{ m: '10px 20px', color: '#333', minWidth: '60px' }}>
-          <b style={{ fontSize: '18px' }}>
-            {cardNo + 1} of {cards.length}
-          </b>
-        </Box>
-      </Box>
+    <Box mt="10px" display="flex" flexDirection="column">
       <FlashCard
         uri={currentItem.uri}
         htmlNodes={currentItem.instances.map((i) => i.htmlNode)}
@@ -596,6 +647,59 @@ export function FlashCards({
           setCardNo((prev) => (prev + cards.length - 1) % cards.length)
         }
       />
+      <Box mt="10px" display="flex" justifyContent="space-between">
+        <IconButton
+          onClick={() => {
+            const earlyFinish =
+              'Are you sure you want to leave the drill early?';
+            if (!isDrill(mode)) {
+              onFinish();
+            } else if (confirm(earlyFinish)) {
+              setDrillCardsSeen(cardNo + 1);
+              setCardType(CardType.SUMMARY_CARD);
+            }
+          }}
+          sx={{ minWidth: '90px' }}
+        >
+          {isDrill(mode) ? <CancelIcon /> : <ArrowBackIcon />}
+        </IconButton>
+
+        <Box>
+          {!isDrill(mode) && (
+            <Button
+              onClick={() =>
+                setCardNo((prev) => (prev + cards.length - 1) % cards.length)
+              }
+              size="small"
+              variant="contained"
+              sx={{ mr: '10px' }}
+            >
+              <NavigateBeforeIcon />
+              Prev
+            </Button>
+          )}
+
+          <Button
+            onClick={() => {
+              if (cardNo >= cards.length - 1 && isDrill(mode)) {
+                setDrillCardsSeen(cards.length);
+                setCardType(CardType.SUMMARY_CARD);
+              }
+              setCardNo((prev) => (prev + 1) % cards.length);
+            }}
+            size="small"
+            variant="contained"
+          >
+            Next
+            <NavigateNextIcon />
+          </Button>
+        </Box>
+        <Box sx={{ m: '10px 20px', color: '#333', minWidth: '60px' }}>
+          <b style={{ fontSize: '18px' }}>
+            {cardNo + 1} of {cards.length}
+          </b>
+        </Box>
+      </Box>
 
       {mode === FlashCardMode.REVISION_MODE && (
         <FormControlLabel

@@ -169,7 +169,7 @@ export const AI_1_COURSE_SECTIONS: CourseSectionInfo = {
     'MiKoMH/AI||prolog/sec/prolog-inference.en.xhtml': { secNo: '3', clipId: '44954', timestampSec: 844 },
   },
   'Knowledge Representation and the Semantic Web': {
-    'MiKoMH/AI||logic/sec/kr.en.xhtml': { clipId: '44955', timestampSec: 0 },
+    'MiKoMH/AI||logic/sec/kr.en.xhtml': { clipId: '44955' },
     'MiKoMH/AI||logic/sec/semantic-networks.en.xhtml': { secNo: '1.2', clipId: '44955', timestampSec: 1516 },
     'MiKoMH/AI||logic/sec/semweb-intro.en.xhtml': { secNo: '1.3', clipId: '44955', timestampSec: 3010 },
     'MiKoMH/AI||logic/sec/kr-other.en.xhtml': { secNo: '1.4' },
@@ -182,8 +182,36 @@ export const AI_1_COURSE_SECTIONS: CourseSectionInfo = {
     'MiKoMH/AI||logic/sec/alc-aboxes.en.xhtml': { secNo: '3.3', clipId: '44957', timestampSec: 1430 },
     'MiKoMH/AI||logic/sec/semweb-dl.en.xhtml': { secNo: '4', clipId: '44957', timestampSec: 2067 },
   },
+  'Planning I: Framework': {
+    'MiKoMH/AI||planning/snip/partintro.en.xhtml': { clipId: '44958', timestampSec: 10 },
+    'MiKoMH/AI||planning/sec/framework-intro.en.xhtml': { secNo: '2', clipId: '44958', timestampSec: 257 },
+    'MiKoMH/AI||planning/sec/planning-history.en.xhtml': { secNo: '3', clipId: '44958', timestampSec: 3550 },
+    'MiKoMH/AI||planning/sec/strips.en.xhtml': { secNo: '4', clipId: '44958', timestampSec: 4397 },
+    'MiKoMH/AI||planning/sec/pop.en.xhtml': { secNo: '5', clipId: '44959', timestampSec: 2640 },
+    'MiKoMH/AI||planning/sec/pddl.en.xhtml': { secNo: '6', clipId: '44959', timestampSec: 4429 },
+    'MiKoMH/AI||planning/sec/complexity.en.xhtml': { secNo: '7' },
+    'MiKoMH/AI||planning/sec/framework-concl.en.xhtml': { secNo: '8' },
+  },
+  'Planning II: Algorithms': {
+    'MiKoMH/AI||planning/sec/algorithms.en.xhtml': { clipId: '44960', timestampSec: 15 },
+    'MiKoMH/AI||planning/sec/relaxing.en.xhtml': { secNo: '2', clipId: '44960', timestampSec: 598 },
+    'MiKoMH/AI||planning/sec/delete-relaxation.en.xhtml': { secNo: '3', clipId: '44960', timestampSec: 1626 },
+    'MiKoMH/AI||planning/sec/hplus.en.xhtml': { secNo: '4', clipId: '44960', timestampSec: 2465 },
+    'MiKoMH/AI||planning/sec/hplus-approximation.en.xhtml': { secNo: '5', clipId: '44960', timestampSec: 10 },
+    'MiKoMH/AI||planning/sec/algo-concl.en.xhtml': { secNo: '6', clipId: '44960', timestampSec: 10 },
+  },
+  'Searching, Planning, and Acting in the Real World': {
+    'MiKoMH/AI||planning/sec/acting.en.xhtml': { clipId: '44960', timestampSec: 3729 },
+    'MiKoMH/AI||planning/sec/coloring-ex.en.xhtml': { secNo: '2', clipId: '44960', timestampSec: 4417 },
+    'MiKoMH/AI||planning/sec/nondet-actions.en.xhtml': { secNo: '3', clipId: '44961', timestampSec: 227 },
+    'MiKoMH/AI||rational-agents/sec/belief-state-agents.en.xhtml': { secNo: '4', clipId: '44961', timestampSec: 1536 },
+    'MiKoMH/AI||planning/sec/conformant-planning.en.xhtml': { secNo: '5', clipId: '44961', timestampSec: 2178 },
+    'MiKoMH/AI||planning/sec/conditional-planning.en.xhtml': { secNo: '6', clipId: '44961', timestampSec: 2568 },
+    'MiKoMH/AI||planning/sec/online-search.en.xhtml': { secNo: '7', clipId: '44961', timestampSec: 3716 },
+    'MiKoMH/AI||planning/sec/replanning.en.xhtml': { secNo: '8', clipId: '44961', timestampSec: 4207 },
+  },
   'ENDING_CHAPTER': {
-    'MiKoMH/AI||planning/snip/partintro.en.xhtml': {  },
+    'MiKoMH/AI||course/sec/concl1.en.xhtml': {  },
   },
   
   /*  

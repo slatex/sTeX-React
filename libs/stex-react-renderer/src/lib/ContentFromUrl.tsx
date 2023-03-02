@@ -32,7 +32,7 @@ export const ContentFromUrl = memo(
         .then((r) => {
           let html = `<span style={{ color: 'red' }}>Error loading: ${url}</span>`;
           if (r?.data) html = r.data;
-          setMmtHtml(html);
+          setMmtHtml(html.trim());
         });
     }, [mmtUrl, url]);
 

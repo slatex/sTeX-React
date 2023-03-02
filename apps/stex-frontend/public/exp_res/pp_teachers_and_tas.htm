@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<style>
+		.center {
+		  margin: auto;
+		  width: 500px;
+		  padding: 10px;
+		}
+		
+		.warning {
+		  margin: auto;
+		  width: 500px;
+		  padding: 10px;
+		  background-color: red;
+		  color: white;
+		}
+		
+		.header {
+		  background-image: url('res/header_center.png');
+		  background-repeat: repeat-x;
+		  background-color: 8c9fb1;
+		}
+		
+		.footer {
+		  background-image: url('res/footer_center.png');
+		  background-repeat: repeat-x;
+		  background-color: 203360;
+		}
+	</style>
+</head>
+
+<body>
+
+<div class="center">
+
+<h1>Course: AI 1</h1>
+<h3>Winter Semester 2022/2023</h3>
+<button>Switch Context</button> <a href="#">Campo</a> <a href="#">StudOn</a>
+</div>
+
+<div class="warning">
+The data represented here only describes people who are actively using the VolL-KI platform regularly and cannot say anything about the rest of the cohort. Please consider this in your decision-making.
+</div>
+
+
+<div class="center">
+	<h3>Overview:</h3>
+	<p>Here is a quick overview over this cohorts overall learning state relative to all material that
+	has already been covered in the lecture and exercises.</p>
+	
+	<ul>
+	<li>855 students are enrolled in the course.</li>
+	<li>572 are registered for the exam.</li>
+	<li>398 have used the VolL-KI platform during the last week.</li>
+	</ul>
+	
+	<p>Overall, this cohort has a <b><span style="color:green">good</span></b> understanding of the material.
+	It is estimated that 69% of the students regularly using the platform have enough knowledge to pass
+	the exam. Roughly 31% still struggle in places. Approximately 10% are very unlikely to catch up.</p>
+	
+	<div style="display:inline;">
+		<img width="240px" src="/exp_res/ai-overview.png" alt="Lernkurve" style="display:inline;"></img>
+		<img width="240px" height="240px" src="/exp_res/cohort.png" alt="Lernkurve" style="display:inline;"></img>
+	</div>
+	
+</div>
+
+<div class="center">
+	<h3>Highlights:</h3>
+	<ul>
+		<li><b style="color:green">91%</b> of active students have a solid understanding of <i>Adversarial Search</i>. <a href="">(Details)</a></li>
+		<li>Homework hand-in rate is <b>constant</b>. <a href="">(Details)</a></li>
+		<li>Active users spend an average of <b style="color:green">19 Minutes</b> per day on AI. <a href="">(Details)</a></li>
+	</ul>
+	
+	<h3>Improvement possible:</h3>
+	<ul>
+		<li>Students are having a hard time with <i>Prolog</i>. Only <b style="color:red">7%</b> have a solid understanding. <a href="">(Details)</a></li>
+		<li>The number of students active in the last week dropped by <b style="color:orange">4%</b> compared to the week before. <a href="">(Details)</a></li>
+		<li>Homework points total is on <b style="color:orange">slight decline</b> over the last 4 assignments. <a href="">(Details)</a></li>
+	</ul>
+</div>
+
+<div class="center">
+	<h3>Progress over time</h3>
+	Here you can inspect the progress of the selected cohort over the course of the entire semester.
+	Click to cycle.
+	<img id="lernkurve" width="480px" src="/exp_res/learning_progess_wireframe.png" alt="Lernkurve" onmousedown="cycleIMG(event)"></img>
+	<br/>
+	This marks an <b style="color:blue">improvement of about 4%</b> over last year's cohorts.
+</div>
+
+<div class="center">
+	<h3>Inter-Course Comparison:</h3>
+	<ul>
+		<li>This course is <b style="color:orange">behind</b> IWGS1 by about 10%. <a href="">(Details)</a></li>
+		<li>This couese is <b style="color:green">ahead</b> of where it was last year at this point. <a href="">(Details)</a></li>
+	</ul>
+</div>
+</body>
+</html>

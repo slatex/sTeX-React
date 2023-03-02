@@ -4,19 +4,33 @@ import {
   Button,
   CircularProgress,
   Divider,
-  IconButton
+  IconButton,
 } from '@mui/material';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
-import { NumericCognitiveValues } from '@stex-react/api';
-import { IS_MMT_VIEWER, shouldUseDrawer, simpleHash } from '@stex-react/utils';
+import {
+  BloomDimension,
+  getUriSmileys,
+  NumericCognitiveValues,
+  SmileyCognitiveValues,
+  smileyToLevel,
+} from '@stex-react/api';
+import {
+  getChildrenOfBodyNode,
+  IS_MMT_VIEWER,
+  shouldUseDrawer,
+  simpleHash,
+} from '@stex-react/utils';
 import axios from 'axios';
 import { memo, useContext, useEffect, useRef, useState } from 'react';
 import { ContentFromUrl } from './ContentFromUrl';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 import { mmtHTMLToReact } from './mmtParser';
-import { ServerLinksContext } from './stex-react-renderer';
+import {
+  SelfAssessmentDialog,
+  ServerLinksContext,
+} from './stex-react-renderer';
 import styles from './styles/tour-display.module.scss';
 import { useOnScreen } from './useOnScreen';
 
@@ -30,7 +44,7 @@ export interface TourItem {
   dependencies: string[];
   successors: string[];
   level: number;
-  weight: number;
+  understood: boolean;
 }
 
 function navMenuItemId(item: TourItem) {
@@ -58,6 +72,12 @@ function getSuccessorChain(item: TourItem, allItemsMap: Map<string, TourItem>) {
 const RenderedMmtMemo = memo(({ html }: { html: string }) => {
   return <>{mmtHTMLToReact(html)}</>;
 });
+
+function isConceptUnderstood(val: SmileyCognitiveValues) {
+  const r = smileyToLevel(val?.Remember);
+  const u = smileyToLevel(val?.Understand);
+  return !!r && !!u && r>=1 && u>=1;
+}
 
 function ItemBreadcrumbs({
   item,
@@ -142,12 +162,12 @@ function TourItemDisplay({
     <Box
       id={expandedItemId(item)}
       maxWidth={IS_MMT_VIEWER ? undefined : '600px'}
-      width="fit-content"
+      width="100%"
       ref={ref}
     >
       <Box
         display="flex"
-        alignItems="center"
+        alignItems="start"
         mt="15px"
         mb="5px"
         justifyContent="space-between"
@@ -156,24 +176,28 @@ function TourItemDisplay({
           <RenderedMmtMemo html={item.header} />
         </h3>
         <Box mx="10px" height="30px" sx={{ whiteSpace: 'nowrap' }}>
-          {!isTempShow ? (
-            <Button
-              size="small"
-              onClick={() => onUnderstood()}
-              variant="outlined"
-            >
-              I know
-            </Button>
-          ) : (
-            <Button
-              size="small"
-              onClick={() => onHideTemp()}
-              variant="outlined"
-              sx={{ mr: '10px' }}
-            >
-              Hide
-            </Button>
-          )}
+          {
+            <Box display="flex" alignItems="center" gap="5px" zIndex={10}>
+              {isTempShow && (
+                <Button
+                  size="small"
+                  onClick={() => onHideTemp()}
+                  variant="outlined"
+                  sx={{ mr: '10px' }}
+                >
+                  Hide
+                </Button>
+              )}
+              <SelfAssessmentDialog
+                dims={[BloomDimension.Remember, BloomDimension.Understand]}
+                uri={item.uri}
+                htmlName={item.header}
+                onUpdate={(v: SmileyCognitiveValues) => {
+                  if (isConceptUnderstood(v)) onUnderstood();
+                }}
+              />
+            </Box>
+          }
           {/*
               <Button
                 size="small"
@@ -192,6 +216,7 @@ function TourItemDisplay({
       <Box sx={{ mt: '20px' }}>
         <ContentFromUrl
           url={`/:vollki/frag?path=${item.uri}&lang=${lang}`}
+          modifyRendered={getChildrenOfBodyNode}
           skipSidebar={true}
         />
       </Box>
@@ -243,7 +268,10 @@ function computeOrderedList(
   }
 }
 
-function getTourItemMap(tourAPIEntries: TourAPIEntry[], weights: number[]) {
+function getTourItemMap(
+  tourAPIEntries: TourAPIEntry[],
+  smileyVals: SmileyCognitiveValues[]
+) {
   const tourItems: Map<string, TourItem> = new Map();
   for (const [idx, entry] of tourAPIEntries.entries()) {
     tourItems.set(entry.id, {
@@ -253,7 +281,7 @@ function getTourItemMap(tourAPIEntries: TourAPIEntry[], weights: number[]) {
       dependencies: [],
       successors: entry.successors,
       level: 0,
-      weight: weights[idx],
+      understood: isConceptUnderstood(smileyVals[idx]),
     });
   }
   for (const n of tourAPIEntries) {
@@ -437,16 +465,15 @@ export function TourDisplay({
       setFetchingItems(false);
       const apiEntries: TourAPIEntry[] = r.data;
       const tourUris = apiEntries.map((e) => e.id);
-      getUriWeights(tourUris).then((weights) => {
-        const understoodWeights = weights.map((w) => w.Understand || 0);
+      getUriSmileys(tourUris).then((smileyVals) => {
         const understood = [];
         for (const [idx, uri] of tourUris.entries()) {
-          if (understoodWeights[idx] >= 0.5) {
+          if (isConceptUnderstood(smileyVals[idx])) {
             understood.push(uri);
           }
         }
         setUnderstoodUriList(understood);
-        setAllItemsMap(getTourItemMap(apiEntries, understoodWeights));
+        setAllItemsMap(getTourItemMap(apiEntries, smileyVals));
       });
     });
   }, [tourId, language, mmtUrl]);
@@ -466,9 +493,8 @@ export function TourDisplay({
       if (previous.includes(uri)) return previous;
       return [...previous, uri];
     });
-    reportEvent({ type: 'i-know', URI: uri }).then(console.log);
     const item = allItemsMap.get(uri);
-    if (item) item.weight = 1;
+    if (item) item.understood = true;
   }
 
   /*function removeFromUnderstoodList(uri: string) {

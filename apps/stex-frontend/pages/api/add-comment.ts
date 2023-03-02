@@ -1,4 +1,4 @@
-import { Comment } from '@stex-react/api';
+import { Comment, MODERATORS } from '@stex-react/api';
 import { PathToArticle } from '@stex-react/utils';
 import axios from 'axios';
 import {
@@ -8,6 +8,7 @@ import {
 } from './comment-utils';
 
 async function sendCommentAlert(
+  userId: string,
   isPrivate: boolean,
   archive: string,
   filepath: string
@@ -15,7 +16,11 @@ async function sendCommentAlert(
   if (isPrivate) return;
   const articlePath =
     'https://courses.voll-ki.fau.de' + PathToArticle({ archive, filepath });
-  await sendAlert(`A comment was posted at ${articlePath}`);
+  if (MODERATORS.includes(userId)) {
+    await sendAlert(`A moderator posted a comment at ${articlePath}`);
+  } else {
+    await sendAlert(`A comment was posted at ${articlePath}`);
+  }
 }
 
 export async function sendAlert(message: string) {
@@ -91,5 +96,5 @@ export default async function handler(req, res) {
   if (!results) return;
   const newCommentId = results['insertId'];
   res.status(200).json({ newCommentId });
-  await sendCommentAlert(isPrivate, archive, filepath);
+  await sendCommentAlert(userId, isPrivate, archive, filepath);
 }
