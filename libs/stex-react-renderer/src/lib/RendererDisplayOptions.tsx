@@ -21,11 +21,15 @@ export enum StringOptions {
   AUTO = 'AUTO', // expandOnScroll
   FOLD = 'FOLD', // allowFolding
 }
-export function RendererDisplayOptions({noFrills}: {noFrills: boolean}) {
+export function RendererDisplayOptions({
+  noFrills = false,
+}: {
+  noFrills?: boolean;
+}) {
   const { renderOptions, setRenderOptions } = useContext(RenderOptions);
   const optionsList = [
     renderOptions.expandOnScroll ? StringOptions.AUTO : undefined,
-    renderOptions.allowFolding ? StringOptions.FOLD : undefined
+    renderOptions.allowFolding ? StringOptions.FOLD : undefined,
   ].filter((o) => !!o);
 
   return (
@@ -35,7 +39,7 @@ export function RendererDisplayOptions({noFrills}: {noFrills: boolean}) {
         setRenderOptions({
           expandOnScroll: o.includes(StringOptions.AUTO),
           allowFolding: !o.length || o.includes(StringOptions.FOLD),
-          noFrills
+          noFrills,
         })
       }
     >
