@@ -186,7 +186,7 @@ export function ExpandableContent({
                 &nbsp;
               </Box>
             </Box>
-            <Box overflow="auto">
+            <Box overflow="visible">
               {contentUrl ? (
                 <ExpandContext.Provider value={childContext}>
                   <ContentFromUrl
