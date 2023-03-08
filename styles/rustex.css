@@ -117,7 +117,7 @@
     height:fit-content;
     max-width:100%;
     align-self:baseline;
-    vertical-align: text-bottom;
+    vertical-align:middle;
   }
   .matrix {
     display: inline-flex;
@@ -191,7 +191,7 @@
   math {
     width:fit-content;
     height:fit-content;
-    /*font-size:85%;*/
+    align-self: baseline;
   }
   .displaymath {
     align-self: center;
@@ -218,6 +218,102 @@
 .rustex-scaled>*:first-child {
     --current-width:var(--this-width);
 }
+
+
+.omdoc-collapsible > input[type="checkbox"] {
+    position: absolute;
+    left: -100vw;
+}
+
+.omdoc-collapsible .omdoc-content {
+    overflow-y: hidden;
+    height: 0;
+    transition: height 0.3s ease;
+}
+
+.omdoc-collapsible > input[type="checkbox"]:checked ~ .omdoc-content {
+    height: auto;
+    overflow: visible;
+}
+
+.omdoc-collapsible label {
+    display: block;
+}
+
+.omdoc-collapsible {
+    margin-bottom: 0.5em;
+}
+
+.omdoc-collapsible > input[type="checkbox"]:checked ~ .omdoc-content {
+    padding: 15px;
+    border: 1px solid #e8e8e8;
+    border-top: 0;
+}
+
+.omdoc-collapsible .omdoc-handle {
+    margin: 0;
+}
+
+.omdoc-collapsible-small {
+    padding: 1px;
+}
+
+.omdoc-collapsible label {
+    cursor: pointer;
+    padding: 5px;
+    background: #e8e8e8;
+}
+.omdoc-collapsible label::before {
+    content:'▶ ';
+    white-space: pre;
+}
+.omdoc-collapsible > input[type="checkbox"]:checked ~ .omdoc-handle > label::before {
+    content:'▼ ' !important;
+    white-space: pre;
+}
+
+.omdoc-collapsible-small label {
+    padding:0;
+    background: inherit;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.omdoc-collapsible label:hover,
+.omdoc-collapsible label:focus {
+    background: #d8d8d8;
+}
+.omdoc-symbol-table {
+    width: 100%;
+}
+.omdoc-symbol-td {
+    padding-right: 10px;
+    vertical-align: baseline;
+    padding-bottom: 5px;
+}
+.omdoc-notation-table {
+    width: 100%;
+}
+.omdoc-notation-td {
+    padding-right: 10px;
+    vertical-align: baseline;
+    padding-bottom: 5px;
+    text-align: center;
+}
+
+.omdoc-fake-collapsible, .omdoc-fake-collapsible-small {
+    margin-bottom: 0.5em;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.omdoc-fake-collapsible {}
+.omdoc-fake-collapsible-small {}
+
+.omdoc-fake-collapsible::before, .omdoc-fake-collapsible-small::before {
+    content:'▷ ';
+    white-space: pre;
+}
+
+.shtml-sectitle{display:inline-block;margin-top: 20px;margin-bottom: 20px}
 .shtml-sec-part .shtml-sectitle {
     font-style: normal;
     font-weight: bold;
@@ -238,8 +334,8 @@
     font-style: normal;
     font-weight: bold;
     font-size: x-large;
-    margin-bottom: 20px;
-    margin-top: 20px;
+    margin-bottom: 30px;
+    margin-top: 30px;
 }
 .shtml-sec-chapter .shtml-sectitle::before {
     content: 'Chapter ' counter(shtml-sec-chapter,upper-roman) ' - ';
@@ -254,6 +350,8 @@
     font-style: normal;
     font-weight: bold;
     font-size: large;
+    margin-bottom: 20px;
+    margin-top: 20px;
 }
 .shtml-sec-section .shtml-sectitle::before {
     content: counter(shtml-sec-section) '  ';
@@ -268,6 +366,8 @@
     font-style: normal;
     font-weight: bold;
     font-size: medium;
+    margin-bottom: 10px;
+    margin-top: 10px;
 }
 .shtml-sec-subsection .shtml-sectitle::before {
     content: counter(shtml-sec-section) '.' counter(shtml-sec-subsection) '  ';
@@ -282,6 +382,8 @@
     font-style: normal;
     font-weight: bold;
     font-size: medium;
+    margin-bottom: 5px;
+    margin-top: 5px;
 }
 .shtml-sec-subsubsection .shtml-sectitle::before {
     content: counter(shtml-sec-section) '.' counter(shtml-sec-subsection) '.' counter(shtml-sec-subsubsection) ' ';
@@ -307,63 +409,63 @@
     margin-bottom: 10px;
     margin-top: 10px;
 }
-.shtml-title-paragraph { font-size: inherit;}
-.shtml-title-paragraph:is(.empty)::before {
-    content:'Remark ' counter(shtml-statement) '. ';
-    white-space:pre;
-    font-size: inherit;
-}
-.shtml-paragraph-symdoc .shtml-title-paragraph:is(.empty)::before {
-    content:'Concept ' counter(shtml-statement) '. ';
-    white-space:pre;
-    font-size: inherit;
-}
-.shtml-title-example { font-size: inherit;}
+.shtml-title-paragraph { font-size: inherit;font-weight: bold;}
+.shtml-title-example { font-size: inherit;font-weight: bold;}
 .shtml-title-example:is(.empty)::before {
     content:'Example ' counter(shtml-statement) '. ';
     white-space:pre;
     font-size: inherit;
+    font-weight: bold;
 }
-.shtml-title-definition { font-size: inherit;}
+.shtml-title-definition { font-size: inherit;font-weight: bold;}
 .shtml-title-definition::before {
     content:'Definition ' counter(shtml-statement) ' (';
     white-space:pre;
     font-size: inherit;
+    font-weight: bold;
 }
 .shtml-title-definition::after {
     content:'). ';
     white-space:pre;
     font-size: inherit;
+    font-weight: bold;
 }
 .shtml-title-definition:is(.empty)::before {
     content:'Definition ' counter(shtml-statement) '. ';
     white-space:pre;
     font-size: inherit;
+    font-weight: bold;
 }
 .shtml-title-definition:is(.empty)::after {
     content:'';
+    font-weight: bold;
 }
-.shtml-title-assertion { font-size: inherit;}
+.shtml-title-assertion { font-size: inherit;font-weight: bold;}
 .shtml-title-assertion:is(.empty)::before {
     content:'Assertion ' counter(shtml-statement) '. ';
     white-space:pre;
     font-size: inherit;
+    font-weight: bold;
 }
 .shtml-assertion-axiom .shtml-title-assertion::before {
     content:'Axiom ' counter(shtml-statement) ' (';
     white-space:pre;
     font-size: inherit;
+    font-weight: bold;
 }
 .shtml-assertion-axiom .shtml-title-assertion::after {
     content:'). ';
     white-space:pre;
     font-size: inherit;
+    font-weight: bold;
 }
 .shtml-assertion-axiom .shtml-title-assertion:is(.empty)::before {
     content:'Axiom ' counter(shtml-statement) '. ';
     white-space:pre;
     font-size: inherit;
+    font-weight: bold;
 }
 .shtml-assertion-axiom .shtml-title-assertion:is(.empty)::after {
     content:'';
+    font-weight: bold;
 }
