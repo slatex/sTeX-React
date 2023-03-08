@@ -95,20 +95,16 @@ export function ExpandableContent({
       addSectionLoc({ contentUrl, positionFromTop });
   }, [contentUrl, positionFromTop]);
 
-  if (autoExpand) {
+  if (autoExpand && !staticContent) {
     return (
       <ErrorBoundary hidden={false}>
-        {contentUrl ? (
-          <Box ref={contentRef}>
-            <ContentFromUrl
-              url={contentUrl}
-              modifyRendered={getChildrenOfBodyNode}
-              minLoadingHeight={expandOnScroll ? '1000px' : undefined}
-            />
-          </Box>
-        ) : (
-          { staticContent }
-        )}
+        <Box ref={contentRef}>
+          <ContentFromUrl
+            url={contentUrl ?? ''}
+            modifyRendered={getChildrenOfBodyNode}
+            minLoadingHeight={expandOnScroll ? '1000px' : undefined}
+          />
+        </Box>
       </ErrorBoundary>
     );
   }
@@ -120,7 +116,7 @@ export function ExpandableContent({
         ref={contentRef}
         minHeight={!openAtLeastOnce && expandOnScroll ? '1000px' : undefined}
       >
-        {!allowFolding ? (
+        {!allowFolding && !staticContent ? (
           contentUrl && (
             <Box position="absolute" right="10px">
               <ExpandableContextMenu
@@ -175,7 +171,7 @@ export function ExpandableContent({
           <Box display={isOpen ? 'flex' : 'none'}>
             <Box
               minWidth="20px"
-              display={allowFolding ? undefined : 'none'}
+              display={allowFolding || staticContent ? undefined : 'none'}
               sx={{
                 cursor: 'pointer',
                 '&:hover *': { borderLeft: '1px solid #333' },
