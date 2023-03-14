@@ -39,6 +39,8 @@
     display: flex;
     flex-direction: column;
     overflow:hidden;
+    counter-reset: shtml-sec-part shtml-sec-chapter shtml-sec-section shtml-sec-subsection shtml-sec-subsubsection shtml-statement;
+    --shtml-has-chapter: ;
   }
   
   span {
@@ -100,7 +102,7 @@
     flex-direction: column;
     flex-wrap: nowrap;
     align-content: center;
-    justify-content: flex-end;
+    justify-content: flex-start;
     width:fit-content;
     max-width:100%;
     text-align:justify;
@@ -117,7 +119,8 @@
     height:fit-content;
     max-width:100%;
     align-self:baseline;
-    vertical-align:middle;
+    vertical-align:baseline;
+    white-space:nowrap;
   }
   .matrix {
     display: inline-flex;
@@ -313,159 +316,318 @@
     white-space: pre;
 }
 
-.shtml-sectitle{display:inline-block;margin-top: 20px;margin-bottom: 20px}
-.shtml-sec-part .shtml-sectitle {
-    font-style: normal;
-    font-weight: bold;
-    font-size: xx-large;
-    margin-bottom: 50px;
-    margin-top: 50px;
+.shtml-sectitle{
+    display:inline-block;
+    margin-bottom:20px;
+    margin-top:20px
 }
-.shtml-sec-part .shtml-sectitle::before {
-    content: 'Part ' counter(shtml-sec-part,upper-roman) '\a';
-    font-size: x-large;
-    white-space: pre;
+.shtml-sec-part {
+    counter-reset: shtml-statement shtml-sec-section shtml-sec-subsection shtml-sec-subsubsection;
+    counter-increment: shtml-sec-part;
 }
-.shtml-sec-part .shtml-sectitle::after {
-    content: '\a';
-    white-space: pre;
+.shtml-sec-chapter {
+    counter-reset: shtml-statement shtml-sec-section shtml-sec-subsection shtml-sec-subsubsection;
+    counter-increment: shtml-sec-chapter;
+    --shtml-has-chapter: counter(shtml-sec-chapter) ".";
 }
-.shtml-sec-chapter .shtml-sectitle {
-    font-style: normal;
-    font-weight: bold;
-    font-size: x-large;
-    margin-bottom: 30px;
-    margin-top: 30px;
+.shtml-sec-section {
+    counter-reset: shtml-statement shtml-sec-subsection shtml-sec-subsubsection;
+    counter-increment: shtml-sec-section;
 }
-.shtml-sec-chapter .shtml-sectitle::before {
-    content: 'Chapter ' counter(shtml-sec-chapter,upper-roman) ' - ';
-    font-size: x-large;
-    white-space: pre;
+.shtml-sec-subsection {
+    counter-reset: shtml-sec-subsubsection;;
+    counter-increment: shtml-sec-subsection;
 }
-.shtml-sec-chapter .shtml-sectitle::after {
-    content: '\a';
-    white-space: pre;
+.shtml-sec-subsubsection {
+    counter-increment: shtml-sec-subsubsection;
 }
-.shtml-sec-section .shtml-sectitle {
-    font-style: normal;
-    font-weight: bold;
-    font-size: large;
-    margin-bottom: 20px;
-    margin-top: 20px;
+.shtml-sec-part .shtml-sectitle{
+    font-size:xx-large;
+    font-style:normal;
+    font-weight:700;
+    margin-bottom:50px;
+    margin-top:50px
 }
-.shtml-sec-section .shtml-sectitle::before {
-    content: counter(shtml-sec-section) '  ';
-    font-size: large;
-    white-space: pre;
+.shtml-sec-part .shtml-sectitle:before{
+    content:"Part " counter(shtml-sec-part,upper-roman) "\a";
+    font-size:x-large;
+    white-space:pre
+ }
+.shtml-sec-part .shtml-sectitle:after{
+    content:"\a";
+    white-space:pre
+}.shtml-sec-chapter .shtml-sectitle{
+     font-size:x-large;
+     font-style:normal;
+     font-weight:700;
+     margin-bottom:30px;
+     margin-top:30px
+ }
+.shtml-sec-chapter .shtml-sectitle:before{
+    content:"Chapter " counter(shtml-sec-chapter) " - ";
+    font-size:x-large;white-space:pre
 }
-.shtml-sec-section .shtml-sectitle::after {
-    content: '\a';
-    white-space: pre;
+.shtml-sec-chapter .shtml-sectitle:after{
+    content:"\a";
+    white-space:pre
 }
-.shtml-sec-subsection .shtml-sectitle {
-    font-style: normal;
-    font-weight: bold;
-    font-size: medium;
-    margin-bottom: 10px;
-    margin-top: 10px;
+.shtml-sec-section .shtml-sectitle{
+    font-size:large;
+    font-style:normal;
+    font-weight:700;
+    margin-bottom:20px;
+    margin-top:20px
 }
-.shtml-sec-subsection .shtml-sectitle::before {
-    content: counter(shtml-sec-section) '.' counter(shtml-sec-subsection) '  ';
-    font-size: medium;
-    white-space: pre;
+.shtml-sec-section .shtml-sectitle:before{
+    content:var(--shtml-has-chapter) counter(shtml-sec-section) "  ";
+    font-size:large;
+    white-space:pre
 }
-.shtml-sec-subsection .shtml-sectitle::after {
-    content: '\a';
-    white-space: pre;
+.shtml-sec-section .shtml-sectitle:after{
+    content:"\a";white-space:pre
 }
-.shtml-sec-subsubsection .shtml-sectitle {
-    font-style: normal;
-    font-weight: bold;
-    font-size: medium;
-    margin-bottom: 5px;
-    margin-top: 5px;
+.shtml-sec-subsection .shtml-sectitle{
+    font-size:medium;
+    font-style:normal;
+    font-weight:700;
+    margin-bottom:10px;
+    margin-top:10px
 }
-.shtml-sec-subsubsection .shtml-sectitle::before {
-    content: counter(shtml-sec-section) '.' counter(shtml-sec-subsection) '.' counter(shtml-sec-subsubsection) ' ';
-    font-size: medium;
-    white-space: pre;
+.shtml-sec-subsection .shtml-sectitle:before{
+    content:var(--shtml-has-chapter) counter(shtml-sec-section) "." counter(shtml-sec-subsection) "  ";
+    font-size:medium;
+    white-space:pre
 }
-.shtml-sec-subsubsection .shtml-sectitle::after {
-    content: '\a';
-    white-space: pre;
+.shtml-sec-subsection .shtml-sectitle:after{
+    content:"\a";
+    white-space:pre
 }
-.shtml-sectitle {
-    font-style: normal; font-weight: bold; font-size: inherit;
+.shtml-sec-subsubsection .shtml-sectitle{
+    font-size:medium;
+    font-style:normal;
+    font-weight:700;
+    margin-bottom:5px;
+    margin-top:5px
 }
-.shtml-paragraph {
-    margin-bottom: 10px;
-    margin-top: 10px;
+.shtml-sec-subsubsection .shtml-sectitle:before{
+    content:var(--shtml-has-chapter) counter(shtml-sec-section) "." counter(shtml-sec-subsection) "." counter(shtml-sec-subsubsection) "  ";
+    font-size:medium;
+    white-space:pre
 }
-.shtml-example {
-    margin-bottom: 10px;
-    margin-top: 10px;
+.shtml-sec-subsubsection .shtml-sectitle:after{
+    content:"\a";
+    white-space:pre
 }
-.shtml-definition {
-    margin-bottom: 10px;
-    margin-top: 10px;
+.shtml-sectitle{
+    font-size:inherit;
+    font-style:normal;
+    font-weight:700
 }
-.shtml-title-paragraph { font-size: inherit;font-weight: bold;}
-.shtml-title-example { font-size: inherit;font-weight: bold;}
-.shtml-title-example:is(.empty)::before {
-    content:'Example ' counter(shtml-statement) '. ';
-    white-space:pre;
-    font-size: inherit;
-    font-weight: bold;
+.shtml-definition,.shtml-example,.shtml-paragraph{
+    margin-bottom:10px;
+    margin-top:10px
 }
-.shtml-title-definition { font-size: inherit;font-weight: bold;}
-.shtml-title-definition::before {
-    content:'Definition ' counter(shtml-statement) ' (';
-    white-space:pre;
-    font-size: inherit;
-    font-weight: bold;
+.shtml-title-example,.shtml-title-paragraph{
+    font-size:inherit;
+    font-weight:700
 }
-.shtml-title-definition::after {
-    content:'). ';
-    white-space:pre;
-    font-size: inherit;
-    font-weight: bold;
+.shtml-title-example:before{
+    counter-increment: shtml-statement;
+    content:"Example " var(--shtml-has-chapter) counter(shtml-sec-section) "." counter(shtml-statement) " (";
+    font-size:inherit;
+    font-weight:700;
+    white-space:pre
 }
-.shtml-title-definition:is(.empty)::before {
-    content:'Definition ' counter(shtml-statement) '. ';
-    white-space:pre;
-    font-size: inherit;
-    font-weight: bold;
+.shtml-title-example:after{
+    content:"). ";
+    font-size:inherit;
+    font-weight:700;
+    white-space:pre
 }
-.shtml-title-definition:is(.empty)::after {
-    content:'';
-    font-weight: bold;
+.shtml-title-example:is(.empty):before{
+    counter-increment: shtml-statement;
+    content:"Example " var(--shtml-has-chapter) counter(shtml-sec-section) "." counter(shtml-statement) ". ";
+    font-size:inherit;
+    font-weight:700;
+    white-space:pre
 }
-.shtml-title-assertion { font-size: inherit;font-weight: bold;}
-.shtml-title-assertion:is(.empty)::before {
-    content:'Assertion ' counter(shtml-statement) '. ';
-    white-space:pre;
-    font-size: inherit;
-    font-weight: bold;
+.shtml-title-example:is(.empty):after{
+    content:"";
+    font-weight:700
 }
-.shtml-assertion-axiom .shtml-title-assertion::before {
-    content:'Axiom ' counter(shtml-statement) ' (';
-    white-space:pre;
-    font-size: inherit;
-    font-weight: bold;
+.shtml-title-definition{
+    font-size:inherit;
+    font-weight:700
 }
-.shtml-assertion-axiom .shtml-title-assertion::after {
-    content:'). ';
-    white-space:pre;
-    font-size: inherit;
-    font-weight: bold;
+.shtml-title-definition:before{
+    counter-increment: shtml-statement;
+    content:"Definition " var(--shtml-has-chapter) counter(shtml-sec-section) "." counter(shtml-statement) " (";
+    font-size:inherit;
+    font-weight:700;
+    white-space:pre
 }
-.shtml-assertion-axiom .shtml-title-assertion:is(.empty)::before {
-    content:'Axiom ' counter(shtml-statement) '. ';
-    white-space:pre;
-    font-size: inherit;
-    font-weight: bold;
+.shtml-title-definition:after{
+    content:"). ";
+    font-size:inherit;
+    font-weight:700;
+    white-space:pre
 }
-.shtml-assertion-axiom .shtml-title-assertion:is(.empty)::after {
-    content:'';
-    font-weight: bold;
+.shtml-title-definition:is(.empty):before{
+    counter-increment: shtml-statement;
+    content:"Definition " var(--shtml-has-chapter) counter(shtml-sec-section) "." counter(shtml-statement) ". ";
+    font-size:inherit;
+    font-weight:700;
+    white-space:pre
+}
+.shtml-title-definition:is(.empty):after{
+    content:"";
+    font-weight:700
+}
+.shtml-title-assertion{
+    font-size:inherit;
+    font-weight:700
+}
+.shtml-assertion .shtml-title-assertion:before{
+    counter-increment: shtml-statement;
+    content:"Axiom " var(--shtml-has-chapter) counter(shtml-sec-section) "." counter(shtml-statement) " (";
+    font-size:inherit;
+    font-weight:700;
+    white-space:pre
+}
+.shtml-assertion .shtml-title-assertion:after{
+    content:"). ";
+    font-size:inherit;
+    font-weight:700;
+    white-space:pre
+}
+.shtml-title-assertion:is(.empty):before{
+    counter-increment: shtml-statement;
+    content:"Assertion " var(--shtml-has-chapter) counter(shtml-sec-section) "." counter(shtml-statement) ". ";
+    font-size:inherit;
+    font-weight:700;
+    white-space:pre
+}
+.shtml-assertion .shtml-title-assertion:is(.empty):after{
+    content:"";
+    font-weight:700
+}
+.shtml-assertion-axiom .shtml-title-assertion:before{
+    counter-increment: shtml-statement;
+    content:"Axiom " var(--shtml-has-chapter) counter(shtml-sec-section) "." counter(shtml-statement) " (";
+    font-size:inherit;
+    font-weight:700;
+    white-space:pre
+}
+.shtml-assertion-axiom .shtml-title-assertion:after{
+    content:"). ";
+    font-size:inherit;
+    font-weight:700;
+    white-space:pre
+}
+.shtml-assertion-axiom .shtml-title-assertion:is(.empty):before{
+    counter-increment: shtml-statement;
+    content:"Axiom " var(--shtml-has-chapter) counter(shtml-sec-section) "." counter(shtml-statement) ". ";
+    font-size:inherit;
+    font-weight:700;
+    white-space:pre
+}
+.shtml-assertion-axiom .shtml-title-assertion:is(.empty):after{
+    content:"";
+    font-weight:700
+}
+.shtml-assertion-theorem .shtml-title-assertion:before{
+    counter-increment: shtml-statement;
+    content:"Theorem " var(--shtml-has-chapter) counter(shtml-sec-section) "." counter(shtml-statement) " (";
+    font-size:inherit;
+    font-weight:700;
+    white-space:pre
+}
+.shtml-assertion-theorem .shtml-title-assertion:after{
+    content:"). ";
+    font-size:inherit;
+    font-weight:700;
+    white-space:pre
+}
+.shtml-assertion-theorem .shtml-title-assertion:is(.empty):before{
+    counter-increment: shtml-statement;
+    content:"Theorem " var(--shtml-has-chapter) counter(shtml-sec-section) "." counter(shtml-statement) ". ";
+    font-size:inherit;
+    font-weight:700;
+    white-space:pre
+}
+.shtml-assertion-theorem .shtml-title-assertion:is(.empty):after{
+    content:"";
+    font-weight:700
+}
+.shtml-assertion-lemma .shtml-title-assertion:before{
+    counter-increment: shtml-statement;
+    content:"Lemma " var(--shtml-has-chapter) counter(shtml-sec-section) "." counter(shtml-statement) " (";
+    font-size:inherit;
+    font-weight:700;
+    white-space:pre
+}
+.shtml-assertion-lemma .shtml-title-assertion:after{
+    content:"). ";
+    font-size:inherit;
+    font-weight:700;
+    white-space:pre
+}
+.shtml-assertion-lemma .shtml-title-assertion:is(.empty):before{
+    counter-increment: shtml-statement;
+    content:"Lemma " var(--shtml-has-chapter) counter(shtml-sec-section) "." counter(shtml-statement) ". ";
+    font-size:inherit;
+    font-weight:700;
+    white-space:pre
+}
+.shtml-assertion-lemma .shtml-title-assertion:is(.empty):after{
+    content:"";
+    font-weight:700
+}
+.shtml-assertion-corollary .shtml-title-assertion:before{
+  counter-increment: shtml-statement;
+  content:"Corollary " var(--shtml-has-chapter) counter(shtml-sec-section) "." counter(shtml-statement) " (";
+  font-size:inherit;
+  font-weight:700;
+  white-space:pre
+}
+.shtml-assertion-corollary .shtml-title-assertion:after{
+  content:"). ";
+  font-size:inherit;
+  font-weight:700;
+  white-space:pre
+}
+.shtml-assertion-corollary .shtml-title-assertion:is(.empty):before{
+  counter-increment: shtml-statement;
+  content:"Corollary " var(--shtml-has-chapter) counter(shtml-sec-section) "." counter(shtml-statement) ". ";
+  font-size:inherit;
+  font-weight:700;
+  white-space:pre
+}
+.shtml-assertion-corollary .shtml-title-assertion:is(.empty):after{
+  content:"";
+  font-weight:700
+}
+.shtml-assertion-conjecture .shtml-title-assertion:before{
+  counter-increment: shtml-statement;
+  content:"Conjecture " var(--shtml-has-chapter) counter(shtml-sec-section) "." counter(shtml-statement) " (";
+  font-size:inherit;
+  font-weight:700;
+  white-space:pre
+}
+.shtml-assertion-conjecture .shtml-title-assertion:after{
+  content:"). ";
+  font-size:inherit;
+  font-weight:700;
+  white-space:pre
+}
+.shtml-assertion-conjecture .shtml-title-assertion:is(.empty):before{
+  counter-increment: shtml-statement;
+  content:"Conjecture " var(--shtml-has-chapter) counter(shtml-sec-section) "." counter(shtml-statement) ". ";
+  font-size:inherit;
+  font-weight:700;
+  white-space:pre
+}
+.shtml-assertion-conjecture .shtml-title-assertion:is(.empty):after{
+  content:"";
+  font-weight:700
 }
