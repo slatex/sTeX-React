@@ -41,12 +41,10 @@ export const ServerLinksContext = createContext({ mmtUrl: '', lmsUrl: '' });
 export function StexReactRenderer({
   contentUrl,
   topOffset = 0,
-  dashInfo = undefined,
   noFrills = false,
 }: {
   contentUrl: string;
   topOffset?: number;
-  dashInfo?: IndexNode;
   noFrills?: boolean;
 }) {
   const [showDashboard, setShowDashboard] = useState(
@@ -107,7 +105,7 @@ export function StexReactRenderer({
           menu={
             <ContentDashboard
               onClose={() => setShowDashboard(false)}
-              dashInfo={dashInfo}
+              contentUrl={contentUrl}
             />
           }
           topOffset={topOffset}

@@ -44,36 +44,17 @@ const BrowserPage: NextPage = () => {
   const router = useRouter();
   const id = router.query.id as string;
   const [contentUrl, setContentUrl] = useState(undefined as string);
-  const [dashInfo, setDashInfo] = useState(undefined as IndexNode);
 
   useEffect(() => {
     if (!router.isReady) return;
     const url = decodeURI(id);
     setContentUrl(url);
-    const { archive, filepath } = getSectionInfo(url);
-    const contentDashUrl = `/api/get-content-dash/${encodeURIComponent(
-      archive
-    )}/${encodeURIComponent(filepath)}`;
-    setDashInfo(undefined);
-    axios.get(contentDashUrl).then((r) => {
-      const d = r.data ? getDashInfo(r.data) : undefined;
-      // Remove hash of top level node. This causes the top level node to be
-      // skipped in the inDocPath used for navigation. This makes it consistent
-      // with dynamically loaded hash info, where top level node doesn't have
-      // a hash value set.
-      if (d) d.hash = '';
-      setDashInfo(d);
-    });
   }, [id, router.isReady]);
   if (!contentUrl?.length) return;
 
   return (
     <MainLayout title="sTeX Browser">
-      <StexReactRenderer
-        contentUrl={contentUrl}
-        topOffset={64}
-        dashInfo={dashInfo}
-      />
+      <StexReactRenderer contentUrl={contentUrl} topOffset={64} />
     </MainLayout>
   );
 };

@@ -93,7 +93,7 @@ export function ExpandableContent({
   useEffect(() => {
     if (contentUrl && positionFromTop)
       addSectionLoc({ contentUrl, positionFromTop });
-  }, [contentUrl, positionFromTop]);
+  }, [contentUrl, positionFromTop, addSectionLoc]);
 
   if (autoExpand && !staticContent) {
     return (
