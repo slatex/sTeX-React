@@ -70,8 +70,6 @@ export function reportIndexInfo(
   ref?: HTMLElement
 ) {
   addRef(context, ref);
-  addToNode(TOP_LEVEL, context, titleText);
-  INDEX_UPDATE_COUNT++; // Can optimize this increment.
 }
 
 export function resetIndexInfo() {

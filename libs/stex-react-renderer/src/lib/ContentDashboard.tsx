@@ -3,14 +3,23 @@ import CloseIcon from '@mui/icons-material/Close';
 import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/IndeterminateCheckBoxOutlined';
 import { Box, IconButton, TextField, Tooltip } from '@mui/material';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
-import { IndexNode, INDEX_UPDATE_COUNT, TOP_LEVEL } from './collectIndexInfo';
+import { useContext, useEffect, useState } from 'react';
+import { IndexNode } from './collectIndexInfo';
 import { RendererDisplayOptions } from './RendererDisplayOptions';
 import UnfoldLessDoubleIcon from '@mui/icons-material/UnfoldLessDouble';
 import UnfoldMoreDoubleIcon from '@mui/icons-material/UnfoldMoreDouble';
 import styles from './stex-react-renderer.module.scss';
 import { FixedPositionMenu } from './LayoutWithFixedMenu';
-import { localStore } from '@stex-react/utils';
+import {
+  convertHtmlStringToPlain,
+  fileLocToString,
+  getSectionInfo,
+  localStore,
+  simpleHash,
+} from '@stex-react/utils';
+import { mmtHTMLToReact, ServerLinksContext } from './stex-react-renderer';
+import axios from 'axios';
+import { getChildren } from 'domutils';
 
 function applyFilter(
   node?: IndexNode,
@@ -86,7 +95,7 @@ function RenderTree({
             }
           }}
         >
-          {node.title}
+          {convertHtmlStringToPlain(node.title)}
         </span>
       </Box>
       {isOpen && node.childNodes.size > 0 && (
@@ -117,31 +126,90 @@ function RenderTree({
     </Box>
   );
 }
+
+interface SectionsAPIData {
+  archive?: string;
+  filepath?: string;
+
+  title?: string;
+  id?: string;
+
+  ids?: string[];
+  children: SectionsAPIData[];
+}
+
+function getTitle(nodes: SectionsAPIData[]): string {
+  for (const node of nodes) {
+    if (node.title) return node.title;
+    const sub = getTitle(node.children);
+    if (sub) return sub;
+  }
+  return 'NOT FOUND';
+}
+
+function getDocumentTree(
+  data: SectionsAPIData,
+  level: number,
+  parentNode?: IndexNode
+): IndexNode[] | IndexNode {
+  const { archive, filepath, children } = data;
+  const isFileNode = archive && filepath;
+  if (isFileNode) {
+    const hash = simpleHash(fileLocToString({ archive, filepath }));
+    const t = getTitle(data.children);
+    const childNodes = new Map<string, IndexNode>();
+    const node = {
+      hash,
+      parentNode,
+      title: t,
+      childNodes,
+    };
+    (children || []).forEach((c) => {
+      const cNodes = getDocumentTree(c, level, node);
+      if (Array.isArray(cNodes)) {
+        for (const n of cNodes) childNodes.set(n.hash, n);
+      } else {
+        childNodes.set(cNodes.hash, cNodes);
+      }
+    });
+    return node;
+  }
+  const subNodes: IndexNode[] = [];
+  for (const c of children) {
+    const cNodes = getDocumentTree(c, level, parentNode);
+    if (Array.isArray(cNodes)) subNodes.push(...cNodes);
+    else subNodes.push(cNodes);
+  }
+  return subNodes;
+}
+
 export function ContentDashboard({
   onClose,
-  dashInfo = undefined,
+  contentUrl,
 }: {
   onClose: () => void;
-  dashInfo?: IndexNode;
+  contentUrl: string;
 }) {
   const [filterStr, setFilterStr] = useState('');
-  const [updatedCount, setUpdatedCount] = useState(-1);
   const [defaultOpen, setDefaultOpen] = useState(true);
+  const [dashInfo, setDashInfo] = useState<IndexNode | undefined>(undefined);
+  const { mmtUrl } = useContext(ServerLinksContext);
 
   useEffect(() => {
-    // This is required only when we use dynmically created index info.
-    // If dashboard info is precomputed, we don't need to do refresh ContentDashboard.
-    if (dashInfo) return;
-    const timerId = setInterval(() => {
-      if (!dashInfo && INDEX_UPDATE_COUNT !== updatedCount) {
-        setUpdatedCount(INDEX_UPDATE_COUNT);
-      }
-    }, 2000);
-    return () => clearInterval(timerId);
-  }, [dashInfo]); // No need to add updatedCount.
+    async function getIndex() {
+      const { archive, filepath } = getSectionInfo(contentUrl);
+      const resp = await axios.get(
+        `${mmtUrl}/:sTeX/sections?archive=${archive}&filepath=${filepath}`
+      );
+      const root = getDocumentTree(resp.data, 0, undefined);
+      if (!Array.isArray(root)) setDashInfo(root);
+      console.log(root);
+    }
+    getIndex();
+  }, [mmtUrl, contentUrl]);
 
   const rootPage = applyFilter(
-    dashInfo || TOP_LEVEL,
+    dashInfo,
     filterStr
       .toLowerCase()
       .split(' ')
