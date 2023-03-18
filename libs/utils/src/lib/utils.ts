@@ -1,5 +1,5 @@
 import { getOuterHTML } from 'domutils';
-import { FileLocation } from './file-location';
+import { FileLocation, fileLocToString } from './file-location';
 
 export const BG_COLOR = 'hsl(210, 20%, 98%)';
 export const IS_SERVER = typeof window === 'undefined';
@@ -36,7 +36,7 @@ export function convertHtmlStringToPlain(htmlStr: string) {
 }
 
 export function getSectionInfo(url: string): SectionInfo {
-  const match = /archive=([^&]+)&filepath=(.+)/g.exec(url);
+  const match = /archive=([^&]+)&filepath=([^&]+)/g.exec(url);
   const archive = match?.[1] || '';
   const filepath = match?.[2] || '';
   const sourcePath = filepath.replace('xhtml', 'tex');
@@ -52,6 +52,7 @@ export function getSectionInfo(url: string): SectionInfo {
 // Dont use this for crypto or anything serious.
 export function simpleHash(str?: string) {
   if (!str?.length) return '0';
+  // return str.replace(/\W/g, ''); For debugging
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     const chr = str.charCodeAt(i);

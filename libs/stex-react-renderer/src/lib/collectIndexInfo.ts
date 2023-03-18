@@ -1,55 +1,35 @@
-export interface IndexNode {
-  hash: string;
-  parentNode: IndexNode | undefined;
-  childNodes: Map<string, IndexNode>;
+export enum TOCNodeType {
+  SECTION,
+  FILE,
+}
+
+export interface TOCNode {
+  type: TOCNodeType;
+  parentNode?: TOCNode;
+  childNodes: Map<string, TOCNode>;
+}
+export interface TOCSectionNode extends TOCNode {
+  id: string;
   title: string;
 }
 
-export const TOP_LEVEL: IndexNode = {
-  hash: '',
-  parentNode: undefined,
-  childNodes: new Map(),
-  title: 'HIDE ME',
-};
+export interface TOCFileNode extends TOCNode {
+  hash: string;
+  archive: string;
+  filepath: string;
+}
 
 export const SEPARATOR_inDocPath = '.';
-export let INDEX_UPDATE_COUNT = 0;
 
 let REF_MAP = new Map<string, HTMLElement>();
 let COMPLETED_SCROLL: string | undefined = undefined;
 let PENDING_SCROLL: string | undefined = undefined;
 
-function addToNode(node: IndexNode, context: string[], title: string) {
-  if (!title.trim().length || title.startsWith('http')) return;
-  if (!node || !context?.length) return;
-  const first = context[0];
-  const rest = context.slice(1);
-
-  const childNode = node.childNodes.get(first);
-  if (childNode) {
-    if (rest.length === 0) {
-      // overwriting
-      childNode.title = title;
-    } else {
-      addToNode(childNode, rest, title);
-    }
-  } else {
-    const t = rest.length === 0 ? title : 'unknown';
-    const newNode: IndexNode = {
-      hash: first,
-      parentNode: node,
-      childNodes: new Map<string, IndexNode>(),
-      title: t,
-    };
-    if (rest.length) addToNode(newNode, rest, title);
-    node.childNodes.set(first, newNode);
-  }
-}
-
-function addRef(context: string[], ref?: HTMLElement) {
+export function reportIndexInfo(context: string[], ref?: HTMLElement) {
   if (!ref) return;
 
   const key = context.join(SEPARATOR_inDocPath);
+  //console.log(`Adding ref: ${context.join(',')}`);
   REF_MAP.set(key, ref);
   // Trigger scroll to newly created element.
   if (PENDING_SCROLL?.includes(key) && !COMPLETED_SCROLL?.includes(key)) {
@@ -64,20 +44,30 @@ function addRef(context: string[], ref?: HTMLElement) {
   }
 }
 
-export function reportIndexInfo(
-  context: string[],
-  titleText: string,
-  ref?: HTMLElement
-) {
-  addRef(context, ref);
-}
-
 export function resetIndexInfo() {
-  TOP_LEVEL.childNodes = new Map();
   // TODO: Resetting happens at a time which causes scroall-at-load to be deleted.
   // So we have commented out this line.
   //COMPLETED_SCROLL = PENDING_SCROLL = undefined;
   REF_MAP = new Map<string, HTMLElement>();
+}
+
+export interface ScrollInfo {
+  fileHashes: string[];
+  sectionId?: string;
+}
+
+export function getScrollInfo(inDocPath: string): ScrollInfo {
+  if (!inDocPath?.length) return { fileHashes: [] };
+  const fileAndSectionPath = inDocPath.split('~');
+  let fileHashes: string[] = [];
+  let sectionId = undefined;
+  if (fileAndSectionPath.length >= 1) {
+    fileHashes = fileAndSectionPath[0].split('.');
+  }
+  if (fileAndSectionPath.length >= 2) {
+    sectionId = fileAndSectionPath[1];
+  }
+  return { fileHashes, sectionId };
 }
 
 function setPendingScroll(pending: string, completed?: string) {
@@ -88,10 +78,19 @@ function setPendingScroll(pending: string, completed?: string) {
   }
 }
 
-export function scrollToClosestAncestorAndSetPending(sectionHashes: string[]) {
-  const fullKey = sectionHashes.join(SEPARATOR_inDocPath);
-  while (sectionHashes.length) {
-    const key = sectionHashes.join(SEPARATOR_inDocPath);
+export function scrollToClosestAncestorAndSetPending({
+  fileHashes,
+  sectionId,
+}: ScrollInfo) {
+  const element = document.getElementById(sectionId || '');
+  if (element) {
+    element.scrollIntoView();
+    // console.log(`scrolled to ${sectionId}`);
+    return;
+  }
+  const fullKey = fileHashes.join(SEPARATOR_inDocPath);
+  while (fileHashes.length) {
+    const key = fileHashes.join(SEPARATOR_inDocPath);
     const ref = REF_MAP.get(key);
     if (ref) {
       // console.log(`Scroll: ${key}`);
@@ -99,7 +98,12 @@ export function scrollToClosestAncestorAndSetPending(sectionHashes: string[]) {
       if (key !== fullKey) setPendingScroll(fullKey, key);
       return;
     }
-    sectionHashes.pop();
+    /* else {
+      console.log(REF_MAP);
+      console.log(`Not found!!`);
+      console.log(key);
+    }*/
+    fileHashes.pop();
   }
   setPendingScroll(fullKey, undefined);
 }

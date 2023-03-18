@@ -1,10 +1,15 @@
+import { simpleHash } from './utils';
+
 export interface FileLocation {
   archive: string;
   filepath: string;
 }
 
-export function fileLocToString(f: FileLocation) {
-  return `${f.archive}||${f.filepath}`;
+export function fileLocToString({ archive, filepath }: FileLocation) {
+  const fixedFilepath = filepath.startsWith('/')
+    ? filepath.substring(1)
+    : filepath;
+  return `${archive}||${fixedFilepath}`;
 }
 
 export function stringToFileLoc(s: string): FileLocation {
@@ -16,4 +21,8 @@ export function stringToFileLoc(s: string): FileLocation {
 export function FileLocationEquals(f1: FileLocation, f2: FileLocation) {
   if (!f1 || !f2) return !f1 && !f2;
   return f1.archive === f2.archive && f1.filepath === f2.filepath;
+}
+
+export function createHash(f: FileLocation) {
+  return simpleHash(fileLocToString(f));
 }
