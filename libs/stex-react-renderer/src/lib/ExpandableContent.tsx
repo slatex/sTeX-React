@@ -3,12 +3,10 @@ import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/Indeterminate
 import { Box, IconButton } from '@mui/material';
 import {
   convertHtmlNodeToPlain,
-  FileLocation,
-  fileLocToString,
+  createHash,
   getChildrenOfBodyNode,
   getSectionInfo,
   IS_SERVER,
-  simpleHash,
 } from '@stex-react/utils';
 import {
   createContext,
@@ -36,10 +34,6 @@ function getInDocumentLink(childContext: string[]) {
     '?inDocPath=' +
     childContext.join(SEPARATOR_inDocPath)
   );
-}
-
-function createHash(f: FileLocation) {
-  return simpleHash(fileLocToString(f));
 }
 
 export function ExpandableContent({
@@ -80,8 +74,8 @@ export function ExpandableContent({
   }, [expandOnScroll, openAtLeastOnce, isVisible]);
 
   useEffect(() => {
-    reportIndexInfo(childContext, titleText, contentRef?.current);
-  }, [childContext, titleText, contentRef?.current]); // Keep contentRef?.current here to make sure that the ref is reported when loaded.
+    reportIndexInfo(childContext, contentRef?.current);
+  }, [childContext, contentRef?.current]); // Keep contentRef?.current here to make sure that the ref is reported when loaded.
 
   const changeState = (e: MouseEvent) => {
     e.stopPropagation();

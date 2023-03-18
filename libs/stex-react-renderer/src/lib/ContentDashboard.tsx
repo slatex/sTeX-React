@@ -1,48 +1,94 @@
 import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
 import CloseIcon from '@mui/icons-material/Close';
 import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/IndeterminateCheckBoxOutlined';
-import { Box, IconButton, TextField, Tooltip } from '@mui/material';
-import { useRouter } from 'next/router';
-import { useContext, useEffect, useState } from 'react';
-import { IndexNode } from './collectIndexInfo';
-import { RendererDisplayOptions } from './RendererDisplayOptions';
 import UnfoldLessDoubleIcon from '@mui/icons-material/UnfoldLessDouble';
 import UnfoldMoreDoubleIcon from '@mui/icons-material/UnfoldMoreDouble';
-import styles from './stex-react-renderer.module.scss';
-import { FixedPositionMenu } from './LayoutWithFixedMenu';
+import { Box, IconButton, TextField, Tooltip } from '@mui/material';
 import {
   convertHtmlStringToPlain,
+  createHash,
   fileLocToString,
   getSectionInfo,
   localStore,
   simpleHash,
 } from '@stex-react/utils';
-import { mmtHTMLToReact, ServerLinksContext } from './stex-react-renderer';
 import axios from 'axios';
-import { getChildren } from 'domutils';
+import { useRouter } from 'next/router';
+import { useContext, useEffect, useState } from 'react';
+import {
+  TOCFileNode,
+  TOCNode,
+  TOCNodeType,
+  TOCSectionNode,
+} from './collectIndexInfo';
+import { FixedPositionMenu } from './LayoutWithFixedMenu';
+import { RendererDisplayOptions } from './RendererDisplayOptions';
+import { ServerLinksContext } from './stex-react-renderer';
+import styles from './stex-react-renderer.module.scss';
 
-function applyFilter(
-  node?: IndexNode,
+interface SectionTreeNode {
+  parentNode?: SectionTreeNode;
+  children: SectionTreeNode[];
+  tocNode: TOCSectionNode;
+}
+
+function getSectionTree(
+  tocNode: TOCNode,
+  parentNode?: SectionTreeNode
+): SectionTreeNode | SectionTreeNode[] {
+  const isSection = tocNode.type === TOCNodeType.SECTION;
+  if (isSection) {
+    const children: SectionTreeNode[] = [];
+    for (const s of tocNode.childNodes.values()) {
+      const subNodes = getSectionTree(s);
+      if (!subNodes) continue;
+      if (Array.isArray(subNodes)) children.push(...subNodes);
+      else children.push(subNodes);
+    }
+    return { tocNode: tocNode as TOCSectionNode, children, parentNode };
+  } else {
+    const children: SectionTreeNode[] = [];
+    for (const s of tocNode.childNodes.values()) {
+      const subNodes = getSectionTree(s);
+      if (!subNodes) continue;
+      if (Array.isArray(subNodes)) children.push(...subNodes);
+      else children.push(subNodes);
+    }
+    return children;
+  }
+}
+
+function applyFilterOne(
+  node?: SectionTreeNode,
   searchTerms?: string[]
-): IndexNode | undefined {
+): SectionTreeNode | undefined {
   if (!node || !searchTerms?.length) return node;
-  const newChildren = new Map<string, IndexNode>();
-  for (const [key, childNode] of node.childNodes.entries()) {
-    const newChild = applyFilter(childNode, searchTerms);
-    if (newChild) newChildren.set(key, newChild);
+  const newChildren: SectionTreeNode[] = [];
+  for (const childNode of node.children) {
+    const newChild = applyFilterOne(childNode, searchTerms);
+    if (newChild) newChildren.push(newChild);
   }
   const matchesThisNode = searchTerms.some((term) =>
-    node.title.toLowerCase().includes(term)
+    node.tocNode.title.toLowerCase().includes(term)
   );
-  if (newChildren.size === 0 && !matchesThisNode) {
+  if (newChildren.length === 0 && !matchesThisNode) {
     return undefined;
   }
   return {
-    hash: node.hash,
     parentNode: node.parentNode,
-    childNodes: newChildren,
-    title: node.title,
+    children: newChildren,
+    tocNode: node.tocNode,
   };
+}
+
+function applyFilter(
+  nodes?: SectionTreeNode[],
+  searchTerms?: string[]
+): SectionTreeNode[] | undefined {
+  if (!nodes || !searchTerms?.length) return nodes;
+  return nodes
+    .map((n) => applyFilterOne(n, searchTerms))
+    .filter((n) => n) as any;
 }
 
 function RenderTree({
@@ -50,7 +96,7 @@ function RenderTree({
   level,
   defaultOpen,
 }: {
-  node: IndexNode;
+  node: SectionTreeNode;
   level: number;
   defaultOpen: boolean;
 }) {
@@ -63,9 +109,9 @@ function RenderTree({
   const itemClassName =
     level === 0 ? styles['level0_dashboard_item'] : styles['dashboard_item'];
   return (
-    <Box key={node.hash} sx={{ my: '6px' }}>
-      <Box display="flex" ml={node.childNodes.size > 0 ? undefined : '23px'}>
-        {node.childNodes.size > 0 && (
+    <Box key={node.tocNode.id} sx={{ my: '6px' }}>
+      <Box display="flex" ml={node.children.length > 0 ? undefined : '23px'}>
+        {node.children.length > 0 && (
           <IconButton
             sx={{ color: 'gray', p: '0', mr: '3px' }}
             onClick={() => setIsOpen((v) => !v)}
@@ -83,22 +129,26 @@ function RenderTree({
           onClick={(e) => {
             e.stopPropagation();
             const paths: string[] = [];
-            for (let n: IndexNode | undefined = node; n; n = n.parentNode) {
-              if (n.hash) paths.push(n.hash);
+            let n: TOCNode | undefined = node.tocNode;
+            while (n?.parentNode) {
+              const hash = (n as any)?.hash;
+              if (hash) paths.push(hash);
+              console.log(hash);
+              n = n.parentNode;
             }
             if (router) {
-              const inDocPath = paths.reverse().join('.');
+              const inDocPath =
+                paths.reverse().join('.') + '~' + node.tocNode.id;
               const fileId = router.query['id'];
               localStore?.setItem(`inDocPath-${fileId}`, inDocPath);
-              router.query['inDocPath'] = inDocPath;
-              router.push(router);
+              router.replace({query: {...router.query, inDocPath}});
             }
           }}
         >
-          {convertHtmlStringToPlain(node.title)}
+          {convertHtmlStringToPlain(node.tocNode.title)}
         </span>
       </Box>
-      {isOpen && node.childNodes.size > 0 && (
+      {isOpen && node.children.length > 0 && (
         <Box display="flex" ml="3px">
           <Box
             minWidth="12px"
@@ -113,8 +163,9 @@ function RenderTree({
             </Box>
           </Box>
           <Box>
-            {Array.from(node.childNodes.values()).map((child) => (
+            {(node.children || []).map((child) => (
               <RenderTree
+                key={child.tocNode.id}
                 node={child}
                 level={level + 1}
                 defaultOpen={defaultOpen}
@@ -138,49 +189,38 @@ interface SectionsAPIData {
   children: SectionsAPIData[];
 }
 
-function getTitle(nodes: SectionsAPIData[]): string {
-  for (const node of nodes) {
-    if (node.title) return node.title;
-    const sub = getTitle(node.children);
-    if (sub) return sub;
-  }
-  return 'NOT FOUND';
-}
-
-function getDocumentTree(
-  data: SectionsAPIData,
-  level: number,
-  parentNode?: IndexNode
-): IndexNode[] | IndexNode {
-  const { archive, filepath, children } = data;
+function getDocumentTree(data: SectionsAPIData, parentNode?: TOCNode): TOCNode {
+  const { children, archive, filepath, id, title } = data;
   const isFileNode = archive && filepath;
+  let node: TOCNode | undefined = undefined;
+  const childNodes = new Map<string, TOCNode>();
   if (isFileNode) {
-    const hash = simpleHash(fileLocToString({ archive, filepath }));
-    const t = getTitle(data.children);
-    const childNodes = new Map<string, IndexNode>();
-    const node = {
-      hash,
+    const hash = createHash({ archive, filepath });
+    node = {
+      type: TOCNodeType.FILE,
       parentNode,
-      title: t,
       childNodes,
-    };
-    (children || []).forEach((c) => {
-      const cNodes = getDocumentTree(c, level, node);
-      if (Array.isArray(cNodes)) {
-        for (const n of cNodes) childNodes.set(n.hash, n);
-      } else {
-        childNodes.set(cNodes.hash, cNodes);
-      }
-    });
-    return node;
+
+      hash,
+      archive,
+      filepath,
+    } as TOCFileNode;
+  } else {
+    node = {
+      type: TOCNodeType.SECTION,
+      parentNode,
+      childNodes,
+
+      id,
+      title,
+    } as TOCSectionNode;
   }
-  const subNodes: IndexNode[] = [];
-  for (const c of children) {
-    const cNodes = getDocumentTree(c, level, parentNode);
-    if (Array.isArray(cNodes)) subNodes.push(...cNodes);
-    else subNodes.push(cNodes);
-  }
-  return subNodes;
+
+  (children || []).forEach((c) => {
+    const cNode = getDocumentTree(c, node) as any;
+    childNodes.set(cNode.id || cNode.hash, cNode);
+  });
+  return node;
 }
 
 export function ContentDashboard({
@@ -192,7 +232,7 @@ export function ContentDashboard({
 }) {
   const [filterStr, setFilterStr] = useState('');
   const [defaultOpen, setDefaultOpen] = useState(true);
-  const [dashInfo, setDashInfo] = useState<IndexNode | undefined>(undefined);
+  const [dashInfo, setDashInfo] = useState<TOCNode | undefined>(undefined);
   const { mmtUrl } = useContext(ServerLinksContext);
 
   useEffect(() => {
@@ -201,21 +241,22 @@ export function ContentDashboard({
       const resp = await axios.get(
         `${mmtUrl}/:sTeX/sections?archive=${archive}&filepath=${filepath}`
       );
-      const root = getDocumentTree(resp.data, 0, undefined);
-      if (!Array.isArray(root)) setDashInfo(root);
-      console.log(root);
+      const root = getDocumentTree(resp.data, undefined);
+      setDashInfo(root);
     }
     getIndex();
   }, [mmtUrl, contentUrl]);
 
-  const rootPage = applyFilter(
-    dashInfo,
-    filterStr
-      .toLowerCase()
-      .split(' ')
-      .map((s) => s.trim())
-      .filter((t) => !!t?.length)
-  );
+  const rootPage =
+    dashInfo &&
+    applyFilter(
+      getSectionTree(dashInfo) as SectionTreeNode[],
+      filterStr
+        .toLowerCase()
+        .split(' ')
+        .map((s) => s.trim())
+        .filter((t) => !!t?.length)
+    );
 
   return (
     <FixedPositionMenu
@@ -252,8 +293,13 @@ export function ContentDashboard({
         </>
       }
     >
-      {Array.from(rootPage?.childNodes?.values() || []).map((child) => (
-        <RenderTree node={child} level={0} defaultOpen={defaultOpen} />
+      {(rootPage || []).map((child) => (
+        <RenderTree
+          key={child.tocNode.id}
+          node={child}
+          level={0}
+          defaultOpen={defaultOpen}
+        />
       ))}
     </FixedPositionMenu>
   );

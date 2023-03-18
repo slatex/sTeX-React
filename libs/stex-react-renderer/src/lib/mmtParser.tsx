@@ -21,6 +21,7 @@ import MathJaxHack from './MathJaxHack';
 import { MathMLDisplay } from './MathMLDisplay';
 import { OverlayDialog } from './OverlayDialog';
 import { SidebarButton } from './SidebarButton';
+import { ServerLinksContext } from './stex-react-renderer';
 
 let SECTION_IDS: {
   [nodeId: string]: string;
@@ -32,7 +33,7 @@ export function setSectionIds(v: { [nodeId: string]: string }) {
 
 function SectionIdHackObject({ inputRef }: { inputRef: string }) {
   const { archive, filepath } = getSectionInfo(inputRef);
-  const nodeId = fileLocToString({archive, filepath});
+  const nodeId = fileLocToString({ archive, filepath });
   const secId = SECTION_IDS[nodeId];
   if (!secId) return null;
   const isChapter = !secId?.includes('.');
@@ -312,6 +313,16 @@ function FauClipWithLink({ href }: { href: string }) {
   );
 }
 
+function isMMTSrc(d: Element) {
+  return d.name === 'img' && d.attribs['src'].startsWith('/:sTeX/img');
+}
+
+function MMTImage({ d }: { d: Element }) {
+  const { mmtUrl } = useContext(ServerLinksContext);
+  if (isMMTSrc(d)) d.attribs['src'] = mmtUrl + d.attribs['src'];
+  return <>{domToReact([d], { replace })}</>;
+}
+
 const replace = (d: DOMNode, skipSidebar = false): any => {
   const domNode = getElement(d);
 
@@ -323,6 +334,8 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
       return <FauClipWithLink href={href} />;
     }
   }
+
+  if (isMMTSrc(domNode)) return <MMTImage d={domNode} />;
 
   // Remove section numbers;
   if (

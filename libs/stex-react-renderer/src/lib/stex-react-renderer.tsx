@@ -5,13 +5,14 @@ import {
   getChildrenOfBodyNode,
   IS_MMT_VIEWER,
   localStore,
-  shouldUseDrawer,
+  shouldUseDrawer
 } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { createContext, useEffect, useState } from 'react';
 import {
-  IndexNode,
+  getScrollInfo,
   scrollToClosestAncestorAndSetPending,
+  TOCFileNode
 } from './collectIndexInfo';
 import { ContentDashboard } from './ContentDashboard';
 import { ContentFromUrl } from './ContentFromUrl';
@@ -27,14 +28,9 @@ import {
   DimIcon,
   LevelIcon,
   SelfAssessment2,
-  SelfAssessmentDialog,
+  SelfAssessmentDialog
 } from './SelfAssessmentDialog';
 import { TourAPIEntry, TourDisplay } from './TourDisplay';
-
-function getToOpenContentHash(inDocPath: string) {
-  if (!inDocPath?.length) return [];
-  return inDocPath.split('.');
-}
 
 export const ServerLinksContext = createContext({ mmtUrl: '', lmsUrl: '' });
 
@@ -54,7 +50,7 @@ export function StexReactRenderer({
     expandOnScroll:
       (localStore?.getItem('expandOnScroll') || 'true') === 'true',
     allowFolding: (localStore?.getItem('allowFolding') || 'false') === 'true',
-    noFrills
+    noFrills,
   });
 
   const [sectionLocs, setSectionLocs] = useState<{
@@ -73,7 +69,7 @@ export function StexReactRenderer({
       router.push(router);
       return;
     }
-    scrollToClosestAncestorAndSetPending(getToOpenContentHash(inDocPath));
+    scrollToClosestAncestorAndSetPending(getScrollInfo(inDocPath));
   }, [router, router?.isReady, router?.query]);
 
   return (
@@ -165,4 +161,5 @@ export {
   FileBrowser,
   setSectionIds,
 };
-export type { FileNode, TourAPIEntry, IndexNode };
+export type { FileNode, TourAPIEntry, TOCFileNode };
+
