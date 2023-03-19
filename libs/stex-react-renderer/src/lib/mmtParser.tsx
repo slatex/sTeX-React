@@ -335,7 +335,7 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
     }
   }
 
-  if (isMMTSrc(domNode)) return <MMTImage d={domNode} />;
+  if (isMMTSrc(domNode) && !IS_MMT_VIEWER) return <MMTImage d={domNode} />;
 
   // Remove section numbers;
   if (
