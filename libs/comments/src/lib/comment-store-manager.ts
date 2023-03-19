@@ -17,7 +17,7 @@ const COMMENTS_FETCHER = new RequestAggregator<FileLocation, Comment[]>(
   (files: FileLocation[]) => from(getComments(files)),
   (comments: Comment[], requests: FileLocation[]) => {
     for (const req of requests) {
-      const fileComments = comments.filter(
+      const fileComments = (comments || []).filter(
         (comment) =>
           comment.archive === req.archive && comment.filepath === req.filepath
       );

@@ -13,7 +13,6 @@ import {
   SMILEY_TOOLTIPS,
 } from '@stex-react/api';
 import { BG_COLOR, PRIMARY_COL, SECONDARY_COL } from '@stex-react/utils';
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { mmtHTMLToReact } from './mmtParser';
 
@@ -40,7 +39,7 @@ export function DimIcon({
   showTitle?: boolean;
 }) {
   return (
-    <Image
+    <img
       width={ICON_SIZE}
       height={ICON_SIZE}
       title={showTitle ? `I ${dim}` : undefined}
@@ -66,7 +65,7 @@ export function LevelIcon({
     );
   }
   return (
-    <Image
+    <img
       width={ICON_SIZE}
       height={ICON_SIZE}
       src={`/likert-icons/${level}${highlighted ? 'color' : ''}.svg`}
