@@ -5,14 +5,14 @@ import {
   getChildrenOfBodyNode,
   IS_MMT_VIEWER,
   localStore,
-  shouldUseDrawer
+  shouldUseDrawer,
 } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { createContext, useEffect, useState } from 'react';
 import {
   getScrollInfo,
   scrollToClosestAncestorAndSetPending,
-  TOCFileNode
+  TOCFileNode,
 } from './collectIndexInfo';
 import { ContentDashboard } from './ContentDashboard';
 import { ContentFromUrl } from './ContentFromUrl';
@@ -20,7 +20,7 @@ import { ContentWithHighlight } from './ContentWithHightlight';
 import { ExpandableContextMenu } from './ExpandableContextMenu';
 import { FileBrowser } from './FileBrowser';
 import { FileNode } from './FileNode';
-import { DocSectionContext } from './InfoSidebar';
+import { DocSectionContext, InfoSidebar } from './InfoSidebar';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 import { mmtHTMLToReact, setSectionIds } from './mmtParser';
 import { RenderOptions } from './RendererDisplayOptions';
@@ -28,7 +28,7 @@ import {
   DimIcon,
   LevelIcon,
   SelfAssessment2,
-  SelfAssessmentDialog
+  SelfAssessmentDialog,
 } from './SelfAssessmentDialog';
 import { TourAPIEntry, TourDisplay } from './TourDisplay';
 
@@ -126,18 +126,13 @@ export function StexReactRenderer({
                   modifyRendered={getChildrenOfBodyNode}
                   topLevel={true}
                 />
-                <Box width="40px" position="relative">
-                  <CommentButton url={contentUrl} />
-                  {Object.entries(sectionLocs || {}).map((v, idx) => (
-                    <Box
-                      key={v[0]}
-                      position="absolute"
-                      top={`${v[1] - topOffset}px`}
-                    >
-                      <CommentButton url={v[0] as string} />
-                    </Box>
-                  ))}
-                </Box>
+                {!IS_MMT_VIEWER && (
+                  <InfoSidebar
+                    contentUrl={contentUrl}
+                    topOffset={topOffset}
+                    sectionLocs={sectionLocs}
+                  />
+                )}
               </Box>
             </Box>
           </Box>
@@ -162,4 +157,3 @@ export {
   setSectionIds,
 };
 export type { FileNode, TourAPIEntry, TOCFileNode };
-
