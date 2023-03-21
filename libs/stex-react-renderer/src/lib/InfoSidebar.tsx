@@ -1,6 +1,6 @@
 import { Box } from '@mui/material';
 import { CommentButton } from '@stex-react/comments';
-import { createContext, useContext } from 'react';
+import { createContext } from 'react';
 
 export const DocSectionContext = createContext({
   sectionLocs: {},
@@ -14,11 +14,12 @@ export const DocSectionContext = createContext({
 export function InfoSidebar({
   contentUrl,
   topOffset,
+  sectionLocs,
 }: {
   contentUrl: string;
   topOffset: number;
+  sectionLocs: { [contentUrl: string]: number };
 }) {
-  const { sectionLocs } = useContext(DocSectionContext);
   return (
     <Box width="40px" position="relative">
       <CommentButton url={contentUrl} />
