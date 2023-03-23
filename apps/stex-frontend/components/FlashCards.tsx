@@ -134,6 +134,11 @@ function dedupNodes(nodes: string[]) {
   return selectedIdxs.map((idx) => nodes[idx]);
 }
 
+function getConceptName(uri: string) {
+  const parts = uri.split('?');
+  return parts[parts.length - 1];
+}
+
 function FlashCardFront({
   uri,
   htmlNodes,
@@ -145,7 +150,7 @@ function FlashCardFront({
   needUpdateMarker: any;
   onFlip: () => void;
 }) {
-  const synonyms = dedupNodes(htmlNodes);
+  const synonyms = [uri]; //dedupNodes(htmlNodes);
   return (
     <Box className={styles['front']}>
       &nbsp;
@@ -167,7 +172,10 @@ function FlashCardFront({
                 },
               }}
             >
-              <ContentWithHighlight mmtHtml={htmlNode} />
+              <span style={{ fontSize: '32px', color: '#ed028c' }}>
+                {getConceptName(uri)}
+              </span>
+              {/*<ContentWithHighlight mmtHtml={htmlNode} />*/}
             </Box>
             {idx === 0 && synonyms.length > 1 && (
               <Typography fontSize="12px" my="5px" color="gray">
@@ -569,7 +577,17 @@ export function FlashCardNavigation({
           }}
           onClick={() => onSelect(cardIdx)}
         >
-          <ContentWithHighlight mmtHtml={card.instances[0].htmlNode} />
+          <span
+            style={{
+              fontSize: '20px',
+              cursor: onSelect ? 'pointer' : undefined,
+              color:
+                !onSelect && cardIdx < cardNo ? 'gray !important' : undefined,
+            }}
+          >
+            {getConceptName(card.uri)}
+          </span>
+          {/*<ContentWithHighlight mmtHtml={card.instances[0].htmlNode} />*/}
         </Box>
       ))}
     </FixedPositionMenu>

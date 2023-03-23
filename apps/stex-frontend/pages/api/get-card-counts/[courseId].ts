@@ -1,16 +1,38 @@
-import DRILLS, { DefInfo } from '../../../definitions.preval';
+import { getSectionInfo } from '@stex-react/utils';
+import axios from 'axios';
+import { COURSE_ROOTS } from '../get-cards-with-smileys/[courseId]';
 export const EXCLUDED_CHAPTERS = ['Preface', 'Administrativa', 'Resources'];
-
-export function removeBadDefs(defs?: DefInfo[]) {
-  if (!defs) return undefined;
-  return defs.filter((def) => !def.isBad);
-}
 
 export default async function handler(req, res) {
   res.setHeader(
     'Cache-Control',
     'public, s-maxage=3600, stale-while-revalidate=3600'
   );
+
+  const { courseId } = req.query;
+  const courseRoot = COURSE_ROOTS[courseId];
+  if (!courseRoot) {
+    res.status(404).json({ error: `Course not found: [${courseId}]` });
+    return;
+  }
+  const { archive, filepath } = getSectionInfo(courseRoot);
+
+  const resp = await axios.get(
+    `${process.env.NEXT_PUBLIC_MMT_URL}/:sTeX/definienda?archive=${archive}&filepath=${filepath}`
+  );
+  const cards: { id: string; symbols: string[] }[] = resp.data;
+
+  let count = 0;
+  for (const e of cards) count += e.symbols.length;
+
+  return res.status(200).json({ chapter: 'all', count });
+}
+/*
+
+export function removeBadDefs(defs?: DefInfo[]) {
+  if (!defs) return undefined;
+  return defs.filter((def) => !def.isBad);
+}
   const { courseId } = req.query;
   const courseInfo = DRILLS[courseId];
   if (!courseInfo) {
@@ -32,3 +54,4 @@ export default async function handler(req, res) {
 
   res.status(200).json(chapCounts);
 }
+*/

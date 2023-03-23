@@ -1,29 +1,40 @@
 import { getUriSmileys, SmileyCognitiveValues } from '@stex-react/api';
-import DRILLS, { DefInfo } from '../../../definitions.preval';
+import { getSectionInfo } from '@stex-react/utils';
+import axios from 'axios';
 
 export const EXCLUDED_CHAPTERS = ['Preface', 'Administrativa', 'Resources'];
 
-export function removeBadDefs(defs?: DefInfo[]) {
-  if (!defs) return undefined;
-  return defs.filter((def) => !def.isBad);
+export const COURSE_ROOTS = {
+  'ai-1': '/:sTeX/document?archive=MiKoMH/AI&filepath=course/notes/notes.xhtml',
+  iwgs: '/:sTeX/document?archive=MiKoMH/IWGS&filepath=course/notes/notes.xhtml',
+  lbs: '/:sTeX/document?archive=MiKoMH/LBS&filepath=course/notes/notes.xhtml',
+  krmt: '/:sTeX/document?archive=MiKoMH/KRMT&filepath=course/notes/notes.xhtml',
+};
+
+export interface CardsWithSmileys {
+  uri: string;
+  smileys: SmileyCognitiveValues;
 }
-export interface CardsWithSmileys extends DefInfo, SmileyCognitiveValues {}
 
 export default async function handler(req, res) {
   const { courseId } = req.query;
   const Authorization = req.headers.authorization;
-
-  const courseInfo = DRILLS[courseId];
-  if (!courseInfo) {
+  const courseRoot = COURSE_ROOTS[courseId];
+  if (!courseRoot) {
     res.status(404).json({ error: `Course not found: [${courseId}]` });
     return;
   }
+  const { archive, filepath } = getSectionInfo(courseRoot);
+
+  const resp = await axios.get(
+    `${process.env.NEXT_PUBLIC_MMT_URL}/:sTeX/definienda?archive=${archive}&filepath=${filepath}`
+  );
+  const cards: { id: string; symbols: string[] }[] = resp.data;
+
   const uris = [];
-  for (const [chapter, defs] of Object.entries(courseInfo)) {
-    if (!EXCLUDED_CHAPTERS.includes(chapter)) {
-      const goodDefs = removeBadDefs(defs);
-      courseInfo[chapter] = removeBadDefs(goodDefs);
-      uris.push(...goodDefs.map((def) => def.uri));
+  for (const e of cards) {
+    for (const uri of e.symbols) {
+      uris.push(uri);
     }
   }
 
@@ -32,21 +43,11 @@ export default async function handler(req, res) {
     : undefined;
 
   console.log(`Got ${uris.length} uri smileys`);
-  const uriMap = new Map<string, SmileyCognitiveValues>();
+  const output: CardsWithSmileys[] = [];
   for (let idx = 0; idx < uris.length; idx++) {
     const uri = uris[idx];
-    const smileyValue = smileyValues?.[idx] || {};
-    uriMap.set(uri, smileyValue);
-  }
-  const output: CardsWithSmileys[] = [];
-  for (const [chapter, defs] of Object.entries(courseInfo)) {
-    if (!EXCLUDED_CHAPTERS.includes(chapter)) {
-      for (const def of defs) {
-        if (def.isBad) continue;
-        const smileyInfo = uriMap.get(def.uri);
-        output.push({ ...def, ...smileyInfo });
-      }
-    }
+    const smileys = smileyValues?.[idx] || {};
+    output.push({ uri, smileys });
   }
 
   res.status(200).json(output);

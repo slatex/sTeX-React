@@ -1,3 +1,4 @@
+import ShuffleIcon from '@mui/icons-material/Shuffle';
 import {
   Box,
   Button,
@@ -25,11 +26,14 @@ import {
   SMILEY_TOOLTIPS,
 } from '@stex-react/api';
 import { DimIcon, LevelIcon } from '@stex-react/stex-react-renderer';
-import { PRIMARY_COL, SECONDARY_COL, stableShuffle, Window } from '@stex-react/utils';
+import {
+  PRIMARY_COL,
+  SECONDARY_COL,
+  stableShuffle,
+  Window,
+} from '@stex-react/utils';
 import axios from 'axios';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { DefInfo } from '../definitions.preval';
-import ShuffleIcon from '@mui/icons-material/Shuffle';
 import { FlashCardMode, FlashCards } from './FlashCards';
 
 export const FLASH_CARDS_INTRO =
@@ -55,7 +59,10 @@ function getMarks(
   });
 }
 
-export interface CardsWithSmileys extends DefInfo, SmileyCognitiveValues {}
+export interface CardsWithSmileys {
+  uri: string;
+  smileys: SmileyCognitiveValues;
+}
 const FLASH_CARD_SCROLL_Y = 62;
 function cardMeetsLevelReqs(
   card: CardsWithSmileys,
@@ -68,7 +75,9 @@ function cardMeetsLevelReqs(
     BloomDimension.Understand,
   ].filter((dim) => levels[dim] !== undefined);
   if (!dimsToConsider.length) return true;
-  return dimsToConsider.some((dim) => smileyToLevel(card[dim]) <= levels[dim]);
+  return dimsToConsider.some(
+    (dim) => smileyToLevel(card.smileys[dim]) <= levels[dim]
+  );
 }
 
 function getChapterCounts(
@@ -87,7 +96,7 @@ function getChapterCounts(
     selectedCards: CardsWithSmileys[];
   }[] = [];
   for (const card of cards) {
-    const chapter = card.instances[0].chapter;
+    const chapter = 'all'; // card.instances[0].chapter;
 
     const selected = cardMeetsLevelReqs(card, loggedIn, levels);
     const idx = counts.findIndex((v) => v.chapter === chapter);
@@ -364,7 +373,7 @@ function getSelectedCards(
     selectedCards: CardsWithSmileys[];
   }[],
   selectedChapters: string[]
-) {
+): CardsWithSmileys[] {
   const selected = chapterCounts
     .filter((chap) => selectedChapters.includes(chap.chapter))
     .map((v) => v.selectedCards)
@@ -421,7 +430,7 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
     return (
       <FlashCards
         mode={mode}
-        cards={selectedCards}
+        cards={selectedCards.map((card) => ({ uri: card.uri, instances: [] }))}
         onFinish={() => setStarted(false)}
       />
     );
