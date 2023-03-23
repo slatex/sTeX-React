@@ -31,30 +31,6 @@ export function setSectionIds(v: { [nodeId: string]: string }) {
   SECTION_IDS = v;
 }
 
-function SectionIdHackObject({ inputRef }: { inputRef: string }) {
-  const { archive, filepath } = getSectionInfo(inputRef);
-  const nodeId = fileLocToString({ archive, filepath });
-  const secId = SECTION_IDS[nodeId];
-  if (!secId) return null;
-  const isChapter = !secId?.includes('.');
-  return (
-    <span
-      style={{
-        fontSize: isChapter ? '36px' : '24px',
-        background: BG_COLOR,
-        fontWeight: 'bold',
-        zIndex: '1',
-        marginTop: isChapter ? '200px' : undefined,
-        position: isChapter ? undefined : 'relative',
-        bottom: isChapter ? undefined : '-72px',
-        width: isChapter ? undefined : '52px',
-      }}
-    >
-      {(isChapter ? 'Chapter ' : '') + secId}
-    </span>
-  );
-}
-
 const NoMaxWidthTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
 ))({
@@ -504,7 +480,6 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
     const inputRef = domNode.attribs['data-inputref-url'];
     return (
       <>
-        <SectionIdHackObject inputRef={inputRef} />
         <ExpandableContent
           htmlTitle={domNode}
           contentUrl={inputRef}
