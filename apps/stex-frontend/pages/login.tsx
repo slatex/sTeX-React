@@ -7,20 +7,19 @@ import {
   MenuItem,
   Select,
   TextField,
-  Typography,
+  Typography
 } from '@mui/material';
 import {
   fakeLoginUsingRedirect,
   isLoggedIn,
   loginUsingRedirect,
-  logout,
+  logout
 } from '@stex-react/api';
 import { BG_COLOR, IS_SERVER, localStore } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useReducer, useState } from 'react';
-import { de } from '../lang/de';
-import { en } from '../lang/en';
+import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 import styles from '../styles/utils.module.scss';
 
@@ -70,7 +69,7 @@ export function GuestLogin({ returnBackUrl }: { returnBackUrl: string }) {
   const router = useRouter();
   const {
     login: { guest: t },
-  } = router.locale === 'en' ? en : de;
+  } = getLocaleObject(router);
 
   const [persona, setProfileLabel] = useState<string>('sabrina');
   const [guestId, setGuestId] = useState<string>('sabrina');
@@ -170,10 +169,9 @@ const LoginPage: NextPage = () => {
   const returnBackUrl = router.query.target as string;
   const [clickCount, updateClickCount] = useReducer((x) => x + 1, 0);
   const fakeLogin = clickCount >= 1;
+  const { login: t } = getLocaleObject(router);
+
   if (loggedIn && !IS_SERVER) router.push('/');
-
-  const { login: t } = router.locale === 'en' ? en : de;
-
   return (
     <MainLayout>
       <br />

@@ -35,8 +35,7 @@ import {
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { de } from '../lang/de';
-import { en } from '../lang/en';
+import { getLocaleObject } from '../lang/utils';
 import { FlashCardMode, FlashCards } from './FlashCards';
 
 function getMarks(
@@ -131,16 +130,17 @@ function LevelConfigurator({
   levels: ConfiguredLevel;
   setLevels: Dispatch<SetStateAction<ConfiguredLevel>>;
 }) {
+  const router = useRouter();
+  const { flashCards: t } = getLocaleObject(router);
   return (
     <>
-      <Tooltip title="Choose the competency levels (estimated by the learner model) up to which cards should be included into the card stack">
+      <Tooltip title={t.chooseCompetencyHover}>
         <Typography variant="h6" style={{ textAlign: 'center' }}>
-          Choose competency levels
+          {t.chooseCompetency}
         </Typography>
       </Tooltip>
       <i style={{ color: '#777' }}>
-        The selection will put all cards up to the chosen competency level onto
-        the stack.
+        {t.chooseCompetencyDetails}
       </i>
       {[BloomDimension.Remember, BloomDimension.Understand].map((dim, idx) => (
         <Box
@@ -152,7 +152,7 @@ function LevelConfigurator({
           p="0 20px 20px 0"
           borderBottom={idx === 0 ? '1px solid #DDD' : undefined}
         >
-          <Tooltip title={`I ${dim}. Click to enable/disable filter.`}>
+          <Tooltip title={`I ${dim}. ${t.enableDisableFilter}`}>
             <IconButton
               onClick={() => {
                 setLevels((prev) => {
@@ -219,12 +219,14 @@ function CoverageConfigurator({
     setCheckedChapterIdxs(newChecked);
   };
   const loggedIn = isLoggedIn();
+  const router = useRouter();
+  const { flashCards: t } = getLocaleObject(router);
 
   return (
     <>
-      <Tooltip title="Choose the cards in the stack by course chapters">
+      <Tooltip title={t.chooseCoverageHover}>
         <Typography variant="h6" style={{ textAlign: 'center' }}>
-          Choose the coverage
+          {t.chooseCoverage}
         </Typography>
       </Tooltip>
       <List sx={{ bgcolor: 'background.paper' }}>
@@ -257,7 +259,7 @@ function CoverageConfigurator({
                       </b>
                       <b style={{ color: SECONDARY_COL }}>
                         {loggedIn && selectedCards.length + '/'}
-                        {totalCount} Concepts
+                        {totalCount}&nbsp;{t.concepts}
                       </b>
                     </Box>
                   }
@@ -272,7 +274,7 @@ function CoverageConfigurator({
                       startSingleChapter(idx, FlashCardMode.REVISION_MODE);
                     }}
                   >
-                    Revise
+                    {t.revise}
                   </Button>
                   {loggedIn && (
                     <Button
@@ -283,7 +285,7 @@ function CoverageConfigurator({
                         startSingleChapter(idx, FlashCardMode.DRILL_MODE);
                       }}
                     >
-                      Drill&nbsp;
+                      {t.drill}&nbsp;
                       {shuffle && <ShuffleIcon fontSize="small" />}
                     </Button>
                   )}
@@ -309,6 +311,8 @@ function ReviseAndDrillButtons({
 }) {
   const loggedIn = isLoggedIn();
   const isDisabled = selectedCards.length === 0;
+  const router = useRouter();
+  const { flashCards: t } = getLocaleObject(router);
 
   return (
     <Box textAlign={'center'} mt="20px">
@@ -319,7 +323,7 @@ function ReviseAndDrillButtons({
             onChange={(e) => setShuffle(e.target.checked)}
           />
         }
-        label="Shuffle drill cards"
+        label={t.shuffleCards}
       />
       <Box display="flex" gap="10px" justifyContent="center" mb="5px">
         <Button
@@ -330,7 +334,7 @@ function ReviseAndDrillButtons({
             start(FlashCardMode.REVISION_MODE);
           }}
         >
-          Revise
+          {t.revise}
         </Button>
         {loggedIn && (
           <Button
@@ -341,7 +345,7 @@ function ReviseAndDrillButtons({
               start(FlashCardMode.DRILL_MODE);
             }}
           >
-            Drill&nbsp;
+            {t.drill}&nbsp;
             {shuffle && <ShuffleIcon fontSize="small" />}
           </Button>
         )}
@@ -355,7 +359,7 @@ function ReviseAndDrillButtons({
           fontFamily: "'Roboto'",
         }}
       >
-        {selectedCards.length} cards selected
+        {selectedCards.length}&nbsp;{t.cardsSelected}
       </b>
     </Box>
   );
@@ -383,8 +387,7 @@ function getSelectedCards(
 
 export function DrillConfigurator({ courseId }: { courseId: string }) {
   const router = useRouter();
-  const { locale } = router;
-  const { home: t } = locale == 'en' ? en : de;
+  const { home, flashCards: t } = getLocaleObject(router);
 
   const [isLoading, setIsLoading] = useState(false);
   const [courseCards, setCourseCards] = useState<
@@ -440,10 +443,10 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
   return (
     <Box m="15px auto 0" maxWidth="800px">
       <Typography variant="h5" sx={{ textAlign: 'center', mb: '10px' }}>
-        Configure your flash card stack for drilling/revising!
+        {t.header}
       </Typography>
       <Typography variant="body2" sx={{ color: '#777', px: '10px' }}>
-        {t.cardIntro}
+        {home.cardIntro}
       </Typography>
       <br />
       <Box

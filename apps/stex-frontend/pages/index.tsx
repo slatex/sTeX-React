@@ -6,8 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { ToursAutocomplete } from '../components/ToursAutocomplete';
-import { de } from '../lang/de';
-import { en } from '../lang/en';
+import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 import styles from '../styles/utils.module.scss';
 
@@ -34,7 +33,7 @@ function CourseThumb({
   width?: number;
 }) {
   const router = useRouter();
-  const { home } = router.locale === 'en' ? en : de;
+  const { home } = getLocaleObject(router);
   const t = home.courseThumb;
 
   return (
@@ -138,8 +137,7 @@ function SiteDescription({ lang }: { lang: string }) {
 
 const StudentHomePage: NextPage = () => {
   const router = useRouter();
-  const { locale } = router;
-  const { home: t } = locale == 'en' ? en : de;
+  const { home: t } = getLocaleObject(router);
 
   return (
     <MainLayout title="Courses | VoLL-KI">
@@ -168,7 +166,7 @@ const StudentHomePage: NextPage = () => {
               </IconButton>
             </Tooltip>
             <h1>{t.header}</h1>
-            <SiteDescription lang={locale} />
+            <SiteDescription lang={router.locale} />
             <h2>{t.couseSection}</h2>
           </Box>
           <Box display="flex" flexWrap="wrap">

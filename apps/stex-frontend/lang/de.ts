@@ -51,6 +51,21 @@ export const de = {
       loginButton: 'Als Gast einloggen',
     },
   },
+  flashCards: {
+    header: "Konfigurieren Sie Ihren Lernkartenstapel zum Bohren/Überarbeiten!",
+    chooseCoverage: "Wählen Sie die Abdeckung",
+    chooseCoverageHover: "Wählen Sie die Karten im Stapel nach Kurskapiteln aus",
+    chooseCompetency: "Wählen Sie Kompetenzstufen",
+    chooseCompetencyHover:
+      'Choose the competency levels (estimated by the learner model) up to which cards should be included into the card stack',
+    chooseCompetencyDetails: "The selection will put all cards up to the chosen competency level onto the stack.",
+    shuffleCards: "Übungskarten mischen",
+    revise: "Überarbeiten",
+    drill: "Bohren",
+    concepts: "Konzepte",
+    cardsSelected: "Karten ausgewählt",
+    enableDisableFilter: 'Klicken Sie zum Aktivieren/Deaktivieren.'
+  },
   vis: {
     goToTour: 'Gehen Sie zur Tour',
   },

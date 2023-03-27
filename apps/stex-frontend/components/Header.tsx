@@ -10,10 +10,12 @@ import {
   MenuItem,
   Toolbar,
   Tooltip,
-  Typography,
+  Typography
 } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import { getUserInfo, isLoggedIn, logout } from '@stex-react/api';
+import { CountryFlag } from '@stex-react/react-utils';
+import { localStore } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import Image from 'next/image';
@@ -21,20 +23,16 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { BrowserAutocomplete } from '../components/BrowserAutocomplete';
-import { SYSTEM_UPDATES } from '../system-updates';
+import { getLocaleObject } from '../lang/utils';
 import styles from '../styles/header.module.scss';
-import { localStore } from '@stex-react/utils';
-import { CountryFlag } from '@stex-react/react-utils';
-import { en } from '../lang/en';
-import { de } from '../lang/de';
+import { SYSTEM_UPDATES } from '../system-updates';
 
 dayjs.extend(relativeTime);
 
-const HEADER_WARNING =
-  'WARNING: Research Prototype, it may misbehave, crash, delete data, ... or even make you happy without warning at any time!';
 function UserButton() {
   const router = useRouter();
-  const { header: t } = router.locale === 'en' ? en : de;
+  const { header: t } = getLocaleObject(router);
+
   // Menu crap Start
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -156,7 +154,7 @@ function LanguageButton() {
 
 function NotificationButton() {
   const router = useRouter();
-  const { header: t } = router.locale === 'en' ? en : de;
+  const { header: t } = getLocaleObject(router);
 
   // System info menu crap start
   const [anchorEl, setAnchorEl] = useState<any>(null);
@@ -214,7 +212,7 @@ export function Header({
 }) {
   const loggedIn = isLoggedIn();
   const router = useRouter();
-  const { header: t } = router.locale === 'en' ? en : de;
+  const { header: t } = getLocaleObject(router);
 
   return (
     <AppBar position="static">

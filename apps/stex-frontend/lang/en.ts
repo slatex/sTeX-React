@@ -72,13 +72,29 @@ export const en = {
       loginButton: 'Login as a guest',
     },
   },
+  flashCards: {
+    header: 'Configure your flash card stack for drilling/revising!',
+    chooseCoverage: 'Choose the coverage',
+    chooseCoverageHover: 'Choose the cards in the stack by course chapters',
+    chooseCompetency: 'Choose competency levels',
+    chooseCompetencyHover:
+      'Choose the competency levels (estimated by the learner model) up to which cards should be included into the card stack',
+    chooseCompetencyDetails:
+      'The selection will put all cards up to the chosen competency level onto the stack.',
+    shuffleCards: 'Shuffle drill cards',
+    revise: 'Revise',
+    drill: 'Drill',
+    concepts: 'Concepts',
+    cardsSelected: 'cards selected',
+    enableDisableFilter: 'Click to enable/disable filter.'
+  },
+
   vis: {
     goToTour: 'Go To Tour',
   },
   updates: {
     header: 'System Updates',
   },
-
   // Multi-Page Components
   header: {
     headerWarning:

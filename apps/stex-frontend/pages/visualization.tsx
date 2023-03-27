@@ -5,15 +5,14 @@ import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { ToursAutocomplete } from '../components/ToursAutocomplete';
 import { UserModelVisualization } from '../components/UserModelVisualization';
-import { de } from '../lang/de';
-import { en } from '../lang/en';
+import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 
 /*
  */
 const VisPage: NextPage = () => {
   const router = useRouter();
-  const { vis: t } = router.locale === 'en' ? en : de;
+  const { vis: t } = getLocaleObject(router);
 
   const [tourId, setTourId] = useState(
     'http://mathhub.info/smglom/topology?inherited-topology'

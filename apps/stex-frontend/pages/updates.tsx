@@ -4,8 +4,7 @@ import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { de } from '../lang/de';
-import { en } from '../lang/en';
+import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 import { SYSTEM_UPDATES } from '../system-updates';
 
@@ -13,7 +12,7 @@ dayjs.extend(localizedFormat);
 
 const UpdatesPage: NextPage = () => {
   const { locale } = useRouter();
-  const { updates: t } = locale === 'en' ? en : de;
+  const { updates: t } = getLocaleObject({ locale });
 
   return (
     <MainLayout title="System Updates | VoLL-KI">

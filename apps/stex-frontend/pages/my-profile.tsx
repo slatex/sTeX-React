@@ -168,6 +168,7 @@ const MyProfilePage: NextPage = () => {
             <br />
             <hr />
             <PersonaChooser
+              label="Choose Persona"
               persona={persona}
               onPersonaUpdate={(l) => {
                 setPresetProfileName(l);
