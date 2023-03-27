@@ -1,14 +1,20 @@
 import { Box, Link } from '@mui/material';
 import { PathToTour } from '@stex-react/utils';
 import { NextPage } from 'next';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { ToursAutocomplete } from '../components/ToursAutocomplete';
 import { UserModelVisualization } from '../components/UserModelVisualization';
+import { de } from '../lang/de';
+import { en } from '../lang/en';
 import MainLayout from '../layouts/MainLayout';
 
 /*
  */
 const VisPage: NextPage = () => {
+  const router = useRouter();
+  const { vis: t } = router.locale === 'en' ? en : de;
+
   const [tourId, setTourId] = useState(
     'http://mathhub.info/smglom/topology?inherited-topology'
   );
@@ -18,7 +24,7 @@ const VisPage: NextPage = () => {
         <Box flexGrow={1} mr="10px">
           <ToursAutocomplete onSelect={setTourId} />
         </Box>
-        <Link href={PathToTour(tourId)}>Go To Tour</Link>
+        <Link href={PathToTour(tourId)}>{t.goToTour}</Link>
       </Box>
       <UserModelVisualization tourId={tourId} />
     </MainLayout>

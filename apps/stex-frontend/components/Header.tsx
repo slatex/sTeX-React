@@ -24,6 +24,9 @@ import { BrowserAutocomplete } from '../components/BrowserAutocomplete';
 import { SYSTEM_UPDATES } from '../system-updates';
 import styles from '../styles/header.module.scss';
 import { localStore } from '@stex-react/utils';
+import { CountryFlag } from '@stex-react/react-utils';
+import { en } from '../lang/en';
+import { de } from '../lang/de';
 
 dayjs.extend(relativeTime);
 
@@ -31,6 +34,7 @@ const HEADER_WARNING =
   'WARNING: Research Prototype, it may misbehave, crash, delete data, ... or even make you happy without warning at any time!';
 function UserButton() {
   const router = useRouter();
+  const { header: t } = router.locale === 'en' ? en : de;
   // Menu crap Start
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -77,7 +81,7 @@ function UserButton() {
             handleClose();
           }}
         >
-          Profile
+          {t.profile}
         </MenuItem>
         <MenuItem
           onClick={() => {
@@ -85,7 +89,65 @@ function UserButton() {
             logout();
           }}
         >
-          Log out
+          {t.logOut}
+        </MenuItem>
+      </Menu>
+    </Box>
+  );
+}
+
+function LanguageButton() {
+  const router = useRouter();
+  const { locale } = router;
+
+  // Menu crap Start
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  // Menu crap End
+
+  function changeLocale(locale: string) {
+    const { pathname, asPath, query } = router;
+    // change just the locale and maintain all other route information including href's query
+    router.push({ pathname, query }, asPath, { locale });
+  }
+  return (
+    <Box whiteSpace="nowrap">
+      <IconButton onClick={handleClick}>
+        <CountryFlag
+          flag={locale === 'en' ? 'gb' : locale}
+          size="28x21"
+          size2="56x42"
+        />
+      </IconButton>
+      <Menu
+        id="basic-menu"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+      >
+        <MenuItem
+          onClick={() => {
+            changeLocale('en');
+            handleClose();
+          }}
+        >
+          <CountryFlag flag="gb" size="28x21" size2="56x42" />
+          &nbsp; English
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            changeLocale('de');
+            handleClose();
+          }}
+        >
+          <CountryFlag flag="de" size="28x21" size2="56x42" />
+          &nbsp; German
         </MenuItem>
       </Menu>
     </Box>
@@ -93,6 +155,9 @@ function UserButton() {
 }
 
 function NotificationButton() {
+  const router = useRouter();
+  const { header: t } = router.locale === 'en' ? en : de;
+
   // System info menu crap start
   const [anchorEl, setAnchorEl] = useState<any>(null);
   const open = Boolean(anchorEl);
@@ -100,7 +165,7 @@ function NotificationButton() {
   // System info menu crap end
   return (
     <>
-      <Tooltip title="System Updates">
+      <Tooltip title={t.systemUpdate}>
         <IconButton
           onClick={(e) => {
             setAnchorEl(e.currentTarget);
@@ -149,12 +214,13 @@ export function Header({
 }) {
   const loggedIn = isLoggedIn();
   const router = useRouter();
+  const { header: t } = router.locale === 'en' ? en : de;
 
   return (
     <AppBar position="static">
       <Toolbar className={styles['toolbar']}>
         <Link href="/" passHref>
-          <Tooltip title={HEADER_WARNING}>
+          <Tooltip title={t.headerWarning}>
             <Box display="flex" flexWrap="nowrap" alignItems="baseline">
               <Image
                 src="/voll-ki-courses.svg"
@@ -178,13 +244,14 @@ export function Header({
         <Box>
           <Box display="flex" alignItems="center">
             <NotificationButton />
-            <Tooltip title="Help Center">
+            <Tooltip title={t.helpCenter}>
               <Link href="/help">
                 <IconButton>
                   <HelpIcon htmlColor="white" />
                 </IconButton>
               </Link>
             </Tooltip>
+            <LanguageButton />
             {loggedIn ? (
               <UserButton />
             ) : (
@@ -198,7 +265,7 @@ export function Header({
                   );
                 }}
               >
-                Login
+                {t.login}
               </Button>
             )}
           </Box>

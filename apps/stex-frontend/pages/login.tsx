@@ -19,6 +19,8 @@ import { BG_COLOR, IS_SERVER, localStore } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useReducer, useState } from 'react';
+import { de } from '../lang/de';
+import { en } from '../lang/en';
 import MainLayout from '../layouts/MainLayout';
 import styles from '../styles/utils.module.scss';
 
@@ -35,14 +37,16 @@ function capitalizeFirstLetter(string) {
 
 export function PersonaChooser({
   persona,
+  label,
   onPersonaUpdate,
 }: {
   persona: string;
+  label: string;
   onPersonaUpdate: (label: string) => void;
 }) {
   return (
     <FormControl>
-      <InputLabel>Choose Persona</InputLabel>
+      <InputLabel>{label}</InputLabel>
       <Select
         value={persona}
         onChange={(e) => {
@@ -63,10 +67,14 @@ export function PersonaChooser({
 }
 
 export function GuestLogin({ returnBackUrl }: { returnBackUrl: string }) {
+  const router = useRouter();
+  const {
+    login: { guest: t },
+  } = router.locale === 'en' ? en : de;
+
   const [persona, setProfileLabel] = useState<string>('sabrina');
   const [guestId, setGuestId] = useState<string>('sabrina');
   const [guestUserName, setGuestUserName] = useState<string>('Sabrina');
-
   const [enableGuest, setEnableGuest] = useState(false);
 
   return (
@@ -79,7 +87,7 @@ export function GuestLogin({ returnBackUrl }: { returnBackUrl: string }) {
           sx={{ fontSize: '32x', my: '10px' }}
           onClick={() => setEnableGuest(true)}
         >
-          Guest User Login
+          {t.entryButton}
         </Button>
       )}
       <Box
@@ -95,6 +103,7 @@ export function GuestLogin({ returnBackUrl }: { returnBackUrl: string }) {
       >
         <Box display="flex" alignItems="baseline" gap="10px">
           <PersonaChooser
+            label={t.personaSelect}
             persona={persona}
             onPersonaUpdate={(label: string) => {
               setProfileLabel(label);
@@ -107,7 +116,7 @@ export function GuestLogin({ returnBackUrl }: { returnBackUrl: string }) {
             }}
           />
           <TextField
-            label="Guest Id"
+            label={t.guestIdText}
             value={guestId}
             onChange={(e) => setGuestId(e.target.value)}
             variant="standard"
@@ -116,7 +125,7 @@ export function GuestLogin({ returnBackUrl }: { returnBackUrl: string }) {
           />
         </Box>
         <TextField
-          label="Guest Username"
+          label={t.guestNameText}
           value={guestUserName}
           onChange={(e) => setGuestUserName(e.target.value)}
           variant="standard"
@@ -125,8 +134,7 @@ export function GuestLogin({ returnBackUrl }: { returnBackUrl: string }) {
         />
 
         <Typography color="#777" variant="body2" mt="10px">
-          The platform content is tailored to the learner&apos;s competencies.
-          Please choose an initial persona above to get started.
+          {t.chooseLearnerHelperText}
         </Typography>
         <Button
           fullWidth
@@ -145,14 +153,12 @@ export function GuestLogin({ returnBackUrl }: { returnBackUrl: string }) {
           }}
           disabled={!guestId?.length}
         >
-          Login as a guest
+          {t.loginButton}
         </Button>
       </Box>
 
       <Typography color="#777" variant="body2">
-        While the VoLL-KI SSFC system is initially intended for FAU students, we
-        are working on expanding our offerings to more learners. Meanwhile, we
-        encourage you to login as a guest and test drive the system.
+        {t.encourage}
       </Typography>
     </>
   );
@@ -166,12 +172,12 @@ const LoginPage: NextPage = () => {
   const fakeLogin = clickCount >= 1;
   if (loggedIn && !IS_SERVER) router.push('/');
 
+  const { login: t } = router.locale === 'en' ? en : de;
+
   return (
     <MainLayout>
       <br />
-      <Box
-        sx={{ m: 'auto', maxWidth: '700px', px: '10px', userSelect: 'none' }}
-      >
+      <Box sx={{ m: 'auto', maxWidth: '700px', px: '10px' }}>
         <Box
           sx={{
             p: '1.5rem',
@@ -204,7 +210,7 @@ const LoginPage: NextPage = () => {
           )}
           {loggedIn ? (
             <>
-              You are already logged in.
+              {t.alreadyLoggedIn}
               <Button
                 fullWidth
                 variant="contained"
@@ -212,7 +218,7 @@ const LoginPage: NextPage = () => {
                 sx={{ w: '100%' }}
                 onClick={() => logout()}
               >
-                Logout
+                {t.logout}
               </Button>
             </>
           ) : (
@@ -231,7 +237,7 @@ const LoginPage: NextPage = () => {
                   }
                 }}
               >
-                {fakeLogin ? 'Fake User Login' : 'Login through FAU IdM-Portal'}
+                {fakeLogin ? t.fakeLogin : t.fauLogin}
               </Button>
               <span
                 style={{
@@ -241,67 +247,35 @@ const LoginPage: NextPage = () => {
                 }}
               >
                 <hr style={{ width: '90%' }} />
-                Please{' '}
                 <span
                   style={{ display: 'inline' }}
                   onDoubleClick={updateClickCount}
                 >
-                  remember
-                </span>{' '}
-                to logout after you are done.
+                  {t.rememberLogout}
+                </span>
+
                 <br />
                 <br />
-                <i style={{ color: 'red' }}>
-                  Warning: Logging out from FAU IdM-Portal will NOT log you out
-                  here.
-                </i>
+                <i style={{ color: 'red' }}>{t.logoutWarning}</i>
               </span>
 
               {!loggedIn && <GuestLogin returnBackUrl={returnBackUrl} />}
               <br />
               <Box className={styles['descriptive-box']}>
-                Note that you are logging into a research prototype system for
-                individualised learning support at the university level. Please
-                note the following consequences:
+                {t.notesHeader}
                 <ul>
+                  <li>{t.notesPoint1}</li>
+                  <li>{t.notesPoint2}</li>
+                  <li>{t.notesPoint3}</li>
                   <li>
-                    This is not a production-ready system, so system
-                    functionality may change or go away without prior notice.
-                    You are participating in this experimental system
-                    voluntarily, we hope that the system will enhance your
-                    learning experience and success. But there will not be any
-                    renumeration and/or difference to the way you are graded or
-                    evaluated in the course.
-                  </li>
-                  <li>
-                    The system will collect personalized data on all of your
-                    interactions with the system, including
-                    click/hover/mouse-movement-streams, page requests, results
-                    of quizzes, etc. The system uses this data to generate
-                    learning competency models that in turn affect the generated
-                    course materials and the interaction with the system.
-                  </li>
-                  <li>
-                    Note that personalized data will only be accessible to
-                    agents that are authenticated with your personal IDM
-                    credentials. In particular, no personal data will be
-                    transmitted outside the system without your consent.
-                  </li>
-                  <li>
-                    The VoLL-KI research project will use this data in
-                    aggregated, anonymised, and/or pseudonymized form to
-                    evaluate of the system and the underlying methods. We will
-                    use best professional effort to make sure that personalized
-                    data cannot be re-engineered from aggregated data. Details
-                    about the KI System can be found&nbsp;
+                    {t.notesPoint4}:&nbsp;
                     <a
                       href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/home"
                       target="_blank"
                       rel="noreferrer"
                     >
-                      here
+                      Link
                     </a>
-                    .
                   </li>
                 </ul>
               </Box>

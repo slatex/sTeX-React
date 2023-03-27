@@ -33,14 +33,11 @@ import {
   Window,
 } from '@stex-react/utils';
 import axios from 'axios';
+import { useRouter } from 'next/router';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { de } from '../lang/de';
+import { en } from '../lang/en';
 import { FlashCardMode, FlashCards } from './FlashCards';
-
-export const FLASH_CARDS_INTRO =
-  '"Flash Cards" support reviewing and drilling the concepts of the' +
-  ' course. Learners are shown cards with concept names that can be' +
-  ' flipped to view the definition. Learners self-assess their concept' +
-  ' mastery, which helps us update the cards shown in drills.';
 
 function getMarks(
   dim: BloomDimension,
@@ -385,6 +382,10 @@ function getSelectedCards(
 }
 
 export function DrillConfigurator({ courseId }: { courseId: string }) {
+  const router = useRouter();
+  const { locale } = router;
+  const { home: t } = locale == 'en' ? en : de;
+
   const [isLoading, setIsLoading] = useState(false);
   const [courseCards, setCourseCards] = useState<
     CardsWithSmileys[] | undefined
@@ -442,7 +443,7 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
         Configure your flash card stack for drilling/revising!
       </Typography>
       <Typography variant="body2" sx={{ color: '#777', px: '10px' }}>
-        {FLASH_CARDS_INTRO}
+        {t.cardIntro}
       </Typography>
       <br />
       <Box

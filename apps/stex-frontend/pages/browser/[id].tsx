@@ -1,16 +1,8 @@
-import { TOCFileNode, StexReactRenderer } from '@stex-react/stex-react-renderer';
-import {
-  convertHtmlStringToPlain,
-  fileLocToString,
-  getSectionInfo,
-  simpleHash,
-} from '@stex-react/utils';
-import axios from 'axios';
+import { StexReactRenderer } from '@stex-react/stex-react-renderer';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
-import { DocumentDashInfo } from '../../shared/types';
 
 
 const BrowserPage: NextPage = () => {

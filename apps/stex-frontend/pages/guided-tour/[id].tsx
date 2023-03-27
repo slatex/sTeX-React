@@ -4,16 +4,19 @@ import { BG_COLOR } from '@stex-react/utils';
 import { getUriWeights, reportEvent } from '@stex-react/api';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ToursAutocomplete } from '../../components/ToursAutocomplete';
 import MainLayout from '../../layouts/MainLayout';
 
 const GuidedTourPage: NextPage = () => {
-  const [language, setLanguage] = useState('en');
   const router = useRouter();
+  const { locale } = router;
+  const [language, setLanguage] = useState(locale);
   const tourId = router.query.id
     ? decodeURI(router.query.id as string)
     : undefined;
+
+  useEffect(() => setLanguage(locale), [locale]);
 
   return (
     <MainLayout title="Guided Tour">

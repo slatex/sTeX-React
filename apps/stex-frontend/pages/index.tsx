@@ -5,8 +5,9 @@ import { NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { FLASH_CARDS_INTRO } from '../components/DrillConfigurator';
 import { ToursAutocomplete } from '../components/ToursAutocomplete';
+import { de } from '../lang/de';
+import { en } from '../lang/en';
 import MainLayout from '../layouts/MainLayout';
 import styles from '../styles/utils.module.scss';
 
@@ -32,6 +33,10 @@ function CourseThumb({
   cardsLink?: string;
   width?: number;
 }) {
+  const router = useRouter();
+  const { home } = router.locale === 'en' ? en : de;
+  const t = home.courseThumb;
+
   return (
     <Card
       sx={{
@@ -63,20 +68,20 @@ function CourseThumb({
         >
           <Link href={notesLink} passHref>
             <Button size="small" variant="contained">
-              Notes&nbsp;
+              {t.notes}&nbsp;
               <ArticleIcon />
             </Button>
           </Link>
           {cardsLink && (
-            <Tooltip title={FLASH_CARDS_INTRO}>
+            <Tooltip title={home.cardIntro}>
               <Link href={cardsLink} passHref>
                 <Button size="small" variant="contained">
-                  Cards&nbsp;
+                  {t.cards}&nbsp;
                   <Image
                     src="/noun-flash-cards-2494102.svg"
                     width={25}
                     height={25}
-                    alt="Flash Cards"
+                    alt=""
                   />
                 </Button>
               </Link>
@@ -85,7 +90,7 @@ function CourseThumb({
           {slidesLink && (
             <Link href={slidesLink} passHref>
               <Button size="small" variant="contained">
-                Slides&nbsp;
+                {t.slides}&nbsp;
                 <SlideshowIcon />
               </Button>
             </Link>
@@ -96,8 +101,46 @@ function CourseThumb({
   );
 }
 
+function SiteDescription({ lang }: { lang: string }) {
+  if (lang === 'de') {
+    return (
+      <>
+        Das <ELink href="https://voll-ki.fau.de">VoLL-KI-Projekt</ELink> liefert{' '}
+        <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/Adaptive-Course-Materials">
+          KI-erweiterte Kursmaterialien
+        </ELink>{' '}
+        für Kurse in Informatik und Künstlicher Intelligenz an der FAU. Dies
+        sind interaktive Dokumente, die sich an die Präferenzen und Kompetenzen
+        der Benutzer anpassen und sich auf das in einer bestimmten
+        Wissenseinheit vermittelte Wissen konzentrieren. Auf dieser Seite
+        liefern wir thematisch geordnet Einstiegspunkte für FAU-Kurse und das
+        zugrunde liegende CS/AI-Curriculum.
+      </>
+    );
+  }
+  if (lang === 'en') {
+    return (
+      <>
+        The <ELink href="https://voll-ki.fau.de">VoLL-KI Project</ELink>{' '}
+        supplies{' '}
+        <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/Adaptive-Course-Materials">
+          AI-enhanced course materials
+        </ELink>{' '}
+        for courses in Computer Science and Artificial Intelligence at FAU.
+        These are interactive documents that adapt to the users preferences and
+        competencies focused on the knowledge conveyed in a particular knowledge
+        unit. On this page we supply entry points for FAU courses and the
+        underlying CS/AI Curriculum by topic.
+      </>
+    );
+  }
+}
+
 const StudentHomePage: NextPage = () => {
   const router = useRouter();
+  const { locale } = router;
+  const { home: t } = locale == 'en' ? en : de;
+
   return (
     <MainLayout title="Courses | VoLL-KI">
       <Box m="0 auto" maxWidth="800px">
@@ -106,8 +149,8 @@ const StudentHomePage: NextPage = () => {
             <Tooltip
               title={
                 <Box sx={{ fontSize: 'large' }}>
-                  <span>See what&apos;s brewing in our laboratory.</span>
-                  <span>Exercise Extreme Caution!</span>
+                  <span>{t.expIconHover1}</span>
+                  <span>{t.expIconHover2}</span>
                 </Box>
               }
             >
@@ -124,20 +167,9 @@ const StudentHomePage: NextPage = () => {
                 />
               </IconButton>
             </Tooltip>
-            <h1>VoLL-KI based Courses at FAU</h1>
-            The <ELink href="https://voll-ki.fau.de">
-              VoLL-KI Project
-            </ELink>{' '}
-            supplies{' '}
-            <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/Adaptive-Course-Materials">
-              AI-enhanced course materials
-            </ELink>{' '}
-            for courses in Computer Science and Artificial Intelligence at FAU.
-            These are interactive documents that adapt to the users preferences
-            and competencies focused on the knowledge conveyed in a particular
-            knowledge unit. On this page we supply entry points for FAU courses
-            and the underlying CS/AI Curriculum by topic.
-            <h2>Current semester &#40;WS 22/23&#41;</h2>
+            <h1>{t.header}</h1>
+            <SiteDescription lang={locale} />
+            <h2>{t.couseSection}</h2>
           </Box>
           <Box display="flex" flexWrap="wrap">
             <CourseThumb
@@ -161,7 +193,7 @@ const StudentHomePage: NextPage = () => {
               notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FLBS%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml"
             />
           </Box>
-          <h2>Other Courses</h2>
+          <h2>{t.otherCourses}</h2>
           <Box display="flex" flexWrap="wrap">
             <CourseThumb
               courseName="Artificial Intelligence - II"
@@ -181,43 +213,12 @@ const StudentHomePage: NextPage = () => {
             />
           </Box>
           <hr style={{ width: '90%' }} />
-          <h1>Topic-Based, Free Style Learning</h1>
+          <h1>{t.guidedTourHeader}</h1>
           <ToursAutocomplete />
           <br />
           <hr style={{ width: '90%' }} />
           <br />
-          <Box className={styles['descriptive-box']}>
-            <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/Adaptive-Course-Materials">
-              Active course materials
-            </ELink>{' '}
-            incorporate{' '}
-            <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/Learning-Support-Services">
-              learning support services
-            </ELink>{' '}
-            based on a{' '}
-            <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/Learner-Model">
-              model
-            </ELink>{' '}
-            that is updated with every interaction with the materials. Such{' '}
-            <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/Learner-Model">
-              models of a user&apos;s preferences and competencies
-            </ELink>{' '}
-            contain highly sensitive personal data. Therefore the{' '}
-            <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/Learning-Support-Services">
-              learning support services
-            </ELink>{' '}
-            (and corresponding user model data collection) are only enabled when
-            the user is logged in via the{' '}
-            <ELink href="https://www.sso.uni-erlangen.de/">
-              FAU Single-Signon Service
-            </ELink>{' '}
-            and are kept secure and under exclusive control of the respective
-            user in the{' '}
-            <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/Trust-Zone">
-              Voll-KI Trust Zone
-            </ELink>
-            .
-          </Box>
+          <Box className={styles['descriptive-box']}>{t.footerInfo}</Box>
         </Box>
       </Box>
     </MainLayout>
