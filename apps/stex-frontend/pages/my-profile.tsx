@@ -7,6 +7,7 @@ import {
   DialogContentText,
   DialogTitle,
   TextField,
+  Typography,
 } from '@mui/material';
 import {
   getAllMyComments,
@@ -22,6 +23,7 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 import { PersonaChooser } from './login';
 
@@ -30,35 +32,34 @@ export function ConfirmPurgeDialogContent({
 }: {
   onClose: (confirmed: boolean) => void;
 }) {
+  const router = useRouter();
+  const { myProfile: t } = getLocaleObject(router);
   const [text, setText] = useState('');
   return (
     <>
-      <DialogTitle>Confirm Data Purge</DialogTitle>
+      <DialogTitle>{t.confirmPurge}</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          WARNING: This will delete all data the system has on you (learner
-          model, interaction logs, comments, and notes) except for the
-          information that/when you purged the data. Your learning experience
-          may be significantly affected.
+          {t.purgeWarning}
           <br />
           <br />
-          Enter the text <b>Purge my data</b> in the box below to confirm.
+          Enter this text in the box below to confirm: <b>{t.confirmText}</b>
           <br /> <br />
         </DialogContentText>
         <TextField
-          label="Confirmation"
+          label={t.confirmation}
           value={text}
           onChange={(e) => setText(e.target.value)}
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => onClose(false)}>Cancel</Button>
+        <Button onClick={() => onClose(false)}>{t.cancel}</Button>
         <Button
           onClick={() => onClose(true)}
-          disabled={text.toLowerCase() !== 'purge my data'}
+          disabled={text.toLocaleLowerCase() !== t.confirmText.toLocaleLowerCase()}
           variant="contained"
         >
-          Purge
+          {t.purge}
         </Button>
       </DialogActions>
     </>
@@ -67,6 +68,7 @@ export function ConfirmPurgeDialogContent({
 
 const MyProfilePage: NextPage = () => {
   const router = useRouter();
+  const { myProfile: t } = getLocaleObject(router);
   const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
   const [openPurgeDialog, setOpenPurgeDialog] = useState(false);
   const [persona, setPresetProfileName] = useState<string>('Blank');
@@ -91,18 +93,18 @@ const MyProfilePage: NextPage = () => {
         </h3>
         <hr />
         <br />
-        See all your{' '}
         <Link href="/my-notes" passHref>
-          <span style={{ textDecoration: 'underline' }}>personal notes</span>
+          <Typography sx={{ '&:hover': { textDecoration: 'underline' } }}>
+            {t.seePersonalNotes}
+          </Typography>
         </Link>
-        .
         <br />
         <br />
-        See your{' '}
         <Link href="/my-learner-model" passHref>
-          <span style={{ textDecoration: 'underline' }}>competency data</span>
+          <Typography sx={{ '&:hover': { textDecoration: 'underline' } }}>
+            {t.seeCompetencyData}
+          </Typography>
         </Link>
-        .
         <br />
         <br />
         <h2
@@ -112,7 +114,7 @@ const MyProfilePage: NextPage = () => {
             display: 'inline',
           }}
         >
-          Download your Data
+          {t.downloadData}
         </h2>
         <br />
         <br />
@@ -128,7 +130,7 @@ const MyProfilePage: NextPage = () => {
             });
           }}
         >
-          Download your notes and comments
+          {t.downloadNotes}
         </Button>
         <br />
         <br />
@@ -144,7 +146,7 @@ const MyProfilePage: NextPage = () => {
             });
           }}
         >
-          Download your profile data
+          {t.downloadProfile}
         </Button>
         <br />
         <br />
@@ -155,12 +157,12 @@ const MyProfilePage: NextPage = () => {
             display: 'inline',
           }}
         >
-          Data Deletion
+          {t.dataDeletion}
         </h2>
         <br />
         <br />
         <Button variant="contained" onClick={() => setOpenPurgeDialog(true)}>
-          Purge your data
+          {t.purgeData}
         </Button>
         {userInfo?.userId?.startsWith('fake_') && (
           <Box>
@@ -168,7 +170,7 @@ const MyProfilePage: NextPage = () => {
             <br />
             <hr />
             <PersonaChooser
-              label="Choose Persona"
+              label={t.choosePersona}
               persona={persona}
               onPersonaUpdate={(l) => {
                 setPresetProfileName(l);
@@ -180,7 +182,7 @@ const MyProfilePage: NextPage = () => {
               onClick={() => resetFakeUserData(persona)}
               sx={{ ml: '10px' }}
             >
-              Reset Fake User Data
+              {t.resetFake}
             </Button>
           </Box>
         )}
@@ -197,11 +199,11 @@ const MyProfilePage: NextPage = () => {
               try {
                 await purgeAllMyData();
                 await purgeComments();
-                alert('Data purged');
+                alert(t.dataPurged);
                 setOpenPurgeDialog(false);
               } catch (err) {
                 console.log(err);
-                alert('Some error purging data');
+                alert(t.purgeError);
               }
             }}
           />

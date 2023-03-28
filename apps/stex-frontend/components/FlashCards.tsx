@@ -37,6 +37,7 @@ import {
   localStore,
   PRIMARY_COL,
 } from '@stex-react/utils';
+import { useRouter } from 'next/router';
 import {
   Dispatch,
   Fragment,
@@ -47,6 +48,7 @@ import {
   useState,
 } from 'react';
 import { useSwipeable } from 'react-swipeable';
+import { getLocaleObject } from '../lang/utils';
 import styles from '../styles/flash-card.module.scss';
 
 enum CardType {
@@ -80,6 +82,8 @@ export function FlashCardFooter({
   onFlip: () => void;
 }) {
   const loggedIn = isLoggedIn();
+  const { locale } = useRouter();
+  const { flashCards: t } = getLocaleObject({ locale });
   return (
     <Box
       display="flex"
@@ -91,7 +95,7 @@ export function FlashCardFooter({
       {loggedIn && (
         <Box display="flex" alignItems="center" gap="10px" px="10px">
           <Typography variant="h6" color="gray" textAlign="right">
-            Assess Your Competence:
+            {t.assessYourComptence}:
           </Typography>
           <Box flexShrink={0}>
             <SelfAssessment2
@@ -103,11 +107,7 @@ export function FlashCardFooter({
         </Box>
       )}
       <IconButton onClick={onFlip} color="primary" sx={{ m: 'auto' }}>
-        <Tooltip
-          title={
-            isFront ? 'Flip the card to see the definition!' : 'Flip it back!'
-          }
-        >
+        <Tooltip title={isFront ? t.flipCard : t.flipBack}>
           <FlipCameraAndroidIcon
             fontSize="large"
             sx={{ transform: 'rotateX(30deg)' }}
@@ -353,12 +353,15 @@ export function ItemListWithStatus({
   items: FlashCardItem[];
   uriMap: Map<string, SmileyCognitiveValues>;
 }) {
+  const router = useRouter();
+  const { flashCards: t } = getLocaleObject(router);
+
   return (
     <table style={{ marginBottom: '20px' }}>
       <tr style={{ color: PRIMARY_COL }}>
-        <th>Concept</th>
-        <th>Remember</th>
-        <th>Understand</th>
+        <th>{t.concept}</th>
+        <th>{t.remember}</th>
+        <th>{t.understand}</th>
       </tr>
       {items.map((item) => {
         const smileyLevel = uriMap.get(item.uri);
@@ -368,7 +371,7 @@ export function ItemListWithStatus({
           <tr key={item.uri}>
             <td>
               <Box mr="10px">
-                <ContentWithHighlight mmtHtml={item.instances[0].htmlNode} />
+                <ContentWithHighlight mmtHtml={getConceptName(item.uri)} />
               </Box>
             </td>
             <td>
@@ -397,6 +400,9 @@ export function SummaryCard({
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [, forceRerender] = useReducer((x) => x + 1, 0);
+  const { locale } = useRouter();
+  const { flashCards: t } = getLocaleObject({ locale });
+
   const uriMap = useRef(new Map<string, SmileyCognitiveValues>()).current;
   useEffect(() => {
     getUriSmileys(items.map((item) => item.uri)).then((uriSmileys) => {
@@ -432,31 +438,39 @@ export function SummaryCard({
     NOT_GOOD_SMILEYS,
     NOT_GOOD_SMILEYS
   );
+
+  const numRemembered =
+    rememberAndUnderstand.length + rememberNotUnderstand.length;
+  const numUnderstood =
+    rememberAndUnderstand.length + notRememberButUnderstand.length;
   return (
     <Card>
       <CardContent sx={{ mx: '10px' }}>
         <Box>
           <Button variant="contained" onClick={() => onFinish()}>
             <ArrowBackIcon />
-            &nbsp;Go Back
+            &nbsp;{t.goBack}
           </Button>
           <Box m="20px 0">
             <Typography variant="h6">
-              You recalled{' '}
-              <b>
-                {rememberAndUnderstand.length + rememberNotUnderstand.length}
-              </b>{' '}
-              and understoood{' '}
-              <b>
-                {rememberAndUnderstand.length + notRememberButUnderstand.length}
-              </b>{' '}
-              out of <b>{items.length}</b> concepts.
+              {locale === 'de' ? (
+                <>
+                  Sie haben sich an <b>{numRemembered}</b> erinnert und{' '}
+                  <b>{numUnderstood}</b> von <b>{items.length}</b> Konzepten
+                  verstanden.
+                </>
+              ) : (
+                <>
+                  You recalled <b>{numRemembered}</b> and understoood{' '}
+                  <b>{numUnderstood}</b> out of <b>{items.length}</b> concepts.
+                </>
+              )}
             </Typography>
           </Box>
           {notRememberNotUnderstand.length > 0 && (
             <>
               <Typography variant="h5">
-                Concepts neither remembered nor understood
+                {t.notRememberedNotUnderstood}
               </Typography>
               <ItemListWithStatus
                 items={notRememberNotUnderstand}
@@ -466,9 +480,7 @@ export function SummaryCard({
           )}
           {rememberNotUnderstand.length > 0 && (
             <>
-              <Typography variant="h5">
-                Concepts remembered but not understood
-              </Typography>
+              <Typography variant="h5">{t.rememberedNotUnderstood}</Typography>
               <ItemListWithStatus
                 items={rememberNotUnderstand}
                 uriMap={uriMap}
@@ -477,9 +489,7 @@ export function SummaryCard({
           )}
           {notRememberButUnderstand.length > 0 && (
             <>
-              <Typography variant="h5">
-                Concepts understood but not remembered
-              </Typography>
+              <Typography variant="h5">{t.understoodNotRemembered}</Typography>
               <ItemListWithStatus
                 items={notRememberButUnderstand}
                 uriMap={uriMap}
@@ -488,9 +498,7 @@ export function SummaryCard({
           )}
           {rememberAndUnderstand.length > 0 && (
             <>
-              <Typography variant="h5">
-                Concepts remembered and understood
-              </Typography>
+              <Typography variant="h5">{t.rememberedAndUnderstood}</Typography>
               <ItemListWithStatus
                 items={rememberAndUnderstand}
                 uriMap={uriMap}
@@ -609,6 +617,8 @@ function FlashCardsContainer({
 }) {
   const [cardType, setCardType] = useState(CardType.ITEM_CARD);
   const [drillCardsSeen, setDrillCardsSeen] = useState(0);
+  const { locale } = useRouter();
+  const { flashCards: t } = getLocaleObject({ locale });
 
   const [defaultFlipped, setDefaultSkipped] = useState(
     !!localStore?.getItem('default-flipped')
@@ -651,7 +661,7 @@ function FlashCardsContainer({
     <Box mt="10px" display="flex" flexDirection="column">
       <FlashCard
         uri={currentItem.uri}
-        htmlNodes={currentItem.instances.map((i) => i.htmlNode)}
+        htmlNodes={(currentItem.instances || []).map((i) => i.htmlNode)}
         mode={mode}
         defaultFlipped={defaultFlipped && !isDrill(mode)}
         onNext={() => {
@@ -668,11 +678,9 @@ function FlashCardsContainer({
       <Box mt="10px" display="flex" justifyContent="space-between">
         <IconButton
           onClick={() => {
-            const earlyFinish =
-              'Are you sure you want to leave the drill early?';
             if (!isDrill(mode)) {
               onFinish();
-            } else if (confirm(earlyFinish)) {
+            } else if (confirm(t.leaveEarly)) {
               setDrillCardsSeen(cardNo + 1);
               setCardType(CardType.SUMMARY_CARD);
             }
@@ -693,7 +701,7 @@ function FlashCardsContainer({
               sx={{ mr: '10px' }}
             >
               <NavigateBeforeIcon />
-              Prev
+              {t.prev}
             </Button>
           )}
 
@@ -708,7 +716,7 @@ function FlashCardsContainer({
             size="small"
             variant="contained"
           >
-            Next
+            {t.next}
             <NavigateNextIcon />
           </Button>
         </Box>
@@ -732,7 +740,7 @@ function FlashCardsContainer({
               }}
             />
           }
-          label="Show backface by default"
+          label={t.showBackface}
           sx={{ m: '5px auto 0' }}
         />
       )}

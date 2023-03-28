@@ -43,7 +43,7 @@ function CourseThumb({
         border: '1px solid #CCC',
         p: '10px',
         m: '10px',
-        width: '203px',
+        width: '208px',
       }}
     >
       <Box

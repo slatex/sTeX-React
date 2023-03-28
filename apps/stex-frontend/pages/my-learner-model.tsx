@@ -3,7 +3,9 @@ import { Box, CircularProgress, IconButton, Tooltip } from '@mui/material';
 import { ALL_DIMENSIONS, getAllMyData } from '@stex-react/api';
 import { FileLocation } from '@stex-react/utils';
 import type { NextPage } from 'next';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 
 export interface NotesSection extends FileLocation {
@@ -11,6 +13,8 @@ export interface NotesSection extends FileLocation {
 }
 
 const MyLearnerModelPage: NextPage = () => {
+  const router = useRouter();
+  const { myLearnerModel: t } = getLocaleObject(router);
   const [isLoading, setIsLoading] = useState(false);
   const [competenceInfo, setCompetenceInfo] = useState<
     { URI: number; values: { [key: string]: string } }[]
@@ -35,11 +39,10 @@ const MyLearnerModelPage: NextPage = () => {
           <CircularProgress />
         ) : (
           <Box>
-            <h1>Learner Model</h1>
+            <h1>{t.learnerModel}</h1>
             <span style={{ color: '#333' }}>
-              Using your interactions with the system, we strive to estimate
-              your competency of various concepts. We use the Bloom extended
-              model{' ['}
+              {t.description1}
+              {' ['}
               <Tooltip
                 title={
                   <>
@@ -62,11 +65,8 @@ const MyLearnerModelPage: NextPage = () => {
                   <i>Fuller et. al.</i>
                 </a>
               </Tooltip>
-              {']'}, which classifies learner competencies in six cognitive
-              dimensions for every concept. As a consequence, you see six
-              probability values representing the predicted competency of that
-              concept. This competency model (a.k.a. leaner model) is used in
-              all of the semantic services in the VoLL-KI SSFC System.
+              {']'}
+              {t.description2}
             </span>
             <br />
             <IconButton onClick={() => refresh()}>
@@ -86,7 +86,9 @@ const MyLearnerModelPage: NextPage = () => {
                 <tr key={v.URI}>
                   <td>{v.URI} &nbsp;</td>
                   {ALL_DIMENSIONS.map((dim) => (
-                    <td key={dim}>{v.values[dim] || 'err'}&nbsp;</td>
+                    <td key={dim} style={{ textAlign: 'center' }}>
+                      {(+v.values[dim])?.toFixed(2)}&nbsp;
+                    </td>
                   ))}
                 </tr>
               ))}

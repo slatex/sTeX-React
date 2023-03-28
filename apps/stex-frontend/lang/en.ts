@@ -86,7 +86,25 @@ export const en = {
     drill: 'Drill',
     concepts: 'Concepts',
     cardsSelected: 'cards selected',
-    enableDisableFilter: 'Click to enable/disable filter.'
+    enableDisableFilter: 'Click to enable/disable filter.',
+
+    assessYourComptence: 'Assess Your Comptence',
+    flipCard: 'Flip the card to see the definition!',
+    flipBack: 'Flip back!',
+    prev: 'Prev',
+    next: 'Next',
+    showBackface: 'Show backface by default',
+    leaveEarly: 'Are you sure you want to leave the drill early?',
+
+    goBack: 'Go Back',
+    rememberedAndUnderstood: 'Concepts remembered and understood',
+    rememberedNotUnderstood: 'Concepts remembered but not understood',
+    understoodNotRemembered: 'Concepts understood but not remembered',
+    notRememberedNotUnderstood: 'Concepts neither remembered nor understood',
+
+    concept: 'Concept',
+    remember: 'Remember',
+    understand: 'Understand',
   },
 
   vis: {
@@ -94,6 +112,37 @@ export const en = {
   },
   updates: {
     header: 'System Updates',
+  },
+  myProfile: {
+    seePersonalNotes: 'See all your personal notes',
+    seeCompetencyData: 'See your competency data',
+
+    downloadData: 'Download Your Data',
+    downloadNotes: 'Download your notes and comments',
+    downloadProfile: 'Download your profile data',
+    dataDeletion: 'Data Deletion',
+    purgeData: 'Purge your data',
+
+    choosePersona: 'Choose Persona',
+    resetFake: 'Reset Fake User Data',
+
+    confirmPurge: 'Confirm Data Purge',
+    purgeWarning:
+      'WARNING: This will delete all data the system has on you (learner model, interaction logs, comments, and notes) except for theinformation that/when you purged the data. Your learning experience may be significantly affected.',
+    dataPurged: 'Data purged',
+    purgeError: 'Some error purging data',
+    purge: 'Purge',
+    cancel: 'Cancel',
+    confirmation: 'Confirmation',
+    confirmText: 'Purge my data',
+    purgeInstruction: 'Enter this text in the box below to confirm',
+  },
+  myLearnerModel: {
+    learnerModel: 'Learner Model',
+    description1:
+      'Using your interactions with the system, we strive to estimate your competency of various concepts. We use the Bloom extended model',
+    description2:
+      ', which classifies learner competencies in six cognitive dimensions for every concept. As a consequence, you see six probability values representing the predicted competency of that concept. This competency model (a.k.a. leaner model) is used in all of the semantic services in the VoLL-KI SSFC System.',
   },
   // Multi-Page Components
   header: {

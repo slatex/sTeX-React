@@ -52,19 +52,39 @@ export const de = {
     },
   },
   flashCards: {
-    header: "Konfigurieren Sie Ihren Lernkartenstapel zum Bohren/Überarbeiten!",
-    chooseCoverage: "Wählen Sie die Abdeckung",
-    chooseCoverageHover: "Wählen Sie die Karten im Stapel nach Kurskapiteln aus",
-    chooseCompetency: "Wählen Sie Kompetenzstufen",
+    header: 'Konfigurieren Sie Ihren Lernkartenstapel zum Bohren/Überarbeiten!',
+    chooseCoverage: 'Wählen Sie die Abdeckung',
+    chooseCoverageHover:
+      'Wählen Sie die Karten im Stapel nach Kurskapiteln aus',
+    chooseCompetency: 'Wählen Sie Kompetenzstufen',
     chooseCompetencyHover:
-      'Choose the competency levels (estimated by the learner model) up to which cards should be included into the card stack',
-    chooseCompetencyDetails: "The selection will put all cards up to the chosen competency level onto the stack.",
-    shuffleCards: "Übungskarten mischen",
-    revise: "Überarbeiten",
-    drill: "Bohren",
-    concepts: "Konzepte",
-    cardsSelected: "Karten ausgewählt",
-    enableDisableFilter: 'Klicken Sie zum Aktivieren/Deaktivieren.'
+      'Wählen Sie die Kompetenzstufen (geschätzt durch das Lernermodell), bis zu denen Karten in den Kartenstapel aufgenommen werden sollen',
+    chooseCompetencyDetails:
+      'Die Auswahl legt alle Karten bis zur gewählten Kompetenzstufe auf den Stapel.',
+    shuffleCards: 'Übungskarten mischen',
+    revise: 'Überarbeiten',
+    drill: 'Üben',
+    concepts: 'Konzepte',
+    cardsSelected: 'Karten ausgewählt',
+    enableDisableFilter: 'Klicken Sie zum Aktivieren/Deaktivieren.',
+
+    assessYourComptence: 'Beurteilen Sie Ihre Kompetenz',
+    flipCard: 'Drehen Sie die Karte um, um die Definition zu sehen!',
+    flipBack: 'Zurückblättern!',
+    prev: 'Vorherige',
+    next: 'Nächste',
+    showBackface: 'Standardmäßig Rückseite anzeigen',
+    leaveEarly: 'Möchten Sie die Übung wirklich vorzeitig verlassen?',
+
+    goBack: 'Geh zurück',
+    rememberedAndUnderstood: 'Konzepte erinnert und verstanden',
+    rememberedNotUnderstood: 'Konzepte erinnert, aber nicht verstanden',
+    understoodNotRemembered: 'Konzepte verstanden, aber nicht erinnert',
+    notRememberedNotUnderstood: 'Konzepte weder erinnert noch verstanden',
+
+    concept: 'Konzept',
+    remember: 'Erinnern',
+    understand: 'Verstehen',
   },
   vis: {
     goToTour: 'Gehen Sie zur Tour',
@@ -72,7 +92,38 @@ export const de = {
   updates: {
     header: 'Systemaktualisierung',
   },
+  myProfile: {
+    seePersonalNotes: 'Sehen Sie alle Ihre persönlichen Notizen',
+    seeCompetencyData: 'Sehen Sie sich Ihre Kompetenzdaten an',
 
+    downloadData: 'Laden Sie Ihre Daten herunter',
+    downloadNotes: 'Laden Sie Ihre Notizen und Kommentare herunter',
+    downloadProfile: 'Laden Sie Ihre Profildaten herunter',
+    dataDeletion: 'Datenlöschung',
+    purgeData: 'Löschen Sie Ihre Daten',
+
+    choosePersona: 'Wählen Sie Persona',
+    resetFake: 'Gefälschte Benutzerdaten zurücksetzen',
+
+    confirmPurge: 'Bestätigen Sie die Datenbereinigung',
+    purgeWarning:
+      'WARNUNG: Dadurch werden alle Daten gelöscht, die das System über Sie hat (Lernmodell, Interaktionsprotokolle, Kommentare und Notizen), mit Ausnahme der Informationen, dass/wann Sie die Daten gelöscht haben. Ihre Lernerfahrung kann erheblich beeinträchtigt werden.',
+    dataPurged: 'Daten gelöscht',
+    purgeError: 'Einige Fehler beim Löschen von Daten',
+    purge: 'Säubern',
+    cancel: 'Stornieren',
+    confirmation: 'Bestätigung',
+    confirmText: 'Meine Daten tilgen',
+    purgeInstruction:
+      'Geben Sie diesen Text zur Bestätigung in das Feld unten ein',
+  },
+  myLearnerModel: {
+    learnerModel: 'Lernmodell',
+    description1:
+      'Anhand Ihrer Interaktionen mit dem System bemühen wir uns, Ihre Kompetenz in Bezug auf verschiedene Konzepte einzuschätzen. Wir verwenden das erweiterte Bloom-Modell ',
+    description2:
+      ', der Lernerkompetenzen für jedes Konzept in sechs kognitive Dimensionen einteilt. Als Folge sehen Sie sechs Wahrscheinlichkeitswerte, die die vorhergesagte Kompetenz dieses Konzepts darstellen. Dieses Kompetenzmodell (auch bekannt als Leaner-Modell) wird in allen semantischen Diensten im VoLL-KI SSFC-System verwendet.',
+  },
   // Multi-Page Components
   header: {
     headerWarning:
