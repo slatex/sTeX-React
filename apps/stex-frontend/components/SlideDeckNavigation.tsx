@@ -15,6 +15,8 @@ import { CourseSection, DeckAndVideoInfo } from '../shared/types';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { useEffect, useReducer, useRef } from 'react';
 import { getUriWeights } from '@stex-react/api';
+import { useRouter } from 'next/router';
+import { getLocaleObject } from '../lang/utils';
 
 const Accordion = styled((props: AccordionProps) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -84,6 +86,9 @@ export function SlideDeckNavigation({
   onSelect: (item: string) => void;
   onClose: () => void;
 }) {
+  const router = useRouter();
+  const { courseView: t } = getLocaleObject(router);
+
   const selectedSectionIdx = sections.findIndex((section) =>
     section.decks.some((deck) => deck.deckId === selected)
   );
@@ -114,7 +119,7 @@ export function SlideDeckNavigation({
           <IconButton sx={{ m: '2px' }} onClick={() => onClose()}>
             <CloseIcon />
           </IconButton>
-          Course Content
+          {t.courseContent}
         </Box>
       }
     >
@@ -139,7 +144,7 @@ function SectionAccordion({
   selectedDeckId,
   selectedSectionIdx,
   competencyMap,
-  onSelect
+  onSelect,
 }: {
   section: CourseSection;
   sectionIdx: number;
@@ -148,13 +153,15 @@ function SectionAccordion({
   competencyMap: Map<string, number | undefined>;
   onSelect: (item: string) => void;
 }) {
-  if (section.isAddlSuggestion && !isSectionNeeded(section, competencyMap)) return <></>;
+  const { courseView: t } = getLocaleObject(useRouter());
+  if (section.isAddlSuggestion && !isSectionNeeded(section, competencyMap))
+    return <></>;
 
   return (
     <Accordion defaultExpanded={true}>
       <AccordionSummary>
         {section.isAddlSuggestion && (
-          <Tooltip title="Personalized Suggestion">
+          <Tooltip title={t.personalizedSuggestion}>
             <AutoAwesomeIcon
               sx={{ color: 'green', fontSize: '18px', pr: '5px' }}
             />
@@ -177,7 +184,8 @@ function SectionAccordion({
                 key={deck.deckId}
                 sx={{
                   cursor: 'pointer',
-                  fontWeight: selectedDeckId === deck.deckId ? 'bold' : undefined,
+                  fontWeight:
+                    selectedDeckId === deck.deckId ? 'bold' : undefined,
                   display: 'flex',
                   alignItems: 'baseline',
                   borderBottom: '1px solid #00000020',

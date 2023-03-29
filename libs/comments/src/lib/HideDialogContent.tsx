@@ -11,15 +11,30 @@ import {
 } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import { HiddenStatus } from '@stex-react/api';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { HiddenState } from './CommentMenu';
+import { getLocaleObject } from './lang/utils';
 
-const STATUS_TO_NAME = new Map<HiddenStatus, string>([
-  [HiddenStatus.ABUSE, 'Abusive'],
-  [HiddenStatus.INCORRECT, 'Mistake/Error/Misunderstanding'],
-  [HiddenStatus.IRRELEVANT, 'Irrelevant discussion'],
-  [HiddenStatus.OTHER, 'Other'],
-]);
+const HIDE_STATUSES = [
+  HiddenStatus.ABUSE,
+  HiddenStatus.INCORRECT,
+  HiddenStatus.IRRELEVANT,
+  HiddenStatus.OTHER,
+];
+function statusToName(h: HiddenStatus, t: any) {
+  switch (h) {
+    case HiddenStatus.ABUSE:
+      return t.abusive;
+    case HiddenStatus.INCORRECT:
+      return t.incorrect;
+    case HiddenStatus.IRRELEVANT:
+      return t.irrelevant;
+    case HiddenStatus.OTHER:
+    default:
+      return t.other;
+  }
+}
 
 export function HideDialogContent({
   forSpam,
@@ -30,14 +45,15 @@ export function HideDialogContent({
   forUnhide: boolean;
   onClose?: (state?: HiddenState) => void;
 }) {
+  const t = getLocaleObject(useRouter());
   const [status, setStatus] = useState('');
   const [hiddenJustification, setJustification] = useState('');
 
   const okString = forSpam
-    ? 'Mark Spam'
+    ? t.markSpam
     : forUnhide
-    ? 'Unhide Comment'
-    : 'Hide Comment';
+    ? t.unhideComment
+    : t.hideComment;
 
   function getState() {
     if (forSpam) {
@@ -58,17 +74,17 @@ export function HideDialogContent({
         <DialogContentText id="alert-dialog-description">
           {!forSpam && !forUnhide && (
             <FormControl fullWidth>
-              <InputLabel id="cause-select-label">Cause</InputLabel>
+              <InputLabel id="cause-select-label">{t.cause}</InputLabel>
               <Select
                 labelId="cause-select-label"
                 id="simple-select"
                 value={status}
-                label="Cause"
+                label={t.cause}
                 onChange={(e) => setStatus(e.target.value)}
               >
-                {Array.from(STATUS_TO_NAME.keys()).map((status) => (
+                {HIDE_STATUSES.map((status) => (
                   <MenuItem key={status} value={HiddenStatus[status]}>
-                    {STATUS_TO_NAME.get(status)}
+                    {statusToName(status, t)}
                   </MenuItem>
                 ))}
               </Select>
@@ -80,7 +96,7 @@ export function HideDialogContent({
             value={hiddenJustification}
             onChange={(e) => setJustification(e.target.value)}
             id="outlined-basic"
-            label="Justification (optional)"
+            label={t.justification}
             variant="outlined"
           />
         </DialogContentText>

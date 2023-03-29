@@ -1,5 +1,4 @@
 import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
-import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import {
@@ -15,9 +14,11 @@ import {
   CommentNoteToggleView
 } from '@stex-react/comments';
 import { getSectionInfo, SECONDARY_COL, SectionInfo } from '@stex-react/utils';
+import { useRouter } from 'next/router';
 import { PropsWithChildren, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { issuesUrlList } from './issueCreator';
+import { getLocaleObject } from './lang/utils';
 import { ReportProblemDialog } from './ReportProblemDialog';
 import { useTextSelection } from './useTextSelection';
 
@@ -58,6 +59,7 @@ function buttonProps(color: string) {
 }
 
 export function ReportProblemPopover(props: Props) {
+  const t = getLocaleObject(useRouter());
   const { clientRect, isCollapsed, textContent, commonAncestor } =
     useTextSelection(props.target);
   const context = getContext(commonAncestor);
@@ -83,7 +85,7 @@ export function ReportProblemPopover(props: Props) {
             }}
           >
             {context?.[0]?.archive && (
-              <Tooltip title="Personal notes and comments">
+              <Tooltip title={t.notesAndComments}>
                 <IconButton
                   sx={{ ...buttonProps(SECONDARY_COL), ml: '5px' }}
                   onClick={() => {
@@ -97,7 +99,7 @@ export function ReportProblemPopover(props: Props) {
                 </IconButton>
               </Tooltip>
             )}
-            <Tooltip title="Report a problem">
+            <Tooltip title={t.reportAProblem}>
               <IconButton
                 sx={buttonProps('#f2c300')}
                 onClick={() => {
@@ -117,7 +119,7 @@ export function ReportProblemPopover(props: Props) {
         open={snackBarOpen}
         autoHideDuration={60000}
         onClose={() => setSnackbarOpen(false)}
-        message={newIssueUrl ? 'New issue created.' : 'Something went wrong!.'}
+        message={newIssueUrl ? t.newIssueCreated : t.somethingWrong}
         action={
           <a
             href={newIssueUrl || issuesUrlList(context)}
@@ -125,7 +127,7 @@ export function ReportProblemPopover(props: Props) {
             rel="noreferrer"
           >
             <b style={{ color: 'dodgerblue' }}>
-              SEE ISSUE{newIssueUrl ? '' : 'S'}&nbsp;
+              {t.seeIssue}{newIssueUrl ? '' : 'S'}&nbsp;
               <OpenInNewIcon
                 fontSize="small"
                 sx={{ verticalAlign: 'bottom' }}

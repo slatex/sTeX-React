@@ -5,9 +5,11 @@ import { useEffect, useState } from 'react';
 import { EditView } from './EditView';
 
 import { Box, Checkbox, FormControlLabel } from '@mui/material';
-import styles from './comments.module.scss';
-import { SelectedInfo } from './selected-info';
 import { FileLocation } from '@stex-react/utils';
+import { useRouter } from 'next/router';
+import styles from './comments.module.scss';
+import { getLocaleObject } from './lang/utils';
+import { SelectedInfo } from './selected-info';
 
 interface CommentReplyProps {
   file: FileLocation;
@@ -32,6 +34,7 @@ export function CommentReply({
   onCancel,
   onUpdate,
 }: CommentReplyProps) {
+  const t = getLocaleObject(useRouter());
   const [name, setName] = useState<string | undefined>(undefined);
 
   useEffect(() => {
@@ -45,7 +48,7 @@ export function CommentReply({
   const commentHeader = !isPrivateNote ? (
     <>
       <span className={styles['user_link']} style={{ marginRight: '20px' }}>
-        {postAnonymously ? <i>Anonymous</i> : name}
+        {postAnonymously ? <i>{t.anonymous}</i> : name}
       </span>
       <FormControlLabel
         control={
@@ -55,7 +58,7 @@ export function CommentReply({
             onChange={(e) => setPostAnonymously(e.target.checked)}
           />
         }
-        label="Hide Identity"
+        label={t.hideIdentity}
       />
     </>
   ) : null;

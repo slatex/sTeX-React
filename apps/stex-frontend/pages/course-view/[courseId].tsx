@@ -9,6 +9,7 @@ import {
   LayoutWithFixedMenu,
 } from '@stex-react/stex-react-renderer';
 import { localStore, shouldUseDrawer } from '@stex-react/utils';
+import { getLocaleObject } from '../../lang/utils';
 import axios from 'axios';
 import { NextPage } from 'next';
 import Link from 'next/link';
@@ -47,6 +48,9 @@ function ToggleModeButton({
   viewMode: ViewMode;
   updateViewMode: (mode: ViewMode) => void;
 }) {
+  const router = useRouter();
+  const { courseView: t } = getLocaleObject(router);
+
   return (
     <ToggleButtonGroup
       value={viewMode}
@@ -62,15 +66,15 @@ function ToggleModeButton({
       }}
       sx={{ m: '5px 0', border: '1px solid black' }}
     >
-      <TooltipToggleButton value={ViewMode.SLIDE_MODE} title="Show slides">
+      <TooltipToggleButton value={ViewMode.SLIDE_MODE} title={t.showSlides}>
         <SlideshowIcon />
       </TooltipToggleButton>
-      <TooltipToggleButton value={ViewMode.VIDEO_MODE} title="Show video">
+      <TooltipToggleButton value={ViewMode.VIDEO_MODE} title={t.showVideo}>
         <VideoCameraFrontIcon />
       </TooltipToggleButton>
       <TooltipToggleButton
         value={ViewMode.COMBINED_MODE}
-        title="Show slides and video"
+        title={t.showSlidesAndVideo}
       >
         <MergeIcon />
       </TooltipToggleButton>
@@ -133,6 +137,7 @@ const CourseViewPage: NextPage = () => {
   const [slideFilepath, setSlideFilepath] = useState('');
 
   const deckEndNodeId = getDeckEndNodeId(deckId, courseInfo);
+  const { courseView: t } = getLocaleObject(router);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -268,7 +273,7 @@ const CourseViewPage: NextPage = () => {
                 passHref
               >
                 <Button size="small" variant="contained" sx={{ mr: '10px' }}>
-                  Notes&nbsp;
+                  {t.notes}&nbsp;
                   <ArticleIcon />
                 </Button>
               </Link>
@@ -302,10 +307,10 @@ const CourseViewPage: NextPage = () => {
 
             {viewMode !== ViewMode.VIDEO_MODE && (
               <CommentNoteToggleView
-                file={{archive: slideArchive, filepath: slideFilepath}}
+                file={{ archive: slideArchive, filepath: slideFilepath }}
                 defaultPrivate={true}
                 extraPanel={{
-                  label: "Instructor's notes",
+                  label: t.instructorNotes,
                   panelContent: (
                     <Box p="5px" sx={{ overflowX: 'auto' }}>
                       <RenderElements elements={preNotes} />

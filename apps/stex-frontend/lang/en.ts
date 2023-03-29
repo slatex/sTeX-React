@@ -144,6 +144,15 @@ export const en = {
     description2:
       ', which classifies learner competencies in six cognitive dimensions for every concept. As a consequence, you see six probability values representing the predicted competency of that concept. This competency model (a.k.a. leaner model) is used in all of the semantic services in the VoLL-KI SSFC System.',
   },
+  courseView: {
+    notes: 'Notes',
+    instructorNotes: "Instructor's notes",
+    showSlides: 'Show slides',
+    showVideo: 'Show video',
+    showSlidesAndVideo: 'Show slides and video',
+    courseContent: 'Course Content',
+    personalizedSuggestion: 'Personalized Suggestion',
+  },
   // Multi-Page Components
   header: {
     headerWarning:
@@ -153,5 +162,7 @@ export const en = {
     logOut: 'Log Out',
     systemUpdate: 'System Updates',
     helpCenter: 'Help Center',
+    privacyPolicy: 'Privacy Policy',
+    legalNotice: 'Legal Notice'
   },
 };

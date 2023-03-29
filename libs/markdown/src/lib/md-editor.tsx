@@ -1,5 +1,7 @@
 import { TextareaAutosize } from '@mui/material';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
+import { getLocaleObject } from './lang/utils';
 import styles from './markdown.module.scss';
 import { MdViewer } from './md-viewer';
 
@@ -24,6 +26,7 @@ export function MdEditor({
   value,
   onValueChange,
 }: MdEditorProps) {
+  const t = getLocaleObject(useRouter());
   const [autoPreview, setAutoPreview] = useState(false);
   const [manualAction, setManualAction] = useState<boolean | undefined>(
     undefined
@@ -59,7 +62,7 @@ export function MdEditor({
           onClick={(_e) => setManualAction(!showPreview)}
           style={{ cursor: 'pointer', userSelect: 'none', fontSize: '12px' }}
         >
-          {showPreview ? 'HIDE PREVIEW' : 'SHOW PREVIEW'}
+          {showPreview ? t.hidePreview : t.showPreview}
         </span>
       )}
       {(showPreview || !editingEnabled) && (

@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { Header } from '../components/Header';
+import { getLocaleObject } from '../lang/utils';
 
 export default function MainLayout({
   title,
@@ -19,6 +20,7 @@ export default function MainLayout({
 }) {
   const { trackPageView } = useMatomo();
   const router = useRouter();
+  const { header: t } = getLocaleObject(router);
   const [prevLoc, setPrevLoc] = useState('');
 
   useEffect(() => {
@@ -63,14 +65,14 @@ export default function MainLayout({
             zIndex: 1,
           }}
         >
-          <Link href="/privacy">Privacy Policy</Link>
+          <Link href="/privacy">{t.privacyPolicy}</Link>
           <a
             target="_blank"
             rel="noreferrer"
             href="https://www.voll-ki.fau.de/impressum"
             style={{ marginRight: '10px' }}
           >
-            Legal Notice
+            {t.legalNotice}
           </a>
         </Toolbar>
       </footer>

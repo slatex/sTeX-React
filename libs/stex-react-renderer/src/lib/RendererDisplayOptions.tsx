@@ -1,7 +1,9 @@
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
 import { ToggleButton, ToggleButtonGroup, Tooltip } from '@mui/material';
+import { useRouter } from 'next/router';
 import { createContext, useContext } from 'react';
+import { getLocaleObject } from './lang/utils';
 
 export const RenderOptions = createContext({
   renderOptions: {
@@ -26,6 +28,7 @@ export function RendererDisplayOptions({
 }: {
   noFrills?: boolean;
 }) {
+  const t = getLocaleObject(useRouter());
   const { renderOptions, setRenderOptions } = useContext(RenderOptions);
   const optionsList = [
     renderOptions.expandOnScroll ? StringOptions.AUTO : undefined,
@@ -51,8 +54,8 @@ export function RendererDisplayOptions({
         <Tooltip
           title={
             renderOptions.allowFolding
-              ? 'Turn Off Section Folding'
-              : 'Turn On Section Folding '
+              ? t.sectionFoldingOff
+              : t.sectionFoldingOn
           }
         >
           <UnfoldLessIcon sx={{ p: '8px' }} />
@@ -62,8 +65,8 @@ export function RendererDisplayOptions({
         <Tooltip
           title={
             renderOptions.expandOnScroll
-              ? 'Turn Off Expand on Scroll'
-              : 'Turn On Expand on Scroll'
+              ? t.expandOnScrollOff
+              : t.expandOnScrollOn
           }
         >
           <AutoAwesomeIcon sx={{ p: '8px' }} />

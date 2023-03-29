@@ -7,6 +7,8 @@ import { useState } from 'react';
 import { CommentSection } from './comment-section';
 import { NotesView } from './notes-view';
 import { FileLocation, SECONDARY_COL } from '@stex-react/utils';
+import { getLocaleObject } from './lang/utils';
+import { useRouter } from 'next/router';
 
 function TabPanel(props: {
   children?: React.ReactNode;
@@ -44,6 +46,7 @@ export function CommentNoteToggleView({
     panelContent: any;
   };
 }) {
+  const t = getLocaleObject(useRouter());
   const [value, setValue] = useState(extraPanel ? 2 : defaultPrivate ? 0 : 1);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -72,7 +75,7 @@ export function CommentNoteToggleView({
                 <sup style={{ margin: '-5px 5px 0 -7px' }}>
                   <LockIcon sx={{ fontSize: '11px' }} />
                 </sup>
-                My Notes
+                {t.myNotes}
               </Box>
             }
           />
@@ -81,7 +84,7 @@ export function CommentNoteToggleView({
             label={
               <Box display="flex" alignItems="center">
                 <PublicIcon sx={{ mr: '5px' }} />
-                Comments
+                {t.comments}
               </Box>
             }
           />

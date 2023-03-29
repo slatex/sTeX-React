@@ -85,8 +85,8 @@ async function getSlidesForDocNodeAfterRef(
   let sectionHasEnded = false;
 
   if (!isDoc && node.attribs) {
-    const property = node.attribs['property'];
-    if (property === 'stex:frame' && foundSection) {
+    const className = node.attribs['class'];
+    if (className?.includes('frame') && foundSection) {
       return {
         slides: [FrameSlide(node, nodeId)],
         foundSection,

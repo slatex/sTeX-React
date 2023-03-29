@@ -10,10 +10,12 @@ import {
   xhtmlPathToTex,
   XhtmlTopDocumentContentUrl,
 } from '@stex-react/utils';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { ContentFromUrl } from './ContentFromUrl';
 import { FileNode } from './FileNode';
 import { FileTree } from './FileTree';
+import { getLocaleObject } from './lang/utils';
 import { LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 
 export function FileBrowser({
@@ -25,6 +27,7 @@ export function FileBrowser({
   topOffset: number;
   standaloneLink: (fileLoc: FileLocation) => string;
 }) {
+  const t = getLocaleObject(useRouter());
   const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
   const [archive, setArchive] = useState('');
   const [filepath, setFilepath] = useState('');
@@ -56,7 +59,7 @@ export function FileBrowser({
                 rel="noreferrer"
               >
                 <Button>
-                  Open Article
+                  {t.openArticle}
                   <OpenInNewIcon />
                 </Button>
               </a>
@@ -66,7 +69,7 @@ export function FileBrowser({
                 rel="noreferrer"
               >
                 <Button>
-                  View Source
+                  {t.viewSource}
                   <OpenInNewIcon />
                 </Button>
               </a>
@@ -78,7 +81,7 @@ export function FileBrowser({
               />
             </>
           ) : (
-            <i>Select an article for preview</i>
+            <i>{t.selectArticle}</i>
           )}
         </Box>
       </Box>

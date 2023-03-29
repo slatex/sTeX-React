@@ -16,8 +16,10 @@ import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import { getUserInfo } from '@stex-react/api';
 import { SectionInfo } from '@stex-react/utils';
+import { useRouter } from 'next/router';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { createNewIssue, IssueCategory, IssueType } from './issueCreator';
+import { getLocaleObject } from './lang/utils';
 
 export function ReportProblemDialog({
   open,
@@ -32,6 +34,7 @@ export function ReportProblemDialog({
   context: SectionInfo[];
   onCreateIssue: (issueUrl: string) => void;
 }) {
+  const t = getLocaleObject(useRouter());
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [type, setType] = useState('');
@@ -58,7 +61,7 @@ export function ReportProblemDialog({
         <TextField
           fullWidth
           id="bug-title-text"
-          label="Title (optional)"
+          label={t.titleLabel}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           sx={{ marginBottom: '10px' }}
@@ -73,7 +76,7 @@ export function ReportProblemDialog({
           }}
         >
           <FormLabel id="category-group-label">
-            There is an issue with the
+            {t.issueCategoryPrompt}
           </FormLabel>
           <RadioGroup
             row
@@ -85,12 +88,12 @@ export function ReportProblemDialog({
             <FormControlLabel
               value={IssueCategory.CONTENT.toString()}
               control={<Radio />}
-              label="information"
+              label={t.information}
             />
             <FormControlLabel
               value={IssueCategory.DISPLAY.toString()}
               control={<Radio />}
-              label="display"
+              label={t.display}
             />
           </RadioGroup>
         </FormControl>
@@ -104,7 +107,7 @@ export function ReportProblemDialog({
             my: '5px',
           }}
         >
-          <FormLabel id="category-group-label">Issue Type</FormLabel>
+          <FormLabel id="category-group-label">{t.issueType}</FormLabel>
           <RadioGroup
             row
             aria-labelledby="type-group-label"
@@ -115,19 +118,19 @@ export function ReportProblemDialog({
             <FormControlLabel
               value={IssueType.ERROR.toString()}
               control={<Radio />}
-              label="Something is wrong"
+              label={t.errorType}
             />
             <FormControlLabel
               value={IssueType.SUGGESTION.toString()}
               control={<Radio />}
-              label="I have a suggestion"
+              label={t.suggestionType}
             />
           </RadioGroup>
         </FormControl>
         <span
           style={{ display: 'block', color: '#00000099', margin: '5px 0 0' }}
         >
-          SELECTED CONTENT
+          {t.selectedContent}
         </span>
         <Box
           sx={{
@@ -142,14 +145,13 @@ export function ReportProblemDialog({
           {selectedText}
         </Box>
         <FormHelperText sx={{ margin: '0 5px 15px 0' }}>
-          *The created issue contains context information such as the url and
-          position of selected text in the document.
+          *{t.helperText}
         </FormHelperText>
 
         <TextField
           error={descriptionError}
           fullWidth
-          label="Issue Description"
+          label={t.issueDescription}
           style={{ textAlign: 'left' }}
           multiline
           rows={4}
@@ -164,21 +166,19 @@ export function ReportProblemDialog({
                 onChange={(e) => setPostAnonymously(e.target.checked)}
               />
             }
-            label="Post Anonymously"
+            label={t.postAnonymously}
           />
         )}
         <i style={{ display: 'block' }}>
           {!postAnonymously &&
             !!userName &&
-            `Your name (${userName}) will be shared.`}
-          {postAnonymously &&
-            !!userName &&
-            `Posting anonymously will make it impossible for us to follow-up or thank you.`}
+            t.nameShared.replace('$1', userName)}
+          {postAnonymously && !!userName && t.anonymousRegret}
         </i>
       </DialogContent>
       <DialogActions>
         <Button disabled={isCreating} onClick={() => setOpen(false)}>
-          Cancel
+          {t.cancel}
         </Button>
         <Button
           disabled={anyError || isCreating}
@@ -199,7 +199,7 @@ export function ReportProblemDialog({
           }}
           autoFocus
         >
-          Create Issue
+          {t.createIssue}
         </Button>
         {isCreating ? (
           <CircularProgress size={20} sx={{ ml: '5px' }} />

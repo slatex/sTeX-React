@@ -23,8 +23,10 @@ import {
   simpleHash,
 } from '@stex-react/utils';
 import axios from 'axios';
+import { useRouter } from 'next/dist/client/router';
 import { memo, useContext, useEffect, useRef, useState } from 'react';
 import { ContentFromUrl } from './ContentFromUrl';
+import { getLocaleObject } from './lang/utils';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 import { mmtHTMLToReact } from './mmtParser';
 import {
@@ -88,6 +90,7 @@ function ItemBreadcrumbs({
   allItemsMap: Map<string, TourItem>;
   addToTempShowUri: (uri: string) => void;
 }) {
+  const t = getLocaleObject(useRouter());
   const succChain = getSuccessorChain(item, allItemsMap);
   return (
     <>
@@ -108,7 +111,7 @@ function ItemBreadcrumbs({
       </ul>
       {!!item.dependencies.length && (
         <Box display="flex" alignItems="center" flexWrap="wrap">
-          Needs:&nbsp;
+          {t.needs}:&nbsp;
           {item.dependencies.map((depUri) => {
             const dep = allItemsMap.get(depUri);
             if (!dep) return null;
@@ -152,6 +155,7 @@ function TourItemDisplay({
   onHideTemp: () => void;
   addToTempShowUri: (uri: string) => void;
 }) {
+  const t = getLocaleObject(useRouter());
   const ref = useRef();
   const isVisible = useOnScreen(ref);
   useEffect(() => {
@@ -185,7 +189,7 @@ function TourItemDisplay({
                   variant="outlined"
                   sx={{ mr: '10px' }}
                 >
-                  Hide
+                  {t.hide}
                 </Button>
               )}
               <SelfAssessmentDialog
@@ -378,6 +382,7 @@ function NavBar({
   itemVisibility: any;
   onClose: () => void;
 }) {
+  const t = getLocaleObject(useRouter());
   useEffect(() => {
     scrollNavToShowVisibleItems(items, itemVisibility);
   }, [items]);
@@ -389,7 +394,7 @@ function NavBar({
           <IconButton sx={{ m: '2px' }} onClick={() => onClose()}>
             <CloseIcon />
           </IconButton>
-          Guided Tour
+          {t.guidedTour}
         </Box>
       }
     >

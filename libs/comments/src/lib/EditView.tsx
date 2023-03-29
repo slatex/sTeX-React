@@ -2,8 +2,10 @@ import { Box, Button } from '@mui/material';
 import { addComment, Comment, editComment, getUserInfo } from '@stex-react/api';
 import { MdEditor } from '@stex-react/markdown';
 import { FileLocation } from '@stex-react/utils';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { discardDraft, retrieveDraft, saveDraft } from './comment-helpers';
+import { getLocaleObject } from './lang/utils';
 
 interface EditViewProps {
   file: FileLocation;
@@ -34,6 +36,7 @@ export function EditView({
   const [error, setError] = useState<any>(undefined);
   const [inputText, setInputText] = useState(existingComment?.statement || '');
   const [userName, setUserName] = useState<string | undefined>(undefined);
+  const t = getLocaleObject(useRouter());
 
   useEffect(() => {
     getUserInfo().then((userInfo) => {
@@ -73,7 +76,7 @@ export function EditView({
     } catch (err) {
       setIsLoading(false);
       setError(err);
-      alert('Comment could not be updated');
+      alert(t.updateFailure);
       return;
     }
     discardDraft(file, parentId);
@@ -108,7 +111,7 @@ export function EditView({
             onClick={(_) => onCancel && onCancel()}
             sx={{ mr: '10px' }}
           >
-            Cancel
+            {t.cancel}
           </Button>
         )}
         <Button
@@ -118,7 +121,7 @@ export function EditView({
           hidden={hidden}
           onClick={(_) => addUpdateComment()}
         >
-          {existingComment ? 'Update' : isPrivateNote ? 'Save' : 'Post'}
+          {existingComment ? t.update : isPrivateNote ? t.save : t.post}
         </Button>
       </Box>
     </fieldset>

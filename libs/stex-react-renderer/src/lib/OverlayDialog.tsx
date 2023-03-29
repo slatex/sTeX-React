@@ -1,9 +1,11 @@
 import { OpenInNew } from '@mui/icons-material';
 import { Box, Button, Dialog, DialogActions, IconButton } from '@mui/material';
 import { getChildrenOfBodyNode } from '@stex-react/utils';
+import { useRouter } from 'next/router';
 import { ReactNode, useContext, useState } from 'react';
 import { ContentFromUrl } from './ContentFromUrl';
 import { ErrorBoundary } from './ErrorBoundary';
+import { getLocaleObject } from './lang/utils';
 import { ServerLinksContext } from './stex-react-renderer';
 
 export interface OverlayDialogProps {
@@ -17,6 +19,7 @@ export function OverlayDialog({
   displayNode,
   isMath,
 }: OverlayDialogProps) {
+  const t = getLocaleObject(useRouter());
   const [open, setOpen] = useState(false);
   const { mmtUrl } = useContext(ServerLinksContext);
 
@@ -51,7 +54,7 @@ export function OverlayDialog({
           />
 
           <DialogActions sx={{ p: '0' }}>
-            <Button onClick={() => setOpen(false)}>Close</Button>
+            <Button onClick={() => setOpen(false)}>{t.close}</Button>
           </DialogActions>
         </Box>
       </Dialog>

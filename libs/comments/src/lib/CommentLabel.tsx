@@ -4,7 +4,7 @@ import {
   getUserInfo,
   isHiddenNotSpam,
   isSpam,
-  MODERATORS
+  MODERATORS,
 } from '@stex-react/api';
 import { DateView } from '@stex-react/react-utils';
 import { useEffect, useState } from 'react';
@@ -12,6 +12,8 @@ import { CommentMenu } from './CommentMenu';
 
 import { Box, Button, Tooltip } from '@mui/material';
 import styles from './comments.module.scss';
+import { getLocaleObject } from './lang/utils';
+import { useRouter } from 'next/router';
 
 export function CommentLabel({
   comment,
@@ -27,6 +29,7 @@ export function CommentLabel({
   const [fromCurrentUser, setFromCurrentUser] = useState(false);
   const [canModerate, setCanModerate] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const t = getLocaleObject(useRouter());
   const isPrivateNote = !!comment?.isPrivate;
 
   const hiddenStatus = comment?.hiddenStatus;
@@ -48,9 +51,7 @@ export function CommentLabel({
   }, [comment?.userId]);
 
   if (comment.isDeleted)
-    return (
-      <i className={styles['deleted_message']}>This comment was deleted.</i>
-    );
+    return <i className={styles['deleted_message']}>{t.wasDeleted}</i>;
 
   return (
     <Box
@@ -71,7 +72,7 @@ export function CommentLabel({
         <DateView timestampMs={(comment.postedTimestampSec || 0) * 1000} />
         {comment.isEdited && (
           <span style={{ display: 'inline', fontSize: '12px', color: 'grey' }}>
-            &nbsp;&#x2022; edited
+            &nbsp;&#x2022; {t.edited}
           </span>
         )}
         {isLoggedIn && !isPrivateNote && (
@@ -83,7 +84,7 @@ export function CommentLabel({
               sx={{ p: '0', mt: '-6px' }}
             >
               <ReplyIcon />
-              &nbsp;Reply
+              &nbsp;{t.reply}
             </Button>
           </>
         )}

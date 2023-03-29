@@ -23,6 +23,8 @@ import { CommentView } from './CommentView';
 import { Refresh } from '@mui/icons-material';
 import styles from './comments.module.scss';
 import { FileLocation } from '@stex-react/utils';
+import { getLocaleObject } from './lang/utils';
+import { useRouter } from 'next/router';
 
 function RenderTree({
   comment,
@@ -145,6 +147,7 @@ export function CommentSection({
   allCommentsMode?: boolean;
 }) {
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
+  const t = getLocaleObject(useRouter());
 
   // Menu Crap start
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -225,9 +228,7 @@ export function CommentSection({
       <hr style={{ margin: '0 0 10px' }} />
       {canAddComment && !allCommentsMode && (
         <CommentReply
-          placeholder={
-            numComments ? 'Join the discussion' : 'Start the discussion'
-          }
+          placeholder={numComments ? t.joinDiscussion : t.startDiscussion}
           parentId={0}
           file={file}
           isPrivateNote={false}
@@ -251,12 +252,12 @@ export function CommentSection({
       >
         <MenuItem onClick={closeAnd(() => filters.onShowHidden())}>
           {filters.showHidden ? <CheckIcon /> : <CheckBoxOutlineBlankIcon />}
-          &nbsp;Show hidden comments
+          &nbsp;{t.showHidden}
         </MenuItem>
         {canModerate && (
           <MenuItem onClick={closeAnd(() => filters.onShowSpam())}>
             {filters.showSpam ? <CheckIcon /> : <CheckBoxOutlineBlankIcon />}
-            &nbsp;Show spam
+            &nbsp;{t.showSpam}
           </MenuItem>
         )}
       </Menu>

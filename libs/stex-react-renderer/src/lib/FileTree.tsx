@@ -8,8 +8,10 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import { Box, IconButton, LinearProgress, TextField } from '@mui/material';
 import { FileLocation } from '@stex-react/utils';
 import axios from 'axios';
+import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import { FileNode } from './FileNode';
+import { getLocaleObject } from './lang/utils';
 import { FixedPositionMenu } from './LayoutWithFixedMenu';
 import { ServerLinksContext } from './stex-react-renderer';
 import styles from './stex-react-renderer.module.scss';
@@ -150,6 +152,7 @@ export function FileTree({
   onSelectedFile: SetSelectedFileFunction;
   onClose: () => void;
 }) {
+  const t = getLocaleObject(useRouter());
   const [fileTree, setFileTree] = useState(defaultRootNodes);
   const [filterStr, setFilterStr] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -186,7 +189,7 @@ export function FileTree({
           </IconButton>
           <TextField
             id="tree-filter-string"
-            label="Search"
+            label={t.search}
             value={filterStr}
             onChange={(e) => setFilterStr(e.target.value)}
             sx={{ m: '3px' }}

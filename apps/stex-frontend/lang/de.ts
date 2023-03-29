@@ -16,7 +16,7 @@ export const de = {
       'Lernenden bewerten ihre Konzeptbeherrschung selbst, was uns hilft, ' +
       'die in Übungen gezeigten Karten zu aktualisieren.',
     courseThumb: {
-      notes: 'Vorlesungsnotizenx',
+      notes: 'Notizen',
       cards: 'Karten',
       slides: 'Folien',
     },
@@ -124,6 +124,15 @@ export const de = {
     description2:
       ', der Lernerkompetenzen für jedes Konzept in sechs kognitive Dimensionen einteilt. Als Folge sehen Sie sechs Wahrscheinlichkeitswerte, die die vorhergesagte Kompetenz dieses Konzepts darstellen. Dieses Kompetenzmodell (auch bekannt als Leaner-Modell) wird in allen semantischen Diensten im VoLL-KI SSFC-System verwendet.',
   },
+  courseView: {
+    notes: 'Notizen',
+    instructorNotes: "Notizen des Lehrers",
+    showSlides: 'Folien anzeigen',
+    showVideo: 'Videos zeigen',
+    showSlidesAndVideo: 'Zeigen Sie Folien und Videos',
+    courseContent: 'Kursinhalt',
+    personalizedSuggestion: 'Personalisierter Vorschlag',
+  },
   // Multi-Page Components
   header: {
     headerWarning:
@@ -133,5 +142,7 @@ export const de = {
     logOut: 'Ausloggen',
     systemUpdate: 'Systemaktualisierung',
     helpCenter: 'Hilfezentrum',
+    privacyPolicy: 'Datenschutz-Bestimmungen',
+    legalNotice: 'Impressum'
   },
 };

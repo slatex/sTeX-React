@@ -7,10 +7,8 @@ import { Box, IconButton, TextField, Tooltip } from '@mui/material';
 import {
   convertHtmlStringToPlain,
   createHash,
-  fileLocToString,
   getSectionInfo,
   localStore,
-  simpleHash,
 } from '@stex-react/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
@@ -21,6 +19,7 @@ import {
   TOCNodeType,
   TOCSectionNode,
 } from './collectIndexInfo';
+import { getLocaleObject } from './lang/utils';
 import { FixedPositionMenu } from './LayoutWithFixedMenu';
 import { RendererDisplayOptions } from './RendererDisplayOptions';
 import { ServerLinksContext } from './stex-react-renderer';
@@ -141,7 +140,7 @@ function RenderTree({
                 paths.reverse().join('.') + '~' + node.tocNode.id;
               const fileId = router.query['id'];
               localStore?.setItem(`inDocPath-${fileId}`, inDocPath);
-              router.replace({query: {...router.query, inDocPath}});
+              router.replace({ query: { ...router.query, inDocPath } });
             }
           }}
         >
@@ -230,6 +229,7 @@ export function ContentDashboard({
   onClose: () => void;
   contentUrl: string;
 }) {
+  const t = getLocaleObject(useRouter());
   const [filterStr, setFilterStr] = useState('');
   const [defaultOpen, setDefaultOpen] = useState(true);
   const [dashInfo, setDashInfo] = useState<TOCNode | undefined>(undefined);
@@ -268,7 +268,7 @@ export function ContentDashboard({
             </IconButton>
             <TextField
               id="tree-filter-string"
-              label="Search"
+              label={t.search}
               value={filterStr}
               onChange={(e) => setFilterStr(e.target.value)}
               sx={{ mx: '5px', width: '100%' }}
@@ -276,7 +276,7 @@ export function ContentDashboard({
             />
           </Box>
           <Box display="flex" justifyContent="space-between" m="5px 10px">
-            <Tooltip title="Expand/collapse all">
+            <Tooltip title={t.expandCollapseAll}>
               <IconButton
                 onClick={() => setDefaultOpen((v) => !v)}
                 sx={{ border: '1px solid #CCC', borderRadius: '40px' }}

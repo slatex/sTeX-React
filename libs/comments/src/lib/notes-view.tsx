@@ -1,13 +1,14 @@
+import { Refresh } from '@mui/icons-material';
 import { Box, IconButton } from '@mui/material';
 import { Comment, getUserInfo } from '@stex-react/api';
+import { FileLocation } from '@stex-react/utils';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { getPrivateNotes, refreshAllComments } from './comment-store-manager';
 import { CommentReply } from './CommentReply';
-import { CommentView } from './CommentView';
-
-import { Refresh } from '@mui/icons-material';
 import styles from './comments.module.scss';
-import { FileLocation } from '@stex-react/utils';
+import { CommentView } from './CommentView';
+import { getLocaleObject } from './lang/utils';
 
 export function NotesView({
   file,
@@ -20,6 +21,7 @@ export function NotesView({
   selectedElement?: any;
   allNotesMode?: boolean;
 }) {
+  const t = getLocaleObject(useRouter());
   const [userId, setUserId] = useState<string | undefined>(undefined);
   const [notes, setNotes] = useState([] as Comment[]);
 
@@ -40,14 +42,12 @@ export function NotesView({
     return (
       <Box m="10px">
         <i>
-          Please{' '}
           <a
             href={'/login?target=' + encodeURIComponent(window.location.href)}
             style={{ textDecoration: 'underline' }}
           >
-            <b>login</b>
-          </a>{' '}
-          to save notes.
+            <b>{t.loginForNotes}</b>
+          </a>
         </i>
       </Box>
     );
@@ -66,7 +66,7 @@ export function NotesView({
       <hr style={{ margin: '0 0 15px' }} />
       {!allNotesMode && (
         <CommentReply
-          placeholder="Create a private note here…"
+          placeholder={t.createPrivate}
           parentId={0}
           file={file}
           isPrivateNote={true}

@@ -1,22 +1,24 @@
 import BlockIcon from '@mui/icons-material/Block';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import ShieldTwoToneIcon from '@mui/icons-material/ShieldTwoTone';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { Dialog, IconButton, Menu, MenuItem } from '@mui/material';
-import { ReactNode, useState } from 'react';
 import {
-  deleteComment,
-  updateCommentState,
   Comment,
+  deleteComment,
   HiddenStatus,
   isHiddenNotSpam,
   isSpam,
+  updateCommentState,
 } from '@stex-react/api';
 import { ConfirmDialogContent } from '@stex-react/react-utils';
+import { useRouter } from 'next/router';
+import { ReactNode, useState } from 'react';
 import { HideDialogContent } from './HideDialogContent';
-import EditIcon from '@mui/icons-material/Edit';
+import { getLocaleObject } from './lang/utils';
 
 const P_DELETE = 'delete';
 const P_HIDE = 'hide';
@@ -73,6 +75,7 @@ export function CommentMenu({
   setEditingComment: any;
   onUpdate: () => void;
 }) {
+  const t = getLocaleObject(useRouter());
   // menu crap start
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -99,7 +102,7 @@ export function CommentMenu({
         // asyncState.endProcess(P_DELETE);
         onUpdate();
       },
-      (err) => alert('Failed to delete comment')
+      (err) => alert(t.deleteFailure)
       //(err) => asyncState.failProcess(err, 'Failed to delete comment', P_DELETE)
     );
   }
@@ -118,7 +121,7 @@ export function CommentMenu({
         onUpdate();
         // asyncState.endProcess(P_HIDE);
       },
-      (err) => alert('Failed to update comment')
+      (err) => alert(t.updateFailure)
       //(err) => asyncState.failProcess(err, 'Failed to update comment', P_HIDE)
     );
   }
@@ -153,7 +156,7 @@ export function CommentMenu({
             }}
           >
             <EditIcon />
-            &nbsp;Edit
+            &nbsp;{t.edit}
           </MenuItem>
         )}
         {canEditComment && (
@@ -161,14 +164,14 @@ export function CommentMenu({
             menuContent={
               <>
                 <DeleteIcon />
-                &nbsp;Delete
+                &nbsp;{t.delete}
               </>
             }
             dialogContentCreator={(onClose: (confirmed: boolean) => void) => (
               <ConfirmDialogContent
-                textContent="Are you sure you want to delete this comment?"
-                title="Delete Comment"
-                okText="Delete"
+                textContent={t.deletePrompt}
+                title={t.deleteTitle}
+                okText={t.delete}
                 onClose={onClose}
               />
             )}
@@ -184,7 +187,7 @@ export function CommentMenu({
             menuContent={
               <>
                 <VisibilityOffIcon />
-                &nbsp;Hide Below
+                &nbsp;{t.hideBelow}
                 {moderatorIcon}
               </>
             }
@@ -206,7 +209,7 @@ export function CommentMenu({
             menuContent={
               <>
                 <VisibilityIcon />
-                &nbsp;Unhide
+                &nbsp;{t.unhide}
                 {moderatorIcon}
               </>
             }
@@ -228,7 +231,7 @@ export function CommentMenu({
             menuContent={
               <>
                 <BlockIcon />
-                &nbsp;Spam
+                &nbsp;{t.spam}
                 {moderatorIcon}
               </>
             }

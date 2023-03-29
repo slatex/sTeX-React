@@ -19,6 +19,8 @@ import {
   getPrivateNotes,
   getPublicCommentTrees,
 } from './comment-store-manager';
+import { getLocaleObject } from './lang/utils';
+import { useRouter } from 'next/router';
 
 function buttonProps(backgroundColor: string) {
   return {
@@ -84,6 +86,7 @@ export function CommentButton({ url = '' }: { url?: string }) {
   const [defaultPrivate, setDefaultPrivate] = useState(true);
   const [topComment, setTopComment] = useState<Comment | undefined>(undefined);
   const [topNote, setTopNote] = useState<Comment | undefined>(undefined);
+  const t = getLocaleObject(useRouter());
 
   useEffect(() => {
     if (!archive || !filepath) {
@@ -132,13 +135,13 @@ export function CommentButton({ url = '' }: { url?: string }) {
               <Box>
                 <b>{topComment?.userName}</b>&nbsp;<i>says:</i>
                 <MdViewer content={topComment?.statement || ''} />
-                {numPublicComments > 1 ? '..and more' : ''}
+                {numPublicComments > 1 ? t.andMore : ''}
               </Box>
             ) : (
               <span>
-                Add a comment to this slide
+                {t.addToSlide}
                 <br />
-                Selecting a region allows comments localized to the region
+                {t.selectionSuggestion}
               </span>
             )
           }
@@ -166,7 +169,7 @@ export function CommentButton({ url = '' }: { url?: string }) {
             file={{ archive, filepath }}
           />
           <DialogActions sx={{ p: '0' }}>
-            <Button onClick={() => setOpen(false)}>Close</Button>
+            <Button onClick={() => setOpen(false)}>{t.close}</Button>
           </DialogActions>
         </Dialog>
       )}

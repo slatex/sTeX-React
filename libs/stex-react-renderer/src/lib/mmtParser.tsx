@@ -3,13 +3,7 @@ import TourIcon from '@mui/icons-material/Tour';
 import { Box, Button, IconButton } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Tooltip, { tooltipClasses, TooltipProps } from '@mui/material/Tooltip';
-import {
-  BG_COLOR,
-  fileLocToString,
-  getSectionInfo,
-  IS_MMT_VIEWER,
-  localStore,
-} from '@stex-react/utils';
+import { IS_MMT_VIEWER, localStore } from '@stex-react/utils';
 import parse, { DOMNode, domToReact, Element } from 'html-react-parser';
 import { ElementType } from 'htmlparser2';
 import Link from 'next/link';

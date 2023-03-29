@@ -6,6 +6,8 @@ import { IconButton, Menu, MenuItem, Snackbar } from '@mui/material';
 import { useContext, useState } from 'react';
 import { getSectionInfo } from '@stex-react/utils';
 import { RenderOptions } from './RendererDisplayOptions';
+import { getLocaleObject } from './lang/utils';
+import { useRouter } from 'next/router';
 
 export function ExpandableContextMenu({
   sectionLink,
@@ -14,6 +16,7 @@ export function ExpandableContextMenu({
   sectionLink?: string;
   contentUrl: string;
 }) {
+  const t = getLocaleObject(useRouter());
   // menu crap start
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -57,7 +60,7 @@ export function ExpandableContextMenu({
         open={snackBarOpen}
         autoHideDuration={4000}
         onClose={() => setSnackbarOpen(false)}
-        message="Link Copied to Clipboard"
+        message={t.linkCopied}
       />
       <Menu
         id="comment-menu"
@@ -76,7 +79,7 @@ export function ExpandableContextMenu({
             }}
           >
             <LinkIcon />
-            &nbsp;Copy Section Link
+            &nbsp;{t.copySectionLink}
           </MenuItem>
         )}
         <MenuItem
@@ -93,7 +96,7 @@ export function ExpandableContextMenu({
             style={{ display: 'flex', padding: '6px 16px', width: '100%' }}
           >
             <IntegrationInstructionsIcon />
-            &nbsp;View Source&nbsp;
+            &nbsp;{t.viewSource}&nbsp;
             <OpenInNewIcon sx={{ fontSize: '14px' }} fontSize="small" />
           </a>
         </MenuItem>
