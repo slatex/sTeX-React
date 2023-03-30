@@ -6,12 +6,10 @@ import { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
 
 function customReplaceFunc(d: any) {
-  if (d.name === 'img' && d['attribs']['id'] === 'lernkurve')
-    return <CycleImage />;
   if (d.name === 'body') d.name = 'div';
 }
 
-const PPTeachersAndTas: NextPage = () => {
+const PPStudents: NextPage = () => {
   const [renderedHtml, setRenderedHtml] = useState<any>(undefined);
   useEffect(() => {
     axios.get('/exp_res/pp_students.htm').then((resp) => {
@@ -27,4 +25,4 @@ const PPTeachersAndTas: NextPage = () => {
   );
 };
 
-export default PPTeachersAndTas;
+export default PPStudents;
