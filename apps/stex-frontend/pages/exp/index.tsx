@@ -67,6 +67,11 @@ const ExperimentsHome: NextPage = () => {
             </Link>
             <br />
             <br />
+            <Link href="/exp/pp_students">
+              <Button variant="contained">Student competency assessment</Button>
+            </Link>
+            <br />
+            <br />
             <BrowserAutocomplete />
             <ToursAutocomplete />
             <br />
