@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<!-- iMessage CSS by Matt Smith: https://codepen.io/AllThingsSmitty/pen/jommGQ -->
+		<style>
+			.center {
+				margin: auto;
+				width: 800px;
+				padding: 10px;
+			}
+			
+			.warning {
+				margin: auto;
+				width: 500px;
+				padding: 10px;
+				background-color: red;
+				color: white;
+			}
+
+			button {
+				font-family: Arial, sans-serif;
+				font-size: 13px;
+				font-weight: bold;
+				color: #fff;
+				background-color: #1e90ff;
+				border: none;
+				padding: 5px 6px;
+				border-radius: 4px;
+				cursor: pointer;
+				box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+				transition: background-color 0.3s ease-in-out;
+			}
+
+			button:hover {
+				background-color: #007acc;
+			}
+
+			body {
+				overflow-y: scroll;
+			}
+			
+			.dialogue-options {
+				display: flex;
+				flex-direction: row;
+				justify-content: flex-end;
+				align-items: center;
+				margin: 20px;
+			}
+
+			.dialogue-options button {
+				background-color: #48BEFF;
+				border: none;
+				border-radius: 10px;
+				color: #4D4D4D;
+				font-size: 16px;
+				font-weight: bold;
+				padding: 10px 20px;
+				margin: 0px 5px;
+			}
+
+			.dialogue-options button:hover {
+				cursor: pointer;
+				background-color: #248bf5;
+			}
+
+			.imessage {
+				background-color: #fff;
+				border-radius: 0.25rem;
+				display: flex;
+				flex-direction: column;
+				font-family: "SanFrancisco";
+				font-size: 1.25rem;
+				margin: 0 auto 1rem;
+				max-width: 600px;
+				padding: 0.5rem 1.5rem;
+			}
+
+			.imessage p {
+				border-radius: 1.15rem;
+				line-height: 1.25;
+				max-width: 75%;
+				padding: 0.5rem .875rem;
+				position: relative;
+				word-wrap: break-word;
+			}
+
+			.imessage p::before,
+			.imessage p::after {
+				bottom: -0.1rem;
+				content: "";
+				height: 1rem;
+				position: absolute;
+			}
+
+			p.from-me {
+				align-self: flex-end;
+				background-color: #248bf5;
+				color: #fff; 
+			}
+
+			p.from-me::before {
+				border-bottom-left-radius: 0.8rem 0.7rem;
+				border-right: 1rem solid #248bf5;
+				right: -0.35rem;
+				transform: translate(0, -0.1rem);
+			}
+
+			p.from-me::after {
+				background-color: #fff;
+				border-bottom-left-radius: 0.5rem;
+				right: -40px;
+				transform:translate(-30px, -2px);
+				width: 10px;
+			}
+
+			p[class^="from-"] {
+				margin: 0.5rem 0;
+				width: fit-content;
+			}
+
+			p.from-me ~ p.from-me {
+				margin: 0.25rem 0 0;
+			}
+
+			p.from-me ~ p.from-me:not(:last-child) {
+				margin: 0.25rem 0 0;
+			}
+
+			p.from-me ~ p.from-me:last-child {
+				margin-bottom: 0.5rem;
+			}
+
+			p.from-them {
+				align-items: flex-start;
+				background-color: #e5e5ea;
+				color: #000;
+			}
+
+			p.from-them:before {
+				border-bottom-right-radius: 0.8rem 0.7rem;
+				border-left: 1rem solid #e5e5ea;
+				left: -0.35rem;
+				transform: translate(0, -0.1rem);
+			}
+
+			p.from-them::after {
+				background-color: #fff;
+				border-bottom-right-radius: 0.5rem;
+				left: 20px;
+				transform: translate(-30px, -2px);
+				width: 10px;
+			}
+
+			.no-tail::before {
+				display: none;
+			}
+
+			.margin-b_none {
+				margin-bottom: 0 !important;
+			}
+
+			.margin-b_one {
+				margin-bottom: 1rem !important;
+			}
+
+			.margin-t_one {
+				margin-top: 1rem !important;
+			}
+
+			.container {
+				margin: 0 auto;
+				max-width: 600px;
+				padding: 1rem;
+			}
+
+			h1 {
+				font-weight: normal;
+				margin-bottom: 0.5rem;
+			}
+
+			h2 {
+				border-bottom: 1px solid #e5e5ea;
+				color: #666;
+				font-weight: normal;
+				margin-top: 0;
+				padding-bottom: 1.5rem;
+			}
+
+			.comment {
+				color: #222;
+				font-size: 1.25rem;
+				line-height: 1.5;
+				margin-bottom: 1.25rem;
+				max-width: 100%;
+				padding: 0;
+			}
+
+			@media screen and (max-width: 800px) {
+				body {
+					margin: 0 0.5rem;
+				}
+
+				.container {
+					padding: 0.5rem;
+				}
+
+				.imessage {
+					font-size: 1.05rem;
+					margin: 0 auto 1rem;
+					max-width: 600px;
+					padding: 0.25rem 0.875rem;
+				}
+
+				.imessage p {
+					margin: 0.5rem 0;
+				}
+			}
+		</style>
+		<title>Guided Tour Dialogue</title>
+	</head>
+
+	<body>
+		<div class="center">
+			<h1>Guided Tour: Pythagorean Theorem</h1>
+			<button>Switch Context</button> <a href=""><button>Return to Notes</button></a>
+		</div>
+
+		<div class="center">
+			<div class="imessage">
+				<p class="from-them no-tail">
+					Hello, Jonas. It seems like you want to learn more about the 
+					Pythagorean Theorem. 
+				</p>
+				<p class="from-them">
+					This topic concerns right-angled triangles. Do you already
+					feel comfortable with that topic?
+				</p>
+				<p class="from-me">
+					I'm not sure...
+				</p>
+				<p class="from-them no-tail">
+					That is okay. We can do a small exercise and find out.
+					Please try to answer the following problem:
+				</p>
+				<p class="from-them">
+					In a right-angled triangle, one of the angles at the longest side
+					is 60°. What would that make the other angle on the longest side?
+				</p>
+				<p class="from-me">
+					30°
+				</p>
+				<p class="from-them no-tail">
+					That is correct! Okay, let's talk about the Pythagorean Theorem.
+				</p>
+				<p class="from-them no-tail">
+					The Pythagorean Theorem states that in a right-angled triangle,
+					the square of the hypothenuse (the longest side, opposite the 
+					right angle) is equal to the sum of the squares of the two other 
+					sides. Often, this is expressed as a² + b² = c².<br/>
+					
+					<img height="150px" src="/exp_res/right_triangle.png">
+				</p>
+				<p class="from-them">
+					Do you see why this would be true?
+				</p>
+				<p class="from-me">
+					No
+				</p>
+				<p class="from-them no-tail">
+					No problem! There are multiple ways to convince yourself that this
+					theorem is indeed true. Here is one of them, a geometric proof.
+				</p>
+				<p class="from-them no-tail">
+					<img height="250px" src="/exp_res/pythagoras_animated.gif">
+				</p>
+				<p class="from-them">
+					Do you understand now why this is true?
+				</p>
+				<p class="from-me">
+					Yes
+				</p>
+				<p class="from-them no-tail">
+					Glad to hear it. Let's put it to the test. Please solve the
+					following problem:
+				</p>
+				<p class="from-them">
+					In a right-angled triangle, the hypothenuse is 5 units long.
+					One of the shorter sides is 4 units long. Using the Pythagorean
+					Theorem, calculate the length of the remaining side.
+				</p>
+			</div>
+		
+			<div class="dialogue-options" id="dialogue">
+				<button>1 unit</button>
+				<a href="/exp_res/dialogue_5_yes.htm#dialogue"><button>3 units</button></a>
+				<button>9 units</button>
+				<button>Not enough information</button>
+			</div>
+		</div>
+	</body>
+</html>

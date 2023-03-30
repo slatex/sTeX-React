@@ -72,6 +72,11 @@ const ExperimentsHome: NextPage = () => {
             </Link>
             <br />
             <br />
+            <Link href="/exp/pp_dialogue_tour">
+              <Button variant="contained">Dialogue Guided Tour</Button>
+            </Link>
+            <br />
+            <br />
             <BrowserAutocomplete />
             <ToursAutocomplete />
             <br />
