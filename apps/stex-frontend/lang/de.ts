@@ -66,7 +66,6 @@ export const de = {
     drill: 'Üben',
     concepts: 'Konzepte',
     cardsSelected: 'Karten ausgewählt',
-    enableDisableFilter: 'Klicken Sie zum Aktivieren/Deaktivieren.',
 
     assessYourComptence: 'Beurteilen Sie Ihre Kompetenz',
     flipCard: 'Drehen Sie die Karte um, um die Definition zu sehen!',

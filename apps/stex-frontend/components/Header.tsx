@@ -10,14 +10,12 @@ import {
   MenuItem,
   Toolbar,
   Tooltip,
-  Typography
+  Typography,
 } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import { getUserInfo, isLoggedIn, logout } from '@stex-react/api';
-import { CountryFlag } from '@stex-react/react-utils';
+import { CountryFlag, DateView } from '@stex-react/react-utils';
 import { localStore } from '@stex-react/utils';
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -26,8 +24,6 @@ import { BrowserAutocomplete } from '../components/BrowserAutocomplete';
 import { getLocaleObject } from '../lang/utils';
 import styles from '../styles/header.module.scss';
 import { SYSTEM_UPDATES } from '../system-updates';
-
-dayjs.extend(relativeTime);
 
 function UserButton() {
   const router = useRouter();
@@ -145,7 +141,7 @@ function LanguageButton() {
           }}
         >
           <CountryFlag flag="de" size="28x21" size2="56x42" />
-          &nbsp; German
+          &nbsp; Deutsch
         </MenuItem>
       </Menu>
     </Box>
@@ -171,22 +167,22 @@ function NotificationButton() {
           }}
         >
           <NotificationsIcon htmlColor="white" />
-          {localStore?.getItem('top-system-update') !==
-            SYSTEM_UPDATES[0].id && (
-            <div
-              style={{
-                color: 'red',
-                position: 'absolute',
-                left: '20px',
-                top: '-2px',
-                fontSize: '30px',
-              }}
-            >
-              &#8226;
-            </div>
-          )}
         </IconButton>
       </Tooltip>
+
+      {localStore?.getItem('top-system-update') !== SYSTEM_UPDATES[0].id && (
+        <div
+          style={{
+            color: 'red',
+            position: 'absolute',
+            left: '20px',
+            top: '-2px',
+            fontSize: '30px',
+          }}
+        >
+          &#8226;
+        </div>
+      )}
       <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
         {SYSTEM_UPDATES.slice(0, 9).map((update, idx) => (
           <MenuItem key={idx} onClick={handleClose}>
@@ -194,7 +190,10 @@ function NotificationButton() {
               <Box>
                 {update.header}
                 <Typography display="block" variant="body2" color="gray">
-                  {update.timestamp.fromNow()}
+                  <DateView
+                    timestampMs={update.timestamp.unix() * 1000}
+                    style={{ fontSize: '14px' }}
+                  />
                 </Typography>
               </Box>
             </Link>
@@ -242,13 +241,13 @@ export function Header({
         <Box>
           <Box display="flex" alignItems="center">
             <NotificationButton />
-            <Tooltip title={t.helpCenter}>
-              <Link href="/help">
-                <IconButton>
+            <Link href="/help">
+              <IconButton>
+                <Tooltip title={t.helpCenter}>
                   <HelpIcon htmlColor="white" />
-                </IconButton>
-              </Link>
-            </Tooltip>
+                </Tooltip>
+              </IconButton>
+            </Link>
             <LanguageButton />
             {loggedIn ? (
               <UserButton />

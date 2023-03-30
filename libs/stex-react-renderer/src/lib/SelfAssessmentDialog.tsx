@@ -1,5 +1,5 @@
 import PendingOutlinedIcon from '@mui/icons-material/PendingOutlined';
-import { Box, Dialog, IconButton } from '@mui/material';
+import { Box, Dialog, IconButton, Slider } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Tooltip, { tooltipClasses, TooltipProps } from '@mui/material/Tooltip';
 import {
@@ -10,10 +10,11 @@ import {
   SmileyCognitiveValues,
   SmileyLevel,
   smileyToLevel,
-  SMILEY_TOOLTIPS,
 } from '@stex-react/api';
 import { BG_COLOR, PRIMARY_COL, SECONDARY_COL } from '@stex-react/utils';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import { getLocaleObject } from './lang/utils';
 import { mmtHTMLToReact } from './mmtParser';
 
 const ICON_SIZE = 33;
@@ -38,11 +39,12 @@ export function DimIcon({
   white: boolean;
   showTitle?: boolean;
 }) {
+  const t = getLocaleObject(useRouter());
   return (
     <img
       width={ICON_SIZE}
       height={ICON_SIZE}
-      title={showTitle ? `I ${dim}` : undefined}
+      title={showTitle ? t.iconHovers[dim] : undefined}
       src={`/bloom-dimensions/${dim}${white ? '_white' : ''}.svg`}
       alt={dim}
     />
@@ -116,6 +118,65 @@ function SelfAssessmentPopup({
   );
 }
 
+function getMarks(
+  dim: BloomDimension,
+  rememberValue: SmileyLevel | undefined,
+  understandValue: SmileyLevel | undefined
+) {
+  const value =
+    dim === BloomDimension.Remember ? rememberValue : understandValue;
+  return ALL_SMILEY_LEVELS.map((l) => {
+    return {
+      value: l,
+      label: (
+        <LevelIcon level={l} highlighted={value === undefined || l <= value} />
+      ),
+    };
+  });
+}
+
+export function ConfigureLevelSlider({
+  levels,
+  dim,
+  onChange,
+  onIconClick,
+}: {
+  levels: any;
+  dim: BloomDimension;
+  onChange: any;
+  onIconClick: any;
+}) {
+  const t = getLocaleObject(useRouter());
+  return (
+    <>
+      <Tooltip title={`${t.iconHovers[dim]} ${t.enableDisableFilter}`}>
+        <IconButton onClick={() => onIconClick()}>
+          <DimIcon showTitle={false} dim={dim} white={false} />
+        </IconButton>
+      </Tooltip>{' '}
+      <Slider
+        step={1}
+        value={levels[dim] === undefined ? 2 : levels[dim]}
+        valueLabelDisplay="auto"
+        valueLabelFormat={(value) => {
+          return (t.smileyTooltips as any)[dim]?.[value];
+        }}
+        onChange={(_e: Event, newValue: any /*SmileyLevel*/) => {
+          onChange(newValue);
+        }}
+        marks={getMarks(dim, levels.Remember, levels.Understand)}
+        min={-2}
+        max={2}
+        sx={{
+          ml: '20px',
+          filter: levels[dim] === undefined ? 'grayscale(1)' : undefined,
+        }}
+        disabled={levels[dim] === undefined}
+      />
+    </>
+  );
+}
+
 function SelfAssessmentDialogRow({
   dim,
   uri,
@@ -131,6 +192,7 @@ function SelfAssessmentDialogRow({
   selectedLevel?: number;
   refetchSmileys: () => void;
 }) {
+  const t = getLocaleObject(useRouter());
   return (
     <Box display="flex">
       <DimIcon dim={dim} white={true} />
@@ -159,7 +221,10 @@ function SelfAssessmentDialogRow({
           </span>
         )}
         {ALL_SMILEY_LEVELS.map((l) => (
-          <Tooltip key={l} title={SMILEY_TOOLTIPS[dim]?.[l] || `Level ${l}`}>
+          <Tooltip
+            key={l}
+            title={(t.smileyTooltips as any)[dim]?.[l] || `Level ${l}`}
+          >
             <IconButton
               sx={{ p: '0' }}
               onClick={async () => {

@@ -1,4 +1,6 @@
+import { useRouter } from 'next/router';
 import { useEffect, useReducer } from 'react';
+import { getLocaleObject } from './lang/utils';
 
 const SECOND_MS = 1000;
 const MIN_MS = 60 * SECOND_MS;
@@ -9,35 +11,39 @@ const YEAR_MS = 365 * DAY_MS;
 
 // https://github.com/AndrewPoyntz/time-ago-pipe/blob/master/time-ago.pipe.ts
 
-function fromNow(d: Date) {
+function replaceMarker(s: string, n: number) {
+  return s.replace('$1', n.toString());
+}
+
+function fromNow(d: Date, t: any) {
   const now = new Date();
   const fromNowMs = Math.round(Math.abs(now.getTime() - d.getTime()));
 
   if (Number.isNaN(fromNowMs)) {
     return '';
   } else if (fromNowMs <= 45 * SECOND_MS) {
-    return 'a few seconds ago';
+    return t.fewSecondsAgo;
   } else if (fromNowMs <= 90 * SECOND_MS) {
-    return 'a minute ago';
+    return t.aMinuteAgo;
   } else if (fromNowMs <= 45 * MIN_MS) {
-    return Math.round(fromNowMs / MIN_MS) + ' minutes ago';
+    return replaceMarker(t.xMinutesAgo, Math.round(fromNowMs / MIN_MS));
   } else if (fromNowMs <= 90 * MIN_MS) {
-    return 'an hour ago';
+    return t.anHourAgo;
   } else if (fromNowMs <= 22 * HOUR_MS) {
-    return Math.round(fromNowMs / HOUR_MS) + ' hours ago';
+    return replaceMarker(t.xHoursAgo, Math.round(fromNowMs / HOUR_MS));
   } else if (fromNowMs <= 36 * HOUR_MS) {
-    return 'a day ago';
+    return t.aDayAgo;
   } else if (fromNowMs <= 25 * DAY_MS) {
-    return Math.round(fromNowMs / DAY_MS) + ' days ago';
+    return replaceMarker(t.xDaysAgo, Math.round(fromNowMs / DAY_MS));
   } else if (fromNowMs <= 45 * DAY_MS) {
-    return 'a month ago';
+    return t.aMonthAgo;
   } else if (fromNowMs <= 345 * DAY_MS) {
-    return Math.round(fromNowMs / MONTH_MS) + ' months ago';
+    return replaceMarker(t.xMonthsAgo, Math.round(fromNowMs / MONTH_MS));
   } else if (fromNowMs <= 545) {
-    return 'a year ago';
+    return t.aYearAgo;
   } else {
     // (days > 545)
-    return Math.round(fromNowMs / YEAR_MS) + ' years ago';
+    return replaceMarker(t.xYearsAgo, Math.round(fromNowMs / YEAR_MS));
   }
 }
 
@@ -72,8 +78,9 @@ export function DateView({
   const msSinceUpdate = Math.round(
     Math.abs(new Date().getTime() - timestampMs)
   );
+  const t = getLocaleObject(useRouter());
   const date = new Date(timestampMs);
-  const fromNowString = fromNow(date);
+  const fromNowString = fromNow(date, t);
   const hoverString = date.toLocaleTimeString('en-us', {
     year: 'numeric',
     month: 'short',

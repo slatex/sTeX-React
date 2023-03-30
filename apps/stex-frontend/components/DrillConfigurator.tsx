@@ -7,7 +7,6 @@ import {
   IconButton,
   List,
   ListItem,
-  Slider,
   Tooltip,
   Typography,
 } from '@mui/material';
@@ -23,7 +22,6 @@ import {
   SmileyCognitiveValues,
   SmileyLevel,
   smileyToLevel,
-  SMILEY_TOOLTIPS,
 } from '@stex-react/api';
 import { DimIcon, LevelIcon } from '@stex-react/stex-react-renderer';
 import {
@@ -33,27 +31,11 @@ import {
   Window,
 } from '@stex-react/utils';
 import axios from 'axios';
+import { ConfigureLevelSlider } from 'libs/stex-react-renderer/src/lib/SelfAssessmentDialog';
 import { useRouter } from 'next/router';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import { FlashCardMode, FlashCards } from './FlashCards';
-
-function getMarks(
-  dim: BloomDimension,
-  rememberValue: SmileyLevel | undefined,
-  understandValue: SmileyLevel | undefined
-) {
-  const value =
-    dim === BloomDimension.Remember ? rememberValue : understandValue;
-  return ALL_SMILEY_LEVELS.map((l) => {
-    return {
-      value: l,
-      label: (
-        <LevelIcon level={l} highlighted={value === undefined || l <= value} />
-      ),
-    };
-  });
-}
 
 export interface CardsWithSmileys {
   uri: string;
@@ -139,9 +121,7 @@ function LevelConfigurator({
           {t.chooseCompetency}
         </Typography>
       </Tooltip>
-      <i style={{ color: '#777' }}>
-        {t.chooseCompetencyDetails}
-      </i>
+      <i style={{ color: '#777' }}>{t.chooseCompetencyDetails}</i>
       {[BloomDimension.Remember, BloomDimension.Understand].map((dim, idx) => (
         <Box
           key={dim}
@@ -152,36 +132,18 @@ function LevelConfigurator({
           p="0 20px 20px 0"
           borderBottom={idx === 0 ? '1px solid #DDD' : undefined}
         >
-          <Tooltip title={`I ${dim}. ${t.enableDisableFilter}`}>
-            <IconButton
-              onClick={() => {
-                setLevels((prev) => {
-                  const newVal = levels[dim] === undefined ? 2 : undefined;
-                  return getUpdatedConfigLevel(prev, dim, newVal);
-                });
-              }}
-            >
-              <DimIcon showTitle={false} dim={dim} white={false} />
-            </IconButton>
-          </Tooltip>
-          <Slider
-            step={1}
-            value={levels[dim] === undefined ? 2 : levels[dim]}
-            valueLabelDisplay="auto"
-            valueLabelFormat={(value) => {
-              return SMILEY_TOOLTIPS[dim][value];
-            }}
-            onChange={(_e: Event, newValue: SmileyLevel) => {
+          <ConfigureLevelSlider
+            levels={levels}
+            dim={dim}
+            onChange={(newValue: SmileyLevel) => {
               setLevels((prev) => getUpdatedConfigLevel(prev, dim, newValue));
             }}
-            marks={getMarks(dim, levels.Remember, levels.Understand)}
-            min={-2}
-            max={2}
-            sx={{
-              ml: '20px',
-              filter: levels[dim] === undefined ? 'grayscale(1)' : undefined,
+            onIconClick={() => {
+              setLevels((prev) => {
+                const newVal = levels[dim] === undefined ? 2 : undefined;
+                return getUpdatedConfigLevel(prev, dim, newVal);
+              });
             }}
-            disabled={levels[dim] === undefined}
           />
         </Box>
       ))}

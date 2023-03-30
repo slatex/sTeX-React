@@ -36,8 +36,8 @@ const GuidedTourPage: NextPage = () => {
             onChange={(e) => setLanguage(e.target.value)}
           >
             <MenuItem value="en">English</MenuItem>
-            <MenuItem value="de">German</MenuItem>
-            <MenuItem value="fr">French</MenuItem>
+            <MenuItem value="de">Deutsch</MenuItem>
+            <MenuItem value="fr">Français</MenuItem>
           </Select>
         </FormControl>
       </Box>

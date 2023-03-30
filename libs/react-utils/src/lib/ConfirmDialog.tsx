@@ -1,4 +1,6 @@
 import { Button, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
+import { useRouter } from "next/router";
+import { getLocaleObject } from "./lang/utils";
 
 export function ConfirmDialogContent({ title, textContent, okText, cancelText, onClose }: {
   textContent: string,
@@ -7,6 +9,8 @@ export function ConfirmDialogContent({ title, textContent, okText, cancelText, o
   cancelText?: string,
   onClose: (confirmed: boolean) => void
 }) {
+  const t = getLocaleObject(useRouter());
+
   return (<>
     {title && <DialogTitle id="alert-dialog-title">{title}
     </DialogTitle>}
@@ -16,12 +20,12 @@ export function ConfirmDialogContent({ title, textContent, okText, cancelText, o
       </DialogContentText>
     </DialogContent>
     <DialogActions>
-      <Button onClick={() => onClose(false)}>{cancelText ?? 'Cancel'}</Button>
+      <Button onClick={() => onClose(false)}>{cancelText ?? t.cancel}</Button>
       <Button
         onClick={() => onClose(true)}
         autoFocus
       >
-        {okText ?? 'OK'}
+        {okText ?? t.ok}
       </Button>
     </DialogActions></>);
 }

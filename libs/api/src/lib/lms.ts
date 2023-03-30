@@ -15,25 +15,6 @@ export type SmileyType =
 export type SmileyLevel = -2 | -1 | 0 | 1 | 2;
 export const ALL_SMILEY_LEVELS: SmileyLevel[] = [-2, -1, 0, 1, 2];
 
-export const SMILEY_TOOLTIPS: {
-  [dim: string]: { [level: number]: string };
-} = {
-  Remember: {
-    '2': 'I am absolutely able to recall',
-    '1': 'I am mostly able to recall',
-    '0': 'I am not sure if I can recall',
-    '-1': 'I am mostly unable to recall',
-    '-2': 'I am not able to recall at all',
-  },
-  Understand: {
-    '2': 'I fully understand',
-    '1': 'I understand for the most part',
-    '0': 'I am not sure',
-    '-1': 'I do not understand major parts',
-    '-2': "I don't understand anything",
-  },
-};
-
 export function smileyToLevel(smiley?: SmileyType): SmileyLevel | undefined {
   if (!smiley) return undefined;
   if (smiley === 'smiley-2') return -2;

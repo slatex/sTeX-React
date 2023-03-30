@@ -86,7 +86,6 @@ export const en = {
     drill: 'Drill',
     concepts: 'Concepts',
     cardsSelected: 'cards selected',
-    enableDisableFilter: 'Click to enable/disable filter.',
 
     assessYourComptence: 'Assess Your Comptence',
     flipCard: 'Flip the card to see the definition!',
