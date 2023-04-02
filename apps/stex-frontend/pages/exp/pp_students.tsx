@@ -2,7 +2,7 @@ import { Box } from '@mui/material';
 import axios from 'axios';
 import parse from 'html-react-parser';
 import type { NextPage } from 'next';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
 
 function customReplaceFunc(d: any) {
