@@ -288,7 +288,7 @@ export function ContentDashboard({
                 )}
               </IconButton>
             </Tooltip>
-            <RendererDisplayOptions />
+            {/*<RendererDisplayOptions /> removed - as requested by Dennis*/}
           </Box>
         </>
       }
