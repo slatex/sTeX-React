@@ -47,7 +47,7 @@ export const de = {
   iconHovers: {
     Remember: 'Ich erinnere',
     Understand: 'Ich verstehe',
-    Apply: 'Ich kann bewerben',
+    Apply: 'Ich kann anwenden',
     Analyse: 'Ich kann analysieren',
     Evaluate: 'Ich kann bewerten',
     Create: 'Ich kann erstellen',
