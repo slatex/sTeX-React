@@ -177,9 +177,9 @@ async function getSlidesForDocNodeAfterRef(
     !sectionHasEnded
   ) {
     // TODO: search for body, instead of relying it being the first child.
-    const body = (node as any).childNodes[1];
+    const body = (node as any).childNodes[0];
     if (body) {
-      if (body.tagName?.toUpperCase() === 'BODY') {
+      if (body.tagName?.toLowerCase() === 'body') {
         body.tagName = 'div';
       }
 
