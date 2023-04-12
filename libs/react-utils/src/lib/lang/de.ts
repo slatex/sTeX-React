@@ -1,6 +1,6 @@
 export const de = {
   ok: 'OK',
-  cancel: 'Stornieren',
+  cancel: 'Abbrechen',
 
   fewSecondsAgo: 'vor ein paar Sekunden',
   aMinuteAgo: 'vor einer Minute',
