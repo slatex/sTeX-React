@@ -5,16 +5,16 @@ export const de = {
     otherCourses: 'Weitere Kurse',
     guidedTourHeader: 'Themenbezogen, Freestyle-Lernen',
     footerInfo:
-      'Aktive Kursmaterialien beinhalten Lernunterstützungsdienste, die auf einem Modell basieren, das bei jeder Interaktion mit den Materialien aktualisiert wird. Solche Modelle der Vorlieben und Kompetenzen eines Benutzers enthalten hochsensible personenbezogene Daten. Daher werden die Lernunterstützungsdienste (und die entsprechende Sammlung von Benutzermodelldaten) nur aktiviert, wenn der Benutzer über den Single-Signon-Dienst der FAU angemeldet ist, und werden sicher und unter ausschließlicher Kontrolle des jeweiligen Benutzers in der Voll-KI Trust Zone aufbewahrt.',
+      'Aktive Kursmaterialien beinhalten Lernunterstützungsdienste, die auf einem Modell basieren, das bei jeder Interaktion mit den Materialien aktualisiert wird. Solche Modelle der Vorlieben und Kompetenzen eines Nutzenden enthalten hochsensible personenbezogene Daten. Daher werden die Lernunterstützungsdienste (und die entsprechende Sammlung von Nutzendenmodelldaten) nur verwendet, wenn der oder die Nutzende über den Single-Signon-Dienst der FAU angemeldet ist, und werden sicher und unter ausschließlicher Kontrolle des jeweiligen Nutzenden in der Voll-KI Trust Zone gespeichert.',
 
     expIconHover1: 'Sehen Sie, was in unserem Labor braut.',
     expIconHover2: 'Äußerste Vorsicht walten lassen!',
     cardIntro:
-      '"Flash Cards" unterstützen das Überprüfen und Bohren der Konzepte ' +
+      '"Flash Cards" unterstützen das Üben und Lernen der Konzepte ' +
       'des Kurses. Den Lernenden werden Karten mit Konzeptnamen gezeigt, ' +
       'die umgedreht werden können, um die Definition anzuzeigen. Die ' +
-      'Lernenden bewerten ihre Konzeptbeherrschung selbst, was uns hilft, ' +
-      'die in Übungen gezeigten Karten zu aktualisieren.',
+      'Lernenden bewerten ihre Konzeptwissen selbst, was uns hilft, ' +
+      'die in Übungen gezeigten Karten zu anzupassen.',
     courseThumb: {
       notes: 'Notizen',
       cards: 'Karten',
@@ -25,45 +25,45 @@ export const de = {
     alreadyLoggedIn: 'Du bist bereits eingeloggt.',
     logout: 'Ausloggen',
     fauLogin: 'Anmeldung über das IdM-Portal der FAU',
-    fakeLogin: 'Gefälschte Benutzeranmeldung',
+    fakeLogin: 'Falsche Anmeldung',
     rememberLogout: 'Bitte denken Sie daran, sich nach Abschluss abzumelden.',
     logoutWarning:
       'Achtung: Durch das Abmelden vom FAU IdM-Portal werden Sie hier NICHT abgemeldet.',
     notesHeader:
-      'Beachten Sie, dass Sie sich in ein Forschungsprototypensystem für individualisierte Lernunterstützung auf Universitätsebene einloggen. Bitte beachten Sie folgende Konsequenzen:',
+      'Beachten Sie, dass Sie sich in einen Forschungsprototyp für individualisierte Lernunterstützung auf Universitätsebene einloggen. Bitte beachten Sie folgende Konsequenzen:',
     notesPoint1:
-      'Dies ist kein produktionsbereites System, daher können sich die Systemfunktionen ohne vorherige Ankündigung ändern oder verschwinden. Sie nehmen freiwillig an diesem experimentellen System teil, wir hoffen, dass das System Ihre Lernerfahrung und Ihren Erfolg verbessern wird. Es gibt jedoch keine Vergütung und/oder Unterschiede in der Art und Weise, wie Sie im Kurs benotet oder bewertet werden.',
+      'Dies ist kein fertiges System, daher können sich die Systemfunktionen ohne vorherige Ankündigung ändern oder verschwinden. Sie nehmen freiwillig an diesem experimentellen System teil, wir hoffen, dass das System Ihre Lernerfahrung und Ihren Erfolg verbessern wird. Es gibt jedoch keine Vorteile und/oder Unterschiede in der Art und Weise, wie Sie im Kurs benotet oder bewertet werden.',
     notesPoint2:
-      'Das System sammelt personalisierte Daten über alle Ihre Interaktionen mit dem System, einschließlich Klick-/Hover-/Mausbewegungs-Streams, Seitenanfragen, Ergebnisse von Quiz usw. Das System verwendet diese Daten, um Lernkompetenzmodelle zu generieren, die sich wiederum auf die erstellte Kursmaterialien und die Interaktion mit dem System.',
+      'Das System sammelt personalisierte Daten über alle Ihre Interaktionen mit dem System, einschließlich Klick-/Hover-/Mausbewegungs-Streams, Seitenanfragen, Ergebnisse von Quiz usw. Das System verwendet diese Daten, um Lernkompetenzmodelle zu generieren, welche wiederum die angezeigten Kursmaterialien und die Interaktion mit dem System beeinflussen.',
     notesPoint3:
-      'Beachten Sie, dass auf personalisierte Daten nur Agenten zugreifen können, die mit Ihren persönlichen IDM-Anmeldeinformationen authentifiziert sind. Insbesondere werden ohne Ihre Einwilligung keine personenbezogenen Daten außerhalb des Systems übermittelt.',
+      'Beachten Sie, dass auf personalisierte Daten nur Accounts zugreifen können, die mit Ihren persönlichen IDM-Anmeldeinformationen authentifiziert sind. Insbesondere werden ohne Ihre Einwilligung keine personenbezogenen Daten aus dem System heraus übermittelt.',
     notesPoint4:
-      'Das Forschungsprojekt VoLL-KI wird diese Daten in aggregierter, anonymisierter und/oder pseudonymisierter Form zur Bewertung des Systems und der zugrunde liegenden Methoden verwenden. Wir werden uns nach besten Kräften bemühen, sicherzustellen, dass personalisierte Daten nicht aus aggregierten Daten rekonstruiert werden können. Details zum KI-System finden Sie hier',
+      'Das Forschungsprojekt VoLL-KI wird diese Daten in aggregierter, anonymisierter und/oder pseudonymisierter Form zur Evaluation des Systems und der zugrunde liegenden Methoden verwenden. Wir werden uns nach besten Kräften bemühen, sicherzustellen, dass personalisierte Daten nicht aus aggregierten Daten rekonstruiert werden können. Details zum KI-System finden Sie hier',
     guest: {
       encourage:
-        'Während das VoLL-KI SSFC-System zunächst für Studierende der FAU gedacht ist, arbeiten wir daran, unser Angebot auf mehr Lernende auszudehnen. In der Zwischenzeit empfehlen wir Ihnen, sich als Gast anzumelden und das System zu testen.',
-      entryButton: 'Gastbenutzer-Login',
+        'Während das VoLL-KI ALEA-System zunächst für Studierende der FAU gedacht ist, arbeiten wir daran, unser Angebot auf mehr Lernende auszudehnen. In der Zwischenzeit empfehlen wir Ihnen, sich als Gast anzumelden und das System zu testen.',
+      entryButton: 'Gast-Login',
       chooseLearnerHelperText:
-        'Die Inhalte der Plattform sind auf die Kompetenzen der Lernenden zugeschnitten. Bitte wählen Sie oben eine anfängliche Persona aus, um zu beginnen.',
-      personaSelect: 'Wählen Sie Persona',
+        'Die Inhalte der Plattform sind auf die Kompetenzen der Lernenden zugeschnitten. Bitte wählen Sie oben eine Beispiel-Person aus, um zu beginnen.',
+      personaSelect: 'Wählen Sie eine Person',
       guestIdText: 'Gast-ID',
-      guestNameText: 'Gast-Benutzername',
+      guestNameText: 'Gast-Username',
       loginButton: 'Als Gast einloggen',
     },
   },
   flashCards: {
-    header: 'Konfigurieren Sie Ihren Lernkartenstapel zum Bohren/Überarbeiten!',
-    chooseCoverage: 'Wählen Sie die Abdeckung',
+    header: 'Konfigurieren Sie Ihren Lernkartenstapel zum Lernen/Üben!',
+    chooseCoverage: 'Wählen Sie ein Kartenset',
     chooseCoverageHover:
       'Wählen Sie die Karten im Stapel nach Kurskapiteln aus',
     chooseCompetency: 'Wählen Sie Kompetenzstufen',
     chooseCompetencyHover:
-      'Wählen Sie die Kompetenzstufen (geschätzt durch das Lernermodell), bis zu denen Karten in den Kartenstapel aufgenommen werden sollen',
+      'Wählen Sie die Kompetenzstufen (geschätzt durch das Lernendenmodell), bis zu denen Karten in den Kartenstapel aufgenommen werden sollen',
     chooseCompetencyDetails:
       'Die Auswahl legt alle Karten bis zur gewählten Kompetenzstufe auf den Stapel.',
     shuffleCards: 'Übungskarten mischen',
-    revise: 'Überarbeiten',
-    drill: 'Üben',
+    revise: 'Wiederholen',
+    drill: 'Lernen',
     concepts: 'Konzepte',
     cardsSelected: 'Karten ausgewählt',
 
@@ -101,12 +101,12 @@ export const de = {
     dataDeletion: 'Datenlöschung',
     purgeData: 'Löschen Sie Ihre Daten',
 
-    choosePersona: 'Wählen Sie Persona',
-    resetFake: 'Gefälschte Benutzerdaten zurücksetzen',
+    choosePersona: 'Wählen Sie eine Person',
+    resetFake: 'Fake-Benutzungsdaten zurücksetzen',
 
-    confirmPurge: 'Bestätigen Sie die Datenbereinigung',
+    confirmPurge: 'Bestätigen Sie die Datenlöschung',
     purgeWarning:
-      'WARNUNG: Dadurch werden alle Daten gelöscht, die das System über Sie hat (Lernmodell, Interaktionsprotokolle, Kommentare und Notizen), mit Ausnahme der Informationen, dass/wann Sie die Daten gelöscht haben. Ihre Lernerfahrung kann erheblich beeinträchtigt werden.',
+      'WARNUNG: Dadurch werden alle Daten gelöscht, die das System über Sie hat (Lernendenmodell, Interaktionsprotokolle, Kommentare und Notizen), mit Ausnahme der Informationen, dass/wann Sie die Daten gelöscht haben. Ihre Lernerfahrung kann erheblich beeinträchtigt werden.',
     dataPurged: 'Daten gelöscht',
     purgeError: 'Einige Fehler beim Löschen von Daten',
     purge: 'Säubern',
@@ -117,7 +117,7 @@ export const de = {
       'Geben Sie diesen Text zur Bestätigung in das Feld unten ein',
   },
   myLearnerModel: {
-    learnerModel: 'Lernmodell',
+    learnerModel: 'Lernendenmodell',
     description1:
       'Anhand Ihrer Interaktionen mit dem System bemühen wir uns, Ihre Kompetenz in Bezug auf verschiedene Konzepte einzuschätzen. Wir verwenden das erweiterte Bloom-Modell ',
     description2:
@@ -125,7 +125,7 @@ export const de = {
   },
   courseView: {
     notes: 'Notizen',
-    instructorNotes: "Notizen des Lehrers",
+    instructorNotes: "Notizen des Lehrenden",
     showSlides: 'Folien anzeigen',
     showVideo: 'Videos zeigen',
     showSlidesAndVideo: 'Zeigen Sie Folien und Videos',
