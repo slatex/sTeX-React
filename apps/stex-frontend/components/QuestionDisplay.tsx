@@ -1,104 +1,17 @@
-import { Box, Card } from '@mui/material';
+import {
+  Box,
+  Card,
+  Checkbox,
+  CircularProgress,
+  TextField,
+} from '@mui/material';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio, { RadioProps } from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
-import { convertHtmlStringToPlain } from '@stex-react/utils';
-import axios from 'axios';
-import { useEffect, useState } from 'react';
 import styles from '../styles/quiz.module.scss';
-
-export interface Option {
-  shouldSelect: boolean;
-  value: any[];
-  feedbackHtml: string;
-}
-
-export interface Question {
-  statement: Element;
-  options: Option[];
-  correctOptionIdx: number;
-}
-function recursivelyFindNodes(
-  node: Element | Document,
-  attrName: string,
-  expected?: any
-): { node: Element; attrVal: any }[] {
-  if (node instanceof Element) {
-    const attrVal = node.getAttribute(attrName);
-    if (attrVal && (expected === undefined || expected === attrVal)) {
-      return [{ node, attrVal }];
-    }
-  }
-  const foundList: { node: Element; attrVal: any }[] = [];
-  const children = node.childNodes;
-  for (let i = 0; i < children.length; i++) {
-    const child = children.item(i);
-    if (child instanceof Element) {
-      const subFoundList = recursivelyFindNodes(child, attrName, expected);
-      if (subFoundList?.length) foundList.push(...subFoundList);
-    }
-  }
-  return foundList;
-}
-
-function removeNodeWithAttrib(node: Element | Document, attrName: string) {
-  if (node instanceof Element) {
-    const attrVal = node.getAttribute(attrName);
-    if (attrVal) {
-      console.log(node);
-      node.setAttribute('style', 'display: none');
-      console.log(node);
-    }
-  }
-  const children = node.childNodes;
-  for (let i = 0; i < children.length; i++) {
-    const child = children.item(i);
-    if (child instanceof Element) {
-      removeNodeWithAttrib(child, attrName);
-    }
-  }
-}
-
-function findProblemRootNode(node: Element | Document) {
-  return recursivelyFindNodes(node, 'data-problem')?.[0]?.node;
-}
-
-function findOptions(problemRootNode: Element | Document): Option[] {
-  const mcbNode = recursivelyFindNodes(problemRootNode, 'data-problem-mcb')?.[0]
-    ?.node;
-  removeNodeWithAttrib(problemRootNode, 'data-problem-mcb');
-  if (!mcbNode) {
-    console.error('mcb not found');
-    return [];
-  }
-  return recursivelyFindNodes(mcbNode, 'data-problem-mc').map(
-    ({ node, attrVal }) => {
-      const feedbackHtml = recursivelyFindNodes(
-        node,
-        'data-problem-mc-solution'
-      )?.[0].node.outerHTML;
-      removeNodeWithAttrib(node, 'data-problem-mc-solution');
-
-      return { shouldSelect: attrVal === 'true', value: [node], feedbackHtml };
-    }
-  );
-}
-
-function getQuestion(htmlDoc: Document) {
-  // TODO: Free text solution (data-problem-fillinsol, data-problem-solution) not handled
-  // TODO: multiple correct choices not handled.
-  const problemRootNode = findProblemRootNode(htmlDoc);
-  const options = findOptions(problemRootNode);
-  const question: Question = {
-    statement: problemRootNode, // The mcb block is already marked display:none.
-    options,
-    correctOptionIdx: options.findIndex((o) => o.shouldSelect),
-  };
-  // console.log(question);
-  return question;
-}
+import { Question, QuestionType, UserResponse } from './question-utils';
 
 function BpRadio(props: RadioProps) {
   return <Radio disableRipple color="default" {...props} />;
@@ -122,27 +35,50 @@ function getClassNames(
   return style;
 }
 
+function checkFilledInSolution(filledIn: string, question: Question) {
+  if(!filledIn?.length) return false;
+  if (!question.fillInSolution?.length) return true;
+  return filledIn.toLowerCase() === question.fillInSolution.toLowerCase();
+}
+
+function isCorrect(question: Question, response: UserResponse) {
+  const { filledInAnswer, singleOptionIdx, multiOptionIdx } = response;
+  switch (question.type) {
+    case QuestionType.FILL_IN:
+      return checkFilledInSolution(filledInAnswer, question);
+    case QuestionType.MULTI_CHOICE_SINGLE_ANSWER:
+      return (
+        singleOptionIdx >= 0 && question.options[singleOptionIdx].shouldSelect
+      );
+    case QuestionType.MULTI_CHOICE_MULTI_ANSWER:
+      return !question.options.some(
+        (opt, idx) => opt.shouldSelect !== (multiOptionIdx[idx] ?? false)
+      );
+  }
+  return false;
+}
+
 export function QuestionDisplay({
-  questionUrl,
+  question,
   isSubmitted,
-  onSelectedIndexUpdate,
+  response,
+  onResponseUpdate,
 }: {
-  questionUrl: string;
+  question: Question | undefined;
   isSubmitted: boolean;
-  onSelectedIndexUpdate: (selectedIndex: number, isCorrect: boolean) => void;
+  response: UserResponse;
+  onResponseUpdate: (
+    response: UserResponse,
+    isAnswered: boolean,
+    isCorrect: boolean
+  ) => void;
 }) {
-  const [selectedIdx, setSelectedIdx] = useState(-1);
-  const [question, setQuestion] = useState(null as Question);
-  useEffect(() => {
-    if (!questionUrl?.length) return;
-    axios.get(questionUrl).then((r) => {
-      const htmlDoc = new DOMParser().parseFromString(r.data, 'text/html');
-      const q = getQuestion(htmlDoc);
-      setQuestion(q);
-      console.log(q);
-    });
-  }, [questionUrl]);
-  if (!question) return;
+  const {
+    singleOptionIdx: selectedIdx,
+    multiOptionIdx: multiSelectedIdx,
+    filledInAnswer,
+  } = response;
+  if (!question) return <CircularProgress />;
 
   const feedback =
     selectedIdx >= 0 && question?.options[selectedIdx].feedbackHtml;
@@ -161,53 +97,121 @@ export function QuestionDisplay({
         </Box>
       </Box>
       <br />
-      <FormControl>
-        <RadioGroup
-          aria-labelledby="demo-customized-radios"
-          name="customized-radios"
-          value={selectedIdx.toString()}
-          onChange={(e) => {
-            if (!isSubmitted) {
+      <FormControl sx={{ width: '100%' }}>
+        {question.type === QuestionType.MULTI_CHOICE_SINGLE_ANSWER && (
+          <RadioGroup
+            aria-labelledby="demo-customized-radios"
+            name="customized-radios"
+            value={selectedIdx.toString()}
+            onChange={(e) => {
+              if (isSubmitted) return;
               const sIdx = +e.target.value;
-              setSelectedIdx(sIdx);
-              onSelectedIndexUpdate(sIdx, sIdx === question.correctOptionIdx);
-            }
-          }}
-        >
-          {question.options.map((option, optionIdx) => (
-            <FormControlLabel
-              key={optionIdx}
-              value={optionIdx.toString()}
-              control={<BpRadio />}
-              className={getClassNames(
-                selectedIdx === optionIdx,
-                isSubmitted,
-                question.correctOptionIdx === optionIdx
-              )}
-              label={
-                <Box display="inline">
-                  {option.value.map((node, idx) => (
-                    <Box display="inline" key={`${idx}`}>
-                      {node.outerHTML
-                        ? mmtHTMLToReact(node.outerHTML)
-                        : node.textContent}
-                    </Box>
-                  ))}
-                </Box>
-              }
-            />
-          ))}
-        </RadioGroup>
+              const r = { singleOptionIdx: sIdx };
+              onResponseUpdate(r, sIdx >= 0, isCorrect(question, r));
+            }}
+          >
+            {question.options?.map((option, optionIdx) => (
+              <FormControlLabel
+                key={optionIdx}
+                value={optionIdx.toString()}
+                control={<BpRadio />}
+                className={getClassNames(
+                  selectedIdx === optionIdx,
+                  isSubmitted,
+                  question.options[optionIdx].shouldSelect
+                )}
+                label={
+                  <Box display="inline">
+                    {option.value.map((node, idx) => (
+                      <Box display="inline" key={`${idx}`}>
+                        {node.outerHTML
+                          ? mmtHTMLToReact(node.outerHTML)
+                          : node.textContent}
+                      </Box>
+                    ))}
+                  </Box>
+                }
+              />
+            ))}
+          </RadioGroup>
+        )}
+
+        {question.type === QuestionType.MULTI_CHOICE_MULTI_ANSWER && (
+          <>
+            {question.options?.map((option, optionIdx) => (
+              <FormControlLabel
+                key={optionIdx}
+                className={getClassNames(
+                  multiSelectedIdx[optionIdx] ?? false,
+                  isSubmitted,
+                  question.options[optionIdx].shouldSelect
+                )}
+                control={
+                  <Checkbox
+                    checked={multiSelectedIdx[optionIdx] ?? false}
+                    onChange={(e) => {
+                      if (isSubmitted) return;
+                      const checked = e.target.checked;
+                      multiSelectedIdx[optionIdx] = checked;
+                     const r = { multiOptionIdx: { ...multiSelectedIdx } };
+                      onResponseUpdate(
+                        r,
+                        Object.values(multiSelectedIdx).some((v) => v === true),
+                        isCorrect(question, r)
+                      );
+                    }}
+                  />
+                }
+                label={
+                  <Box display="inline">
+                    {option.value.map((node, idx) => (
+                      <Box display="inline" key={`${idx}`}>
+                        {node.outerHTML
+                          ? mmtHTMLToReact(node.outerHTML)
+                          : node.textContent}
+                      </Box>
+                    ))}
+                  </Box>
+                }
+              />
+            ))}
+          </>
+        )}
+        {question.type === QuestionType.FILL_IN && (
+          <TextField
+            label="Answer"
+            value={filledInAnswer}
+            onChange={(e) => {
+              if (isSubmitted) return;
+              const filledIn = e.target.value;
+              const r = { filledInAnswer: filledIn };
+              onResponseUpdate(r, !!filledIn?.length, isCorrect(question, r));
+            }}
+            variant="outlined"
+            fullWidth
+          />
+        )}
       </FormControl>
       <br />
       <br />
 
+      {isSubmitted && question.fillInSolution && (
+        <>
+          {checkFilledInSolution(filledInAnswer, question) ? (
+            <b style={{ fontSize: '20px', color: 'green' }}>Correct!</b>
+          ) : (
+            <span style={{ fontSize: '20px', color: 'red' }}>
+              The correct answer is <b>{question.fillInSolution}</b>
+            </span>
+          )}
+        </>
+      )}
       {isSubmitted && feedback && (
         <Box
           display="block"
           padding="3px 10px"
           bgcolor={
-            selectedIdx === question.correctOptionIdx ? '#a3e9a0' : '#f39797'
+            question.options[selectedIdx].shouldSelect ? '#a3e9a0' : '#f39797'
           }
           borderRadius="10px"
         >
