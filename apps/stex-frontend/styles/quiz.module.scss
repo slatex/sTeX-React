@@ -9,22 +9,27 @@
   background-color: #DDD;
 }
 
-.option_selected {
+.option_relevant {
   border-width: 3px !important;
   margin: 8px !important;
 }
 
-.option_not_selected {
+.option_not_relevant {
   border-width: 1px !important;
   margin: 10px !important;
 }
 
 .correct {
   background-color: #a3e9a0;
-  border-color: #178717 !important;
 }
 
 .incorrect {
   background-color: #f39797;
+}
+
+.got_right {
+  border-color: #178717 !important;
+}
+.missed {
   border-color: #da1010 !important;
 }

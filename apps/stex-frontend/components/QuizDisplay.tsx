@@ -66,6 +66,7 @@ function IndexEntry({
   selectedIdx,
   isSubmitted,
   events,
+  showClock,
   onSelect,
 }: {
   s: QuestionStatus;
@@ -73,6 +74,7 @@ function IndexEntry({
   selectedIdx: number;
   isSubmitted: boolean;
   events: TimerEvent[];
+  showClock: boolean;
   onSelect: (idx: number) => void;
 }) {
   return (
@@ -95,9 +97,11 @@ function IndexEntry({
         &nbsp;Question {idx + 1}&nbsp;
         {isSubmitted && (s.isCorrect ? <CheckCircleIcon /> : <CancelIcon />)}
       </Box>
-      <Box fontSize="12px">
-        <Timer events={events} questionIndex={idx} />
-      </Box>
+      {showClock && (
+        <Box fontSize="12px">
+          <Timer events={events} questionIndex={idx} />
+        </Box>
+      )}
     </span>
   );
 }
@@ -105,6 +109,7 @@ function QuestionNavigation({
   questionStatuses,
   questionIdx,
   isSubmitted,
+  showClock,
   events,
   onClose,
   onSelect,
@@ -112,6 +117,7 @@ function QuestionNavigation({
   questionStatuses: QuestionStatus[];
   questionIdx: number;
   isSubmitted: boolean;
+  showClock: boolean;
   events: TimerEvent[];
   onClose: () => void;
   onSelect: (idx: number) => void;
@@ -132,6 +138,7 @@ function QuestionNavigation({
           s={s}
           idx={idx}
           events={events}
+          showClock={showClock}
           selectedIdx={questionIdx}
           isSubmitted={isSubmitted}
           onSelect={onSelect}
@@ -153,6 +160,7 @@ export function QuizDisplay({ quizId }: { quizId: string }) {
   const [questionIdx, setQuestionIdx] = useState(0);
   const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
   const [events, setEvents] = useState<TimerEvent[]>([]);
+  const [showClock, setShowClock] = useState(true);
 
   const [, forceRerender] = useReducer((x) => x + 1, 0);
 
@@ -234,6 +242,7 @@ export function QuizDisplay({ quizId }: { quizId: string }) {
           questionStatuses={questionStatuses}
           questionIdx={questionIdx}
           isSubmitted={isSubmitted}
+          showClock={showClock}
           events={events}
           onClose={() => setShowDashboard(false)}
           onSelect={(i) => setQuestionIdx2(i)}
@@ -250,6 +259,8 @@ export function QuizDisplay({ quizId }: { quizId: string }) {
           </h2>
           <QuizTimer
             events={events}
+            showClock={showClock}
+            showHideClock={(v) => setShowClock(v)}
             onPause={() => onPause()}
             onUnpause={() => onUnpause()}
           />

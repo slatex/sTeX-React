@@ -23,20 +23,27 @@ function getClassNames(
   isCorrect: boolean
 ) {
   let style = styles['option'];
+  const relevant = isSelected || (isSubmitted && !isSelected && isCorrect);
   style +=
     ' ' +
-    (isSelected ? styles['option_selected'] : styles['option_not_selected']);
+    (relevant ? styles['option_relevant'] : styles['option_not_relevant']);
   if (isSubmitted) {
-    if (isCorrect) style += ' ' + styles['correct'];
+    if (isCorrect) {
+      style += ' ' + styles['correct'];
+      style += ' ' + (isSelected ? styles['got_right'] : styles['missed']);
+    } else {
+      if (isSelected) style += ' ' + styles['missed'];
+    }
     if (isSelected && !isCorrect) style += ' ' + styles['incorrect'];
   } else {
     if (isSelected) style += ' ' + styles['option_unsubmitted_selected'];
   }
+  console.log(style);
   return style;
 }
 
 function checkFilledInSolution(filledIn: string, question: Question) {
-  if(!filledIn?.length) return false;
+  if (!filledIn?.length) return false;
   if (!question.fillInSolution?.length) return true;
   return filledIn.toLowerCase() === question.fillInSolution.toLowerCase();
 }
@@ -153,7 +160,7 @@ export function QuestionDisplay({
                       if (isSubmitted) return;
                       const checked = e.target.checked;
                       multiSelectedIdx[optionIdx] = checked;
-                     const r = { multiOptionIdx: { ...multiSelectedIdx } };
+                      const r = { multiOptionIdx: { ...multiSelectedIdx } };
                       onResponseUpdate(
                         r,
                         Object.values(multiSelectedIdx).some((v) => v === true),

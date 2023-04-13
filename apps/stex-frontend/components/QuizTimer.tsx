@@ -2,6 +2,9 @@ import PauseCircleIcon from '@mui/icons-material/PauseCircle';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import { Box, IconButton } from '@mui/material';
 import { useEffect, useState } from 'react';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import AlarmIcon from '@mui/icons-material/Alarm';
 export interface TimerEvent {
   type: TimerEventType;
   timestamp_ms: number;
@@ -98,7 +101,7 @@ function getElapsedTime(events: TimerEvent[], questionIdx: number) {
 }
 
 const formatElapsedTime = (ms: number): string => {
-  const tenths = Math.floor((ms % 1000) / 100);
+  // const tenths = Math.floor((ms % 1000) / 100);
   const seconds = Math.floor(ms / 1000);
   const minutes = Math.floor(seconds / 60);
   const hours = Math.floor(minutes / 60);
@@ -108,18 +111,21 @@ const formatElapsedTime = (ms: number): string => {
   const displayHours = hours % 24;
 
   const hourSection = seconds >= 3600 ? `${displayHours.toString()}:` : '';
-  const minuteSection =
-    seconds >= 60 ? `${displayMinutes.toString().padStart(2, '0')}:` : '';
+  const minuteSection = `${displayMinutes.toString().padStart(2, '0')}:`;
   const secondSection = displaySeconds.toString().padStart(2, '0');
-  return hourSection + minuteSection + secondSection + '.' + tenths;
+  return hourSection + minuteSection + secondSection; // + '.' + tenths;
 };
 
 export function QuizTimer({
   events,
+  showClock,
+  showHideClock,
   onPause,
   onUnpause,
 }: {
   events: TimerEvent[];
+  showClock: boolean;
+  showHideClock: (v: boolean) => void;
   onPause?: () => void;
   onUnpause?: () => void;
 }) {
@@ -134,21 +140,30 @@ export function QuizTimer({
       height="fit-content"
       pl="10px"
     >
-      <Box fontSize="24px">
-        <Timer events={events} />
-      </Box>
-      <IconButton
-        onClick={() => {
-          if (!onPause || !onUnpause) return;
-          if (isPaused) onUnpause();
-          else onPause();
-        }}
-      >
-        {isPaused ? (
-          <PlayCircleIcon fontSize="large" />
-        ) : (
-          <PauseCircleIcon fontSize="large" />
-        )}
+      {showClock ? (
+        <>
+          <Box fontSize="24px">
+            <Timer events={events} />
+          </Box>
+          <IconButton
+            onClick={() => {
+              if (!onPause || !onUnpause) return;
+              if (isPaused) onUnpause();
+              else onPause();
+            }}
+          >
+            {isPaused ? (
+              <PlayCircleIcon fontSize="large" />
+            ) : (
+              <PauseCircleIcon fontSize="large" />
+            )}
+          </IconButton>
+        </>
+      ) : (
+        <AlarmIcon />
+      )}
+      <IconButton onClick={() => showHideClock(!showClock)}>
+        {showClock ? <VisibilityOffIcon /> : <VisibilityIcon />}
       </IconButton>
     </Box>
   );
@@ -170,7 +185,7 @@ export function Timer({
           ? getTotalElapsedTime(events)
           : getElapsedTime(events, questionIndex);
       setElapsedTime(et);
-    }, 100);
+    }, 500);
 
     return () => clearInterval(intervalId);
   }, [events, questionIndex]);
