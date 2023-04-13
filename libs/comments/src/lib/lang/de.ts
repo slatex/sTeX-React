@@ -2,7 +2,7 @@ export const de = {
   // comment button
   addToSlide: 'Fügen Sie dieser Folie einen Kommentar hinzu',
   selectionSuggestion:
-    'Die Auswahl einer Region ermöglicht Kommentare, die für die Region lokalisiert sind',
+    'Die Auswahl eines Ausschnitts ermöglicht Kommentare, die direkt zu diesem Ausschnitt gehören',
   andMore: '…und mehr',
   close: 'Schließen',
 
@@ -28,7 +28,7 @@ export const de = {
   delete: 'Löschen',
   deletePrompt: 'Möchten Sie diesen Kommentar wirklich löschen?',
   deleteTitle: 'Kommentar löschen',
-  hideBelow: 'Unten verstecken',
+  hideBelow: 'Ausblenden',
   unhide: 'Einblenden',
   spam: 'Spam',
 
@@ -37,10 +37,10 @@ export const de = {
   hideIdentity: 'Identität verbergen',
 
   // edit view
-  cancel: 'Stornieren',
+  cancel: 'Abbrechen',
   update: 'Aktualisieren',
   save: 'Speichern',
-  post: 'Post',
+  post: 'Posten',
 
   // hide dialog content
   markSpam: 'Spam markieren',
@@ -49,7 +49,7 @@ export const de = {
   cause: 'Ursache',
   justification: 'Begründung (optional)',
 
-  abusive: 'Gewalttätig',
+  abusive: 'Gewaltverherrlichend',
   incorrect: 'Fehler/Irrtum/Missverständnis',
   irrelevant: 'Irrelevante Diskussion',
   other: 'Andere',

@@ -1,16 +1,16 @@
 export const de = {
   // content dashboard
-  expandCollapseAll: 'Alles erweitern/reduzieren',
+  expandCollapseAll: 'Alles anzeigen/Minimieren',
   search: 'Suchen',
 
   // render display options
-  sectionFoldingOn: 'Abschnittsfaltung aktivieren',
-  sectionFoldingOff: 'Abschnittsfaltung deaktivieren',
-  expandOnScrollOn: 'Aktivieren Erweitern Sie auf Scroll',
-  expandOnScrollOff: 'Deaktivieren Erweitern Sie auf Scroll',
+  sectionFoldingOn: 'Abschnitte einklappen',
+  sectionFoldingOff: 'Abschnitte ausklappen',
+  expandOnScrollOn: 'Beim Scrollen ausklappen',
+  expandOnScrollOff: 'Nicht beim Scrollen ausklappen',
 
   // expandable context menu
-  copySectionLink: 'Abschnittslink kopieren',
+  copySectionLink: 'Link zum Abschnitt kopieren',
   viewSource: 'Quelltext anzeigen',
   linkCopied: 'Link in die Zwischenablage kopiert',
 
@@ -22,34 +22,34 @@ export const de = {
   close: 'Schließen',
 
   // tour display
-  guidedTour: 'Führung',
-  hide: 'Verstecken',
+  guidedTour: 'Guided Tour',
+  hide: 'Ausblenden',
   needs: 'Bedürfnisse',
 
   // self assessement
   smileyTooltips: {
     Remember: {
-      '2': 'Ich kann mich absolut erinnern',
-      '1': 'Ich kann mich größtenteils erinnern',
-      '0': 'Ich bin mir nicht sicher, ob ich mich erinnern kann',
-      '-1': 'Ich kann mich größtenteils nicht erinnern',
-      '-2': 'Ich kann mich überhaupt nicht erinnern',
+      '2': 'Ich kann mich komplett daran erinnern',
+      '1': 'Ich kann mich größtenteils daran erinnern',
+      '0': 'Ich bin mir nicht sicher, ob ich mich daran erinnern kann',
+      '-1': 'Ich kann mich kaum daran erinnern',
+      '-2': 'Ich kann mich überhaupt nicht daran erinnern',
     },
     Understand: {
-      '2': 'Ich verstehe vollkommen',
-      '1': 'Ich verstehe größtenteils',
-      '0': 'Ich bin mir nicht sicher',
-      '-1': 'Ich verstehe große Teile nicht',
-      '-2': 'Ich verstehe nichts',
+      '2': 'Ich verstehe es komplett',
+      '1': 'Ich verstehe es größtenteils',
+      '0': 'Ich bin mir nicht sicher, ob ich es verstehe',
+      '-1': 'Ich verstehe es kaum',
+      '-2': 'Ich verstehe es überhaupt nicht',
     },
   },
-  enableDisableFilter: 'Klicken Sie zum Aktivieren/Deaktivieren.',
+  enableDisableFilter: 'Klicken Sie zum Aktivieren/Deaktivieren von Filtern.',
   iconHovers: {
-    Remember: 'Ich erinnere',
-    Understand: 'Ich verstehe',
-    Apply: 'Ich kann bewerben',
+    Remember: 'Ich erinnere mich ',
+    Understand: 'Ich verstehe es',
+    Apply: 'Ich kann es anwenden',
     Analyse: 'Ich kann analysieren',
     Evaluate: 'Ich kann bewerten',
-    Create: 'Ich kann erstellen',
+    Create: 'Ich kann Neues erstellen',
   },
 };
