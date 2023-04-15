@@ -1,9 +1,7 @@
 import { Box, MenuItem, Select } from '@mui/material';
 import type { NextPage } from 'next';
-import { useState } from 'react';
-import { QuizDisplay } from '../../components/QuizDisplay';
-import MainLayout from '../../layouts/MainLayout';
 import { useRouter } from 'next/router';
+import MainLayout from '../../layouts/MainLayout';
 
 const LOCATIONS = [
   'Choose Quiz',

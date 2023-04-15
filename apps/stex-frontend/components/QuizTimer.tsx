@@ -5,18 +5,7 @@ import { useEffect, useState } from 'react';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import AlarmIcon from '@mui/icons-material/Alarm';
-export interface TimerEvent {
-  type: TimerEventType;
-  timestamp_ms: number;
-  questionIdx?: number;
-}
-
-export enum TimerEventType {
-  SWITCH,
-  PAUSE,
-  UNPAUSE,
-  SUBMIT,
-}
+import { TimerEvent, TimerEventType } from '../shared/quiz';
 
 export function timerEvent(
   type: TimerEventType,
@@ -29,7 +18,7 @@ export function timerEvent(
   };
 }
 
-function getTotalElapsedTime(events: TimerEvent[]) {
+export function getTotalElapsedTime(events: TimerEvent[]) {
   if (!events?.length) return 0;
   console.assert(events[0].type === TimerEventType.SWITCH);
   let isPaused = false;
@@ -59,7 +48,7 @@ function getTotalElapsedTime(events: TimerEvent[]) {
   return totalTime;
 }
 
-function getElapsedTime(events: TimerEvent[], questionIdx: number) {
+export function getElapsedTime(events: TimerEvent[], questionIdx: number) {
   if (!events?.length) return 0;
   console.assert(events[0].type === TimerEventType.SWITCH);
   let isPaused = false;

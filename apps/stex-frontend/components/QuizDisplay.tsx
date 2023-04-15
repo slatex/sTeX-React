@@ -5,7 +5,13 @@ import CloseIcon from '@mui/icons-material/Close';
 import DoneIcon from '@mui/icons-material/Done';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import { Box, Button, CircularProgress, IconButton } from '@mui/material';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Dialog,
+  IconButton,
+} from '@mui/material';
 import {
   FileNode,
   FixedPositionMenu,
@@ -17,19 +23,20 @@ import axios from 'axios';
 import { useContext, useEffect, useReducer, useState } from 'react';
 import ROOT_NODES from '../file-structure.preval';
 import { QuestionDisplay } from './QuestionDisplay';
-import {
-  QuizTimer,
-  Timer,
-  TimerEvent,
-  TimerEventType,
-  timerEvent,
-} from './QuizTimer';
+import { QuizTimer, Timer, timerEvent } from './QuizTimer';
 import {
   Question,
-  UserResponse,
   getMaaiMayQuestionURLs,
   getQuestion,
+  getQuizResult,
 } from './question-utils';
+import {
+  QuestionStatus,
+  TimerEvent,
+  TimerEventType,
+  UserResponse,
+} from '../shared/quiz';
+import { QuizSubmitConfirm } from './QuizSubmitConfirm';
 
 function getAllQuestionUrls(
   nodes: FileNode[],
@@ -53,11 +60,6 @@ function getAllQuestionUrls(
       return getAllQuestionUrls(node.children, pathSegments.slice(1), mmtUrl);
   }
   return [];
-}
-
-interface QuestionStatus {
-  isAnswered: boolean;
-  isCorrect: boolean;
 }
 
 function IndexEntry({
@@ -161,6 +163,7 @@ export function QuizDisplay({ quizId }: { quizId: string }) {
   const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
   const [events, setEvents] = useState<TimerEvent[]>([]);
   const [showClock, setShowClock] = useState(true);
+  const [showSubmitDialog, setShowSubmitDialog] = useState(false);
 
   const [, forceRerender] = useReducer((x) => x + 1, 0);
 
@@ -313,26 +316,40 @@ export function QuizDisplay({ quizId }: { quizId: string }) {
           </i>
         ) : (
           <Button
-            onClick={() => {
-              const left = questionStatuses.filter((s) => !s.isAnswered).length;
-              const leftStatement =
-                left > 0 ? `You did not answer ${left} questions.` : '';
-              if (
-                confirm(leftStatement + ' Are you sure you want to submit?')
-              ) {
-                setIsSubmitted(true);
-                setEvents((prev) => [
-                  ...prev,
-                  timerEvent(TimerEventType.SUBMIT),
-                ]);
-              }
-            }}
+            onClick={() => setShowSubmitDialog(true)}
             sx={{ my: '20px' }}
             variant="contained"
           >
             Submit
           </Button>
         )}
+        <Dialog
+          open={showSubmitDialog}
+          onClose={() => setShowSubmitDialog(false)}
+        >
+          <QuizSubmitConfirm
+            left={questionStatuses.filter((s) => !s.isAnswered).length}
+            onClose={(submit, name) => {
+              setShowSubmitDialog(false);
+              if (!submit) return;
+              if (name?.length) {
+                axios.post(
+                  '/api/write-quiz-result',
+                  getQuizResult(
+                    name,
+                    quizId,
+                    events,
+                    questionUrls,
+                    responses,
+                    questionStatuses
+                  )
+                );
+              }
+              setIsSubmitted(true);
+              setEvents((prev) => [...prev, timerEvent(TimerEventType.SUBMIT)]);
+            }}
+          />
+        </Dialog>
       </Box>
     </LayoutWithFixedMenu>
   );

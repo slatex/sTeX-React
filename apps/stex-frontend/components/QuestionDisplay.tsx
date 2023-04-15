@@ -11,7 +11,8 @@ import Radio, { RadioProps } from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import styles from '../styles/quiz.module.scss';
-import { Question, QuestionType, UserResponse } from './question-utils';
+import { Question, QuestionType } from './question-utils';
+import { UserResponse } from '../shared/quiz';
 
 function BpRadio(props: RadioProps) {
   return <Radio disableRipple color="default" {...props} />;

@@ -1,4 +1,12 @@
 import { convertHtmlStringToPlain } from '@stex-react/utils';
+import {
+  QuestionStatus,
+  QuizResult,
+  TimerEvent,
+  UserResponse,
+} from '../shared/quiz';
+import { getElapsedTime, getTotalElapsedTime } from './QuizTimer';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface Option {
   shouldSelect: boolean;
@@ -17,12 +25,6 @@ export interface Question {
   statement: Element;
   options?: Option[];
   fillInSolution?: string;
-}
-
-export interface UserResponse {
-  filledInAnswer?: string;
-  singleOptionIdx?: number;
-  multiOptionIdx?: { [index: number]: boolean };
 }
 
 function recursivelyFindNodes(
@@ -133,57 +135,92 @@ export function getQuestion(htmlDoc: Document, questionUrl: string) {
   return question;
 }
 
+function getQuestionInfo(
+  idx: number,
+  events: TimerEvent[],
+  url: string,
+  response: UserResponse,
+  status: QuestionStatus
+) {
+  return {
+    duration_ms: getElapsedTime(events, idx),
+    url,
+    response,
+    status,
+  };
+}
+
+export function getQuizResult(
+  quizTakerName: string,
+  quizName: string,
+  events: TimerEvent[],
+  questionUrls: string[],
+  responses: UserResponse[],
+  statuses: QuestionStatus[]
+): QuizResult {
+  return {
+    resultId: uuidv4(),
+    quizName,
+    quizTakerName,
+    events,
+    duration_ms: getTotalElapsedTime(events),
+    questionInfo: questionUrls.map((u, idx) =>
+      getQuestionInfo(idx, events, u, responses[idx], statuses[idx])
+    ),
+  };
+}
+
 export function getMaaiMayQuestionURLs(mmtUrl: string, full: boolean) {
-    const questionFilepaths = [
-      'mathliteracy/prob/problem003',
-      'mathliteracy/prob/problem004',
-      'mathliteracy/prob/problem005',
-      'mathliteracy/prob/problem007',
-      'mathliteracy/prob/problem012',
-      'mathliteracy/prob/problem000',
-      'AuD/prob/problem002',
-      'AuD/prob/problem003',
-      'AuD/prob/problem005',
-      'AuD/prob/problem008',
-      'AuD/prob/problem009',
-      'AuD/prob/problem010a',
-      'AuD/prob/problem014',
-      'AuD/prob/problem015',
-      'programming/prob/loop-complexity.en',
-      'theoinf/prob/tsp-props.en',
-      'theoinf/prob/lang-props.en',
-      'theoinf/prob/fa-ab1.en',
-      'theoinf/prob/tf-regular-accepts.en',
-      'theoinf/prob/tf-cfl-undec.en',
-      'theoinf/prob/TM-equiv.en',
-      'db/prob/erdiag1.en',
-      'db/prob/erdiag2.en',
-      'db/prob/relation-model.en',
-      'db/prob/SQL1.en',
-      'security/prob/sccrypto-which.en',
-      'security/prob/hash-which.en',
-      'security/prob/keys.en',
-      'security/prob/procmodes.en',
-      'logic/prob/pl0-tautologies.en',
-      'logic/prob/pl1-classification-short',
-      'mathliteracy/prob/problem016',
-      'math/prob/problem002',
-      'math/prob/problem006',
-      'math/prob/problem007',
-      'math/prob/problem008',
-      'math/prob/problem010',
-      'math/prob/problem012a',
-      'math/prob/problem013',
-      'math/prob/problem016',
-      'math/prob/problem017',
-      'math/prob/problem028',
-      'math/prob/problem034',
-      'math/prob/problem042',
-    ];
-    const all = questionFilepaths.map(
-      (f) =>
-        `${mmtUrl}/:sTeX/document?archive=problems/maai-test&filepath=${f}.xhtml`
-    );
-    const smallSetIdx = [0, 8, 14, 18, 21];
-    return full ? all : all.filter((v, idx) => smallSetIdx.includes(idx));
-  }
+  const questionFilepaths = [
+    'mathliteracy/prob/problem003',
+    'mathliteracy/prob/problem004',
+    'mathliteracy/prob/problem005',
+    'mathliteracy/prob/problem007',
+    'mathliteracy/prob/problem012',
+    'mathliteracy/prob/problem000',
+    'AuD/prob/problem002',
+    'AuD/prob/problem003',
+    'AuD/prob/problem005',
+    'AuD/prob/problem008',
+    'AuD/prob/problem009',
+    'AuD/prob/problem010a',
+    'AuD/prob/problem014',
+    'AuD/prob/problem015',
+    'programming/prob/loop-complexity.en',
+    'theoinf/prob/tsp-props.en',
+    'theoinf/prob/lang-props.en',
+    'theoinf/prob/fa-ab1.en',
+    'theoinf/prob/tf-regular-accepts.en',
+    'theoinf/prob/tf-cfl-undec.en',
+    'theoinf/prob/TM-equiv.en',
+    'db/prob/erdiag1.en',
+    'db/prob/erdiag2.en',
+    'db/prob/relation-model.en',
+    'db/prob/SQL1.en',
+    'security/prob/sccrypto-which.en',
+    'security/prob/hash-which.en',
+    'security/prob/keys.en',
+    'security/prob/procmodes.en',
+    'logic/prob/pl0-tautologies.en',
+    'logic/prob/pl1-classification-short',
+    'mathliteracy/prob/problem016',
+    'math/prob/problem002',
+    'math/prob/problem006',
+    'math/prob/problem007',
+    'math/prob/problem008',
+    'math/prob/problem010',
+    'math/prob/problem012a',
+    'math/prob/problem013',
+    'math/prob/problem016',
+    'math/prob/problem017',
+    'math/prob/problem028',
+    'math/prob/problem034',
+    'math/prob/problem042',
+  ];
+  const all = questionFilepaths.map(
+    (f) =>
+      `${mmtUrl}/:sTeX/document?archive=problems/maai-test&filepath=${f}.xhtml`
+  );
+  const smallSetIdx = [0, 8, 14, 18, 21];
+  return full ? all : all.filter((v, idx) => smallSetIdx.includes(idx));
+}
