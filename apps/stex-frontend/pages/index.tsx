@@ -167,21 +167,43 @@ const StudentHomePage: NextPage = () => {
             </Tooltip>
             <h1>{t.header}</h1>
             <SiteDescription lang={router.locale} />
-            <h2>{t.couseSection}</h2>
+            <h2>{t.courseSection}</h2>
           </Box>
+          <Box display="flex" flexWrap="wrap">
+            <CourseThumb
+              courseName="Artificial Intelligence - II"
+              imageLink="/ai-2.jpg"
+              notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FAI%26filepath%3Dcourse%2Fnotes%2Fnotes2.xhtml?inDocPath=-kpmihn"
+              cardsLink="/flash-cards/ai-2"
+            />
+            <CourseThumb
+              courseName="IWGS - II"
+              imageLink="/iwgs-2.jpg"
+              notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FIWGS%26filepath%3Dcourse%2Fnotes%2Fnotes-part2.xhtml?inDocPath=-9o7e"
+              width={165}
+              cardsLink="/flash-cards/iwgs-2"
+            />
+            <CourseThumb
+              courseName="Knowledge Representation for Mathematical Theories"
+              imageLink="/krmt.jpg"
+              notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FKRMT%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml"
+              cardsLink="/flash-cards/krmt"
+            />
+          </Box>
+          <h2>{t.otherCourses}</h2>
           <Box display="flex" flexWrap="wrap">
             <CourseThumb
               courseName="Artificial Intelligence - I"
               imageLink="/ai-1.jpg"
-              notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FAI%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml"
+              notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FAI%26filepath%3Dcourse%2Fnotes%2Fnotes1.xhtml"
               cardsLink="/flash-cards/ai-1"
               slidesLink="/course-view/ai-1"
             />
             <CourseThumb
               courseName="IWGS - I"
               imageLink="/iwgs-1.jpg"
-              notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FIWGS%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml"
-              cardsLink="/flash-cards/iwgs"
+              notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FIWGS%26filepath%3Dcourse%2Fnotes%2Fnotes-part1.xhtml"
+              cardsLink="/flash-cards/iwgs-1"
               width={83}
             />
             <CourseThumb
@@ -189,25 +211,6 @@ const StudentHomePage: NextPage = () => {
               imageLink="/lbs.jpg"
               cardsLink="/flash-cards/lbs"
               notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FLBS%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml"
-            />
-          </Box>
-          <h2>{t.otherCourses}</h2>
-          <Box display="flex" flexWrap="wrap">
-            <CourseThumb
-              courseName="Artificial Intelligence - II"
-              imageLink="/ai-2.jpg"
-              notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FAI%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml?inDocPath=-kpmihn"
-            />
-            <CourseThumb
-              courseName="IWGS - II"
-              imageLink="/iwgs-2.jpg"
-              notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FIWGS%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml?inDocPath=-9o7e"
-              width={165}
-            />
-            <CourseThumb
-              courseName="Knowledge Representation for Mathematical Theories"
-              imageLink="/krmt.jpg"
-              notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FKRMT%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml"
             />
           </Box>
           <hr style={{ width: '90%' }} />

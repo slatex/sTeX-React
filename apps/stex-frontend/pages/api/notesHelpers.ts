@@ -6,7 +6,7 @@ import { AI_1_DECK_IDS } from '../../course_info/ai-1-notes';
 import { FileLocation, fileLocToString, stringToFileLoc } from '@stex-react/utils';
 
 export const AI_ROOT_NODE = fixCourseRootNode('ai-1');
-export const IWGS_ROOT_NODE = fixCourseRootNode('iwgs');
+export const IWGS_ROOT_NODE = fixCourseRootNode('iwgs-1');
 export const LBS_ROOT_NODE = fixCourseRootNode('lbs');
 export const KRMT_ROOT_NODE = fixCourseRootNode('krmt');
 

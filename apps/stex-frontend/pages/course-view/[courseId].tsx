@@ -145,7 +145,7 @@ const CourseViewPage: NextPage = () => {
     if (!deckId) {
       router.query.deckId =
         localStore?.getItem(`lastReadDeckId-${courseId}`) ||
-        'MiKoMH/AI||course/notes/notes.xhtml';
+        'MiKoMH/AI||course/notes/notes1.xhtml';
     }
     if (!slideNum) {
       router.query.slideNum =
@@ -269,7 +269,7 @@ const CourseViewPage: NextPage = () => {
                 }}
               />
               <Link
-                href="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FAI%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml"
+                href="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FAI%26filepath%3Dcourse%2Fnotes%2Fnotes1.xhtml"
                 passHref
               >
                 <Button size="small" variant="contained" sx={{ mr: '10px' }}>
