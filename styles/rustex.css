@@ -93,8 +93,8 @@ a { color: inherit; text-decoration: inherit; }
 .rustex-hbox, .rustex-hbox-no-space {
     display:inline-flex;
     white-space: pre;
-    width: fit-content;
-    height: fit-content;
+    width: min-content;
+    height: min-content;
     align-items: baseline;
     /*
     vertical-align: bottom;
@@ -108,7 +108,7 @@ a { color: inherit; text-decoration: inherit; }
     margin-right: auto;
 }
 .rustex-hbox-no-space > .rustex-space-in-hbox, .rustex-hbox-no-space > span > .rustex-space-in-hbox, .rustex-hbox-no-space > span > span > .rustex-space-in-hbox {
-    display:none;
+    margin:0;
 }
 .rustex-hbox > .rustex-text, .rustex-hbox > span > .rustex-text, .rustex-hbox > span > span > .rustex-text, .rustex-hbox > span > span > span > .rustex-text { display:inline-block} /* line-height:0 */
 
@@ -132,6 +132,7 @@ a { color: inherit; text-decoration: inherit; }
 
 .rustex-vrule {
     display:inline-block;
+    vertical-align: text-bottom;
 }
 .rustex-hrule {
     display:block;
@@ -160,6 +161,12 @@ mtext > {display:initial}
 mtext * {
     font-size: inherit;
     writing-mode: initial;
+}
+.rustex-math-escape {
+    display: inline-flex;
+    width: 100%;
+    text-align: center;
+    justify-content: center;
 }
 
 .rustex-display-math-container {
