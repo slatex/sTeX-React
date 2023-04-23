@@ -476,8 +476,12 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
   }
 
   const guidedTourPath = getGuidedTourPath(domNode.attribs?.['href']);
-  if (guidedTourPath) return (domNode.attribs['href'] = guidedTourPath);
-  if (isMMTHref(domNode)) return <MMTHrefReplaced d={domNode} />;
+  if (guidedTourPath) {
+    domNode.attribs['href'] = guidedTourPath;
+    return;
+  }
+  if (isMMTHref(domNode) && !IS_MMT_VIEWER)
+    return <MMTHrefReplaced d={domNode} />;
 
   if (domNode.attribs?.['class'] === 'inputref') {
     const inputRef = domNode.attribs['data-inputref-url'];
