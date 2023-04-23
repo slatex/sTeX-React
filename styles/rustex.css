@@ -676,3 +676,6 @@ svg, foreignObject {
   content:"";
   font-weight:700
 }
+:root {
+  --shtml-has-chapter:"";
+}
