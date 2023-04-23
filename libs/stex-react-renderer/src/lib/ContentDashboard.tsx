@@ -132,7 +132,7 @@ function RenderTree({
             while (n?.parentNode) {
               const hash = (n as any)?.hash;
               if (hash) paths.push(hash);
-              console.log(hash);
+              // console.log(hash);
               n = n.parentNode;
             }
             if (router) {
@@ -242,7 +242,7 @@ export function ContentDashboard({
         `${mmtUrl}/:sTeX/sections?archive=${archive}&filepath=${filepath}`
       );
       const root = getDocumentTree(resp.data, undefined);
-      setDashInfo(root);
+      setDashInfo(root.type !== TOCNodeType.FILE ? undefined : root);
     }
     getIndex();
   }, [mmtUrl, contentUrl]);

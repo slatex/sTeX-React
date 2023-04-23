@@ -8,12 +8,12 @@ export const de = {
 
   // dialog
   titleLabel: 'Titel (Optional)',
-  issueCategoryPrompt: 'Es gibt ein Problem mit der',
+  issueCategoryPrompt: 'Es gibt ein Problem mit',
   information: 'Information',
   display: 'Anzeige',
 
   issueType: 'Problemtyp',
-  errorType: 'Irgendwas stimmt nicht',
+  errorType: 'Etwas stimmt nicht',
   suggestionType: 'Ich habe einen Vorschlag',
 
   selectedContent: 'AUSGEWÄHLTE INHALTE',
@@ -22,7 +22,7 @@ export const de = {
   issueDescription: 'Fehlerbeschreibung',
   postAnonymously: 'Anonym posten',
   nameShared: 'Ihr Name ($1) wird geteilt.',
-  anonymousRegret: 'Anonym zu posten macht es uns unmöglich, Ihnen zu folgen oder Ihnen zu danken.',
+  anonymousRegret: 'Anonym zu posten macht es uns unmöglich, Ihnen Rückfragen zu stellen oder Ihnen zu danken.',
   createIssue: 'Problem erstellen',
-  cancel: 'Stornieren'
+  cancel: 'Abbrechen'
 };

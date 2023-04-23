@@ -35,25 +35,22 @@ const ExperimentsHome: NextPage = () => {
               rel="noreferrer"
             >
               <Button variant="contained">
-                Staging server<OpenInNewIcon />
+                Staging server
+                <OpenInNewIcon />
               </Button>
             </a>
-            <br/>
-            <br/>
+            <br />
+            <br />
             <Link href="/file-browser">
               <Button variant="contained">View article browser</Button>
             </Link>
             <br />
             <br />
-            <a
-              href="https://courses-staging.kwarc.info/quiz"
-              target="_blank"
-              rel="noreferrer"
-            >
+            <Link href="/quiz">
               <Button variant="contained">
-                Quiz Demo (on staging)<OpenInNewIcon />
+                Quiz Demo
               </Button>
-            </a>
+            </Link>
             <br />
             <br />
             <Link href="/visualization">
@@ -61,7 +58,14 @@ const ExperimentsHome: NextPage = () => {
             </Link>
             <br />
             <br />
-            <Typography variant='h5' mb="10px">Paper Prototypes</Typography>
+            <Typography variant="h5" mb="10px">
+              Paper Prototypes (What we are working towards)
+            </Typography>
+            <Link href="/exp/pp_dialogue_tour">
+              <Button variant="contained">Dialogue Guided Tour</Button>
+            </Link>
+            <br />
+            <br />
             <Link href="/exp/pp_teachers_and_tas">
               <Button variant="contained">Cohort overview</Button>
             </Link>
@@ -69,11 +73,6 @@ const ExperimentsHome: NextPage = () => {
             <br />
             <Link href="/exp/pp_students">
               <Button variant="contained">Student competency assessment</Button>
-            </Link>
-            <br />
-            <br />
-            <Link href="/exp/pp_dialogue_tour">
-              <Button variant="contained">Dialogue Guided Tour</Button>
             </Link>
             <br />
             <br />

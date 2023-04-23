@@ -7,8 +7,10 @@ import { exit } from 'process';
 
 export const SCRIPT_MMT_URL = 'https://stexmmt.mathhub.info';
 export const COURSE_ROOTS = {
-  'ai-1': '/:sTeX/document?archive=MiKoMH/AI&filepath=course/notes/notes.xhtml',
-  iwgs: '/:sTeX/document?archive=MiKoMH/IWGS&filepath=course/notes/notes.xhtml',
+  'ai-1': '/:sTeX/document?archive=MiKoMH/AI&filepath=course/notes/notes1.xhtml',
+  'ai-2': '/:sTeX/document?archive=MiKoMH/AI&filepath=course/notes/notes2.xhtml',
+  'iwgs-1': '/:sTeX/document?archive=MiKoMH/IWGS&filepath=course/notes/notes-part1.xhtml',
+  'iwgs-2': '/:sTeX/document?archive=MiKoMH/IWGS&filepath=course/notes/notes-part2.xhtml',
   lbs: '/:sTeX/document?archive=MiKoMH/LBS&filepath=course/notes/notes.xhtml',
   krmt: '/:sTeX/document?archive=MiKoMH/KRMT&filepath=course/notes/notes.xhtml',
 };

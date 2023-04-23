@@ -8,7 +8,7 @@ import { getLocaleObject } from './lang/utils';
 export const RenderOptions = createContext({
   renderOptions: {
     expandOnScroll: true, // Auto expand sections on scroll
-    allowFolding: true, // Allow section folding
+    allowFolding: false, // Allow section folding
     noFrills: false,
   },
   setRenderOptions: (options: {

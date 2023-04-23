@@ -1,7 +1,7 @@
 export const en = {
   home: {
     header: 'VoLL-KI based Courses at FAU',
-    couseSection: 'Current semester (WS 22/23)',
+    courseSection: 'Current semester (SS23)',
     otherCourses: 'Other Courses',
     guidedTourHeader: 'Topic-Based, Free Style Learning',
     footerInfo:

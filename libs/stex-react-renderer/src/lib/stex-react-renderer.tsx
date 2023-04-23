@@ -1,5 +1,4 @@
 import { Box } from '@mui/material';
-import { CommentButton } from '@stex-react/comments';
 import {
   BG_COLOR,
   getChildrenOfBodyNode,

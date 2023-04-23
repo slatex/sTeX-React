@@ -149,7 +149,7 @@ export function ConfigureLevelSlider({
   const t = getLocaleObject(useRouter());
   return (
     <>
-      <Tooltip title={`${t.iconHovers[dim]} ${t.enableDisableFilter}`}>
+      <Tooltip title={`${t.iconHovers[dim]}. ${t.enableDisableFilter}`}>
         <IconButton onClick={() => onIconClick()}>
           <DimIcon showTitle={false} dim={dim} white={false} />
         </IconButton>

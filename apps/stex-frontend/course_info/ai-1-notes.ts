@@ -8,7 +8,7 @@ export interface CourseSectionInfo  {
 
 export const AI_1_COURSE_SECTIONS: CourseSectionInfo = {
   'Preface': {
-    'MiKoMH/AI||course/notes/notes.xhtml': { clipId: '43840', timestampSec: 14 },
+    'MiKoMH/AI||course/notes/notes1.xhtml': { clipId: '43840', timestampSec: 14 },
     'MiKoMH/AI||course/sec/syllabus.en.xhtml': { clipId: '43840', timestampSec: 120 },
   },
   'Administrativa': {
