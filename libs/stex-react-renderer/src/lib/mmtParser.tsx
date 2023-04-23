@@ -152,6 +152,26 @@ function getGuidedTourPath(href?: string) {
   return undefined;
 }
 
+function isMMTLink(l: string) {
+  if (!l?.length) return false;
+  return l.startsWith('/:sTeX') || l.toLowerCase().startsWith('/stex');
+}
+
+function isMMTSrc(d: Element) {
+  return d.name === 'img' && isMMTLink(d.attribs['src']);
+}
+
+function isMMTHref(d: Element) {
+  return isMMTLink(d.attribs['href']);
+}
+
+function MMTHrefReplaced({ d }: { d: Element }) {
+  const { mmtUrl } = useContext(ServerLinksContext);
+  if (isMMTLink(d.attribs['href']))
+    d.attribs['href'] = mmtUrl + d.attribs['href'];
+  return <>{domToReact([d], { replace })}</>;
+}
+
 function isInMath(domNode?: any): boolean {
   if (!domNode) return false;
   if (domNode.name === 'math') return true;
@@ -281,10 +301,6 @@ function FauClipWithLink({ href }: { href: string }) {
       <IframedFauClip clipId={clipId} />
     </>
   );
-}
-
-function isMMTSrc(d: Element) {
-  return d.name === 'img' && d.attribs['src'].startsWith('/:sTeX/img');
 }
 
 function MMTImage({ d }: { d: Element }) {
@@ -460,15 +476,8 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
   }
 
   const guidedTourPath = getGuidedTourPath(domNode.attribs?.['href']);
-  if (guidedTourPath) {
-    return (
-      <Link href={guidedTourPath} passHref>
-        <Button sx={{ m: '5px' }} size="small" variant="contained">
-          <TourIcon>&nbsp;</TourIcon>Guided Tour
-        </Button>
-      </Link>
-    );
-  }
+  if (guidedTourPath) return (domNode.attribs['href'] = guidedTourPath);
+  if (isMMTHref(domNode)) return <MMTHrefReplaced d={domNode} />;
 
   if (domNode.attribs?.['class'] === 'inputref') {
     const inputRef = domNode.attribs['data-inputref-url'];

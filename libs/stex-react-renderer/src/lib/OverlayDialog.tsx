@@ -40,7 +40,7 @@ export function OverlayDialog({
         <Box display="flex" flexDirection="column" m="5px" maxWidth="800px">
           <a
             style={{ marginLeft: 'auto' }}
-            href={`${mmtUrl}/${contentUrl}`}
+            href={`${mmtUrl}/${contentUrl}`.replace(':sTeX/declaration', ':sTeX/symbol')}
             target="_blank"
             rel="noreferrer"
           >

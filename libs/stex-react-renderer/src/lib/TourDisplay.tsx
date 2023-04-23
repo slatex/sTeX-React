@@ -78,7 +78,7 @@ const RenderedMmtMemo = memo(({ html }: { html: string }) => {
 function isConceptUnderstood(val: SmileyCognitiveValues) {
   const r = smileyToLevel(val?.Remember);
   const u = smileyToLevel(val?.Understand);
-  return !!r && !!u && r>=1 && u>=1;
+  return !!r && !!u && r >= 1 && u >= 1;
 }
 
 function ItemBreadcrumbs({
@@ -180,18 +180,18 @@ function TourItemDisplay({
           <RenderedMmtMemo html={item.header} />
         </h3>
         <Box mx="10px" height="30px" sx={{ whiteSpace: 'nowrap' }}>
-          {
-            <Box display="flex" alignItems="center" gap="5px" zIndex={10}>
-              {isTempShow && (
-                <Button
-                  size="small"
-                  onClick={() => onHideTemp()}
-                  variant="outlined"
-                  sx={{ mr: '10px' }}
-                >
-                  {t.hide}
-                </Button>
-              )}
+          <Box display="flex" alignItems="center" gap="5px" zIndex={10}>
+            {isTempShow && (
+              <Button
+                size="small"
+                onClick={() => onHideTemp()}
+                variant="outlined"
+                sx={{ mr: '10px' }}
+              >
+                {t.hide}
+              </Button>
+            )}
+            {!IS_MMT_VIEWER && (
               <SelfAssessmentDialog
                 dims={[BloomDimension.Remember, BloomDimension.Understand]}
                 uri={item.uri}
@@ -200,8 +200,9 @@ function TourItemDisplay({
                   if (isConceptUnderstood(v)) onUnderstood();
                 }}
               />
-            </Box>
-          }
+            )}
+          </Box>
+
           {/*
               <Button
                 size="small"
