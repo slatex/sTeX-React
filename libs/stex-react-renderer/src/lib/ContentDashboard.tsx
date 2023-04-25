@@ -13,6 +13,8 @@ import {
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
+import { FixedPositionMenu } from './LayoutWithFixedMenu';
+import { RendererDisplayOptions } from './RendererDisplayOptions';
 import {
   TOCFileNode,
   TOCNode,
@@ -20,8 +22,6 @@ import {
   TOCSectionNode,
 } from './collectIndexInfo';
 import { getLocaleObject } from './lang/utils';
-import { FixedPositionMenu } from './LayoutWithFixedMenu';
-import { RendererDisplayOptions } from './RendererDisplayOptions';
 import { ServerLinksContext } from './stex-react-renderer';
 import styles from './stex-react-renderer.module.scss';
 
@@ -31,24 +31,64 @@ interface SectionTreeNode {
   tocNode: TOCSectionNode;
 }
 
+function markPreviousAsCovered(node: SectionTreeNode, selfCovered: boolean) {
+  if (selfCovered) node.tocNode.isCovered = true;
+  const parent = node.parentNode;
+  if (!parent) return;
+  const idx = parent.children.findIndex(
+    (c) => c.tocNode.id === node.tocNode.id
+  );
+  if (idx === -1) {
+    console.log(node.tocNode.id);
+    console.log(parent.children.map((c) => c.tocNode.id));
+    console.log('oh ohhh');
+    return;
+  }
+  for (const c of parent.children) {
+    if (c.tocNode.id === node.tocNode.id) break;
+    markPreviousAsCovered(c, true);
+  }
+  markPreviousAsCovered(
+    parent,
+    selfCovered && idx === parent.children.length - 1
+  );
+}
+
+function fillCoverage(node: SectionTreeNode, name: string) {
+  if (!node) return;
+  const value = convertHtmlStringToPlain(node.tocNode?.title);
+  if (value === name) {
+    markPreviousAsCovered(node, true);
+    return;
+  }
+  if (!node.children) return;
+  for (const c of node.children) fillCoverage(c, name);
+}
+
 function getSectionTree(
   tocNode: TOCNode,
   parentNode?: SectionTreeNode
 ): SectionTreeNode | SectionTreeNode[] {
   const isSection = tocNode.type === TOCNodeType.SECTION;
+
   if (isSection) {
     const children: SectionTreeNode[] = [];
+    const thisNode = {
+      tocNode: tocNode as TOCSectionNode,
+      children,
+      parentNode,
+    };
     for (const s of tocNode.childNodes.values()) {
-      const subNodes = getSectionTree(s);
+      const subNodes = getSectionTree(s, thisNode);
       if (!subNodes) continue;
       if (Array.isArray(subNodes)) children.push(...subNodes);
       else children.push(subNodes);
     }
-    return { tocNode: tocNode as TOCSectionNode, children, parentNode };
+    return thisNode;
   } else {
     const children: SectionTreeNode[] = [];
     for (const s of tocNode.childNodes.values()) {
-      const subNodes = getSectionTree(s);
+      const subNodes = getSectionTree(s, parentNode);
       if (!subNodes) continue;
       if (Array.isArray(subNodes)) children.push(...subNodes);
       else children.push(subNodes);
@@ -108,7 +148,13 @@ function RenderTree({
   const itemClassName =
     level === 0 ? styles['level0_dashboard_item'] : styles['dashboard_item'];
   return (
-    <Box key={node.tocNode.id} sx={{ my: '6px' }}>
+    <Box
+      key={node.tocNode.id}
+      sx={{
+        py: '6px',
+        backgroundColor: node.tocNode.isCovered ? '#FFB' : undefined,
+      }}
+    >
       <Box display="flex" ml={node.children.length > 0 ? undefined : '23px'}>
         {node.children.length > 0 && (
           <IconButton
@@ -247,16 +293,20 @@ export function ContentDashboard({
     getIndex();
   }, [mmtUrl, contentUrl]);
 
-  const rootPage =
+  const shadowTopLevel = { children: [] as any, tocNode: undefined as any };
+  const firstLevelSections =
     dashInfo &&
     applyFilter(
-      getSectionTree(dashInfo) as SectionTreeNode[],
+      getSectionTree(dashInfo, shadowTopLevel) as SectionTreeNode[],
       filterStr
         .toLowerCase()
         .split(' ')
         .map((s) => s.trim())
         .filter((t) => !!t?.length)
     );
+  if (firstLevelSections) shadowTopLevel.children = firstLevelSections;
+  fillCoverage(shadowTopLevel, 'What is a Bayesian Network?');
+  //console.log(printRoot(rootPage));
 
   return (
     <FixedPositionMenu
@@ -288,12 +338,12 @@ export function ContentDashboard({
                 )}
               </IconButton>
             </Tooltip>
-            <RendererDisplayOptions />
+            {/*<RendererDisplayOptions />*/}
           </Box>
         </>
       }
     >
-      {(rootPage || []).map((child) => (
+      {(firstLevelSections || []).map((child) => (
         <RenderTree
           key={child.tocNode.id}
           node={child}
