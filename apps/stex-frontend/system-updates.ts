@@ -39,6 +39,9 @@ export const SYSTEM_UPDATES = [
     header: 'Now available in German!',
     content:
       'This portal can now be viewed in German. Click on the country flag on the header to switch between English and German.',
+    header_de: 'Jetzt auf Deutsch verfügbar!',
+    content_de:
+      'Dieses Portal ist nun auch auf Deutsch zu sehen. Klicken Sie auf die Länderflagge in der Kopfzeile, um zwischen Englisch und Deutsch zu wechseln.',
     timestamp: dayjs('2023-03-30T16:00:00+05:30'),
   },
   {
