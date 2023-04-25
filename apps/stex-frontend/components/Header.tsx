@@ -150,6 +150,7 @@ function LanguageButton() {
 
 function NotificationButton() {
   const router = useRouter();
+  const { locale } = router;
   const { header: t } = getLocaleObject(router);
 
   // System info menu crap start
@@ -188,7 +189,8 @@ function NotificationButton() {
           <MenuItem key={idx} onClick={handleClose}>
             <Link href={`/updates#${update.id}`}>
               <Box>
-                {update.header}
+                {(locale === 'de' ? update.header_de : undefined) ??
+                  update.header}
                 <Typography display="block" variant="body2" color="gray">
                   <DateView
                     timestampMs={update.timestamp.unix() * 1000}

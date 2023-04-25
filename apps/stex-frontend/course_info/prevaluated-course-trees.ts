@@ -1,5 +1,5 @@
 export const PREVALUATED_COURSE_TREES = {
-'ai-1': `.||MiKoMH/AI||course/notes/notes.xhtml||
+'ai-1': `.||MiKoMH/AI||course/notes/notes1.xhtml||
 ..||MiKoMH/AI||course/sec/pre.en.xhtml||<div>      <span xmlns:om="http://www.openmath.org/OpenMath">Preface</span>    </div>
 ...||MiKoMH/AI||course/sec/concept.en.xhtml||<div>        <span xmlns:om="http://www.openmath.org/OpenMath">Course Concept</span>      </div>
 ...||MiKoMH/AI||course/sec/contents.en.xhtml||<div>        <span xmlns:om="http://www.openmath.org/OpenMath">Course Contents</span>      </div>

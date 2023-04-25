@@ -11,6 +11,7 @@ export interface TOCNode {
 export interface TOCSectionNode extends TOCNode {
   id: string;
   title: string;
+  isCovered?: boolean;
 }
 
 export interface TOCFileNode extends TOCNode {

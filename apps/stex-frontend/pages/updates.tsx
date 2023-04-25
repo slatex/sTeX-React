@@ -28,7 +28,9 @@ const UpdatesPage: NextPage = () => {
         {SYSTEM_UPDATES.map((update, idx) => (
           <Box key={idx} id={update.id} my="30px">
             <Typography fontWeight="bold" variant="h4" color="#444">
-              {locale === 'de' ? update.header_de : update.header}
+              {locale === 'de'
+                ? update.header_de || update.header
+                : update.header}
             </Typography>
             <Tooltip title={update.timestamp.format('LT')}>
               <Typography color="gray" mb="10px">
@@ -37,7 +39,11 @@ const UpdatesPage: NextPage = () => {
             </Tooltip>
             <Typography>
               <MdViewer
-                content={locale === 'de' ? update.content_de : update.content}
+                content={
+                  locale === 'de'
+                    ? update.content_de || update.content
+                    : update.content
+                }
               />
             </Typography>
           </Box>
