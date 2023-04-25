@@ -9,6 +9,7 @@ import { ToursAutocomplete } from '../components/ToursAutocomplete';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 import styles from '../styles/utils.module.scss';
+import { CourseInfo, coursesInfo } from '../course_info/info';
 
 function ELink({ href, children }: { href: string; children: any }) {
   return (
@@ -17,25 +18,20 @@ function ELink({ href, children }: { href: string; children: any }) {
     </a>
   );
 }
-function CourseThumb({
-  courseName,
-  imageLink,
-  notesLink,
-  slidesLink = undefined,
-  cardsLink = undefined,
-  width = 200,
-}: {
-  courseName: string;
-  imageLink: string;
-  notesLink: string;
-  slidesLink?: string;
-  cardsLink?: string;
-  width?: number;
-}) {
+function CourseThumb({ courseId }: { courseId: string }) {
   const router = useRouter();
   const { home } = getLocaleObject(router);
   const t = home.courseThumb;
 
+  const {
+    courseName,
+    courseHome,
+    imageLink,
+    notesLink,
+    slidesLink,
+    cardsLink,
+  } = coursesInfo[courseId];
+  const width = courseId === 'iwgs-1' ? 83 : courseId === 'iwgs-2' ? 165 : 200;
   return (
     <Card
       sx={{
@@ -43,7 +39,7 @@ function CourseThumb({
         border: '1px solid #CCC',
         p: '10px',
         m: '10px',
-        width: '208px',
+        width: '218px',
       }}
     >
       <Box
@@ -53,10 +49,19 @@ function CourseThumb({
         height="100%"
       >
         <Box display="flex" flexDirection="column" alignItems="center">
-          <Image src={imageLink} width={width} height={100} alt={courseName} />
-          <span style={{ fontSize: '18px', marginTop: '5px' }}>
-            {courseName}
-          </span>
+          <Link href={courseHome} style={{ textAlign: 'center' }}>
+            <Image
+              src={imageLink}
+              width={width}
+              height={100}
+              alt={courseName}
+            />
+            <span
+              style={{ fontSize: '18px', marginTop: '5px', fontWeight: 'bold' }}
+            >
+              {courseName}
+            </span>
+          </Link>
         </Box>
         <Box
           display="flex"
@@ -170,48 +175,15 @@ const StudentHomePage: NextPage = () => {
             <h2>{t.courseSection}</h2>
           </Box>
           <Box display="flex" flexWrap="wrap">
-            <CourseThumb
-              courseName="Artificial Intelligence - II"
-              imageLink="/ai-2.jpg"
-              notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FAI%26filepath%3Dcourse%2Fnotes%2Fnotes2.xhtml?inDocPath=-kpmihn"
-              cardsLink="/flash-cards/ai-2"
-            />
-            <CourseThumb
-              courseName="IWGS - II"
-              imageLink="/iwgs-2.jpg"
-              notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FIWGS%26filepath%3Dcourse%2Fnotes%2Fnotes-part2.xhtml?inDocPath=-9o7e"
-              width={165}
-              cardsLink="/flash-cards/iwgs-2"
-            />
-            <CourseThumb
-              courseName="Knowledge Representation for Mathematical Theories"
-              imageLink="/krmt.jpg"
-              notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FKRMT%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml"
-              cardsLink="/flash-cards/krmt"
-            />
+            {['ai-2', 'iwgs-2', 'krmt'].map((courseId) => (
+              <CourseThumb key={courseId} courseId={courseId} />
+            ))}
           </Box>
           <h2>{t.otherCourses}</h2>
           <Box display="flex" flexWrap="wrap">
-            <CourseThumb
-              courseName="Artificial Intelligence - I"
-              imageLink="/ai-1.jpg"
-              notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FAI%26filepath%3Dcourse%2Fnotes%2Fnotes1.xhtml"
-              cardsLink="/flash-cards/ai-1"
-              slidesLink="/course-view/ai-1"
-            />
-            <CourseThumb
-              courseName="IWGS - I"
-              imageLink="/iwgs-1.jpg"
-              notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FIWGS%26filepath%3Dcourse%2Fnotes%2Fnotes-part1.xhtml"
-              cardsLink="/flash-cards/iwgs-1"
-              width={83}
-            />
-            <CourseThumb
-              courseName="Logic-based Natural Language Semantics"
-              imageLink="/lbs.jpg"
-              cardsLink="/flash-cards/lbs"
-              notesLink="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FLBS%26filepath%3Dcourse%2Fnotes%2Fnotes.xhtml"
-            />
+            {['ai-1', 'iwgs-1', 'lbs'].map((courseId) => (
+              <CourseThumb key={courseId} courseId={courseId} />
+            ))}
           </Box>
           <hr style={{ width: '90%' }} />
           <h1>{t.guidedTourHeader}</h1>
