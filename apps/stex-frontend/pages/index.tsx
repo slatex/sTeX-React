@@ -1,6 +1,7 @@
 import ArticleIcon from '@mui/icons-material/Article';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
 import { Box, Button, Card, IconButton, Tooltip } from '@mui/material';
+import { COURSES_INFO } from '@stex-react/utils';
 import { NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -9,7 +10,6 @@ import { ToursAutocomplete } from '../components/ToursAutocomplete';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 import styles from '../styles/utils.module.scss';
-import { CourseInfo, coursesInfo } from '../course_info/info';
 
 function ELink({ href, children }: { href: string; children: any }) {
   return (
@@ -30,7 +30,7 @@ function CourseThumb({ courseId }: { courseId: string }) {
     notesLink,
     slidesLink,
     cardsLink,
-  } = coursesInfo[courseId];
+  } = COURSES_INFO[courseId];
   const width = courseId === 'iwgs-1' ? 83 : courseId === 'iwgs-2' ? 165 : 200;
   return (
     <Card

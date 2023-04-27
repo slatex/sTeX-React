@@ -1,9 +1,9 @@
 import ArticleIcon from '@mui/icons-material/Article';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
 import { Box, Button, Link } from '@mui/material';
+import { COURSES_INFO } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { coursesInfo } from '../../course_info/info';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
 
@@ -35,7 +35,7 @@ const CourseHomePage: NextPage = () => {
   const router = useRouter();
   if (!router.isReady) return <></>;
   const courseId = router.query.courseId as string;
-  const courseInfo = coursesInfo[courseId];
+  const courseInfo = COURSES_INFO[courseId];
   if (!courseInfo) return <>Course Not found</>;
   const { courseName, imageLink, notesLink, slidesLink, cardsLink } =
     courseInfo;
