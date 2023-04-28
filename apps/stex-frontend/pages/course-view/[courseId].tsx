@@ -9,20 +9,16 @@ import {
   LayoutWithFixedMenu,
 } from '@stex-react/stex-react-renderer';
 import { localStore, shouldUseDrawer } from '@stex-react/utils';
-import { getLocaleObject } from '../../lang/utils';
 import axios from 'axios';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { NextRouter, useRouter } from 'next/router';
-import { useEffect, useReducer, useState } from 'react';
-import {
-  courseInfoFromLocalStorage,
-  CourseSectioning,
-} from '../../components/CourseSectioning';
+import { useEffect, useState } from 'react';
 import { SlideDeck } from '../../components/SlideDeck';
 import { SlideDeckNavigation } from '../../components/SlideDeckNavigation';
 import { TooltipToggleButton } from '../../components/TooltipToggleButton';
 import { VideoDisplay } from '../../components/VideoDisplay';
+import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
 import { CourseInfo, DeckAndVideoInfo, Slide } from '../../shared/types';
 
@@ -131,8 +127,6 @@ const CourseViewPage: NextPage = () => {
   const [postNotes, setPostNotes] = useState([] as string[]);
   const [courseInfo, setCourseInfo] = useState(undefined as CourseInfo);
   const [deckInfo, setDeckInfo] = useState(undefined as DeckAndVideoInfo);
-  const [showSectioning, setShowSectioning] = useState(false);
-  const [, forceUpdate] = useReducer((x) => x + 1, 0);
   const [slideArchive, setSlideArchive] = useState('');
   const [slideFilepath, setSlideFilepath] = useState('');
 
@@ -171,14 +165,9 @@ const CourseViewPage: NextPage = () => {
 
   useEffect(() => {
     if (!router.isReady) return;
-    const fromLocalStorage = courseInfoFromLocalStorage(courseId);
-    if (fromLocalStorage) {
-      setCourseInfo(fromLocalStorage);
-    } else {
-      axios.get(`/api/get-course-info/${courseId}`).then((r) => {
-        setCourseInfo(r.data);
-      });
-    }
+    axios.get(`/api/get-course-info/${courseId}`).then((r) => {
+      setCourseInfo(r.data);
+    });
   }, [router.isReady, courseId]);
 
   useEffect(() => {
@@ -300,10 +289,7 @@ const CourseViewPage: NextPage = () => {
                 slideNum={slideNum}
               />
             )}
-            <hr
-              style={{ width: '98%', padding: '1px 0', cursor: 'pointer' }}
-              onClick={() => setShowSectioning(prompt('Code:') === 'go')}
-            />
+            <hr style={{ width: '98%', padding: '1px 0' }} />
 
             {viewMode !== ViewMode.VIDEO_MODE && (
               <CommentNoteToggleView
@@ -324,12 +310,6 @@ const CourseViewPage: NextPage = () => {
               />
             )}
           </Box>
-          {showSectioning && (
-            <CourseSectioning
-              courseInfo={courseInfo}
-              forceUpdate={forceUpdate}
-            />
-          )}
         </Box>
       </LayoutWithFixedMenu>
     </MainLayout>
