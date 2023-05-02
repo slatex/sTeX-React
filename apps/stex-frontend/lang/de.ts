@@ -16,7 +16,7 @@ export const de = {
       'Lernenden bewerten ihre Konzeptwissen selbst, was uns hilft, ' +
       'die in Übungen gezeigten Karten zu anzupassen.',
     courseThumb: {
-      notes: 'Notizen',
+      notes: 'Skript',
       cards: 'Karten',
       slides: 'Folien',
     },
