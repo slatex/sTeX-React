@@ -1,12 +1,16 @@
 import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
 import CloseIcon from '@mui/icons-material/Close';
+import EditIcon from '@mui/icons-material/Edit';
 import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/IndeterminateCheckBoxOutlined';
 import UnfoldLessDoubleIcon from '@mui/icons-material/UnfoldLessDouble';
 import UnfoldMoreDoubleIcon from '@mui/icons-material/UnfoldMoreDouble';
 import { Box, IconButton, TextField, Tooltip } from '@mui/material';
+import { MODERATORS, getUserInfo } from '@stex-react/api';
 import {
+  CoverageTimeline,
   convertHtmlStringToPlain,
   createHash,
+  getCourseId,
   getSectionInfo,
   localStore,
 } from '@stex-react/utils';
@@ -14,7 +18,6 @@ import axios from 'axios';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import { FixedPositionMenu } from './LayoutWithFixedMenu';
-import { RendererDisplayOptions } from './RendererDisplayOptions';
 import {
   TOCFileNode,
   TOCNode,
@@ -54,15 +57,15 @@ function markPreviousAsCovered(node: SectionTreeNode, selfCovered: boolean) {
   );
 }
 
-function fillCoverage(node: SectionTreeNode, name: string) {
+function fillCoverage(node: SectionTreeNode, coveredUntil: string) {
   if (!node) return;
   const value = convertHtmlStringToPlain(node.tocNode?.title);
-  if (value === name) {
+  if (value === coveredUntil) {
     markPreviousAsCovered(node, true);
     return;
   }
   if (!node.children) return;
-  for (const c of node.children) fillCoverage(c, name);
+  for (const c of node.children) fillCoverage(c, coveredUntil);
 }
 
 function getSectionTree(
@@ -223,7 +226,7 @@ function RenderTree({
   );
 }
 
-interface SectionsAPIData {
+export interface SectionsAPIData {
   archive?: string;
   filepath?: string;
 
@@ -280,6 +283,12 @@ export function ContentDashboard({
   const [defaultOpen, setDefaultOpen] = useState(true);
   const [dashInfo, setDashInfo] = useState<TOCNode | undefined>(undefined);
   const { mmtUrl } = useContext(ServerLinksContext);
+  const [coveredUntil, setCoveredUntilSection] = useState('');
+
+  const [showUpdater, setShowUpdater] = useState(false);
+  useEffect(() => {
+    getUserInfo().then((info) => {    });
+  }, []);
 
   useEffect(() => {
     async function getIndex() {
@@ -293,6 +302,20 @@ export function ContentDashboard({
     getIndex();
   }, [mmtUrl, contentUrl]);
 
+  useEffect(() => {
+    async function getCoverageInfo() {
+      const courseId = getCourseId(getSectionInfo(contentUrl));
+      if (!courseId) return;
+
+      const resp = await axios.get('/api/get-coverage-timeline');
+      const snaps = (resp.data as CoverageTimeline)?.[courseId];
+      if (snaps?.length) {
+        setCoveredUntilSection(snaps[snaps.length - 1].sectionName);
+      }
+    }
+    getCoverageInfo();
+  }, [contentUrl]);
+
   const shadowTopLevel = { children: [] as any, tocNode: undefined as any };
   const firstLevelSections =
     dashInfo &&
@@ -305,8 +328,7 @@ export function ContentDashboard({
         .filter((t) => !!t?.length)
     );
   if (firstLevelSections) shadowTopLevel.children = firstLevelSections;
-  fillCoverage(shadowTopLevel, 'What is a Bayesian Network?');
-  //console.log(printRoot(rootPage));
+  if (coveredUntil?.length) fillCoverage(shadowTopLevel, coveredUntil);
 
   return (
     <FixedPositionMenu
@@ -338,6 +360,13 @@ export function ContentDashboard({
                 )}
               </IconButton>
             </Tooltip>
+            {showUpdater && (
+              <a href="/coverage-update" target="_blank" rel="noreferrer">
+                <IconButton>
+                  <EditIcon />
+                </IconButton>
+              </a>
+            )}{' '}
             {/*<RendererDisplayOptions /> removed - as requested by Dennis*/}
           </Box>
         </>

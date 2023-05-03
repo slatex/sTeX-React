@@ -2,13 +2,9 @@ import axios from 'axios';
 import { textContent } from 'domutils';
 import * as htmlparser2 from 'htmlparser2';
 import NOTES_TREES, { TreeNode } from '../../notes-trees.preval';
-import { AI_1_DECK_IDS } from '../../course_info/ai-1-notes';
-import { FileLocation, fileLocToString, stringToFileLoc } from '@stex-react/utils';
+import { FileLocation, stringToFileLoc } from '@stex-react/utils';
 
 export const AI_ROOT_NODE = fixCourseRootNode('ai-1');
-export const IWGS_ROOT_NODE = fixCourseRootNode('iwgs-1');
-export const LBS_ROOT_NODE = fixCourseRootNode('lbs');
-export const KRMT_ROOT_NODE = fixCourseRootNode('krmt');
 
 const SLIDE_DOC_CACHE = new Map<string, string>();
 export async function getFileContent(
@@ -24,10 +20,6 @@ export async function getFileContent(
 }
 
 function fixTree(node: TreeNode) {
-  const v = fileLocToString(node);
-  if (AI_1_DECK_IDS.includes(v)) {
-    node.endsSection = true;
-  }
   for (const c of node.children) {
     c.parent = node;
     fixTree(c);
@@ -44,12 +36,6 @@ export function getCourseRootNode(courseId: string) {
   switch (courseId) {
     case 'ai-1':
       return AI_ROOT_NODE;
-    case 'iwgs':
-      return IWGS_ROOT_NODE;
-    case 'lbs':
-      return LBS_ROOT_NODE;
-    case 'krmt':
-      return KRMT_ROOT_NODE;
   }
   return undefined;
 }
