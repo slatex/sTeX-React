@@ -6,6 +6,7 @@ import MainLayout from '../../layouts/MainLayout';
 const LOCATIONS = [
   'Choose Quiz',
   'MAAI (may)',
+  'problems/gdp',
   'MAAI (may) - small',
   'MiKoMH/AI/csp/quiz',
   'problems/maai-test/AuD/prob',
