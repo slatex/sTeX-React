@@ -1,4 +1,4 @@
-import { useMatomo } from '@jonkoops/matomo-tracker-react';
+// import { useMatomo } from '@jonkoops/matomo-tracker-react';
 import { Box, Toolbar } from '@mui/material';
 import { ReportProblemPopover } from '@stex-react/report-a-problem';
 import { PRIMARY_COL, SECONDARY_COL } from '@stex-react/utils';
@@ -18,7 +18,7 @@ export default function MainLayout({
   children: any;
   showBrowserAutocomplete?: boolean;
 }) {
-  const { trackPageView } = useMatomo();
+  //const { trackPageView } = useMatomo();
   const router = useRouter();
   const { header: t } = getLocaleObject(router);
   const [prevLoc, setPrevLoc] = useState('');
@@ -26,7 +26,7 @@ export default function MainLayout({
   useEffect(() => {
     const loc = router.asPath;
     if (!router.isReady || prevLoc === loc) return;
-    trackPageView();
+    //trackPageView();
     setPrevLoc(loc);
   }, [router.isReady, router.asPath]);
 
