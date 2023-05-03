@@ -287,7 +287,9 @@ export function ContentDashboard({
 
   const [showUpdater, setShowUpdater] = useState(false);
   useEffect(() => {
-    getUserInfo().then((info) => {    });
+    getUserInfo().then((info) => {
+      setShowUpdater(!!info?.userId && MODERATORS.includes(info?.userId));
+    });
   }, []);
 
   useEffect(() => {
