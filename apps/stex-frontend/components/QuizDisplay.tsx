@@ -21,7 +21,6 @@ import {
 import { shouldUseDrawer } from '@stex-react/utils';
 import axios from 'axios';
 import { useContext, useEffect, useReducer, useState } from 'react';
-import ROOT_NODES from '../file-structure.preval';
 import { QuestionDisplay } from './QuestionDisplay';
 import { QuizTimer, Timer, timerEvent } from './QuizTimer';
 import {
@@ -38,6 +37,17 @@ import {
 } from '../shared/quiz';
 import { QuizSubmitConfirm } from './QuizSubmitConfirm';
 
+let ROOT_NODES = undefined as FileNode[];
+async function getRootNodes(mmtUrl: string) {
+  console.log('Fetching root file nodes...');
+  if (!ROOT_NODES) {
+    ROOT_NODES = await axios.get(`${mmtUrl}/:sTeX/browser?menu`).then((r) => {
+      console.log('Root file nodes fetched');
+      return r.data;
+    });
+  }
+  return ROOT_NODES;
+}
 function getAllQuestionUrls(
   nodes: FileNode[],
   pathSegments: string[],
@@ -166,6 +176,7 @@ export function QuizDisplay({ quizId }: { quizId: string }) {
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
 
   const [, forceRerender] = useReducer((x) => x + 1, 0);
+  const [rootNodes, setRootNodes] = useState<FileNode[]>([]);
 
   function setQuestionIdx2(i: number) {
     setQuestionIdx(i);
@@ -184,10 +195,16 @@ export function QuizDisplay({ quizId }: { quizId: string }) {
   }
 
   useEffect(() => {
-    if (!quizId?.length) return;
+    getRootNodes(mmtUrl).then((n) => {
+      setRootNodes(n);
+    });
+  }, [mmtUrl]);
+
+  useEffect(() => {
+    if (!quizId?.length || !rootNodes) return;
     const urls = quizId.startsWith('MAAI (may)')
       ? getMaaiMayQuestionURLs(mmtUrl, quizId === 'MAAI (may)')
-      : getAllQuestionUrls(ROOT_NODES, quizId.split('/'), mmtUrl);
+      : getAllQuestionUrls(rootNodes, quizId.split('/'), mmtUrl);
     setQuestionUrls(urls);
 
     Promise.all(urls.map((url) => axios.get(url))).then((responses) => {
@@ -217,7 +234,7 @@ export function QuizDisplay({ quizId }: { quizId: string }) {
       )
     );
     setIsSubmitted(false);
-  }, [quizId, mmtUrl]);
+  }, [quizId, mmtUrl, rootNodes]);
 
   function onResponseUpdate(
     questionIdx: number,
@@ -235,7 +252,7 @@ export function QuizDisplay({ quizId }: { quizId: string }) {
     });
   }
 
-  if (!questions) return <CircularProgress />;
+  if (!questions?.length) return <CircularProgress />;
   const response = responses[questionIdx];
   const question = questions[questionIdx];
   return (
