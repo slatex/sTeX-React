@@ -100,6 +100,10 @@ const CoverageUpdatePage: NextPage = () => {
         <Button
           variant="contained"
           onClick={() => {
+            const confirmText =
+              "Did you make sure to click 'Add' button to add entries to the table?";
+            if (!confirm(confirmText)) return;
+
             const body = { courseId: selectedCourseId, snaps };
             const headers = getAuthHeaders();
             axios.post('/api/set-coverage-timeline', body, { headers }).then(
@@ -111,6 +115,9 @@ const CoverageUpdatePage: NextPage = () => {
         >
           Save
         </Button>
+        <span style={{ color: 'red', display: 'flex' }}>
+          Your changes will not be saved till you click 'Save'.
+        </span>
       </Box>
     </MainLayout>
   );

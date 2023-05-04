@@ -448,7 +448,7 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
           />
         </Box>
       </Box>
-      <ReviseAndDrillButtons
+      {/*<ReviseAndDrillButtons
         shuffle={shuffle}
         setShuffle={setShuffle}
         selectedCards={selectedCards}
@@ -457,7 +457,8 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
           setStarted(true);
           Window?.scrollTo(0, FLASH_CARD_SCROLL_Y);
         }}
-      />
+      /> 
+      Not useful if there is no list of chapters*/}
     </Box>
   );
 }

@@ -45,7 +45,10 @@ export function CoverageUpdater({
       <table>
         {snaps.map((item, idx) => (
           <tr key={item.timestamp_ms} style={{ border: '1px solid black' }}>
-            <td style={{textAlign: 'center'}}>{dayjs(item.timestamp_ms).format('YYYY-MM-DD HH:mm')}</td>
+            <td style={{ textAlign: 'center' }}>
+              <b>{idx + 1}.&nbsp;</b>
+              {dayjs(item.timestamp_ms).format('YYYY-MM-DD HH:mm')}
+            </td>
             <td
               style={{
                 maxWidth: '300px',
@@ -103,7 +106,12 @@ export function CoverageUpdater({
             </FormControl>
           </td>
           <td>
-            <Button variant="contained" onClick={handleAddItem} sx={{mt: '20px'}}>
+            <Button
+              variant="contained"
+              disabled={!sectionName}
+              onClick={handleAddItem}
+              sx={{ mt: '20px' }}
+            >
               Add
             </Button>
           </td>
