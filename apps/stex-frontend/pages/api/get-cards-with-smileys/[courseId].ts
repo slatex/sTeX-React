@@ -12,13 +12,12 @@ export interface CardsWithSmileys {
 export default async function handler(req, res) {
   const { courseId } = req.query;
   const Authorization = req.headers.authorization;
-  const courseRoot = COURSES_INFO[courseId].notesLink;
-  if (!courseRoot) {
+  const courseInfo = COURSES_INFO[courseId];
+  if (!courseInfo) {
     res.status(404).json({ error: `Course not found: [${courseId}]` });
     return;
   }
-  const { archive, filepath } = getSectionInfo(courseRoot);
-
+  const { notesArchive: archive, notesFilepath: filepath } = courseInfo;
   const resp = await axios.get(
     `${process.env.NEXT_PUBLIC_MMT_URL}/:sTeX/definienda?archive=${archive}&filepath=${filepath}`
   );

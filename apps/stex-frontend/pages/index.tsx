@@ -55,6 +55,7 @@ function CourseThumb({ courseId }: { courseId: string }) {
               width={width}
               height={100}
               alt={courseName}
+              style={{ display: 'block' }}
             />
             <span
               style={{ fontSize: '18px', marginTop: '5px', fontWeight: 'bold' }}
