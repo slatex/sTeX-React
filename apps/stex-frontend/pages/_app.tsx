@@ -8,7 +8,7 @@ import { AppProps } from 'next/app';
 import { useEffect } from 'react';
 import './styles.scss';
 
-/*const instance = createInstance({
+const instance = createInstance({
   urlBase: 'https://matomo.kwarc.info',
   siteId: 1,
   // userId: 'UID76903202', optional, default value: `undefined`.
@@ -28,7 +28,7 @@ import './styles.scss';
     setSecureCookie: true,
     setRequestMethod: 'POST',
   },
-});*/
+});
 
 const theme = createTheme({
   breakpoints: {
@@ -63,13 +63,13 @@ function CustomApp({ Component, pageProps }: AppProps) {
         lmsUrl: process.env.NEXT_PUBLIC_LMS_URL,
       }}
     >
-      {/*<MatomoProvider value={instance}>*/}
+      <MatomoProvider value={instance}>
         <ThemeProvider theme={theme}>
           <MathJaxContext>
             <Component {...pageProps} />
           </MathJaxContext>
         </ThemeProvider>
-      {/*</MatomoProvider>*/}
+      </MatomoProvider>
     </ServerLinksContext.Provider>
   );
 }

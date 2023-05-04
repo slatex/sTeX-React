@@ -1,4 +1,4 @@
-//import { useMatomo } from '@jonkoops/matomo-tracker-react';
+import { useMatomo } from '@jonkoops/matomo-tracker-react';
 import HelpIcon from '@mui/icons-material/Help';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import WarningIcon from '@mui/icons-material/Warning';
@@ -41,13 +41,13 @@ function UserButton() {
   // Menu crap End
 
   const [userName, setUserName] = useState('User');
-  //const { pushInstruction } = useMatomo();
+  const { pushInstruction } = useMatomo();
 
   useEffect(() => {
     getUserInfo().then((userInfo) => {
       if (!userInfo) return;
       setUserName(userInfo.givenName);
-      //pushInstruction('setUserId', userInfo.userId);
+      pushInstruction('setUserId', userInfo.userId);
     });
   }, []);
 
