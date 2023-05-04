@@ -1,6 +1,5 @@
-import { getSectionInfo } from '@stex-react/utils';
+import { COURSES_INFO, getSectionInfo } from '@stex-react/utils';
 import axios from 'axios';
-import { COURSE_ROOTS } from '../get-cards-with-smileys/[courseId]';
 export const EXCLUDED_CHAPTERS = ['Preface', 'Administrativa', 'Resources'];
 
 export default async function handler(req, res) {
@@ -10,7 +9,7 @@ export default async function handler(req, res) {
   );
 
   const { courseId } = req.query;
-  const courseRoot = COURSE_ROOTS[courseId];
+  const courseRoot = COURSES_INFO[courseId].notesLink;
   if (!courseRoot) {
     res.status(404).json({ error: `Course not found: [${courseId}]` });
     return;

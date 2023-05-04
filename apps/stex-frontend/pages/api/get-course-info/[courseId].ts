@@ -4,7 +4,6 @@ import {
   CourseSection,
   DeckAndVideoInfo,
 } from '../../../shared/types';
-import { getTitle } from '../notesHelpers';
 
 const COURSE_INFO_CACHE = new Map<string, CourseInfo>();
 
@@ -24,7 +23,7 @@ export default async function handler(req, res) {
     const decks: DeckAndVideoInfo[] = [];
     for (const deckId of Object.keys(deckList)) {
       const { secNo, clipId, timestampSec, skipIfCompetency } = deckList[deckId];
-      const titleAsHtml = getTitle(deckId);
+      const titleAsHtml = '';
       decks.push({ secNo, clipId, timestampSec, deckId, titleAsHtml, skipIfCompetency });
     }
     sections.push({ sectionTitle, decks, isAddlSuggestion: sectionTitle.includes('Recap') });

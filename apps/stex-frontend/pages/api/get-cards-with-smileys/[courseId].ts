@@ -1,17 +1,8 @@
 import { getUriSmileys, SmileyCognitiveValues } from '@stex-react/api';
-import { getSectionInfo } from '@stex-react/utils';
+import { getSectionInfo, COURSES_INFO } from '@stex-react/utils';
 import axios from 'axios';
 
 export const EXCLUDED_CHAPTERS = ['Preface', 'Administrativa', 'Resources'];
-
-export const COURSE_ROOTS = {
-  'ai-1': '/:sTeX/document?archive=MiKoMH/AI&filepath=course/notes/notes1.xhtml',
-  'ai-2': '/:sTeX/document?archive=MiKoMH/AI&filepath=course/notes/notes2.xhtml',
-  'iwgs-1': '/:sTeX/document?archive=MiKoMH/IWGS&filepath=course/notes/notes-part1.xhtml',
-  'iwgs-2': '/:sTeX/document?archive=MiKoMH/IWGS&filepath=course/notes/notes-part2.xhtml',
-  lbs: '/:sTeX/document?archive=MiKoMH/LBS&filepath=course/notes/notes.xhtml',
-  krmt: '/:sTeX/document?archive=MiKoMH/KRMT&filepath=course/notes/notes.xhtml',
-};
 
 export interface CardsWithSmileys {
   uri: string;
@@ -21,7 +12,7 @@ export interface CardsWithSmileys {
 export default async function handler(req, res) {
   const { courseId } = req.query;
   const Authorization = req.headers.authorization;
-  const courseRoot = COURSE_ROOTS[courseId];
+  const courseRoot = COURSES_INFO[courseId].notesLink;
   if (!courseRoot) {
     res.status(404).json({ error: `Course not found: [${courseId}]` });
     return;

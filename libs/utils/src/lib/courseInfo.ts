@@ -38,7 +38,7 @@ export const COURSES_INFO: { [courseId: string]: CourseInfo } = {
     courseHome: getCourseHome('ai-1'),
     notesLink: getNotesLink('MiKoMH/AI', 'course/notes/notes1.xhtml'),
     cardsLink: getCardsLink('ai-1'),
-    slidesLink: getSlidesLink('ai-1'),
+    // slidesLink: getSlidesLink('ai-1'),
   },
   'ai-2': {
     courseName: 'Artifical Intelligence - II',
