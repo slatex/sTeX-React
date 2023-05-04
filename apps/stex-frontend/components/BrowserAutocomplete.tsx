@@ -4,9 +4,15 @@ import {
   createFilterOptions,
   TextField,
 } from '@mui/material';
-import { FileLocation, fixDuplicateLabels, PathToArticle } from '@stex-react/utils';
+import { ServerLinksContext } from '@stex-react/stex-react-renderer';
+import {
+  FileLocation,
+  fixDuplicateLabels,
+  PathToArticle,
+} from '@stex-react/utils';
 import { useRouter } from 'next/router';
-import { ARTICLE_LIST } from '../article-list';
+import { useContext, useEffect, useState } from 'react';
+import { getArticleList } from '../file-structure';
 import styles from '../index.module.scss';
 
 interface BrowserItem extends FileLocation {
@@ -33,8 +39,6 @@ function getBrowserItems(browserItems: { [archive: string]: string[] }) {
   }
   return fixDuplicateLabels(items);
 }
-
-const BROWSER_ITEMS = getBrowserItems(ARTICLE_LIST);
 
 function OptionDisplay({ item }: { item: BrowserItem }) {
   const flag =
@@ -67,12 +71,21 @@ const filterOptions = createFilterOptions({
 export function BrowserAutocomplete() {
   const router = useRouter();
 
+  const [browserItems, setBrowserItems] = useState<BrowserItem[]>([]);
+  const { mmtUrl } = useContext(ServerLinksContext);
+
+  useEffect(() => {
+    getArticleList(mmtUrl).then((articleList) =>
+      setBrowserItems(getBrowserItems(articleList))
+    );
+  }, [mmtUrl]);
+
   return (
     <Autocomplete
       size="small"
       id="combo-box-demo"
       filterOptions={filterOptions}
-      options={BROWSER_ITEMS}
+      options={browserItems}
       className={styles['browser_autocomplete']}
       renderInput={(params) => <TextField {...params} label="Open Article" />}
       renderOption={(props, option) => {

@@ -36,18 +36,9 @@ import {
   UserResponse,
 } from '../shared/quiz';
 import { QuizSubmitConfirm } from './QuizSubmitConfirm';
+import { getRootNodes } from '../file-structure';
 
-let ROOT_NODES = undefined as FileNode[];
-async function getRootNodes(mmtUrl: string) {
-  console.log('Fetching root file nodes...');
-  if (!ROOT_NODES) {
-    ROOT_NODES = await axios.get(`${mmtUrl}/:sTeX/browser?menu`).then((r) => {
-      console.log('Root file nodes fetched');
-      return r.data;
-    });
-  }
-  return ROOT_NODES;
-}
+
 function getAllQuestionUrls(
   nodes: FileNode[],
   pathSegments: string[],

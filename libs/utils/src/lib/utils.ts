@@ -95,7 +95,7 @@ export function sourceFileUrl(projectId: string, texFilepath: string) {
   return `https://gl.mathhub.info/${projectId}/-/blob/main/source/${texFilepath}`;
 }
 
-export function fixDuplicateLabels(RAW: { label: string }[]) {
+export function fixDuplicateLabels<T extends {label: string}>(RAW: T[]) {
   const fixed = [...RAW]; // create a copy;
   const labelToIndex = new Map<string, number[]>();
   for (const [idx, item] of fixed.entries()) {
