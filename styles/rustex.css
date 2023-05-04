@@ -1,226 +1,280 @@
-* {
-	position:relative
-}
-.mskip {}
-.resetfont {
-    font-family: Latin Modern, STIXgeneral, Times, Times New Roman, Symbol, cmr10, CMSY10, CMEX10, serif;
+
+* { position:relative;}
+a { color: inherit; text-decoration: inherit; }
+
+.rustex-contents {display:contents}
+
+/* ---------------------------------------------------- Fonts ------------------------------------------------------- */
+
+.rustex-reset-font, .rustex-body {
+    font-family: Latin Modern, STIXgeneral, Times, Times New Roman,Symbol, cmr10, CMSY10, CMEX10, serif;
     font-style: normal;
-    font-weight: normal;
+    font-weight: 400;
     font-variant: normal;
+    --temp-width:0
 }
-  
-  .monospaced {
-    font-family: Latin Modern Mono, FreeMono, Courier New, monospace;
-  }
-  
-  .blackboard {
-    font-family: msbm;
-  }
-  
-  .script {
-    font-family: URW Chancery L, cursive;
-  }
-  
-  .sansserif {
+
+.rustex-monospaced {
+    font-family: Latin Modern Mono, FreeMono,Courier New,monospace;
+}
+
+.rustex-blackboard {
+    font-family: msbm, Latin Modern Math,math;
+}
+
+.rustex-script-font {
+    /*font-family: URW Chancery L, cursive; /* TODO think about this */
+}
+
+.rustex-sans-serif {
     font-family: Latin Modern Sans, sans-serif;
-  }
-  
-  .body {
-    margin: auto;
-  
-    color: hsl(0, 5%, 10%);
-    background-color: hsl(210, 20%, 98%);
-  
-    text-rendering: optimizeLegibility;
-    align-content: inherit;
-    justify-content: flex-start;
-    grid-auto-flow:row;
-    text-align:justify;
-    display: flex;
+}
+
+.rustex-text {
+    display:contents;
+}
+
+/* ---------------------------------------------------- Boxes ------------------------------------------------------- */
+
+.rustex-body {
+    background-color:#f9fafb;
+    color: #000000;
+    display:flex;
     flex-direction: column;
-    overflow:hidden;
-    counter-reset: shtml-sec-part shtml-sec-chapter shtml-sec-section shtml-sec-subsection shtml-sec-subsubsection shtml-statement;
-    --shtml-has-chapter: ;
-  }
-  
-  span {
-    display:inherit;
-    flex-direction: inherit;
-  }
-  .paragraph > span {
-    display:inline;
-  }
-  .displaymath {
-    display:block;
-    text-align:center;
-  }
-  .vskip {
-    display: inline-block;
-    line-height: 0pt
-  }
-  .reftarget {
-  }
-  .vrule {
-    /*align-self:end;*/
-    display:inline-block;
-  }
-  .hrule {
-    /*align-self:start;*/
-    display:block;
-  }
-  a {
-    color: inherit;
-    text-decoration: inherit;
-    display: inline-block;
-    pointer-events: all;
-  }
-  .raise {
-    position: relative;
-    display: inline-block;
-  }
-  .moveright {
-    position: relative;
-    display: inline-block;
-  }
-  .paragraph {
-    hyphens: auto;
-    -webkit-hyphens: auto;
-    -moz-hyphens: auto;
-    margin-top: 0;
-    margin-bottom: 0;
-    max-width:100%;
-    justify-content:inherit;
-    align-content:inherit;
-    white-space: normal;
-  }
-  hr {
-    width: 100%;
-  }
-  .vbox {
-    overflow-wrap:initial;
-    display: inline-flex;
+}
+
+.rustex-vbox, .rustex-vtop, .rustex-vcenter,.rustex-foreign {
+    display:inline-flex;
     flex-direction: column;
+}
+
+.rustex-hbox, .rustex-vbox, .rustex-vtop, .rustex-vcenter {
+    overflow: visible;
+    text-align: left;
+}
+
+.rustex-vbox, .rustex-vtop, .rustex-vcenter {
+    height: min-content;
+    width: min-content;
     flex-wrap: nowrap;
-    align-content: center;
     justify-content: flex-start;
-    width:fit-content;
-    max-width:100%;
-    text-align:justify;
-    align-self: center;
-  }
-  .hbox {
-    overflow-wrap:initial;
-    display: inline-flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-content: inherit;
-    align-items: baseline;
-    width:fit-content;
-    height:fit-content;
-    max-width:100%;
-    align-self:baseline;
-    vertical-align:baseline;
-    white-space:nowrap;
-  }
-  .matrix {
-    display: inline-flex;
-  }
-  .hskip {
-    display: inline-block;
-    width: 0%;
-    height: 0%;
-  }
-  .indent {
-    display: inline-block;
-    width: 0%;
-    height: 0%;
-  }
-  .vskip {
-    width: 0%;
-    height: 0%;
-  }
-  foreignObject {
-  }
-  .foreign {
-    display:flex;
-    width:100%;
-    height:100%;
-    align-items:center;
-    justify-content:center;
-  }
-  table {
-    border-spacing:0;
-    white-space:nowrap;
-    width:fit-content;
-    height:fit-content;
-    /*display:initial;*/
-  }
-  td {
-    padding:0;
-  }
-  .vfil {
-    margin-bottom: 10px;
-    width: 0%;
-    height: 0%;
-  }
-  .vfill {
-    margin-bottom: 30px;
-    width: 0%;
-    height: 0%;
-  }
-  .HFil {
-    width: 0%;
-    height: 0%;
-    display: inline-block;
-  }
-  .Hss {
-    width: 0%;
-    height: 0%;
-    display: inline-block;
-  }
-  .hkern {
-    display: inline-block;
-  }
-  .HFill {
-    margin-left: 30px;
-    width: 0%;
-    height: 0%;
-    display: inline-block;
-  }
-  .br {
-    flex-basis:100%;
-    height:0;
-  }
-  math {
-    width:fit-content;
-    height:fit-content;
-    align-self: baseline;
-  }
-  .displaymath {
-    align-self: center;
-  }
-  .displaymathcontainer {
+}
+.rustex-vbox { vertical-align: bottom }
+.rustex-vtop {vertical-align: baseline }
+.rustex-vcenter{vertical-align: middle}
+
+.rustex-vbox-height-container {
+    display:inline-block;
+    width:min-content;
+    height: min-content;
+    vertical-align: bottom;
+}
+
+.rustex-vtop-height-container {
+    display:inline-block;
+    width:min-content;
+    height: min-content;
+}
+
+.rustex-vbox-container { display:inline-block; width: min-content; height: min-content }
+.rustex-vtop-container { display:inline-block;; width: min-content; height: min-content }
+.rustex-vcenter-container { display:inline-block; width: min-content; height: min-content }
+
+.rustex-display-vcenter {
     text-align:center;
-    display:flex;
-    justify-content:center;
-    align-self:center;
-  }
-  .halign {
+    display:block;
+    align-self: center;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    width: 100%;
+    min-width: 100%;
+}
+
+.rustex-hbox, .rustex-hbox-no-space {
+    display:inline-flex;
+    white-space: pre;
+    width: min-content;
+    height: min-content;
+    align-items: baseline;
+    /*
+    vertical-align: bottom;
+    align-items: end;
+     */
+}
+/*.paragraph > .hbox { align-items: baseline}*/
+.rustex-space-in-hbox {
+    display: inline-block;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 0;
+}
+.rustex-hbox-no-space > .rustex-space-in-hbox, .rustex-hbox-no-space > span > .rustex-space-in-hbox, .rustex-hbox-no-space > span > span > .rustex-space-in-hbox {
+    margin:0;
+}
+.rustex-hbox > .rustex-text, .rustex-hbox > span > .rustex-text, .rustex-hbox > span > span > .rustex-text, .rustex-hbox > span > span > span > .rustex-text {
+    display:inline-block;
+    margin-bottom:1.2px;
+} /* line-height:0 */
+
+.rustex-hbox-container {
+    display:inline-flex;
+    flex-direction: column;
+    width: min-content;
+    height: min-content;
+    justify-content: end;
+}
+
+.rustex-paragraph {
+    text-align:justify;
+    white-space:normal;
+    display: inline-block;
+    margin-top: auto;
+}
+.rustex-paragraph > .rustex-text, .rustex-paragraph > span > .rustex-text, .rustex-paragraph > span > span > .rustex-text, .rustex-paragraph > span > span > span > .rustex-text  { display:contents; }
+
+/* ---------------------------------------------------- Rules ------------------------------------------------------- */
+
+.rustex-vrule {
+    display:inline-block;
+    vertical-align: text-bottom;
+}
+.rustex-hrule {
+    display:block;
+}
+.rustex-vrule-container {
+    display:inline-block;
+}.rustex-hrule-container {
+     display:block;
+ }
+
+/* ----------------------------------------------------- Math ------------------------------------------------------- */
+
+math {
+    line-height: inherit;
+    font-size: inherit;
+    font-family: Latin Modern Math, math;
+}
+
+/* inline-flex avoids weird vertical gaps in e.g. footnote markers */
+mtext {
+    letter-spacing: initial;
+    word-spacing: initial;
+    display: inline-flex;
+}
+mtext > {display:initial}
+mtext * {
+    font-size: inherit;
+    writing-mode: initial;
+}
+.rustex-math-escape {
+    display: inline-flex;
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+}
+
+.rustex-display-math-container {
+    text-align:center;
+    display:block;
+    align-self: center;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    width: 100%;
+    min-width: 100%;
+}
+mi { position: relative}
+mo {position: relative;padding-left: 0;padding-right: 0}
+msub > :nth-child(2), msup > :nth-child(2) {font-size:inherit}
+mfrac > * {font-size: inherit}
+mover > :not(:first-child), munder > :not(:first-child) {font-size:inherit}
+
+/* --------------------------------------------------- Spacing ------------------------------------------------------ */
+
+.rustex-hskip {
+    display:inline-block;
+}
+.rustex-vskip {
+    display: block;
+}
+.rustex-kern {
+    display: inline-block;
+}
+.rustex-Vss {
+    display:none;
+}
+.rustex-Hss {
+    display:none;
+}
+.rustex-HFil, .rustex-HFill { display:inline-block;margin-left: auto;margin-right: auto }
+.rustex-VFil, .rustex-VFill { display:block;margin-top: auto;margin-bottom: auto }
+
+/* --------------------------------------------------- Tables ------------------------------------------------------- */
+tbody {display:table-row-group}
+.rustex-halign{
+    display:inline-grid;
     border-collapse:collapse;
-  }
-  .font-normal {
-    font-family: Latin Modern, STIXgeneral, Times, Times New Roman, Symbol, cmr10, CMSY10, CMEX10, serif;
-    font-style: normal;
-    font-weight: normal;
-    font-variant: normal;
+    width: fit-content;
+    grid-auto-rows: auto;
+    align-content: baseline;
 }
-.rustex-scaled{
-    width: var(--this-width);
-    min-width: var(--this-width);
+.rustex-cell {
+    display:inline-flex;
+    white-space: pre;
+    align-items: baseline;
+    width: 100%;
+    height: 100%;
 }
-.rustex-scaled>*:first-child {
-    --current-width:var(--this-width);
+.rustex-noalign {
+    display:inline-flex;
+    flex-direction: column;
+    overflow: visible;
+    text-align: left;
+    width: 100%;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
 }
+.rustex-cell > .rustex-space-in-hbox, .rustex-cell > span > .rustex-space-in-hbox, .rustex-cell > span > span > .rustex-space-in-hbox {
+    margin:0;
+}
+
+/* --------------------------------------------------- Others ------------------------------------------------------- */
+
+.rustex-raise {
+    display: inline-flex;
+}
+.rustex-moveright {
+    display: inline-flex;
+}
+hr {width: 100%;}
+.rustex-foreign {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    justify-content: start;
+    /*align-content: center;*/
+    flex-wrap: wrap;
+    line-height: 1;
+}
+svg, foreignObject {
+    overflow: visible;
+}
+foreignObject {display: flex;}
+.rustex-pdfmatrix {
+    transform-origin: bottom left;
+    display: inline-block;
+}
+.rustex-withwidth {
+    width: var(--temp-width);
+    min-width: var(--temp-width);
+}
+.rustex-withwidth > span {
+    --document-width: var(--temp-width);
+}
+
+/* ------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------- */
+
 
 
 .omdoc-collapsible > input[type="checkbox"] {
@@ -322,23 +376,28 @@
     margin-top:20px
 }
 .shtml-sec-part {
+    display:inline;
     counter-reset: shtml-statement shtml-sec-section shtml-sec-subsection shtml-sec-subsubsection;
     counter-increment: shtml-sec-part;
 }
 .shtml-sec-chapter {
+    display:inline;
     counter-reset: shtml-statement shtml-sec-section shtml-sec-subsection shtml-sec-subsubsection;
     counter-increment: shtml-sec-chapter;
     --shtml-has-chapter: counter(shtml-sec-chapter) ".";
 }
 .shtml-sec-section {
+    display:inline;
     counter-reset: shtml-statement shtml-sec-subsection shtml-sec-subsubsection;
     counter-increment: shtml-sec-section;
 }
 .shtml-sec-subsection {
+    display:inline;
     counter-reset: shtml-sec-subsubsection;;
     counter-increment: shtml-sec-subsection;
 }
 .shtml-sec-subsubsection {
+    display:inline;
     counter-increment: shtml-sec-subsubsection;
 }
 .shtml-sec-part .shtml-sectitle{
@@ -630,4 +689,7 @@
 .shtml-assertion-conjecture .shtml-title-assertion:is(.empty):after{
   content:"";
   font-weight:700
+}
+:root {
+  --shtml-has-chapter:"";
 }

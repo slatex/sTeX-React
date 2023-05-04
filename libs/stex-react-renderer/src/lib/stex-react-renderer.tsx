@@ -47,8 +47,8 @@ export function StexReactRenderer({
   );
   const [renderOptions, setRenderOptions] = useState({
     expandOnScroll:
-      (localStore?.getItem('expandOnScroll') || 'true') === 'true',
-    allowFolding: (localStore?.getItem('allowFolding') || 'false') === 'true',
+      (localStore?.getItem('autoExpandOnScroll') || 'true') === 'true',
+    allowFolding: (localStore?.getItem('sectionFolding') || 'false') === 'true',
     noFrills,
   });
 
@@ -90,8 +90,11 @@ export function StexReactRenderer({
         value={{
           renderOptions,
           setRenderOptions: (o) => {
-            localStore?.setItem('expandOnScroll', o.expandOnScroll.toString());
-            localStore?.setItem('allowFolding', o.allowFolding.toString());
+            localStore?.setItem(
+              'autoExpandOnScroll',
+              o.expandOnScroll.toString()
+            );
+            localStore?.setItem('sectionFolding', o.allowFolding.toString());
             setRenderOptions(o);
           },
         }}
@@ -113,6 +116,8 @@ export function StexReactRenderer({
               maxWidth={IS_MMT_VIEWER ? undefined : '650px'}
               m="0 auto"
               sx={{ overflowWrap: 'anywhere' }}
+              /** Temporary hack: make this reactive */
+              {...({ style: { '--document-width': '600px' } } as any)}
             >
               {!noFrills && (
                 <Box position="absolute" right="40px">

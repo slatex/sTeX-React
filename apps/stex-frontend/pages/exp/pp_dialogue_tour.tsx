@@ -103,8 +103,8 @@ const MESSAGE_GROUPS: { [state: string]: Message[] } = {
 
 // Possible navigations:
 // 0, 1, 2c, 3, 4, 4y, 5, 6
-//  0, 1, 2c, 3, 4y, 5, 6
-// 0 1+ 2w
+// 0, 1, 2c, 3, 4y, 5, 6
+// 0, 1, 2w
 const PROMPTS: { [state: string]: { text: string; to?: string }[] } = {
   '0': [
     { text: 'Yes', to: '1' },

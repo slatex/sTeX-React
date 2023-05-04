@@ -288,7 +288,7 @@ export function ContentDashboard({
   const [showUpdater, setShowUpdater] = useState(false);
   useEffect(() => {
     getUserInfo().then((info) => {
-      setShowUpdater(info?.userId && MODERATORS.includes(info?.userId));
+      setShowUpdater(!!info?.userId && MODERATORS.includes(info?.userId));
     });
   }, []);
 
@@ -368,8 +368,8 @@ export function ContentDashboard({
                   <EditIcon />
                 </IconButton>
               </a>
-            )}
-            {/*<RendererDisplayOptions />*/}
+            )}{' '}
+            {/*<RendererDisplayOptions /> removed - as requested by Dennis*/}
           </Box>
         </>
       }
