@@ -36,6 +36,7 @@ export function convertHtmlStringToPlain(htmlStr: string) {
 }
 
 export function getSectionInfo(url: string): SectionInfo {
+  if(!url) url= '';
   const match = /archive=([^&]+)&filepath=([^&]+)/g.exec(url);
   const archive = match?.[1] || '';
   const filepath = match?.[2] || '';

@@ -227,6 +227,7 @@ export function Header({
                 width={128}
                 height={40}
                 style={{ cursor: 'pointer' }}
+                priority={true}
               />
               <WarningIcon
                 fontSize="large"

@@ -51,11 +51,6 @@ const theme = createTheme({
 });
 
 function CustomApp({ Component, pageProps }: AppProps) {
-  useEffect(() => {
-    axios.get(`/api/get-section-ids`).then((r) => {
-      setSectionIds(r.data);
-    });
-  });
   return (
     <ServerLinksContext.Provider
       value={{
