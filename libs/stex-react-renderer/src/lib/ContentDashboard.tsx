@@ -5,7 +5,7 @@ import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/Indeterminate
 import UnfoldLessDoubleIcon from '@mui/icons-material/UnfoldLessDouble';
 import UnfoldMoreDoubleIcon from '@mui/icons-material/UnfoldMoreDouble';
 import { Box, IconButton, TextField, Tooltip } from '@mui/material';
-import { MODERATORS, getUserInfo } from '@stex-react/api';
+import { MODERATORS, SectionsAPIData, getUserInfo } from '@stex-react/api';
 import {
   CoverageTimeline,
   convertHtmlStringToPlain,
@@ -137,10 +137,14 @@ function RenderTree({
   node,
   level,
   defaultOpen,
+  selectedSection,
+  onSectionClick,
 }: {
   node: SectionTreeNode;
   level: number;
   defaultOpen: boolean;
+  selectedSection: string;
+  onSectionClick?: (sectionId: string) => void;
 }) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(defaultOpen);
@@ -150,6 +154,7 @@ function RenderTree({
 
   const itemClassName =
     level === 0 ? styles['level0_dashboard_item'] : styles['dashboard_item'];
+  const isSelected = selectedSection === node.tocNode.id;
   return (
     <Box
       key={node.tocNode.id}
@@ -158,7 +163,11 @@ function RenderTree({
         backgroundColor: node.tocNode.isCovered ? '#FFB' : undefined,
       }}
     >
-      <Box display="flex" ml={node.children.length > 0 ? undefined : '23px'}>
+      <Box
+        display="flex"
+        ml={node.children.length > 0 ? undefined : '23px'}
+        fontWeight={isSelected ? 'bold' : undefined}
+      >
         {node.children.length > 0 && (
           <IconButton
             sx={{ color: 'gray', p: '0', mr: '3px' }}
@@ -173,9 +182,16 @@ function RenderTree({
         )}
         <span
           className={itemClassName}
-          style={{ cursor: 'pointer' }}
+          style={{
+            cursor: 'pointer',
+            color: isSelected? 'black': undefined
+          }}
           onClick={(e) => {
             e.stopPropagation();
+            if (onSectionClick) {
+              onSectionClick(node.tocNode.id);
+              return;
+            }
             const paths: string[] = [];
             let n: TOCNode | undefined = node.tocNode;
             while (n?.parentNode) {
@@ -217,6 +233,8 @@ function RenderTree({
                 node={child}
                 level={level + 1}
                 defaultOpen={defaultOpen}
+                selectedSection={selectedSection}
+                onSectionClick={onSectionClick}
               />
             ))}
           </Box>
@@ -224,17 +242,6 @@ function RenderTree({
       )}
     </Box>
   );
-}
-
-export interface SectionsAPIData {
-  archive?: string;
-  filepath?: string;
-
-  title?: string;
-  id?: string;
-
-  ids?: string[];
-  children: SectionsAPIData[];
 }
 
 function getDocumentTree(data: SectionsAPIData, parentNode?: TOCNode): TOCNode {
@@ -272,11 +279,15 @@ function getDocumentTree(data: SectionsAPIData, parentNode?: TOCNode): TOCNode {
 }
 
 export function ContentDashboard({
-  onClose,
   contentUrl,
+  selectedSection,
+  onClose,
+  onSectionClick,
 }: {
-  onClose: () => void;
   contentUrl: string;
+  selectedSection: string;
+  onClose: () => void;
+  onSectionClick?: (sectionId: string) => void;
 }) {
   const t = getLocaleObject(useRouter());
   const [filterStr, setFilterStr] = useState('');
@@ -380,6 +391,8 @@ export function ContentDashboard({
           node={child}
           level={0}
           defaultOpen={defaultOpen}
+          onSectionClick={onSectionClick}
+          selectedSection={selectedSection}
         />
       ))}
     </FixedPositionMenu>

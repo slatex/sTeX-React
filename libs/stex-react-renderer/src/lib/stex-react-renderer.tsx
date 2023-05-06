@@ -104,6 +104,7 @@ export function StexReactRenderer({
             <ContentDashboard
               onClose={() => setShowDashboard(false)}
               contentUrl={contentUrl}
+              selectedSection={''}
             />
           }
           topOffset={topOffset}
@@ -146,6 +147,7 @@ export function StexReactRenderer({
   );
 }
 export {
+  ContentDashboard,
   ContentFromUrl,
   ContentWithHighlight,
   DimIcon,
