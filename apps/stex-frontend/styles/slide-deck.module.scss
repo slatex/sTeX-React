@@ -5,4 +5,5 @@
 
 .deck-box > :nth-child(2) > :first-child { /* The 'frame' or 'text-frame' */
   height: 550px !important;
+  overflow-y: auto;
 }

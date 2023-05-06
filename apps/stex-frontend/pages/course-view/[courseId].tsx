@@ -3,24 +3,32 @@ import MergeIcon from '@mui/icons-material/Merge';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
 import VideoCameraFrontIcon from '@mui/icons-material/VideoCameraFront';
 import { Box, Button, ToggleButtonGroup } from '@mui/material';
+import { SectionsAPIData } from '@stex-react/api';
 import { CommentNoteToggleView } from '@stex-react/comments';
 import {
+  ContentDashboard,
   ContentWithHighlight,
   LayoutWithFixedMenu,
+  ServerLinksContext
 } from '@stex-react/stex-react-renderer';
-import { localStore, shouldUseDrawer } from '@stex-react/utils';
+import {
+  COURSES_INFO,
+  XhtmlContentUrl,
+  getSectionInfo,
+  localStore,
+  shouldUseDrawer,
+} from '@stex-react/utils';
 import axios from 'axios';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { NextRouter, useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { SlideDeck } from '../../components/SlideDeck';
-import { SlideDeckNavigation } from '../../components/SlideDeckNavigation';
 import { TooltipToggleButton } from '../../components/TooltipToggleButton';
 import { VideoDisplay } from '../../components/VideoDisplay';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
-import { CourseInfo, DeckAndVideoInfo, Slide } from '../../shared/types';
+import { DeckAndVideoInfo, Slide } from '../../shared/types';
 
 function RenderElements({ elements }: { elements: string[] }) {
   return (
@@ -78,44 +86,36 @@ function ToggleModeButton({
   );
 }
 
-export function setSlideNumAndDeckId(
+export function setSlideNumAndSectionId(
   router: NextRouter,
   slideNum: number,
-  deckId?: string
+  sectionId?: string
 ) {
-  const courseId = router.query.courseId as string;
-  if (deckId) {
-    router.query.deckId = deckId;
-    localStore?.setItem(`lastReadDeckId-${courseId}`, deckId);
+  const { pathname, query } = router;
+  const courseId = query.courseId as string;
+  if (sectionId) {
+    query.sectionId = sectionId;
+    localStore?.setItem(`lastReadDeckId-${courseId}`, sectionId);
   }
-  router.query.slideNum = `${slideNum}`;
+  query.slideNum = `${slideNum}`;
   localStore?.setItem(`lastReadSlideNum-${courseId}`, `${slideNum}`);
-  router.push(router);
+  router.push({ pathname, query });
 }
 
-function getDeckEndNodeId(deckStartNodeId: string, courseInfo: CourseInfo) {
-  if (!courseInfo) return undefined;
-  for (const [secIdx, sec] of courseInfo?.sections.entries() || []) {
-    for (const [deckIdx, deck] of sec.decks.entries()) {
-      if (deck.deckId !== deckStartNodeId) continue;
-      if (deckIdx < sec.decks.length - 1) {
-        return sec.decks[deckIdx + 1].deckId;
-      } else if (secIdx < courseInfo.sections.length - 1) {
-        return courseInfo.sections[secIdx + 1].decks[0].deckId;
-      } else {
-        console.error(`handling end not implemented [${deckStartNodeId}]!`);
-        return undefined;
-      }
-    }
-  }
-  console.error(`Error: deck [${deckStartNodeId}] not found!`);
-  return undefined;
+function getSections(data: SectionsAPIData): string[] {
+  const { children, id } = data;
+  const sections: string[] = [];
+  if (id) sections.push(id);
+  (children || []).forEach((c) => {
+    sections.push(...getSections(c));
+  });
+  return sections;
 }
 
 const CourseViewPage: NextPage = () => {
   const router = useRouter();
   const courseId = router.query.courseId as string;
-  const deckId = router.query.deckId as string;
+  const sectionId = router.query.sectionId as string;
   const slideNum = +((router.query.slideNum as string) || 0);
   const viewModeStr = router.query.viewMode as string;
   const viewMode = ViewMode[viewModeStr as keyof typeof ViewMode];
@@ -125,21 +125,36 @@ const CourseViewPage: NextPage = () => {
   const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
   const [preNotes, setPreNotes] = useState([] as string[]);
   const [postNotes, setPostNotes] = useState([] as string[]);
-  const [courseInfo, setCourseInfo] = useState(undefined as CourseInfo);
+  const [courseSections, setCourseSections] = useState<string[]>([]);
+  const [slideCounts, setSlideCounts] = useState<{
+    [sectionId: string]: number;
+  }>({});
+
   const [deckInfo, setDeckInfo] = useState(undefined as DeckAndVideoInfo);
   const [slideArchive, setSlideArchive] = useState('');
   const [slideFilepath, setSlideFilepath] = useState('');
+  const { mmtUrl } = useContext(ServerLinksContext);
 
-  const deckEndNodeId = getDeckEndNodeId(deckId, courseInfo);
   const { courseView: t } = getLocaleObject(router);
+
+  const [contentUrl, setContentUrl] = useState(undefined as string);
 
   useEffect(() => {
     if (!router.isReady) return;
-    if (deckId && slideNum && viewMode && audioOnlyStr) return;
-    if (!deckId) {
-      router.query.deckId =
-        localStore?.getItem(`lastReadDeckId-${courseId}`) ||
-        'MiKoMH/AI||course/notes/notes1.xhtml';
+    //console.log(COURSES_INFO[courseId].notesLink);
+    const { notesArchive, notesFilepath } = COURSES_INFO[courseId];
+    setContentUrl(XhtmlContentUrl(notesArchive, notesFilepath));
+    axios
+      .get(`/api/get-slide-counts/${courseId}`)
+      .then((resp) => setSlideCounts(resp.data));
+  }, [router.isReady, courseId]);
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    if (sectionId && slideNum && viewMode && audioOnlyStr) return;
+    if (!sectionId) {
+      router.query.sectionId =
+        localStore?.getItem(`lastReadsectionId-${courseId}`) || 'f7aa7a73';
     }
     if (!slideNum) {
       router.query.slideNum =
@@ -156,7 +171,7 @@ const CourseViewPage: NextPage = () => {
   }, [
     router,
     router.isReady,
-    deckId,
+    sectionId,
     slideNum,
     viewMode,
     courseId,
@@ -164,59 +179,28 @@ const CourseViewPage: NextPage = () => {
   ]);
 
   useEffect(() => {
-    if (!router.isReady) return;
-    axios.get(`/api/get-course-info/${courseId}`).then((r) => {
-      setCourseInfo(r.data);
-    });
-  }, [router.isReady, courseId]);
-
-  useEffect(() => {
-    for (const section of courseInfo?.sections || []) {
-      for (const deck of section.decks) {
-        if (deck.deckId === deckId) {
-          setDeckInfo(deck);
-          return;
-        }
-      }
+    async function getIndex() {
+      const { archive, filepath } = getSectionInfo(contentUrl);
+      const resp = await axios.get(
+        `${mmtUrl}/:sTeX/sections?archive=${archive}&filepath=${filepath}`
+      );
+      setCourseSections(getSections(resp.data));
     }
-    setDeckInfo(undefined);
-  }, [courseInfo, deckId]);
-
-  function findCurrentLocation() {
-    for (const [secIdx, section] of courseInfo?.sections?.entries() || [])
-      for (const [deckIdx, deck] of section.decks.entries())
-        if (deck.deckId === deckId) return { secIdx, deckIdx };
-    return { secIdx: undefined, deckIdx: undefined };
-  }
+    getIndex();
+  }, [mmtUrl, contentUrl]);
 
   function goToPrevSection() {
-    const { secIdx, deckIdx } = findCurrentLocation();
-    if (secIdx === undefined || deckIdx === undefined) return;
-    if (deckIdx !== 0) {
-      const deckId = courseInfo.sections[secIdx].decks[deckIdx - 1].deckId;
-      setSlideNumAndDeckId(router, -1, deckId);
-      return;
-    }
-    if (secIdx === 0) return;
-    const prevDecks = courseInfo.sections[secIdx - 1].decks;
-    const deckId = prevDecks[prevDecks.length - 1].deckId;
-    setSlideNumAndDeckId(router, -1, deckId);
+    const secIdx = courseSections.indexOf(sectionId);
+    if (secIdx === -1 || secIdx === 0) return;
+    const secId = courseSections[secIdx - 1];
+    setSlideNumAndSectionId(router, slideCounts[secId] ?? -1, secId);
   }
 
   function goToNextSection() {
-    const { secIdx, deckIdx } = findCurrentLocation();
-    if (secIdx === undefined || deckIdx === undefined) return;
-    const currSectionDecks = courseInfo.sections[secIdx].decks;
-    if (deckIdx < currSectionDecks.length - 1) {
-      const deckId = currSectionDecks[deckIdx + 1].deckId;
-      setSlideNumAndDeckId(router, 1, deckId);
-      return;
-    }
-    // last section is the "dummy" section. dont switch to that.
-    if (secIdx >= courseInfo.sections.length - 2) return;
-    const nextDecks = courseInfo.sections[secIdx + 1].decks;
-    const deckId = nextDecks[0].deckId;
-    setSlideNumAndDeckId(router, 1, deckId);
+    const secIdx = courseSections.indexOf(sectionId);
+    if (secIdx === -1 || secIdx + 1 >= courseSections.length) return;
+    const secId = courseSections[secIdx + 1];
+    setSlideNumAndSectionId(router, 1, secId);
   }
 
   return (
@@ -225,16 +209,20 @@ const CourseViewPage: NextPage = () => {
     >
       <LayoutWithFixedMenu
         menu={
-          <SlideDeckNavigation
-            sections={courseInfo?.sections || []}
-            selected={deckId}
-            onSelect={(deckId) => {
-              setSlideNumAndDeckId(router, 1, deckId);
-              setPreNotes([]);
-              setPostNotes([]);
-            }}
-            onClose={() => setShowDashboard(false)}
-          />
+          contentUrl?.length ? (
+            <>
+              <ContentDashboard
+                onClose={() => setShowDashboard(false)}
+                contentUrl={contentUrl}
+                selectedSection={sectionId}
+                onSectionClick={(sectionId: string) => {
+                  const { pathname, query } = router;
+                  query.sectionId = sectionId;
+                  router.push({ pathname, query });
+                }}
+              />
+            </>
+          ) : null
         }
         topOffset={64}
         showDashboard={showDashboard}
@@ -274,10 +262,9 @@ const CourseViewPage: NextPage = () => {
             {(viewMode === ViewMode.SLIDE_MODE ||
               viewMode === ViewMode.COMBINED_MODE) && (
               <SlideDeck
-                courseId={courseId}
                 navOnTop={viewMode === ViewMode.COMBINED_MODE}
-                deckStartNodeId={deckId}
-                deckEndNodeId={deckEndNodeId}
+                courseId={courseId}
+                sectionId={sectionId}
                 onSlideChange={(slide: Slide) => {
                   setPreNotes(slide?.preNotes || []);
                   setPostNotes(slide?.postNotes || []);

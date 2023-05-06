@@ -6,20 +6,19 @@ import {
   MenuItem,
   Select,
 } from '@mui/material';
-import { NextPage } from 'next';
-import { useContext, useEffect, useRef, useState } from 'react';
-import { CoverageUpdater } from '../components/CoverageUpdater';
-import MainLayout from '../layouts/MainLayout';
-import axios from 'axios';
+import { SectionsAPIData, getAuthHeaders } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { SectionsAPIData } from 'libs/stex-react-renderer/src/lib/ContentDashboard';
 import {
   COURSES_INFO,
   CoverageSnap,
   CoverageTimeline,
   convertHtmlStringToPlain,
 } from '@stex-react/utils';
-import { getAuthHeaders } from '@stex-react/api';
+import axios from 'axios';
+import { NextPage } from 'next';
+import { useContext, useEffect, useState } from 'react';
+import { CoverageUpdater } from '../components/CoverageUpdater';
+import MainLayout from '../layouts/MainLayout';
 
 const courseIds = Object.keys(COURSES_INFO);
 
@@ -116,7 +115,7 @@ const CoverageUpdatePage: NextPage = () => {
           Save
         </Button>
         <span style={{ color: 'red', display: 'flex' }}>
-          Your changes will not be saved till you click 'Save'.
+          Your changes will not be saved till you click &apos;Save&apos;.
         </span>
       </Box>
     </MainLayout>

@@ -38,7 +38,7 @@ export const COURSES_INFO: { [courseId: string]: CourseInfo } = {
     courseHome: getCourseHome('ai-1'),
     notesLink: getNotesLink('MiKoMH/AI', 'course/notes/notes1.xhtml'),
     cardsLink: getCardsLink('ai-1'),
-    // slidesLink: getSlidesLink('ai-1'),
+    slidesLink: getSlidesLink('ai-1'),
   },
   'ai-2': {
     courseName: 'Artifical Intelligence - II',
@@ -49,7 +49,8 @@ export const COURSES_INFO: { [courseId: string]: CourseInfo } = {
     courseHome: getCourseHome('ai-2'),
     notesLink: getNotesLink('MiKoMH/AI', 'course/notes/notes2.xhtml'),
     cardsLink: getCardsLink('ai-2'),
-    // slidesLink: getSlidesLink('ai-2'),
+    slidesLink: getSlidesLink('ai-2'),
+    //probabilistic-reasoning/sec/probabilities.en.xhtml
   },
   'iwgs-1': {
     courseName: 'IWGS - I',
@@ -60,7 +61,7 @@ export const COURSES_INFO: { [courseId: string]: CourseInfo } = {
     courseHome: getCourseHome('iwgs-1'),
     notesLink: getNotesLink('MiKoMH/IWGS', 'course/notes/notes-part1.xhtml'),
     cardsLink: getCardsLink('iwgs-1'),
-    // slidesLink: getSlidesLink('iwgs-1'),
+    slidesLink: getSlidesLink('iwgs-1'),
   },
   'iwgs-2': {
     courseName: 'IWGS - II',
@@ -71,7 +72,7 @@ export const COURSES_INFO: { [courseId: string]: CourseInfo } = {
     courseHome: getCourseHome('iwgs-2'),
     notesLink: getNotesLink('MiKoMH/IWGS', 'course/notes/notes-part2.xhtml'),
     cardsLink: getCardsLink('iwgs-2'),
-    // slidesLink: getSlidesLink('iwgs-2'),
+    slidesLink: getSlidesLink('iwgs-2'),
   },
   krmt: {
     courseName: 'Knowledge Representation for Mathematical Theories',
@@ -82,7 +83,7 @@ export const COURSES_INFO: { [courseId: string]: CourseInfo } = {
     courseHome: getCourseHome('krmt'),
     notesLink: getNotesLink('MiKoMH/KRMT', 'course/notes/notes.xhtml'),
     cardsLink: getCardsLink('krmt'),
-    // slidesLink: getSlidesLink('krmt'),
+    slidesLink: getSlidesLink('krmt'),
   },
   lbs: {
     courseName: 'Logic-based Natural Language Semantics',
@@ -93,7 +94,7 @@ export const COURSES_INFO: { [courseId: string]: CourseInfo } = {
     courseHome: getCourseHome('lbs'),
     notesLink: getNotesLink('MiKoMH/LBS', 'course/notes/notes.xhtml'),
     cardsLink: getCardsLink('lbs'),
-    // slidesLink: getSlidesLink('lbs'),
+    slidesLink: getSlidesLink('lbs'),
   },
 };
 

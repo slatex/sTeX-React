@@ -184,7 +184,7 @@ function RenderTree({
           className={itemClassName}
           style={{
             cursor: 'pointer',
-            color: isSelected? 'black': undefined
+            color: isSelected ? 'black' : undefined,
           }}
           onClick={(e) => {
             e.stopPropagation();

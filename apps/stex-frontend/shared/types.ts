@@ -45,6 +45,7 @@ export interface Slide extends FileLocation {
   autoExpand: boolean;
   preNotes: string[];
   postNotes: string[];
+  sectionId: string;
 }
 
 export interface SlideReturn {
