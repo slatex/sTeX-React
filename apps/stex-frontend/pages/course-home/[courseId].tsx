@@ -6,6 +6,7 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
+import Image from 'next/image';
 
 function CourseComponentLink({
   href,
@@ -104,8 +105,13 @@ const CourseHomePage: NextPage = () => {
             </CourseComponentLink>
           )}
           <CourseComponentLink href={cardsLink}>
-            {t.cards}&nbsp;
-            <ArticleIcon fontSize="large" />
+            {t.cards}&nbsp;{' '}
+            <Image
+              src="/noun-flash-cards-2494102.svg"
+              width={35}
+              height={35}
+              alt=""
+            />
           </CourseComponentLink>
         </Box>
       </Box>

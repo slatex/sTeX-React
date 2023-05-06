@@ -9,7 +9,7 @@ import {
   ContentDashboard,
   ContentWithHighlight,
   LayoutWithFixedMenu,
-  ServerLinksContext
+  ServerLinksContext,
 } from '@stex-react/stex-react-renderer';
 import {
   COURSES_INFO,
@@ -95,7 +95,7 @@ export function setSlideNumAndSectionId(
   const courseId = query.courseId as string;
   if (sectionId) {
     query.sectionId = sectionId;
-    localStore?.setItem(`lastReadDeckId-${courseId}`, sectionId);
+    localStore?.setItem(`lastReadSectionId-${courseId}`, sectionId);
   }
   query.slideNum = `${slideNum}`;
   localStore?.setItem(`lastReadSlideNum-${courseId}`, `${slideNum}`);
@@ -152,22 +152,28 @@ const CourseViewPage: NextPage = () => {
   useEffect(() => {
     if (!router.isReady) return;
     if (sectionId && slideNum && viewMode && audioOnlyStr) return;
+    const { pathname, query } = router;
     if (!sectionId) {
-      router.query.sectionId =
-        localStore?.getItem(`lastReadsectionId-${courseId}`) || 'f7aa7a73';
+      const inStore = localStore?.getItem(`lastReadSectionId-${courseId}`);
+      if (inStore?.length) {
+        query.sectionId = inStore;
+      } else {
+        const firstSection = Object.keys(slideCounts)?.[0];
+        if (firstSection) query.sectionId = firstSection;
+      }
     }
     if (!slideNum) {
-      router.query.slideNum =
+      query.slideNum =
         localStore?.getItem(`lastReadSlideNum-${courseId}`) || '1';
     }
     if (!viewMode) {
-      router.query.viewMode =
+      query.viewMode =
         localStore?.getItem('defaultMode') || ViewMode.SLIDE_MODE.toString();
     }
     if (!audioOnlyStr) {
-      router.query.audioOnly = localStore?.getItem('audioOnly') || 'false';
+      query.audioOnly = localStore?.getItem('audioOnly') || 'false';
     }
-    router.push(router);
+    router.push({ pathname, query });
   }, [
     router,
     router.isReady,
@@ -176,6 +182,7 @@ const CourseViewPage: NextPage = () => {
     viewMode,
     courseId,
     audioOnlyStr,
+    slideCounts,
   ]);
 
   useEffect(() => {
@@ -215,11 +222,9 @@ const CourseViewPage: NextPage = () => {
                 onClose={() => setShowDashboard(false)}
                 contentUrl={contentUrl}
                 selectedSection={sectionId}
-                onSectionClick={(sectionId: string) => {
-                  const { pathname, query } = router;
-                  query.sectionId = sectionId;
-                  router.push({ pathname, query });
-                }}
+                onSectionClick={(sectionId: string) =>
+                  setSlideNumAndSectionId(router, 1, sectionId)
+                }
               />
             </>
           ) : null

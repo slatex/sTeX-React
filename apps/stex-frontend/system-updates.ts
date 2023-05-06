@@ -7,6 +7,26 @@ export const SYSTEM_UPDATES = [
     timestamp: dayjs('2023-02-11T00:20:00+05:30'),
   },*/
   {
+    id: 'course-slides',
+    header: 'Course Slides Are Back!',
+    content:
+      'Course materials are now available for all courses in the form of slides. Click "slides" to check them out.',
+    header_de: 'Kursfolien sind zurück!',
+    content_de:
+      'Für alle Kurse stehen jetzt Kursunterlagen in Form von Folien zur Verfügung. Klicken Sie auf "Folien", um sie anzusehen.',
+    timestamp: dayjs('2023-05-06T17:40:00+05:30'),
+  },
+  {
+    id: 'course-progress',
+    header: 'Course Progress Indicator',
+    content:
+      'The table of contents in course notes and slides now indicates which sections have been covered in class. The sections that have been covered are shown with a yellow background.',
+    header_de: 'Kursfortschrittsanzeige',
+    content_de:
+      'Das Inhaltsverzeichnis in Kursnotizen und Folien zeigt jetzt an, welche Abschnitte im Kurs behandelt wurden. Die abgedeckten Abschnitte werden mit einem gelben Hintergrund angezeigt.',
+    timestamp: dayjs('2023-04-27T14:20:00+05:30'),
+  },
+  {
     id: 'course-home',
     header: 'Course Home Pages',
     content:
