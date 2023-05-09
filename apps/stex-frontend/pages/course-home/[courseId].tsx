@@ -7,6 +7,7 @@ import { useRouter } from 'next/router';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
 import Image from 'next/image';
+import { RecordedSyllabus } from '../../components/RecordedSyllabus';
 
 function CourseComponentLink({
   href,
@@ -82,7 +83,7 @@ const CourseHomePage: NextPage = () => {
         )}
       </div>
 
-      <Box maxWidth="800px" m="auto" px="10px">
+      <Box maxWidth="900px" m="auto" px="10px" display="flex" flexDirection="column">
         <span
           style={{
             fontWeight: 'bold',
@@ -114,6 +115,7 @@ const CourseHomePage: NextPage = () => {
             />
           </CourseComponentLink>
         </Box>
+        <RecordedSyllabus courseId={courseId} />
       </Box>
     </MainLayout>
   );

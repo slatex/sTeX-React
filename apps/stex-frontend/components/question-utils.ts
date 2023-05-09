@@ -202,8 +202,8 @@ export function getMaaiMayQuestionURLs(mmtUrl: string, full: boolean) {
     'security/prob/keys.en',
     'security/prob/procmodes.en',
     'logic/prob/pl0-tautologies.en',
-    'logic/prob/pl1-classification-short',
-    'mathliteracy/prob/problem016',
+    'logic/prob/pl1-classification-short.en',
+    'mathliteracy/prob/problem016.en',
     'math/prob/problem002.en',
     'math/prob/problem006.en',
     'math/prob/problem007.en',
@@ -211,9 +211,9 @@ export function getMaaiMayQuestionURLs(mmtUrl: string, full: boolean) {
     'math/prob/problem010.en',
     'math/prob/problem012a.en',
     'math/prob/problem013.en',
-    'math/prob/problem016.en',
-    'math/prob/problem017.en',
-    'math/prob/problem028.en',
+    'math/prob/problem016.de',
+    'math/prob/problem017.de',
+    'math/prob/problem028.de',
     'math/prob/problem042.en',
   ];
   const all = questionFilepaths.map(

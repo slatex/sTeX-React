@@ -12,6 +12,7 @@ import {
 import { CoverageSnap } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import { useState } from 'react';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
 interface FormWithListProps {
   snaps: CoverageSnap[];
@@ -24,16 +25,16 @@ export function CoverageUpdater({
   setSnaps,
   sectionNames,
 }: FormWithListProps) {
-  const [sectionName, setSectionName] = useState<string>('');
-  const [selectedTimestamp, setSelectedTimestamp] = useState<number>(
-    Date.now()
-  );
+  const [sectionName, setSectionName] = useState('');
+  const [clipId, setClipId] = useState('');
+  const [selectedTimestamp, setSelectedTimestamp] = useState(Date.now());
 
   const handleAddItem = () => {
     if (!sectionName?.length) return;
     const newItem = {
       timestamp_ms: selectedTimestamp,
-      sectionName: sectionName,
+      sectionName,
+      clipId,
     };
     setSnaps([...snaps, newItem]);
     setSectionName('');
@@ -57,6 +58,21 @@ export function CoverageUpdater({
               }}
             >
               {item.sectionName}
+            </td>
+            <td>
+              {item.clipId?.length ? (
+                <a
+                  href={`https://fau.tv/clip/id/${item.clipId}`}
+                  style={{ textDecoration: 'underline' }}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {item.clipId}
+                  <OpenInNewIcon fontSize="small" sx={{ mb: '-4px' }} />
+                </a>
+              ) : (
+                <i>None</i>
+              )}
             </td>
             <td>
               <IconButton
@@ -106,9 +122,17 @@ export function CoverageUpdater({
             </FormControl>
           </td>
           <td>
+            <TextField
+              label="ClipId"
+              value={clipId}
+              onChange={(e) => setClipId(e.target.value)}
+              sx={{ m: '20px 5px 0' }}
+            />
+          </td>
+          <td>
             <Button
               variant="contained"
-              disabled={!sectionName}
+              disabled={!sectionName?.length}
               onClick={handleAddItem}
               sx={{ mt: '20px' }}
             >

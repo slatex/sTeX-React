@@ -115,6 +115,7 @@ export function getCourseId({
 export interface CoverageSnap {
   timestamp_ms: number;
   sectionName: string;
+  clipId?: string; // https://fau.tv/clip/id/{clipId}
 }
 
 export interface CoverageTimeline {

@@ -62,7 +62,7 @@ const CoverageUpdatePage: NextPage = () => {
       setAllSectionNames(secNames);
     }
     getSections();
-  }, []);
+  }, [mmtUrl]);
 
   useEffect(() => {
     setSnaps(coverageTimeline[selectedCourseId] || []);
