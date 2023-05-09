@@ -59,7 +59,7 @@ function CourseThumb({ courseId }: { courseId: string }) {
               priority={true}
             />
             <span
-              style={{ fontSize: '18px', marginTop: '5px', fontWeight: 'bold' }}
+              style={{ fontSize: '16px', marginTop: '5px', fontWeight: 'bold' }}
             >
               {courseName}
             </span>

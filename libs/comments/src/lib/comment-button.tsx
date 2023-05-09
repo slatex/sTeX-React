@@ -59,7 +59,7 @@ export function NotesIcon({ numNotes }: { numNotes: number }) {
 
 export function CommentsIcon({ numComments }: { numComments: number }) {
   return (
-    <span>
+    <span style={{ display: 'inline-flex' }}>
       <ChatBubbleIcon sx={{ color: 'white' }} fontSize="small" />
       <span
         style={{

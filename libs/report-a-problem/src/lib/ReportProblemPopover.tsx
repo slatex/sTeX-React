@@ -8,11 +8,9 @@ import {
   DialogActions,
   IconButton,
   Snackbar,
-  Tooltip
+  Tooltip,
 } from '@mui/material';
-import {
-  CommentNoteToggleView
-} from '@stex-react/comments';
+import { CommentNoteToggleView } from '@stex-react/comments';
 import { getSectionInfo, SECONDARY_COL, SectionInfo } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { PropsWithChildren, useState } from 'react';
@@ -127,7 +125,8 @@ export function ReportProblemPopover(props: Props) {
             rel="noreferrer"
           >
             <b style={{ color: 'dodgerblue' }}>
-              {t.seeIssue}{newIssueUrl ? '' : 'S'}&nbsp;
+              {t.seeIssue}
+              {newIssueUrl ? '' : 'S'}&nbsp;
               <OpenInNewIcon
                 fontSize="small"
                 sx={{ verticalAlign: 'bottom' }}
@@ -142,8 +141,10 @@ export function ReportProblemPopover(props: Props) {
         selectedText={selectedText}
         context={selectedContext}
         onCreateIssue={(issueUrl) => {
-          setNewIssueUrl(issueUrl);
-          setSnackbarOpen(true);
+          if (issueUrl?.length) {
+            setNewIssueUrl(issueUrl);
+            setSnackbarOpen(true);
+          }
         }}
       />
       {selectedContext?.[0]?.archive && selectedContext[0].filepath && ncdOpen && (

@@ -184,18 +184,25 @@ export function ReportProblemDialog({
           disabled={anyError || isCreating}
           onClick={async () => {
             setIsCreating(true);
-            const issueLink = await createNewIssue(
-              IssueType[type as keyof typeof IssueType],
-              IssueCategory[category as keyof typeof IssueCategory],
-              description,
-              selectedText,
-              context,
-              postAnonymously ? '' : userName,
-              title?.trim().length > 0 ? title.trim() : undefined
-            );
-            onCreateIssue(issueLink);
-            setIsCreating(false);
-            setOpen(false);
+            try {
+              const issueLink = await createNewIssue(
+                IssueType[type as keyof typeof IssueType],
+                IssueCategory[category as keyof typeof IssueCategory],
+                description,
+                selectedText,
+                context,
+                postAnonymously ? '' : userName,
+                title?.trim().length > 0 ? title.trim() : undefined
+              );
+              onCreateIssue(issueLink);
+            } catch (e) {
+              console.log(e);
+              alert('We encountered an error: ' + e);
+              onCreateIssue('');
+            } finally {
+              setIsCreating(false);
+              setOpen(false);
+            }
           }}
           autoFocus
         >
