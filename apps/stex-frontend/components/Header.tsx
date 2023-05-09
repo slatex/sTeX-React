@@ -214,10 +214,12 @@ export function Header({
   const loggedIn = isLoggedIn();
   const router = useRouter();
   const { header: t } = getLocaleObject(router);
+  const isStaging = process.env.NEXT_PUBLIC_SITE_VERSION === 'staging';
+  const background = isStaging ? 'crimson !important' : undefined;
 
   return (
     <AppBar position="static">
-      <Toolbar className={styles['toolbar']}>
+      <Toolbar className={styles['toolbar']} sx={{ background }}>
         <Link href="/" passHref>
           <Tooltip title={t.headerWarning}>
             <Box display="flex" flexWrap="nowrap" alignItems="baseline">
