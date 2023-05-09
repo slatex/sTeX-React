@@ -250,10 +250,7 @@ const CourseViewPage: NextPage = () => {
                   router.push(router);
                 }}
               />
-              <Link
-                href="/browser/%3AsTeX%2Fdocument%3Farchive%3DMiKoMH%2FAI%26filepath%3Dcourse%2Fnotes%2Fnotes1.xhtml"
-                passHref
-              >
+              <Link href={COURSES_INFO[courseId]?.notesLink ?? ''} passHref>
                 <Button size="small" variant="contained" sx={{ mr: '10px' }}>
                   {t.notes}&nbsp;
                   <ArticleIcon />
