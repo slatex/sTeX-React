@@ -23,7 +23,11 @@ import {
   SmileyLevel,
   smileyToLevel,
 } from '@stex-react/api';
-import { DimIcon, LevelIcon } from '@stex-react/stex-react-renderer';
+import {
+  DimIcon,
+  LevelIcon,
+  mmtHTMLToReact,
+} from '@stex-react/stex-react-renderer';
 import {
   PRIMARY_COL,
   SECONDARY_COL,
@@ -33,13 +37,15 @@ import {
 import axios from 'axios';
 import { ConfigureLevelSlider } from 'libs/stex-react-renderer/src/lib/SelfAssessmentDialog';
 import { useRouter } from 'next/router';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import { FlashCardMode, FlashCards } from './FlashCards';
 
 export interface CardsWithSmileys {
   uri: string;
   smileys: SmileyCognitiveValues;
+  chapterTitle: string;
+  sectionTitle: string;
 }
 const FLASH_CARD_SCROLL_Y = 62;
 function cardMeetsLevelReqs(
@@ -58,29 +64,32 @@ function cardMeetsLevelReqs(
   );
 }
 
-function getChapterCounts(
+function getSectionCounts(
   levels: ConfiguredLevel,
   loggedIn: boolean,
   cards?: CardsWithSmileys[]
 ): {
-  chapter: string;
+  chapterTitle: string;
+  sectionTitle: string;
   totalCount: number;
   selectedCards: CardsWithSmileys[];
 }[] {
   if (!cards) return [];
   const counts: {
-    chapter: string;
+    chapterTitle: string;
+    sectionTitle: string;
     totalCount: number;
     selectedCards: CardsWithSmileys[];
   }[] = [];
   for (const card of cards) {
-    const chapter = 'all'; // card.instances[0].chapter;
+    const { sectionTitle, chapterTitle } = card;
 
     const selected = cardMeetsLevelReqs(card, loggedIn, levels);
-    const idx = counts.findIndex((v) => v.chapter === chapter);
+    const idx = counts.findIndex((v) => v.sectionTitle === sectionTitle);
     if (idx === -1) {
       counts.push({
-        chapter,
+        chapterTitle,
+        sectionTitle,
         totalCount: 1,
         selectedCards: selected ? [card] : [],
       });
@@ -150,16 +159,26 @@ function LevelConfigurator({
     </>
   );
 }
+function addIfNeeded(arr: number[], num: number) {
+  const existingIdx = arr.indexOf(num);
+  if (existingIdx === -1) arr.push(num);
+}
+
+function removeIfNeeded(arr: number[], num: number) {
+  const existingIdx = arr.indexOf(num);
+  if (existingIdx !== -1) arr.splice(existingIdx, 1);
+}
 
 function CoverageConfigurator({
-  chapterCounts,
+  sectionCounts,
   checkedChapterIdxs,
   setCheckedChapterIdxs,
   startSingleChapter,
   shuffle,
 }: {
-  chapterCounts: {
-    chapter: string;
+  sectionCounts: {
+    chapterTitle: string;
+    sectionTitle: string;
     totalCount: number;
     selectedCards: CardsWithSmileys[];
   }[];
@@ -171,13 +190,11 @@ function CoverageConfigurator({
   const handleToggle = (value: number) => () => {
     const currentIndex = checkedChapterIdxs.indexOf(value);
     const newChecked = [...checkedChapterIdxs];
-
     if (currentIndex === -1) {
       newChecked.push(value);
     } else {
       newChecked.splice(currentIndex, 1);
     }
-
     setCheckedChapterIdxs(newChecked);
   };
   const loggedIn = isLoggedIn();
@@ -192,70 +209,110 @@ function CoverageConfigurator({
         </Typography>
       </Tooltip>
       <List sx={{ bgcolor: 'background.paper' }}>
-        {chapterCounts.map(({ chapter, totalCount, selectedCards }, idx) => {
-          const labelId = `checkbox-list-label-${idx}`;
+        {sectionCounts.map(
+          ({ chapterTitle, sectionTitle, totalCount, selectedCards }, idx) => {
+            const labelId = `checkbox-list-label-${idx}`;
+            const isChapterStart =
+              idx === 0 || sectionCounts[idx - 1].chapterTitle !== chapterTitle;
 
-          return (
-            <ListItem key={idx} disablePadding>
-              <ListItemButton
-                role={undefined}
-                onClick={handleToggle(idx)}
-                dense
-                sx={{ p: '0 0 0 10px', m: '0' }}
-              >
-                <ListItemIcon sx={{ minWidth: '30px' }}>
-                  <Checkbox
-                    edge="start"
-                    checked={checkedChapterIdxs.indexOf(idx) !== -1}
-                    tabIndex={-1}
-                    disableRipple
-                    inputProps={{ 'aria-labelledby': labelId }}
-                  />
-                </ListItemIcon>
-                <ListItemText
-                  id={labelId}
-                  primary={
-                    <Box sx={{ fontSize: '14px' }}>
-                      <b style={{ display: 'block', color: PRIMARY_COL }}>
-                        {chapter}
-                      </b>
-                      <b style={{ color: SECONDARY_COL }}>
-                        {loggedIn && selectedCards.length + '/'}
-                        {totalCount}&nbsp;{t.concepts}
-                      </b>
-                    </Box>
-                  }
-                />
-
-                <Box display="flex" alignItems="center" gap="5px 10px">
-                  <Button
-                    size="small"
-                    sx={{ fontWeight: 'bold' }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      startSingleChapter(idx, FlashCardMode.REVISION_MODE);
-                    }}
-                  >
-                    {t.revise}
-                  </Button>
-                  {loggedIn && (
-                    <Button
-                      size="small"
-                      sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        startSingleChapter(idx, FlashCardMode.DRILL_MODE);
+            return (
+              <Fragment key={idx}>
+                {isChapterStart && (
+                  <ListItem disablePadding>
+                    <ListItemButton
+                      onClick={() => {
+                        const idxs: number[] = [];
+                        for (const [idx, section] of sectionCounts.entries()) {
+                          if (section.chapterTitle === chapterTitle)
+                            idxs.push(idx);
+                        }
+                        const setAll = idxs.some(
+                          (idx) => !checkedChapterIdxs.includes(idx)
+                        );
+                        const newChecked = [...checkedChapterIdxs];
+                        if (setAll) {
+                          idxs.forEach((idx) => addIfNeeded(newChecked, idx));
+                        } else {
+                          idxs.forEach((idx) =>
+                            removeIfNeeded(newChecked, idx)
+                          );
+                        }
+                        setCheckedChapterIdxs(newChecked);
                       }}
                     >
-                      {t.drill}&nbsp;
-                      {shuffle && <ShuffleIcon fontSize="small" />}
-                    </Button>
-                  )}
-                </Box>
-              </ListItemButton>
-            </ListItem>
-          );
-        })}
+                      <b
+                        style={{
+                          display: 'block',
+                          color: PRIMARY_COL,
+                          fontSize: 'large',
+                        }}
+                      >
+                        {mmtHTMLToReact(chapterTitle, true)}
+                      </b>
+                    </ListItemButton>
+                  </ListItem>
+                )}
+                <ListItem disablePadding>
+                  <ListItemButton
+                    onClick={handleToggle(idx)}
+                    dense
+                    sx={{ p: '0 0 0 10px', m: '0' }}
+                  >
+                    <ListItemIcon sx={{ minWidth: '30px' }}>
+                      <Checkbox
+                        edge="start"
+                        checked={checkedChapterIdxs.indexOf(idx) !== -1}
+                        tabIndex={-1}
+                        disableRipple
+                        inputProps={{ 'aria-labelledby': labelId }}
+                      />
+                    </ListItemIcon>
+                    <ListItemText
+                      id={labelId}
+                      primary={
+                        <Box sx={{ fontSize: '14px' }}>
+                          <b style={{ display: 'block', color: PRIMARY_COL }}>
+                            {mmtHTMLToReact(sectionTitle, true)}
+                          </b>
+                          <b style={{ color: SECONDARY_COL }}>
+                            {loggedIn && selectedCards.length + '/'}
+                            {totalCount}&nbsp;{t.concepts}
+                          </b>
+                        </Box>
+                      }
+                    />
+
+                    <Box display="flex" alignItems="center" gap="5px 10px">
+                      <Button
+                        size="small"
+                        sx={{ fontWeight: 'bold' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          startSingleChapter(idx, FlashCardMode.REVISION_MODE);
+                        }}
+                      >
+                        {t.revise}
+                      </Button>
+                      {loggedIn && (
+                        <Button
+                          size="small"
+                          sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            startSingleChapter(idx, FlashCardMode.DRILL_MODE);
+                          }}
+                        >
+                          {t.drill}&nbsp;
+                          {shuffle && <ShuffleIcon fontSize="small" />}
+                        </Button>
+                      )}
+                    </Box>
+                  </ListItemButton>
+                </ListItem>
+              </Fragment>
+            );
+          }
+        )}
       </List>
     </>
   );
@@ -330,15 +387,15 @@ function ReviseAndDrillButtons({
 function getSelectedCards(
   mode: FlashCardMode,
   shuffle: boolean,
-  chapterCounts: {
-    chapter: string;
+  sectionCounts: {
+    sectionTitle: string;
     totalCount: number;
     selectedCards: CardsWithSmileys[];
   }[],
-  selectedChapters: string[]
+  selectedSections: string[]
 ): CardsWithSmileys[] {
-  const selected = chapterCounts
-    .filter((chap) => selectedChapters.includes(chap.chapter))
+  const selected = sectionCounts
+    .filter((chap) => selectedSections.includes(chap.sectionTitle))
     .map((v) => v.selectedCards)
     .flat(1);
   if (shuffle && mode === FlashCardMode.DRILL_MODE) {
@@ -367,14 +424,14 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
 
   const loggedIn = isLoggedIn();
 
-  const chapterCounts = getChapterCounts(levels, loggedIn, courseCards);
+  const sectionCounts = getSectionCounts(levels, loggedIn, courseCards);
   const selectedChapters = checkedChapterIdxs.map(
-    (idx) => chapterCounts[idx].chapter
+    (idx) => sectionCounts[idx].sectionTitle
   );
   const selectedCards = getSelectedCards(
     mode,
     shuffle,
-    chapterCounts,
+    sectionCounts,
     selectedChapters
   );
   useEffect(() => {
@@ -435,7 +492,7 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
         </Box>
         <Box flex="1 1 400px" maxWidth="600px">
           <CoverageConfigurator
-            chapterCounts={chapterCounts}
+            sectionCounts={sectionCounts}
             checkedChapterIdxs={checkedChapterIdxs}
             setCheckedChapterIdxs={setCheckedChapterIdxs}
             shuffle={shuffle}

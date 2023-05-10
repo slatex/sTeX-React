@@ -5,7 +5,25 @@ export const SYSTEM_UPDATES = [
     header: '',
     content: '',
     timestamp: dayjs('2023-02-11T00:20:00+05:30'),
-  },*/
+  },*/ {
+    id: 'cards-with-sections',
+    header: 'Flash Cards arranged by sections',
+    content: 'Flash cards can now be browsed by course section.',
+    header_de: 'Lernkarten nach Abschnitten geordnet',
+    content_de:
+      'Lernkarten können jetzt nach Kursabschnitten durchsucht werden.',
+    timestamp: dayjs('2023-05-10T21:50:00+05:30'),
+  },
+  {
+    id: 'recorded-syllabus',
+    header: 'Recorded Syllabus on course home page',
+    content:
+      'You can now see what sections have been covered in class on the course home page. You can also easily access the lecture videos.',
+    header_de: 'Aufgezeichneter Lehrplan auf der Kurs-Homepage',
+    content_de:
+      'Auf der Startseite des Kurses können Sie jetzt sehen, welche Abschnitte im Unterricht behandelt wurden. Sie können auch problemlos auf die Vorlesungsvideos zugreifen.',
+    timestamp: dayjs('2023-05-09T22:10:00+05:30'),
+  },
   {
     id: 'course-slides',
     header: 'Course Slides Are Back!',
