@@ -233,7 +233,7 @@ export async function getUriWeights(
 export async function getUriSmileys(
   URIs: string[],
   inputHeaders?: any
-): Promise<SmileyCognitiveValues[]> {
+): Promise<Map<string, SmileyCognitiveValues>> {
   const resp = await lmsRequest(
     'lms/output/multiple',
     'POST',
@@ -244,15 +244,17 @@ export async function getUriSmileys(
     },
     inputHeaders
   );
-  if (!resp?.model) return new Array(URIs.length).fill({});
-  const model: { URI: string; values: SmileyCognitiveValues }[] = resp.model;
   const compMap = new Map<string, SmileyCognitiveValues>();
+  if (!resp?.model) return compMap;
+  const model: { URI: string; values: SmileyCognitiveValues }[] = resp.model;
   model.forEach((c) => {
     compMap.set(c.URI, cleanupSmileyCognitiveValues(c.values));
   });
-  return URIs.map(
-    (URI) => compMap.get(URI) || cleanupSmileyCognitiveValues({})
-  );
+
+  URIs.map((URI) => {
+    if (!compMap.has(URI)) compMap.set(URI, cleanupSmileyCognitiveValues({}));
+  });
+  return compMap;
 }
 
 export async function reportEvent(event: LMSEvent) {

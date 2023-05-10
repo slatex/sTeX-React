@@ -5,7 +5,7 @@ import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/Indeterminate
 import UnfoldLessDoubleIcon from '@mui/icons-material/UnfoldLessDouble';
 import UnfoldMoreDoubleIcon from '@mui/icons-material/UnfoldMoreDouble';
 import { Box, IconButton, TextField, Tooltip } from '@mui/material';
-import { MODERATORS, SectionsAPIData, getUserInfo } from '@stex-react/api';
+import { MODERATORS, SectionsAPIData, getDocumentSections, getUserInfo } from '@stex-react/api';
 import {
   CoverageTimeline,
   convertHtmlStringToPlain,
@@ -305,11 +305,9 @@ export function ContentDashboard({
 
   useEffect(() => {
     async function getIndex() {
-      const { archive, filepath } = getSectionInfo(contentUrl);
-      const resp = await axios.get(
-        `${mmtUrl}/:sTeX/sections?archive=${archive}&filepath=${filepath}`
-      );
-      const root = getDocumentTree(resp.data, undefined);
+      const { archive, filepath } = getSectionInfo(contentUrl); 
+      const docSections = await getDocumentSections(mmtUrl, archive, filepath);
+      const root = getDocumentTree(docSections, undefined);
       setDashInfo(root.type !== TOCNodeType.FILE ? undefined : root);
     }
     getIndex();

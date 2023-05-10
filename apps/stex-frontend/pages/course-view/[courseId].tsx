@@ -3,7 +3,7 @@ import MergeIcon from '@mui/icons-material/Merge';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
 import VideoCameraFrontIcon from '@mui/icons-material/VideoCameraFront';
 import { Box, Button, ToggleButtonGroup } from '@mui/material';
-import { SectionsAPIData } from '@stex-react/api';
+import { SectionsAPIData, getDocumentSections } from '@stex-react/api';
 import { CommentNoteToggleView } from '@stex-react/comments';
 import {
   ContentDashboard,
@@ -188,10 +188,8 @@ const CourseViewPage: NextPage = () => {
   useEffect(() => {
     async function getIndex() {
       const { archive, filepath } = getSectionInfo(contentUrl);
-      const resp = await axios.get(
-        `${mmtUrl}/:sTeX/sections?archive=${archive}&filepath=${filepath}`
-      );
-      setCourseSections(getSections(resp.data));
+      const docSections = await getDocumentSections(mmtUrl, archive, filepath);
+      setCourseSections(getSections(docSections));
     }
     getIndex();
   }, [mmtUrl, contentUrl]);

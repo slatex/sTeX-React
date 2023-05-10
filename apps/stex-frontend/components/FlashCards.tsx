@@ -10,6 +10,7 @@ import {
   Card,
   CardContent,
   Checkbox,
+  CircularProgress,
   FormControlLabel,
   IconButton,
   Tooltip,
@@ -399,18 +400,18 @@ export function SummaryCard({
   onFinish: () => void;
 }) {
   const [isLoading, setIsLoading] = useState(false);
-  const [, forceRerender] = useReducer((x) => x + 1, 0);
   const { locale } = useRouter();
   const { flashCards: t } = getLocaleObject({ locale });
 
-  const uriMap = useRef(new Map<string, SmileyCognitiveValues>()).current;
+  const [uriMap, setUriMap] = useState<Map<string, SmileyCognitiveValues>>(
+    new Map()
+  );
+
   useEffect(() => {
+    setIsLoading(true);
     getUriSmileys(items.map((item) => item.uri)).then((uriSmileys) => {
       setIsLoading(false);
-      for (const [idx, item] of items.entries()) {
-        uriMap.set(item.uri, uriSmileys[idx]);
-      }
-      forceRerender();
+      setUriMap(uriSmileys);
     });
   }, [items]);
 
@@ -443,6 +444,7 @@ export function SummaryCard({
     rememberAndUnderstand.length + rememberNotUnderstand.length;
   const numUnderstood =
     rememberAndUnderstand.length + notRememberButUnderstand.length;
+  if (isLoading) return <CircularProgress />;
   return (
     <Card>
       <CardContent sx={{ mx: '10px' }}>

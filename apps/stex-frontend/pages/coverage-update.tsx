@@ -6,7 +6,11 @@ import {
   MenuItem,
   Select,
 } from '@mui/material';
-import { SectionsAPIData, getAuthHeaders } from '@stex-react/api';
+import {
+  SectionsAPIData,
+  getAuthHeaders,
+  getDocumentSections,
+} from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import {
   COURSES_INFO,
@@ -53,11 +57,9 @@ const CoverageUpdatePage: NextPage = () => {
     async function getSections() {
       const secNames: { [courseId: string]: string[] } = {};
       for (const courseId of courseIds) {
-        const { notesArchive, notesFilepath } = COURSES_INFO[courseId];
-        const resp = await axios.get(
-          `${mmtUrl}/:sTeX/sections?archive=${notesArchive}&filepath=${notesFilepath}`
-        );
-        secNames[courseId] = getSectionNames(resp.data as SectionsAPIData);
+        const { notesArchive: a, notesFilepath: f } = COURSES_INFO[courseId];
+        const docSections = await getDocumentSections(mmtUrl, a, f);
+        secNames[courseId] = getSectionNames(docSections);
       }
       setAllSectionNames(secNames);
     }

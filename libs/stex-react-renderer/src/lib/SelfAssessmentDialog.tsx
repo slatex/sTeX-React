@@ -260,7 +260,7 @@ export function SelfAssessment2({
     undefined
   );
   function refetchSmileys() {
-    getUriSmileys([uri]).then((v) => setSmileys(v[0]));
+    getUriSmileys([uri]).then((v) => setSmileys(v.get(uri)));
   }
   useEffect(() => {
     setSmileys(undefined);
@@ -295,8 +295,8 @@ export function SelfAssessmentDialog({
   );
   function refetchSmileys() {
     getUriSmileys([uri]).then((v) => {
-      setSmileys(v[0]);
-      if (onUpdate) onUpdate(v[0]);
+      setSmileys(v.get(uri));
+      if (onUpdate) onUpdate(v.get(uri) as any);
     });
   }
   useEffect(() => {

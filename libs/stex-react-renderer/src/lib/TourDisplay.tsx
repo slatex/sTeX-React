@@ -75,7 +75,7 @@ const RenderedMmtMemo = memo(({ html }: { html: string }) => {
   return <>{mmtHTMLToReact(html)}</>;
 });
 
-function isConceptUnderstood(val: SmileyCognitiveValues) {
+function isConceptUnderstood(val?: SmileyCognitiveValues) {
   const r = smileyToLevel(val?.Remember);
   const u = smileyToLevel(val?.Understand);
   return !!r && !!u && r >= 1 && u >= 1;
@@ -275,10 +275,10 @@ function computeOrderedList(
 
 function getTourItemMap(
   tourAPIEntries: TourAPIEntry[],
-  smileyVals: SmileyCognitiveValues[]
+  smileyVals: Map<string, SmileyCognitiveValues>
 ) {
   const tourItems: Map<string, TourItem> = new Map();
-  for (const [idx, entry] of tourAPIEntries.entries()) {
+  for (const entry of tourAPIEntries) {
     tourItems.set(entry.id, {
       uri: entry.id,
       header: entry.title,
@@ -286,7 +286,7 @@ function getTourItemMap(
       dependencies: [],
       successors: entry.successors,
       level: 0,
-      understood: isConceptUnderstood(smileyVals[idx]),
+      understood: isConceptUnderstood(smileyVals.get(entry.id)),
     });
   }
   for (const n of tourAPIEntries) {
@@ -473,8 +473,8 @@ export function TourDisplay({
       const tourUris = apiEntries.map((e) => e.id);
       getUriSmileys(tourUris).then((smileyVals) => {
         const understood = [];
-        for (const [idx, uri] of tourUris.entries()) {
-          if (isConceptUnderstood(smileyVals[idx])) {
+        for (const uri of tourUris) {
+          if (isConceptUnderstood(smileyVals.get(uri))) {
             understood.push(uri);
           }
         }
