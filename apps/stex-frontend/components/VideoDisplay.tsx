@@ -1,3 +1,5 @@
+import CheckIcon from '@mui/icons-material/Check';
+import SettingsIcon from '@mui/icons-material/Settings';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import VideocamOffIcon from '@mui/icons-material/VideocamOff';
 import {
@@ -8,13 +10,11 @@ import {
   MenuItem,
   Tooltip,
 } from '@mui/material';
+import { ClipDetails } from '@stex-react/api';
 import { localStore } from '@stex-react/utils';
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
-import { ClipDetails, DeckAndVideoInfo } from '../shared/types';
-import SettingsIcon from '@mui/icons-material/Settings';
-import CheckIcon from '@mui/icons-material/Check';
-import { useRouter } from 'next/router';
 import axios from 'axios';
+import { useRouter } from 'next/router';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 
 function ToggleResolution({
   audioOnly,

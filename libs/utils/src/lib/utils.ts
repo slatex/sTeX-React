@@ -1,5 +1,5 @@
 import { getOuterHTML } from 'domutils';
-import { FileLocation, fileLocToString } from './file-location';
+import { FileLocation } from './file-location';
 
 export const BG_COLOR = 'hsl(210, 20%, 98%)';
 export const IS_SERVER = typeof window === 'undefined';

@@ -1,3 +1,4 @@
+import { Slide, SlideType } from '@stex-react/api';
 import {
   COURSES_INFO,
   FileLocation,
@@ -7,7 +8,6 @@ import {
 import { getOuterHTML, textContent } from 'domutils';
 import * as htmlparser2 from 'htmlparser2';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { Slide, SlideType } from '../../../../shared/types';
 import {
   fetchDocumentCached,
   preFetchDescendentsOfDoc,

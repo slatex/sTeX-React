@@ -6,6 +6,7 @@ import { Box, Button, ToggleButtonGroup } from '@mui/material';
 import {
   SectionInfo,
   SectionsAPIData,
+  Slide,
   getDocumentSections,
 } from '@stex-react/api';
 import { CommentNoteToggleView } from '@stex-react/comments';
@@ -32,7 +33,6 @@ import { TooltipToggleButton } from '../../components/TooltipToggleButton';
 import { VideoDisplay } from '../../components/VideoDisplay';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
-import { Slide } from '../../shared/types';
 
 function RenderElements({ elements }: { elements: string[] }) {
   return (
