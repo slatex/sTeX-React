@@ -3,7 +3,11 @@ import MergeIcon from '@mui/icons-material/Merge';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
 import VideoCameraFrontIcon from '@mui/icons-material/VideoCameraFront';
 import { Box, Button, ToggleButtonGroup } from '@mui/material';
-import { SectionsAPIData, getDocumentSections } from '@stex-react/api';
+import {
+  SectionInfo,
+  SectionsAPIData,
+  getDocumentSections,
+} from '@stex-react/api';
 import { CommentNoteToggleView } from '@stex-react/comments';
 import {
   ContentDashboard,
@@ -28,7 +32,7 @@ import { TooltipToggleButton } from '../../components/TooltipToggleButton';
 import { VideoDisplay } from '../../components/VideoDisplay';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
-import { DeckAndVideoInfo, Slide } from '../../shared/types';
+import { Slide } from '../../shared/types';
 
 function RenderElements({ elements }: { elements: string[] }) {
   return (
@@ -86,6 +90,16 @@ function ToggleModeButton({
   );
 }
 
+function populateClipIds(
+  sections: SectionInfo[],
+  clipIds: { [sectionId: string]: string }
+) {
+  for (const section of sections) {
+    clipIds[section.id] = section.clipId;
+    populateClipIds(section.children, clipIds);
+  }
+}
+
 export function setSlideNumAndSectionId(
   router: NextRouter,
   slideNum: number,
@@ -130,7 +144,7 @@ const CourseViewPage: NextPage = () => {
     [sectionId: string]: number;
   }>({});
 
-  const [deckInfo, setDeckInfo] = useState(undefined as DeckAndVideoInfo);
+  const [clipIds, setClipIds] = useState<{ [sectionId: string]: string }>({});
   const [slideArchive, setSlideArchive] = useState('');
   const [slideFilepath, setSlideFilepath] = useState('');
   const { mmtUrl } = useContext(ServerLinksContext);
@@ -148,6 +162,15 @@ const CourseViewPage: NextPage = () => {
       .get(`/api/get-slide-counts/${courseId}`)
       .then((resp) => setSlideCounts(resp.data));
   }, [router.isReady, courseId]);
+
+  useEffect(() => {
+    if (!router.isReady || !courseId?.length) return;
+    axios.get(`/api/get-section-info/${courseId}`).then((r) => {
+      const clipIds = {};
+      populateClipIds(r.data, clipIds);
+      setClipIds(clipIds);
+    });
+  }, [courseId, router.isReady]);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -257,7 +280,7 @@ const CourseViewPage: NextPage = () => {
             </Box>
             {(viewMode === ViewMode.VIDEO_MODE ||
               viewMode === ViewMode.COMBINED_MODE) && (
-              <VideoDisplay deckInfo={deckInfo} audioOnly={audioOnly} />
+              <VideoDisplay clipId={clipIds[sectionId]} audioOnly={audioOnly} />
             )}
             {(viewMode === ViewMode.SLIDE_MODE ||
               viewMode === ViewMode.COMBINED_MODE) && (

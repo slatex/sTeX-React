@@ -148,10 +148,12 @@ function MediaItem({
 }
 
 export function VideoDisplay({
-  deckInfo,
+  clipId,
+  timestampSec,
   audioOnly,
 }: {
-  deckInfo: DeckAndVideoInfo;
+  clipId: string;
+  timestampSec?: number;
   audioOnly: boolean;
 }) {
   const [resolution, setResolution] = useState(720);
@@ -162,16 +164,16 @@ export function VideoDisplay({
   const router = useRouter();
 
   useEffect(() => {
-    if (!deckInfo?.clipId) {
+    if (!clipId) {
       setIsLoading(false);
       return;
     }
     setIsLoading(true);
-    axios.get(`/api/get-fau-clip-info/${deckInfo.clipId}`).then((resp) => {
+    axios.get(`/api/get-fau-clip-info/${clipId}`).then((resp) => {
       setIsLoading(false);
       setClipDetails(resp.data);
     });
-  }, [deckInfo?.clipId]);
+  }, [clipId]);
 
   useEffect(() => {
     setResolution(+(localStore?.getItem('defaultResolution') || '720'));
@@ -182,7 +184,7 @@ export function VideoDisplay({
     <>
       <MediaItem
         videoId={videoId}
-        timestampSec={deckInfo?.timestampSec}
+        timestampSec={timestampSec}
         audioOnly={audioOnly}
         sub={clipDetails?.sub}
       />

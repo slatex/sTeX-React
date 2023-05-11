@@ -157,9 +157,9 @@ export async function getSlides({ archive, filepath }: FileLocation) {
     if (!bySection[secId]) bySection[secId] = [];
     bySection[slide.sectionId].push(slide);
   }
-  for (const secId of Object.keys(bySection)) {
+  /*for (const secId of Object.keys(bySection)) {
     console.log(`${secId}: ${bySection[secId].length}`);
-  }
+  }*/
   return bySection;
 }
 
@@ -179,7 +179,6 @@ export default async function handler(
     return;
   }
   const sectionIdArr = sectionIds.split(',');
-  console.log(sectionIdArr);
   if (!CACHED_SLIDES[courseId]) {
     CACHED_SLIDES[courseId] = await getSlides({
       archive: courseInfo.notesArchive,
