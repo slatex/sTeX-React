@@ -15,7 +15,7 @@ import {
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import { getUserInfo } from '@stex-react/api';
-import { SectionInfo } from '@stex-react/utils';
+import { FileInfo } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { createNewIssue, IssueCategory, IssueType } from './issueCreator';
@@ -31,7 +31,7 @@ export function ReportProblemDialog({
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   selectedText: string;
-  context: SectionInfo[];
+  context: FileInfo[];
   onCreateIssue: (issueUrl: string) => void;
 }) {
   const t = getLocaleObject(useRouter());

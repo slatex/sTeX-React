@@ -16,7 +16,7 @@ export function shouldUseDrawer(windowWidth?: number) {
   return windowWidth ? windowWidth < 800 : true;
 }
 
-export interface SectionInfo extends FileLocation {
+export interface FileInfo extends FileLocation {
   url: string;
   source?: string;
 }
@@ -35,7 +35,7 @@ export function convertHtmlStringToPlain(htmlStr: string) {
   return tempDivElement.textContent || tempDivElement.innerText || '';
 }
 
-export function getSectionInfo(url: string): SectionInfo {
+export function getSectionInfo(url: string): FileInfo {
   if(!url) url= '';
   const match = /archive=([^&]+)&filepath=([^&]+)/g.exec(url);
   const archive = match?.[1] || '';

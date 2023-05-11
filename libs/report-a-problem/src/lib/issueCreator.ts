@@ -1,4 +1,4 @@
-import { SectionInfo } from '@stex-react/utils';
+import { FileInfo } from '@stex-react/utils';
 import axios from 'axios';
 
 const THREE_BACKTICKS = '```';
@@ -13,7 +13,7 @@ export enum IssueCategory {
   DISPLAY = 'DISPLAY',
 }
 
-function createSectionHierarchy(context: SectionInfo[]) {
+function createSectionHierarchy(context: FileInfo[]) {
   if (!context?.length) return '';
   let returnVal =
     '### The selected text was in the following section hierarchy:\n\n';
@@ -35,7 +35,7 @@ function createIssueBody(
   desc: string,
   selectedText: string,
   userName: string,
-  context: SectionInfo[]
+  context: FileInfo[]
 ) {
   const sectionHierarchy = createSectionHierarchy(context);
   const user = userName || 'a user';
@@ -71,7 +71,7 @@ function createIssueData(
   category: IssueCategory,
   desc: string,
   selectedText: string,
-  context: SectionInfo[],
+  context: FileInfo[],
   userName: string,
   title?: string
 ) {
@@ -89,7 +89,7 @@ export async function createNewIssue(
   category: IssueCategory,
   desc: string,
   selectedText: string,
-  context: SectionInfo[],
+  context: FileInfo[],
   userName: string,
   title?: string
 ) {
@@ -117,7 +117,7 @@ export async function createNewIssue(
   }
 }
 
-export function issuesUrlList(context: SectionInfo[]) {
+export function issuesUrlList(context: FileInfo[]) {
   const projectId = context?.[0]?.archive;
   if (!projectId) return 'https://github.com/slatex/sTeX-React/issues';
   return `https://gl.mathhub.info/${projectId}/-/issues`;

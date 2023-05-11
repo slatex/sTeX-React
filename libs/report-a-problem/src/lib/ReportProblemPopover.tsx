@@ -11,7 +11,7 @@ import {
   Tooltip,
 } from '@mui/material';
 import { CommentNoteToggleView } from '@stex-react/comments';
-import { getSectionInfo, SECONDARY_COL, SectionInfo } from '@stex-react/utils';
+import { getSectionInfo, SECONDARY_COL, FileInfo } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { PropsWithChildren, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -30,7 +30,7 @@ function Portal(props: PropsWithChildren<{ mount?: HTMLElement }>) {
   return createPortal(props.children, props.mount || document.body);
 }
 
-function getContext(node?: Node): SectionInfo[] {
+function getContext(node?: Node): FileInfo[] {
   if (!node) return [];
   const parentContext = getContext(node.parentNode as Node);
   const sectionUrl = (node as any).attributes?.['section-url']?.value;
@@ -65,7 +65,7 @@ export function ReportProblemPopover(props: Props) {
   const [open, setOpen] = useState(false);
   const [ncdOpen, setNcdOpen] = useState(false);
   const [selectedText, setSelectedText] = useState('');
-  const [selectedContext, setSelectedContext] = useState<SectionInfo[]>([]);
+  const [selectedContext, setSelectedContext] = useState<FileInfo[]>([]);
 
   const [snackBarOpen, setSnackbarOpen] = useState(false);
   const [newIssueUrl, setNewIssueUrl] = useState('');

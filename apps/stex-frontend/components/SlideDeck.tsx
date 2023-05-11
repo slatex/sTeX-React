@@ -11,8 +11,8 @@ import axios from 'axios';
 import { useRouter } from 'next/router';
 import { memo, useEffect, useState } from 'react';
 import { setSlideNumAndSectionId } from '../pages/course-view/[courseId]';
-import { Slide } from '../shared/types';
 import styles from '../styles/slide-deck.module.scss';
+import { Slide } from '@stex-react/api';
 
 export function SlideNavBar({
   slideNum,
