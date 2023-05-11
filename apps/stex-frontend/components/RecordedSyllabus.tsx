@@ -116,7 +116,7 @@ export function RecordedSyllabus({ courseId }: { courseId: string }) {
   }, [courseId]);
 
   if (!courseId) return null;
-  const rows = Object.keys(lectureDescs).map((n) => n);
+  const rows = Object.keys(lectureDescs).map((n) => +n);
   if (!rows || !rows?.length) return null;
 
   return (
