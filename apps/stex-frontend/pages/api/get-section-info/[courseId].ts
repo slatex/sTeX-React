@@ -1,16 +1,15 @@
 import {
-  COURSES_INFO,
-  CoverageSnap,
-  convertHtmlStringToPlain,
-} from '@stex-react/utils';
-import { NextApiRequest, NextApiResponse } from 'next';
-import { getCoverageData } from '../get-coverage-timeline';
-import {
   SectionInfo,
   SectionsAPIData,
   getDocumentSections,
 } from '@stex-react/api';
+import {
+  COURSES_INFO,
+  CoverageSnap
+} from '@stex-react/utils';
 import { convert } from 'html-to-text';
+import { NextApiRequest, NextApiResponse } from 'next';
+import { getCoverageData } from '../get-coverage-timeline';
 
 function getAllSections(
   data: SectionsAPIData,
