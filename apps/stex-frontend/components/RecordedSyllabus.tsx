@@ -90,8 +90,8 @@ function getLectureDescs(sections: SectionInfo[]): {
   const descriptions: { [timestamp_ms: number]: string } = {};
   for (const timestamp_ms of Object.keys(descPieces)) {
     const pieces = descPieces[timestamp_ms];
-    const hasComma = pieces.some((piece) => piece.includes(','));
-    const joiner = !hasComma ? ', ' : joinerForLevel(sections[0]?.level);
+    const isJoined = pieces.some((piece) => piece.includes(',') || piece.includes('\n'));
+    const joiner = isJoined ? joinerForLevel(sections[0]?.level): ', ';
     descriptions[timestamp_ms] = pieces.join(joiner);
   }
   return descriptions;
