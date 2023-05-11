@@ -1,21 +1,10 @@
+import OndemandVideoIcon from '@mui/icons-material/OndemandVideo';
 import { Box, IconButton } from '@mui/material';
-import {
-  SectionInfo,
-  SectionsAPIData,
-  getDocumentSections,
-} from '@stex-react/api';
+import { SectionInfo } from '@stex-react/api';
 import { MdViewer } from '@stex-react/markdown';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
-import {
-  COURSES_INFO,
-  CoverageTimeline,
-  convertHtmlStringToPlain,
-} from '@stex-react/utils';
 import axios from 'axios';
 import dayjs from 'dayjs';
-import { useContext, useEffect, useState } from 'react';
-import OndemandVideoIcon from '@mui/icons-material/OndemandVideo';
-import { timestamp } from 'rxjs';
+import { useEffect, useState } from 'react';
 
 function joinerForLevel(level: number) {
   switch (level) {
@@ -31,9 +20,9 @@ function joinerForLevel(level: number) {
 function sectionTitleWithFormatting(title: string, level: number) {
   switch (level) {
     case 0:
-      return `**${title}**`;
+      return `**${title.toUpperCase()}**`;
     case 1:
-      return `*${title}*`;
+      return `**${title}**`;
     default:
       return title;
   }
@@ -101,7 +90,8 @@ function getLectureDescs(sections: SectionInfo[]): {
   const descriptions: { [timestamp_ms: number]: string } = {};
   for (const timestamp_ms of Object.keys(descPieces)) {
     const pieces = descPieces[timestamp_ms];
-    const joiner = joinerForLevel(sections[0]?.level);
+    const hasComma = pieces.some((piece) => piece.includes(','));
+    const joiner = !hasComma ? ', ' : joinerForLevel(sections[0]?.level);
     descriptions[timestamp_ms] = pieces.join(joiner);
   }
   return descriptions;
@@ -126,7 +116,7 @@ export function RecordedSyllabus({ courseId }: { courseId: string }) {
   }, [courseId]);
 
   if (!courseId) return null;
-  const rows = Object.keys(lectureClipIds).map((n) => n);
+  const rows = Object.keys(lectureDescs).map((n) => n);
   if (!rows || !rows?.length) return null;
 
   return (
