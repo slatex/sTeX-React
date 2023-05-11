@@ -1,8 +1,8 @@
 import {
+  CardsWithSmileys,
   getDocumentSections,
   getUriSmileys,
-  SectionsAPIData,
-  SmileyCognitiveValues,
+  SectionsAPIData
 } from '@stex-react/api';
 import {
   COURSES_INFO
@@ -11,12 +11,6 @@ import axios from 'axios';
 
 export const EXCLUDED_CHAPTERS = ['Preface', 'Administrativa', 'Resources'];
 const CARDS_CACHE: { [courseId: string]: CourseCards } = {};
-export interface CardsWithSmileys {
-  uri: string;
-  smileys: SmileyCognitiveValues;
-  chapterTitle: string;
-  sectionTitle: string;
-}
 
 export interface CourseCards {
   [sectionTitle: string]: {

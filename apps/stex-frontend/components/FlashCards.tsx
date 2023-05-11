@@ -18,11 +18,11 @@ import {
 } from '@mui/material';
 import {
   BloomDimension,
+  SmileyCognitiveValues,
+  SmileyType,
   getUriSmileys,
   isLoggedIn,
-  SmileyCognitiveValues,
   smileyToLevel,
-  SmileyType,
 } from '@stex-react/api';
 import {
   ContentFromUrl,
@@ -33,21 +33,13 @@ import {
   SelfAssessment2,
 } from '@stex-react/stex-react-renderer';
 import {
+  PRIMARY_COL,
   convertHtmlStringToPlain,
   getChildrenOfBodyNode,
   localStore,
-  PRIMARY_COL,
 } from '@stex-react/utils';
 import { useRouter } from 'next/router';
-import {
-  Dispatch,
-  Fragment,
-  SetStateAction,
-  useEffect,
-  useReducer,
-  useRef,
-  useState,
-} from 'react';
+import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react';
 import { useSwipeable } from 'react-swipeable';
 import { getLocaleObject } from '../lang/utils';
 import styles from '../styles/flash-card.module.scss';

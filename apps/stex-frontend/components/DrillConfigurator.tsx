@@ -4,7 +4,6 @@ import {
   Button,
   CircularProgress,
   FormControlLabel,
-  IconButton,
   List,
   ListItem,
   Tooltip,
@@ -15,24 +14,19 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import {
-  ALL_SMILEY_LEVELS,
   BloomDimension,
+  CardsWithSmileys,
+  SmileyLevel,
   getAuthHeaders,
   isLoggedIn,
-  SmileyCognitiveValues,
-  SmileyLevel,
   smileyToLevel,
 } from '@stex-react/api';
-import {
-  DimIcon,
-  LevelIcon,
-  mmtHTMLToReact,
-} from '@stex-react/stex-react-renderer';
+import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import {
   PRIMARY_COL,
   SECONDARY_COL,
-  stableShuffle,
   Window,
+  stableShuffle,
 } from '@stex-react/utils';
 import axios from 'axios';
 import { ConfigureLevelSlider } from 'libs/stex-react-renderer/src/lib/SelfAssessmentDialog';
@@ -41,12 +35,6 @@ import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import { FlashCardMode, FlashCards } from './FlashCards';
 
-export interface CardsWithSmileys {
-  uri: string;
-  smileys: SmileyCognitiveValues;
-  chapterTitle: string;
-  sectionTitle: string;
-}
 const FLASH_CARD_SCROLL_Y = 62;
 function cardMeetsLevelReqs(
   card: CardsWithSmileys,
