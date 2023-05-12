@@ -5,8 +5,14 @@ import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/Indeterminate
 import UnfoldLessDoubleIcon from '@mui/icons-material/UnfoldLessDouble';
 import UnfoldMoreDoubleIcon from '@mui/icons-material/UnfoldMoreDouble';
 import { Box, IconButton, TextField, Tooltip } from '@mui/material';
-import { MODERATORS, SectionsAPIData, getDocumentSections, getUserInfo } from '@stex-react/api';
 import {
+  MODERATORS,
+  SectionsAPIData,
+  getDocumentSections,
+  getUserInfo,
+} from '@stex-react/api';
+import {
+  COURSES_INFO,
   CoverageTimeline,
   convertHtmlStringToPlain,
   createHash,
@@ -296,16 +302,26 @@ export function ContentDashboard({
   const { mmtUrl } = useContext(ServerLinksContext);
   const [coveredUntil, setCoveredUntilSection] = useState('');
 
-  const [showUpdater, setShowUpdater] = useState(false);
+  const [covUpdateLink, setCovUpdateLink] = useState('');
   useEffect(() => {
     getUserInfo().then((info) => {
-      setShowUpdater(!!info?.userId && MODERATORS.includes(info?.userId));
+      if (!info?.userId || !MODERATORS.includes(info.userId)) {
+        setCovUpdateLink('');
+        return;
+      }
+      const { archive, filepath } = getSectionInfo(contentUrl);
+      for (const courseId of Object.keys(COURSES_INFO)) {
+        const { notesArchive, notesFilepath } = COURSES_INFO[courseId];
+        if (archive === notesArchive && filepath === notesFilepath) {
+          setCovUpdateLink(`/coverage-update?courseId=${courseId}`);
+        }
+      }
     });
-  }, []);
+  }, [contentUrl]);
 
   useEffect(() => {
     async function getIndex() {
-      const { archive, filepath } = getSectionInfo(contentUrl); 
+      const { archive, filepath } = getSectionInfo(contentUrl);
       const docSections = await getDocumentSections(mmtUrl, archive, filepath);
       const root = getDocumentTree(docSections, undefined);
       setDashInfo(root.type !== TOCNodeType.FILE ? undefined : root);
@@ -371,8 +387,8 @@ export function ContentDashboard({
                 )}
               </IconButton>
             </Tooltip>
-            {showUpdater && (
-              <a href="/coverage-update" target="_blank" rel="noreferrer">
+            {covUpdateLink?.length && (
+              <a href={covUpdateLink} target="_blank" rel="noreferrer">
                 <IconButton>
                   <EditIcon />
                 </IconButton>

@@ -114,7 +114,7 @@ export function CoverageUpdater({
                 sx={{ width: '300px' }}
               >
                 {sectionNames.map((option) => (
-                  <MenuItem key={option} value={option}>
+                  <MenuItem key={option} value={option.trim()}>
                     {option}
                   </MenuItem>
                 ))}

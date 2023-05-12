@@ -20,23 +20,26 @@ import {
 } from '@stex-react/utils';
 import axios from 'axios';
 import { NextPage } from 'next';
+import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import { CoverageUpdater } from '../components/CoverageUpdater';
 import MainLayout from '../layouts/MainLayout';
 
 const courseIds = Object.keys(COURSES_INFO);
 
-function getSectionNames(data: SectionsAPIData): string[] {
+function getSectionNames(data: SectionsAPIData, level = 0): string[] {
   const names = [];
-  if (data.title?.length) names.push(convertHtmlStringToPlain(data.title));
+  if (data.title?.length)
+    names.push('\xa0'.repeat(level * 4) + convertHtmlStringToPlain(data.title));
   for (const c of data.children || []) {
-    names.push(...getSectionNames(c));
+    names.push(...getSectionNames(c, level + (data.title?.length ? 1 : 0)));
   }
   return names;
 }
 
 const CoverageUpdatePage: NextPage = () => {
-  const [selectedCourseId, setSelectedCourseId] = useState<string>('ai-2');
+  const router = useRouter();
+  const courseId = router.query.courseId as string;
   const [allSectionNames, setAllSectionNames] = useState<{
     [courseId: string]: string[];
   }>({});
@@ -67,12 +70,14 @@ const CoverageUpdatePage: NextPage = () => {
   }, [mmtUrl]);
 
   useEffect(() => {
-    setSnaps(coverageTimeline[selectedCourseId] || []);
-  }, [coverageTimeline, selectedCourseId]);
+    if (!router.isReady || !courseId?.length) return;
+    setSnaps(coverageTimeline[courseId] || []);
+  }, [coverageTimeline, courseId, router.isReady]);
 
   useEffect(() => {
-    setSectionNames(allSectionNames[selectedCourseId] || []);
-  }, [allSectionNames, selectedCourseId]);
+    if (!router.isReady || !courseId?.length) return;
+    setSectionNames(allSectionNames[courseId] || []);
+  }, [allSectionNames, courseId, router.isReady]);
 
   return (
     <MainLayout title="Coverage Update | VoLL-KI">
@@ -81,8 +86,12 @@ const CoverageUpdatePage: NextPage = () => {
           <InputLabel id="course-select-label">Course</InputLabel>
           <Select
             labelId="course-select-label"
-            value={selectedCourseId}
-            onChange={(e) => setSelectedCourseId(e.target.value)}
+            value={courseId ?? 'ai-2'}
+            onChange={(e) => {
+              const { pathname, query } = router;
+              query.courseId = e.target.value;
+              router.push({ pathname, query });
+            }}
             label="Course"
           >
             {courseIds.map((courseId) => (
@@ -105,7 +114,7 @@ const CoverageUpdatePage: NextPage = () => {
               "Did you make sure to click 'Add' button to add entries to the table?";
             if (!confirm(confirmText)) return;
 
-            const body = { courseId: selectedCourseId, snaps };
+            const body = { courseId, snaps };
             const headers = getAuthHeaders();
             axios.post('/api/set-coverage-timeline', body, { headers }).then(
               () => alert('Saved'),
