@@ -1,4 +1,4 @@
-import { Box, Tab, Tabs } from '@mui/material';
+import { Box, FormControl, InputLabel, MenuItem, Select, Tab, Tabs } from '@mui/material';
 import { getSectionInfo } from '@stex-react/utils';
 import axios from 'axios';
 import type { NextPage } from 'next';
@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import Chart from 'react-google-charts';
 import MainLayout from '../../layouts/MainLayout';
 import { QuizResult } from '../../shared/quiz';
+import { MdViewer } from '@stex-react/markdown';
 
 function getChartCell(id: string) {
   return (
@@ -54,7 +55,7 @@ function TimingInfo({
   }));
   return (
     <>
-      <h2>{title}</h2>
+      <MdViewer content={title} />
       <BarChart data={data} column1="User name" column2={`Time (${unit})`} />
     </>
   );
@@ -83,11 +84,15 @@ function QuizSummary({ quizResults }: { quizResults: QuizResult[] }) {
 
 function urlToName(url: string) {
   const info = getSectionInfo(url);
-  return `${info.archive}: ${info.filepath}`;
+  return `### [${info.archive}: ${info.filepath}](${url})`;
 }
 
 function QuestionSummary({ quizResults }: { quizResults: QuizResult[] }) {
+  const [quizName, setQuizName] = useState('All');
   const questions = quizResults
+    .filter(
+      (r) => !quizName.length || quizName === 'All' || r.quizName === quizName
+    )
     .map((r) =>
       r.questionInfo.map((q) => ({
         qName: urlToName(q.url),
@@ -96,9 +101,27 @@ function QuestionSummary({ quizResults }: { quizResults: QuizResult[] }) {
       }))
     )
     .flat();
+  const quizNames = [...new Set(quizResults.map((r) => r.quizName))];
   const questionNames = [...new Set(questions.map((q) => q.qName))];
   return (
     <Box>
+      <FormControl>
+        <InputLabel id="quiz-select-label">Quiz</InputLabel>
+        <Select
+          labelId="quiz-select-label"
+          value={quizName}
+          onChange={(e) => setQuizName(e.target.value)}
+          label="Quiz"
+        >
+          <MenuItem value="All">All</MenuItem>
+          {quizNames.map((quizName) => (
+            <MenuItem key={quizName} value={quizName}>
+              {quizName}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
       {questionNames.map((questionName) => (
         <TimingInfo
           key={questionName}

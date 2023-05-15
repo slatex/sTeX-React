@@ -302,11 +302,11 @@ export function ContentDashboard({
   const { mmtUrl } = useContext(ServerLinksContext);
   const [coveredUntil, setCoveredUntilSection] = useState('');
 
-  const [covUpdateLink, setCovUpdateLink] = useState('');
+  const [covUpdateLink, setCovUpdateLink] = useState<string|undefined>(undefined);
   useEffect(() => {
     getUserInfo().then((info) => {
       if (!info?.userId || !MODERATORS.includes(info.userId)) {
-        setCovUpdateLink('');
+        setCovUpdateLink(undefined);
         return;
       }
       const { archive, filepath } = getSectionInfo(contentUrl);
