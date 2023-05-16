@@ -113,6 +113,7 @@ export function getQuestion(htmlDoc: Document, questionUrl: string) {
       statement: { outerHTML: `<span>Not found: ${questionUrl}</span>` },
     } as Question;
   }
+  removeNodeWithAttrib(problemRootNode, "data-problem-solution");
   const options = findOptions(problemRootNode);
   const fillInSolution = findFillInSolution(problemRootNode);
   if (!options && !fillInSolution) {

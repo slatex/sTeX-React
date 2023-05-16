@@ -38,7 +38,6 @@ import {
 import { QuizSubmitConfirm } from './QuizSubmitConfirm';
 import { getRootNodes } from '../file-structure';
 
-
 function getAllQuestionUrls(
   nodes: FileNode[],
   pathSegments: string[],
@@ -201,7 +200,10 @@ export function QuizDisplay({ quizId }: { quizId: string }) {
     Promise.all(urls.map((url) => axios.get(url))).then((responses) => {
       setQuestions(
         responses.map((r, idx) => {
-          const htmlDoc = new DOMParser().parseFromString(r.data, 'text/html');
+          const htmlStr = (r.data as string) // Hack: manually remove incorrect #numbers
+            .replace('Problem 0.1', '')
+            .replace('Aufgabe 0.1', '');
+          const htmlDoc = new DOMParser().parseFromString(htmlStr, 'text/html');
           return getQuestion(htmlDoc, urls[idx]);
         })
       );
