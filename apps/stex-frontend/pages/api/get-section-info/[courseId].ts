@@ -72,6 +72,6 @@ export default async function handler(
   );
   const allSections = getAllSections(docSections) as SectionInfo[];
   const coverageData = getCoverageData()[courseId];
-  if (coverageData.length) addVideoInfo(allSections, coverageData);
+  if (coverageData?.length) addVideoInfo(allSections, coverageData);
   res.status(200).send(allSections);
 }
