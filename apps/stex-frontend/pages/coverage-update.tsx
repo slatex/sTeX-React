@@ -117,7 +117,7 @@ const CoverageUpdatePage: NextPage = () => {
             const body = { courseId, snaps };
             const headers = getAuthHeaders();
             axios.post('/api/set-coverage-timeline', body, { headers }).then(
-              () => alert('Saved'),
+              () => console.log('Saved coverage.'),
               (e) => alert(e)
             );
           }}

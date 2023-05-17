@@ -114,6 +114,9 @@ export function getQuestion(htmlDoc: Document, questionUrl: string) {
     } as Question;
   }
   removeNodeWithAttrib(problemRootNode, "data-problem-solution");
+  removeNodeWithAttrib(problemRootNode, "data-problem-g-note");
+  removeNodeWithAttrib(problemRootNode, "data-problem-points");
+  removeNodeWithAttrib(problemRootNode, "data-problem-problem-minutes");
   const options = findOptions(problemRootNode);
   const fillInSolution = findFillInSolution(problemRootNode);
   if (!options && !fillInSolution) {
