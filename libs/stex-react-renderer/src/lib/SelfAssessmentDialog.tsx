@@ -99,7 +99,7 @@ function SelfAssessmentPopup({
         border: `1px solid ${PRIMARY_COL}`,
         userSelect: 'none',
       }}
-      p="5px 0"
+      p="5px 3px"
       borderRadius="5px"
     >
       {dims.map((dim, idx) => (

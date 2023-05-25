@@ -106,17 +106,19 @@ const ExperimentsHome: NextPage = () => {
             <BrowserAutocomplete />
             <ToursAutocomplete />
             <SearchBar />
-            <SelfAssessment2
-              dims={[
-                BloomDimension.Remember,
-                BloomDimension.Understand,
-                BloomDimension.Apply,
-                BloomDimension.Analyse,
-                BloomDimension.Evaluate,
-                BloomDimension.Create,
-              ]}
-              uri={''}
-            />
+            <Box m="10px"  width="fit-content">
+              <SelfAssessment2
+                dims={[
+                  BloomDimension.Remember,
+                  BloomDimension.Understand,
+                  BloomDimension.Apply,
+                  BloomDimension.Analyse,
+                  BloomDimension.Evaluate,
+                  BloomDimension.Create,
+                ]}
+                uri={''}
+              />
+            </Box>
           </Box>
         </main>
       </div>

@@ -211,6 +211,7 @@ function cleanupSmileyCognitiveValues(
     Understand: dim.Understand || defaultSmiley,
     Apply: dim.Apply || defaultSmiley,
     Analyse: dim.Analyse || defaultSmiley,
+    Evaluate: dim.Evaluate || defaultSmiley,
     Create: dim.Create || defaultSmiley,
   };
 }
