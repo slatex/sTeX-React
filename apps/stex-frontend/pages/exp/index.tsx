@@ -8,6 +8,8 @@ import { BrowserAutocomplete } from '../../components/BrowserAutocomplete';
 import { SearchBar } from '../../components/SearchBar';
 import { ToursAutocomplete } from '../../components/ToursAutocomplete';
 import MainLayout from '../../layouts/MainLayout';
+import { SelfAssessment2 } from '@stex-react/stex-react-renderer';
+import { BloomDimension } from '@stex-react/api';
 
 function ExternalButtonLink({ href, text }: { href: string; text: string }) {
   return (
@@ -104,6 +106,17 @@ const ExperimentsHome: NextPage = () => {
             <BrowserAutocomplete />
             <ToursAutocomplete />
             <SearchBar />
+            <SelfAssessment2
+              dims={[
+                BloomDimension.Remember,
+                BloomDimension.Understand,
+                BloomDimension.Apply,
+                BloomDimension.Analyse,
+                BloomDimension.Evaluate,
+                BloomDimension.Create,
+              ]}
+              uri={''}
+            />
           </Box>
         </main>
       </div>

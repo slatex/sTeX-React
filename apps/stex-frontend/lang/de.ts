@@ -19,6 +19,7 @@ export const de = {
       notes: 'Skript',
       cards: 'Karten',
       slides: 'Folien',
+      forum: 'Forum',
     },
   },
   login: {
@@ -121,7 +122,7 @@ export const de = {
     description1:
       'Anhand Ihrer Interaktionen mit dem System bemühen wir uns, Ihre Kompetenz in Bezug auf verschiedene Konzepte einzuschätzen. Wir verwenden das erweiterte Bloom-Modell ',
     description2:
-      ', der Lernerkompetenzen für jedes Konzept in sechs kognitive Dimensionen einteilt. Als Folge sehen Sie sechs Wahrscheinlichkeitswerte, die die vorhergesagte Kompetenz dieses Konzepts darstellen. Dieses Kompetenzmodell (auch bekannt als Leaner-Modell) wird in allen semantischen Diensten im VoLL-KI SSFC-System verwendet.',
+      ', der Lernerkompetenzen für jedes Konzept in sechs kognitive Dimensionen einteilt. Als Folge sehen Sie sechs Wahrscheinlichkeitswerte, die die vorhergesagte Kompetenz dieses Konzepts darstellen. Dieses Kompetenzmodell (auch bekannt als Learner-Modell) wird in allen semantischen Diensten im VoLL-KI SSFC-System verwendet.',
   },
   courseView: {
     notes: 'Notizen',
