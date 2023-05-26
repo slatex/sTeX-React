@@ -41,6 +41,7 @@ export const en = {
   update: 'Update',
   save: 'Save',
   post: 'Post',
+  requestResponse: 'Request response',
 
   // hide dialog content
   markSpam: 'Mark Spam',

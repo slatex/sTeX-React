@@ -41,6 +41,7 @@ export const de = {
   update: 'Aktualisieren',
   save: 'Speichern',
   post: 'Posten',
+  requestResponse: 'Antwort anfordern',
 
   // hide dialog content
   markSpam: 'Spam markieren',
