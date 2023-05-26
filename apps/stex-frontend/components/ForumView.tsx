@@ -243,7 +243,7 @@ export function ForumView() {
 
   if (!router.isReady || !courseId) return <CircularProgress />;
   const toShow = showUnanswered
-    ? threadComments.filter((c) => c.questionStatus === QuestionStatus.ANSWERED)
+    ? threadComments.filter((c) => c.questionStatus === QuestionStatus.UNANSWERED)
     : showRemarks
     ? threadComments
     : threadComments.filter((c) => c.commentType === CommentType.QUESTION);

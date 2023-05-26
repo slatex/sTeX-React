@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography';
 import { useState } from 'react';
 import { CommentSection } from './comment-section';
 import { NotesView } from './notes-view';
-import { FileLocation, SECONDARY_COL } from '@stex-react/utils';
+import { FileLocation, PRIMARY_COL, SECONDARY_COL } from '@stex-react/utils';
 import { getLocaleObject } from './lang/utils';
 import { useRouter } from 'next/router';
 
@@ -36,7 +36,7 @@ export function CommentNoteToggleView({
   allNotesMode = false,
   extraPanel = undefined,
 }: {
-  file: FileLocation,
+  file: FileLocation;
   defaultPrivate: boolean;
   selectedText?: string;
   selectedElement?: any;
@@ -62,9 +62,19 @@ export function CommentNoteToggleView({
             '& .MuiTab-root': {
               fontWeight: 'bold',
               borderRadius: extraPanel ? '8px 8px 0 0' : undefined,
+              borderBottom: `2px solid ${PRIMARY_COL}`,
               ':hover': { background: '#DDD' },
             },
-            '& .Mui-selected': { background: `${SECONDARY_COL} !important` },
+            '& .MuiTabs-indicator': {
+              backgroundColor: '#DDD !important',
+            },
+            '& .Mui-selected': {
+              borderRadius: '5px 5px 0 0',
+              borderTop: `2px solid ${PRIMARY_COL}`,
+              borderLeft: `2px solid ${PRIMARY_COL}`,
+              borderRight: `2px solid ${PRIMARY_COL}`,
+              borderBottom: `2px solid white !important`,
+            },
           }}
         >
           <Tab

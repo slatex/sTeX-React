@@ -4,8 +4,17 @@ export const SYSTEM_UPDATES = [
     id: '',
     header: '',
     content: '',
+    header_de: '',
+    content_de: '',
     timestamp: dayjs('2023-02-11T00:20:00+05:30'),
-  },*/ {
+  },*/{
+    id: 'course-forums',
+    header: 'Course Forums',
+    content: 'You can now ask questions and participate in course forums. Check out the forum page for [Artificial Intelligence - 2](/forum/ai-2).',
+    header_de: 'Kursforen',
+    content_de: 'Sie können jetzt Fragen stellen und an Kursforen teilnehmen. Schauen Sie sich die Forumseite für [Artificial Intelligence - 2](/forum/ai-2) an.',
+    timestamp: dayjs('2023-05-26T18:00:00+05:30'),
+  },{
     id: 'cards-with-sections',
     header: 'Flash Cards arranged by sections',
     content: 'Flash cards can now be browsed by course section.',
