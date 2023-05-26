@@ -10,6 +10,7 @@ import { ToursAutocomplete } from '../components/ToursAutocomplete';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 import styles from '../styles/utils.module.scss';
+import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 
 function ELink({ href, children }: { href: string; children: any }) {
   return (
@@ -30,6 +31,7 @@ function CourseThumb({ courseId }: { courseId: string }) {
     notesLink,
     slidesLink,
     cardsLink,
+    forumLink,
   } = COURSES_INFO[courseId];
   const width = courseId === 'iwgs-1' ? 83 : courseId === 'iwgs-2' ? 165 : 200;
   return (
@@ -78,29 +80,33 @@ function CourseThumb({ courseId }: { courseId: string }) {
               <ArticleIcon />
             </Button>
           </Link>
-          {cardsLink && (
-            <Tooltip title={home.cardIntro}>
-              <Link href={cardsLink} passHref>
-                <Button size="small" variant="contained">
-                  {t.cards}&nbsp;
-                  <Image
-                    src="/noun-flash-cards-2494102.svg"
-                    width={25}
-                    height={25}
-                    alt=""
-                  />
-                </Button>
-              </Link>
-            </Tooltip>
-          )}
-          {slidesLink && (
-            <Link href={slidesLink} passHref>
+
+          <Tooltip title={home.cardIntro}>
+            <Link href={cardsLink} passHref>
               <Button size="small" variant="contained">
-                {t.slides}&nbsp;
-                <SlideshowIcon />
+                {t.cards}&nbsp;
+                <Image
+                  src="/noun-flash-cards-2494102.svg"
+                  width={25}
+                  height={25}
+                  alt=""
+                />
               </Button>
             </Link>
-          )}
+          </Tooltip>
+
+          <Link href={slidesLink} passHref>
+            <Button size="small" variant="contained">
+              {t.slides}&nbsp;
+              <SlideshowIcon />
+            </Button>
+          </Link>
+          <Link href={forumLink} passHref>
+            <Button size="small" variant="contained">
+              {t.forum}&nbsp;
+              <QuestionAnswerIcon />
+            </Button>
+          </Link>
         </Box>
       </Box>
     </Card>
