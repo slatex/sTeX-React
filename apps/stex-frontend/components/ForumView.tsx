@@ -109,7 +109,7 @@ function ForumViewControls({
   setShowRemarks,
   showUnanswered,
   setShowUnanswered,
-  markUpdate
+  markUpdate,
 }: {
   showRemarks: boolean;
   setShowRemarks: (show: boolean) => void;
@@ -189,9 +189,8 @@ function ForumViewControls({
             }).then(() => {
               setOpenQuestionDialog(false);
               discardDraft(courseId);
+              markUpdate();
             });
-            discardDraft(courseId);
-            markUpdate();
           }}
         />
       </Dialog>
@@ -235,7 +234,7 @@ export function ForumView() {
   const [threadComments, setThreadComments] = useState<Comment[]>([]);
   const [showRemarks, setShowRemarks] = useState(false);
   const [showUnanswered, setShowUnanswered] = useState(false);
-  const[updateCounter, markUpdate] = useReducer((x) => x + 1, 0);
+  const [updateCounter, markUpdate] = useReducer((x) => x + 1, 0);
 
   useEffect(() => {
     if (!router.isReady || !courseId) return;
@@ -273,6 +272,7 @@ export function ForumView() {
                     primary={
                       <span
                         style={{
+                          display: 'block',
                           whiteSpace: 'nowrap',
                           textOverflow: 'ellipsis',
                           overflow: 'hidden',

@@ -65,7 +65,7 @@ export function ThreadView({
         </Link>
         <Box display="flex" alignItems="center">
           <QuestionStatusIcon comment={threadComments[0]} />
-          {!isModerator(userInfo?.userId) &&
+          {isModerator(userInfo?.userId) &&
           threadComments[0].commentType === CommentType.QUESTION ? (
             <Button
               variant="contained"
