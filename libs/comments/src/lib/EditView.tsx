@@ -62,7 +62,7 @@ export function EditView({
 
   function getNewComment(): Comment {
     const courseTerm = courseId ? CURRENT_TERM : undefined;
-    const isQuestion = needsResponse && !parentId;
+    const isQuestion = needsResponse && !parentId && !isPrivateNote;
     return {
       commentId: -1,
       archive: file?.archive,
@@ -116,7 +116,7 @@ export function EditView({
             saveDraft(file, parentId, v);
           }}
         />
-        {!existingComment && !parentId ? (
+        {!existingComment && !parentId && !isPrivateNote ? (
           <FormControlLabel
             control={
               <Checkbox

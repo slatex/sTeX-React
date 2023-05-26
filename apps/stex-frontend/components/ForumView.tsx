@@ -36,7 +36,7 @@ import { DateView } from '@stex-react/react-utils';
 import { CURRENT_TERM } from '@stex-react/utils';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 function getDraftKey(courseId: string) {
   return `question-draft-${courseId}`;
@@ -109,11 +109,13 @@ function ForumViewControls({
   setShowRemarks,
   showUnanswered,
   setShowUnanswered,
+  markUpdate
 }: {
   showRemarks: boolean;
   setShowRemarks: (show: boolean) => void;
   showUnanswered: boolean;
   setShowUnanswered: (show: boolean) => void;
+  markUpdate: () => void;
 }) {
   const { forum: t } = getLocaleObject(useRouter());
   const [openQuestionDialog, setOpenQuestionDialog] = useState(false);
@@ -122,6 +124,7 @@ function ForumViewControls({
   useEffect(() => {
     getUserInfo().then(setUserInfo);
   }, []);
+
   return (
     <Box
       display="flex"
@@ -188,6 +191,7 @@ function ForumViewControls({
               discardDraft(courseId);
             });
             discardDraft(courseId);
+            markUpdate();
           }}
         />
       </Dialog>
@@ -231,11 +235,12 @@ export function ForumView() {
   const [threadComments, setThreadComments] = useState<Comment[]>([]);
   const [showRemarks, setShowRemarks] = useState(false);
   const [showUnanswered, setShowUnanswered] = useState(false);
+  const[updateCounter, markUpdate] = useReducer((x) => x + 1, 0);
 
   useEffect(() => {
     if (!router.isReady || !courseId) return;
     getCourseInstanceThreads(courseId, CURRENT_TERM).then(setThreadComments);
-  }, [courseId, router.isReady]);
+  }, [courseId, router.isReady, updateCounter]);
 
   if (!router.isReady || !courseId) return <CircularProgress />;
   const toShow = showUnanswered
@@ -250,6 +255,7 @@ export function ForumView() {
         setShowRemarks={setShowRemarks}
         showUnanswered={showUnanswered}
         setShowUnanswered={setShowUnanswered}
+        markUpdate={markUpdate}
       />
       <List sx={{ border: '1px solid #CCC' }} disablePadding>
         {toShow.map((comment, index) => (
