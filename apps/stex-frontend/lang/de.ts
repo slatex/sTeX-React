@@ -133,6 +133,15 @@ export const de = {
     courseContent: 'Kursinhalt',
     personalizedSuggestion: 'Personalisierter Vorschlag',
   },
+  forum: {
+    showReferredContent: 'Verwiesene Inhalte anzeigen',
+    askAQuestion: 'Stellen Sie Frage',
+    post: 'Post',
+    postAnonymously: 'Anonym posten',
+    enterQuestion: 'Schreiben Sie hier Ihre Frage...',
+    showRemarks: 'Bemerkungen anzeigen',
+    showOnlyUnanswered: 'Nur unbeantwortete anzeigen',
+  },
   // Multi-Page Components
   header: {
     headerWarning:

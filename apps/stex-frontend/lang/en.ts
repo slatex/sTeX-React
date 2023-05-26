@@ -153,6 +153,13 @@ export const en = {
     courseContent: 'Course Content',
     personalizedSuggestion: 'Personalized Suggestion',
   },
+  forum: {
+    showReferredContent: 'Show referred content',
+    askAQuestion: 'Ask A Question',
+    post: 'Post',
+    postAnonymously: 'Post Anonymously',
+    enterQuestion: 'Write your question here...',
+  },
   // Multi-Page Components
   header: {
     headerWarning:

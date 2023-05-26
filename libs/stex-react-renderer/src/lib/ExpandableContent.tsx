@@ -26,6 +26,7 @@ import { useOnScreen } from './useOnScreen';
 import { useRect } from './useRect';
 
 const ExpandContext = createContext([] as string[]);
+const STOP_EXPANSION_MARKER = 'STOP_EXPANSION';
 function getInDocumentLink(childContext: string[]) {
   if (typeof window === 'undefined') return '';
   return (
@@ -42,21 +43,25 @@ export function ExpandableContent({
   defaultOpen = false,
   title,
   htmlTitle,
+  noFurtherExpansion = false,
 }: {
   contentUrl?: string;
   staticContent?: any;
   defaultOpen?: boolean;
   title: any;
-  htmlTitle: any;
+  htmlTitle?: any;
+  noFurtherExpansion?: boolean;
 }) {
   const urlHash = createHash(getSectionInfo(contentUrl || ''));
   const [openAtLeastOnce, setOpenAtLeastOnce] = useState(defaultOpen);
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const parentContext = useContext(ExpandContext);
   const childContext = [...parentContext, urlHash];
+  if (noFurtherExpansion) childContext.push(STOP_EXPANSION_MARKER);
 
   const titleText = convertHtmlNodeToPlain(htmlTitle);
-  const autoExpand = !titleText || titleText.startsWith('http');
+  const autoExpand =
+    !noFurtherExpansion && (!titleText || titleText.startsWith('http'));
   const {
     renderOptions: { expandOnScroll, allowFolding },
   } = useContext(RenderOptions);
@@ -88,6 +93,9 @@ export function ExpandableContent({
     if (contentUrl && positionFromTop)
       addSectionLoc({ contentUrl, positionFromTop });
   }, [contentUrl, positionFromTop, addSectionLoc]);
+
+  console.log(parentContext);
+  if (parentContext.includes(STOP_EXPANSION_MARKER)) return null;
 
   if (autoExpand && !staticContent) {
     return (
