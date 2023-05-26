@@ -4,7 +4,9 @@ import {
   Comment,
   EditCommentRequest,
   HiddenStatus,
+  QuestionStatus,
   UpdateCommentStateRequest,
+  UpdateQuestionStateRequest,
 } from './comment';
 import { getAuthHeaders, logoutAndGetToLoginPage } from './lms';
 
@@ -50,6 +52,28 @@ export async function getComments(files: FileLocation[]): Promise<Comment[]> {
   return comments;
 }
 
+export async function getThreadsForCourseInstance(
+  courseId: string,
+  courseTerm: string
+): Promise<Comment[]> {
+  const comments: Comment[] = await commentRequest(
+    `/api/get-comments-for-course-instance`,
+    'POST',
+    { courseId, courseTerm }
+  );
+  return comments;
+}
+
+export async function getCommentsForThread(
+  threadId: number
+): Promise<Comment[]> {
+  const comments: Comment[] = await commentRequest(
+    `/api/get-comments-for-thread/${threadId}`,
+    'GET'
+  );
+  return comments;
+}
+
 export async function updateCommentState(
   commentId: number,
   hiddenStatus: HiddenStatus,
@@ -61,6 +85,26 @@ export async function updateCommentState(
     hiddenJustification,
   };
   await commentRequest('/api/update-comment-state', 'POST', body);
+}
+
+export async function updateQuestionState(commentId: number, questionStatus: QuestionStatus){
+  const body: UpdateQuestionStateRequest = {
+    commentId,
+    questionStatus,
+  };
+  await commentRequest('/api/update-question-state', 'POST', body);
+}
+
+export async function getCourseInstanceThreads(
+  courseId: string,
+  courseTerm: string
+): Promise<Comment[]> {
+  const comments: Comment[] = await commentRequest(
+    `/api/get-course-instance-threads`,
+    'POST',
+    { courseId, courseTerm }
+  );
+  return comments;
 }
 
 export async function getLatestUpdatedSections() {

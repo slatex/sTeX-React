@@ -1,4 +1,4 @@
-import { MODERATORS, UpdateCommentStateRequest } from '@stex-react/api';
+import { UpdateCommentStateRequest, isModerator } from '@stex-react/api';
 import {
   checkIfPostOrSetError,
   executeTxnAndEndSet500OnError,
@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
 
-  if (!MODERATORS.includes(userId)) {
+  if (!isModerator(userId)) {
     res.status(403).json({ message: 'Not a moderator' });
     return;
   }
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
     'UPDATE comments SET hiddenStatus=?, hiddenJustification=? WHERE commentId=?',
     [hiddenStatus, hiddenJustification, commentId],
     `INSERT INTO updateHistory
-    (commentId, ownerId, updaterId, previousStatement, previousHiddenStatus, previousHiddenJustification)
+    (commentId, ownerId, updaterId, previousStatement, previousHiddenStatus, previousHiddenJustification, previousQuestionStatus)
     VALUES(?, ?, ?, ?, ?, ?)`,
     [
       commentId,
@@ -39,6 +39,7 @@ export default async function handler(req, res) {
       existing.statement,
       existing.hiddenStatus,
       existing.hiddenJustification,
+      existing.questionStatus
     ],
     res
   );
