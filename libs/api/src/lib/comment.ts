@@ -15,11 +15,27 @@ export enum HiddenStatus {
   OTHER = 'OTHER',
 }
 
+export enum CommentType {
+  QUESTION= 'QUESTION',
+  REMARK = 'REMARK',
+  OTHER = 'OTHER',
+}
+
+export enum QuestionStatus {
+  UNANSWERED = 'UNANSWERED',
+  ANSWERED = 'ANSWERED', 
+  ACCEPTED = 'ACCEPTED',
+  OTHER = 'OTHER', 
+}
+
 export interface Comment {
   commentId: number;
   archive?: string;
   filepath?: string;
   parentCommentId?: number;
+  threadId?: number;
+  courseId?: string;
+  courseTerm?: string;
   selectedText?: string;
 
   statement?: string;
@@ -30,6 +46,9 @@ export interface Comment {
 
   hiddenStatus?: HiddenStatus;
   hiddenJustification?: string;
+
+  commentType?: CommentType;
+  questionStatus?: QuestionStatus;
 
   isAnonymous: boolean;
   userId?: string;
@@ -61,4 +80,13 @@ export interface UpdateCommentStateRequest {
   commentId: number;
   hiddenStatus: HiddenStatus;
   hiddenJustification: string;
+}
+
+export interface UpdateQuestionStateRequest {
+  commentId: number;
+  questionStatus: QuestionStatus;
+}
+
+export function isModerator(userId?: string) {
+  return !!userId && MODERATORS.includes(userId);
 }

@@ -10,7 +10,7 @@ import {
   Menu,
   MenuItem,
 } from '@mui/material';
-import { Comment, getUserInfo, MODERATORS } from '@stex-react/api';
+import { Comment, getUserInfo, isModerator } from '@stex-react/api';
 import { ReactNode, useEffect, useReducer, useRef, useState } from 'react';
 import { CommentFilters } from './comment-filters';
 import {
@@ -52,7 +52,7 @@ function RenderTree({
   );
 }
 
-function CommentTree({
+export function CommentTree({
   comments,
   file,
   refreshComments,
@@ -185,7 +185,7 @@ export function CommentSection({
     getUserInfo().then((userInfo) => {
       const userId = userInfo?.userId;
       setCanAddComment(!!userId);
-      setCanModerate(!!userId && MODERATORS.includes(userId));
+      setCanModerate(isModerator(userId));
     });
   }, []);
 

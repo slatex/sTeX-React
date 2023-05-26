@@ -1,8 +1,8 @@
+import { isModerator } from '@stex-react/api';
+import { CoverageSnap, CoverageTimeline } from '@stex-react/utils';
 import fs from 'fs';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { checkIfPostOrSetError, getUserIdOrSetError } from './comment-utils';
-import { MODERATORS } from '@stex-react/api';
-import { CoverageSnap, CoverageTimeline } from '@stex-react/utils';
 
 export default async function handler(
   req: NextApiRequest,
@@ -10,7 +10,7 @@ export default async function handler(
 ) {
   if (!checkIfPostOrSetError(req, res)) return;
   const userId = await getUserIdOrSetError(req, res);
-  if (!MODERATORS.includes(userId)) {
+  if (!isModerator(userId)) {
     res
       .status(403)
       .send({ message: 'You are not allowed to do this operation.' });

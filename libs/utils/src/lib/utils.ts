@@ -21,7 +21,8 @@ export interface FileInfo extends FileLocation {
   source?: string;
 }
 
-export function convertHtmlNodeToPlain(htmlNode: any) {
+export function convertHtmlNodeToPlain(htmlNode?: any) {
+  if(!htmlNode) return '';
   return convertHtmlStringToPlain(getOuterHTML(htmlNode));
 }
 

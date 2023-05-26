@@ -6,10 +6,10 @@ import UnfoldLessDoubleIcon from '@mui/icons-material/UnfoldLessDouble';
 import UnfoldMoreDoubleIcon from '@mui/icons-material/UnfoldMoreDouble';
 import { Box, IconButton, TextField, Tooltip } from '@mui/material';
 import {
-  MODERATORS,
   SectionsAPIData,
   getDocumentSections,
   getUserInfo,
+  isModerator,
 } from '@stex-react/api';
 import {
   COURSES_INFO,
@@ -302,10 +302,12 @@ export function ContentDashboard({
   const { mmtUrl } = useContext(ServerLinksContext);
   const [coveredUntil, setCoveredUntilSection] = useState('');
 
-  const [covUpdateLink, setCovUpdateLink] = useState<string|undefined>(undefined);
+  const [covUpdateLink, setCovUpdateLink] = useState<string | undefined>(
+    undefined
+  );
   useEffect(() => {
     getUserInfo().then((info) => {
-      if (!info?.userId || !MODERATORS.includes(info.userId)) {
+      if (!info?.userId || !isModerator(info.userId)) {
         setCovUpdateLink(undefined);
         return;
       }

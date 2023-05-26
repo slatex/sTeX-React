@@ -8,6 +8,8 @@ import { MdViewer } from './md-viewer';
 interface MdEditorProps {
   name: string;
 
+  minRows?: number;
+
   placeholder?: string;
 
   editingEnabled?: boolean;
@@ -21,6 +23,7 @@ const PREVIEW_TRIGGER_SET = /[#$()_+[\]{}|~*<>=]/;
 
 export function MdEditor({
   name,
+  minRows = 2,
   placeholder = '',
   editingEnabled = true,
   value,
@@ -44,7 +47,7 @@ export function MdEditor({
       {editingEnabled && (
         <div>
           <TextareaAutosize
-            minRows={2}
+            minRows={minRows}
             placeholder={placeholder}
             name={name}
             className={styles['textarea']}

@@ -4,7 +4,7 @@ import {
   getUserInfo,
   isHiddenNotSpam,
   isSpam,
-  MODERATORS,
+  isModerator,
 } from '@stex-react/api';
 import { DateView } from '@stex-react/react-utils';
 import { useEffect, useState } from 'react';
@@ -44,7 +44,7 @@ export function CommentLabel({
         const isLoggedIn = !!userId;
         setIsLoggedIn(isLoggedIn);
         setFromCurrentUser(isLoggedIn && userId === comment?.userId);
-        setCanModerate(isLoggedIn && MODERATORS.includes(userId));
+        setCanModerate(isModerator(userId));
       },
       () => setFromCurrentUser(false)
     );
