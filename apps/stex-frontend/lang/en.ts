@@ -159,6 +159,8 @@ export const en = {
     post: 'Post',
     postAnonymously: 'Post Anonymously',
     enterQuestion: 'Write your question here...',
+    showRemarks: 'Show remarks',
+    showOnlyUnanswered: 'Show only unanswered',
   },
   // Multi-Page Components
   header: {
