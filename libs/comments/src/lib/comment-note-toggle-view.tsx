@@ -61,18 +61,23 @@ export function CommentNoteToggleView({
           sx={{
             '& .MuiTab-root': {
               fontWeight: 'bold',
-              borderRadius: extraPanel ? '8px 8px 0 0' : undefined,
+              ':hover': { background: '#DDD' }, 
+              background: '#DDD',
+              
+              borderRadius: '10px 10px 0 0',
               borderBottom: `2px solid ${PRIMARY_COL}`,
-              ':hover': { background: '#DDD' },
+              borderTop: `2px solid #AAA`,
+              borderLeft: `2px solid #AAA`,
+              borderRight: `2px solid #AAA`,
             },
             '& .MuiTabs-indicator': {
-              backgroundColor: '#DDD !important',
+              backgroundColor: '#FFFFFF00 !important',
             },
             '& .Mui-selected': {
-              borderRadius: '5px 5px 0 0',
-              borderTop: `2px solid ${PRIMARY_COL}`,
-              borderLeft: `2px solid ${PRIMARY_COL}`,
-              borderRight: `2px solid ${PRIMARY_COL}`,
+              background: 'white !important',
+              borderTop: `2px solid ${PRIMARY_COL} !important`,
+              borderLeft: `2px solid ${PRIMARY_COL} !important`,
+              borderRight: `2px solid ${PRIMARY_COL} !important`,
               borderBottom: `2px solid white !important`,
             },
           }}
