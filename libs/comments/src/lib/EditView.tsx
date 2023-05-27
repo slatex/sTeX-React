@@ -8,7 +8,12 @@ import {
   getUserInfo,
 } from '@stex-react/api';
 import { MdEditor } from '@stex-react/markdown';
-import { CURRENT_TERM, FileLocation } from '@stex-react/utils';
+import {
+  CURRENT_TERM,
+  FileLocation,
+  getCourseId,
+  getSectionInfo,
+} from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { discardDraft, retrieveDraft, saveDraft } from './comment-helpers';
@@ -46,7 +51,9 @@ export function EditView({
   const [userName, setUserName] = useState<string | undefined>(undefined);
   const [needsResponse, setNeedsResponse] = useState(true);
   const t = getLocaleObject(router);
-  const courseId = router.query['courseId'] as string;
+  const courseId =
+    (router.query['courseId'] as string) ||
+    getCourseId(getSectionInfo(router.query['id'] as string));
 
   useEffect(() => {
     getUserInfo().then((userInfo) => {
