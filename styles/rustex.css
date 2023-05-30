@@ -162,7 +162,7 @@ mtext {
     word-spacing: initial;
     display: inline-flex;
 }
-mtext > {display:initial}
+mtext .rustex-text {display:inline}
 mtext * {
     font-size: inherit;
     writing-mode: initial;
