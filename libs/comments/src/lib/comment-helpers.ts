@@ -63,7 +63,7 @@ function generateCommentHierarchy(
 export function getTotalComments(comments?: Comment[]): number {
   if (!comments) return 0;
   return comments
-    .map((c) => getTotalComments(c.childComments) + 1)
+    .map((c) => getTotalComments(c.childComments) + (c.isDeleted ? 0 : 1))
     .reduce((p, c) => p + c, 0);
 }
 
