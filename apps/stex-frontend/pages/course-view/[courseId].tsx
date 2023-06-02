@@ -113,7 +113,7 @@ export function setSlideNumAndSectionId(
   }
   query.slideNum = `${slideNum}`;
   localStore?.setItem(`lastReadSlideNum-${courseId}`, `${slideNum}`);
-  router.push({ pathname, query });
+  router.replace({ pathname, query });
 }
 
 function getSections(data: SectionsAPIData): string[] {
@@ -196,7 +196,7 @@ const CourseViewPage: NextPage = () => {
     if (!audioOnlyStr) {
       query.audioOnly = localStore?.getItem('audioOnly') || 'false';
     }
-    router.push({ pathname, query });
+    router.replace({ pathname, query });
   }, [
     router,
     router.isReady,
@@ -268,7 +268,7 @@ const CourseViewPage: NextPage = () => {
                   const modeStr = mode.toString();
                   localStore?.setItem('defaultMode', modeStr);
                   router.query.viewMode = modeStr;
-                  router.push(router);
+                  router.replace(router);
                 }}
               />
               <Link href={COURSES_INFO[courseId]?.notesLink ?? ''} passHref>

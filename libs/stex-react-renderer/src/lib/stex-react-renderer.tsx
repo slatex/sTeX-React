@@ -65,7 +65,7 @@ export function StexReactRenderer({
       const fileId = router.query['id'];
       router.query['inDocPath'] =
         localStore?.getItem(`inDocPath-${fileId}`) || '0';
-      router.push(router);
+      router.replace(router);
       return;
     }
     scrollToClosestAncestorAndSetPending(getScrollInfo(inDocPath));

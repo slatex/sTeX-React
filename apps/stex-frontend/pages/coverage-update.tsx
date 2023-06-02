@@ -90,7 +90,7 @@ const CoverageUpdatePage: NextPage = () => {
             onChange={(e) => {
               const { pathname, query } = router;
               query.courseId = e.target.value;
-              router.push({ pathname, query });
+              router.replace({ pathname, query });
             }}
             label="Course"
           >

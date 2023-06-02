@@ -108,7 +108,7 @@ function LanguageButton() {
   function changeLocale(locale: string) {
     const { pathname, asPath, query } = router;
     // change just the locale and maintain all other route information including href's query
-    router.push({ pathname, query }, asPath, { locale });
+    router.replace({ pathname, query }, asPath, { locale });
   }
   return (
     <Box whiteSpace="nowrap">

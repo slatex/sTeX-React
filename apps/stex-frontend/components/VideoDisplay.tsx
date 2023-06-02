@@ -195,7 +195,7 @@ export function VideoDisplay({
             const audioOnlyStr = v.toString();
             localStore?.setItem('audioOnly', audioOnlyStr);
             router.query.audioOnly = audioOnlyStr;
-            router.push(router);
+            router.replace(router);
           }}
           resolution={resolution}
           setResolution={(res: number) => {

@@ -13,7 +13,7 @@ const CourseNotesPage: NextPage = () => {
   const courseInfo = COURSES_INFO[courseId];
 
   if(!courseInfo) {
-    router.push('/');
+    router.replace('/');
     return <div>Course not found!</div>
   }
 

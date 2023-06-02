@@ -28,7 +28,7 @@ export const SearchPage: NextPage = () => {
   useEffect(() => {
     if (!router.isReady) return;
     if (!query) {
-      router.push('/');
+      router.replace('/');
       return;
     }
     setIsLoading(true);
