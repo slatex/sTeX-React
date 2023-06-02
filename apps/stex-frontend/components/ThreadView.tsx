@@ -92,11 +92,16 @@ export function ThreadView({
 
               <Button
                 variant="contained"
+                sx={{ ml: '5px' }}
                 onClick={async () => {
                   const confirmText =
                     'Are you sure you want to mark this comment as a remark?';
                   if (!confirm(confirmText)) return;
-                  await updateQuestionState(threadId, CommentType.REMARK);
+                  await updateQuestionState(
+                    threadId,
+                    CommentType.REMARK,
+                    QuestionStatus.OTHER
+                  );
                   doUpdate();
                   alert(`Comment type changed to a remark!`);
                 }}
