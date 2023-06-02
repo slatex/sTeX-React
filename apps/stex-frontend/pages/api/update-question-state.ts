@@ -15,10 +15,10 @@ export default async function handler(req, res) {
     res.status(403).json({ message: 'Not a moderator' });
     return;
   }
-  const { commentId, questionStatus } =
+  const { commentId, questionStatus, commentType } =
     req.body as UpdateQuestionStateRequest;
-  if (!commentId) {
-    res.status(401).json({ message: 'Invalid comment id' });
+  if (!commentId || !commentType) {
+    res.status(401).json({ message: 'Invalid comment id or comment type' });
     return;
   }
   const { existing, error } = await getExistingCommentDontEnd(commentId);
@@ -27,8 +27,8 @@ export default async function handler(req, res) {
     return;
   }
   const results = await executeTxnAndEndSet500OnError(
-    'UPDATE comments SET questionStatus=? WHERE commentId=?',
-    [questionStatus, commentId],
+    'UPDATE comments SET questionStatus=? AND commentType=? WHERE commentId=?',
+    [questionStatus, commentType, commentId],
     `INSERT INTO updateHistory
     (commentId, ownerId, updaterId, previousStatement, previousHiddenStatus, previousHiddenJustification, previousQuestionStatus)
     VALUES(?, ?, ?, ?, ?, ?, ?)`,

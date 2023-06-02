@@ -84,7 +84,8 @@ export interface UpdateCommentStateRequest {
 
 export interface UpdateQuestionStateRequest {
   commentId: number;
-  questionStatus: QuestionStatus;
+  questionStatus?: QuestionStatus;
+  commentType: CommentType;
 }
 
 export function isModerator(userId?: string) {

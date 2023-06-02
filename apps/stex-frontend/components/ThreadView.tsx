@@ -67,23 +67,43 @@ export function ThreadView({
           <QuestionStatusIcon comment={threadComments[0]} />
           {isModerator(userInfo?.userId) &&
           threadComments[0].commentType === CommentType.QUESTION ? (
-            <Button
-              variant="contained"
-              onClick={async () => {
-                const newState =
-                  currentState === QuestionStatus.UNANSWERED
-                    ? QuestionStatus.ANSWERED
-                    : QuestionStatus.UNANSWERED;
-                await updateQuestionState(threadId, newState);
-                doUpdate();
-                alert(`Question marked as ${newState}!`);
-              }}
-            >
-              Mark{' '}
-              {currentState === QuestionStatus.UNANSWERED
-                ? QuestionStatus.ANSWERED
-                : QuestionStatus.UNANSWERED}
-            </Button>
+            <>
+              <Button
+                variant="contained"
+                onClick={async () => {
+                  const newState =
+                    currentState === QuestionStatus.UNANSWERED
+                      ? QuestionStatus.ANSWERED
+                      : QuestionStatus.UNANSWERED;
+                  await updateQuestionState(
+                    threadId,
+                    CommentType.QUESTION,
+                    newState
+                  );
+                  doUpdate();
+                  alert(`Question marked as ${newState}!`);
+                }}
+              >
+                Mark{' '}
+                {currentState === QuestionStatus.UNANSWERED
+                  ? QuestionStatus.ANSWERED
+                  : QuestionStatus.UNANSWERED}
+              </Button>
+
+              <Button
+                variant="contained"
+                onClick={async () => {
+                  const confirmText =
+                    'Are you sure you want to mark this comment as a remark?';
+                  if (!confirm(confirmText)) return;
+                  await updateQuestionState(threadId, CommentType.REMARK);
+                  doUpdate();
+                  alert(`Comment type changed to a remark!`);
+                }}
+              >
+                Not A Question
+              </Button>
+            </>
           ) : null}
         </Box>
       </Box>

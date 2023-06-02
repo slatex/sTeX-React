@@ -2,6 +2,7 @@ import { FileLocation } from '@stex-react/utils';
 import axios, { AxiosError } from 'axios';
 import {
   Comment,
+  CommentType,
   EditCommentRequest,
   HiddenStatus,
   QuestionStatus,
@@ -87,10 +88,15 @@ export async function updateCommentState(
   await commentRequest('/api/update-comment-state', 'POST', body);
 }
 
-export async function updateQuestionState(commentId: number, questionStatus: QuestionStatus){
+export async function updateQuestionState(
+  commentId: number,
+  commentType: CommentType,
+  questionStatus?: QuestionStatus
+) {
   const body: UpdateQuestionStateRequest = {
     commentId,
     questionStatus,
+    commentType,
   };
   await commentRequest('/api/update-question-state', 'POST', body);
 }
