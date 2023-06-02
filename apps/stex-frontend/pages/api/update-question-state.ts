@@ -27,7 +27,7 @@ export default async function handler(req, res) {
     return;
   }
   const results = await executeTxnAndEndSet500OnError(
-    'UPDATE comments SET questionStatus=? AND commentType=? WHERE commentId=?',
+    'UPDATE comments SET questionStatus=?, commentType=? WHERE commentId=?',
     [questionStatus, commentType, commentId],
     `INSERT INTO updateHistory
     (commentId, ownerId, updaterId, previousStatement, previousHiddenStatus, previousHiddenJustification, previousQuestionStatus)
