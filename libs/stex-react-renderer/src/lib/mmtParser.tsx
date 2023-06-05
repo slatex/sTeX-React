@@ -174,6 +174,9 @@ function MMTHrefReplaced({ d }: { d: Element }) {
 
 function isInMath(domNode?: any): boolean {
   if (!domNode) return false;
+  const xlmns = domNode.attribs?.['xmlns'];
+  if (xlmns === 'http://www.w3.org/1999/xhtml') return false;
+  if (xlmns === 'http://www.w3.org/1998/Math/MathML') return true;
   if (domNode.name === 'math') return true;
   return isInMath(domNode.parent);
 }
