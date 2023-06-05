@@ -9,10 +9,11 @@ import {
 } from '@stex-react/stex-react-renderer';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { setSlideNumAndSectionId } from '../pages/course-view/[courseId]';
 import styles from '../styles/slide-deck.module.scss';
 import { Slide } from '@stex-react/api';
+import { Window } from '@stex-react/utils';
 
 export function SlideNavBar({
   slideNum,
@@ -81,6 +82,20 @@ export const SlideDeck = memo(function SlidesFromUrl({
     undefined as Slide | undefined
   );
   const router = useRouter();
+  const outerBox = useRef<HTMLDivElement>(null);
+  const [contentWidth, setContentWidth] = useState(600);
+
+  useEffect(() => {
+    function handleResize() {
+      const outerWidth = outerBox?.current?.clientWidth;
+      if (!outerWidth) return;
+      const spacePadding = 10;
+      setContentWidth(Math.min(outerWidth - spacePadding, 900));
+    }
+    handleResize();
+    Window?.addEventListener('resize', handleResize);
+    return () => Window?.removeEventListener('resize', handleResize);
+  }, [isLoading]);
 
   useEffect(() => {
     let isCancelled = false;
@@ -121,7 +136,9 @@ export const SlideDeck = memo(function SlidesFromUrl({
   if (isLoading) {
     return (
       <Box height="614px">
-        <span style={{ fontSize: 'smaller' }}>{courseId}: {sectionId}</span>
+        <span style={{ fontSize: 'smaller' }}>
+          {courseId}: {sectionId}
+        </span>
         <LinearProgress />
       </Box>
     );
@@ -131,6 +148,10 @@ export const SlideDeck = memo(function SlidesFromUrl({
       className={styles['deck-box']}
       flexDirection={navOnTop ? 'column-reverse' : 'column'}
       mt={navOnTop ? '-40px' : '0px'}
+      ref={outerBox}
+      {...({
+        style: { '--document-width': `${contentWidth}px` },
+      } as any)}
     >
       <Box sx={{ position: 'absolute', right: '20px' }}>
         <ExpandableContextMenu contentUrl={contentUrl} />

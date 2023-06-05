@@ -5,6 +5,7 @@ import {
   IS_MMT_VIEWER,
   localStore,
   shouldUseDrawer,
+  Window,
 } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { createContext, useEffect, useRef, useState } from 'react';
@@ -56,10 +57,25 @@ export function StexReactRenderer({
     [contentUrl: string]: number;
   }>({});
   const docSectionsMap = useRef(new Map<string, HTMLElement>()).current;
+  const outerBox = useRef<HTMLDivElement>(null);
+  const [contentWidth, setContentWidth] = useState(600);
+
   useEffect(() => {
     setSectionLocs({});
     docSectionsMap.clear();
   }, [contentUrl]);
+
+  useEffect(() => {
+    function handleResize() {
+      const outerWidth = outerBox?.current?.clientWidth;
+      if (!outerWidth) return;
+      const spaceForCommentsAndPadding = 70;
+      setContentWidth(Math.min(outerWidth - spaceForCommentsAndPadding, 900));
+    }
+    handleResize();
+    Window?.addEventListener('resize', handleResize);
+    return () => Window?.removeEventListener('resize', handleResize);
+  }, []);
 
   const router = useRouter();
   useEffect(() => {
@@ -72,7 +88,10 @@ export function StexReactRenderer({
       router.replace({ pathname: router.pathname, query: router.query });
       return;
     }
-    scrollToClosestAncestorAndSetPending(docSectionsMap, getScrollInfo(inDocPath));
+    scrollToClosestAncestorAndSetPending(
+      docSectionsMap,
+      getScrollInfo(inDocPath)
+    );
   }, [router, router?.isReady, router?.query]);
 
   return (
@@ -117,25 +136,28 @@ export function StexReactRenderer({
           setShowDashboard={setShowDashboard}
           noFrills={noFrills}
         >
-          <Box px="10px" bgcolor={BG_COLOR}>
+          <Box px="10px" bgcolor={BG_COLOR} ref={outerBox}>
             <Box
-              maxWidth={IS_MMT_VIEWER ? undefined : '650px'}
               m="0 auto"
               sx={{ overflowWrap: 'anywhere' }}
-              /** Temporary hack: make this reactive */
-              {...({ style: { '--document-width': '600px' } } as any)}
+              width="max-content"
+              {...({
+                style: { '--document-width': `${contentWidth}px` },
+              } as any)}
             >
               {!noFrills && (
                 <Box position="absolute" right="40px">
                   <ExpandableContextMenu contentUrl={contentUrl} />
                 </Box>
               )}
-              <Box display="flex">
-                <ContentFromUrl
-                  url={contentUrl}
-                  modifyRendered={getChildrenOfBodyNode}
-                  topLevel={true}
-                />
+              <Box display="flex" justifyContent="space-around">
+                <Box width={`${contentWidth}px`}>
+                  <ContentFromUrl
+                    url={contentUrl}
+                    modifyRendered={getChildrenOfBodyNode}
+                    topLevel={true}
+                  />
+                </Box>
                 {!IS_MMT_VIEWER && (
                   <InfoSidebar
                     contentUrl={contentUrl}
