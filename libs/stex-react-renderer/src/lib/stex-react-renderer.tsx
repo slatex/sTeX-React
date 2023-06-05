@@ -7,7 +7,7 @@ import {
   shouldUseDrawer,
 } from '@stex-react/utils';
 import { useRouter } from 'next/router';
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useEffect, useRef, useState } from 'react';
 import {
   getScrollInfo,
   scrollToClosestAncestorAndSetPending,
@@ -55,25 +55,30 @@ export function StexReactRenderer({
   const [sectionLocs, setSectionLocs] = useState<{
     [contentUrl: string]: number;
   }>({});
-  useEffect(() => setSectionLocs({}), [contentUrl]);
+  const docSectionsMap = useRef(new Map<string, HTMLElement>()).current;
+  useEffect(() => {
+    setSectionLocs({});
+    docSectionsMap.clear();
+  }, [contentUrl]);
 
   const router = useRouter();
   useEffect(() => {
     if (!router?.isReady) return;
     const inDocPath = router?.query?.['inDocPath'] as string;
     if (!inDocPath && router) {
-      const fileId = router.query['id'];
+      const fileId = router.query['id'] || router.query['courseId'];
       router.query['inDocPath'] =
         localStore?.getItem(`inDocPath-${fileId}`) || '0';
-      router.replace(router);
+      router.replace({ pathname: router.pathname, query: router.query });
       return;
     }
-    scrollToClosestAncestorAndSetPending(getScrollInfo(inDocPath));
+    scrollToClosestAncestorAndSetPending(docSectionsMap, getScrollInfo(inDocPath));
   }, [router, router?.isReady, router?.query]);
 
   return (
     <DocSectionContext.Provider
       value={{
+        docSectionsMap,
         sectionLocs,
         addSectionLoc: (sec) => {
           const { contentUrl: url, positionFromTop: pos } = sec;

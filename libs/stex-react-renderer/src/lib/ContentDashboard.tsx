@@ -209,9 +209,9 @@ function RenderTree({
             if (router) {
               const inDocPath =
                 paths.reverse().join('.') + '~' + node.tocNode.id;
-              const fileId = router.query['id'];
+              const fileId = router.query['id'] || router.query['courseId'];
               localStore?.setItem(`inDocPath-${fileId}`, inDocPath);
-              router.replace({ query: { ...router.query, inDocPath } });
+              router.push({ query: { ...router.query, inDocPath } });
             }
           }}
         >

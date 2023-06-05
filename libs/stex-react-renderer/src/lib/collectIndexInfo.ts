@@ -22,34 +22,32 @@ export interface TOCFileNode extends TOCNode {
 
 export const SEPARATOR_inDocPath = '.';
 
-let REF_MAP = new Map<string, HTMLElement>();
 let COMPLETED_SCROLL: string | undefined = undefined;
 let PENDING_SCROLL: string | undefined = undefined;
 
-export function reportIndexInfo(context: string[], ref?: HTMLElement) {
+export function reportIndexInfo(
+  docSectionsMap: Map<string, HTMLElement>,
+  context: string[],
+  ref?: HTMLElement
+) {
   if (!ref) return;
 
   const key = context.join(SEPARATOR_inDocPath);
   //console.log(`Adding ref: ${context.join(',')}`);
-  REF_MAP.set(key, ref);
+  docSectionsMap.set(key, ref);
   // Trigger scroll to newly created element.
   if (PENDING_SCROLL?.includes(key) && !COMPLETED_SCROLL?.includes(key)) {
+    // console.log('pending scroll: ', key);
     ref.scrollIntoView({ behavior: 'auto' });
     COMPLETED_SCROLL = key;
     if (COMPLETED_SCROLL === PENDING_SCROLL) {
+      // console.log('completed scroll: ', key);
       // Scroll again to the ref, in case the layout has shifted due loading
       // of other documents. And mark the scroll as done.
       setTimeout(() => ref.scrollIntoView({ behavior: 'auto' }), 2000);
       COMPLETED_SCROLL = PENDING_SCROLL = undefined;
     }
   }
-}
-
-export function resetIndexInfo() {
-  // TODO: Resetting happens at a time which causes scroall-at-load to be deleted.
-  // So we have commented out this line.
-  //COMPLETED_SCROLL = PENDING_SCROLL = undefined;
-  REF_MAP = new Map<string, HTMLElement>();
 }
 
 export interface ScrollInfo {
@@ -74,15 +72,16 @@ export function getScrollInfo(inDocPath: string): ScrollInfo {
 function setPendingScroll(pending: string, completed?: string) {
   PENDING_SCROLL = pending;
   COMPLETED_SCROLL = completed;
+  // console.log(`Pending: ${PENDING_SCROLL}, Completed: ${COMPLETED_SCROLL}`);
   if (PENDING_SCROLL === COMPLETED_SCROLL) {
     PENDING_SCROLL = COMPLETED_SCROLL = undefined;
   }
 }
 
-export function scrollToClosestAncestorAndSetPending({
-  fileHashes,
-  sectionId,
-}: ScrollInfo) {
+export function scrollToClosestAncestorAndSetPending(
+  docSectionsMap: Map<string, HTMLElement>,
+  { fileHashes, sectionId }: ScrollInfo
+) {
   const element = document.getElementById(sectionId || '');
   if (element) {
     element.scrollIntoView();
@@ -92,7 +91,7 @@ export function scrollToClosestAncestorAndSetPending({
   const fullKey = fileHashes.join(SEPARATOR_inDocPath);
   while (fileHashes.length) {
     const key = fileHashes.join(SEPARATOR_inDocPath);
-    const ref = REF_MAP.get(key);
+    const ref = docSectionsMap.get(key);
     if (ref) {
       // console.log(`Scroll: ${key}`);
       ref.scrollIntoView({ behavior: 'auto' });

@@ -1,5 +1,4 @@
 import { memo, useEffect, useMemo, useState } from 'react';
-import { resetIndexInfo } from './collectIndexInfo';
 import { HighlightContext, mmtHTMLToReact } from './mmtParser';
 
 export const ContentWithHighlight = memo(
@@ -25,10 +24,6 @@ export const ContentWithHighlight = memo(
     );
 
     useEffect(() => {
-      if (topLevel) resetIndexInfo();
-    }, [mmtHtml, topLevel]);
-
-    useEffect(() => {
       let rendered = mmtHTMLToReact(mmtHtml, skipSidebar);
       if (modifyRendered) rendered = modifyRendered(rendered);
       setRendered(rendered);
@@ -36,9 +31,7 @@ export const ContentWithHighlight = memo(
 
     return (
       <HighlightContext.Provider value={value}>
-        <div {...renderWrapperParams}>
-          {rendered}
-        </div>
+        <div {...renderWrapperParams}>{rendered}</div>
       </HighlightContext.Provider>
     );
   }

@@ -113,7 +113,7 @@ export function setSlideNumAndSectionId(
   }
   query.slideNum = `${slideNum}`;
   localStore?.setItem(`lastReadSlideNum-${courseId}`, `${slideNum}`);
-  router.replace({ pathname, query });
+  router.push({ pathname, query });
 }
 
 function getSections(data: SectionsAPIData): string[] {
@@ -176,7 +176,9 @@ const CourseViewPage: NextPage = () => {
     if (!router.isReady) return;
     if (sectionId && slideNum && viewMode && audioOnlyStr) return;
     const { pathname, query } = router;
+    let someParamMissing = false;
     if (!sectionId) {
+      someParamMissing = true;
       const inStore = localStore?.getItem(`lastReadSectionId-${courseId}`);
       if (inStore?.length) {
         query.sectionId = inStore;
@@ -186,17 +188,20 @@ const CourseViewPage: NextPage = () => {
       }
     }
     if (!slideNum) {
+      someParamMissing = true;
       query.slideNum =
         localStore?.getItem(`lastReadSlideNum-${courseId}`) || '1';
     }
     if (!viewMode) {
+      someParamMissing = true;
       query.viewMode =
         localStore?.getItem('defaultMode') || ViewMode.SLIDE_MODE.toString();
     }
     if (!audioOnlyStr) {
+      someParamMissing = true;
       query.audioOnly = localStore?.getItem('audioOnly') || 'false';
     }
-    router.replace({ pathname, query });
+    if (someParamMissing) router.replace({ pathname, query });
   }, [
     router,
     router.isReady,

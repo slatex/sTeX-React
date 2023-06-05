@@ -3,6 +3,7 @@ import { CommentButton } from '@stex-react/comments';
 import { createContext } from 'react';
 
 export const DocSectionContext = createContext({
+  docSectionsMap: new Map<string, HTMLElement>(),
   sectionLocs: {},
   addSectionLoc: (_sec: {
     contentUrl: string;
