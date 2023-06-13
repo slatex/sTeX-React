@@ -3,6 +3,7 @@ export interface CourseInfo {
 
   notesArchive: string;
   notesFilepath: string;
+  landingFilepath: string;
   notesLink: string;
   imageLink: string;
   courseHome: string;
@@ -37,7 +38,8 @@ function createCourseInfo(
   courseId: string,
   courseName: string,
   notesArchive: string,
-  notesFilepath: string
+  notesFilepath: string,
+  landingFilepath: string
 ): CourseInfo {
   return {
     courseName,
@@ -49,6 +51,7 @@ function createCourseInfo(
     cardsLink: getCardsLink(courseId),
     slidesLink: getSlidesLink(courseId),
     forumLink: getForumLink(courseId),
+    landingFilepath
 
   };
 }
@@ -57,38 +60,43 @@ export const COURSES_INFO: { [courseId: string]: CourseInfo } = {
     'ai-1',
     'Artifical Intelligence - I',
     'MiKoMH/AI',
-    'course/notes/notes1.xhtml'
+    'course/notes/notes1.xhtml',
+    'course/notes/coursepage1',
   ),
   'ai-2': createCourseInfo(
     'ai-2',
     'Artifical Intelligence - II',
     'MiKoMH/AI',
-    'course/notes/notes2.xhtml'
+    'course/notes/notes2.xhtml',
+    'course/notes/coursepage2'
   ),
   'iwgs-1': createCourseInfo(
     'iwgs-1',
     'IWGS - I',
     'MiKoMH/IWGS',
-    'course/notes/notes-part1.xhtml'
+    'course/notes/notes-part1.xhtml',
+    'course/notes/coursepage1'
   ),
   'iwgs-2': createCourseInfo(
     'iwgs-2',
     'IWGS - II',
     'MiKoMH/IWGS',
-    'course/notes/notes-part2.xhtml'
+    'course/notes/notes-part2.xhtml',
+    'course/notes/coursepage2'
   ),
   krmt: createCourseInfo(
     'krmt',
     'Knowledge Representation for Mathematical Theories',
-
     'MiKoMH/KRMT',
-    'course/notes/notes.xhtml'
+    'course/notes/notes.xhtml',
+    'course/notes/coursepage'
   ),
   lbs: createCourseInfo(
     'lbs',
     'Logic-based Natural Language Semantics',
     'MiKoMH/LBS',
-    'course/notes/notes.xhtml'
+    'course/notes/notes.xhtml',
+    'course/notes/coursepage'
   ),
 };
 

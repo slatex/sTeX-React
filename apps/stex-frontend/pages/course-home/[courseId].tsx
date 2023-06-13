@@ -1,14 +1,22 @@
 import ArticleIcon from '@mui/icons-material/Article';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
-import { Box, Button, Link } from '@mui/material';
-import { COURSES_INFO } from '@stex-react/utils';
+import { Box, Button } from '@mui/material';
+import {
+  BG_COLOR,
+  COURSES_INFO,
+  Window,
+  XhtmlContentUrl,
+} from '@stex-react/utils';
 import { NextPage } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { RecordedSyllabus } from '../../components/RecordedSyllabus';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
+import { ContentFromUrl } from '@stex-react/stex-react-renderer';
+import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 
 function CourseComponentLink({
   href,
@@ -18,7 +26,7 @@ function CourseComponentLink({
   children: any;
 }) {
   return (
-    <Link href={href} flexGrow={1}>
+    <Link href={href} style={{ flexGrow: 1 }}>
       <Button
         variant="contained"
         sx={{ width: '100%', height: '48px', fontSize: '16px' }}
@@ -42,37 +50,39 @@ export function CourseHeader({ courseId }: { courseId: string }) {
   const allowCrop = ['ai-1', 'ai-2', 'lbs'].includes(courseId);
   return (
     <Box textAlign="center">
-      <Box
-        display="flex"
-        position="relative"
-        width="100%"
-        maxHeight="200px"
-        overflow="hidden"
-        borderBottom="2px solid #DDD"
-        sx={{ backgroundImage: BG_COLORS[courseId] }}
-      >
-        {allowCrop ? (
-          <img
-            src={imageLink}
-            alt={courseName}
-            style={{
-              objectFit: 'cover',
-              width: '100%',
-              aspectRatio: '16/9',
-            }}
-          />
-        ) : (
-          <img
-            src={imageLink}
-            alt={courseName}
-            style={{
-              objectFit: 'contain',
-              maxHeight: '200px',
-              margin: 'auto',
-            }}
-          />
-        )}
-      </Box>
+      <Link href={`/course-home/${courseId}`}>
+        <Box
+          display="flex"
+          position="relative"
+          width="100%"
+          maxHeight="200px"
+          overflow="hidden"
+          borderBottom="2px solid #DDD"
+          sx={{ backgroundImage: BG_COLORS[courseId] }}
+        >
+          {allowCrop ? (
+            <img
+              src={imageLink}
+              alt={courseName}
+              style={{
+                objectFit: 'cover',
+                width: '100%',
+                aspectRatio: '16/9',
+              }}
+            />
+          ) : (
+            <img
+              src={imageLink}
+              alt={courseName}
+              style={{
+                objectFit: 'contain',
+                maxHeight: '200px',
+                margin: 'auto',
+              }}
+            />
+          )}
+        </Box>
+      </Link>
 
       <Box m="20px 0 32px">
         <span style={{ fontWeight: 'bold', fontSize: '32px' }}>
@@ -85,17 +95,35 @@ export function CourseHeader({ courseId }: { courseId: string }) {
 
 const CourseHomePage: NextPage = () => {
   const router = useRouter();
+  const [docWidth, setDocWidth] = useState(500);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    function handleResize() {
+      const outerWidth = containerRef?.current?.clientWidth;
+      if (!outerWidth) return;
+      setDocWidth(outerWidth);
+    }
+    handleResize();
+    Window?.addEventListener('resize', handleResize);
+    return () => Window?.removeEventListener('resize', handleResize);
+  }, [router.isReady]);
+
   if (!router.isReady) return <></>;
   const courseId = router.query.courseId as string;
   const courseInfo = COURSES_INFO[courseId];
   if (!courseInfo) return <>Course Not found</>;
   const { notesLink, slidesLink, cardsLink, forumLink } = courseInfo;
 
+  const locale = router.locale || 'en';
   const { home } = getLocaleObject(router);
   const t = home.courseThumb;
+
   return (
     <MainLayout
       title={(courseId || '').toUpperCase() + ' Course Home | VoLL-KI'}
+      bgColor={BG_COLOR}
     >
       <CourseHeader courseId={courseId} />
       <Box
@@ -105,7 +133,13 @@ const CourseHomePage: NextPage = () => {
         display="flex"
         flexDirection="column"
       >
-        <Box display="flex" width="100%" gap="10px" flexWrap="wrap">
+        <Box
+          display="flex"
+          width="100%"
+          gap="10px"
+          flexWrap="wrap"
+          ref={containerRef}
+        >
           <CourseComponentLink href={notesLink}>
             {t.notes}&nbsp;
             <ArticleIcon fontSize="large" />
@@ -128,6 +162,18 @@ const CourseHomePage: NextPage = () => {
             <QuestionAnswerIcon fontSize="large" />
           </CourseComponentLink>
         </Box>
+        <Box {...({ style: { '--document-width': `${docWidth}px` } } as any)}>
+          <ContentFromUrl
+            url={XhtmlContentUrl(
+              courseInfo.notesArchive,
+              `${courseInfo.landingFilepath}.${locale}.xhtml`
+            )}
+            skipSidebar={true}
+          />
+        </Box>
+        <br />
+        <br />
+        <b style={{fontSize: '24px', textAlign: 'center'}}>{t.recordedSyllabus}</b>
         <RecordedSyllabus courseId={courseId} />
       </Box>
     </MainLayout>

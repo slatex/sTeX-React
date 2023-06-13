@@ -159,7 +159,7 @@ const StudentHomePage: NextPage = () => {
           <Box className={styles['descriptive-box']}>
             <Tooltip
               title={
-                <Box sx={{ fontSize: 'large' }}>
+                <Box sx={{ fontSize: 'medium' }}>
                   <span>{t.expIconHover1}</span>
                   <span>{t.expIconHover2}</span>
                 </Box>

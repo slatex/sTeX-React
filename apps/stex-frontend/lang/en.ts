@@ -18,6 +18,7 @@ export const en = {
       cards: 'Cards',
       slides: 'Slides',
       forum: 'Forum',
+      recordedSyllabus: 'Recorded Syllabus',
     },
   },
   login: {

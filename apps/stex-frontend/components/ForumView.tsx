@@ -243,12 +243,31 @@ export function ForumView() {
 
   if (!router.isReady || !courseId) return <CircularProgress />;
   const toShow = showUnanswered
-    ? threadComments.filter((c) => c.questionStatus === QuestionStatus.UNANSWERED)
+    ? threadComments.filter(
+        (c) => c.questionStatus === QuestionStatus.UNANSWERED
+      )
     : showRemarks
     ? threadComments
     : threadComments.filter((c) => c.commentType === CommentType.QUESTION);
   return (
     <>
+      {courseId === 'ai-2' && (
+        <Box fontSize="large">
+          Feel free to ask questions here or connect with your instructors and
+          classmates{' '}
+          <a
+            href="https://matrix.to/#/#ai-12:fau.de"
+            target="_blank"
+            rel="noreferrer"
+            style={{ textDecoration: 'underline' }}
+          >
+            on Matrix
+          </a>
+          .
+          <br />
+          <br />
+        </Box>
+      )}
       <ForumViewControls
         showRemarks={showRemarks}
         setShowRemarks={setShowRemarks}

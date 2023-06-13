@@ -20,6 +20,7 @@ export const de = {
       cards: 'Karten',
       slides: 'Folien',
       forum: 'Forum',
+      recordedSyllabus: 'Aufgezeichneter Lehrplan',
     },
   },
   login: {

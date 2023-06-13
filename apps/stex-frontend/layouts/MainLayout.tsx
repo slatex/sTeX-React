@@ -13,10 +13,12 @@ export default function MainLayout({
   title,
   children,
   showBrowserAutocomplete = false,
+  bgColor
 }: {
   title?: string;
   children: any;
   showBrowserAutocomplete?: boolean;
+  bgColor?: string;
 }) {
   const { trackPageView } = useMatomo();
   const router = useRouter();
@@ -31,7 +33,7 @@ export default function MainLayout({
   }, [router.isReady, router.asPath]);
 
   return (
-    <Box minHeight="100vh" display="flex" flexDirection="column">
+    <Box minHeight="100vh" display="flex" flexDirection="column" bgcolor={bgColor}>
       <Head>
         <title>{title || 'VoLL-KI'}</title>
         <meta name="description" content="VoLL-KI" />
