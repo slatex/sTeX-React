@@ -7,14 +7,35 @@ export const SYSTEM_UPDATES = [
     header_de: '',
     content_de: '',
     timestamp: dayjs('2023-02-11T00:20:00+05:30'),
-  },*/{
+  },*/
+  {
+    id: 'badges',
+    header: 'Good deeds create positive karma.',
+    content:
+      'In the spirit of collaborative knowledge exchange, we have introduced our karma system. Ask questions, answer them, report errors, or provide clarifications - and earn karma points and badges along the way.  Every contribution counts, and together we can create a thriving community of learners.',
+    header_de: 'Gute Taten schaffen positives Karma.',
+    content_de: 'Im Sinne des gemeinschaftlichen Wissensaustausches haben wir unser Karma-System eingeführt. Stellen Sie Fragen, beantworten Sie sie, melden Sie Fehler oder geben Sie Erläuterungen – und sammeln Sie nebenbei Karma-Punkte und Abzeichen. Jeder Beitrag zählt, und gemeinsam können wir eine lebendige Lerngemeinschaft schaffen.',
+    timestamp: dayjs('2023-06-14T19:20:00+05:30'),
+  },
+  {
+    id: 'course-descriptions',
+    header: 'Course Descriptions',
+    content: 'Home pages of courses now show a description of the course.',
+    header_de: 'Kursbeschreibungen',
+    content_de: 'Startseiten von Kursen zeigen jetzt eine Beschreibung des Kurses.',
+    timestamp: dayjs('2023-06-13T19:20:00+05:30'),
+  },
+  {
     id: 'course-forums',
     header: 'Course Forums',
-    content: 'You can now ask questions and participate in course forums. Check out the forum page for [Artificial Intelligence - 2](/forum/ai-2).',
+    content:
+      'You can now ask questions and participate in course forums. Check out the forum page for [Artificial Intelligence - 2](/forum/ai-2).',
     header_de: 'Kursforen',
-    content_de: 'Sie können jetzt Fragen stellen und an Kursforen teilnehmen. Schauen Sie sich die Forumseite für [Artificial Intelligence - 2](/forum/ai-2) an.',
+    content_de:
+      'Sie können jetzt Fragen stellen und an Kursforen teilnehmen. Schauen Sie sich die Forumseite für [Artificial Intelligence - 2](/forum/ai-2) an.',
     timestamp: dayjs('2023-05-26T18:00:00+05:30'),
-  },{
+  },
+  {
     id: 'cards-with-sections',
     header: 'Flash Cards arranged by sections',
     content: 'Flash cards can now be browsed by course section.',
