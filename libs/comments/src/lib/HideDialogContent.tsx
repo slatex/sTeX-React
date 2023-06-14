@@ -102,7 +102,7 @@ export function HideDialogContent({
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => onClose && onClose()}>Cancel</Button>
+        <Button onClick={() => onClose && onClose()}>{t.cancel}</Button>
         <Button
           disabled={!getState()}
           onClick={() => onClose && onClose(getState())}

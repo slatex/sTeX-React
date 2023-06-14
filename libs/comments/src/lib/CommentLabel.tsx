@@ -1,20 +1,67 @@
 import ReplyIcon from '@mui/icons-material/Reply';
+import ShieldTwoToneIcon from '@mui/icons-material/ShieldTwoTone';
+import { Box, Button, Tooltip } from '@mui/material';
 import {
   Comment,
   getUserInfo,
   isHiddenNotSpam,
-  isSpam,
   isModerator,
+  isSpam,
+  pointsToLevel,
 } from '@stex-react/api';
 import { DateView } from '@stex-react/react-utils';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { CommentMenu } from './CommentMenu';
-
-import { Box, Button, Tooltip } from '@mui/material';
 import styles from './comments.module.scss';
 import { getLocaleObject } from './lang/utils';
-import { useRouter } from 'next/router';
 
+const NUM_LEVELS = 6;
+
+export function LevelIcon({
+  totalPoints,
+  newPoints,
+}: {
+  totalPoints?: number;
+  newPoints?: number;
+}) {
+  if (!totalPoints) return null;
+  const level = pointsToLevel(totalPoints);
+  const hue = (360 / NUM_LEVELS) * ((level+1)%NUM_LEVELS);
+  const color = `hsl(${hue}deg 100% 30%)`;
+  const hoverColor = `hsl(${hue}deg 42% 79%)`;
+  return (
+    <Tooltip
+      title={
+        <Box fontSize="medium">
+          {!!newPoints && (
+            <>
+              Gained <b>+{newPoints}</b>&nbsp;
+            </>
+          )}
+          Total karma: <b style={{ color: hoverColor }}>{totalPoints}</b>
+        </Box>
+      }
+    >
+      <span style={{ display: 'inline-flex' }}>
+        <ShieldTwoToneIcon sx={{ color }} />
+        <span
+          style={{
+            color,
+            fontSize: '13px',
+            position: 'absolute',
+            top: '2px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: 'max-content',
+          }}
+        >
+          {level}
+        </span>
+      </span>
+    </Tooltip>
+  );
+}
 export function CommentLabel({
   comment,
   setEditingComment,
@@ -57,15 +104,20 @@ export function CommentLabel({
     <Box
       display="flex"
       justifyContent="space-between"
+      alignItems="center"
       onClick={(e) => e.stopPropagation()}
     >
-      <Box display="flex">
+      <Box display="flex" alignItems="center">
         {/*comment.commentId*/}
         {!isPrivateNote && (
           <>
             <span className={styles['user_link']}>
               {comment.isAnonymous ? <i>Anonymous</i> : comment.userName}
             </span>
+            <LevelIcon
+              totalPoints={comment.totalPoints}
+              newPoints={comment.pointsGranted}
+            />
             &nbsp;
           </>
         )}
@@ -81,7 +133,7 @@ export function CommentLabel({
             <Button
               onClick={() => setOpenReply(true)}
               size="small"
-              sx={{ p: '0', mt: '-6px' }}
+              sx={{ p: '0' }}
             >
               <ReplyIcon />
               &nbsp;{t.reply}

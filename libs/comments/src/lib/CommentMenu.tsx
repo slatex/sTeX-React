@@ -5,19 +5,25 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import ShieldTwoToneIcon from '@mui/icons-material/ShieldTwoTone';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import { Dialog, IconButton, Menu, MenuItem } from '@mui/material';
 import {
   Comment,
-  deleteComment,
   HiddenStatus,
+  deleteComment,
+  grantPoints,
   isHiddenNotSpam,
   isSpam,
-  updateCommentState,
+  updateCommentState
 } from '@stex-react/api';
 import { ConfirmDialogContent } from '@stex-react/react-utils';
 import { useRouter } from 'next/router';
 import { ReactNode, useState } from 'react';
 import { HideDialogContent } from './HideDialogContent';
+import {
+  GrantInfo,
+  PointsGrantDialogContent,
+} from './PointsGrantDialogContent';
 import { getLocaleObject } from './lang/utils';
 
 const P_DELETE = 'delete';
@@ -91,7 +97,6 @@ export function CommentMenu({
   const hiddenOrSpam =
     isHiddenNotSpam(comment.hiddenStatus) || isSpam(comment.hiddenStatus);
   const canHideComment = canModerate && !hiddenOrSpam;
-
   const canUnhideComment = canModerate && hiddenOrSpam;
 
   function deleteCommentIfConfirmed(confirmed?: boolean) {
@@ -116,6 +121,25 @@ export function CommentMenu({
       comment.commentId,
       state.hiddenStatus,
       state.hiddenJustification
+    ).then(
+      (success) => {
+        onUpdate();
+        // asyncState.endProcess(P_HIDE);
+      },
+      (err) => alert(t.updateFailure)
+      //(err) => asyncState.failProcess(err, 'Failed to update comment', P_HIDE)
+    );
+  }
+
+  function doGrantPoints(info: GrantInfo, onUpdate: () => void) {
+    if (!info) {
+      return;
+    }
+    //asyncState.startProcess(P_HIDE);
+    grantPoints(
+      comment.commentId,
+      info.numPoints,
+      info.reason
     ).then(
       (success) => {
         onUpdate();
@@ -245,6 +269,24 @@ export function CommentMenu({
             onClose={(state) => {
               handleClose();
               updateHiddenState(state, onUpdate);
+            }}
+          />
+        )}
+        {canModerate && (
+          <MenuItemAndDialog
+            menuContent={
+              <>
+                <VolunteerActivismIcon />
+                &nbsp;{t.points}
+                {moderatorIcon}
+              </>
+            }
+            dialogContentCreator={(onClose: (grant?: GrantInfo) => void) => (
+              <PointsGrantDialogContent onClose={onClose} />
+            )}
+            onClose={(grant) => {
+              handleClose();
+              doGrantPoints(grant, onUpdate);
             }}
           />
         )}

@@ -31,6 +31,7 @@ export const en = {
   hideBelow: 'Hide Below',
   unhide: 'Unhide',
   spam: 'Spam',
+  points: 'Points',
 
   // comment reply
   anonymous: 'Anonymous',
@@ -54,6 +55,15 @@ export const en = {
   incorrect: 'Mistake/Error/Misunderstanding',
   irrelevant: 'Irrelevant discussion',
   other: 'Other',
+
+  // points grant dialog
+  grantPoints: 'Grant points',
+  HELPFUL_COMMENT: 'Made Helpful Comment',
+  ASKED_QUESTION: 'Asked a question',
+  RESPONDED_TO_QUESTION: 'Responded to a question',
+  ANSWERED_CORRECTLY: 'Answered the question correctly',
+  REPORTED_ERROR: 'Reported an error',
+  OTHER: 'Other',
 
   // notes view
   createPrivate: 'Create a private note here…',
