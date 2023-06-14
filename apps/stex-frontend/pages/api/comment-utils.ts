@@ -1,4 +1,4 @@
-import { Comment } from '@stex-react/api';
+import { Comment, PointsGrant } from '@stex-react/api';
 import axios from 'axios';
 import mysql from 'serverless-mysql';
 const db = mysql({
@@ -60,14 +60,14 @@ export async function executeTxnAndEnd(
   query1: string,
   values1: any[],
   query2: string,
-  values2: any[]
+  values2: any[],
+  query3?: string,
+  values3?: any[]
 ) {
   try {
-    const results = await db
-      .transaction()
-      .query(query1, values1)
-      .query(query2, values2)
-      .commit();
+    const txn = db.transaction().query(query1, values1).query(query2, values2);
+    if (query3 && values3) txn.query(query3, values3);
+    const results = await txn.commit();
     await db.end();
     return results;
   } catch (error) {
@@ -76,13 +76,22 @@ export async function executeTxnAndEnd(
 }
 
 export async function executeTxnAndEndSet500OnError(
+  res,
   query1: string,
   values1: any[],
   query2: string,
   values2: any[],
-  res
+  query3?: string,
+  values3?: any[]
 ) {
-  const results = await executeTxnAndEnd(query1, values1, query2, values2);
+  const results = await executeTxnAndEnd(
+    query1,
+    values1,
+    query2,
+    values2,
+    query3,
+    values3
+  );
   if (results['error']) {
     res.status(500).send(results);
     return undefined;
@@ -120,6 +129,24 @@ export async function getExistingCommentDontEnd(
     return { existing: undefined, error: 404 };
   }
   return { existing: existingComments[0], error: undefined };
+}
+
+export async function getExistingPointsDontEnd(
+  commentId: number
+): Promise<{ existing: PointsGrant; error?: number }> {
+  const existingGrant = await executeQuery(
+    'SELECT * FROM points WHERE commentId = ?',
+    [commentId]
+  );
+  if (existingGrant['error']) {
+    console.error(existingGrant['error']);
+    return { existing: undefined, error: 500 };
+  }
+
+  if (existingGrant['length'] !== 1) {
+    return { existing: undefined, error: 404 };
+  }
+  return { existing: existingGrant[0], error: undefined };
 }
 
 export function checkIfPostOrSetError(req, res) {

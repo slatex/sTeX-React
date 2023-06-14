@@ -24,6 +24,7 @@ export default async function handler(req, res) {
     res
   );
   if (!results) return;
-  processResults(results as Comment[]);
+  const addedPoints = await processResults(res, results as Comment[]);
+  if (!addedPoints) return;
   res.status(200).json(results);
 }

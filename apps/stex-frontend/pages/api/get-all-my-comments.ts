@@ -1,3 +1,4 @@
+import { Comment } from '@stex-react/api';
 import {
   executeDontEndSet500OnError,
   executeAndEndSet500OnError,
@@ -13,8 +14,9 @@ export default async function handler(req, res) {
     [userId],
     res
   );
-  processResults(comments);
   if (!comments) return;
+  const addedPoints = await processResults(res, comments);
+  if (!addedPoints) return;
 
   const history = await executeAndEndSet500OnError(
     `SELECT * FROM updateHistory WHERE ownerId = ?`,

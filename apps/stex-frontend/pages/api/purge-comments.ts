@@ -2,7 +2,7 @@ import { isModerator } from '@stex-react/api';
 import {
   checkIfPostOrSetError,
   executeTxnAndEndSet500OnError,
-  getUserIdOrSetError,
+  getUserIdOrSetError
 } from './comment-utils';
 
 export default async function handler(req, res) {
@@ -18,13 +18,15 @@ export default async function handler(req, res) {
   }
 
   const commentUpdate = await executeTxnAndEndSet500OnError(
+    res,
     `UPDATE comments
     SET statement=NULL, userId=NULL, userName=NULL, userEmail=NULL, selectedText=NULL, isDeleted=1
     WHERE userId=?`,
     [userId],
     `DELETE FROM updateHistory WHERE ownerId=?`,
     [userId],
-    res
+    `DELETE FROM points WHERE userId=?`,
+    [userId],
   );
   if (!commentUpdate) return;
   res.status(204).end();

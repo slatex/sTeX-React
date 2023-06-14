@@ -1,5 +1,5 @@
 import { Comment } from '@stex-react/api';
-import { executeAndEndSet500OnError } from '../comment-utils';
+import { executeAndEndSet500OnError, executeDontEndSet500OnError } from '../comment-utils';
 import { processResults } from '../get-comments';
 
 export default async function handler(req, res) {
@@ -12,8 +12,9 @@ export default async function handler(req, res) {
   }
   const query = `SELECT * FROM comments WHERE (isPrivate != 1 AND isDeleted != 1) AND threadId = ?`;
 
-  const results = await executeAndEndSet500OnError(query, [threadId], res);
+  const results = await executeDontEndSet500OnError(query, [threadId], res);
   if (!results) return;
-  processResults(results as Comment[]);
+  const addedPoints = await processResults(res, results as Comment[]);
+  if (!addedPoints) return;
   res.status(200).json(results);
 }

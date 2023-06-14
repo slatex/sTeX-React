@@ -1,22 +1,55 @@
-import { Comment } from '@stex-react/api';
-import { FileLocation } from '@stex-react/utils';
-import { executeAndEndSet500OnError, getUserId } from './comment-utils';
+import { Comment, GetCommentsRequest, PointsGrant } from '@stex-react/api';
+import {
+  executeAndEndSet500OnError,
+  executeDontEndSet500OnError,
+  getUserId,
+} from './comment-utils';
 
-export function processResults(results: any[]) {
+// Returns success as true or false.
+export async function processResults(
+  res,
+  results: Comment[]
+): Promise<boolean> {
+  const commentIds = results.map((c) => c.commentId);
+  const userIds = results.map((c) => c.userId);
+
+  const commentIdToPoints = new Map<number, number>();
+  if (commentIds.length) {
+    const pointResults = (await executeDontEndSet500OnError(
+      'SELECT * FROM points WHERE commentId IN (?)',
+      [commentIds],
+      res
+    )) as PointsGrant[];
+    if (!pointResults) return false;
+    for (const r of pointResults) {
+      commentIdToPoints.set(r.commentId, r.points);
+    }
+  }
+
+  const userIdToPoints = new Map<string, number>();
+  if (userIds.length) {
+    const userPointResults = (await executeAndEndSet500OnError(
+      'SELECT userId, SUM(points) as points FROM points WHERE userId IN (?) GROUP BY userId;',
+      [userIds],
+      res
+    )) as any[];
+    if (!userPointResults) return false;
+    for (const r of userPointResults) userIdToPoints.set(r.userId, r.points);
+  }
+
   for (const c of results) {
     c.isPrivate = !!c.isPrivate;
     c.isAnonymous = !!c.isAnonymous;
     c.isDeleted = !!c.isDeleted;
     c.isEdited = !!c.isEdited;
+    c.pointsGranted = commentIdToPoints.get(c.commentId) ?? 0;
+    c.totalPoints = userIdToPoints.get(c.userId) ?? 0;
     c.postedTimestampSec = Date.parse(c['postedTimestamp']) / 1000;
     c.updatedTimestampSec = Date.parse(c['updatedTimestamp']) / 1000;
     delete c['postedTimestamp'];
     delete c['updatedTimestamp'];
   }
-}
-
-export interface GetCommentsRequest {
-  files: FileLocation[];
+  return true;
 }
 
 export default async function handler(req, res) {
@@ -34,15 +67,14 @@ export default async function handler(req, res) {
   const fileConstraint = Array(files.length)
     .fill('(archive = ? AND filepath = ?)')
     .join(' OR ');
-    
+
   const query = `SELECT * FROM comments WHERE (isPrivate != 1 OR userId = ? ) AND ( ${fileConstraint} )`;
   const queryValues = [userId];
-  files.forEach(({ archive, filepath }) =>
-  queryValues.push(archive, filepath)
-  );
+  files.forEach(({ archive, filepath }) => queryValues.push(archive, filepath));
 
-  const results = await executeAndEndSet500OnError(query, queryValues, res);
+  const results = await executeDontEndSet500OnError(query, queryValues, res);
   if (!results) return;
-  processResults(results as Comment[]);
+  const addedPoints = await processResults(res, results as Comment[]);
+  if (!addedPoints) return;
   res.status(200).json(results);
 }

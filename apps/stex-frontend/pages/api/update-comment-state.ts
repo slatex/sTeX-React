@@ -27,6 +27,7 @@ export default async function handler(req, res) {
     return;
   }
   const results = await executeTxnAndEndSet500OnError(
+    res,
     'UPDATE comments SET hiddenStatus=?, hiddenJustification=? WHERE commentId=?',
     [hiddenStatus, hiddenJustification, commentId],
     `INSERT INTO updateHistory
@@ -40,8 +41,7 @@ export default async function handler(req, res) {
       existing.hiddenStatus,
       existing.hiddenJustification,
       existing.questionStatus
-    ],
-    res
+    ]
   );
   if (!results) return;
   res.status(204).end();

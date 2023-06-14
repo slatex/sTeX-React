@@ -1,9 +1,9 @@
 import { isModerator, UpdateQuestionStateRequest } from '@stex-react/api';
 import {
-    checkIfPostOrSetError,
-    executeTxnAndEndSet500OnError,
-    getExistingCommentDontEnd,
-    getUserIdOrSetError
+  checkIfPostOrSetError,
+  executeTxnAndEndSet500OnError,
+  getExistingCommentDontEnd,
+  getUserIdOrSetError,
 } from './comment-utils';
 
 export default async function handler(req, res) {
@@ -27,6 +27,7 @@ export default async function handler(req, res) {
     return;
   }
   const results = await executeTxnAndEndSet500OnError(
+    res,
     'UPDATE comments SET questionStatus=?, commentType=? WHERE commentId=?',
     [questionStatus, commentType, commentId],
     `INSERT INTO updateHistory
@@ -39,9 +40,8 @@ export default async function handler(req, res) {
       existing.statement,
       existing.hiddenStatus,
       existing.hiddenJustification,
-      existing.questionStatus
-    ],
-    res
+      existing.questionStatus,
+    ]
   );
   if (!results) return;
   res.status(204).end();

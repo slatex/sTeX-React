@@ -1,4 +1,10 @@
-import { Comment, isModerator } from '@stex-react/api';
+import {
+  Comment,
+  CommentType,
+  DEFAULT_POINTS,
+  GrantReason,
+  isModerator,
+} from '@stex-react/api';
 import { PathToArticle } from '@stex-react/utils';
 import axios from 'axios';
 import {
@@ -64,11 +70,7 @@ export default async function handler(req, res) {
     isAnonymous,
   } = req.body as Comment;
 
-  if (
-    !statement ||
-    isPrivate === undefined ||
-    isAnonymous === undefined
-  ) {
+  if (!statement || isPrivate === undefined || isAnonymous === undefined) {
     res.status(400).json({ message: 'Some fields missing!' });
     return;
   }
@@ -115,6 +117,15 @@ export default async function handler(req, res) {
   );
   if (!results) return;
   const newCommentId = results['insertId'];
+
+  if (commentType === CommentType.QUESTION) {
+    const reason = GrantReason.ASKED_QUESTION;
+    await executeAndEndSet500OnError(
+      'INSERT INTO points (points, reason, userId, commentId, granterId) VALUES (?, ?, ?, ?, ?)',
+      [DEFAULT_POINTS.get(reason), reason, userId, newCommentId, 'auto'],
+      res
+    );
+  }
 
   if (!parentCommentId) {
     await executeAndEndSet500OnError(

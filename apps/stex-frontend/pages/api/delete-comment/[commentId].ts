@@ -24,13 +24,15 @@ export default async function handler(req, res) {
   }
 
   const commentUpdate = await executeTxnAndEndSet500OnError(
+    res,
     `UPDATE comments
     SET statement=NULL, userId=NULL, userName=NULL, userEmail=NULL, selectedText=NULL, isDeleted=1
     WHERE commentId=?`,
     [commentId],
     `DELETE FROM updateHistory WHERE commentId=?`,
     [commentId],
-    res
+    `DELETE FROM points WHERE commentId=?`,
+    [commentId]
   );
   if (!commentUpdate) return;
   res.status(204).end();
