@@ -1,3 +1,6 @@
+import { FileLocation } from '@stex-react/utils';
+import { GrantReason } from './points';
+
 export const MODERATORS = [
   'yp70uzyj', // Michael
   'yn06uhoc', // Jonas
@@ -16,16 +19,16 @@ export enum HiddenStatus {
 }
 
 export enum CommentType {
-  QUESTION= 'QUESTION',
+  QUESTION = 'QUESTION',
   REMARK = 'REMARK',
   OTHER = 'OTHER',
 }
 
 export enum QuestionStatus {
   UNANSWERED = 'UNANSWERED',
-  ANSWERED = 'ANSWERED', 
+  ANSWERED = 'ANSWERED',
   ACCEPTED = 'ACCEPTED',
-  OTHER = 'OTHER', 
+  OTHER = 'OTHER',
 }
 
 export interface Comment {
@@ -55,6 +58,9 @@ export interface Comment {
   userName?: string;
   userEmail?: string;
 
+  totalPoints?: number;
+  pointsGranted?: number;
+
   postedTimestampSec?: number;
   updatedTimestampSec?: number;
 
@@ -69,6 +75,10 @@ export function isHiddenNotSpam(status?: HiddenStatus) {
 }
 export function isSpam(status?: HiddenStatus) {
   return status === HiddenStatus.SPAM;
+}
+
+export interface GetCommentsRequest {
+  files: FileLocation[];
 }
 
 export interface EditCommentRequest {
