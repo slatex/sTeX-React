@@ -153,6 +153,7 @@ export const de = {
     systemUpdate: 'Systemaktualisierung',
     helpCenter: 'Hilfezentrum',
     privacyPolicy: 'Datenschutz-Bestimmungen',
-    legalNotice: 'Impressum'
+    legalNotice: 'Impressum',
+    changeLanguage: 'Sprache ändern',
   },
 };

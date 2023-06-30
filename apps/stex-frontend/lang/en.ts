@@ -173,6 +173,7 @@ export const en = {
     systemUpdate: 'System Updates',
     helpCenter: 'Help Center',
     privacyPolicy: 'Privacy Policy',
-    legalNotice: 'Legal Notice'
+    legalNotice: 'Legal Notice',
+    changeLanguage: 'Change Language'
   },
 };

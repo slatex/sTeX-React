@@ -55,8 +55,8 @@ function UserButton() {
     <Box whiteSpace="nowrap">
       <Button
         sx={{
-          color: 'white',
-          border: '1px solid white',
+          color: 'black',
+          border: '1px solid black',
           textTransform: 'none',
         }}
         onClick={handleClick}
@@ -93,6 +93,7 @@ function UserButton() {
 function LanguageButton() {
   const router = useRouter();
   const { locale } = router;
+  const { header: t } = getLocaleObject(router);
 
   // Menu crap Start
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -112,13 +113,15 @@ function LanguageButton() {
   }
   return (
     <Box whiteSpace="nowrap">
-      <IconButton onClick={handleClick}>
-        <CountryFlag
-          flag={locale === 'en' ? 'gb' : locale}
-          size="28x21"
-          size2="56x42"
-        />
-      </IconButton>
+      <Tooltip title={t.changeLanguage}>
+        <IconButton onClick={handleClick}>
+          <CountryFlag
+            flag={locale === 'en' ? 'gb' : locale}
+            size="28x21"
+            size2="56x42"
+          />
+        </IconButton>
+      </Tooltip>
       <Menu
         id="basic-menu"
         anchorEl={anchorEl}
@@ -246,19 +249,19 @@ export function Header({
         <Box>
           <Box display="flex" alignItems="center">
             <NotificationButton />
-            <Link href="/help">
-              <IconButton>
-                <Tooltip title={t.helpCenter}>
+            <Link href="/help" tabIndex={-1}>
+              <Tooltip title={t.helpCenter}>
+                <IconButton>
                   <HelpIcon htmlColor="white" />
-                </Tooltip>
-              </IconButton>
+                </IconButton>
+              </Tooltip>
             </Link>
             <LanguageButton />
             {loggedIn ? (
               <UserButton />
             ) : (
               <Button
-                sx={{ color: 'white', border: '1px solid white' }}
+                sx={{ color: 'black', border: '1px solid black' }}
                 onClick={() => {
                   // Don't change target when user reclicks 'Login' button.
                   if (window.location.pathname === '/login') return;
