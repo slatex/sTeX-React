@@ -16,7 +16,8 @@ const nextConfig = {
   i18n: {
     locales: ['en', 'de'],
     defaultLocale: 'en',
-  }
+  },
+  staticPageGenerationTimeout: 100,
 };
 
 module.exports = withNextPluginPreval(withNx(nextConfig));

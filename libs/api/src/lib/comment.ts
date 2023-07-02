@@ -1,5 +1,4 @@
 import { FileLocation } from '@stex-react/utils';
-import { GrantReason } from './points';
 
 export const MODERATORS = [
   'yp70uzyj', // Michael
