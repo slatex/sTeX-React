@@ -10,21 +10,23 @@
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
-    "lib": ["es2017", "dom"],
+    "lib": ["es2020", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@stex-react/api": ["libs/api/src/index.ts"],
-      "@stex-react/comments": ["libs/comments/src/index.ts"],
-      "@stex-react/markdown": ["libs/markdown/src/index.ts"],
-      "@stex-react/mathjax": ["libs/mathjax/src/index.ts"],
-      "@stex-react/react-utils": ["libs/react-utils/src/index.ts"],
-      "@stex-react/report-a-problem": ["libs/report-a-problem/src/index.ts"],
-      "@stex-react/stex-react-renderer": [
-        "libs/stex-react-renderer/src/index.ts"
+      "@stex-react/api": ["packages/api/src/index.ts"],
+      "@stex-react/comments": ["packages/comments/src/index.ts"],
+      "@stex-react/markdown": ["packages/markdown/src/index.ts"],
+      "@stex-react/mathjax": ["packages/mathjax/src/index.ts"],
+      "@stex-react/react-utils": ["packages/react-utils/src/index.ts"],
+      "@stex-react/report-a-problem": [
+        "packages/report-a-problem/src/index.ts"
       ],
-      "@stex-react/utils": ["libs/utils/src/index.ts"]
+      "@stex-react/stex-react-renderer": [
+        "packages/stex-react-renderer/src/index.ts"
+      ],
+      "@stex-react/utils": ["packages/utils/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

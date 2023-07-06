@@ -1,0 +1,115 @@
+// Derived from https://css-tricks.com/triangle-breadcrumbs/ and
+// https://codepen.io/team/css-tricks/pen/xRmmdr
+$totalHeight: 13px;
+$arrowWidth: 7px;
+$triangleBorder: 11px;
+
+.steps {
+  // This is needed for the blur.
+  // https://stackoverflow.com/questions/10487292/position-absolute-but-relative-to-parent
+  position: relative;
+
+  padding: 0;
+  margin: 0 0 3px 0;
+  max-height: 30px;
+  overflow: hidden;
+  transition: max-height 0.15s ease-out;
+}
+
+.steps:hover {
+  max-height: 120px;
+  transition-delay: 3s;
+
+  transition: max-height 0.25s ease-in;
+  transition-delay: 0.5s;
+
+  .steps-blur {
+    // Keep the blur div vanished when user has mouse over this.
+    // Without this. The this the div flickers in and out of existence.
+    display: none;
+  }
+}
+
+.steps-blur {
+  position: absolute;
+  // f9fafb is BG_COLOR
+  background: linear-gradient(180deg, #f9fafb00 17%, #f9fafbff 25%);
+  z-index: 2;
+  height: 120px;
+  width: 100%;
+}
+
+.steps-blur:hover {
+  display: none;
+}
+
+.steps a {
+  color: white;
+  text-decoration: none;
+}
+
+.steps em {
+  display: block;
+  font-size: 1.1em;
+  font-weight: bold;
+}
+
+.steps li {
+  float: left;
+  margin: 1px 0;
+  font-size: 14px;
+  //width: 150px; /* 100 / number of steps */
+  height: $totalHeight;
+  list-style-type: none;
+  padding: 3px 5px 6px 12px;
+  /* padding around text, last should include arrow width */
+  border-right: 3px solid white;
+  /* width: gap between arrows, color: background of document */
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* remove extra padding on the first object since it doesn't have an arrow to the left */
+.steps li:first-child {
+  padding-left: 5px;
+}
+
+/* white arrow to the left to "erase" background (starting from the 2nd object) */
+.steps li:nth-child(n+2)::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  border-left: $arrowWidth solid white;
+  border-top: $triangleBorder solid transparent;
+  border-bottom: $triangleBorder solid transparent;
+  width: 0;
+  height: 0;
+  content: " ";
+}
+
+/* colored arrow to the right */
+.steps li::after {
+  z-index: 1;
+  /* need to bring this above the next item */
+  position: absolute;
+  top: 0;
+  right: -$arrowWidth;
+  display: block;
+  border-left: $arrowWidth solid #7c8437;
+  border-top: $triangleBorder solid transparent;
+  border-bottom: $triangleBorder solid transparent;
+  width: 0;
+  height: 0;
+  content: " ";
+}
+
+/* Setup colors (both the background and the arrow) */
+.steps li {
+  background-color: #7186b9;
+}
+
+.steps li::after {
+  border-left-color: #7186b9;
+}

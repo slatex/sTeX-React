@@ -1,0 +1,26 @@
+{
+  "name": "api",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/api/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:swc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/api",
+        "main": "packages/api/src/index.ts",
+        "tsConfig": "packages/api/tsconfig.lib.json",
+        "assets": ["packages/api/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/api/**/*.ts"]
+      }
+    }
+  },
+  "tags": []
+}

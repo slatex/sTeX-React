@@ -2,23 +2,23 @@
 
 This workspace contains the applications and library related to rendering of sTeX documents (more precisely, RusTeX generated xhtml) using React library. The package manager used here is npm, so install the dependencies using `npm install` before running any other commands. There are two applications in this workspace:
 
-## stex-frontend
+## alea-frontend
 
-This is a next.js frontend for browsing sTeX files served from MMT server.
+This is a next.js frontend.
 
 #### Local Development
 
 ```
-$ npm start stex-frontend
+$ npm start alea-frontend
 ```
 
 #### Serve for production
 
-stex-frontend is currently being served at https://courses.voll-ki.fau.de using the following commands:
+alea-frontend is currently being served at https://courses.voll-ki.fau.de using the following commands:
 
 ```
-$ npm run build stex-frontend
-$ nx serve stex-frontend --prod --port=<PORT_NUMBER> --hostname=0.0.0.0
+$ npm run build alea-frontend
+$ nx serve alea-frontend --prod --port=<PORT_NUMBER> --hostname=0.0.0.0
 ```
 
 ## mmt-viewer

@@ -1,0 +1,52 @@
+.dash_outer_box {
+  position: fixed;
+  top: 0;
+  margin-bottom: 10px;
+  height: 100%;
+  z-index: 1;
+
+  // flex makes sure that height is equal to window.
+  display: flex;
+
+  width: 300px;
+  max-width: 300px;
+
+  // For removing the ugly scrollbar (see below)
+  //overflow: hidden;
+
+  // Uncomment below for debugging
+  //border: 1px solid black,
+}
+
+.dash_inner_box {
+  background-color: white;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+.dash_scroll_area_box {
+  overflow-y: scroll;
+  overflow-x: clip;
+  height: 100%;
+
+  // This margin/padding combination removes the ugly scrollbar.
+  //margin-right: -50px;
+  //padding-right: 50px;
+}
+
+.dashboard_item {
+  font-family: Open Sans, Verdana, sans-serif;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #666;
+}
+
+.level0_dashboard_item {
+  @extend .dashboard_item;
+  font-weight: bold;
+  color: #444;
+}
+

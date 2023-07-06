@@ -1,0 +1,31 @@
+.info_line {
+  display: block;
+  color: gray;
+  margin: 10px 0 10px 0;
+}
+
+.result_header_project {
+  display: inline;
+  color: white;
+  background-color: gray;
+  border-radius: 12px;
+  padding: 2px 5px 3px;
+  margin-right: 5px;
+}
+
+.result_header_sourcefile {
+  color: #555;
+  display: inline;
+}
+
+.result_title {
+  font-size: x-large;
+  font-family: Ubuntu, Georgia, Cambria, 'Times New Roman', Times, serif;
+  display: block;
+  color: #1A0DAB;
+  margin-bottom: 3px;
+}
+
+.result_title:visited {
+  color: #609;
+}

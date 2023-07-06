@@ -1,0 +1,18 @@
+.descriptive-box {
+  font-family: Roboto, sans-serif !important;
+  font-size: 18.75px !important;
+  color: #000000DE !important;
+}
+
+
+// Needed because the global css (added for stex) has links that have
+// special style attributes that we don't need here.
+.descriptive-box a {
+  color: revert !important;
+  display: inline !important;
+}
+
+.descriptive-box a:hover {
+  text-decoration: underline !important;
+  display: inline !important;
+}

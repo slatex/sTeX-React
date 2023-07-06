@@ -1,0 +1,3 @@
+# Note: This file does nothing. Copy its contents into .env.local if you need to.
+NEXT_PUBLIC_MMT_URL=https://stexmmt.mathhub.info
+NEXT_PUBLIC_LMS_URL=https://lms.voll-ki.fau.de

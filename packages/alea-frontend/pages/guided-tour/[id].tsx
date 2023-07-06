@@ -1,0 +1,57 @@
+import { Box, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { TourDisplay } from '@stex-react/stex-react-renderer';
+import { BG_COLOR } from '@stex-react/utils';
+import { getUriWeights, reportEvent } from '@stex-react/api';
+import type { NextPage } from 'next';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import { ToursAutocomplete } from '../../components/ToursAutocomplete';
+import MainLayout from '../../layouts/MainLayout';
+
+const GuidedTourPage: NextPage = () => {
+  const router = useRouter();
+  const { locale } = router;
+  const [language, setLanguage] = useState(locale);
+  const tourId = router.query.id
+    ? decodeURI(router.query.id as string)
+    : undefined;
+
+  useEffect(() => setLanguage(locale), [locale]);
+
+  return (
+    <MainLayout title="Guided Tour">
+      <Box display="flex" alignItems="center" mx="10px">
+        <Box flexGrow={1} mr="15px">
+          <ToursAutocomplete />
+        </Box>
+        <FormControl style={{ minWidth: '100px', margin: '10px 0' }}>
+          <InputLabel id="lang-select-label">Language</InputLabel>
+          <Select
+            size="small"
+            labelId="lang-select-label"
+            id="lang-select"
+            name="language"
+            label="Language"
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+          >
+            <MenuItem value="en">English</MenuItem>
+            <MenuItem value="de">Deutsch</MenuItem>
+            <MenuItem value="fr">Français</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
+      <Box flexGrow={1} bgcolor={BG_COLOR}>
+        <TourDisplay
+          tourId={tourId}
+          language={language}
+          getUriWeights={getUriWeights}
+          reportEvent={reportEvent}
+          topOffset={125}
+        />
+      </Box>
+    </MainLayout>
+  );
+};
+
+export default GuidedTourPage;
