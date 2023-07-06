@@ -25,12 +25,14 @@ import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 import { mmtHTMLToReact, setSectionIds } from './mmtParser';
 import { RenderOptions } from './RendererDisplayOptions';
 import {
+  ConfigureLevelSlider,
   DimIcon,
   LevelIcon,
   SelfAssessment2,
   SelfAssessmentDialog,
 } from './SelfAssessmentDialog';
 import { TourAPIEntry, TourDisplay } from './TourDisplay';
+import { ExpandableContent } from './ExpandableContent';
 
 export const ServerLinksContext = createContext({ mmtUrl: '', lmsUrl: '' });
 
@@ -174,10 +176,12 @@ export function StexReactRenderer({
   );
 }
 export {
+  ConfigureLevelSlider,
   ContentDashboard,
   ContentFromUrl,
   ContentWithHighlight,
   DimIcon,
+  ExpandableContent,
   ExpandableContextMenu,
   FixedPositionMenu,
   LayoutWithFixedMenu,

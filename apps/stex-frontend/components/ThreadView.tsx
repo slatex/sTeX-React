@@ -12,9 +12,9 @@ import {
   updateQuestionState,
 } from '@stex-react/api';
 import { XhtmlContentUrl } from '@stex-react/utils';
-import { organizeHierarchically } from 'libs/comments/src/lib/comment-helpers';
-import { CommentTree } from 'libs/comments/src/lib/comment-section';
-import { ExpandableContent } from 'libs/stex-react-renderer/src/lib/ExpandableContent';
+import { organizeHierarchically } from '@stex-react/comments';
+import { CommentTree } from '@stex-react/comments';
+import { ExpandableContent } from '@stex-react/stex-react-renderer';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useReducer, useState } from 'react';
@@ -137,7 +137,9 @@ export function ThreadView({
       <CommentTree
         comments={threadComments}
         file={fileLoc}
-        refreshComments={() => {}}
+        refreshComments={() => {
+          console.log('TODO');
+        }}
       />
     </>
   );

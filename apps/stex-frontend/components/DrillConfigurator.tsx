@@ -29,7 +29,7 @@ import {
   stableShuffle,
 } from '@stex-react/utils';
 import axios from 'axios';
-import { ConfigureLevelSlider } from 'libs/stex-react-renderer/src/lib/SelfAssessmentDialog';
+import { ConfigureLevelSlider } from '@stex-react/stex-react-renderer';
 import { useRouter } from 'next/router';
 import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
