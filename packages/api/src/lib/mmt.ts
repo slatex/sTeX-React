@@ -118,6 +118,7 @@ export async function getDocIdx(mmtUrl: string) {
   mmtUrl = 'https://building.beta.vollki.kwarc.info/';
   if (!mmtUrl) return [];
   if (!CACHED_DOCIDX) {
+    console.log('getting docidx');
     const resp = await axios.get(`${mmtUrl}/:sTeX/docidx`);
     CACHED_DOCIDX = resp.data as DocIdx[];
   }
@@ -126,6 +127,7 @@ export async function getDocIdx(mmtUrl: string) {
 
 export async function getCourseInfo(mmtUrl: string) {
   try {
+    console.log('getting courseInfo');
     const docIdx = await getDocIdx(mmtUrl);
     const courseInfo: { [courseId: string]: CourseInfo } = {};
     for (const doc of docIdx) {
@@ -144,7 +146,10 @@ export async function getCourseInfo(mmtUrl: string) {
         isCurrent
       );
     }
-    if(Object.keys(courseInfo).length === 0) return COURSES_INFO;
+    if(Object.keys(courseInfo).length === 0) {
+      console.log('courseInfo is empty');
+      return COURSES_INFO;
+    }
     return courseInfo;
   } catch (err) {
     console.log(err);
