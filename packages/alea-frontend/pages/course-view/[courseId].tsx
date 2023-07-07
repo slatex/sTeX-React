@@ -7,6 +7,7 @@ import {
   SectionInfo,
   SectionsAPIData,
   Slide,
+  getCourseInfo,
   getDocumentSections,
 } from '@stex-react/api';
 import { CommentNoteToggleView } from '@stex-react/comments';
@@ -17,7 +18,7 @@ import {
   ServerLinksContext,
 } from '@stex-react/stex-react-renderer';
 import {
-  COURSES_INFO,
+  CourseInfo,
   XhtmlContentUrl,
   getSectionInfo,
   localStore,
@@ -148,20 +149,22 @@ const CourseViewPage: NextPage = () => {
   const [slideArchive, setSlideArchive] = useState('');
   const [slideFilepath, setSlideFilepath] = useState('');
   const { mmtUrl } = useContext(ServerLinksContext);
-
   const { courseView: t } = getLocaleObject(router);
-
   const [contentUrl, setContentUrl] = useState(undefined as string);
+  const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
+
+  useEffect(() => {
+    if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
+  }, [mmtUrl]);
 
   useEffect(() => {
     if (!router.isReady) return;
-    //console.log(COURSES_INFO[courseId].notesLink);
-    const { notesArchive, notesFilepath } = COURSES_INFO[courseId];
+    const { notesArchive, notesFilepath } = courses[courseId];
     setContentUrl(XhtmlContentUrl(notesArchive, notesFilepath));
     axios
       .get(`/api/get-slide-counts/${courseId}`)
       .then((resp) => setSlideCounts(resp.data));
-  }, [router.isReady, courseId]);
+  }, [router.isReady, courses, courseId]);
 
   useEffect(() => {
     if (!router.isReady || !courseId?.length) return;
@@ -276,7 +279,7 @@ const CourseViewPage: NextPage = () => {
                   router.replace(router);
                 }}
               />
-              <Link href={COURSES_INFO[courseId]?.notesLink ?? ''} passHref>
+              <Link href={courses[courseId]?.notesLink ?? ''} passHref>
                 <Button size="small" variant="contained" sx={{ mr: '10px' }}>
                   {t.notes}&nbsp;
                   <ArticleIcon />

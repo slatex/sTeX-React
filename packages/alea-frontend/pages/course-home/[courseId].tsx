@@ -4,7 +4,7 @@ import SlideshowIcon from '@mui/icons-material/Slideshow';
 import { Box, Button } from '@mui/material';
 import {
   BG_COLOR,
-  COURSES_INFO,
+  CourseInfo,
   Window,
   XhtmlContentUrl,
 } from '@stex-react/utils';
@@ -14,9 +14,13 @@ import { useRouter } from 'next/router';
 import { RecordedSyllabus } from '../../components/RecordedSyllabus';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
-import { ContentFromUrl } from '@stex-react/stex-react-renderer';
-import { useEffect, useRef, useState } from 'react';
+import {
+  ContentFromUrl,
+  ServerLinksContext,
+} from '@stex-react/stex-react-renderer';
+import { use, useContext, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { getCourseInfo } from '@stex-react/api';
 
 function CourseComponentLink({
   href,
@@ -44,7 +48,14 @@ const BG_COLORS = {
 };
 
 export function CourseHeader({ courseId }: { courseId: string }) {
-  const courseInfo = COURSES_INFO[courseId];
+  const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
+  const { mmtUrl } = useContext(ServerLinksContext);
+
+  useEffect(() => {
+    if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
+  }, [mmtUrl]);
+
+  const courseInfo = courses[courseId];
   if (!courseInfo) return <></>;
   const { courseName, imageLink } = courseInfo;
   const allowCrop = ['ai-1', 'ai-2', 'lbs'].includes(courseId);
@@ -97,6 +108,12 @@ const CourseHomePage: NextPage = () => {
   const router = useRouter();
   const [docWidth, setDocWidth] = useState(500);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
+  const { mmtUrl } = useContext(ServerLinksContext);
+
+  useEffect(() => {
+    if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
+  }, [mmtUrl]);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -112,7 +129,7 @@ const CourseHomePage: NextPage = () => {
 
   if (!router.isReady) return <></>;
   const courseId = router.query.courseId as string;
-  const courseInfo = COURSES_INFO[courseId];
+  const courseInfo = courses[courseId];
   if (!courseInfo) return <>Course Not found</>;
   const { notesLink, slidesLink, cardsLink, forumLink } = courseInfo;
 
@@ -173,7 +190,9 @@ const CourseHomePage: NextPage = () => {
         </Box>
         <br />
         <br />
-        <b style={{fontSize: '24px', textAlign: 'center'}}>{t.recordedSyllabus}</b>
+        <b style={{ fontSize: '24px', textAlign: 'center' }}>
+          {t.recordedSyllabus}
+        </b>
         <RecordedSyllabus courseId={courseId} />
       </Box>
     </MainLayout>

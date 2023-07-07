@@ -1,10 +1,10 @@
 import {
   SectionInfo,
   SectionsAPIData,
+  getCourseInfo,
   getDocumentSections,
 } from '@stex-react/api';
 import {
-  COURSES_INFO,
   CoverageSnap
 } from '@stex-react/utils';
 import { convert } from 'html-to-text';
@@ -60,11 +60,12 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const courseId = req.query.courseId as string;
-  if (!courseId || !COURSES_INFO[courseId]) {
+  const courses = await getCourseInfo(process.env.NEXT_PUBLIC_MMT_URL);
+  if (!courseId || !courses[courseId]) {
     res.status(404).send(`Course not found [${courseId}]`);
     return;
   }
-  const { notesArchive, notesFilepath } = COURSES_INFO[courseId];
+  const { notesArchive, notesFilepath } = courses[courseId];
   const docSections = await getDocumentSections(
     process.env.NEXT_PUBLIC_MMT_URL,
     notesArchive,

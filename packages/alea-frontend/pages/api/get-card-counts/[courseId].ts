@@ -1,4 +1,4 @@
-import { COURSES_INFO } from '@stex-react/utils';
+import { getCourseInfo, getDefiniedaInDoc } from '@stex-react/api';
 import axios from 'axios';
 export const EXCLUDED_CHAPTERS = ['Preface', 'Administrativa', 'Resources'];
 
@@ -9,16 +9,19 @@ export default async function handler(req, res) {
   );
 
   const { courseId } = req.query;
-  const courseInfo = COURSES_INFO[courseId];
+  const courseInfo = (await getCourseInfo(process.env.NEXT_PUBLIC_MMT_URL))[
+    courseId
+  ];
   if (!courseInfo) {
     res.status(404).json({ error: `Course not found: [${courseId}]` });
     return;
   }
   const { notesArchive: archive, notesFilepath: filepath } = courseInfo;
-  const resp = await axios.get(
-    `${process.env.NEXT_PUBLIC_MMT_URL}/:sTeX/definienda?archive=${archive}&filepath=${filepath}`
+  const cards = await getDefiniedaInDoc(
+    process.env.NEXT_PUBLIC_MMT_URL,
+    archive,
+    filepath
   );
-  const cards: { id: string; symbols: string[] }[] = resp.data;
 
   let count = 0;
   for (const e of cards) count += e.symbols.length;

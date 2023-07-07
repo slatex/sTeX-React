@@ -1,4 +1,5 @@
 export interface CourseInfo {
+  courseId: string;
   courseName: string;
 
   notesArchive: string;
@@ -10,6 +11,7 @@ export interface CourseInfo {
   cardsLink: string;
   slidesLink: string;
   forumLink: string;
+  isCurrent: boolean;
 }
 
 export function getSlidesLink(courseId: string) {
@@ -34,14 +36,20 @@ export function getNotesLink(courseId: string) {
 
 export const CURRENT_TERM = 'SS23';
 
-function createCourseInfo(
+export function createCourseInfo(
   courseId: string,
   courseName: string,
   notesArchive: string,
   notesFilepath: string,
-  landingFilepath: string
+  landingFilepath: string,
+  isCurrent = false
 ): CourseInfo {
+  notesFilepath = notesFilepath.replace('.tex', '.xhtml');
+  
+  // landing filepath is language specific.
+  landingFilepath = landingFilepath.replace('.tex', '');
   return {
+    courseId,
     courseName,
     imageLink: `/${courseId}.jpg`,
     notesArchive,
@@ -51,24 +59,27 @@ function createCourseInfo(
     cardsLink: getCardsLink(courseId),
     slidesLink: getSlidesLink(courseId),
     forumLink: getForumLink(courseId),
-    landingFilepath
+    landingFilepath,
+    isCurrent
 
   };
 }
+
 export const COURSES_INFO: { [courseId: string]: CourseInfo } = {
   'ai-1': createCourseInfo(
     'ai-1',
     'Artifical Intelligence - I',
     'MiKoMH/AI',
-    'course/notes/notes1.xhtml',
-    'course/notes/coursepage1',
+    'course/notes/notes1.tex',
+    'course/notes/coursepage1.tex'
   ),
   'ai-2': createCourseInfo(
     'ai-2',
     'Artifical Intelligence - II',
     'MiKoMH/AI',
     'course/notes/notes2.xhtml',
-    'course/notes/coursepage2'
+    'course/notes/coursepage2',
+    true
   ),
   'iwgs-1': createCourseInfo(
     'iwgs-1',
@@ -82,14 +93,16 @@ export const COURSES_INFO: { [courseId: string]: CourseInfo } = {
     'IWGS - II',
     'MiKoMH/IWGS',
     'course/notes/notes-part2.xhtml',
-    'course/notes/coursepage2'
+    'course/notes/coursepage2',
+    true
   ),
   krmt: createCourseInfo(
     'krmt',
     'Knowledge Representation for Mathematical Theories',
     'MiKoMH/KRMT',
     'course/notes/notes.xhtml',
-    'course/notes/coursepage'
+    'course/notes/coursepage',
+    true
   ),
   lbs: createCourseInfo(
     'lbs',
@@ -99,20 +112,6 @@ export const COURSES_INFO: { [courseId: string]: CourseInfo } = {
     'course/notes/coursepage'
   ),
 };
-
-export function getCourseId({
-  archive,
-  filepath,
-}: {
-  archive: string;
-  filepath: string;
-}) {
-  for (const [courseId, info] of Object.entries(COURSES_INFO)) {
-    if (archive === info.notesArchive && filepath === info.notesFilepath)
-      return courseId;
-  }
-  return undefined;
-}
 
 export interface CoverageSnap {
   timestamp_ms: number;

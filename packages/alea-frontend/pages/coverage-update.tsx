@@ -9,11 +9,12 @@ import {
 import {
   SectionsAPIData,
   getAuthHeaders,
+  getCourseInfo,
   getDocumentSections,
 } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import {
-  COURSES_INFO,
+  CourseInfo,
   CoverageSnap,
   CoverageTimeline,
   convertHtmlStringToPlain,
@@ -24,8 +25,6 @@ import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import { CoverageUpdater } from '../components/CoverageUpdater';
 import MainLayout from '../layouts/MainLayout';
-
-const courseIds = Object.keys(COURSES_INFO);
 
 function getSectionNames(data: SectionsAPIData, level = 0): string[] {
   const names = [];
@@ -49,6 +48,7 @@ const CoverageUpdatePage: NextPage = () => {
     {}
   );
   const { mmtUrl } = useContext(ServerLinksContext);
+  const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
 
   useEffect(() => {
     axios
@@ -57,17 +57,21 @@ const CoverageUpdatePage: NextPage = () => {
   }, []);
 
   useEffect(() => {
+    if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
+  }, [mmtUrl]);
+
+  useEffect(() => {
     async function getSections() {
       const secNames: { [courseId: string]: string[] } = {};
-      for (const courseId of courseIds) {
-        const { notesArchive: a, notesFilepath: f } = COURSES_INFO[courseId];
+      for (const courseId of Object.keys(courses)) {
+        const { notesArchive: a, notesFilepath: f } = courses[courseId];
         const docSections = await getDocumentSections(mmtUrl, a, f);
         secNames[courseId] = getSectionNames(docSections);
       }
       setAllSectionNames(secNames);
     }
     getSections();
-  }, [mmtUrl]);
+  }, [mmtUrl, courses]);
 
   useEffect(() => {
     if (!router.isReady || !courseId?.length) return;
@@ -94,7 +98,7 @@ const CoverageUpdatePage: NextPage = () => {
             }}
             label="Course"
           >
-            {courseIds.map((courseId) => (
+            {Object.keys(courses).map((courseId) => (
               <MenuItem key={courseId} value={courseId}>
                 {courseId}
               </MenuItem>

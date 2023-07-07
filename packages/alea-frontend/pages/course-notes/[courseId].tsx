@@ -1,23 +1,34 @@
 import { CircularProgress } from '@mui/material';
-import { StexReactRenderer } from '@stex-react/stex-react-renderer';
-import { COURSES_INFO, XhtmlContentUrl } from '@stex-react/utils';
+import { getCourseInfo } from '@stex-react/api';
+import { ServerLinksContext, StexReactRenderer } from '@stex-react/stex-react-renderer';
+import { CourseInfo, XhtmlContentUrl } from '@stex-react/utils';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
+import { useContext, useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
-
 
 const CourseNotesPage: NextPage = () => {
   const router = useRouter();
   const courseId = router.query.courseId as string;
-  if(!router.isReady) return <CircularProgress /> ;
-  const courseInfo = COURSES_INFO[courseId];
+  const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
+  const { mmtUrl } = useContext(ServerLinksContext);
 
-  if(!courseInfo) {
+  useEffect(() => {
+    if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
+  }, [mmtUrl]);
+
+  if (!router.isReady) return <CircularProgress />;
+  const courseInfo = courses[courseId];
+
+  if (!courseInfo) {
     router.replace('/');
-    return <div>Course not found!</div>
+    return <div>Course not found!</div>;
   }
 
-  const url = XhtmlContentUrl(courseInfo.notesArchive, courseInfo.notesFilepath);
+  const url = XhtmlContentUrl(
+    courseInfo.notesArchive,
+    courseInfo.notesFilepath
+  );
   return (
     <MainLayout title="sTeX Browser">
       <StexReactRenderer contentUrl={url} topOffset={64} />

@@ -1,16 +1,17 @@
-import { COURSES_INFO } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import {
   CACHED_SLIDES,
   getSlides,
 } from '../get-slides/[courseId]/[sectionIds]';
+import { getCourseInfo } from '@stex-react/api';
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   const courseId = req.query.courseId as string;
-  const courseInfo = COURSES_INFO[courseId];
+  const courses = await getCourseInfo(process.env.NEXT_PUBLIC_MMT_URL);
+  const courseInfo = courses[courseId];
   if (!courseInfo) {
     res.status(404).json({ error: 'Course not found!' });
     return;

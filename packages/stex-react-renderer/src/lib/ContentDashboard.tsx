@@ -7,16 +7,17 @@ import UnfoldMoreDoubleIcon from '@mui/icons-material/UnfoldMoreDouble';
 import { Box, IconButton, TextField, Tooltip } from '@mui/material';
 import {
   SectionsAPIData,
+  getCourseId,
+  getCourseInfo,
   getDocumentSections,
   getUserInfo,
   isModerator,
 } from '@stex-react/api';
 import {
-  COURSES_INFO,
+  CourseInfo,
   CoverageTimeline,
   convertHtmlStringToPlain,
   createHash,
-  getCourseId,
   getSectionInfo,
   localStore,
 } from '@stex-react/utils';
@@ -301,10 +302,15 @@ export function ContentDashboard({
   const [dashInfo, setDashInfo] = useState<TOCNode | undefined>(undefined);
   const { mmtUrl } = useContext(ServerLinksContext);
   const [coveredUntil, setCoveredUntilSection] = useState('');
-
   const [covUpdateLink, setCovUpdateLink] = useState<string | undefined>(
     undefined
   );
+  const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
+  
+  useEffect(() => {
+    if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
+  }, [mmtUrl]);
+
   useEffect(() => {
     getUserInfo().then((info) => {
       if (!info?.userId || !isModerator(info.userId)) {
@@ -312,14 +318,14 @@ export function ContentDashboard({
         return;
       }
       const { archive, filepath } = getSectionInfo(contentUrl);
-      for (const courseId of Object.keys(COURSES_INFO)) {
-        const { notesArchive, notesFilepath } = COURSES_INFO[courseId];
+      for (const courseId of Object.keys(courses)) {
+        const { notesArchive, notesFilepath } = courses[courseId];
         if (archive === notesArchive && filepath === notesFilepath) {
           setCovUpdateLink(`/coverage-update?courseId=${courseId}`);
         }
       }
     });
-  }, [contentUrl]);
+  }, [contentUrl, courses]);
 
   useEffect(() => {
     async function getIndex() {
@@ -333,7 +339,7 @@ export function ContentDashboard({
 
   useEffect(() => {
     async function getCoverageInfo() {
-      const courseId = getCourseId(getSectionInfo(contentUrl));
+      const courseId = await getCourseId(mmtUrl, getSectionInfo(contentUrl));
       if (!courseId) return;
 
       const resp = await axios.get('/api/get-coverage-timeline');
@@ -343,7 +349,7 @@ export function ContentDashboard({
       }
     }
     getCoverageInfo();
-  }, [contentUrl]);
+  }, [mmtUrl, contentUrl]);
 
   const shadowTopLevel = { children: [] as any, tocNode: undefined as any };
   const firstLevelSections =

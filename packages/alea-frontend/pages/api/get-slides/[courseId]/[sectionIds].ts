@@ -1,6 +1,5 @@
-import { Slide, SlideType } from '@stex-react/api';
+import { Slide, SlideType, getCourseInfo } from '@stex-react/api';
 import {
-  COURSES_INFO,
   FileLocation,
   XhtmlContentUrl,
   getSectionInfo,
@@ -173,7 +172,8 @@ export default async function handler(
 ) {
   const courseId = req.query.courseId as string;
   const sectionIds = req.query.sectionIds as string;
-  const courseInfo = COURSES_INFO[courseId];
+  const courses = await getCourseInfo(process.env.NEXT_PUBLIC_MMT_URL);
+  const courseInfo = courses[courseId];
   if (!courseInfo) {
     res.status(404).json({ error: 'Course not found!' });
     return;

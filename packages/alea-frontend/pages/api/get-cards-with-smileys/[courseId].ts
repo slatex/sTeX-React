@@ -1,12 +1,11 @@
 import {
   CardsWithSmileys,
+  getCourseInfo,
+  getDefiniedaInDoc,
   getDocumentSections,
   getUriSmileys,
   SectionsAPIData
 } from '@stex-react/api';
-import {
-  COURSES_INFO
-} from '@stex-react/utils';
 import axios from 'axios';
 
 export const EXCLUDED_CHAPTERS = ['Preface', 'Administrativa', 'Resources'];
@@ -87,10 +86,11 @@ export async function getCardsBySection(archive: string, filepath: string) {
   for (const section of topLevelSections) {
     const { archive, filepath, chapterTitle, id } = section;
 
-    const resp = await axios.get(
-      `${process.env.NEXT_PUBLIC_MMT_URL}/:sTeX/definienda?archive=${archive}&filepath=${filepath}`
+    const cards = await getDefiniedaInDoc(
+      process.env.NEXT_PUBLIC_MMT_URL,
+      archive,
+      filepath
     );
-    const cards: { id: string; symbols: string[] }[] = resp.data;
     const uris = cards.map((c) => c.symbols).flat();
     courseCards[section.sectionTitle] = { chapterTitle, id, uris };
   }
@@ -100,7 +100,8 @@ export async function getCardsBySection(archive: string, filepath: string) {
 export default async function handler(req, res) {
   const { courseId } = req.query;
   const Authorization = req.headers.authorization;
-  const courseInfo = COURSES_INFO[courseId];
+  const courses = await getCourseInfo(process.env.NEXT_PUBLIC_MMT_URL);
+  const courseInfo = courses[courseId];
   if (!courseInfo) {
     res.status(404).json({ error: `Course not found: [${courseId}]` });
     return;

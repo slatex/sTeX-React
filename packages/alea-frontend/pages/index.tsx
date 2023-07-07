@@ -1,7 +1,6 @@
 import ArticleIcon from '@mui/icons-material/Article';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
 import { Box, Button, Card, IconButton, Tooltip } from '@mui/material';
-import { COURSES_INFO } from '@stex-react/utils';
 import { NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -11,6 +10,10 @@ import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 import styles from '../styles/utils.module.scss';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
+import { getCourseInfo } from '@stex-react/api';
+import { useContext, useEffect, useState } from 'react';
+import { ServerLinksContext } from '@stex-react/stex-react-renderer';
+import { CourseInfo } from '@stex-react/utils';
 
 function ELink({ href, children }: { href: string; children: any }) {
   return (
@@ -19,12 +22,13 @@ function ELink({ href, children }: { href: string; children: any }) {
     </a>
   );
 }
-function CourseThumb({ courseId }: { courseId: string }) {
+function CourseThumb({ course }: { course: CourseInfo }) {
   const router = useRouter();
   const { home } = getLocaleObject(router);
   const t = home.courseThumb;
 
   const {
+    courseId,
     courseName,
     courseHome,
     imageLink,
@@ -32,7 +36,7 @@ function CourseThumb({ courseId }: { courseId: string }) {
     slidesLink,
     cardsLink,
     forumLink,
-  } = COURSES_INFO[courseId];
+  } = course;
   const width = courseId === 'iwgs-1' ? 83 : courseId === 'iwgs-2' ? 165 : 200;
   return (
     <Card
@@ -57,13 +61,13 @@ function CourseThumb({ courseId }: { courseId: string }) {
               width={width}
               height={100}
               alt={courseName}
-              style={{ display: 'block' }}
+              style={{ display: 'block', margin: 'auto' }}
               priority={true}
             />
             <span
               style={{ fontSize: '16px', marginTop: '5px', fontWeight: 'bold' }}
             >
-              {courseName}
+              {courseName.length > 50 ? courseId.toUpperCase() : courseName}
             </span>
           </Link>
         </Box>
@@ -151,6 +155,12 @@ function SiteDescription({ lang }: { lang: string }) {
 const StudentHomePage: NextPage = () => {
   const router = useRouter();
   const { home: t } = getLocaleObject(router);
+  const { mmtUrl } = useContext(ServerLinksContext);
+  const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
+
+  useEffect(() => {
+    if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
+  }, [mmtUrl]);
 
   return (
     <MainLayout title="Courses | VoLL-KI">
@@ -183,15 +193,19 @@ const StudentHomePage: NextPage = () => {
             <h2>{t.courseSection}</h2>
           </Box>
           <Box display="flex" flexWrap="wrap">
-            {['ai-2', 'iwgs-2', 'krmt'].map((courseId) => (
-              <CourseThumb key={courseId} courseId={courseId} />
-            ))}
+            {Object.values(courses)
+              .filter((course) => course.isCurrent)
+              .map((c) => (
+                <CourseThumb key={c.courseId} course={c} />
+              ))}
           </Box>
           <h2>{t.otherCourses}</h2>
           <Box display="flex" flexWrap="wrap">
-            {['ai-1', 'iwgs-1', 'lbs'].map((courseId) => (
-              <CourseThumb key={courseId} courseId={courseId} />
-            ))}
+            {Object.values(courses)
+              .filter((course) => !course.isCurrent)
+              .map((c) => (
+                <CourseThumb key={c.courseId} course={c} />
+              ))}
           </Box>
           <hr style={{ width: '90%' }} />
           <h1>{t.guidedTourHeader}</h1>
