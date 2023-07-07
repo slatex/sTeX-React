@@ -13,7 +13,6 @@ import {
   IconButton,
 } from '@mui/material';
 import {
-  FileNode,
   FixedPositionMenu,
   LayoutWithFixedMenu,
   ServerLinksContext,
@@ -36,19 +35,18 @@ import {
   UserResponse,
 } from '../shared/quiz';
 import { QuizSubmitConfirm } from './QuizSubmitConfirm';
-import { getRootNodes } from '../file-structure';
+import { FileNode, getDocumentTree } from '@stex-react/api';
 
 function getAllQuestionUrls(
   nodes: FileNode[],
   pathSegments: string[],
   mmtUrl: string
 ): string[] {
+  if(!nodes) return [];
   if (pathSegments.length === 0) {
     return nodes
       .map((node) => {
-        const match = /archive=([^&]+)&filepath=([^"]+xhtml)/g.exec(node.link);
-        const archive = match?.[1];
-        const filepath = match?.[2];
+        const { archive, filepath } = node;
         if (!archive || !filepath) return null;
         return `${mmtUrl}/:sTeX/document?archive=${archive}&filepath=${filepath}`;
       })
@@ -185,9 +183,7 @@ export function QuizDisplay({ quizId }: { quizId: string }) {
   }
 
   useEffect(() => {
-    getRootNodes(mmtUrl).then((n) => {
-      setRootNodes(n);
-    });
+    getDocumentTree(mmtUrl).then(setRootNodes);
   }, [mmtUrl]);
 
   useEffect(() => {

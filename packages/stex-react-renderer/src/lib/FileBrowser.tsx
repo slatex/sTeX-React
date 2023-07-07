@@ -1,22 +1,22 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Button } from '@mui/material';
+import { FileNode } from '@stex-react/api';
 import {
   BG_COLOR,
   FileLocation,
-  getChildrenOfBodyNode,
   IS_MMT_VIEWER,
+  XhtmlTopDocumentContentUrl,
+  getChildrenOfBodyNode,
   shouldUseDrawer,
   sourceFileUrl,
   xhtmlPathToTex,
-  XhtmlTopDocumentContentUrl,
 } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { ContentFromUrl } from './ContentFromUrl';
-import { FileNode } from './FileNode';
 import { FileTree } from './FileTree';
-import { getLocaleObject } from './lang/utils';
 import { LayoutWithFixedMenu } from './LayoutWithFixedMenu';
+import { getLocaleObject } from './lang/utils';
 
 export function FileBrowser({
   defaultRootNodes,

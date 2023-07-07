@@ -19,7 +19,6 @@ import { ContentFromUrl } from './ContentFromUrl';
 import { ContentWithHighlight } from './ContentWithHightlight';
 import { ExpandableContextMenu } from './ExpandableContextMenu';
 import { FileBrowser } from './FileBrowser';
-import { FileNode } from './FileNode';
 import { DocSectionContext, InfoSidebar } from './InfoSidebar';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 import { mmtHTMLToReact, setSectionIds } from './mmtParser';
@@ -193,4 +192,4 @@ export {
   FileBrowser,
   setSectionIds,
 };
-export type { FileNode, TourAPIEntry, TOCFileNode };
+export type { TourAPIEntry, TOCFileNode };

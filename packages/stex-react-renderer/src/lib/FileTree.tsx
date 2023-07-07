@@ -10,11 +10,11 @@ import { FileLocation } from '@stex-react/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
-import { FileNode } from './FileNode';
 import { getLocaleObject } from './lang/utils';
 import { FixedPositionMenu } from './LayoutWithFixedMenu';
 import { ServerLinksContext } from './stex-react-renderer';
 import styles from './stex-react-renderer.module.scss';
+import { FileNode, getDocumentTree } from '@stex-react/api';
 
 export type SetSelectedFileFunction = (f: FileLocation) => void;
 
@@ -33,10 +33,8 @@ export function NodeDisplay({
   useEffect(() => {
     setIsOpen(node.autoOpen);
   }, [node.autoOpen]);
+  const { archive, filepath } = node;
 
-  const match = /archive=([^&]+)&filepath=([^"]+xhtml)/g.exec(node.link);
-  const archive = match?.[1];
-  const filepath = match?.[2];
   if (archive && filepath) {
     const isSelected =
       archive === selectedFile.archive && filepath === selectedFile.filepath;
@@ -49,7 +47,7 @@ export function NodeDisplay({
         alignItems="center"
         ml="18px"
         sx={{ cursor: 'pointer', fontWeight, backgroundColor }}
-        onClick={() => onSelectedFile({archive, filepath})}
+        onClick={() => onSelectedFile({ archive, filepath })}
       >
         <ArticleIcon />
         <span
@@ -91,7 +89,7 @@ export function NodeDisplay({
       {isOpen && (
         <Box marginLeft="18px">
           <NodesDisplay
-            nodes={node.children}
+            nodes={node.children ?? []}
             selectedFile={selectedFile}
             onSelectedFile={onSelectedFile}
             searchTerms={searchTerms}
@@ -130,7 +128,8 @@ export function NodesDisplay({
   );
 }
 
-function applyFilter(nodes: FileNode[], searchTerms: string[]) {
+function applyFilter(nodes: FileNode[] | undefined, searchTerms: string[]) {
+  if (!nodes) return;
   for (const node of nodes) {
     applyFilter(node.children, searchTerms);
 
@@ -168,9 +167,9 @@ export function FileTree({
 
   function refreshFileTree() {
     setIsRefreshing(true);
-    axios.get(`${mmtUrl}/:sTeX/browser?menu`).then((r) => {
+    getDocumentTree(mmtUrl).then((t) => {
       setIsRefreshing(false);
-      setFileTree(r.data);
+      setFileTree(t);
     });
   }
 
@@ -184,7 +183,7 @@ export function FileTree({
     <FixedPositionMenu
       staticContent={
         <Box display="flex" alignItems="center">
-           <IconButton sx={{ m: '2px' }} onClick={() => onClose()}>
+          <IconButton sx={{ m: '2px' }} onClick={() => onClose()}>
             <CloseIcon />
           </IconButton>
           <TextField

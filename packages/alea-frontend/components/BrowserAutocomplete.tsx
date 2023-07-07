@@ -8,12 +8,34 @@ import {
 } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
-import { getArticleList } from '../file-structure';
 import styles from '../index.module.scss';
+import { FileNode, getDocumentTree } from '@stex-react/api';
 
 interface BrowserItem extends FileLocation {
   label: string;
   language: string;
+}
+
+function populateBrowserFiles(
+  nodes: FileNode[],
+  articleList: { [archive: string]: string[] }
+) {
+  for (const node of nodes) {
+    populateBrowserFiles(node.children, articleList);
+    const { archive, filepath } = node;
+    if (archive && filepath) {
+      if (!articleList[archive]) articleList[archive] = [];
+      articleList[archive].push(filepath);
+    }
+  }
+}
+
+async function getArticleList(mmtUrl: string) {
+  const articleList: { [project: string]: string[] } = {};
+  const rootNodes = await getDocumentTree(mmtUrl);
+  populateBrowserFiles(rootNodes, articleList);
+  console.log(articleList);
+  return articleList;
 }
 
 function getBrowserItems(browserItems: { [archive: string]: string[] }) {
