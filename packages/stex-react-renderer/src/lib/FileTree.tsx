@@ -116,7 +116,7 @@ export function NodesDisplay({
       {nodes.map((node) => {
         return (
           <NodeDisplay
-            key={node.label}
+            key={node.label + (node.archive ? 'file' : 'dir')}
             node={node}
             selectedFile={selectedFile}
             onSelectedFile={onSelectedFile}
