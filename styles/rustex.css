@@ -350,6 +350,7 @@ mtext .rustex-contents { display:inline }
     padding-right: 10px;
     vertical-align: baseline;
     padding-bottom: 5px;
+    white-space:nowrap;
 }
 .omdoc-notation-table {
     width: 100%;
