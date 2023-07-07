@@ -8,9 +8,10 @@ export const de = {
 
   // dialog
   titleLabel: 'Titel (Optional)',
-  issueCategoryPrompt: 'Es gibt ein Problem mit',
-  information: 'Information',
-  display: 'Anzeige',
+  issueCategoryPrompt: 'Dieses Problem ist',
+  information: 'informationsbezogen',
+  display: 'anzeigebedingt',
+  typo: 'auf einen Tippfehler',
 
   issueType: 'Problemtyp',
   errorType: 'Etwas stimmt nicht',

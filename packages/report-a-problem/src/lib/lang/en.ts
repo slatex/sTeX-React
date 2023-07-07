@@ -8,9 +8,10 @@ export const en = {
 
   // dialog
   titleLabel: 'Title (Optional)',
-  issueCategoryPrompt: 'There is an issue with the',
-  information: 'information',
-  display: 'display',
+  issueCategoryPrompt: 'This issue is',
+  information: 'information related',
+  display: 'display related',
+  typo: 'for a typo',
 
   issueType: 'Issue Type',
   errorType: 'Something is wrong',

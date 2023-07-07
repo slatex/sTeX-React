@@ -21,6 +21,8 @@ import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { createNewIssue, IssueCategory, IssueType } from './issueCreator';
 import { getLocaleObject } from './lang/utils';
 
+const TYPO_CATEGORY_INPUT = 'TYPO';
+
 export function ReportProblemDialog({
   open,
   setOpen,
@@ -37,14 +39,19 @@ export function ReportProblemDialog({
   const t = getLocaleObject(useRouter());
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [type, setType] = useState('');
-  const [category, setCategory] = useState('');
+  const [typeInput, setTypeInput] = useState('');
+  const [categoryInput, setCategoryInput] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [userName, setUserName] = useState('');
   const [postAnonymously, setPostAnonymously] = useState(false);
 
-  const typeError = !type?.length;
-  const categoryError = !category?.length;
+  const category: IssueCategory =
+    categoryInput === TYPO_CATEGORY_INPUT
+      ? IssueCategory.CONTENT
+      : IssueCategory[categoryInput as keyof typeof IssueCategory];
+  const type: IssueType = IssueType[typeInput as keyof typeof IssueType];
+  const typeError = !typeInput?.length;
+  const categoryError = !categoryInput?.length;
   const descriptionError = !description?.length;
   const anyError = typeError || categoryError || descriptionError;
 
@@ -73,6 +80,7 @@ export function ReportProblemDialog({
             borderRadius: '5px',
             p: '5px',
             my: '5px',
+            width: 'calc(100% - 12px)',
           }}
         >
           <FormLabel id="category-group-label">
@@ -82,8 +90,8 @@ export function ReportProblemDialog({
             row
             aria-labelledby="category-group-label"
             name="category-group"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            value={categoryInput}
+            onChange={(e) => setCategoryInput(e.target.value)}
           >
             <FormControlLabel
               value={IssueCategory.CONTENT.toString()}
@@ -95,6 +103,11 @@ export function ReportProblemDialog({
               control={<Radio />}
               label={t.display}
             />
+            <FormControlLabel
+              value={TYPO_CATEGORY_INPUT}
+              control={<Radio />}
+              label={t.typo}
+            />
           </RadioGroup>
         </FormControl>
 
@@ -105,6 +118,7 @@ export function ReportProblemDialog({
             borderRadius: '5px',
             p: '5px',
             my: '5px',
+            width: 'calc(100% - 12px)',
           }}
         >
           <FormLabel id="category-group-label">{t.issueType}</FormLabel>
@@ -112,8 +126,8 @@ export function ReportProblemDialog({
             row
             aria-labelledby="type-group-label"
             name="type-group"
-            value={type}
-            onChange={(e) => setType(e.target.value)}
+            value={typeInput}
+            onChange={(e) => setTypeInput(e.target.value)}
           >
             <FormControlLabel
               value={IssueType.ERROR.toString()}
@@ -186,8 +200,8 @@ export function ReportProblemDialog({
             setIsCreating(true);
             try {
               const issueLink = await createNewIssue(
-                IssueType[type as keyof typeof IssueType],
-                IssueCategory[category as keyof typeof IssueCategory],
+                type,
+                category,
                 description,
                 selectedText,
                 context,
