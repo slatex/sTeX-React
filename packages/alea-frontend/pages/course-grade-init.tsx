@@ -1,4 +1,11 @@
-import { Box, Button, InputAdornment, TextField } from '@mui/material';
+import {
+  Box,
+  Button,
+  InputAdornment,
+  MenuItem,
+  Select,
+  TextField,
+} from '@mui/material';
 import { LMSEvent, UserInfo, getUserInfo, reportEvent } from '@stex-react/api';
 import { localStore } from '@stex-react/utils';
 import { useEffect, useState } from 'react';
@@ -63,12 +70,25 @@ const COURSE_DESCRIPTIONS: { [courseId: string]: Course } = {
 
 const TO_EXCLUDE = ['AI', 'EDU', 'GENERAL', 'School'];
 
+const POSSIBLE_GERMAN_GRADES = [
+  '1.0',
+  '1.3',
+  '1.7',
+  '2.0',
+  '2.3',
+  '2.7',
+  '3.0',
+  '3.3',
+  '3.7',
+  '4.0',
+  '5.0',
+];
+
 const COURSE_LIST = Object.keys(COURSE_DESCRIPTIONS).filter(
   (id) => !TO_EXCLUDE.includes(id)
 );
-
 interface GradeInfo {
-  grade?: number;
+  grade?: string;
   percentage?: number;
 }
 
@@ -108,7 +128,7 @@ const MyCourseHistory = () => {
     getUserInfo().then(setUserInfo);
   }, []);
 
-  if (!userInfo) {
+  if (userInfo) {
     return (
       <MainLayout title="My course History| ALeA">
         Please Login To Continue
@@ -156,7 +176,9 @@ const MyCourseHistory = () => {
           {COURSE_LIST.map((courseId, idx) => (
             <tr key={courseId} style={{ borderBottom: '1px solid #DDD' }}>
               <td>
-                <b>{COURSE_DESCRIPTIONS[courseId].name} ({courseId})</b>
+                <b>
+                  {COURSE_DESCRIPTIONS[courseId].name} ({courseId})
+                </b>
                 <br />
                 <i>{COURSE_DESCRIPTIONS[courseId].description}</i>
                 {!COURSE_DESCRIPTIONS[courseId].description?.length && (
@@ -171,21 +193,29 @@ const MyCourseHistory = () => {
                 )}
               </td>
               <td style={{ paddingLeft: '10px' }}>
-                <TextField
+                <Select
                   value={courseInfo[courseId]?.grade ?? ''}
-                  type="number"
                   onChange={(e) => {
                     setCourseInfo((prev) => {
-                      const grade = clamp(parseFloat(e.target.value), 1, 5);
+                      const grade = e.target.value;
                       const info = { grade };
                       const newCourseInfo = { ...prev, [courseId]: info };
                       setGradeInfoToLocalStorage(newCourseInfo);
                       return newCourseInfo;
                     });
                   }}
-                  sx={{ width: '80px' }}
+                  sx={{ width: '70px' }}
                   margin="dense"
-                />
+                >
+                  <MenuItem key={'empty'} value={''}>
+                    {'N/A'}
+                  </MenuItem>
+                  {POSSIBLE_GERMAN_GRADES.map((v) => (
+                    <MenuItem key={v} value={v}>
+                      {v}
+                    </MenuItem>
+                  ))}
+                </Select>
               </td>
               <td>
                 <TextField
@@ -222,7 +252,7 @@ const MyCourseHistory = () => {
               const percentage = course?.percentage;
               if (!grade && !percentage) return;
               const event: LMSEvent = { type: 'course-init', course: courseId };
-              if (grade) event.grade = grade.toString();
+              if (grade) event.grade = grade;
               if (percentage) event.percentage = percentage.toString();
               return reportEvent(event);
             }).filter((x) => x);
