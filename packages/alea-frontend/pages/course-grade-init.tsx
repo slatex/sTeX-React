@@ -128,7 +128,7 @@ const MyCourseHistory = () => {
     getUserInfo().then(setUserInfo);
   }, []);
 
-  if (userInfo) {
+  if (!userInfo) {
     return (
       <MainLayout title="My course History| ALeA">
         Please Login To Continue
