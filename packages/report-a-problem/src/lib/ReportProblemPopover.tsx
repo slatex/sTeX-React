@@ -33,13 +33,13 @@ function Portal(props: PropsWithChildren<{ mount?: HTMLElement }>) {
 function getContext(node?: Node): FileInfo[] {
   if (!node) return [];
   try {
-    console.log(node);
     const parentContext = getContext(node.parentNode as Node);
     const sectionUrl = (node as any).attributes?.['section-url']?.value;
     if (!sectionUrl) return parentContext;
     return [getSectionInfo(sectionUrl), ...parentContext];
   } catch (e) {
-    console.log(e);
+    console.error(e);
+    console.error(node);
     return [];
   }
 }
