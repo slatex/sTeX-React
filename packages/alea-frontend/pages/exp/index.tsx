@@ -53,6 +53,10 @@ const ExperimentsHome: NextPage = () => {
         <main style={{ margin: '10px' }}>
           <Box m="10px auto" maxWidth="600px" textAlign="center">
             <Box>
+              <h2>Work In Progress</h2>
+              <InternalButtonLink href="/course-grade-init">
+                Course Grade Initializer
+              </InternalButtonLink>
               <h2>Demo</h2>
               <InternalButtonLink href="/file-browser">
                 View article browser
@@ -106,7 +110,7 @@ const ExperimentsHome: NextPage = () => {
             <BrowserAutocomplete />
             <ToursAutocomplete />
             <SearchBar />
-            <Box m="10px"  width="fit-content">
+            <Box m="10px" width="fit-content">
               <SelfAssessment2
                 dims={[
                   BloomDimension.Remember,

@@ -69,8 +69,14 @@ export const ALL_DIMENSIONS = [
 ];
 
 export interface LMSEvent {
-  type: 'i-know' | 'question-answered' | 'self-assessment-5StepLikertSmileys';
-  URI: string; // The uri that "i-know" or the question answered filename.
+  type: 'i-know' | 'question-answered' | 'self-assessment-5StepLikertSmileys' | 'course-init';
+  
+  URI?: string; // The uri that "i-know" or the question answered filename.
+
+  course?: string; // The course id.
+  grade?: string; // "1" to "5"
+  percentage?: string; // "0" to "100"
+
   answers?: any; // The answer of the question. Type TBD.
   values?: GenericCognitiveValues;
 }
