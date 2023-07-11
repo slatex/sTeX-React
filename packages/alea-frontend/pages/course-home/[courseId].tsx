@@ -1,7 +1,7 @@
 import ArticleIcon from '@mui/icons-material/Article';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
-import { Box, Button } from '@mui/material';
+import { Box, Button, CircularProgress } from '@mui/material';
 import {
   BG_COLOR,
   CourseInfo,
@@ -47,15 +47,8 @@ const BG_COLORS = {
   krmt: 'linear-gradient(to right, #e8e9bf, #f5f5b7)',
 };
 
-export function CourseHeader({ courseId }: { courseId: string }) {
-  const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
-  const { mmtUrl } = useContext(ServerLinksContext);
-
-  useEffect(() => {
-    if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
-  }, [mmtUrl]);
-
-  const courseInfo = courses[courseId];
+export function CourseHeader({ courseInfo }: { courseInfo: CourseInfo }) {
+  const courseId = courseInfo.courseId;
   if (!courseInfo) return <></>;
   const { courseName, imageLink } = courseInfo;
   const allowCrop = ['ai-1', 'ai-2', 'lbs'].includes(courseId);
@@ -108,12 +101,9 @@ const CourseHomePage: NextPage = () => {
   const router = useRouter();
   const [docWidth, setDocWidth] = useState(500);
   const containerRef = useRef<HTMLDivElement>(null);
+  const courseId = router.query.courseId as string;
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
   const { mmtUrl } = useContext(ServerLinksContext);
-
-  useEffect(() => {
-    if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
-  }, [mmtUrl]);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -127,10 +117,17 @@ const CourseHomePage: NextPage = () => {
     return () => Window?.removeEventListener('resize', handleResize);
   }, [router.isReady]);
 
-  if (!router.isReady) return <></>;
-  const courseId = router.query.courseId as string;
+  useEffect(() => {
+    if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
+  }, [mmtUrl]);
+
+  if (!router.isReady || !courses) return <CircularProgress />;
   const courseInfo = courses[courseId];
-  if (!courseInfo) return <>Course Not found</>;
+  if (!courseInfo) {
+    router.replace('/');
+    return <>Course Not Found!</>;
+  }
+  
   const { notesLink, slidesLink, cardsLink, forumLink } = courseInfo;
 
   const locale = router.locale || 'en';
@@ -142,7 +139,7 @@ const CourseHomePage: NextPage = () => {
       title={(courseId || '').toUpperCase() + ' Course Home | VoLL-KI'}
       bgColor={BG_COLOR}
     >
-      <CourseHeader courseId={courseId} />
+      <CourseHeader courseInfo={courseInfo} />
       <Box
         maxWidth="900px"
         m="auto"

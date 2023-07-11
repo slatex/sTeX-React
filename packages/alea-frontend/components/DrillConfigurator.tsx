@@ -137,7 +137,8 @@ function LevelConfigurator({
             }}
             onIconClick={() => {
               setLevels((prev) => {
-                const newVal = (levels as any)[dim] === undefined ? 2 : undefined;
+                const newVal =
+                  (levels as any)[dim] === undefined ? 2 : undefined;
                 return getUpdatedConfigLevel(prev, dim, newVal);
               });
             }}
@@ -432,8 +433,11 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
       .then((r) => {
         setIsLoading(false);
         setCourseCards(r.data);
+      })
+      .catch((e) => {
+        if (e.response.status === 404) router.push('/');
       });
-  }, [courseId]);
+  }, [courseId, router]);
 
   if (isLoading) return <CircularProgress />;
 

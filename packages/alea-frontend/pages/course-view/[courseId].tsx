@@ -2,7 +2,12 @@ import ArticleIcon from '@mui/icons-material/Article';
 import MergeIcon from '@mui/icons-material/Merge';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
 import VideoCameraFrontIcon from '@mui/icons-material/VideoCameraFront';
-import { Box, Button, ToggleButtonGroup } from '@mui/material';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  ToggleButtonGroup,
+} from '@mui/material';
 import {
   SectionInfo,
   SectionsAPIData,
@@ -140,7 +145,7 @@ const CourseViewPage: NextPage = () => {
   const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
   const [preNotes, setPreNotes] = useState([] as string[]);
   const [postNotes, setPostNotes] = useState([] as string[]);
-  const [courseSections, setCourseSections] = useState<string[]>([]);
+  const [coursesections, setcoursesections] = useState<string[]>([]);
   const [slideCounts, setSlideCounts] = useState<{
     [sectionId: string]: number;
   }>({});
@@ -151,14 +156,16 @@ const CourseViewPage: NextPage = () => {
   const { mmtUrl } = useContext(ServerLinksContext);
   const { courseView: t } = getLocaleObject(router);
   const [contentUrl, setContentUrl] = useState(undefined as string);
-  const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
+  const [courses, setCourses] = useState<
+    { [id: string]: CourseInfo } | undefined
+  >(undefined);
 
   useEffect(() => {
     if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
   }, [mmtUrl]);
 
   useEffect(() => {
-    if (!router.isReady) return;
+    if (!router.isReady || !courses?.[courseId]) return;
     const { notesArchive, notesFilepath } = courses[courseId];
     setContentUrl(XhtmlContentUrl(notesArchive, notesFilepath));
     axios
@@ -220,23 +227,29 @@ const CourseViewPage: NextPage = () => {
     async function getIndex() {
       const { archive, filepath } = getSectionInfo(contentUrl);
       const docSections = await getDocumentSections(mmtUrl, archive, filepath);
-      setCourseSections(getSections(docSections));
+      setcoursesections(getSections(docSections));
     }
     getIndex();
   }, [mmtUrl, contentUrl]);
 
   function goToPrevSection() {
-    const secIdx = courseSections.indexOf(sectionId);
+    const secIdx = coursesections.indexOf(sectionId);
     if (secIdx === -1 || secIdx === 0) return;
-    const secId = courseSections[secIdx - 1];
+    const secId = coursesections[secIdx - 1];
     setSlideNumAndSectionId(router, slideCounts[secId] ?? -1, secId);
   }
 
   function goToNextSection() {
-    const secIdx = courseSections.indexOf(sectionId);
-    if (secIdx === -1 || secIdx + 1 >= courseSections.length) return;
-    const secId = courseSections[secIdx + 1];
+    const secIdx = coursesections.indexOf(sectionId);
+    if (secIdx === -1 || secIdx + 1 >= coursesections.length) return;
+    const secId = coursesections[secIdx + 1];
     setSlideNumAndSectionId(router, 1, secId);
+  }
+
+  if (!router.isReady || !courses) return <CircularProgress />;
+  if (!courses[courseId]) {
+    router.replace('/');
+    return <>Course Not Found!</>;
   }
 
   return (
