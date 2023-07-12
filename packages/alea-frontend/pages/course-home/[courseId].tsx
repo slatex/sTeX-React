@@ -2,6 +2,11 @@ import ArticleIcon from '@mui/icons-material/Article';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
 import { Box, Button, CircularProgress } from '@mui/material';
+import { getCourseInfo } from '@stex-react/api';
+import {
+  ContentFromUrl,
+  ServerLinksContext,
+} from '@stex-react/stex-react-renderer';
 import {
   BG_COLOR,
   CourseInfo,
@@ -10,17 +15,12 @@ import {
 } from '@stex-react/utils';
 import { NextPage } from 'next';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { RecordedSyllabus } from '../../components/RecordedSyllabus';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
-import {
-  ContentFromUrl,
-  ServerLinksContext,
-} from '@stex-react/stex-react-renderer';
-import { use, useContext, useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
-import { getCourseInfo } from '@stex-react/api';
 
 function CourseComponentLink({
   href,
@@ -102,7 +102,9 @@ const CourseHomePage: NextPage = () => {
   const [docWidth, setDocWidth] = useState(500);
   const containerRef = useRef<HTMLDivElement>(null);
   const courseId = router.query.courseId as string;
-  const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
+  const [courses, setCourses] = useState<
+    { [id: string]: CourseInfo } | undefined
+  >(undefined);
   const { mmtUrl } = useContext(ServerLinksContext);
 
   useEffect(() => {
@@ -127,7 +129,7 @@ const CourseHomePage: NextPage = () => {
     router.replace('/');
     return <>Course Not Found!</>;
   }
-  
+
   const { notesLink, slidesLink, cardsLink, forumLink } = courseInfo;
 
   const locale = router.locale || 'en';
