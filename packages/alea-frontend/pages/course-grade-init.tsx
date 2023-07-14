@@ -33,8 +33,8 @@ const COURSE_DESCRIPTIONS: { [courseId: string]: Course } = {
       'A course that introduces mathematical modeling of computational problems, as well as common algorithms, algorithmic paradigms, and data structures used to solve these problems.',
   },
   GDP: {
-    name: '',
-    description: '',
+    name: 'Foundations of Programming',
+    description: 'A first programming course. It covers algorithms, programs, syntax/semantics, basic data types, control strutures, OOP: objects/classes/methods, O-notation, exceptions, assertions, testing, verification, debugging',
   },
   GENERAL: {
     name: 'General knowledge',
@@ -47,15 +47,15 @@ const COURSE_DESCRIPTIONS: { [courseId: string]: Course } = {
   },
   LinAlg: {
     name: 'Linear Algebra',
-    description: '',
+    description: 'A first course in linear algebra. The course covers number systems, vector spaces, linear mappings and equation systems, matrices and their operations, determinants,  Eigenvectors, Eigenvalues, scalar products. ',
   },
   Calc: {
     name: 'Calculus',
-    description: '',
+    description: 'A first course on calculus. The course covers real and complex numbers, sequences, series, and limits, univariate real functions, continuity, differentiability, differentiation, integration, Taylor series, Newton\'s method. ',
   },
   School: {
-    name: 'School',
-    description: '',
+    name: 'Highschool',
+    description: 'Anything taught in highschool',
   },
   TheoCS: {
     name: 'Theoretical Computer Science',
@@ -64,7 +64,7 @@ const COURSE_DESCRIPTIONS: { [courseId: string]: Course } = {
   },
   'Math:stochastics': {
     name: 'Stochastics',
-    description: '',
+    description: 'A first course in Stochastics and Statistics. It covers probability spaces, random variables, prior/conditional probabilities and their rules, various types of distributions, independence, markov chains, expectation and variance, statistical analysis, regression, variance analysis',
   },
 };
 
