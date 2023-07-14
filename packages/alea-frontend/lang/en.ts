@@ -177,6 +177,7 @@ export const en = {
     changeLanguage: 'Change Language',
   },
   learnerModelPriming: {
+    learnerModelPriming: 'Learner Model Priming',
     loginToContinue: 'Please login to continue',
     intro:
       'A great part of the ALeA services depends on the quality of the ' +
