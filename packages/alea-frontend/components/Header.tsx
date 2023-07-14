@@ -225,12 +225,12 @@ export function Header({
       <Toolbar className={styles['toolbar']} sx={{ background }}>
         <Link href="/" passHref>
           <Tooltip title={t.headerWarning}>
-            <Box display="flex" flexWrap="nowrap" alignItems="baseline">
+            <Box display="flex" flexWrap="nowrap" alignItems="center">
               <Image
-                src="/voll-ki-courses.svg"
-                alt="VoLL-KI Logo"
-                width={128}
-                height={40}
+                src="/alea-logo.svg"
+                alt="ALeA Logo"
+                width={99}
+                height={64}
                 style={{ cursor: 'pointer' }}
                 priority={true}
               />

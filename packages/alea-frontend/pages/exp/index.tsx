@@ -102,8 +102,12 @@ const ExperimentsHome: NextPage = () => {
                 text="Production"
               />
               <ExternalButtonLink
-                href="https://building.beta.vollki.kwarc.info"
-                text="Staging (building.beta...)"
+                href="https://building.beta.vollki.kwarc.info/:sTeX"
+                text="Beta (mmt.beta....)"
+              />
+              <ExternalButtonLink
+                href="https://building.beta.vollki.kwarc.info/:sTeX"
+                text="(Unstable!) Building (building.beta...)"
               />
             </Box>
             &nbsp;&nbsp;
