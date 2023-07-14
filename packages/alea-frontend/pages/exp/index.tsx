@@ -55,7 +55,7 @@ const ExperimentsHome: NextPage = () => {
             <Box>
               <h2>Work In Progress</h2>
               <InternalButtonLink href="/course-grade-init">
-                Course Grade Initializer
+                Learner Model Priming
               </InternalButtonLink>
               <h2>Demo</h2>
               <InternalButtonLink href="/file-browser">

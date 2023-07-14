@@ -174,6 +174,39 @@ export const en = {
     helpCenter: 'Help Center',
     privacyPolicy: 'Privacy Policy',
     legalNotice: 'Legal Notice',
-    changeLanguage: 'Change Language'
+    changeLanguage: 'Change Language',
+  },
+  learnerModelPriming: {
+    loginToContinue: 'Please login to continue',
+    intro:
+      'A great part of the ALeA services depends on the quality of the ' +
+      "ALeA learner model data - a subsystem that models the learner's knowledge/competency " +
+      "of the concepts underlying the learning materials by monitoring learners' " +
+      'interactions with/in the ALeA system. The system will try its best to serve you by ' +
+      'taking inputs from you in an unintrusive way. However, to make our services more ' +
+      'effective right from the beginning of your journey, we request you to share your past ' +
+      'academic record so that we can have a reasonable initial estimate of your learner model.',
+    disclaimer:
+      'The grades you give below will only be used for priming the learner model, ' +
+      'which in turn will only be used to give you a better learning experience. ' +
+      'In particular, they are not used in any future grading of the courses.',
+    note: 'Note',
+    note1:
+      'You may have taken some other courses that cover the topics specified ' +
+      'in some of the courses listed below. In such a case, please use your best ' +
+      'judgment to assign a grade to the course.',
+    note2:
+      'It is preferred that you enter your scores in the German grade scale ' +
+      ' (1.0-5.0). If you are unable to convert your scores ' +
+      'to this scale, you can enter your scores in the percentage scale.',
+    note3:
+      'Once submitted, these grades can be reset only after resetting ' +
+      'your learner model. So please be careful while entering the grades.',
+    course: 'Course',
+    grade: 'Grade',
+    percentage: 'Percentage',
+    submit: 'Submit',
+    submitConfirmation: 'Submit grade information?',
+    submitSuccess: 'Grade information submitted successfully!',
   },
 };

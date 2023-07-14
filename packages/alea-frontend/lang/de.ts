@@ -127,7 +127,7 @@ export const de = {
   },
   courseView: {
     notes: 'Notizen',
-    instructorNotes: "Notizen des Lehrenden",
+    instructorNotes: 'Notizen des Lehrenden',
     showSlides: 'Folien anzeigen',
     showVideo: 'Videos zeigen',
     showSlidesAndVideo: 'Zeigen Sie Folien und Videos',
@@ -155,5 +155,39 @@ export const de = {
     privacyPolicy: 'Datenschutz-Bestimmungen',
     legalNotice: 'Impressum',
     changeLanguage: 'Sprache ändern',
+  },
+  learnerModelPriming: {
+    learnerModelPriming: 'Lernermodell-Vorbereitung',
+    loginToContinue: 'Bitte einloggen zum Fortfahren',
+    intro:
+      'Ein Großteil der ALeA-Dienste hängt von der Qualität der Daten im ALeA-Lernendenmodell ' +
+      'ab. Das Lernendenmodell repräsentiert das Wissen bzw. die Kompetenz der Lernenden in ' +
+      'Bezug auf die Konzepte, die den Lernmaterialien zugrunde liegen. Die Daten im Modell ' +
+      'basieren auf Aktivitäten der Lernenden im ALeA-System. Damit wir Ihnen möglichst von ' +
+      'Anfang an die für Sie passenden Inhalte anbieten können, können Sie hier Ihre bisherigen ' +
+      'Noten für die verschiedenen Module eintragen.',
+    disclaimer:
+      'Die Noten, die sie unten eingeben, werden anonym gespeichert und nur für das ' +
+      'Lernendenmodell verwendet. Sie haben keinen Einfluss auf Ihre spätere Benotung in der ' +
+      'Lehrveranstaltung und sind für die Lehrenden nicht einsehbar. Die Eingabe dient ' +
+      'lediglich dazu, Ihnen ein besseres Lernerlebnis zu ermöglichen.',
+    note: 'Anmerkung',
+    note1:
+      'Möglicherweise haben Sie andere als die unten aufgeführten Lehrveranstaltungen besucht. ' +
+      'In diesem Fall geben Sie einfach nach bestem Wissen und Gewissen eine Note für die ' +
+      'Lehrveranstaltung an.',
+    note2:
+      'Geben Sie Ihre Noten vorzugsweise in der deutschen Notenskala (1,0-5,0) an. Wenn Sie ' +
+      'Ihre Noten nicht in diese Skala umrechnen können, können Sie Noten auch mit Hilfe der ' +
+      'Prozentskala angeben.',
+    note3:
+      'Sie können Ihre Eingabe später nicht mehr ändern, ohne dass auch Ihr Lernendenmodell ' +
+      'zurückgesetzt wird. Seien Sie daher vorsichtig bei der Eingabe der Noten.',
+    course: 'Kurs',
+    grade: 'Note',
+    percentage: 'Prozentsatz',
+    submit: 'Einreichen',
+    submitConfirmation: 'Noteninformationen übermitteln?',
+    submitSuccess: 'Bewertungsinformationen erfolgreich übermittelt!',
   },
 };
