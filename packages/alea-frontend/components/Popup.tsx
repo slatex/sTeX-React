@@ -70,10 +70,12 @@ const Popup = () => {
       if (response !== InterviewResponse.ASK_LATER) {
         const headers = getAuthHeaders();
         axios.post('/api/write-interview-response', { response }, { headers });
+        alert('Your response has been noted. Thank you!');
       }
     } else if (response === InterviewResponse.YES) {
       const body = { response, userName, userEmail };
       axios.post('/api/write-interview-response', body);
+      alert('Your response has been noted. Thank you!');
     }
 
     setOpen(false);
