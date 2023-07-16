@@ -198,8 +198,8 @@ export const en = {
       'judgment to assign a grade to the course.',
     note2:
       'It is preferred that you enter your scores in the German grade scale ' +
-      ' (1.0-5.0). If you are unable to convert your scores ' +
-      'to this scale, you can enter your scores in the percentage scale.',
+      '(1.0-5.0). If you are unable to convert your scores ' +
+      'to this scale, you can enter your scores as percentages.',
     note3:
       'Once submitted, these grades can be reset only after resetting ' +
       'your learner model. So please be careful while entering the grades.',

@@ -14,6 +14,7 @@ import { getCourseInfo } from '@stex-react/api';
 import { useContext, useEffect, useState } from 'react';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { CourseInfo } from '@stex-react/utils';
+import Popup from '../components/Popup';
 
 function ELink({ href, children }: { href: string; children: any }) {
   return (
@@ -216,6 +217,7 @@ const StudentHomePage: NextPage = () => {
           <Box className={styles['descriptive-box']}>{t.footerInfo}</Box>
         </Box>
       </Box>
+      <Popup />
     </MainLayout>
   );
 };

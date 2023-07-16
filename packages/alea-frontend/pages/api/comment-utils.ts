@@ -99,12 +99,16 @@ export async function executeTxnAndEndSet500OnError(
   return results;
 }
 
-export async function getUserId(req) {
+export async function getUserInfo(req) {
   if (!req.headers.authorization) return undefined;
   const headers = { Authorization: req.headers.authorization };
   const lmsServerAddress = process.env.NEXT_PUBLIC_LMS_URL;
   const resp = await axios.get(`${lmsServerAddress}/getuserinfo`, { headers });
-  return resp.data?.['user_id'];
+  return resp.data;
+}
+
+export async function getUserId(req) {
+  return (await getUserInfo(req))?.['user_id'];
 }
 
 export async function getUserIdOrSetError(req, res) {
