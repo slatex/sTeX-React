@@ -42,7 +42,10 @@ interface SectionTreeNode {
 }
 
 function markPreviousAsCovered(node: SectionTreeNode, selfCovered: boolean) {
-  if (selfCovered) node.tocNode.isCovered = true;
+  if (selfCovered) {
+    if (!node.tocNode) return; // TODO: Fix this properly
+    node.tocNode.isCovered = true;
+  }
   const parent = node.parentNode;
   if (!parent) return;
   const idx = parent.children.findIndex(
@@ -306,7 +309,7 @@ export function ContentDashboard({
     undefined
   );
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
-  
+
   useEffect(() => {
     if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
   }, [mmtUrl]);

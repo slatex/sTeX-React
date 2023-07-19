@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -6,12 +5,12 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle,
-  TextField,
+  TextField
 } from '@mui/material';
 import { UserInfo, getAuthHeaders, getUserInfo } from '@stex-react/api';
-import axios from 'axios';
 import { localStore } from '@stex-react/utils';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
 
 export enum InterviewResponse {
   YES = 'YES',
