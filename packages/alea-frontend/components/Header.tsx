@@ -24,6 +24,7 @@ import { BrowserAutocomplete } from '../components/BrowserAutocomplete';
 import { getLocaleObject } from '../lang/utils';
 import styles from '../styles/header.module.scss';
 import { SYSTEM_UPDATES } from '../system-updates';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 
 function UserButton() {
   const router = useRouter();
@@ -217,6 +218,9 @@ export function Header({
   const loggedIn = isLoggedIn();
   const router = useRouter();
   const { header: t } = getLocaleObject(router);
+  const [surveyShown, setSurveyShown] = useState(
+    !localStore?.getItem('hideSurvey') ?? true
+  );
   const isStaging = process.env.NEXT_PUBLIC_SITE_VERSION === 'staging';
   const background = isStaging ? 'crimson !important' : undefined;
 
@@ -276,6 +280,44 @@ export function Header({
           </Box>
         </Box>
       </Toolbar>
+
+      {surveyShown && (
+        <Toolbar
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            background: 'beige',
+            color: '#333',
+          }}
+          variant="dense"
+        >
+          <Box>
+            📣 We Want to Hear from You! Take Our Quick{' '}
+            <b>User Experience Survey</b> Now ➡️{' '}
+            <a
+              href="https://ddi-survey.cs.fau.de/limesurvey/index.php/917374"
+              target="_blank"
+              style={{ display: 'inline' }}
+            >
+              <b>
+                <u>Click Here</u>
+              </b>
+            </a>
+            .
+          </Box>
+          <Tooltip title="Dismiss">
+            <IconButton
+              onClick={() => {
+                setSurveyShown(false);
+                localStore?.setItem('hideSurvey', 'hide');
+              }}
+              sx={{ p: '5px' }}
+            >
+              <HighlightOffIcon fontSize="large" />
+            </IconButton>
+          </Tooltip>
+        </Toolbar>
+      )}
     </AppBar>
   );
 }

@@ -126,6 +126,9 @@ export async function getDocIdx(mmtUrl: string) {
 }
 
 export async function getCourseInfo(mmtUrl: string) {
+  // TODO: remove this when prod is ready.
+  return COURSES_INFO;
+  /*
   try {
     console.log('getting courseInfo');
     const docIdx = await getDocIdx(mmtUrl);
@@ -154,7 +157,7 @@ export async function getCourseInfo(mmtUrl: string) {
   } catch (err) {
     console.log(err);
     return COURSES_INFO;
-  }
+  }*/
 }
 
 export async function getCourseId(

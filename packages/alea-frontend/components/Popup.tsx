@@ -110,8 +110,8 @@ const Popup = () => {
           <br />
           The interview will be held between 24 and 28 July 2023 at
           Martensstraße 3, 91058 Erlangen, Germany (near Prof. Kohlhase&apos;s
-          office). The interview will take about 30 minutes. You will receive a
-          <b> 10€ Amazon gift card</b> as a token of appreciation.
+          office). The interview will take about 1 hour. You will receive a
+          a small gift as a token of our appreciation.
         </DialogContentText>
         {!userInfo && (
           <Box sx={{ p: '10px' }}>
