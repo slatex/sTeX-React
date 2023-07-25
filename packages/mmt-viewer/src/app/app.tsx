@@ -1,5 +1,6 @@
 import { MathJaxContext } from '@stex-react/mathjax';
 import {
+  ContentWithHighlight,
   FileBrowser,
   ServerLinksContext,
   StexReactRenderer,
@@ -14,6 +15,9 @@ export function App() {
   const language = W.LANGUAGE;
   const showBrowser = W.SHOW_FILE_BROWSER.toLowerCase() === 'true';
   const noFrills = W.NO_FRILLS.toLowerCase() === 'true';
+  const useEmbedded = W.USE_EMBEDDED.toLowerCase() === 'true';
+  const mmtHtml = document.getElementById('embedding')?.outerHTML;
+
   const content = showBrowser ? (
     <>
       <h2 style={{ textAlign: 'center', margin: '10px' }}>sTeX Browser</h2>
@@ -26,6 +30,12 @@ export function App() {
         }
       />
     </>
+  ) : useEmbedded && mmtHtml ? (
+    <ContentWithHighlight
+      mmtHtml={mmtHtml}
+      skipSidebar={true}
+      renderWrapperParams={{ 'section-url': 'TOP-LEVEL' }}
+    />
   ) : contentUrl?.length ? (
     <StexReactRenderer contentUrl={contentUrl} noFrills={noFrills} />
   ) : (

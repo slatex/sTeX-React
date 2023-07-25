@@ -8,12 +8,14 @@
       window.BASE_URL = 'BASE_URL_PLACEHOLDER';
       // If 'SHOW_FILE_BROWSER' is set to 'TRUE', then the filebrowser is displayed and all other values are ignored.
       window.SHOW_FILE_BROWSER = 'SHOW_FILE_BROWSER_PLACEHOLDER';
+      // If USE_EMBEDDED is true, it uses the html it renders the content in 'embedding' element of this doc. 'CONTENT_URL' is ignored.
+      window.USE_EMBEDDED = 'true';
       // Eg. /:sTeX/document?archive=MiKoMH/GenCS&filepath=dmath/mod/addition-function.en.xhtml
       // NOTE: CONTENT_URL must be empty if tours are to be displayed.
       window.CONTENT_URL = 'CONTENT_URL_PLACEHOLDER';
       // Eg. http://mathhub.info/smglom/sets/mod?subsupset
       window.TOUR_ID = 'TOUR_ID_PLACEHOLDER';
-      // Eg. en
+      // Eg. en or de
       window.LANGUAGE = 'LANGUAGE_PLACEHOLDER';
       // Eg. If 'NO_FRILLS' is set to 'TRUE', the sidepanel etc will not be shown  
       window.NO_FRILLS = 'NO_FRILLS_PLACEHOLDER';
@@ -27,6 +29,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
 </head>
+
+<div style="display: none;">
+    <div id="embedding">
+        <!--Embedded Code-->
+    </div>
+</div>
 
 <body>
   <div id="root"></div>
