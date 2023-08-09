@@ -89,7 +89,7 @@ export const en = {
     concepts: 'Concepts',
     cardsSelected: 'cards selected',
 
-    assessYourComptence: 'Assess Your Comptence',
+    assessYourComptence: 'Assess Your Competence',
     flipCard: 'Flip the card to see the definition!',
     flipBack: 'Flip back!',
     prev: 'Prev',

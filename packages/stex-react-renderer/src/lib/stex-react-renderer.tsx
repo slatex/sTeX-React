@@ -21,7 +21,7 @@ import { ExpandableContextMenu } from './ExpandableContextMenu';
 import { FileBrowser } from './FileBrowser';
 import { DocSectionContext, InfoSidebar } from './InfoSidebar';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
-import { mmtHTMLToReact, setSectionIds } from './mmtParser';
+import { mmtHTMLToReact } from './mmtParser';
 import { RenderOptions } from './RendererDisplayOptions';
 import {
   ConfigureLevelSlider,
@@ -189,7 +189,6 @@ export {
   SelfAssessmentDialog,
   SelfAssessment2,
   TourDisplay,
-  FileBrowser,
-  setSectionIds,
+  FileBrowser
 };
 export type { TourAPIEntry, TOCFileNode };

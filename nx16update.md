@@ -18,4 +18,4 @@ copy deps and npm install
 
 
 keep adding libraries in dependency order
-All packages were made buildable libraries. Used swc for ts libs and vite for react.
+Dont make them buildable libraries.

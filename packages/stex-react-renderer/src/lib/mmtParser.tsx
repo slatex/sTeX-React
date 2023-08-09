@@ -12,16 +12,7 @@ import { ExpandableContent } from './ExpandableContent';
 import MathJaxHack from './MathJaxHack';
 import { MathMLDisplay } from './MathMLDisplay';
 import { OverlayDialog } from './OverlayDialog';
-import { SidebarButton } from './SidebarButton';
 import { ServerLinksContext } from './stex-react-renderer';
-
-let SECTION_IDS: {
-  [nodeId: string]: string;
-} = {};
-
-export function setSectionIds(v: { [nodeId: string]: string }) {
-  SECTION_IDS = v;
-}
 
 const NoMaxWidthTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
@@ -81,58 +72,11 @@ function getChildrenOfBodyNode(htmlNode: JSX.Element) {
   return body?.props?.children;
 }
 
-function isSidebar(node: Element) {
-  return node?.attribs?.['class'] === 'sidebar';
-}
-
 function isVisible(node: any) {
   if (node?.type === 'text' && (node as any)?.data?.trim().length === 0)
     return false;
   const visibilityAttrib = node?.attribs?.['stex:visible'];
   return node && visibilityAttrib !== 'false';
-}
-
-function isLeafNode(node: Element) {
-  if (!node) return false;
-  if (!node.children?.length) return true;
-  return node.name === 'paragraph' || isSidebar(node);
-}
-
-function getFirstDisplayNode(node: any): any {
-  if (!node || !isVisible(node)) {
-    return null;
-  }
-  if (isLeafNode(node)) return node;
-  for (const child of node.children) {
-    const first = getFirstDisplayNode(child as any);
-    if (first) return first;
-  }
-  return null;
-}
-
-function getNextNode(domNode: Element) {
-  let nextAncestor = null;
-  let current: any = domNode;
-  while (!nextAncestor && current) {
-    nextAncestor = current.nextSibling;
-    while (nextAncestor && !isVisible(nextAncestor)) {
-      nextAncestor = nextAncestor.nextSibling;
-    }
-    current = current.parent;
-  }
-  if (!nextAncestor) return null;
-  return getFirstDisplayNode(nextAncestor);
-}
-
-function collectNeighbours(domNode: Element) {
-  const neighbours = [];
-  let next = getNextNode(domNode);
-  while (isSidebar(next)) {
-    next.attribs['isattached'] = true;
-    neighbours.push(next);
-    next = getNextNode(next);
-  }
-  return neighbours;
 }
 
 function updateBackgroundColorAndCursorPointer(style: string, bgColor: string) {
@@ -348,24 +292,6 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
     domNode.childNodes[5].data = '';
   }
 
-  if (isSidebar(domNode)) {
-    if (skipSidebar) return <></>;
-
-    if (domNode.attribs?.['isattached']) {
-      return <></>;
-    }
-    const renderedSideNodes = [domNode, ...collectNeighbours(domNode)].map(
-      (node) => domToReact(node.children, { replace })
-    );
-    return (
-      <Box height="0px">
-        <div className="sidebarbuttonwrapper">
-          <SidebarButton sidebarContents={renderedSideNodes} />
-        </div>
-      </Box>
-    );
-  }
-
   if (!isVisible(domNode)) return <></>;
 
   if (
@@ -460,22 +386,6 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
   if (hoverParent && !domNode.attribs['processed']) {
     domNode.attribs['processed'] = 'second';
     return <Highlightable domNode={domNode} highlightId={hoverParent} />;
-  }
-
-  // HACK: get url using attribs for the sidebar buttons.
-  if (domNode.attribs['onclick']) {
-    const rx = /stexMainOverlayOn\('(.*)'/g;
-    const matches = rx.exec(domNode.attribs['onclick']);
-    const path = matches?.[1];
-    return (
-      path && (
-        <OverlayDialog
-          contentUrl={path}
-          displayNode={<>{domToReact([domNode])}</>}
-          isMath={isInMath(domNode)}
-        />
-      )
-    );
   }
 
   const guidedTourPath = getGuidedTourPath(domNode.attribs?.['href']);
