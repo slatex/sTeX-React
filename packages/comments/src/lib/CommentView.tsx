@@ -7,6 +7,7 @@ import { EditView } from './EditView';
 
 import styles from './comments.module.scss';
 import { SelectedInfo } from './selected-info';
+import { discardDraft } from './comment-helpers';
 
 export function CommentView({
   comment,
@@ -60,7 +61,13 @@ export function CommentView({
                   archive: comment.archive || '',
                   filepath: comment.filepath || '',
                 }}
-                onCancel={() => setCommentReplyOpen(false)}
+                onCancel={() => {
+                  setCommentReplyOpen(false);
+                  let { archive, filepath } = comment;
+                  archive = archive || '';
+                  filepath = filepath || '';
+                  discardDraft({ archive, filepath }, comment.commentId);
+                }}
                 onUpdate={() => {
                   setCommentReplyOpen(false);
                   onUpdate && onUpdate();
