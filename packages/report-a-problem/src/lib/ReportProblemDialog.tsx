@@ -91,7 +91,11 @@ export function ReportProblemDialog({
             aria-labelledby="category-group-label"
             name="category-group"
             value={categoryInput}
-            onChange={(e) => setCategoryInput(e.target.value)}
+            onChange={(e) => {
+              const v = e.target.value;
+              setCategoryInput(v);
+              if(v === TYPO_CATEGORY_INPUT) setTypeInput(IssueType.ERROR.toString());
+            }}
           >
             <FormControlLabel
               value={IssueCategory.CONTENT.toString()}
@@ -133,11 +137,13 @@ export function ReportProblemDialog({
               value={IssueType.ERROR.toString()}
               control={<Radio />}
               label={t.errorType}
+              disabled={categoryInput === TYPO_CATEGORY_INPUT }
             />
             <FormControlLabel
               value={IssueType.SUGGESTION.toString()}
               control={<Radio />}
               label={t.suggestionType}
+              disabled={categoryInput === TYPO_CATEGORY_INPUT }
             />
           </RadioGroup>
         </FormControl>
