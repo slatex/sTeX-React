@@ -2,7 +2,11 @@ import PlayCircleFilledWhiteIcon from '@mui/icons-material/PlayCircleFilledWhite
 import { Box, IconButton } from '@mui/material';
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
-import { IS_MMT_VIEWER, localStore } from '@stex-react/utils';
+import {
+  IS_MMT_VIEWER,
+  contextParamsFromTopLevelDocUrl,
+  localStore,
+} from '@stex-react/utils';
 import parse, { DOMNode, Element, domToReact } from 'html-react-parser';
 import { ElementType } from 'htmlparser2';
 import { createContext, forwardRef, useContext, useState } from 'react';
@@ -366,7 +370,7 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
                     topLevelDocUrl={topLevelDocUrl}
                     url={
                       hoverLink +
-                      `&contextUrl=${encodeURIComponent(topLevelDocUrl)}`
+                      contextParamsFromTopLevelDocUrl(topLevelDocUrl)
                     }
                     modifyRendered={getChildrenOfBodyNode}
                   />

@@ -22,7 +22,7 @@ export interface FileInfo extends FileLocation {
 }
 
 export function convertHtmlNodeToPlain(htmlNode?: any) {
-  if(!htmlNode) return '';
+  if (!htmlNode) return '';
   return convertHtmlStringToPlain(getOuterHTML(htmlNode));
 }
 
@@ -37,7 +37,7 @@ export function convertHtmlStringToPlain(htmlStr: string) {
 }
 
 export function getSectionInfo(url: string): FileInfo {
-  if(!url) url= '';
+  if (!url) url = '';
   const match = /archive=([^&]+)&filepath=([^&]+)/g.exec(url);
   const archive = match?.[1] || '';
   const filepath = match?.[2] || '';
@@ -49,6 +49,14 @@ export function getSectionInfo(url: string): FileInfo {
     filepath,
     source,
   };
+}
+
+export function contextParamsFromTopLevelDocUrl(url: string) {
+  const sectionInfo = getSectionInfo(url);
+  if (!sectionInfo) return '';
+  const { archive, filepath } = sectionInfo;
+
+  return `&contextArchive=${archive}&contextFilepath=${filepath}`;
 }
 
 // Dont use this for crypto or anything serious.
@@ -97,7 +105,7 @@ export function sourceFileUrl(projectId: string, texFilepath: string) {
   return `https://gl.mathhub.info/${projectId}/-/blob/main/source/${texFilepath}`;
 }
 
-export function fixDuplicateLabels<T extends {label: string}>(RAW: T[]) {
+export function fixDuplicateLabels<T extends { label: string }>(RAW: T[]) {
   const fixed = [...RAW]; // create a copy;
   const labelToIndex = new Map<string, number[]>();
   for (const [idx, item] of fixed.entries()) {

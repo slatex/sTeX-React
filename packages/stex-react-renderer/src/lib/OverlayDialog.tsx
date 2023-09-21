@@ -1,6 +1,6 @@
 import { OpenInNew } from '@mui/icons-material';
 import { Box, Button, Dialog, DialogActions, IconButton } from '@mui/material';
-import { getChildrenOfBodyNode } from '@stex-react/utils';
+import { contextParamsFromTopLevelDocUrl, getChildrenOfBodyNode } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { ReactNode, useContext, useState } from 'react';
 import { ContentFromUrl, TopLevelContext } from './ContentFromUrl';
@@ -23,9 +23,10 @@ export function OverlayDialog({
   const [open, setOpen] = useState(false);
   const { mmtUrl } = useContext(ServerLinksContext);
   const { topLevelDocUrl } = useContext(TopLevelContext);
-  const encodedTopLevelDocUrl = encodeURIComponent(topLevelDocUrl);
+  const contextParams = contextParamsFromTopLevelDocUrl(topLevelDocUrl);
 
   const toDisplayNode = displayNode(topLevelDocUrl);
+
   return (
     <ErrorBoundary hidden={false}>
       {isMath ? (
@@ -43,7 +44,7 @@ export function OverlayDialog({
         <Box display="flex" flexDirection="column" m="5px" maxWidth="800px">
           <a
             style={{ marginLeft: 'auto' }}
-            href={`${mmtUrl}/${contentUrl}&contextUrl=${encodedTopLevelDocUrl}`.replace(
+            href={`${mmtUrl}/${contentUrl}${contextParams}`.replace(
               ':sTeX/declaration',
               ':sTeX/symbol'
             )}
@@ -56,7 +57,7 @@ export function OverlayDialog({
           </a>
           <ContentFromUrl
             topLevelDocUrl={topLevelDocUrl}
-            url={`${contentUrl}&contextUrl=${encodedTopLevelDocUrl}`}
+            url={`${contentUrl}${contextParams}`}
             modifyRendered={getChildrenOfBodyNode}
           />
 
