@@ -5,8 +5,8 @@ import type { NextPage } from 'next';
 import { useEffect, useState } from 'react';
 import Chart from 'react-google-charts';
 import MainLayout from '../../layouts/MainLayout';
-import { QuizResult } from '../../shared/quiz';
 import { MdViewer } from '@stex-react/markdown';
+import { QuizResult } from '@stex-react/api';
 
 function getChartCell(id: string) {
   return (
@@ -94,7 +94,7 @@ function QuestionSummary({ quizResults }: { quizResults: QuizResult[] }) {
       (r) => !quizName.length || quizName === 'All' || r.quizName === quizName
     )
     .map((r) =>
-      r.questionInfo.map((q) => ({
+      r.problemInfo.map((q) => ({
         qName: urlToName(q.url),
         quizTakerName: r.quizTakerName,
         duration_ms: q.duration_ms,

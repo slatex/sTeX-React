@@ -193,3 +193,8 @@ export function stableShuffle(array: any[]) {
 
   return array;
 }
+
+export function roundToMinutes(timestamp_ms: number) {
+  const msInAMinute = 60000;
+  return Math.round(timestamp_ms / msInAMinute) * msInAMinute;
+}

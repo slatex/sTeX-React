@@ -5,7 +5,13 @@ import { QuizDisplay } from '../../components/QuizDisplay';
 import MainLayout from '../../layouts/MainLayout';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Phase, Problem, getAuthHeaders, getProblem } from '@stex-react/api';
+import {
+  Phase,
+  Problem,
+  getAuthHeaders,
+  getProblem,
+  insertAnswer,
+} from '@stex-react/api';
 import dayjs from 'dayjs';
 import { clearInterval } from 'timers';
 
@@ -22,7 +28,8 @@ function ToBeStarted({ quizStartTs }: { quizStartTs?: number }) {
     <Box p="10px">
       {quizStartTs ? (
         <>
-          The quiz will begin at {dayjs(quizStartTs).format('HH:mm on YYYY-mm-DD')}
+          The quiz will begin at{' '}
+          {dayjs(quizStartTs).format('HH:mm on YYYY-mm-DD')}
           <br />
           {showReload && (
             <Button variant="contained" onClick={() => location.reload()}>
@@ -97,25 +104,14 @@ const QuizPage: NextPage = () => {
             problems={problems}
             quizEndTs={
               [Phase.ENDED, Phase.FEEDBACK_RELEASED].includes(phase)
-                ? (Date.now()-1000)
+                ? Date.now() - 1000
                 : quizInfo.quizEndTs
             }
             existingResponses={quizInfo.responses}
             onSubmit={undefined}
             onResponse={(problemId, response) => {
               if (!quizId?.length) return;
-              axios.post(
-                '/api/insert-quiz-response',
-                {
-                  quizId,
-                  filledInAnswer: response.filledInAnswer,
-                  singleOptionIdx: response.singleOptionIdx,
-                  multipleOptionIdxs: response.multipleOptionIdxs,
-                  browserTimestamp_ms: Date.now(),
-                  problemId: problemId,
-                },
-                { headers: getAuthHeaders() }
-              );
+              insertAnswer(quizId, problemId, response);
             }}
           />
         )}

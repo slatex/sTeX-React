@@ -168,7 +168,12 @@ export function QuizDisplay({
   existingResponses: { [problemId: string]: UserResponse };
   isFrozen: boolean;
   onResponse?: (problemId: string, r: UserResponse) => void;
-  onSubmit?: (name: string, e, r, q) => void;
+  onSubmit?: (
+    name: string,
+    events: TimerEvent[],
+    responses: { [problemId: string]: UserResponse },
+    result: { [problemId: string]: Tristate }
+  ) => void;
 }) {
   const [result, setResult] = useState<{ [problemId: string]: Tristate }>({});
   const [responses, setResponses] = useState<{

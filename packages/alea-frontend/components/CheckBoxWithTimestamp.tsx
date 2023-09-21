@@ -1,13 +1,9 @@
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import TextField from '@mui/material/TextField';
+import { roundToMinutes } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import React from 'react';
-
-export function roundToMinutes(timestamp: number) {
-  const msInAMinute = 60000;
-  return Math.round(timestamp / msInAMinute) * msInAMinute;
-}
 
 export function CheckboxWithTimestamp({
   timestamp,

@@ -8,13 +8,14 @@ import {
 } from '@mui/material';
 import { Phase, Quiz, getAuthHeaders } from '@stex-react/api';
 import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
+import { roundToMinutes } from '@stex-react/utils';
 import axios from 'axios';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import { CheckboxWithTimestamp } from '../../components/CheckBoxWithTimestamp';
+import { QuizFileReader } from '../../components/QuizFileReader';
 import MainLayout from '../../layouts/MainLayout';
-import { CheckboxWithTimestamp, roundToMinutes } from './CheckBoxWithTimestamp';
-import { QuizFileReader } from './QuizFileReader';
 
 function getFormErrorReason(
   quizStartTs: number,
