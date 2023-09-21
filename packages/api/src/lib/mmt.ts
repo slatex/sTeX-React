@@ -62,7 +62,7 @@ function populateArchiveAndFilepath(nodes?: FileNode[]) {
 
 let CACHED_DOCUMENT_TREE: FileNode[] | undefined = undefined;
 export async function getDocumentTree(mmtUrl: string) {
-  if (!mmtUrl) return [];
+  if (mmtUrl === null || mmtUrl === undefined) return [];
   if (!CACHED_DOCUMENT_TREE) {
     const resp = await axios.get(`${mmtUrl}/:sTeX/browser?menu`);
     CACHED_DOCUMENT_TREE = resp.data as FileNode[];

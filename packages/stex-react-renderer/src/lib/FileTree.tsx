@@ -6,15 +6,14 @@ import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { Box, IconButton, LinearProgress, TextField } from '@mui/material';
+import { FileNode, getDocumentTree } from '@stex-react/api';
 import { FileLocation } from '@stex-react/utils';
-import axios from 'axios';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
-import { getLocaleObject } from './lang/utils';
 import { FixedPositionMenu } from './LayoutWithFixedMenu';
+import { getLocaleObject } from './lang/utils';
 import { ServerLinksContext } from './stex-react-renderer';
 import styles from './stex-react-renderer.module.scss';
-import { FileNode, getDocumentTree } from '@stex-react/api';
 
 export type SetSelectedFileFunction = (f: FileLocation) => void;
 
