@@ -698,3 +698,47 @@ mtext .rustex-contents { display:inline }
 :root {
   --shtml-has-chapter:"";
 }
+
+
+.shtml-declaration-tabs {
+    width: 600px;
+    height:200px;
+    position:relative;
+    display:block;
+}
+.shtml-declaration-tab {
+    float: left;
+    display: block;
+}
+.shtml-declaration-tab input[type="radio"] {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+}
+.shtml-declaration-tab label {
+    display: block;
+    padding: 6px 21px;
+    font-size: 12px;
+    position: relative;
+    color: #FFF;
+    background: #4A83FD;
+}
+.shtml-declaration-tab-content {
+    z-index: 0;/* or display: none; */
+    opacity:0;
+    transition: opacity 400ms ease-out;
+    position: absolute;
+    top: 27px;
+    left: 0;
+    width: 550px;
+}
+.shtml-declaration-tab input:checked + label {
+    top: 0;
+    background: #303030;
+    color: #F5F5F5;
+}
+.shtml-declaration-tab input:checked ~ .shtml-declaration-tab-content {
+    z-index: 1;
+    opacity: 1;
+    transition: opacity 400ms ease-out;
+}
