@@ -154,9 +154,9 @@ export function StexReactRenderer({
               <Box display="flex" justifyContent="space-around">
                 <Box width={`${contentWidth}px`}>
                   <ContentFromUrl
+                    topLevelDocUrl={contentUrl}
                     url={contentUrl}
                     modifyRendered={getChildrenOfBodyNode}
-                    topLevel={true}
                   />
                 </Box>
                 {!IS_MMT_VIEWER && (
@@ -189,6 +189,6 @@ export {
   SelfAssessmentDialog,
   SelfAssessment2,
   TourDisplay,
-  FileBrowser
+  FileBrowser,
 };
 export type { TourAPIEntry, TOCFileNode };

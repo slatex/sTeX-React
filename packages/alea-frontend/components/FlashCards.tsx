@@ -208,6 +208,7 @@ function FlashCardBack({
         }}
       >
         <ContentFromUrl
+          topLevelDocUrl={`/:sTeX/fragment?${uri}`}
           url={`/:sTeX/fragment?${uri}`}
           modifyRendered={getChildrenOfBodyNode}
         />
@@ -579,7 +580,7 @@ export function FlashCardNavigation({
                 !onSelect && cardIdx < cardNo ? 'gray !important' : undefined,
             },
           }}
-          onClick={() => (onSelect ? onSelect(cardIdx): undefined)}
+          onClick={() => (onSelect ? onSelect(cardIdx) : undefined)}
         >
           <span
             style={{

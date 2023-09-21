@@ -322,7 +322,6 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
   const hoverParent = domNode.attribs['data-highlight-parent'];
   if ((hoverLink || clickLink) && !domNode.attribs['processed']) {
     domNode.attribs['processed'] = 'first';
-    const dialogPath = clickLink;
     const isMath = isInMath(domNode);
     // eslint-disable-next-line react/display-name
     const WithHighlightable = forwardRef((props, ref) => {
@@ -346,11 +345,12 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
         </div>
       );
     });
+
     return (
       <OverlayDialog
-        contentUrl={dialogPath}
+        contentUrl={clickLink}
         isMath={isMath}
-        displayNode={
+        displayNode={(topLevelDocUrl: string) => (
           <NoMaxWidthTooltip
             title={
               hoverLink ? (
@@ -363,7 +363,11 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
                   boxShadow="2px 7px 31px 8px rgba(0,0,0,0.33)"
                 >
                   <ContentFromUrl
-                    url={hoverLink}
+                    topLevelDocUrl={topLevelDocUrl}
+                    url={
+                      hoverLink +
+                      `&contextUrl=${encodeURIComponent(topLevelDocUrl)}`
+                    }
                     modifyRendered={getChildrenOfBodyNode}
                   />
                 </Box>
@@ -378,7 +382,7 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
               (domToReact([domNode], { replace }) as any)
             )}
           </NoMaxWidthTooltip>
-        }
+        )}
       />
     );
   }

@@ -1,21 +1,25 @@
 import { Box, LinearProgress } from '@mui/material';
 import axios from 'axios';
-import { memo, useContext, useEffect, useState } from 'react';
+import { createContext, memo, useContext, useEffect, useState } from 'react';
 import { ContentWithHighlight } from './ContentWithHightlight';
 import { ServerLinksContext } from './stex-react-renderer';
+
+export const TopLevelContext = createContext<{ topLevelDocUrl: string }>({
+  topLevelDocUrl: '',
+});
 
 export const ContentFromUrl = memo(
   ({
     url,
     modifyRendered = undefined,
     skipSidebar = false,
-    topLevel = false,
+    topLevelDocUrl = undefined,
     minLoadingHeight = undefined,
   }: {
     url: string;
     modifyRendered?: (node: any) => any;
     skipSidebar?: boolean;
-    topLevel?: boolean;
+    topLevelDocUrl?: string;
     minLoadingHeight?: string;
   }) => {
     const [mmtHtml, setMmtHtml] = useState<string | undefined>(undefined);
@@ -44,14 +48,20 @@ export const ContentFromUrl = memo(
         </Box>
       );
     }
-    return (
+    const mainElement = (
       <ContentWithHighlight
         mmtHtml={mmtHtml}
         modifyRendered={modifyRendered}
         skipSidebar={skipSidebar}
-        topLevel={topLevel}
         renderWrapperParams={{ 'section-url': url }}
       />
+    );
+    if (!topLevelDocUrl) return mainElement;
+
+    return (
+      <TopLevelContext.Provider value={{ topLevelDocUrl }}>
+        {mainElement}
+      </TopLevelContext.Provider>
     );
   }
 );

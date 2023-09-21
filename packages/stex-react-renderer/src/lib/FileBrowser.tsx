@@ -75,6 +75,7 @@ export function FileBrowser({
               </a>
               <hr style={{ width: '90%' }} />
               <ContentFromUrl
+                topLevelDocUrl={XhtmlTopDocumentContentUrl({ archive, filepath })}
                 url={XhtmlTopDocumentContentUrl({ archive, filepath })}
                 skipSidebar={true}
                 modifyRendered={getChildrenOfBodyNode}
