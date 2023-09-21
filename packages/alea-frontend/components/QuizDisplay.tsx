@@ -2,7 +2,6 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CloseIcon from '@mui/icons-material/Close';
-import DoneIcon from '@mui/icons-material/Done';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import {
@@ -13,70 +12,52 @@ import {
   IconButton,
 } from '@mui/material';
 import {
-  FixedPositionMenu,
-  LayoutWithFixedMenu,
-  ServerLinksContext,
-} from '@stex-react/stex-react-renderer';
-import { shouldUseDrawer } from '@stex-react/utils';
-import axios from 'axios';
-import { useContext, useEffect, useReducer, useState } from 'react';
-import { QuestionDisplay } from './QuestionDisplay';
-import { QuizTimer, Timer, timerEvent } from './QuizTimer';
-import {
-  Question,
-  getMaaiMayQuestionURLs,
-  getQuestion,
-  getQuizResult,
-} from './question-utils';
-import {
-  QuestionStatus,
+  Problem,
   TimerEvent,
   TimerEventType,
+  Tristate,
   UserResponse,
-} from '../shared/quiz';
+  getCorrectness,
+} from '@stex-react/api';
+import {
+  FixedPositionMenu,
+  LayoutWithFixedMenu,
+} from '@stex-react/stex-react-renderer';
+import { shouldUseDrawer } from '@stex-react/utils';
+import { useEffect, useReducer, useState } from 'react';
+import { ProblemDisplay } from './QuestionDisplay';
 import { QuizSubmitConfirm } from './QuizSubmitConfirm';
-import { FileNode, getDocumentTree } from '@stex-react/api';
+import { QuizTimer, Timer, timerEvent } from './QuizTimer';
 
-function getAllQuestionUrls(
-  nodes: FileNode[],
-  pathSegments: string[],
-  mmtUrl: string
-): string[] {
-  if(!nodes) return [];
-  if (pathSegments.length === 0) {
-    return nodes
-      .map((node) => {
-        const { archive, filepath } = node;
-        if (!archive || !filepath) return null;
-        return `${mmtUrl}/:sTeX/document?archive=${archive}&filepath=${filepath}`;
-      })
-      .filter((x) => x);
-  }
-  const top = pathSegments[0];
-  for (const node of nodes) {
-    if (node.label === top)
-      return getAllQuestionUrls(node.children, pathSegments.slice(1), mmtUrl);
-  }
-  return [];
+function isAnswered(r: UserResponse) {
+  return (
+    !!r?.filledInAnswer?.length ||
+    r?.singleOptionIdx >= 0 ||
+    Object.values(r?.multipleOptionIdxs ?? {}).some((v) => v === true)
+  );
 }
-
 function IndexEntry({
-  s,
+  response,
+  result,
   idx,
   selectedIdx,
-  isSubmitted,
+  isFrozen,
   events,
   showClock,
   onSelect,
 }: {
-  s: QuestionStatus;
+  response: UserResponse;
+  result: Tristate;
   idx: number;
   selectedIdx: number;
-  isSubmitted: boolean;
+  isFrozen: boolean;
   events: TimerEvent[];
   showClock: boolean;
   onSelect: (idx: number) => void;
 }) {
+  const isCorrectnessKnown = isFrozen && result !== Tristate.UNKNOWN;
+  const isCorrect = result === Tristate.TRUE;
+  const answered = isAnswered(response);
   return (
     <span
       key={idx}
@@ -87,36 +68,44 @@ function IndexEntry({
         fontWeight: idx === selectedIdx ? 'bold' : undefined,
         fontSize: '20px',
         cursor: 'pointer',
-        color: isSubmitted ? (s.isCorrect ? 'green' : 'red') : '#333',
+        color: isCorrectnessKnown ? (isCorrect ? 'green' : 'red') : '#333',
         margin: '8px',
       }}
       onClick={() => onSelect(idx)}
     >
-      <Box display="flex">
-        {s.isAnswered ? <DoneIcon /> : <CheckBoxOutlineBlankIcon />}
-        &nbsp;Question {idx + 1}&nbsp;
-        {isSubmitted && (s.isCorrect ? <CheckCircleIcon /> : <CancelIcon />)}
+      <Box display="flex" alignItems="center">
+        {answered ? (
+          <span style={{ width: '24px' }}></span>
+        ) : (
+          <CheckBoxOutlineBlankIcon />
+        )}
+        <span>&nbsp;Problem {idx + 1}&nbsp;</span>
+        {isCorrectnessKnown &&
+          (isCorrect ? <CheckCircleIcon /> : <CancelIcon />)}
       </Box>
       {showClock && (
         <Box fontSize="12px">
-          <Timer events={events} questionIndex={idx} />
+          <Timer events={events} problemIndex={idx} />
         </Box>
       )}
     </span>
   );
 }
-function QuestionNavigation({
-  questionStatuses,
-  questionIdx,
-  isSubmitted,
+
+function ProblemNavigation({
+  responses,
+  result,
+  problemIdx,
+  isFrozen,
   showClock,
   events,
   onClose,
   onSelect,
 }: {
-  questionStatuses: QuestionStatus[];
-  questionIdx: number;
-  isSubmitted: boolean;
+  responses: { [problemId: string]: UserResponse };
+  result: { [problemId: string]: Tristate };
+  problemIdx: number;
+  isFrozen: boolean;
   showClock: boolean;
   events: TimerEvent[];
   onClose: () => void;
@@ -132,15 +121,16 @@ function QuestionNavigation({
         </Box>
       }
     >
-      {questionStatuses.map((s, idx) => (
+      {Object.keys(responses).map((problemId, idx) => (
         <IndexEntry
-          key={idx}
-          s={s}
+          key={problemId}
+          response={responses[problemId]}
+          result={result[problemId]}
           idx={idx}
           events={events}
           showClock={showClock}
-          selectedIdx={questionIdx}
-          isSubmitted={isSubmitted}
+          selectedIdx={problemIdx}
+          isFrozen={isFrozen}
           onSelect={onSelect}
         />
       ))}
@@ -148,113 +138,109 @@ function QuestionNavigation({
   );
 }
 
-export function QuizDisplay({ quizId }: { quizId: string }) {
-  const [questionUrls, setQuestionUrls] = useState([] as string[]);
-  const [questionStatuses, setQuestionStatuses] = useState(
-    [] as QuestionStatus[]
-  );
-  const [questions, setQuestions] = useState<Question[] | undefined>(undefined);
-  const [responses, setResponses] = useState([] as UserResponse[]);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const { mmtUrl } = useContext(ServerLinksContext);
-  const [questionIdx, setQuestionIdx] = useState(0);
+function computeResult(
+  problems: { [problemId: string]: Problem },
+  responses: { [problemId: string]: UserResponse }
+) {
+  const result: { [problemId: string]: Tristate } = {};
+  for (const problemId of Object.keys(problems ?? {})) {
+    const r = responses[problemId];
+    const q = problems[problemId];
+    result[problemId] = getCorrectness(q, r);
+  }
+  return result;
+}
+
+export function QuizDisplay({
+  quizId,
+  problems,
+  onResponse,
+  onSubmit,
+  quizEndTs,
+  showPerProblemTime = false,
+  existingResponses,
+  isFrozen,
+}: {
+  quizId: string;
+  quizEndTs?: number;
+  showPerProblemTime: boolean;
+  problems: { [problemId: string]: Problem };
+  existingResponses: { [problemId: string]: UserResponse };
+  isFrozen: boolean;
+  onResponse?: (problemId: string, r: UserResponse) => void;
+  onSubmit?: (name: string, e, r, q) => void;
+}) {
+  const [result, setResult] = useState<{ [problemId: string]: Tristate }>({});
+  const [responses, setResponses] = useState<{
+    [problemId: string]: UserResponse;
+  }>({});
+  const [problemIdx, setProblemIdx] = useState(0);
   const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
   const [events, setEvents] = useState<TimerEvent[]>([]);
   const [showClock, setShowClock] = useState(true);
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
 
   const [, forceRerender] = useReducer((x) => x + 1, 0);
-  const [rootNodes, setRootNodes] = useState<FileNode[]>([]);
+  const problemIds = Object.keys(problems ?? {});
+  const currentProblemId = problemIds[problemIdx];
 
-  function setQuestionIdx2(i: number) {
-    setQuestionIdx(i);
-    if (!isSubmitted)
+  useEffect(() => {
+    const numQ = Object.keys(problems ?? {}).length || 0;
+    if (numQ === 0) return;
+    console.log(problems);
+    console.log(existingResponses);
+    setEvents([timerEvent(TimerEventType.SWITCH, 0)]);
+
+    const rs: { [problemId: string]: UserResponse } = {};
+    for (const problemId of Object.keys(problems ?? {})) {
+      const e = existingResponses[problemId];
+      rs[problemId] = {
+        filledInAnswer: e?.filledInAnswer ?? '',
+        singleOptionIdx: e?.singleOptionIdx ?? -1,
+        multipleOptionIdxs: e?.multipleOptionIdxs ?? {},
+      };
+    }
+    setResponses(rs);
+  }, [problems, existingResponses]);
+
+  useEffect(() => {
+    if (!isFrozen) return;
+    setResult(computeResult(problems, responses));
+  }, [isFrozen, problems, responses]);
+
+  function setProblemIdx2(i: number) {
+    setProblemIdx(i);
+    if (!isFrozen)
       setEvents((prev) => [...prev, timerEvent(TimerEventType.SWITCH, i)]);
   }
 
   function onPause() {
-    if (!isSubmitted)
+    if (!isFrozen)
       setEvents((prev) => [...prev, timerEvent(TimerEventType.PAUSE)]);
   }
 
   function onUnpause() {
-    if (!isSubmitted)
+    if (!isFrozen)
       setEvents((prev) => [...prev, timerEvent(TimerEventType.UNPAUSE)]);
   }
 
-  useEffect(() => {
-    getDocumentTree(mmtUrl).then(setRootNodes);
-  }, [mmtUrl]);
-
-  useEffect(() => {
-    if (!quizId?.length || !rootNodes) return;
-    const urls = quizId.startsWith('MAAI (may)')
-      ? getMaaiMayQuestionURLs(mmtUrl, quizId === 'MAAI (may)')
-      : getAllQuestionUrls(rootNodes, quizId.split('/'), mmtUrl);
-    setQuestionUrls(urls);
-
-    Promise.all(urls.map((url) => axios.get(url))).then((responses) => {
-      setQuestions(
-        responses.map((r, idx) => {
-          const htmlStr = (r.data as string) // Hack: manually remove incorrect #numbers
-            .replace('Problem 0.1', '')
-            .replace('Aufgabe 0.1', '');
-          const htmlDoc = new DOMParser().parseFromString(htmlStr, 'text/html');
-          return getQuestion(htmlDoc, urls[idx]);
-        })
-      );
-      setEvents([timerEvent(TimerEventType.SWITCH, 0)]);
-    });
-
-    setQuestionStatuses(
-      new Array(urls.length)
-        .fill(undefined)
-        .map(() => ({ isAnswered: false, isCorrect: false } as QuestionStatus))
-    );
-
-    setResponses(
-      new Array(urls.length).fill(undefined).map(
-        () =>
-          ({
-            filledInAnswer: '',
-            singleOptionIdx: -1,
-            multiOptionIdx: {},
-          } as UserResponse)
-      )
-    );
-    setIsSubmitted(false);
-  }, [quizId, mmtUrl, rootNodes]);
-
-  function onResponseUpdate(
-    questionIdx: number,
-    response: UserResponse,
-    isAnswered: boolean,
-    isCorrect: boolean
-  ) {
-    setResponses((prev) => {
-      prev[questionIdx] = response;
-      return prev;
-    });
-    setQuestionStatuses((prev) => {
-      prev[questionIdx] = { isAnswered, isCorrect };
-      return prev;
-    });
-  }
-
-  if (!questions?.length) return <CircularProgress />;
-  const response = responses[questionIdx];
-  const question = questions[questionIdx];
+  if (problemIds.length === 0) return <CircularProgress />;
+  if (Object.keys(responses).length !== problemIds.length)
+    return <CircularProgress size="2em" />;
+  const response = responses[currentProblemId];
+  const problem = problems[currentProblemId];
   return (
     <LayoutWithFixedMenu
       menu={
-        <QuestionNavigation
-          questionStatuses={questionStatuses}
-          questionIdx={questionIdx}
-          isSubmitted={isSubmitted}
-          showClock={showClock}
+        <ProblemNavigation
+          result={result}
+          responses={responses}
+          problemIdx={problemIdx}
+          isFrozen={isFrozen}
+          showClock={showClock && showPerProblemTime}
           events={events}
           onClose={() => setShowDashboard(false)}
-          onSelect={(i) => setQuestionIdx2(i)}
+          onSelect={(i) => setProblemIdx2(i)}
         />
       }
       topOffset={64}
@@ -264,9 +250,10 @@ export function QuizDisplay({ quizId }: { quizId: string }) {
       <Box px="10px" maxWidth="800px" m="auto">
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <h2>
-            Question {questionIdx + 1} of {questions.length}
+            Problem {problemIdx + 1} of {problemIds.length}
           </h2>
           <QuizTimer
+            quizEndTs={quizEndTs}
             events={events}
             showClock={showClock}
             showHideClock={(v) => setShowClock(v)}
@@ -276,22 +263,27 @@ export function QuizDisplay({ quizId }: { quizId: string }) {
         </Box>
 
         <Box my="10px">
-          <QuestionDisplay
+          <ProblemDisplay
             response={response}
-            //questionUrl={questionUrl}
-            question={question}
-            isSubmitted={isSubmitted}
-            onResponseUpdate={(response, isAnswered, isCorrect) => {
+            //problemUrl={problemUrl}
+            problem={problem}
+            isFrozen={isFrozen}
+            onResponseUpdate={(response) => {
               forceRerender();
-              onResponseUpdate(questionIdx, response, isAnswered, isCorrect);
+              const problemId = problemIds[problemIdx];
+              setResponses((prev) => {
+                prev[problemId] = response;
+                return prev;
+              });
+              if (onResponse) onResponse(problemId, response);
             }}
           />
         </Box>
 
         <Box>
           <Button
-            onClick={() => setQuestionIdx2(questionIdx - 1)}
-            disabled={questionIdx <= 0}
+            onClick={() => setProblemIdx2(problemIdx - 1)}
+            disabled={problemIdx <= 0}
             size="small"
             variant="contained"
             sx={{ mr: '10px' }}
@@ -301,8 +293,8 @@ export function QuizDisplay({ quizId }: { quizId: string }) {
           </Button>
 
           <Button
-            onClick={() => setQuestionIdx2(questionIdx + 1)}
-            disabled={questionIdx >= questionUrls.length - 1}
+            onClick={() => setProblemIdx2(problemIdx + 1)}
+            disabled={problemIdx >= problemIds.length - 1}
             size="small"
             variant="contained"
           >
@@ -311,52 +303,49 @@ export function QuizDisplay({ quizId }: { quizId: string }) {
           </Button>
         </Box>
 
-        {isSubmitted ? (
+        {!isFrozen ? (
+          !!onSubmit && (
+            <Button
+              onClick={() => setShowSubmitDialog(true)}
+              sx={{ my: '20px' }}
+              variant="contained"
+            >
+              Submit
+            </Button>
+          )
+        ) : !Object.values(result).some((s) => s === Tristate.UNKNOWN) ? (
           <i style={{ margin: '20px 0', color: '#333', fontSize: '26px' }}>
             You answered{' '}
-            {questionStatuses.reduce(
-              (prev, s) => prev + (s.isCorrect ? 1 : 0),
+            {Object.values(result).reduce(
+              (prev, s) => prev + (s === Tristate.TRUE ? 1 : 0),
               0
             )}{' '}
-            out of {questionUrls.length} questions correctly
+            out of {problemIds.length} problems correctly
           </i>
         ) : (
-          <Button
-            onClick={() => setShowSubmitDialog(true)}
-            sx={{ my: '20px' }}
-            variant="contained"
-          >
-            Submit
-          </Button>
+          <i style={{ margin: '20px 0', color: '#333', fontSize: '26px' }}>
+            Quiz Submitted. Feedback awaited
+          </i>
         )}
+      </Box>
+
+      {!!onSubmit && (
         <Dialog
           open={showSubmitDialog}
           onClose={() => setShowSubmitDialog(false)}
         >
           <QuizSubmitConfirm
-            left={questionStatuses.filter((s) => !s.isAnswered).length}
+            left={Object.values(responses).filter((r) => !isAnswered(r)).length}
             onClose={(submit, name) => {
               setShowSubmitDialog(false);
               if (!submit) return;
-              if (name?.length) {
-                axios.post(
-                  '/api/write-quiz-result',
-                  getQuizResult(
-                    name,
-                    quizId,
-                    events,
-                    questionUrls,
-                    responses,
-                    questionStatuses
-                  )
-                );
-              }
-              setIsSubmitted(true);
+
+              onSubmit(name, events, responses, result);
               setEvents((prev) => [...prev, timerEvent(TimerEventType.SUBMIT)]);
             }}
           />
         </Dialog>
-      </Box>
+      )}
     </LayoutWithFixedMenu>
   );
 }

@@ -1,0 +1,61 @@
+import { NextApiRequest, NextApiResponse } from 'next';
+import { checkIfPostOrSetError, getUserIdOrSetError } from './comment-utils';
+import { Quiz, isModerator } from '@stex-react/api';
+import fs from 'fs';
+import { doesQuizExist, getQuiz, getQuizFilePath } from './quiz-utils';
+
+// function to rewrite the quiz file with the new quiz info and backup the old version.
+export function updateQuiz(
+  quizId,
+  updatedQuizFunc: (existingQuiz: Quiz) => Quiz
+) {
+  const quizPath = getQuizFilePath(quizId);
+
+  // Save old version
+  const existingQuiz = getQuiz(quizId);
+  fs.writeFileSync(
+    `_bkp-v${existingQuiz.version}-${quizPath}`,
+    JSON.stringify(existingQuiz, null, 2)
+  );
+  const updatedQuiz = updatedQuizFunc(existingQuiz);
+  fs.writeFileSync(quizPath, JSON.stringify(updatedQuiz, null, 2));
+}
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  if (!checkIfPostOrSetError(req, res)) return;
+  const userId = await getUserIdOrSetError(req, res);
+  if (!isModerator(userId)) {
+    res.status(403).send({ message: 'Unauthorized.' });
+    return;
+  }
+  const quiz = req.body as Quiz;
+  if (doesQuizExist(quiz?.id)) {
+    res.status(400).json({ message: `Quiz not found: [${quiz?.id}]` });
+    return;
+  }
+
+  updateQuiz(
+    quiz.id,
+    (existingQuiz) =>
+      ({
+        id: existingQuiz.id,
+        version: existingQuiz.version + 1,
+
+        quizStartTs: quiz.quizStartTs,
+        quizEndTs: quiz.quizEndTs,
+        feedbackReleaseTs: quiz.feedbackReleaseTs,
+        manuallySetPhase: quiz.manuallySetPhase,
+
+        title: quiz.title,
+        problems: quiz.problems,
+
+        updatedAt: Date.now(),
+        updatedBy: userId,
+      } as Quiz)
+  );
+
+  res.status(200).json({ message: 'Quiz updated successfully!' });
+}

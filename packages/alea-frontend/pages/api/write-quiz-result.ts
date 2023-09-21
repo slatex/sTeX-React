@@ -1,6 +1,6 @@
+import { QuizResult } from '@stex-react/api';
 import fs from 'fs';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { QuizResult } from '../../shared/quiz';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   const quizResult = req.body as QuizResult;

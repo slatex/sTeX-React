@@ -1,9 +1,6 @@
 import {
   COURSES_INFO,
-  CURRENT_TERM,
-  CourseInfo,
-  FileLocation,
-  createCourseInfo,
+  FileLocation
 } from '@stex-react/utils';
 import axios from 'axios';
 

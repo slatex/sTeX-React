@@ -5,16 +5,16 @@ import { useEffect, useState } from 'react';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import AlarmIcon from '@mui/icons-material/Alarm';
-import { TimerEvent, TimerEventType } from '../shared/quiz';
+import { TimerEvent, TimerEventType } from '@stex-react/api';
 
 export function timerEvent(
   type: TimerEventType,
-  questionIdx?: number
+  problemIdx?: number
 ): TimerEvent {
   return {
     timestamp_ms: Date.now(),
     type,
-    questionIdx,
+    problemIdx,
   };
 }
 
@@ -48,39 +48,39 @@ export function getTotalElapsedTime(events: TimerEvent[]) {
   return totalTime;
 }
 
-export function getElapsedTime(events: TimerEvent[], questionIdx: number) {
+export function getElapsedTime(events: TimerEvent[], problemIdx: number) {
   if (!events?.length) return 0;
   console.assert(events[0].type === TimerEventType.SWITCH);
   let isPaused = false;
   let lastStartTime_ms: undefined | number = events[0].timestamp_ms;
   let totalTime = 0;
-  let currentQuestionIdx = events[0].questionIdx;
+  let currentProblemIdx = events[0].problemIdx;
   for (const e of events) {
-    const wasThisQuestion = currentQuestionIdx === questionIdx;
+    const wasThisProblem = currentProblemIdx === problemIdx;
     switch (e.type) {
       case TimerEventType.PAUSE:
       case TimerEventType.SUBMIT:
         isPaused = true;
-        if (wasThisQuestion && lastStartTime_ms)
+        if (wasThisProblem && lastStartTime_ms)
           totalTime += e.timestamp_ms - lastStartTime_ms;
         lastStartTime_ms = undefined;
         break;
       case TimerEventType.UNPAUSE:
         isPaused = false;
-        if (wasThisQuestion) lastStartTime_ms = e.timestamp_ms;
+        if (wasThisProblem) lastStartTime_ms = e.timestamp_ms;
         break;
       case TimerEventType.SWITCH:
         isPaused = false;
-        if (wasThisQuestion) {
+        if (wasThisProblem) {
           if (lastStartTime_ms) totalTime += e.timestamp_ms - lastStartTime_ms;
           lastStartTime_ms = undefined;
         }
-        if (e.questionIdx === questionIdx) lastStartTime_ms = e.timestamp_ms;
-        currentQuestionIdx = e.questionIdx;
+        if (e.problemIdx === problemIdx) lastStartTime_ms = e.timestamp_ms;
+        currentProblemIdx = e.problemIdx;
     }
   }
   if (
-    (!questionIdx || currentQuestionIdx === questionIdx) &&
+    (!problemIdx || currentProblemIdx === problemIdx) &&
     !isPaused &&
     lastStartTime_ms
   ) {
@@ -106,12 +106,14 @@ const formatElapsedTime = (ms: number): string => {
 };
 
 export function QuizTimer({
+  quizEndTs,
   events,
   showClock,
   showHideClock,
   onPause,
   onUnpause,
 }: {
+  quizEndTs?: number;
   events: TimerEvent[];
   showClock: boolean;
   showHideClock: (v: boolean) => void;
@@ -132,7 +134,7 @@ export function QuizTimer({
       {showClock ? (
         <>
           <Box fontSize="24px">
-            <Timer events={events} />
+            <Timer quizEndTs={quizEndTs} events={events} />
           </Box>
           <IconButton
             onClick={() => {
@@ -159,25 +161,41 @@ export function QuizTimer({
 }
 
 export function Timer({
+  quizEndTs,
   events,
-  questionIndex,
+  problemIndex,
 }: {
+  quizEndTs?: number;
   events: TimerEvent[];
-  questionIndex?: number;
+  problemIndex?: number;
 }) {
   const [elapsedTime, setElapsedTime] = useState(0);
+  const leftTime = quizEndTs ? quizEndTs - Date.now() : undefined;
 
   useEffect(() => {
     const intervalId = setInterval(() => {
       const et =
-        questionIndex === undefined
+        problemIndex === undefined
           ? getTotalElapsedTime(events)
-          : getElapsedTime(events, questionIndex);
+          : getElapsedTime(events, problemIndex);
       setElapsedTime(et);
     }, 500);
 
     return () => clearInterval(intervalId);
-  }, [events, questionIndex]);
+  }, [events, problemIndex]);
+
+  if (leftTime < 0) {
+    return (
+      <span style={{ color: 'gray', fontFamily: 'monospace' }}>Quiz Ended</span>
+    );
+  }
+  if (leftTime > 0) {
+    return (
+      <span style={{ color: 'gray', fontFamily: 'monospace' }}>
+        {formatElapsedTime(leftTime)}
+      </span>
+    );
+  }
 
   return (
     <span style={{ color: 'gray', fontFamily: 'monospace' }}>

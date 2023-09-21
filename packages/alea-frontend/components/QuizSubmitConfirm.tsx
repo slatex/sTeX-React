@@ -27,7 +27,7 @@ export function QuizSubmitConfirm({
       {/*title && <DialogTitle id="alert-dialog-title">{title}</DialogTitle>*/}
       <DialogContent>
         <DialogContentText id="alert-dialog-description">
-          {left > 0 ? `You did not answer ${left} questions. ` : ''}Are you sure
+          {left > 0 ? `You did not answer ${left} problems. ` : ''}Are you sure
           you want to submit?
         </DialogContentText>
         <TextField

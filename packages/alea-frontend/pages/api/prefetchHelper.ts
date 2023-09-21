@@ -1,8 +1,7 @@
-import axios from 'axios';
-import { exit } from 'process';
-import * as htmlparser2 from 'htmlparser2';
-import { getOuterHTML } from 'domutils';
 import { XhtmlContentUrl, getSectionInfo } from '@stex-react/utils';
+import axios from 'axios';
+import * as htmlparser2 from 'htmlparser2';
+import { exit } from 'process';
 
 let fetchedDocs = 0;
 let requestedDocs = 0;
