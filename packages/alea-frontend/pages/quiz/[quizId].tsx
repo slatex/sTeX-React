@@ -10,6 +10,7 @@ import {
   Problem,
   getAuthHeaders,
   getProblem,
+  getQuiz,
   insertAnswer,
 } from '@stex-react/api';
 import dayjs from 'dayjs';
@@ -71,20 +72,18 @@ const QuizPage: NextPage = () => {
   const phase = quizInfo?.phase;
   useEffect(() => {
     if (!quizId) return;
-    axios
-      .get(`/api/get-quiz/${quizId}`, { headers: getAuthHeaders() })
-      .then((resp) => {
-        const quizInfo = resp.data as QuizInfo;
-        setQuizInfo(quizInfo);
-        const problemObj: { [problemId: string]: Problem } = {};
-        Object.keys(quizInfo.problems).map((problemId) => {
-          const html = quizInfo.problems[problemId]
-            .replace('Problem 0.1', '')
-            .replace('Aufgabe 0.1', '');
-          problemObj[problemId] = getProblem(html, undefined);
-        });
-        setProblems(problemObj);
+    getQuiz(quizId).then((resp) => {
+      const quizInfo = resp.data as QuizInfo;
+      setQuizInfo(quizInfo);
+      const problemObj: { [problemId: string]: Problem } = {};
+      Object.keys(quizInfo.problems).map((problemId) => {
+        const html = quizInfo.problems[problemId]
+          .replace('Problem 0.1', '')
+          .replace('Aufgabe 0.1', '');
+        problemObj[problemId] = getProblem(html, undefined);
       });
+      setProblems(problemObj);
+    });
   }, [quizId]);
 
   if (!quizId) return null;

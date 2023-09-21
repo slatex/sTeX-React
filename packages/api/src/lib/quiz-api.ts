@@ -19,3 +19,9 @@ export async function insertAnswer(
     headers: getAuthHeaders(),
   });
 }
+
+export async function getQuiz(quizId: string) {
+  return await axios.get(`/api/get-quiz/${quizId}`, {
+    headers: getAuthHeaders(),
+  });
+}
