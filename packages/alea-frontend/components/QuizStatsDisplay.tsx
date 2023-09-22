@@ -8,8 +8,16 @@ export function QuizStatsDisplay({
   stats: QuizStatsResponse;
   maxProblems: number;
 }) {
+  const totalStudents = Object.values(stats.attemptedHistogram).reduce(
+    (a, b) => a + +b,
+    0
+  );
   return (
     <>
+      <h2>
+        Quiz attempted by <b style={{ color: 'red' }}>{totalStudents}</b>{' '}
+        students
+      </h2>
       <h2>Problems attempted</h2>
       <BarChart
         data={Array.from({ length: maxProblems + 1 }).map((_, idx) => ({
