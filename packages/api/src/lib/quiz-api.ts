@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { InsertAnswerRequest, UserResponse } from './quiz';
+import { InsertAnswerRequest, QuizInfoResponse, QuizStatsResponse, UserResponse } from './quiz';
 import { getAuthHeaders } from './lms';
 
 export async function insertAnswer(
@@ -21,7 +21,15 @@ export async function insertAnswer(
 }
 
 export async function getQuiz(quizId: string) {
-  return await axios.get(`/api/get-quiz/${quizId}`, {
+  const resp = await axios.get(`/api/get-quiz/${quizId}`, {
     headers: getAuthHeaders(),
   });
+  return resp.data as QuizInfoResponse;
+}
+
+export async function getQuizStats(quizId: string) {
+  const resp = await axios.get(`/api/get-quiz-stats/${quizId}`, {
+    headers: getAuthHeaders(),
+  });
+  return resp.data as QuizStatsResponse;
 }

@@ -1,20 +1,19 @@
 import { Box, Button, CircularProgress } from '@mui/material';
-import type { NextPage } from 'next';
-import { useRouter } from 'next/router';
-import { QuizDisplay } from '../../components/QuizDisplay';
-import MainLayout from '../../layouts/MainLayout';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
 import {
-  Phase,
-  Problem,
-  getAuthHeaders,
-  getProblem,
-  getQuiz,
-  insertAnswer,
+    Phase,
+    Problem,
+    QuizInfoResponse,
+    getProblem,
+    getQuiz,
+    insertAnswer
 } from '@stex-react/api';
 import dayjs from 'dayjs';
+import type { NextPage } from 'next';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import { clearInterval } from 'timers';
+import { QuizDisplay } from '../../components/QuizDisplay';
+import MainLayout from '../../layouts/MainLayout';
 
 function ToBeStarted({ quizStartTs }: { quizStartTs?: number }) {
   const [showReload, setShowReload] = useState(false);
@@ -45,21 +44,6 @@ function ToBeStarted({ quizStartTs }: { quizStartTs?: number }) {
   );
 }
 
-interface QuizInfo {
-  quizStartTs: number;
-  quizEndTs: number;
-  feedbackReleaseTs: number;
-  phase: Phase;
-  problems: { [problemId: string]: string };
-  responses: {
-    [problemId: string]: {
-      singleOptionIdx?: number;
-      multipleOptionIdxs?: { [idx: number]: boolean };
-      filledInAnswer?: string;
-    };
-  };
-}
-
 const QuizPage: NextPage = () => {
   const router = useRouter();
   const quizId = router.query.quizId as string;
@@ -67,13 +51,12 @@ const QuizPage: NextPage = () => {
   const [problems, setProblems] = useState<{ [problemId: string]: Problem }>(
     {}
   );
-  const [quizInfo, setQuizInfo] = useState<QuizInfo | undefined>(undefined);
+  const [quizInfo, setQuizInfo] = useState<QuizInfoResponse | undefined>(undefined);
 
   const phase = quizInfo?.phase;
   useEffect(() => {
     if (!quizId) return;
-    getQuiz(quizId).then((resp) => {
-      const quizInfo = resp.data as QuizInfo;
+    getQuiz(quizId).then((quizInfo) => {
       setQuizInfo(quizInfo);
       const problemObj: { [problemId: string]: Problem } = {};
       Object.keys(quizInfo.problems).map((problemId) => {

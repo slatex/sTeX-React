@@ -6,7 +6,13 @@ import {
   MenuItem,
   Select,
 } from '@mui/material';
-import { Phase, Quiz, getAuthHeaders } from '@stex-react/api';
+import {
+  Phase,
+  Quiz,
+  QuizStatsResponse,
+  getAuthHeaders,
+  getQuizStats,
+} from '@stex-react/api';
 import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import { roundToMinutes } from '@stex-react/utils';
 import axios from 'axios';
@@ -15,6 +21,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { CheckboxWithTimestamp } from '../../components/CheckBoxWithTimestamp';
 import { QuizFileReader } from '../../components/QuizFileReader';
+import { QuizStatsDisplay } from '../../components/QuizStatsDisplay';
 import MainLayout from '../../layouts/MainLayout';
 
 function getFormErrorReason(
@@ -54,6 +61,10 @@ const QuizDashboardPage: NextPage = () => {
   const [manuallySetPhase, setManuallySetPhase] = useState<string>(Phase.UNSET);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [problems, setProblems] = useState<{ [problemId: string]: string }>({});
+  const [stats, setStats] = useState<QuizStatsResponse>({
+    attemptedHistogram: {},
+    scoreHistogram: {},
+  });
   const router = useRouter();
 
   const selectedQuiz = quizzes.find((quiz) => quiz.id === selectedQuizId);
@@ -76,6 +87,17 @@ const QuizDashboardPage: NextPage = () => {
         console.log(res.data);
       });
   }, []);
+
+  useEffect(() => {
+    if (!selectedQuizId || selectedQuizId == 'New') return;
+
+    getQuizStats(selectedQuizId).then(setStats);
+    const interval = setInterval(() => {
+      getQuizStats(selectedQuizId).then(setStats);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [selectedQuizId]);
 
   useEffect(() => {
     if (isNewQuiz) {
@@ -187,6 +209,11 @@ const QuizDashboardPage: NextPage = () => {
             Go To Quiz
           </Button>
         )}
+
+        <QuizStatsDisplay
+          stats={stats}
+          maxProblems={Object.keys(selectedQuiz?.problems || {}).length || 1}
+        />
       </Box>
     </MainLayout>
   );

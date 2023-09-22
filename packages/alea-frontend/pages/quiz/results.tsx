@@ -19,7 +19,8 @@ function getChartCell(id: string) {
     ></Box>
   );
 }
-function BarChart({
+
+export function BarChart({
   data,
   column1,
   column2,

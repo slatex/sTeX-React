@@ -23,7 +23,7 @@ export default async function handler(
     problems,
   } = req.body as Quiz;
   const quiz = {
-    id: 'quiz-' + crypto.randomUUID(),
+    id: 'quiz-' + crypto.randomUUID().substring(0, 8),
     version: 0,
 
     quizStartTs,

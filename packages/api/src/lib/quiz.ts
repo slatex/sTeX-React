@@ -56,6 +56,26 @@ export interface UserResponse {
   multipleOptionIdxs?: { [index: number]: boolean };
 }
 
+export interface QuizInfoResponse {
+  quizStartTs: number;
+  quizEndTs: number;
+  feedbackReleaseTs: number;
+  phase: Phase;
+  problems: { [problemId: string]: string };
+  responses: {
+    [problemId: string]: {
+      singleOptionIdx?: number;
+      multipleOptionIdxs?: { [idx: number]: boolean };
+      filledInAnswer?: string;
+    };
+  };
+}
+
+export interface QuizStatsResponse {
+  attemptedHistogram: { [attempted: number]: number };
+  scoreHistogram: { [score: number]: number };
+}
+
 // For recording quizzes at /quiz/old
 export interface TimerEvent {
   type: TimerEventType;
@@ -287,6 +307,5 @@ export function getProblem(htmlStr: string, problemUrl: string) {
     options,
     fillInSolution,
   } as Problem;
-  console.log(problem);
   return problem;
 }

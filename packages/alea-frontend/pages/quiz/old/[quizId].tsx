@@ -147,7 +147,6 @@ const QuizPage: NextPage = () => {
     setProblemUrls(urls);
 
     Promise.all(urls.map((url) => axios.get(url))).then((responses) => {
-      console.log('called');
       const problems: { [problemId: string]: Problem } = {};
       responses.forEach((r, idx) => {
         const htmlStr = (r.data as string) // Hack: manually remove incorrect #numbers
