@@ -1,8 +1,13 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { checkIfPostOrSetError, getUserIdOrSetError } from './comment-utils';
 import { Quiz, isModerator } from '@stex-react/api';
 import fs from 'fs';
-import { doesQuizExist, getQuiz, getQuizFilePath } from './quiz-utils';
+import { NextApiRequest, NextApiResponse } from 'next';
+import { checkIfPostOrSetError, getUserIdOrSetError } from './comment-utils';
+import {
+  doesQuizExist,
+  getBackupQuizFilePath,
+  getQuiz,
+  getQuizFilePath,
+} from './quiz-utils';
 
 // function to rewrite the quiz file with the new quiz info and backup the old version.
 export function updateQuiz(
@@ -14,7 +19,7 @@ export function updateQuiz(
   // Save old version
   const existingQuiz = getQuiz(quizId);
   fs.writeFileSync(
-    `_bkp-v${existingQuiz.version}-${quizPath}`,
+    getBackupQuizFilePath(quizId, existingQuiz.version),
     JSON.stringify(existingQuiz, null, 2)
   );
   const updatedQuiz = updatedQuizFunc(existingQuiz);
@@ -32,7 +37,7 @@ export default async function handler(
     return;
   }
   const quiz = req.body as Quiz;
-  if (doesQuizExist(quiz?.id)) {
+  if (!doesQuizExist(quiz?.id)) {
     res.status(400).json({ message: `Quiz not found: [${quiz?.id}]` });
     return;
   }
@@ -57,5 +62,5 @@ export default async function handler(
       } as Quiz)
   );
 
-  res.status(200).json({ message: 'Quiz updated successfully!' });
+  res.status(204).end();
 }

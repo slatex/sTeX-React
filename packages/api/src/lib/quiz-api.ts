@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { InsertAnswerRequest, QuizInfoResponse, QuizStatsResponse, UserResponse } from './quiz';
+import { InsertAnswerRequest, Quiz, QuizInfoResponse, QuizStatsResponse, UserResponse } from './quiz';
 import { getAuthHeaders } from './lms';
 
 export async function insertAnswer(
@@ -32,4 +32,17 @@ export async function getQuizStats(quizId: string) {
     headers: getAuthHeaders(),
   });
   return resp.data as QuizStatsResponse;
+}
+
+export async function createQuiz(quiz: Quiz) {
+    return await axios.post('/api/create-quiz', quiz, {
+        headers: getAuthHeaders(),
+    });
+}
+
+export async function updateQuiz(quiz: Quiz) {
+    console.log('API update-quiz');
+    return await axios.post('/api/update-quiz', quiz, {
+        headers: getAuthHeaders(),
+    });
 }

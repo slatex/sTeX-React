@@ -1,10 +1,16 @@
 import { Phase, Quiz } from '@stex-react/api';
 import fs from 'fs';
 import { DomHandler, DomUtils, Parser } from 'htmlparser2';
+import path from 'path';
 
 export function getQuizFilePath(id: string) {
   if (!id) return undefined;
-  return process.env.QUIZ_INFO_DIR + '/' + id + '.json';
+  return path.join(process.env.QUIZ_INFO_DIR, `${id}.json`);
+}
+
+export function getBackupQuizFilePath(id: string, version: number) {
+  if (!id) return undefined;
+  return path.join(process.env.QUIZ_INFO_DIR, `_bkp-v${version}-${id}.json`);
 }
 
 export function doesQuizExist(id: string) {

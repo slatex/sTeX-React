@@ -45,5 +45,5 @@ export default async function handler(
 
   const filePath = getQuizFilePath(quiz.id);
   fs.writeFileSync(filePath, JSON.stringify(quiz, null, 2));
-  res.status(200).json({ message: 'Quiz updated successfully!' });
+  res.status(204).end();
 }

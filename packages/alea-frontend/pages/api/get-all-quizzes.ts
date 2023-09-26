@@ -14,12 +14,15 @@ export default async function handler(
   }
 
   const quizFiles = fs.readdirSync(process.env.QUIZ_INFO_DIR);
-  const quizzes = quizFiles.map((file) => {
-    if (!(file.startsWith('quiz-') && file.endsWith('.json'))) return;
-    const quiz = JSON.parse(
-      fs.readFileSync(process.env.QUIZ_INFO_DIR + '/' + file, 'utf-8')
-    ) as Quiz;
-    return quiz;
-  });
+  const quizzes = quizFiles
+    .map((file) => {
+      if (!(file.startsWith('quiz-') && file.endsWith('.json'))) return;
+      console.log(file);
+      const quiz = JSON.parse(
+        fs.readFileSync(process.env.QUIZ_INFO_DIR + '/' + file, 'utf-8')
+      ) as Quiz;
+      return quiz;
+    })
+    .filter(Boolean);
   res.status(200).json(quizzes);
 }

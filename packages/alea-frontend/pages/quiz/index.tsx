@@ -10,12 +10,14 @@ import {
   Phase,
   Quiz,
   QuizStatsResponse,
+  createQuiz,
   getAuthHeaders,
   getQuizStats,
+  updateQuiz,
 } from '@stex-react/api';
 import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import { roundToMinutes } from '@stex-react/utils';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -23,6 +25,14 @@ import { CheckboxWithTimestamp } from '../../components/CheckBoxWithTimestamp';
 import { QuizFileReader } from '../../components/QuizFileReader';
 import { QuizStatsDisplay } from '../../components/QuizStatsDisplay';
 import MainLayout from '../../layouts/MainLayout';
+import Link from 'next/link';
+import { OpenInNew } from '@mui/icons-material';
+
+const NEW_QUIZ_ID = 'New';
+
+function isNewQuiz(quizId: string) {
+  return quizId === NEW_QUIZ_ID;
+}
 
 function getFormErrorReason(
   quizStartTs: number,
@@ -46,7 +56,7 @@ function getFormErrorReason(
 }
 
 const QuizDashboardPage: NextPage = () => {
-  const [selectedQuizId, setSelectedQuizId] = useState<string>('New');
+  const [selectedQuizId, setSelectedQuizId] = useState<string>(NEW_QUIZ_ID);
 
   const [title, setTitle] = useState<string>('');
   const [quizStartTs, setQuizStartTs] = useState<number>(
@@ -65,10 +75,11 @@ const QuizDashboardPage: NextPage = () => {
     attemptedHistogram: {},
     scoreHistogram: {},
   });
+  const [isUpdating, setIsUpdating] = useState(false);
   const router = useRouter();
+  const isNew = isNewQuiz(selectedQuizId);
 
   const selectedQuiz = quizzes.find((quiz) => quiz.id === selectedQuizId);
-  const isNewQuiz = selectedQuizId === 'New';
   const formErrorReason = getFormErrorReason(
     quizStartTs,
     quizEndTs,
@@ -84,12 +95,11 @@ const QuizDashboardPage: NextPage = () => {
       .then((res) => {
         setQuizzes(res.data);
         if (res.data?.length) setSelectedQuizId(res.data[0].id);
-        console.log(res.data);
       });
   }, []);
 
   useEffect(() => {
-    if (!selectedQuizId || selectedQuizId == 'New') return;
+    if (!selectedQuizId || selectedQuizId == NEW_QUIZ_ID) return;
 
     getQuizStats(selectedQuizId).then(setStats);
     const interval = setInterval(() => {
@@ -100,7 +110,7 @@ const QuizDashboardPage: NextPage = () => {
   }, [selectedQuizId]);
 
   useEffect(() => {
-    if (isNewQuiz) {
+    if (selectedQuizId === NEW_QUIZ_ID) {
       const ts = roundToMinutes(Date.now());
       setQuizStartTs(ts);
       setQuizEndTs(ts);
@@ -121,7 +131,7 @@ const QuizDashboardPage: NextPage = () => {
     setProblems(selected.problems);
   }, [selectedQuizId, quizzes]);
 
-  if (!selectedQuiz && !isNewQuiz) return <>Error</>;
+  if (!selectedQuiz && !isNew) return <>Error</>;
 
   return (
     <MainLayout title="Quizzes | VoLL-KI">
@@ -138,7 +148,7 @@ const QuizDashboardPage: NextPage = () => {
           ))}
         </Select>
 
-        <h2>{isNewQuiz ? 'New Quiz' : 'Quiz'}</h2>
+        <h2>{isNew ? 'New Quiz' : selectedQuizId}</h2>
         <b>{mmtHTMLToReact(title)}</b>
         <CheckboxWithTimestamp
           timestamp={quizStartTs}
@@ -179,35 +189,50 @@ const QuizDashboardPage: NextPage = () => {
         <b style={{ color: 'red' }}>{formErrorReason}</b>
         <br />
         <Button
-          disabled={!!formErrorReason}
+          disabled={!!formErrorReason || isUpdating}
           variant="contained"
-          onClick={(e) => {
-            axios
-              .post(
-                '/api/create-quiz',
-                {
-                  title,
-                  quizStartTs,
-                  quizEndTs,
-                  feedbackReleaseTs,
-                  manuallySetPhase,
-                  problems,
-                },
-                { headers: getAuthHeaders() }
-              )
-              .then((res) => {
-                console.log(res.data);
-              });
+          onClick={async (e) => {
+            setIsUpdating(true);
+            const quiz = {
+              id: selectedQuizId,
+              title,
+              quizStartTs,
+              quizEndTs,
+              feedbackReleaseTs,
+              manuallySetPhase,
+              problems,
+            } as Quiz;
+            let resp: AxiosResponse;
+            try {
+              if (isNew) {
+                resp = await createQuiz(quiz);
+              } else {
+                resp = await updateQuiz(quiz);
+              }
+            } catch (e) {
+              alert(e);
+              location.reload();
+            }
+            console.log(resp?.data);
+            if (![200, 204].includes(resp.status)) {
+              alert(`Error: ${resp.status} ${resp.statusText}`);
+            } else {
+              alert(`Quiz ${isNew ? 'created' : 'updated'} successfully.`);
+            }
+            location.reload();
           }}
         >
-          {isNewQuiz ? 'Create New Quiz' : 'Update Quiz'}
+          {isNew ? 'Create New Quiz' : 'Update Quiz'}
         </Button>
         <br />
         <br />
-        {!isNewQuiz && (
-          <Button onClick={() => router.push(`/quiz/${selectedQuizId}`)}>
-            Go To Quiz
-          </Button>
+        {!isNew && (
+          <a href={`/quiz/${selectedQuizId}`} target="_blank">
+            <Button variant="contained">
+              Go To Quiz&nbsp;
+              <OpenInNew />
+            </Button>
+          </a>
         )}
 
         <QuizStatsDisplay
