@@ -13,40 +13,47 @@ import { useEffect, useState } from 'react';
 export function QuizSubmitConfirm({
   left,
   onClose,
+  showRecordOption,
 }: {
   left: number;
   onClose: (submit: boolean, recordName?: string) => void;
+  showRecordOption: boolean;
 }) {
   const [name, setName] = useState('');
-  const [recordResults, setRecordResults] = useState(true);
+  const [recordResults, setRecordResults] = useState(showRecordOption);
   useEffect(() => {
+    if (!showRecordOption) return;
     getUserInfo().then((u) => setName(u?.fullName ?? ''));
-  }, []);
+  }, [showRecordOption]);
   return (
     <>
       {/*title && <DialogTitle id="alert-dialog-title">{title}</DialogTitle>*/}
       <DialogContent>
         <DialogContentText id="alert-dialog-description">
           {left > 0 ? `You did not answer ${left} problems. ` : ''}Are you sure
-          you want to submit?
+          you want to finish?
         </DialogContentText>
-        <TextField
-          label="Your name"
-          value={name}
-          disabled={!recordResults}
-          onChange={(e) => setName(e.target.value)}
-          fullWidth
-          sx={{ mt: '10px' }}
-        />
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={recordResults}
-              onChange={(e) => setRecordResults(e.target.checked)}
+        {showRecordOption && (
+          <>
+            <TextField
+              label="Your name"
+              value={name}
+              disabled={!recordResults}
+              onChange={(e) => setName(e.target.value)}
+              fullWidth
+              sx={{ mt: '10px' }}
             />
-          }
-          label="Record Results"
-        />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={recordResults}
+                  onChange={(e) => setRecordResults(e.target.checked)}
+                />
+              }
+              label="Record Results"
+            />
+          </>
+        )}
       </DialogContent>
       <DialogActions>
         <Button onClick={() => onClose(false)}>Cancel</Button>
@@ -55,7 +62,7 @@ export function QuizSubmitConfirm({
           onClick={() => onClose(true, recordResults ? name : undefined)}
           autoFocus
         >
-          Submit
+          Finish
         </Button>
       </DialogActions>
     </>

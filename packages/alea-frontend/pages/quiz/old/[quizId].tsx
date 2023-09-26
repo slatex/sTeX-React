@@ -185,6 +185,7 @@ const QuizPage: NextPage = () => {
             );
           }}
           existingResponses={EMPTY_RESPONSE}
+          showRecordOption={true}
         />
       </Box>
     </MainLayout>

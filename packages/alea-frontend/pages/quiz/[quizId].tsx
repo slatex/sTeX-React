@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react';
 import { clearInterval } from 'timers';
 import { QuizDisplay } from '../../components/QuizDisplay';
 import MainLayout from '../../layouts/MainLayout';
+import { localStore } from '@stex-react/utils';
 
 function ToBeStarted({ quizStartTs }: { quizStartTs?: number }) {
   const [showReload, setShowReload] = useState(false);
@@ -44,6 +45,26 @@ function ToBeStarted({ quizStartTs }: { quizStartTs?: number }) {
   );
 }
 
+function EarlyFinish({
+  quizEndTs,
+  goBack,
+}: {
+  quizEndTs?: number;
+  goBack: () => void;
+}) {
+  return (
+    <Box p="10px">
+      The quiz is still open till{' '}
+      {dayjs(quizEndTs).format('HH:mm on YYYY-MM-DD')}
+      <br />
+      <Button onClick={() => goBack()} variant="contained">
+        Click here
+      </Button>{' '}
+      to go back.
+    </Box>
+  );
+}
+
 function getServerClientOffsetMs(quizInfo?: GetQuizResponse) {
   if (!quizInfo?.currentServerTs) return 0;
   return Date.now() - quizInfo.currentServerTs;
@@ -59,6 +80,10 @@ function getClientStartTimeMs(quizInfo?: GetQuizResponse) {
   return quizInfo?.quizStartTs + getServerClientOffsetMs(quizInfo);
 }
 
+function finishedKey(quizId: string) {
+  return `${quizId}-finished`;
+}
+
 const QuizPage: NextPage = () => {
   const router = useRouter();
   const quizId = router.query.quizId as string;
@@ -69,6 +94,7 @@ const QuizPage: NextPage = () => {
   const [quizInfo, setQuizInfo] = useState<GetQuizResponse | undefined>(
     undefined
   );
+  const [finished, setFinished] = useState(false);
   const clientQuizEndTimeMs = getClientEndTimeMs(quizInfo);
   const clientQuizStartTimeMs = getClientStartTimeMs(quizInfo);
 
@@ -92,7 +118,7 @@ const QuizPage: NextPage = () => {
     const quizEndTsMs = getClientEndTimeMs(quizInfo);
     if (!quizEndTsMs || quizInfo.phase !== Phase.STARTED) return;
     const timeToEndMs = quizEndTsMs - Date.now();
-    
+
     if (timeToEndMs < 0) location.reload(); // This is risky.
 
     const timeout = setTimeout(() => {
@@ -101,6 +127,11 @@ const QuizPage: NextPage = () => {
     }, timeToEndMs);
     return () => clearTimeout(timeout);
   }, [quizInfo, quizInfo?.phase]);
+
+  useEffect(() => {
+    if (!quizId) return;
+    setFinished(!!localStore?.getItem(finishedKey(quizId)));
+  }, [quizId]);
 
   if (!quizId) return null;
 
@@ -111,6 +142,14 @@ const QuizPage: NextPage = () => {
           <CircularProgress />
         ) : phase === Phase.NOT_STARTED || phase === Phase.UNSET ? (
           <ToBeStarted quizStartTs={clientQuizStartTimeMs} />
+        ) : phase === Phase.STARTED && finished ? (
+          <EarlyFinish
+            quizEndTs={clientQuizEndTimeMs}
+            goBack={() => {
+              setFinished(false);
+              localStore.removeItem(finishedKey(quizId));
+            }}
+          />
         ) : (
           <QuizDisplay
             isFrozen={phase !== Phase.STARTED}
@@ -123,7 +162,6 @@ const QuizPage: NextPage = () => {
                 : clientQuizEndTimeMs
             }
             existingResponses={quizInfo.responses}
-            onSubmit={undefined}
             onResponse={async (problemId, response) => {
               if (!quizId?.length) return;
               const answerAccepted = await insertAnswer(
@@ -135,6 +173,10 @@ const QuizPage: NextPage = () => {
                 alert('Answers are no longer being accepted');
                 location.reload();
               }
+            }}
+            onSubmit={() => {
+              localStore?.setItem(finishedKey(quizId), 'true');
+              setFinished(true);
             }}
           />
         )}

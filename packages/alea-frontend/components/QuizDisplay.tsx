@@ -1,4 +1,5 @@
 import CancelIcon from '@mui/icons-material/Cancel';
+import CheckBox from '@mui/icons-material/CheckBox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CloseIcon from '@mui/icons-material/Close';
@@ -74,8 +75,10 @@ function IndexEntry({
       onClick={() => onSelect(idx)}
     >
       <Box display="flex" alignItems="center">
-        {answered ? (
+        {isFrozen ? (
           <span style={{ width: '24px' }}></span>
+        ) : answered ? (
+          <CheckBox />
         ) : (
           <CheckBoxOutlineBlankIcon />
         )}
@@ -160,6 +163,7 @@ export function QuizDisplay({
   showPerProblemTime = false,
   existingResponses,
   isFrozen,
+  showRecordOption = false,
 }: {
   quizId: string;
   quizEndTs?: number;
@@ -174,6 +178,7 @@ export function QuizDisplay({
     responses: { [problemId: string]: UserResponse },
     result: { [problemId: string]: Tristate }
   ) => void;
+  showRecordOption?: boolean;
 }) {
   const [result, setResult] = useState<{ [problemId: string]: Tristate }>({});
   const [responses, setResponses] = useState<{
@@ -234,6 +239,7 @@ export function QuizDisplay({
     return <CircularProgress size="2em" />;
   const response = responses[currentProblemId];
   const problem = problems[currentProblemId];
+
   return (
     <LayoutWithFixedMenu
       menu={
@@ -315,7 +321,7 @@ export function QuizDisplay({
               sx={{ my: '20px' }}
               variant="contained"
             >
-              Submit
+              Finish
             </Button>
           )
         ) : !Object.values(result).some((s) => s === Tristate.UNKNOWN) ? (
@@ -348,6 +354,7 @@ export function QuizDisplay({
               onSubmit(name, events, responses, result);
               setEvents((prev) => [...prev, timerEvent(TimerEventType.SUBMIT)]);
             }}
+            showRecordOption={showRecordOption}
           />
         </Dialog>
       )}

@@ -187,7 +187,10 @@ export function ProblemDisplay({
           display="block"
           padding="3px 10px"
           bgcolor={
-            problem.options[selectedIdx].shouldSelect ? '#a3e9a0' : '#f39797'
+            getCorrectness(problem, { singleOptionIdx: selectedIdx }) ===
+            Tristate.TRUE
+              ? '#a3e9a0'
+              : '#f39797'
           }
           borderRadius="10px"
         >
