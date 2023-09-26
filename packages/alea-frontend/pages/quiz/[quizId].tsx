@@ -1,11 +1,11 @@
 import { Box, Button, CircularProgress } from '@mui/material';
 import {
-    Phase,
-    Problem,
-    QuizInfoResponse,
-    getProblem,
-    getQuiz,
-    insertAnswer
+  GetQuizResponse,
+  Phase,
+  Problem,
+  getProblem,
+  getQuiz,
+  insertAnswer,
 } from '@stex-react/api';
 import dayjs from 'dayjs';
 import type { NextPage } from 'next';
@@ -29,7 +29,7 @@ function ToBeStarted({ quizStartTs }: { quizStartTs?: number }) {
       {quizStartTs ? (
         <>
           The quiz will begin at{' '}
-          {dayjs(quizStartTs).format('HH:mm on YYYY-mm-DD')}
+          {dayjs(quizStartTs).format('HH:mm on YYYY-MM-DD')}
           <br />
           {showReload && (
             <Button variant="contained" onClick={() => location.reload()}>
@@ -44,6 +44,21 @@ function ToBeStarted({ quizStartTs }: { quizStartTs?: number }) {
   );
 }
 
+function getServerClientOffsetMs(quizInfo?: GetQuizResponse) {
+  if (!quizInfo?.currentServerTs) return 0;
+  return Date.now() - quizInfo.currentServerTs;
+}
+
+function getClientEndTimeMs(quizInfo?: GetQuizResponse) {
+  if (!quizInfo?.quizEndTs) return undefined;
+  return quizInfo?.quizEndTs + getServerClientOffsetMs(quizInfo);
+}
+
+function getClientStartTimeMs(quizInfo?: GetQuizResponse) {
+  if (!quizInfo?.quizStartTs) return undefined;
+  return quizInfo?.quizStartTs + getServerClientOffsetMs(quizInfo);
+}
+
 const QuizPage: NextPage = () => {
   const router = useRouter();
   const quizId = router.query.quizId as string;
@@ -51,7 +66,11 @@ const QuizPage: NextPage = () => {
   const [problems, setProblems] = useState<{ [problemId: string]: Problem }>(
     {}
   );
-  const [quizInfo, setQuizInfo] = useState<QuizInfoResponse | undefined>(undefined);
+  const [quizInfo, setQuizInfo] = useState<GetQuizResponse | undefined>(
+    undefined
+  );
+  const clientQuizEndTimeMs = getClientEndTimeMs(quizInfo);
+  const clientQuizStartTimeMs = getClientStartTimeMs(quizInfo);
 
   const phase = quizInfo?.phase;
   useEffect(() => {
@@ -69,6 +88,20 @@ const QuizPage: NextPage = () => {
     });
   }, [quizId]);
 
+  useEffect(() => {
+    const quizEndTsMs = getClientEndTimeMs(quizInfo);
+    if (!quizEndTsMs || quizInfo.phase !== Phase.STARTED) return;
+    const timeToEndMs = quizEndTsMs - Date.now();
+    
+    if (timeToEndMs < 0) location.reload(); // This is risky.
+
+    const timeout = setTimeout(() => {
+      alert('Quiz has ended');
+      location.reload();
+    }, timeToEndMs);
+    return () => clearTimeout(timeout);
+  }, [quizInfo, quizInfo?.phase]);
+
   if (!quizId) return null;
 
   return (
@@ -77,7 +110,7 @@ const QuizPage: NextPage = () => {
         {phase === undefined ? (
           <CircularProgress />
         ) : phase === Phase.NOT_STARTED || phase === Phase.UNSET ? (
-          <ToBeStarted quizStartTs={quizInfo.quizStartTs} />
+          <ToBeStarted quizStartTs={clientQuizStartTimeMs} />
         ) : (
           <QuizDisplay
             isFrozen={phase !== Phase.STARTED}
@@ -86,14 +119,22 @@ const QuizPage: NextPage = () => {
             problems={problems}
             quizEndTs={
               [Phase.ENDED, Phase.FEEDBACK_RELEASED].includes(phase)
-                ? Date.now() - 1000
-                : quizInfo.quizEndTs
+                ? Math.min(Date.now() - 1, clientQuizEndTimeMs ?? 0)
+                : clientQuizEndTimeMs
             }
             existingResponses={quizInfo.responses}
             onSubmit={undefined}
-            onResponse={(problemId, response) => {
+            onResponse={async (problemId, response) => {
               if (!quizId?.length) return;
-              insertAnswer(quizId, problemId, response);
+              const answerAccepted = await insertAnswer(
+                quizId,
+                problemId,
+                response
+              );
+              if (!answerAccepted) {
+                alert('Answers are no longer being accepted');
+                location.reload();
+              }
             }}
           />
         )}

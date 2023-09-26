@@ -136,19 +136,21 @@ export function QuizTimer({
           <Box fontSize="24px">
             <Timer quizEndTs={quizEndTs} events={events} />
           </Box>
-          <IconButton
-            onClick={() => {
-              if (!onPause || !onUnpause) return;
-              if (isPaused) onUnpause();
-              else onPause();
-            }}
-          >
-            {isPaused ? (
-              <PlayCircleIcon fontSize="large" />
-            ) : (
-              <PauseCircleIcon fontSize="large" />
-            )}
-          </IconButton>
+          {!quizEndTs && (
+            <IconButton
+              onClick={() => {
+                if (!onPause || !onUnpause) return;
+                if (isPaused) onUnpause();
+                else onPause();
+              }}
+            >
+              {isPaused ? (
+                <PlayCircleIcon fontSize="large" />
+              ) : (
+                <PauseCircleIcon fontSize="large" />
+              )}
+            </IconButton>
+          )}
         </>
       ) : (
         <AlarmIcon />

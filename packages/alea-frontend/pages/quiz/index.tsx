@@ -131,6 +131,11 @@ const QuizDashboardPage: NextPage = () => {
     setProblems(selected.problems);
   }, [selectedQuizId, quizzes]);
 
+  useEffect(() => {
+    setQuizEndTs((prev) => Math.max(prev, quizStartTs));
+    setFeedbackReleaseTs((prev) => Math.max(prev, quizStartTs, quizEndTs));
+  }, [quizStartTs, quizEndTs]);
+
   if (!selectedQuiz && !isNew) return <>Error</>;
 
   return (

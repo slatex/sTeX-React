@@ -102,6 +102,14 @@ export default async function handler(
   const responses = await getUserQuizResponseOrSetError(quizId, userId, res);
   if (!responses) return;
 
-  res.status(200).json({ phase, ...quizTimes, problems, responses } as GetQuizResponse);
+  res
+    .status(200)
+    .json({
+      currentServerTs: Date.now(),
+      ...quizTimes,
+      phase,
+      problems,
+      responses,
+    } as GetQuizResponse);
   return;
 }

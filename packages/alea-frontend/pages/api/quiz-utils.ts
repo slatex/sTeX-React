@@ -44,6 +44,13 @@ export function getQuizTimes(q: Quiz) {
 }
 
 const ANSWER_ATTRIBS_TO_REDACT = ['data-problem-sc', 'data-problem-mc'];
+
+const ATTRIBS_TO_REMOVE = [
+  'data-overlay-link-click',
+  'data-overlay-link-hover',
+  'data-highlight-parent',
+];
+
 const ATTRIBS_OF_ANSWER_ELEMENTS = [
   'data-problem-fillinsol',
   'data-problem-sc-solution',
@@ -66,6 +73,9 @@ export function removeAnswerInfo(problem: string) {
 
       for (const attrib of ANSWER_ATTRIBS_TO_REDACT) {
         if (node.attribs[attrib]) node.attribs[attrib] = 'REDACTED';
+      }
+      for (const attrib of ATTRIBS_TO_REMOVE) {
+        if (node.attribs[attrib]) delete node.attribs[attrib];
       }
     }
 

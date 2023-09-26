@@ -56,21 +56,6 @@ export interface UserResponse {
   multipleOptionIdxs?: { [index: number]: boolean };
 }
 
-export interface QuizInfoResponse {
-  quizStartTs: number;
-  quizEndTs: number;
-  feedbackReleaseTs: number;
-  phase: Phase;
-  problems: { [problemId: string]: string };
-  responses: {
-    [problemId: string]: {
-      singleOptionIdx?: number;
-      multipleOptionIdxs?: { [idx: number]: boolean };
-      filledInAnswer?: string;
-    };
-  };
-}
-
 export interface QuizStatsResponse {
   attemptedHistogram: { [attempted: number]: number };
   scoreHistogram: { [score: number]: number };
@@ -107,10 +92,12 @@ export interface QuizResult {
 }
 
 export interface GetQuizResponse {
-  phase: Phase;
+  currentServerTs: number;
   quizStartTs?: number;
   quizEndTs?: number;
   feedbackReleaseTs?: number;
+  
+  phase: Phase;
 
   problems: { [problemId: string]: string };
   responses: { [problemId: string]: UserResponse };

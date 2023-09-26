@@ -80,6 +80,7 @@ export function ProblemDisplay({
         backgroundColor: 'hsl(210, 20%, 95%)',
         border: '1px solid #CCC',
         p: '10px',
+        userSelect: 'none',
       }}
     >
       <Box display="inline" fontSize="20px">

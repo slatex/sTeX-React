@@ -215,18 +215,18 @@ export function QuizDisplay({
 
   function setProblemIdx2(i: number) {
     setProblemIdx(i);
-    if (!isFrozen)
-      setEvents((prev) => [...prev, timerEvent(TimerEventType.SWITCH, i)]);
+    if (isFrozen) return;
+    setEvents((prev) => [...prev, timerEvent(TimerEventType.SWITCH, i)]);
   }
 
   function onPause() {
-    if (!isFrozen)
-      setEvents((prev) => [...prev, timerEvent(TimerEventType.PAUSE)]);
+    if (isFrozen) return;
+    setEvents((prev) => [...prev, timerEvent(TimerEventType.PAUSE)]);
   }
 
   function onUnpause() {
-    if (!isFrozen)
-      setEvents((prev) => [...prev, timerEvent(TimerEventType.UNPAUSE)]);
+    if (isFrozen) return;
+    setEvents((prev) => [...prev, timerEvent(TimerEventType.UNPAUSE)]);
   }
 
   if (problemIds.length === 0) return <CircularProgress />;
