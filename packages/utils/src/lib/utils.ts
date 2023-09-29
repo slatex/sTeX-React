@@ -59,6 +59,16 @@ export function contextParamsFromTopLevelDocUrl(url: string) {
   return `&contextArchive=${archive}&contextFilepath=${filepath}`;
 }
 
+// Not crypto-safe.
+export function simpleNumberHash(str: string) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+  }
+  return hash;
+}
+
+
 // Dont use this for crypto or anything serious.
 export function simpleHash(str?: string) {
   if (!str?.length) return '0';
