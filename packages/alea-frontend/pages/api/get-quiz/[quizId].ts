@@ -1,4 +1,5 @@
 import { GetQuizResponse, Phase, isModerator } from '@stex-react/api';
+import { simpleNumberHash } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getUserIdOrSetError } from '../comment-utils';
 import { queryGradingDbAndEndSet500OnError } from '../grading-db-utils';
@@ -59,6 +60,30 @@ async function getUserQuizResponseOrSetError(
   return responses;
 }
 
+function shuffleArray(arr: any[], seed: number) {
+  const numericHash = Math.abs(seed);
+
+  //  Simplified Fisher-Yates shuffle algorithm
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(numericHash % (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+function reorderBasedOnUserId(
+  problems: { [problemId: string]: string },
+  userId: string
+) {
+  if (isModerator(userId)) return problems;
+  const problemIds = Object.keys(problems);
+  shuffleArray(problemIds, simpleNumberHash(userId));
+  const shuffled: { [problemId: string]: string } = {};
+  problemIds.forEach(
+    (problemId) => (shuffled[problemId] = problems[problemId])
+  );
+  return shuffled;
+}
+
 function getPhaseAppropriateProblems(
   problems: { [problemId: string]: string },
   isModerator: boolean,
@@ -102,14 +127,12 @@ export default async function handler(
   const responses = await getUserQuizResponseOrSetError(quizId, userId, res);
   if (!responses) return;
 
-  res
-    .status(200)
-    .json({
-      currentServerTs: Date.now(),
-      ...quizTimes,
-      phase,
-      problems,
-      responses,
-    } as GetQuizResponse);
+  res.status(200).json({
+    currentServerTs: Date.now(),
+    ...quizTimes,
+    phase,
+    problems: reorderBasedOnUserId(problems, userId),
+    responses,
+  } as GetQuizResponse);
   return;
 }

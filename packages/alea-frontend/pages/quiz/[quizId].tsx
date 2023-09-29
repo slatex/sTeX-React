@@ -3,10 +3,14 @@ import {
   GetQuizResponse,
   Phase,
   Problem,
+  UserInfo,
   getProblem,
   getQuiz,
+  getUserInfo,
   insertAnswer,
+  isModerator,
 } from '@stex-react/api';
+import { localStore } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -14,7 +18,6 @@ import { useEffect, useState } from 'react';
 import { clearInterval } from 'timers';
 import { QuizDisplay } from '../../components/QuizDisplay';
 import MainLayout from '../../layouts/MainLayout';
-import { localStore } from '@stex-react/utils';
 
 function ToBeStarted({ quizStartTs }: { quizStartTs?: number }) {
   const [showReload, setShowReload] = useState(false);
@@ -84,6 +87,18 @@ function finishedKey(quizId: string) {
   return `${quizId}-finished`;
 }
 
+function setFinishedInLocalStore(quizId: string) {
+  localStore?.setItem(finishedKey(quizId), 'true');
+}
+
+function unsetFinishedInLocalStore(quizId: string) {
+  localStore.removeItem(finishedKey(quizId));
+}
+
+function isFinishedFromLocalStore(quizId: string) {
+  return !!localStore?.getItem(finishedKey(quizId));
+}
+
 const QuizPage: NextPage = () => {
   const router = useRouter();
   const quizId = router.query.quizId as string;
@@ -91,14 +106,16 @@ const QuizPage: NextPage = () => {
   const [problems, setProblems] = useState<{ [problemId: string]: Problem }>(
     {}
   );
+  const [finished, setFinished] = useState(false);
+  const [userInfo, setUserInfo] = useState<UserInfo | undefined | null>(null);
   const [quizInfo, setQuizInfo] = useState<GetQuizResponse | undefined>(
     undefined
   );
-  const [finished, setFinished] = useState(false);
+  const [moderatorPhase, setModeratorPhase] = useState<Phase>(undefined);
   const clientQuizEndTimeMs = getClientEndTimeMs(quizInfo);
   const clientQuizStartTimeMs = getClientStartTimeMs(quizInfo);
 
-  const phase = quizInfo?.phase;
+  const phase = moderatorPhase ?? quizInfo?.phase;
   useEffect(() => {
     if (!quizId) return;
     getQuiz(quizId).then((quizInfo) => {
@@ -124,21 +141,37 @@ const QuizPage: NextPage = () => {
     const timeout = setTimeout(() => {
       alert('Quiz has ended');
       location.reload();
-    }, timeToEndMs);
+    }, timeToEndMs + 5000);
+    // 5000 as buffer to account for network latency. This is not a big deal
+    // because the server will reject any response after the time, and the
+    // rejection will cause the quiz to end.
     return () => clearTimeout(timeout);
   }, [quizInfo, quizInfo?.phase]);
 
   useEffect(() => {
     if (!quizId) return;
-    setFinished(!!localStore?.getItem(finishedKey(quizId)));
+    setFinished(isFinishedFromLocalStore(quizId));
   }, [quizId]);
+
+  useEffect(() => {
+    getUserInfo().then((userInfo) => {
+      setUserInfo(userInfo);
+      if (isModerator(userInfo?.userId)) {
+        const p =
+          'Hello moderator! Do you want to see the quiz in feedback release phase?';
+        setModeratorPhase(confirm(p) ? Phase.FEEDBACK_RELEASED : Phase.STARTED);
+      }
+    });
+  }, []);
 
   if (!quizId) return null;
 
   return (
     <MainLayout title="Quizzes | VoLL-KI">
       <Box>
-        {phase === undefined ? (
+        {userInfo === undefined ? (
+          <Box p="20px">You must be logged in to see quizzes.</Box>
+        ) : phase === undefined ? (
           <CircularProgress />
         ) : phase === Phase.NOT_STARTED || phase === Phase.UNSET ? (
           <ToBeStarted quizStartTs={clientQuizStartTimeMs} />
@@ -147,7 +180,7 @@ const QuizPage: NextPage = () => {
             quizEndTs={clientQuizEndTimeMs}
             goBack={() => {
               setFinished(false);
-              localStore.removeItem(finishedKey(quizId));
+              unsetFinishedInLocalStore(quizId);
             }}
           />
         ) : (
@@ -161,7 +194,7 @@ const QuizPage: NextPage = () => {
                 ? Math.min(Date.now() - 1, clientQuizEndTimeMs ?? 0)
                 : clientQuizEndTimeMs
             }
-            existingResponses={quizInfo.responses}
+            existingResponses={quizInfo?.responses}
             onResponse={async (problemId, response) => {
               if (!quizId?.length) return;
               const answerAccepted = await insertAnswer(
@@ -175,8 +208,8 @@ const QuizPage: NextPage = () => {
               }
             }}
             onSubmit={() => {
-              localStore?.setItem(finishedKey(quizId), 'true');
               setFinished(true);
+              setFinishedInLocalStore(quizId);
             }}
           />
         )}

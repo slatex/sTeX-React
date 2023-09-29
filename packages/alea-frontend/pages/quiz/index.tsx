@@ -1,3 +1,4 @@
+import { OpenInNew } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -25,8 +26,6 @@ import { CheckboxWithTimestamp } from '../../components/CheckBoxWithTimestamp';
 import { QuizFileReader } from '../../components/QuizFileReader';
 import { QuizStatsDisplay } from '../../components/QuizStatsDisplay';
 import MainLayout from '../../layouts/MainLayout';
-import Link from 'next/link';
-import { OpenInNew } from '@mui/icons-material';
 
 const NEW_QUIZ_ID = 'New';
 
