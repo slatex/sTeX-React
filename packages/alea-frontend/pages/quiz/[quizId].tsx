@@ -15,7 +15,6 @@ import dayjs from 'dayjs';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { clearInterval } from 'timers';
 import { QuizDisplay } from '../../components/QuizDisplay';
 import MainLayout from '../../layouts/MainLayout';
 
