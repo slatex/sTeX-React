@@ -22,6 +22,7 @@ import MainLayout from '../../layouts/MainLayout';
 function ToBeStarted({ quizStartTs }: { quizStartTs?: number }) {
   const [showReload, setShowReload] = useState(false);
   useEffect(() => {
+    if (!quizStartTs) return;
     const interval = setInterval(() => {
       if (quizStartTs && quizStartTs < Date.now()) setShowReload(true);
     }, 1000);
