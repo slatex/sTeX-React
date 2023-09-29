@@ -11,16 +11,18 @@ import {
   Phase,
   Quiz,
   QuizStatsResponse,
+  UserInfo,
   createQuiz,
   getAuthHeaders,
   getQuizStats,
+  getUserInfo,
+  isModerator,
   updateQuiz,
 } from '@stex-react/api';
 import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import { roundToMinutes } from '@stex-react/utils';
 import axios, { AxiosResponse } from 'axios';
 import type { NextPage } from 'next';
-import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { CheckboxWithTimestamp } from '../../components/CheckBoxWithTimestamp';
 import { QuizFileReader } from '../../components/QuizFileReader';
@@ -75,7 +77,7 @@ const QuizDashboardPage: NextPage = () => {
     scoreHistogram: {},
   });
   const [isUpdating, setIsUpdating] = useState(false);
-  const router = useRouter();
+  const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
   const isNew = isNewQuiz(selectedQuizId);
 
   const selectedQuiz = quizzes.find((quiz) => quiz.id === selectedQuizId);
@@ -135,7 +137,12 @@ const QuizDashboardPage: NextPage = () => {
     setFeedbackReleaseTs((prev) => Math.max(prev, quizStartTs, quizEndTs));
   }, [quizStartTs, quizEndTs]);
 
+  useEffect(() => {
+    getUserInfo().then(setUserInfo);
+  }, []);
+
   if (!selectedQuiz && !isNew) return <>Error</>;
+  if (!isModerator(userInfo?.userId)) return <Box p="20px">Unauthorized</Box>;
 
   return (
     <MainLayout title="Quizzes | VoLL-KI">
