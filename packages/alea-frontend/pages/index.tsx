@@ -13,7 +13,7 @@ import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import { getCourseInfo } from '@stex-react/api';
 import { useContext, useEffect, useState } from 'react';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { CourseInfo } from '@stex-react/utils';
+import { CURRENT_TERM, CourseInfo } from '@stex-react/utils';
 
 function ELink({ href, children }: { href: string; children: any }) {
   return (
@@ -190,7 +190,7 @@ const StudentHomePage: NextPage = () => {
             </Tooltip>
             <h1>{t.header}</h1>
             <SiteDescription lang={router.locale} />
-            <h2>{t.courseSection}</h2>
+            <h2>{`${t.courseSection} (${CURRENT_TERM})`}</h2>
           </Box>
           <Box display="flex" flexWrap="wrap">
             {Object.values(courses)

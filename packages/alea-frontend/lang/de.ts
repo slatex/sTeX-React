@@ -1,7 +1,7 @@
 export const de = {
   home: {
     header: 'VoLL-KI-basierte Kurse an der FAU',
-    courseSection: 'Aktuelles Semester (SS23)',
+    courseSection: 'Aktuelles Semester',
     otherCourses: 'Weitere Kurse',
     guidedTourHeader: 'Themenbezogen, Freestyle-Lernen',
     footerInfo:
