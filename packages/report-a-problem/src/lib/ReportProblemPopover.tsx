@@ -65,7 +65,7 @@ function buttonProps(color: string) {
 export function ReportProblemPopover(props: Props) {
   const t = getLocaleObject(useRouter());
   const { clientRect, isCollapsed, textContent, commonAncestor } =
-    useTextSelection(props.target);
+    useTextSelection();
   const context = getContext(commonAncestor);
 
   const [open, setOpen] = useState(false);
