@@ -34,7 +34,7 @@ export function getNotesLink(courseId: string) {
   return `/course-notes/${courseId}`;
 }
 
-export const CURRENT_TERM = 'SS23';
+export const CURRENT_TERM = 'WS23/24';
 
 export function createCourseInfo(
   courseId: string,
@@ -71,30 +71,30 @@ export const COURSES_INFO: { [courseId: string]: CourseInfo } = {
     'Artifical Intelligence - I',
     'MiKoMH/AI',
     'course/notes/notes1.tex',
-    'course/notes/coursepage1.tex'
+    'course/notes/coursepage1.tex',
+    true
   ),
   'ai-2': createCourseInfo(
     'ai-2',
     'Artifical Intelligence - II',
     'MiKoMH/AI',
     'course/notes/notes2.xhtml',
-    'course/notes/coursepage2',
-    true
+    'course/notes/coursepage2'
   ),
   'iwgs-1': createCourseInfo(
     'iwgs-1',
     'IWGS - I',
     'MiKoMH/IWGS',
     'course/notes/notes-part1.xhtml',
-    'course/notes/coursepage1'
+    'course/notes/coursepage1',
+    true
   ),
   'iwgs-2': createCourseInfo(
     'iwgs-2',
     'IWGS - II',
     'MiKoMH/IWGS',
     'course/notes/notes-part2.xhtml',
-    'course/notes/coursepage2',
-    true
+    'course/notes/coursepage2'
   ),
   krmt: createCourseInfo(
     'krmt',
@@ -102,14 +102,14 @@ export const COURSES_INFO: { [courseId: string]: CourseInfo } = {
     'MiKoMH/KRMT',
     'course/notes/notes.xhtml',
     'course/notes/coursepage',
-    true
   ),
   lbs: createCourseInfo(
     'lbs',
     'Logic-based Natural Language Semantics',
     'MiKoMH/LBS',
     'course/notes/notes.xhtml',
-    'course/notes/coursepage'
+    'course/notes/coursepage',
+    true
   ),
 };
 

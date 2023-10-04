@@ -263,14 +263,16 @@ export function QuizDisplay({
           <h2>
             Problem {problemIdx + 1} of {problemIds.length}
           </h2>
-          <QuizTimer
-            quizEndTs={quizEndTs}
-            events={events}
-            showClock={showClock}
-            showHideClock={(v) => setShowClock(v)}
-            onPause={() => onPause()}
-            onUnpause={() => onUnpause()}
-          />
+          {(!!quizEndTs || showPerProblemTime) && (
+            <QuizTimer
+              quizEndTs={quizEndTs}
+              events={events}
+              showClock={showClock}
+              showHideClock={(v) => setShowClock(v)}
+              onPause={() => onPause()}
+              onUnpause={() => onUnpause()}
+            />
+          )}
         </Box>
 
         <Box my="10px">

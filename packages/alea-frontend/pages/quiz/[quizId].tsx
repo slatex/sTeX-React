@@ -181,6 +181,10 @@ const QuizPage: NextPage = () => {
             goBack={() => {
               setFinished(false);
               unsetFinishedInLocalStore(quizId);
+              // Reloading is a hack. This is needed because QuizDisplay gets
+              // re-created and its starts using the old value of
+              // existingResponses.
+              location.reload();
             }}
           />
         ) : (
@@ -189,11 +193,7 @@ const QuizPage: NextPage = () => {
             quizId={quizId}
             showPerProblemTime={false}
             problems={problems}
-            quizEndTs={
-              [Phase.ENDED, Phase.FEEDBACK_RELEASED].includes(phase)
-                ? Math.min(Date.now() - 1, clientQuizEndTimeMs ?? 0)
-                : clientQuizEndTimeMs
-            }
+            quizEndTs={clientQuizEndTimeMs}
             existingResponses={quizInfo?.responses}
             onResponse={async (problemId, response) => {
               if (!quizId?.length) return;
