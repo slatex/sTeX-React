@@ -64,7 +64,7 @@ describe('/api/edit-comment', () => {
       'SELECT * FROM comments WHERE commentId=?',
       [commentId]
     );
-    processResults(comments as any);
+    expect(await processResults(undefined, comments as any)).toBe(true);
     expect(comments).toEqual([
       expect.objectContaining({
         statement: 's2',

@@ -15,6 +15,9 @@ export function mockCommentData({
   selectedText = 'selectedText',
   userEmail = 'some@email.com',
   userName = 'some name',
+  commentType = null,
+  courseId = null,
+  courseTerm = null,
   parentCommentId = null,
   isPrivate = false,
   isAnonymous = false,
@@ -28,6 +31,9 @@ export function mockCommentData({
     selectedText,
     userEmail,
     userName,
+    commentType,
+    courseId,
+    courseTerm,
     isPrivate,
     isAnonymous,
   };
@@ -80,11 +86,12 @@ describe('/api/add-comment', () => {
   });
 
   test('Missing data causes 400', async () => {
+    //
     const { req, res } = createMocks({
       method: 'POST',
       headers: { Authorization: 'JWT token' },
       body: mockCommentData({
-        archive: null,
+        statement: '',
         isPrivate: true,
         isAnonymous: false,
       }),
@@ -139,11 +146,12 @@ describe('/api/add-comment', () => {
       [commentId]
     );
     expect(comments).not.toHaveProperty('error');
-    processResults(comments as any);
+    expect(await processResults(undefined, comments as any)).toBe(true);
     const expected = expectedComment(commentId, 'user1', addCommentBody);
     expect(comments).toEqual([
       expect.objectContaining({
         ...expected,
+        threadId: commentId,
         postedTimestampSec: expect.any(Number),
         updatedTimestampSec: expect.any(Number),
       }),

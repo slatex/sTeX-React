@@ -98,7 +98,7 @@ describe('/api/delete-comment', () => {
         archive: 'archive',
         filepath: 'filepath',
         selectedText: 'selectedText',
-        parentCommentId: 10,
+        parentCommentId: null,
       })
     );
 
@@ -117,14 +117,17 @@ describe('/api/delete-comment', () => {
       'SELECT * FROM comments WHERE commentId=?',
       [commentId]
     );
-    processResults(comments as any);
+    expect(await processResults(undefined, comments as any)).toBe(true);
     expect(comments).toEqual([
       expect.objectContaining({
         commentId,
+        commentType: null,
+        courseId: null,
+        courseTerm: null,
 
         archive: 'archive',
         filepath: 'filepath',
-        parentCommentId: 10,
+        parentCommentId: null,
 
         selectedText: null,
         statement: null,

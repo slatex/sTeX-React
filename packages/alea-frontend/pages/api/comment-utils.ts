@@ -38,6 +38,7 @@ export async function executeAndEndSet500OnError<T>(
   const results = await executeQueryAndEnd<T>(query, values);
   if (results['error']) {
     res.status(500).send(results);
+    console.log(results['error']);
     return undefined;
   }
   return results as T;
@@ -50,7 +51,7 @@ export async function executeDontEndSet500OnError<T>(
 ): Promise<T> {
   const results = await executeQuery<T>(query, values);
   if (results['error']) {
-    res.status(500).send(results);
+    if(res) res.status(500).send(results);
     return undefined;
   }
   return results as T;
