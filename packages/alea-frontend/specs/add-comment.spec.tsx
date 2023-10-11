@@ -146,7 +146,7 @@ describe('/api/add-comment', () => {
       [commentId]
     );
     expect(comments).not.toHaveProperty('error');
-    expect(await processResults(undefined, comments as any)).toBe(true);
+    expect(await processResults(undefined, comments as Comment[])).toBe(true);
     const expected = expectedComment(commentId, 'user1', addCommentBody);
     expect(comments).toEqual([
       expect.objectContaining({

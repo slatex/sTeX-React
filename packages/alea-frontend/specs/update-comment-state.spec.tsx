@@ -1,4 +1,4 @@
-import { HiddenStatus } from '@stex-react/api';
+import { Comment, HiddenStatus } from '@stex-react/api';
 import axios from 'axios';
 import { createMocks } from 'node-mocks-http';
 import { executeQuery } from '../pages/api/comment-utils';
@@ -96,7 +96,7 @@ describe('/api/update-comment-state', () => {
       'SELECT * FROM comments WHERE commentId=?',
       [commentId]
     );
-    expect(await processResults(undefined, comments as any)).toBe(true);
+    expect(await processResults(undefined, comments as Comment[])).toBe(true);
     expect(comments).toEqual([
       expect.objectContaining({
         hiddenStatus: 'SPAM',

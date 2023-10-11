@@ -2,6 +2,8 @@
 
 .env.local
 
+packages/alea-frontend/specs/test-dir
+
 # compiled output
 dist
 tmp
