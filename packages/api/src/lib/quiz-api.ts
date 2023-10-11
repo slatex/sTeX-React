@@ -66,6 +66,8 @@ export async function updateQuiz(quiz: Quiz) {
 
 export async function getCourseQuizList(
   courseId: string
-): Promise<{ quizId: string; quizStartTs: number }[]> {
+): Promise<
+  { quizId: string; quizStartTs: number; quizEndTs: number; title: string }[]
+> {
   return (await axios.get(`/api/get-course-quiz-list/${courseId}`)).data;
 }

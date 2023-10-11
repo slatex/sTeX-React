@@ -8,9 +8,19 @@ import { Box, Card, CircularProgress } from '@mui/material';
 import Link from 'next/link';
 import { CourseHeader } from '../course-home/[courseId]';
 import { CourseInfo } from '@stex-react/utils';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
+import {
+  ServerLinksContext,
+  mmtHTMLToReact,
+} from '@stex-react/stex-react-renderer';
 
-function getUpcomingQuiz(quizList: { quizId: string; quizStartTs: number }[]) {
+function getUpcomingQuiz(
+  quizList: {
+    quizId: string;
+    quizStartTs: number;
+    title: string;
+    quizEndTs: number;
+  }[]
+) {
   const now = Date.now();
   const upcomingQuizzes = quizList.filter(
     ({ quizStartTs }) => quizStartTs > now
@@ -24,9 +34,11 @@ function getUpcomingQuiz(quizList: { quizId: string; quizStartTs: number }[]) {
 function QuizThumbnail({
   quizId,
   quizStartTs,
+  title,
 }: {
   quizId: string;
   quizStartTs: number;
+  title: string;
 }) {
   return (
     <Link href={`/quiz/${quizId}`}>
@@ -39,7 +51,10 @@ function QuizThumbnail({
           width: 'fit-content',
         }}
       >
-        <Box>{dayjs(quizStartTs).format('MMM-DD HH:mm')}</Box>
+        <Box>{mmtHTMLToReact(title)}</Box>
+        <Box>
+          <b>{dayjs(quizStartTs).format('MMM-DD HH:mm')}</b>
+        </Box>
       </Card>
     </Link>
   );
@@ -49,14 +64,18 @@ const QuizDashPage: NextPage = () => {
   const router = useRouter();
   const courseId = router.query.courseId as string;
   const [quizList, setQuizList] = useState<
-    { quizId: string; quizStartTs: number }[]
+    { quizId: string; quizStartTs: number; quizEndTs: number; title: string }[]
   >([]);
   const upcomingQuiz = getUpcomingQuiz(quizList);
   const [courses, setCourses] = useState<
     { [id: string]: CourseInfo } | undefined
   >(undefined);
   const { mmtUrl } = useContext(ServerLinksContext);
-  const previousQuizzes = quizList.filter((q) => q.quizStartTs < Date.now());
+  const now = Date.now();
+  const previousQuizzes = quizList.filter((q) => q.quizEndTs < now);
+  const ongoingQuizzes = quizList.filter(
+    (q) => q.quizStartTs < now && q.quizEndTs >= now
+  );
 
   useEffect(() => {
     if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
@@ -88,18 +107,25 @@ const QuizDashPage: NextPage = () => {
       >
         <h1>Quiz Dashboard</h1>
 
-        {upcomingQuiz ? (
-          <>
-            <h2>Upcoming Quiz</h2>
-            <QuizThumbnail {...upcomingQuiz} />{' '}
-          </>
-        ) : (
-          <h2><i>No upcoming quizzes</i></h2>
-        )}
+        {!!ongoingQuizzes.length && <h2>On-going Quizzes</h2>}
+        {ongoingQuizzes.map((quiz) => (
+          <Box key={quiz.quizId}>
+            <QuizThumbnail {...quiz} />
+          </Box>
+        ))}
+        {!ongoingQuizzes.length &&
+          (upcomingQuiz ? (
+            <>
+              <h2>Upcoming Quiz</h2>
+              <QuizThumbnail {...upcomingQuiz} />{' '}
+            </>
+          ) : (
+            <h2><i>No upcoming quizzes</i></h2>
+          ))}
         {!!previousQuizzes.length && <h2>Previous Quizzes</h2>}
-        {previousQuizzes.map(({ quizId, quizStartTs }) => (
-          <Box key={quizId}>
-            <QuizThumbnail quizId={quizId} quizStartTs={quizStartTs} />
+        {previousQuizzes.map((quiz) => (
+          <Box key={quiz.quizId}>
+            <QuizThumbnail {...quiz} />
           </Box>
         ))}
       </Box>

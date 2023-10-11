@@ -14,7 +14,12 @@ export default async function handler(
 
   const quizzesInfo = getAllQuizzes()
     .filter((q) => q.courseId === courseId && q.courseTerm === CURRENT_TERM)
-    .map((q) => ({ quizId: q.id, quizStartTs: q.quizStartTs }));
+    .map((q) => ({
+      quizId: q.id,
+      quizStartTs: q.quizStartTs,
+      quizEndTs: q.quizEndTs,
+      title: q.title
+    }));
 
   res.status(200).json(quizzesInfo);
 }
