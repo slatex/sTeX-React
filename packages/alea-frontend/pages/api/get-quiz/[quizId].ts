@@ -112,6 +112,8 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const userId = await getUserIdOrSetError(req, res);
+  if(!userId) return;
+
   const isMod = isModerator(userId);
   const quizId = req.query.quizId as string;
 
