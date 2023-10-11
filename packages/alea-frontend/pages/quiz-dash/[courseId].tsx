@@ -1,8 +1,12 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import MainLayout from '../../layouts/MainLayout';
-import { useContext, useEffect, useState } from 'react';
-import { getCourseInfo, getCourseQuizList } from '@stex-react/api';
+import { Fragment, useContext, useEffect, useState } from 'react';
+import {
+  QuizStubInfo,
+  getCourseInfo,
+  getCourseQuizList,
+} from '@stex-react/api';
 import dayjs from 'dayjs';
 import { Box, Card, CircularProgress } from '@mui/material';
 import Link from 'next/link';
@@ -12,66 +16,70 @@ import {
   ServerLinksContext,
   mmtHTMLToReact,
 } from '@stex-react/stex-react-renderer';
+import { getLocaleObject } from '../../lang/utils';
 
-function getUpcomingQuiz(
-  quizList: {
-    quizId: string;
-    quizStartTs: number;
-    title: string;
-    quizEndTs: number;
-  }[]
-) {
-  const now = Date.now();
-  const upcomingQuizzes = quizList.filter(
-    ({ quizStartTs }) => quizStartTs > now
-  );
-  if (upcomingQuizzes.length === 0) return undefined;
-  return upcomingQuizzes.reduce((a, b) =>
-    a.quizStartTs < b.quizStartTs ? a : b
+function QuizThumbnail({ quiz }: { quiz: QuizStubInfo }) {
+  const { quizId, quizStartTs, quizEndTs, title } = quiz;
+  return (
+    <Box width="fit-content">
+      <Link href={`/quiz/${quizId}`}>
+        <Card
+          sx={{
+            backgroundColor: 'hsl(210, 20%, 95%)',
+            border: '1px solid #CCC',
+            p: '10px',
+            my: '10px',
+            width: 'fit-content',
+          }}
+        >
+          <Box>{mmtHTMLToReact(title)}</Box>
+          <Box>
+            <b>
+              {dayjs(quizStartTs).format('MMM-DD HH:mm')} to{' '}
+              {dayjs(quizEndTs).format('HH:mm')}
+            </b>
+          </Box>
+        </Card>
+      </Link>
+    </Box>
   );
 }
 
-function QuizThumbnail({
-  quizId,
-  quizStartTs,
-  title,
+function QuizList({
+  header,
+  quizList,
 }: {
-  quizId: string;
-  quizStartTs: number;
-  title: string;
+  header: string;
+  quizList: QuizStubInfo[];
 }) {
+  if (!quizList?.length) return <></>;
   return (
-    <Link href={`/quiz/${quizId}`}>
-      <Card
-        sx={{
-          backgroundColor: 'hsl(210, 20%, 95%)',
-          border: '1px solid #CCC',
-          p: '10px',
-          my: '10px',
-          width: 'fit-content',
-        }}
-      >
-        <Box>{mmtHTMLToReact(title)}</Box>
-        <Box>
-          <b>{dayjs(quizStartTs).format('MMM-DD HH:mm')}</b>
-        </Box>
-      </Card>
-    </Link>
+    <>
+      <h2>{header}</h2>
+      {quizList.map((quiz) => (
+        <Fragment key={quiz.quizId}>
+          <QuizThumbnail quiz={quiz} />
+        </Fragment>
+      ))}
+    </>
   );
 }
 
 const QuizDashPage: NextPage = () => {
   const router = useRouter();
   const courseId = router.query.courseId as string;
-  const [quizList, setQuizList] = useState<
-    { quizId: string; quizStartTs: number; quizEndTs: number; title: string }[]
-  >([]);
-  const upcomingQuiz = getUpcomingQuiz(quizList);
+  const { quiz: t } = getLocaleObject(router);
+
+  const [quizList, setQuizList] = useState<QuizStubInfo[]>([]);
   const [courses, setCourses] = useState<
     { [id: string]: CourseInfo } | undefined
   >(undefined);
   const { mmtUrl } = useContext(ServerLinksContext);
+
   const now = Date.now();
+  const upcomingQuizzes = quizList.filter(
+    ({ quizStartTs }) => quizStartTs > now
+  );
   const previousQuizzes = quizList.filter((q) => q.quizEndTs < now);
   const ongoingQuizzes = quizList.filter(
     (q) => q.quizStartTs < now && q.quizEndTs >= now
@@ -96,44 +104,24 @@ const QuizDashPage: NextPage = () => {
   }
 
   return (
-    <MainLayout title="Quiz Dashboard">
+    <MainLayout title={t.quizDashboard}>
       <CourseHeader courseInfo={courseInfo} />
       <Box maxWidth="900px" m="auto" px="10px">
-        <h1>Quiz Dashboard</h1>
-        <h2>Demo Quiz</h2>
-        {!!ongoingQuizzes.length && <h2>On-going Quizzes</h2>}
-        {ongoingQuizzes.map((quiz) => (
-          <Box key={quiz.quizId}>
-            <QuizThumbnail {...quiz} />
-          </Box>
-        ))}
+        <h1>{t.quizDashboard}</h1>
+        {t.onTimeWarning.replace('{courseId}', courseId.toUpperCase())}
+        <h2>{t.demoQuiz}</h2>
+        <QuizList header={t.ongoingQuizzes} quizList={ongoingQuizzes} />
         <a
           href="/quiz/old/MAAI%20(may)%20-%20small"
           target="_blank"
           rel="noreferrer"
           style={{ color: 'blue' }}
         >
-          This
+          {t.this}
         </a>
-        &nbsp;is a demo quiz - so that you can test your hard/software (you will
-        need a recent chrome or firefox browser) and see the format. In
-        particular, you should be able to read the Math in the travelling
-        salesperson problem.
-        {!ongoingQuizzes.length &&
-          (upcomingQuiz ? (
-            <>
-              <h2>Upcoming Quiz</h2>
-              <QuizThumbnail {...upcomingQuiz} />{' '}
-            </>
-          ) : (
-            <h2><i>No upcoming quizzes</i></h2>
-          ))}
-        {!!previousQuizzes.length && <h2>Previous Quizzes</h2>}
-        {previousQuizzes.map((quiz) => (
-          <Box key={quiz.quizId}>
-            <QuizThumbnail {...quiz} />
-          </Box>
-        ))}
+        &nbsp;{t.demoQuizText}
+        <QuizList header={t.upcomingQuizzes} quizList={upcomingQuizzes} />
+        <QuizList header={t.previousQuizzes} quizList={previousQuizzes} />
       </Box>
     </MainLayout>
   );

@@ -5,6 +5,7 @@ import {
   InsertAnswerRequest,
   Quiz,
   QuizStatsResponse,
+  QuizStubInfo,
   UserResponse,
 } from './quiz';
 
@@ -66,8 +67,6 @@ export async function updateQuiz(quiz: Quiz) {
 
 export async function getCourseQuizList(
   courseId: string
-): Promise<
-  { quizId: string; quizStartTs: number; quizEndTs: number; title: string }[]
-> {
+): Promise<QuizStubInfo[]> {
   return (await axios.get(`/api/get-course-quiz-list/${courseId}`)).data;
 }

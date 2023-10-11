@@ -38,6 +38,7 @@ function CourseThumb({ course }: { course: CourseInfo }) {
     cardsLink,
     forumLink,
     quizzesLink,
+    hasQuiz,
   } = course;
   const width = courseId === 'iwgs-1' ? 83 : courseId === 'iwgs-2' ? 165 : 200;
   return (
@@ -100,7 +101,8 @@ function CourseThumb({ course }: { course: CourseInfo }) {
 
           <Tooltip title={home.cardIntro}>
             <Link href={cardsLink} passHref>
-              <Button variant="contained">
+              <Button size="small" variant="contained">
+                {!hasQuiz && t.cards}&nbsp;
                 <Image
                   src="/noun-flash-cards-2494102.svg"
                   width={25}
@@ -113,19 +115,22 @@ function CourseThumb({ course }: { course: CourseInfo }) {
 
           <Tooltip title={t.forum}>
             <Link href={forumLink} passHref>
-              <Button variant="contained">
+              <Button size="small" variant="contained">
+                {!hasQuiz && t.forum}&nbsp;
                 <QuestionAnswerIcon />
               </Button>
             </Link>
           </Tooltip>
 
-          <Tooltip title={t.quizzes}>
-            <Link href={quizzesLink} passHref>
-              <Button variant="contained">
-                <QuizIcon />
-              </Button>
-            </Link>
-          </Tooltip>
+          {hasQuiz && (
+            <Tooltip title={t.quizzes}>
+              <Link href={quizzesLink} passHref>
+                <Button size="small" variant="contained">
+                  <QuizIcon />
+                </Button>
+              </Link>
+            </Tooltip>
+          )}
         </Box>
       </Box>
     </Card>

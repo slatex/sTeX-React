@@ -1,3 +1,4 @@
+import { QuizStubInfo } from '@stex-react/api';
 import { CURRENT_TERM } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getAllQuizzes } from '../get-all-quizzes';
@@ -12,13 +13,13 @@ export default async function handler(
     return;
   }
 
-  const quizzesInfo = getAllQuizzes()
+  const quizzesInfo: QuizStubInfo[] = getAllQuizzes()
     .filter((q) => q.courseId === courseId && q.courseTerm === CURRENT_TERM)
     .map((q) => ({
       quizId: q.id,
       quizStartTs: q.quizStartTs,
       quizEndTs: q.quizEndTs,
-      title: q.title
+      title: q.title,
     }));
 
   res.status(200).json(quizzesInfo);

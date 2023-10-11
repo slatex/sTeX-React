@@ -13,6 +13,7 @@ export interface CourseInfo {
   forumLink: string;
   quizzesLink: string;
   isCurrent: boolean;
+  hasQuiz: boolean;
 }
 
 export function getSlidesLink(courseId: string) {
@@ -46,7 +47,8 @@ export function createCourseInfo(
   notesArchive: string,
   notesFilepath: string,
   landingFilepath: string,
-  isCurrent = false
+  isCurrent = false,
+  hasQuiz = false
 ): CourseInfo {
   notesFilepath = notesFilepath.replace('.tex', '.xhtml');
   
@@ -65,7 +67,8 @@ export function createCourseInfo(
     forumLink: getForumLink(courseId),
     quizzesLink: getQuizzesLink(courseId),
     landingFilepath,
-    isCurrent
+    isCurrent,
+    hasQuiz
   };
 }
 
@@ -76,6 +79,7 @@ export const COURSES_INFO: { [courseId: string]: CourseInfo } = {
     'MiKoMH/AI',
     'course/notes/notes1.tex',
     'course/notes/coursepage1.tex',
+    true,
     true
   ),
   'ai-2': createCourseInfo(

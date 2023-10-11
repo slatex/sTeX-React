@@ -116,6 +116,13 @@ export interface InsertAnswerRequest {
   browserTimestamp_ms: number;
 }
 
+export interface QuizStubInfo {
+  quizId: string;
+  quizStartTs: number;
+  quizEndTs: number;
+  title: string;
+}
+
 function checkFilledInSolution(filledIn?: string, problem?: Problem) {
   if (!problem?.fillInSolution?.length) return Tristate.UNKNOWN;
   if (!filledIn?.length) return Tristate.FALSE;
