@@ -1,19 +1,20 @@
 import ArticleIcon from '@mui/icons-material/Article';
+import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
+import QuizIcon from '@mui/icons-material/Quiz';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
 import { Box, Button, Card, IconButton, Tooltip } from '@mui/material';
+import { getCourseInfo } from '@stex-react/api';
+import { ServerLinksContext } from '@stex-react/stex-react-renderer';
+import { CURRENT_TERM, CourseInfo } from '@stex-react/utils';
 import { NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useContext, useEffect, useState } from 'react';
 import { ToursAutocomplete } from '../components/ToursAutocomplete';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 import styles from '../styles/utils.module.scss';
-import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
-import { getCourseInfo } from '@stex-react/api';
-import { useContext, useEffect, useState } from 'react';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { CURRENT_TERM, CourseInfo } from '@stex-react/utils';
 
 function ELink({ href, children }: { href: string; children: any }) {
   return (
@@ -36,6 +37,7 @@ function CourseThumb({ course }: { course: CourseInfo }) {
     slidesLink,
     cardsLink,
     forumLink,
+    quizzesLink,
   } = course;
   const width = courseId === 'iwgs-1' ? 83 : courseId === 'iwgs-2' ? 165 : 200;
   return (
@@ -73,22 +75,32 @@ function CourseThumb({ course }: { course: CourseInfo }) {
         </Box>
         <Box
           display="flex"
-          justifyContent="space-evenly"
+          justifyContent="space-between"
           mt="5px"
           gap="5px"
           flexWrap="wrap"
         >
-          <Link href={notesLink} passHref>
-            <Button size="small" variant="contained">
-              {t.notes}&nbsp;
-              <ArticleIcon />
-            </Button>
-          </Link>
+          <Tooltip title={t.notes}>
+            <Link href={notesLink} passHref>
+              <Button size="small" variant="contained">
+                {t.notes}&nbsp;
+                <ArticleIcon />
+              </Button>
+            </Link>
+          </Tooltip>
+
+          <Tooltip title={t.slides}>
+            <Link href={slidesLink} passHref>
+              <Button size="small" variant="contained">
+                {t.slides}&nbsp;
+                <SlideshowIcon />
+              </Button>
+            </Link>
+          </Tooltip>
 
           <Tooltip title={home.cardIntro}>
             <Link href={cardsLink} passHref>
-              <Button size="small" variant="contained">
-                {t.cards}&nbsp;
+              <Button variant="contained">
                 <Image
                   src="/noun-flash-cards-2494102.svg"
                   width={25}
@@ -99,18 +111,21 @@ function CourseThumb({ course }: { course: CourseInfo }) {
             </Link>
           </Tooltip>
 
-          <Link href={slidesLink} passHref>
-            <Button size="small" variant="contained">
-              {t.slides}&nbsp;
-              <SlideshowIcon />
-            </Button>
-          </Link>
-          <Link href={forumLink} passHref>
-            <Button size="small" variant="contained">
-              {t.forum}&nbsp;
-              <QuestionAnswerIcon />
-            </Button>
-          </Link>
+          <Tooltip title={t.forum}>
+            <Link href={forumLink} passHref>
+              <Button variant="contained">
+                <QuestionAnswerIcon />
+              </Button>
+            </Link>
+          </Tooltip>
+
+          <Tooltip title={t.quizzes}>
+            <Link href={quizzesLink} passHref>
+              <Button variant="contained">
+                <QuizIcon />
+              </Button>
+            </Link>
+          </Tooltip>
         </Box>
       </Box>
     </Card>

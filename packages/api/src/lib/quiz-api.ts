@@ -63,3 +63,9 @@ export async function updateQuiz(quiz: Quiz) {
     headers: getAuthHeaders(),
   });
 }
+
+export async function getCourseQuizList(
+  courseId: string
+): Promise<{ quizId: string; quizStartTs: number }[]> {
+  return (await axios.get(`/api/get-course-quiz-list/${courseId}`)).data;
+}
