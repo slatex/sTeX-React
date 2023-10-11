@@ -129,6 +129,7 @@ const QuizDashboardPage: NextPage = () => {
     setQuizEndTs(selected.quizEndTs);
     setFeedbackReleaseTs(selected.feedbackReleaseTs);
     setManuallySetPhase(selected.manuallySetPhase);
+    setCourseId(selected.courseId);
     setTitle(selected.title);
     setProblems(selected.problems);
   }, [selectedQuizId, quizzes]);
@@ -172,7 +173,7 @@ const QuizDashboardPage: NextPage = () => {
           <Select
             label="Course Id"
             labelId="course-id-label"
-            value={manuallySetPhase}
+            value={courseId}
             onChange={(e) => setCourseId(e.target.value)}
           >
             {['', ...Object.keys(COURSES_INFO)].map((enumValue) => (

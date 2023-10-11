@@ -8,7 +8,6 @@ export function getAllQuizzes() {
   return quizFiles
     .map((file) => {
       if (!(file.startsWith('quiz-') && file.endsWith('.json'))) return;
-      console.log(file);
       const quiz = JSON.parse(
         fs.readFileSync(process.env.QUIZ_INFO_DIR + '/' + file, 'utf-8')
       ) as Quiz;
