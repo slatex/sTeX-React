@@ -49,6 +49,8 @@ export default async function handler(
         id: existingQuiz.id,
         version: existingQuiz.version + 1,
 
+        courseId: quiz.courseId,
+        courseTerm: existingQuiz.courseTerm,
         quizStartTs: quiz.quizStartTs,
         quizEndTs: quiz.quizEndTs,
         feedbackReleaseTs: quiz.feedbackReleaseTs,

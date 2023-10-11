@@ -13,6 +13,8 @@ export interface Quiz {
   id: string;
   version: number;
 
+  courseId: string;
+  courseTerm: string;
   quizStartTs: number;
   quizEndTs: number;
   feedbackReleaseTs: number;

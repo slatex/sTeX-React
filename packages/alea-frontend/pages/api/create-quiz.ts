@@ -3,6 +3,8 @@ import fs from 'fs';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { checkIfPostOrSetError, getUserIdOrSetError } from './comment-utils';
 import { doesQuizExist, getQuizFilePath } from './quiz-utils';
+import { v4 as uuidv4 } from 'uuid';
+import { CURRENT_TERM } from '@stex-react/utils';
 
 export default async function handler(
   req: NextApiRequest,
@@ -15,6 +17,7 @@ export default async function handler(
     return;
   }
   const {
+    courseId,
     quizStartTs,
     quizEndTs,
     feedbackReleaseTs,
@@ -23,9 +26,11 @@ export default async function handler(
     problems,
   } = req.body as Quiz;
   const quiz = {
-    id: 'quiz-' + crypto.randomUUID().substring(0, 8),
+    id: 'quiz-' + uuidv4().substring(0, 8),
     version: 0,
 
+    courseId,
+    courseTerm: CURRENT_TERM,
     quizStartTs,
     quizEndTs,
     feedbackReleaseTs,
@@ -45,5 +50,5 @@ export default async function handler(
 
   const filePath = getQuizFilePath(quiz.id);
   fs.writeFileSync(filePath, JSON.stringify(quiz, null, 2));
-  res.status(204).end();
+  res.status(200).json({ quizId: quiz.id });
 }

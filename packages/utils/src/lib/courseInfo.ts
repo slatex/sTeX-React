@@ -11,6 +11,7 @@ export interface CourseInfo {
   cardsLink: string;
   slidesLink: string;
   forumLink: string;
+  quizzesLink: string;
   isCurrent: boolean;
 }
 
@@ -32,6 +33,9 @@ export function getCourseHome(courseId: string) {
 
 export function getNotesLink(courseId: string) {
   return `/course-notes/${courseId}`;
+}
+export function getQuizzesLink(courseId: string) {
+  return `/quiz-dash/${courseId}`;
 }
 
 export const CURRENT_TERM = 'WS23/24';
@@ -59,9 +63,9 @@ export function createCourseInfo(
     cardsLink: getCardsLink(courseId),
     slidesLink: getSlidesLink(courseId),
     forumLink: getForumLink(courseId),
+    quizzesLink: getQuizzesLink(courseId),
     landingFilepath,
     isCurrent
-
   };
 }
 
