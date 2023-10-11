@@ -356,7 +356,7 @@ export function QuizDisplay({
               onSubmit(name, events, responses, result);
               setEvents((prev) => [...prev, timerEvent(TimerEventType.SUBMIT)]);
             }}
-            showRecordOption={showRecordOption}
+            showRecordOption={false} /*showRecordOption removed because of 'demo quiz'*/
           />
         </Dialog>
       )}

@@ -95,7 +95,7 @@ function getMaaiMayProblemURLs(mmtUrl: string, full: boolean) {
     (f) =>
       `${mmtUrl}/:sTeX/document?archive=problems/maai-test&filepath=${f}.xhtml`
   );
-  const smallSetIdx = [0, 8, 14, 18, 21];
+  const smallSetIdx = [0, 14, 18, 21];
   return full ? all : all.filter((v, idx) => smallSetIdx.includes(idx));
 }
 

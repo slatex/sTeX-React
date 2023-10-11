@@ -98,21 +98,27 @@ const QuizDashPage: NextPage = () => {
   return (
     <MainLayout title="Quiz Dashboard">
       <CourseHeader courseInfo={courseInfo} />
-      <Box
-        maxWidth="900px"
-        m="auto"
-        px="10px"
-        display="flex"
-        flexDirection="column"
-      >
+      <Box maxWidth="900px" m="auto" px="10px">
         <h1>Quiz Dashboard</h1>
-
+        <h2>Demo Quiz</h2>
         {!!ongoingQuizzes.length && <h2>On-going Quizzes</h2>}
         {ongoingQuizzes.map((quiz) => (
           <Box key={quiz.quizId}>
             <QuizThumbnail {...quiz} />
           </Box>
         ))}
+        <a
+          href="/quiz/old/MAAI%20(may)%20-%20small"
+          target="_blank"
+          rel="noreferrer"
+          style={{ color: 'blue' }}
+        >
+          This
+        </a>
+        &nbsp;is a demo quiz - so that you can test your hard/software (you will
+        need a recent chrome or firefox browser) and see the format. In
+        particular, you should be able to read the Math in the travelling
+        salesperson problem.
         {!ongoingQuizzes.length &&
           (upcomingQuiz ? (
             <>
