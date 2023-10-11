@@ -14,6 +14,7 @@ import {
   UserInfo,
   createQuiz,
   getAuthHeaders,
+  getQuizPhase,
   getQuizStats,
   getUserInfo,
   isModerator,
@@ -163,6 +164,7 @@ const QuizDashboardPage: NextPage = () => {
 
         <h2>{isNew ? 'New Quiz' : selectedQuizId}</h2>
         <b>{mmtHTMLToReact(title)}</b>
+        {selectedQuiz && <b><br/>Current State: {getQuizPhase(selectedQuiz)}</b>}
         <CheckboxWithTimestamp
           timestamp={quizStartTs}
           setTimestamp={setQuizStartTs}

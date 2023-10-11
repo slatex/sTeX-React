@@ -1,7 +1,7 @@
 export const de = {
   // content dashboard
   expandCollapseAll: 'Alles anzeigen/Minimieren',
-  search: 'Suchen',
+  search: 'Suchen Inhaltsverzeichnis',
 
   // render display options
   sectionFoldingOn: 'Abschnitte einklappen',

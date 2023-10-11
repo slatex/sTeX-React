@@ -1,13 +1,14 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { checkIfPostOrSetError, getUserIdOrSetError } from './comment-utils';
 import { queryGradingDbAndEndSet500OnError } from './grading-db-utils';
-import { getQuiz, getQuizPhase } from './quiz-utils';
+import { getQuiz } from './quiz-utils';
 import {
   Phase,
   InsertAnswerRequest,
   Tristate,
   getCorrectness,
   getProblem,
+  getQuizPhase,
 } from '@stex-react/api';
 
 export default async function handler(

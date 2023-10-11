@@ -1,7 +1,7 @@
 export const en = {
   // content dashboard
   expandCollapseAll: 'Expand/collapse all',
-  search: 'Search',
+  search: 'Search TOC',
 
   // render display options
   sectionFoldingOn: 'Turn On Section Folding',

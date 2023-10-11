@@ -8,7 +8,7 @@ import {
   getCourseQuizList,
 } from '@stex-react/api';
 import dayjs from 'dayjs';
-import { Box, Card, CircularProgress } from '@mui/material';
+import { Box, Card, CircularProgress, Typography } from '@mui/material';
 import Link from 'next/link';
 import { CourseHeader } from '../course-home/[courseId]';
 import { CourseInfo } from '@stex-react/utils';
@@ -55,7 +55,9 @@ function QuizList({
   if (!quizList?.length) return <></>;
   return (
     <>
-      <h2>{header}</h2>
+      <Typography variant="h5" sx={{ m: '30px 0 15px' }}>
+        {header}
+      </Typography>
       {quizList.map((quiz) => (
         <Fragment key={quiz.quizId}>
           <QuizThumbnail quiz={quiz} />
@@ -107,19 +109,30 @@ const QuizDashPage: NextPage = () => {
     <MainLayout title={t.quizDashboard}>
       <CourseHeader courseInfo={courseInfo} />
       <Box maxWidth="900px" m="auto" px="10px">
-        <h1>{t.quizDashboard}</h1>
-        {t.onTimeWarning.replace('{courseId}', courseId.toUpperCase())}
-        <h2>{t.demoQuiz}</h2>
+        <Typography variant="h4" sx={{ m: '30px 0 15px' }}>
+          {t.quizDashboard}
+        </Typography>
+        <Typography variant="body1" sx={{ color: '#333' }}>
+          {t.onTimeWarning.replace('{courseId}', courseId.toUpperCase())}
+        </Typography>
+
+        <Typography variant="h5" sx={{ m: '30px 0 10px' }}>
+          {t.demoQuiz}
+        </Typography>
+
+        <Typography variant="body1" sx={{ color: '#333' }}>
+          <a
+            href="/quiz/old/MAAI%20(may)%20-%20small"
+            target="_blank"
+            rel="noreferrer"
+            style={{ color: 'blue' }}
+          >
+            {t.this}
+          </a>
+          &nbsp;{t.demoQuizText}
+        </Typography>
+        
         <QuizList header={t.ongoingQuizzes} quizList={ongoingQuizzes} />
-        <a
-          href="/quiz/old/MAAI%20(may)%20-%20small"
-          target="_blank"
-          rel="noreferrer"
-          style={{ color: 'blue' }}
-        >
-          {t.this}
-        </a>
-        &nbsp;{t.demoQuizText}
         <QuizList header={t.upcomingQuizzes} quizList={upcomingQuizzes} />
         <QuizList header={t.previousQuizzes} quizList={previousQuizzes} />
       </Box>

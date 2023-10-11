@@ -305,3 +305,14 @@ export function getProblem(htmlStr: string, problemUrl: string) {
   } as Problem;
   return problem;
 }
+
+export function getQuizPhase(q: Quiz) {
+  if (q.manuallySetPhase && q.manuallySetPhase !== Phase.UNSET) {
+    return q.manuallySetPhase;
+  }
+  const now = Date.now();
+  if (now < q.quizStartTs) return Phase.NOT_STARTED;
+  if (now < q.quizEndTs) return Phase.STARTED;
+  if (now < q.feedbackReleaseTs) return Phase.ENDED;
+  return Phase.FEEDBACK_RELEASED;
+}
