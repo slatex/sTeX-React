@@ -5,6 +5,7 @@ import {
   InsertAnswerRequest,
   Quiz,
   QuizStatsResponse,
+  QuizStubInfo,
   UserResponse,
 } from './quiz';
 
@@ -62,4 +63,10 @@ export async function updateQuiz(quiz: Quiz) {
   return await axios.post('/api/update-quiz', quiz, {
     headers: getAuthHeaders(),
   });
+}
+
+export async function getCourseQuizList(
+  courseId: string
+): Promise<QuizStubInfo[]> {
+  return (await axios.get(`/api/get-course-quiz-list/${courseId}`)).data;
 }

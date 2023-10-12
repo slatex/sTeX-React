@@ -11,7 +11,9 @@ export interface CourseInfo {
   cardsLink: string;
   slidesLink: string;
   forumLink: string;
+  quizzesLink: string;
   isCurrent: boolean;
+  hasQuiz: boolean;
 }
 
 export function getSlidesLink(courseId: string) {
@@ -33,6 +35,9 @@ export function getCourseHome(courseId: string) {
 export function getNotesLink(courseId: string) {
   return `/course-notes/${courseId}`;
 }
+export function getQuizzesLink(courseId: string) {
+  return `/quiz-dash/${courseId}`;
+}
 
 export const CURRENT_TERM = 'WS23/24';
 
@@ -42,7 +47,8 @@ export function createCourseInfo(
   notesArchive: string,
   notesFilepath: string,
   landingFilepath: string,
-  isCurrent = false
+  isCurrent = false,
+  hasQuiz = false
 ): CourseInfo {
   notesFilepath = notesFilepath.replace('.tex', '.xhtml');
   
@@ -59,9 +65,10 @@ export function createCourseInfo(
     cardsLink: getCardsLink(courseId),
     slidesLink: getSlidesLink(courseId),
     forumLink: getForumLink(courseId),
+    quizzesLink: getQuizzesLink(courseId),
     landingFilepath,
-    isCurrent
-
+    isCurrent,
+    hasQuiz
   };
 }
 
@@ -72,6 +79,7 @@ export const COURSES_INFO: { [courseId: string]: CourseInfo } = {
     'MiKoMH/AI',
     'course/notes/notes1.tex',
     'course/notes/coursepage1.tex',
+    true,
     true
   ),
   'ai-2': createCourseInfo(

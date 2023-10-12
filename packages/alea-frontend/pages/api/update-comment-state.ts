@@ -32,7 +32,7 @@ export default async function handler(req, res) {
     [hiddenStatus, hiddenJustification, commentId],
     `INSERT INTO updateHistory
     (commentId, ownerId, updaterId, previousStatement, previousHiddenStatus, previousHiddenJustification, previousQuestionStatus)
-    VALUES(?, ?, ?, ?, ?, ?)`,
+    VALUES(?, ?, ?, ?, ?, ?, ?)`,
     [
       commentId,
       existing.userId,

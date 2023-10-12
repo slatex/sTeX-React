@@ -9,12 +9,22 @@ export const SYSTEM_UPDATES = [
     timestamp: dayjs('2023-02-11T00:20:00+05:30'),
   },*/
   {
+    id: 'quizzes',
+    header: 'Quizzes in ALeA',
+    content:
+      'We are pleased to announce the introduction of our new Quiz Feature on our ALeA! We will be utilizing this feature for the weekly quizzes in the AI-1 course conducted during lectures. To stay informed about upcoming quizzes, kindly visit the [quiz dashboard](https://courses.voll-ki.fau.de/quiz-dash/ai-1).',
+    header_de: 'Quizze in ALeA',
+    content_de: 'Wir freuen uns, die Einführung unseres neuen Quiz-Features auf unserem ALeA bekannt zu geben! Wir werden diese Funktion für die wöchentlichen Tests im AI-1-Kurs nutzen, die während der Vorlesungen durchgeführt werden. Um über bevorstehende Quizze auf dem Laufenden zu bleiben, besuchen Sie bitte das [Quiz-Dashboard](https://courses.voll-ki.fau.de/quiz-dash/ai-1).',
+    timestamp: dayjs('2023-10-11T20:40:00+05:30'),
+  },
+  {
     id: 'badges',
     header: 'Good deeds create positive karma.',
     content:
       'In the spirit of collaborative knowledge exchange, we have introduced our karma system. Ask questions, answer them, report errors, or provide clarifications - and earn karma points and badges along the way.  Every contribution counts, and together we can create a thriving community of learners.',
     header_de: 'Gute Taten schaffen positives Karma.',
-    content_de: 'Im Sinne des gemeinschaftlichen Wissensaustausches haben wir unser Karma-System eingeführt. Stellen Sie Fragen, beantworten Sie sie, melden Sie Fehler oder geben Sie Erläuterungen – und sammeln Sie nebenbei Karma-Punkte und Abzeichen. Jeder Beitrag zählt, und gemeinsam können wir eine lebendige Lerngemeinschaft schaffen.',
+    content_de:
+      'Im Sinne des gemeinschaftlichen Wissensaustausches haben wir unser Karma-System eingeführt. Stellen Sie Fragen, beantworten Sie sie, melden Sie Fehler oder geben Sie Erläuterungen – und sammeln Sie nebenbei Karma-Punkte und Abzeichen. Jeder Beitrag zählt, und gemeinsam können wir eine lebendige Lerngemeinschaft schaffen.',
     timestamp: dayjs('2023-06-14T19:20:00+05:30'),
   },
   {
@@ -22,7 +32,8 @@ export const SYSTEM_UPDATES = [
     header: 'Course Descriptions',
     content: 'Home pages of courses now show a description of the course.',
     header_de: 'Kursbeschreibungen',
-    content_de: 'Startseiten von Kursen zeigen jetzt eine Beschreibung des Kurses.',
+    content_de:
+      'Startseiten von Kursen zeigen jetzt eine Beschreibung des Kurses.',
     timestamp: dayjs('2023-06-13T19:20:00+05:30'),
   },
   {

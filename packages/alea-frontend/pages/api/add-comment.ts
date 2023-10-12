@@ -85,7 +85,7 @@ export default async function handler(req, res) {
       parentCommentId
     );
     if (!parentComment) {
-      res.status(error || 404).json({ message: 'Comment not found' });
+      res.status(error || 404).json({ message: 'Parent comment not found' });
       return;
     }
     threadId = parentComment.threadId;

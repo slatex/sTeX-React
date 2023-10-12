@@ -14,13 +14,14 @@ import {
   UserInfo,
   createQuiz,
   getAuthHeaders,
+  getQuizPhase,
   getQuizStats,
   getUserInfo,
   isModerator,
   updateQuiz,
 } from '@stex-react/api';
 import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
-import { roundToMinutes } from '@stex-react/utils';
+import { COURSES_INFO, roundToMinutes } from '@stex-react/utils';
 import axios, { AxiosResponse } from 'axios';
 import type { NextPage } from 'next';
 import { useEffect, useState } from 'react';
@@ -77,6 +78,7 @@ const QuizDashboardPage: NextPage = () => {
     scoreHistogram: {},
   });
   const [isUpdating, setIsUpdating] = useState(false);
+  const [courseId, setCourseId] = useState('ai-1');
   const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
   const isNew = isNewQuiz(selectedQuizId);
 
@@ -128,6 +130,7 @@ const QuizDashboardPage: NextPage = () => {
     setQuizEndTs(selected.quizEndTs);
     setFeedbackReleaseTs(selected.feedbackReleaseTs);
     setManuallySetPhase(selected.manuallySetPhase);
+    setCourseId(selected.courseId);
     setTitle(selected.title);
     setProblems(selected.problems);
   }, [selectedQuizId, quizzes]);
@@ -161,11 +164,27 @@ const QuizDashboardPage: NextPage = () => {
 
         <h2>{isNew ? 'New Quiz' : selectedQuizId}</h2>
         <b>{mmtHTMLToReact(title)}</b>
+        {selectedQuiz && <b><br/>Current State: {getQuizPhase(selectedQuiz)}</b>}
         <CheckboxWithTimestamp
           timestamp={quizStartTs}
           setTimestamp={setQuizStartTs}
           label="Quiz start time"
         />
+        <FormControl variant="outlined" sx={{ minWidth: '300px', m: '10px 0' }}>
+          <InputLabel id="course-id-label">Course Id</InputLabel>
+          <Select
+            label="Course Id"
+            labelId="course-id-label"
+            value={courseId}
+            onChange={(e) => setCourseId(e.target.value)}
+          >
+            {['', ...Object.keys(COURSES_INFO)].map((enumValue) => (
+              <MenuItem key={enumValue} value={enumValue}>
+                {enumValue}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <CheckboxWithTimestamp
           timestamp={quizEndTs}
           setTimestamp={setQuizEndTs}
@@ -207,6 +226,7 @@ const QuizDashboardPage: NextPage = () => {
             const quiz = {
               id: selectedQuizId,
               title,
+              courseId,
               quizStartTs,
               quizEndTs,
               feedbackReleaseTs,
@@ -215,11 +235,7 @@ const QuizDashboardPage: NextPage = () => {
             } as Quiz;
             let resp: AxiosResponse;
             try {
-              if (isNew) {
-                resp = await createQuiz(quiz);
-              } else {
-                resp = await updateQuiz(quiz);
-              }
+              resp = await (isNew ? createQuiz(quiz) : updateQuiz(quiz));
             } catch (e) {
               alert(e);
               location.reload();

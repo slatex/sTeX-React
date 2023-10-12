@@ -47,7 +47,8 @@
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
         "jestConfig": "packages/alea-frontend/jest.config.ts",
-        "passWithNoTests": true
+        "passWithNoTests": true,
+        "coverageReporters": ["clover", "json", "lcov", "text", "text-summary"]
       },
       "configurations": {
         "ci": {

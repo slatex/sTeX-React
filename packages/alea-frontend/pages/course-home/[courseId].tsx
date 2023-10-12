@@ -1,5 +1,6 @@
 import ArticleIcon from '@mui/icons-material/Article';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
+import QuizIcon from '@mui/icons-material/Quiz';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
 import { Box, Button, CircularProgress } from '@mui/material';
 import { getCourseInfo } from '@stex-react/api';
@@ -130,7 +131,8 @@ const CourseHomePage: NextPage = () => {
     return <>Course Not Found!</>;
   }
 
-  const { notesLink, slidesLink, cardsLink, forumLink } = courseInfo;
+  const { notesLink, slidesLink, cardsLink, forumLink, quizzesLink } =
+    courseInfo;
 
   const locale = router.locale || 'en';
   const { home } = getLocaleObject(router);
@@ -176,6 +178,10 @@ const CourseHomePage: NextPage = () => {
           <CourseComponentLink href={forumLink}>
             {t.forum}&nbsp;
             <QuestionAnswerIcon fontSize="large" />
+          </CourseComponentLink>
+          <CourseComponentLink href={quizzesLink}>
+            {t.quizzes}&nbsp;
+            <QuizIcon fontSize="large" />
           </CourseComponentLink>
         </Box>
         <Box {...({ style: { '--document-width': `${docWidth}px` } } as any)}>

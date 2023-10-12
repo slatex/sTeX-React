@@ -13,6 +13,8 @@ export interface Quiz {
   id: string;
   version: number;
 
+  courseId: string;
+  courseTerm: string;
   quizStartTs: number;
   quizEndTs: number;
   feedbackReleaseTs: number;
@@ -112,6 +114,13 @@ export interface InsertAnswerRequest {
   multipleOptionIdxs?: { [index: number]: boolean };
 
   browserTimestamp_ms: number;
+}
+
+export interface QuizStubInfo {
+  quizId: string;
+  quizStartTs: number;
+  quizEndTs: number;
+  title: string;
 }
 
 function checkFilledInSolution(filledIn?: string, problem?: Problem) {
@@ -295,4 +304,15 @@ export function getProblem(htmlStr: string, problemUrl: string) {
     fillInSolution,
   } as Problem;
   return problem;
+}
+
+export function getQuizPhase(q: Quiz) {
+  if (q.manuallySetPhase && q.manuallySetPhase !== Phase.UNSET) {
+    return q.manuallySetPhase;
+  }
+  const now = Date.now();
+  if (now < q.quizStartTs) return Phase.NOT_STARTED;
+  if (now < q.quizEndTs) return Phase.STARTED;
+  if (now < q.feedbackReleaseTs) return Phase.ENDED;
+  return Phase.FEEDBACK_RELEASED;
 }

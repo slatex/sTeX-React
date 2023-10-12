@@ -1,14 +1,14 @@
-import { GetQuizResponse, Phase, isModerator } from '@stex-react/api';
+import {
+  GetQuizResponse,
+  Phase,
+  getQuizPhase,
+  isModerator,
+} from '@stex-react/api';
 import { simpleNumberHash } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getUserIdOrSetError } from '../comment-utils';
 import { queryGradingDbAndEndSet500OnError } from '../grading-db-utils';
-import {
-  getQuiz,
-  getQuizPhase,
-  getQuizTimes,
-  removeAnswerInfo,
-} from '../quiz-utils';
+import { getQuiz, getQuizTimes, removeAnswerInfo } from '../quiz-utils';
 
 async function getUserQuizResponseOrSetError(
   quizId: string,
@@ -112,6 +112,8 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const userId = await getUserIdOrSetError(req, res);
+  if (!userId) return;
+
   const isMod = isModerator(userId);
   const quizId = req.query.quizId as string;
 

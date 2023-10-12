@@ -54,6 +54,9 @@ const ExperimentsHome: NextPage = () => {
           <Box m="10px auto" maxWidth="600px" textAlign="center">
             <Box>
               <h2>Work In Progress</h2>
+              <InternalButtonLink href="/quiz">
+                Quiz Dashboard
+              </InternalButtonLink>
               <InternalButtonLink href="/course-grade-init">
                 Learner Model Priming
               </InternalButtonLink>
@@ -61,7 +64,6 @@ const ExperimentsHome: NextPage = () => {
               <InternalButtonLink href="/file-browser">
                 View article browser
               </InternalButtonLink>
-              <InternalButtonLink href="/quiz">Quiz Demo</InternalButtonLink>
               <InternalButtonLink href="/visualization">
                 Visualization Demo
               </InternalButtonLink>
