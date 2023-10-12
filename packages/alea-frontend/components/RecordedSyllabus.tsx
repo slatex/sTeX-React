@@ -90,8 +90,10 @@ function getLectureDescs(sections: SectionInfo[]): {
   const descriptions: { [timestamp_ms: number]: string } = {};
   for (const timestamp_ms of Object.keys(descPieces)) {
     const pieces = descPieces[timestamp_ms];
-    const isJoined = pieces.some((piece) => piece.includes(',') || piece.includes('\n'));
-    const joiner = isJoined ? joinerForLevel(sections[0]?.level): ', ';
+    const isJoined = pieces.some(
+      (piece) => piece.includes(',') || piece.includes('\n')
+    );
+    const joiner = isJoined ? joinerForLevel(sections[0]?.level) : ', ';
     descriptions[timestamp_ms] = pieces.join(joiner);
   }
   return descriptions;
@@ -118,6 +120,7 @@ export function RecordedSyllabus({ courseId }: { courseId: string }) {
   if (!courseId) return null;
   const rows = Object.keys(lectureDescs).map((n) => +n);
   if (!rows || !rows?.length) return null;
+  const hasAnyVideoClip = Object.keys(lectureClipIds).length>0;
 
   return (
     <Box mt="10px">
@@ -125,7 +128,7 @@ export function RecordedSyllabus({ courseId }: { courseId: string }) {
         <tr>
           <th style={{ textAlign: 'left' }}>Date</th>
           <th style={{ textAlign: 'left' }}>Topics</th>
-          <th style={{ textAlign: 'left' }}>Video</th>
+          {hasAnyVideoClip  && <th style={{ textAlign: 'left' }}>Video</th>}
         </tr>
         {rows.map((timestamp_ms, idx) => (
           <tr key={timestamp_ms} style={{ border: '1px solid black' }}>
@@ -136,19 +139,21 @@ export function RecordedSyllabus({ courseId }: { courseId: string }) {
             <td style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
               <MdViewer content={lectureDescs[timestamp_ms]} />
             </td>
-            <td>
-              {lectureClipIds[timestamp_ms]?.length > 0 && (
-                <a
-                  href={`https://fau.tv/clip/id/${lectureClipIds[timestamp_ms]}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <IconButton size="large" sx={{ m: '10px' }}>
-                    <OndemandVideoIcon />
-                  </IconButton>
-                </a>
-              )}
-            </td>
+            {hasAnyVideoClip && (
+              <td>
+                {lectureClipIds[timestamp_ms]?.length > 0 && (
+                  <a
+                    href={`https://fau.tv/clip/id/${lectureClipIds[timestamp_ms]}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <IconButton size="large" sx={{ m: '10px' }}>
+                      <OndemandVideoIcon />
+                    </IconButton>
+                  </a>
+                )}
+              </td>
+            )}
           </tr>
         ))}
       </table>
