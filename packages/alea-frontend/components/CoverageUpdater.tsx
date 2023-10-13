@@ -113,11 +113,21 @@ export function CoverageUpdater({
                 label="Section Name"
                 sx={{ width: '300px' }}
               >
-                {sectionNames.map((option) => (
-                  <MenuItem key={option} value={option.trim()}>
-                    {option}
-                  </MenuItem>
-                ))}
+                {sectionNames.map((option) => {
+                  const isDuplicate =
+                    sectionNames.indexOf(option) !==
+                    sectionNames.lastIndexOf(option);
+                  const wrappedOption = isDuplicate ? (
+                    <del style={{ color: 'red' }}>{option}</del>
+                  ) : (
+                    option
+                  );
+                  return (
+                    <MenuItem key={option} value={option.trim()}>
+                      {wrappedOption}
+                    </MenuItem>
+                  );
+                })}
               </Select>
             </FormControl>
           </td>
