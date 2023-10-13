@@ -19,7 +19,22 @@ interface FormWithListProps {
   setSnaps: React.Dispatch<React.SetStateAction<CoverageSnap[]>>;
   sectionNames: string[];
 }
+function findDuplicates(arr: string[]): string[] {
+  const duplicates: string[] = [];
+  const seen: { [key: string]: boolean } = {};
 
+  for (let i = 0; i < arr.length; i++) {
+    const item = arr[i];
+
+    if (seen[item]) {
+      duplicates.push(item);
+    } else {
+      seen[item] = true;
+    }
+  }
+
+  return duplicates;
+}
 export function CoverageUpdater({
   snaps,
   setSnaps,
@@ -28,6 +43,8 @@ export function CoverageUpdater({
   const [sectionName, setSectionName] = useState('');
   const [clipId, setClipId] = useState('');
   const [selectedTimestamp, setSelectedTimestamp] = useState(Date.now());
+
+  const duplicateNames: string[] = findDuplicates(sectionNames.map((option)=>option.trim()));
 
   const handleAddItem = () => {
     if (!sectionName?.length) return;
@@ -40,6 +57,7 @@ export function CoverageUpdater({
     setSectionName('');
     setSelectedTimestamp(Date.now());
   };
+  
 
   return (
     <Box mt="10px">
@@ -114,17 +132,11 @@ export function CoverageUpdater({
                 sx={{ width: '300px' }}
               >
                 {sectionNames.map((option) => {
-                  const isDuplicate =
-                    sectionNames.indexOf(option) !==
-                    sectionNames.lastIndexOf(option);
-                  const wrappedOption = isDuplicate ? (
-                    <del style={{ color: 'red' }}>{option}</del>
-                  ) : (
-                    option
-                  );
+                  const isDuplicate =duplicateNames.includes(option.trim());
+                  
                   return (
-                    <MenuItem key={option} value={option.trim()}>
-                      {wrappedOption}
+                    <MenuItem key={option} value={option.trim()} sx={{backgroundColor:isDuplicate?"red":undefined}}>
+                      {option}
                     </MenuItem>
                   );
                 })}
