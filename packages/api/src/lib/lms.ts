@@ -69,12 +69,8 @@ export const ALL_DIMENSIONS = [
 ];
 
 export interface LMSEvent {
-  type:
-    | 'i-know'
-    | 'question-answered'
-    | 'self-assessment-5StepLikertSmileys'
-    | 'course-init';
-
+  type: 'i-know' | 'question-answered' | 'self-assessment-5StepLikertSmileys' | 'course-init';
+  
   URI?: string; // The uri that "i-know" or the question answered filename.
 
   course?: string; // The course id.
@@ -93,7 +89,7 @@ export interface UserInfo {
 }
 
 export function getAccessToken() {
-  return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZmFrZV9qb3kiLCJnaXZlbl9uYW1lIjoiRmFrZSBVc2VyOiBqb3kiLCJzbiI6IiIsImlzc3VlZCI6MTY5NTQxMDE5MC4yMDUwNDN9.bU71P5n3kaNECECadtIMlQ7wPr-ZGGMqfuNkaJI9q9U';
+  return getCookie('access_token');
 }
 
 const FAKE_USER_DEFAULT_COMPETENCIES: { [id: string]: string[] } = {

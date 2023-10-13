@@ -36,7 +36,6 @@ function getSectionNames(data: SectionsAPIData, level = 0): string[] {
   return names;
 }
 
-
 const CoverageUpdatePage: NextPage = () => {
   const router = useRouter();
   const courseId = router.query.courseId as string;
@@ -73,7 +72,6 @@ const CoverageUpdatePage: NextPage = () => {
     }
     getSections();
   }, [mmtUrl, courses]);
-
 
   useEffect(() => {
     if (!router.isReady || !courseId?.length) return;
@@ -113,7 +111,6 @@ const CoverageUpdatePage: NextPage = () => {
           setSnaps={setSnaps}
           sectionNames={sectionNames}
         />
-        
         <Button
           variant="contained"
           onClick={() => {
