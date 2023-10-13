@@ -44,7 +44,9 @@ export function CoverageUpdater({
   const [clipId, setClipId] = useState('');
   const [selectedTimestamp, setSelectedTimestamp] = useState(Date.now());
 
-  const duplicateNames: string[] = findDuplicates(sectionNames.map((option)=>option.trim()));
+  const duplicateNames: string[] = findDuplicates(
+    sectionNames.map((option) => option.trim())
+  );
 
   const handleAddItem = () => {
     if (!sectionName?.length) return;
@@ -57,7 +59,6 @@ export function CoverageUpdater({
     setSectionName('');
     setSelectedTimestamp(Date.now());
   };
-  
 
   return (
     <Box mt="10px">
@@ -132,10 +133,14 @@ export function CoverageUpdater({
                 sx={{ width: '300px' }}
               >
                 {sectionNames.map((option) => {
-                  const isDuplicate =duplicateNames.includes(option.trim());
-                  
+                  const isDuplicate = duplicateNames.includes(option.trim());
+
                   return (
-                    <MenuItem key={option} value={option.trim()} sx={{backgroundColor:isDuplicate?"red":undefined}}>
+                    <MenuItem
+                      key={option}
+                      value={option.trim()}
+                      sx={{ backgroundColor: isDuplicate ? 'red' : undefined }}
+                    >
                       {option}
                     </MenuItem>
                   );
