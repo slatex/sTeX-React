@@ -6,6 +6,7 @@ export const MODERATORS = [
   'ub59asib', // Dominic
   'do45qahi', // Dennis
   'ym23eqaw', // Abhishek
+  'fake_joy',
 ];
 
 export enum HiddenStatus {
