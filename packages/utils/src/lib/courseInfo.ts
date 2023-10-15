@@ -119,6 +119,15 @@ export const COURSES_INFO: { [courseId: string]: CourseInfo } = {
     'course/notes/coursepage',
     true
   ),
+  'gdp': createCourseInfo(
+    'gdp',
+    'Grundlagen der Programmierung',
+    'courses/FAU/gdp',
+    'course/notes/notes.xhtml',
+    'course/notes/coursepage',
+    true,
+    true
+  )
 };
 
 export interface CoverageSnap {
