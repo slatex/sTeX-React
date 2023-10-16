@@ -96,7 +96,7 @@ export function ProblemDisplay({
           <RadioGroup
             aria-labelledby="demo-customized-radios"
             name="customized-radios"
-            value={selectedIdx?.toString()}
+            value={selectedIdx?.toString() ?? '-1'}
             onChange={(e) => {
               if (isFrozen) return;
               onResponseUpdate({ singleOptionIdxs: [+e.target.value] });

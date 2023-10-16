@@ -7,20 +7,21 @@ export let options = {
   scenarios: {
     contacts: {
       executor: 'per-vu-iterations',
-      vus: 10,
+      vus: 500,
       iterations: 1,
       maxDuration: '5m',
     },
   },
 };
 
+const SERVER = 'https://courses.voll-ki.fau.de'; //http://[::1]:4200 'https://courses.voll-ki.fau.de';
 const data = new SharedArray('some data name', function () {
   const tokens = Object.values(JSON.parse(open('./prod_access_tokens.json')));
   console.log(tokens.slice(0, 10));
   return tokens;
 });
 
-const quizId = 'quiz-c7491d6d';
+const quizId = 'quiz-c7491d6d'; // quiz-40b626ca quiz-c7491d6d
 
 // Generate a random number between 0 and n-1
 function getRandomInt(n) {
@@ -49,11 +50,11 @@ function getResponsesForProblem(problem) {
     ];
   } else if (problem.includes('data-problem-scb')) {
     return [
-      { singleOptionIdx: 0 },
-      { singleOptionIdx: 1 },
-      { singleOptionIdx: 2 },
-      { singleOptionIdx: 3 },
-      { singleOptionIdx: getRandomInt(4) },
+      { singleOptionIdxs: [0] },
+      { singleOptionIdxs: [1] },
+      { singleOptionIdxs: [2] },
+      { singleOptionIdxs: [3] },
+      { singleOptionIdxs: [getRandomInt(4)] },
     ];
   } else {
     return [
@@ -87,7 +88,10 @@ function getRandomPermutation(n) {
 export default function () {
   const userNo = __VU - 1;
   const token = data[userNo];
-  const headers = { Authorization: `JWT ${token}` };
+  const headers = {
+    Authorization: `JWT ${token}`,
+    'Content-Type': 'application/json',
+  };
 
   // User calls API to get user info (Worst case: 3 times per reload)
   let userInfoResponse = http.get('https://lms.voll-ki.fau.de/getuserinfo', {
@@ -98,15 +102,14 @@ export default function () {
     'User Info Status is 200': (r) => r.status === 200,
   });
 
-  let quizInfoResponse = http.get(
-    `https://courses.voll-ki.fau.de/api/get-quiz/${quizId}`,
-    { headers, responseType: 'text' }
-  );
+  let quizInfoResponse = http.get(`${SERVER}/api/get-quiz/${quizId}`, {
+    headers,
+    responseType: 'text',
+  });
 
   check(quizInfoResponse, {
     'Quiz Info Status is 200': (r) => r.status === 200,
   });
-  console.log(quizInfoResponse);
 
   const quizData = quizInfoResponse.json();
   const problems = quizData.problems;
@@ -117,28 +120,29 @@ export default function () {
   problemOrder.push(...getRandomPermutation(problemIds.length));
   console.log(problemOrder);
 
-  for (const problemIdx of problemOrder.slice(0,3)) {
+  for (const problemIdx of problemOrder) {
     const problemId = problemIds[problemIdx];
     const problem = problems[problemId];
     const reponses = getResponsesForProblem(problem);
 
     for (const response of reponses) {
       const data = response;
-      console.log(`${userNo} answering ${JSON.stringify(data)} for ${problemId}`);
       data.problemId = problemId;
       data.quizId = quizId;
       data.browserTimestamp_ms = Date.now();
       const answerResponse = http.post(
-        'https://courses.voll-ki.fau.de/api/insert-quiz-response',
-        data,
+        `${SERVER}/api/insert-quiz-response`,
+        JSON.stringify(data),
         { headers }
       );
       check(answerResponse, {
-        'Answer Status is 204': (r) => r.status === 204,
+        'Answer Status is 204:': (r) => r.status === 204,
       });
-
+      if(answerResponse.status !== 204) {
+        console.log(`${__VU} answering ${JSON.stringify(data)} for ${problemId}`);
+        console.log('Failed: ', answerResponse.status, data. answerResponse.body);
+      }
       sleep(1); // Sleep better
-
     }
 
     // Sleep for a randomized time to simulate the user's activity over 5 minutes
