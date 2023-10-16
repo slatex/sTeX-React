@@ -52,7 +52,7 @@ export function CourseHeader({ courseInfo }: { courseInfo: CourseInfo }) {
   const courseId = courseInfo.courseId;
   if (!courseInfo) return <></>;
   const { courseName, imageLink } = courseInfo;
-  const allowCrop = ['ai-1', 'ai-2', 'lbs'].includes(courseId);
+  const allowCrop = ['ai-1', 'ai-2', 'lbs', 'gdp'].includes(courseId);
   return (
     <Box textAlign="center">
       <Link href={`/course-home/${courseId}`}>
