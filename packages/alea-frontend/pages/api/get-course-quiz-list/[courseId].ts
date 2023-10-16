@@ -1,7 +1,7 @@
 import { QuizStubInfo } from '@stex-react/api';
 import { CURRENT_TERM } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getAllQuizzes } from '../get-all-quizzes';
+import { getAllQuizzes } from '../quiz-utils';
 
 export default async function handler(
   req: NextApiRequest,
