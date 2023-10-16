@@ -139,8 +139,7 @@ export function StexReactRenderer({
         >
           <Box px="10px" bgcolor={BG_COLOR} ref={outerBox}>
             <Box
-              m="0 auto"
-              sx={{ overflowWrap: 'anywhere' }}
+              sx={{ overflowWrap: 'anywhere', textAlign: 'left' }}
               width="max-content"
               {...({
                 style: { '--document-width': `${contentWidth}px` },
@@ -151,7 +150,11 @@ export function StexReactRenderer({
                   <ExpandableContextMenu contentUrl={contentUrl} />
                 </Box>
               )}
-              <Box display="flex" justifyContent="space-around">
+              <Box
+                display="flex"
+                justifyContent="space-around"
+                textAlign="left"
+              >
                 <Box width={`${contentWidth}px`}>
                   <ContentFromUrl
                     topLevelDocUrl={contentUrl}

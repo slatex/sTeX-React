@@ -100,25 +100,12 @@ export function CourseHeader({ courseInfo }: { courseInfo: CourseInfo }) {
 
 const CourseHomePage: NextPage = () => {
   const router = useRouter();
-  const [docWidth, setDocWidth] = useState(500);
   const containerRef = useRef<HTMLDivElement>(null);
   const courseId = router.query.courseId as string;
   const [courses, setCourses] = useState<
     { [id: string]: CourseInfo } | undefined
   >(undefined);
   const { mmtUrl } = useContext(ServerLinksContext);
-
-  useEffect(() => {
-    if (!router.isReady) return;
-    function handleResize() {
-      const outerWidth = containerRef?.current?.clientWidth;
-      if (!outerWidth) return;
-      setDocWidth(outerWidth);
-    }
-    handleResize();
-    Window?.addEventListener('resize', handleResize);
-    return () => Window?.removeEventListener('resize', handleResize);
-  }, [router.isReady]);
 
   useEffect(() => {
     if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
@@ -144,6 +131,7 @@ const CourseHomePage: NextPage = () => {
       bgColor={BG_COLOR}
     >
       <CourseHeader courseInfo={courseInfo} />
+
       <Box
         maxWidth="900px"
         m="auto"
@@ -184,7 +172,7 @@ const CourseHomePage: NextPage = () => {
             <QuizIcon fontSize="large" />
           </CourseComponentLink>
         </Box>
-        <Box {...({ style: { '--document-width': `${docWidth}px` } } as any)}>
+        <Box {...({ style: { '--document-width': `100%` } } as any)}>
           <ContentFromUrl
             url={XhtmlContentUrl(
               courseInfo.notesArchive,
