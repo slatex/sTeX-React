@@ -16,7 +16,7 @@ async function getUserQuizResponseOrSetError(
   res: NextApiResponse
 ) {
   const results: any[] = await queryGradingDbAndEndSet500OnError(
-    `SELECT problemId, singleOptionIdx, multipleOptionIdxs, filledInAnswer
+    `SELECT problemId, singleOptionIdxs, multipleOptionIdxs, filledInAnswer
     FROM grading
     WHERE (quizId, problemId, browserTimestamp_ms) IN (
         SELECT quizId, problemId, MAX(browserTimestamp_ms) AS browserTimestamp_ms
@@ -30,26 +30,29 @@ async function getUserQuizResponseOrSetError(
   if (!results) return undefined;
   const responses: {
     [problemId: string]: {
-      singleOptionIdx?: number;
+      singleOptionIdxs?: number[];
       multipleOptionIdxs?: { [index: number]: boolean };
       filledInAnswer?: string;
     };
   } = {};
 
   for (const r of results) {
-    const { problemId, singleOptionIdx, multipleOptionIdxs, filledInAnswer } =
+    const { problemId, singleOptionIdxs, multipleOptionIdxs, filledInAnswer } =
       r;
-    const multiIdxs = multipleOptionIdxs?.length ? {} : null;
 
+    const singleOptionIdxsArr = singleOptionIdxs?.length
+      ? singleOptionIdxs.split(',').map((s) => parseInt(s))
+      : null;
+
+    const multiIdxs = multipleOptionIdxs?.length ? {} : null;
     if (multiIdxs) {
       multipleOptionIdxs
         ?.split(',')
         .map((s) => parseInt(s))
         .forEach((idx) => (multiIdxs[idx] = true));
     }
-
     const data = {
-      singleOptionIdx,
+      singleOptionIdxs: singleOptionIdxsArr,
       multipleOptionIdxs: multiIdxs,
       filledInAnswer,
     };

@@ -18,7 +18,7 @@ export async function insertAnswer(
     quizId,
     problemId,
     filledInAnswer: response.filledInAnswer,
-    singleOptionIdx: response.singleOptionIdx,
+    singleOptionIdxs: response.singleOptionIdxs,
     multipleOptionIdxs: response.multipleOptionIdxs,
     browserTimestamp_ms: Date.now(),
   };

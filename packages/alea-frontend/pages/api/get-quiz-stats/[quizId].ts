@@ -40,7 +40,7 @@ export default async function handler(
   const results2: any[] = await queryGradingDbAndEndSet500OnError(
     `SELECT score, COUNT(*) AS numStudents
     FROM (
-      SELECT userId, COUNT(*) as score
+      SELECT userId, SUM(points) as score
       FROM grading
       WHERE (quizId, problemId, userId, browserTimestamp_ms) IN (
         SELECT quizId, problemId, userId, MAX(browserTimestamp_ms) AS browserTimestamp_ms
@@ -48,7 +48,6 @@ export default async function handler(
         WHERE quizId = ?
         GROUP BY quizId, problemId, userId
       )
-      AND isCorrect = true
       GROUP BY userId
     ) AS T1
     GROUP BY score`,

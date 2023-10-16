@@ -28,7 +28,7 @@ export function getQuizResult(
   events: TimerEvent[],
   problemUrls: string[],
   responses: { [problemId: string]: UserResponse },
-  correctness: { [problemId: string]: Tristate }
+  points: { [problemId: string]: number | undefined }
 ): QuizResult {
   return {
     resultId: uuidv4(),
@@ -40,7 +40,7 @@ export function getQuizResult(
       duration_ms: getElapsedTime(events, idx),
       url,
       response: responses[url],
-      correctness: correctness[url],
+      points: points[url],
     })),
   };
 }
@@ -169,7 +169,7 @@ const QuizPage: NextPage = () => {
           quizId={undefined}
           showPerProblemTime={true}
           problems={problems}
-          onSubmit={async (name, events, responses, result) => {
+          onSubmit={async (name, events, responses, points) => {
             setIsSubmitted(true);
             if (!name?.length) return;
             await axios.post(
@@ -180,7 +180,7 @@ const QuizPage: NextPage = () => {
                 events,
                 problemUrls,
                 responses,
-                result
+                points
               )
             );
           }}

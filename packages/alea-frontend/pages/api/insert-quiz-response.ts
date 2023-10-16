@@ -6,7 +6,7 @@ import {
   Phase,
   InsertAnswerRequest,
   Tristate,
-  getCorrectness,
+  getPoints,
   getProblem,
   getQuizPhase,
 } from '@stex-react/api';
@@ -21,7 +21,7 @@ export default async function handler(
   const {
     quizId,
     problemId,
-    singleOptionIdx,
+    singleOptionIdxs,
     multipleOptionIdxs,
     filledInAnswer,
     browserTimestamp_ms,
@@ -45,32 +45,27 @@ export default async function handler(
     return;
   }
 
-  const correctness = getCorrectness(getProblem(problem, undefined), {
-    singleOptionIdx,
-    multipleOptionIdxs,
-    filledInAnswer,
-  });
-
-  const isCorrect =
-    correctness === Tristate.TRUE
-      ? true
-      : correctness === Tristate.FALSE
-      ? false
-      : null;
+  const points =
+    getPoints(getProblem(problem, undefined), {
+      singleOptionIdxs,
+      multipleOptionIdxs,
+      filledInAnswer,
+    }) ?? null;
 
   const multipleOptionIdxList = Object.keys(multipleOptionIdxs || {})
     .filter((k) => multipleOptionIdxs[k])
     .join(',');
+  const singleOptionIdxsList = (singleOptionIdxs || [])?.join(',');
   const results = await queryGradingDbAndEndSet500OnError(
-    'INSERT INTO grading(userId, quizId, problemId, singleOptionIdx, multipleOptionIdxs, filledInAnswer, isCorrect, browserTimestamp_ms) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+    'INSERT INTO grading(userId, quizId, problemId, singleOptionIdxs, multipleOptionIdxs, filledInAnswer, points, browserTimestamp_ms) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
     [
       userId,
       quizId,
       problemId,
-      singleOptionIdx,
+      singleOptionIdxsList,
       multipleOptionIdxList,
       filledInAnswer,
-      isCorrect,
+      points,
       browserTimestamp_ms,
     ],
     res

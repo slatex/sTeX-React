@@ -18,7 +18,7 @@ import {
   TimerEventType,
   Tristate,
   UserResponse,
-  getCorrectness,
+  getPoints,
 } from '@stex-react/api';
 import {
   FixedPositionMenu,
@@ -33,13 +33,14 @@ import { QuizTimer, Timer, timerEvent } from './QuizTimer';
 function isAnswered(r: UserResponse) {
   return (
     !!r?.filledInAnswer?.length ||
-    r?.singleOptionIdx >= 0 ||
+    // TODO: support multiple scbs.
+    r?.singleOptionIdxs?.[0] >= 0 ||
     Object.values(r?.multipleOptionIdxs ?? {}).some((v) => v === true)
   );
 }
 function IndexEntry({
   response,
-  result,
+  points,
   idx,
   selectedIdx,
   isFrozen,
@@ -48,7 +49,7 @@ function IndexEntry({
   onSelect,
 }: {
   response: UserResponse;
-  result: Tristate;
+  points: number | undefined;
   idx: number;
   selectedIdx: number;
   isFrozen: boolean;
@@ -56,8 +57,9 @@ function IndexEntry({
   showClock: boolean;
   onSelect: (idx: number) => void;
 }) {
-  const isCorrectnessKnown = isFrozen && result !== Tristate.UNKNOWN;
-  const isCorrect = result === Tristate.TRUE;
+  const isCorrectnessKnown = isFrozen && points !== undefined;
+  // TODO: support problem score.
+  const isCorrect = points === 1;
   const answered = isAnswered(response);
   return (
     <span
@@ -97,7 +99,7 @@ function IndexEntry({
 
 function ProblemNavigation({
   responses,
-  result,
+  points,
   problemIdx,
   isFrozen,
   showClock,
@@ -106,7 +108,7 @@ function ProblemNavigation({
   onSelect,
 }: {
   responses: { [problemId: string]: UserResponse };
-  result: { [problemId: string]: Tristate };
+  points: { [problemId: string]: number | undefined };
   problemIdx: number;
   isFrozen: boolean;
   showClock: boolean;
@@ -128,7 +130,7 @@ function ProblemNavigation({
         <IndexEntry
           key={problemId}
           response={responses[problemId]}
-          result={result[problemId]}
+          points={points[problemId]}
           idx={idx}
           events={events}
           showClock={showClock}
@@ -145,13 +147,13 @@ function computeResult(
   problems: { [problemId: string]: Problem },
   responses: { [problemId: string]: UserResponse }
 ) {
-  const result: { [problemId: string]: Tristate } = {};
+  const points: { [problemId: string]: number } = {};
   for (const problemId of Object.keys(problems ?? {})) {
     const r = responses[problemId];
     const q = problems[problemId];
-    result[problemId] = getCorrectness(q, r);
+    points[problemId] = getPoints(q, r);
   }
-  return result;
+  return points;
 }
 
 export function QuizDisplay({
@@ -176,11 +178,13 @@ export function QuizDisplay({
     name: string,
     events: TimerEvent[],
     responses: { [problemId: string]: UserResponse },
-    result: { [problemId: string]: Tristate }
+    result: { [problemId: string]: number|undefined }
   ) => void;
   showRecordOption?: boolean;
 }) {
-  const [result, setResult] = useState<{ [problemId: string]: Tristate }>({});
+  const [points, setPoints] = useState<{
+    [problemId: string]: number | undefined;
+  }>({});
   const [responses, setResponses] = useState<{
     [problemId: string]: UserResponse;
   }>({});
@@ -206,7 +210,7 @@ export function QuizDisplay({
       const e = existingResponses[problemId];
       rs[problemId] = {
         filledInAnswer: e?.filledInAnswer ?? '',
-        singleOptionIdx: e?.singleOptionIdx ?? -1,
+        singleOptionIdxs: e?.singleOptionIdxs ?? [],
         multipleOptionIdxs: e?.multipleOptionIdxs ?? {},
       };
     }
@@ -215,7 +219,7 @@ export function QuizDisplay({
 
   useEffect(() => {
     if (!isFrozen) return;
-    setResult(computeResult(problems, responses));
+    setPoints(computeResult(problems, responses));
   }, [isFrozen, problems, responses]);
 
   function setProblemIdx2(i: number) {
@@ -244,7 +248,7 @@ export function QuizDisplay({
     <LayoutWithFixedMenu
       menu={
         <ProblemNavigation
-          result={result}
+          points={points}
           responses={responses}
           problemIdx={problemIdx}
           isFrozen={isFrozen}
@@ -326,14 +330,11 @@ export function QuizDisplay({
               Finish
             </Button>
           )
-        ) : !Object.values(result).some((s) => s === Tristate.UNKNOWN) ? (
+        ) : !Object.values(points).some((s) => s === undefined) ? (
           <i style={{ margin: '20px 0', color: '#333', fontSize: '26px' }}>
-            You answered{' '}
-            {Object.values(result).reduce(
-              (prev, s) => prev + (s === Tristate.TRUE ? 1 : 0),
-              0
-            )}{' '}
-            out of {problemIds.length} problems correctly
+            Your scored{' '}
+            {Object.values(points).reduce((prev, s) => prev + (s ?? 0), 0)} out
+            of {problemIds.length}.
           </i>
         ) : (
           <i style={{ margin: '20px 0', color: '#333', fontSize: '26px' }}>
@@ -353,10 +354,12 @@ export function QuizDisplay({
               setShowSubmitDialog(false);
               if (!submit) return;
 
-              onSubmit(name, events, responses, result);
+              onSubmit(name, events, responses, points);
               setEvents((prev) => [...prev, timerEvent(TimerEventType.SUBMIT)]);
             }}
-            showRecordOption={false} /*showRecordOption removed because of 'demo quiz'*/
+            showRecordOption={
+              false
+            } /*showRecordOption removed because of 'demo quiz'*/
           />
         </Dialog>
       )}

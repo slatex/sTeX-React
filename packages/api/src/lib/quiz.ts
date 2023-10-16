@@ -54,7 +54,7 @@ export interface Problem {
 
 export interface UserResponse {
   filledInAnswer?: string;
-  singleOptionIdx?: number;
+  singleOptionIdxs?: number[];
   multipleOptionIdxs?: { [index: number]: boolean };
 }
 
@@ -80,7 +80,7 @@ export enum TimerEventType {
 export interface ProblemInfo {
   duration_ms: number;
   url: string;
-  correctness: Tristate;
+  points: number | undefined;
   response: UserResponse;
 }
 
@@ -98,7 +98,7 @@ export interface GetQuizResponse {
   quizStartTs?: number;
   quizEndTs?: number;
   feedbackReleaseTs?: number;
-  
+
   phase: Phase;
 
   problems: { [problemId: string]: string };
@@ -110,7 +110,7 @@ export interface InsertAnswerRequest {
   problemId: string;
 
   filledInAnswer?: string;
-  singleOptionIdx?: number;
+  singleOptionIdxs?: number[];
   multipleOptionIdxs?: { [index: number]: boolean };
 
   browserTimestamp_ms: number;
@@ -123,27 +123,25 @@ export interface QuizStubInfo {
   title: string;
 }
 
-function checkFilledInSolution(filledIn?: string, problem?: Problem) {
-  if (!problem?.fillInSolution?.length) return Tristate.UNKNOWN;
-  if (!filledIn?.length) return Tristate.FALSE;
+function filledInProblemPoints(filledIn?: string, problem?: Problem) {
+  if (!problem?.fillInSolution?.length) return undefined;
+  if (!filledIn?.length) return 0;
   return filledIn.toLowerCase() === problem?.fillInSolution?.toLowerCase()
-    ? Tristate.TRUE
-    : Tristate.FALSE;
+    ? 1
+    : 0;
 }
 
-function checkMultiChoiceSingleAnswerSolution(
-  singleOptionIdx?: number,
-  problem?: Problem
-) {
+function singleAnswerMCQPoints(singleOptionIdxs?: number[], problem?: Problem) {
+  if (!singleOptionIdxs?.length) return 0;
   const options = problem?.options ?? [];
   const correctOption = options.findIndex(
     (o) => o.shouldSelect === Tristate.TRUE
   );
-  if (correctOption === -1) return Tristate.UNKNOWN;
-  return singleOptionIdx === correctOption ? Tristate.TRUE : Tristate.FALSE;
+  if (correctOption === -1) return undefined;
+  return singleOptionIdxs?.[0] === correctOption ? 1 : 0;
 }
 
-function checkMultiChoiceMultiAnswerSolution(
+function multiAnswerMCQPoints(
   multiOptionIdx?: { [index: number]: boolean },
   problem?: Problem
 ) {
@@ -151,31 +149,27 @@ function checkMultiChoiceMultiAnswerSolution(
   const anyUnknown = options.some(
     (option) => option.shouldSelect === Tristate.UNKNOWN
   );
-  if (anyUnknown) return Tristate.UNKNOWN;
+  if (anyUnknown) return undefined;
   for (const [idx, option] of options.entries() ?? []) {
     const isSelected = multiOptionIdx?.[idx] ?? false;
     const shouldSelect = option.shouldSelect === Tristate.TRUE;
-    if (isSelected !== shouldSelect) return Tristate.FALSE;
+    if (isSelected !== shouldSelect) return 0;
   }
-  return Tristate.TRUE;
+  return 1;
 }
 
-export function getCorrectness(problem: Problem, response?: UserResponse) {
-  if (!response) return Tristate.FALSE;
-  const {
-    filledInAnswer,
-    singleOptionIdx,
-    multipleOptionIdxs: multiOptionIdx,
-  } = response;
+export function getPoints(problem: Problem, response?: UserResponse) {
+  if (!response) return 0;
+  const { filledInAnswer, singleOptionIdxs, multipleOptionIdxs } = response;
   if (problem.type === ProblemType.FILL_IN) {
-    return checkFilledInSolution(filledInAnswer, problem);
+    return filledInProblemPoints(filledInAnswer, problem);
   } else if (problem.type === ProblemType.MULTI_CHOICE_SINGLE_ANSWER) {
-    return checkMultiChoiceSingleAnswerSolution(singleOptionIdx, problem);
+    return singleAnswerMCQPoints(singleOptionIdxs, problem);
   } else if (problem.type === ProblemType.MULTI_CHOICE_MULTI_ANSWER) {
-    return checkMultiChoiceMultiAnswerSolution(multiOptionIdx, problem);
+    return multiAnswerMCQPoints(multipleOptionIdxs, problem);
   }
 
-  return Tristate.UNKNOWN;
+  return undefined;
 }
 
 function recursivelyFindNodes(

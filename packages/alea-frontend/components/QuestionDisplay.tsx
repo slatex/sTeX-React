@@ -16,7 +16,7 @@ import {
   ProblemType,
   Tristate,
   UserResponse,
-  getCorrectness,
+  getPoints,
 } from '@stex-react/api';
 
 function BpRadio(props: RadioProps) {
@@ -65,12 +65,14 @@ export function ProblemDisplay({
   onResponseUpdate: (response: UserResponse) => void;
 }) {
   const {
-    singleOptionIdx: selectedIdx,
+    singleOptionIdxs: selectedIdxs,
     multipleOptionIdxs,
     filledInAnswer,
   } = response;
   if (!problem) return <CircularProgress />;
 
+  // TODO: support multiple SCBs.
+  const selectedIdx = selectedIdxs?.[0];
   const feedback =
     selectedIdx >= 0 && problem?.options[selectedIdx].feedbackHtml;
 
@@ -94,10 +96,10 @@ export function ProblemDisplay({
           <RadioGroup
             aria-labelledby="demo-customized-radios"
             name="customized-radios"
-            value={selectedIdx.toString()}
+            value={selectedIdx?.toString()}
             onChange={(e) => {
               if (isFrozen) return;
-              onResponseUpdate({ singleOptionIdx: +e.target.value });
+              onResponseUpdate({ singleOptionIdxs: [+e.target.value] });
             }}
           >
             {problem.options?.map((option, optionIdx) => (
@@ -173,7 +175,8 @@ export function ProblemDisplay({
 
       {isFrozen && problem.fillInSolution && (
         <>
-          {getCorrectness(problem, { filledInAnswer }) === Tristate.TRUE ? (
+          {/* TODO: use problem score */}
+          {getPoints(problem, { filledInAnswer }) === 1 ? (
             <b style={{ fontSize: '20px', color: 'green' }}>Correct!</b>
           ) : (
             <span style={{ fontSize: '20px', color: 'red' }}>
@@ -187,8 +190,8 @@ export function ProblemDisplay({
           display="block"
           padding="3px 10px"
           bgcolor={
-            getCorrectness(problem, { singleOptionIdx: selectedIdx }) ===
-            Tristate.TRUE
+            /* TODO: use problem score */
+            getPoints(problem, { singleOptionIdxs: [selectedIdx] }) === 1
               ? '#a3e9a0'
               : '#f39797'
           }
