@@ -20,6 +20,8 @@ import MainLayout from '../../layouts/MainLayout';
 
 function ToBeStarted({ quizStartTs }: { quizStartTs?: number }) {
   const [showReload, setShowReload] = useState(false);
+  const roundedTs = Math.round(quizStartTs / 60000) * 60000; // 60000 milliseconds = 1 minute
+
   useEffect(() => {
     if (!quizStartTs) return;
     const interval = setInterval(() => {
@@ -33,7 +35,7 @@ function ToBeStarted({ quizStartTs }: { quizStartTs?: number }) {
       {quizStartTs ? (
         <>
           The quiz will begin at{' '}
-          {dayjs(quizStartTs).format('HH:mm on YYYY-MM-DD')}
+          {dayjs(roundedTs).format('HH:mm:ss on YYYY-MM-DD')}
           <br />
           {showReload && (
             <Button variant="contained" onClick={() => location.reload()}>

@@ -1,10 +1,9 @@
 import { Quiz, isModerator } from '@stex-react/api';
-import fs from 'fs';
-import { NextApiRequest, NextApiResponse } from 'next';
-import { checkIfPostOrSetError, getUserIdOrSetError } from './comment-utils';
-import { doesQuizExist, getQuizFilePath } from './quiz-utils';
-import { v4 as uuidv4 } from 'uuid';
 import { CURRENT_TERM } from '@stex-react/utils';
+import { NextApiRequest, NextApiResponse } from 'next';
+import { v4 as uuidv4 } from 'uuid';
+import { checkIfPostOrSetError, getUserIdOrSetError } from './comment-utils';
+import { doesQuizExist, writeQuizFile } from './quiz-utils';
 
 export default async function handler(
   req: NextApiRequest,
@@ -48,7 +47,6 @@ export default async function handler(
     return;
   }
 
-  const filePath = getQuizFilePath(quiz.id);
-  fs.writeFileSync(filePath, JSON.stringify(quiz, null, 2));
+  writeQuizFile(quiz);
   res.status(200).json({ quizId: quiz.id });
 }

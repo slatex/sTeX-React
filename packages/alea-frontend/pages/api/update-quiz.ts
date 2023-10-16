@@ -6,7 +6,7 @@ import {
   doesQuizExist,
   getBackupQuizFilePath,
   getQuiz,
-  getQuizFilePath,
+  writeQuizFile
 } from './quiz-utils';
 
 // function to rewrite the quiz file with the new quiz info and backup the old version.
@@ -14,8 +14,6 @@ export function updateQuiz(
   quizId,
   updatedQuizFunc: (existingQuiz: Quiz) => Quiz
 ) {
-  const quizPath = getQuizFilePath(quizId);
-
   // Save old version
   const existingQuiz = getQuiz(quizId);
   fs.writeFileSync(
@@ -23,7 +21,7 @@ export function updateQuiz(
     JSON.stringify(existingQuiz, null, 2)
   );
   const updatedQuiz = updatedQuizFunc(existingQuiz);
-  fs.writeFileSync(quizPath, JSON.stringify(updatedQuiz, null, 2));
+  writeQuizFile(updatedQuiz);
 }
 
 export default async function handler(

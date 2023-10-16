@@ -1,20 +1,7 @@
-import { Quiz, isModerator } from '@stex-react/api';
-import fs from 'fs';
+import { isModerator } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getUserIdOrSetError } from './comment-utils';
-
-export function getAllQuizzes() {
-  const quizFiles = fs.readdirSync(process.env.QUIZ_INFO_DIR);
-  return quizFiles
-    .map((file) => {
-      if (!(file.startsWith('quiz-') && file.endsWith('.json'))) return;
-      const quiz = JSON.parse(
-        fs.readFileSync(process.env.QUIZ_INFO_DIR + '/' + file, 'utf-8')
-      ) as Quiz;
-      return quiz;
-    })
-    .filter(Boolean);
-}
+import { getAllQuizzes } from './quiz-utils';
 
 export default async function handler(
   req: NextApiRequest,
