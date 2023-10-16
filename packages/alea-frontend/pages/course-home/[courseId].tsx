@@ -131,7 +131,7 @@ const CourseHomePage: NextPage = () => {
     return <>Course Not Found!</>;
   }
 
-  const { notesLink, slidesLink, cardsLink, forumLink, quizzesLink } =
+  const { notesLink, slidesLink, cardsLink, forumLink, quizzesLink, hasQuiz } =
     courseInfo;
 
   const locale = router.locale || 'en';
@@ -179,10 +179,12 @@ const CourseHomePage: NextPage = () => {
             {t.forum}&nbsp;
             <QuestionAnswerIcon fontSize="large" />
           </CourseComponentLink>
-          <CourseComponentLink href={quizzesLink}>
-            {t.quizzes}&nbsp;
-            <QuizIcon fontSize="large" />
-          </CourseComponentLink>
+          {hasQuiz && (
+            <CourseComponentLink href={quizzesLink}>
+              {t.quizzes}&nbsp;
+              <QuizIcon fontSize="large" />
+            </CourseComponentLink>
+          )}
         </Box>
         <Box {...({ style: { '--document-width': `${docWidth}px` } } as any)}>
           <ContentFromUrl

@@ -146,6 +146,6 @@ export default function () {
     }
 
     // Sleep for a randomized time to simulate the user's activity over 5 minutes
-    sleep(Math.floor(Math.random() * 10) + 5); // Sleep between 5 to 15 seconds
+    sleep(Math.floor(Math.random() * 30) + 10); // Sleep between 10 to 30 seconds
   }
 }
