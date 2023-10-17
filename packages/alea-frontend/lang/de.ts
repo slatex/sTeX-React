@@ -21,7 +21,6 @@ export const de = {
       slides: 'Folien',
       forum: 'Forum',
       quizzes: 'Quizze',
-      recordedSyllabus: 'Aufgezeichneter Lehrplan',
     },
   },
   login: {
@@ -89,11 +88,11 @@ export const de = {
     understand: 'Verstehen',
   },
   quiz: {
-    upcomingQuizzes: "Kommende Quizze",
-    quizDashboard: "Quiz-Dashboard",
-    demoQuiz: "Demo-Quiz",
-    previousQuizzes: "Vorherige Quizze",
-    ongoingQuizzes: "Laufende Quizze",
+    upcomingQuizzes: 'Kommende Quizze',
+    quizDashboard: 'Quiz-Dashboard',
+    demoQuiz: 'Demo-Quiz',
+    previousQuizzes: 'Vorherige Quizze',
+    ongoingQuizzes: 'Laufende Quizze',
     onTimeWarning:
       'Auf dieser Seite erhalten Sie einen Überblick über die kommenden Tests in den {courseId}-Vorlesungen. Beachten Sie, dass die Start- und Endzeiten streng sind. Seien Sie also pünktlich.',
     this: 'Dies',
@@ -202,5 +201,8 @@ export const de = {
     submit: 'Einreichen',
     submitConfirmation: 'Noteninformationen übermitteln?',
     submitSuccess: 'Bewertungsinformationen erfolgreich übermittelt!',
+  },
+  courseHome: {
+    recordedSyllabus: 'Aufgezeichneter Lehrplan',
   },
 };

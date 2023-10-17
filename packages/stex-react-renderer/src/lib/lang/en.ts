@@ -20,6 +20,7 @@ export const en = {
 
   // overlay dialog
   close: 'Close',
+  hover:'Hovers On/Off',
 
   // tour display
   guidedTour: 'Guided Tour',
