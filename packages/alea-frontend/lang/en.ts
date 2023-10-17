@@ -19,7 +19,6 @@ export const en = {
       slides: 'Slides',
       forum: 'Forum',
       quizzes: 'Quizzes',
-      recordedSyllabus: 'Recorded Syllabus',
     },
   },
   login: {
@@ -221,5 +220,8 @@ export const en = {
     submit: 'Submit',
     submitConfirmation: 'Submit grade information?',
     submitSuccess: 'Grade information submitted successfully!',
+  },
+  courseHome: {
+    recordedSyllabus: 'Recorded Syllabus',
   },
 };

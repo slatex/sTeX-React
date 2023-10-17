@@ -5,6 +5,8 @@ import { MdViewer } from '@stex-react/markdown';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
+import { getLocaleObject } from '../lang/utils';
+import { useRouter } from 'next/router';
 
 function joinerForLevel(level: number) {
   switch (level) {
@@ -100,6 +102,8 @@ function getLectureDescs(sections: SectionInfo[]): {
 }
 
 export function RecordedSyllabus({ courseId }: { courseId: string }) {
+  const router = useRouter();
+
   const [lectureDescs, setLectureDescs] = useState<{
     [timestamp_ms: number]: string;
   }>({});
@@ -120,43 +124,50 @@ export function RecordedSyllabus({ courseId }: { courseId: string }) {
   if (!courseId) return null;
   const rows = Object.keys(lectureDescs).map((n) => +n);
   if (!rows || !rows?.length) return null;
-  const hasAnyVideoClip = Object.keys(lectureClipIds).length>0;
+  const hasAnyVideoClip = Object.keys(lectureClipIds).length > 0;
+
+  const { courseHome: t } = getLocaleObject(router);
 
   return (
-    <Box mt="10px">
-      <table>
-        <tr>
-          <th style={{ textAlign: 'left' }}>Date</th>
-          <th style={{ textAlign: 'left' }}>Topics</th>
-          {hasAnyVideoClip  && <th style={{ textAlign: 'left' }}>Video</th>}
-        </tr>
-        {rows.map((timestamp_ms, idx) => (
-          <tr key={timestamp_ms} style={{ border: '1px solid black' }}>
-            <td style={{ textAlign: 'center', minWidth: '100px' }}>
-              <b>{idx + 1}.&nbsp;</b>
-              {dayjs(timestamp_ms).format('DD-MMM')}
-            </td>
-            <td style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              <MdViewer content={lectureDescs[timestamp_ms]} />
-            </td>
-            {hasAnyVideoClip && (
-              <td>
-                {lectureClipIds[timestamp_ms]?.length > 0 && (
-                  <a
-                    href={`https://fau.tv/clip/id/${lectureClipIds[timestamp_ms]}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <IconButton size="large" sx={{ m: '10px' }}>
-                      <OndemandVideoIcon />
-                    </IconButton>
-                  </a>
-                )}
-              </td>
-            )}
+    <Box>
+      <Box textAlign="center">
+        <b style={{ fontSize: '24px' }}>{t.recordedSyllabus}</b>
+      </Box>
+      <Box mt="10px">
+        <table>
+          <tr>
+            <th style={{ textAlign: 'left' }}>Date</th>
+            <th style={{ textAlign: 'left' }}>Topics</th>
+            {hasAnyVideoClip && <th style={{ textAlign: 'left' }}>Video</th>}
           </tr>
-        ))}
-      </table>
+          {rows.map((timestamp_ms, idx) => (
+            <tr key={timestamp_ms} style={{ border: '1px solid black' }}>
+              <td style={{ textAlign: 'center', minWidth: '100px' }}>
+                <b>{idx + 1}.&nbsp;</b>
+                {dayjs(timestamp_ms).format('DD-MMM')}
+              </td>
+              <td style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <MdViewer content={lectureDescs[timestamp_ms]} />
+              </td>
+              {hasAnyVideoClip && (
+                <td>
+                  {lectureClipIds[timestamp_ms]?.length > 0 && (
+                    <a
+                      href={`https://fau.tv/clip/id/${lectureClipIds[timestamp_ms]}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <IconButton size="large" sx={{ m: '10px' }}>
+                        <OndemandVideoIcon />
+                      </IconButton>
+                    </a>
+                  )}
+                </td>
+              )}
+            </tr>
+          ))}
+        </table>
+      </Box>
     </Box>
   );
 }
