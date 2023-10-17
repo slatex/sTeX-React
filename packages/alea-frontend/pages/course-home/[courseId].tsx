@@ -46,13 +46,14 @@ const BG_COLORS = {
   'iwgs-1': 'linear-gradient(to right, #00010e, #060844)',
   'iwgs-2': 'linear-gradient(to right, #f3f7dc, #8f9868)',
   krmt: 'linear-gradient(to right, #e8e9bf, #f5f5b7)',
+  'gdp': 'linear-gradient(to right, #4bffd7, #a11cff)',
 };
 
 export function CourseHeader({ courseInfo }: { courseInfo: CourseInfo }) {
   const courseId = courseInfo.courseId;
   if (!courseInfo) return <></>;
   const { courseName, imageLink } = courseInfo;
-  const allowCrop = ['ai-1', 'ai-2', 'lbs', 'gdp'].includes(courseId);
+  const allowCrop = ['ai-1', 'ai-2', 'lbs'].includes(courseId);
   return (
     <Box textAlign="center">
       <Link href={`/course-home/${courseId}`}>
