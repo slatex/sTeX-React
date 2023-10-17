@@ -39,9 +39,8 @@ export function OverlayDialog({
 
   const toDisplayNode = displayNode(topLevelDocUrl);
 
-  const [hoverSwitch, setHoverSwitch] = useState(
-    localStore?.getItem('hoverSwitch') === 'true' || false
-  );
+  let hoverSwitch=localStore?.getItem('hoverSwitch') === 'true' || false
+
 
   return (
     <ErrorBoundary hidden={false}>
@@ -60,13 +59,12 @@ export function OverlayDialog({
         <Box display="flex" flexDirection="column" m="5px" maxWidth="800px">
           <Box display="flex">
             <Box marginLeft="auto" display="flex" alignItems="center">
-              <Tooltip title={'Turn Hovers On/Off'} placement="top">
+              <Tooltip title={t.hover} placement="top">
                 <Switch
                   checked={hoverSwitch}
                   onChange={() => {
-                    const newSwitchValue = !hoverSwitch;
-                    setHoverSwitch(newSwitchValue);
-                    localStore?.setItem('hoverSwitch', String(newSwitchValue));
+                    hoverSwitch=!hoverSwitch;
+                    localStore?.setItem('hoverSwitch', String(hoverSwitch));
                     window.location.reload();
                   }}
                 />
