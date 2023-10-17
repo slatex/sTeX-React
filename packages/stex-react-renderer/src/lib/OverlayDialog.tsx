@@ -1,12 +1,24 @@
 import { OpenInNew } from '@mui/icons-material';
-import { Box, Button, Dialog, DialogActions, IconButton } from '@mui/material';
-import { contextParamsFromTopLevelDocUrl, getChildrenOfBodyNode } from '@stex-react/utils';
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  IconButton,
+  Switch,
+  Tooltip,
+} from '@mui/material';
+import {
+  contextParamsFromTopLevelDocUrl,
+  getChildrenOfBodyNode,
+} from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { ReactNode, useContext, useState } from 'react';
 import { ContentFromUrl, TopLevelContext } from './ContentFromUrl';
 import { ErrorBoundary } from './ErrorBoundary';
 import { getLocaleObject } from './lang/utils';
 import { ServerLinksContext } from './stex-react-renderer';
+import { localStore } from '@stex-react/utils';
 
 export interface OverlayDialogProps {
   contentUrl: string;
@@ -27,6 +39,10 @@ export function OverlayDialog({
 
   const toDisplayNode = displayNode(topLevelDocUrl);
 
+  const [hoverSwitch, setHoverSwitch] = useState(
+    localStore?.getItem('hoverSwitch') === 'true' || false
+  );
+
   return (
     <ErrorBoundary hidden={false}>
       {isMath ? (
@@ -42,19 +58,35 @@ export function OverlayDialog({
       )}
       <Dialog onClose={() => setOpen(false)} open={open} maxWidth="lg">
         <Box display="flex" flexDirection="column" m="5px" maxWidth="800px">
-          <a
-            style={{ marginLeft: 'auto' }}
-            href={`${mmtUrl}/${contentUrl}${contextParams}`.replace(
-              ':sTeX/declaration',
-              ':sTeX/symbol'
-            )}
-            target="_blank"
-            rel="noreferrer"
-          >
-            <IconButton>
-              <OpenInNew />
-            </IconButton>
-          </a>
+          <Box display="flex">
+            <Box marginLeft="auto" display="flex" alignItems="center">
+              <Tooltip title={'Turn Hovers On/Off'} placement="top">
+                <Switch
+                  checked={hoverSwitch}
+                  onChange={() => {
+                    const newSwitchValue = !hoverSwitch;
+                    setHoverSwitch(newSwitchValue);
+                    localStore?.setItem('hoverSwitch', String(newSwitchValue));
+                    window.location.reload();
+                  }}
+                />
+              </Tooltip>
+              <a
+                style={{ marginLeft: 'auto' }}
+                href={`${mmtUrl}/${contentUrl}${contextParams}`.replace(
+                  ':sTeX/declaration',
+                  ':sTeX/symbol'
+                )}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <IconButton>
+                  <OpenInNew />
+                </IconButton>
+              </a>
+            </Box>
+          </Box>
+
           <ContentFromUrl
             topLevelDocUrl={topLevelDocUrl}
             url={`${contentUrl}${contextParams}`}

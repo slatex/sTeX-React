@@ -183,9 +183,7 @@ const CourseHomePage: NextPage = () => {
         </Box>
         <br />
         <br />
-        <b style={{ fontSize: '24px', textAlign: 'center' }}>
-          {t.recordedSyllabus}
-        </b>
+
         <RecordedSyllabus courseId={courseId} />
       </Box>
     </MainLayout>

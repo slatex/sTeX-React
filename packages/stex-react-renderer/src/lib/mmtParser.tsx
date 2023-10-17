@@ -321,7 +321,10 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
       }
     }
   }
-  const hoverLink = domNode.attribs['data-overlay-link-hover'];
+  const hoverLink =
+    localStore?.getItem('hoverSwitch') === 'true'
+      ? domNode.attribs['data-overlay-link-hover']
+      : false;
   const clickLink = domNode.attribs['data-overlay-link-click'];
   const hoverParent = domNode.attribs['data-highlight-parent'];
   if ((hoverLink || clickLink) && !domNode.attribs['processed']) {
