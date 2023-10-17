@@ -106,8 +106,9 @@ export const de = {
     header: 'Systemaktualisierung',
   },
   myProfile: {
-    seePersonalNotes: 'Sehen Sie alle Ihre persönlichen Notizen',
-    seeCompetencyData: 'Sehen Sie sich Ihre Kompetenzdaten an',
+    myNotes: 'Meine Notizen',
+    myCompetencyData: 'Meine Kompetenzdaten',
+    learnerModelPriming: 'Grundierung des Lernmodells',
 
     downloadData: 'Laden Sie Ihre Daten herunter',
     downloadNotes: 'Laden Sie Ihre Notizen und Kommentare herunter',

@@ -57,7 +57,7 @@ const ExperimentsHome: NextPage = () => {
               <InternalButtonLink href="/quiz">
                 Quiz Dashboard
               </InternalButtonLink>
-              <InternalButtonLink href="/course-grade-init">
+              <InternalButtonLink href="/learner-model-init">
                 Learner Model Priming
               </InternalButtonLink>
               <h2>Demo</h2>

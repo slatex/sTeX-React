@@ -56,7 +56,9 @@ export function ConfirmPurgeDialogContent({
         <Button onClick={() => onClose(false)}>{t.cancel}</Button>
         <Button
           onClick={() => onClose(true)}
-          disabled={text.toLocaleLowerCase() !== t.confirmText.toLocaleLowerCase()}
+          disabled={
+            text.toLocaleLowerCase() !== t.confirmText.toLocaleLowerCase()
+          }
           variant="contained"
         >
           {t.purge}
@@ -92,20 +94,23 @@ const MyProfilePage: NextPage = () => {
           <i>{userInfo.userId}</i>
         </h3>
         <hr />
-        <br />
         <Link href="/my-notes" passHref>
-          <Typography sx={{ '&:hover': { textDecoration: 'underline' } }}>
-            {t.seePersonalNotes}
-          </Typography>
+          <Button variant="contained" sx={{ m: '10px 0' }}>
+            {t.myNotes}
+          </Button>
         </Link>
-        <br />
         <br />
         <Link href="/my-learner-model" passHref>
-          <Typography sx={{ '&:hover': { textDecoration: 'underline' } }}>
-            {t.seeCompetencyData}
-          </Typography>
+          <Button variant="contained" sx={{ m: '10px 0' }}>
+            {t.myCompetencyData}
+          </Button>
         </Link>
         <br />
+        <Link href="/learner-model-init" passHref>
+          <Button variant="contained" sx={{ m: '10px 0' }}>
+            {t.learnerModelPriming}
+          </Button>
+        </Link>
         <br />
         <h2
           style={{

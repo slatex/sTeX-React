@@ -44,9 +44,9 @@ function CourseComponentLink({
 
 const BG_COLORS = {
   'iwgs-1': 'linear-gradient(to right, #00010e, #060844)',
-  'iwgs-2': 'linear-gradient(to right, #f3f7dc, #8f9868)',
-  krmt: 'linear-gradient(to right, #e8e9bf, #f5f5b7)',
-  'gdp': 'linear-gradient(to right, #4bffd7, #a11cff)',
+  'iwgs-2': 'radial-gradient(circle, #5b6956, #8f9868)',
+  krmt: 'radial-gradient(circle, white, #f5f5b7)',
+  gdp: 'radial-gradient(circle, #4bffd7, #a11cff)',
 };
 
 export function CourseHeader({ courseInfo }: { courseInfo: CourseInfo }) {

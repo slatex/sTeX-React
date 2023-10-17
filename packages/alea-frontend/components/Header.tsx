@@ -26,6 +26,8 @@ import styles from '../styles/header.module.scss';
 import { SYSTEM_UPDATES } from '../system-updates';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 
+export const HIDE_BANNER_ITEM = 'hide-priming-banner';
+
 function UserButton() {
   const router = useRouter();
   const { header: t } = getLocaleObject(router);
@@ -219,7 +221,7 @@ export function Header({
   const router = useRouter();
   const { header: t } = getLocaleObject(router);
   const [surveyShown, setSurveyShown] = useState(
-    !localStore?.getItem('hideSurvey') ?? true
+    !localStore?.getItem(HIDE_BANNER_ITEM) ?? true
   );
   const isStaging = process.env.NEXT_PUBLIC_SITE_VERSION === 'staging';
   const background = isStaging ? 'crimson !important' : undefined;
@@ -292,24 +294,20 @@ export function Header({
           variant="dense"
         >
           <Box>
-            📣 We Want to Hear from You! Take Our Quick{' '}
-            <b>User Experience Survey</b> Now ➡️{' '}
-            <a
-              href="https://ddi-survey.cs.fau.de/limesurvey/index.php/917374"
-              target="_blank"
-              style={{ display: 'inline' }}
-            >
+            📣 Prime your learner model by entering your&nbsp;
+            <b>course grades</b> now ➡️{' '}
+            <Link href="/learner-model-init" style={{ display: 'inline' }}>
               <b>
                 <u>Click Here</u>
               </b>
-            </a>
+            </Link>
             .
           </Box>
           <Tooltip title="Dismiss">
             <IconButton
               onClick={() => {
                 setSurveyShown(false);
-                localStore?.setItem('hideSurvey', 'hide');
+                localStore?.setItem(HIDE_BANNER_ITEM, 'hide');
               }}
               sx={{ p: '5px' }}
             >

@@ -126,8 +126,9 @@ export const en = {
     header: 'System Updates',
   },
   myProfile: {
-    seePersonalNotes: 'See all your personal notes',
-    seeCompetencyData: 'See your competency data',
+    myNotes: 'My notes',
+    myCompetencyData: 'My competency data',
+    learnerModelPriming: 'Learner Model Priming',
 
     downloadData: 'Download Your Data',
     downloadNotes: 'Download your notes and comments',
