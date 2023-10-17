@@ -322,7 +322,7 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
     }
   }
   const hoverLink =
-    localStore?.getItem('hoverSwitch') === 'true'
+    localStore?.getItem('hoverSwitch') !== 'false'
       ? domNode.attribs['data-overlay-link-hover']
       : false;
   const clickLink = domNode.attribs['data-overlay-link-click'];
