@@ -4,7 +4,7 @@ import {
   getDefiniedaInDoc,
   getDocumentSections,
   getUriSmileys,
-  SectionsAPIData
+  SectionsAPIData,
 } from '@stex-react/api';
 import axios from 'axios';
 
@@ -59,10 +59,26 @@ function getSections(
   return sections;
 }
 
-function getChapterAndSections(data: SectionsAPIData): TopLevelSection[] {
-  const { title } = data;
+function getChapterAndSections(
+  data: SectionsAPIData,
+  parentArchive?: string | undefined,
+  parentFilePath?: string | undefined,
+  chapterIsSection = false
+): TopLevelSection[] {
+  const { title, id, archive, filepath } = data;
   const sections: TopLevelSection[] = [];
   if (title?.length) {
+    if (chapterIsSection) {
+      return [
+        {
+          id,
+          archive: parentArchive,
+          filepath: parentFilePath,
+          chapterTitle: title,
+          sectionTitle: title,
+        },
+      ];
+    }
     for (const c of data.children || []) {
       sections.push(...getSections(title, c, undefined, undefined));
     }
@@ -70,7 +86,7 @@ function getChapterAndSections(data: SectionsAPIData): TopLevelSection[] {
   }
 
   for (const c of data.children || []) {
-    sections.push(...getChapterAndSections(c));
+    sections.push(...getChapterAndSections(c, archive, filepath, chapterIsSection));
   }
   return sections;
 }
@@ -81,8 +97,12 @@ export async function getCardsBySection(archive: string, filepath: string) {
     archive,
     filepath
   );
-  const topLevelSections = getChapterAndSections(docSections);
+  let topLevelSections = getChapterAndSections(docSections);
   const courseCards: CourseCards = {};
+  console.log(topLevelSections);
+  if (!topLevelSections.length) {
+    topLevelSections = getChapterAndSections(docSections, undefined, undefined, true);
+  }
   for (const section of topLevelSections) {
     const { archive, filepath, chapterTitle, id } = section;
 
