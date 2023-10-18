@@ -123,7 +123,7 @@ export const COURSES_INFO: { [courseId: string]: CourseInfo } = {
     'gdp',
     'Grundlagen der Programmierung',
     'courses/FAU/gdp',
-    'course/notes/notes.xhtml',
+    'course/notes/notes.de.xhtml',
     'course/notes/coursepage',
     true,
     true

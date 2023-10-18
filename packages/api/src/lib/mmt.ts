@@ -127,9 +127,6 @@ export async function getDocIdx(mmtUrl: string) {
 
 export async function getCourseInfo(mmtUrl: string) {
   // TODO: remove this when prod is ready.
-  if (process.env['NEXT_PUBLIC_SITE_VERSION'] !== 'staging') {
-    if (COURSES_INFO['gdp']) delete COURSES_INFO['gdp'];
-  }
   return COURSES_INFO;
   /*
   try {
