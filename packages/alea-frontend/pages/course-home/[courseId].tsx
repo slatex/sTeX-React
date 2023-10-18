@@ -101,12 +101,31 @@ export function CourseHeader({ courseInfo }: { courseInfo: CourseInfo }) {
 
 const CourseHomePage: NextPage = () => {
   const router = useRouter();
+  const [docWidth, setDocWidth] = useState(500);
   const containerRef = useRef<HTMLDivElement>(null);
   const courseId = router.query.courseId as string;
   const [courses, setCourses] = useState<
     { [id: string]: CourseInfo } | undefined
   >(undefined);
   const { mmtUrl } = useContext(ServerLinksContext);
+
+  useEffect(() => {
+    console.log('in');
+    if (!router.isReady) return;
+    
+    console.log('in useful');
+    function handleResize() {
+      const outerWidth = containerRef?.current?.clientWidth;
+      if (!outerWidth) {
+        console.log("container", containerRef?.current)
+        return;
+      }
+      setDocWidth(outerWidth);
+    }
+    handleResize();
+    Window?.addEventListener('resize', handleResize);
+    return () => Window?.removeEventListener('resize', handleResize);
+  }, [router.isReady, courses]);
 
   useEffect(() => {
     if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
@@ -175,7 +194,7 @@ const CourseHomePage: NextPage = () => {
             </CourseComponentLink>
           )}
         </Box>
-        <Box {...({ style: { '--document-width': `100%` } } as any)}>
+        <Box {...({ style: { '--document-width': `${docWidth}px` } } as any)}>
           <ContentFromUrl
             url={XhtmlContentUrl(
               courseInfo.notesArchive,
