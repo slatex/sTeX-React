@@ -149,7 +149,7 @@ export const de = {
   },
   forum: {
     showReferredContent: 'Verwiesene Inhalte anzeigen',
-    askAQuestion: 'Stellen Sie Frage',
+    askAQuestion: 'Stellen Sie eine Frage',
     post: 'Post',
     postAnonymously: 'Anonym posten',
     enterQuestion: 'Schreiben Sie hier Ihre Frage...',

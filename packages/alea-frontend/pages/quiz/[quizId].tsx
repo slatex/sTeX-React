@@ -35,7 +35,7 @@ function ToBeStarted({ quizStartTs }: { quizStartTs?: number }) {
       {quizStartTs ? (
         <>
           The quiz will begin at{' '}
-          {dayjs(roundedTs).format('HH:mm:ss on YYYY-MM-DD')}
+          {dayjs(roundedTs).format('HH:mm on YYYY-MM-DD')}
           <br />
           {showReload && (
             <Button variant="contained" onClick={() => location.reload()}>
