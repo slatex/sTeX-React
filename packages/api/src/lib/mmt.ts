@@ -103,6 +103,7 @@ export interface DocIdx {
   slides?: string;
   thumbnail?: string;
   instances?: Instance[];
+  quizzes?: boolean;
 
   // for type library
   teaser?: string;
@@ -114,8 +115,6 @@ export interface DocIdx {
 
 let CACHED_DOCIDX: DocIdx[] | undefined = undefined;
 export async function getDocIdx(mmtUrl: string) {
-  // TODO: remove this when prod is ready.
-  mmtUrl = 'https://building.beta.vollki.kwarc.info/';
   if (!mmtUrl) return [];
   if (!CACHED_DOCIDX) {
     console.log('getting docidx');
@@ -126,9 +125,6 @@ export async function getDocIdx(mmtUrl: string) {
 }
 
 export async function getCourseInfo(mmtUrl: string) {
-  // TODO: remove this when prod is ready.
-  return COURSES_INFO;
-  /*
   try {
     const docIdx = await getDocIdx(mmtUrl);
     const courseInfo: { [courseId: string]: CourseInfo } = {};
@@ -145,10 +141,11 @@ export async function getCourseInfo(mmtUrl: string) {
         doc.archive,
         doc.notes,
         doc.landing,
-        isCurrent
+        isCurrent,
+        doc.quizzes ?? false
       );
     }
-    if(Object.keys(courseInfo).length === 0) {
+    if (Object.keys(courseInfo).length === 0) {
       console.log('courseInfo is empty');
       return COURSES_INFO;
     }
@@ -156,7 +153,7 @@ export async function getCourseInfo(mmtUrl: string) {
   } catch (err) {
     console.log(err);
     return COURSES_INFO;
-  }*/
+  }
 }
 
 export async function getCourseId(

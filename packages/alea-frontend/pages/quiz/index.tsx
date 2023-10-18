@@ -14,17 +14,21 @@ import {
   UserInfo,
   createQuiz,
   getAuthHeaders,
+  getCourseInfo,
   getQuizPhase,
   getQuizStats,
   getUserInfo,
   isModerator,
   updateQuiz,
 } from '@stex-react/api';
-import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
-import { COURSES_INFO, roundToMinutes } from '@stex-react/utils';
+import {
+  ServerLinksContext,
+  mmtHTMLToReact,
+} from '@stex-react/stex-react-renderer';
+import { CourseInfo, roundToMinutes } from '@stex-react/utils';
 import axios, { AxiosResponse } from 'axios';
 import type { NextPage } from 'next';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { CheckboxWithTimestamp } from '../../components/CheckBoxWithTimestamp';
 import { QuizFileReader } from '../../components/QuizFileReader';
 import { QuizStatsDisplay } from '../../components/QuizStatsDisplay';
@@ -80,6 +84,8 @@ const QuizDashboardPage: NextPage = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [courseId, setCourseId] = useState('ai-1');
   const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
+  const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
+  const { mmtUrl } = useContext(ServerLinksContext);
   const isNew = isNewQuiz(selectedQuizId);
 
   const selectedQuiz = quizzes.find((quiz) => quiz.id === selectedQuizId);
@@ -143,6 +149,10 @@ const QuizDashboardPage: NextPage = () => {
   useEffect(() => {
     getUserInfo().then(setUserInfo);
   }, []);
+  useEffect(() => {
+    if (!mmtUrl) return;
+    getCourseInfo(mmtUrl).then(setCourses);
+  }, [mmtUrl]);
 
   if (!selectedQuiz && !isNew) return <>Error</>;
   if (!isModerator(userInfo?.userId)) return <Box p="20px">Unauthorized</Box>;
@@ -164,7 +174,12 @@ const QuizDashboardPage: NextPage = () => {
 
         <h2>{isNew ? 'New Quiz' : selectedQuizId}</h2>
         <b>{mmtHTMLToReact(title)}</b>
-        {selectedQuiz && <b><br/>Current State: {getQuizPhase(selectedQuiz)}</b>}
+        {selectedQuiz && (
+          <b>
+            <br />
+            Current State: {getQuizPhase(selectedQuiz)}
+          </b>
+        )}
         <CheckboxWithTimestamp
           timestamp={quizStartTs}
           setTimestamp={setQuizStartTs}
@@ -178,7 +193,7 @@ const QuizDashboardPage: NextPage = () => {
             value={courseId}
             onChange={(e) => setCourseId(e.target.value)}
           >
-            {['', ...Object.keys(COURSES_INFO)].map((enumValue) => (
+            {['', ...Object.keys(courses)].map((enumValue) => (
               <MenuItem key={enumValue} value={enumValue}>
                 {enumValue}
               </MenuItem>
