@@ -117,6 +117,7 @@ export function getProblem(htmlDoc: Document, problemUrl: string) {
     statement: problemRootNode, // The mcb block is already marked display:none.
     options,
     fillInSolution,
+    points: 1
   };
   console.log(problem);
   return problem;
