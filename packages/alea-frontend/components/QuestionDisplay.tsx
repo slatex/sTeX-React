@@ -175,8 +175,7 @@ export function ProblemDisplay({
 
       {isFrozen && problem.fillInSolution && (
         <>
-          {/* TODO: use problem score */}
-          {getPoints(problem, { filledInAnswer }) === 1 ? (
+          {getPoints(problem, { filledInAnswer }) === problem.points ? (
             <b style={{ fontSize: '20px', color: 'green' }}>Correct!</b>
           ) : (
             <span style={{ fontSize: '20px', color: 'red' }}>
@@ -190,8 +189,8 @@ export function ProblemDisplay({
           display="block"
           padding="3px 10px"
           bgcolor={
-            /* TODO: use problem score */
-            getPoints(problem, { singleOptionIdxs: [selectedIdx] }) === 1
+            getPoints(problem, { singleOptionIdxs: [selectedIdx] }) ===
+            problem.points
               ? '#a3e9a0'
               : '#f39797'
           }

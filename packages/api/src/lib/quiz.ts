@@ -50,6 +50,7 @@ export interface Problem {
   statement: { outerHTML: string };
   options?: Option[];
   fillInSolution?: string;
+  points: number;
 }
 
 export interface UserResponse {
@@ -123,29 +124,29 @@ export interface QuizStubInfo {
   title: string;
 }
 
-function filledInProblemPoints(filledIn?: string, problem?: Problem) {
-  if (!problem?.fillInSolution?.length) return undefined;
+function filledInProblemPoints(problem: Problem, filledIn?: string) {
+  if (!problem.fillInSolution?.length) return undefined;
   if (!filledIn?.length) return 0;
-  return filledIn.toLowerCase() === problem?.fillInSolution?.toLowerCase()
-    ? 1
+  return filledIn.toLowerCase() === problem.fillInSolution?.toLowerCase()
+    ? problem.points
     : 0;
 }
 
-function singleAnswerMCQPoints(singleOptionIdxs?: number[], problem?: Problem) {
+function singleAnswerMCQPoints(problem: Problem, singleOptionIdxs?: number[]) {
   if (!singleOptionIdxs?.length) return 0;
-  const options = problem?.options ?? [];
+  const options = problem.options ?? [];
   const correctOption = options.findIndex(
     (o) => o.shouldSelect === Tristate.TRUE
   );
   if (correctOption === -1) return undefined;
-  return singleOptionIdxs?.[0] === correctOption ? 1 : 0;
+  return singleOptionIdxs?.[0] === correctOption ? problem.points : 0;
 }
 
 function multiAnswerMCQPoints(
+  problem: Problem,
   multiOptionIdx?: { [index: number]: boolean },
-  problem?: Problem
 ) {
-  const options = problem?.options ?? [];
+  const options = problem.options ?? [];
   const anyUnknown = options.some(
     (option) => option.shouldSelect === Tristate.UNKNOWN
   );
@@ -162,11 +163,11 @@ export function getPoints(problem: Problem, response?: UserResponse) {
   if (!response) return 0;
   const { filledInAnswer, singleOptionIdxs, multipleOptionIdxs } = response;
   if (problem.type === ProblemType.FILL_IN) {
-    return filledInProblemPoints(filledInAnswer, problem);
+    return filledInProblemPoints(problem, filledInAnswer);
   } else if (problem.type === ProblemType.MULTI_CHOICE_SINGLE_ANSWER) {
-    return singleAnswerMCQPoints(singleOptionIdxs, problem);
+    return singleAnswerMCQPoints(problem, singleOptionIdxs);
   } else if (problem.type === ProblemType.MULTI_CHOICE_MULTI_ANSWER) {
-    return multiAnswerMCQPoints(multipleOptionIdxs, problem);
+    return multiAnswerMCQPoints(problem, multipleOptionIdxs);
   }
 
   return undefined;
@@ -275,9 +276,17 @@ function findFillInSolution(
   return DomUtils.textContent(fillInSolution);
 }
 
+function getProblemPoints(rootNode: Element) {
+  const pointsStr = rootNode?.attribs?.['data-problem-points'];
+  if (!pointsStr) return 1;
+  const parsedInt = parseInt(pointsStr, 10);
+  return isNaN(parsedInt) ? 1 : parsedInt;
+}
+
 export function getProblem(htmlStr: string, problemUrl: string) {
   const htmlDoc = parseDocument(htmlStr);
   const problemRootNode = findProblemRootNode(htmlDoc);
+  const points = getProblemPoints(problemRootNode);
   if (!problemRootNode) {
     return {
       type: ProblemType.FILL_IN,
@@ -286,7 +295,6 @@ export function getProblem(htmlStr: string, problemUrl: string) {
   }
   removeNodeWithAttrib(problemRootNode, 'data-problem-solution');
   removeNodeWithAttrib(problemRootNode, 'data-problem-g-note');
-  removeNodeWithAttrib(problemRootNode, 'data-problem-points');
   removeNodeWithAttrib(problemRootNode, 'data-problem-minutes');
   const { options, type } = findChoiceInfo(problemRootNode) as any;
   const fillInSolution = findFillInSolution(problemRootNode);
@@ -296,6 +304,7 @@ export function getProblem(htmlStr: string, problemUrl: string) {
     statement: { outerHTML: DomUtils.getOuterHTML(problemRootNode) }, // The mcb block is already marked display:none.
     options,
     fillInSolution,
+    points,
   } as Problem;
   return problem;
 }

@@ -59,7 +59,7 @@ function IndexEntry({
 }) {
   const isCorrectnessKnown = isFrozen && points !== undefined;
   // TODO: support problem score.
-  const isCorrect = points === 1;
+  const isCorrect = points > 0;
   const answered = isAnswered(response);
   return (
     <span
