@@ -17,6 +17,7 @@ const LOCATIONS = [
   'problems/maai-test/programming/prob',
   'problems/maai-test/security/prob',
   'problems/maai-test/theoinf/prob',
+  'problems/maai-test/gdp',
 ];
 const QuizPage: NextPage = () => {
   const router = useRouter();

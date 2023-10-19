@@ -41,8 +41,9 @@ export function SlideNavBar({
         {slideNum == 1 ? <FirstPageIcon /> : <NavigateBeforeIcon />}
       </IconButton>
       <span style={{ fontSize: '18px', marginBottom: '5px' }}>
-        {slideNum} / {numSlides}
+        {numSlides === 0 ? 0 : slideNum} / {numSlides}
       </span>
+
       <IconButton
         onClick={() => {
           if (slideNum < numSlides) {
@@ -156,10 +157,23 @@ export const SlideDeck = memo(function SlidesFromUrl({
       <Box sx={{ position: 'absolute', right: '20px' }}>
         <ExpandableContextMenu contentUrl={contentUrl} />
       </Box>
-      <ContentWithHighlight
-        mmtHtml={currentSlide?.slideContent || ''}
-        renderWrapperParams={{ 'section-url': contentUrl }}
-      />
+      {slides.length ? (
+        <ContentWithHighlight
+          mmtHtml={currentSlide?.slideContent || ''}
+          renderWrapperParams={{ 'section-url': contentUrl }}
+        />
+      ) : (
+        <Box
+          height="574px"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          fontSize="x-large"
+          fontStyle="italic"
+        >
+          No slides in this section
+        </Box>
+      )}
       <SlideNavBar
         slideNum={slideNum}
         numSlides={slides.length}
