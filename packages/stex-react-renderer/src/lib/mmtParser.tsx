@@ -15,7 +15,7 @@ import { ErrorBoundary } from './ErrorBoundary';
 import { ExpandableContent } from './ExpandableContent';
 import MathJaxHack from './MathJaxHack';
 import { MathMLDisplay } from './MathMLDisplay';
-import { OverlayDialog } from './OverlayDialog';
+import { OverlayDialog, isHoverON } from './OverlayDialog';
 import { ServerLinksContext } from './stex-react-renderer';
 
 const NoMaxWidthTooltip = styled(({ className, ...props }: TooltipProps) => (
@@ -321,10 +321,9 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
       }
     }
   }
-  const hoverLink =
-    localStore?.getItem('hoverSwitch') !== 'false'
-      ? domNode.attribs['data-overlay-link-hover']
-      : false;
+  const hoverLink = isHoverON()
+    ? domNode.attribs['data-overlay-link-hover']
+    : false;
   const clickLink = domNode.attribs['data-overlay-link-click'];
   const hoverParent = domNode.attribs['data-highlight-parent'];
   if ((hoverLink || clickLink) && !domNode.attribs['processed']) {
