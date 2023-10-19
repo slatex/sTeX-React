@@ -20,6 +20,15 @@ import { getLocaleObject } from './lang/utils';
 import { ServerLinksContext } from './stex-react-renderer';
 import { localStore } from '@stex-react/utils';
 
+const HOVER_SWITCH = 'hoverSwitch';
+export function isHoverON() {
+  return localStore?.getItem(HOVER_SWITCH) !== 'false';
+}
+
+function setHover(hover: boolean) {
+  localStore?.setItem(HOVER_SWITCH, String(hover));
+}
+
 export interface OverlayDialogProps {
   contentUrl: string;
   isMath: boolean;
@@ -38,9 +47,6 @@ export function OverlayDialog({
   const contextParams = contextParamsFromTopLevelDocUrl(topLevelDocUrl);
 
   const toDisplayNode = displayNode(topLevelDocUrl);
-
-  let hoverSwitch=localStore?.getItem('hoverSwitch') === 'true' || false
-
 
   return (
     <ErrorBoundary hidden={false}>
@@ -61,10 +67,9 @@ export function OverlayDialog({
             <Box marginLeft="auto" display="flex" alignItems="center">
               <Tooltip title={t.hover} placement="top">
                 <Switch
-                  checked={hoverSwitch}
+                  checked={isHoverON()}
                   onChange={() => {
-                    hoverSwitch=!hoverSwitch;
-                    localStore?.setItem('hoverSwitch', String(hoverSwitch));
+                    setHover(!isHoverON());
                     window.location.reload();
                   }}
                 />
