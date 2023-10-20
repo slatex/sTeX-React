@@ -29,6 +29,8 @@ import { useEffect, useReducer, useState } from 'react';
 import { ProblemDisplay } from './QuestionDisplay';
 import { QuizSubmitConfirm } from './QuizSubmitConfirm';
 import { QuizTimer, Timer, timerEvent } from './QuizTimer';
+import { getLocaleObject } from '../lang/utils';
+import { useRouter } from 'next/router';
 
 function isAnswered(r: UserResponse) {
   return (
@@ -57,6 +59,7 @@ function IndexEntry({
   showClock: boolean;
   onSelect: (idx: number) => void;
 }) {
+  const { quiz: t } = getLocaleObject(useRouter());
   const isCorrectnessKnown = isFrozen && points !== undefined;
   // TODO: support problem score.
   const isCorrect = points > 0;
@@ -84,7 +87,7 @@ function IndexEntry({
         ) : (
           <CheckBoxOutlineBlankIcon />
         )}
-        <span>&nbsp;Problem {idx + 1}&nbsp;</span>
+        <span>&nbsp;{t.problem} {idx + 1}&nbsp;</span>
         {isCorrectnessKnown &&
           (isCorrect ? <CheckCircleIcon /> : <CancelIcon />)}
       </Box>
@@ -178,10 +181,11 @@ export function QuizDisplay({
     name: string,
     events: TimerEvent[],
     responses: { [problemId: string]: UserResponse },
-    result: { [problemId: string]: number|undefined }
+    result: { [problemId: string]: number | undefined }
   ) => void;
   showRecordOption?: boolean;
 }) {
+  const { quiz: t } = getLocaleObject(useRouter());
   const [points, setPoints] = useState<{
     [problemId: string]: number | undefined;
   }>({});
@@ -265,7 +269,7 @@ export function QuizDisplay({
       <Box px="10px" maxWidth="800px" m="auto">
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <h2>
-            Problem {problemIdx + 1} of {problemIds.length}
+            {t.problem} {problemIdx + 1} {t.of} {problemIds.length}
           </h2>
           {(!!quizEndTs || showPerProblemTime) && (
             <QuizTimer
@@ -306,7 +310,7 @@ export function QuizDisplay({
             sx={{ mr: '10px' }}
           >
             <NavigateBeforeIcon />
-            Prev
+            {t.prev}
           </Button>
 
           <Button
@@ -315,7 +319,7 @@ export function QuizDisplay({
             size="small"
             variant="contained"
           >
-            Next
+            {t.next}
             <NavigateNextIcon />
           </Button>
         </Box>
@@ -327,18 +331,24 @@ export function QuizDisplay({
               sx={{ my: '20px' }}
               variant="contained"
             >
-              Finish
+              {t.finish}
             </Button>
           )
         ) : !Object.values(points).some((s) => s === undefined) ? (
           <i style={{ margin: '20px 0', color: '#333', fontSize: '26px' }}>
-            Your scored{' '}
-            {Object.values(points).reduce((prev, s) => prev + (s ?? 0), 0)} out
-            of {problemIds.length}.
+            {t.youScored
+              .replace(
+                '$1',
+                Object.values(points).reduce((prev, s) => prev + (s ?? 0), 0).toString()
+              )
+              .replace(
+                '$2',
+                Object.values(problems).reduce((a, b) => a + b.points, 0).toString()
+              )}
           </i>
         ) : (
           <i style={{ margin: '20px 0', color: '#333', fontSize: '26px' }}>
-            Quiz Submitted. Feedback awaited
+            {t.feedbackAwaited}
           </i>
         )}
       </Box>

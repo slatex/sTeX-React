@@ -118,6 +118,15 @@ export const en = {
     this: 'This',
     demoQuizText:
       'is a demo quiz - so that you can test your hard/software (you will need a recent chrome or firefox browser) and see the format. In particular, you should be able to read the Math in the travelling salesperson problem.',
+    youScored: 'You scored $1 out of $2.',
+    feedbackAwaited: 'Quiz Submitted. Feedback awaited.',
+    of: 'of',
+    problem: 'Problem',
+    finish: 'Finish',
+    prev: 'Prev',
+    next: 'Next',
+    didntAnswer: "You didn't answer $1 problems. ",
+    sureFinish: 'Are you sure you want to finish?',
   },
   vis: {
     goToTour: 'Go To Tour',

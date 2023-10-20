@@ -9,6 +9,8 @@ import {
 } from '@mui/material';
 import { getUserInfo } from '@stex-react/api';
 import { useEffect, useState } from 'react';
+import { getLocaleObject } from '../lang/utils';
+import { useRouter } from 'next/router';
 
 export function QuizSubmitConfirm({
   left,
@@ -19,6 +21,7 @@ export function QuizSubmitConfirm({
   onClose: (submit: boolean, recordName?: string) => void;
   showRecordOption: boolean;
 }) {
+  const { quiz: t } = getLocaleObject(useRouter());
   const [name, setName] = useState('');
   const [recordResults, setRecordResults] = useState(showRecordOption);
   useEffect(() => {
@@ -30,8 +33,8 @@ export function QuizSubmitConfirm({
       {/*title && <DialogTitle id="alert-dialog-title">{title}</DialogTitle>*/}
       <DialogContent>
         <DialogContentText id="alert-dialog-description">
-          {left > 0 ? `You did not answer ${left} problems. ` : ''}Are you sure
-          you want to finish?
+          {left > 0 ? t.didntAnswer.replace('$1', `${left}`) : ''}
+          {t.sureFinish}
         </DialogContentText>
         {showRecordOption && (
           <>

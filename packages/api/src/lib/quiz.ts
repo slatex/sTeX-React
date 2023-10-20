@@ -156,7 +156,7 @@ function multiAnswerMCQPoints(
     const shouldSelect = option.shouldSelect === Tristate.TRUE;
     if (isSelected !== shouldSelect) return 0;
   }
-  return 1;
+  return problem.points;
 }
 
 export function getPoints(problem: Problem, response?: UserResponse) {
@@ -280,7 +280,7 @@ function getProblemPoints(rootNode: Element) {
   const pointsStr = rootNode?.attribs?.['data-problem-points'];
   if (!pointsStr) return 1;
   const parsedInt = parseInt(pointsStr, 10);
-  return isNaN(parsedInt) ? 1 : parsedInt;
+  return (isNaN(parsedInt) || parsedInt === 0) ? 1 : parsedInt;
 }
 
 export function getProblem(htmlStr: string, problemUrl: string) {

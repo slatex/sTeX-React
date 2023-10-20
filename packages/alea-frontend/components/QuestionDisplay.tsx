@@ -4,6 +4,7 @@ import {
   Checkbox,
   CircularProgress,
   TextField,
+  Typography,
 } from '@mui/material';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -53,6 +54,14 @@ function getClassNames(
   return style;
 }
 
+export function PointsInfo({ points }: { points: number }) {
+  return (
+    <Typography variant="h6" sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+      <b>{points} pt</b>
+    </Typography>
+  );
+}
+
 export function ProblemDisplay({
   problem,
   isFrozen,
@@ -86,6 +95,7 @@ export function ProblemDisplay({
       }}
     >
       <Box display="inline" fontSize="20px">
+        <PointsInfo points={problem.points} />
         <Box display="inline">
           {mmtHTMLToReact(problem.statement.outerHTML || '')}
         </Box>

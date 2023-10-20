@@ -98,6 +98,15 @@ export const de = {
     this: 'Dies',
     demoQuizText:
       'ist ein Demo-Quiz – damit Sie Ihre Hard-/Software testen (Sie benötigen einen aktuellen Chrome- oder Firefox-Browser) und das Format sehen können. Insbesondere sollten Sie in der Lage sein, die Mathematik im Problem des Handlungsreisenden zu lesen.',
+    youScored: 'Sie haben $1 von $2 Punkten erreicht.',
+    feedbackAwaited: 'Quiz eingereicht. Rückmeldung erwartet.',
+    of: 'von',
+    problem: 'Aufgabe',
+    finish: 'Beenden',
+    prev: 'Vorherige',
+    next: 'Nächste',
+    didntAnswer: "Sie haben $1 Aufgaben nicht beantwortet. ",
+    sureFinish: "Sind Sie sicher, dass Sie den Vorgang abschließen möchten?"
   },
   vis: {
     goToTour: 'Gehen Sie zur Tour',
