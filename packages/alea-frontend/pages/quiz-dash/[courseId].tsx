@@ -122,7 +122,11 @@ const QuizDashPage: NextPage = () => {
 
         <Typography variant="body1" sx={{ color: '#333' }}>
           <a
-            href="/quiz/old/MAAI%20(may)%20-%20small"
+            href={
+              courseId === 'gdp'
+                ? '/quiz/old/problems%2Fgdp'
+                : '/quiz/old/MAAI%20(may)%20-%20small'
+            }
             target="_blank"
             rel="noreferrer"
             style={{ color: 'blue' }}
@@ -131,7 +135,7 @@ const QuizDashPage: NextPage = () => {
           </a>
           &nbsp;{t.demoQuizText}
         </Typography>
-        
+
         <QuizList header={t.ongoingQuizzes} quizList={ongoingQuizzes} />
         <QuizList header={t.upcomingQuizzes} quizList={upcomingQuizzes} />
         <QuizList header={t.previousQuizzes} quizList={previousQuizzes} />
