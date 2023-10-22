@@ -48,6 +48,7 @@ export enum ProblemType {
 export interface Problem {
   type: ProblemType;
   statement: { outerHTML: string };
+  inlineOptionSets?: Option[][]; // For inline SCBs
   options?: Option[];
   fillInSolution?: string;
   points: number;
@@ -134,17 +135,26 @@ function filledInProblemPoints(problem: Problem, filledIn?: string) {
 
 function singleAnswerMCQPoints(problem: Problem, singleOptionIdxs?: number[]) {
   if (!singleOptionIdxs?.length) return 0;
-  const options = problem.options ?? [];
-  const correctOption = options.findIndex(
-    (o) => o.shouldSelect === Tristate.TRUE
-  );
-  if (correctOption === -1) return undefined;
-  return singleOptionIdxs?.[0] === correctOption ? problem.points : 0;
+  let numCorrect = 0;
+  let numIncorrect = 0;
+  let numUndefined = 0;
+  const { inlineOptionSets, options } = problem;
+  [...(inlineOptionSets || []), options || []].forEach((optionSet, idx) => {
+    if (!optionSet?.length) return;
+    const correctOption = optionSet.findIndex(
+      (o) => o.shouldSelect === Tristate.TRUE
+    );
+    if (correctOption === -1) numUndefined++;
+    else if (singleOptionIdxs[idx] == correctOption) numCorrect++;
+    else numIncorrect++;
+  });
+  if (numUndefined > 0) return undefined;
+  return (numCorrect / (numCorrect + numIncorrect)) * problem.points;
 }
 
 function multiAnswerMCQPoints(
   problem: Problem,
-  multiOptionIdx?: { [index: number]: boolean },
+  multiOptionIdx?: { [index: number]: boolean }
 ) {
   const options = problem.options ?? [];
   const anyUnknown = options.some(
@@ -196,6 +206,16 @@ function recursivelyFindNodes(
   return foundList;
 }
 
+const MMT_CUSTOM_ID_PREFIX = '__mmt-custom-';
+export function getMMTCustomId(tag: string) {
+  return MMT_CUSTOM_ID_PREFIX + tag;
+}
+
+export function getCustomTag(id: string) {
+  if (!id?.startsWith(MMT_CUSTOM_ID_PREFIX)) return undefined;
+  return id.substring(MMT_CUSTOM_ID_PREFIX.length);
+}
+
 function removeNodeWithAttrib(
   node: (ChildNode & Element) | Document,
   attrName: string
@@ -216,51 +236,107 @@ function removeNodeWithAttrib(
   }
 }
 
+function assignTagsToScbBlocks(
+  node: (ChildNode & Element) | Document,
+  tagNo: number
+) {
+  if (node instanceof Element) {
+    if (node.attribs['data-problem-scb-inline'] === 'true') {
+      node.attribs['id'] = getMMTCustomId(`${tagNo++}`);
+    }
+  }
+
+  for (const child of node.childNodes ?? []) {
+    if (child instanceof Element) {
+      tagNo = assignTagsToScbBlocks(child, tagNo);
+    }
+  }
+  return tagNo;
+}
+
 function findProblemRootNode(node: (ChildNode & Element) | Document) {
   return recursivelyFindNodes(node, 'data-problem')?.[0]?.node;
 }
 
-function findChoiceInfo(
-  problemRootNode: (ChildNode & Element) | Document
-): { options: Option[]; type: ProblemType } | undefined {
+function booleanStringToTriState(str: string) {
+  if (str === 'true') return Tristate.TRUE;
+  if (str === 'false') return Tristate.FALSE;
+  return Tristate.UNKNOWN;
+}
+
+function getChoiceInfo(
+  choiceNode: Element,
+  type: ProblemType,
+  shouldSelectStr: string
+) {
+  const solNodeAttr =
+    type === ProblemType.MULTI_CHOICE_MULTI_ANSWER
+      ? 'data-problem-mc-solution'
+      : 'data-problem-sc-solution';
+  const feedbackNode = recursivelyFindNodes(choiceNode, solNodeAttr)?.[0]?.node;
+  const feedbackHtml = feedbackNode ? DomUtils.getOuterHTML(feedbackNode) : '';
+  removeNodeWithAttrib(choiceNode, solNodeAttr);
+  const shouldSelect = booleanStringToTriState(shouldSelectStr);
+  const outerHTML = DomUtils.getOuterHTML(choiceNode);
+  return { shouldSelect, value: { outerHTML }, feedbackHtml };
+}
+
+function findChoiceInfo(problemRootNode: (ChildNode & Element) | Document): {
+  inlineOptionSets: Option[][];
+  options: Option[];
+  type: ProblemType;
+} {
   const mcbNode = recursivelyFindNodes(problemRootNode, 'data-problem-mcb')?.[0]
     ?.node;
-  const scbNode = recursivelyFindNodes(problemRootNode, 'data-problem-scb')?.[0]
-    ?.node;
-  if (!mcbNode && !scbNode)
-    return { options: undefined, type: undefined } as any;
+  const scbNodes = recursivelyFindNodes(
+    problemRootNode,
+    'data-problem-scb'
+  )?.map((n) => n?.node);
+  if (!mcbNode && !scbNodes?.length) {
+    return { inlineOptionSets: [], options: undefined, type: undefined } as any;
+  }
 
-  let type;
+  let type: ProblemType;
   if (mcbNode) {
     type = ProblemType.MULTI_CHOICE_MULTI_ANSWER;
     removeNodeWithAttrib(problemRootNode, 'data-problem-mcb');
   } else {
     type = ProblemType.MULTI_CHOICE_SINGLE_ANSWER;
+    assignTagsToScbBlocks(problemRootNode, 0);
     removeNodeWithAttrib(problemRootNode, 'data-problem-scb');
   }
-  const optionBlock = scbNode ?? mcbNode;
-  const problemNodeAttr = scbNode ? 'data-problem-sc' : 'data-problem-mc';
-  const solutionNodeAttr = problemNodeAttr + '-solution';
+  const optionBlocks = mcbNode ? [mcbNode] : scbNodes;
+  const problemNodeAttr = mcbNode ? 'data-problem-mc' : 'data-problem-sc';
 
-  const options = recursivelyFindNodes(optionBlock, problemNodeAttr).map(
-    ({ node, attrVal }) => {
-      const feedbackNode = recursivelyFindNodes(node, solutionNodeAttr)?.[0]
-        ?.node;
-      const feedbackHtml = feedbackNode
-        ? DomUtils.getOuterHTML(feedbackNode)
-        : '';
-      removeNodeWithAttrib(node, solutionNodeAttr);
-      const shouldSelect =
-        attrVal === 'true'
-          ? Tristate.TRUE
-          : attrVal === 'false'
-          ? Tristate.FALSE
-          : Tristate.UNKNOWN;
-      const outerHTML = DomUtils.getOuterHTML(node);
-      return { shouldSelect, value: { outerHTML }, feedbackHtml };
-    }
+  const allOptionSets = optionBlocks.map((optionBlock) =>
+    recursivelyFindNodes(optionBlock, problemNodeAttr).map(
+      ({ node: choiceNode, attrVal: shouldSelectStr }) =>
+        getChoiceInfo(choiceNode, type, shouldSelectStr)
+    )
   );
-  return { options, type };
+
+  let options = allOptionSets[0];
+  const inlineOptionSets: Option[][] = [];
+  if (type === ProblemType.MULTI_CHOICE_SINGLE_ANSWER) {
+    options = [];
+    scbNodes?.forEach((scbNode, i) => {
+      if (scbNode.attribs['data-problem-scb-inline'] === 'true') {
+        inlineOptionSets.push(allOptionSets[i]);
+      } else {
+        options = allOptionSets[i];
+      }
+    });
+  }
+
+  return { inlineOptionSets, options, type };
+}
+
+export function getAllOptionSets(problem: Problem) {
+  const { inlineOptionSets, options, type } = problem;
+  if (type != ProblemType.MULTI_CHOICE_SINGLE_ANSWER) return [];
+  const otherOptions = inlineOptionSets || [];
+  const optionSets = (options?.length) ? [...otherOptions, options] : otherOptions;
+  return optionSets;
 }
 
 function findFillInSolution(
@@ -280,7 +356,7 @@ function getProblemPoints(rootNode: Element) {
   const pointsStr = rootNode?.attribs?.['data-problem-points'];
   if (!pointsStr) return 1;
   const parsedInt = parseInt(pointsStr, 10);
-  return (isNaN(parsedInt) || parsedInt === 0) ? 1 : parsedInt;
+  return isNaN(parsedInt) || parsedInt === 0 ? 1 : parsedInt;
 }
 
 export function getProblem(htmlStr: string, problemUrl: string) {
@@ -296,12 +372,15 @@ export function getProblem(htmlStr: string, problemUrl: string) {
   removeNodeWithAttrib(problemRootNode, 'data-problem-solution');
   removeNodeWithAttrib(problemRootNode, 'data-problem-g-note');
   removeNodeWithAttrib(problemRootNode, 'data-problem-minutes');
-  const { options, type } = findChoiceInfo(problemRootNode) as any;
+  const { inlineOptionSets, options, type } = findChoiceInfo(
+    problemRootNode
+  ) as any;
   const fillInSolution = findFillInSolution(problemRootNode);
 
   const problem = {
     type: type || ProblemType.FILL_IN,
     statement: { outerHTML: DomUtils.getOuterHTML(problemRootNode) }, // The mcb block is already marked display:none.
+    inlineOptionSets,
     options,
     fillInSolution,
     points,

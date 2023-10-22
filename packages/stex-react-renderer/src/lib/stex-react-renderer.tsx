@@ -21,7 +21,7 @@ import { ExpandableContextMenu } from './ExpandableContextMenu';
 import { FileBrowser } from './FileBrowser';
 import { DocSectionContext, InfoSidebar } from './InfoSidebar';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
-import { mmtHTMLToReact } from './mmtParser';
+import { CustomItemsContext, mmtHTMLToReact } from './mmtParser';
 import { RenderOptions } from './RendererDisplayOptions';
 import {
   ConfigureLevelSlider,
@@ -182,6 +182,7 @@ export {
   ContentDashboard,
   ContentFromUrl,
   ContentWithHighlight,
+  CustomItemsContext,
   DimIcon,
   ExpandableContent,
   ExpandableContextMenu,

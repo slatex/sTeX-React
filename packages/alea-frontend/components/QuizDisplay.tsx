@@ -18,6 +18,7 @@ import {
   TimerEventType,
   Tristate,
   UserResponse,
+  getAllOptionSets,
   getPoints,
 } from '@stex-react/api';
 import {
@@ -35,8 +36,8 @@ import { useRouter } from 'next/router';
 function isAnswered(r: UserResponse) {
   return (
     !!r?.filledInAnswer?.length ||
-    // TODO: support multiple scbs.
-    r?.singleOptionIdxs?.[0] >= 0 ||
+    (r.singleOptionIdxs?.length > 0 &&
+      r.singleOptionIdxs.every((o) => (o ?? -1) >= 0)) ||
     Object.values(r?.multipleOptionIdxs ?? {}).some((v) => v === true)
   );
 }
@@ -87,7 +88,9 @@ function IndexEntry({
         ) : (
           <CheckBoxOutlineBlankIcon />
         )}
-        <span>&nbsp;{t.problem} {idx + 1}&nbsp;</span>
+        <span>
+          &nbsp;{t.problem} {idx + 1}&nbsp;
+        </span>
         {isCorrectnessKnown &&
           (isCorrect ? <CheckCircleIcon /> : <CancelIcon />)}
       </Box>
@@ -212,9 +215,11 @@ export function QuizDisplay({
     const rs: { [problemId: string]: UserResponse } = {};
     for (const problemId of Object.keys(problems ?? {})) {
       const e = existingResponses[problemId];
+      const numOptionSets = getAllOptionSets(problems[problemId]).length;
       rs[problemId] = {
-        filledInAnswer: e?.filledInAnswer ?? '',
-        singleOptionIdxs: e?.singleOptionIdxs ?? [],
+        filledInAnswer: e?.filledInAnswer ?? '',  
+        singleOptionIdxs:
+          e?.singleOptionIdxs ?? new Array(numOptionSets).fill(-1),
         multipleOptionIdxs: e?.multipleOptionIdxs ?? {},
       };
     }
@@ -339,11 +344,15 @@ export function QuizDisplay({
             {t.youScored
               .replace(
                 '$1',
-                Object.values(points).reduce((prev, s) => prev + (s ?? 0), 0).toString()
+                Object.values(points)
+                  .reduce((prev, s) => prev + (s ?? 0), 0)
+                  .toString()
               )
               .replace(
                 '$2',
-                Object.values(problems).reduce((a, b) => a + b.points, 0).toString()
+                Object.values(problems)
+                  .reduce((a, b) => a + b.points, 0)
+                  .toString()
               )}
           </i>
         ) : (

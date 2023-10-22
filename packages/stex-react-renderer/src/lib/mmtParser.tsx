@@ -17,6 +17,11 @@ import MathJaxHack from './MathJaxHack';
 import { MathMLDisplay } from './MathMLDisplay';
 import { OverlayDialog, isHoverON } from './OverlayDialog';
 import { ServerLinksContext } from './stex-react-renderer';
+import { getCustomTag } from '@stex-react/api';
+
+export const CustomItemsContext = createContext<{
+  items: { [tag: string]: JSX.Element };
+}>({ items: {} });
 
 const NoMaxWidthTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
@@ -260,6 +265,12 @@ function MMTImage({ d }: { d: Element }) {
   return <>{domToReact([d], { replace })}</>;
 }
 
+function CustomReplacement({ tag }: { tag: string }) {
+  const { items } = useContext(CustomItemsContext);
+  if (!items[tag]) return <>Tag [{tag}] not found</>;
+  return items[tag];
+}
+
 const replace = (d: DOMNode, skipSidebar = false): any => {
   const domNode = getElement(d);
 
@@ -273,6 +284,9 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
   }
 
   if (isMMTSrc(domNode) && !IS_MMT_VIEWER) return <MMTImage d={domNode} />;
+
+  const customTag = getCustomTag(domNode.attribs?.['id']);
+  if (customTag) return <CustomReplacement tag={customTag} />;
 
   // Remove section numbers;
   if (
