@@ -10,7 +10,7 @@ const DebugSection: NextPage = () => {
   const { mmtUrl } = useContext(ServerLinksContext);
   const [sectionData, setSectionData] = useState(null);
   const [archive, setArchive] = useState('MiKoMH/AI');
-  const [path, setPath] = useState('course/sec/pre.en.xhtml');
+  const [path, setPath] = useState('course/sec/overview.en.xhtml');
 
   async function fetchData(archive: string, path: string) {
     const data = await getDocumentSections(mmtUrl, archive, path);
