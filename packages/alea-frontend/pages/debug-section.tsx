@@ -9,8 +9,8 @@ import { FileSectionDisplay } from '../components/FileSectionDisplay';
 const DebugSection: NextPage = () => {
   const { mmtUrl } = useContext(ServerLinksContext);
   const [sectionData, setSectionData] = useState(null);
-  const [archive, setArchive] = useState(null);
-  const [path, setPath] = useState(null);
+  const [archive, setArchive] = useState('MiKoMH/AI');
+  const [path, setPath] = useState('course/sec/pre.en.xhtml');
 
   async function fetchData(archive: string, path: string) {
     const data = await getDocumentSections(mmtUrl, archive, path);
@@ -18,9 +18,8 @@ const DebugSection: NextPage = () => {
   }
   return (
     <MainLayout>
-      <Box padding="10px" marginX="5px">
+      <Box p="10px" mx="5px">
         <TextField
-          id="outlined-basic"
           size="small"
           label="Archive Name"
           variant="outlined"
@@ -28,7 +27,6 @@ const DebugSection: NextPage = () => {
           onChange={(e) => setArchive(e.target.value)}
         />
         <TextField
-          id="outlined-basic"
           size="small"
           label="File Path"
           variant="outlined"
@@ -39,10 +37,8 @@ const DebugSection: NextPage = () => {
           Search
         </Button>
       </Box>
-      <Box padding="10px">
-        {sectionData != null ? (
-          <FileSectionDisplay sectionData={sectionData} />
-        ) : null}
+      <Box p="10px">
+        {sectionData && <FileSectionDisplay sectionData={sectionData} />}
       </Box>
     </MainLayout>
   );
