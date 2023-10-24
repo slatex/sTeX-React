@@ -20,6 +20,7 @@ function populateBrowserFiles(
   nodes: FileNode[],
   articleList: { [archive: string]: string[] }
 ) {
+  if (!nodes) return;
   for (const node of nodes) {
     populateBrowserFiles(node.children, articleList);
     const { archive, filepath } = node;

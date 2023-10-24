@@ -53,19 +53,8 @@ const ExperimentsHome: NextPage = () => {
         <main style={{ margin: '10px' }}>
           <Box m="10px auto" maxWidth="600px" textAlign="center">
             <Box>
-              <h2>Work In Progress</h2>
               <InternalButtonLink href="/quiz">
                 Quiz Dashboard
-              </InternalButtonLink>
-              <InternalButtonLink href="/learner-model-init">
-                Learner Model Priming
-              </InternalButtonLink>
-              <h2>Demo</h2>
-              <InternalButtonLink href="/file-browser">
-                View article browser
-              </InternalButtonLink>
-              <InternalButtonLink href="/visualization">
-                Visualization Demo
               </InternalButtonLink>
             </Box>
             <Box>
@@ -78,6 +67,19 @@ const ExperimentsHome: NextPage = () => {
               </InternalButtonLink>
               <InternalButtonLink href="/exp/pp_students">
                 Student competency assessment
+              </InternalButtonLink>
+
+              <InternalButtonLink href="/visualization">
+                Visualization Demo
+              </InternalButtonLink>
+            </Box>
+            <Box>
+              <h2>Debug</h2>
+              <InternalButtonLink href="/debug-section">
+                Debug Document Sections
+              </InternalButtonLink>
+              <InternalButtonLink href="/file-browser">
+                Article browser
               </InternalButtonLink>
             </Box>
             <Box>
