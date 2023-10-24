@@ -2,7 +2,7 @@ import { Box, Button } from '@mui/material';
 import { SectionsAPIData } from '@stex-react/api';
 import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import ListAltIcon from '@mui/icons-material/ListAlt';
 import FileDebugData from './FileDebugData';
 import { useState } from 'react';
 
@@ -29,11 +29,13 @@ export const FileSectionDisplay = ({
           <Button variant="contained" onClick={handleButtonClick}>
             {showDebugData ? 'Hide' : 'See All'}
           </Button>
-          {showDebugData && <FileDebugData archive={archive} filepath={filepath} />}
+          {showDebugData && (
+            <FileDebugData archive={archive} filepath={filepath} />
+          )}
         </Box>
       ) : (
         <Box>
-          <ChevronRightIcon />
+          <ListAltIcon />
           {mmtHTMLToReact(title)}
         </Box>
       )}
