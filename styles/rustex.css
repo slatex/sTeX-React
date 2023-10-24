@@ -709,6 +709,7 @@ mtext .rustex-contents { display:inline }
 .shtml-declaration-tab {
     float: left;
     display: block;
+    position:initial;
 }
 .shtml-declaration-tab input[type="radio"] {
     position: absolute;
@@ -729,7 +730,7 @@ mtext .rustex-contents { display:inline }
     transition: opacity 400ms ease-out;
     position: absolute;
     top: 27px;
-    left: 0;
+    left: 20px;
     width: 550px;
 }
 .shtml-declaration-tab input:checked + label {
