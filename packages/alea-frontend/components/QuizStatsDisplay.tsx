@@ -29,7 +29,7 @@ export function QuizStatsDisplay({
       />
       <br />
 
-      <h2>Problems correctly answered</h2>
+      <h2>Scores</h2>
       <BarChart
         data={Object.keys(stats.scoreHistogram).sort().map((score) => ({
           key: score.toString(),
