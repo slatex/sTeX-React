@@ -142,12 +142,12 @@ const CourseHomePage: NextPage = () => {
     courseInfo;
 
   const locale = router.locale || 'en';
-  const { home } = getLocaleObject(router);
+  const { home, courseHome: tCourseHome } = getLocaleObject(router);
   const t = home.courseThumb;
 
   return (
     <MainLayout
-      title={(courseId || '').toUpperCase() + ' Course Home | VoLL-KI'}
+      title={(courseId || '').toUpperCase() + ` ${tCourseHome.title} | VoLL-KI`}
       bgColor={BG_COLOR}
     >
       <CourseHeader courseInfo={courseInfo} />

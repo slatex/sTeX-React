@@ -204,7 +204,7 @@ const MyCourseHistory = () => {
         >
           {t.submit}
         </Button>
-        {isLoading && <p>Submitting data. Please wait.</p>}
+        {isLoading && <p>Submitting data. This can take upto 5 min.</p>}
       </Box>
     </MainLayout>
   );

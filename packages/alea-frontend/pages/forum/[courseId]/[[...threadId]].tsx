@@ -9,9 +9,12 @@ import { useContext, useEffect, useState } from 'react';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { getCourseInfo } from '@stex-react/api';
 import { CourseInfo } from '@stex-react/utils';
+import { getLocaleObject } from '../../../lang/utils';
 
 const ForumPage: NextPage = () => {
   const router = useRouter();
+  const { home } = getLocaleObject(router);
+  const t = home.courseThumb;
   const courseId = router?.query?.courseId as string;
   const threadId = +(router?.query?.threadId?.[0] as string);
   const { mmtUrl } = useContext(ServerLinksContext);
@@ -30,7 +33,9 @@ const ForumPage: NextPage = () => {
     return <>Course Not Found!</>;
   }
   return (
-    <MainLayout>
+    <MainLayout
+      title={(courseId || '').toUpperCase() + ` ${t.forum} | VoLL-KI`}
+    >
       <CourseHeader courseInfo={courseInfo} />
       <Box maxWidth="800px" m="auto" px="10px">
         {threadId ? (

@@ -97,7 +97,7 @@ export const de = {
       'Auf dieser Seite erhalten Sie einen Überblick über die kommenden Tests in den {courseId}-Vorlesungen. Beachten Sie, dass die Start- und Endzeiten streng sind. Seien Sie also pünktlich.',
     this: 'Dies',
     demoQuizText:
-      'ist ein Demo-Quiz – damit Sie Ihre Hard-/Software testen (Sie benötigen einen aktuellen Chrome- oder Firefox-Browser) und das Format sehen können. Insbesondere sollten Sie in der Lage sein, die Mathematik im Problem des Handlungsreisenden zu lesen.',
+      'ist ein Demo-Quiz - damit Sie Ihre Hard-/Software testen (Sie benötigen einen aktuellen Chrome- oder Firefox-Browser) und das Format sehen können. Insbesondere sollten Sie in der Lage sein, die Mathematik im Problem des Handlungsreisenden zu lesen.',
     youScored: 'Sie haben $1 von $2 Punkten erreicht.',
     feedbackAwaited: 'Quiz eingereicht. Rückmeldung erwartet.',
     of: 'von',
@@ -213,6 +213,7 @@ export const de = {
     submitSuccess: 'Bewertungsinformationen erfolgreich übermittelt!',
   },
   courseHome: {
+    title: 'Kurs-Startseite',
     recordedSyllabus: 'Aufgezeichneter Lehrplan',
   },
 };

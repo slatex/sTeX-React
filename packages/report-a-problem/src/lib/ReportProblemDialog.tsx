@@ -63,7 +63,7 @@ export function ReportProblemDialog({
   }, []);
 
   return (
-    <Dialog onClose={() => setOpen(false)} open={open} sx={{ zIndex: 20000 }}>
+    <Dialog id="report-a-problem-dialog" onClose={() => setOpen(false)} open={open} sx={{ zIndex: 20000 }}>
       <DialogContent>
         <TextField
           fullWidth

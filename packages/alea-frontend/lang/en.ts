@@ -232,6 +232,7 @@ export const en = {
     submitSuccess: 'Grade information submitted successfully!',
   },
   courseHome: {
+    title: 'Course Home',
     recordedSyllabus: 'Recorded Syllabus',
   },
 };

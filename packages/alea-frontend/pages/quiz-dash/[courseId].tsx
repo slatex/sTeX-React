@@ -70,7 +70,7 @@ function QuizList({
 const QuizDashPage: NextPage = () => {
   const router = useRouter();
   const courseId = router.query.courseId as string;
-  const { quiz: t } = getLocaleObject(router);
+  const { quiz: t, home: tHome } = getLocaleObject(router);
 
   const [quizList, setQuizList] = useState<QuizStubInfo[]>([]);
   const [courses, setCourses] = useState<
@@ -106,7 +106,9 @@ const QuizDashPage: NextPage = () => {
   }
 
   return (
-    <MainLayout title={t.quizDashboard}>
+    <MainLayout
+      title={(courseId || '').toUpperCase() + ` ${tHome.courseThumb.quizzes} | VoLL-KI`}
+    >
       <CourseHeader courseInfo={courseInfo} />
       <Box maxWidth="900px" m="auto" px="10px">
         <Typography variant="h4" sx={{ m: '30px 0 15px' }}>

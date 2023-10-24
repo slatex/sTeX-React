@@ -63,6 +63,10 @@ export interface FlashCardItem {
   instances: { htmlNode: string }[];
 }
 
+function isDialogOpen() {
+  return document.getElementById('report-a-problem-dialog');
+}
+
 export function FlashCardFooter({
   uri,
   isFront,
@@ -265,6 +269,7 @@ function FlashCard({
 
   useEffect(() => {
     const handleFlip = (event: KeyboardEvent) => {
+      if (isDialogOpen()) return;
       if (event.code === 'ArrowDown' || event.code === 'ArrowUp') {
         setIsFlipped((prev) => !prev);
         event.preventDefault();
@@ -631,6 +636,7 @@ function FlashCardsContainer({
       return;
     }
     const handlePrevAndNext = (event: KeyboardEvent) => {
+      if (isDialogOpen()) return;
       if (event.code === 'ArrowLeft') {
         setCardNo((prev) => (prev + cards.length - 1) % cards.length);
       }

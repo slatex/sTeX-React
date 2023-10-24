@@ -154,7 +154,7 @@ const CourseViewPage: NextPage = () => {
   const [slideArchive, setSlideArchive] = useState('');
   const [slideFilepath, setSlideFilepath] = useState('');
   const { mmtUrl } = useContext(ServerLinksContext);
-  const { courseView: t } = getLocaleObject(router);
+  const { courseView: t, home: tHome } = getLocaleObject(router);
   const [contentUrl, setContentUrl] = useState(undefined as string);
   const [courses, setCourses] = useState<
     { [id: string]: CourseInfo } | undefined
@@ -254,7 +254,10 @@ const CourseViewPage: NextPage = () => {
 
   return (
     <MainLayout
-      title={(courseId || '').toUpperCase() + ' Course Slides | VoLL-KI'}
+      title={
+        (courseId || '').toUpperCase() +
+        ` ${tHome.courseThumb.slides} | VoLL-KI`
+      }
     >
       <LayoutWithFixedMenu
         menu={
