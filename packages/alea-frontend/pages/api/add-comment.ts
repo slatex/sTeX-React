@@ -31,19 +31,20 @@ async function sendCommentAlert(
 }
 
 export async function sendAlert(message: string) {
-  if (!process.env.VOLL_KI_ALERTS_CHANNEL_ID) return;
-  if (!process.env.VOLL_KI_ALERTS_BOT_TOKEN) return;
+  const roomId = process.env.VOLL_KI_ALERTS_CHANNEL_ID;
+  const token = process.env.VOLL_KI_ALERTS_BOT_TOKEN;
+  if (!roomId || !token) return;
 
   return await axios.post(
-    'https://mattermost.kwarc.info/api/v4/posts',
+    `https://matrix-client.matrix.org/_matrix/client/r0/rooms/${roomId}/send/m.room.message`,
     {
-      channel_id: process.env.VOLL_KI_ALERTS_CHANNEL_ID,
-      message,
+      msgtype: 'm.text',
+      body: message,
     },
     {
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.VOLL_KI_ALERTS_BOT_TOKEN}`,
+        Authorization: `Bearer ${token}`,
       },
     }
   );
