@@ -77,16 +77,12 @@ const MyLearnerModelPage: NextPage = () => {
               <RefreshIcon />
             </IconButton>
 
-            <Box>
-              {competenceInfo.length ? (
-                <RenderCompetencyData
-                  URIs={URIs}
-                  competencyData={plainCompetencyData}
-                />
-              ) : (
-                <></>
-              )}
-            </Box>
+            {competenceInfo.length ? (
+              <RenderCompetencyData
+                URIs={URIs}
+                competencyData={plainCompetencyData}
+              />
+            ) : null}
           </Box>
         )}
       </Box>

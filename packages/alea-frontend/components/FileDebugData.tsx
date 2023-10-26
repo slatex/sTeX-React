@@ -4,7 +4,13 @@ import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import React, { useContext, useEffect, useState } from 'react';
 import LearnerCompetencyData from './LearnerCompetencyData';
 
-const FileDebugData = ({ archive, filepath }:{archive:string,filepath:string}) => {
+const FileDebugData = ({
+  archive,
+  filepath,
+}: {
+  archive: string;
+  filepath: string;
+}) => {
   const [definedData, setDefinedData] = useState(null);
   const { mmtUrl } = useContext(ServerLinksContext);
   useEffect(() => {
@@ -18,13 +24,13 @@ const FileDebugData = ({ archive, filepath }:{archive:string,filepath:string}) =
   if (definedData == null) {
     return;
   }
-  const symbolArray = definedData.flatMap((data) => data.symbols);
+  const URIs = definedData.flatMap((data) => data.symbols);
 
   return (
     <Box boxShadow="5px 5px 5px 5px gray">
       <Box paddingTop="40px">
-        {symbolArray.length ? (
-          <LearnerCompetencyData symbolArray={symbolArray} />
+        {URIs.length ? (
+          <LearnerCompetencyData URIs={URIs} />
         ) : (
           <p style={{ color: 'red', font: 'bold' }}>
             Competency data is not available for the given file.
