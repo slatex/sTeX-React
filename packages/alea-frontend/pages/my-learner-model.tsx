@@ -1,12 +1,13 @@
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { Box, CircularProgress, IconButton, Tooltip } from '@mui/material';
-import { ALL_DIMENSIONS, getAllMyData } from '@stex-react/api';
+import { getAllMyData } from '@stex-react/api';
 import { FileLocation } from '@stex-react/utils';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
+import RenderCompetencyData from '../components/RenderCompetencyData';
 
 export interface NotesSection extends FileLocation {
   updatedTimestampSec: number;
@@ -17,7 +18,7 @@ const MyLearnerModelPage: NextPage = () => {
   const { myLearnerModel: t } = getLocaleObject(router);
   const [isLoading, setIsLoading] = useState(false);
   const [competenceInfo, setCompetenceInfo] = useState<
-    { URI: number; values: { [key: string]: string } }[]
+    { URI: string; values: { [key: string]: string } }[]
   >([]);
 
   function refresh() {
@@ -28,10 +29,13 @@ const MyLearnerModelPage: NextPage = () => {
       setCompetenceInfo(d.model || []);
     });
   }
+
   useEffect(() => {
     refresh();
   }, []);
 
+  const plainCompetencyData = competenceInfo.map((data) => data.values) || [];
+  const URIs = competenceInfo.map((v) => v.URI);
   return (
     <MainLayout title="My Learner Model | VoLL-KI">
       <Box p="10px" m="0 auto" maxWidth="800px">
@@ -72,27 +76,17 @@ const MyLearnerModelPage: NextPage = () => {
             <IconButton onClick={() => refresh()}>
               <RefreshIcon />
             </IconButton>
-            <table>
-              <tr>
-                <th>URI</th>
-                {ALL_DIMENSIONS.map((dim) => (
-                  <th key={dim}>{dim}</th>
-                ))}
-              </tr>
-              <tr>
-                <td>&nbsp;</td>
-              </tr>
-              {competenceInfo.map((v) => (
-                <tr key={v.URI}>
-                  <td>{v.URI} &nbsp;</td>
-                  {ALL_DIMENSIONS.map((dim) => (
-                    <td key={dim} style={{ textAlign: 'center' }}>
-                      {(+v.values[dim])?.toFixed(2)}&nbsp;
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </table>
+
+            <Box>
+              {competenceInfo.length ? (
+                <RenderCompetencyData
+                  URIs={URIs}
+                  competencyData={plainCompetencyData}
+                />
+              ) : (
+                <></>
+              )}
+            </Box>
           </Box>
         )}
       </Box>

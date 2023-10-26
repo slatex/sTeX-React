@@ -188,6 +188,12 @@ export async function getDefiniedaInDoc(
   const resp = await axios.get(
     `${mmtUrl}/:sTeX/definienda?archive=${archive}&filepath=${filepath}`
   );
-
   return resp.data as DefiniendaItem[];
+}
+
+export async function getUriFragment(URI: string) {
+  const resp = await axios.get(
+    `https://stexmmt.mathhub.info//:sTeX/fragment?${URI}`
+  );
+  return resp.data as string;
 }
