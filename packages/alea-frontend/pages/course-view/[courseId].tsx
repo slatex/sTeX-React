@@ -145,7 +145,10 @@ const CourseViewPage: NextPage = () => {
   const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
   const [preNotes, setPreNotes] = useState([] as string[]);
   const [postNotes, setPostNotes] = useState([] as string[]);
-  const [coursesections, setcoursesections] = useState<string[]>([]);
+  const [docSections, setDocSections] = useState<SectionsAPIData | undefined>(
+    undefined
+  );
+  const [courseSections, setCourseSections] = useState<string[]>([]);
   const [slideCounts, setSlideCounts] = useState<{
     [sectionId: string]: number;
   }>({});
@@ -227,22 +230,23 @@ const CourseViewPage: NextPage = () => {
     async function getIndex() {
       const { archive, filepath } = getSectionInfo(contentUrl);
       const docSections = await getDocumentSections(mmtUrl, archive, filepath);
-      setcoursesections(getSections(docSections));
+      setDocSections(docSections);
+      setCourseSections(getSections(docSections));
     }
     getIndex();
   }, [mmtUrl, contentUrl]);
 
   function goToPrevSection() {
-    const secIdx = coursesections.indexOf(sectionId);
+    const secIdx = courseSections.indexOf(sectionId);
     if (secIdx === -1 || secIdx === 0) return;
-    const secId = coursesections[secIdx - 1];
+    const secId = courseSections[secIdx - 1];
     setSlideNumAndSectionId(router, slideCounts[secId] ?? -1, secId);
   }
 
   function goToNextSection() {
-    const secIdx = coursesections.indexOf(sectionId);
-    if (secIdx === -1 || secIdx + 1 >= coursesections.length) return;
-    const secId = coursesections[secIdx + 1];
+    const secIdx = courseSections.indexOf(sectionId);
+    if (secIdx === -1 || secIdx + 1 >= courseSections.length) return;
+    const secId = courseSections[secIdx + 1];
     setSlideNumAndSectionId(router, 1, secId);
   }
 
@@ -264,9 +268,10 @@ const CourseViewPage: NextPage = () => {
           contentUrl?.length ? (
             <>
               <ContentDashboard
-                onClose={() => setShowDashboard(false)}
+                docSections={docSections}
                 contentUrl={contentUrl}
                 selectedSection={sectionId}
+                onClose={() => setShowDashboard(false)}
                 onSectionClick={(sectionId: string) =>
                   setSlideNumAndSectionId(router, 1, sectionId)
                 }

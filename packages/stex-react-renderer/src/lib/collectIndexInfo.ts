@@ -26,7 +26,7 @@ let COMPLETED_SCROLL: string | undefined = undefined;
 let PENDING_SCROLL: string | undefined = undefined;
 
 export function reportIndexInfo(
-  docSectionsMap: Map<string, HTMLElement>,
+  docSectionsElementMap: Map<string, HTMLElement>,
   context: string[],
   ref?: HTMLElement
 ) {
@@ -34,7 +34,7 @@ export function reportIndexInfo(
 
   const key = context.join(SEPARATOR_inDocPath);
   //console.log(`Adding ref: ${context.join(',')}`);
-  docSectionsMap.set(key, ref);
+  docSectionsElementMap.set(key, ref);
   // Trigger scroll to newly created element.
   if (PENDING_SCROLL?.includes(key) && !COMPLETED_SCROLL?.includes(key)) {
     // console.log('pending scroll: ', key);
@@ -79,7 +79,7 @@ function setPendingScroll(pending: string, completed?: string) {
 }
 
 export function scrollToClosestAncestorAndSetPending(
-  docSectionsMap: Map<string, HTMLElement>,
+  docSectionsElementMap: Map<string, HTMLElement>,
   { fileHashes, sectionId }: ScrollInfo
 ) {
   const element = document.getElementById(sectionId || '');
@@ -91,7 +91,7 @@ export function scrollToClosestAncestorAndSetPending(
   const fullKey = fileHashes.join(SEPARATOR_inDocPath);
   while (fileHashes.length) {
     const key = fileHashes.join(SEPARATOR_inDocPath);
-    const ref = docSectionsMap.get(key);
+    const ref = docSectionsElementMap.get(key);
     if (ref) {
       // console.log(`Scroll: ${key}`);
       ref.scrollIntoView({ behavior: 'auto' });

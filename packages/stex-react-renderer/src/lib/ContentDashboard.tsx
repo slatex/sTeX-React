@@ -254,7 +254,10 @@ function RenderTree({
   );
 }
 
-function getDocumentTree(data: SectionsAPIData, parentNode?: TOCNode): TOCNode {
+export function getDocumentTree(
+  data: SectionsAPIData,
+  parentNode?: TOCNode
+): TOCNode {
   const { children, archive, filepath, id, title } = data;
   const isFileNode = archive && filepath;
   let node: TOCNode | undefined = undefined;
@@ -290,11 +293,13 @@ function getDocumentTree(data: SectionsAPIData, parentNode?: TOCNode): TOCNode {
 
 export function ContentDashboard({
   contentUrl,
+  docSections,
   selectedSection,
   onClose,
   onSectionClick,
 }: {
   contentUrl: string;
+  docSections: SectionsAPIData | undefined;
   selectedSection: string;
   onClose: () => void;
   onSectionClick?: (sectionId: string) => void;
@@ -302,13 +307,15 @@ export function ContentDashboard({
   const t = getLocaleObject(useRouter());
   const [filterStr, setFilterStr] = useState('');
   const [defaultOpen, setDefaultOpen] = useState(true);
-  const [dashInfo, setDashInfo] = useState<TOCNode | undefined>(undefined);
   const { mmtUrl } = useContext(ServerLinksContext);
   const [coveredUntil, setCoveredUntilSection] = useState('');
   const [covUpdateLink, setCovUpdateLink] = useState<string | undefined>(
     undefined
   );
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
+
+  const root = docSections ? getDocumentTree(docSections, undefined): undefined;
+  const dashInfo = root?.type !== TOCNodeType.FILE ? undefined : root;
 
   useEffect(() => {
     if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
@@ -329,16 +336,6 @@ export function ContentDashboard({
       }
     });
   }, [contentUrl, courses]);
-
-  useEffect(() => {
-    async function getIndex() {
-      const { archive, filepath } = getSectionInfo(contentUrl);
-      const docSections = await getDocumentSections(mmtUrl, archive, filepath);
-      const root = getDocumentTree(docSections, undefined);
-      setDashInfo(root.type !== TOCNodeType.FILE ? undefined : root);
-    }
-    getIndex();
-  }, [mmtUrl, contentUrl]);
 
   useEffect(() => {
     async function getCoverageInfo() {

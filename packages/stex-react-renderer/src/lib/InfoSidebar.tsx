@@ -1,9 +1,11 @@
 import { Box } from '@mui/material';
+import { SectionsAPIData } from '@stex-react/api';
 import { CommentButton } from '@stex-react/comments';
 import { createContext } from 'react';
 
 export const DocSectionContext = createContext({
-  docSectionsMap: new Map<string, HTMLElement>(),
+  docSections: undefined as SectionsAPIData | undefined,
+  docSectionsElementMap: new Map<string, HTMLElement>(),
   sectionLocs: {},
   addSectionLoc: (_sec: {
     contentUrl: string;

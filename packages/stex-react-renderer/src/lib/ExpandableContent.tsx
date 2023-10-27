@@ -66,7 +66,7 @@ export function ExpandableContent({
     renderOptions: { expandOnScroll, allowFolding },
   } = useContext(RenderOptions);
 
-  const { docSectionsMap, addSectionLoc } = useContext(DocSectionContext);
+  const { docSectionsElementMap, addSectionLoc } = useContext(DocSectionContext);
   // Reference to the top-most box.
   const contentRef = useRef<HTMLElement>();
   const rect = useRect(contentRef);
@@ -79,7 +79,7 @@ export function ExpandableContent({
   }, [expandOnScroll, openAtLeastOnce, isVisible]);
 
   useEffect(() => {
-    reportIndexInfo(docSectionsMap, childContext, contentRef?.current);
+    reportIndexInfo(docSectionsElementMap, childContext, contentRef?.current);
   }, [childContext, contentRef?.current]); // Keep contentRef?.current here to make sure that the ref is reported when loaded.
 
   const changeState = (e: MouseEvent) => {

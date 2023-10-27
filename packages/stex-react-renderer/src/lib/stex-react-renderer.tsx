@@ -2,19 +2,21 @@ import { Box } from '@mui/material';
 import {
   BG_COLOR,
   getChildrenOfBodyNode,
+  getSectionInfo,
   IS_MMT_VIEWER,
   localStore,
   shouldUseDrawer,
   Window,
 } from '@stex-react/utils';
 import { useRouter } from 'next/router';
-import { createContext, useEffect, useRef, useState } from 'react';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import {
   getScrollInfo,
   scrollToClosestAncestorAndSetPending,
   TOCFileNode,
+  TOCNodeType,
 } from './collectIndexInfo';
-import { ContentDashboard } from './ContentDashboard';
+import { ContentDashboard, getDocumentTree } from './ContentDashboard';
 import { ContentFromUrl } from './ContentFromUrl';
 import { ContentWithHighlight } from './ContentWithHightlight';
 import { ExpandableContextMenu } from './ExpandableContextMenu';
@@ -32,6 +34,7 @@ import {
 } from './SelfAssessmentDialog';
 import { TourAPIEntry, TourDisplay } from './TourDisplay';
 import { ExpandableContent } from './ExpandableContent';
+import { getDocumentSections, SectionsAPIData } from '@stex-react/api';
 
 export const ServerLinksContext = createContext({ mmtUrl: '', lmsUrl: '' });
 
@@ -57,13 +60,17 @@ export function StexReactRenderer({
   const [sectionLocs, setSectionLocs] = useState<{
     [contentUrl: string]: number;
   }>({});
-  const docSectionsMap = useRef(new Map<string, HTMLElement>()).current;
+  const docSectionsElementMap = useRef(new Map<string, HTMLElement>()).current;
   const outerBox = useRef<HTMLDivElement>(null);
   const [contentWidth, setContentWidth] = useState(600);
+  const [docSections, setDocSections] = useState<SectionsAPIData | undefined>(
+    undefined
+  );
+  const { mmtUrl } = useContext(ServerLinksContext);
 
   useEffect(() => {
     setSectionLocs({});
-    docSectionsMap.clear();
+    docSectionsElementMap.clear();
   }, [contentUrl]);
 
   useEffect(() => {
@@ -90,15 +97,21 @@ export function StexReactRenderer({
       return;
     }
     scrollToClosestAncestorAndSetPending(
-      docSectionsMap,
+      docSectionsElementMap,
       getScrollInfo(inDocPath)
     );
   }, [router, router?.isReady, router?.query]);
 
+  useEffect(() => {
+    const { archive, filepath } = getSectionInfo(contentUrl);
+    getDocumentSections(mmtUrl, archive, filepath).then(setDocSections);
+  }, [mmtUrl, contentUrl]);
+
   return (
     <DocSectionContext.Provider
       value={{
-        docSectionsMap,
+        docSections,
+        docSectionsElementMap,
         sectionLocs,
         addSectionLoc: (sec) => {
           const { contentUrl: url, positionFromTop: pos } = sec;
@@ -127,6 +140,7 @@ export function StexReactRenderer({
         <LayoutWithFixedMenu
           menu={
             <ContentDashboard
+              docSections={docSections}
               onClose={() => setShowDashboard(false)}
               contentUrl={contentUrl}
               selectedSection={''}
