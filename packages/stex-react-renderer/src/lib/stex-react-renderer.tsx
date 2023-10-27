@@ -14,7 +14,7 @@ import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import {
   getScrollInfo,
   scrollToClosestAncestorAndSetPending,
-  TOCFileNode
+  TOCFileNode,
 } from './collectIndexInfo';
 import { ContentDashboard } from './ContentDashboard';
 import { ContentFromUrl } from './ContentFromUrl';
@@ -24,7 +24,7 @@ import { ExpandableContextMenu } from './ExpandableContextMenu';
 import { FileBrowser } from './FileBrowser';
 import { DocSectionContext, InfoSidebar } from './InfoSidebar';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
-import { CustomItemsContext, getMMTCustomId, mmtHTMLToReact } from './mmtParser';
+import { CustomItemsContext, mmtHTMLToReact } from './mmtParser';
 import { RenderOptions } from './RendererDisplayOptions';
 import {
   ConfigureLevelSlider,
@@ -198,11 +198,14 @@ export {
   CustomItemsContext,
   DimIcon,
   ExpandableContent,
-  ExpandableContextMenu, FileBrowser, FixedPositionMenu,
-  getMMTCustomId,
+  ExpandableContextMenu,
+  FileBrowser,
+  FixedPositionMenu,
   LayoutWithFixedMenu,
   LevelIcon,
-  mmtHTMLToReact, SelfAssessment2, SelfAssessmentDialog, TourDisplay
+  mmtHTMLToReact,
+  SelfAssessment2,
+  SelfAssessmentDialog,
+  TourDisplay,
 };
 export type { TOCFileNode, TourAPIEntry };
-
