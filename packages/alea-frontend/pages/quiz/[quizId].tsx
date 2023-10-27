@@ -4,12 +4,12 @@ import {
   Phase,
   Problem,
   UserInfo,
-  getProblem,
   getQuiz,
   getUserInfo,
   insertAnswer,
   isModerator,
 } from '@stex-react/api';
+import { getProblem } from '@stex-react/quiz-utils';
 import { localStore } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import type { NextPage } from 'next';

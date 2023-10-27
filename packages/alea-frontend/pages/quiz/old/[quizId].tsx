@@ -4,11 +4,10 @@ import {
   Problem,
   QuizResult,
   TimerEvent,
-  Tristate,
   UserResponse,
-  getDocumentTree,
-  getProblem,
+  getDocumentTree
 } from '@stex-react/api';
+import { getProblem } from '@stex-react/quiz-utils';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import axios from 'axios';
 import type { NextPage } from 'next';

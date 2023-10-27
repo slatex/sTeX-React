@@ -5,6 +5,7 @@ import { styled } from '@mui/material/styles';
 import {
   IS_MMT_VIEWER,
   contextParamsFromTopLevelDocUrl,
+  getCustomTag,
   localStore,
 } from '@stex-react/utils';
 import parse, { DOMNode, Element, domToReact } from 'html-react-parser';
@@ -17,7 +18,6 @@ import MathJaxHack from './MathJaxHack';
 import { MathMLDisplay } from './MathMLDisplay';
 import { OverlayDialog, isHoverON } from './OverlayDialog';
 import { ServerLinksContext } from './stex-react-renderer';
-import { getCustomTag } from '@stex-react/api';
 
 export const CustomItemsContext = createContext<{
   items: { [tag: string]: JSX.Element };

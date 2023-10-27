@@ -1,14 +1,10 @@
-import {
-  GetQuizResponse,
-  Phase,
-  getQuizPhase,
-  isModerator,
-} from '@stex-react/api';
+import { GetQuizResponse, Phase, isModerator } from '@stex-react/api';
+import { getQuizPhase } from '@stex-react/quiz-utils';
 import { simpleNumberHash } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getUserIdOrSetError } from '../comment-utils';
 import { queryGradingDbAndEndSet500OnError } from '../grading-db-utils';
-import { getQuiz, getQuizTimes, removeAnswerInfo } from '../quiz-utils';
+import { getQuiz, getQuizTimes, removeAnswerInfo } from '@stex-react/node-utils';
 
 async function getUserQuizResponseOrSetError(
   quizId: string,

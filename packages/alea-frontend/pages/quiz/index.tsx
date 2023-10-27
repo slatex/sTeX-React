@@ -15,12 +15,12 @@ import {
   createQuiz,
   getAuthHeaders,
   getCourseInfo,
-  getQuizPhase,
   getQuizStats,
   getUserInfo,
   isModerator,
   updateQuiz,
 } from '@stex-react/api';
+import { getQuizPhase } from '@stex-react/quiz-utils';
 import {
   ServerLinksContext,
   mmtHTMLToReact,

@@ -1,10 +1,5 @@
-import {
-  InsertAnswerRequest,
-  Phase,
-  getPoints,
-  getProblem,
-  getQuizPhase,
-} from '@stex-react/api';
+import { InsertAnswerRequest, Phase } from '@stex-react/api';
+import { getPoints, getProblem, getQuizPhase } from '@stex-react/quiz-utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { checkIfPostOrSetError, getUserIdOrSetError } from './comment-utils';
 import { queryGradingDbAndEndSet500OnError } from './grading-db-utils';

@@ -11,6 +11,17 @@ export const IS_MMT_VIEWER = IS_SERVER
 export const PRIMARY_COL = '#203360';
 export const SECONDARY_COL = '#8c9fb1';
 
+const MMT_CUSTOM_ID_PREFIX = '__mmt-custom-';
+
+export function getMMTCustomId(tag: string) {
+  return MMT_CUSTOM_ID_PREFIX + tag;
+}
+
+export function getCustomTag(id: string) {
+  if (!id?.startsWith(MMT_CUSTOM_ID_PREFIX)) return undefined;
+  return id.substring(MMT_CUSTOM_ID_PREFIX.length);
+}
+
 export function shouldUseDrawer(windowWidth?: number) {
   if (!windowWidth) windowWidth = Window?.innerWidth;
   return windowWidth ? windowWidth < 800 : true;

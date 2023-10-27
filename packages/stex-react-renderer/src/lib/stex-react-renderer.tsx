@@ -1,4 +1,5 @@
 import { Box } from '@mui/material';
+import { getDocumentSections, SectionsAPIData } from '@stex-react/api';
 import {
   BG_COLOR,
   getChildrenOfBodyNode,
@@ -13,17 +14,17 @@ import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import {
   getScrollInfo,
   scrollToClosestAncestorAndSetPending,
-  TOCFileNode,
-  TOCNodeType,
+  TOCFileNode
 } from './collectIndexInfo';
-import { ContentDashboard, getDocumentTree } from './ContentDashboard';
+import { ContentDashboard } from './ContentDashboard';
 import { ContentFromUrl } from './ContentFromUrl';
 import { ContentWithHighlight } from './ContentWithHightlight';
+import { ExpandableContent } from './ExpandableContent';
 import { ExpandableContextMenu } from './ExpandableContextMenu';
 import { FileBrowser } from './FileBrowser';
 import { DocSectionContext, InfoSidebar } from './InfoSidebar';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
-import { CustomItemsContext, mmtHTMLToReact } from './mmtParser';
+import { CustomItemsContext, getMMTCustomId, mmtHTMLToReact } from './mmtParser';
 import { RenderOptions } from './RendererDisplayOptions';
 import {
   ConfigureLevelSlider,
@@ -33,8 +34,6 @@ import {
   SelfAssessmentDialog,
 } from './SelfAssessmentDialog';
 import { TourAPIEntry, TourDisplay } from './TourDisplay';
-import { ExpandableContent } from './ExpandableContent';
-import { getDocumentSections, SectionsAPIData } from '@stex-react/api';
 
 export const ServerLinksContext = createContext({ mmtUrl: '', lmsUrl: '' });
 
@@ -199,14 +198,11 @@ export {
   CustomItemsContext,
   DimIcon,
   ExpandableContent,
-  ExpandableContextMenu,
-  FixedPositionMenu,
+  ExpandableContextMenu, FileBrowser, FixedPositionMenu,
+  getMMTCustomId,
   LayoutWithFixedMenu,
   LevelIcon,
-  mmtHTMLToReact,
-  SelfAssessmentDialog,
-  SelfAssessment2,
-  TourDisplay,
-  FileBrowser,
+  mmtHTMLToReact, SelfAssessment2, SelfAssessmentDialog, TourDisplay
 };
-export type { TourAPIEntry, TOCFileNode };
+export type { TOCFileNode, TourAPIEntry };
+

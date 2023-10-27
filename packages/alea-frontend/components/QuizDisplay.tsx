@@ -16,11 +16,9 @@ import {
   Problem,
   TimerEvent,
   TimerEventType,
-  Tristate,
   UserResponse,
-  getAllOptionSets,
-  getPoints,
 } from '@stex-react/api';
+import { getPoints, getAllOptionSets } from '@stex-react/quiz-utils';
 import {
   FixedPositionMenu,
   LayoutWithFixedMenu,
@@ -217,7 +215,7 @@ export function QuizDisplay({
       const e = existingResponses[problemId];
       const numOptionSets = getAllOptionSets(problems[problemId]).length;
       rs[problemId] = {
-        filledInAnswer: e?.filledInAnswer ?? '',  
+        filledInAnswer: e?.filledInAnswer ?? '',
         singleOptionIdxs:
           e?.singleOptionIdxs ?? new Array(numOptionSets).fill(-1),
         multipleOptionIdxs: e?.multipleOptionIdxs ?? {},
