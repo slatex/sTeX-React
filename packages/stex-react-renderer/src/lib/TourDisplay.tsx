@@ -222,7 +222,6 @@ function TourItemDisplay({
         <ContentFromUrl
           url={`/:vollki/frag?path=${item.uri}&lang=${lang}`}
           modifyRendered={getChildrenOfBodyNode}
-          skipSidebar={true}
         />
       </Box>
 

@@ -271,7 +271,7 @@ function CustomReplacement({ tag }: { tag: string }) {
   return items[tag];
 }
 
-const replace = (d: DOMNode, skipSidebar = false): any => {
+const replace = (d: DOMNode): any => {
   const domNode = getElement(d);
 
   if (!domNode) return;
@@ -476,8 +476,8 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
   return;
 };
 
-export function mmtHTMLToReact(html: string, skipSidebar = false) {
+export function mmtHTMLToReact(html: string) {
   return parse(html, {
-    replace: (d: any) => replace(d, skipSidebar),
+    replace: (d: any) => replace(d),
   });
 }

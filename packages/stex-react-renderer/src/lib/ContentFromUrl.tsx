@@ -12,13 +12,11 @@ export const ContentFromUrl = memo(
   ({
     url,
     modifyRendered = undefined,
-    skipSidebar = false,
     topLevelDocUrl = undefined,
     minLoadingHeight = undefined,
   }: {
     url: string;
     modifyRendered?: (node: any) => any;
-    skipSidebar?: boolean;
     topLevelDocUrl?: string;
     minLoadingHeight?: string;
   }) => {
@@ -52,7 +50,6 @@ export const ContentFromUrl = memo(
       <ContentWithHighlight
         mmtHtml={mmtHtml}
         modifyRendered={modifyRendered}
-        skipSidebar={skipSidebar}
         renderWrapperParams={{ 'section-url': url }}
       />
     );
