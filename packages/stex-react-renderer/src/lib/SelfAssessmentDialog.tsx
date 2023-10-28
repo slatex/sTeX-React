@@ -216,7 +216,7 @@ function SelfAssessmentDialogRow({
                 '& *': { display: 'inline!important' },
               }}
             >
-              {mmtHTMLToReact(htmlName, false)}
+              {mmtHTMLToReact(htmlName)}
             </Box>
           </span>
         )}

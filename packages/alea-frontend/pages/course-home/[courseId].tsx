@@ -200,7 +200,6 @@ const CourseHomePage: NextPage = () => {
               courseInfo.notesArchive,
               `${courseInfo.landingFilepath}.${locale}.xhtml`
             )}
-            skipSidebar={true}
           />
         </Box>
         <br />
