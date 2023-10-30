@@ -110,16 +110,11 @@ const CourseHomePage: NextPage = () => {
   const { mmtUrl } = useContext(ServerLinksContext);
 
   useEffect(() => {
-    console.log('in');
     if (!router.isReady) return;
-    
-    console.log('in useful');
+
     function handleResize() {
       const outerWidth = containerRef?.current?.clientWidth;
-      if (!outerWidth) {
-        console.log("container", containerRef?.current)
-        return;
-      }
+      if (!outerWidth) return;
       setDocWidth(outerWidth);
     }
     handleResize();

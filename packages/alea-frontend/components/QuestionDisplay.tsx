@@ -19,6 +19,8 @@ import {
 import styles from '../styles/quiz.module.scss';
 import { Problem, ProblemType, Tristate, UserResponse } from '@stex-react/api';
 import { getPoints, getAllOptionSets } from '@stex-react/quiz-utils';
+import { useEffect, useRef, useState } from 'react';
+import { Window } from '@stex-react/utils';
 function BpRadio(props: RadioProps) {
   return <Radio disableRipple color="default" {...props} />;
 }
@@ -137,6 +139,20 @@ export function ProblemDisplay({
     multipleOptionIdxs,
     filledInAnswer,
   } = response;
+
+  const [docWidth, setDocWidth] = useState(500);
+  const containerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    function handleResize() {
+      const outerWidth = containerRef?.current?.clientWidth;
+      if (!outerWidth) return;
+      setDocWidth(outerWidth);
+    }
+    handleResize();
+    Window?.addEventListener('resize', handleResize);
+    return () => Window?.removeEventListener('resize', handleResize);
+  }, []);
+
   if (!problem) return <CircularProgress />;
 
   const lastSelectedIdx = selectedIdxs?.[selectedIdxs?.length - 1];
@@ -185,10 +201,13 @@ export function ProblemDisplay({
         userSelect: 'none',
       }}
     >
-      <Box display="inline" fontSize="20px">
+      <Box fontSize="20px" ref={containerRef}>
         <PointsInfo points={problem.points} />
         <CustomItemsContext.Provider value={{ items }}>
-          <Box display="inline">
+          <Box
+            display="inline"
+            {...({ style: { '--document-width': `${docWidth}px` } } as any)}
+          >
             {mmtHTMLToReact(problem.statement.outerHTML || '')}
           </Box>
         </CustomItemsContext.Provider>
