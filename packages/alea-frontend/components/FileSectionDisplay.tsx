@@ -1,5 +1,10 @@
 import { Box, Button } from '@mui/material';
-import { SectionsAPIData } from '@stex-react/api';
+import {
+  SectionsAPIData,
+  findFileNode,
+  hasSectionChild,
+  isFile,
+} from '@stex-react/api';
 import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import ListAltIcon from '@mui/icons-material/ListAlt';
@@ -16,13 +21,14 @@ export const FileSectionDisplay = ({
     setShowDebugData(!showDebugData);
   }
   const { archive, filepath, title, children } = sectionData;
-  const isFile = filepath && archive;
   if (!sectionData) {
     return null;
   }
+  const node = findFileNode(archive, filepath, sectionData);
+  const hasChild = hasSectionChild(node);
   return (
     <Box>
-      {isFile ? (
+      {isFile(sectionData) ? (
         <Box>
           <InsertDriveFileIcon />
           {archive + '/' + filepath}{' '}
@@ -32,6 +38,7 @@ export const FileSectionDisplay = ({
           {showDebugData && (
             <FileDebugData archive={archive} filepath={filepath} />
           )}
+          {hasChild ? ' - Display Indicator' : " - Don't Display Indicator"}
         </Box>
       ) : (
         <Box>

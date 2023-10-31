@@ -7,7 +7,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
-import RenderCompetencyData from '../components/RenderCompetencyData';
+import { CompetencyTable } from '@stex-react/stex-react-renderer';
 
 export interface NotesSection extends FileLocation {
   updatedTimestampSec: number;
@@ -78,7 +78,7 @@ const MyLearnerModelPage: NextPage = () => {
             </IconButton>
 
             {competenceInfo.length ? (
-              <RenderCompetencyData
+              <CompetencyTable
                 URIs={URIs}
                 competencyData={plainCompetencyData}
               />

@@ -1,14 +1,14 @@
 import { getUriFragment } from '@stex-react/api';
 import { useEffect, useState } from 'react';
-import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import { Box, Tooltip } from '@mui/material';
+import { mmtHTMLToReact } from './mmtParser';
 
 const extractLastWordAfterQuestionMark = (url: string) => {
   const parts = url.split('?');
   return parts[parts.length - 1];
 };
-const ConceptDataDisplay = ({ uri }: { uri: string }) => {
-  const [uriData, setUriData] = useState(null);
+const ConceptInfoDisplay = ({ uri }: { uri: string }) => {
+  const [uriData, setUriData] = useState<string | null>(null);
   useEffect(() => {
     async function getData() {
       const data = await getUriFragment(uri);
@@ -20,19 +20,19 @@ const ConceptDataDisplay = ({ uri }: { uri: string }) => {
   return (
     <Tooltip
       title={
-        <>
+        <Box>
           <Box>{uri}</Box>
           {uriData ? (
             <Box>{mmtHTMLToReact(uriData)}</Box>
           ) : (
             <p>waiting for data</p>
           )}
-        </>
+        </Box>
       }
     >
-      <span>{extractLastWordAfterQuestionMark(uri)}</span>
+      <span style={{ color: '#0e90d2' }}>{extractLastWordAfterQuestionMark(uri)}</span>
     </Tooltip>
   );
 };
 
-export default ConceptDataDisplay;
+export default ConceptInfoDisplay;

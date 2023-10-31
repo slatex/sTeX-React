@@ -16,6 +16,7 @@ import {
   scrollToClosestAncestorAndSetPending,
   TOCFileNode,
 } from './collectIndexInfo';
+import CompetencyTable from './CompetencyTable';
 import { ContentDashboard } from './ContentDashboard';
 import { ContentFromUrl } from './ContentFromUrl';
 import { ContentWithHighlight } from './ContentWithHightlight';
@@ -191,6 +192,7 @@ export function StexReactRenderer({
   );
 }
 export {
+  CompetencyTable,
   ConfigureLevelSlider,
   ContentDashboard,
   ContentFromUrl,

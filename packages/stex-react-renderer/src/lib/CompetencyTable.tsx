@@ -1,39 +1,45 @@
-import React from 'react';
+import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
-import ConceptDataDisplay from './ConceptDataDisplay';
 import { ALL_DIMENSIONS } from '@stex-react/api';
+import { useRouter } from 'next/router';
+import ConceptInfoDisplay from './ConceptInfoDisplay';
+import { getLocaleObject } from './lang/utils';
 
-function RenderCompetencyData({
+export function CompetencyTable({
   URIs,
   competencyData,
 }: {
   URIs: string[];
   competencyData: any[];
 }) {
-  if (!URIs?.length || !competencyData?.length) return <p>Loading data...</p>;
+  const t = getLocaleObject(useRouter());
+  if (!URIs?.length || !competencyData?.length) return <p>Loading data... </p>;
 
   return (
     <TableContainer component={Paper}>
-      <Table style={{ textAlign: 'center' }}>
+      <Table sx={{ textAlign: 'center' }}>
         <TableHead>
-          <TableRow sx={{ fontWeight: 'bold' }}>
-            <TableCell>Concepts</TableCell>
+          <TableRow>
+            <TableCell>
+              <b>{t.concepts}</b>
+            </TableCell>
             {ALL_DIMENSIONS.map((header) => (
-              <TableCell key={header}>{header}</TableCell>
+              <TableCell key={header}>
+                <b>{header}</b>
+              </TableCell>
             ))}
           </TableRow>
         </TableHead>
         <TableBody>
           {competencyData.map((row, index) => (
             <TableRow key={index}>
-              <TableCell>
-                <ConceptDataDisplay uri={URIs[index]} />
+              <TableCell sx={{ cursor: 'pointer' }}>
+                <ConceptInfoDisplay uri={URIs[index]} />
               </TableCell>
               {ALL_DIMENSIONS.map((dimension: string) => (
                 <TableCell key={dimension}>
@@ -48,4 +54,4 @@ function RenderCompetencyData({
   );
 }
 
-export default RenderCompetencyData;
+export default CompetencyTable;

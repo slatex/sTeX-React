@@ -26,7 +26,9 @@ export const de = {
   guidedTour: 'Guided Tour',
   hide: 'Ausblenden',
   needs: 'Bedürfnisse',
-
+  //Competency Indicator 
+  details:'Einzelheiten',
+  concepts: 'Konzepte',
   // self assessement
   smileyTooltips: {
     Remember: {
