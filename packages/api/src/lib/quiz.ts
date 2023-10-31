@@ -60,6 +60,7 @@ export interface UserResponse {
 export interface QuizStatsResponse {
   attemptedHistogram: { [attempted: number]: number };
   scoreHistogram: { [score: number]: number };
+  timeHistogram: { [ts: number]: number };
 }
 
 // For recording quizzes at /quiz/old
