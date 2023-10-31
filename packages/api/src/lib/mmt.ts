@@ -21,6 +21,36 @@ export interface SectionsAPIData {
   children: SectionsAPIData[];
 }
 
+export function findFileNode(
+  archive: string,
+  filepath: string,
+  sectionData: SectionsAPIData | undefined
+): SectionsAPIData | undefined {
+  if (sectionData === undefined) {
+    return;
+  }
+  if (sectionData.archive === archive && sectionData.filepath === filepath) {
+    return sectionData;
+  }
+  for (const child of sectionData.children) {
+    const foundNode = findFileNode(archive, filepath, child);
+    if (foundNode) {
+      return foundNode;
+    }
+  }
+  return undefined;
+}
+
+export function hasSectionChild(node?: SectionsAPIData) {
+  return node?.children?.some((child) => isSection(child));
+}
+
+export function isFile(data: SectionsAPIData) {
+  return data.archive && data.filepath ? true : false;
+}
+export function isSection(data: SectionsAPIData) {
+  return !isFile(data);
+}
 export async function getDocumentSections(
   mmtUrl: string,
   archive: string,

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import RenderCompetencyData from './RenderCompetencyData';
 import { getUriWeights } from '@stex-react/api';
+import { CompetencyTable } from '@stex-react/stex-react-renderer';
 
 const LearnerCompetencyData = ({ URIs }: { URIs: string[] }) => {
   const [competencyData, setCompetencyData] = useState(null);
@@ -11,7 +11,7 @@ const LearnerCompetencyData = ({ URIs }: { URIs: string[] }) => {
     }
     getData();
   }, [URIs]);
-  return <RenderCompetencyData URIs={URIs} competencyData={competencyData} />;
+  return <CompetencyTable URIs={URIs} competencyData={competencyData} />;
 };
 
 export default LearnerCompetencyData;

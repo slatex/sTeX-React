@@ -35,6 +35,7 @@ import {
 import { TourAPIEntry, TourDisplay } from './TourDisplay';
 import { ExpandableContent } from './ExpandableContent';
 import { getDocumentSections, SectionsAPIData } from '@stex-react/api';
+import CompetencyTable from './CompetencyTable';
 
 export const ServerLinksContext = createContext({ mmtUrl: '', lmsUrl: '' });
 
@@ -192,6 +193,7 @@ export function StexReactRenderer({
   );
 }
 export {
+  CompetencyTable,
   ConfigureLevelSlider,
   ContentDashboard,
   ContentFromUrl,
@@ -200,6 +202,7 @@ export {
   DimIcon,
   ExpandableContent,
   ExpandableContextMenu,
+  FileBrowser,
   FixedPositionMenu,
   LayoutWithFixedMenu,
   LevelIcon,
@@ -207,6 +210,5 @@ export {
   SelfAssessmentDialog,
   SelfAssessment2,
   TourDisplay,
-  FileBrowser,
 };
 export type { TourAPIEntry, TOCFileNode };

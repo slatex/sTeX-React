@@ -24,6 +24,8 @@ import { DocSectionContext } from './InfoSidebar';
 import { RenderOptions } from './RendererDisplayOptions';
 import { useOnScreen } from './useOnScreen';
 import { useRect } from './useRect';
+import CompetencyIndicator from './CompetencyIndicator';
+import { findFileNode, hasSectionChild } from '@stex-react/api';
 
 const ExpandContext = createContext([] as string[]);
 const STOP_EXPANSION_MARKER = 'STOP_EXPANSION';
@@ -66,8 +68,13 @@ export function ExpandableContent({
     renderOptions: { expandOnScroll, allowFolding },
   } = useContext(RenderOptions);
 
-  const { docSectionsElementMap, addSectionLoc } = useContext(DocSectionContext);
+  const { docSectionsElementMap, addSectionLoc, docSections } =
+    useContext(DocSectionContext);
   // Reference to the top-most box.
+
+  const { archive, filepath } = getSectionInfo(contentUrl ?? '');
+  const node = findFileNode(archive, filepath, docSections);
+  const showIndicator = hasSectionChild(node);
   const contentRef = useRef<HTMLElement>();
   const rect = useRect(contentRef);
   const isVisible = useOnScreen(contentRef);
@@ -109,7 +116,6 @@ export function ExpandableContent({
       </ErrorBoundary>
     );
   }
-
   return (
     <ErrorBoundary hidden={false}>
       <Box
@@ -186,6 +192,9 @@ export function ExpandableContent({
             <Box overflow="visible">
               {contentUrl ? (
                 <ExpandContext.Provider value={childContext}>
+                  {showIndicator ? (
+                    <CompetencyIndicator contentUrl={contentUrl} />
+                  ) : null}
                   <ContentFromUrl
                     url={contentUrl}
                     modifyRendered={getChildrenOfBodyNode}

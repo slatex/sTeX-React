@@ -1,4 +1,3 @@
-import React from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -6,10 +5,10 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import ConceptDataDisplay from './ConceptDataDisplay';
 import { ALL_DIMENSIONS } from '@stex-react/api';
+import ConceptInfoDisplay from './ConceptInfoDisplay';
 
-function RenderCompetencyData({
+export function CompetencyTable({
   URIs,
   competencyData,
 }: {
@@ -23,17 +22,21 @@ function RenderCompetencyData({
       <Table style={{ textAlign: 'center' }}>
         <TableHead>
           <TableRow sx={{ fontWeight: 'bold' }}>
-            <TableCell>Concepts</TableCell>
+            <TableCell>
+              <b>Concepts</b>
+            </TableCell>
             {ALL_DIMENSIONS.map((header) => (
-              <TableCell key={header}>{header}</TableCell>
+              <TableCell key={header}>
+                <b>{header}</b>
+              </TableCell>
             ))}
           </TableRow>
         </TableHead>
         <TableBody>
           {competencyData.map((row, index) => (
             <TableRow key={index}>
-              <TableCell>
-                <ConceptDataDisplay uri={URIs[index]} />
+              <TableCell style={{ color: '#5490D2', cursor: 'pointer' }}>
+                <ConceptInfoDisplay uri={URIs[index]} />
               </TableCell>
               {ALL_DIMENSIONS.map((dimension: string) => (
                 <TableCell key={dimension}>
@@ -48,4 +51,4 @@ function RenderCompetencyData({
   );
 }
 
-export default RenderCompetencyData;
+export default CompetencyTable;
