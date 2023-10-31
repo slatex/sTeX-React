@@ -61,7 +61,7 @@ export default async function handler(
   }
 
   const results3: any[] = await queryGradingDbAndEndSet500OnError(
-    `SELECT UNIX_TIMESTAMP(postedTimestamp) AS ts, COUNT(*) AS numRequests 
+    `SELECT ROUND(UNIX_TIMESTAMP(postedTimestamp)/10)*10 AS ts, COUNT(*)/10 AS requestsPerSec 
     FROM grading
     WHERE quizId = ?
     GROUP BY ts`,
@@ -69,12 +69,12 @@ export default async function handler(
     res
   );
   if (!results3) return;
-  const timeHistogram = {};
+  const requestsPerSec = {};
   for (const r3 of results3) {
-    timeHistogram[r3.ts] = r3.numRequests;
+    requestsPerSec[r3.ts] = r3.requestsPerSec;
   }
 
   return res
     .status(200)
-    .json({ attemptedHistogram, scoreHistogram, timeHistogram });
+    .json({ attemptedHistogram, scoreHistogram, requestsPerSec });
 }

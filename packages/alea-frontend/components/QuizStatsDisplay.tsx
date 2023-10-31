@@ -32,12 +32,12 @@ export function QuizStatsDisplay({
 
       <h2>Responses</h2>
       <TimedLineChart
-        data={Object.keys(stats.timeHistogram)
+        data={Object.keys(stats.requestsPerSec)
           .map((s) => +s)
           .sort((a, b) => a - b)
           .map((ts) => ({
             ts: +ts,
-            value: +stats.timeHistogram[ts] ?? 0,
+            value: +stats.requestsPerSec[ts]/10 ?? 0,
           }))}
         column1="Time"
         column2="Responses"
