@@ -35,7 +35,7 @@ export function QuizStatsDisplay({
           .map((s) => +s)
           .sort((a, b) => a - b)
           .map((score) => ({
-            key: score.toString(),
+            key: (Math.round(score*100)/100).toString(),
             value: +stats.scoreHistogram[score] ?? 0,
           }))}
         column1="Score"
