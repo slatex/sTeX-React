@@ -7,6 +7,7 @@ import {
   getChildrenOfBodyNode,
   getSectionInfo,
   IS_SERVER,
+  localStore,
 } from '@stex-react/utils';
 import {
   createContext,
@@ -73,8 +74,9 @@ export function ExpandableContent({
   // Reference to the top-most box.
 
   const { archive, filepath } = getSectionInfo(contentUrl ?? '');
-  const node = findFileNode(archive, filepath, docSections);
-  const showIndicator = hasSectionChild(node);
+  const showIndicator =
+    hasSectionChild(findFileNode(archive, filepath, docSections)) &&
+    !!localStore?.getItem('ici');
   const contentRef = useRef<HTMLElement>();
   const rect = useRect(contentRef);
   const isVisible = useOnScreen(contentRef);
@@ -192,9 +194,9 @@ export function ExpandableContent({
             <Box overflow="visible">
               {contentUrl ? (
                 <ExpandContext.Provider value={childContext}>
-                  {showIndicator ? (
+                  {showIndicator && (
                     <CompetencyIndicator contentUrl={contentUrl} />
-                  ) : null}
+                  )}
                   <ContentFromUrl
                     url={contentUrl}
                     modifyRendered={getChildrenOfBodyNode}

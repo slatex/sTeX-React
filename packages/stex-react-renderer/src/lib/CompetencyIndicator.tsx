@@ -6,6 +6,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Tooltip,
 } from '@mui/material';
 import LinearProgress from '@mui/material/LinearProgress';
 import {
@@ -22,6 +23,24 @@ import CompetencyTable from './CompetencyTable';
 import { getLocaleObject } from './lang/utils';
 import { DimIcon, ServerLinksContext } from './stex-react-renderer';
 
+function CompetencyBar({ dim, val }: { dim: BloomDimension; val: number }) {
+  const hue = 120 * (val);
+  return (
+    <Tooltip title={`${dim}: ${(val * 100).toFixed(1)}%`}>
+      <LinearProgress
+        sx={{
+          backgroundColor: `hsl(${hue}, 100%, 90%)`,
+          '& .MuiLinearProgress-bar': {
+            backgroundColor: `hsl(${hue}, 100%, 50%)`,
+          },
+        }}
+        variant="determinate"
+        value={Math.round(val * 100)}
+      />
+    </Tooltip>
+  );
+}
+
 const CompetencyIndicator = ({ contentUrl }: { contentUrl: string }) => {
   const [competencyData, setCompetencyData] = useState<
     NumericCognitiveValues[] | null
@@ -33,20 +52,8 @@ const CompetencyIndicator = ({ contentUrl }: { contentUrl: string }) => {
   const [URIs, setURIs] = useState<string[]>([]);
   const t = getLocaleObject(useRouter());
 
-  const handleOpenDialog = () => {
-    setOpenDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-  };
-
   useEffect(() => {
-    async function fetchData() {
-      const data = await getDefiniedaInDoc(mmtUrl, archive, filepath);
-      setDefinedData(data);
-    }
-    fetchData();
+    getDefiniedaInDoc(mmtUrl, archive, filepath).then(setDefinedData);
   }, [archive, filepath, mmtUrl]);
 
   useEffect(() => {
@@ -55,18 +62,18 @@ const CompetencyIndicator = ({ contentUrl }: { contentUrl: string }) => {
     setURIs(URIs);
     getUriWeights(URIs).then((data) => setCompetencyData(data));
   }, [definedData]);
-  const sumOfAverageRemember = competencyData?.length
+  const averageRemember = competencyData?.length
     ? competencyData.reduce((sum, item) => sum + (item.Remember ?? 0), 0) /
       competencyData.length
     : 0;
 
-  const sumOfAverageUnderstand = competencyData?.length
+  const averageUnderstand = competencyData?.length
     ? competencyData.reduce((sum, item) => sum + (item.Understand ?? 0), 0) /
       competencyData.length
     : 0;
-  if (!definedData?.length) {
-    return null;
-  }
+
+  if (!definedData?.length) return null;
+
   return (
     <Box style={{ backgroundColor: '#FFFFE0' }}>
       {competencyData && (
@@ -76,35 +83,37 @@ const CompetencyIndicator = ({ contentUrl }: { contentUrl: string }) => {
           border="1px solid yellow"
           borderRadius="3px"
           marginBottom="5px"
+          gap="15px"
           alignItems="center"
           p="5px"
         >
-          <Box width="10vw">
+          <Box flexGrow={1} maxWidth="10vw">
             <DimIcon
               dim={BloomDimension.Remember}
               white={false}
               showTitle={true}
             />
-            <LinearProgress
-              variant="determinate"
-              value={Math.round(sumOfAverageRemember * 100)}
+            <CompetencyBar
+              dim={BloomDimension.Remember}
+              val={averageRemember}
             />
           </Box>
-          <Box width="10vw">
+          <Box flexGrow={1} maxWidth="10vw">
             <DimIcon
               dim={BloomDimension.Understand}
               white={false}
               showTitle={true}
             />
-            <LinearProgress
-              variant="determinate"
-              value={Math.round(sumOfAverageUnderstand * 100)}
+            <CompetencyBar
+              dim={BloomDimension.Understand}
+              val={averageUnderstand}
             />
           </Box>
           <Button
+            sx={{ flexGrow: 0 }}
             variant="contained"
             style={{ height: '40px' }}
-            onClick={handleOpenDialog}
+            onClick={() => setOpenDialog(true)}
           >
             {t.details}
           </Button>
@@ -112,7 +121,7 @@ const CompetencyIndicator = ({ contentUrl }: { contentUrl: string }) => {
       )}
       <Dialog
         open={openDialog}
-        onClose={handleCloseDialog}
+        onClose={() => setOpenDialog(false)}
         fullWidth={true}
         maxWidth="lg"
       >
@@ -128,7 +137,7 @@ const CompetencyIndicator = ({ contentUrl }: { contentUrl: string }) => {
         </DialogContent>
         <DialogActions style={{ justifyContent: 'center' }}>
           <Button
-            onClick={handleCloseDialog}
+            onClick={() => setOpenDialog(false)}
             color="primary"
             variant="contained"
           >

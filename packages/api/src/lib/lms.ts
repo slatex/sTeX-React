@@ -69,8 +69,12 @@ export const ALL_DIMENSIONS = [
 ];
 
 export interface LMSEvent {
-  type: 'i-know' | 'question-answered' | 'self-assessment-5StepLikertSmileys' | 'course-init';
-  
+  type:
+    | 'i-know'
+    | 'question-answered'
+    | 'self-assessment-5StepLikertSmileys'
+    | 'course-init';
+
   URI?: string; // The uri that "i-know" or the question answered filename.
 
   course?: string; // The course id.
@@ -204,6 +208,7 @@ function cleanupNumericCognitiveValues(
     Understand: +(dim.Understand || 0),
     Apply: +(dim.Apply || 0),
     Analyse: +(dim.Analyse || 0),
+    Evaluate: +(dim.Evaluate || 0),
     Create: +(dim.Create || 0),
   };
 }
