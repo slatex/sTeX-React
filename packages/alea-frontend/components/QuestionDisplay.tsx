@@ -17,15 +17,10 @@ import {
   mmtHTMLToReact,
 } from '@stex-react/stex-react-renderer';
 import styles from '../styles/quiz.module.scss';
-import {
-  Problem,
-  ProblemType,
-  Tristate,
-  UserResponse,
-  getPoints,
-  getAllOptionSets,
-} from '@stex-react/api';
-
+import { Problem, ProblemType, Tristate, UserResponse } from '@stex-react/api';
+import { getPoints, getAllOptionSets } from '@stex-react/quiz-utils';
+import { useEffect, useRef, useState } from 'react';
+import { Window } from '@stex-react/utils';
 function BpRadio(props: RadioProps) {
   return <Radio disableRipple color="default" {...props} />;
 }
@@ -97,7 +92,7 @@ function ScbFeedback({
     const optionSet = getAllOptionSets(problem)[choiceBlockIdx];
     const feedbackHtml = optionSet[selectedIdx]?.feedbackHtml ?? '';
     const isCorrect = optionSet[selectedIdx]?.shouldSelect === Tristate.TRUE;
-    if(!feedbackHtml) return null;
+    if (!feedbackHtml) return null;
     return (
       <Box
         key={choiceBlockIdx}
@@ -144,6 +139,20 @@ export function ProblemDisplay({
     multipleOptionIdxs,
     filledInAnswer,
   } = response;
+
+  const [docWidth, setDocWidth] = useState(500);
+  const containerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    function handleResize() {
+      const outerWidth = containerRef?.current?.clientWidth;
+      if (!outerWidth) return;
+      setDocWidth(outerWidth);
+    }
+    handleResize();
+    Window?.addEventListener('resize', handleResize);
+    return () => Window?.removeEventListener('resize', handleResize);
+  }, []);
+
   if (!problem) return <CircularProgress />;
 
   const lastSelectedIdx = selectedIdxs?.[selectedIdxs?.length - 1];
@@ -192,10 +201,13 @@ export function ProblemDisplay({
         userSelect: 'none',
       }}
     >
-      <Box display="inline" fontSize="20px">
+      <Box fontSize="20px" ref={containerRef}>
         <PointsInfo points={problem.points} />
         <CustomItemsContext.Provider value={{ items }}>
-          <Box display="inline">
+          <Box
+            display="inline"
+            {...({ style: { '--document-width': `${docWidth}px` } } as any)}
+          >
             {mmtHTMLToReact(problem.statement.outerHTML || '')}
           </Box>
         </CustomItemsContext.Provider>

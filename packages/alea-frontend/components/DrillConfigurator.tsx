@@ -236,7 +236,7 @@ function CoverageConfigurator({
                           fontSize: 'large',
                         }}
                       >
-                        {mmtHTMLToReact(chapterTitle, true)}
+                        {mmtHTMLToReact(chapterTitle)}
                       </b>
                     </ListItemButton>
                   </ListItem>
@@ -261,7 +261,7 @@ function CoverageConfigurator({
                       primary={
                         <Box sx={{ fontSize: '14px' }}>
                           <b style={{ display: 'block', color: PRIMARY_COL }}>
-                            {mmtHTMLToReact(sectionTitle, true)}
+                            {mmtHTMLToReact(sectionTitle)}
                           </b>
                           <b style={{ color: SECONDARY_COL }}>
                             {loggedIn && selectedCards.length + '/'}

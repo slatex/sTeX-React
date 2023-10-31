@@ -17,17 +17,20 @@ import {
 async function sendCommentAlert(
   userId: string,
   isPrivate: boolean,
+  isQuestion: boolean,
+  courseId: string,
   archive: string,
   filepath: string
 ) {
   if (isPrivate) return;
   const articlePath =
     'https://courses.voll-ki.fau.de' + PathToArticle({ archive, filepath });
-  if (isModerator(userId)) {
-    await sendAlert(`A moderator posted a comment at ${articlePath}`);
-  } else {
-    await sendAlert(`A comment was posted at ${articlePath}`);
-  }
+  const forumPath = `https://courses.voll-ki.fau.de/forum/${courseId}`;
+  const link = archive && filepath ? articlePath : forumPath;
+  const message = isModerator(userId)
+    ? `A moderator posted at ${link}`
+    : `A ${isQuestion ? 'question' : 'comment'} was posted at ${link}`;
+  await sendAlert(message);
 }
 
 export async function sendAlert(message: string) {
@@ -136,5 +139,12 @@ export default async function handler(req, res) {
     );
   }
   res.status(200).json({ newCommentId });
-  await sendCommentAlert(userId, isPrivate, archive, filepath);
+  await sendCommentAlert(
+    userId,
+    isPrivate,
+    commentType === CommentType.QUESTION,
+    courseId,
+    archive,
+    filepath
+  );
 }

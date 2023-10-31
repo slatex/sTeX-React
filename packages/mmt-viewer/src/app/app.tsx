@@ -33,7 +33,6 @@ export function App() {
   ) : useEmbedded && mmtHtml ? (
     <ContentWithHighlight
       mmtHtml={mmtHtml}
-      skipSidebar={true}
       renderWrapperParams={{ 'section-url': 'TOP-LEVEL' }}
     />
   ) : contentUrl?.length ? (

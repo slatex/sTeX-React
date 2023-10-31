@@ -7,7 +7,7 @@ import {
   getBackupQuizFilePath,
   getQuiz,
   writeQuizFile
-} from './quiz-utils';
+} from '@stex-react/node-utils';
 
 // function to rewrite the quiz file with the new quiz info and backup the old version.
 export function updateQuiz(

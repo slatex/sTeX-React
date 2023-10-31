@@ -3,7 +3,7 @@ import { CURRENT_TERM } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { v4 as uuidv4 } from 'uuid';
 import { checkIfPostOrSetError, getUserIdOrSetError } from './comment-utils';
-import { doesQuizExist, writeQuizFile } from './quiz-utils';
+import { doesQuizExist, writeQuizFile } from '@stex-react/node-utils';
 
 export default async function handler(
   req: NextApiRequest,

@@ -16,11 +16,9 @@ import {
   Problem,
   TimerEvent,
   TimerEventType,
-  Tristate,
   UserResponse,
-  getAllOptionSets,
-  getPoints,
 } from '@stex-react/api';
+import { getPoints, getAllOptionSets } from '@stex-react/quiz-utils';
 import {
   FixedPositionMenu,
   LayoutWithFixedMenu,
@@ -41,6 +39,12 @@ function isAnswered(r: UserResponse) {
     Object.values(r?.multipleOptionIdxs ?? {}).some((v) => v === true)
   );
 }
+
+function roundedScore(points: { [problemId: string]: number | undefined }) {
+  const score = Object.values(points).reduce((prev, s) => prev + (s ?? 0), 0);
+  return (Math.round(score * 100) / 100).toString();
+}
+
 function IndexEntry({
   response,
   points,
@@ -217,7 +221,7 @@ export function QuizDisplay({
       const e = existingResponses[problemId];
       const numOptionSets = getAllOptionSets(problems[problemId]).length;
       rs[problemId] = {
-        filledInAnswer: e?.filledInAnswer ?? '',  
+        filledInAnswer: e?.filledInAnswer ?? '',
         singleOptionIdxs:
           e?.singleOptionIdxs ?? new Array(numOptionSets).fill(-1),
         multipleOptionIdxs: e?.multipleOptionIdxs ?? {},
@@ -341,19 +345,12 @@ export function QuizDisplay({
           )
         ) : !Object.values(points).some((s) => s === undefined) ? (
           <i style={{ margin: '20px 0', color: '#333', fontSize: '26px' }}>
-            {t.youScored
-              .replace(
-                '$1',
-                Object.values(points)
-                  .reduce((prev, s) => prev + (s ?? 0), 0)
-                  .toString()
-              )
-              .replace(
-                '$2',
-                Object.values(problems)
-                  .reduce((a, b) => a + b.points, 0)
-                  .toString()
-              )}
+            {t.youScored.replace('$1', roundedScore(points)).replace(
+              '$2',
+              Object.values(problems)
+                .reduce((a, b) => a + b.points, 0)
+                .toString()
+            )}
           </i>
         ) : (
           <i style={{ margin: '20px 0', color: '#333', fontSize: '26px' }}>

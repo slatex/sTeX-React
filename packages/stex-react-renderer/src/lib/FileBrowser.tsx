@@ -77,7 +77,6 @@ export function FileBrowser({
               <ContentFromUrl
                 topLevelDocUrl={XhtmlTopDocumentContentUrl({ archive, filepath })}
                 url={XhtmlTopDocumentContentUrl({ archive, filepath })}
-                skipSidebar={true}
                 modifyRendered={getChildrenOfBodyNode}
               />
             </>

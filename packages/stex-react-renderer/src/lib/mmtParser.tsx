@@ -5,6 +5,7 @@ import { styled } from '@mui/material/styles';
 import {
   IS_MMT_VIEWER,
   contextParamsFromTopLevelDocUrl,
+  getCustomTag,
   localStore,
 } from '@stex-react/utils';
 import parse, { DOMNode, Element, domToReact } from 'html-react-parser';
@@ -17,7 +18,6 @@ import MathJaxHack from './MathJaxHack';
 import { MathMLDisplay } from './MathMLDisplay';
 import { OverlayDialog, isHoverON } from './OverlayDialog';
 import { ServerLinksContext } from './stex-react-renderer';
-import { getCustomTag } from '@stex-react/api';
 
 export const CustomItemsContext = createContext<{
   items: { [tag: string]: JSX.Element };
@@ -271,7 +271,7 @@ function CustomReplacement({ tag }: { tag: string }) {
   return items[tag];
 }
 
-const replace = (d: DOMNode, skipSidebar = false): any => {
+const replace = (d: DOMNode): any => {
   const domNode = getElement(d);
 
   if (!domNode) return;
@@ -476,8 +476,8 @@ const replace = (d: DOMNode, skipSidebar = false): any => {
   return;
 };
 
-export function mmtHTMLToReact(html: string, skipSidebar = false) {
+export function mmtHTMLToReact(html: string) {
   return parse(html, {
-    replace: (d: any) => replace(d, skipSidebar),
+    replace: (d: any) => replace(d),
   });
 }

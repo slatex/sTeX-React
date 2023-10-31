@@ -5,13 +5,11 @@ export const ContentWithHighlight = memo(
   ({
     mmtHtml,
     modifyRendered = undefined,
-    skipSidebar = false,
     topLevel = false,
     renderWrapperParams = {},
   }: {
     mmtHtml: string;
     modifyRendered?: (node: any) => any;
-    skipSidebar?: boolean;
     topLevel?: boolean;
     renderWrapperParams?: { [key: string]: string };
   }) => {
@@ -24,10 +22,10 @@ export const ContentWithHighlight = memo(
     );
 
     useEffect(() => {
-      let rendered = mmtHTMLToReact(mmtHtml, skipSidebar);
+      let rendered = mmtHTMLToReact(mmtHtml);
       if (modifyRendered) rendered = modifyRendered(rendered);
       setRendered(rendered);
-    }, [mmtHtml, skipSidebar, modifyRendered]);
+    }, [mmtHtml, modifyRendered]);
 
     return (
       <HighlightContext.Provider value={value}>

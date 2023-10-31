@@ -4,12 +4,12 @@ import {
   Phase,
   Problem,
   UserInfo,
-  getProblem,
   getQuiz,
   getUserInfo,
   insertAnswer,
   isModerator,
 } from '@stex-react/api';
+import { getProblem } from '@stex-react/quiz-utils';
 import { localStore } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import type { NextPage } from 'next';
@@ -160,7 +160,7 @@ const QuizPage: NextPage = () => {
       setUserInfo(userInfo);
       if (isModerator(userInfo?.userId)) {
         const p =
-          'Hello moderator! Do you want to see the quiz in feedback release phase?';
+          'Hello moderator! Do you want to see the quiz in feedback release phase (press OK) or quiz started phase (press Cancel)?';
         setModeratorPhase(confirm(p) ? Phase.FEEDBACK_RELEASED : Phase.STARTED);
       }
     });

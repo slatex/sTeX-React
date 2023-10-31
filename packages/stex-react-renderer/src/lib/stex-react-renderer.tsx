@@ -1,4 +1,5 @@
 import { Box } from '@mui/material';
+import { getDocumentSections, SectionsAPIData } from '@stex-react/api';
 import {
   BG_COLOR,
   getChildrenOfBodyNode,
@@ -14,11 +15,11 @@ import {
   getScrollInfo,
   scrollToClosestAncestorAndSetPending,
   TOCFileNode,
-  TOCNodeType,
 } from './collectIndexInfo';
-import { ContentDashboard, getDocumentTree } from './ContentDashboard';
+import { ContentDashboard } from './ContentDashboard';
 import { ContentFromUrl } from './ContentFromUrl';
 import { ContentWithHighlight } from './ContentWithHightlight';
+import { ExpandableContent } from './ExpandableContent';
 import { ExpandableContextMenu } from './ExpandableContextMenu';
 import { FileBrowser } from './FileBrowser';
 import { DocSectionContext, InfoSidebar } from './InfoSidebar';
@@ -207,8 +208,8 @@ export {
   LayoutWithFixedMenu,
   LevelIcon,
   mmtHTMLToReact,
-  SelfAssessmentDialog,
   SelfAssessment2,
+  SelfAssessmentDialog,
   TourDisplay,
 };
-export type { TourAPIEntry, TOCFileNode };
+export type { TOCFileNode, TourAPIEntry };

@@ -1,7 +1,7 @@
 import { isModerator } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getUserIdOrSetError } from './comment-utils';
-import { getAllQuizzes } from './quiz-utils';
+import { getAllQuizzes } from '@stex-react/node-utils';
 
 export default async function handler(
   req: NextApiRequest,
