@@ -20,7 +20,7 @@ const ConceptInfoDisplay = ({ uri }: { uri: string }) => {
   return (
     <Tooltip
       title={
-        <Box style={{ color: '#5490D2' }}>
+        <Box>
           <Box>{uri}</Box>
           {uriData ? (
             <Box>{mmtHTMLToReact(uriData)}</Box>
@@ -30,7 +30,7 @@ const ConceptInfoDisplay = ({ uri }: { uri: string }) => {
         </Box>
       }
     >
-      <span>{extractLastWordAfterQuestionMark(uri)}</span>
+      <span style={{ color: '#0e90d2' }}>{extractLastWordAfterQuestionMark(uri)}</span>
     </Tooltip>
   );
 };

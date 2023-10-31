@@ -1,12 +1,14 @@
+import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
 import { ALL_DIMENSIONS } from '@stex-react/api';
+import { useRouter } from 'next/router';
 import ConceptInfoDisplay from './ConceptInfoDisplay';
+import { getLocaleObject } from './lang/utils';
 
 export function CompetencyTable({
   URIs,
@@ -15,15 +17,16 @@ export function CompetencyTable({
   URIs: string[];
   competencyData: any[];
 }) {
-  if (!URIs?.length || !competencyData?.length) return <p>Loading data...</p>;
+  const t = getLocaleObject(useRouter());
+  if (!URIs?.length || !competencyData?.length) return <p>Loading data... </p>;
 
   return (
     <TableContainer component={Paper}>
-      <Table style={{ textAlign: 'center' }}>
+      <Table sx={{ textAlign: 'center' }}>
         <TableHead>
-          <TableRow sx={{ fontWeight: 'bold' }}>
+          <TableRow>
             <TableCell>
-              <b>Concepts</b>
+              <b>{t.concepts}</b>
             </TableCell>
             {ALL_DIMENSIONS.map((header) => (
               <TableCell key={header}>
@@ -35,7 +38,7 @@ export function CompetencyTable({
         <TableBody>
           {competencyData.map((row, index) => (
             <TableRow key={index}>
-              <TableCell style={{ color: '#5490D2', cursor: 'pointer' }}>
+              <TableCell sx={{ cursor: 'pointer' }}>
                 <ConceptInfoDisplay uri={URIs[index]} />
               </TableCell>
               {ALL_DIMENSIONS.map((dimension: string) => (

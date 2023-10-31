@@ -1,23 +1,26 @@
-import { getSectionInfo } from '@stex-react/utils';
-import { useContext, useEffect, useState } from 'react';
-import { DimIcon, ServerLinksContext } from './stex-react-renderer';
-import {
-  BloomDimension,
-  getDefiniedaInDoc,
-  getUriWeights,
-} from '@stex-react/api';
-import { DefiniendaItem, NumericCognitiveValues } from '@stex-react/api';
 import {
   Box,
   Button,
   Dialog,
-  DialogTitle,
-  DialogContent,
   DialogActions,
+  DialogContent,
   DialogContentText,
+  DialogTitle,
 } from '@mui/material';
 import LinearProgress from '@mui/material/LinearProgress';
+import {
+  BloomDimension,
+  DefiniendaItem,
+  NumericCognitiveValues,
+  getDefiniedaInDoc,
+  getUriWeights,
+} from '@stex-react/api';
+import { getSectionInfo } from '@stex-react/utils';
+import { useRouter } from 'next/router';
+import { useContext, useEffect, useState } from 'react';
 import CompetencyTable from './CompetencyTable';
+import { getLocaleObject } from './lang/utils';
+import { DimIcon, ServerLinksContext } from './stex-react-renderer';
 
 const CompetencyIndicator = ({ contentUrl }: { contentUrl: string }) => {
   const [competencyData, setCompetencyData] = useState<
@@ -28,6 +31,7 @@ const CompetencyIndicator = ({ contentUrl }: { contentUrl: string }) => {
   const { archive, filepath } = getSectionInfo(contentUrl);
   const { mmtUrl } = useContext(ServerLinksContext);
   const [URIs, setURIs] = useState<string[]>([]);
+  const t = getLocaleObject(useRouter());
 
   const handleOpenDialog = () => {
     setOpenDialog(true);
@@ -40,33 +44,27 @@ const CompetencyIndicator = ({ contentUrl }: { contentUrl: string }) => {
   useEffect(() => {
     async function fetchData() {
       const data = await getDefiniedaInDoc(mmtUrl, archive, filepath);
-      console.log('defined data - ' + data);
       setDefinedData(data);
     }
     fetchData();
   }, [archive, filepath, mmtUrl]);
 
-  async function getData() {
-    if (definedData !== null) {
-      const URIs = definedData.flatMap((data) => data.symbols);
-      setURIs(URIs);
-      const data = await getUriWeights(URIs);
-      setCompetencyData(data);
-    }
-  }
   useEffect(() => {
-    getData();
+    if (!definedData) return;
+    const URIs = definedData.flatMap((data) => data.symbols);
+    setURIs(URIs);
+    getUriWeights(URIs).then((data) => setCompetencyData(data));
   }, [definedData]);
   const sumOfAverageRemember = competencyData?.length
-    ? competencyData.reduce((sum, item) => sum + (item.Remember || 0), 0) /
+    ? competencyData.reduce((sum, item) => sum + (item.Remember ?? 0), 0) /
       competencyData.length
     : 0;
 
   const sumOfAverageUnderstand = competencyData?.length
-    ? competencyData.reduce((sum, item) => sum + (item.Understand || 0), 0) /
+    ? competencyData.reduce((sum, item) => sum + (item.Understand ?? 0), 0) /
       competencyData.length
     : 0;
-  if(!definedData?.length){
+  if (!definedData?.length) {
     return null;
   }
   return (
@@ -89,7 +87,7 @@ const CompetencyIndicator = ({ contentUrl }: { contentUrl: string }) => {
             />
             <LinearProgress
               variant="determinate"
-              value={parseFloat(sumOfAverageRemember.toFixed(2)) * 100}
+              value={Math.round(sumOfAverageRemember * 100)}
             />
           </Box>
           <Box width="10vw">
@@ -100,7 +98,7 @@ const CompetencyIndicator = ({ contentUrl }: { contentUrl: string }) => {
             />
             <LinearProgress
               variant="determinate"
-              value={parseFloat(sumOfAverageUnderstand.toFixed(2)) * 100}
+              value={Math.round(sumOfAverageUnderstand * 100)}
             />
           </Box>
           <Button
@@ -108,7 +106,7 @@ const CompetencyIndicator = ({ contentUrl }: { contentUrl: string }) => {
             style={{ height: '40px' }}
             onClick={handleOpenDialog}
           >
-            My Competency
+            {t.details}
           </Button>
         </Box>
       )}
@@ -119,16 +117,14 @@ const CompetencyIndicator = ({ contentUrl }: { contentUrl: string }) => {
         maxWidth="lg"
       >
         <DialogTitle>
-          <b>My Competency Data</b>
+          <b>{t.details}</b>
         </DialogTitle>
         <DialogContent>
           {competencyData ? (
             <DialogContentText>
               <CompetencyTable URIs={URIs} competencyData={competencyData} />
             </DialogContentText>
-          ) : (
-            'Loading Data - C'
-          )}
+          ) : null}
         </DialogContent>
         <DialogActions style={{ justifyContent: 'center' }}>
           <Button
@@ -136,7 +132,7 @@ const CompetencyIndicator = ({ contentUrl }: { contentUrl: string }) => {
             color="primary"
             variant="contained"
           >
-            Close
+            {t.close}
           </Button>
         </DialogActions>
       </Dialog>

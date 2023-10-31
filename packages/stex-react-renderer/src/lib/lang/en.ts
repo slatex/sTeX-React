@@ -20,13 +20,15 @@ export const en = {
 
   // overlay dialog
   close: 'Close',
-  hover:'Hovers On/Off',
+  hover: 'Hovers On/Off',
 
   // tour display
   guidedTour: 'Guided Tour',
   hide: 'Hide',
   needs: 'Needs',
-
+  //Competency Indicator
+  details: 'Details',
+  concepts: 'Concepts',
   // self assessement
   smileyTooltips: {
     Remember: {
@@ -52,5 +54,5 @@ export const en = {
     Analyse: 'I can analyse',
     Evaluate: 'I can evaluate',
     Create: 'I can create',
-  }
+  },
 };
