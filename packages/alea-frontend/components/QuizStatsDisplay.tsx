@@ -37,10 +37,10 @@ export function QuizStatsDisplay({
           .sort((a, b) => a - b)
           .map((ts) => ({
             ts: +ts,
-            value: +stats.requestsPerSec[ts]/10 ?? 0,
+            value: +stats.requestsPerSec[ts] ?? 0,
           }))}
         column1="Time"
-        column2="Responses"
+        column2="Responses/sec"
       />
       <br />
 
