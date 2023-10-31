@@ -16,6 +16,7 @@ import {
   scrollToClosestAncestorAndSetPending,
   TOCFileNode,
 } from './collectIndexInfo';
+import CompetencyTable from './CompetencyTable';
 import { ContentDashboard } from './ContentDashboard';
 import { ContentFromUrl } from './ContentFromUrl';
 import { ContentWithHighlight } from './ContentWithHightlight';
@@ -34,9 +35,6 @@ import {
   SelfAssessmentDialog,
 } from './SelfAssessmentDialog';
 import { TourAPIEntry, TourDisplay } from './TourDisplay';
-import { ExpandableContent } from './ExpandableContent';
-import { getDocumentSections, SectionsAPIData } from '@stex-react/api';
-import CompetencyTable from './CompetencyTable';
 
 export const ServerLinksContext = createContext({ mmtUrl: '', lmsUrl: '' });
 
