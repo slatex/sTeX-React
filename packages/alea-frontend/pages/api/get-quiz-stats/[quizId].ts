@@ -37,7 +37,7 @@ export default async function handler(
   for (const r1 of results1) {
     attemptedHistogram[r1.numProblems] = r1.numStudents;
   }
-  const results2: any[] = await queryGradingDbAndEndSet500OnError(
+  const results2: any[] = await queryGradingDbDontEndSet500OnError(
     `SELECT score, COUNT(*) AS numStudents
     FROM (
       SELECT userId, SUM(points) as score
@@ -54,10 +54,27 @@ export default async function handler(
     [quizId],
     res
   );
+  if (!results2) return;
   const scoreHistogram = {};
   for (const r2 of results2) {
     scoreHistogram[r2.score] = r2.numStudents;
   }
-  if (!results2) return;
-  return res.status(200).json({ attemptedHistogram, scoreHistogram });
+
+  const results3: any[] = await queryGradingDbAndEndSet500OnError(
+    `SELECT UNIX_TIMESTAMP(postedTimestamp) AS ts, COUNT(*) AS numRequests 
+    FROM grading
+    WHERE quizId = ?
+    GROUP BY ts`,
+    [quizId],
+    res
+  );
+  if (!results3) return;
+  const timeHistogram = {};
+  for (const r3 of results3) {
+    timeHistogram[r3.ts] = r3.numRequests;
+  }
+
+  return res
+    .status(200)
+    .json({ attemptedHistogram, scoreHistogram, timeHistogram });
 }

@@ -1,5 +1,5 @@
 import { QuizStatsResponse } from '@stex-react/api';
-import { BarChart } from '../pages/quiz/results';
+import { BarChart, TimedLineChart } from '../pages/quiz/results';
 
 export function QuizStatsDisplay({
   stats,
@@ -18,6 +18,7 @@ export function QuizStatsDisplay({
         Quiz attempted by <b style={{ color: 'red' }}>{totalStudents}</b>{' '}
         students
       </h2>
+
       <h2>Problems attempted</h2>
       <BarChart
         data={Array.from({ length: maxProblems + 1 }).map((_, idx) => ({
@@ -29,13 +30,27 @@ export function QuizStatsDisplay({
       />
       <br />
 
+      <h2>Responses</h2>
+      <TimedLineChart
+        data={Object.keys(stats.timeHistogram)
+          .map((s) => +s)
+          .sort((a, b) => a - b)
+          .map((ts) => ({
+            ts: +ts,
+            value: +stats.timeHistogram[ts] ?? 0,
+          }))}
+        column1="Time"
+        column2="Responses"
+      />
+      <br />
+
       <h2>Scores</h2>
       <BarChart
         data={Object.keys(stats.scoreHistogram)
           .map((s) => +s)
           .sort((a, b) => a - b)
           .map((score) => ({
-            key: (Math.round(score*100)/100).toString(),
+            key: (Math.round(score * 100) / 100).toString(),
             value: +stats.scoreHistogram[score] ?? 0,
           }))}
         column1="Score"

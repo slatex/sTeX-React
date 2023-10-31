@@ -1,4 +1,12 @@
-import { Box, FormControl, InputLabel, MenuItem, Select, Tab, Tabs } from '@mui/material';
+import {
+  Box,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Tab,
+  Tabs,
+} from '@mui/material';
 import { getSectionInfo } from '@stex-react/utils';
 import axios from 'axios';
 import type { NextPage } from 'next';
@@ -36,6 +44,36 @@ export function BarChart({
       width="100%"
       height="400px"
       options={{ vAxis: { minValue: 0 } }}
+      legendToggle
+    />
+  );
+}
+
+export function TimedLineChart({
+  data,
+  column1,
+  column2,
+}: {
+  data: { ts: number; value: number }[];
+  column1: string;
+  column2: string;
+}) {
+  return (
+    <Chart
+      chartType="LineChart"
+      data={[
+        [column1, column2],
+        ...data.map((d) => [new Date(d.ts * 1000), d.value]),
+      ]}
+      width="100%"
+      height="400px"
+      options={{
+        vAxis: { minValue: 0 },
+        hAxis: {
+          title: 'Time',
+          format: 'MM/dd/yyyy HH:mm:ss',
+        },
+      }}
       legendToggle
     />
   );
