@@ -5,8 +5,8 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
-import { styled } from '@mui/material/styles';
+import Tooltip from '@mui/material/Tooltip';
+
 import {
   ALL_DIMENSIONS,
   BloomDimension,
@@ -18,18 +18,6 @@ import ConceptInfoDisplay, {
 } from './ConceptInfoDisplay';
 import { getLocaleObject } from './lang/utils';
 import { SelfAssessmentDialogRow } from './SelfAssessmentDialog';
-
-const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
-  <Tooltip {...props} classes={{ popper: className }} />
-))(({ theme }) => ({
-  [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: 'white',
-    color: 'rgba(0, 0, 0, 0.87)',
-    maxWidth: 220,
-    fontSize: theme.typography.pxToRem(12),
-    border: '1px solid #dadde9',
-  },
-}));
 
 export function CompetencyTable({
   URIs,
