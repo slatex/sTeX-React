@@ -13,11 +13,23 @@ import {
   uriWeightToSmileyLevel,
 } from '@stex-react/api';
 import { useRouter } from 'next/router';
-import ConceptInfoDisplay, {
-  extractLastWordAfterQuestionMark,
-} from './ConceptInfoDisplay';
-import { getLocaleObject } from './lang/utils';
 import { SelfAssessmentDialogRow } from './SelfAssessmentDialog';
+import { getLocaleObject } from './lang/utils';
+import { mmtHTMLToReact } from './mmtParser';
+
+const extractLastWordAfterQuestionMark = (url: string) => {
+  if (!url) return url;
+  const parts = url.split('?');
+  return parts[parts.length - 1];
+};
+
+function getMMTHtml(uri: string) {
+  const lastWord = extractLastWordAfterQuestionMark(uri);
+  const hoverLink = `/:sTeX/fragment?${uri}`;
+  const clickLink = `/:sTeX/declaration?${uri}`;
+  const highlightParent = Math.random() * 1000000;
+  return `<span data-overlay-link-click="${clickLink}" data-highlight-parent="${highlightParent}" data-overlay-link-hover="${hoverLink}" class="symcomp group-highlight rustex-contents">${lastWord}</span>`;
+}
 
 export function CompetencyTable({
   URIs,
@@ -50,9 +62,7 @@ export function CompetencyTable({
         <TableBody>
           {competencyData.map((row, index) => (
             <TableRow key={index}>
-              <TableCell sx={{ cursor: 'pointer' }}>
-                <ConceptInfoDisplay uri={URIs[index]} />
-              </TableCell>
+              <TableCell>{mmtHTMLToReact(getMMTHtml(URIs[index]))}</TableCell>
               {(dimensions || ALL_DIMENSIONS).map(
                 (dimension: BloomDimension) => (
                   <TableCell key={dimension}>
@@ -72,7 +82,6 @@ export function CompetencyTable({
                             onValueUpdate={onValueUpdate}
                           />
                         }
-                        placement="right-start"
                       >
                         <span style={{ cursor: 'pointer' }}>
                           {Number(row[dimension]).toFixed(2)}

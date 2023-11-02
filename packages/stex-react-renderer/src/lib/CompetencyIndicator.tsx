@@ -15,6 +15,7 @@ import {
   NumericCognitiveValues,
   getDefiniedaInDoc,
   getUriWeights,
+  isLoggedIn,
 } from '@stex-react/api';
 import { getSectionInfo } from '@stex-react/utils';
 import { useRouter } from 'next/router';
@@ -22,6 +23,7 @@ import { useContext, useEffect, useState } from 'react';
 import CompetencyTable from './CompetencyTable';
 import { getLocaleObject } from './lang/utils';
 import { DimIcon, ServerLinksContext } from './stex-react-renderer';
+import styles from './stex-react-renderer.module.scss';
 
 function CompetencyBar({ dim, val }: { dim: BloomDimension; val: number }) {
   const hue = 120 * val;
@@ -53,18 +55,19 @@ const CompetencyIndicator = ({ contentUrl }: { contentUrl: string }) => {
   const t = getLocaleObject(useRouter());
 
   useEffect(() => {
+    if (!isLoggedIn()) return;
     getDefiniedaInDoc(mmtUrl, archive, filepath).then(setDefinedData);
   }, [archive, filepath, mmtUrl]);
 
   useEffect(() => {
     if (!definedData) return;
-    const URIs = definedData.flatMap((data) => data.symbols);
+    const URIs = [...new Set(definedData.flatMap((data) => data.symbols))];
     setURIs(URIs);
     getUriWeights(URIs).then((data) => setCompetencyData(data));
   }, [definedData]);
 
   function refetchCompetencyData() {
-    if (!definedData) return;
+    if (!URIs?.length) return;
     getUriWeights(URIs).then((data) => setCompetencyData(data));
   }
 
@@ -82,13 +85,7 @@ const CompetencyIndicator = ({ contentUrl }: { contentUrl: string }) => {
 
   return (
     <Box
-      style={{
-        backgroundColor: '#ffffbb',
-        borderRadius: '10px',
-        padding: '10px',
-        position: 'relative',
-        zIndex: 1,
-      }}
+      className={`${styles['indicator-container']} ${styles['tri-right']} ${styles['border']} ${styles['btm-left-in']}`}
     >
       {competencyData && (
         <Box
@@ -166,17 +163,6 @@ const CompetencyIndicator = ({ contentUrl }: { contentUrl: string }) => {
           </Button>
         </DialogActions>
       </Dialog>
-      <Box
-        style={{
-          position: 'absolute',
-          width: 0,
-          height: 0,
-          left: 0,
-          bottom: '-20px',
-          border: '22px solid',
-          borderColor: 'transparent transparent transparent #ffffbb',
-        }}
-      />
     </Box>
   );
 };

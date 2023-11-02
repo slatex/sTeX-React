@@ -1,6 +1,7 @@
 import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
 import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/IndeterminateCheckBoxOutlined';
 import { Box, IconButton } from '@mui/material';
+import { findFileNode, hasSectionChild } from '@stex-react/api';
 import {
   IS_SERVER,
   convertHtmlNodeToPlain,
@@ -16,6 +17,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import CompetencyIndicator from './CompetencyIndicator';
 import { ContentFromUrl } from './ContentFromUrl';
 import { ErrorBoundary } from './ErrorBoundary';
 import { ExpandableContextMenu } from './ExpandableContextMenu';
@@ -24,8 +26,6 @@ import { RenderOptions } from './RendererDisplayOptions';
 import { SEPARATOR_inDocPath, reportIndexInfo } from './collectIndexInfo';
 import { useOnScreen } from './useOnScreen';
 import { useRect } from './useRect';
-import { findFileNode, hasSectionChild } from '@stex-react/api';
-import CompetencyIndicator from './CompetencyIndicator';
 
 const ExpandContext = createContext([] as string[]);
 const STOP_EXPANSION_MARKER = 'STOP_EXPANSION';
