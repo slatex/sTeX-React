@@ -18,6 +18,8 @@ const quizzes: any[] = getAllQuizzes();
 
 interface ProblemLmsInfo {
   points: number;
+  objectives: string;
+  preconditions: string;
   // todo add more.
 }
 
@@ -27,10 +29,18 @@ for (const quiz of quizzes) {
   const quizLmsInfo = {};
   for (const [problemId, problemStr] of Object.entries(quiz.problems)) {
     const problem = getProblem(problemStr as string, undefined);
-    quizLmsInfo[problemId] = { points: problem.points };
+    const { points, objectives, preconditions } = problem;
+    quizLmsInfo[problemId] = {
+      points,
+      objectives,
+      preconditions,
+    };
   }
   LMSInfo[quiz.id] = quizLmsInfo;
 }
 
-fs.writeFileSync(process.env.QUIZ_LMS_INFO_FILE, JSON.stringify(LMSInfo, null, 2));
+fs.writeFileSync(
+  process.env.QUIZ_LMS_INFO_FILE,
+  JSON.stringify(LMSInfo, null, 2)
+);
 console.log(`Wrote to ${process.env.QUIZ_LMS_INFO_FILE}`);

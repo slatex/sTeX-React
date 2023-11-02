@@ -44,6 +44,9 @@ export enum ProblemType {
 
 export interface Problem {
   type: ProblemType;
+  header: string;
+  objectives: string;
+  preconditions: string;
   statement: { outerHTML: string };
   inlineOptionSets?: Option[][]; // For inline SCBs
   options?: Option[];

@@ -22,6 +22,7 @@ import { getPoints, getAllOptionSets } from '@stex-react/quiz-utils';
 import {
   FixedPositionMenu,
   LayoutWithFixedMenu,
+  mmtHTMLToReact,
 } from '@stex-react/stex-react-renderer';
 import { shouldUseDrawer } from '@stex-react/utils';
 import { useEffect, useReducer, useState } from 'react';
@@ -278,7 +279,8 @@ export function QuizDisplay({
       <Box px="10px" maxWidth="800px" m="auto">
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <h2>
-            {t.problem} {problemIdx + 1} {t.of} {problemIds.length}
+            {t.problem} {problemIdx + 1} {t.of} {problemIds.length}&nbsp;
+            {problem.header && <>({mmtHTMLToReact(problem.header)})</>}
           </h2>
           {(!!quizEndTs || showPerProblemTime) && (
             <QuizTimer

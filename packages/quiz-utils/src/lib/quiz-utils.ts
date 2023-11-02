@@ -237,16 +237,25 @@ function getProblemPoints(rootNode: Element) {
   return isNaN(parsedInt) || parsedInt === 0 ? 1 : parsedInt;
 }
 
+function getProblemHeader(rootNode: Element) {
+  const header = recursivelyFindNodes(rootNode, 'data-problem-title')?.[0]
+    ?.node;
+  return header ? DomUtils.getOuterHTML(header) : '';
+}
+
 export function getProblem(htmlStr: string, problemUrl: string) {
   const htmlDoc = parseDocument(htmlStr);
   const problemRootNode = findProblemRootNode(htmlDoc);
   const points = getProblemPoints(problemRootNode);
+  const header = getProblemHeader(problemRootNode);
   if (!problemRootNode) {
     return {
       type: ProblemType.FILL_IN,
       statement: { outerHTML: `<span>Not found: ${problemUrl}</span>` },
     } as Problem;
   }
+
+  removeNodeWithAttrib(problemRootNode, 'data-problem-title');
   removeNodeWithAttrib(problemRootNode, 'data-problem-solution');
   removeNodeWithAttrib(problemRootNode, 'data-problem-g-note');
   removeNodeWithAttrib(problemRootNode, 'data-problem-minutes');
@@ -257,6 +266,9 @@ export function getProblem(htmlStr: string, problemUrl: string) {
 
   const problem = {
     type: type || ProblemType.FILL_IN,
+    header,
+    objectives: problemRootNode?.attribs?.['data-problem-objectives'] ?? '',
+    preconditions: problemRootNode?.attribs?.['data-problem-preconditions'] ?? '',
     statement: { outerHTML: DomUtils.getOuterHTML(problemRootNode) }, // The mcb block is already marked display:none.
     inlineOptionSets,
     options,
