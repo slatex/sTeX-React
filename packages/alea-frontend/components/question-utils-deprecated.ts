@@ -114,6 +114,9 @@ export function getProblem(htmlDoc: Document, problemUrl: string) {
 
   const problem: Problem = {
     type: type || ProblemType.FILL_IN,
+    header: '',
+    objectives: '',
+    preconditions: '',
     statement: problemRootNode, // The mcb block is already marked display:none.
     options,
     fillInSolution,
