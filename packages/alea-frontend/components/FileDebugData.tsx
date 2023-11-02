@@ -25,7 +25,6 @@ const FileDebugData = ({
     return;
   }
   const URIs = definedData.flatMap((data) => data.symbols);
-
   return (
     <Box boxShadow="5px 5px 5px 5px gray">
       <Box paddingTop="40px">

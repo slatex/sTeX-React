@@ -83,14 +83,14 @@ function SelfAssessmentPopup({
   smileys,
   htmlName,
   dimText = true,
-  refetchSmileys,
+  onValueUpdate,
 }: {
   dims: BloomDimension[];
   uri: string;
   smileys: SmileyCognitiveValues | undefined;
   htmlName: string;
   dimText?: boolean;
-  refetchSmileys: () => void;
+  onValueUpdate: () => void;
 }) {
   return (
     <Box
@@ -110,7 +110,7 @@ function SelfAssessmentPopup({
             htmlName={htmlName}
             selectedLevel={smileyToLevel(smileys?.[dim])}
             dimText={dimText}
-            refetchSmileys={refetchSmileys}
+            onValueUpdate={onValueUpdate}
           />
         </Box>
       ))}
@@ -177,20 +177,20 @@ export function ConfigureLevelSlider({
   );
 }
 
-function SelfAssessmentDialogRow({
+export function SelfAssessmentDialogRow({
   dim,
   uri,
   htmlName,
   dimText,
   selectedLevel,
-  refetchSmileys,
+  onValueUpdate,
 }: {
   dim: BloomDimension;
   uri: string;
   htmlName: string;
   dimText: boolean;
   selectedLevel?: number;
-  refetchSmileys: () => void;
+  onValueUpdate: () => void;
 }) {
   const t = getLocaleObject(useRouter());
   return (
@@ -235,7 +235,7 @@ function SelfAssessmentDialogRow({
                     [dim]: `smiley${l}`,
                   },
                 });
-                refetchSmileys();
+                onValueUpdate();
               }}
             >
               <LevelIcon level={l} highlighted={l === selectedLevel} />
@@ -259,12 +259,12 @@ export function SelfAssessment2({
   const [smileys, setSmileys] = useState<SmileyCognitiveValues | undefined>(
     undefined
   );
-  function refetchSmileys() {
+  function onValueUpdate() {
     getUriSmileys([uri]).then((v) => setSmileys(v.get(uri)));
   }
   useEffect(() => {
     setSmileys(undefined);
-    refetchSmileys();
+    onValueUpdate();
   }, [uri, needUpdateMarker]);
   return (
     <SelfAssessmentPopup
@@ -273,7 +273,7 @@ export function SelfAssessment2({
       smileys={smileys}
       htmlName={''}
       dimText={false}
-      refetchSmileys={refetchSmileys}
+      onValueUpdate={onValueUpdate}
     />
   );
 }
@@ -293,7 +293,7 @@ export function SelfAssessmentDialog({
   const [smileys, setSmileys] = useState<SmileyCognitiveValues | undefined>(
     undefined
   );
-  function refetchSmileys() {
+  function onValueUpdate() {
     getUriSmileys([uri]).then((v) => {
       setSmileys(v.get(uri));
       if (onUpdate) onUpdate(v.get(uri) as any);
@@ -301,7 +301,7 @@ export function SelfAssessmentDialog({
   }
   useEffect(() => {
     setSmileys(undefined);
-    refetchSmileys();
+    onValueUpdate();
   }, [uri]);
 
   return (
@@ -315,7 +315,7 @@ export function SelfAssessmentDialog({
               uri={uri}
               smileys={smileys}
               htmlName={htmlName}
-              refetchSmileys={() => refetchSmileys()}
+              onValueUpdate={() => onValueUpdate()}
             />
           </Box>
         }
@@ -352,7 +352,7 @@ export function SelfAssessmentDialog({
           uri={uri}
           smileys={smileys}
           htmlName={htmlName}
-          refetchSmileys={() => refetchSmileys()}
+          onValueUpdate={() => onValueUpdate()}
         />
       </Dialog>
     </>

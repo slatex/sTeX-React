@@ -15,6 +15,13 @@ export type SmileyType =
 export type SmileyLevel = -2 | -1 | 0 | 1 | 2;
 export const ALL_SMILEY_LEVELS: SmileyLevel[] = [-2, -1, 0, 1, 2];
 
+export function uriWeightToSmileyLevel(weight: number) {
+  if (weight < 0.2) return -2;
+  if (weight < 0.4) return -1;
+  if (weight < 0.6) return 0;
+  if (weight < 0.8) return 1;
+  return 2;
+}
 export function smileyToLevel(smiley?: SmileyType): SmileyLevel | undefined {
   if (!smiley) return undefined;
   if (smiley === 'smiley-2') return -2;
