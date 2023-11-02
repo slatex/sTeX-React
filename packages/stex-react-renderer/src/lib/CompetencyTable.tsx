@@ -40,17 +40,11 @@ export function CompetencyTable({
             <TableCell>
               <b>{t.concepts}</b>
             </TableCell>
-            {dimensions
-              ? dimensions.map((header) => (
-                  <TableCell key={header}>
-                    <b>{header}</b>
-                  </TableCell>
-                ))
-              : ALL_DIMENSIONS.map((header) => (
-                  <TableCell key={header}>
-                    <b>{header}</b>
-                  </TableCell>
-                ))}
+            {(dimensions || ALL_DIMENSIONS).map((header) => (
+              <TableCell key={header}>
+                <b>{header}</b>
+              </TableCell>
+            ))}
           </TableRow>
         </TableHead>
         <TableBody>
