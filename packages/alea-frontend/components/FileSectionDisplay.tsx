@@ -38,7 +38,13 @@ export const FileSectionDisplay = ({
           {showDebugData && (
             <FileDebugData archive={archive} filepath={filepath} />
           )}
-          {hasChild ? ' - Display Indicator' : " - Don't Display Indicator"}
+          {hasChild ? (
+            <span style={{ color: 'green' }}> &nbsp;- Display Indicator</span>
+          ) : (
+            <span style={{ color: 'red' }}>
+              &nbsp;- Do not Display Indicator
+            </span>
+          )}
         </Box>
       ) : (
         <Box>

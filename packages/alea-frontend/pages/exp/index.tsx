@@ -76,22 +76,7 @@ const ExperimentsHome: NextPage = () => {
             </Box>
             <Box>
               <h2>Debug</h2>
-              <Button
-                variant="contained"
-                onClick={() => {
-                  if (localStore?.getItem('ici')) {
-                    localStore.removeItem('ici');
-                    alert('Inline Comptency Indicator disabled');
-                  } else {
-                    localStore.setItem('ici', 'true');
-                    alert('Inline Comptency Indicator enabled');
-                  }
-                  window.location.reload();
-                }}
-              >
-                {localStore?.getItem('ici') ? 'Disable ' : 'Enable '} Inline
-                Comptency Indicator
-              </Button>
+
               <InternalButtonLink href="/debug-section">
                 Debug Document Sections
               </InternalButtonLink>

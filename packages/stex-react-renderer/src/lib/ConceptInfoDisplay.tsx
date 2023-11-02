@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Box, Tooltip } from '@mui/material';
 import { mmtHTMLToReact } from './mmtParser';
 
-const extractLastWordAfterQuestionMark = (url: string) => {
+export const extractLastWordAfterQuestionMark = (url: string) => {
   const parts = url.split('?');
   return parts[parts.length - 1];
 };
@@ -30,7 +30,9 @@ const ConceptInfoDisplay = ({ uri }: { uri: string }) => {
         </Box>
       }
     >
-      <span style={{ color: '#0e90d2' }}>{extractLastWordAfterQuestionMark(uri)}</span>
+      <span style={{ color: '#0e90d2' }}>
+        {extractLastWordAfterQuestionMark(uri)}
+      </span>
     </Tooltip>
   );
 };

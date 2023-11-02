@@ -24,7 +24,7 @@ import { getLocaleObject } from './lang/utils';
 import { DimIcon, ServerLinksContext } from './stex-react-renderer';
 
 function CompetencyBar({ dim, val }: { dim: BloomDimension; val: number }) {
-  const hue = 120 * (val);
+  const hue = 120 * val;
   return (
     <Tooltip title={`${dim}: ${(val * 100).toFixed(1)}%`}>
       <LinearProgress
@@ -62,6 +62,12 @@ const CompetencyIndicator = ({ contentUrl }: { contentUrl: string }) => {
     setURIs(URIs);
     getUriWeights(URIs).then((data) => setCompetencyData(data));
   }, [definedData]);
+
+  function refetchCompetencyData() {
+    if (!definedData) return;
+    getUriWeights(URIs).then((data) => setCompetencyData(data));
+  }
+
   const averageRemember = competencyData?.length
     ? competencyData.reduce((sum, item) => sum + (item.Remember ?? 0), 0) /
       competencyData.length
@@ -75,12 +81,19 @@ const CompetencyIndicator = ({ contentUrl }: { contentUrl: string }) => {
   if (!definedData?.length) return null;
 
   return (
-    <Box style={{ backgroundColor: '#FFFFE0' }}>
+    <Box
+      style={{
+        backgroundColor: '#ffffbb',
+        borderRadius: '10px',
+        padding: '10px',
+        position: 'relative',
+        zIndex: 1,
+      }}
+    >
       {competencyData && (
         <Box
           display="flex"
           justifyContent="space-around"
-          border="1px solid yellow"
           borderRadius="3px"
           marginBottom="5px"
           gap="15px"
@@ -131,7 +144,15 @@ const CompetencyIndicator = ({ contentUrl }: { contentUrl: string }) => {
         <DialogContent>
           {competencyData ? (
             <DialogContentText>
-              <CompetencyTable URIs={URIs} competencyData={competencyData} />
+              <CompetencyTable
+                URIs={URIs}
+                competencyData={competencyData}
+                dimensions={[
+                  BloomDimension.Remember,
+                  BloomDimension.Understand,
+                ]}
+                onValueUpdate={refetchCompetencyData}
+              />
             </DialogContentText>
           ) : null}
         </DialogContent>
@@ -145,6 +166,17 @@ const CompetencyIndicator = ({ contentUrl }: { contentUrl: string }) => {
           </Button>
         </DialogActions>
       </Dialog>
+      <Box
+        style={{
+          position: 'absolute',
+          width: 0,
+          height: 0,
+          left: 0,
+          bottom: '-20px',
+          border: '22px solid',
+          borderColor: 'transparent transparent transparent #ffffbb',
+        }}
+      />
     </Box>
   );
 };

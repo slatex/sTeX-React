@@ -2,31 +2,30 @@ import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
 import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/IndeterminateCheckBoxOutlined';
 import { Box, IconButton } from '@mui/material';
 import {
+  IS_SERVER,
   convertHtmlNodeToPlain,
   createHash,
   getChildrenOfBodyNode,
   getSectionInfo,
-  IS_SERVER,
-  localStore,
 } from '@stex-react/utils';
 import {
-  createContext,
   MouseEvent,
+  createContext,
   useContext,
   useEffect,
   useRef,
   useState,
 } from 'react';
-import { reportIndexInfo, SEPARATOR_inDocPath } from './collectIndexInfo';
 import { ContentFromUrl } from './ContentFromUrl';
 import { ErrorBoundary } from './ErrorBoundary';
 import { ExpandableContextMenu } from './ExpandableContextMenu';
 import { DocSectionContext } from './InfoSidebar';
 import { RenderOptions } from './RendererDisplayOptions';
+import { SEPARATOR_inDocPath, reportIndexInfo } from './collectIndexInfo';
 import { useOnScreen } from './useOnScreen';
 import { useRect } from './useRect';
-import CompetencyIndicator from './CompetencyIndicator';
 import { findFileNode, hasSectionChild } from '@stex-react/api';
+import CompetencyIndicator from './CompetencyIndicator';
 
 const ExpandContext = createContext([] as string[]);
 const STOP_EXPANSION_MARKER = 'STOP_EXPANSION';
@@ -74,9 +73,9 @@ export function ExpandableContent({
   // Reference to the top-most box.
 
   const { archive, filepath } = getSectionInfo(contentUrl ?? '');
-  const showIndicator =
-    hasSectionChild(findFileNode(archive, filepath, docSections)) &&
-    !!localStore?.getItem('ici');
+  const showIndicator = hasSectionChild(
+    findFileNode(archive, filepath, docSections)
+  );
   const contentRef = useRef<HTMLElement>();
   const rect = useRect(contentRef);
   const isVisible = useOnScreen(contentRef);
