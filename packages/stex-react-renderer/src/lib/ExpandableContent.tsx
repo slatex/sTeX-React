@@ -68,31 +68,34 @@ export function ExpandableContent({
     renderOptions: { allowFolding },
   } = useContext(RenderOptions);
 
-  const { loadingManager, addSectionLoc, docSections } =
-    useContext(DocSectionContext);
+  const { docFragManager, addSectionLoc } = useContext(DocSectionContext);
   // Reference to the top-most box.
 
   const { archive, filepath } = getSectionInfo(contentUrl ?? '');
   const showIndicator = hasSectionChild(
-    findFileNode(archive, filepath, docSections)
+    findFileNode(archive, filepath, docFragManager?.docSections)
   );
   const contentRef = useRef<HTMLElement>();
   const rect = useRect(contentRef);
   const isVisible = useOnScreen(contentRef);
   useEffect(() => {
-
     if (isVisible && !openAtLeastOnce) {
-      if(loadingManager?.skipExpandLoc(contentUrl)) {
+      if (docFragManager?.skipExpandLoc(contentUrl)) {
         console.log('skipping due to scroll: ' + contentUrl);
         return;
       }
       setIsOpen(true);
       setOpenAtLeastOnce(true);
     }
-  }, [openAtLeastOnce, isVisible, loadingManager?.isScrolling]);
+  }, [openAtLeastOnce, isVisible, docFragManager?.isScrolling]);
 
   useEffect(() => {
-    loadingManager?.reportLoadedFragment(contentUrl, openAtLeastOnce, contentRef?.current);
+    if (!contentUrl) return;
+    docFragManager?.reportLoadedFragment(
+      contentUrl,
+      openAtLeastOnce,
+      contentRef?.current
+    );
   }, [childContext, openAtLeastOnce, contentRef?.current]); // Keep contentRef?.current here to make sure that the ref is reported when loaded.
 
   const changeState = (e: MouseEvent) => {

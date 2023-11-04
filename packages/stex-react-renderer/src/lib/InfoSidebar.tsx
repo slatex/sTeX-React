@@ -1,12 +1,10 @@
 import { Box } from '@mui/material';
-import { SectionsAPIData } from '@stex-react/api';
 import { CommentButton } from '@stex-react/comments';
 import { createContext } from 'react';
 import { DocFragManager } from './DocFragManager';
 
 export const DocSectionContext = createContext({
-  loadingManager: undefined as DocFragManager | undefined,
-  docSections: undefined as SectionsAPIData | undefined,
+  docFragManager: undefined as DocFragManager | undefined,
   sectionLocs: {},
   addSectionLoc: (_sec: {
     contentUrl: string;

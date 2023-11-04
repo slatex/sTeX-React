@@ -31,11 +31,9 @@ function getFileLocationHierarchy(
 }
 
 export class DocFragManager {
-  private docSections: SectionsAPIData | undefined = undefined;
+  public docSections: SectionsAPIData | undefined = undefined;
   private fileLocElementMap = new Map<string, HTMLElement>();
   private docFragDisplayStatus = new Map<string, DocFragDisplayStatus>();
-
-  /* Scroll stuff */
   private scrollFileLocHierarchy = [] as FileLocation[];
   private toScrollSectionId = undefined as string | undefined;
 

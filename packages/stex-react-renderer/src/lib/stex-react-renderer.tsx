@@ -1,4 +1,4 @@
-import { Box } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import { getDocumentSections, SectionsAPIData } from '@stex-react/api';
 import {
   BG_COLOR,
@@ -10,12 +10,15 @@ import {
   Window,
 } from '@stex-react/utils';
 import { useRouter } from 'next/router';
-import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import {
-  getScrollInfo,
-  scrollToClosestAncestorAndSetPending,
-  TOCFileNode,
-} from './collectIndexInfo';
+  createContext,
+  useContext,
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
+} from 'react';
+import { getScrollInfo, TOCFileNode } from './collectIndexInfo';
 import CompetencyTable from './CompetencyTable';
 import { ContentDashboard } from './ContentDashboard';
 import { ContentFromUrl } from './ContentFromUrl';
@@ -35,6 +38,7 @@ import {
   SelfAssessmentDialog,
 } from './SelfAssessmentDialog';
 import { TourAPIEntry, TourDisplay } from './TourDisplay';
+import { DocFragManager } from './DocFragManager';
 
 export const ServerLinksContext = createContext({ mmtUrl: '', lmsUrl: '' });
 
@@ -47,6 +51,7 @@ export function StexReactRenderer({
   topOffset?: number;
   noFrills?: boolean;
 }) {
+  const router = useRouter();
   const [showDashboard, setShowDashboard] = useState(
     !shouldUseDrawer() && !IS_MMT_VIEWER
   );
@@ -54,21 +59,17 @@ export function StexReactRenderer({
     allowFolding: (localStore?.getItem('sectionFolding') || 'false') === 'true',
     noFrills,
   });
-
   const [sectionLocs, setSectionLocs] = useState<{
     [contentUrl: string]: number;
   }>({});
-  const docSectionsElementMap = useRef(new Map<string, HTMLElement>()).current;
   const outerBox = useRef<HTMLDivElement>(null);
   const [contentWidth, setContentWidth] = useState(600);
-  const [docSections, setDocSections] = useState<SectionsAPIData | undefined>(
-    undefined
-  );
+  const [docFragManager, setDocFragManager] = useState(new DocFragManager());
+  const [, forceRerender] = useReducer((x) => x + 1, 0);
   const { mmtUrl } = useContext(ServerLinksContext);
 
   useEffect(() => {
     setSectionLocs({});
-    docSectionsElementMap.clear();
   }, [contentUrl]);
 
   useEffect(() => {
@@ -83,7 +84,6 @@ export function StexReactRenderer({
     return () => Window?.removeEventListener('resize', handleResize);
   }, []);
 
-  const router = useRouter();
   useEffect(() => {
     if (!router?.isReady) return;
     const inDocPath = router?.query?.['inDocPath'] as string;
@@ -94,22 +94,23 @@ export function StexReactRenderer({
       router.replace({ pathname: router.pathname, query: router.query });
       return;
     }
-    scrollToClosestAncestorAndSetPending(
-      docSectionsElementMap,
-      getScrollInfo(inDocPath)
-    );
+    docFragManager.scrollToSection(getScrollInfo(inDocPath).sectionId);
   }, [router, router?.isReady, router?.query]);
 
   useEffect(() => {
     const { archive, filepath } = getSectionInfo(contentUrl);
-    getDocumentSections(mmtUrl, archive, filepath).then(setDocSections);
+    getDocumentSections(mmtUrl, archive, filepath).then((s) => {
+      docFragManager.setDocSections(s);
+      forceRerender();
+    });
   }, [mmtUrl, contentUrl]);
+
+  if (!docFragManager.docSections) return <CircularProgress />;
 
   return (
     <DocSectionContext.Provider
       value={{
-        docSections,
-        docSectionsElementMap,
+        docFragManager,
         sectionLocs,
         addSectionLoc: (sec) => {
           const { contentUrl: url, positionFromTop: pos } = sec;
@@ -134,7 +135,7 @@ export function StexReactRenderer({
         <LayoutWithFixedMenu
           menu={
             <ContentDashboard
-              docSections={docSections}
+              docSections={docFragManager.docSections}
               onClose={() => setShowDashboard(false)}
               contentUrl={contentUrl}
               selectedSection={''}
