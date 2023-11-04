@@ -26,17 +26,13 @@ export function findFileNode(
   filepath: string,
   sectionData: SectionsAPIData | undefined
 ): SectionsAPIData | undefined {
-  if (sectionData === undefined) {
-    return;
-  }
+  if (!sectionData) return;
   if (sectionData.archive === archive && sectionData.filepath === filepath) {
     return sectionData;
   }
   for (const child of sectionData.children) {
     const foundNode = findFileNode(archive, filepath, child);
-    if (foundNode) {
-      return foundNode;
-    }
+    if (foundNode) return foundNode;
   }
   return undefined;
 }

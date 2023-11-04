@@ -102,6 +102,8 @@ Run `nx test my-app` to execute the unit tests via [Jest](https://jestjs.io).
 
 Run `nx affected:test` to execute the unit tests affected by a change.
 
+nx test alea-frontend --test-file=create-quiz.spec.tsx  --coverage
+
 ## Running end-to-end tests
 
 Run `nx e2e my-app` to execute the end-to-end tests via [Cypress](https://www.cypress.io).
