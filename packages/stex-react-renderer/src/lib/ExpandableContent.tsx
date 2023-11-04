@@ -65,7 +65,7 @@ export function ExpandableContent({
   const autoExpand =
     !noFurtherExpansion && (!titleText || titleText.startsWith('http'));
   const {
-    renderOptions: { expandOnScroll, allowFolding },
+    renderOptions: { allowFolding },
   } = useContext(RenderOptions);
 
   const { docSectionsElementMap, addSectionLoc, docSections } =
@@ -80,11 +80,11 @@ export function ExpandableContent({
   const rect = useRect(contentRef);
   const isVisible = useOnScreen(contentRef);
   useEffect(() => {
-    if (expandOnScroll && isVisible && !openAtLeastOnce) {
+    if (isVisible && !openAtLeastOnce) {
       setIsOpen(true);
       setOpenAtLeastOnce(true);
     }
-  }, [expandOnScroll, openAtLeastOnce, isVisible]);
+  }, [openAtLeastOnce, isVisible]);
 
   useEffect(() => {
     reportIndexInfo(docSectionsElementMap, childContext, contentRef?.current);
@@ -111,7 +111,7 @@ export function ExpandableContent({
           <ContentFromUrl
             url={contentUrl ?? ''}
             modifyRendered={getChildrenOfBodyNode}
-            minLoadingHeight={expandOnScroll ? '1000px' : undefined}
+            minLoadingHeight={'1000px'}
           />
         </Box>
       </ErrorBoundary>
@@ -122,7 +122,7 @@ export function ExpandableContent({
       <Box
         m="4px 0"
         ref={contentRef}
-        minHeight={!openAtLeastOnce && expandOnScroll ? '1000px' : undefined}
+        minHeight={!openAtLeastOnce ? '1000px' : undefined}
       >
         {!allowFolding && !staticContent ? (
           contentUrl && (
@@ -199,7 +199,7 @@ export function ExpandableContent({
                   <ContentFromUrl
                     url={contentUrl}
                     modifyRendered={getChildrenOfBodyNode}
-                    minLoadingHeight={expandOnScroll ? '800px' : undefined}
+                    minLoadingHeight={'800px'}
                   />
                 </ExpandContext.Provider>
               ) : (
@@ -208,7 +208,7 @@ export function ExpandableContent({
             </Box>
           </Box>
         ) : (
-          expandOnScroll && <>Loading...</>
+          <>Loading...</>
         )}
       </Box>
     </ErrorBoundary>

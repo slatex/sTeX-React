@@ -51,8 +51,6 @@ export function StexReactRenderer({
     !shouldUseDrawer() && !IS_MMT_VIEWER
   );
   const [renderOptions, setRenderOptions] = useState({
-    expandOnScroll:
-      (localStore?.getItem('autoExpandOnScroll') || 'true') === 'true',
     allowFolding: (localStore?.getItem('sectionFolding') || 'false') === 'true',
     noFrills,
   });
@@ -128,10 +126,6 @@ export function StexReactRenderer({
         value={{
           renderOptions,
           setRenderOptions: (o) => {
-            localStore?.setItem(
-              'autoExpandOnScroll',
-              o.expandOnScroll.toString()
-            );
             localStore?.setItem('sectionFolding', o.allowFolding.toString());
             setRenderOptions(o);
           },

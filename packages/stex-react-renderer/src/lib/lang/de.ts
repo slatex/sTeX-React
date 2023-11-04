@@ -6,8 +6,6 @@ export const de = {
   // render display options
   sectionFoldingOn: 'Abschnitte einklappen',
   sectionFoldingOff: 'Abschnitte ausklappen',
-  expandOnScrollOn: 'Beim Scrollen ausklappen',
-  expandOnScrollOff: 'Nicht beim Scrollen ausklappen',
 
   // expandable context menu
   copySectionLink: 'Link zum Abschnitt kopieren',

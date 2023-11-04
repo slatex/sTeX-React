@@ -6,8 +6,6 @@ export const en = {
   // render display options
   sectionFoldingOn: 'Turn On Section Folding',
   sectionFoldingOff: 'Turn Off Section Folding',
-  expandOnScrollOn: 'Turn On Expand on Scroll',
-  expandOnScrollOff: 'Turn Off Expand on Scroll',
 
   // expandable context menu
   copySectionLink: 'Copy Section Link',
