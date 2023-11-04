@@ -23,7 +23,7 @@ import { ErrorBoundary } from './ErrorBoundary';
 import { ExpandableContextMenu } from './ExpandableContextMenu';
 import { DocSectionContext } from './InfoSidebar';
 import { RenderOptions } from './RendererDisplayOptions';
-import { SEPARATOR_inDocPath, reportIndexInfo } from './collectIndexInfo';
+import { SEPARATOR_inDocPath } from './collectIndexInfo';
 import { useOnScreen } from './useOnScreen';
 import { useRect } from './useRect';
 
@@ -68,7 +68,7 @@ export function ExpandableContent({
     renderOptions: { allowFolding },
   } = useContext(RenderOptions);
 
-  const { docSectionsElementMap, addSectionLoc, docSections } =
+  const { loadingManager, addSectionLoc, docSections } =
     useContext(DocSectionContext);
   // Reference to the top-most box.
 
@@ -80,15 +80,20 @@ export function ExpandableContent({
   const rect = useRect(contentRef);
   const isVisible = useOnScreen(contentRef);
   useEffect(() => {
+
     if (isVisible && !openAtLeastOnce) {
+      if(loadingManager?.skipExpandLoc(contentUrl)) {
+        console.log('skipping due to scroll: ' + contentUrl);
+        return;
+      }
       setIsOpen(true);
       setOpenAtLeastOnce(true);
     }
-  }, [openAtLeastOnce, isVisible]);
+  }, [openAtLeastOnce, isVisible, loadingManager?.isScrolling]);
 
   useEffect(() => {
-    reportIndexInfo(docSectionsElementMap, childContext, contentRef?.current);
-  }, [childContext, contentRef?.current]); // Keep contentRef?.current here to make sure that the ref is reported when loaded.
+    loadingManager?.reportLoadedFragment(contentUrl, openAtLeastOnce, contentRef?.current);
+  }, [childContext, openAtLeastOnce, contentRef?.current]); // Keep contentRef?.current here to make sure that the ref is reported when loaded.
 
   const changeState = (e: MouseEvent) => {
     e.stopPropagation();

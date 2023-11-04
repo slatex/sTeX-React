@@ -215,7 +215,8 @@ function RenderTree({
                 paths.reverse().join('.') + '~' + node.tocNode.id;
               const fileId = router.query['id'] || router.query['courseId'];
               localStore?.setItem(`inDocPath-${fileId}`, inDocPath);
-              router.push({ query: { ...router.query, inDocPath } });
+              const query = { ...router.query, inDocPath };
+              router.push({ query }, undefined, { scroll: false });
             }
           }}
         >
