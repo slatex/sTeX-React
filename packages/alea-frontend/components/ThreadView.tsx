@@ -14,7 +14,10 @@ import {
 import { XhtmlContentUrl } from '@stex-react/utils';
 import { organizeHierarchically } from '@stex-react/comments';
 import { CommentTree } from '@stex-react/comments';
-import { ExpandableContent } from '@stex-react/stex-react-renderer';
+import {
+  DocumentWidthSetter,
+  ExpandableContent,
+} from '@stex-react/stex-react-renderer';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useReducer, useState } from 'react';
@@ -117,11 +120,16 @@ export function ThreadView({
         (showContent ? (
           <Box bgcolor="#DDD" borderRadius="5px" mb="15px">
             <Box maxWidth="600px" m="0 auto 30px" p="10px">
-              <ExpandableContent
-                contentUrl={XhtmlContentUrl(fileLoc.archive, fileLoc.filepath)}
-                noFurtherExpansion={true}
-                title={''}
-              />
+              <DocumentWidthSetter>
+                <ExpandableContent
+                  contentUrl={XhtmlContentUrl(
+                    fileLoc.archive,
+                    fileLoc.filepath
+                  )}
+                  noFurtherExpansion={true}
+                  title={''}
+                />
+              </DocumentWidthSetter>
             </Box>
           </Box>
         ) : (

@@ -14,6 +14,7 @@ import Radio, { RadioProps } from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import {
   CustomItemsContext,
+  DocumentWidthSetter,
   mmtHTMLToReact,
 } from '@stex-react/stex-react-renderer';
 import styles from '../styles/quiz.module.scss';
@@ -141,17 +142,6 @@ export function ProblemDisplay({
   } = response;
 
   const [docWidth, setDocWidth] = useState(500);
-  const containerRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    function handleResize() {
-      const outerWidth = containerRef?.current?.clientWidth;
-      if (!outerWidth) return;
-      setDocWidth(outerWidth);
-    }
-    handleResize();
-    Window?.addEventListener('resize', handleResize);
-    return () => Window?.removeEventListener('resize', handleResize);
-  }, []);
 
   if (!problem) return <CircularProgress />;
 
@@ -201,15 +191,12 @@ export function ProblemDisplay({
         userSelect: 'none',
       }}
     >
-      <Box fontSize="20px" ref={containerRef}>
+      <Box fontSize="20px">
         <PointsInfo points={problem.points} />
         <CustomItemsContext.Provider value={{ items }}>
-          <Box
-            display="inline"
-            {...({ style: { '--document-width': `${docWidth}px` } } as any)}
-          >
+          <DocumentWidthSetter>
             {mmtHTMLToReact(problem.statement.outerHTML || '')}
-          </Box>
+          </DocumentWidthSetter>
         </CustomItemsContext.Provider>
       </Box>
       <br />

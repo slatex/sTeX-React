@@ -5,6 +5,7 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { Box, IconButton, LinearProgress } from '@mui/material';
 import {
   ContentWithHighlight,
+  DocumentWidthSetter,
   ExpandableContextMenu,
 } from '@stex-react/stex-react-renderer';
 import axios from 'axios';
@@ -84,19 +85,6 @@ export const SlideDeck = memo(function SlidesFromUrl({
   );
   const router = useRouter();
   const outerBox = useRef<HTMLDivElement>(null);
-  const [contentWidth, setContentWidth] = useState(600);
-
-  useEffect(() => {
-    function handleResize() {
-      const outerWidth = outerBox?.current?.clientWidth;
-      if (!outerWidth) return;
-      const spacePadding = 10;
-      setContentWidth(Math.min(outerWidth - spacePadding, 900));
-    }
-    handleResize();
-    Window?.addEventListener('resize', handleResize);
-    return () => Window?.removeEventListener('resize', handleResize);
-  }, [isLoading]);
 
   useEffect(() => {
     let isCancelled = false;
@@ -149,13 +137,11 @@ export const SlideDeck = memo(function SlidesFromUrl({
       className={styles['deck-box']}
       flexDirection={navOnTop ? 'column-reverse' : 'column'}
       mt={navOnTop ? '-40px' : '0px'}
-      ref={outerBox}
-      {...({
-        style: { '--document-width': `${contentWidth}px` },
-      } as any)}
     >
       <Box sx={{ position: 'absolute', right: '20px' }}>
-        <ExpandableContextMenu contentUrl={contentUrl} />
+        <DocumentWidthSetter>
+          <ExpandableContextMenu contentUrl={contentUrl} />
+        </DocumentWidthSetter>
       </Box>
       {slides.length ? (
         <ContentWithHighlight

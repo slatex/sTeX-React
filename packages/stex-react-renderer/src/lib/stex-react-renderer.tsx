@@ -39,6 +39,7 @@ import {
 } from './SelfAssessmentDialog';
 import { TourAPIEntry, TourDisplay } from './TourDisplay';
 import { DocFragManager } from './DocFragManager';
+import { DocumentWidthSetter } from './DocumentWidthSetter';
 
 export const ServerLinksContext = createContext({ mmtUrl: '', lmsUrl: '' });
 
@@ -194,6 +195,7 @@ export {
   ContentWithHighlight,
   CustomItemsContext,
   DimIcon,
+  DocumentWidthSetter,
   ExpandableContent,
   ExpandableContextMenu,
   FileBrowser,

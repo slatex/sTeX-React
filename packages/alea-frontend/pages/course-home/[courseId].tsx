@@ -6,6 +6,7 @@ import { Box, Button, CircularProgress } from '@mui/material';
 import { getCourseInfo } from '@stex-react/api';
 import {
   ContentFromUrl,
+  DocumentWidthSetter,
   ServerLinksContext,
 } from '@stex-react/stex-react-renderer';
 import {
@@ -110,19 +111,6 @@ const CourseHomePage: NextPage = () => {
   const { mmtUrl } = useContext(ServerLinksContext);
 
   useEffect(() => {
-    if (!router.isReady) return;
-
-    function handleResize() {
-      const outerWidth = containerRef?.current?.clientWidth;
-      if (!outerWidth) return;
-      setDocWidth(outerWidth);
-    }
-    handleResize();
-    Window?.addEventListener('resize', handleResize);
-    return () => Window?.removeEventListener('resize', handleResize);
-  }, [router.isReady, courses]);
-
-  useEffect(() => {
     if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
   }, [mmtUrl]);
 
@@ -189,14 +177,14 @@ const CourseHomePage: NextPage = () => {
             </CourseComponentLink>
           )}
         </Box>
-        <Box {...({ style: { '--document-width': `${docWidth}px` } } as any)}>
+        <DocumentWidthSetter>
           <ContentFromUrl
             url={XhtmlContentUrl(
               courseInfo.notesArchive,
               `${courseInfo.landingFilepath}.${locale}.xhtml`
             )}
           />
-        </Box>
+        </DocumentWidthSetter>
         <br />
         <br />
 
