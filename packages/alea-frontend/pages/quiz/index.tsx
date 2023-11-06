@@ -62,6 +62,31 @@ function getFormErrorReason(
   return undefined;
 }
 
+const QuizDurationInfo = ({ quizStartTs, quizEndTs, feedbackReleaseTs }) => {
+  const quizDuration = dayjs(quizEndTs).diff(dayjs(quizStartTs), 'minutes');
+  const feedbackDuration = dayjs(feedbackReleaseTs).diff(
+    dayjs(quizEndTs),
+    'minutes'
+  );
+  return (
+    <Box
+      sx={{
+        backgroundColor: '#edf7ed',
+        p: '5px',
+        borderRadius: '5px',
+        border: '1px solid #edf7ed',
+        marginTop: '5px',
+      }}
+    >
+      <p style={{ color: '#1e4620' }}>
+        Quiz is <strong>{`${quizDuration} minutes`}</strong> long, and it will
+        take additional <strong>{`${feedbackDuration} minutes`}</strong> for
+        feedback release
+      </p>
+    </Box>
+  );
+};
+
 const QuizDashboardPage: NextPage = () => {
   const [selectedQuizId, setSelectedQuizId] = useState<string>(NEW_QUIZ_ID);
 
@@ -159,7 +184,6 @@ const QuizDashboardPage: NextPage = () => {
 
   if (!selectedQuiz && !isNew) return <>Error</>;
   if (!isModerator(userInfo?.userId)) return <Box p="20px">Unauthorized</Box>;
-  const quizDuration = dayjs(quizEndTs).diff(dayjs(quizStartTs), 'minutes');
   return (
     <MainLayout title="Quizzes | VoLL-KI">
       <Box m="auto" maxWidth="800px" p="10px">
@@ -183,20 +207,12 @@ const QuizDashboardPage: NextPage = () => {
             Current State: {getQuizPhase(selectedQuiz)}
           </b>
         )}
-        {quizDuration ? (
-          <Box
-            sx={{
-              backgroundColor: '#edf7ed',
-              p: '5px',
-              borderRadius: '5px',
-              border: '1px solid #edf7ed',
-              marginTop: '5px',
-            }}
-          >
-            <p
-              style={{ color: '#1e4620' }}
-            >{`Quiz is ${quizDuration} minutes long and it will take additional 5 minutes for feedback release`}</p>
-          </Box>
+        {quizEndTs - quizStartTs ? (
+          <QuizDurationInfo
+            quizStartTs={quizStartTs}
+            quizEndTs={quizEndTs}
+            feedbackReleaseTs={feedbackReleaseTs}
+          />
         ) : (
           <></>
         )}
