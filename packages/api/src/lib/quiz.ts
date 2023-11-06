@@ -64,6 +64,7 @@ export interface QuizStatsResponse {
   attemptedHistogram: { [attempted: number]: number };
   scoreHistogram: { [score: number]: number };
   requestsPerSec: { [ts: number]: number };
+  correctAnswerHistogram: {[correct:number]:number}
 }
 
 // For recording quizzes at /quiz/old

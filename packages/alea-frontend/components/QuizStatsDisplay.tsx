@@ -56,6 +56,14 @@ export function QuizStatsDisplay({
         column1="Score"
         column2="Number of students"
       />
+      <BarChart
+        data={Object.keys(stats.correctAnswerHistogram).map((queId) => ({
+          key: queId,
+          value: stats.correctAnswerHistogram[queId],
+        }))}
+        column1="Question Id"
+        column2="Right Answer"
+      />
     </>
   );
 }
