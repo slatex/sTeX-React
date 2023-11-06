@@ -37,10 +37,13 @@ export function BarChart({
   column1: string;
   column2: string;
 }) {
+  // Enter a dummy value if there isn't any data, to following error from Google charts :
+  // `Data column(s) for axis #0 cannot be of type string`
+  const vals = data?.length ? data.map((d) => [d.key, d.value]) : [['', 0]];
   return (
     <Chart
       chartType="ColumnChart"
-      data={[[column1, column2], ...data.map((d) => [d.key, d.value])]}
+      data={[[column1, column2], ...vals]}
       width="100%"
       height="400px"
       options={{ vAxis: { minValue: 0 } }}
@@ -58,20 +61,22 @@ export function TimedLineChart({
   column1: string;
   column2: string;
 }) {
+  // Enter a dummy value if there isn't any data, to following error from Google charts :
+  // `Data column(s) for axis #0 cannot be of type string`
+  const vals = data?.length
+    ? data.map((d) => [new Date(d.ts * 1000), d.value])
+    : [[new Date(), 0]];
   return (
     <Chart
       chartType="LineChart"
-      data={[
-        [column1, column2],
-        ...data.map((d) => [new Date(d.ts * 1000), d.value]),
-      ]}
+      data={[[column1, column2], ...vals]}
       width="100%"
       height="400px"
       options={{
         vAxis: { minValue: 0 },
         hAxis: {
           title: 'Time',
-          format: 'MM/dd/yyyy HH:mm:ss',
+          format: 'dd MMM HH:mm:ss',
         },
       }}
       legendToggle

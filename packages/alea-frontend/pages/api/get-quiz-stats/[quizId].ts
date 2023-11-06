@@ -1,10 +1,16 @@
-import { isModerator } from '@stex-react/api';
+import {
+  PerProblemStats,
+  QuizStatsResponse,
+  isModerator,
+} from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getUserIdOrSetError } from '../comment-utils';
 import {
   queryGradingDbAndEndSet500OnError,
   queryGradingDbDontEndSet500OnError,
 } from '../grading-db-utils';
+import { getQuiz } from '../quiz-utils';
+import { getProblem } from '@stex-react/quiz-utils';
 
 export default async function handler(
   req: NextApiRequest,
@@ -75,10 +81,10 @@ export default async function handler(
 
   const results4: any[] = await queryGradingDbAndEndSet500OnError(
     `SELECT quizId, problemId, points, COUNT(*) AS numStudents from grading 
-    WHERE( quizId, problemId, userId, browserTimestamp_ms) IN  ( 
+    WHERE (quizId, problemId, userId, browserTimestamp_ms) IN ( 
         SELECT quizId, problemId, userId, MAX(browserTimestamp_ms) AS browserTimestamp_ms
         FROM grading
-        where quizId=?
+        WHERE quizId=?
         GROUP BY quizId, problemId, userId
     )
     GROUP BY quizId, problemId, points`,
@@ -86,18 +92,34 @@ export default async function handler(
     res
   );
   if (!results4) return;
-  const correctAnswerHistogram = {};
+
+  const quiz = getQuiz(quizId);
+  const perProblemStats: { [problemKey: string]: PerProblemStats } = {};
+  for (const [problemId, problemStr] of Object.entries(quiz.problems)) {
+    const { points, header } = getProblem(problemStr, '');
+    perProblemStats[problemId] = {
+      header,
+      maxPoints: points,
+      correct: 0,
+      partial: 0,
+      incorrect: 0,
+    };
+  }
+
   for (const r4 of results4) {
     const problemId = r4.problemId;
-    if (!correctAnswerHistogram[problemId]) {
-      correctAnswerHistogram[problemId] = 0;
+    if (r4.points <= 0) {
+      perProblemStats[problemId].incorrect += r4.numStudents;
+    } else if (r4.points < perProblemStats[problemId].maxPoints) {
+      perProblemStats[problemId].partial += r4.numStudents;
+    } else {
+      perProblemStats[problemId].correct += r4.numStudents;
     }
-    correctAnswerHistogram[problemId] += r4.points ? r4.numStudents : 0;
   }
   return res.status(200).json({
     attemptedHistogram,
     scoreHistogram,
     requestsPerSec,
-    correctAnswerHistogram,
-  });
+    perProblemStats,
+  } as QuizStatsResponse);
 }

@@ -1,5 +1,7 @@
 import { QuizStatsResponse } from '@stex-react/api';
 import { BarChart, TimedLineChart } from '../pages/quiz/results';
+import Chart from 'react-google-charts';
+import { convertHtmlStringToPlain } from '@stex-react/utils';
 
 export function QuizStatsDisplay({
   stats,
@@ -30,7 +32,7 @@ export function QuizStatsDisplay({
       />
       <br />
 
-      <h2>Responses</h2>
+      <h2>Response Rates</h2>
       <TimedLineChart
         data={Object.keys(stats.requestsPerSec)
           .map((s) => +s)
@@ -56,13 +58,30 @@ export function QuizStatsDisplay({
         column1="Score"
         column2="Number of students"
       />
-      <BarChart
-        data={Object.keys(stats.correctAnswerHistogram).map((queId) => ({
-          key: queId,
-          value: stats.correctAnswerHistogram[queId],
-        }))}
-        column1="Question Id"
-        column2="Number of students with right answer"
+      <Chart
+        chartType="ColumnChart"
+        data={[
+          ['Question', 'Correct', 'Partial', 'Incorrect'],
+          ...Object.keys(stats.perProblemStats).map((problemId) => {
+            const { correct, incorrect, partial, header, maxPoints } =
+              stats.perProblemStats[problemId];
+            let disp = header ? convertHtmlStringToPlain(header) : '';
+            disp += ` (${problemId}) [${maxPoints}]`;
+            return [disp, correct, partial, incorrect];
+          }),
+        ]}
+        width="100%"
+        height="400px"
+        options={{
+          vAxis: { minValue: 0 },
+          isStacked: true,
+          series: {
+            0: { color: '#109618' },
+            1: { color: '#ff9900' },
+            2: { color: '#dc3912' },
+          },
+        }}
+        legendToggle
       />
     </>
   );

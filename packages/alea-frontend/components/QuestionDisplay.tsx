@@ -12,16 +12,15 @@ import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio, { RadioProps } from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
+import { Problem, ProblemType, Tristate, UserResponse } from '@stex-react/api';
+import { getAllOptionSets, getPoints } from '@stex-react/quiz-utils';
 import {
   CustomItemsContext,
   DocumentWidthSetter,
   mmtHTMLToReact,
 } from '@stex-react/stex-react-renderer';
+import { useState } from 'react';
 import styles from '../styles/quiz.module.scss';
-import { Problem, ProblemType, Tristate, UserResponse } from '@stex-react/api';
-import { getPoints, getAllOptionSets } from '@stex-react/quiz-utils';
-import { useEffect, useRef, useState } from 'react';
-import { Window } from '@stex-react/utils';
 function BpRadio(props: RadioProps) {
   return <Radio disableRipple color="default" {...props} />;
 }

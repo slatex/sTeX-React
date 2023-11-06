@@ -60,11 +60,19 @@ export interface UserResponse {
   multipleOptionIdxs?: { [index: number]: boolean };
 }
 
+export interface PerProblemStats {
+  header: string;
+  maxPoints: number;
+  correct: number;
+  partial: number;
+  incorrect: number;
+}
+
 export interface QuizStatsResponse {
   attemptedHistogram: { [attempted: number]: number };
   scoreHistogram: { [score: number]: number };
   requestsPerSec: { [ts: number]: number };
-  correctAnswerHistogram: {[correct:number]:number}
+  perProblemStats: { [problemId: number]: PerProblemStats };
 }
 
 // For recording quizzes at /quiz/old

@@ -68,6 +68,7 @@ const QuizDurationInfo = ({ quizStartTs, quizEndTs, feedbackReleaseTs }) => {
     dayjs(quizEndTs),
     'minutes'
   );
+  if (!(quizEndTs - quizStartTs)) return null;
   return (
     <Box
       sx={{
@@ -107,7 +108,7 @@ const QuizDashboardPage: NextPage = () => {
     attemptedHistogram: {},
     scoreHistogram: {},
     requestsPerSec: {},
-    correctAnswerHistogram: {},
+    perProblemStats: {},
   });
   const [isUpdating, setIsUpdating] = useState(false);
   const [courseId, setCourseId] = useState('ai-1');
@@ -130,8 +131,10 @@ const QuizDashboardPage: NextPage = () => {
     axios
       .get('/api/get-all-quizzes', { headers: getAuthHeaders() })
       .then((res) => {
-        setQuizzes(res.data);
-        if (res.data?.length) setSelectedQuizId(res.data[0].id);
+        const allQuizzes: Quiz[] = res.data;
+        allQuizzes?.sort((a, b) => b.quizStartTs - a.quizStartTs);
+        setQuizzes(allQuizzes);
+        if (allQuizzes?.length) setSelectedQuizId(allQuizzes[0].id);
       });
   }, []);
 
@@ -184,6 +187,7 @@ const QuizDashboardPage: NextPage = () => {
 
   if (!selectedQuiz && !isNew) return <>Error</>;
   if (!isModerator(userInfo?.userId)) return <Box p="20px">Unauthorized</Box>;
+
   return (
     <MainLayout title="Quizzes | VoLL-KI">
       <Box m="auto" maxWidth="800px" p="10px">
@@ -198,24 +202,20 @@ const QuizDashboardPage: NextPage = () => {
             </MenuItem>
           ))}
         </Select>
+
         <h2>{isNew ? 'New Quiz' : selectedQuizId}</h2>
         <b>{mmtHTMLToReact(title)}</b>
-
         {selectedQuiz && (
           <b>
             <br />
             Current State: {getQuizPhase(selectedQuiz)}
           </b>
         )}
-        {quizEndTs - quizStartTs ? (
-          <QuizDurationInfo
-            quizStartTs={quizStartTs}
-            quizEndTs={quizEndTs}
-            feedbackReleaseTs={feedbackReleaseTs}
-          />
-        ) : (
-          <></>
-        )}
+        <QuizDurationInfo
+          quizStartTs={quizStartTs}
+          quizEndTs={quizEndTs}
+          feedbackReleaseTs={feedbackReleaseTs}
+        />
         <CheckboxWithTimestamp
           timestamp={quizStartTs}
           setTimestamp={setQuizStartTs}

@@ -3,6 +3,7 @@ import LastPageIcon from '@mui/icons-material/LastPage';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { Box, IconButton, LinearProgress } from '@mui/material';
+import { Slide } from '@stex-react/api';
 import {
   ContentWithHighlight,
   DocumentWidthSetter,
@@ -13,8 +14,6 @@ import { useRouter } from 'next/router';
 import { memo, useEffect, useRef, useState } from 'react';
 import { setSlideNumAndSectionId } from '../pages/course-view/[courseId]';
 import styles from '../styles/slide-deck.module.scss';
-import { Slide } from '@stex-react/api';
-import { Window } from '@stex-react/utils';
 
 export function SlideNavBar({
   slideNum,
@@ -139,15 +138,15 @@ export const SlideDeck = memo(function SlidesFromUrl({
       mt={navOnTop ? '-40px' : '0px'}
     >
       <Box sx={{ position: 'absolute', right: '20px' }}>
-        <DocumentWidthSetter>
-          <ExpandableContextMenu contentUrl={contentUrl} />
-        </DocumentWidthSetter>
+        <ExpandableContextMenu contentUrl={contentUrl} />
       </Box>
       {slides.length ? (
-        <ContentWithHighlight
-          mmtHtml={currentSlide?.slideContent || ''}
-          renderWrapperParams={{ 'section-url': contentUrl }}
-        />
+        <DocumentWidthSetter>
+          <ContentWithHighlight
+            mmtHtml={currentSlide?.slideContent || ''}
+            renderWrapperParams={{ 'section-url': contentUrl }}
+          />
+        </DocumentWidthSetter>
       ) : (
         <Box
           height="574px"
