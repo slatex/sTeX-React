@@ -81,6 +81,7 @@ const QuizDashboardPage: NextPage = () => {
     attemptedHistogram: {},
     scoreHistogram: {},
     requestsPerSec: {},
+    correctAnswerHistogram:{},
   });
   const [isUpdating, setIsUpdating] = useState(false);
   const [courseId, setCourseId] = useState('ai-1');

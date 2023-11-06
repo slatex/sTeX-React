@@ -59,7 +59,6 @@ export default async function handler(
   for (const r2 of results2) {
     scoreHistogram[r2.score] = r2.numStudents;
   }
-
   const results3: any[] = await queryGradingDbAndEndSet500OnError(
     `SELECT ROUND(UNIX_TIMESTAMP(postedTimestamp)/10)*10 AS ts, COUNT(*)/10 AS requestsPerSec 
     FROM grading
@@ -74,7 +73,31 @@ export default async function handler(
     requestsPerSec[r3.ts] = r3.requestsPerSec;
   }
 
-  return res
-    .status(200)
-    .json({ attemptedHistogram, scoreHistogram, requestsPerSec });
+  const results4: any[] = await queryGradingDbAndEndSet500OnError(
+    `SELECT quizId, problemId, points, COUNT(*) AS numStudents from grading 
+    WHERE( quizId, problemId, userId, browserTimestamp_ms) IN  ( 
+        SELECT quizId, problemId, userId, MAX(browserTimestamp_ms) AS browserTimestamp_ms
+        FROM grading
+        where quizId=?
+        GROUP BY quizId, problemId, userId
+    )
+    GROUP BY quizId, problemId, points`,
+    [quizId],
+    res
+  );
+  if (!results4) return;
+  const correctAnswerHistogram = {};
+  for (const r4 of results4) {
+    const problemId = r4.problemId;
+    if (!correctAnswerHistogram[problemId]) {
+      correctAnswerHistogram[problemId] = 0;
+    }
+    correctAnswerHistogram[r4.problemId] += r4.points ? r4.numStudents : 0;
+  }
+  return res.status(200).json({
+    attemptedHistogram,
+    scoreHistogram,
+    requestsPerSec,
+    correctAnswerHistogram,
+  });
 }
