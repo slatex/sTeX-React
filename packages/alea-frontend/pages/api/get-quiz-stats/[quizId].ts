@@ -92,7 +92,7 @@ export default async function handler(
     if (!correctAnswerHistogram[problemId]) {
       correctAnswerHistogram[problemId] = 0;
     }
-    correctAnswerHistogram[r4.problemId] += r4.points ? r4.numStudents : 0;
+    correctAnswerHistogram[problemId] += r4.points ? r4.numStudents : 0;
   }
   return res.status(200).json({
     attemptedHistogram,

@@ -62,7 +62,7 @@ export function QuizStatsDisplay({
           value: stats.correctAnswerHistogram[queId],
         }))}
         column1="Question Id"
-        column2="Right Answer"
+        column2="Number of students with right answer"
       />
     </>
   );
