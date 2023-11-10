@@ -55,7 +55,7 @@ export function QuizStatsDisplay({
             key: (Math.round(score * 100) / 100).toString(),
             value: +stats.scoreHistogram[score] ?? 0,
           }))}
-        column1="Score"
+      column1="Score"
         column2="Number of students"
       />
       <Chart

@@ -65,7 +65,7 @@ export default async function handler(
   for (const r2 of results2) {
     scoreHistogram[r2.score] = r2.numStudents;
   }
-  const results3: any[] = await queryGradingDbAndEndSet500OnError(
+  const results3: any[] = await queryGradingDbDontEndSet500OnError(
     `SELECT ROUND(UNIX_TIMESTAMP(postedTimestamp)/10)*10 AS ts, COUNT(*)/10 AS requestsPerSec 
     FROM grading
     WHERE quizId = ?
@@ -116,6 +116,8 @@ export default async function handler(
       perProblemStats[problemId].correct += r4.numStudents;
     }
   }
+
+
   return res.status(200).json({
     attemptedHistogram,
     scoreHistogram,
