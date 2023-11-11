@@ -86,23 +86,22 @@ function fillInFeedback(input: Input, response: InputResponse) {
   const expected = input.fillInSolution;
   if (!expected) return { isCorrect: Tristate.UNKNOWN, feedbackHtml: '' };
   const actual = response.filledInAnswer;
-  const isCorrect = isFillInInputCorrect(expected, actual)
-    ? Tristate.TRUE
-    : Tristate.FALSE;
+  const isCorrect = isFillInInputCorrect(expected, actual);
   const feedbackHtml = isCorrect
     ? 'Correct!'
     : `The correct answer is <b>${expected}</b>`;
-  return { isCorrect, feedbackHtml };
+  return { isCorrect: isCorrect? Tristate.TRUE: Tristate.FALSE, feedbackHtml };
 }
 
 function scbFeedback(input: Input, response: InputResponse) {
   const { singleOptionIdx } = response;
   const chosen = input.options.find((o) => o.optionId === singleOptionIdx);
+  if (!chosen) return { isCorrect: Tristate.FALSE, feedbackHtml: 'Wrong!' };
   const isCorrect = chosen.shouldSelect;
   if (isCorrect === Tristate.UNKNOWN) return { isCorrect, feedbackHtml: '' };
   let feedbackHtml = chosen?.feedbackHtml;
   if (chosen && !feedbackHtml?.length)
-    feedbackHtml = isCorrect === Tristate.TRUE ? 'Correct!' : 'Incorrect!';
+    feedbackHtml = isCorrect === Tristate.TRUE ? 'Correct!' : 'Wrong!';
   return { isCorrect, feedbackHtml };
 }
 
@@ -203,7 +202,7 @@ function inputDisplay({
         <>
           <Select
             name="customized-select"
-            value={response.singleOptionIdx ?? ''}
+            value={response.singleOptionIdx || '-1'}
             onChange={(e) => {
               onUpdate({
                 type: InputType.SCQ,
@@ -211,8 +210,8 @@ function inputDisplay({
               } as InputResponse);
             }}
           >
-            <MenuItem key="-1" value="" disabled={true}>
-              Choose
+            <MenuItem key="-1" value="-1" disabled={true}>
+              <i style={{color: 'gray'}}>Choose</i>
             </MenuItem>
             {input.options.map(({ optionId, value, shouldSelect }) => (
               <MenuItem key={optionId} value={optionId}>

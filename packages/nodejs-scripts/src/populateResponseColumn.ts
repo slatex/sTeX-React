@@ -94,11 +94,12 @@ db.query('SELECT * FROM grading', []).then((results: any[]) => {
   console.log(missing_ids);
 
   console.log('\nAdd json data:');
-  console.log(gradingId_to_response);
-  const queries = Object.keys(gradingId_to_response).map(
-    (gradingId) =>
-      `UPDATE grading SET response = '${gradingId_to_response[gradingId]}' WHERE gradingId = ${gradingId}`
-  );
-  console.log(queries);
-  // Promise.all(queries.map(query=>db.query(query))).then(_=>console.log('Score Updated'));
+  const queries = Object.keys(gradingId_to_response).map((gradingId) => {
+    const query = `UPDATE grading SET response = ? WHERE gradingId = ${gradingId}`;
+    return { query, json: gradingId_to_response[gradingId] };
+  });
+  console.log(queries.length);
+  /*Promise.all(queries.map(({ query, json }) => db.query(query, [json]))).then(
+    (_) => console.log('Score Updated')
+  );*/
 });
