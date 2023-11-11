@@ -12,6 +12,16 @@ import {
 import { getQuiz } from '../quiz-utils';
 import { getProblem } from '@stex-react/quiz-utils';
 
+function missingProblemData() {
+  return {
+    header: 'Missing problem',
+    maxPoints: 0,
+    correct: 0,
+    partial: 0,
+    incorrect: 0,
+  };
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -108,6 +118,9 @@ export default async function handler(
 
   for (const r4 of results4) {
     const problemId = r4.problemId;
+    if (!(problemId in perProblemStats)) {
+      perProblemStats[problemId] = missingProblemData();
+    }
     if (r4.points <= 0) {
       perProblemStats[problemId].incorrect += r4.numStudents;
     } else if (r4.points < perProblemStats[problemId].maxPoints) {

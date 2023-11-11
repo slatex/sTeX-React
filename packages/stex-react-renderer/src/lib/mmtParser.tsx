@@ -23,7 +23,7 @@ export const CustomItemsContext = createContext<{
   items: { [tag: string]: JSX.Element };
 }>({ items: {} });
 
-const NoMaxWidthTooltip = styled(({ className, ...props }: TooltipProps) => (
+export const NoMaxWidthTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
 ))({
   [`& .${tooltipClasses.tooltip}`]: {

@@ -28,7 +28,7 @@ import { ExpandableContextMenu } from './ExpandableContextMenu';
 import { FileBrowser } from './FileBrowser';
 import { DocSectionContext, InfoSidebar } from './InfoSidebar';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
-import { CustomItemsContext, mmtHTMLToReact } from './mmtParser';
+import { CustomItemsContext, NoMaxWidthTooltip, mmtHTMLToReact } from './mmtParser';
 import { RenderOptions } from './RendererDisplayOptions';
 import {
   ConfigureLevelSlider,
@@ -203,6 +203,7 @@ export {
   LayoutWithFixedMenu,
   LevelIcon,
   mmtHTMLToReact,
+  NoMaxWidthTooltip,
   SelfAssessment2,
   SelfAssessmentDialog,
   TourDisplay,

@@ -34,30 +34,46 @@ export interface Option {
   shouldSelect: Tristate;
   value: { outerHTML: string; textContent?: string };
   feedbackHtml: string;
+  optionId: string;
 }
 
-export enum ProblemType {
-  MULTI_CHOICE_SINGLE_ANSWER = 'MULTI_CHOICE_SINGLE_ANSWER',
-  MULTI_CHOICE_MULTI_ANSWER = 'MULTI_CHOICE_MULTI_ANSWER',
+export enum InputType {
+  MCQ = 'MCQ', // multiple choice, multiple correct answers
+  SCQ = 'SCQ', // multiple choice, single correct answer
   FILL_IN = 'FILL_IN',
 }
 
+export interface FillInBox {
+  solution: string;
+  inline: boolean;
+}
+
+export interface Input {
+  type: InputType;
+  options?: Option[];  // For MCQ and SCQ types.
+  fillInSolution?: string; // For FILL_IN type.
+  inline: boolean;
+}
+
 export interface Problem {
-  type: ProblemType;
   header: string;
   objectives: string;
   preconditions: string;
   statement: { outerHTML: string };
-  inlineOptionSets?: Option[][]; // For inline SCBs
-  options?: Option[];
-  fillInSolution?: string;
+  inputs: Input[];
+
   points: number;
 }
 
-export interface UserResponse {
+export interface InputResponse {
+  type: InputType;
   filledInAnswer?: string;
-  singleOptionIdxs?: number[];
-  multipleOptionIdxs?: { [index: number]: boolean };
+  singleOptionIdx?: string;
+  multipleOptionIdxs?: { [index: string]: boolean };
+}
+
+export interface ProblemResponse {
+  responses: InputResponse[];
 }
 
 export interface PerProblemStats {
@@ -93,7 +109,7 @@ export interface ProblemInfo {
   duration_ms: number;
   url: string;
   points: number | undefined;
-  response: UserResponse;
+  response: ProblemResponse;
 }
 
 export interface QuizResult {
@@ -114,16 +130,13 @@ export interface GetQuizResponse {
   phase: Phase;
 
   problems: { [problemId: string]: string };
-  responses: { [problemId: string]: UserResponse };
+  responses: { [problemId: string]: ProblemResponse };
 }
 
 export interface InsertAnswerRequest {
   quizId: string;
   problemId: string;
-
-  filledInAnswer?: string;
-  singleOptionIdxs?: number[];
-  multipleOptionIdxs?: { [index: number]: boolean };
+  responses: InputResponse[];
 
   browserTimestamp_ms: number;
 }

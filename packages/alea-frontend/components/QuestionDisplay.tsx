@@ -1,3 +1,4 @@
+import InfoIcon from '@mui/icons-material/Info';
 import {
   Box,
   Card,
@@ -8,19 +9,26 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio, { RadioProps } from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
-import { Problem, ProblemType, Tristate, UserResponse } from '@stex-react/api';
-import { getAllOptionSets, getPoints } from '@stex-react/quiz-utils';
+import {
+  Input,
+  InputResponse,
+  InputType,
+  Problem,
+  ProblemResponse,
+  Tristate,
+} from '@stex-react/api';
+import { isFillInInputCorrect } from '@stex-react/quiz-utils';
 import {
   CustomItemsContext,
   DocumentWidthSetter,
+  NoMaxWidthTooltip,
   mmtHTMLToReact,
 } from '@stex-react/stex-react-renderer';
-import { useState } from 'react';
 import styles from '../styles/quiz.module.scss';
+
 function BpRadio(props: RadioProps) {
   return <Radio disableRipple color="default" {...props} />;
 }
@@ -74,42 +82,45 @@ function getDropdownClassNames(
   return '';
 }
 
-function ScbFeedback({
-  problem,
-  selectedIdxs,
-}: {
-  problem: Problem;
-  selectedIdxs?: number[];
-}) {
-  if (
-    problem.type !== ProblemType.MULTI_CHOICE_SINGLE_ANSWER ||
-    !selectedIdxs.length
-  ) {
-    return null;
-  }
+function fillInFeedback(input: Input, response: InputResponse) {
+  const expected = input.fillInSolution;
+  if (!expected) return { isCorrect: Tristate.UNKNOWN, feedbackHtml: '' };
+  const actual = response.filledInAnswer;
+  const isCorrect = isFillInInputCorrect(expected, actual)
+    ? Tristate.TRUE
+    : Tristate.FALSE;
+  const feedbackHtml = isCorrect
+    ? 'Correct!'
+    : `The correct answer is <b>${expected}</b>`;
+  return { isCorrect, feedbackHtml };
+}
 
-  return selectedIdxs.map((selectedIdx, choiceBlockIdx) => {
-    const optionSet = getAllOptionSets(problem)[choiceBlockIdx];
-    const feedbackHtml = optionSet[selectedIdx]?.feedbackHtml ?? '';
-    const isCorrect = optionSet[selectedIdx]?.shouldSelect === Tristate.TRUE;
-    if (!feedbackHtml) return null;
-    return (
-      <Box
-        key={choiceBlockIdx}
-        display="block"
-        padding="3px 10px"
-        mb="5px"
-        bgcolor={isCorrect ? '#a3e9a0' : '#f39797'}
-        borderRadius="10px"
-      >
-        <span
-          style={{ display: 'inline', textAlign: 'center', fontSize: '20px' }}
-        >
-          {mmtHTMLToReact(feedbackHtml || 'this')}
-        </span>
-      </Box>
-    );
-  });
+function scbFeedback(input: Input, response: InputResponse) {
+  const { singleOptionIdx } = response;
+  const chosen = input.options.find((o) => o.optionId === singleOptionIdx);
+  const isCorrect = chosen.shouldSelect;
+  if (isCorrect === Tristate.UNKNOWN) return { isCorrect, feedbackHtml: '' };
+  let feedbackHtml = chosen?.feedbackHtml;
+  if (chosen && !feedbackHtml?.length)
+    feedbackHtml = isCorrect === Tristate.TRUE ? 'Correct!' : 'Incorrect!';
+  return { isCorrect, feedbackHtml };
+}
+
+function feedbackInfo(
+  isFrozen: boolean,
+  input: Input,
+  response: InputResponse
+) {
+  if (!isFrozen) return undefined;
+  switch (input.type) {
+    case InputType.FILL_IN:
+      return fillInFeedback(input, response);
+    case InputType.SCQ:
+      return scbFeedback(input, response);
+    case InputType.MCQ:
+    default:
+      return undefined;
+  }
 }
 
 export function PointsInfo({ points }: { points: number }) {
@@ -123,63 +134,227 @@ export function PointsInfo({ points }: { points: number }) {
   );
 }
 
+function DirectFeedback({
+  isCorrect,
+  feedbackHtml,
+}: {
+  isCorrect: Tristate;
+  feedbackHtml: string;
+}) {
+  if (isCorrect === Tristate.UNKNOWN) return null;
+  return (
+    <Box
+      display="block"
+      padding="3px 10px"
+      mb="5px"
+      bgcolor={isCorrect === Tristate.TRUE ? '#a3e9a0' : '#f39797'}
+      borderRadius="10px"
+    >
+      <span
+        style={{ display: 'inline', textAlign: 'center', fontSize: '20px' }}
+      >
+        {mmtHTMLToReact(feedbackHtml)}
+      </span>
+    </Box>
+  );
+}
+
+function FeedbackDisplay({
+  inline,
+  info,
+}: {
+  inline: boolean;
+  info: { isCorrect: Tristate; feedbackHtml: string };
+}) {
+  if (!info) return null;
+  const { isCorrect, feedbackHtml } = info;
+  if (isCorrect === Tristate.UNKNOWN) return null;
+  return inline ? (
+    <NoMaxWidthTooltip
+      title={
+        <DirectFeedback isCorrect={isCorrect} feedbackHtml={feedbackHtml} />
+      }
+    >
+      <InfoIcon />
+    </NoMaxWidthTooltip>
+  ) : (
+    <>
+      <DirectFeedback isCorrect={isCorrect} feedbackHtml={feedbackHtml} />
+    </>
+  );
+}
+
+function inputDisplay({
+  input,
+  response,
+  isFrozen,
+  onUpdate,
+}: {
+  input: Input;
+  response: InputResponse;
+  isFrozen: boolean;
+  onUpdate: (value: InputResponse) => void;
+}) {
+  const { type, inline } = input;
+  const info = feedbackInfo(isFrozen, input, response);
+  if (type === InputType.SCQ) {
+    if (inline) {
+      return (
+        <>
+          <Select
+            name="customized-select"
+            value={response.singleOptionIdx ?? ''}
+            onChange={(e) => {
+              onUpdate({
+                type: InputType.SCQ,
+                singleOptionIdx: e.target.value,
+              } as InputResponse);
+            }}
+          >
+            <MenuItem key="-1" value="" disabled={true}>
+              Choose
+            </MenuItem>
+            {input.options.map(({ optionId, value, shouldSelect }) => (
+              <MenuItem key={optionId} value={optionId}>
+                <Box
+                  display="inline"
+                  className={getDropdownClassNames(
+                    response.singleOptionIdx === optionId,
+                    isFrozen,
+                    shouldSelect
+                  )}
+                >
+                  {value.outerHTML
+                    ? mmtHTMLToReact(value.outerHTML)
+                    : value.textContent}
+                </Box>
+              </MenuItem>
+            ))}
+          </Select>
+          <FeedbackDisplay inline={inline} info={info} />
+        </>
+      );
+    } else {
+      return (
+        <>
+          <RadioGroup
+            name="customized-radios"
+            value={response.singleOptionIdx ?? ''}
+            onChange={(e) => {
+              if (isFrozen) return;
+              onUpdate({
+                type: InputType.SCQ,
+                singleOptionIdx: e.target.value,
+              } as InputResponse);
+            }}
+          >
+            {input.options.map(({ optionId, shouldSelect, value }) => (
+              <FormControlLabel
+                key={optionId}
+                value={optionId}
+                control={<BpRadio />}
+                className={getClassNames(
+                  response.singleOptionIdx === optionId,
+                  isFrozen,
+                  shouldSelect
+                )}
+                label={
+                  <Box display="inline">
+                    {value.outerHTML
+                      ? mmtHTMLToReact(value.outerHTML)
+                      : value.textContent}
+                  </Box>
+                }
+              />
+            ))}
+          </RadioGroup>
+          <FeedbackDisplay inline={inline} info={info} />
+        </>
+      );
+    }
+  } else if (type === InputType.FILL_IN) {
+    const setColor = isFrozen && input.fillInSolution;
+    const color = setColor ? (info?.isCorrect ? 'green' : 'red') : undefined;
+    return (
+      <>
+        <TextField
+          label="Answer"
+          value={response.filledInAnswer}
+          onChange={(e) =>
+            onUpdate({
+              type: InputType.FILL_IN,
+              filledInAnswer: e.target.value,
+            } as InputResponse)
+          }
+          sx={{ color, display: inline ? undefined : 'block' }}
+          variant="outlined"
+          fullWidth={!inline}
+        />
+        <FeedbackDisplay inline={inline} info={info} />
+      </>
+    );
+  } else if (type === InputType.MCQ) {
+    return (
+      <Box display="inline-flex" flexDirection="column" width="100%">
+        {input.options?.map(({ optionId, value, shouldSelect }) => (
+          <FormControlLabel
+            key={optionId}
+            className={getClassNames(
+              response.multipleOptionIdxs?.[optionId] ?? false,
+              isFrozen,
+              shouldSelect
+            )}
+            control={
+              <Checkbox
+                checked={response.multipleOptionIdxs?.[optionId] ?? false}
+                onChange={(e) => {
+                  response.multipleOptionIdxs[optionId] = e.target.checked;
+                  onUpdate({
+                    type: InputType.MCQ,
+                    multipleOptionIdxs: response.multipleOptionIdxs,
+                  } as InputResponse);
+                }}
+              />
+            }
+            label={
+              <Box display="inline">
+                {value.outerHTML
+                  ? mmtHTMLToReact(value.outerHTML)
+                  : value.textContent}
+              </Box>
+            }
+          />
+        ))}
+        <FeedbackDisplay inline={inline} info={info} />
+      </Box>
+    );
+  }
+}
+
 export function ProblemDisplay({
   problem,
   isFrozen,
-  response,
+  r,
   onResponseUpdate,
 }: {
   problem: Problem | undefined;
   isFrozen: boolean;
-  response: UserResponse;
-  onResponseUpdate: (response: UserResponse) => void;
+  r: ProblemResponse;
+  onResponseUpdate: (r: ProblemResponse) => void;
 }) {
-  const {
-    singleOptionIdxs: selectedIdxs,
-    multipleOptionIdxs,
-    filledInAnswer,
-  } = response;
-
-  const [docWidth, setDocWidth] = useState(500);
-
   if (!problem) return <CircularProgress />;
-
-  const lastSelectedIdx = selectedIdxs?.[selectedIdxs?.length - 1];
-
-  const items = Object.assign(
-    (problem.inlineOptionSets || []).map((options, optIdx) => (
-      <Select
-        key={optIdx}
-        name="customized-radios"
-        value={selectedIdxs[optIdx]?.toString() ?? '-1'}
-        onChange={(e) => {
-          if (isFrozen) return;
-          selectedIdxs[optIdx] = +e.target.value;
-          onResponseUpdate({ singleOptionIdxs: selectedIdxs });
-        }}
-      >
-        <MenuItem key="-1" value={'-1'} disabled={true}>
-          Choose
-        </MenuItem>
-        {options?.map((option, optionIdx) => (
-          <MenuItem key={optionIdx} value={optionIdx.toString()}>
-            <Box
-              display="inline"
-              className={getDropdownClassNames(
-                selectedIdxs[optIdx] === optionIdx,
-                isFrozen,
-                options[optionIdx].shouldSelect
-              )}
-            >
-              {option.value.outerHTML
-                ? mmtHTMLToReact(option.value.outerHTML)
-                : option.value.textContent}
-            </Box>
-          </MenuItem>
-        ))}
-      </Select>
-    ))
-  );
+  const inputWidgets = problem.inputs.map((input, optIdx) => {
+    return inputDisplay({
+      input,
+      response: r.responses[optIdx],
+      isFrozen,
+      onUpdate: (resp) => {
+        r.responses[optIdx] = resp;
+        onResponseUpdate(r);
+      },
+    });
+  });
+  const customItems = Object.assign(inputWidgets);
 
   return (
     <Card
@@ -192,111 +367,12 @@ export function ProblemDisplay({
     >
       <Box fontSize="20px">
         <PointsInfo points={problem.points} />
-        <CustomItemsContext.Provider value={{ items }}>
+        <CustomItemsContext.Provider value={{ items: customItems }}>
           <DocumentWidthSetter>
             {mmtHTMLToReact(problem.statement.outerHTML || '')}
           </DocumentWidthSetter>
         </CustomItemsContext.Provider>
       </Box>
-      <br />
-      <FormControl sx={{ width: '100%' }}>
-        {problem.type === ProblemType.MULTI_CHOICE_SINGLE_ANSWER &&
-          !!problem.options?.length && (
-            <RadioGroup
-              name="customized-radios"
-              value={lastSelectedIdx?.toString() ?? '-1'}
-              onChange={(e) => {
-                if (isFrozen) return;
-                const lastBlockIdx = selectedIdxs.length - 1;
-                selectedIdxs[lastBlockIdx] = +e.target.value;
-                onResponseUpdate({ singleOptionIdxs: selectedIdxs });
-              }}
-            >
-              {problem.options?.map((option, optionIdx) => (
-                <FormControlLabel
-                  key={optionIdx}
-                  value={optionIdx.toString()}
-                  control={<BpRadio />}
-                  className={getClassNames(
-                    lastSelectedIdx === optionIdx,
-                    isFrozen,
-                    problem.options[optionIdx].shouldSelect
-                  )}
-                  label={
-                    <Box display="inline">
-                      {option.value.outerHTML
-                        ? mmtHTMLToReact(option.value.outerHTML)
-                        : option.value.textContent}
-                    </Box>
-                  }
-                />
-              ))}
-            </RadioGroup>
-          )}
-
-        {problem.type === ProblemType.MULTI_CHOICE_MULTI_ANSWER && (
-          <>
-            {problem.options?.map((option, optionIdx) => (
-              <FormControlLabel
-                key={optionIdx}
-                className={getClassNames(
-                  multipleOptionIdxs[optionIdx] ?? false,
-                  isFrozen,
-                  problem.options[optionIdx].shouldSelect
-                )}
-                control={
-                  <Checkbox
-                    checked={multipleOptionIdxs[optionIdx] ?? false}
-                    onChange={(e) => {
-                      if (isFrozen) return;
-                      multipleOptionIdxs[optionIdx] = e.target.checked;
-                      onResponseUpdate({
-                        multipleOptionIdxs: { ...multipleOptionIdxs },
-                      });
-                    }}
-                  />
-                }
-                label={
-                  <Box display="inline">
-                    {option.value.outerHTML
-                      ? mmtHTMLToReact(option.value.outerHTML)
-                      : option.value.textContent}
-                  </Box>
-                }
-              />
-            ))}
-          </>
-        )}
-        {problem.type === ProblemType.FILL_IN && (
-          <TextField
-            label="Answer"
-            value={filledInAnswer}
-            onChange={(e) => {
-              if (isFrozen) return;
-              onResponseUpdate({ filledInAnswer: e.target.value });
-            }}
-            variant="outlined"
-            fullWidth
-          />
-        )}
-      </FormControl>
-      <br />
-      <br />
-
-      {isFrozen && problem.fillInSolution && (
-        <>
-          {getPoints(problem, { filledInAnswer }) === problem.points ? (
-            <b style={{ fontSize: '20px', color: 'green' }}>Correct!</b>
-          ) : (
-            <span style={{ fontSize: '20px', color: 'red' }}>
-              The correct answer is <b>{problem.fillInSolution}</b>
-            </span>
-          )}
-        </>
-      )}
-      {isFrozen && (
-        <ScbFeedback problem={problem} selectedIdxs={selectedIdxs} />
-      )}
     </Card>
   );
 }

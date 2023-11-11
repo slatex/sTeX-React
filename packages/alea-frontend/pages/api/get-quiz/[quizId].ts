@@ -1,10 +1,20 @@
-import { GetQuizResponse, Phase, isModerator } from '@stex-react/api';
+import {
+  GetQuizResponse,
+  InputResponse,
+  Phase,
+  ProblemResponse,
+  isModerator,
+} from '@stex-react/api';
 import { getQuizPhase } from '@stex-react/quiz-utils';
 import { simpleNumberHash } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getUserIdOrSetError } from '../comment-utils';
 import { queryGradingDbAndEndSet500OnError } from '../grading-db-utils';
-import { getQuiz, getQuizTimes, removeAnswerInfo } from '@stex-react/node-utils';
+import {
+  getQuiz,
+  getQuizTimes,
+  removeAnswerInfo,
+} from '@stex-react/node-utils';
 
 async function getUserQuizResponseOrSetError(
   quizId: string,
@@ -12,7 +22,7 @@ async function getUserQuizResponseOrSetError(
   res: NextApiResponse
 ) {
   const results: any[] = await queryGradingDbAndEndSet500OnError(
-    `SELECT problemId, singleOptionIdxs, multipleOptionIdxs, filledInAnswer
+    `SELECT problemId, response
     FROM grading
     WHERE (quizId, problemId, browserTimestamp_ms) IN (
         SELECT quizId, problemId, MAX(browserTimestamp_ms) AS browserTimestamp_ms
@@ -24,39 +34,14 @@ async function getUserQuizResponseOrSetError(
     res
   );
   if (!results) return undefined;
-  const responses: {
-    [problemId: string]: {
-      singleOptionIdxs?: number[];
-      multipleOptionIdxs?: { [index: number]: boolean };
-      filledInAnswer?: string;
-    };
-  } = {};
+  const resp: {[problemId: string]: ProblemResponse } = {};
 
   for (const r of results) {
-    const { problemId, singleOptionIdxs, multipleOptionIdxs, filledInAnswer } =
-      r;
-
-    const singleOptionIdxsArr = singleOptionIdxs?.length
-      ? singleOptionIdxs.split(',').map((s) => parseInt(s))
-      : null;
-
-    const multiIdxs = multipleOptionIdxs?.length ? {} : null;
-    if (multiIdxs) {
-      multipleOptionIdxs
-        ?.split(',')
-        .map((s) => parseInt(s))
-        .forEach((idx) => (multiIdxs[idx] = true));
-    }
-    const data = {
-      singleOptionIdxs: singleOptionIdxsArr,
-      multipleOptionIdxs: multiIdxs,
-      filledInAnswer,
-    };
-    responses[problemId] = Object.fromEntries(
-      Object.entries(data).filter(([_, value]) => value !== null)
-    );
+    const { problemId, response } = r;
+    const responses: InputResponse[] = JSON.parse(response);
+    resp[problemId] = { responses };
   }
-  return responses;
+  return resp;
 }
 
 function shuffleArray(arr: any[], seed: number) {

@@ -4,7 +4,7 @@ import {
   Problem,
   QuizResult,
   TimerEvent,
-  UserResponse,
+  ProblemResponse,
   getDocumentTree
 } from '@stex-react/api';
 import { getProblem } from '@stex-react/quiz-utils';
@@ -26,7 +26,7 @@ export function getQuizResult(
   quizName: string,
   events: TimerEvent[],
   problemUrls: string[],
-  responses: { [problemId: string]: UserResponse },
+  responses: { [problemId: string]: ProblemResponse },
   points: { [problemId: string]: number | undefined }
 ): QuizResult {
   return {
