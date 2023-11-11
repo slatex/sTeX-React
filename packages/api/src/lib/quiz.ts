@@ -50,7 +50,7 @@ export interface FillInBox {
 
 export interface Input {
   type: InputType;
-  options?: Option[];  // For MCQ and SCQ types.
+  options?: Option[]; // For MCQ and SCQ types.
   fillInSolution?: string; // For FILL_IN type.
   inline: boolean;
 }
@@ -139,6 +139,14 @@ export interface InsertAnswerRequest {
   responses: InputResponse[];
 
   browserTimestamp_ms: number;
+}
+
+export interface DiligenceAndPerformanceData {
+  visitTime_sec: number;
+  quizScores: { [quizId: string]: number };
+}
+export interface UserAnonData {
+  userData: { [userId: string]: DiligenceAndPerformanceData };
 }
 
 export interface QuizStubInfo {
