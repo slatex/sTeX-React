@@ -22,6 +22,8 @@ const DiligenceAndPerformance: NextPage = () => {
     <MainLayout title="Experiments | VoLL-KI">
       <Chart
         chartType="ScatterChart"
+        width="100%"
+        height="400px"
         data={[
           ['Visit Time', 'Score'],
           ...Object.values(userAnonData.userData).map(

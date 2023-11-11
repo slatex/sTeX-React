@@ -40,7 +40,7 @@ export default async function handler(
   }
 
   const visitInfo: any[] = await queryMatomoDbAndEndSet500OnError(
-    `SELECT user_id, SUM(visit_total_time) visit_time 
+    `SELECT user_id as userId, SUM(visit_total_time) visit_time 
 FROM matomo.matomo_log_visit 
 WHERE user_id IS NOT NULL AND visit_last_action_time >= '2023-10-01'  
 GROUP BY user_id`,
@@ -50,7 +50,7 @@ GROUP BY user_id`,
   if (!visitInfo) return;
   for (const row of visitInfo) {
     const { userId, visit_time } = row;
-    if (userId in userData) userData[userId].visitTime_sec = visit_time;
+    if (userData[userId]) userData[userId].visitTime_sec = visit_time;
   }
   const userIds = Object.keys(userData).sort(() => 0.5 - Math.random());
   for(const [idx, userId] of userIds.entries()) {
