@@ -291,7 +291,7 @@ function inputDisplay({
           sx={{
             color,
             display: inline ? undefined : 'block',
-            mb: inline ? undefined : '10px',
+            mb: !inline && isFrozen ? '10px' : undefined,
           }}
           variant="outlined"
           fullWidth={!inline}
