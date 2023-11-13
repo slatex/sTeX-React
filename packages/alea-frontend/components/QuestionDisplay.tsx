@@ -89,8 +89,11 @@ function fillInFeedback(input: Input, response: InputResponse) {
   const isCorrect = isFillInInputCorrect(expected, actual);
   const feedbackHtml = isCorrect
     ? 'Correct!'
-    : `The correct answer is <b>${expected}</b>`;
-  return { isCorrect: isCorrect? Tristate.TRUE: Tristate.FALSE, feedbackHtml };
+    : `The correct answer is <b><code>${expected}</code></b>`;
+  return {
+    isCorrect: isCorrect ? Tristate.TRUE : Tristate.FALSE,
+    feedbackHtml,
+  };
 }
 
 function scbFeedback(input: Input, response: InputResponse) {
@@ -211,7 +214,7 @@ function inputDisplay({
             }}
           >
             <MenuItem key="-1" value="-1" disabled={true}>
-              <i style={{color: 'gray'}}>Choose</i>
+              <i style={{ color: 'gray' }}>Choose</i>
             </MenuItem>
             {input.options.map(({ optionId, value, shouldSelect }) => (
               <MenuItem key={optionId} value={optionId}>
@@ -285,7 +288,11 @@ function inputDisplay({
               filledInAnswer: e.target.value,
             } as InputResponse)
           }
-          sx={{ color, display: inline ? undefined : 'block' }}
+          sx={{
+            color,
+            display: inline ? undefined : 'block',
+            mb: inline ? undefined : '10px',
+          }}
           variant="outlined"
           fullWidth={!inline}
         />
