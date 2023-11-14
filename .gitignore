@@ -47,3 +47,5 @@ Thumbs.db
 .next
 
 .nx/cache
+# Sentry Config File
+.sentryclirc

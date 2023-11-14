@@ -292,6 +292,7 @@ function inputDisplay({
             color,
             display: inline ? undefined : 'block',
             mb: !inline && isFrozen ? '10px' : undefined,
+            minWidth: '250px',
           }}
           variant="outlined"
           fullWidth={!inline}
