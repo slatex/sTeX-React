@@ -86,7 +86,7 @@ function fillInFeedback(input: Input, response: InputResponse) {
   const expected = input.fillInSolution;
   if (!expected) return { isCorrect: Tristate.UNKNOWN, feedbackHtml: '' };
   const actual = response.filledInAnswer;
-  const isCorrect = isFillInInputCorrect(expected, actual);
+  const isCorrect = isFillInInputCorrect(expected, actual) === Tristate.TRUE;
   const feedbackHtml = isCorrect
     ? 'Correct!'
     : `The correct answer is <b><code>${expected}</code></b>`;
@@ -288,6 +288,7 @@ function inputDisplay({
               filledInAnswer: e.target.value,
             } as InputResponse)
           }
+          disabled={isFrozen}
           sx={{
             color,
             display: inline ? undefined : 'block',
@@ -356,6 +357,7 @@ export function ProblemDisplay({
       response: r.responses[optIdx],
       isFrozen,
       onUpdate: (resp) => {
+        if(isFrozen) return;
         r.responses[optIdx] = resp;
         onResponseUpdate(r);
       },

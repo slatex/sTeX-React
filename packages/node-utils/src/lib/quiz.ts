@@ -86,10 +86,11 @@ const ATTRIBS_TO_REMOVE = [
 ];
 
 const ATTRIBS_OF_ANSWER_ELEMENTS = [
-  'data-problem-fillinsol',
   'data-problem-sc-solution',
   'data-problem-mc-solution',
 ];
+
+const ATTRIBS_OF_PARENTS_OF_ANSWER_ELEMENTS = ['data-problem-fillinsol'];
 
 export function removeAnswerInfo(problem: string) {
   const handler = new DomHandler();
@@ -115,6 +116,13 @@ export function removeAnswerInfo(problem: string) {
       for (const attrib of ATTRIBS_TO_REMOVE) {
         if (node.attribs[attrib]) delete node.attribs[attrib];
       }
+    }
+    const removeChildren = ATTRIBS_OF_PARENTS_OF_ANSWER_ELEMENTS.some(
+      (attrib) => node.attribs?.[attrib]
+    );
+    if (removeChildren) {
+      node.children = [];
+      return node;
     }
 
     // Recursively traverse and process children

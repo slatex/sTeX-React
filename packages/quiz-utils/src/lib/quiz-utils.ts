@@ -19,62 +19,70 @@ const NODE_ATTRS_TO_TYPE: { [attrName: string]: InputType } = {
 };
 
 export function isFillInInputCorrect(expected?: string, actual?: string) {
-  if (!expected || !actual) return false;
-  return expected.toLowerCase().trim() === actual.toLowerCase().trim();
+  if (!expected?.length) return Tristate.UNKNOWN;
+  if (!actual) return Tristate.FALSE;
+  return expected.toLowerCase().trim() === actual.toLowerCase().trim()
+    ? Tristate.TRUE
+    : Tristate.FALSE;
 }
 
 function isSCQCorrect(options?: Option[], singleOptionIdx?: string) {
   const correctOption = (options || []).find(
     (o) => o.shouldSelect === Tristate.TRUE
   );
-  if (!correctOption) return false;
-  return correctOption.optionId === singleOptionIdx;
+  if (!correctOption) return Tristate.UNKNOWN;
+  return correctOption.optionId === singleOptionIdx
+    ? Tristate.TRUE
+    : Tristate.FALSE;
 }
 
 function isMCQCorrect(
   options?: Option[],
   multiOptionIdx?: { [index: number]: boolean }
 ) {
-  if (!options?.length || !multiOptionIdx) return false;
+  if (!options?.length) return Tristate.UNKNOWN;
+  if (!multiOptionIdx) return Tristate.FALSE;
   const anyUnknown = options.some(
     (option) => option.shouldSelect === Tristate.UNKNOWN
   );
-  if (anyUnknown) return false;
+  if (anyUnknown) return Tristate.UNKNOWN;
   for (const [idx, option] of options.entries() ?? []) {
     const isSelected = multiOptionIdx?.[idx] ?? false;
     const shouldSelect = option.shouldSelect === Tristate.TRUE;
-    if (isSelected !== shouldSelect) return false;
+    if (isSelected !== shouldSelect) return Tristate.FALSE;
   }
-  return true;
+  return Tristate.TRUE;
 }
 
 export function getPoints(problem: Problem, response?: ProblemResponse) {
   if (!response) return 0;
-  const perInputScore: number[] = problem.inputs.map((input, idx) => {
+  const perInputCorrectness: Tristate[] = problem.inputs.map((input, idx) => {
     const resp = response?.responses?.[idx];
     const { type, fillInSolution, options } = input;
     if (type !== input.type) {
       console.error(
         `Input [${idx}] (${type}) has unexpected response: ${resp.type}`
       );
-      return 0;
+      return Tristate.UNKNOWN;
     }
     if (input.type === InputType.FILL_IN) {
-      return isFillInInputCorrect(fillInSolution, resp.filledInAnswer) ? 1 : 0;
+      return isFillInInputCorrect(fillInSolution, resp.filledInAnswer);
     } else if (input.type === InputType.MCQ) {
-      return isMCQCorrect(options, resp.multipleOptionIdxs) ? 1 : 0;
+      return isMCQCorrect(options, resp.multipleOptionIdxs);
     } else if (input.type === InputType.SCQ) {
-      return isSCQCorrect(options, resp.singleOptionIdx) ? 1 : 0;
+      return isSCQCorrect(options, resp.singleOptionIdx);
     } else {
       console.error(`Unknown input type: ${input.type}`);
-      return 0;
+      return Tristate.UNKNOWN;
     }
   });
-
-  return (
-    (problem.points * perInputScore.reduce((s, a) => s + a, 0)) /
-    problem.inputs.length
+  if (perInputCorrectness.some((s) => s === Tristate.UNKNOWN)) return undefined;
+  const totalCorrect = perInputCorrectness.reduce(
+    (s, a) => s + (a === Tristate.TRUE ? 1 : 0),
+    0
   );
+
+  return (problem.points * totalCorrect) / problem.inputs.length;
 }
 
 function recursivelyFindNodes(
