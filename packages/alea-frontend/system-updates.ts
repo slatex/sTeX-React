@@ -9,12 +9,23 @@ export const SYSTEM_UPDATES = [
     timestamp: dayjs('2023-02-11T00:20:00+05:30'),
   },*/
   {
+    id: 'competency_indicator',
+    header: 'Competency Indicator',
+    content:
+      'Now you can track your progress and master various concepts directly within our course notes. Your journey to competency just got even more insightful. Explore, learn, and watch your understanding grow! 🚀',
+    header_de: 'Kompetenzanzeiger',
+    content_de:
+      'Jetzt können Sie Ihren Fortschritt verfolgen und verschiedene Konzepte direkt in unseren Kursunterlagen beherrschen. Ihre Reise zur Kompetenz ist jetzt noch aufschlussreicher. Entdecken Sie, lernen Sie und sehen Sie zu, wie Ihr Verständnis wächst! 🚀',
+    timestamp: dayjs('2023-11-02T00:20:00+05:30'),
+  },
+  {
     id: 'quizzes',
     header: 'Quizzes in ALeA',
     content:
       'We are pleased to announce the introduction of our new Quiz Feature on our ALeA! We will be utilizing this feature for the weekly quizzes in the AI-1 course conducted during lectures. To stay informed about upcoming quizzes, kindly visit the [quiz dashboard](https://courses.voll-ki.fau.de/quiz-dash/ai-1).',
     header_de: 'Quizze in ALeA',
-    content_de: 'Wir freuen uns, die Einführung unseres neuen Quiz-Features auf unserem ALeA bekannt zu geben! Wir werden diese Funktion für die wöchentlichen Tests im AI-1-Kurs nutzen, die während der Vorlesungen durchgeführt werden. Um über bevorstehende Quizze auf dem Laufenden zu bleiben, besuchen Sie bitte das [Quiz-Dashboard](https://courses.voll-ki.fau.de/quiz-dash/ai-1).',
+    content_de:
+      'Wir freuen uns, die Einführung unseres neuen Quiz-Features auf unserem ALeA bekannt zu geben! Wir werden diese Funktion für die wöchentlichen Tests im AI-1-Kurs nutzen, die während der Vorlesungen durchgeführt werden. Um über bevorstehende Quizze auf dem Laufenden zu bleiben, besuchen Sie bitte das [Quiz-Dashboard](https://courses.voll-ki.fau.de/quiz-dash/ai-1).',
     timestamp: dayjs('2023-10-11T20:40:00+05:30'),
   },
   {
