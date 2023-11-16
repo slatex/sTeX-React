@@ -6,6 +6,8 @@ export const MODERATORS = [
   'ub59asib', // Dominic
   'do45qahi', // Dennis
   'ym23eqaw', // Abhishek
+  'co39hywa', // Florian
+  'yp68abes', // Marc
 
   ...(process.env['NEXT_PUBLIC_SITE_VERSION'] === 'staging' ? ['fake_joy'] : []), // fake moderator for staging
 ];
