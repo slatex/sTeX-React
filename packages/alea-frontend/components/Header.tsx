@@ -1,6 +1,6 @@
 import { useMatomo } from '@jonkoops/matomo-tracker-react';
 import HelpIcon from '@mui/icons-material/Help';
-import NotificationsIcon from '@mui/icons-material/Notifications';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import WarningIcon from '@mui/icons-material/Warning';
 import {
   Box,
@@ -9,12 +9,11 @@ import {
   Menu,
   MenuItem,
   Toolbar,
-  Tooltip,
-  Typography,
+  Tooltip
 } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import { getUserInfo, isLoggedIn, logout } from '@stex-react/api';
-import { CountryFlag, DateView } from '@stex-react/react-utils';
+import { CountryFlag } from '@stex-react/react-utils';
 import { localStore } from '@stex-react/utils';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -23,8 +22,7 @@ import { useEffect, useState } from 'react';
 import { BrowserAutocomplete } from '../components/BrowserAutocomplete';
 import { getLocaleObject } from '../lang/utils';
 import styles from '../styles/header.module.scss';
-import { SYSTEM_UPDATES } from '../system-updates';
-import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import NotificationButton from './NotificationButton';
 
 export const HIDE_BANNER_ITEM = 'hide-priming-banner';
 
@@ -151,64 +149,6 @@ function LanguageButton() {
         </MenuItem>
       </Menu>
     </Box>
-  );
-}
-
-function NotificationButton() {
-  const router = useRouter();
-  const { locale } = router;
-  const { header: t } = getLocaleObject(router);
-
-  // System info menu crap start
-  const [anchorEl, setAnchorEl] = useState<any>(null);
-  const open = Boolean(anchorEl);
-  const handleClose = () => setAnchorEl(null);
-  // System info menu crap end
-  return (
-    <>
-      <Tooltip title={t.systemUpdate}>
-        <IconButton
-          onClick={(e) => {
-            setAnchorEl(e.currentTarget);
-            localStore?.setItem('top-system-update', SYSTEM_UPDATES[0].id);
-          }}
-        >
-          <NotificationsIcon htmlColor="white" />
-        </IconButton>
-      </Tooltip>
-
-      {localStore?.getItem('top-system-update') !== SYSTEM_UPDATES[0].id && (
-        <div
-          style={{
-            color: 'red',
-            position: 'absolute',
-            left: '20px',
-            top: '-2px',
-            fontSize: '30px',
-          }}
-        >
-          &#8226;
-        </div>
-      )}
-      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
-        {SYSTEM_UPDATES.slice(0, 9).map((update, idx) => (
-          <MenuItem key={idx} onClick={handleClose}>
-            <Link href={`/updates#${update.id}`}>
-              <Box>
-                {(locale === 'de' ? update.header_de : undefined) ??
-                  update.header}
-                <Typography display="block" variant="body2" color="gray">
-                  <DateView
-                    timestampMs={update.timestamp.unix() * 1000}
-                    style={{ fontSize: '14px' }}
-                  />
-                </Typography>
-              </Box>
-            </Link>
-          </MenuItem>
-        ))}
-      </Menu>
-    </>
   );
 }
 
