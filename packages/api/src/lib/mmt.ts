@@ -8,6 +8,66 @@ import {
 import axios from 'axios';
 
 ///////////////////
+// :sTeX/query/problems
+///////////////////
+
+/*
+https://stexmmt.mathhub.info/:sTeX/query/problems
+Without parameters, it will return all problems as standard SPARQL json with 
+  1. the path of the problem
+  2. the path of the objective symbol 
+  3. the cognitive dimension
+
+with a ?path= query parameter, it will return the list of problems with that 
+particular path as objective
+
+with both ?path=...&dimension=, it will also filter by dimension, e.g.:
+https://stexmmt.mathhub.info/:sTeX/query/problems?path=http://mathhub.info/smglom/csp/mod?constraint-network?constraint%20network or
+https://stexmmt.mathhub.info/:sTeX/query/problems?path=http://mathhub.info/smglom/csp/mod?constraint-network?constraint%20network&dimension=understand
+
+if it has arguments archive/filePath as in other places, it will return an
+array of objects with fields "path" and "problems", the former being a definiendum
+and the second the list of problems with that definiendum as objective.
+*/
+export async function getProblemIdsForConcept(
+  mmtUrl: string,
+  conceptUri: string
+) {
+  const url = `${mmtUrl}/:sTeX/query/problems?path=${conceptUri}`;
+  const resp = await axios.get(url);
+  const problemIds = resp.data as string[];
+  if (!problemIds?.length) return [];
+  console.log(problemIds);
+  console.log([...new Set(problemIds)]);
+  return [...new Set(problemIds)];
+}
+
+export async function getProblemIdsForFile(
+  mmtUrl: string,
+  archive: string,
+  filepath: string
+) {
+  const url = `${mmtUrl}/:sTeX/query/problems?archive=${archive}&filepath=${filepath}`;
+  const resp = await axios.get(url);
+  const infoByFile = resp.data as { path: string; problems: string[] }[];
+  if (!infoByFile?.length) return [];
+  const problemIds = new Set<string>();
+  for (const { problems } of infoByFile) {
+    problems.forEach(problemIds.add, problemIds);
+  }
+  return [...problemIds];
+}
+
+///////////////////
+// :sTeX/loraw
+///////////////////
+export async function getProblemShtml(mmtUrl: string, problemId: string) {
+  const url = `${mmtUrl}/:sTeX/loraw?${problemId}`;
+  const resp = await axios.get(url);
+  return resp.data as string;
+}
+
+///////////////////
 // :sTeX/sections
 ///////////////////
 export interface SectionsAPIData {
