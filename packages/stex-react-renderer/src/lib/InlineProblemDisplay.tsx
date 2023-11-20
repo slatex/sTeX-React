@@ -1,9 +1,8 @@
 import { Input, InputResponse, InputType, Problem } from '@stex-react/api';
 import { useEffect, useState } from 'react';
 import { ProblemDisplay } from './ProblemDisplay';
-import { Button } from '@mui/material';
 
-function defaultInputResponse(input: Input): InputResponse {
+export function defaultInputResponse(input: Input): InputResponse {
   const { type } = input;
   switch (type) {
     case InputType.FILL_IN:
@@ -16,7 +15,7 @@ function defaultInputResponse(input: Input): InputResponse {
   return { type };
 }
 
-function defaultProblemResponse(problem: Problem) {
+export function defaultProblemResponse(problem: Problem) {
   if (!problem?.inputs?.length) return { responses: [] };
   const responses: InputResponse[] = [];
 

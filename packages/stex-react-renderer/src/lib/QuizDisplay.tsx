@@ -31,6 +31,7 @@ import { QuizSubmitConfirm } from './QuizSubmitConfirm';
 import { QuizTimer, Timer, timerEvent } from './QuizTimer';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 import { mmtHTMLToReact } from './mmtParser';
+import { defaultInputResponse } from './InlineProblemDisplay';
 
 function isNonEmptyResponse(resp: InputResponse) {
   switch (resp.type) {
@@ -182,6 +183,43 @@ function ProblemNavigation({
   );
 }
 
+export function ListStepper({
+  idx,
+  listSize,
+  onChange,
+}: {
+  idx: number;
+  listSize: number;
+  onChange: (idx: number) => void;
+}) {
+  const { quiz: t } = getLocaleObject(useRouter());
+  if(listSize <= 1) return null;
+  return (
+    <Box>
+      <Button
+        onClick={() => onChange(idx - 1)}
+        disabled={idx <= 0}
+        size="small"
+        variant="contained"
+        sx={{ mr: '10px' }}
+      >
+        <NavigateBeforeIcon />
+        {t.prev}
+      </Button>
+
+      <Button
+        onClick={() => onChange(idx + 1)}
+        disabled={idx >= listSize - 1}
+        size="small"
+        variant="contained"
+      >
+        {t.next}
+        <NavigateNextIcon />
+      </Button>
+    </Box>
+  );
+}
+
 function computeResult(
   problems: { [problemId: string]: Problem },
   responses: { [problemId: string]: ProblemResponse }
@@ -251,12 +289,7 @@ export function QuizDisplay({
       rs[problemId] = {
         responses: inputs.map((input, idx) => {
           if (e?.responses[idx]) return e.responses[idx];
-          return {
-            type: input.type,
-            filledInAnswer: undefined,
-            singleOptionIdx: '',
-            multipleOptionIdxs: {},
-          };
+          return defaultInputResponse(input);
         }),
       };
     }
@@ -345,29 +378,11 @@ export function QuizDisplay({
           />
         </Box>
 
-        <Box>
-          <Button
-            onClick={() => setProblemIdx2(problemIdx - 1)}
-            disabled={problemIdx <= 0}
-            size="small"
-            variant="contained"
-            sx={{ mr: '10px' }}
-          >
-            <NavigateBeforeIcon />
-            {t.prev}
-          </Button>
-
-          <Button
-            onClick={() => setProblemIdx2(problemIdx + 1)}
-            disabled={problemIdx >= problemIds.length - 1}
-            size="small"
-            variant="contained"
-          >
-            {t.next}
-            <NavigateNextIcon />
-          </Button>
-        </Box>
-
+        <ListStepper
+          idx={problemIdx}
+          listSize={problemIds.length}
+          onChange={(idx) => setProblemIdx2(idx)}
+        />
         {!isFrozen ? (
           !!onSubmit && (
             <Button

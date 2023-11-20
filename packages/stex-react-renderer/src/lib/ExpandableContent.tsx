@@ -1,7 +1,11 @@
 import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
 import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/IndeterminateCheckBoxOutlined';
 import { Box, IconButton } from '@mui/material';
-import { findFileNode, hasSectionChild } from '@stex-react/api';
+import {
+  findFileNode,
+  hasSectionChild,
+  is2ndLevelSection,
+} from '@stex-react/api';
 import {
   IS_SERVER,
   convertHtmlNodeToPlain,
@@ -26,6 +30,7 @@ import { RenderOptions } from './RendererDisplayOptions';
 import { SEPARATOR_inDocPath } from './collectIndexInfo';
 import { useOnScreen } from './useOnScreen';
 import { useRect } from './useRect';
+import { PerSectionQuiz } from './PerSectionQuiz';
 
 const ExpandContext = createContext([] as string[]);
 const STOP_EXPANSION_MARKER = 'STOP_EXPANSION';
@@ -209,6 +214,14 @@ export function ExpandableContent({
                     modifyRendered={getChildrenOfBodyNode}
                     minLoadingHeight={'800px'}
                   />
+                  {docFragManager?.docSections &&
+                    is2ndLevelSection(
+                      archive,
+                      filepath,
+                      docFragManager?.docSections
+                    ) && (
+                      <PerSectionQuiz archive={archive} filepath={filepath} />
+                    )}
                 </ExpandContext.Provider>
               ) : (
                 staticContent
