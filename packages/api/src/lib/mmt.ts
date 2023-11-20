@@ -4,6 +4,7 @@ import {
   CourseInfo,
   FileLocation,
   createCourseInfo,
+  localStore,
 } from '@stex-react/utils';
 import axios from 'axios';
 
@@ -127,6 +128,7 @@ export function is2ndLevelSection(
   filepath: string,
   sectionData: SectionsAPIData
 ) {
+  if(!localStore?.getItem('section-quiz')) return false; 
   const ancestors = getAncestors(archive, filepath, sectionData);
   if (!ancestors?.length) return false;
   if (!hasSectionChild(ancestors[ancestors.length - 1])) return false;

@@ -10,6 +10,7 @@ import { BrowserAutocomplete } from '../../components/BrowserAutocomplete';
 import { SearchBar } from '../../components/SearchBar';
 import { ToursAutocomplete } from '../../components/ToursAutocomplete';
 import MainLayout from '../../layouts/MainLayout';
+import { localStore } from '@stex-react/utils';
 
 function ExternalButtonLink({ href, text }: { href: string; text: string }) {
   return (
@@ -75,7 +76,22 @@ const ExperimentsHome: NextPage = () => {
             </Box>
             <Box>
               <h2>Debug</h2>
-
+              <Button
+                variant="contained"
+                onClick={() => {
+                  if (localStore?.getItem('section-quiz')) {
+                    localStore.removeItem('section-quiz');
+                    alert('Section Quiz disabled');
+                  } else {
+                    localStore.setItem('section-quiz', 'true');
+                    alert('Section Quiz enabled');
+                  }
+                  window.location.reload();
+                }}
+              >
+                {localStore?.getItem('section-quiz') ? 'Disable ' : 'Enable '}{' '}
+                Section Quiz
+              </Button>
               <InternalButtonLink href="/debug-section">
                 Debug Document Sections
               </InternalButtonLink>
