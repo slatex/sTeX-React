@@ -5,20 +5,17 @@ import {
   QuizResult,
   TimerEvent,
   ProblemResponse,
-  getDocumentTree
+  getDocumentTree,
+  getElapsedTime,
+  getTotalElapsedTime
 } from '@stex-react/api';
 import { getProblem } from '@stex-react/quiz-utils';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
+import { ServerLinksContext, QuizDisplay } from '@stex-react/stex-react-renderer';
 import axios from 'axios';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { QuizDisplay } from '../../../components/QuizDisplay';
-import {
-  getElapsedTime,
-  getTotalElapsedTime,
-} from '../../../components/QuizTimer';
 import MainLayout from '../../../layouts/MainLayout';
 
 export function getQuizResult(

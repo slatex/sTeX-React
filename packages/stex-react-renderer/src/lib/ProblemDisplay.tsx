@@ -1,6 +1,7 @@
 import InfoIcon from '@mui/icons-material/Info';
 import {
   Box,
+  Button,
   Card,
   Checkbox,
   CircularProgress,
@@ -21,13 +22,14 @@ import {
   Tristate,
 } from '@stex-react/api';
 import { isFillInInputCorrect } from '@stex-react/quiz-utils';
+
+import styles from './quiz.module.scss';
 import {
   CustomItemsContext,
-  DocumentWidthSetter,
   NoMaxWidthTooltip,
   mmtHTMLToReact,
-} from '@stex-react/stex-react-renderer';
-import styles from '../styles/quiz.module.scss';
+} from './mmtParser';
+import { DocumentWidthSetter } from './DocumentWidthSetter';
 
 function BpRadio(props: RadioProps) {
   return <Radio disableRipple color="default" {...props} />;
@@ -98,7 +100,9 @@ function fillInFeedback(input: Input, response: InputResponse) {
 
 function scbFeedback(input: Input, response: InputResponse) {
   const { singleOptionIdx } = response;
-  const chosen = input.options.find((o) => o.optionId === singleOptionIdx);
+  const chosen = (input.options || []).find(
+    (o) => o.optionId === singleOptionIdx
+  );
   if (!chosen) return { isCorrect: Tristate.FALSE, feedbackHtml: 'Wrong!' };
   const isCorrect = chosen.shouldSelect;
   if (isCorrect === Tristate.UNKNOWN) return { isCorrect, feedbackHtml: '' };
@@ -166,7 +170,7 @@ function FeedbackDisplay({
   info,
 }: {
   inline: boolean;
-  info: { isCorrect: Tristate; feedbackHtml: string };
+  info?: { isCorrect: Tristate; feedbackHtml: string };
 }) {
   if (!info) return null;
   const { isCorrect, feedbackHtml } = info;
@@ -216,7 +220,7 @@ function inputDisplay({
             <MenuItem key="-1" value="-1" disabled={true}>
               <i style={{ color: 'gray' }}>Choose</i>
             </MenuItem>
-            {input.options.map(({ optionId, value, shouldSelect }) => (
+            {(input.options || []).map(({ optionId, value, shouldSelect }) => (
               <MenuItem key={optionId} value={optionId}>
                 <Box
                   display="inline"
@@ -250,7 +254,7 @@ function inputDisplay({
               } as InputResponse);
             }}
           >
-            {input.options.map(({ optionId, shouldSelect, value }) => (
+            {(input.options || []).map(({ optionId, shouldSelect, value }) => (
               <FormControlLabel
                 key={optionId}
                 value={optionId}
@@ -316,6 +320,10 @@ function inputDisplay({
               <Checkbox
                 checked={response.multipleOptionIdxs?.[optionId] ?? false}
                 onChange={(e) => {
+                  if (!response.multipleOptionIdxs) {
+                    console.error('Error: multipleOptionIdxs is undefined');
+                    response.multipleOptionIdxs = {};
+                  }
                   response.multipleOptionIdxs[optionId] = e.target.checked;
                   onUpdate({
                     type: InputType.MCQ,
@@ -344,11 +352,13 @@ export function ProblemDisplay({
   isFrozen,
   r,
   onResponseUpdate,
+  onFreezeResponse,
 }: {
   problem: Problem | undefined;
   isFrozen: boolean;
   r: ProblemResponse;
   onResponseUpdate: (r: ProblemResponse) => void;
+  onFreezeResponse?: () => void;
 }) {
   if (!problem) return <CircularProgress />;
   const inputWidgets = problem.inputs.map((input, optIdx) => {
@@ -357,9 +367,9 @@ export function ProblemDisplay({
       response: r.responses[optIdx],
       isFrozen,
       onUpdate: (resp) => {
-        if(isFrozen) return;
+        if (isFrozen) return;
         r.responses[optIdx] = resp;
-        onResponseUpdate(r);
+        onResponseUpdate({...r});
       },
     });
   });
@@ -381,6 +391,11 @@ export function ProblemDisplay({
             {mmtHTMLToReact(problem.statement.outerHTML || '')}
           </DocumentWidthSetter>
         </CustomItemsContext.Provider>
+        {onFreezeResponse && !isFrozen && (
+          <Button onClick={() => onFreezeResponse()} variant="contained">
+            Check Solution
+          </Button>
+        )}
       </Box>
     </Card>
   );

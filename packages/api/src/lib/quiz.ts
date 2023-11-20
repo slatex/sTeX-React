@@ -155,3 +155,75 @@ export interface QuizStubInfo {
   quizEndTs: number;
   title: string;
 }
+
+
+export function getTotalElapsedTime(events: TimerEvent[]) {
+  if (!events?.length) return 0;
+  console.assert(events[0].type === TimerEventType.SWITCH);
+  let isPaused = false;
+  let lastStartTime_ms: undefined | number = events[0].timestamp_ms;
+  let totalTime = 0;
+  for (const e of events) {
+    switch (e.type) {
+      case TimerEventType.PAUSE:
+      case TimerEventType.SUBMIT:
+        isPaused = true;
+        if (lastStartTime_ms) totalTime += e.timestamp_ms - lastStartTime_ms;
+        lastStartTime_ms = undefined;
+        break;
+      case TimerEventType.UNPAUSE:
+        isPaused = false;
+        lastStartTime_ms = e.timestamp_ms;
+        break;
+      case TimerEventType.SWITCH:
+        isPaused = false;
+        if (!lastStartTime_ms) lastStartTime_ms = e.timestamp_ms;
+        break;
+    }
+  }
+  if (!isPaused && lastStartTime_ms) {
+    totalTime += Date.now() - lastStartTime_ms;
+  }
+  return totalTime;
+}
+
+export function getElapsedTime(events: TimerEvent[], problemIdx: number) {
+  if (!events?.length) return 0;
+  console.assert(events[0].type === TimerEventType.SWITCH);
+  let isPaused = false;
+  let lastStartTime_ms: undefined | number = events[0].timestamp_ms;
+  let totalTime = 0;
+  let currentProblemIdx = events[0].problemIdx;
+  for (const e of events) {
+    const wasThisProblem = currentProblemIdx === problemIdx;
+    switch (e.type) {
+      case TimerEventType.PAUSE:
+      case TimerEventType.SUBMIT:
+        isPaused = true;
+        if (wasThisProblem && lastStartTime_ms)
+          totalTime += e.timestamp_ms - lastStartTime_ms;
+        lastStartTime_ms = undefined;
+        break;
+      case TimerEventType.UNPAUSE:
+        isPaused = false;
+        if (wasThisProblem) lastStartTime_ms = e.timestamp_ms;
+        break;
+      case TimerEventType.SWITCH:
+        isPaused = false;
+        if (wasThisProblem) {
+          if (lastStartTime_ms) totalTime += e.timestamp_ms - lastStartTime_ms;
+          lastStartTime_ms = undefined;
+        }
+        if (e.problemIdx === problemIdx) lastStartTime_ms = e.timestamp_ms;
+        currentProblemIdx = e.problemIdx;
+    }
+  }
+  if (
+    (!problemIdx || currentProblemIdx === problemIdx) &&
+    !isPaused &&
+    lastStartTime_ms
+  ) {
+    totalTime += Date.now() - lastStartTime_ms;
+  }
+  return totalTime;
+}

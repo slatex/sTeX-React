@@ -53,4 +53,15 @@ export const de = {
     Evaluate: 'Ich kann bewerten',
     Create: 'Ich kann Neues erstellen',
   },
+  quiz: {
+    youScored: 'Sie haben $1 von $2 Punkten erreicht.',
+    feedbackAwaited: 'Quiz eingereicht. Rückmeldung erwartet.',
+    of: 'von',
+    problem: 'Aufgabe',
+    finish: 'Beenden',
+    prev: 'Vorherige',
+    next: 'Nächste',
+    didntAnswer: "Sie haben $1 Aufgaben nicht beantwortet. ",
+    sureFinish: "Sind Sie sicher, dass Sie den Vorgang abschließen möchten?"
+  },
 };

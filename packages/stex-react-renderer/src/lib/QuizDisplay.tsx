@@ -11,7 +11,7 @@ import {
   Button,
   CircularProgress,
   Dialog,
-  IconButton
+  IconButton,
 } from '@mui/material';
 import {
   InputResponse,
@@ -22,18 +22,15 @@ import {
   TimerEventType,
 } from '@stex-react/api';
 import { getPoints } from '@stex-react/quiz-utils';
-import {
-  FixedPositionMenu,
-  LayoutWithFixedMenu,
-  mmtHTMLToReact,
-} from '@stex-react/stex-react-renderer';
 import { shouldUseDrawer } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useEffect, useReducer, useState } from 'react';
-import { getLocaleObject } from '../lang/utils';
-import { ProblemDisplay } from './QuestionDisplay';
+import { getLocaleObject } from './lang/utils';
+import { ProblemDisplay } from './ProblemDisplay';
 import { QuizSubmitConfirm } from './QuizSubmitConfirm';
 import { QuizTimer, Timer, timerEvent } from './QuizTimer';
+import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
+import { mmtHTMLToReact } from './mmtParser';
 
 function isNonEmptyResponse(resp: InputResponse) {
   switch (resp.type) {
@@ -57,7 +54,7 @@ function numInputsResponded(r: ProblemResponse) {
 }
 
 function roundedScore(points: { [problemId: string]: number | undefined }) {
-  const score = Object.values(points).reduce((prev, s) => prev + (s ?? 0), 0);
+  const score = Object.values(points).reduce<number>((s, a) => s + (a ?? 0), 0);
   return (Math.round(score * 100) / 100).toString();
 }
 
@@ -84,7 +81,7 @@ function IndexEntry({
 }) {
   const { quiz: t } = getLocaleObject(useRouter());
   const isCorrectnessKnown = isFrozen && points !== undefined;
-  const isPartiallyCorrect = points > 0;
+  const isPartiallyCorrect = points && points > 0;
   const isCorrect = points === problem.points;
   const color = isCorrectnessKnown
     ? isCorrect
@@ -103,6 +100,7 @@ function IndexEntry({
   ) : (
     <IndeterminateCheckBoxIcon />
   );
+
   return (
     <span
       key={idx}
@@ -188,7 +186,7 @@ function computeResult(
   problems: { [problemId: string]: Problem },
   responses: { [problemId: string]: ProblemResponse }
 ) {
-  const points: { [problemId: string]: number } = {};
+  const points: { [problemId: string]: number | undefined } = {};
   for (const problemId of Object.keys(problems ?? {})) {
     const r = responses[problemId];
     const q = problems[problemId];
@@ -216,7 +214,7 @@ export function QuizDisplay({
   isFrozen: boolean;
   onResponse?: (problemId: string, r: ProblemResponse) => void;
   onSubmit?: (
-    name: string,
+    name: string | undefined,
     events: TimerEvent[],
     responses: { [problemId: string]: ProblemResponse },
     result: { [problemId: string]: number | undefined }
@@ -258,8 +256,8 @@ export function QuizDisplay({
           return {
             type: input.type,
             filledInAnswer: undefined,
-            singleOptionIdx: "",
-            multipleOptionIdxs: {}
+            singleOptionIdx: '',
+            multipleOptionIdxs: {},
           };
         }),
       };

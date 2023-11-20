@@ -15,8 +15,8 @@ import dayjs from 'dayjs';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { QuizDisplay } from '../../components/QuizDisplay';
 import MainLayout from '../../layouts/MainLayout';
+import { QuizDisplay } from '@stex-react/stex-react-renderer';
 
 function ToBeStarted({ quizStartTs }: { quizStartTs?: number }) {
   const [showReload, setShowReload] = useState(false);
