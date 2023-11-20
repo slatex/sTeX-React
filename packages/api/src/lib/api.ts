@@ -10,3 +10,5 @@ export * from './points-api';
 export * from './quiz';
 export * from './quiz-api';
 export * from './course-grade-info';
+export * from './notifications';
+export * from './notifications-api';

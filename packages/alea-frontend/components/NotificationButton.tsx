@@ -15,7 +15,7 @@ import { useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import { SYSTEM_UPDATES } from '../system-updates';
 import axios from 'axios';
-import { getAuthHeaders } from '@stex-react/api';
+import { getAuthHeaders, getNotification } from '@stex-react/api';
 
 function NotificationButton() {
   const router = useRouter();
@@ -27,11 +27,28 @@ function NotificationButton() {
   const open = Boolean(anchorEl);
   const handleClose = () => setAnchorEl(null);
   // System info menu crap end
+
   useEffect(() => {
-    axios.get('/api/get-user-notifications',{headers:getAuthHeaders()}).then((response) => {
-      setNotifications(response.data);
-    });
+    getNotification().then(setNotifications);
   }, []);
+  const allItems = [
+    ...(notifications || []),
+    ...SYSTEM_UPDATES.slice(0, 9).map((update) => ({
+      ...update,
+      type: 'systemUpdate',
+    })),
+  ];
+
+  const sortedItems = allItems.sort((a, b) => {
+    const timestampA = a.timestamp || a.postedTimestamp || 0;
+    const timestampB = b.timestamp || b.postedTimestamp || 0;
+    return timestampB - timestampA;
+  });
+
+  const renderDateView = (timestamp) => (
+    <DateView timestampMs={timestamp} style={{ fontSize: '14px' }} />
+  );
+
   return (
     <>
       <Tooltip title={t.systemUpdate}>
@@ -60,32 +77,21 @@ function NotificationButton() {
       )}
 
       <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
-        {notifications
-          ? notifications.map((notification, idx) => (
-              <MenuItem key={idx}>
-                <Box>
-                  <Box>{notification.header}</Box>
-                  <Typography display="block" variant="body2" color="gray">
-                    <DateView
-                      timestampMs={notification.postedTimestamp}
-                      style={{ fontSize: '14px' }}
-                    />
-                  </Typography>
-                </Box>
-              </MenuItem>
-            ))
-          : null}
-        {SYSTEM_UPDATES.slice(0, 9).map((update, idx) => (
+        {sortedItems.map((item, idx) => (
           <MenuItem key={idx} onClick={handleClose}>
-            <Link href={`/updates#${update.id}`}>
+            <Link
+              href={item.type === 'systemUpdate' ? `/updates#${item.id}` : '#'}
+            >
               <Box>
-                {(locale === 'de' ? update.header_de : undefined) ??
-                  update.header}
+                {(item.type === 'systemUpdate' &&
+                  (locale === 'de' ? item.header_de : undefined)) ||
+                  item.header}
                 <Typography display="block" variant="body2" color="gray">
-                  <DateView
-                    timestampMs={update.timestamp.unix() * 1000}
-                    style={{ fontSize: '14px' }}
-                  />
+                  {renderDateView(
+                    item.type === 'systemUpdate'
+                      ? item.timestamp.unix() * 1000
+                      : item.postedTimestamp
+                  )}
                 </Typography>
               </Box>
             </Link>

@@ -6,17 +6,17 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  TextField,
-  Typography,
+  TextField
 } from '@mui/material';
 import {
+  UserInfo,
   getAllMyComments,
   getAllMyData,
   getUserInfo,
   purgeAllMyData,
   purgeComments,
-  resetFakeUserData,
-  UserInfo,
+  purgeUserNotification,
+  resetFakeUserData
 } from '@stex-react/api';
 import { downloadFile } from '@stex-react/utils';
 import type { NextPage } from 'next';
@@ -204,6 +204,7 @@ const MyProfilePage: NextPage = () => {
               try {
                 await purgeAllMyData();
                 await purgeComments();
+                await purgeUserNotification();
                 alert(t.dataPurged);
                 setOpenPurgeDialog(false);
               } catch (err) {
