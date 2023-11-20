@@ -81,6 +81,27 @@ export interface SectionsAPIData {
   children: SectionsAPIData[];
 }
 
+export function getAncestors(
+  archive: string,
+  filepath: string,
+  sectionData: SectionsAPIData | undefined,
+  ancestors: SectionsAPIData[] = []
+): SectionsAPIData[] | undefined {
+  if (!sectionData) return undefined;
+
+  if (sectionData.archive === archive && sectionData.filepath === filepath) {
+    return [...ancestors, sectionData];
+  }
+  for (const child of sectionData.children) {
+    const foundAncestors = getAncestors(archive, filepath, child, [
+      ...ancestors,
+      sectionData,
+    ]);
+    if (foundAncestors?.length) return foundAncestors;
+  }
+  return undefined;
+}
+
 export function findFileNode(
   archive: string,
   filepath: string,
@@ -99,6 +120,17 @@ export function findFileNode(
 
 export function hasSectionChild(node?: SectionsAPIData) {
   return node?.children?.some((child) => isSection(child));
+}
+
+export function is2ndLevelSection(
+  archive: string,
+  filepath: string,
+  sectionData: SectionsAPIData
+) {
+  const ancestors = getAncestors(archive, filepath, sectionData);
+  if (!ancestors?.length) return false;
+  if (!hasSectionChild(ancestors[ancestors.length - 1])) return false;
+  return ancestors.filter(isSection).length <= 2;
 }
 
 export function isFile(data: SectionsAPIData) {

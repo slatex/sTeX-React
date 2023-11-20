@@ -38,7 +38,7 @@ const DebugSection: NextPage = () => {
         </Button>
       </Box>
       <Box p="10px">
-        {sectionData && <FileSectionDisplay sectionData={sectionData} />}
+        {sectionData && <FileSectionDisplay sectionData={sectionData} topLevel={sectionData} />}
       </Box>
     </MainLayout>
   );

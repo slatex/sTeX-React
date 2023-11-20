@@ -162,7 +162,6 @@ const QuizPage: NextPage = () => {
       <Box>
         <QuizDisplay
           isFrozen={isSubmitted}
-          quizId={undefined}
           showPerProblemTime={true}
           problems={problems}
           onSubmit={async (name, events, responses, points) => {

@@ -190,7 +190,6 @@ const QuizPage: NextPage = () => {
         ) : (
           <QuizDisplay
             isFrozen={phase !== Phase.STARTED}
-            quizId={quizId}
             showPerProblemTime={false}
             problems={problems}
             quizEndTs={clientQuizEndTimeMs}

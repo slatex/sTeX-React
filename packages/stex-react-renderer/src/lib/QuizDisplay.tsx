@@ -196,7 +196,6 @@ function computeResult(
 }
 
 export function QuizDisplay({
-  quizId,
   problems,
   onResponse,
   onSubmit,
@@ -206,7 +205,6 @@ export function QuizDisplay({
   isFrozen,
   showRecordOption = false,
 }: {
-  quizId: string;
   quizEndTs?: number;
   showPerProblemTime: boolean;
   problems: { [problemId: string]: Problem };
