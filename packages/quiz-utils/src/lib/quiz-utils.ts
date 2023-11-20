@@ -18,6 +18,8 @@ const NODE_ATTRS_TO_TYPE: { [attrName: string]: InputType } = {
   'data-problem-fillinsol': InputType.FILL_IN,
 };
 
+export const PROBLEM_PARSED_MARKER = 'problem-parsed';
+
 export function isFillInInputCorrect(expected?: string, actual?: string) {
   if (!expected?.length) return Tristate.UNKNOWN;
   if (!actual) return Tristate.FALSE;
@@ -209,6 +211,7 @@ function getProblemHeader(rootNode: Element) {
 export function getProblem(htmlStr: string, problemUrl: string) {
   const htmlDoc = parseDocument(htmlStr);
   const problemRootNode = findProblemRootNode(htmlDoc);
+  problemRootNode.attribs[PROBLEM_PARSED_MARKER] = "true";
   const points = getProblemPoints(problemRootNode);
   const header = getProblemHeader(problemRootNode);
   if (!problemRootNode) {
@@ -250,4 +253,9 @@ export function getQuizPhase(q: Quiz) {
   if (now < q.quizEndTs) return Phase.STARTED;
   if (now < q.feedbackReleaseTs) return Phase.ENDED;
   return Phase.FEEDBACK_RELEASED;
+}
+
+export function hackAwayProblemId(quizHtml: string) {
+  if(!quizHtml) return quizHtml;
+  return quizHtml.replace('Problem 0.1', '').replace('Aufgabe 0.1', '');
 }

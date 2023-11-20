@@ -62,6 +62,7 @@ export const de = {
     prev: 'Vorherige',
     next: 'Nächste',
     didntAnswer: "Sie haben $1 Aufgaben nicht beantwortet. ",
-    sureFinish: "Sind Sie sicher, dass Sie den Vorgang abschließen möchten?"
+    sureFinish: "Sind Sie sicher, dass Sie den Vorgang abschließen möchten?",
+    checkSolution: 'Lösung prüfen',
   },
 };

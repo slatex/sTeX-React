@@ -30,6 +30,8 @@ import {
   mmtHTMLToReact,
 } from './mmtParser';
 import { DocumentWidthSetter } from './DocumentWidthSetter';
+import { getLocaleObject } from './lang/utils';
+import { useRouter } from 'next/router';
 
 function BpRadio(props: RadioProps) {
   return <Radio disableRipple color="default" {...props} />;
@@ -351,15 +353,18 @@ export function ProblemDisplay({
   problem,
   isFrozen,
   r,
+  showPoints = true,
   onResponseUpdate,
   onFreezeResponse,
 }: {
   problem: Problem | undefined;
   isFrozen: boolean;
   r: ProblemResponse;
+  showPoints?: boolean;
   onResponseUpdate: (r: ProblemResponse) => void;
   onFreezeResponse?: () => void;
 }) {
+  const t = getLocaleObject(useRouter()).quiz;
   if (!problem) return <CircularProgress />;
   const inputWidgets = problem.inputs.map((input, optIdx) => {
     return inputDisplay({
@@ -369,7 +374,7 @@ export function ProblemDisplay({
       onUpdate: (resp) => {
         if (isFrozen) return;
         r.responses[optIdx] = resp;
-        onResponseUpdate({...r});
+        onResponseUpdate({ ...r });
       },
     });
   });
@@ -385,7 +390,7 @@ export function ProblemDisplay({
       }}
     >
       <Box fontSize="20px">
-        <PointsInfo points={problem.points} />
+        {showPoints && <PointsInfo points={problem.points} />}
         <CustomItemsContext.Provider value={{ items: customItems }}>
           <DocumentWidthSetter>
             {mmtHTMLToReact(problem.statement.outerHTML || '')}
@@ -393,7 +398,7 @@ export function ProblemDisplay({
         </CustomItemsContext.Provider>
         {onFreezeResponse && !isFrozen && (
           <Button onClick={() => onFreezeResponse()} variant="contained">
-            Check Solution
+            {t.checkSolution}
           </Button>
         )}
       </Box>

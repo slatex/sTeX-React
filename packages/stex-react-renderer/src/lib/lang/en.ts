@@ -63,5 +63,6 @@ export const en = {
     next: 'Next',
     didntAnswer: "You didn't answer $1 problems. ",
     sureFinish: 'Are you sure you want to finish?',
+    checkSolution: 'Check Solution',
   },
 };

@@ -9,7 +9,7 @@ import {
   insertAnswer,
   isModerator,
 } from '@stex-react/api';
-import { getProblem } from '@stex-react/quiz-utils';
+import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
 import { localStore } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import type { NextPage } from 'next';
@@ -124,9 +124,7 @@ const QuizPage: NextPage = () => {
       setQuizInfo(quizInfo);
       const problemObj: { [problemId: string]: Problem } = {};
       Object.keys(quizInfo.problems).map((problemId) => {
-        const html = quizInfo.problems[problemId]
-          .replace('Problem 0.1', '')
-          .replace('Aufgabe 0.1', '');
+        const html = hackAwayProblemId(quizInfo.problems[problemId]);
         problemObj[problemId] = getProblem(html, undefined);
       });
       setProblems(problemObj);

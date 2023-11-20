@@ -7,10 +7,13 @@ import {
   ProblemResponse,
   getDocumentTree,
   getElapsedTime,
-  getTotalElapsedTime
+  getTotalElapsedTime,
 } from '@stex-react/api';
-import { getProblem } from '@stex-react/quiz-utils';
-import { ServerLinksContext, QuizDisplay } from '@stex-react/stex-react-renderer';
+import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
+import {
+  ServerLinksContext,
+  QuizDisplay,
+} from '@stex-react/stex-react-renderer';
 import axios from 'axios';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -145,10 +148,7 @@ const QuizPage: NextPage = () => {
     Promise.all(urls.map((url) => axios.get(url))).then((responses) => {
       const problems: { [problemId: string]: Problem } = {};
       responses.forEach((r, idx) => {
-        const htmlStr = (r.data as string) // Hack: manually remove incorrect #numbers
-          .replace('Problem 0.1', '')
-          .replace('Aufgabe 0.1', '');
-
+        const htmlStr = hackAwayProblemId(r.data as string);
         problems[urls[idx]] = getProblem(htmlStr, urls[idx]);
       });
 
