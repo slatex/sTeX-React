@@ -1,16 +1,16 @@
 import {
+  Input,
+  InputType,
   Option,
   Phase,
   Problem,
+  ProblemResponse,
   Quiz,
   Tristate,
-  ProblemResponse,
-  InputType,
-  Input,
 } from '@stex-react/api';
 import { getMMTCustomId } from '@stex-react/utils';
 import { ChildNode, Document, Element } from 'domhandler';
-import { DomUtils, parseDocument } from 'htmlparser2';
+import { DomHandler, DomUtils, Parser, parseDocument } from 'htmlparser2';
 
 const NODE_ATTRS_TO_TYPE: { [attrName: string]: InputType } = {
   'data-problem-mcb': InputType.MCQ,
@@ -211,7 +211,7 @@ function getProblemHeader(rootNode: Element) {
 export function getProblem(htmlStr: string, problemUrl: string) {
   const htmlDoc = parseDocument(htmlStr);
   const problemRootNode = findProblemRootNode(htmlDoc);
-  problemRootNode.attribs[PROBLEM_PARSED_MARKER] = "true";
+  problemRootNode.attribs[PROBLEM_PARSED_MARKER] = 'true';
   const points = getProblemPoints(problemRootNode);
   const header = getProblemHeader(problemRootNode);
   if (!problemRootNode) {
@@ -256,6 +256,64 @@ export function getQuizPhase(q: Quiz) {
 }
 
 export function hackAwayProblemId(quizHtml: string) {
-  if(!quizHtml) return quizHtml;
+  if (!quizHtml) return quizHtml;
   return quizHtml.replace('Problem 0.1', '').replace('Aufgabe 0.1', '');
+}
+
+const ANSWER_ATTRIBS_TO_REDACT = ['data-problem-sc', 'data-problem-mc'];
+
+const ATTRIBS_TO_REMOVE = [
+  'data-overlay-link-click',
+  'data-overlay-link-hover',
+  'data-highlight-parent',
+];
+
+const ATTRIBS_OF_ANSWER_ELEMENTS = [
+  'data-problem-sc-solution',
+  'data-problem-mc-solution',
+];
+
+const ATTRIBS_OF_PARENTS_OF_ANSWER_ELEMENTS = ['data-problem-fillinsol'];
+
+export function removeAnswerInfo(problem: string) {
+  const handler = new DomHandler();
+  const parser = new Parser(handler);
+  parser.write(problem);
+  parser.end();
+
+  // Traverse and modify the parsed DOM to remove nodes with 'solution' attribute
+  const traverse = (node: any) => {
+    if (node.attribs) {
+      for (const attrib of ATTRIBS_OF_ANSWER_ELEMENTS) {
+        // Skip this node and its children
+        if (node.attribs[attrib]) return null;
+      }
+      const classNames = node.attribs['class'];
+      if (classNames?.includes('symcomp')) {
+        node.attribs['class'] = classNames.replace('symcomp', ' ');
+      }
+
+      for (const attrib of ANSWER_ATTRIBS_TO_REDACT) {
+        if (node.attribs[attrib]) node.attribs[attrib] = 'REDACTED';
+      }
+      for (const attrib of ATTRIBS_TO_REMOVE) {
+        if (node.attribs[attrib]) delete node.attribs[attrib];
+      }
+    }
+    const removeChildren = ATTRIBS_OF_PARENTS_OF_ANSWER_ELEMENTS.some(
+      (attrib) => node.attribs?.[attrib]
+    );
+    if (removeChildren) {
+      node.children = [];
+      return node;
+    }
+
+    // Recursively traverse and process children
+    node.children = node.children?.map(traverse).filter(Boolean);
+    return node;
+  };
+
+  const modifiedDom = handler.dom.map((n) => traverse(n));
+  // Convert the modified DOM back to HTML
+  return DomUtils.getOuterHTML(modifiedDom);
 }

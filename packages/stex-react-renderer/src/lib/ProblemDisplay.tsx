@@ -21,7 +21,7 @@ import {
   ProblemResponse,
   Tristate,
 } from '@stex-react/api';
-import { isFillInInputCorrect } from '@stex-react/quiz-utils';
+import { isFillInInputCorrect, removeAnswerInfo } from '@stex-react/quiz-utils';
 
 import styles from './quiz.module.scss';
 import {
@@ -35,6 +35,10 @@ import { useRouter } from 'next/router';
 
 function BpRadio(props: RadioProps) {
   return <Radio disableRipple color="default" {...props} />;
+}
+
+function removeInfoIfNeeded(sHtml: string, isFrozen: boolean) {
+  return isFrozen ? sHtml: removeAnswerInfo(sHtml);
 }
 
 function getClassNames(
@@ -233,7 +237,9 @@ function inputDisplay({
                   )}
                 >
                   {value.outerHTML
-                    ? mmtHTMLToReact(value.outerHTML)
+                    ? mmtHTMLToReact(
+                        removeInfoIfNeeded(value.outerHTML, isFrozen)
+                      )
                     : value.textContent}
                 </Box>
               </MenuItem>
@@ -269,7 +275,9 @@ function inputDisplay({
                 label={
                   <Box display="inline">
                     {value.outerHTML
-                      ? mmtHTMLToReact(value.outerHTML)
+                      ? mmtHTMLToReact(
+                          removeInfoIfNeeded(value.outerHTML, isFrozen)
+                        )
                       : value.textContent}
                   </Box>
                 }
@@ -337,7 +345,9 @@ function inputDisplay({
             label={
               <Box display="inline">
                 {value.outerHTML
-                  ? mmtHTMLToReact(value.outerHTML)
+                  ? mmtHTMLToReact(
+                      removeInfoIfNeeded(value.outerHTML, isFrozen)
+                    )
                   : value.textContent}
               </Box>
             }
@@ -379,6 +389,10 @@ export function ProblemDisplay({
     });
   });
   const customItems = Object.assign(inputWidgets);
+  const statement = removeInfoIfNeeded(
+    problem.statement.outerHTML ?? '',
+    isFrozen
+  );
 
   return (
     <Card
@@ -392,9 +406,7 @@ export function ProblemDisplay({
       <Box fontSize="20px">
         {showPoints && <PointsInfo points={problem.points} />}
         <CustomItemsContext.Provider value={{ items: customItems }}>
-          <DocumentWidthSetter>
-            {mmtHTMLToReact(problem.statement.outerHTML || '')}
-          </DocumentWidthSetter>
+          <DocumentWidthSetter>{mmtHTMLToReact(statement)}</DocumentWidthSetter>
         </CustomItemsContext.Provider>
         {onFreezeResponse && !isFrozen && (
           <Button onClick={() => onFreezeResponse()} variant="contained">

@@ -5,16 +5,12 @@ import {
   ProblemResponse,
   isModerator,
 } from '@stex-react/api';
-import { getQuizPhase } from '@stex-react/quiz-utils';
+import { getQuizPhase, removeAnswerInfo } from '@stex-react/quiz-utils';
 import { simpleNumberHash } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getUserIdOrSetError } from '../comment-utils';
 import { queryGradingDbAndEndSet500OnError } from '../grading-db-utils';
-import {
-  getQuiz,
-  getQuizTimes,
-  removeAnswerInfo,
-} from '@stex-react/node-utils';
+import { getQuiz, getQuizTimes } from '@stex-react/node-utils';
 
 async function getUserQuizResponseOrSetError(
   quizId: string,
@@ -34,7 +30,7 @@ async function getUserQuizResponseOrSetError(
     res
   );
   if (!results) return undefined;
-  const resp: {[problemId: string]: ProblemResponse } = {};
+  const resp: { [problemId: string]: ProblemResponse } = {};
 
   for (const r of results) {
     const { problemId, response } = r;

@@ -1,4 +1,4 @@
-create database comments_test;
+    create database comments_test;
 use comments_test;
 
 ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'abctest';
@@ -41,7 +41,7 @@ CREATE TABLE updateHistory (
     previousHiddenJustification varchar(255),
 
     updatedTimestamp timestamp DEFAULT CURRENT_TIMESTAMP
-)
+);
 
 CREATE TABLE points (
     points int,
