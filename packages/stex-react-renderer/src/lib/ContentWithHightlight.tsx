@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import { HighlightContext, mmtHTMLToReact } from './mmtParser';
 
 export const ContentWithHighlight = memo(
@@ -11,13 +11,19 @@ export const ContentWithHighlight = memo(
     modifyRendered?: (node: any) => any;
     renderWrapperParams?: { [key: string]: string };
   }) => {
+    const [rendered, setRendered] = useState<any>(<></>);
     const [highlightedParentId, setHighlightedParentId] = useState('');
     const value = useMemo(
       () => ({ highlightedParentId, setHighlightedParentId }),
       [highlightedParentId]
     );
-    let rendered = mmtHTMLToReact(mmtHtml);
-    if (modifyRendered) rendered = modifyRendered(rendered);
+
+    useEffect(() => {
+      let rendered = mmtHTMLToReact(mmtHtml);
+      if (modifyRendered) rendered = modifyRendered(rendered);
+      setRendered(rendered);
+    }, [mmtHtml, modifyRendered]);
+
     return (
       <HighlightContext.Provider value={value}>
         <div {...renderWrapperParams}>{rendered}</div>
