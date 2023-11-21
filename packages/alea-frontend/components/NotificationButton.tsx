@@ -7,6 +7,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import { getUserNotifications } from '@stex-react/api';
 import { DateView } from '@stex-react/react-utils';
 import { localStore } from '@stex-react/utils';
 import Link from 'next/link';
@@ -14,8 +15,6 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import { SYSTEM_UPDATES } from '../system-updates';
-import axios from 'axios';
-import { getAuthHeaders, getNotification } from '@stex-react/api';
 
 function NotificationButton() {
   const router = useRouter();
@@ -29,40 +28,44 @@ function NotificationButton() {
   // System info menu crap end
 
   useEffect(() => {
-    getNotification().then(setNotifications);
+    getUserNotifications().then(setNotifications);
   }, []);
+
   const allItems = [
     ...(notifications || []),
-    ...SYSTEM_UPDATES.slice(0, 9).map((update) => ({
+    ...SYSTEM_UPDATES.map((update) => ({
       ...update,
       type: 'systemUpdate',
     })),
-  ];
-
+  ].slice(0, 9);
   const sortedItems = allItems.sort((a, b) => {
-    const timestampA = a.timestamp || a.postedTimestamp || 0;
-    const timestampB = b.timestamp || b.postedTimestamp || 0;
+    const timestampA =
+      new Date(a.timestamp)?.getTime() ||
+      new Date(a.postedTimestamp)?.getTime() ||
+      0;
+    const timestampB =
+      new Date(b.timestamp)?.getTime() ||
+      new Date(b.postedTimestamp)?.getTime() ||
+      0;
     return timestampB - timestampA;
   });
-
-  const renderDateView = (timestamp) => (
-    <DateView timestampMs={timestamp} style={{ fontSize: '14px' }} />
-  );
-
+  function topUpdate() {
+    return (sortedItems[0].updateId || sortedItems[0].id).toString();
+  }
   return (
     <>
       <Tooltip title={t.systemUpdate}>
         <IconButton
           onClick={(e) => {
             setAnchorEl(e.currentTarget);
-            localStore?.setItem('top-system-update', SYSTEM_UPDATES[0].id);
+            localStore?.setItem('combined-top-update', topUpdate());
           }}
         >
           <NotificationsIcon htmlColor="white" />
         </IconButton>
       </Tooltip>
 
-      {localStore?.getItem('top-system-update') !== SYSTEM_UPDATES[0].id && (
+      {localStore?.getItem('combined-top-update') !== topUpdate() && (
         <div
           style={{
             color: 'red',
@@ -87,11 +90,14 @@ function NotificationButton() {
                   (locale === 'de' ? item.header_de : undefined)) ||
                   item.header}
                 <Typography display="block" variant="body2" color="gray">
-                  {renderDateView(
-                    item.type === 'systemUpdate'
-                      ? item.timestamp.unix() * 1000
-                      : item.postedTimestamp
-                  )}
+                  <DateView
+                    timestampMs={
+                      item.type === 'systemUpdate'
+                        ? item.timestamp.unix() * 1000
+                        : item.postedTimestamp
+                    }
+                    style={{ fontSize: '14px' }}
+                  />
                 </Typography>
               </Box>
             </Link>
