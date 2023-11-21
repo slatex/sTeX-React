@@ -1,7 +1,6 @@
 import { useMatomo } from '@jonkoops/matomo-tracker-react';
 import HelpIcon from '@mui/icons-material/Help';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import WarningIcon from '@mui/icons-material/Warning';
 import {
   Box,
@@ -10,15 +9,11 @@ import {
   Menu,
   MenuItem,
   Toolbar,
-  Tooltip
+  Tooltip,
 } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import { getUserInfo, isLoggedIn, logout } from '@stex-react/api';
-import {
-  CountryFlag,
-  DateView,
-  useScrollDirection,
-} from '@stex-react/react-utils';
+import { CountryFlag, useScrollDirection } from '@stex-react/react-utils';
 import { localStore } from '@stex-react/utils';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -28,7 +23,6 @@ import { BrowserAutocomplete } from '../components/BrowserAutocomplete';
 import { getLocaleObject } from '../lang/utils';
 import styles from '../styles/header.module.scss';
 import NotificationButton from './NotificationButton';
-import { SYSTEM_UPDATES } from '../system-updates';
 
 export const HIDE_BANNER_ITEM = 'hide-priming-banner';
 
@@ -169,11 +163,12 @@ export function Header({
   const [surveyShown, setSurveyShown] = useState(
     !localStore?.getItem(HIDE_BANNER_ITEM) ?? true
   );
-  const background = process.env.NEXT_PUBLIC_SITE_VERSION === 'production'
-    ? undefined
-    : process.env.NEXT_PUBLIC_SITE_VERSION === 'staging'
-    ? 'crimson !important'
-    : 'blue !important';
+  const background =
+    process.env.NEXT_PUBLIC_SITE_VERSION === 'production'
+      ? undefined
+      : process.env.NEXT_PUBLIC_SITE_VERSION === 'staging'
+      ? 'crimson !important'
+      : 'blue !important';
   const scrollDirection = useScrollDirection();
 
   return (
