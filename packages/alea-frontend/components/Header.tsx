@@ -1,7 +1,6 @@
 import { useMatomo } from '@jonkoops/matomo-tracker-react';
 import HelpIcon from '@mui/icons-material/Help';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import WarningIcon from '@mui/icons-material/Warning';
 import {
   Box,
@@ -11,15 +10,10 @@ import {
   MenuItem,
   Toolbar,
   Tooltip,
-  Typography,
 } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import { getUserInfo, isLoggedIn, logout } from '@stex-react/api';
-import {
-  CountryFlag,
-  DateView,
-  useScrollDirection,
-} from '@stex-react/react-utils';
+import { CountryFlag, useScrollDirection } from '@stex-react/react-utils';
 import { localStore } from '@stex-react/utils';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -28,7 +22,7 @@ import { useEffect, useState } from 'react';
 import { BrowserAutocomplete } from '../components/BrowserAutocomplete';
 import { getLocaleObject } from '../lang/utils';
 import styles from '../styles/header.module.scss';
-import { SYSTEM_UPDATES } from '../system-updates';
+import NotificationButton from './NotificationButton';
 
 export const HIDE_BANNER_ITEM = 'hide-priming-banner';
 
@@ -158,64 +152,6 @@ function LanguageButton() {
   );
 }
 
-function NotificationButton() {
-  const router = useRouter();
-  const { locale } = router;
-  const { header: t } = getLocaleObject(router);
-
-  // System info menu crap start
-  const [anchorEl, setAnchorEl] = useState<any>(null);
-  const open = Boolean(anchorEl);
-  const handleClose = () => setAnchorEl(null);
-  // System info menu crap end
-  return (
-    <>
-      <Tooltip title={t.systemUpdate}>
-        <IconButton
-          onClick={(e) => {
-            setAnchorEl(e.currentTarget);
-            localStore?.setItem('top-system-update', SYSTEM_UPDATES[0].id);
-          }}
-        >
-          <NotificationsIcon htmlColor="white" />
-        </IconButton>
-      </Tooltip>
-
-      {localStore?.getItem('top-system-update') !== SYSTEM_UPDATES[0].id && (
-        <div
-          style={{
-            color: 'red',
-            position: 'absolute',
-            left: '20px',
-            top: '-2px',
-            fontSize: '30px',
-          }}
-        >
-          &#8226;
-        </div>
-      )}
-      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
-        {SYSTEM_UPDATES.slice(0, 9).map((update, idx) => (
-          <MenuItem key={idx} onClick={handleClose}>
-            <Link href={`/updates#${update.id}`}>
-              <Box>
-                {(locale === 'de' ? update.header_de : undefined) ??
-                  update.header}
-                <Typography display="block" variant="body2" color="gray">
-                  <DateView
-                    timestampMs={update.timestamp.unix() * 1000}
-                    style={{ fontSize: '14px' }}
-                  />
-                </Typography>
-              </Box>
-            </Link>
-          </MenuItem>
-        ))}
-      </Menu>
-    </>
-  );
-}
-
 export function Header({
   showBrowserAutocomplete,
 }: {
@@ -227,11 +163,12 @@ export function Header({
   const [surveyShown, setSurveyShown] = useState(
     !localStore?.getItem(HIDE_BANNER_ITEM) ?? true
   );
-  const background = process.env.NEXT_PUBLIC_SITE_VERSION === 'production'
-    ? undefined
-    : process.env.NEXT_PUBLIC_SITE_VERSION === 'staging'
-    ? 'crimson !important'
-    : 'blue !important';
+  const background =
+    process.env.NEXT_PUBLIC_SITE_VERSION === 'production'
+      ? undefined
+      : process.env.NEXT_PUBLIC_SITE_VERSION === 'staging'
+      ? 'crimson !important'
+      : 'blue !important';
   const scrollDirection = useScrollDirection();
 
   return (
