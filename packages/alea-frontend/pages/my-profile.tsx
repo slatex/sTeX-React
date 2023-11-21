@@ -15,7 +15,7 @@ import {
   getUserInfo,
   purgeAllMyData,
   purgeComments,
-  purgeUserNotification,
+  purgeUserNotifications,
   resetFakeUserData
 } from '@stex-react/api';
 import { downloadFile } from '@stex-react/utils';
@@ -204,7 +204,7 @@ const MyProfilePage: NextPage = () => {
               try {
                 await purgeAllMyData();
                 await purgeComments();
-                await purgeUserNotification();
+                await purgeUserNotifications();
                 alert(t.dataPurged);
                 setOpenPurgeDialog(false);
               } catch (err) {
