@@ -53,4 +53,16 @@ export const en = {
     Evaluate: 'I can evaluate',
     Create: 'I can create',
   },
+  quiz: {
+    youScored: 'You scored $1 out of $2.',
+    feedbackAwaited: 'Quiz Submitted. Feedback awaited.',
+    of: 'of',
+    problem: 'Problem',
+    finish: 'Finish',
+    prev: 'Prev',
+    next: 'Next',
+    didntAnswer: "You didn't answer $1 problems. ",
+    sureFinish: 'Are you sure you want to finish?',
+    checkSolution: 'Check Solution',
+  },
 };

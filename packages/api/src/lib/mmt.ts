@@ -4,8 +4,69 @@ import {
   CourseInfo,
   FileLocation,
   createCourseInfo,
+  localStore,
 } from '@stex-react/utils';
 import axios from 'axios';
+
+///////////////////
+// :sTeX/query/problems
+///////////////////
+
+/*
+https://stexmmt.mathhub.info/:sTeX/query/problems
+Without parameters, it will return all problems as standard SPARQL json with 
+  1. the path of the problem
+  2. the path of the objective symbol 
+  3. the cognitive dimension
+
+with a ?path= query parameter, it will return the list of problems with that 
+particular path as objective
+
+with both ?path=...&dimension=, it will also filter by dimension, e.g.:
+https://stexmmt.mathhub.info/:sTeX/query/problems?path=http://mathhub.info/smglom/csp/mod?constraint-network?constraint%20network or
+https://stexmmt.mathhub.info/:sTeX/query/problems?path=http://mathhub.info/smglom/csp/mod?constraint-network?constraint%20network&dimension=understand
+
+if it has arguments archive/filePath as in other places, it will return an
+array of objects with fields "path" and "problems", the former being a definiendum
+and the second the list of problems with that definiendum as objective.
+*/
+export async function getProblemIdsForConcept(
+  mmtUrl: string,
+  conceptUri: string
+) {
+  const url = `${mmtUrl}/:sTeX/query/problems?path=${conceptUri}`;
+  const resp = await axios.get(url);
+  const problemIds = resp.data as string[];
+  if (!problemIds?.length) return [];
+  console.log(problemIds);
+  console.log([...new Set(problemIds)]);
+  return [...new Set(problemIds)];
+}
+
+export async function getProblemIdsForFile(
+  mmtUrl: string,
+  archive: string,
+  filepath: string
+) {
+  const url = `${mmtUrl}/:sTeX/query/problems?archive=${archive}&filepath=${filepath}`;
+  const resp = await axios.get(url);
+  const infoByFile = resp.data as { path: string; problems: string[] }[];
+  if (!infoByFile?.length) return [];
+  const problemIds = new Set<string>();
+  for (const { problems } of infoByFile) {
+    problems.forEach(problemIds.add, problemIds);
+  }
+  return [...problemIds];
+}
+
+///////////////////
+// :sTeX/loraw
+///////////////////
+export async function getProblemShtml(mmtUrl: string, problemId: string) {
+  const url = `${mmtUrl}/:sTeX/loraw?${problemId}`;
+  const resp = await axios.get(url);
+  return resp.data as string;
+}
 
 ///////////////////
 // :sTeX/sections
@@ -19,6 +80,27 @@ export interface SectionsAPIData {
 
   ids?: string[];
   children: SectionsAPIData[];
+}
+
+export function getAncestors(
+  archive: string,
+  filepath: string,
+  sectionData: SectionsAPIData | undefined,
+  ancestors: SectionsAPIData[] = []
+): SectionsAPIData[] | undefined {
+  if (!sectionData) return undefined;
+
+  if (sectionData.archive === archive && sectionData.filepath === filepath) {
+    return [...ancestors, sectionData];
+  }
+  for (const child of sectionData.children) {
+    const foundAncestors = getAncestors(archive, filepath, child, [
+      ...ancestors,
+      sectionData,
+    ]);
+    if (foundAncestors?.length) return foundAncestors;
+  }
+  return undefined;
 }
 
 export function findFileNode(
@@ -39,6 +121,18 @@ export function findFileNode(
 
 export function hasSectionChild(node?: SectionsAPIData) {
   return node?.children?.some((child) => isSection(child));
+}
+
+export function is2ndLevelSection(
+  archive: string,
+  filepath: string,
+  sectionData: SectionsAPIData
+) {
+  if(!localStore?.getItem('section-quiz')) return false; 
+  const ancestors = getAncestors(archive, filepath, sectionData);
+  if (!ancestors?.length) return false;
+  if (!hasSectionChild(ancestors[ancestors.length - 1])) return false;
+  return ancestors.filter(isSection).length <= 2;
 }
 
 export function isFile(data: SectionsAPIData) {

@@ -58,11 +58,13 @@ function QuizList({
       <Typography variant="h5" sx={{ m: '30px 0 15px' }}>
         {header}
       </Typography>
-      {quizList.map((quiz) => (
-        <Fragment key={quiz.quizId}>
-          <QuizThumbnail quiz={quiz} />
-        </Fragment>
-      ))}
+      {quizList
+        .sort((a, b) => a.quizStartTs - b.quizStartTs)
+        .map((quiz) => (
+          <Fragment key={quiz.quizId}>
+            <QuizThumbnail quiz={quiz} />
+          </Fragment>
+        ))}
     </>
   );
 }
@@ -107,7 +109,10 @@ const QuizDashPage: NextPage = () => {
 
   return (
     <MainLayout
-      title={(courseId || '').toUpperCase() + ` ${tHome.courseThumb.quizzes} | VoLL-KI`}
+      title={
+        (courseId || '').toUpperCase() +
+        ` ${tHome.courseThumb.quizzes} | VoLL-KI`
+      }
     >
       <CourseHeader courseInfo={courseInfo} />
       <Box maxWidth="900px" m="auto" px="10px">

@@ -58,6 +58,10 @@ export class DocFragManager {
     this.scrollFileLocHierarchy =
       getFileLocationHierarchy(this.toScrollSectionId, this.docSections) ?? [];
     console.log('fileLocHierarchy', this.scrollFileLocHierarchy);
+    if(!this.scrollFileLocHierarchy.length) {
+      this.scrollReset();
+      return;
+    }
     this.scrollIfNeeded();
   }
 

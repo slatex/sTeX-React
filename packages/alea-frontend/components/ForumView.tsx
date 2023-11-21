@@ -251,7 +251,7 @@ export function ForumView() {
     : threadComments.filter((c) => c.commentType === CommentType.QUESTION);
   return (
     <>
-      {courseId === 'ai-2' && (
+      {['ai-1', 'ai-2'].includes(courseId) && (
         <Box fontSize="large">
           Feel free to ask questions here or connect with your instructors and
           classmates{' '}

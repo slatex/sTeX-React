@@ -2,18 +2,21 @@ import PlayCircleFilledWhiteIcon from '@mui/icons-material/PlayCircleFilledWhite
 import { Box, IconButton } from '@mui/material';
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
+import { PROBLEM_PARSED_MARKER, getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
 import {
   IS_MMT_VIEWER,
   contextParamsFromTopLevelDocUrl,
   getCustomTag,
   localStore,
 } from '@stex-react/utils';
+import { getOuterHTML } from 'domutils';
 import parse, { DOMNode, Element, domToReact } from 'html-react-parser';
 import { ElementType } from 'htmlparser2';
 import { createContext, forwardRef, useContext, useState } from 'react';
 import { ContentFromUrl } from './ContentFromUrl';
 import { ErrorBoundary } from './ErrorBoundary';
 import { ExpandableContent } from './ExpandableContent';
+import { InlineProblemDisplay } from './InlineProblemDisplay';
 import MathJaxHack from './MathJaxHack';
 import { MathMLDisplay } from './MathMLDisplay';
 import { OverlayDialog, isHoverON } from './OverlayDialog';
@@ -23,9 +26,11 @@ export const CustomItemsContext = createContext<{
   items: { [tag: string]: JSX.Element };
 }>({ items: {} });
 
-const NoMaxWidthTooltip = styled(({ className, ...props }: TooltipProps) => (
-  <Tooltip {...props} classes={{ popper: className }} />
-))({
+export const NoMaxWidthTooltip = styled(
+  ({ className, ...props }: TooltipProps) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+  )
+)({
   [`& .${tooltipClasses.tooltip}`]: {
     maxWidth: 'none',
     margin: '0',
@@ -311,6 +316,13 @@ const replace = (d: DOMNode): any => {
   }
 
   if (!isVisible(domNode)) return <></>;
+
+  const isProblem = domNode.attribs?.['data-problem'] === 'true';
+  const problemProcessed = domNode.attribs?.[PROBLEM_PARSED_MARKER];
+  if (isProblem && !problemProcessed) {
+    const problem = getProblem(hackAwayProblemId(getOuterHTML(domNode)), '');
+    return <InlineProblemDisplay problem={problem} />;
+  }
 
   if (
     domNode.name === 'head' ||

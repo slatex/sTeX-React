@@ -28,7 +28,7 @@ import { ExpandableContextMenu } from './ExpandableContextMenu';
 import { FileBrowser } from './FileBrowser';
 import { DocSectionContext, InfoSidebar } from './InfoSidebar';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
-import { CustomItemsContext, mmtHTMLToReact } from './mmtParser';
+import { CustomItemsContext, NoMaxWidthTooltip, mmtHTMLToReact } from './mmtParser';
 import { RenderOptions } from './RendererDisplayOptions';
 import {
   ConfigureLevelSlider,
@@ -40,6 +40,7 @@ import {
 import { TourAPIEntry, TourDisplay } from './TourDisplay';
 import { DocFragManager } from './DocFragManager';
 import { DocumentWidthSetter } from './DocumentWidthSetter';
+import { QuizDisplay } from './QuizDisplay';
 
 export const ServerLinksContext = createContext({ mmtUrl: '', lmsUrl: '' });
 
@@ -203,6 +204,8 @@ export {
   LayoutWithFixedMenu,
   LevelIcon,
   mmtHTMLToReact,
+  NoMaxWidthTooltip,
+  QuizDisplay,
   SelfAssessment2,
   SelfAssessmentDialog,
   TourDisplay,

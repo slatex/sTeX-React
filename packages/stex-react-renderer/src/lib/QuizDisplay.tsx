@@ -3,6 +3,7 @@ import CheckBox from '@mui/icons-material/CheckBox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CloseIcon from '@mui/icons-material/Close';
+import IndeterminateCheckBoxIcon from '@mui/icons-material/IndeterminateCheckBox';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import {
@@ -13,40 +14,53 @@ import {
   IconButton,
 } from '@mui/material';
 import {
+  InputResponse,
+  InputType,
   Problem,
+  ProblemResponse,
   TimerEvent,
   TimerEventType,
-  UserResponse,
 } from '@stex-react/api';
-import { getPoints, getAllOptionSets } from '@stex-react/quiz-utils';
-import {
-  FixedPositionMenu,
-  LayoutWithFixedMenu,
-  mmtHTMLToReact,
-} from '@stex-react/stex-react-renderer';
+import { getPoints } from '@stex-react/quiz-utils';
 import { shouldUseDrawer } from '@stex-react/utils';
+import { useRouter } from 'next/router';
 import { useEffect, useReducer, useState } from 'react';
-import { ProblemDisplay } from './QuestionDisplay';
+import { getLocaleObject } from './lang/utils';
+import { ProblemDisplay } from './ProblemDisplay';
 import { QuizSubmitConfirm } from './QuizSubmitConfirm';
 import { QuizTimer, Timer, timerEvent } from './QuizTimer';
-import { getLocaleObject } from '../lang/utils';
-import { useRouter } from 'next/router';
+import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
+import { mmtHTMLToReact } from './mmtParser';
+import { defaultInputResponse } from './InlineProblemDisplay';
 
-function isAnswered(r: UserResponse) {
-  return (
-    !!r?.filledInAnswer?.length ||
-    (r.singleOptionIdxs?.length > 0 &&
-      r.singleOptionIdxs.every((o) => (o ?? -1) >= 0)) ||
-    Object.values(r?.multipleOptionIdxs ?? {}).some((v) => v === true)
+function isNonEmptyResponse(resp: InputResponse) {
+  switch (resp.type) {
+    case InputType.FILL_IN:
+      return !!resp.filledInAnswer;
+    case InputType.SCQ:
+      return !!resp.singleOptionIdx?.length;
+    case InputType.MCQ:
+      return Object.values(resp.multipleOptionIdxs ?? {}).some(
+        (v) => v === true
+      );
+  }
+  return false;
+}
+
+function numInputsResponded(r: ProblemResponse) {
+  return r.responses.reduce(
+    (prev, resp) => prev + (isNonEmptyResponse(resp) ? 1 : 0),
+    0
   );
 }
 
 function roundedScore(points: { [problemId: string]: number | undefined }) {
-  const score = Object.values(points).reduce((prev, s) => prev + (s ?? 0), 0);
+  const score = Object.values(points).reduce<number>((s, a) => s + (a ?? 0), 0);
   return (Math.round(score * 100) / 100).toString();
 }
 
 function IndexEntry({
+  problem,
   response,
   points,
   idx,
@@ -56,7 +70,8 @@ function IndexEntry({
   showClock,
   onSelect,
 }: {
-  response: UserResponse;
+  problem: Problem;
+  response: ProblemResponse;
   points: number | undefined;
   idx: number;
   selectedIdx: number;
@@ -67,9 +82,26 @@ function IndexEntry({
 }) {
   const { quiz: t } = getLocaleObject(useRouter());
   const isCorrectnessKnown = isFrozen && points !== undefined;
-  // TODO: support problem score.
-  const isCorrect = points > 0;
-  const answered = isAnswered(response);
+  const isPartiallyCorrect = points && points > 0;
+  const isCorrect = points === problem.points;
+  const color = isCorrectnessKnown
+    ? isCorrect
+      ? 'green'
+      : isPartiallyCorrect
+      ? '#cc0'
+      : 'red'
+    : '#333';
+  const responded = numInputsResponded(response);
+  const respondedIcon = isFrozen ? (
+    <span style={{ width: '24px' }}></span>
+  ) : responded === problem.inputs.length ? (
+    <CheckBox />
+  ) : responded === 0 ? (
+    <CheckBoxOutlineBlankIcon />
+  ) : (
+    <IndeterminateCheckBoxIcon />
+  );
+
   return (
     <span
       key={idx}
@@ -80,19 +112,13 @@ function IndexEntry({
         fontWeight: idx === selectedIdx ? 'bold' : undefined,
         fontSize: '20px',
         cursor: 'pointer',
-        color: isCorrectnessKnown ? (isCorrect ? 'green' : 'red') : '#333',
+        color,
         margin: '8px',
       }}
       onClick={() => onSelect(idx)}
     >
       <Box display="flex" alignItems="center">
-        {isFrozen ? (
-          <span style={{ width: '24px' }}></span>
-        ) : answered ? (
-          <CheckBox />
-        ) : (
-          <CheckBoxOutlineBlankIcon />
-        )}
+        {respondedIcon}
         <span>
           &nbsp;{t.problem} {idx + 1}&nbsp;
         </span>
@@ -109,6 +135,7 @@ function IndexEntry({
 }
 
 function ProblemNavigation({
+  problems,
   responses,
   points,
   problemIdx,
@@ -118,7 +145,8 @@ function ProblemNavigation({
   onClose,
   onSelect,
 }: {
-  responses: { [problemId: string]: UserResponse };
+  problems: { [problemId: string]: Problem };
+  responses: { [problemId: string]: ProblemResponse };
   points: { [problemId: string]: number | undefined };
   problemIdx: number;
   isFrozen: boolean;
@@ -140,6 +168,7 @@ function ProblemNavigation({
       {Object.keys(responses).map((problemId, idx) => (
         <IndexEntry
           key={problemId}
+          problem={problems[problemId]}
           response={responses[problemId]}
           points={points[problemId]}
           idx={idx}
@@ -154,11 +183,48 @@ function ProblemNavigation({
   );
 }
 
+export function ListStepper({
+  idx,
+  listSize,
+  onChange,
+}: {
+  idx: number;
+  listSize: number;
+  onChange: (idx: number) => void;
+}) {
+  const { quiz: t } = getLocaleObject(useRouter());
+  if(listSize <= 1) return null;
+  return (
+    <Box>
+      <Button
+        onClick={() => onChange(idx - 1)}
+        disabled={idx <= 0}
+        size="small"
+        variant="contained"
+        sx={{ mr: '10px' }}
+      >
+        <NavigateBeforeIcon />
+        {t.prev}
+      </Button>
+
+      <Button
+        onClick={() => onChange(idx + 1)}
+        disabled={idx >= listSize - 1}
+        size="small"
+        variant="contained"
+      >
+        {t.next}
+        <NavigateNextIcon />
+      </Button>
+    </Box>
+  );
+}
+
 function computeResult(
   problems: { [problemId: string]: Problem },
-  responses: { [problemId: string]: UserResponse }
+  responses: { [problemId: string]: ProblemResponse }
 ) {
-  const points: { [problemId: string]: number } = {};
+  const points: { [problemId: string]: number | undefined } = {};
   for (const problemId of Object.keys(problems ?? {})) {
     const r = responses[problemId];
     const q = problems[problemId];
@@ -168,7 +234,6 @@ function computeResult(
 }
 
 export function QuizDisplay({
-  quizId,
   problems,
   onResponse,
   onSubmit,
@@ -178,17 +243,16 @@ export function QuizDisplay({
   isFrozen,
   showRecordOption = false,
 }: {
-  quizId: string;
   quizEndTs?: number;
   showPerProblemTime: boolean;
   problems: { [problemId: string]: Problem };
-  existingResponses: { [problemId: string]: UserResponse };
+  existingResponses: { [problemId: string]: ProblemResponse };
   isFrozen: boolean;
-  onResponse?: (problemId: string, r: UserResponse) => void;
+  onResponse?: (problemId: string, r: ProblemResponse) => void;
   onSubmit?: (
-    name: string,
+    name: string | undefined,
     events: TimerEvent[],
-    responses: { [problemId: string]: UserResponse },
+    responses: { [problemId: string]: ProblemResponse },
     result: { [problemId: string]: number | undefined }
   ) => void;
   showRecordOption?: boolean;
@@ -198,7 +262,7 @@ export function QuizDisplay({
     [problemId: string]: number | undefined;
   }>({});
   const [responses, setResponses] = useState<{
-    [problemId: string]: UserResponse;
+    [problemId: string]: ProblemResponse;
   }>({});
   const [problemIdx, setProblemIdx] = useState(0);
   const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
@@ -217,15 +281,16 @@ export function QuizDisplay({
     console.log(existingResponses);
     setEvents([timerEvent(TimerEventType.SWITCH, 0)]);
 
-    const rs: { [problemId: string]: UserResponse } = {};
+    const rs: { [problemId: string]: ProblemResponse } = {};
     for (const problemId of Object.keys(problems ?? {})) {
       const e = existingResponses[problemId];
-      const numOptionSets = getAllOptionSets(problems[problemId]).length;
+      const problem = problems[problemId];
+      const { inputs } = problem;
       rs[problemId] = {
-        filledInAnswer: e?.filledInAnswer ?? '',
-        singleOptionIdxs:
-          e?.singleOptionIdxs ?? new Array(numOptionSets).fill(-1),
-        multipleOptionIdxs: e?.multipleOptionIdxs ?? {},
+        responses: inputs.map((input, idx) => {
+          if (e?.responses[idx]) return e.responses[idx];
+          return defaultInputResponse(input);
+        }),
       };
     }
     setResponses(rs);
@@ -262,6 +327,7 @@ export function QuizDisplay({
     <LayoutWithFixedMenu
       menu={
         <ProblemNavigation
+          problems={problems}
           points={points}
           responses={responses}
           problemIdx={problemIdx}
@@ -296,7 +362,7 @@ export function QuizDisplay({
 
         <Box my="10px">
           <ProblemDisplay
-            response={response}
+            r={response}
             //problemUrl={problemUrl}
             problem={problem}
             isFrozen={isFrozen}
@@ -312,29 +378,11 @@ export function QuizDisplay({
           />
         </Box>
 
-        <Box>
-          <Button
-            onClick={() => setProblemIdx2(problemIdx - 1)}
-            disabled={problemIdx <= 0}
-            size="small"
-            variant="contained"
-            sx={{ mr: '10px' }}
-          >
-            <NavigateBeforeIcon />
-            {t.prev}
-          </Button>
-
-          <Button
-            onClick={() => setProblemIdx2(problemIdx + 1)}
-            disabled={problemIdx >= problemIds.length - 1}
-            size="small"
-            variant="contained"
-          >
-            {t.next}
-            <NavigateNextIcon />
-          </Button>
-        </Box>
-
+        <ListStepper
+          idx={problemIdx}
+          listSize={problemIds.length}
+          onChange={(idx) => setProblemIdx2(idx)}
+        />
         {!isFrozen ? (
           !!onSubmit && (
             <Button
@@ -367,7 +415,10 @@ export function QuizDisplay({
           onClose={() => setShowSubmitDialog(false)}
         >
           <QuizSubmitConfirm
-            left={Object.values(responses).filter((r) => !isAnswered(r)).length}
+            left={
+              Object.values(responses).filter((r) => !numInputsResponded(r))
+                .length
+            }
             onClose={(submit, name) => {
               setShowSubmitDialog(false);
               if (!submit) return;

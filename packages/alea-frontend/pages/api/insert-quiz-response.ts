@@ -12,14 +12,8 @@ export default async function handler(
   if (!checkIfPostOrSetError(req, res)) return;
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
-  const {
-    quizId,
-    problemId,
-    singleOptionIdxs,
-    multipleOptionIdxs,
-    filledInAnswer,
-    browserTimestamp_ms,
-  } = req.body as InsertAnswerRequest;
+  const { quizId, problemId, responses, browserTimestamp_ms } =
+    req.body as InsertAnswerRequest;
 
   const quiz = getQuiz(quizId);
   if (!quiz) {
@@ -40,25 +34,15 @@ export default async function handler(
   }
 
   const points =
-    getPoints(getProblem(problem, undefined), {
-      singleOptionIdxs,
-      multipleOptionIdxs,
-      filledInAnswer,
-    }) ?? null;
+    getPoints(getProblem(problem, undefined), { responses });
 
-  const multipleOptionIdxList = Object.keys(multipleOptionIdxs || {})
-    .filter((k) => multipleOptionIdxs[k])
-    .join(',');
-  const singleOptionIdxsList = (singleOptionIdxs || [])?.join(',');
   const results = await queryGradingDbAndEndSet500OnError(
-    'INSERT INTO grading(userId, quizId, problemId, singleOptionIdxs, multipleOptionIdxs, filledInAnswer, points, browserTimestamp_ms) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+    'INSERT INTO grading(userId, quizId, problemId, response, points, browserTimestamp_ms) VALUES (?, ?, ?, ?, ?, ?)',
     [
       userId,
       quizId,
       problemId,
-      singleOptionIdxsList,
-      multipleOptionIdxList,
-      filledInAnswer,
+      JSON.stringify(responses),
       points,
       browserTimestamp_ms,
     ],

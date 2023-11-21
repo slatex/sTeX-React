@@ -1,15 +1,15 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import SettingsIcon from '@mui/icons-material/Settings';
 import WarningIcon from '@mui/icons-material/Warning';
-import { Box, Button, IconButton, Typography } from '@mui/material';
+import { Box, Button, IconButton } from '@mui/material';
+import { BloomDimension } from '@stex-react/api';
+import { SelfAssessment2 } from '@stex-react/stex-react-renderer';
 import type { NextPage } from 'next';
 import Link from 'next/link';
 import { BrowserAutocomplete } from '../../components/BrowserAutocomplete';
 import { SearchBar } from '../../components/SearchBar';
 import { ToursAutocomplete } from '../../components/ToursAutocomplete';
 import MainLayout from '../../layouts/MainLayout';
-import { SelfAssessment2 } from '@stex-react/stex-react-renderer';
-import { BloomDimension } from '@stex-react/api';
 import { localStore } from '@stex-react/utils';
 
 function ExternalButtonLink({ href, text }: { href: string; text: string }) {
@@ -76,7 +76,22 @@ const ExperimentsHome: NextPage = () => {
             </Box>
             <Box>
               <h2>Debug</h2>
-
+              <Button
+                variant="contained"
+                onClick={() => {
+                  if (localStore?.getItem('section-quiz')) {
+                    localStore.removeItem('section-quiz');
+                    alert('Section Quiz disabled');
+                  } else {
+                    localStore.setItem('section-quiz', 'true');
+                    alert('Section Quiz enabled');
+                  }
+                  window.location.reload();
+                }}
+              >
+                {localStore?.getItem('section-quiz') ? 'Disable ' : 'Enable '}{' '}
+                Section Quiz
+              </Button>
               <InternalButtonLink href="/debug-section">
                 Debug Document Sections
               </InternalButtonLink>

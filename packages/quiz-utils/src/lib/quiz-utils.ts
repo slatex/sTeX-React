@@ -1,91 +1,108 @@
 import {
+  Input,
+  InputType,
   Option,
   Phase,
   Problem,
-  ProblemType,
+  ProblemResponse,
   Quiz,
   Tristate,
-  UserResponse,
 } from '@stex-react/api';
 import { getMMTCustomId } from '@stex-react/utils';
 import { ChildNode, Document, Element } from 'domhandler';
-import { DomUtils, parseDocument } from 'htmlparser2';
+import { DomHandler, DomUtils, Parser, parseDocument } from 'htmlparser2';
 
-function filledInProblemPoints(problem: Problem, filledIn?: string) {
-  if (!problem.fillInSolution?.length) return undefined;
-  if (!filledIn?.length) return 0;
-  return filledIn.toLowerCase() === problem.fillInSolution?.toLowerCase()
-    ? problem.points
-    : 0;
+const NODE_ATTRS_TO_TYPE: { [attrName: string]: InputType } = {
+  'data-problem-mcb': InputType.MCQ,
+  'data-problem-scb': InputType.SCQ,
+  'data-problem-fillinsol': InputType.FILL_IN,
+};
+
+export const PROBLEM_PARSED_MARKER = 'problem-parsed';
+
+export function isFillInInputCorrect(expected?: string, actual?: string) {
+  if (!expected?.length) return Tristate.UNKNOWN;
+  if (!actual) return Tristate.FALSE;
+  return expected.toLowerCase().trim() === actual.toLowerCase().trim()
+    ? Tristate.TRUE
+    : Tristate.FALSE;
 }
 
-function singleAnswerMCQPoints(problem: Problem, singleOptionIdxs?: number[]) {
-  if (!singleOptionIdxs?.length) return 0;
-  let numCorrect = 0;
-  let numIncorrect = 0;
-  let numUndefined = 0;
-  const { inlineOptionSets, options } = problem;
-  [...(inlineOptionSets || []), options || []].forEach((optionSet, idx) => {
-    if (!optionSet?.length) return;
-    const correctOption = optionSet.findIndex(
-      (o) => o.shouldSelect === Tristate.TRUE
-    );
-    if (correctOption === -1) numUndefined++;
-    else if (singleOptionIdxs[idx] == correctOption) numCorrect++;
-    else numIncorrect++;
-  });
-  if (numUndefined > 0) return undefined;
-  return (numCorrect / (numCorrect + numIncorrect)) * problem.points;
+function isSCQCorrect(options?: Option[], singleOptionIdx?: string) {
+  const correctOption = (options || []).find(
+    (o) => o.shouldSelect === Tristate.TRUE
+  );
+  if (!correctOption) return Tristate.UNKNOWN;
+  return correctOption.optionId === singleOptionIdx
+    ? Tristate.TRUE
+    : Tristate.FALSE;
 }
 
-function multiAnswerMCQPoints(
-  problem: Problem,
+function isMCQCorrect(
+  options?: Option[],
   multiOptionIdx?: { [index: number]: boolean }
 ) {
-  const options = problem.options ?? [];
+  if (!options?.length) return Tristate.UNKNOWN;
+  if (!multiOptionIdx) return Tristate.FALSE;
   const anyUnknown = options.some(
     (option) => option.shouldSelect === Tristate.UNKNOWN
   );
-  if (anyUnknown) return undefined;
+  if (anyUnknown) return Tristate.UNKNOWN;
   for (const [idx, option] of options.entries() ?? []) {
     const isSelected = multiOptionIdx?.[idx] ?? false;
     const shouldSelect = option.shouldSelect === Tristate.TRUE;
-    if (isSelected !== shouldSelect) return 0;
+    if (isSelected !== shouldSelect) return Tristate.FALSE;
   }
-  return problem.points;
+  return Tristate.TRUE;
 }
 
-export function getPoints(problem: Problem, response?: UserResponse) {
+export function getPoints(problem: Problem, response?: ProblemResponse) {
   if (!response) return 0;
-  const { filledInAnswer, singleOptionIdxs, multipleOptionIdxs } = response;
-  if (problem.type === ProblemType.FILL_IN) {
-    return filledInProblemPoints(problem, filledInAnswer);
-  } else if (problem.type === ProblemType.MULTI_CHOICE_SINGLE_ANSWER) {
-    return singleAnswerMCQPoints(problem, singleOptionIdxs);
-  } else if (problem.type === ProblemType.MULTI_CHOICE_MULTI_ANSWER) {
-    return multiAnswerMCQPoints(problem, multipleOptionIdxs);
-  }
+  const perInputCorrectness: Tristate[] = problem.inputs.map((input, idx) => {
+    const resp = response?.responses?.[idx];
+    const { type, fillInSolution, options } = input;
+    if (type !== input.type) {
+      console.error(
+        `Input [${idx}] (${type}) has unexpected response: ${resp.type}`
+      );
+      return Tristate.UNKNOWN;
+    }
+    if (input.type === InputType.FILL_IN) {
+      return isFillInInputCorrect(fillInSolution, resp.filledInAnswer);
+    } else if (input.type === InputType.MCQ) {
+      return isMCQCorrect(options, resp.multipleOptionIdxs);
+    } else if (input.type === InputType.SCQ) {
+      return isSCQCorrect(options, resp.singleOptionIdx);
+    } else {
+      console.error(`Unknown input type: ${input.type}`);
+      return Tristate.UNKNOWN;
+    }
+  });
+  if (perInputCorrectness.some((s) => s === Tristate.UNKNOWN)) return undefined;
+  const totalCorrect = perInputCorrectness.reduce(
+    (s, a) => s + (a === Tristate.TRUE ? 1 : 0),
+    0
+  );
 
-  return undefined;
+  return (problem.points * totalCorrect) / problem.inputs.length;
 }
 
 function recursivelyFindNodes(
   node: Document | (ChildNode & Element),
-  attrName: string,
-  expected?: any
-): { node: Element; attrVal: any }[] {
+  attrNames: string[]
+): { node: Element; attrName: string; attrVal: any }[] {
   if (node instanceof Element) {
-    const attrVal = node.attribs[attrName];
-    if (attrVal && (expected === undefined || expected === attrVal)) {
-      return [{ node, attrVal }];
+    for (const attrName of attrNames) {
+      const attrVal = node.attribs[attrName];
+      if (attrVal) return [{ node, attrName, attrVal }];
     }
   }
-  const foundList: { node: Element; attrVal: any }[] = [];
+  const foundList: { node: Element; attrName: string; attrVal: any }[] = [];
   const children = node.childNodes;
   for (const child of children || []) {
     //const child = children.item(i);
     if (child instanceof Element) {
-      const subFoundList = recursivelyFindNodes(child, attrName, expected);
+      const subFoundList = recursivelyFindNodes(child, attrNames);
       if (subFoundList?.length) foundList.push(...subFoundList);
     }
   }
@@ -94,44 +111,33 @@ function recursivelyFindNodes(
 
 function removeNodeWithAttrib(
   node: (ChildNode & Element) | Document,
-  attrName: string
+  attrNames: string[]
 ) {
   if (node instanceof Element) {
-    const attrVal = node.attribs[attrName];
-    if (attrVal) {
-      node.attribs['style'] = 'display: none';
-      // console.log(node);
+    for (const attrName of attrNames) {
+      const attrVal = node.attribs[attrName];
+      if (attrVal) {
+        node.attribs['style'] = 'display: none';
+      }
     }
   }
 
   for (const child of node.childNodes ?? []) {
     // const child = children.item(i);
     if (child instanceof Element) {
-      removeNodeWithAttrib(child, attrName);
+      removeNodeWithAttrib(child, attrNames);
     }
   }
 }
 
-function assignTagsToScbBlocks(
-  node: (ChildNode & Element) | Document,
-  tagNo: number
-) {
-  if (node instanceof Element) {
-    if (node.attribs['data-problem-scb-inline'] === 'true') {
-      node.attribs['id'] = getMMTCustomId(`${tagNo++}`);
-    }
-  }
-
-  for (const child of node.childNodes ?? []) {
-    if (child instanceof Element) {
-      tagNo = assignTagsToScbBlocks(child, tagNo);
-    }
-  }
-  return tagNo;
+function isInlineBlock(node: Element) {
+  return ['data-problem-scb-inline', 'data-problem-fillInSol-inline'].some(
+    (attrib) => node.attribs[attrib] === 'true'
+  );
 }
 
 function findProblemRootNode(node: (ChildNode & Element) | Document) {
-  return recursivelyFindNodes(node, 'data-problem')?.[0]?.node;
+  return recursivelyFindNodes(node, ['data-problem'])?.[0]?.node;
 }
 
 function booleanStringToTriState(str: string) {
@@ -142,92 +148,51 @@ function booleanStringToTriState(str: string) {
 
 function getChoiceInfo(
   choiceNode: Element,
-  type: ProblemType,
-  shouldSelectStr: string
+  solNodeAttr: string,
+  shouldSelectStr: string,
+  idx: number
 ) {
-  const solNodeAttr =
-    type === ProblemType.MULTI_CHOICE_MULTI_ANSWER
-      ? 'data-problem-mc-solution'
-      : 'data-problem-sc-solution';
-  const feedbackNode = recursivelyFindNodes(choiceNode, solNodeAttr)?.[0]?.node;
+  const feedbackNode = recursivelyFindNodes(choiceNode, [solNodeAttr])?.[0]
+    ?.node;
   const feedbackHtml = feedbackNode ? DomUtils.getOuterHTML(feedbackNode) : '';
-  removeNodeWithAttrib(choiceNode, solNodeAttr);
+  removeNodeWithAttrib(choiceNode, [solNodeAttr]);
   const shouldSelect = booleanStringToTriState(shouldSelectStr);
   const outerHTML = DomUtils.getOuterHTML(choiceNode);
-  return { shouldSelect, value: { outerHTML }, feedbackHtml };
+  const optionId = `${idx}`;
+  return { shouldSelect, value: { outerHTML }, feedbackHtml, optionId };
 }
 
-function findChoiceInfo(problemRootNode: (ChildNode & Element) | Document): {
-  inlineOptionSets: Option[][];
-  options: Option[];
-  type: ProblemType;
-} {
-  const mcbNode = recursivelyFindNodes(problemRootNode, 'data-problem-mcb')?.[0]
-    ?.node;
-  const scbNodes = recursivelyFindNodes(
-    problemRootNode,
-    'data-problem-scb'
-  )?.map((n) => n?.node);
-  if (!mcbNode && !scbNodes?.length) {
-    return { inlineOptionSets: [], options: undefined, type: undefined } as any;
-  }
-
-  let type: ProblemType;
-  if (mcbNode) {
-    type = ProblemType.MULTI_CHOICE_MULTI_ANSWER;
-    removeNodeWithAttrib(problemRootNode, 'data-problem-mcb');
-  } else {
-    type = ProblemType.MULTI_CHOICE_SINGLE_ANSWER;
-    assignTagsToScbBlocks(problemRootNode, 0);
-    removeNodeWithAttrib(problemRootNode, 'data-problem-scb');
-  }
-  const optionBlocks = mcbNode ? [mcbNode] : scbNodes;
-  const problemNodeAttr = mcbNode ? 'data-problem-mc' : 'data-problem-sc';
-
-  const allOptionSets = optionBlocks.map((optionBlock) =>
-    recursivelyFindNodes(optionBlock, problemNodeAttr).map(
-      ({ node: choiceNode, attrVal: shouldSelectStr }) =>
-        getChoiceInfo(choiceNode, type, shouldSelectStr)
-    )
+function getOptionSet(optionBlock: Element, type: InputType): Option[] {
+  const problemNodeAttr =
+    type === InputType.MCQ ? 'data-problem-mc' : 'data-problem-sc';
+  const solutionNodeAttr = problemNodeAttr + '-solution';
+  return recursivelyFindNodes(optionBlock, [problemNodeAttr]).map(
+    ({ node: choiceNode, attrVal: shouldSelectStr }, idx) =>
+      getChoiceInfo(choiceNode, solutionNodeAttr, shouldSelectStr, idx)
   );
-
-  let options = allOptionSets[0];
-  const inlineOptionSets: Option[][] = [];
-  if (type === ProblemType.MULTI_CHOICE_SINGLE_ANSWER) {
-    options = [];
-    scbNodes?.forEach((scbNode, i) => {
-      if (scbNode.attribs['data-problem-scb-inline'] === 'true') {
-        inlineOptionSets.push(allOptionSets[i]);
-      } else {
-        options = allOptionSets[i];
-      }
-    });
-  }
-
-  return { inlineOptionSets, options, type };
 }
 
-export function getAllOptionSets(problem: Problem) {
-  const { inlineOptionSets, options, type } = problem;
-  if (type != ProblemType.MULTI_CHOICE_SINGLE_ANSWER) return [];
-  const otherOptions = inlineOptionSets || [];
-  const optionSets = options?.length
-    ? [...otherOptions, options]
-    : otherOptions;
-  return optionSets;
-}
-
-function findFillInSolution(
-  problemRootNode: Element | Document
-): string | undefined {
-  const fillInSolution = recursivelyFindNodes(
+function findInputs(
+  problemRootNode: (ChildNode & Element) | Document
+): Input[] {
+  const rootProblemNodeMarkers = Object.keys(NODE_ATTRS_TO_TYPE);
+  const inputNodes = recursivelyFindNodes(
     problemRootNode,
-    'data-problem-fillinsol'
-  )?.[0]?.node;
-  removeNodeWithAttrib(problemRootNode, 'data-problem-fillinsol');
-  if (!fillInSolution) return undefined;
-
-  return DomUtils.textContent(fillInSolution);
+    rootProblemNodeMarkers
+  );
+  removeNodeWithAttrib(problemRootNode, rootProblemNodeMarkers);
+  return inputNodes.map(({ node, attrName }, idx) => {
+    const type = NODE_ATTRS_TO_TYPE[attrName] ?? InputType.FILL_IN;
+    const inline = isInlineBlock(node);
+    node.attribs['id'] = getMMTCustomId(`${idx}`);
+    if ([InputType.MCQ, InputType.SCQ].includes(type)) {
+      const options = getOptionSet(node, type);
+      return { type, options, inline } as Input;
+    } else {
+      const fillInSolution = DomUtils.textContent(node);
+      return { type, fillInSolution, inline } as Input;
+    }
+  });
 }
 
 function getProblemPoints(rootNode: Element) {
@@ -238,7 +203,7 @@ function getProblemPoints(rootNode: Element) {
 }
 
 function getProblemHeader(rootNode: Element) {
-  const header = recursivelyFindNodes(rootNode, 'data-problem-title')?.[0]
+  const header = recursivelyFindNodes(rootNode, ['data-problem-title'])?.[0]
     ?.node;
   return header ? DomUtils.getOuterHTML(header) : '';
 }
@@ -246,33 +211,34 @@ function getProblemHeader(rootNode: Element) {
 export function getProblem(htmlStr: string, problemUrl: string) {
   const htmlDoc = parseDocument(htmlStr);
   const problemRootNode = findProblemRootNode(htmlDoc);
+  problemRootNode.attribs[PROBLEM_PARSED_MARKER] = 'true';
   const points = getProblemPoints(problemRootNode);
   const header = getProblemHeader(problemRootNode);
   if (!problemRootNode) {
     return {
-      type: ProblemType.FILL_IN,
+      header: '',
+      objectives: '',
+      preconditions: '',
+      inputs: [],
+      points: 0,
       statement: { outerHTML: `<span>Not found: ${problemUrl}</span>` },
     } as Problem;
   }
 
-  removeNodeWithAttrib(problemRootNode, 'data-problem-title');
-  removeNodeWithAttrib(problemRootNode, 'data-problem-solution');
-  removeNodeWithAttrib(problemRootNode, 'data-problem-g-note');
-  removeNodeWithAttrib(problemRootNode, 'data-problem-minutes');
-  const { inlineOptionSets, options, type } = findChoiceInfo(
-    problemRootNode
-  ) as any;
-  const fillInSolution = findFillInSolution(problemRootNode);
-
+  removeNodeWithAttrib(problemRootNode, [
+    'data-problem-title',
+    'data-problem-solution',
+    'data-problem-g-note',
+    'data-problem-minutes',
+  ]);
+  const inputs = findInputs(problemRootNode);
   const problem = {
-    type: type || ProblemType.FILL_IN,
     header,
     objectives: problemRootNode?.attribs?.['data-problem-objectives'] ?? '',
-    preconditions: problemRootNode?.attribs?.['data-problem-preconditions'] ?? '',
+    preconditions:
+      problemRootNode?.attribs?.['data-problem-preconditions'] ?? '',
     statement: { outerHTML: DomUtils.getOuterHTML(problemRootNode) }, // The mcb block is already marked display:none.
-    inlineOptionSets,
-    options,
-    fillInSolution,
+    inputs,
     points,
   } as Problem;
   return problem;
@@ -287,4 +253,67 @@ export function getQuizPhase(q: Quiz) {
   if (now < q.quizEndTs) return Phase.STARTED;
   if (now < q.feedbackReleaseTs) return Phase.ENDED;
   return Phase.FEEDBACK_RELEASED;
+}
+
+export function hackAwayProblemId(quizHtml: string) {
+  if (!quizHtml) return quizHtml;
+  return quizHtml.replace('Problem 0.1', '').replace('Aufgabe 0.1', '');
+}
+
+const ANSWER_ATTRIBS_TO_REDACT = ['data-problem-sc', 'data-problem-mc'];
+
+const ATTRIBS_TO_REMOVE = [
+  'data-overlay-link-click',
+  'data-overlay-link-hover',
+  'data-highlight-parent',
+];
+
+const ATTRIBS_OF_ANSWER_ELEMENTS = [
+  'data-problem-sc-solution',
+  'data-problem-mc-solution',
+];
+
+const ATTRIBS_OF_PARENTS_OF_ANSWER_ELEMENTS = ['data-problem-fillinsol'];
+
+export function removeAnswerInfo(problem: string) {
+  const handler = new DomHandler();
+  const parser = new Parser(handler);
+  parser.write(problem);
+  parser.end();
+
+  // Traverse and modify the parsed DOM to remove nodes with 'solution' attribute
+  const traverse = (node: any) => {
+    if (node.attribs) {
+      for (const attrib of ATTRIBS_OF_ANSWER_ELEMENTS) {
+        // Skip this node and its children
+        if (node.attribs[attrib]) return null;
+      }
+      const classNames = node.attribs['class'];
+      if (classNames?.includes('symcomp')) {
+        node.attribs['class'] = classNames.replace('symcomp', ' ');
+      }
+
+      for (const attrib of ANSWER_ATTRIBS_TO_REDACT) {
+        if (node.attribs[attrib]) node.attribs[attrib] = 'REDACTED';
+      }
+      for (const attrib of ATTRIBS_TO_REMOVE) {
+        if (node.attribs[attrib]) delete node.attribs[attrib];
+      }
+    }
+    const removeChildren = ATTRIBS_OF_PARENTS_OF_ANSWER_ELEMENTS.some(
+      (attrib) => node.attribs?.[attrib]
+    );
+    if (removeChildren) {
+      node.children = [];
+      return node;
+    }
+
+    // Recursively traverse and process children
+    node.children = node.children?.map(traverse).filter(Boolean);
+    return node;
+  };
+
+  const modifiedDom = handler.dom.map((n) => traverse(n));
+  // Convert the modified DOM back to HTML
+  return DomUtils.getOuterHTML(modifiedDom);
 }

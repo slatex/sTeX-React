@@ -6,20 +6,18 @@ import {
   Quiz,
   QuizStatsResponse,
   QuizStubInfo,
-  UserResponse,
+  ProblemResponse,
 } from './quiz';
 
 export async function insertAnswer(
   quizId: string,
   problemId: string,
-  response: UserResponse
+  r: ProblemResponse
 ): Promise<boolean> {
   const req: InsertAnswerRequest = {
     quizId,
     problemId,
-    filledInAnswer: response.filledInAnswer,
-    singleOptionIdxs: response.singleOptionIdxs,
-    multipleOptionIdxs: response.multipleOptionIdxs,
+    responses: r.responses,
     browserTimestamp_ms: Date.now(),
   };
   try {

@@ -1,6 +1,5 @@
 import { getAllQuizzes } from '@stex-react/node-utils';
 import { getPoints, getProblem } from '@stex-react/quiz-utils';
-import fs from 'fs';
 import mysql from 'serverless-mysql';
 
 const db = mysql({
@@ -13,20 +12,17 @@ const db = mysql({
   },
 });
 
+import { InputResponse, Problem } from '@stex-react/api';
 import { exit } from 'process';
-import { Problem } from '@stex-react/api';
 
-if (!process.env.QUIZ_INFO_DIR || !process.env.QUIZ_LMS_INFO_FILE) {
+if (!process.env.QUIZ_INFO_DIR || !process.env.MYSQL_HOST) {
   console.log(
     `Env vars not set. Set them at [nodejs-scripts/.env.local] Exiting.`
   );
   exit(1);
 }
-export interface Quiz {
-  problems: { [problemId: string]: string };
-}
 
-const quizzes: any[] = getAllQuizzes();
+const quizzes = getAllQuizzes();
 
 const problems: { [problemId: string]: Problem } = {};
 for (const quiz of quizzes) {
@@ -41,15 +37,8 @@ const gradingId_to_updated_points = {};
 db.query('SELECT * FROM grading', []).then((results: any[]) => {
   // console.log(results);
   for (const result of results) {
-    const {
-      gradingId,
-      problemId,
-      quizId,
-      singleOptionIdxs,
-      multipleOptionIdxs,
-      filledInAnswer,
-      points,
-    } = result;
+    const { gradingId, problemId, quizId, response, points } = result;
+
     const problem = problems[problemId];
     if (!problem) {
       const pId = quizId + '-' + problemId;
@@ -59,27 +48,12 @@ db.query('SELECT * FROM grading', []).then((results: any[]) => {
       missing_ids[pId]++;
       continue;
     }
+    const responses: InputResponse[] = JSON.parse(response);
 
-    const singleOptionIdxsArr = singleOptionIdxs?.length
-      ? singleOptionIdxs.split(',').map((s) => parseInt(s))
-      : null;
-
-    const multiIdxs = multipleOptionIdxs?.length ? {} : null;
-    if (multiIdxs) {
-      multipleOptionIdxs
-        ?.split(',')
-        .map((s) => parseInt(s))
-        .forEach((idx) => (multiIdxs[idx] = true));
-    }
-    const expectedPts = getPoints(problems[problemId], {
-      singleOptionIdxs: singleOptionIdxsArr,
-      multipleOptionIdxs: multiIdxs,
-      filledInAnswer,
-    });
-
+    const expectedPts = getPoints(problem, { responses });
     if (Math.abs(expectedPts - points) > 0.01) {
       console.log(
-        `gradingId: ${gradingId} problemId: ${problemId} expectedPts: ${expectedPts} points: ${points} filledInAnswer: ${filledInAnswer}`
+        `gradingId: ${gradingId} problemId: ${problemId} expectedPts: ${expectedPts} points: ${points} response: ${response}`
       );
       if (!(problemId in wrong_points_problem_ids))
         wrong_points_problem_ids[problemId] = 0;

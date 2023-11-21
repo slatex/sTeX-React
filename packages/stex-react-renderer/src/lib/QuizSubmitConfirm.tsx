@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { getUserInfo } from '@stex-react/api';
 import { useEffect, useState } from 'react';
-import { getLocaleObject } from '../lang/utils';
+import { getLocaleObject } from './lang/utils';
 import { useRouter } from 'next/router';
 
 export function QuizSubmitConfirm({

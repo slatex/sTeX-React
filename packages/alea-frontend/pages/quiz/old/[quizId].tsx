@@ -4,21 +4,21 @@ import {
   Problem,
   QuizResult,
   TimerEvent,
-  UserResponse,
-  getDocumentTree
+  ProblemResponse,
+  getDocumentTree,
+  getElapsedTime,
+  getTotalElapsedTime,
 } from '@stex-react/api';
-import { getProblem } from '@stex-react/quiz-utils';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
+import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
+import {
+  ServerLinksContext,
+  QuizDisplay,
+} from '@stex-react/stex-react-renderer';
 import axios from 'axios';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { QuizDisplay } from '../../../components/QuizDisplay';
-import {
-  getElapsedTime,
-  getTotalElapsedTime,
-} from '../../../components/QuizTimer';
 import MainLayout from '../../../layouts/MainLayout';
 
 export function getQuizResult(
@@ -26,7 +26,7 @@ export function getQuizResult(
   quizName: string,
   events: TimerEvent[],
   problemUrls: string[],
-  responses: { [problemId: string]: UserResponse },
+  responses: { [problemId: string]: ProblemResponse },
   points: { [problemId: string]: number | undefined }
 ): QuizResult {
   return {
@@ -148,10 +148,7 @@ const QuizPage: NextPage = () => {
     Promise.all(urls.map((url) => axios.get(url))).then((responses) => {
       const problems: { [problemId: string]: Problem } = {};
       responses.forEach((r, idx) => {
-        const htmlStr = (r.data as string) // Hack: manually remove incorrect #numbers
-          .replace('Problem 0.1', '')
-          .replace('Aufgabe 0.1', '');
-
+        const htmlStr = hackAwayProblemId(r.data as string);
         problems[urls[idx]] = getProblem(htmlStr, urls[idx]);
       });
 
@@ -165,7 +162,6 @@ const QuizPage: NextPage = () => {
       <Box>
         <QuizDisplay
           isFrozen={isSubmitted}
-          quizId={undefined}
           showPerProblemTime={true}
           problems={problems}
           onSubmit={async (name, events, responses, points) => {

@@ -34,30 +34,46 @@ export interface Option {
   shouldSelect: Tristate;
   value: { outerHTML: string; textContent?: string };
   feedbackHtml: string;
+  optionId: string;
 }
 
-export enum ProblemType {
-  MULTI_CHOICE_SINGLE_ANSWER = 'MULTI_CHOICE_SINGLE_ANSWER',
-  MULTI_CHOICE_MULTI_ANSWER = 'MULTI_CHOICE_MULTI_ANSWER',
+export enum InputType {
+  MCQ = 'MCQ', // multiple choice, multiple correct answers
+  SCQ = 'SCQ', // multiple choice, single correct answer
   FILL_IN = 'FILL_IN',
 }
 
+export interface FillInBox {
+  solution: string;
+  inline: boolean;
+}
+
+export interface Input {
+  type: InputType;
+  options?: Option[]; // For MCQ and SCQ types.
+  fillInSolution?: string; // For FILL_IN type.
+  inline: boolean;
+}
+
 export interface Problem {
-  type: ProblemType;
   header: string;
   objectives: string;
   preconditions: string;
   statement: { outerHTML: string };
-  inlineOptionSets?: Option[][]; // For inline SCBs
-  options?: Option[];
-  fillInSolution?: string;
+  inputs: Input[];
+
   points: number;
 }
 
-export interface UserResponse {
+export interface InputResponse {
+  type: InputType;
   filledInAnswer?: string;
-  singleOptionIdxs?: number[];
-  multipleOptionIdxs?: { [index: number]: boolean };
+  singleOptionIdx?: string;
+  multipleOptionIdxs?: { [index: string]: boolean };
+}
+
+export interface ProblemResponse {
+  responses: InputResponse[];
 }
 
 export interface PerProblemStats {
@@ -93,7 +109,7 @@ export interface ProblemInfo {
   duration_ms: number;
   url: string;
   points: number | undefined;
-  response: UserResponse;
+  response: ProblemResponse;
 }
 
 export interface QuizResult {
@@ -114,18 +130,23 @@ export interface GetQuizResponse {
   phase: Phase;
 
   problems: { [problemId: string]: string };
-  responses: { [problemId: string]: UserResponse };
+  responses: { [problemId: string]: ProblemResponse };
 }
 
 export interface InsertAnswerRequest {
   quizId: string;
   problemId: string;
-
-  filledInAnswer?: string;
-  singleOptionIdxs?: number[];
-  multipleOptionIdxs?: { [index: number]: boolean };
+  responses: InputResponse[];
 
   browserTimestamp_ms: number;
+}
+
+export interface DiligenceAndPerformanceData {
+  visitTime_sec: number;
+  quizScores: { [quizId: string]: number };
+}
+export interface UserAnonData {
+  userData: { [userId: string]: DiligenceAndPerformanceData };
 }
 
 export interface QuizStubInfo {
@@ -133,4 +154,76 @@ export interface QuizStubInfo {
   quizStartTs: number;
   quizEndTs: number;
   title: string;
+}
+
+
+export function getTotalElapsedTime(events: TimerEvent[]) {
+  if (!events?.length) return 0;
+  console.assert(events[0].type === TimerEventType.SWITCH);
+  let isPaused = false;
+  let lastStartTime_ms: undefined | number = events[0].timestamp_ms;
+  let totalTime = 0;
+  for (const e of events) {
+    switch (e.type) {
+      case TimerEventType.PAUSE:
+      case TimerEventType.SUBMIT:
+        isPaused = true;
+        if (lastStartTime_ms) totalTime += e.timestamp_ms - lastStartTime_ms;
+        lastStartTime_ms = undefined;
+        break;
+      case TimerEventType.UNPAUSE:
+        isPaused = false;
+        lastStartTime_ms = e.timestamp_ms;
+        break;
+      case TimerEventType.SWITCH:
+        isPaused = false;
+        if (!lastStartTime_ms) lastStartTime_ms = e.timestamp_ms;
+        break;
+    }
+  }
+  if (!isPaused && lastStartTime_ms) {
+    totalTime += Date.now() - lastStartTime_ms;
+  }
+  return totalTime;
+}
+
+export function getElapsedTime(events: TimerEvent[], problemIdx: number) {
+  if (!events?.length) return 0;
+  console.assert(events[0].type === TimerEventType.SWITCH);
+  let isPaused = false;
+  let lastStartTime_ms: undefined | number = events[0].timestamp_ms;
+  let totalTime = 0;
+  let currentProblemIdx = events[0].problemIdx;
+  for (const e of events) {
+    const wasThisProblem = currentProblemIdx === problemIdx;
+    switch (e.type) {
+      case TimerEventType.PAUSE:
+      case TimerEventType.SUBMIT:
+        isPaused = true;
+        if (wasThisProblem && lastStartTime_ms)
+          totalTime += e.timestamp_ms - lastStartTime_ms;
+        lastStartTime_ms = undefined;
+        break;
+      case TimerEventType.UNPAUSE:
+        isPaused = false;
+        if (wasThisProblem) lastStartTime_ms = e.timestamp_ms;
+        break;
+      case TimerEventType.SWITCH:
+        isPaused = false;
+        if (wasThisProblem) {
+          if (lastStartTime_ms) totalTime += e.timestamp_ms - lastStartTime_ms;
+          lastStartTime_ms = undefined;
+        }
+        if (e.problemIdx === problemIdx) lastStartTime_ms = e.timestamp_ms;
+        currentProblemIdx = e.problemIdx;
+    }
+  }
+  if (
+    (!problemIdx || currentProblemIdx === problemIdx) &&
+    !isPaused &&
+    lastStartTime_ms
+  ) {
+    totalTime += Date.now() - lastStartTime_ms;
+  }
+  return totalTime;
 }
