@@ -95,13 +95,15 @@ export default async function handler(req, res) {
       return;
     }
     threadId = parentComment.threadId;
-    parentUserId = parentComment.userId;
-    if (parentUserId) {
-      await sendNotification(
-        parentUserId,
-        'Someone replied to Your Comment',
-        ''
-      );
+    if (process.env.NEXT_PUBLIC_SITE_VERSION !== 'production') {
+      parentUserId = parentComment.userId;
+      if (parentUserId) {
+        await sendNotification(
+          parentUserId,
+          'Someone replied to Your Comment',
+          ''
+        );
+      }
     }
   }
   const results = await executeAndEndSet500OnError(
