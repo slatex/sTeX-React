@@ -37,7 +37,7 @@ function NotificationButton() {
       ...update,
       type: 'systemUpdate',
     })),
-  ].slice(0, 9);
+  ].slice(0, 7);
   const sortedItems = allItems.sort((a, b) => {
     const timestampA =
       new Date(a.timestamp)?.getTime() ||
