@@ -15,6 +15,7 @@
     "@emotion/styled": "11.11.0",
     "@jonkoops/matomo-tracker-react": "^0.7.0",
     "@mui/icons-material": "^5.13.7",
+    "@mui/lab": "^5.0.0-alpha.153",
     "@mui/material": "^5.13.7",
     "@sentry/nextjs": "^7.80.0",
     "@swc/helpers": "0.5.3",
