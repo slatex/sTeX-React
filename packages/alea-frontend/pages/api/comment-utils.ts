@@ -51,7 +51,7 @@ export async function executeDontEndSet500OnError<T>(
 ): Promise<T> {
   const results = await executeQuery<T>(query, values);
   if (results['error']) {
-    if(res) res.status(500).send(results);
+    if (res) res.status(500).send(results);
     return undefined;
   }
   return results as T;
@@ -160,4 +160,18 @@ export function checkIfPostOrSetError(req, res) {
     return false;
   }
   return true;
+}
+
+export async function sendNotification(
+  userId: string,
+  header: string,
+  content: string
+): Promise<void> {
+  const postNotification = await executeQuery(
+    `INSERT INTO notifications (userId, header, content) VALUES (?,?,?)`,
+    [userId, header, content]
+  );
+  if (postNotification['error']) {
+    console.error(postNotification['error']);
+  }
 }

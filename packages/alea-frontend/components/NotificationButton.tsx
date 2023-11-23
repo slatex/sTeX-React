@@ -16,17 +16,8 @@ import { useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import { SYSTEM_UPDATES } from '../system-updates';
 
-function NotificationButton() {
-  const router = useRouter();
-  const { locale } = router;
-  const { header: t } = getLocaleObject(router);
+export function useNotificationData() {
   const [notifications, setNotifications] = useState(null);
-  // System info menu crap start
-  const [anchorEl, setAnchorEl] = useState<any>(null);
-  const open = Boolean(anchorEl);
-  const handleClose = () => setAnchorEl(null);
-  // System info menu crap end
-
   useEffect(() => {
     getUserNotifications().then(setNotifications);
   }, []);
@@ -37,7 +28,8 @@ function NotificationButton() {
       ...update,
       type: 'systemUpdate',
     })),
-  ].slice(0, 9);
+  ];
+
   const sortedItems = allItems.sort((a, b) => {
     const timestampA =
       new Date(a.timestamp)?.getTime() ||
@@ -49,6 +41,20 @@ function NotificationButton() {
       0;
     return timestampB - timestampA;
   });
+  return sortedItems;
+}
+
+function NotificationButton() {
+  const router = useRouter();
+  const { locale } = router;
+  const { header: t } = getLocaleObject(router);
+  // System info menu crap start
+  const [anchorEl, setAnchorEl] = useState<any>(null);
+  const open = Boolean(anchorEl);
+  const handleClose = () => setAnchorEl(null);
+  // System info menu crap end
+
+  const sortedItems = useNotificationData();
   function topUpdate() {
     return (sortedItems[0].updateId || sortedItems[0].id).toString();
   }
@@ -80,7 +86,7 @@ function NotificationButton() {
       )}
 
       <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
-        {sortedItems.map((item, idx) => (
+        {sortedItems.slice(0, 7).map((item, idx) => (
           <MenuItem key={idx} onClick={handleClose}>
             <Link
               href={item.type === 'systemUpdate' ? `/updates#${item.id}` : '#'}
@@ -103,6 +109,16 @@ function NotificationButton() {
             </Link>
           </MenuItem>
         ))}
+        <Box
+          textAlign="center"
+          style={{ backgroundColor: 'rgb(32, 51, 96)', padding: '8px' }}
+        >
+          <Link href="/all-notification">
+            <Typography style={{ color: 'white' }}>
+              See All Notifications
+            </Typography>
+          </Link>
+        </Box>
       </Menu>
     </>
   );

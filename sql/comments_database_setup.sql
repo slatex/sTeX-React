@@ -1,4 +1,4 @@
-    create database comments_test;
+create database comments_test;
 use comments_test;
 
 ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'abctest';
@@ -10,8 +10,12 @@ CREATE TABLE comments (
     filepath varchar(255),
 
     parentCommentId int,
+    threadId int,
     statement text,
-
+    commentType ENUM('QUESTION', 'REMARK', 'OTHER'),
+    questionStatus ENUM('UNANSWERED', 'ANSWERED', 'ACCEPTED', 'OTHER'),
+    courseId varchar(255),
+    courseTerm varchar(255),
     isEdited tinyint,
     isPrivate tinyint,
     isDeleted tinyint,
@@ -39,7 +43,8 @@ CREATE TABLE updateHistory (
     previousStatement text,
     previousHiddenStatus enum('UNHIDDEN', 'SPAM', 'INCORRECT', 'IRRELEVANT', 'ABUSE','OTHER'),
     previousHiddenJustification varchar(255),
-
+    previousQuestionStatus ENUM('UNANSWERED', 'ANSWERED', 'ACCEPTED', 'OTHER'),
+    
     updatedTimestamp timestamp DEFAULT CURRENT_TIMESTAMP
 );
 
