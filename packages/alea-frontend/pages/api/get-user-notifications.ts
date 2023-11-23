@@ -8,10 +8,6 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (process.env.NEXT_PUBLIC_SITE_VERSION === 'production') {
-    res.status(200).send([]);
-    return;
-  }
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
   const results = await executeAndEndSet500OnError(

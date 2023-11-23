@@ -12,7 +12,6 @@ import {
   executeAndEndSet500OnError,
   getExistingCommentDontEnd,
   getUserIdOrSetError,
-  sendNotification,
 } from './comment-utils';
 
 async function sendCommentAlert(
@@ -85,7 +84,6 @@ export default async function handler(req, res) {
   }
 
   let threadId: number | undefined = undefined;
-  let parentUserId;
   if (parentCommentId) {
     const { existing: parentComment, error } = await getExistingCommentDontEnd(
       parentCommentId
@@ -95,16 +93,6 @@ export default async function handler(req, res) {
       return;
     }
     threadId = parentComment.threadId;
-    if (process.env.NEXT_PUBLIC_SITE_VERSION !== 'production') {
-      parentUserId = parentComment.userId;
-      if (parentUserId) {
-        await sendNotification(
-          parentUserId,
-          'Someone replied to Your Comment',
-          ''
-        );
-      }
-    }
   }
   const results = await executeAndEndSet500OnError(
     `INSERT INTO comments
