@@ -10,6 +10,7 @@ export const MODERATORS = [
   'yp68abes', // Marc
   'oc45ujef', // Florian Guthmann
   'bu93bufa', // Robert Kurin
+  'iv93baik', // Mahdi Mantash
 
   ...(process.env['NEXT_PUBLIC_SITE_VERSION'] !== 'production' ? ['fake_joy'] : []), // fake moderator for staging
 ];

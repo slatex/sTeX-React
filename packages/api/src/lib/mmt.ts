@@ -112,7 +112,7 @@ export function findFileNode(
   if (sectionData.archive === archive && sectionData.filepath === filepath) {
     return sectionData;
   }
-  for (const child of sectionData.children) {
+  for (const child of sectionData.children || []) {
     const foundNode = findFileNode(archive, filepath, child);
     if (foundNode) return foundNode;
   }
@@ -128,7 +128,7 @@ export function is2ndLevelSection(
   filepath: string,
   sectionData: SectionsAPIData
 ) {
-  if(!localStore?.getItem('section-quiz')) return false; 
+  if (!localStore?.getItem('section-quiz')) return false;
   const ancestors = getAncestors(archive, filepath, sectionData);
   if (!ancestors?.length) return false;
   if (!hasSectionChild(ancestors[ancestors.length - 1])) return false;
