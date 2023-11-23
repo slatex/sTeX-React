@@ -107,80 +107,86 @@ function getLectureDescs(sections: SectionInfo[]): {
   return descriptions;
 }
 
-function SyllabusTable({
-  rows,
-  toShow,
-  showYear = true,
-}: {
-  rows: SyllabusRow[];
-  toShow: boolean;
-  showYear?: boolean;
-}) {
-  const { courseHome: t } = getLocaleObject(useRouter());
-  if (!toShow) return null;
-  const hasAnyVideoClip = rows.filter((r) => r.clipId?.length > 0).length > 0;
-
-  return (
-    <table>
-      <tr>
-        <th style={{ textAlign: 'left' }}>{t.date}</th>
-        <th style={{ textAlign: 'left' }}>{t.topics}</th>
-        {hasAnyVideoClip && <th style={{ textAlign: 'left' }}>{t.video}</th>}
-      </tr>
-      {rows.map(({ timestamp_ms, topics, clipId }, idx) => (
-        <tr key={`${timestamp_ms}`} style={{ border: '1px solid black' }}>
-          <td style={{ textAlign: 'center', minWidth: '110px' }}>
-            <b>{idx + 1}.&nbsp;</b>
-            {dayjs(timestamp_ms).format(showYear ? 'DD-MMM-YY' : 'DD-MMM')}
-          </td>
-          <td style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            <MdViewer content={topics} />
-          </td>
-          {hasAnyVideoClip && (
-            <td>
-              {clipId?.length > 0 && (
-                <a
-                  href={`https://fau.tv/clip/id/${clipId}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <IconButton size="large" sx={{ m: '10px' }}>
-                    <OndemandVideoIcon />
-                  </IconButton>
-                </a>
-              )}
-            </td>
-          )}
-        </tr>
-      ))}
-    </table>
-  );
-}
-
 function downloadSyllabusData(
-  timestamps: number[],
-  lectureDescs: { [timestamp_ms: number]: string },
-  lectureClipIds: { [timestamp_ms: number]: string },
-  courseId: string
+  jsonData: any,
+  courseId: string,
+  semester: string
 ) {
-  const jsonData = timestamps.map((timestamp_ms) => ({
-    timestamp_ms,
-    topics: lectureDescs[timestamp_ms],
-    clipIdc: lectureClipIds[timestamp_ms],
-  }));
   // Convert JSON to string
   const jsonString = JSON.stringify(jsonData, null, 2);
   const blob = new Blob([jsonString], { type: 'application/json' });
 
   // Create a link element
   const link = document.createElement('a');
-  link.download = `syllabus_${courseId}_ ${CURRENT_TERM}.json`;
+  link.download = `syllabus_${courseId}_ ${semester}.json`;
 
   // Attach the file to the link
   link.href = window.URL.createObjectURL(blob);
 
   // Trigger download
   link.click();
+}
+
+function SyllabusTable({
+  rows,
+  toShow,
+  courseId,
+  semester = CURRENT_TERM,
+}: {
+  rows: SyllabusRow[];
+  toShow: boolean;
+  courseId: string;
+  semester?: string;
+}) {
+  const { courseHome: t } = getLocaleObject(useRouter());
+  if (!toShow) return null;
+  const hasAnyVideoClip = rows.filter((r) => r.clipId?.length > 0).length > 0;
+  const showYear = semester !== CURRENT_TERM;
+
+  return (
+    <>
+      <table>
+        <tr>
+          <th style={{ textAlign: 'left' }}>{t.date}</th>
+          <th style={{ textAlign: 'left' }}>{t.topics}</th>
+          {hasAnyVideoClip && <th style={{ textAlign: 'left' }}>{t.video}</th>}
+        </tr>
+        {rows.map(({ timestamp_ms, topics, clipId }, idx) => (
+          <tr key={`${timestamp_ms}`} style={{ border: '1px solid black' }}>
+            <td style={{ textAlign: 'center', minWidth: '110px' }}>
+              <b>{idx + 1}.&nbsp;</b>
+              {dayjs(timestamp_ms).format(showYear ? 'DD-MMM-YY' : 'DD-MMM')}
+            </td>
+            <td style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <MdViewer content={topics} />
+            </td>
+            {hasAnyVideoClip && (
+              <td>
+                {clipId?.length > 0 && (
+                  <a
+                    href={`https://fau.tv/clip/id/${clipId}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <IconButton size="large" sx={{ m: '10px' }}>
+                      <OndemandVideoIcon />
+                    </IconButton>
+                  </a>
+                )}
+              </td>
+            )}
+          </tr>
+        ))}
+      </table>
+      <IconButton
+        onClick={() =>
+          downloadSyllabusData(rows, courseId, semester ?? CURRENT_TERM)
+        }
+      >
+        <DownloadIcon />
+      </IconButton>
+    </>
+  );
 }
 
 export function RecordedSyllabus({ courseId }: { courseId: string }) {
@@ -248,7 +254,7 @@ export function RecordedSyllabus({ courseId }: { courseId: string }) {
             <SyllabusTable
               rows={currentSemRows}
               toShow={selectedTabIndex === 0}
-              showYear={false}
+              courseId={courseId}
             />
           )}
           {previousSems.map((semester, idx) => (
@@ -256,21 +262,11 @@ export function RecordedSyllabus({ courseId }: { courseId: string }) {
               key={semester}
               rows={historicalSyllabus[semester]}
               toShow={selectedTabIndex === idx + (showCurrent ? 1 : 0)}
+              courseId={courseId}
+              semester={semester}
             />
           ))}
         </Box>
-        <IconButton
-          onClick={() =>
-            downloadSyllabusData(
-              timestamps,
-              lectureDescs,
-              lectureClipIds,
-              courseId
-            )
-          }
-        >
-          <DownloadIcon />
-        </IconButton>
       </Box>
     </Box>
   );
