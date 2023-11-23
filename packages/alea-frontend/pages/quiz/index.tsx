@@ -181,7 +181,6 @@ const QuizDashboardPage: NextPage = () => {
     getUserInfo().then(setUserInfo);
   }, []);
   useEffect(() => {
-    if (!mmtUrl) return;
     getCourseInfo(mmtUrl).then(setCourses);
   }, [mmtUrl]);
 

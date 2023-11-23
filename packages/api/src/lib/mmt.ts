@@ -146,7 +146,6 @@ export async function getDocumentSections(
   archive: string,
   filepath: string
 ) {
-  if (!mmtUrl) return {} as SectionsAPIData;
   const resp = await axios.get(
     `${mmtUrl}/:sTeX/sections?archive=${archive}&filepath=${filepath}`
   );
@@ -235,7 +234,6 @@ export interface DocIdx {
 
 let CACHED_DOCIDX: DocIdx[] | undefined = undefined;
 export async function getDocIdx(mmtUrl: string) {
-  if (!mmtUrl) return [];
   if (!CACHED_DOCIDX) {
     console.log('getting docidx');
     const resp = await axios.get(`${mmtUrl}/:sTeX/docidx`);
