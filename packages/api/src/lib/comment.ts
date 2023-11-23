@@ -9,7 +9,7 @@ export const MODERATORS = [
   'co39hywa', // Florian
   'yp68abes', // Marc
 
-  ...(process.env['NEXT_PUBLIC_SITE_VERSION'] === 'staging' ? ['fake_joy'] : []), // fake moderator for staging
+  ...(process.env['NEXT_PUBLIC_SITE_VERSION'] !== 'production' ? ['fake_joy'] : []), // fake moderator for staging
 ];
 
 export enum HiddenStatus {

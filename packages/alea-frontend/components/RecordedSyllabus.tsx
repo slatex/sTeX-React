@@ -1,12 +1,18 @@
 import OndemandVideoIcon from '@mui/icons-material/OndemandVideo';
-import { Box, IconButton } from '@mui/material';
-import { SectionInfo } from '@stex-react/api';
+import { Box, IconButton, Tab, Tabs } from '@mui/material';
+import {
+  GetHistoricalSyllabusResponse,
+  SectionInfo,
+  SyllabusRow,
+} from '@stex-react/api';
 import { MdViewer } from '@stex-react/markdown';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import { useRouter } from 'next/router';
+import DownloadIcon from '@mui/icons-material/Download';
+import { CURRENT_TERM } from '@stex-react/utils';
 
 function joinerForLevel(level: number) {
   switch (level) {
@@ -101,15 +107,93 @@ function getLectureDescs(sections: SectionInfo[]): {
   return descriptions;
 }
 
-export function RecordedSyllabus({ courseId }: { courseId: string }) {
-  const router = useRouter();
+function SyllabusTable({
+  rows,
+  toShow,
+  showYear = true,
+}: {
+  rows: SyllabusRow[];
+  toShow: boolean;
+  showYear?: boolean;
+}) {
+  const { courseHome: t } = getLocaleObject(useRouter());
+  if (!toShow) return null;
+  const hasAnyVideoClip = rows.filter((r) => r.clipId?.length > 0).length > 0;
 
+  return (
+    <table>
+      <tr>
+        <th style={{ textAlign: 'left' }}>{t.date}</th>
+        <th style={{ textAlign: 'left' }}>{t.topics}</th>
+        {hasAnyVideoClip && <th style={{ textAlign: 'left' }}>{t.video}</th>}
+      </tr>
+      {rows.map(({ timestamp_ms, topics, clipId }, idx) => (
+        <tr key={`${timestamp_ms}`} style={{ border: '1px solid black' }}>
+          <td style={{ textAlign: 'center', minWidth: '110px' }}>
+            <b>{idx + 1}.&nbsp;</b>
+            {dayjs(timestamp_ms).format(showYear ? 'DD-MMM-YY' : 'DD-MMM')}
+          </td>
+          <td style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <MdViewer content={topics} />
+          </td>
+          {hasAnyVideoClip && (
+            <td>
+              {clipId?.length > 0 && (
+                <a
+                  href={`https://fau.tv/clip/id/${clipId}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <IconButton size="large" sx={{ m: '10px' }}>
+                    <OndemandVideoIcon />
+                  </IconButton>
+                </a>
+              )}
+            </td>
+          )}
+        </tr>
+      ))}
+    </table>
+  );
+}
+
+function downloadSyllabusData(
+  timestamps: number[],
+  lectureDescs: { [timestamp_ms: number]: string },
+  lectureClipIds: { [timestamp_ms: number]: string },
+  courseId: string
+) {
+  const jsonData = timestamps.map((timestamp_ms) => ({
+    timestamp_ms,
+    topics: lectureDescs[timestamp_ms],
+    clipIdc: lectureClipIds[timestamp_ms],
+  }));
+  // Convert JSON to string
+  const jsonString = JSON.stringify(jsonData, null, 2);
+  const blob = new Blob([jsonString], { type: 'application/json' });
+
+  // Create a link element
+  const link = document.createElement('a');
+  link.download = `syllabus_${courseId}_ ${CURRENT_TERM}.json`;
+
+  // Attach the file to the link
+  link.href = window.URL.createObjectURL(blob);
+
+  // Trigger download
+  link.click();
+}
+
+export function RecordedSyllabus({ courseId }: { courseId: string }) {
+  const { courseHome: t } = getLocaleObject(useRouter());
   const [lectureDescs, setLectureDescs] = useState<{
     [timestamp_ms: number]: string;
   }>({});
   const [lectureClipIds, setLectureClipIds] = useState<{
     [timestamp_ms: number]: string;
   }>({});
+  const [selectedTabIndex, setSelectedTabIndex] = useState(0);
+  const [historicalSyllabus, setHistoricalSyllabus] =
+    useState<GetHistoricalSyllabusResponse>({});
 
   useEffect(() => {
     if (!courseId) return;
@@ -121,52 +205,72 @@ export function RecordedSyllabus({ courseId }: { courseId: string }) {
     });
   }, [courseId]);
 
+  useEffect(() => {
+    if (!courseId) return;
+    axios.get(`/api/get-historical-syllabus/${courseId}`).then((resp) => {
+      setHistoricalSyllabus(resp.data);
+    });
+  }, [courseId]);
+
   if (!courseId) return null;
-  const rows = Object.keys(lectureDescs).map((n) => +n);
-  if (!rows || !rows?.length) return null;
-  const hasAnyVideoClip = Object.keys(lectureClipIds).length > 0;
+  const timestamps = Object.keys(lectureDescs).map((n) => +n);
 
-  const { courseHome: t } = getLocaleObject(router);
+  const currentSemRows = timestamps.map((timestamp_ms) => ({
+    timestamp_ms,
+    topics: lectureDescs[timestamp_ms],
+    clipId: lectureClipIds[timestamp_ms],
+  }));
 
+  const previousSems = Object.keys(historicalSyllabus);
+  const showCurrent = currentSemRows.length > 0;
+  if (!showCurrent && previousSems.length == 0) return null;
   return (
     <Box>
       <Box textAlign="center">
         <b style={{ fontSize: '24px' }}>{t.recordedSyllabus}</b>
       </Box>
       <Box mt="10px">
-        <table>
-          <tr>
-            <th style={{ textAlign: 'left' }}>Date</th>
-            <th style={{ textAlign: 'left' }}>Topics</th>
-            {hasAnyVideoClip && <th style={{ textAlign: 'left' }}>Video</th>}
-          </tr>
-          {rows.map((timestamp_ms, idx) => (
-            <tr key={timestamp_ms} style={{ border: '1px solid black' }}>
-              <td style={{ textAlign: 'center', minWidth: '100px' }}>
-                <b>{idx + 1}.&nbsp;</b>
-                {dayjs(timestamp_ms).format('DD-MMM')}
-              </td>
-              <td style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                <MdViewer content={lectureDescs[timestamp_ms]} />
-              </td>
-              {hasAnyVideoClip && (
-                <td>
-                  {lectureClipIds[timestamp_ms]?.length > 0 && (
-                    <a
-                      href={`https://fau.tv/clip/id/${lectureClipIds[timestamp_ms]}`}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <IconButton size="large" sx={{ m: '10px' }}>
-                        <OndemandVideoIcon />
-                      </IconButton>
-                    </a>
-                  )}
-                </td>
-              )}
-            </tr>
+        <Box sx={{ width: '100%' }}>
+          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <Tabs
+              value={selectedTabIndex}
+              onChange={(event: React.SyntheticEvent, newValue: number) =>
+                setSelectedTabIndex(newValue)
+              }
+            >
+              {showCurrent && <Tab label={<b>{t.currentSemester}</b>} />}
+              {previousSems.map((semester) => (
+                <Tab key={semester} label={<b>{semester}</b>} />
+              ))}
+            </Tabs>
+          </Box>
+          {showCurrent && (
+            <SyllabusTable
+              rows={currentSemRows}
+              toShow={selectedTabIndex === 0}
+              showYear={false}
+            />
+          )}
+          {previousSems.map((semester, idx) => (
+            <SyllabusTable
+              key={semester}
+              rows={historicalSyllabus[semester]}
+              toShow={selectedTabIndex === idx + (showCurrent ? 1 : 0)}
+            />
           ))}
-        </table>
+        </Box>
+        <IconButton
+          onClick={() =>
+            downloadSyllabusData(
+              timestamps,
+              lectureDescs,
+              lectureClipIds,
+              courseId
+            )
+          }
+        >
+          <DownloadIcon />
+        </IconButton>
       </Box>
     </Box>
   );

@@ -3,6 +3,16 @@ import { CoverageSnap, CoverageTimeline } from '@stex-react/utils';
 import fs from 'fs';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { checkIfPostOrSetError, getUserIdOrSetError } from './comment-utils';
+import { CURRENT_SEM_FILE } from './get-coverage-timeline';
+
+function backupFileName() {
+  return (
+    process.env.RECORDED_SYLLABUS_DIR +
+    '/backups/' +
+    CURRENT_SEM_FILE +
+    `_bkp_${Date.now()}.json`
+  );
+}
 
 export default async function handler(
   req: NextApiRequest,
@@ -19,7 +29,7 @@ export default async function handler(
 
   const snaps = req.body.snaps as CoverageSnap[];
   const courseId = req.body.courseId as string;
-  const filePath = process.env.COVERGAGE_TIMELINE_FILE;
+  const filePath = process.env.RECORDED_SYLLABUS_DIR + '/' + CURRENT_SEM_FILE;
 
   // Read the existing file data, if it exists
   let existingData: CoverageTimeline = {};
@@ -30,7 +40,7 @@ export default async function handler(
 
   // Create a backup
   fs.writeFileSync(
-    filePath + `_bkp_${Date.now()}`,
+    backupFileName(),
     JSON.stringify(existingData, null, 2)
   );
 
