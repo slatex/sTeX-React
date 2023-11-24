@@ -1,4 +1,6 @@
+import DisplaySettingsIcon from '@mui/icons-material/DisplaySettings';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import {
   Box,
   IconButton,
@@ -19,7 +21,6 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import { SYSTEM_UPDATES } from '../system-updates';
-
 export function changeSystemUpdateToNotification(
   systemUpdate,
   locale
@@ -105,14 +106,23 @@ function NotificationButton() {
         {sortedItems.slice(0, 7).map((item, idx) => (
           <MenuItem key={idx} onClick={handleClose}>
             <Link href={item.link}>
-              <Box>
-                {item.header}
-                <Typography display="block" variant="body2" color="gray">
-                  <DateView
-                    timestampMs={new Date(item.postedTimestamp)?.getTime()}
-                    style={{ fontSize: '14px' }}
-                  />
-                </Typography>
+              <Box display="flex" alignItems="center">
+                <Box marginRight="1vw">
+                  {item.notificationType === 'SYSTEM' ? (
+                    <DisplaySettingsIcon style={{ color: 'rgb(32, 51, 96)' }} />
+                  ) : (
+                    <QuestionAnswerIcon style={{ color: 'rgb(32, 51, 96)' }} />
+                  )}
+                </Box>
+                <Box>
+                  {item.header}
+                  <Typography display="block" variant="body2" color="gray">
+                    <DateView
+                      timestampMs={new Date(item.postedTimestamp)?.getTime()}
+                      style={{ fontSize: '14px' }}
+                    />
+                  </Typography>
+                </Box>
               </Box>
             </Link>
           </MenuItem>

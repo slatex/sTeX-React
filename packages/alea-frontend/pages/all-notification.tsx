@@ -27,7 +27,10 @@ const AllNotificationPage: NextPage = () => {
         }}
       >
         {sortedItems.map((item) => (
-          <TimelineItem key={item.postedTimestamp}>
+          <TimelineItem
+            key={item.postedTimestamp}
+            sx={{ display: 'flex', alignItems: 'center' }}
+          >
             <TimelineOppositeContent color="textSecondary">
               <DateView
                 timestampMs={new Date(item.postedTimestamp)?.getTime()}
