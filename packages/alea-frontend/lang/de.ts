@@ -205,7 +205,11 @@ export const de = {
   },
   courseHome: {
     title: 'Kurs-Startseite',
+    currentSemester: 'Aktuelles Semester',
     recordedSyllabus: 'Aufgezeichneter Lehrplan',
+    date: 'Datum',
+    topics: 'Themen',
+    video: 'Video',
   },
   notification:{
     allNotification:"Alle Benachrichtigungen anzeigen"

@@ -24,6 +24,7 @@ import CompetencyTable from './CompetencyTable';
 import { getLocaleObject } from './lang/utils';
 import { DimIcon, ServerLinksContext } from './stex-react-renderer';
 import styles from './stex-react-renderer.module.scss';
+import { RenderOptions } from './RendererDisplayOptions';
 
 function CompetencyBar({ dim, val }: { dim: BloomDimension; val: number }) {
   const hue = 120 * val;
@@ -51,6 +52,7 @@ const CompetencyIndicator = ({ contentUrl }: { contentUrl: string }) => {
   const [definedData, setDefinedData] = useState<DefiniendaItem[] | null>(null);
   const { archive, filepath } = getSectionInfo(contentUrl);
   const { mmtUrl } = useContext(ServerLinksContext);
+  const { renderOptions } = useContext(RenderOptions);
   const [URIs, setURIs] = useState<string[]>([]);
   const t = getLocaleObject(useRouter());
 
@@ -81,7 +83,7 @@ const CompetencyIndicator = ({ contentUrl }: { contentUrl: string }) => {
       competencyData.length
     : 0;
 
-  if (!definedData?.length) return null;
+  if (!definedData?.length || renderOptions.noFrills) return null;
 
   return (
     <Box

@@ -224,7 +224,11 @@ export const en = {
   },
   courseHome: {
     title: 'Course Home',
+    currentSemester: 'Current Semester',
     recordedSyllabus: 'Recorded Syllabus',
+    date: 'Date',
+    topics: 'Topics',
+    video: 'Video',
   },
   notification:{
     allNotification:"See All Notification"

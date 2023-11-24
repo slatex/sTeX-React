@@ -14,6 +14,7 @@ import { ProblemDisplay } from './ProblemDisplay';
 import { ListStepper } from './QuizDisplay';
 import { getLocaleObject } from './lang/utils';
 import { ServerLinksContext, mmtHTMLToReact } from './stex-react-renderer';
+import { RenderOptions } from './RendererDisplayOptions';
 
 export function PerSectionQuiz({
   archive,
@@ -30,9 +31,10 @@ export function PerSectionQuiz({
   const [isFrozen, setIsFrozen] = useState<boolean[]>([]);
   const [, forceRerender] = useReducer((x) => x + 1, 0);
   const [startQuiz, setStartQuiz] = useState(false);
+  const { renderOptions } = useContext(RenderOptions);
 
   useEffect(() => {
-    if (!archive || !filepath) return;
+    if (!archive || !filepath || renderOptions.noFrills) return;
     getProblemIdsForFile(mmtUrl, archive, filepath).then(async (problemIds) => {
       console.log('problemsUrl', problemIds);
       const problems$ = problemIds.map((p) => getProblemShtml(mmtUrl, p));
@@ -45,9 +47,9 @@ export function PerSectionQuiz({
       setResponses(problems.map((p) => defaultProblemResponse(p)));
       setIsFrozen(problems.map(() => false));
     }, console.error);
-  }, [archive, filepath, mmtUrl]);
+  }, [archive, filepath, mmtUrl, renderOptions.noFrills]);
 
-  if (!problems.length) return null;
+  if (!problems.length || renderOptions.noFrills) return null;
 
   const problem = problems[problemIdx];
   const response = responses[problemIdx];

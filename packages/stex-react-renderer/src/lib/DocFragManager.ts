@@ -113,7 +113,6 @@ export class DocFragManager {
 
   setDocSections(s: SectionsAPIData) {
     this.docSections = s;
-    console.log(s);
     this.createFileLocHeirarchy();
   }
 

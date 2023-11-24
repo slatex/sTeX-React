@@ -16,7 +16,7 @@ import {
   purgeAllMyData,
   purgeComments,
   purgeUserNotifications,
-  resetFakeUserData,
+  resetFakeUserData
 } from '@stex-react/api';
 import { downloadFile } from '@stex-react/utils';
 import type { NextPage } from 'next';

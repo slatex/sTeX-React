@@ -198,8 +198,8 @@ function findInputs(
 function getProblemPoints(rootNode: Element) {
   const pointsStr = rootNode?.attribs?.['data-problem-points'];
   if (!pointsStr) return 1;
-  const parsedInt = parseInt(pointsStr, 10);
-  return isNaN(parsedInt) || parsedInt === 0 ? 1 : parsedInt;
+  const parsedFloat = parseFloat(pointsStr);
+  return isNaN(parsedFloat) || parsedFloat < 0.001 ? 1 : parsedFloat;
 }
 
 function getProblemHeader(rootNode: Element) {

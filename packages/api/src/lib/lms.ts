@@ -237,6 +237,7 @@ function cleanupSmileyCognitiveValues(
 export async function getUriWeights(
   URIs: string[]
 ): Promise<NumericCognitiveValues[]> {
+  if (!URIs?.length) return [];
   const resp = await lmsRequest('lms/output/multiple', 'POST', null, { URIs });
   if (!resp?.model) return new Array(URIs.length).fill({});
   const model: { URI: string; values: NumericCognitiveValues }[] = resp.model;
@@ -253,6 +254,7 @@ export async function getUriSmileys(
   URIs: string[],
   inputHeaders?: any
 ): Promise<Map<string, SmileyCognitiveValues>> {
+  if (!URIs?.length) return new Map();
   const resp = await lmsRequest(
     'lms/output/multiple',
     'POST',

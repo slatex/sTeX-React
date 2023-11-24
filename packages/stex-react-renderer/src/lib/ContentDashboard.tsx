@@ -9,9 +9,8 @@ import {
   SectionsAPIData,
   getCourseId,
   getCourseInfo,
-  getDocumentSections,
   getUserInfo,
-  isModerator,
+  isModerator
 } from '@stex-react/api';
 import {
   CourseInfo,
