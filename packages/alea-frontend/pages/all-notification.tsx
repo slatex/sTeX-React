@@ -1,3 +1,5 @@
+import DisplaySettingsIcon from '@mui/icons-material/DisplaySettings';
+import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import Timeline from '@mui/lab/Timeline';
 import TimelineConnector from '@mui/lab/TimelineConnector';
 import TimelineContent from '@mui/lab/TimelineContent';
@@ -9,8 +11,10 @@ import TimelineOppositeContent, {
 import TimelineSeparator from '@mui/lab/TimelineSeparator';
 import { DateView } from '@stex-react/react-utils';
 import type { NextPage } from 'next';
+import Link from 'next/link';
 import { useNotificationData } from '../components/NotificationButton';
 import MainLayout from '../layouts/MainLayout';
+
 const AllNotificationPage: NextPage = () => {
   const sortedItems = useNotificationData();
   return (
@@ -23,22 +27,26 @@ const AllNotificationPage: NextPage = () => {
         }}
       >
         {sortedItems.map((item) => (
-          <TimelineItem key={item.id}>
+          <TimelineItem key={item.postedTimestamp}>
             <TimelineOppositeContent color="textSecondary">
               <DateView
-                timestampMs={
-                  item.type === 'systemUpdate'
-                    ? item.timestamp.unix() * 1000
-                    : item.postedTimestamp
-                }
+                timestampMs={new Date(item.postedTimestamp)?.getTime()}
                 style={{ fontSize: '14px' }}
               />
             </TimelineOppositeContent>
             <TimelineSeparator>
-              <TimelineDot color="primary" />
+              <TimelineDot color="primary">
+                {item.notificationType === 'SYSTEM' ? (
+                  <DisplaySettingsIcon />
+                ) : (
+                  <QuestionAnswerIcon />
+                )}
+              </TimelineDot>
               <TimelineConnector />
             </TimelineSeparator>
-            <TimelineContent>{item.header.toUpperCase()}</TimelineContent>
+            <TimelineContent>
+              <Link href={item.link}>{item.header.toUpperCase()}</Link>
+            </TimelineContent>
           </TimelineItem>
         ))}
       </Timeline>

@@ -64,6 +64,10 @@ CREATE TABLE notifications (
     updateId INT PRIMARY KEY AUTO_INCREMENT,
     header VARCHAR(255),
     content VARCHAR(255),
+    header_de VARCHAR(255),
+    content_de VARCHAR(255),
+    link VARCHAR(255),
+    notificationType VARCHAR(255),
     postedTimeStamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updatedTimeStamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );

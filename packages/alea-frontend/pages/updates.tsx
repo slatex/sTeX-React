@@ -32,9 +32,9 @@ const UpdatesPage: NextPage = () => {
                 ? update.header_de || update.header
                 : update.header}
             </Typography>
-            <Tooltip title={update.timestamp.format('LT')}>
+            <Tooltip title={update.postedTimestamp.format('LT')}>
               <Typography color="gray" mb="10px">
-                {update.timestamp.format('LL')}
+                {update.postedTimestamp.format('LL')}
               </Typography>
             </Tooltip>
             <Typography>

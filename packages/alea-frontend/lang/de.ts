@@ -207,4 +207,7 @@ export const de = {
     title: 'Kurs-Startseite',
     recordedSyllabus: 'Aufgezeichneter Lehrplan',
   },
+  notification:{
+    allNotification:"Alle Benachrichtigungen anzeigen"
+  }
 };

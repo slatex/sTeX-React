@@ -226,4 +226,7 @@ export const en = {
     title: 'Course Home',
     recordedSyllabus: 'Recorded Syllabus',
   },
+  notification:{
+    allNotification:"See All Notification"
+  }
 };
