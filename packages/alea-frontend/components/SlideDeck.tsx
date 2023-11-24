@@ -14,6 +14,7 @@ import { useRouter } from 'next/router';
 import { memo, useEffect, useRef, useState } from 'react';
 import { setSlideNumAndSectionId } from '../pages/course-view/[courseId]';
 import styles from '../styles/slide-deck.module.scss';
+import { XhtmlContentUrl } from '@stex-react/utils';
 
 export function SlideNavBar({
   slideNum,
@@ -104,7 +105,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
       isCancelled = true; // avoids race condition on rapid deckId changes.
     };
   }, [courseId, sectionId]);
-  const contentUrl = `archive=${currentSlide?.archive}&filepath=${currentSlide?.filepath}`;
+  const contentUrl = XhtmlContentUrl(currentSlide?.archive, currentSlide?.filepath);
 
   useEffect(() => {
     if (!slides?.length || loadedSectionId !== sectionId) return;
