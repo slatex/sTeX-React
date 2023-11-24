@@ -1,4 +1,4 @@
-import { Comment, PointsGrant } from '@stex-react/api';
+import { Comment, NotificationType, PointsGrant } from '@stex-react/api';
 import axios from 'axios';
 import mysql from 'serverless-mysql';
 const db = mysql({
@@ -165,11 +165,15 @@ export function checkIfPostOrSetError(req, res) {
 export async function sendNotification(
   userId: string,
   header: string,
-  content: string
+  content: string,
+  header_de: string,
+  content_de: string,
+  notificationType: NotificationType,
+  link: string
 ): Promise<void> {
   const postNotification = await executeQuery(
-    `INSERT INTO notifications (userId, header, content) VALUES (?,?,?)`,
-    [userId, header, content]
+    `INSERT INTO notifications (userId, header, content ,header_de,content_de,notificationType,link) VALUES (?,?,?,?,?,?)`,
+    [userId, header, content, header_de, content_de, notificationType, link]
   );
   if (postNotification['error']) {
     console.error(postNotification['error']);

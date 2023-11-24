@@ -3,6 +3,7 @@ import {
   CommentType,
   DEFAULT_POINTS,
   GrantReason,
+  NotificationType,
   isModerator,
 } from '@stex-react/api';
 import { PathToArticle } from '@stex-react/utils';
@@ -100,8 +101,12 @@ export default async function handler(req, res) {
       if (parentUserId) {
         await sendNotification(
           parentUserId,
-          'Someone replied to Your Comment',
-          ''
+          'English Header',
+          'English Content',
+          'German version Header',
+          'German version Content',
+          NotificationType.COMMENT,
+          '/help'
         );
       }
     }

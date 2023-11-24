@@ -230,4 +230,7 @@ export const en = {
     topics: 'Topics',
     video: 'Video',
   },
+  notification:{
+    allNotification:"See All Notification"
+  }
 };
