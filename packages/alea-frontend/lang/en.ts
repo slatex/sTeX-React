@@ -122,9 +122,6 @@ export const en = {
   vis: {
     goToTour: 'Go To Tour',
   },
-  updates: {
-    header: 'System Updates',
-  },
   myProfile: {
     myNotes: 'My notes',
     myCompetencyData: 'My competency data',
@@ -230,7 +227,8 @@ export const en = {
     topics: 'Topics',
     video: 'Video',
   },
-  notification:{
-    allNotification:"See All Notification"
-  }
+  notification: {
+    notifications: 'Notifications',
+    allNotifications: 'See All Notifications',
+  },
 };

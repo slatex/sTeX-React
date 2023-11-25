@@ -12,7 +12,7 @@ dayjs.extend(localizedFormat);
 
 const UpdatesPage: NextPage = () => {
   const { locale } = useRouter();
-  const { updates: t } = getLocaleObject({ locale });
+  const { notification: t } = getLocaleObject({ locale });
 
   return (
     <MainLayout title="System Updates | VoLL-KI">
@@ -23,7 +23,7 @@ const UpdatesPage: NextPage = () => {
           variant="h3"
           color="#444"
         >
-          {t.header}
+          {t.notifications}
         </Typography>
         {SYSTEM_UPDATES.map((update, idx) => (
           <Box key={idx} id={update.id} my="30px">
@@ -32,9 +32,11 @@ const UpdatesPage: NextPage = () => {
                 ? update.header_de || update.header
                 : update.header}
             </Typography>
-            <Tooltip title={update.postedTimestamp.format('LT')}>
+            <Tooltip
+              title={<span>{dayjs(update.postedTimestamp).format('LT')}</span>}
+            >
               <Typography color="gray" mb="10px">
-                {update.postedTimestamp.format('LL')}
+                {dayjs(update.postedTimestamp).format('LL')}
               </Typography>
             </Tooltip>
             <Typography>

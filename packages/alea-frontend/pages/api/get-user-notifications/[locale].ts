@@ -8,7 +8,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const lan = req.query.locale as string;
+  const locale = req.query.locale as string;
   if (process.env.NEXT_PUBLIC_SITE_VERSION === 'production') {
     res.status(200).send([]);
     return;
@@ -16,15 +16,15 @@ export default async function handler(
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
   let results;
-  if (lan == 'en') {
+  if (locale == 'de') {
     results = await executeAndEndSet500OnError(
-      `SELECT header,content,postedTimestamp,notificationType,link  FROM notifications where userId=?`,
+      `SELECT header_de as header, content_de as content, postedTimestamp, notificationType, link FROM notifications WHERE userId=?`,
       [userId],
       res
     );
   } else {
     results = await executeAndEndSet500OnError(
-      `SELECT header_de as header,content_de as content,postedTimestamp,notificationType,link  FROM notifications where userId=?`,
+      `SELECT header, content, postedTimestamp, notificationType, link FROM notifications WHERE userId=?`,
       [userId],
       res
     );

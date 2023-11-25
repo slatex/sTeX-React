@@ -1,6 +1,7 @@
 import { Comment, NotificationType, PointsGrant } from '@stex-react/api';
 import axios from 'axios';
 import mysql from 'serverless-mysql';
+
 const db = mysql({
   config: {
     host: process.env.MYSQL_HOST,
@@ -172,7 +173,7 @@ export async function sendNotification(
   link: string
 ): Promise<void> {
   const postNotification = await executeQuery(
-    `INSERT INTO notifications (userId, header, content ,header_de,content_de,notificationType,link) VALUES (?,?,?,?,?,?)`,
+    `INSERT INTO notifications (userId, header, content, header_de, content_de, notificationType, link) VALUES (?,?,?,?,?,?)`,
     [userId, header, content, header_de, content_de, notificationType, link]
   );
   if (postNotification['error']) {

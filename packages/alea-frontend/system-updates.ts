@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 export const SYSTEM_UPDATES = [
   /*{
     id: '',
@@ -6,7 +5,7 @@ export const SYSTEM_UPDATES = [
     content: '',
     header_de: '',
     content_de: '',
-    postedTimestamp: dayjs('2023-02-11T00:20:00+05:30'),
+    postedTimestamp: '2023-02-11T00:20:00+05:30',
   },*/
   {
     id: 'competency_indicator',
@@ -16,7 +15,7 @@ export const SYSTEM_UPDATES = [
     header_de: 'Kompetenzanzeiger',
     content_de:
       'Jetzt können Sie Ihren Fortschritt verfolgen und verschiedene Konzepte direkt in unseren Kursunterlagen beherrschen. Ihre Reise zur Kompetenz ist jetzt noch aufschlussreicher. Entdecken Sie, lernen Sie und sehen Sie zu, wie Ihr Verständnis wächst! 🚀',
-    postedTimestamp: dayjs('2023-11-02T00:20:00+05:30'),
+    postedTimestamp: '2023-11-02T00:20:00+05:30',
   },
   {
     id: 'quizzes',
@@ -26,7 +25,7 @@ export const SYSTEM_UPDATES = [
     header_de: 'Quizze in ALeA',
     content_de:
       'Wir freuen uns, die Einführung unseres neuen Quiz-Features auf unserem ALeA bekannt zu geben! Wir werden diese Funktion für die wöchentlichen Tests im AI-1-Kurs nutzen, die während der Vorlesungen durchgeführt werden. Um über bevorstehende Quizze auf dem Laufenden zu bleiben, besuchen Sie bitte das [Quiz-Dashboard](https://courses.voll-ki.fau.de/quiz-dash/ai-1).',
-    postedTimestamp: dayjs('2023-10-11T20:40:00+05:30'),
+    postedTimestamp: '2023-10-11T20:40:00+05:30',
   },
   {
     id: 'badges',
@@ -36,7 +35,7 @@ export const SYSTEM_UPDATES = [
     header_de: 'Gute Taten schaffen positives Karma.',
     content_de:
       'Im Sinne des gemeinschaftlichen Wissensaustausches haben wir unser Karma-System eingeführt. Stellen Sie Fragen, beantworten Sie sie, melden Sie Fehler oder geben Sie Erläuterungen – und sammeln Sie nebenbei Karma-Punkte und Abzeichen. Jeder Beitrag zählt, und gemeinsam können wir eine lebendige Lerngemeinschaft schaffen.',
-    postedTimestamp: dayjs('2023-06-14T19:20:00+05:30'),
+    postedTimestamp: '2023-06-14T19:20:00+05:30',
   },
   {
     id: 'course-descriptions',
@@ -45,17 +44,17 @@ export const SYSTEM_UPDATES = [
     header_de: 'Kursbeschreibungen',
     content_de:
       'Startseiten von Kursen zeigen jetzt eine Beschreibung des Kurses.',
-    postedTimestamp: dayjs('2023-06-13T19:20:00+05:30'),
+    postedTimestamp: '2023-06-13T19:20:00+05:30',
   },
   {
     id: 'course-forums',
     header: 'Course Forums',
     content:
-      'You can now ask questions and participate in course forums. Check out the forum page for [Artificial Intelligence - 2](/forum/ai-2).',
+      'You can now ask questions and participate in course forums. Check out the forum page for [Artificial Intelligence - 1](/forum/ai-1).',
     header_de: 'Kursforen',
     content_de:
-      'Sie können jetzt Fragen stellen und an Kursforen teilnehmen. Schauen Sie sich die Forumseite für [Artificial Intelligence - 2](/forum/ai-2) an.',
-    postedTimestamp: dayjs('2023-05-26T18:00:00+05:30'),
+      'Sie können jetzt Fragen stellen und an Kursforen teilnehmen. Schauen Sie sich die Forumseite für [Artificial Intelligence - 1](/forum/ai-1) an.',
+    postedTimestamp: '2023-05-26T18:00:00+05:30',
   },
   {
     id: 'cards-with-sections',
@@ -64,7 +63,7 @@ export const SYSTEM_UPDATES = [
     header_de: 'Lernkarten nach Abschnitten geordnet',
     content_de:
       'Lernkarten können jetzt nach Kursabschnitten durchsucht werden.',
-    postedTimestamp: dayjs('2023-05-10T21:50:00+05:30'),
+    postedTimestamp: '2023-05-10T21:50:00+05:30',
   },
   {
     id: 'recorded-syllabus',
@@ -74,7 +73,7 @@ export const SYSTEM_UPDATES = [
     header_de: 'Aufgezeichneter Lehrplan auf der Kurs-Homepage',
     content_de:
       'Auf der Startseite des Kurses können Sie jetzt sehen, welche Abschnitte im Unterricht behandelt wurden. Sie können auch problemlos auf die Vorlesungsvideos zugreifen.',
-    postedTimestamp: dayjs('2023-05-09T22:10:00+05:30'),
+    postedTimestamp: '2023-05-09T22:10:00+05:30',
   },
   {
     id: 'course-slides',
@@ -84,7 +83,7 @@ export const SYSTEM_UPDATES = [
     header_de: 'Kursfolien sind zurück!',
     content_de:
       'Für alle Kurse stehen jetzt Kursunterlagen in Form von Folien zur Verfügung. Klicken Sie auf "Folien", um sie anzusehen.',
-    postedTimestamp: dayjs('2023-05-06T17:40:00+05:30'),
+    postedTimestamp: '2023-05-06T17:40:00+05:30',
   },
   {
     id: 'course-progress',
@@ -94,35 +93,35 @@ export const SYSTEM_UPDATES = [
     header_de: 'Kursfortschrittsanzeige',
     content_de:
       'Das Inhaltsverzeichnis in Kursnotizen und Folien zeigt jetzt an, welche Abschnitte im Kurs behandelt wurden. Die abgedeckten Abschnitte werden mit einem gelben Hintergrund angezeigt.',
-    postedTimestamp: dayjs('2023-04-27T14:20:00+05:30'),
+    postedTimestamp: '2023-04-27T14:20:00+05:30',
   },
   {
     id: 'course-home',
     header: 'Course Home Pages',
     content:
       'Each course will now have a dedicated home page which will eventually lead you to notes, slides, flash cards, forums and everything else you need. Checkout [AI-2 course home page](/course-home/ai-2).',
-    postedTimestamp: dayjs('2023-04-25T16:00:00+05:30'),
+    postedTimestamp: '2023-04-25T16:00:00+05:30',
   },
   {
     id: 'quiz-update',
     header: 'Improved Quizzes',
     content:
       'We have significatly improved the user experience of taking a quiz. We also support more question types. See [demo](/quiz). The demo also has the ability to store timing information that can be viewed [here](/quiz/results).',
-    postedTimestamp: dayjs('2023-04-13T11:30:00+05:30'),
+    postedTimestamp: '2023-04-13T11:30:00+05:30',
   },
   {
     id: 'pp-guided-tour',
     header: 'Paper Prototype: Guided Tour',
     content:
       'A [paper prototype](/exp/pp_dialogue_tour) to show how a conversational UI would work in ALeA.',
-    postedTimestamp: dayjs('2023-04-02T18:30:00+05:30'),
+    postedTimestamp: '2023-04-02T18:30:00+05:30',
   },
   {
     id: 'pp-students',
     header: 'Paper Prototype: Course Progress',
     content:
       'A [paper prototype](/exp/pp_students) that shows students their progress in a course.',
-    postedTimestamp: dayjs('2023-04-02T18:00:00+05:30'),
+    postedTimestamp: '2023-04-02T18:00:00+05:30',
   },
   {
     id: 'localization',
@@ -132,21 +131,21 @@ export const SYSTEM_UPDATES = [
     header_de: 'Jetzt auf Deutsch verfügbar!',
     content_de:
       'Dieses Portal ist nun auch auf Deutsch zu sehen. Klicken Sie auf die Länderflagge in der Kopfzeile, um zwischen Englisch und Deutsch zu wechseln.',
-    postedTimestamp: dayjs('2023-03-30T16:00:00+05:30'),
+    postedTimestamp: '2023-03-30T16:00:00+05:30',
   },
   {
     id: 'pp-learning-progress',
     header: 'Paper Prototype: Learning progress',
     content:
       'A [paper prototype](/exp/pp_teachers_and_tas) to show how we might report course progress to educators.',
-    postedTimestamp: dayjs('2023-02-28T11:10:00+05:30'),
+    postedTimestamp: '2023-02-28T11:10:00+05:30',
   },
   {
     id: 'feb-week-2-lectures',
     header: 'AI-1 slides/videos updated',
     content:
       'Videos and slides for the final (Feb 8th and 9th) AI-1 lectures are now available.',
-    postedTimestamp: dayjs('2023-02-11T00:20:00+05:30'),
+    postedTimestamp: '2023-02-11T00:20:00+05:30',
   },
   {
     id: 'login-fixed',
@@ -156,21 +155,21 @@ export const SYSTEM_UPDATES = [
       'credentials since Tuesday afternoon. This was caused because of the ' +
       'changes we were making to support wider access via EduGain. This ' +
       'issue is now resolved.',
-    postedTimestamp: dayjs('2023-02-10T14:00:00+05:30'),
+    postedTimestamp: '2023-02-10T14:00:00+05:30',
   },
   {
     id: 'feb-week-1-lectures',
     header: 'AI-1 slides/videos updated',
     content:
       'Videos and slides for the last two lectures (Feb 1st and 2nd) are now available.',
-    postedTimestamp: dayjs('2023-02-04T21:45:00+05:30'),
+    postedTimestamp: '2023-02-04T21:45:00+05:30',
   },
   {
     id: 'quiz-demo',
     header: 'Quiz demo is functional again',
     content:
       '...but only on the [staging server](https://courses-staging.kwarc.info/quiz).',
-    postedTimestamp: dayjs('2023-02-01T23:45:00+05:30'),
+    postedTimestamp: '2023-02-01T23:45:00+05:30',
   },
   {
     id: 'flash-card-tweaks',
@@ -180,6 +179,6 @@ export const SYSTEM_UPDATES = [
 - Helper text introducing flash cards
 - Wider cards on bigger screens
 - Default configurator level set to "I'm not sure"`,
-    postedTimestamp: dayjs('2023-02-01T16:00:00+05:30'),
+    postedTimestamp: '2023-02-01T16:00:00+05:30',
   },
 ];

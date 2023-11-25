@@ -1,4 +1,6 @@
+import styled from '@emotion/styled';
 import DisplaySettingsIcon from '@mui/icons-material/DisplaySettings';
+import Diversity3Icon from '@mui/icons-material/Diversity3';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import {
@@ -9,18 +11,56 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import { keyframes } from '@mui/system';
 import {
   Notification,
   NotificationType,
   getUserNotifications,
 } from '@stex-react/api';
 import { DateView } from '@stex-react/react-utils';
-import { localStore } from '@stex-react/utils';
+import { PRIMARY_COL, localStore } from '@stex-react/utils';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import { SYSTEM_UPDATES } from '../system-updates';
+
+const bounce = keyframes` 0% { transform: rotate(0) translateY(0px); color: white; }
+15% { transform: rotate(5deg) translateY(-1px); }
+30% { transform: rotate(-5deg) translateY(-2px);}
+45% { transform: rotate(4deg) translateY(-3px); }
+60% { transform: rotate(-4deg) translateY(-3px); color: red; }
+75% { transform: rotate(2deg) translateY(-2px); }
+85% { transform: rotate(-2deg) translateY(-1px); }
+92% { transform: rotate(1deg) translateY(-1px); }
+100% { transform: rotate(0) translateY(0px); }
+`;
+const BouncingBox = styled('div')({
+  marginTop: '7px',
+  animation: `${bounce} 1s infinite ease`,
+});
+
+export function NotificationIcon({ type }: { type: NotificationType }) {
+  switch (type) {
+    case NotificationType.STUDY_BUDDY:
+      return <Diversity3Icon color="primary" />;
+    case NotificationType.COMMENT:
+      return <QuestionAnswerIcon color="primary" />;
+    case NotificationType.SYSTEM:
+    default:
+      return <DisplaySettingsIcon color="primary" />;
+  }
+}
+
+function NotificationBell({ shouldRing }: { shouldRing: boolean }) {
+  if (!shouldRing) return <NotificationsIcon htmlColor="white" />;
+  return (
+    <BouncingBox>
+      <NotificationsIcon htmlColor="#0039c1" />
+    </BouncingBox>
+  );
+}
+
 export function changeSystemUpdateToNotification(
   systemUpdate,
   locale
@@ -28,7 +68,6 @@ export function changeSystemUpdateToNotification(
   const { content, header, content_de, header_de, postedTimestamp } =
     systemUpdate;
   return {
-    userId: '',
     postedTimestamp,
     link: `/updates#${systemUpdate.id}`,
     content: (locale === 'de' ? content_de : content) ?? content,
@@ -70,10 +109,8 @@ function NotificationButton() {
 
   const sortedItems = useNotificationData();
   function topUpdate() {
-    const timestamp = sortedItems[0]
-      ? Math.floor(new Date(sortedItems[0].postedTimestamp).getTime() / 1000)
-      : null;
-    return timestamp?.toString();
+    if (!sortedItems?.length) return '';
+    return new Date(sortedItems[0].postedTimestamp).getTime().toString();
   }
   return (
     <>
@@ -84,35 +121,26 @@ function NotificationButton() {
             localStore?.setItem('combined-top-update', topUpdate());
           }}
         >
-          <NotificationsIcon htmlColor="white" />
+          <NotificationBell
+            shouldRing={
+              localStore?.getItem('combined-top-update') !== topUpdate()
+            }
+          />
         </IconButton>
       </Tooltip>
 
-      {localStore?.getItem('combined-top-update') !== topUpdate() && (
-        <div
-          style={{
-            color: 'red',
-            position: 'absolute',
-            left: '20px',
-            top: '-2px',
-            fontSize: '30px',
-          }}
-        >
-          &#8226;
-        </div>
-      )}
-
-      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+      <Menu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        sx={{ '& .MuiMenu-list': { pb: 0 } }}
+      >
         {sortedItems.slice(0, 7).map((item, idx) => (
           <MenuItem key={idx} onClick={handleClose}>
             <Link href={item.link}>
               <Box display="flex" alignItems="center">
-                <Box marginRight="1vw">
-                  {item.notificationType === 'SYSTEM' ? (
-                    <DisplaySettingsIcon style={{ color: 'rgb(32, 51, 96)' }} />
-                  ) : (
-                    <QuestionAnswerIcon style={{ color: 'rgb(32, 51, 96)' }} />
-                  )}
+                <Box marginRight="10px">
+                  <NotificationIcon type={item.notificationType} />
                 </Box>
                 <Box>
                   {item.header}
@@ -127,13 +155,10 @@ function NotificationButton() {
             </Link>
           </MenuItem>
         ))}
-        <Box
-          textAlign="center"
-          style={{ backgroundColor: 'rgb(32, 51, 96)', padding: '8px' }}
-        >
-          <Link href="/all-notification">
+        <Box textAlign="center" p="8px" bgcolor={PRIMARY_COL}>
+          <Link href="/all-notifications">
             <Typography style={{ color: 'white' }}>
-              {n.allNotification}
+              {n.allNotifications}
             </Typography>
           </Link>
         </Box>

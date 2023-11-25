@@ -211,7 +211,8 @@ export const de = {
     topics: 'Themen',
     video: 'Video',
   },
-  notification:{
-    allNotification:"Alle Benachrichtigungen anzeigen"
-  }
+  notification: {
+    notifications: 'Benachrichtigungen',
+    allNotifications: 'Alle Benachrichtigungen anzeigen',
+  },
 };
