@@ -163,7 +163,6 @@ export const de = {
     login: 'Anmeldung',
     profile: 'Profil',
     logOut: 'Ausloggen',
-    systemUpdate: 'Systemaktualisierung',
     helpCenter: 'Hilfezentrum',
     privacyPolicy: 'Datenschutz-Bestimmungen',
     legalNotice: 'Impressum',

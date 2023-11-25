@@ -9,10 +9,6 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const locale = req.query.locale as string;
-  if (process.env.NEXT_PUBLIC_SITE_VERSION === 'production') {
-    res.status(200).send([]);
-    return;
-  }
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
   let results;

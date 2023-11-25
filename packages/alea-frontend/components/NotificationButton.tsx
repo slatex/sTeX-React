@@ -62,8 +62,8 @@ function NotificationBell({ shouldRing }: { shouldRing: boolean }) {
 }
 
 export function changeSystemUpdateToNotification(
-  systemUpdate,
-  locale
+  systemUpdate: any,
+  locale: string
 ): Notification {
   const { content, header, content_de, header_de, postedTimestamp } =
     systemUpdate;
@@ -100,7 +100,7 @@ export function useNotificationData() {
 
 function NotificationButton() {
   const router = useRouter();
-  const { header: t, notification: n } = getLocaleObject(router);
+  const { notification: t } = getLocaleObject(router);
   // System info menu crap start
   const [anchorEl, setAnchorEl] = useState<any>(null);
   const open = Boolean(anchorEl);
@@ -114,7 +114,7 @@ function NotificationButton() {
   }
   return (
     <>
-      <Tooltip title={t.systemUpdate}>
+      <Tooltip title={t.notifications}>
         <IconButton
           onClick={(e) => {
             setAnchorEl(e.currentTarget);
@@ -158,7 +158,7 @@ function NotificationButton() {
         <Box textAlign="center" p="8px" bgcolor={PRIMARY_COL}>
           <Link href="/all-notifications">
             <Typography style={{ color: 'white' }}>
-              {n.allNotifications}
+              {t.allNotifications}
             </Typography>
           </Link>
         </Box>

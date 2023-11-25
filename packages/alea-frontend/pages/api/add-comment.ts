@@ -6,7 +6,7 @@ import {
   NotificationType,
   isModerator,
 } from '@stex-react/api';
-import { PathToArticle } from '@stex-react/utils';
+import { CURRENT_TERM, PathToArticle } from '@stex-react/utils';
 import axios from 'axios';
 import {
   checkIfPostOrSetError,
@@ -16,22 +16,32 @@ import {
   sendNotification,
 } from './comment-utils';
 
+function linkToComment({
+  threadId,
+  courseId,
+  courseTerm,
+  archive,
+  filepath,
+}: any) {
+  if (threadId && courseId && courseTerm === CURRENT_TERM) {
+    return `/forum/${courseId}/${threadId}`;
+  }
+  if (archive && filepath) return PathToArticle({ archive, filepath });
+  if (courseId) return `/forum/${courseId}`;
+  return PathToArticle({ archive: archive || '', filepath: filepath || '' });
+}
+
 async function sendCommentAlert(
   userId: string,
   isPrivate: boolean,
   isQuestion: boolean,
-  courseId: string,
-  archive: string,
-  filepath: string
+  link: string
 ) {
   if (isPrivate) return;
-  const articlePath =
-    'https://courses.voll-ki.fau.de' + PathToArticle({ archive, filepath });
-  const forumPath = `https://courses.voll-ki.fau.de/forum/${courseId}`;
-  const link = archive && filepath ? articlePath : forumPath;
+  const fullLink = `https://courses.voll-ki.fau.de${link}`;
   const message = isModerator(userId)
-    ? `A moderator posted at ${link}`
-    : `A ${isQuestion ? 'question' : 'comment'} was posted at ${link}`;
+    ? `A moderator posted at ${fullLink}`
+    : `A ${isQuestion ? 'question' : 'comment'} was posted at ${fullLink}`;
   await sendAlert(message);
 }
 
@@ -53,6 +63,25 @@ export async function sendAlert(message: string) {
       },
     }
   );
+}
+
+async function sendCommentNotifications(
+  parentComment?: Comment,
+  userId?: string
+) {
+  if (!parentComment) return;
+  const parentUserId = parentComment.userId;
+  if (parentUserId && parentUserId !== userId) {
+    await sendNotification(
+      parentUserId,
+      'Someone replied to your comment',
+      '',
+      'Jemand hat auf Ihren Kommentar geantwortet',
+      '',
+      NotificationType.COMMENT,
+      linkToComment(parentComment)
+    );
+  }
 }
 
 export default async function handler(req, res) {
@@ -86,30 +115,17 @@ export default async function handler(req, res) {
   }
 
   let threadId: number | undefined = undefined;
-  let parentUserId;
+  let parentComment: Comment = undefined;
   if (parentCommentId) {
-    const { existing: parentComment, error } = await getExistingCommentDontEnd(
+    const { existing, error } = await getExistingCommentDontEnd(
       parentCommentId
     );
+    parentComment = existing;
     if (!parentComment) {
       res.status(error || 404).json({ message: 'Parent comment not found' });
       return;
     }
     threadId = parentComment.threadId;
-    if (process.env.NEXT_PUBLIC_SITE_VERSION !== 'production') {
-      parentUserId = parentComment.userId;
-      if (parentUserId) {
-        await sendNotification(
-          parentUserId,
-          'English Header',
-          'English Content',
-          'German version Header',
-          'German version Content',
-          NotificationType.COMMENT,
-          '/help'
-        );
-      }
-    }
   }
   const results = await executeAndEndSet500OnError(
     `INSERT INTO comments
@@ -160,8 +176,7 @@ export default async function handler(req, res) {
     userId,
     isPrivate,
     commentType === CommentType.QUESTION,
-    courseId,
-    archive,
-    filepath
+    linkToComment({ threadId, courseId, courseTerm, archive, filepath })
   );
+  await sendCommentNotifications(parentComment, userId);
 }

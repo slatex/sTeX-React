@@ -179,7 +179,6 @@ export const en = {
     login: 'Login',
     profile: 'Profile',
     logOut: 'Log Out',
-    systemUpdate: 'System Updates',
     helpCenter: 'Help Center',
     privacyPolicy: 'Privacy Policy',
     legalNotice: 'Legal Notice',

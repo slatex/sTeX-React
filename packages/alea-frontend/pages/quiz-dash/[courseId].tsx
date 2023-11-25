@@ -59,7 +59,7 @@ function QuizList({
         {header}
       </Typography>
       {quizList
-        .sort((a, b) => a.quizStartTs - b.quizStartTs)
+        .sort((a, b) => b.quizStartTs - a.quizStartTs)
         .map((quiz) => (
           <Fragment key={quiz.quizId}>
             <QuizThumbnail quiz={quiz} />
