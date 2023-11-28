@@ -23,7 +23,7 @@ const UpdatesPage: NextPage = () => {
           variant="h3"
           color="#444"
         >
-          {t.notifications}
+          {t.systemUpdates}
         </Typography>
         {SYSTEM_UPDATES.map((update, idx) => (
           <Box key={idx} id={update.id} my="30px">
