@@ -11,6 +11,7 @@ import type { NextPage } from 'next';
 import Link from 'next/link';
 import {
   NotificationIcon,
+  getLinkTarget,
   useNotificationData,
 } from '../components/NotificationButton';
 import MainLayout from '../layouts/MainLayout';
@@ -41,8 +42,15 @@ const AllNotificationsPage: NextPage = () => {
                 </TimelineDot>
                 <TimelineConnector />
               </TimelineSeparator>
-              <TimelineContent sx={{ overflowWrap: 'anywhere', flex: '1 0 150px' }}>
-                <Link href={item.link}>{item.header.toUpperCase()}</Link>
+              <TimelineContent
+                sx={{ overflowWrap: 'anywhere', flex: '1 0 150px' }}
+              >
+                <Link
+                  href={item.link}
+                  target={getLinkTarget(item.notificationType)}
+                >
+                  {item.header.toUpperCase()}
+                </Link>
               </TimelineContent>
             </TimelineItem>
           ))}

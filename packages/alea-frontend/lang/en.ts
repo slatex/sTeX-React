@@ -227,6 +227,7 @@ export const en = {
     video: 'Video',
   },
   notification: {
+    systemUpdates: 'System Updates',
     notifications: 'Notifications',
     allNotifications: 'See All Notifications',
   },

@@ -211,6 +211,7 @@ export const de = {
     video: 'Video',
   },
   notification: {
+    systemUpdates: 'Systemaktualisierungen',
     notifications: 'Benachrichtigungen',
     allNotifications: 'Alle Benachrichtigungen anzeigen',
   },

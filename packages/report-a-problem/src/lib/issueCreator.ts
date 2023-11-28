@@ -1,3 +1,4 @@
+import { getAuthHeaders } from '@stex-react/api';
 import { FileInfo } from '@stex-react/utils';
 import axios from 'axios';
 
@@ -105,11 +106,16 @@ export async function createNewIssue(
   );
   try {
     const createNewIssueUrl = getNewIssueUrl(category, projectId);
-    const response = await axios.post('/api/create-issue', {
-      data,
-      createNewIssueUrl,
-      category: category.toString(),
-    });
+    const response = await axios.post(
+      '/api/create-issue',
+      {
+        data,
+        type,
+        createNewIssueUrl,
+        category: category.toString(),
+      },
+      { headers: getAuthHeaders() }
+    );
     return response.data['issue_url'];
   } catch (err) {
     console.log(err);
