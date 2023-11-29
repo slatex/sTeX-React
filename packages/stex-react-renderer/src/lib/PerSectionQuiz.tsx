@@ -22,7 +22,7 @@ export function PerSectionQuiz({
 }: {
   archive: string;
   filepath: string;
-  showButtonFirst: boolean;
+  showButtonFirst?: boolean;
 }) {
   const t = getLocaleObject(useRouter()).quiz;
   const { mmtUrl } = useContext(ServerLinksContext);
