@@ -3,7 +3,7 @@ import {
   Problem,
   ProblemResponse,
   getProblemIdsForFile,
-  getProblemShtml
+  getProblemShtml,
 } from '@stex-react/api';
 import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
 import { useRouter } from 'next/router';
@@ -47,6 +47,7 @@ export function PerSectionQuiz({
       setProblems(problems);
       setResponses(problems.map((p) => defaultProblemResponse(p)));
       setIsFrozen(problems.map(() => false));
+      setProblemIdx(0);
       setIsLoading(false);
     }, console.error);
   }, [archive, filepath, mmtUrl, renderOptions.noFrills]);
@@ -60,7 +61,7 @@ export function PerSectionQuiz({
   if (!startQuiz) {
     return (
       <Button onClick={() => setStartQuiz(true)} variant="contained">
-        Quiz Questions For Above Section ({problems.length} problems)
+        {t.perSectionQuizButton.replace('$1', problems.length.toString())}
       </Button>
     );
   }

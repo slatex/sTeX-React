@@ -52,6 +52,7 @@ function PraticeQuizThumbnail({
   courseId: string;
   practiceInfo: { startSecNameExcl: string; endSecNameIncl: string };
 }) {
+  const { quiz: t } = getLocaleObject(useRouter());
   const { startSecNameExcl, endSecNameIncl } = practiceInfo;
   return (
     <Box width="fit-content">
@@ -67,7 +68,7 @@ function PraticeQuizThumbnail({
             width: 'fit-content',
           }}
         >
-          <Box>Practice Quiz Questions</Box>
+          <Box>{t.practiceQuizQuestions}</Box>
         </Card>
       </Link>
     </Box>
