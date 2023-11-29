@@ -2,9 +2,8 @@ import { Box, Button } from '@mui/material';
 import {
   Problem,
   ProblemResponse,
-  getProblemIdsForConcept,
   getProblemIdsForFile,
-  getProblemShtml,
+  getProblemShtml
 } from '@stex-react/api';
 import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
 import { useRouter } from 'next/router';
@@ -12,44 +11,48 @@ import { useContext, useEffect, useReducer, useState } from 'react';
 import { defaultProblemResponse } from './InlineProblemDisplay';
 import { ProblemDisplay } from './ProblemDisplay';
 import { ListStepper } from './QuizDisplay';
+import { RenderOptions } from './RendererDisplayOptions';
 import { getLocaleObject } from './lang/utils';
 import { ServerLinksContext, mmtHTMLToReact } from './stex-react-renderer';
-import { RenderOptions } from './RendererDisplayOptions';
 
 export function PerSectionQuiz({
   archive,
   filepath,
+  showButtonFirst = true,
 }: {
   archive: string;
   filepath: string;
+  showButtonFirst: boolean;
 }) {
   const t = getLocaleObject(useRouter()).quiz;
   const { mmtUrl } = useContext(ServerLinksContext);
   const [problems, setProblems] = useState<Problem[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [responses, setResponses] = useState<ProblemResponse[]>([]);
   const [problemIdx, setProblemIdx] = useState(0);
   const [isFrozen, setIsFrozen] = useState<boolean[]>([]);
   const [, forceRerender] = useReducer((x) => x + 1, 0);
-  const [startQuiz, setStartQuiz] = useState(false);
+  const [startQuiz, setStartQuiz] = useState(!showButtonFirst);
   const { renderOptions } = useContext(RenderOptions);
 
   useEffect(() => {
     if (!archive || !filepath || renderOptions.noFrills) return;
+    setIsLoading(true);
     getProblemIdsForFile(mmtUrl, archive, filepath).then(async (problemIds) => {
-      console.log('problemsUrl', problemIds);
       const problems$ = problemIds.map((p) => getProblemShtml(mmtUrl, p));
       const problemStrs = await Promise.all(problems$);
-      console.log('problems loaded', problemStrs.length);
       const problems = problemStrs.map((p) =>
         getProblem(hackAwayProblemId(p), '')
       );
       setProblems(problems);
       setResponses(problems.map((p) => defaultProblemResponse(p)));
       setIsFrozen(problems.map(() => false));
+      setIsLoading(false);
     }, console.error);
   }, [archive, filepath, mmtUrl, renderOptions.noFrills]);
 
-  if (!problems.length || renderOptions.noFrills) return null;
+  if (isLoading || renderOptions.noFrills) return null;
+  if (!problems.length) return !showButtonFirst && <i>No problems found.</i>;
 
   const problem = problems[problemIdx];
   const response = responses[problemIdx];

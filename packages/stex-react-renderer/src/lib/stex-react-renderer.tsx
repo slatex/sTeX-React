@@ -1,13 +1,13 @@
 import { Box, CircularProgress } from '@mui/material';
-import { getDocumentSections, SectionsAPIData } from '@stex-react/api';
+import { getDocumentSections } from '@stex-react/api';
 import {
   BG_COLOR,
+  IS_MMT_VIEWER,
+  Window,
   getChildrenOfBodyNode,
   getSectionInfo,
-  IS_MMT_VIEWER,
   localStore,
   shouldUseDrawer,
-  Window,
 } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import {
@@ -18,17 +18,19 @@ import {
   useRef,
   useState,
 } from 'react';
-import { getScrollInfo, TOCFileNode } from './collectIndexInfo';
 import CompetencyTable from './CompetencyTable';
 import { ContentDashboard } from './ContentDashboard';
 import { ContentFromUrl } from './ContentFromUrl';
 import { ContentWithHighlight } from './ContentWithHightlight';
+import { DocFragManager } from './DocFragManager';
+import { DocProblemBrowser } from './DocProblemBrowser';
+import { DocumentWidthSetter } from './DocumentWidthSetter';
 import { ExpandableContent } from './ExpandableContent';
 import { ExpandableContextMenu } from './ExpandableContextMenu';
 import { FileBrowser } from './FileBrowser';
 import { DocSectionContext, InfoSidebar } from './InfoSidebar';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
-import { CustomItemsContext, NoMaxWidthTooltip, mmtHTMLToReact } from './mmtParser';
+import { QuizDisplay } from './QuizDisplay';
 import { RenderOptions } from './RendererDisplayOptions';
 import {
   ConfigureLevelSlider,
@@ -38,9 +40,12 @@ import {
   SelfAssessmentDialog,
 } from './SelfAssessmentDialog';
 import { TourAPIEntry, TourDisplay } from './TourDisplay';
-import { DocFragManager } from './DocFragManager';
-import { DocumentWidthSetter } from './DocumentWidthSetter';
-import { QuizDisplay } from './QuizDisplay';
+import { TOCFileNode, getScrollInfo } from './collectIndexInfo';
+import {
+  CustomItemsContext,
+  NoMaxWidthTooltip,
+  mmtHTMLToReact,
+} from './mmtParser';
 
 export const ServerLinksContext = createContext({ mmtUrl: '', lmsUrl: '' });
 
@@ -138,6 +143,7 @@ export function StexReactRenderer({
           menu={
             <ContentDashboard
               docSections={docFragManager.docSections}
+              courseId={router?.query?.courseId as string}
               onClose={() => setShowDashboard(false)}
               contentUrl={contentUrl}
               selectedSection={''}
@@ -196,6 +202,7 @@ export {
   ContentWithHighlight,
   CustomItemsContext,
   DimIcon,
+  DocProblemBrowser,
   DocumentWidthSetter,
   ExpandableContent,
   ExpandableContextMenu,
@@ -203,11 +210,11 @@ export {
   FixedPositionMenu,
   LayoutWithFixedMenu,
   LevelIcon,
-  mmtHTMLToReact,
   NoMaxWidthTooltip,
   QuizDisplay,
   SelfAssessment2,
   SelfAssessmentDialog,
   TourDisplay,
+  mmtHTMLToReact,
 };
 export type { TOCFileNode, TourAPIEntry };

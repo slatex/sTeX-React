@@ -11,7 +11,7 @@ import dayjs from 'dayjs';
 import { Box, Card, CircularProgress, Typography } from '@mui/material';
 import Link from 'next/link';
 import { CourseHeader } from '../course-home/[courseId]';
-import { CourseInfo } from '@stex-react/utils';
+import { CourseInfo, localStore } from '@stex-react/utils';
 import {
   ServerLinksContext,
   mmtHTMLToReact,
@@ -45,6 +45,35 @@ function QuizThumbnail({ quiz }: { quiz: QuizStubInfo }) {
   );
 }
 
+function PraticeQuizThumbnail({
+  courseId,
+  practiceInfo,
+}: {
+  courseId: string;
+  practiceInfo: { startSecNameExcl: string; endSecNameIncl: string };
+}) {
+  const { startSecNameExcl, endSecNameIncl } = practiceInfo;
+  return (
+    <Box width="fit-content">
+      <Link
+        href={`/course-problems/${courseId}?startSecNameExcl=${startSecNameExcl}&endSecNameIncl=${endSecNameIncl}`}
+      >
+        <Card
+          sx={{
+            backgroundColor: 'hsl(210, 20%, 95%)',
+            border: '1px solid #CCC',
+            p: '10px',
+            my: '10px',
+            width: 'fit-content',
+          }}
+        >
+          <Box>Practice Quiz Questions</Box>
+        </Card>
+      </Link>
+    </Box>
+  );
+}
+
 function QuizList({
   header,
   quizList,
@@ -68,6 +97,44 @@ function QuizList({
     </>
   );
 }
+
+function UpcomingQuizList({
+  header,
+  quizList,
+  courseId,
+  practiceInfo,
+}: {
+  header: string;
+  quizList: QuizStubInfo[];
+  courseId: string;
+  practiceInfo?: { startSecNameExcl: string; endSecNameIncl: string };
+}) {
+  if (!quizList?.length && !practiceInfo) return null;
+  return (
+    <>
+      <Typography variant="h5" sx={{ m: '30px 0 15px' }}>
+        {header}
+      </Typography>
+      {quizList
+        .sort((a, b) => b.quizStartTs - a.quizStartTs)
+        .map((quiz) => (
+          <Fragment key={quiz.quizId}>
+            <QuizThumbnail quiz={quiz} />
+          </Fragment>
+        ))}
+      {localStore?.getItem('section-quiz') && practiceInfo && (
+        <PraticeQuizThumbnail courseId={courseId} practiceInfo={practiceInfo} />
+      )}
+    </>
+  );
+}
+
+const PRACTICE_QUIZ_INFO = {
+  'ai-1': {
+    startSecNameExcl: 'Monte-Carlo Tree Search (MCTS)',
+    endSecNameIncl: 'Arc Consistency',
+  },
+};
 
 const QuizDashPage: NextPage = () => {
   const router = useRouter();
@@ -144,7 +211,12 @@ const QuizDashPage: NextPage = () => {
         </Typography>
 
         <QuizList header={t.ongoingQuizzes} quizList={ongoingQuizzes} />
-        <QuizList header={t.upcomingQuizzes} quizList={upcomingQuizzes} />
+        <UpcomingQuizList
+          header={t.upcomingQuizzes}
+          courseId={courseId}
+          quizList={upcomingQuizzes}
+          practiceInfo={PRACTICE_QUIZ_INFO[courseId]}
+        />
         <QuizList header={t.previousQuizzes} quizList={previousQuizzes} />
       </Box>
     </MainLayout>
