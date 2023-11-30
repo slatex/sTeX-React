@@ -4,8 +4,10 @@ import { Box, Button } from '@mui/material';
 import {
   SectionsAPIData,
   findFileNode,
+  getAncestors,
   hasSectionChild,
-  isFile
+  isFile,
+  isSection
 } from '@stex-react/api';
 import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import { useState } from 'react';
