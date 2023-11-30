@@ -12,4 +12,5 @@ export * from './quiz-api';
 export * from './course-grade-info';
 export * from './notifications';
 export * from './notifications-api';
-export * from './studybuddy';
+export * from './study-buddy';
+export * from './study-buddy-api';

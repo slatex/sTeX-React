@@ -1,18 +1,22 @@
+import { GetStudyBuddiesResponse, StudyBuddy } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
 import {
   executeAndEndSet500OnError,
   getUserIdOrSetError,
 } from '../../comment-utils';
-import { GetAllStudyBuddiesResponse, Studybuddy } from '@stex-react/api';
+
+const SENT_STATUS = 'sent';
+const RECEIVED_STATUS = 'received';
+const CONNECTED_STATUS = 'connected';
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   const userId = await getUserIdOrSetError(req, res);
+  if (!userId) return;
 
   const courseId = req.query.courseId as string;
-
   const receivedRequests: any[] = await executeAndEndSet500OnError(
     'SELECT senderId FROM StudyBuddyConnections WHERE receiverId=? AND courseId=?',
     [userId, courseId],
@@ -29,8 +33,9 @@ export default async function handler(
 
   if (!sentRequests) return;
 
-  const allStudybuddies: any[] = await executeAndEndSet500OnError(
-    'SELECT * FROM StudyBuddyConnectUsers WHERE NOT userId=? AND courseId=? AND active=?',
+  // TODO: should not select *
+  const allStudybuddies: StudyBuddy[] = await executeAndEndSet500OnError(
+    'SELECT * FROM StudyBuddyUsers WHERE NOT userId=? AND courseId=? AND active=?',
     [userId, courseId, true],
     res
   );
@@ -39,35 +44,35 @@ export default async function handler(
 
   const userStatusses = new Map<string, string>();
   for (const row of receivedRequests) {
-    userStatusses.set(row.senderId, 'received');
+    userStatusses.set(row.senderId, RECEIVED_STATUS);
   }
 
   for (const row of sentRequests) {
     if (userStatusses.has(row.receiverId)) {
-      userStatusses.set(row.receiverId, 'connected');
+      userStatusses.set(row.receiverId, CONNECTED_STATUS);
     } else {
-      userStatusses.set(row.receiverId, 'sent');
+      userStatusses.set(row.receiverId, SENT_STATUS);
     }
   }
 
-  const connected: Studybuddy[] = [];
-  const requestSent: Studybuddy[] = [];
-  const requestReceived: Studybuddy[] = [];
-  const other: Studybuddy[] = [];
+  const connected: StudyBuddy[] = [];
+  const requestSent: StudyBuddy[] = [];
+  const requestReceived: StudyBuddy[] = [];
+  const other: StudyBuddy[] = [];
 
-  for (const row of allStudybuddies) {
-    const status = userStatusses.get(row.userId);
-    if (status == 'connected') {
-      connected.push(row);
-    } else if (status == 'sent') {
-      delete row.email;
-      requestSent.push(row);
-    } else if (status == 'received') {
-      delete row.email;
-      requestReceived.push(row);
+  for (const buddy of allStudybuddies) {
+    const status = userStatusses.get(buddy.userId);
+    if (status === CONNECTED_STATUS) {
+      connected.push(buddy);
     } else {
-      delete row.email;
-      other.push(row);
+      delete buddy.email;
+      if (status === SENT_STATUS) {
+        requestSent.push(buddy);
+      } else if (status === RECEIVED_STATUS) {
+        requestReceived.push(buddy);
+      } else {
+        other.push(buddy);
+      }
     }
   }
 
@@ -76,5 +81,5 @@ export default async function handler(
     requestSent,
     requestReceived,
     other,
-  } as GetAllStudyBuddiesResponse);
+  } as GetStudyBuddiesResponse);
 }

@@ -92,6 +92,22 @@ const ExperimentsHome: NextPage = () => {
                 {localStore?.getItem('section-quiz') ? 'Disable ' : 'Enable '}{' '}
                 Section Quiz
               </Button>
+              <Button
+                variant="contained"
+                onClick={() => {
+                  if (localStore?.getItem('study-buddy')) {
+                    localStore.removeItem('study-buddy');
+                    alert('Study Buddy disabled');
+                  } else {
+                    localStore.setItem('study-buddy', 'true');
+                    alert('Study Buddy enabled');
+                  }
+                  window.location.reload();
+                }}
+              >
+                {localStore?.getItem('study-buddy') ? 'Disable ' : 'Enable '}{' '}
+                Study Buddy
+              </Button>
               <InternalButtonLink href="/debug-section">
                 Debug Document Sections
               </InternalButtonLink>

@@ -15,6 +15,7 @@ import {
   getUserInfo,
   purgeAllMyData,
   purgeComments,
+  purgeStudyBuddyData,
   purgeUserNotifications,
   resetFakeUserData
 } from '@stex-react/api';
@@ -205,6 +206,7 @@ const MyProfilePage: NextPage = () => {
                 await purgeAllMyData();
                 await purgeComments();
                 await purgeUserNotifications();
+                await purgeStudyBuddyData();
                 alert(t.dataPurged);
                 setOpenPurgeDialog(false);
               } catch (err) {
