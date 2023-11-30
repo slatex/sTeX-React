@@ -71,3 +71,11 @@ CREATE TABLE notifications (
     postedTimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updatedTimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+CREATE TABLE userInfo (
+    userId VARCHAR(50) PRIMARY KEY,
+    firstName VARCHAR(255),
+    lastName VARCHAR(255),
+    email VARCHAR(255),
+    notificationSeenTs VARCHAR(255)
+);
