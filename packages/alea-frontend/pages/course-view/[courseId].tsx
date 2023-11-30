@@ -268,6 +268,7 @@ const CourseViewPage: NextPage = () => {
           contentUrl?.length ? (
             <>
               <ContentDashboard
+                courseId={courseId}
                 docSections={docSections}
                 contentUrl={contentUrl}
                 selectedSection={sectionId}

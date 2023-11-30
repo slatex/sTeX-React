@@ -2,9 +2,15 @@ import PlayCircleFilledWhiteIcon from '@mui/icons-material/PlayCircleFilledWhite
 import { Box, IconButton } from '@mui/material';
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
-import { PROBLEM_PARSED_MARKER, getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
+import { getAncestors, lastFileNode } from '@stex-react/api';
+import {
+  PROBLEM_PARSED_MARKER,
+  getProblem,
+  hackAwayProblemId,
+} from '@stex-react/quiz-utils';
 import {
   IS_MMT_VIEWER,
+  XhtmlContentUrl,
   contextParamsFromTopLevelDocUrl,
   getCustomTag,
   localStore,
@@ -13,9 +19,11 @@ import { getOuterHTML } from 'domutils';
 import parse, { DOMNode, Element, domToReact } from 'html-react-parser';
 import { ElementType } from 'htmlparser2';
 import { createContext, forwardRef, useContext, useState } from 'react';
+import CompetencyIndicator from './CompetencyIndicator';
 import { ContentFromUrl } from './ContentFromUrl';
 import { ErrorBoundary } from './ErrorBoundary';
 import { ExpandableContent } from './ExpandableContent';
+import { DocSectionContext } from './InfoSidebar';
 import { InlineProblemDisplay } from './InlineProblemDisplay';
 import MathJaxHack from './MathJaxHack';
 import { MathMLDisplay } from './MathMLDisplay';
@@ -270,6 +278,32 @@ function MMTImage({ d }: { d: Element }) {
   return <>{domToReact([d], { replace })}</>;
 }
 
+function SectionDisplay({ d }: { d: Element }) {
+  const { docFragManager } = useContext(DocSectionContext);
+  const id = d.attribs['id'];
+  const ancestors = getAncestors(
+    undefined,
+    undefined,
+    id,
+    docFragManager?.docSections
+  );
+  const actualSection = <>{domToReact([d], { replace })}</>;
+  if (!ancestors) return actualSection;
+  const sectionNode = ancestors[ancestors?.length - 1];
+  const fileParent = lastFileNode(ancestors);
+  if (!fileParent?.archive || !fileParent?.filepath) return actualSection;
+  const { archive, filepath } = fileParent;
+  return (
+    <>
+      {actualSection}
+      <CompetencyIndicator
+        contentUrl={XhtmlContentUrl(archive, filepath)}
+        sectionTitle={sectionNode.title ?? ''}
+      />
+    </>
+  );
+}
+
 function CustomReplacement({ tag }: { tag: string }) {
   const { items } = useContext(CustomItemsContext);
   if (!items[tag]) return <>Tag [{tag}] not found</>;
@@ -290,8 +324,16 @@ const replace = (d: DOMNode): any => {
 
   if (isMMTSrc(domNode) && !IS_MMT_VIEWER) return <MMTImage d={domNode} />;
 
-  const customTag = getCustomTag(domNode.attribs?.['id']);
+  const nodeId = domNode.attribs?.['id'];
+  const customTag = getCustomTag(nodeId);
   if (customTag) return <CustomReplacement tag={customTag} />;
+
+  const sectionProcessed = domNode.attribs?.['section-processed'];
+  // TODO: 'data-with-bindings' check is hacky and brittle
+  if (nodeId && domNode.attribs?.['data-with-bindings'] && !sectionProcessed) {
+    domNode.attribs['section-processed'] = 'true';
+    return <SectionDisplay d={domNode} />;
+  }
 
   // Remove section numbers;
   if (

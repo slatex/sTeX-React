@@ -11,7 +11,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
-import { ToursAutocomplete } from '../components/ToursAutocomplete';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 import styles from '../styles/utils.module.scss';
@@ -148,9 +147,7 @@ function SiteDescription({ lang }: { lang: string }) {
         für Kurse in Informatik und Künstlicher Intelligenz an der FAU. Dies
         sind interaktive Dokumente, die sich an die Präferenzen und Kompetenzen
         der Benutzer anpassen und sich auf das in einer bestimmten
-        Wissenseinheit vermittelte Wissen konzentrieren. Auf dieser Seite
-        liefern wir thematisch geordnet Einstiegspunkte für FAU-Kurse und das
-        zugrunde liegende CS/AI-Curriculum.
+        Wissenseinheit vermittelte Wissen konzentrieren.
       </>
     );
   }
@@ -165,8 +162,7 @@ function SiteDescription({ lang }: { lang: string }) {
         for courses in Computer Science and Artificial Intelligence at FAU.
         These are interactive documents that adapt to the users preferences and
         competencies focused on the knowledge conveyed in a particular knowledge
-        unit. On this page we supply entry points for FAU courses and the
-        underlying CS/AI Curriculum by topic.
+        unit.
       </>
     );
   }
@@ -227,10 +223,6 @@ const StudentHomePage: NextPage = () => {
                 <CourseThumb key={c.courseId} course={c} />
               ))}
           </Box>
-          <hr style={{ width: '90%' }} />
-          <h1>{t.guidedTourHeader}</h1>
-          <ToursAutocomplete />
-          <br />
           <hr style={{ width: '90%' }} />
           <br />
           <Box className={styles['descriptive-box']}>{t.footerInfo}</Box>

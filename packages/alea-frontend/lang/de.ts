@@ -98,6 +98,7 @@ export const de = {
     this: 'Dies',
     demoQuizText:
       'ist ein Demo-Quiz - damit Sie Ihre Hard-/Software testen (Sie benötigen einen aktuellen Chrome- oder Firefox-Browser) und das Format sehen können. Insbesondere sollten Sie in der Lage sein, die Mathematik im Problem des Handlungsreisenden zu lesen.',
+    practiceProblems: 'Übungsprobleme',
   },
   vis: {
     goToTour: 'Gehen Sie zur Tour',
@@ -211,6 +212,7 @@ export const de = {
     video: 'Video',
   },
   notification: {
+    systemUpdates: 'Systemaktualisierungen',
     notifications: 'Benachrichtigungen',
     allNotifications: 'Alle Benachrichtigungen anzeigen',
   },

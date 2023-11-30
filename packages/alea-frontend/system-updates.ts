@@ -8,6 +8,16 @@ export const SYSTEM_UPDATES = [
     postedTimestamp: '2023-02-11T00:20:00+05:30',
   },*/
   {
+    id: 'notification',
+    header: 'Notifications in ALeA',
+    content:
+      'You will now receive notifications when someone responds to your comment or question. Lookout for the ringing bell icon 🔔',
+    header_de: 'Benachrichtigungen in ALeA',
+    content_de:
+      'Sie erhalten nun Benachrichtigungen, wenn jemand auf Ihren Kommentar oder Ihre Frage antwortet. Achten Sie auf das Glockensymbol 🔔',
+    postedTimestamp: '2023-11-26T00:20:00+05:30',
+  },
+  {
     id: 'competency_indicator',
     header: 'Competency Indicator',
     content:

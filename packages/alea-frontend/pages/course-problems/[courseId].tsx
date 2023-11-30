@@ -1,0 +1,71 @@
+import { Button, CircularProgress } from '@mui/material';
+import { getCourseInfo } from '@stex-react/api';
+import {
+  DocProblemBrowser,
+  ServerLinksContext,
+} from '@stex-react/stex-react-renderer';
+import { CourseInfo, XhtmlContentUrl } from '@stex-react/utils';
+import type { NextPage } from 'next';
+import { useRouter } from 'next/router';
+import { useContext, useEffect, useState } from 'react';
+import { getLocaleObject } from '../../lang/utils';
+import MainLayout from '../../layouts/MainLayout';
+
+const CourseProblemsPage: NextPage = () => {
+  const router = useRouter();
+  const { home } = getLocaleObject(router);
+  const t = home.courseThumb;
+  const courseId = router.query.courseId as string;
+  const startSecNameExcl = router.query.startSecNameExcl as string;
+  const endSecNameIncl = router.query.endSecNameIncl as string;
+  const [courses, setCourses] = useState<
+    { [id: string]: CourseInfo } | undefined
+  >(undefined);
+  const { mmtUrl } = useContext(ServerLinksContext);
+
+  useEffect(() => {
+    if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
+  }, [mmtUrl]);
+
+  if (!router.isReady || !courses) return <CircularProgress />;
+  const courseInfo = courses[courseId];
+  if (!courseInfo) {
+    router.replace('/');
+    return <>Course Not Found!</>;
+  }
+  const url = XhtmlContentUrl(
+    courseInfo.notesArchive,
+    courseInfo.notesFilepath
+  );
+
+  return (
+    <MainLayout
+      title={(courseId || '').toUpperCase() + ` ${t.notes} | VoLL-KI`}
+    >
+      {startSecNameExcl && endSecNameIncl && (
+        <Button
+          variant="contained"
+          sx={{
+            position: 'absolute',
+            right: '5px',
+            top: '10px',
+            zIndex: '100',
+          }}
+          onClick={() => {
+            router.push({ pathname: router.pathname, query: { courseId } });
+          }}
+        >
+          See all problems
+        </Button>
+      )}
+      <DocProblemBrowser
+        contentUrl={url}
+        courseId={courseId}
+        topOffset={64}
+        startSecNameExcl={startSecNameExcl}
+        endSecNameIncl={endSecNameIncl}
+      />
+    </MainLayout>
+  );
+};
+export default CourseProblemsPage;

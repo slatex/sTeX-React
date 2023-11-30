@@ -1,5 +1,4 @@
 import { getCourseInfo, getDefiniedaInDoc } from '@stex-react/api';
-import axios from 'axios';
 export const EXCLUDED_CHAPTERS = ['Preface', 'Administrativa', 'Resources'];
 
 export default async function handler(req, res) {

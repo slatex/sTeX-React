@@ -1,8 +1,8 @@
 import { Box, Button } from '@mui/material';
+import LinearProgress from '@mui/material/LinearProgress';
 import {
   Problem,
   ProblemResponse,
-  getProblemIdsForConcept,
   getProblemIdsForFile,
   getProblemShtml,
 } from '@stex-react/api';
@@ -14,53 +14,70 @@ import { ProblemDisplay } from './ProblemDisplay';
 import { ListStepper } from './QuizDisplay';
 import { getLocaleObject } from './lang/utils';
 import { ServerLinksContext, mmtHTMLToReact } from './stex-react-renderer';
-import { RenderOptions } from './RendererDisplayOptions';
 
 export function PerSectionQuiz({
   archive,
   filepath,
+  showButtonFirst = true,
 }: {
   archive: string;
   filepath: string;
+  showButtonFirst?: boolean;
 }) {
   const t = getLocaleObject(useRouter()).quiz;
   const { mmtUrl } = useContext(ServerLinksContext);
+  const [problemIds, setProblemIds] = useState<string[]>([]);
   const [problems, setProblems] = useState<Problem[]>([]);
+  const [isLoadingProblemIds, setIsLoadingProblemIds] = useState<boolean>(true);
+  const [isLoadingProblems, setIsLoadingProblems] = useState<boolean>(true);
   const [responses, setResponses] = useState<ProblemResponse[]>([]);
   const [problemIdx, setProblemIdx] = useState(0);
   const [isFrozen, setIsFrozen] = useState<boolean[]>([]);
   const [, forceRerender] = useReducer((x) => x + 1, 0);
-  const [startQuiz, setStartQuiz] = useState(false);
-  const { renderOptions } = useContext(RenderOptions);
+  const [startQuiz, setStartQuiz] = useState(!showButtonFirst);
 
   useEffect(() => {
-    if (!archive || !filepath || renderOptions.noFrills) return;
-    getProblemIdsForFile(mmtUrl, archive, filepath).then(async (problemIds) => {
-      console.log('problemsUrl', problemIds);
-      const problems$ = problemIds.map((p) => getProblemShtml(mmtUrl, p));
-      const problemStrs = await Promise.all(problems$);
-      console.log('problems loaded', problemStrs.length);
+    if (!archive || !filepath) return;
+    setIsLoadingProblemIds(true);
+    getProblemIdsForFile(mmtUrl, archive, filepath).then((p) => {
+      setProblemIds(p);
+      setIsLoadingProblemIds(false);
+    }, console.error);
+  }, [archive, filepath, mmtUrl]);
+
+  useEffect(() => {
+    if (!startQuiz) return;
+    const problems$ = problemIds.map((p) => getProblemShtml(mmtUrl, p));
+    setIsLoadingProblems(true);
+    Promise.all(problems$).then((problemStrs) => {
       const problems = problemStrs.map((p) =>
         getProblem(hackAwayProblemId(p), '')
       );
       setProblems(problems);
       setResponses(problems.map((p) => defaultProblemResponse(p)));
       setIsFrozen(problems.map(() => false));
-    }, console.error);
-  }, [archive, filepath, mmtUrl, renderOptions.noFrills]);
+      setProblemIdx(0);
+      setIsLoadingProblems(false);
+    });
+  }, [startQuiz, problemIds, mmtUrl]);
 
-  if (!problems.length || renderOptions.noFrills) return null;
+  if (isLoadingProblemIds) return null;
+  if (!problemIds.length) return !showButtonFirst && <i>No problems found.</i>;
+  if (!startQuiz) {
+    return (
+      <Button onClick={() => setStartQuiz(true)} variant="contained">
+        {t.perSectionQuizButton.replace('$1', problemIds.length.toString())}
+      </Button>
+    );
+  }
+
+  if (isLoadingProblems) return <LinearProgress />;
 
   const problem = problems[problemIdx];
   const response = responses[problemIdx];
 
-  if (!startQuiz) {
-    return (
-      <Button onClick={() => setStartQuiz(true)} variant="contained">
-        Quiz Questions For Above Section ({problems.length} problems)
-      </Button>
-    );
-  }
+  if (!problem || !response) return <>error</>;
+
   return (
     <Box
       px="10px"
@@ -84,6 +101,7 @@ export function PerSectionQuiz({
       <Box my="10px">
         <ProblemDisplay
           r={response}
+          showPoints={false}
           problem={problem}
           isFrozen={isFrozen[problemIdx]}
           onResponseUpdate={(response) => {

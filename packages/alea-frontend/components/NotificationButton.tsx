@@ -1,7 +1,10 @@
 import styled from '@emotion/styled';
 import DisplaySettingsIcon from '@mui/icons-material/DisplaySettings';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
+import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import LightbulbIcon from '@mui/icons-material/Lightbulb';
+
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import {
   Box,
@@ -46,10 +49,21 @@ export function NotificationIcon({ type }: { type: NotificationType }) {
       return <Diversity3Icon color="primary" />;
     case NotificationType.COMMENT:
       return <QuestionAnswerIcon color="primary" />;
+    case NotificationType.REPORT_PROBLEM:
+      return <ReportProblemIcon color="primary" />;
+    case NotificationType.SUGGESTION:
+      return <LightbulbIcon color="primary" />;
     case NotificationType.SYSTEM:
     default:
       return <DisplaySettingsIcon color="primary" />;
   }
+}
+
+export function getLinkTarget(notificationType) {
+  return notificationType === NotificationType.REPORT_PROBLEM ||
+    notificationType === NotificationType.SUGGESTION
+    ? '_blank'
+    : undefined;
 }
 
 function NotificationBell({ shouldRing }: { shouldRing: boolean }) {
@@ -137,7 +151,10 @@ function NotificationButton() {
       >
         {sortedItems.slice(0, 7).map((item, idx) => (
           <MenuItem key={idx} onClick={handleClose}>
-            <Link href={item.link}>
+            <Link
+              href={item.link}
+              target={getLinkTarget(item.notificationType)}
+            >
               <Box display="flex" alignItems="center">
                 <Box marginRight="10px">
                   <NotificationIcon type={item.notificationType} />

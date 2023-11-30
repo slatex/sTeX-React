@@ -118,6 +118,7 @@ export const en = {
     this: 'This',
     demoQuizText:
       'is a demo quiz - so that you can test your hard/software (you will need a recent chrome or firefox browser) and see the format. In particular, you should be able to read the Math in the travelling salesperson problem.',
+    practiceProblems: 'Practice Problems',
   },
   vis: {
     goToTour: 'Go To Tour',
@@ -227,6 +228,7 @@ export const en = {
     video: 'Video',
   },
   notification: {
+    systemUpdates: 'System Updates',
     notifications: 'Notifications',
     allNotifications: 'See All Notifications',
   },

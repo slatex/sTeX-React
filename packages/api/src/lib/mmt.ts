@@ -3,6 +3,8 @@ import {
   CURRENT_TERM,
   CourseInfo,
   FileLocation,
+  convertHtmlNodeToPlain,
+  convertHtmlStringToPlain,
   createCourseInfo,
   localStore,
 } from '@stex-react/utils';
@@ -83,24 +85,92 @@ export interface SectionsAPIData {
 }
 
 export function getAncestors(
-  archive: string,
-  filepath: string,
+  archive: string | undefined,
+  filepath: string | undefined,
+  sectionId: string | undefined,
   sectionData: SectionsAPIData | undefined,
   ancestors: SectionsAPIData[] = []
 ): SectionsAPIData[] | undefined {
   if (!sectionData) return undefined;
 
-  if (sectionData.archive === archive && sectionData.filepath === filepath) {
+  if (
+    archive &&
+    filepath &&
+    sectionData.archive === archive &&
+    sectionData.filepath === filepath
+  ) {
     return [...ancestors, sectionData];
   }
-  for (const child of sectionData.children) {
-    const foundAncestors = getAncestors(archive, filepath, child, [
+  if (sectionId && sectionData.id === sectionId) {
+    return [...ancestors, sectionData];
+  }
+  for (const child of sectionData.children || []) {
+    const foundAncestors = getAncestors(archive, filepath, sectionId, child, [
       ...ancestors,
       sectionData,
     ]);
     if (foundAncestors?.length) return foundAncestors;
   }
   return undefined;
+}
+
+export function lastFileNode(ancestors: SectionsAPIData[] | undefined) {
+  if (!ancestors?.length) return undefined;
+  for (let i = ancestors.length - 1; i >= 0; i--) {
+    if (isFile(ancestors[i])) return ancestors[i];
+  }
+  return undefined;
+}
+
+export function getCoveredSections(
+  startSecNameExcl: string,
+  endSecNameIncl: string,
+  sectionData: SectionsAPIData | undefined,
+  started = false
+): {
+  started: boolean;
+  ended: boolean;
+  fullyCovered: boolean;
+  coveredSectionIds: string[];
+} {
+  const wasStartedForMe = started;
+  if (!sectionData)
+    return { started, ended: true, coveredSectionIds: [], fullyCovered: false };
+
+  const isSec = isSection(sectionData);
+  let iAmEnding = false;
+  if (isSec) {
+    const sectionName = convertHtmlStringToPlain(sectionData.title || '');
+    if (sectionName === startSecNameExcl) started = true;
+    iAmEnding = sectionName === endSecNameIncl;
+  }
+
+  let allChildrenCovered = true;
+  const coveredSectionIds: string[] = [];
+  for (const child of sectionData.children) {
+    const cResp = getCoveredSections(
+      startSecNameExcl,
+      endSecNameIncl,
+      child,
+      started
+    );
+    if (!cResp.fullyCovered) allChildrenCovered = false;
+    coveredSectionIds.push(...cResp.coveredSectionIds);
+
+    if (cResp.started) started = true;
+    if (cResp.ended) {
+      return {
+        started,
+        ended: true,
+        fullyCovered: false,
+        coveredSectionIds,
+      };
+    }
+  }
+
+  const fullyCovered = allChildrenCovered && wasStartedForMe;
+  if (sectionData.id && fullyCovered) coveredSectionIds.push(sectionData.id);
+  return { started, ended: iAmEnding, fullyCovered, coveredSectionIds };
 }
 
 export function findFileNode(
@@ -121,18 +191,6 @@ export function findFileNode(
 
 export function hasSectionChild(node?: SectionsAPIData) {
   return node?.children?.some((child) => isSection(child));
-}
-
-export function is2ndLevelSection(
-  archive: string,
-  filepath: string,
-  sectionData: SectionsAPIData
-) {
-  if (!localStore?.getItem('section-quiz')) return false;
-  const ancestors = getAncestors(archive, filepath, sectionData);
-  if (!ancestors?.length) return false;
-  if (!hasSectionChild(ancestors[ancestors.length - 1])) return false;
-  return ancestors.filter(isSection).length <= 2;
 }
 
 export function isFile(data: SectionsAPIData) {

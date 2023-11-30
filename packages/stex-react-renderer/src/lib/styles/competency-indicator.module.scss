@@ -1,0 +1,23 @@
+.summary-competence-bar-container {
+    width: 25px; 
+    margin: 0 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.details-competence-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 5px;
+}
+
+.details-competence-bar {
+    max-width: 100px;
+    border-radius: 5px;
+    border: 1px solid #CCC;
+    padding: 5px;
+    flex-grow: 1;
+    cursor: pointer;
+}

@@ -7,22 +7,19 @@ import UnfoldMoreDoubleIcon from '@mui/icons-material/UnfoldMoreDouble';
 import { Box, IconButton, TextField, Tooltip } from '@mui/material';
 import {
   SectionsAPIData,
-  getCourseId,
-  getCourseInfo,
+  getCoveredSections,
   getUserInfo,
-  isModerator
+  isModerator,
 } from '@stex-react/api';
 import {
-  CourseInfo,
   CoverageTimeline,
   convertHtmlStringToPlain,
   createHash,
-  getSectionInfo,
   localStore,
 } from '@stex-react/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FixedPositionMenu } from './LayoutWithFixedMenu';
 import {
   TOCFileNode,
@@ -31,7 +28,6 @@ import {
   TOCSectionNode,
 } from './collectIndexInfo';
 import { getLocaleObject } from './lang/utils';
-import { ServerLinksContext } from './stex-react-renderer';
 import styles from './stex-react-renderer.module.scss';
 
 interface SectionTreeNode {
@@ -40,43 +36,15 @@ interface SectionTreeNode {
   tocNode: TOCSectionNode;
 }
 
-function markPreviousAsCovered(node: SectionTreeNode, selfCovered: boolean) {
-  if (selfCovered) {
-    if (!node.tocNode) return; // TODO: Fix this properly
+function fillCoverage(node: SectionTreeNode, coveredSectionIds: string[]) {
+  if (!node) return;
+  for (const child of node.children) {
+    fillCoverage(child, coveredSectionIds);
+  }
+  if (node.tocNode?.id && coveredSectionIds.includes(node.tocNode.id)) {
     node.tocNode.isCovered = true;
   }
-  const parent = node.parentNode;
-  if (!parent) return;
-  const idx = parent.children.findIndex(
-    (c) => c.tocNode.id === node.tocNode.id
-  );
-  if (idx === -1) {
-    console.log(node.tocNode.id);
-    console.log(parent.children.map((c) => c.tocNode.id));
-    console.log('oh ohhh');
-    return;
-  }
-  for (const c of parent.children) {
-    if (c.tocNode.id === node.tocNode.id) break;
-    markPreviousAsCovered(c, true);
-  }
-  markPreviousAsCovered(
-    parent,
-    selfCovered && idx === parent.children.length - 1
-  );
 }
-
-function fillCoverage(node: SectionTreeNode, coveredUntil: string) {
-  if (!node) return;
-  const value = convertHtmlStringToPlain(node.tocNode?.title);
-  if (value === coveredUntil) {
-    markPreviousAsCovered(node, true);
-    return;
-  }
-  if (!node.children) return;
-  for (const c of node.children) fillCoverage(c, coveredUntil);
-}
-
 function getSectionTree(
   tocNode: TOCNode,
   parentNode?: SectionTreeNode
@@ -147,12 +115,14 @@ function RenderTree({
   level,
   defaultOpen,
   selectedSection,
+  preAdornment,
   onSectionClick,
 }: {
   node: SectionTreeNode;
   level: number;
   defaultOpen: boolean;
   selectedSection: string;
+  preAdornment?: (sectionId: string) => JSX.Element;
   onSectionClick?: (sectionId: string) => void;
 }) {
   const router = useRouter();
@@ -219,7 +189,8 @@ function RenderTree({
             }
           }}
         >
-          {convertHtmlStringToPlain(node.tocNode.title)}
+          {preAdornment ? preAdornment(node.tocNode.id) : null}
+           {convertHtmlStringToPlain(node.tocNode.title)}
         </span>
       </Box>
       {isOpen && node.children.length > 0 && (
@@ -244,6 +215,7 @@ function RenderTree({
                 level={level + 1}
                 defaultOpen={defaultOpen}
                 selectedSection={selectedSection}
+                preAdornment={preAdornment}
                 onSectionClick={onSectionClick}
               />
             ))}
@@ -295,61 +267,57 @@ export function ContentDashboard({
   contentUrl,
   docSections,
   selectedSection,
+  courseId,
+  coveredSectionIds = undefined,
+  preAdornment,
   onClose,
   onSectionClick,
 }: {
   contentUrl: string;
   docSections: SectionsAPIData | undefined;
   selectedSection: string;
+  courseId?: string;
+  coveredSectionIds?: string[];
+  preAdornment?: (sectionId: string) => JSX.Element;
   onClose: () => void;
   onSectionClick?: (sectionId: string) => void;
 }) {
   const t = getLocaleObject(useRouter());
   const [filterStr, setFilterStr] = useState('');
   const [defaultOpen, setDefaultOpen] = useState(true);
-  const { mmtUrl } = useContext(ServerLinksContext);
-  const [coveredUntil, setCoveredUntilSection] = useState('');
   const [covUpdateLink, setCovUpdateLink] = useState<string | undefined>(
     undefined
   );
-  const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
+  const [fetchedCoveredSectionIds, setFetchedCoveredSectionIds] = useState<
+    string[]
+  >([]);
 
-  const root = docSections ? getDocumentTree(docSections, undefined): undefined;
+  const root = docSections
+    ? getDocumentTree(docSections, undefined)
+    : undefined;
   const dashInfo = root?.type !== TOCNodeType.FILE ? undefined : root;
 
   useEffect(() => {
-    if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
-  }, [mmtUrl]);
-
-  useEffect(() => {
     getUserInfo().then((info) => {
-      if (!info?.userId || !isModerator(info.userId)) {
+      if (!info?.userId || !isModerator(info.userId) || !courseId) {
         setCovUpdateLink(undefined);
         return;
       }
-      const { archive, filepath } = getSectionInfo(contentUrl);
-      for (const courseId of Object.keys(courses)) {
-        const { notesArchive, notesFilepath } = courses[courseId];
-        if (archive === notesArchive && filepath === notesFilepath) {
-          setCovUpdateLink(`/coverage-update?courseId=${courseId}`);
-        }
-      }
+      setCovUpdateLink(`/coverage-update?courseId=${courseId}`);
     });
-  }, [contentUrl, courses]);
+  }, [contentUrl, courseId]);
 
   useEffect(() => {
     async function getCoverageInfo() {
-      const courseId = await getCourseId(mmtUrl, getSectionInfo(contentUrl));
-      if (!courseId) return;
-
+      if (!courseId || coveredSectionIds !== undefined) return;
       const resp = await axios.get('/api/get-coverage-timeline');
       const snaps = (resp.data as CoverageTimeline)?.[courseId];
-      if (snaps?.length) {
-        setCoveredUntilSection(snaps[snaps.length - 1].sectionName);
-      }
+      const endSec = snaps[snaps.length - 1].sectionName;
+      const r = getCoveredSections('', endSec, docSections, true);
+      setFetchedCoveredSectionIds(r.coveredSectionIds);
     }
     getCoverageInfo();
-  }, [mmtUrl, contentUrl]);
+  }, [courseId, coveredSectionIds, docSections]);
 
   const shadowTopLevel = { children: [] as any, tocNode: undefined as any };
   const firstLevelSections =
@@ -363,7 +331,7 @@ export function ContentDashboard({
         .filter((t) => !!t?.length)
     );
   if (firstLevelSections) shadowTopLevel.children = firstLevelSections;
-  if (coveredUntil?.length) fillCoverage(shadowTopLevel, coveredUntil);
+  fillCoverage(shadowTopLevel, coveredSectionIds || fetchedCoveredSectionIds);
 
   return (
     <FixedPositionMenu
@@ -413,8 +381,9 @@ export function ContentDashboard({
           node={child}
           level={0}
           defaultOpen={defaultOpen}
-          onSectionClick={onSectionClick}
           selectedSection={selectedSection}
+          preAdornment={preAdornment}
+          onSectionClick={onSectionClick}
         />
       ))}
     </FixedPositionMenu>

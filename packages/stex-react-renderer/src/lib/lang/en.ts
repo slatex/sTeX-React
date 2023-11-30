@@ -24,9 +24,12 @@ export const en = {
   guidedTour: 'Guided Tour',
   hide: 'Hide',
   needs: 'Needs',
+  
   //Competency Indicator
   details: 'Details',
   concepts: 'Concepts',
+  review: 'Review',
+
   // self assessement
   smileyTooltips: {
     Remember: {
@@ -64,5 +67,13 @@ export const en = {
     didntAnswer: "You didn't answer $1 problems. ",
     sureFinish: 'Are you sure you want to finish?',
     checkSolution: 'Check Solution',
+    perSectionQuizButton: 'Practice Problems ($1)',
+  },
+  practiceProblems: {
+    clickSection:
+      'Click on a section in the TOC to see problems associated with it.',
+    problemsFor: 'Problems for',
+    warning:
+      'Note: These problems are only to aid your learning. They do not cover the course material exhaustively and there are no guarantees that the problems are correct or that they are representative of kinds of problems that will be on the quizzes or the exam.',
   },
 };
