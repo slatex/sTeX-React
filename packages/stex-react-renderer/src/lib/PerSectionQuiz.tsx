@@ -101,6 +101,7 @@ export function PerSectionQuiz({
       <Box my="10px">
         <ProblemDisplay
           r={response}
+          showPoints={false}
           problem={problem}
           isFrozen={isFrozen[problemIdx]}
           onResponseUpdate={(response) => {
