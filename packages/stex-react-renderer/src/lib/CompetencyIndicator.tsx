@@ -143,9 +143,7 @@ const CompetencyIndicator = ({
               </Tooltip>
             ))}
           </Box>
-          {localStore?.getItem('section-quiz') && (
-            <PerSectionQuiz archive={archive} filepath={filepath} />
-          )}
+          <PerSectionQuiz archive={archive} filepath={filepath} />
         </AccordionDetails>
       </Accordion>
       <Dialog

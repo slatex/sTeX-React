@@ -123,7 +123,7 @@ function UpcomingQuizList({
             <QuizThumbnail quiz={quiz} />
           </Fragment>
         ))}
-      {localStore?.getItem('section-quiz') && practiceInfo && (
+      {practiceInfo && (
         <PraticeQuizThumbnail courseId={courseId} practiceInfo={practiceInfo} />
       )}
     </>
