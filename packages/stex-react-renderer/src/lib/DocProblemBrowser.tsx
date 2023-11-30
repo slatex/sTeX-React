@@ -10,6 +10,7 @@ import { useRouter } from 'next/router';
 import {
   BG_COLOR,
   IS_MMT_VIEWER,
+  XhtmlContentUrl,
   getSectionInfo,
   shouldUseDrawer,
 } from '@stex-react/utils';
@@ -143,15 +144,14 @@ export function DocProblemBrowser({
         )}
         {sectionParentInfo?.archive && sectionParentInfo?.filepath && (
           <PerSectionQuiz
+            key={sectionParentInfo.filepath} // Use a key to avoid race-conditions on section change
             archive={sectionParentInfo.archive}
             filepath={sectionParentInfo.filepath}
             showButtonFirst={false}
           />
         )}
         <br />
-        <b style={{ color: 'red' }}>
-         {t.warning}
-        </b>
+        <b style={{ color: 'red' }}>{t.warning}</b>
       </Box>
     </LayoutWithFixedMenu>
   );

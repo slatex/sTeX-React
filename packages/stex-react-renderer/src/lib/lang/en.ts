@@ -24,9 +24,12 @@ export const en = {
   guidedTour: 'Guided Tour',
   hide: 'Hide',
   needs: 'Needs',
+  
   //Competency Indicator
   details: 'Details',
   concepts: 'Concepts',
+  review: 'Review',
+
   // self assessement
   smileyTooltips: {
     Remember: {
@@ -64,7 +67,7 @@ export const en = {
     didntAnswer: "You didn't answer $1 problems. ",
     sureFinish: 'Are you sure you want to finish?',
     checkSolution: 'Check Solution',
-    perSectionQuizButton: 'Quiz Questions For Above Section ($1)',
+    perSectionQuizButton: 'Practice Problems ($1)',
   },
   practiceProblems: {
     clickSection:

@@ -68,7 +68,7 @@ function PraticeQuizThumbnail({
             width: 'fit-content',
           }}
         >
-          <Box>{t.practiceQuizQuestions}</Box>
+          <Box>{t.practiceProblems}</Box>
         </Card>
       </Link>
     </Box>
