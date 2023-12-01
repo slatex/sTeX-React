@@ -52,6 +52,7 @@ function PraticeQuizThumbnail({
   courseId: string;
   practiceInfo: { startSecNameExcl: string; endSecNameIncl: string };
 }) {
+  const { quiz: t } = getLocaleObject(useRouter());
   const { startSecNameExcl, endSecNameIncl } = practiceInfo;
   return (
     <Box width="fit-content">
@@ -67,7 +68,7 @@ function PraticeQuizThumbnail({
             width: 'fit-content',
           }}
         >
-          <Box>Practice Quiz Questions</Box>
+          <Box>{t.practiceProblems}</Box>
         </Card>
       </Link>
     </Box>
@@ -122,7 +123,7 @@ function UpcomingQuizList({
             <QuizThumbnail quiz={quiz} />
           </Fragment>
         ))}
-      {localStore?.getItem('section-quiz') && practiceInfo && (
+      {practiceInfo && (
         <PraticeQuizThumbnail courseId={courseId} practiceInfo={practiceInfo} />
       )}
     </>

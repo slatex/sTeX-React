@@ -193,18 +193,6 @@ export function hasSectionChild(node?: SectionsAPIData) {
   return node?.children?.some((child) => isSection(child));
 }
 
-export function is2ndLevelSection(
-  archive: string,
-  filepath: string,
-  sectionData: SectionsAPIData
-) {
-  if (!localStore?.getItem('section-quiz')) return false;
-  const ancestors = getAncestors(archive, filepath, undefined, sectionData);
-  if (!ancestors?.length) return false;
-  if (!hasSectionChild(ancestors[ancestors.length - 1])) return false;
-  return ancestors.filter(isSection).length <= 2;
-}
-
 export function isFile(data: SectionsAPIData) {
   return data.archive && data.filepath ? true : false;
 }

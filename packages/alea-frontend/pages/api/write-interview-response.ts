@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getUserIdOrSetError, getUserInfo } from './comment-utils';
+import { getUserInfo } from './comment-utils';
 
 export default async function handler(
   req: NextApiRequest,

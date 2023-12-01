@@ -4,14 +4,25 @@ import { Box, Button } from '@mui/material';
 import {
   SectionsAPIData,
   findFileNode,
+  getAncestors,
   hasSectionChild,
-  is2ndLevelSection,
-  isFile
+  isFile,
+  isSection
 } from '@stex-react/api';
 import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import { useState } from 'react';
 import FileDebugData from './FileDebugData';
 
+function is2ndLevelSection(
+  archive: string,
+  filepath: string,
+  sectionData: SectionsAPIData
+) {
+  const ancestors = getAncestors(archive, filepath, undefined, sectionData);
+  if (!ancestors?.length) return false;
+  if (!hasSectionChild(ancestors[ancestors.length - 1])) return false;
+  return ancestors.filter(isSection).length <= 2;
+}
 
 export const FileSectionDisplay = ({
   sectionData,

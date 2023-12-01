@@ -60,8 +60,8 @@ CREATE TABLE points (
 );
 
 CREATE TABLE notifications (
-    userId VARCHAR(255),
     updateId INT PRIMARY KEY AUTO_INCREMENT,
+    userId VARCHAR(255),
     header VARCHAR(255),
     content VARCHAR(255),
     header_de VARCHAR(255),
@@ -79,3 +79,32 @@ CREATE TABLE userInfo (
     email VARCHAR(255),
     notificationSeenTs VARCHAR(255)
 );
+CREATE TABLE StudyBuddyUsers (
+    userId VARCHAR(255) NOT NULL,
+    courseId VARCHAR(255) NOT NULL,
+
+    active BOOLEAN NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    
+    userName VARCHAR(255),
+    intro VARCHAR(255),
+    studyProgram VARCHAR(255),
+    semester INT,
+    meetType VARCHAR(255),
+    languages VARCHAR(255),
+    dayPreference VARCHAR(255),
+    
+    PRIMARY KEY (userId, courseId)
+);
+
+CREATE TABLE StudyBuddyConnections (
+    senderId VARCHAR(255) NOT NULL,
+    receiverId VARCHAR(255) NOT NULL,
+    courseId VARCHAR(255) NOT NULL,
+    timeOfIssue TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (senderId, receiverId, courseId)
+);
+
+ALTER TABLE StudyBuddyConnections ADD CONSTRAINT StudyBuddyConnections_fk0 FOREIGN KEY (senderId) REFERENCES StudyBuddyUsers(userId);
+ALTER TABLE StudyBuddyConnections ADD CONSTRAINT StudyBuddyConnections_fk1 FOREIGN KEY (receiverId) REFERENCES StudyBuddyUsers(userId);
+

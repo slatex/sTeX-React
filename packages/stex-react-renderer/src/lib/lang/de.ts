@@ -18,15 +18,18 @@ export const de = {
 
   // overlay dialog
   close: 'Schließen',
-  hover:'Schwebt ein/aus',
+  hover: 'Schwebt ein/aus',
 
   // tour display
   guidedTour: 'Guided Tour',
   hide: 'Ausblenden',
   needs: 'Bedürfnisse',
-  //Competency Indicator 
-  details:'Einzelheiten',
+
+  //Competency Indicator
+  details: 'Einzelheiten',
   concepts: 'Konzepte',
+  review: 'Rezension',
+
   // self assessement
   smileyTooltips: {
     Remember: {
@@ -61,8 +64,16 @@ export const de = {
     finish: 'Beenden',
     prev: 'Vorherige',
     next: 'Nächste',
-    didntAnswer: "Sie haben $1 Aufgaben nicht beantwortet. ",
-    sureFinish: "Sind Sie sicher, dass Sie den Vorgang abschließen möchten?",
+    didntAnswer: 'Sie haben $1 Aufgaben nicht beantwortet. ',
+    sureFinish: 'Sind Sie sicher, dass Sie den Vorgang abschließen möchten?',
     checkSolution: 'Lösung prüfen',
+    perSectionQuizButton: 'Übungsprobleme ($1)'
+  },
+  practiceProblems: {
+    clickSection:
+      'Klicken Sie auf einen Abschnitt im Inhaltsverzeichnis, um die damit verbundenen Probleme anzuzeigen.',
+    problemsFor:'Aufgaben für',
+    warning:
+      'Hinweis: Diese Probleme dienen nur dazu, Ihnen beim Lernen zu helfen. Sie decken das Kursmaterial nicht vollständig ab und es gibt keine Garantie dafür, dass die Probleme korrekt sind oder dass sie repräsentativ für die Art von Problemen sind, die in den Tests oder der Prüfung behandelt werden.',
   },
 };

@@ -6,9 +6,11 @@ import {
   getDocumentSections,
   lastFileNode,
 } from '@stex-react/api';
+import { useRouter } from 'next/router';
 import {
   BG_COLOR,
   IS_MMT_VIEWER,
+  XhtmlContentUrl,
   getSectionInfo,
   shouldUseDrawer,
 } from '@stex-react/utils';
@@ -19,6 +21,7 @@ import { LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 import { PerSectionQuiz } from './PerSectionQuiz';
 import { mmtHTMLToReact } from './mmtParser';
 import { ServerLinksContext } from './stex-react-renderer';
+import { getLocaleObject } from './lang/utils';
 
 function shortenDocSections(
   coveredSectionIds: string[],
@@ -57,6 +60,7 @@ export function DocProblemBrowser({
   topOffset?: number;
   noFrills?: boolean;
 }) {
+  const { practiceProblems: t } = getLocaleObject(useRouter());
   const [showDashboard, setShowDashboard] = useState(
     !shouldUseDrawer() && !IS_MMT_VIEWER
   );
@@ -128,32 +132,26 @@ export function DocProblemBrowser({
       <Box px="10px" bgcolor={BG_COLOR}>
         {ancestors?.length && (
           <h3>
-            <span style={{ color: 'gray' }}>Problems for</span>{' '}
+            <span style={{ color: 'gray' }}>{t.problemsFor}</span>{' '}
             {mmtHTMLToReact(ancestors[ancestors.length - 1].title ?? '')}
           </h3>
         )}
         {!selectedSection && (
           <>
             <br />
-            <i>
-              Click on a section in the TOC to see problems associated with it.
-            </i>
+            <i>{t.clickSection}</i>
           </>
         )}
         {sectionParentInfo?.archive && sectionParentInfo?.filepath && (
           <PerSectionQuiz
+            key={sectionParentInfo.filepath} // Use a key to avoid race-conditions on section change
             archive={sectionParentInfo.archive}
             filepath={sectionParentInfo.filepath}
             showButtonFirst={false}
           />
         )}
         <br />
-        <b style={{ color: 'red' }}>
-          Note: These problems are only to aid your learning. They do not cover
-          the course material exhaustively and there are no guarantees that the
-          problems are correct or that they are representative of kinds of
-          problems that will be on the quizzes or the exam.
-        </b>
+        <b style={{ color: 'red' }}>{t.warning}</b>
       </Box>
     </LayoutWithFixedMenu>
   );

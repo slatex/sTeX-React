@@ -19,6 +19,7 @@ export const en = {
       slides: 'Slides',
       forum: 'Forum',
       quizzes: 'Quizzes',
+      studyBuddy: 'Study Buddy',
     },
   },
   login: {
@@ -118,6 +119,7 @@ export const en = {
     this: 'This',
     demoQuizText:
       'is a demo quiz - so that you can test your hard/software (you will need a recent chrome or firefox browser) and see the format. In particular, you should be able to read the Math in the travelling salesperson problem.',
+    practiceProblems: 'Practice Problems',
   },
   vis: {
     goToTour: 'Go To Tour',
@@ -225,6 +227,57 @@ export const en = {
     date: 'Date',
     topics: 'Topics',
     video: 'Video',
+  },
+  studyBuddy: {
+    fillForm: 'Fill in the following form to find buddies to study together.',
+    agreementText:
+      'I understand that this information will be used to find and connect to other study buddy connect users.',
+    join: 'Join',
+    update: 'Update',
+    discard: 'Discard',
+    myProfile: 'My Profile',
+    editInfo: 'Edit Info',
+    reJoin: 'Re-join',
+    optOut: 'Deactivate',
+
+    semester: 'semester',
+    dayPreference: 'Day Preference',
+    meetPreference: 'Meet Preference',
+    languages: 'Languages',
+
+    connected: 'Connected',
+    connectedSubtext:
+      'These learners are also interested in studying together with you. Please go ahead connect with them (send them an email).',
+
+    requestReceived: 'Request Received',
+    requestReceivedSubtext:
+      'These learners have requested to connect with you. Once you accept their request, you can connect with them via email.',
+
+    requestSent: 'Request Sent',
+    requestSentSubtext:
+      'You have sent these learners a connection request. Please wait for them to accept your request.',
+
+    lookingFor: 'Learners looking for a study buddy',
+    lookingForSubtext:
+      'These learners are looking for a study buddy. Please go ahead and send them a connection request.',
+
+    optOutPrompt:
+      'Are you sure you want to leave the study buddy program for $1?',
+    haveEnrolled: 'You have enrolled in the study buddy program for $1.',
+
+    connectedAlert: 'You have connected to $1',
+    connectionRequestCancelled: 'Connection request to $1 has been cancelled.',
+    connectionRequestSent: 'Connection request sent to $1.',
+
+    introLabel: 'Introduce yourself',
+    studyProgramLabel: 'Study program (e.g. Masters in Computer Science)',
+    semesterLabel: 'Semester #',
+    emailLabel: 'E-Mail (e.g. you@fau.de)',
+    preferredDays: 'Preferred days to meet',
+    meetTypeLabel: 'Preferred Meeting Type',
+    languagesLabel: 'Languages you speak',
+
+    emailWarning: 'Your email will be shared only with those users that you choose to connect to.',
   },
   notification: {
     systemUpdates: 'System Updates',

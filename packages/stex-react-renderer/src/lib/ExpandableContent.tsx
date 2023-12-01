@@ -2,11 +2,6 @@ import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
 import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/IndeterminateCheckBoxOutlined';
 import { Box, IconButton } from '@mui/material';
 import {
-  findFileNode,
-  hasSectionChild,
-  is2ndLevelSection,
-} from '@stex-react/api';
-import {
   IS_SERVER,
   convertHtmlNodeToPlain,
   createHash,
@@ -21,7 +16,6 @@ import {
   useRef,
   useState,
 } from 'react';
-import CompetencyIndicator from './CompetencyIndicator';
 import { ContentFromUrl } from './ContentFromUrl';
 import { ErrorBoundary } from './ErrorBoundary';
 import { ExpandableContextMenu } from './ExpandableContextMenu';
@@ -30,7 +24,6 @@ import { RenderOptions } from './RendererDisplayOptions';
 import { SEPARATOR_inDocPath } from './collectIndexInfo';
 import { useOnScreen } from './useOnScreen';
 import { useRect } from './useRect';
-import { PerSectionQuiz } from './PerSectionQuiz';
 
 const ExpandContext = createContext([] as string[]);
 const STOP_EXPANSION_MARKER = 'STOP_EXPANSION';
@@ -76,10 +69,6 @@ export function ExpandableContent({
   const { docFragManager, addSectionLoc } = useContext(DocSectionContext);
   // Reference to the top-most box.
 
-  const { archive, filepath } = getSectionInfo(contentUrl ?? '');
-  const showIndicator = hasSectionChild(
-    findFileNode(archive, filepath, docFragManager?.docSections)
-  );
   const contentRef = useRef<HTMLElement>();
   const rect = useRect(contentRef);
   const isVisible = useOnScreen(contentRef);
@@ -206,22 +195,11 @@ export function ExpandableContent({
             <Box overflow="visible">
               {contentUrl ? (
                 <ExpandContext.Provider value={childContext}>
-                  {showIndicator && (
-                    <CompetencyIndicator contentUrl={contentUrl} />
-                  )}
                   <ContentFromUrl
                     url={contentUrl}
                     modifyRendered={getChildrenOfBodyNode}
                     minLoadingHeight={'800px'}
                   />
-                  {docFragManager?.docSections &&
-                    is2ndLevelSection(
-                      archive,
-                      filepath,
-                      docFragManager?.docSections
-                    ) && (
-                      <PerSectionQuiz archive={archive} filepath={filepath} />
-                    )}
                 </ExpandContext.Provider>
               ) : (
                 staticContent

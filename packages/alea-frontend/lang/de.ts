@@ -21,6 +21,7 @@ export const de = {
       slides: 'Folien',
       forum: 'Forum',
       quizzes: 'Quizze',
+      studyBuddy: 'Study Buddy',
     },
   },
   login: {
@@ -98,6 +99,7 @@ export const de = {
     this: 'Dies',
     demoQuizText:
       'ist ein Demo-Quiz - damit Sie Ihre Hard-/Software testen (Sie benötigen einen aktuellen Chrome- oder Firefox-Browser) und das Format sehen können. Insbesondere sollten Sie in der Lage sein, die Mathematik im Problem des Handlungsreisenden zu lesen.',
+    practiceProblems: 'Übungsprobleme',
   },
   vis: {
     goToTour: 'Gehen Sie zur Tour',
@@ -209,6 +211,59 @@ export const de = {
     date: 'Datum',
     topics: 'Themen',
     video: 'Video',
+  },
+  studyBuddy: {
+    fillForm:
+      'Füllen Sie das folgende Formular aus, um Freunde zum gemeinsamen Lernen zu finden.',
+    agreementText:
+      'Ich verstehe, dass diese Informationen verwendet werden, um andere Benutzer von Study Buddy Connect zu finden und mit ihnen in Kontakt zu treten.',
+    join: 'Verbinden',
+    update: 'Update',
+    discard: 'Verwerfen',
+    myProfile: 'Mein Profil',
+    editInfo: 'Bearbeitungs Info',
+    reJoin: 'Wieder beitreten',
+    optOut: 'Opt-out',
+
+    semester: 'semester',
+    dayPreference: 'Tag Präferenz',
+    meetPreference: 'Treffen Präferenz',
+    languages: 'Sprachen',
+
+    connected: 'Angeschlossen',
+    connectedSubtext:
+      'Auch diese Lernenden haben Interesse an einem gemeinsamen Studium mit Ihnen. Bitte treten Sie mit ihnen in Kontakt (senden Sie ihnen eine E-Mail).',
+
+    requestReceived: 'Anfrage erhalten',
+    requestReceivedSubtext:
+      'Diese Lernenden haben eine Anfrage gesendet, um sich mit Ihnen zu verbinden. Sobald Sie ihre Anfrage akzeptieren, können Sie sich mit ihnen per E-Mail verbinden.',
+
+    requestSent: 'Anfrage gesendet',
+    requestSentSubtext:
+      'Sie haben diesen Lernenden eine Verbindungsanfrage gesendet. Bitte warten Sie darauf, dass sie Ihre Anfrage akzeptieren.',
+
+    lookingFor: 'Lernende suchen nach einem Lernpartner',
+    lookingForSubtext:
+      'Diese Lernenden suchen nach einem Lernpartner. Bitte senden Sie ihnen eine Verbindungsanfrage.',
+
+    optOutPrompt:
+      'Sind Sie sicher, dass Sie das Lernpartner-Programm für $1 verlassen möchten?',
+    haveEnrolled: 'Sie haben am Lernpartner-Programm für $1 teilgenommen.',
+    connectedAlert: 'Sie haben eine Verbindung zu $1 hergestellt.',
+    connectionRequestCancelled:
+      'Die Verbindungsanfrage zu $1 wurde abgebrochen.',
+    connectionRequestSent: 'Verbindungsanfrage an $1 gesendet.',
+
+    introLabel: 'Stellen Sie sich vor',
+    studyProgramLabel: 'Studiengang (z. B. Master in Informatik)',
+    semesterLabel: 'Semester #',
+    emailLabel: 'E-Mail (z. B. you@fau.de)',
+    preferredDays: 'Bevorzugte Tage für ein Treffen',
+    meetTypeLabel: 'Bevorzugter Treffpunkt',
+    languagesLabel: 'Sprachen, die Sie sprechen',
+
+    emailWarning:
+      'Ihre E-Mail-Adresse wird nur mit den Benutzern geteilt, mit denen Sie eine Verbindung herstellen möchten.',
   },
   notification: {
     systemUpdates: 'Systemaktualisierungen',

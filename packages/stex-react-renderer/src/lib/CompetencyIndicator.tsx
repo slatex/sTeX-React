@@ -1,3 +1,4 @@
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
   Box,
   Button,
@@ -8,6 +9,9 @@ import {
   DialogTitle,
   Tooltip,
 } from '@mui/material';
+import Accordion from '@mui/material/Accordion';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import AccordionSummary from '@mui/material/AccordionSummary';
 import LinearProgress from '@mui/material/LinearProgress';
 import {
   BloomDimension,
@@ -17,14 +21,19 @@ import {
   getUriWeights,
   isLoggedIn,
 } from '@stex-react/api';
-import { getSectionInfo } from '@stex-react/utils';
+import { BG_COLOR, getSectionInfo, localStore } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import CompetencyTable from './CompetencyTable';
-import { getLocaleObject } from './lang/utils';
-import { DimIcon, ServerLinksContext } from './stex-react-renderer';
-import styles from './stex-react-renderer.module.scss';
+import { PerSectionQuiz } from './PerSectionQuiz';
 import { RenderOptions } from './RendererDisplayOptions';
+import { getLocaleObject } from './lang/utils';
+import {
+  DimIcon,
+  ServerLinksContext,
+  mmtHTMLToReact,
+} from './stex-react-renderer';
+import styles from './styles/competency-indicator.module.scss';
 
 function CompetencyBar({ dim, val }: { dim: BloomDimension; val: number }) {
   const hue = 120 * val;
@@ -44,7 +53,19 @@ function CompetencyBar({ dim, val }: { dim: BloomDimension; val: number }) {
   );
 }
 
-const CompetencyIndicator = ({ contentUrl }: { contentUrl: string }) => {
+const TO_SHOW = [
+  BloomDimension.Remember,
+  BloomDimension.Understand,
+  BloomDimension.Apply,
+];
+
+const CompetencyIndicator = ({
+  contentUrl,
+  sectionTitle,
+}: {
+  contentUrl: string;
+  sectionTitle: string;
+}) => {
   const [competencyData, setCompetencyData] = useState<
     NumericCognitiveValues[] | null
   >(null);
@@ -73,64 +94,58 @@ const CompetencyIndicator = ({ contentUrl }: { contentUrl: string }) => {
     getUriWeights(URIs).then((data) => setCompetencyData(data));
   }
 
-  const averageRemember = competencyData?.length
-    ? competencyData.reduce((sum, item) => sum + (item.Remember ?? 0), 0) /
-      competencyData.length
-    : 0;
-
-  const averageUnderstand = competencyData?.length
-    ? competencyData.reduce((sum, item) => sum + (item.Understand ?? 0), 0) /
-      competencyData.length
-    : 0;
+  const averages = TO_SHOW.reduce((acc, competency) => {
+    const avg = competencyData?.length
+      ? competencyData.reduce((sum, item) => sum + (item[competency] ?? 0), 0) /
+        competencyData.length
+      : 0;
+    acc[competency] = avg;
+    return acc;
+  }, {} as { [competency: string]: number });
 
   if (!definedData?.length || renderOptions.noFrills) return null;
 
   return (
-    <Box
-      className={`${styles['indicator-container']} ${styles['tri-right']} ${styles['border']} ${styles['btm-left-in']}`}
-    >
-      {competencyData && (
-        <Box
-          display="flex"
-          justifyContent="space-around"
-          borderRadius="3px"
-          marginBottom="5px"
-          gap="15px"
-          alignItems="center"
-          p="5px"
+    <Box maxWidth="var(--document-width)">
+      <Accordion>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          sx={{ '& .MuiAccordionSummary-content': { overflow: 'hidden' } }}
         >
-          <Box flexGrow={1} maxWidth="10vw">
-            <DimIcon
-              dim={BloomDimension.Remember}
-              white={false}
-              showTitle={true}
-            />
-            <CompetencyBar
-              dim={BloomDimension.Remember}
-              val={averageRemember}
-            />
+          <Box style={{ display: 'flex' }}>
+            <Box className={styles['summary-competence-bar-container']}>
+              {TO_SHOW.map((dim) => (
+                <CompetencyBar key={dim} dim={dim} val={averages[dim]} />
+              ))}
+            </Box>
+            <span style={{ color: 'gray', whiteSpace: 'nowrap' }}>
+              {t.review}
+            </span>
+            &nbsp;
+            <b>{mmtHTMLToReact(sectionTitle)}</b>
           </Box>
-          <Box flexGrow={1} maxWidth="10vw">
-            <DimIcon
-              dim={BloomDimension.Understand}
-              white={false}
-              showTitle={true}
-            />
-            <CompetencyBar
-              dim={BloomDimension.Understand}
-              val={averageUnderstand}
-            />
+        </AccordionSummary>
+        <AccordionDetails>
+          <Box className={styles['details-competence-bar-container']}>
+            {TO_SHOW.map((dim) => (
+              <Tooltip
+                key={dim}
+                title={`${dim}: ${(averages[dim] * 100).toFixed(1)}%`}
+              >
+                <Box
+                  className={styles['details-competence-bar']}
+                  bgcolor={BG_COLOR}
+                  onClick={() => setOpenDialog(true)}
+                >
+                  <DimIcon dim={dim} white={false} showTitle={true} />
+                  <CompetencyBar dim={dim} val={averages[dim]} />
+                </Box>
+              </Tooltip>
+            ))}
           </Box>
-          <Button
-            sx={{ flexGrow: 0 }}
-            variant="contained"
-            style={{ height: '40px' }}
-            onClick={() => setOpenDialog(true)}
-          >
-            {t.details}
-          </Button>
-        </Box>
-      )}
+          <PerSectionQuiz archive={archive} filepath={filepath} />
+        </AccordionDetails>
+      </Accordion>
       <Dialog
         open={openDialog}
         onClose={() => setOpenDialog(false)}
@@ -146,10 +161,7 @@ const CompetencyIndicator = ({ contentUrl }: { contentUrl: string }) => {
               <CompetencyTable
                 URIs={URIs}
                 competencyData={competencyData}
-                dimensions={[
-                  BloomDimension.Remember,
-                  BloomDimension.Understand,
-                ]}
+                dimensions={TO_SHOW}
                 onValueUpdate={refetchCompetencyData}
               />
             </DialogContentText>

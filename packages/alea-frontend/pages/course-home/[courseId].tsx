@@ -23,6 +23,7 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import { RecordedSyllabus } from '../../components/RecordedSyllabus';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
+import Diversity3Icon from '@mui/icons-material/Diversity3';
 
 function CourseComponentLink({
   href,
@@ -174,6 +175,12 @@ const CourseHomePage: NextPage = () => {
             <CourseComponentLink href={quizzesLink}>
               {t.quizzes}&nbsp;
               <QuizIcon fontSize="large" />
+            </CourseComponentLink>
+          )}
+          {localStorage.getItem('study-buddy') && (
+            <CourseComponentLink href={`/study-buddy/${courseId}`}>
+              {t.studyBuddy}&nbsp;
+              <Diversity3Icon fontSize="large" />
             </CourseComponentLink>
           )}
         </Box>

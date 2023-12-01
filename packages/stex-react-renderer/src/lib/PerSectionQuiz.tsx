@@ -1,9 +1,10 @@
 import { Box, Button } from '@mui/material';
+import LinearProgress from '@mui/material/LinearProgress';
 import {
   Problem,
   ProblemResponse,
   getProblemIdsForFile,
-  getProblemShtml
+  getProblemShtml,
 } from '@stex-react/api';
 import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
 import { useRouter } from 'next/router';
@@ -11,7 +12,6 @@ import { useContext, useEffect, useReducer, useState } from 'react';
 import { defaultProblemResponse } from './InlineProblemDisplay';
 import { ProblemDisplay } from './ProblemDisplay';
 import { ListStepper } from './QuizDisplay';
-import { RenderOptions } from './RendererDisplayOptions';
 import { getLocaleObject } from './lang/utils';
 import { ServerLinksContext, mmtHTMLToReact } from './stex-react-renderer';
 
@@ -26,44 +26,58 @@ export function PerSectionQuiz({
 }) {
   const t = getLocaleObject(useRouter()).quiz;
   const { mmtUrl } = useContext(ServerLinksContext);
+  const [problemIds, setProblemIds] = useState<string[]>([]);
   const [problems, setProblems] = useState<Problem[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoadingProblemIds, setIsLoadingProblemIds] = useState<boolean>(true);
+  const [isLoadingProblems, setIsLoadingProblems] = useState<boolean>(true);
   const [responses, setResponses] = useState<ProblemResponse[]>([]);
   const [problemIdx, setProblemIdx] = useState(0);
   const [isFrozen, setIsFrozen] = useState<boolean[]>([]);
   const [, forceRerender] = useReducer((x) => x + 1, 0);
   const [startQuiz, setStartQuiz] = useState(!showButtonFirst);
-  const { renderOptions } = useContext(RenderOptions);
 
   useEffect(() => {
-    if (!archive || !filepath || renderOptions.noFrills) return;
-    setIsLoading(true);
-    getProblemIdsForFile(mmtUrl, archive, filepath).then(async (problemIds) => {
-      const problems$ = problemIds.map((p) => getProblemShtml(mmtUrl, p));
-      const problemStrs = await Promise.all(problems$);
+    if (!archive || !filepath) return;
+    setIsLoadingProblemIds(true);
+    getProblemIdsForFile(mmtUrl, archive, filepath).then((p) => {
+      setProblemIds(p);
+      setIsLoadingProblemIds(false);
+    }, console.error);
+  }, [archive, filepath, mmtUrl]);
+
+  useEffect(() => {
+    if (!startQuiz) return;
+    const problems$ = problemIds.map((p) => getProblemShtml(mmtUrl, p));
+    setIsLoadingProblems(true);
+    Promise.all(problems$).then((problemStrs) => {
       const problems = problemStrs.map((p) =>
         getProblem(hackAwayProblemId(p), '')
       );
       setProblems(problems);
       setResponses(problems.map((p) => defaultProblemResponse(p)));
       setIsFrozen(problems.map(() => false));
-      setIsLoading(false);
-    }, console.error);
-  }, [archive, filepath, mmtUrl, renderOptions.noFrills]);
+      setProblemIdx(0);
+      setIsLoadingProblems(false);
+    });
+  }, [startQuiz, problemIds, mmtUrl]);
 
-  if (isLoading || renderOptions.noFrills) return null;
-  if (!problems.length) return !showButtonFirst && <i>No problems found.</i>;
+  if (isLoadingProblemIds) return null;
+  if (!problemIds.length) return !showButtonFirst && <i>No problems found.</i>;
+  if (!startQuiz) {
+    return (
+      <Button onClick={() => setStartQuiz(true)} variant="contained">
+        {t.perSectionQuizButton.replace('$1', problemIds.length.toString())}
+      </Button>
+    );
+  }
+
+  if (isLoadingProblems) return <LinearProgress />;
 
   const problem = problems[problemIdx];
   const response = responses[problemIdx];
 
-  if (!startQuiz) {
-    return (
-      <Button onClick={() => setStartQuiz(true)} variant="contained">
-        Quiz Questions For Above Section ({problems.length} problems)
-      </Button>
-    );
-  }
+  if (!problem || !response) return <>error</>;
+
   return (
     <Box
       px="10px"
@@ -87,6 +101,7 @@ export function PerSectionQuiz({
       <Box my="10px">
         <ProblemDisplay
           r={response}
+          showPoints={false}
           problem={problem}
           isFrozen={isFrozen[problemIdx]}
           onResponseUpdate={(response) => {

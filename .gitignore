@@ -4,6 +4,7 @@
 
 packages/alea-frontend/specs/test-dir
 
+load_testing/env
 # compiled output
 dist
 tmp

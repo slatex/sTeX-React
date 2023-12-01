@@ -79,18 +79,18 @@ const ExperimentsHome: NextPage = () => {
               <Button
                 variant="contained"
                 onClick={() => {
-                  if (localStore?.getItem('section-quiz')) {
-                    localStore.removeItem('section-quiz');
-                    alert('Section Quiz disabled');
+                  if (localStore?.getItem('study-buddy')) {
+                    localStore.removeItem('study-buddy');
+                    alert('Study Buddy disabled');
                   } else {
-                    localStore.setItem('section-quiz', 'true');
-                    alert('Section Quiz enabled');
+                    localStore.setItem('study-buddy', 'true');
+                    alert('Study Buddy enabled');
                   }
                   window.location.reload();
                 }}
               >
-                {localStore?.getItem('section-quiz') ? 'Disable ' : 'Enable '}{' '}
-                Section Quiz
+                {localStore?.getItem('study-buddy') ? 'Disable ' : 'Enable '}{' '}
+                Study Buddy
               </Button>
               <InternalButtonLink href="/debug-section">
                 Debug Document Sections
