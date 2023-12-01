@@ -126,30 +126,32 @@ function NotificationButton() {
   // System info menu crap end
 
   const sortedItems = useNotificationData();
-  const loggedIn = isLoggedIn();
 
   useEffect(() => {
-    if (loggedIn) {
+    if (isLoggedIn()) {
       getNotificationSeenTime().then(setNotificationSeenTime);
     }
-  }, [loggedIn]);
+  }, []);
 
   function topUpdate() {
     if (!sortedItems?.length) return '';
     return new Date(sortedItems[0].postedTimestamp).getTime().toString();
   }
 
-  function shouldRing() {
-    if (!loggedIn) {
-      return localStore?.getItem('notification-seen-time');
+  function shouldRing(topUpdate) {
+    if (!isLoggedIn()) {
+      const lastNotificationSeenTime = localStore?.getItem(
+        'notification-seen-time'
+      );
+      return lastNotificationSeenTime !== topUpdate;
     } else {
-      return notificationSeenTime.toString();
+      return notificationSeenTime.toString() !== topUpdate;
     }
   }
-  
+
   async function handleUpdate(e) {
     setAnchorEl(e.currentTarget);
-    if (!loggedIn) {
+    if (!isLoggedIn()) {
       localStore?.setItem('notification-seen-time', topUpdate());
     } else {
       setNotificationSeenTime(topUpdate());
@@ -160,7 +162,7 @@ function NotificationButton() {
     <>
       <Tooltip title={t.notifications}>
         <IconButton onClick={(e) => handleUpdate(e)}>
-          <NotificationBell shouldRing={shouldRing() !== topUpdate()} />
+          <NotificationBell shouldRing={shouldRing(topUpdate())} />
         </IconButton>
       </Tooltip>
 
