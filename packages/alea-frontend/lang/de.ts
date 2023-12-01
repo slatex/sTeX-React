@@ -224,6 +224,8 @@ export const de = {
     editInfo: 'Bearbeitungs Info',
     reJoin: 'Wieder beitreten',
     optOut: 'Opt-out',
+    notActive:
+      "Sie haben sich für diesen Kurs vom Study Buddy-Programm abgemeldet. Klicken Sie bitte auf 'Wieder beitreten', um nach Studienfreunden zu suchen.",
 
     semester: 'semester',
     dayPreference: 'Tag Präferenz',

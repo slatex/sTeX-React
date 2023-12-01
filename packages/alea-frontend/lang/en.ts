@@ -238,8 +238,9 @@ export const en = {
     myProfile: 'My Profile',
     editInfo: 'Edit Info',
     reJoin: 'Re-join',
-    optOut: 'Deactivate',
-
+    optOut: 'Opt-out',
+    notActive:
+      "You have opted out of the study buddy program for this course. Please click 'Re-join' to search for study buddies.",
     semester: 'semester',
     dayPreference: 'Day Preference',
     meetPreference: 'Meet Preference',
@@ -277,7 +278,8 @@ export const en = {
     meetTypeLabel: 'Preferred Meeting Type',
     languagesLabel: 'Languages you speak',
 
-    emailWarning: 'Your email will be shared only with those users that you choose to connect to.',
+    emailWarning:
+      'Your email will be shared only with those users that you choose to connect to.',
   },
   notification: {
     systemUpdates: 'System Updates',

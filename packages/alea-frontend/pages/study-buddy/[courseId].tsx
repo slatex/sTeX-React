@@ -21,6 +21,7 @@ import {
   getCourseInfo,
   getStudyBuddyList,
   getStudyBuddyUserInfo,
+  isLoggedIn,
   removeConnectionRequest,
   setActive,
   updateStudyBuddyInfo,
@@ -84,7 +85,7 @@ const StudyBuddyPage: NextPage = () => {
   }, [courseId, refetchStudyBuddyLists]);
 
   useEffect(() => {
-    if (!courseId) return;
+    if (!courseId || !isLoggedIn()) return;
     setIsLoading(true);
     getStudyBuddyUserInfo(courseId).then((data) => {
       setIsLoading(false);
@@ -98,7 +99,6 @@ const StudyBuddyPage: NextPage = () => {
     router.replace('/');
     return <>Course Not Found!</>;
   }
-  if (isLoading) return;
 
   const notSignedUp = !fromServer;
 
@@ -157,7 +157,11 @@ const StudyBuddyPage: NextPage = () => {
                 )}
               </CardActions>
             </Card>
-          ):<CircularProgress />
+          ) : isLoggedIn() ? (
+            <CircularProgress />
+          ) : (
+            <>Please log in to continue</>
+          )
         ) : (
           <>
             <Typography variant="h4">{t.myProfile}</Typography>
@@ -191,6 +195,11 @@ const StudyBuddyPage: NextPage = () => {
               </CardActions>
             </Card>
           </>
+        )}
+        {fromServer && !fromServer.active && (
+          <Typography variant="h6" mt="10px">
+            {t.notActive}
+          </Typography>
         )}
 
         <StudyBuddyListingTable

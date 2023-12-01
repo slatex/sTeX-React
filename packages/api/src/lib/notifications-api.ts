@@ -1,8 +1,9 @@
 import axios from 'axios';
-import { getAuthHeaders } from './lms';
+import { getAuthHeaders, isLoggedIn } from './lms';
 import { Notification } from './notifications';
 
 export async function getUserNotifications(locale: string) {
+  if (!isLoggedIn()) return [];
   const url = `/api/get-user-notifications/${locale}`;
   return axios
     .get(url, { headers: getAuthHeaders() })
