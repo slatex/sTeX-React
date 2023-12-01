@@ -20,11 +20,11 @@ export default async function handler(
 ) {
   if (!checkIfPostOrSetError(req, res)) return;
   const user = await getUserInfo(req);
-  const userId = user?.['user_id'];
+  const userId = user?.userId;
   if (!userId) {
     res.status(403).send({ message: 'User info not available' });
+    return;
   }
-  const userName = user['given_name'] ?? '' + ' ' +user['sn'] ?? '';
   const courseId = req.query.courseId as string;
   const receiverId = req.body?.receiverId;
 
@@ -40,7 +40,7 @@ export default async function handler(
   );
 
   if (!results) return;
-  const simpleName = cleanupName(userName);
+  const simpleName = cleanupName(user.fullName);
   res.status(204).end();
   sendNotification(
     receiverId,

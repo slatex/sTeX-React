@@ -1,5 +1,12 @@
-import { Comment, NotificationType, PointsGrant } from '@stex-react/api';
+import {
+  Comment,
+  NotificationType,
+  PointsGrant,
+  UserInfo,
+  lmsResponseToUserInfo,
+} from '@stex-react/api';
 import axios from 'axios';
+import { NextApiRequest } from 'next';
 import mysql from 'serverless-mysql';
 
 const db = mysql({
@@ -101,16 +108,16 @@ export async function executeTxnAndEndSet500OnError(
   return results;
 }
 
-export async function getUserInfo(req) {
+export async function getUserInfo(req: NextApiRequest) {
   if (!req.headers.authorization) return undefined;
   const headers = { Authorization: req.headers.authorization };
   const lmsServerAddress = process.env.NEXT_PUBLIC_LMS_URL;
   const resp = await axios.get(`${lmsServerAddress}/getuserinfo`, { headers });
-  return resp.data;
+  return lmsResponseToUserInfo(resp.data);
 }
 
-export async function getUserId(req) {
-  return (await getUserInfo(req))?.['user_id'];
+export async function getUserId(req: NextApiRequest) {
+  return (await getUserInfo(req))?.userId;
 }
 
 export async function getUserIdOrSetError(req, res) {

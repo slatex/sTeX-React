@@ -305,18 +305,22 @@ export async function resetFakeUserData(persona: string) {
   }
   alert(`User reset: ${userId} with persona: ${persona}`);
 }
+export function lmsResponseToUserInfo(lmsRespData: any): UserInfo | undefined {
+  if (!lmsRespData) return undefined;
+  return {
+    userId: lmsRespData['user_id'],
+    givenName: lmsRespData['given_name'],
+    sn: lmsRespData['sn'],
+    fullName: `${lmsRespData['given_name'] ?? ''} ${lmsRespData['sn'] ?? ''}`,
+  };
+}
 
 let cachedUserInfo: UserInfo | undefined = undefined;
 export async function getUserInfo() {
   if (!cachedUserInfo) {
     const v = await lmsRequest('getuserinfo', 'GET', undefined);
     if (!v) return undefined;
-    cachedUserInfo = {
-      userId: v['user_id'],
-      givenName: v['given_name'],
-      sn: v['sn'],
-      fullName: `${v['given_name']} ${v['sn']}`,
-    };
+    cachedUserInfo = lmsResponseToUserInfo(v);
   }
   return cachedUserInfo;
 }

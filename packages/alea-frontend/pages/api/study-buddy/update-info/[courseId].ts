@@ -12,13 +12,12 @@ export default async function handler(
 ) {
   if (!checkIfPostOrSetError(req, res)) return;
   const user = await getUserInfo(req);
-  const userId = user?.['user_id'];
+  const userId = user?.userId;
   if (!userId) {
     res.status(403).send({ message: 'User info not available' });
+    return;
   }
-  console.log('dsdsdsdsdsd');
 
-  const userName = user['given_name'] ?? '' + ' ' + user['sn'] ?? '';
   const courseId = req.query.courseId as string;
 
   const {
@@ -38,7 +37,7 @@ export default async function handler(
   results = await executeAndEndSet500OnError(
     'REPLACE INTO StudyBuddyUsers (userName, intro, studyProgram, email, semester, meetType, languages, dayPreference, active, userId, courseId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
     [
-      userName,
+      user.fullName,
       intro,
       studyProgram,
       email,
