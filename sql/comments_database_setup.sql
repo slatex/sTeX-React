@@ -72,6 +72,13 @@ CREATE TABLE notifications (
     updatedTimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+CREATE TABLE userInfo (
+    userId VARCHAR(50) PRIMARY KEY,
+    firstName VARCHAR(255),
+    lastName VARCHAR(255),
+    email VARCHAR(255),
+    notificationSeenTs VARCHAR(255)
+);
 CREATE TABLE StudyBuddyUsers (
     userId VARCHAR(255) NOT NULL,
     courseId VARCHAR(255) NOT NULL,
@@ -100,3 +107,4 @@ CREATE TABLE StudyBuddyConnections (
 
 ALTER TABLE StudyBuddyConnections ADD CONSTRAINT StudyBuddyConnections_fk0 FOREIGN KEY (senderId) REFERENCES StudyBuddyUsers(userId);
 ALTER TABLE StudyBuddyConnections ADD CONSTRAINT StudyBuddyConnections_fk1 FOREIGN KEY (receiverId) REFERENCES StudyBuddyUsers(userId);
+

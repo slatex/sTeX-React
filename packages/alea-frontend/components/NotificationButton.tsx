@@ -18,7 +18,10 @@ import { keyframes } from '@mui/system';
 import {
   Notification,
   NotificationType,
+  getNotificationSeenTime,
   getUserNotifications,
+  isLoggedIn,
+  updateNotificationSeenTime,
 } from '@stex-react/api';
 import { DateView } from '@stex-react/react-utils';
 import { PRIMARY_COL, localStore } from '@stex-react/utils';
@@ -115,6 +118,7 @@ export function useNotificationData() {
 function NotificationButton() {
   const router = useRouter();
   const { notification: t } = getLocaleObject(router);
+  const [notificationSeenTime, setNotificationSeenTime] = useState('');
   // System info menu crap start
   const [anchorEl, setAnchorEl] = useState<any>(null);
   const open = Boolean(anchorEl);
@@ -122,24 +126,43 @@ function NotificationButton() {
   // System info menu crap end
 
   const sortedItems = useNotificationData();
+
+  useEffect(() => {
+    if (isLoggedIn()) {
+      getNotificationSeenTime().then(setNotificationSeenTime);
+    }
+  }, []);
+
   function topUpdate() {
     if (!sortedItems?.length) return '';
     return new Date(sortedItems[0].postedTimestamp).getTime().toString();
   }
+
+  function shouldRing(topUpdate) {
+    if (!isLoggedIn()) {
+      const lastNotificationSeenTime = localStore?.getItem(
+        'notification-seen-time'
+      );
+      return lastNotificationSeenTime !== topUpdate;
+    } else {
+      return notificationSeenTime.toString() !== topUpdate;
+    }
+  }
+
+  async function handleUpdate(e) {
+    setAnchorEl(e.currentTarget);
+    if (!isLoggedIn()) {
+      localStore?.setItem('notification-seen-time', topUpdate());
+    } else {
+      setNotificationSeenTime(topUpdate());
+      await updateNotificationSeenTime(topUpdate());
+    }
+  }
   return (
     <>
       <Tooltip title={t.notifications}>
-        <IconButton
-          onClick={(e) => {
-            setAnchorEl(e.currentTarget);
-            localStore?.setItem('combined-top-update', topUpdate());
-          }}
-        >
-          <NotificationBell
-            shouldRing={
-              localStore?.getItem('combined-top-update') !== topUpdate()
-            }
-          />
+        <IconButton onClick={(e) => handleUpdate(e)}>
+          <NotificationBell shouldRing={shouldRing(topUpdate())} />
         </IconButton>
       </Tooltip>
 
