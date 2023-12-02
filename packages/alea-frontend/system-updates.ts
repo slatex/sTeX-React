@@ -8,6 +8,14 @@ export const SYSTEM_UPDATES = [
     postedTimestamp: '2023-02-11T00:20:00+05:30',
   },*/
   {
+    id: 'practice-problems',
+    header: 'Practice Problems',
+    content: 'Dive deeper into your studies with practice problems now available after every course section directly in course notes. Gear up for quizzes by accessing section-specific practice directly from the [quiz dashboard](/quiz-dash/ai-1)! ',
+    header_de: 'Übungsprobleme',
+    content_de: 'Tauchen Sie tiefer in Ihr Studium ein, mit Übungsaufgaben, die jetzt nach jedem Kursabschnitt direkt in den Kursnotizen verfügbar sind. Bereiten Sie sich auf Quizze vor, indem Sie direkt über das [Quiz-Dashboard](/quiz-dash/ai-1) auf abschnittsspezifische Übungen zugreifen!',
+    postedTimestamp: '2023-12-01T17:20:00+05:30',
+  },
+  {
     id: 'notification',
     header: 'Notifications in ALeA',
     content:
