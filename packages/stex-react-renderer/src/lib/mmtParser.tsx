@@ -19,6 +19,8 @@ import { getOuterHTML } from 'domutils';
 import parse, { DOMNode, Element, domToReact } from 'html-react-parser';
 import { ElementType } from 'htmlparser2';
 import { createContext, forwardRef, useContext, useState } from 'react';
+import { Slide } from 'react-slideshow-image';
+import 'react-slideshow-image/dist/styles.css';
 import CompetencyIndicator from './CompetencyIndicator';
 import { ContentFromUrl } from './ContentFromUrl';
 import { ErrorBoundary } from './ErrorBoundary';
@@ -304,13 +306,37 @@ function SectionDisplay({ d }: { d: Element }) {
   );
 }
 
+function SlideShowComponent({ domNode }: { domNode: Element }) {
+  const [isManualUpdate, setIsManualUpdate] = useState(false);
+  return (
+    <Box border="1px solid #CCC" borderRadius="3px">
+      <Slide
+        transitionDuration={0}
+        indicators={true}
+        duration={3000}
+        onChange={(from, to) => {
+          if (to !== (from + 1) % domNode.childNodes.length) {
+            setIsManualUpdate(true);
+          }
+          console.log('from', from, 'to', to);
+        }}
+        autoplay={!isManualUpdate}
+      >
+        {domNode.childNodes.map((childNode, idx) => (
+          <Box key={idx}>{domToReact([childNode], { replace })}</Box>
+        ))}
+      </Slide>
+    </Box>
+  );
+}
+
 function CustomReplacement({ tag }: { tag: string }) {
   const { items } = useContext(CustomItemsContext);
   if (!items[tag]) return <>Tag [{tag}] not found</>;
   return items[tag];
 }
 
-const replace = (d: DOMNode): any => {
+export const replace = (d: DOMNode): any => {
   const domNode = getElement(d);
 
   if (!domNode) return;
@@ -359,13 +385,6 @@ const replace = (d: DOMNode): any => {
 
   if (!isVisible(domNode)) return <></>;
 
-  const isProblem = domNode.attribs?.['data-problem'] === 'true';
-  const problemProcessed = domNode.attribs?.[PROBLEM_PARSED_MARKER];
-  if (isProblem && !problemProcessed) {
-    const problem = getProblem(hackAwayProblemId(getOuterHTML(domNode)), '');
-    return <InlineProblemDisplay problem={problem} />;
-  }
-
   if (
     domNode.name === 'head' ||
     domNode.name === 'iframe' ||
@@ -373,6 +392,18 @@ const replace = (d: DOMNode): any => {
   ) {
     return <></>;
   }
+
+  if (domNode.attribs?.['data-slideshow']) {
+    return <SlideShowComponent domNode={domNode} />;
+  }
+
+  const isProblem = domNode.attribs?.['data-problem'] === 'true';
+  const problemProcessed = domNode.attribs?.[PROBLEM_PARSED_MARKER];
+  if (isProblem && !problemProcessed) {
+    const problem = getProblem(hackAwayProblemId(getOuterHTML(domNode)), '');
+    return <InlineProblemDisplay problem={problem} />;
+  }
+
   if (!IS_MMT_VIEWER && !localStore?.getItem('no-responsive')) {
     // HACK: MMT will fix the 'CALC' issue soon
     const customStyle = domNode.attribs?.['style'];

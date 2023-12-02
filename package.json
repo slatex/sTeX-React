@@ -34,6 +34,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-google-charts": "^4.0.0",
+    "react-slideshow-image": "^4.3.0",
     "react-swipeable": "^7.0.0",
     "rxjs": "^7.8.0",
     "serverless-mysql": "^1.5.4",
