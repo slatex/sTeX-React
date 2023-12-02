@@ -98,7 +98,7 @@ export function ThreadView({
                 sx={{ ml: '5px' }}
                 onClick={async () => {
                   const confirmText =
-                    'Are you sure you want to mark this comment as a remark?';
+                    'Are you sure you want to mark this comment as a remark and hide it from the forum? You can also consider marking it as answered instead.';
                   if (!confirm(confirmText)) return;
                   await updateQuestionState(
                     threadId,
@@ -109,7 +109,7 @@ export function ThreadView({
                   alert(`Comment type changed to a remark!`);
                 }}
               >
-                Not A Question
+                Dont Show In Forum
               </Button>
             </>
           ) : null}

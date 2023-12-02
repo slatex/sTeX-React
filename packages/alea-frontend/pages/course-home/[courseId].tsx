@@ -33,7 +33,7 @@ function CourseComponentLink({
   children: any;
 }) {
   return (
-    <Link href={href} style={{ flexGrow: 1 }}>
+    <Link href={href}>
       <Button
         variant="contained"
         sx={{ width: '100%', height: '48px', fontSize: '16px' }}
@@ -144,10 +144,9 @@ const CourseHomePage: NextPage = () => {
         flexDirection="column"
       >
         <Box
-          display="flex"
-          width="100%"
+          display="grid"
+          gridTemplateColumns="repeat(auto-fill,minmax(185px, 1fr))"
           gap="10px"
-          flexWrap="wrap"
           ref={containerRef}
         >
           <CourseComponentLink href={notesLink}>

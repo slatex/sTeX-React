@@ -3,7 +3,6 @@ use comments_test;
 
 ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'abctest';
 
-#use comments_staging;
 CREATE TABLE comments (
     commentId int PRIMARY KEY AUTO_INCREMENT,
     archive varchar(255),
@@ -79,6 +78,7 @@ CREATE TABLE userInfo (
     email VARCHAR(255),
     notificationSeenTs VARCHAR(255)
 );
+
 CREATE TABLE StudyBuddyUsers (
     userId VARCHAR(255) NOT NULL,
     courseId VARCHAR(255) NOT NULL,
@@ -107,4 +107,3 @@ CREATE TABLE StudyBuddyConnections (
 
 ALTER TABLE StudyBuddyConnections ADD CONSTRAINT StudyBuddyConnections_fk0 FOREIGN KEY (senderId) REFERENCES StudyBuddyUsers(userId);
 ALTER TABLE StudyBuddyConnections ADD CONSTRAINT StudyBuddyConnections_fk1 FOREIGN KEY (receiverId) REFERENCES StudyBuddyUsers(userId);
-
