@@ -218,7 +218,7 @@ export const de = {
     agreementText:
       'Ich verstehe, dass diese Informationen verwendet werden, um andere Benutzer von Study Buddy Connect zu finden und mit ihnen in Kontakt zu treten.',
     join: 'Verbinden',
-    update: 'Update',
+    update: 'Aktualisieren',
     discard: 'Verwerfen',
     myProfile: 'Mein Profil',
     editInfo: 'Bearbeitungs Info',
@@ -234,15 +234,15 @@ export const de = {
 
     connected: 'Angeschlossen',
     connectedSubtext:
-      'Auch diese Lernenden haben Interesse an einem gemeinsamen Studium mit Ihnen. Bitte treten Sie mit ihnen in Kontakt (senden Sie ihnen eine E-Mail).',
+      'Diese Lernenden haben Interesse an einer gemeinsamen Lerngruppe. Bitte treten Sie mit ihnen in Kontakt (senden Sie ihnen eine E-Mail).',
 
     requestReceived: 'Anfrage erhalten',
     requestReceivedSubtext:
-      'Diese Lernenden haben eine Anfrage gesendet, um sich mit Ihnen zu verbinden. Sobald Sie ihre Anfrage akzeptieren, können Sie sich mit ihnen per E-Mail verbinden.',
+      'Diese Lernenden haben eine Anfrage gesandt, um sich mit Ihnen zu verbinden. Sobald Sie ihre Anfrage akzeptieren, können Sie sich mit ihnen per E-Mail verbinden.',
 
     requestSent: 'Anfrage gesendet',
     requestSentSubtext:
-      'Sie haben diesen Lernenden eine Verbindungsanfrage gesendet. Bitte warten Sie darauf, dass sie Ihre Anfrage akzeptieren.',
+      'Sie haben diesen Lernenden eine Verbindungsanfrage gesendet. Bitte warten Sie darauf, dass diese Ihre Anfrage akzeptieren.',
 
     lookingFor: 'Lernende suchen nach einem Lernpartner',
     lookingForSubtext:
@@ -250,7 +250,7 @@ export const de = {
 
     optOutPrompt:
       'Sind Sie sicher, dass Sie das Lernpartner-Programm für $1 verlassen möchten?',
-    haveEnrolled: 'Sie haben am Lernpartner-Programm für $1 teilgenommen.',
+    haveEnrolled: 'Sie nehmen am Lernpartner-Programm für $1 teil.',
     connectedAlert: 'Sie haben eine Verbindung zu $1 hergestellt.',
     connectionRequestCancelled:
       'Die Verbindungsanfrage zu $1 wurde abgebrochen.',
