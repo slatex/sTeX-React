@@ -11,9 +11,10 @@ import {
 import {
   IS_MMT_VIEWER,
   XhtmlContentUrl,
-  contextParamsFromTopLevelDocUrl,
+  urlWithContextParams,
   getCustomTag,
   localStore,
+  getSectionInfo,
 } from '@stex-react/utils';
 import { getOuterHTML } from 'domutils';
 import parse, { DOMNode, Element, domToReact } from 'html-react-parser';
@@ -455,7 +456,7 @@ export const replace = (d: DOMNode): any => {
       <OverlayDialog
         contentUrl={clickLink}
         isMath={isMath}
-        displayNode={(topLevelDocUrl: string) => (
+        displayNode={(topLevelDocUrl: string, locale) => (
           <NoMaxWidthTooltip
             title={
               hoverLink ? (
@@ -469,10 +470,11 @@ export const replace = (d: DOMNode): any => {
                 >
                   <ContentFromUrl
                     topLevelDocUrl={topLevelDocUrl}
-                    url={
-                      hoverLink +
-                      contextParamsFromTopLevelDocUrl(topLevelDocUrl)
-                    }
+                    url={urlWithContextParams(
+                      hoverLink,
+                      locale,
+                      topLevelDocUrl
+                    )}
                     modifyRendered={getChildrenOfBodyNode}
                   />
                 </Box>

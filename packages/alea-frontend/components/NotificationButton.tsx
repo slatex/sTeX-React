@@ -118,7 +118,9 @@ export function useNotificationData() {
 function NotificationButton() {
   const router = useRouter();
   const { notification: t } = getLocaleObject(router);
-  const [notificationSeenTime, setNotificationSeenTime] = useState('');
+  const [notificationSeenTime, setNotificationSeenTime] = useState<
+    string | undefined
+  >(undefined);
   // System info menu crap start
   const [anchorEl, setAnchorEl] = useState<any>(null);
   const open = Boolean(anchorEl);
@@ -145,7 +147,10 @@ function NotificationButton() {
       );
       return lastNotificationSeenTime !== topUpdate;
     } else {
-      return notificationSeenTime.toString() !== topUpdate;
+      return (
+        notificationSeenTime !== undefined &&
+        notificationSeenTime.toString() !== topUpdate
+      );
     }
   }
 

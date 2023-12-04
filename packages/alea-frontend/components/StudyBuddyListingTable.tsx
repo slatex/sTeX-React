@@ -100,7 +100,7 @@ export function StudyBuddyListingTable({
       <Typography variant="subtitle1" sx={{ color: '#666' }}>
         {subText}
       </Typography>
-      <Paper style={{ maxHeight: '500px', overflow: 'auto' }}>
+      <Paper>
         <List>
           {studyBuddies.map((studyBuddy, idx) => (
             <Fragment key={studyBuddy.userId}>

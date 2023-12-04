@@ -9,8 +9,9 @@ import {
   Tooltip,
 } from '@mui/material';
 import {
-  contextParamsFromTopLevelDocUrl,
   getChildrenOfBodyNode,
+  localStore,
+  urlWithContextParams,
 } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { ReactNode, useContext, useState } from 'react';
@@ -18,7 +19,6 @@ import { ContentFromUrl, TopLevelContext } from './ContentFromUrl';
 import { ErrorBoundary } from './ErrorBoundary';
 import { getLocaleObject } from './lang/utils';
 import { ServerLinksContext } from './stex-react-renderer';
-import { localStore } from '@stex-react/utils';
 
 const HOVER_SWITCH = 'hoverSwitch';
 export function isHoverON() {
@@ -29,24 +29,32 @@ function setHover(hover: boolean) {
   localStore?.setItem(HOVER_SWITCH, String(hover));
 }
 
-export interface OverlayDialogProps {
-  contentUrl: string;
-  isMath: boolean;
-  displayNode: (topLevelDocUrl: string) => ReactNode;
-}
-
 export function OverlayDialog({
   contentUrl,
-  displayNode,
   isMath,
-}: OverlayDialogProps) {
-  const t = getLocaleObject(useRouter());
+  displayNode,
+}: {
+  contentUrl: string;
+  isMath: boolean;
+  displayNode: (topLevelDocUrl: string, locale: string) => ReactNode;
+}) {
+  const router = useRouter();
+  const locale = router?.locale ?? 'en';
+  const t = getLocaleObject(router);
   const [open, setOpen] = useState(false);
   const { mmtUrl } = useContext(ServerLinksContext);
   const { topLevelDocUrl } = useContext(TopLevelContext);
-  const contextParams = contextParamsFromTopLevelDocUrl(topLevelDocUrl);
+  const dialogContentUrl = urlWithContextParams(
+    contentUrl,
+    locale,
+    topLevelDocUrl
+  );
+  const newWindowUrl = `${mmtUrl}/${dialogContentUrl}`.replace(
+    ':sTeX/declaration',
+    ':sTeX/symbol'
+  );
 
-  const toDisplayNode = displayNode(topLevelDocUrl);
+  const toDisplayNode = displayNode(topLevelDocUrl, locale);
 
   return (
     <ErrorBoundary hidden={false}>
@@ -76,10 +84,7 @@ export function OverlayDialog({
               </Tooltip>
               <a
                 style={{ marginLeft: 'auto' }}
-                href={`${mmtUrl}/${contentUrl}${contextParams}`.replace(
-                  ':sTeX/declaration',
-                  ':sTeX/symbol'
-                )}
+                href={newWindowUrl}
                 target="_blank"
                 rel="noreferrer"
               >
@@ -92,7 +97,7 @@ export function OverlayDialog({
 
           <ContentFromUrl
             topLevelDocUrl={topLevelDocUrl}
-            url={`${contentUrl}${contextParams}`}
+            url={dialogContentUrl}
             modifyRendered={getChildrenOfBodyNode}
           />
 

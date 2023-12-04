@@ -62,12 +62,19 @@ export function getSectionInfo(url: string): FileInfo {
   };
 }
 
-export function contextParamsFromTopLevelDocUrl(url: string) {
-  const sectionInfo = getSectionInfo(url);
+export function urlWithContextParams(
+  url: string,
+  locale: string,
+  topLevelUrl?: string
+) {
+  const sectionInfo = getSectionInfo(topLevelUrl ?? '');
   if (!sectionInfo) return '';
   const { archive, filepath } = sectionInfo;
-
-  return `&contextArchive=${archive}&contextFilepath=${filepath}`;
+  if (url.endsWith('language=')) {
+    // Horrible hack.
+    return `${url}${locale}&contextArchive=${archive}&contextFilepath=${filepath}`;
+  }
+  return `${url}&language=${locale}&contextArchive=${archive}&contextFilepath=${filepath}`;
 }
 
 // Not crypto-safe.
@@ -78,7 +85,6 @@ export function simpleNumberHash(str: string) {
   }
   return hash;
 }
-
 
 // Dont use this for crypto or anything serious.
 export function simpleHash(str?: string) {
