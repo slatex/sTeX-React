@@ -5,15 +5,21 @@ import SlideshowIcon from '@mui/icons-material/Slideshow';
 import { Box, Button, Card, IconButton, Tooltip } from '@mui/material';
 import { getCourseInfo } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { CURRENT_TERM, CourseInfo } from '@stex-react/utils';
+import {
+  CURRENT_TERM,
+  CourseInfo,
+  PRIMARY_COL,
+  PRIMARY_COL_DARK_HOVER,
+} from '@stex-react/utils';
 import { NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, ReactNode } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 import styles from '../styles/utils.module.scss';
+import Diversity3 from '@mui/icons-material/Diversity3';
 
 function ELink({ href, children }: { href: string; children: any }) {
   return (
@@ -22,6 +28,20 @@ function ELink({ href, children }: { href: string; children: any }) {
     </a>
   );
 }
+
+function ColoredIconButton({ children }: { children: ReactNode }) {
+  return (
+    <IconButton
+      sx={{
+        bgcolor: PRIMARY_COL,
+        '&:hover, &.Mui-focusVisible': { bgcolor: PRIMARY_COL_DARK_HOVER },
+      }}
+    >
+      {children}
+    </IconButton>
+  );
+}
+
 function CourseThumb({ course }: { course: CourseInfo }) {
   const router = useRouter();
   const { home } = getLocaleObject(router);
@@ -47,7 +67,7 @@ function CourseThumb({ course }: { course: CourseInfo }) {
         border: '1px solid #CCC',
         p: '10px',
         m: '10px',
-        width: '218px',
+        width: '200px',
       }}
     >
       <Box
@@ -100,36 +120,42 @@ function CourseThumb({ course }: { course: CourseInfo }) {
 
           <Tooltip title={home.cardIntro}>
             <Link href={cardsLink} passHref>
-              <Button size="small" variant="contained">
-                {!hasQuiz && t.cards}&nbsp;
+              <ColoredIconButton>
                 <Image
                   src="/noun-flash-cards-2494102.svg"
                   width={25}
                   height={25}
                   alt=""
                 />
-              </Button>
+              </ColoredIconButton>
             </Link>
           </Tooltip>
 
           <Tooltip title={t.forum}>
             <Link href={forumLink} passHref>
-              <Button size="small" variant="contained">
-                {!hasQuiz && t.forum}&nbsp;
-                <QuestionAnswerIcon />
-              </Button>
+              <ColoredIconButton>
+                <QuestionAnswerIcon htmlColor="white" />
+              </ColoredIconButton>
             </Link>
           </Tooltip>
 
           {hasQuiz && (
             <Tooltip title={t.quizzes}>
               <Link href={quizzesLink} passHref>
-                <Button size="small" variant="contained">
-                  <QuizIcon />
-                </Button>
+                <ColoredIconButton>
+                  <QuizIcon htmlColor="white" />
+                </ColoredIconButton>
               </Link>
             </Tooltip>
           )}
+
+          <Tooltip title={t.studyBuddy}>
+            <Link href={forumLink} passHref>
+              <ColoredIconButton>
+                <Diversity3 htmlColor="white" />
+              </ColoredIconButton>
+            </Link>
+          </Tooltip>
         </Box>
       </Box>
     </Card>

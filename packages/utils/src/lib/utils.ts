@@ -9,6 +9,7 @@ export const IS_MMT_VIEWER = IS_SERVER
   ? false
   : (window as any).SHOW_FILE_BROWSER !== undefined;
 export const PRIMARY_COL = '#203360';
+export const PRIMARY_COL_DARK_HOVER = '#162343';
 export const SECONDARY_COL = '#8c9fb1';
 
 const MMT_CUSTOM_ID_PREFIX = '__mmt-custom-';

@@ -26,16 +26,29 @@ export function StudyBuddyForm({
   const { studyBuddy: t } = getLocaleObject(useRouter());
   return (
     <Box>
+      <Box display="flex" alignItems="center">
+        <TextField
+          error={!studyBuddy.email?.includes('@')}
+          label={t.emailLabel}
+          variant="outlined"
+          value={studyBuddy.email}
+          onChange={(e) => onUpdate({ ...studyBuddy, email: e.target.value })}
+          required
+          sx={{ mb: '0.5rem', mr: '0.5rem' }}
+          fullWidth
+        />
+        <Tooltip
+          title={<span style={{ fontSize: 'medium' }}>{t.emailWarning}</span>}
+        >
+          <InfoOutlined />
+        </Tooltip>
+      </Box>
       <TextField
-        id="outlined-basic"
         label={t.introLabel}
         variant="outlined"
         value={studyBuddy.intro}
-        onChange={(event) => {
-          onUpdate({
-            ...studyBuddy,
-            intro: event.target.value,
-          });
+        onChange={(e) => {
+          onUpdate({ ...studyBuddy, intro: e.target.value });
         }}
         sx={{ mb: '0.5rem' }}
         fullWidth
@@ -44,11 +57,8 @@ export function StudyBuddyForm({
         label={t.studyProgramLabel}
         variant="outlined"
         value={studyBuddy.studyProgram}
-        onChange={(event) => {
-          onUpdate({
-            ...studyBuddy,
-            studyProgram: event.target.value,
-          });
+        onChange={(e) => {
+          onUpdate({ ...studyBuddy, studyProgram: e.target.value });
         }}
         sx={{ mb: '0.5rem' }}
         fullWidth
@@ -61,11 +71,7 @@ export function StudyBuddyForm({
           value={studyBuddy.semester}
           label="Semester #"
           onChange={(e) => {
-            const semester = +e.target.value;
-            onUpdate({
-              ...studyBuddy,
-              semester,
-            });
+            onUpdate({ ...studyBuddy, semester: +e.target.value });
           }}
         >
           {Array.from({ length: 10 }, (_, i) => i + 1).map((sem) => (
@@ -75,27 +81,6 @@ export function StudyBuddyForm({
           ))}
         </Select>
       </FormControl>
-
-      <Box display="flex" alignItems="center">
-        <TextField
-          id="outlined-basic"
-          label={t.emailLabel}
-          variant="outlined"
-          value={studyBuddy.email}
-          onChange={(event) => {
-            onUpdate({
-              ...studyBuddy,
-              email: event.target.value,
-            });
-          }}
-          required
-          sx={{ mb: '0.5rem' }}
-          fullWidth
-        />
-        <Tooltip title={t.emailWarning}>
-          <InfoOutlined />
-        </Tooltip>
-      </Box>
       <FormControl sx={{ mb: '0.5rem' }} fullWidth>
         <InputLabel id="meet-type-label">{t.meetTypeLabel}</InputLabel>
         <Select
@@ -105,10 +90,8 @@ export function StudyBuddyForm({
           value={studyBuddy.meetType}
           variant="outlined"
           onChange={(e) => {
-            onUpdate({
-              ...studyBuddy,
-              meetType: MeetType[e.target.value as keyof typeof MeetType],
-            });
+            const meetType = MeetType[e.target.value as keyof typeof MeetType];
+            onUpdate({ ...studyBuddy, meetType });
           }}
           fullWidth
         >
@@ -131,10 +114,8 @@ export function StudyBuddyForm({
           label={t.preferredDays}
           variant="outlined"
           onChange={(e) => {
-            onUpdate({
-              ...studyBuddy,
-              dayPreference: (e.target.value as string[]).join(','),
-            });
+            const dayPreference = (e.target.value as string[]).join(',');
+            onUpdate({ ...studyBuddy, dayPreference });
           }}
           renderValue={(selected) => selected.join(', ')}
           fullWidth
@@ -158,10 +139,8 @@ export function StudyBuddyForm({
           label={t.languagesLabel}
           variant="outlined"
           onChange={(e) => {
-            onUpdate({
-              ...studyBuddy,
-              languages: (e.target.value as string[]).join(','),
-            });
+            const languages = (e.target.value as string[]).join(',');
+            onUpdate({ ...studyBuddy, languages });
           }}
           renderValue={(selected) => selected.join(', ')}
           fullWidth

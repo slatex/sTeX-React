@@ -176,12 +176,10 @@ const CourseHomePage: NextPage = () => {
               <QuizIcon fontSize="large" />
             </CourseComponentLink>
           )}
-          {localStorage.getItem('study-buddy') && (
-            <CourseComponentLink href={`/study-buddy/${courseId}`}>
-              {t.studyBuddy}&nbsp;
-              <Diversity3Icon fontSize="large" />
-            </CourseComponentLink>
-          )}
+          <CourseComponentLink href={`/study-buddy/${courseId}`}>
+            {t.studyBuddy}&nbsp;
+            <Diversity3Icon fontSize="large" />
+          </CourseComponentLink>
         </Box>
         <DocumentWidthSetter>
           <ContentFromUrl

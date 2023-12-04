@@ -41,6 +41,29 @@ import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
 import { CourseHeader } from '../course-home/[courseId]';
 
+function OptOutButton({
+  studyBuddy,
+  courseId,
+}: {
+  studyBuddy: StudyBuddy;
+  courseId: string;
+}) {
+  const { studyBuddy: t } = getLocaleObject(useRouter());
+  return (
+    <Button
+      variant="contained"
+      onClick={async () => {
+        const prompt = t.optOutPrompt.replace('$1', courseId);
+        if (studyBuddy.active && !confirm(prompt)) return;
+        await setActive(courseId, !studyBuddy.active);
+        if (!studyBuddy.active) alert(t.haveEnrolled.replace('$1', courseId));
+        location.reload();
+      }}
+    >
+      {studyBuddy.active ? t.optOut : t.reJoin}
+    </Button>
+  );
+}
 const StudyBuddyPage: NextPage = () => {
   const router = useRouter();
   const courseId = router.query.courseId as string;
@@ -137,24 +160,32 @@ const StudyBuddyPage: NextPage = () => {
               </CardContent>
 
               <CardActions>
-                <Button
-                  variant="contained"
-                  onClick={async () => {
-                    await updateStudyBuddyInfo(courseId, userInput);
-                    location.reload();
-                  }}
-                  disabled={!agreed}
-                >
-                  {notSignedUp ? t.join : t.update}
-                </Button>
-                {!notSignedUp && (
-                  <Button
-                    variant="contained"
-                    onClick={() => setIsEditing(false)}
-                  >
-                    {t.discard}
-                  </Button>
-                )}
+                <Box display="flex" justifyContent="space-between" width="100%">
+                  <Box>
+                    <Button
+                      variant="contained"
+                      onClick={async () => {
+                        await updateStudyBuddyInfo(courseId, userInput);
+                        location.reload();
+                      }}
+                      sx={{ mr: '10px' }}
+                      disabled={!(agreed && userInput.email?.includes('@'))}
+                    >
+                      {notSignedUp ? t.join : t.update}
+                    </Button>
+                    {!notSignedUp && (
+                      <Button
+                        variant="contained"
+                        onClick={() => setIsEditing(false)}
+                      >
+                        {t.discard}
+                      </Button>
+                    )}
+                  </Box>
+                  {fromServer.active && (
+                    <OptOutButton studyBuddy={fromServer} courseId={courseId} />
+                  )}
+                </Box>
               </CardActions>
             </Card>
           ) : isLoggedIn() ? (
@@ -179,19 +210,9 @@ const StudyBuddyPage: NextPage = () => {
                 >
                   {t.editInfo}
                 </Button>
-                <Button
-                  variant="contained"
-                  onClick={async () => {
-                    const prompt = t.optOutPrompt.replace('$1', courseId);
-                    if (fromServer.active && !confirm(prompt)) return;
-                    await setActive(courseId, !fromServer.active);
-                    if (!fromServer.active)
-                      alert(t.haveEnrolled.replace('$1', courseId));
-                    location.reload();
-                  }}
-                >
-                  {fromServer.active ? t.optOut : t.reJoin}
-                </Button>
+                {!fromServer.active && (
+                  <OptOutButton studyBuddy={fromServer} courseId={courseId} />
+                )}
               </CardActions>
             </Card>
           </>
