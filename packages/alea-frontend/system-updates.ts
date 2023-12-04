@@ -6,13 +6,24 @@ export const SYSTEM_UPDATES = [
     header_de: '',
     content_de: '',
     postedTimestamp: '2023-02-11T00:20:00+05:30',
-  },*/
+  },*/ {
+    id: 'study-buddy',
+    header: 'Find A Study Buddy 🤝',
+    content:
+      "Now, you can easily connect with fellow students who share your learning goals. Share your study preferences, and you'll be matched with potential study partners in no time. Make learning fun and benefit from the power of collaborative studying!",
+    header_de: 'Finden Sie einen Study-Buddy🤝',
+    content_de:
+      'Jetzt können Sie ganz einfach mit Kommilitonen in Kontakt treten, die Ihre Lernziele teilen. Teilen Sie Ihre Studienpräferenzen mit und Sie werden in kürzester Zeit mit potenziellen Studienpartnern zusammengebracht. Machen Sie das Lernen zum Spaß und profitieren Sie von der Kraft des kollaborativen Lernens!',
+    postedTimestamp: '2023-12-04T10:50:00+05:30',
+  },
   {
     id: 'practice-problems',
     header: 'Practice Problems',
-    content: 'Dive deeper into your studies with practice problems now available after every course section directly in course notes. Gear up for quizzes by accessing section-specific practice directly from the [quiz dashboard](/quiz-dash/ai-1)! ',
+    content:
+      'Dive deeper into your studies with practice problems now available after every course section directly in course notes. Gear up for quizzes by accessing section-specific practice directly from the [quiz dashboard](/quiz-dash/ai-1)! ',
     header_de: 'Übungsprobleme',
-    content_de: 'Tauchen Sie tiefer in Ihr Studium ein, mit Übungsaufgaben, die jetzt nach jedem Kursabschnitt direkt in den Kursnotizen verfügbar sind. Bereiten Sie sich auf Quizze vor, indem Sie direkt über das [Quiz-Dashboard](/quiz-dash/ai-1) auf abschnittsspezifische Übungen zugreifen!',
+    content_de:
+      'Tauchen Sie tiefer in Ihr Studium ein, mit Übungsaufgaben, die jetzt nach jedem Kursabschnitt direkt in den Kursnotizen verfügbar sind. Bereiten Sie sich auf Quizze vor, indem Sie direkt über das [Quiz-Dashboard](/quiz-dash/ai-1) auf abschnittsspezifische Übungen zugreifen!',
     postedTimestamp: '2023-12-01T17:20:00+05:30',
   },
   {
