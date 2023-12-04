@@ -182,7 +182,7 @@ const StudyBuddyPage: NextPage = () => {
                       </Button>
                     )}
                   </Box>
-                  {fromServer.active && (
+                  {fromServer?.active && (
                     <OptOutButton studyBuddy={fromServer} courseId={courseId} />
                   )}
                 </Box>

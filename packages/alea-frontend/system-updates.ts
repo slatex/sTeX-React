@@ -14,7 +14,7 @@ export const SYSTEM_UPDATES = [
     header_de: 'Finden Sie einen Study-Buddy🤝',
     content_de:
       'Jetzt können Sie ganz einfach mit Kommilitonen in Kontakt treten, die Ihre Lernziele teilen. Teilen Sie Ihre Studienpräferenzen mit und Sie werden in kürzester Zeit mit potenziellen Studienpartnern zusammengebracht. Machen Sie das Lernen zum Spaß und profitieren Sie von der Kraft des kollaborativen Lernens!',
-    postedTimestamp: '2023-12-04T10:50:00+05:30',
+    postedTimestamp: '2023-12-04T22:55:00+05:30',
   },
   {
     id: 'practice-problems',
