@@ -150,7 +150,7 @@ function CourseThumb({ course }: { course: CourseInfo }) {
           )}
 
           <Tooltip title={t.studyBuddy}>
-            <Link href={forumLink} passHref>
+            <Link href={`/study-buddy/${courseId}`} passHref>
               <ColoredIconButton>
                 <Diversity3 htmlColor="white" />
               </ColoredIconButton>
