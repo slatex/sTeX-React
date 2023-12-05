@@ -17,6 +17,7 @@ import {
   mmtHTMLToReact,
 } from '@stex-react/stex-react-renderer';
 import { getLocaleObject } from '../../lang/utils';
+import QuizPerofrmanceTable from '../../components/QuizPerformanceTable';
 
 function QuizThumbnail({ quiz }: { quiz: QuizStubInfo }) {
   const { quizId, quizStartTs, quizEndTs, title } = quiz;
@@ -218,7 +219,10 @@ const QuizDashPage: NextPage = () => {
           quizList={upcomingQuizzes}
           practiceInfo={PRACTICE_QUIZ_INFO[courseId]}
         />
-        <QuizList header={t.previousQuizzes} quizList={previousQuizzes} />
+        <QuizPerofrmanceTable
+          quizList={previousQuizzes}
+          header={t.previousQuizzes}
+        />
       </Box>
     </MainLayout>
   );

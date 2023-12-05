@@ -227,3 +227,13 @@ export function getElapsedTime(events: TimerEvent[], problemIdx: number) {
   }
   return totalTime;
 }
+
+export interface GetPreviousQuizInfoResponse{
+    quizinfo:{[quizId:string]:PreviousQuizInfo}
+}
+
+export interface PreviousQuizInfo{
+  score:number,
+  averageScore:number,
+  maxPoints:number
+}
