@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import {
     GetPreviousQuizInfoResponse,
-    getQuizPerformance,
+    getPreviousQuizInfo
 } from '@stex-react/api';
 import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import { PRIMARY_COL } from '@stex-react/utils';
@@ -18,11 +18,11 @@ import dayjs from 'dayjs';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
-function QuizPerofrmanceTable({ quizList, header }) {
+function QuizPerformanceTable({ quizList, header }) {
   const [previousQuizData, setPreviousQuizData] =
     useState<GetPreviousQuizInfoResponse>();
   useEffect(() => {
-    getQuizPerformance().then(setPreviousQuizData);
+    getPreviousQuizInfo().then(setPreviousQuizData);
   }, []);
   return (
     <>
@@ -82,4 +82,4 @@ function QuizPerofrmanceTable({ quizList, header }) {
   );
 }
 
-export default QuizPerofrmanceTable;
+export default QuizPerformanceTable;
