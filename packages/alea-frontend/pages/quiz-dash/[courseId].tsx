@@ -133,8 +133,8 @@ function UpcomingQuizList({
 
 const PRACTICE_QUIZ_INFO = {
   'ai-1': {
-    startSecNameExcl: 'Monte-Carlo Tree Search (MCTS)',
-    endSecNameIncl: 'Arc Consistency',
+    startSecNameExcl: 'Arc Consistency',
+    endSecNameIncl: 'Propositional Natural Deduction Calculus',
   },
 };
 
