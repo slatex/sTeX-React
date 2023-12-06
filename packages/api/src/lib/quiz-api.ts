@@ -7,6 +7,7 @@ import {
   QuizStatsResponse,
   QuizStubInfo,
   ProblemResponse,
+  GetPreviousQuizInfoResponse,
 } from './quiz';
 
 export async function insertAnswer(
@@ -67,4 +68,11 @@ export async function getCourseQuizList(
   courseId: string
 ): Promise<QuizStubInfo[]> {
   return (await axios.get(`/api/get-course-quiz-list/${courseId}`)).data;
+}
+
+export async function getPreviousQuizInfo() {
+  const resp = await axios.get(`/api/get-previous-quiz-info`,{
+    headers: getAuthHeaders(),
+  });
+  return resp.data as GetPreviousQuizInfoResponse ;
 }
