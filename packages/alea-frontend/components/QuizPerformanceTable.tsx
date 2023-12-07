@@ -75,12 +75,12 @@ function QuizPerformanceTable({ quizList, header }) {
                     {previousQuizData?.quizinfo[quiz.quizId]?.maxPoints}
                   </TableCell>
                   <TableCell>
-                    {previousQuizData?.quizinfo[quiz.quizId]?.score.toFixed(2)}
+                    {previousQuizData?.quizinfo[quiz.quizId]?.score?.toFixed(2)}
                   </TableCell>
                   <TableCell>
                     {previousQuizData?.quizinfo[
                       quiz.quizId
-                    ]?.averageScore.toFixed(2)}
+                    ]?.averageScore?.toFixed(2)}
                   </TableCell>
                 </TableRow>
               ))}
