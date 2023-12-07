@@ -48,6 +48,8 @@ export function CompetencyTable({
   const [orderBy, setOrderBy] = useState<string>('');
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
   const combinedData: { concepts: string; values: any }[] = [];
+  const CONCEPT_COLUMN = 'concepts';
+
   for (let i = 0; i < URIs.length; i++) {
     const newObj = {
       values: competencyData[i],
@@ -65,7 +67,7 @@ export function CompetencyTable({
   };
 
   const sortedData = combinedData.slice().sort((a, b) => {
-    if (orderBy === 'concepts') {
+    if (orderBy === CONCEPT_COLUMN) {
       const aValue = extractLastWordAfterQuestionMark(a.concepts).toLowerCase();
       const bValue = extractLastWordAfterQuestionMark(b.concepts).toLowerCase();
       return order === 'asc'
@@ -90,9 +92,9 @@ export function CompetencyTable({
           <TableRow>
             <TableCell>
               <TableSortLabel
-                active={orderBy === 'concepts'}
+                active={orderBy === CONCEPT_COLUMN}
                 direction={order}
-                onClick={() => handleRequestSort('concepts')}
+                onClick={() => handleRequestSort(CONCEPT_COLUMN)}
               >
                 <b>{t.concepts}</b>
               </TableSortLabel>
