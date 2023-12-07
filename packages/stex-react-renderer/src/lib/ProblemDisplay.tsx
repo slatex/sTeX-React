@@ -1,4 +1,4 @@
-import InfoIcon from '@mui/icons-material/Info';
+import CancelIcon from '@mui/icons-material/Cancel';
 import {
   Box,
   Button,
@@ -27,15 +27,16 @@ import {
   removeAnswerInfo,
 } from '@stex-react/quiz-utils';
 
-import styles from './quiz.module.scss';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { useRouter } from 'next/router';
+import { DocumentWidthSetter } from './DocumentWidthSetter';
+import { getLocaleObject } from './lang/utils';
 import {
   CustomItemsContext,
   NoMaxWidthTooltip,
   mmtHTMLToReact,
 } from './mmtParser';
-import { DocumentWidthSetter } from './DocumentWidthSetter';
-import { getLocaleObject } from './lang/utils';
-import { useRouter } from 'next/router';
+import styles from './quiz.module.scss';
 
 function BpRadio(props: RadioProps) {
   return <Radio disableRipple color="default" {...props} />;
@@ -189,7 +190,11 @@ function FeedbackDisplay({
         <DirectFeedback isCorrect={isCorrect} feedbackHtml={feedbackHtml} />
       }
     >
-      <InfoIcon />
+      {isCorrect === Tristate.TRUE ? (
+        <CheckCircleIcon htmlColor="green" />
+      ) : (
+        <CancelIcon htmlColor="red" />
+      )}
     </NoMaxWidthTooltip>
   ) : (
     <>
