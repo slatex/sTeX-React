@@ -1,19 +1,19 @@
 import {
-    Paper,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Typography,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Tooltip,
+  Typography,
 } from '@mui/material';
 import {
-    GetPreviousQuizInfoResponse,
-    getPreviousQuizInfo
+  GetPreviousQuizInfoResponse,
+  getPreviousQuizInfo,
 } from '@stex-react/api';
-import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
-import { PRIMARY_COL } from '@stex-react/utils';
+import { PRIMARY_COL, convertHtmlStringToPlain } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -56,22 +56,31 @@ function QuizPerformanceTable({ quizList, header }) {
               .map((quiz) => (
                 <TableRow key={quiz.quizId}>
                   <Link href={`/quiz/${quiz.quizId}`}>
-                    <TableCell sx={{ color: PRIMARY_COL }}>
-                      {mmtHTMLToReact(quiz.title)}
+                    <TableCell
+                      sx={{ color: PRIMARY_COL, wordBreak: 'break-word' }}
+                    >
+                      {convertHtmlStringToPlain(quiz.title)}
                     </TableCell>
                   </Link>
                   <TableCell>
-                    {dayjs(quiz.quizStartTs).format('MMM-DD HH:mm')} to{' '}
-                    {dayjs(quiz.quizEndTs).format('HH:mm')}
+                    <Tooltip
+                      title={`${dayjs(quiz.quizStartTs).format(
+                        'MMM-DD HH:mm'
+                      )} to ${dayjs(quiz.quizEndTs).format('MMM-DD HH:mm')}`}
+                    >
+                      <span>{dayjs(quiz.quizStartTs).format('MMM-DD')}</span>
+                    </Tooltip>
                   </TableCell>
                   <TableCell>
                     {previousQuizData?.quizinfo[quiz.quizId]?.maxPoints}
                   </TableCell>
                   <TableCell>
-                    {previousQuizData?.quizinfo[quiz.quizId]?.score}
+                    {previousQuizData?.quizinfo[quiz.quizId]?.score.toFixed(2)}
                   </TableCell>
                   <TableCell>
-                    {previousQuizData?.quizinfo[quiz.quizId]?.averageScore}
+                    {previousQuizData?.quizinfo[
+                      quiz.quizId
+                    ]?.averageScore.toFixed(2)}
                   </TableCell>
                 </TableRow>
               ))}
