@@ -21,7 +21,11 @@ import {
   ProblemResponse,
   Tristate,
 } from '@stex-react/api';
-import { isFillInInputCorrect, removeAnswerInfo } from '@stex-react/quiz-utils';
+import {
+  getFillInFeedbackHtml,
+  isFillInInputCorrect,
+  removeAnswerInfo,
+} from '@stex-react/quiz-utils';
 
 import styles from './quiz.module.scss';
 import {
@@ -38,7 +42,7 @@ function BpRadio(props: RadioProps) {
 }
 
 function removeInfoIfNeeded(sHtml: string, isFrozen: boolean) {
-  return isFrozen ? sHtml: removeAnswerInfo(sHtml);
+  return isFrozen ? sHtml : removeAnswerInfo(sHtml);
 }
 
 function getClassNames(
@@ -91,13 +95,11 @@ function getDropdownClassNames(
 }
 
 function fillInFeedback(input: Input, response: InputResponse) {
-  const expected = input.fillInSolution;
+  const expected = input.fillInAnswerClasses;
   if (!expected) return { isCorrect: Tristate.UNKNOWN, feedbackHtml: '' };
   const actual = response.filledInAnswer;
   const isCorrect = isFillInInputCorrect(expected, actual) === Tristate.TRUE;
-  const feedbackHtml = isCorrect
-    ? 'Correct!'
-    : `The correct answer is <b><code>${expected}</code></b>`;
+  const feedbackHtml = getFillInFeedbackHtml(input, actual);
   return {
     isCorrect: isCorrect ? Tristate.TRUE : Tristate.FALSE,
     feedbackHtml,
@@ -289,10 +291,10 @@ function inputDisplay({
       );
     }
   } else if (type === InputType.FILL_IN) {
-    const setColor = isFrozen && input.fillInSolution;
+    const setColor = isFrozen && input.fillInAnswerClasses;
     const color = setColor ? (info?.isCorrect ? 'green' : 'red') : undefined;
     return (
-      <>
+      <Box display="inline-flex" alignItems="center">
         <TextField
           label="Answer"
           value={response.filledInAnswer}
@@ -303,17 +305,11 @@ function inputDisplay({
             } as InputResponse)
           }
           disabled={isFrozen}
-          sx={{
-            color,
-            display: inline ? undefined : 'block',
-            mb: !inline && isFrozen ? '10px' : undefined,
-            minWidth: '250px',
-          }}
+          sx={{ color, minWidth: '250px' }}
           variant="outlined"
-          fullWidth={!inline}
         />
-        <FeedbackDisplay inline={inline} info={info} />
-      </>
+        <FeedbackDisplay inline={true} info={info} />
+      </Box>
     );
   } else if (type === InputType.MCQ) {
     return (

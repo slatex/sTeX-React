@@ -43,6 +43,23 @@ export enum InputType {
   FILL_IN = 'FILL_IN',
 }
 
+export enum FillInAnswerClassType {
+  exact = 'exact',
+  numrange = 'numrange',
+  regex = 'regex',
+}
+
+export interface FillInAnswerClass {
+  type: FillInAnswerClassType;
+  verdict: boolean;
+  feedbackHtml?: string;
+  
+  startNum?: number;
+  endNum?: number;
+  regex?: string;
+  exactMatch?: string;
+}
+
 export interface FillInBox {
   solution: string;
   inline: boolean;
@@ -51,7 +68,7 @@ export interface FillInBox {
 export interface Input {
   type: InputType;
   options?: Option[]; // For MCQ and SCQ types.
-  fillInSolution?: string; // For FILL_IN type.
+  fillInAnswerClasses?: FillInAnswerClass[]; // For FILL_IN type.
   inline: boolean;
 }
 

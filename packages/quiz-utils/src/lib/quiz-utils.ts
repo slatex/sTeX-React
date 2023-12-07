@@ -1,4 +1,6 @@
 import {
+  FillInAnswerClass,
+  FillInAnswerClassType,
   Input,
   InputType,
   Option,
@@ -20,12 +22,68 @@ const NODE_ATTRS_TO_TYPE: { [attrName: string]: InputType } = {
 
 export const PROBLEM_PARSED_MARKER = 'problem-parsed';
 
-export function isFillInInputCorrect(expected?: string, actual?: string) {
-  if (!expected?.length) return Tristate.UNKNOWN;
-  if (!actual) return Tristate.FALSE;
-  return expected.toLowerCase().trim() === actual.toLowerCase().trim()
-    ? Tristate.TRUE
-    : Tristate.FALSE;
+function doesMatch(answerClass: FillInAnswerClass, trimmedActual?: string) {
+  if (!trimmedActual) return false;
+  switch (answerClass.type) {
+    case FillInAnswerClassType.exact: {
+      const { exactMatch } = answerClass;
+      const exactMatchNormalized = exactMatch?.toLowerCase();
+      return exactMatchNormalized === trimmedActual.toLowerCase();
+    }
+    case FillInAnswerClassType.numrange: {
+      const { startNum, endNum } = answerClass; // Invalid answer class.
+      if (startNum === undefined || endNum === undefined) return false;
+
+      const actualNum = parseFloat(trimmedActual);
+      if (isNaN(actualNum)) return false;
+      if (!isNaN(startNum) && actualNum < startNum) return false;
+      if (!isNaN(endNum) && actualNum > endNum) return false;
+      return true;
+    }
+    case FillInAnswerClassType.regex: {
+      const { regex } = answerClass;
+      if (!regex) return false;
+      // Creating a RegExp object with the 'i' flag for case-insensitive matching
+      return new RegExp(regex.trim(), 'i').test(trimmedActual);
+    }
+    default:
+      return false;
+  }
+}
+
+export function getFillInFeedbackHtml(
+  fillInInput: Input,
+  trimmedActual?: string
+) {
+  const answerClasses = fillInInput.fillInAnswerClasses ?? [];
+  const matchedAC = answerClasses.find((ac) => doesMatch(ac, trimmedActual));
+  if (matchedAC?.feedbackHtml) return matchedAC.feedbackHtml;
+
+  const correctAC = answerClasses.find((a) => a.verdict);
+  if (!correctAC)
+    return '<i>Internal Error: No solution found in the problem!</i>';
+  const { exactMatch, startNum, endNum, regex } = correctAC;
+  const displayValue = exactMatch || regex || `[${startNum}, ${endNum}]`;
+
+  const isCorrect =
+    isFillInInputCorrect(answerClasses, trimmedActual) === Tristate.TRUE;
+  if (isCorrect) return 'Correct!';
+  return `The correct answer is <b><code>${displayValue}</code></b>`;
+}
+
+export function isFillInInputCorrect(
+  answerClasses?: FillInAnswerClass[],
+  actual?: string
+) {
+  if (!answerClasses?.length) return Tristate.UNKNOWN;
+  const trimmedActual = actual?.trim();
+  if (!trimmedActual?.length) return Tristate.FALSE;
+
+  for (const answerClass of answerClasses) {
+    const match = doesMatch(answerClass, trimmedActual);
+    if (match) return answerClass.verdict ? Tristate.TRUE : Tristate.FALSE;
+  }
+  return Tristate.FALSE;
 }
 
 function isSCQCorrect(options?: Option[], singleOptionIdx?: string) {
@@ -60,7 +118,7 @@ export function getPoints(problem: Problem, response?: ProblemResponse) {
   if (!response) return 0;
   const perInputCorrectness: Tristate[] = problem.inputs.map((input, idx) => {
     const resp = response?.responses?.[idx];
-    const { type, fillInSolution, options } = input;
+    const { type, fillInAnswerClasses, options } = input;
     if (type !== input.type) {
       console.error(
         `Input [${idx}] (${type}) has unexpected response: ${resp.type}`
@@ -68,7 +126,7 @@ export function getPoints(problem: Problem, response?: ProblemResponse) {
       return Tristate.UNKNOWN;
     }
     if (input.type === InputType.FILL_IN) {
-      return isFillInInputCorrect(fillInSolution, resp.filledInAnswer);
+      return isFillInInputCorrect(fillInAnswerClasses, resp.filledInAnswer);
     } else if (input.type === InputType.MCQ) {
       return isMCQCorrect(options, resp.multipleOptionIdxs);
     } else if (input.type === InputType.SCQ) {
@@ -141,8 +199,8 @@ function findProblemRootNode(node: (ChildNode & Element) | Document) {
 }
 
 function booleanStringToTriState(str: string) {
-  if (str === 'true') return Tristate.TRUE;
-  if (str === 'false') return Tristate.FALSE;
+  if (str.toLowerCase() === 'true') return Tristate.TRUE;
+  if (str.toLowerCase() === 'false') return Tristate.FALSE;
   return Tristate.UNKNOWN;
 }
 
@@ -172,6 +230,72 @@ function getOptionSet(optionBlock: Element, type: InputType): Option[] {
   );
 }
 
+export function fillInValueToStartEndNum(value: string) {
+  value = value.trim();
+  if (value.startsWith('[')) value = value.slice(1);
+  if (value.endsWith(']')) value = value.slice(0, -1);
+  if (value.includes(',')) value = value.replace(',', '-');
+
+  // Remove spaces from the range string
+  const cleanedRange = value.replace(/\s/g, '');
+
+  const regex = /^(-?[\d.]+)?-(-?[\d.]+)?$/;
+  const match = cleanedRange.match(regex);
+
+  if (!match) return { startNum: undefined, endNum: undefined };
+  return { startNum: parseFloat(match[1]), endNum: parseFloat(match[2]) };
+}
+
+function getAnswerClass(node: Element): FillInAnswerClass | undefined {
+  const type = node.attribs['data-fillin-type'];
+  const verdict = node.attribs['data-fillin-verdict']?.toLowerCase() === 'true';
+  const value = node.attribs['data-fillin-value'];
+  node.attribs['style'] = ''; // was {display: none}
+  const feedbackHtml = DomUtils.getOuterHTML(node);
+  switch (type) {
+    case 'exact':
+      return {
+        type: FillInAnswerClassType.exact,
+        verdict,
+        exactMatch: value,
+        feedbackHtml,
+      };
+    case 'numrange': {
+      const { startNum, endNum } = fillInValueToStartEndNum(value);
+      return {
+        type: FillInAnswerClassType.numrange,
+        verdict,
+        startNum,
+        endNum,
+        feedbackHtml,
+      };
+    }
+    case 'regex':
+      return {
+        type: FillInAnswerClassType.regex,
+        verdict,
+        regex: value,
+        feedbackHtml,
+      };
+    default:
+      return undefined;
+  }
+}
+
+function getFillInAnswerClasses(fillInSolNode: Element): FillInAnswerClass[] {
+  const answerClassNodes = recursivelyFindNodes(fillInSolNode, [
+    'data-fillin-type',
+  ]);
+  if (!answerClassNodes?.length) {
+    const exactMatch = DomUtils.textContent(fillInSolNode);
+    if (!exactMatch) return [];
+    return [{ type: FillInAnswerClassType.exact, verdict: true, exactMatch }];
+  }
+  return answerClassNodes
+    .map(({ node }) => getAnswerClass(node))
+    .filter((x) => x) as FillInAnswerClass[];
+}
+
 function findInputs(
   problemRootNode: (ChildNode & Element) | Document
 ): Input[] {
@@ -189,8 +313,8 @@ function findInputs(
       const options = getOptionSet(node, type);
       return { type, options, inline } as Input;
     } else {
-      const fillInSolution = DomUtils.textContent(node);
-      return { type, fillInSolution, inline } as Input;
+      const fillInAnswerClasses = getFillInAnswerClasses(node);
+      return { type, fillInAnswerClasses, inline } as Input;
     }
   });
 }
