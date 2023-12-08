@@ -6,6 +6,13 @@ export enum Phase {
   FEEDBACK_RELEASED = 'FEEDBACK_RELEASED',
 }
 
+export interface RecorrectionInfo {
+  problemId: string;
+  problemHeader?: string;
+  recorrectedTs: string; // ISO string
+  description: string;
+}
+
 export interface Quiz {
   id: string;
   version: number;
@@ -19,6 +26,8 @@ export interface Quiz {
 
   title: string;
   problems: { [problemId: string]: string };
+
+  recorrectionInfo?: RecorrectionInfo[];
 
   updatedAt: number;
   updatedBy: string;
@@ -53,7 +62,7 @@ export interface FillInAnswerClass {
   type: FillInAnswerClassType;
   verdict: boolean;
   feedbackHtml?: string;
-  
+
   startNum?: number;
   endNum?: number;
   regex?: string;
@@ -173,7 +182,6 @@ export interface QuizStubInfo {
   title: string;
 }
 
-
 export function getTotalElapsedTime(events: TimerEvent[]) {
   if (!events?.length) return 0;
   console.assert(events[0].type === TimerEventType.SWITCH);
@@ -245,12 +253,13 @@ export function getElapsedTime(events: TimerEvent[], problemIdx: number) {
   return totalTime;
 }
 
-export interface GetPreviousQuizInfoResponse{
-    quizinfo:{[quizId:string]:PreviousQuizInfo}
+export interface GetPreviousQuizInfoResponse {
+  quizInfo: { [quizId: string]: PreviousQuizInfo };
 }
 
-export interface PreviousQuizInfo{
-  score:number,
-  averageScore:number,
-  maxPoints:number
+export interface PreviousQuizInfo {
+  score: number;
+  averageScore: number;
+  maxPoints: number;
+  recorrectionInfo?: RecorrectionInfo[];
 }

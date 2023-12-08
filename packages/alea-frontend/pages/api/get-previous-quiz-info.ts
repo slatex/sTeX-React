@@ -3,7 +3,12 @@ import { getUserIdOrSetError } from './comment-utils';
 import { queryGradingDbAndEndSet500OnError } from './grading-db-utils';
 import { getAllQuizzes } from './quiz-utils';
 import { getProblem } from '@stex-react/quiz-utils';
-import { GetPreviousQuizInfoResponse, PreviousQuizInfo } from '@stex-react/api';
+import {
+  GetPreviousQuizInfoResponse,
+  PreviousQuizInfo,
+  Problem,
+  RecorrectionInfo,
+} from '@stex-react/api';
 
 export default async function handler(
   req: NextApiRequest,
@@ -12,9 +17,9 @@ export default async function handler(
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
   const result1: Array<any> = await queryGradingDbAndEndSet500OnError(
-    `SELECT userId,quizId,sum(points)
+    `SELECT userId, quizId, sum(points) as score
     FROM grading
-    WHERE (quizId, userId, problemId , browserTimestamp_ms) IN (
+    WHERE (quizId, userId, problemId, browserTimestamp_ms) IN (
         SELECT quizId, userId,problemId, MAX(browserTimestamp_ms) AS browserTimestamp_ms
         FROM grading
         WHERE userId=?
@@ -27,7 +32,7 @@ export default async function handler(
   if (!result1) return;
 
   const result2: Array<any> = await queryGradingDbAndEndSet500OnError(
-    `SELECT quizId,avg(score) from(
+    `SELECT quizId, avg(score) as avgScore from(
         SELECT userId,quizId,sum(points) as score
         FROM grading
         WHERE (quizId, userId, problemId , browserTimestamp_ms) IN (
@@ -44,34 +49,42 @@ export default async function handler(
 
   const scoreByQuizId = {};
   result1.forEach((quiz) => {
-    scoreByQuizId[quiz.quizId] = quiz['sum(points)'];
+    scoreByQuizId[quiz.quizId] = quiz['score'];
   });
 
   const allQuizzes = getAllQuizzes();
-  const maxPointsByQuizId: { [quizId: string]: number } = {};
+  const staticQuizInfoById: {
+    [quizId: string]: {
+      maxPoints: number;
+      recorrectionInfo?: RecorrectionInfo[];
+    };
+  } = {};
   allQuizzes.forEach((quiz) => {
-    let maxPoint = 0;
-    for (const problemId in quiz.problems) {
-      maxPoint += getProblem(quiz.problems[problemId], '').points;
+    const { problems, recorrectionInfo } = quiz;
+    const problemByProblemId: { [problemId: string]: Problem } = {};
+    for (const problemId in problems) {
+      problemByProblemId[problemId] = getProblem(problems[problemId]);
     }
-    maxPointsByQuizId[quiz.id] = maxPoint;
+    const maxPoints = Object.values(problemByProblemId).reduce(
+      (acc, { points }) => acc + points,
+      0
+    );
+    for (const r of recorrectionInfo || []) {
+      r.problemHeader = problemByProblemId[r.problemId].header;
+    }
+    staticQuizInfoById[quiz.id] = { maxPoints, recorrectionInfo };
   });
 
-  const quizInfoObject: { [quizId: string]: PreviousQuizInfo } = {};
+  const quizInfo: { [quizId: string]: PreviousQuizInfo } = {};
   result2.forEach((row: any) => {
     const quizId = row['quizId'];
-    const averageScore = row['avg(score)'];
-    if (quizId && averageScore !== undefined) {
-      quizInfoObject[quizId] = {
-        score: scoreByQuizId[quizId],
-        averageScore,
-        maxPoints: maxPointsByQuizId[quizId],
-      };
-    }
+    const averageScore = row['avgScore'];
+    const staticInfo = staticQuizInfoById[quizId];
+    if (!staticInfo || !quizId || averageScore === undefined) return;
+    const { maxPoints, recorrectionInfo } = staticInfo;
+    const score = scoreByQuizId[quizId];
+    quizInfo[quizId] = { score, averageScore, maxPoints, recorrectionInfo };
   });
 
-  const finalResult: GetPreviousQuizInfoResponse = {
-    quizinfo: quizInfoObject,
-  };
-  res.status(200).send(finalResult);
+  res.status(200).send({ quizInfo } as GetPreviousQuizInfoResponse);
 }

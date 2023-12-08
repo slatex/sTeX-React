@@ -1,4 +1,5 @@
 import {
+  Box,
   Paper,
   Table,
   TableBody,
@@ -12,12 +13,57 @@ import {
 import {
   GetPreviousQuizInfoResponse,
   QuizStubInfo,
+  RecorrectionInfo,
   getPreviousQuizInfo,
 } from '@stex-react/api';
 import { PRIMARY_COL, convertHtmlStringToPlain } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import InfoIcon from '@mui/icons-material/Info';
+import { getLocaleObject } from '../lang/utils';
+import { useRouter } from 'next/router';
+import {
+  NoMaxWidthTooltip,
+  mmtHTMLToReact,
+} from '@stex-react/stex-react-renderer';
+
+function RecorrectionInfo({
+  recorrectionInfo,
+}: {
+  recorrectionInfo?: RecorrectionInfo[];
+}) {
+  if (!recorrectionInfo?.length) return null;
+  return (
+    <NoMaxWidthTooltip
+      title={
+        <Box color="#333">
+          <Typography variant="h6">This quiz was re-corrected</Typography>
+          <ul>
+            {recorrectionInfo.map((r, idx) => (
+              <li key={idx} style={{marginBottom: '10px'}}>
+                <Typography variant="body1">
+                  The problem{' '}
+                  <b>
+                    &apos;
+                    {mmtHTMLToReact(r.problemHeader || r.problemId)}
+                    &apos;
+                  </b>
+                  &nbsp; was re-corrected on{' '}
+                  {dayjs(r.recorrectedTs).format('MMM DD')}:
+                  <br />
+                  {mmtHTMLToReact(r.description)}
+                </Typography>
+              </li>
+            ))}
+          </ul>
+        </Box>
+      }
+    >
+      <InfoIcon />
+    </NoMaxWidthTooltip>
+  );
+}
 
 function QuizPerformanceTable({
   quizList,
@@ -26,6 +72,7 @@ function QuizPerformanceTable({
   quizList: QuizStubInfo[];
   header: string;
 }) {
+  const { quiz: t } = getLocaleObject(useRouter());
   const [previousQuizData, setPreviousQuizData] =
     useState<GetPreviousQuizInfoResponse>();
   useEffect(() => {
@@ -40,19 +87,19 @@ function QuizPerformanceTable({
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>
+              <TableCell sx={{ wordBreak: 'break-word' }}>
                 <b>Quiz Name</b>
               </TableCell>
-              <TableCell>
+              <TableCell sx={{ wordBreak: 'break-word' }}>
                 <b>Quiz Date</b>
               </TableCell>
-              <TableCell>
+              <TableCell sx={{ wordBreak: 'break-word' }}>
                 <b>Max Points</b>
               </TableCell>
-              <TableCell>
+              <TableCell sx={{ wordBreak: 'break-word' }}>
                 <b>My Score</b>
               </TableCell>
-              <TableCell>
+              <TableCell sx={{ wordBreak: 'break-word' }}>
                 <b>Average Score</b>
               </TableCell>
             </TableRow>
@@ -63,11 +110,24 @@ function QuizPerformanceTable({
               .map((quiz) => (
                 <TableRow key={quiz.quizId}>
                   <TableCell
-                    sx={{ color: PRIMARY_COL, wordBreak: 'break-word' }}
+                    sx={{
+                      color: PRIMARY_COL,
+                      wordBreak: 'break-word',
+                      minWidth: '100px',
+                    }}
                   >
-                    <Link href={`/quiz/${quiz.quizId}`}>
+                    <Link
+                      href={`/quiz/${quiz.quizId}`}
+                      style={{ marginRight: '5px' }}
+                    >
                       {convertHtmlStringToPlain(quiz.title)}
                     </Link>
+                    <RecorrectionInfo
+                      recorrectionInfo={
+                        previousQuizData?.quizInfo[quiz.quizId]
+                          ?.recorrectionInfo
+                      }
+                    />
                   </TableCell>
                   <TableCell>
                     <Tooltip
@@ -79,13 +139,13 @@ function QuizPerformanceTable({
                     </Tooltip>
                   </TableCell>
                   <TableCell>
-                    {previousQuizData?.quizinfo[quiz.quizId]?.maxPoints}
+                    {previousQuizData?.quizInfo[quiz.quizId]?.maxPoints}
                   </TableCell>
                   <TableCell>
-                    {previousQuizData?.quizinfo[quiz.quizId]?.score?.toFixed(2)}
+                    {previousQuizData?.quizInfo[quiz.quizId]?.score?.toFixed(2)}
                   </TableCell>
                   <TableCell>
-                    {previousQuizData?.quizinfo[
+                    {previousQuizData?.quizInfo[
                       quiz.quizId
                     ]?.averageScore?.toFixed(2)}
                   </TableCell>

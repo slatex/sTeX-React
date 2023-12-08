@@ -332,7 +332,7 @@ function getProblemHeader(rootNode: Element) {
   return header ? DomUtils.getOuterHTML(header) : '';
 }
 
-export function getProblem(htmlStr: string, problemUrl: string) {
+export function getProblem(htmlStr: string, problemUrl = '') {
   const htmlDoc = parseDocument(htmlStr);
   const problemRootNode = findProblemRootNode(htmlDoc);
   problemRootNode.attribs[PROBLEM_PARSED_MARKER] = 'true';
