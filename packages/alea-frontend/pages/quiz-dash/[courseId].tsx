@@ -1,23 +1,23 @@
-import { NextPage } from 'next';
-import { useRouter } from 'next/router';
-import MainLayout from '../../layouts/MainLayout';
-import { Fragment, useContext, useEffect, useState } from 'react';
+import { Box, Card, CircularProgress, Typography } from '@mui/material';
 import {
   QuizStubInfo,
   getCourseInfo,
   getCourseQuizList,
 } from '@stex-react/api';
-import dayjs from 'dayjs';
-import { Box, Card, CircularProgress, Typography } from '@mui/material';
-import Link from 'next/link';
-import { CourseHeader } from '../course-home/[courseId]';
-import { CourseInfo, localStore } from '@stex-react/utils';
 import {
   ServerLinksContext,
   mmtHTMLToReact,
 } from '@stex-react/stex-react-renderer';
+import { CourseInfo } from '@stex-react/utils';
+import dayjs from 'dayjs';
+import { NextPage } from 'next';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { Fragment, useContext, useEffect, useState } from 'react';
+import QuizPerformanceTable from '../../components/QuizPerformanceTable';
 import { getLocaleObject } from '../../lang/utils';
-import QuizPerofrmanceTable from '../../components/QuizPerformanceTable';
+import MainLayout from '../../layouts/MainLayout';
+import { CourseHeader } from '../course-home/[courseId]';
 
 function QuizThumbnail({ quiz }: { quiz: QuizStubInfo }) {
   const { quizId, quizStartTs, quizEndTs, title } = quiz;
@@ -219,7 +219,7 @@ const QuizDashPage: NextPage = () => {
           quizList={upcomingQuizzes}
           practiceInfo={PRACTICE_QUIZ_INFO[courseId]}
         />
-        <QuizPerofrmanceTable
+        <QuizPerformanceTable
           quizList={previousQuizzes}
           header={t.previousQuizzes}
         />

@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import {
   GetPreviousQuizInfoResponse,
+  QuizStubInfo,
   getPreviousQuizInfo,
 } from '@stex-react/api';
 import { PRIMARY_COL, convertHtmlStringToPlain } from '@stex-react/utils';
@@ -18,7 +19,13 @@ import dayjs from 'dayjs';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
-function QuizPerformanceTable({ quizList, header }) {
+function QuizPerformanceTable({
+  quizList,
+  header,
+}: {
+  quizList: QuizStubInfo[];
+  header: string;
+}) {
   const [previousQuizData, setPreviousQuizData] =
     useState<GetPreviousQuizInfoResponse>();
   useEffect(() => {
@@ -37,7 +44,7 @@ function QuizPerformanceTable({ quizList, header }) {
                 <b>Quiz Name</b>
               </TableCell>
               <TableCell>
-                <b>Quiz Time</b>
+                <b>Quiz Date</b>
               </TableCell>
               <TableCell>
                 <b>Max Points</b>
@@ -55,13 +62,13 @@ function QuizPerformanceTable({ quizList, header }) {
               .sort((a, b) => b.quizStartTs - a.quizStartTs)
               .map((quiz) => (
                 <TableRow key={quiz.quizId}>
-                  <Link href={`/quiz/${quiz.quizId}`}>
-                    <TableCell
-                      sx={{ color: PRIMARY_COL, wordBreak: 'break-word' }}
-                    >
+                  <TableCell
+                    sx={{ color: PRIMARY_COL, wordBreak: 'break-word' }}
+                  >
+                    <Link href={`/quiz/${quiz.quizId}`}>
                       {convertHtmlStringToPlain(quiz.title)}
-                    </TableCell>
-                  </Link>
+                    </Link>
+                  </TableCell>
                   <TableCell>
                     <Tooltip
                       title={`${dayjs(quiz.quizStartTs).format(
