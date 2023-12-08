@@ -37,11 +37,18 @@ function RecorrectionInfo({
   return (
     <NoMaxWidthTooltip
       title={
-        <Box color="#333">
+        <Box
+          maxWidth="600px"
+          color="#333"
+          border="1px solid #CCC"
+          p="5px"
+          borderRadius="5px"
+          boxShadow="2px 7px 31px 8px rgba(0,0,0,0.33)"
+        >
           <Typography variant="h6">This quiz was re-corrected</Typography>
           <ul>
             {recorrectionInfo.map((r, idx) => (
-              <li key={idx} style={{marginBottom: '10px'}}>
+              <li key={idx} style={{ marginBottom: '10px' }}>
                 <Typography variant="body1">
                   The problem{' '}
                   <b>
@@ -50,7 +57,7 @@ function RecorrectionInfo({
                     &apos;
                   </b>
                   &nbsp; was re-corrected on{' '}
-                  {dayjs(r.recorrectedTs).format('MMM DD')}:
+                  {dayjs(r.recorrectedTs).format('MMM DD')}.
                   <br />
                   {mmtHTMLToReact(r.description)}
                 </Typography>
