@@ -33,6 +33,7 @@ function RecorrectionInfo({
 }: {
   recorrectionInfo?: RecorrectionInfo[];
 }) {
+  const { quizPerformanceTable: t } = getLocaleObject(useRouter());
   if (!recorrectionInfo?.length) return null;
   return (
     <NoMaxWidthTooltip
@@ -45,15 +46,15 @@ function RecorrectionInfo({
           borderRadius="5px"
           boxShadow="2px 7px 31px 8px rgba(0,0,0,0.33)"
         >
-          <Typography variant="h6">This quiz was re-corrected</Typography>
+          <Typography variant="h6">{t.quizRecorrected}</Typography>
           <ul>
             {recorrectionInfo.map((r, idx) => (
               <li key={idx} style={{ marginBottom: '10px' }}>
                 <Typography variant="body1">
-                  The problem{' '}
+                  {t.theProblem}{' '}
                   <b>{mmtHTMLToReact(r.problemHeader || r.problemId)}</b>
-                  &nbsp; was re-corrected on{' '}
-                  {dayjs(r.recorrectedTs).format('MMM DD')}.
+                  &nbsp;{t.wasRecorrected} (
+                  {dayjs(r.recorrectedTs).format('MMM DD')}).
                   <br />
                   {mmtHTMLToReact(r.description)}
                 </Typography>
@@ -97,7 +98,7 @@ function QuizPerformanceTable({
                 <b>{t.quizDate}</b>
               </TableCell>
               <TableCell sx={{ wordBreak: 'break-word' }}>
-                <b>{t.maxPoint}</b>
+                <b>{t.maxPoints}</b>
               </TableCell>
               <TableCell sx={{ wordBreak: 'break-word' }}>
                 <b>{t.myScore}</b>
@@ -119,7 +120,7 @@ function QuizPerformanceTable({
                       minWidth: '100px',
                     }}
                   >
-                    <Box display="flex" alignContent="center">
+                    <Box display="flex" alignItems="center">
                       <Link
                         href={`/quiz/${quiz.quizId}`}
                         style={{ marginRight: '5px' }}

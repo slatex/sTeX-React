@@ -275,8 +275,11 @@ export const de = {
   quizPerformanceTable:{
     quizName: "Quizname",
     quizDate: "Quizdatum",
-    maxPoint: "Maximale Punktzahl",
+    maxPoints: "Maximale Punktzahl",
     myScore: "Meine Punktzahl",
-    averageScore: "Durchschnittliche Punktzahl"    
+    averageScore: "Durchschnittliche Punktzahl",
+    quizRecorrected: 'Dieses Quiz wurde erneut korrigiert', 
+    theProblem: 'Das Problem',
+    wasRecorrected: 'wurde erneut behoben'
   }
 };

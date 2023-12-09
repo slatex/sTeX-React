@@ -53,7 +53,7 @@ db.query('SELECT * FROM grading', []).then((results: any[]) => {
     const expectedPts = getPoints(problem, { responses });
     if (Math.abs(expectedPts - points) > 0.01) {
       console.log(
-        `gradingId: ${gradingId} problemId: ${problemId} expectedPts: ${expectedPts} points: ${points} response: ${response}`
+        `gradingId: ${gradingId} problem: ${quizId} ${problemId} ${problemId} expectedPts: ${expectedPts} points: ${points} response: ${response}`
       );
       if (!(problemId in wrong_points_problem_ids))
         wrong_points_problem_ids[problemId] = 0;

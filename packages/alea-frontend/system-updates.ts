@@ -10,9 +10,9 @@ export const SYSTEM_UPDATES = [
   {
     id: 'quiz-performance',
     header: 'Quiz Performance 📈',
-    content: 'Now, learners can view the performance of their previous quizzes.',
+    content: 'Learners can now view their quiz scores on the [quiz dashboard](/quiz-dash/ai-1).',
     header_de: 'Quizleistung',
-    content_de: 'Jetzt können die Lernenden die Leistung ihrer vorherigen Quizze einsehen.',
+    content_de: 'Lernende können ihre Quizergebnisse jetzt im [Quiz-Dashboard](/quiz-dash/ai-1) einsehen.',
     postedTimestamp: '2023-12-08T13:10:00+05:30',
   },
   {

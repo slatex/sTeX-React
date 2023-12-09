@@ -286,11 +286,14 @@ export const en = {
     notifications: 'Notifications',
     allNotifications: 'See All Notifications',
   },
-  quizPerformanceTable:{
-    quizName:"Quiz Name",
-    quizDate:"Quiz Date",
-    maxPoint:"Max Point",
-    myScore:"My Score",
-    averageScore:"Average Score"
-  }
+  quizPerformanceTable: {
+    quizName: 'Quiz Name',
+    quizDate: 'Quiz Date',
+    maxPoints: 'Max Points',
+    myScore: 'My Score',
+    averageScore: 'Average Score',
+    quizRecorrected: 'This quiz was re-corrected',
+    theProblem: 'The problem',
+    wasRecorrected: 'was re-corrected',
+  },
 };
