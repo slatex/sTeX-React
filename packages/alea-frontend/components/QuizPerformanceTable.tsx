@@ -51,11 +51,7 @@ function RecorrectionInfo({
               <li key={idx} style={{ marginBottom: '10px' }}>
                 <Typography variant="body1">
                   The problem{' '}
-                  <b>
-                    &apos;
-                    {mmtHTMLToReact(r.problemHeader || r.problemId)}
-                    &apos;
-                  </b>
+                  <b>{mmtHTMLToReact(r.problemHeader || r.problemId)}</b>
                   &nbsp; was re-corrected on{' '}
                   {dayjs(r.recorrectedTs).format('MMM DD')}.
                   <br />
@@ -79,7 +75,7 @@ function QuizPerformanceTable({
   quizList: QuizStubInfo[];
   header: string;
 }) {
-  const t=getLocaleObject(useRouter());
+  const { quizPerformanceTable: t } = getLocaleObject(useRouter());
   const [previousQuizData, setPreviousQuizData] =
     useState<GetPreviousQuizInfoResponse>();
   useEffect(() => {
@@ -95,19 +91,19 @@ function QuizPerformanceTable({
           <TableHead>
             <TableRow>
               <TableCell sx={{ wordBreak: 'break-word' }}>
-                <b>{t.quizPerformanceTable.quizName}</b>
+                <b>{t.quizName}</b>
               </TableCell>
               <TableCell sx={{ wordBreak: 'break-word' }}>
-                <b>{t.quizPerformanceTable.quizDate}</b>
+                <b>{t.quizDate}</b>
               </TableCell>
               <TableCell sx={{ wordBreak: 'break-word' }}>
-                <b>{t.quizPerformanceTable.maxPoint}</b>
+                <b>{t.maxPoint}</b>
               </TableCell>
               <TableCell sx={{ wordBreak: 'break-word' }}>
-                <b>{t.quizPerformanceTable.myScore}</b>
+                <b>{t.myScore}</b>
               </TableCell>
               <TableCell sx={{ wordBreak: 'break-word' }}>
-                <b>{t.quizPerformanceTable.averageScore}</b>
+                <b>{t.averageScore}</b>
               </TableCell>
             </TableRow>
           </TableHead>
@@ -123,18 +119,20 @@ function QuizPerformanceTable({
                       minWidth: '100px',
                     }}
                   >
-                    <Link
-                      href={`/quiz/${quiz.quizId}`}
-                      style={{ marginRight: '5px' }}
-                    >
-                      {convertHtmlStringToPlain(quiz.title)}
-                    </Link>
-                    <RecorrectionInfo
-                      recorrectionInfo={
-                        previousQuizData?.quizInfo[quiz.quizId]
-                          ?.recorrectionInfo
-                      }
-                    />
+                    <Box display="flex" alignContent="center">
+                      <Link
+                        href={`/quiz/${quiz.quizId}`}
+                        style={{ marginRight: '5px' }}
+                      >
+                        {convertHtmlStringToPlain(quiz.title)}
+                      </Link>
+                      <RecorrectionInfo
+                        recorrectionInfo={
+                          previousQuizData?.quizInfo[quiz.quizId]
+                            ?.recorrectionInfo
+                        }
+                      />
+                    </Box>
                   </TableCell>
                   <TableCell>
                     <Tooltip

@@ -19,6 +19,7 @@ import {
   InputType,
   Problem,
   ProblemResponse,
+  QuadState,
   Tristate,
 } from '@stex-react/api';
 import {
@@ -49,41 +50,44 @@ function removeInfoIfNeeded(sHtml: string, isFrozen: boolean) {
 function getClassNames(
   isSelected: boolean,
   isFrozen: boolean,
-  correctness: Tristate
+  correctness: QuadState
 ) {
-  let style = styles['option'];
-  const isCorrect = correctness === Tristate.TRUE;
-  const relevant = isSelected || (isFrozen && !isSelected && isCorrect);
-  style +=
-    ' ' +
-    (relevant ? styles['option_relevant'] : styles['option_not_relevant']);
+  const shouldSelect = correctness === QuadState.TRUE;
+  const shouldNotSelect = correctness === QuadState.FALSE;
+  const toBeIgnored = correctness === QuadState.ANY;
+  const relevant = isSelected || (isFrozen && !isSelected && shouldSelect);
 
-  const isUnknown = correctness === Tristate.UNKNOWN;
+  const styleList = ['option'];
+  styleList.push(relevant ? 'option_relevant' : 'option_not_relevant');
+
   if (isFrozen) {
-    if (!isUnknown) {
-      if (isCorrect) {
-        style += ' ' + styles['correct'];
-        style += ' ' + (isSelected ? styles['got_right'] : styles['missed']);
-      } else {
-        if (isSelected) style += ' ' + styles['missed'];
+    if (shouldSelect) {
+      styleList.push('should_select');
+      styleList.push(isSelected ? 'got_right' : 'got_wrong');
+    } else if (shouldNotSelect) {
+      if (isSelected) {
+        styleList.push('should_not_select');
+        styleList.push('got_wrong');
       }
-      if (isSelected && !isCorrect) style += ' ' + styles['incorrect'];
+    } else if (toBeIgnored) {
+      styleList.push('to_be_ignored');
     }
   } else {
-    if (isSelected) style += ' ' + styles['option_unsubmitted_selected'];
+    if (isSelected) styleList.push('option_unsubmitted_selected');
   }
+
   // console.log(style);
-  return style;
+  return styleList.map((s) => styles[s]).join(' ');
 }
 
 function getDropdownClassNames(
   isSelected: boolean,
   isFrozen: boolean,
-  correctness: Tristate
+  correctness: QuadState
 ) {
-  if (!isFrozen || correctness === Tristate.UNKNOWN) return '';
+  if (!isFrozen || correctness === QuadState.UNKNOWN) return '';
 
-  if (correctness === Tristate.TRUE) {
+  if (correctness === QuadState.TRUE) {
     const style =
       styles['correct'] +
       ' ' +
@@ -107,13 +111,25 @@ function fillInFeedback(input: Input, response: InputResponse) {
   };
 }
 
+function quadStateToTristate(qs: QuadState) {
+  switch (qs) {
+    case QuadState.TRUE:
+    case QuadState.ANY:
+      return Tristate.TRUE;
+    case QuadState.FALSE:
+      return Tristate.FALSE;
+    default:
+      return Tristate.UNKNOWN;
+  }
+}
+
 function scbFeedback(input: Input, response: InputResponse) {
   const { singleOptionIdx } = response;
   const chosen = (input.options || []).find(
     (o) => o.optionId === singleOptionIdx
   );
   if (!chosen) return { isCorrect: Tristate.FALSE, feedbackHtml: 'Wrong!' };
-  const isCorrect = chosen.shouldSelect;
+  const isCorrect: Tristate = quadStateToTristate(chosen.shouldSelect);
   if (isCorrect === Tristate.UNKNOWN) return { isCorrect, feedbackHtml: '' };
   let feedbackHtml = chosen?.feedbackHtml;
   if (chosen && !feedbackHtml?.length)

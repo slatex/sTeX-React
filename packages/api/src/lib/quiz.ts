@@ -39,8 +39,19 @@ export enum Tristate {
   UNKNOWN = 'UNKNOWN',
 }
 
+export enum QuadState {
+  TRUE = 'TRUE',
+  FALSE = 'FALSE',
+  UNKNOWN = 'UNKNOWN',
+  
+  // Only for multi-answer MCQs. When the question creator has created an invalid option. 
+  // After the students have taken the quiz, if an option is marked as 'any', 
+  // the response to that option will not affect the correctness of the problem.
+  ANY = 'ANY',
+}
+
 export interface Option {
-  shouldSelect: Tristate;
+  shouldSelect: QuadState;
   value: { outerHTML: string; textContent?: string };
   feedbackHtml: string;
   optionId: string;
