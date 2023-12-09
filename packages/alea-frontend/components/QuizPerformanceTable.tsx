@@ -79,7 +79,7 @@ function QuizPerformanceTable({
   quizList: QuizStubInfo[];
   header: string;
 }) {
-  const { quiz: t } = getLocaleObject(useRouter());
+  const t=getLocaleObject(useRouter());
   const [previousQuizData, setPreviousQuizData] =
     useState<GetPreviousQuizInfoResponse>();
   useEffect(() => {
@@ -95,19 +95,19 @@ function QuizPerformanceTable({
           <TableHead>
             <TableRow>
               <TableCell sx={{ wordBreak: 'break-word' }}>
-                <b>Quiz Name</b>
+                <b>{t.quizPerformanceTable.quizName}</b>
               </TableCell>
               <TableCell sx={{ wordBreak: 'break-word' }}>
-                <b>Quiz Date</b>
+                <b>{t.quizPerformanceTable.quizDate}</b>
               </TableCell>
               <TableCell sx={{ wordBreak: 'break-word' }}>
-                <b>Max Points</b>
+                <b>{t.quizPerformanceTable.maxPoint}</b>
               </TableCell>
               <TableCell sx={{ wordBreak: 'break-word' }}>
-                <b>My Score</b>
+                <b>{t.quizPerformanceTable.myScore}</b>
               </TableCell>
               <TableCell sx={{ wordBreak: 'break-word' }}>
-                <b>Average Score</b>
+                <b>{t.quizPerformanceTable.averageScore}</b>
               </TableCell>
             </TableRow>
           </TableHead>

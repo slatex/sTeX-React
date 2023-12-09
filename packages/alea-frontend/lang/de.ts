@@ -272,4 +272,11 @@ export const de = {
     notifications: 'Benachrichtigungen',
     allNotifications: 'Alle Benachrichtigungen anzeigen',
   },
+  quizPerformanceTable:{
+    quizName: "Quizname",
+    quizDate: "Quizdatum",
+    maxPoint: "Maximale Punktzahl",
+    myScore: "Meine Punktzahl",
+    averageScore: "Durchschnittliche Punktzahl"    
+  }
 };

@@ -286,4 +286,11 @@ export const en = {
     notifications: 'Notifications',
     allNotifications: 'See All Notifications',
   },
+  quizPerformanceTable:{
+    quizName:"Quiz Name",
+    quizDate:"Quiz Date",
+    maxPoint:"Max Point",
+    myScore:"My Score",
+    averageScore:"Average Score"
+  }
 };

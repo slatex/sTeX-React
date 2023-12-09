@@ -6,7 +6,16 @@ export const SYSTEM_UPDATES = [
     header_de: '',
     content_de: '',
     postedTimestamp: '2023-02-11T00:20:00+05:30',
-  },*/ {
+  },*/ 
+  {
+    id: 'quiz-performance',
+    header: 'Quiz Performance 📈',
+    content: 'Now, learners can view the performance of their previous quizzes.',
+    header_de: 'Quizleistung',
+    content_de: 'Jetzt können die Lernenden die Leistung ihrer vorherigen Quizze einsehen.',
+    postedTimestamp: '2023-12-08T13:10:00+05:30',
+  },
+  {
     id: 'study-buddy',
     header: 'Find A Study Buddy 🤝',
     content:
