@@ -14,6 +14,9 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  const quizInfo: { [quizId: string]: PreviousQuizInfo } = {};
+  return res.status(200).send({ quizInfo } as GetPreviousQuizInfoResponse);
+  /*
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
   const result1: Array<any> = await queryGradingDbAndEndSet500OnError(
@@ -86,5 +89,5 @@ export default async function handler(
     quizInfo[quizId] = { score, averageScore, maxPoints, recorrectionInfo };
   });
 
-  res.status(200).send({ quizInfo } as GetPreviousQuizInfoResponse);
+  res.status(200).send({ quizInfo } as GetPreviousQuizInfoResponse);*/
 }
