@@ -108,7 +108,7 @@ export default async function handler(
       const quizId = quiz.id;
       quizInfo[quizId] = {
         score: userScores[quizId],
-        averageScore: quizAverages[quizId],
+        averageScore: quizAverages.get(quizId),
         maxPoints,
         recorrectionInfo,
       } as PreviousQuizInfo;
