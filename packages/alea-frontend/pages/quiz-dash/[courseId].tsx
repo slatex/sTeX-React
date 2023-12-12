@@ -220,6 +220,7 @@ const QuizDashPage: NextPage = () => {
           practiceInfo={PRACTICE_QUIZ_INFO[courseId]}
         />
         <QuizPerformanceTable
+          courseId={courseId}
           quizList={previousQuizzes}
           header={t.previousQuizzes}
         />

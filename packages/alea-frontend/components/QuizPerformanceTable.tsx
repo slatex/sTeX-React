@@ -70,9 +70,11 @@ function RecorrectionInfo({
 }
 
 function QuizPerformanceTable({
+  courseId,
   quizList,
   header,
 }: {
+  courseId: string;
   quizList: QuizStubInfo[];
   header: string;
 }) {
@@ -80,8 +82,8 @@ function QuizPerformanceTable({
   const [previousQuizData, setPreviousQuizData] =
     useState<GetPreviousQuizInfoResponse>();
   useEffect(() => {
-    getPreviousQuizInfo().then(setPreviousQuizData);
-  }, []);
+    getPreviousQuizInfo(courseId).then(setPreviousQuizData);
+  }, [courseId]);
   return (
     <>
       <Typography variant="h5" sx={{ m: '30px 0 15px' }}>
