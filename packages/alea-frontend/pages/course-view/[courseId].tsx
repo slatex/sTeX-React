@@ -7,20 +7,25 @@ import {
   Button,
   CircularProgress,
   ToggleButtonGroup,
+  Typography,
 } from '@mui/material';
 import {
   SectionInfo,
   SectionsAPIData,
   Slide,
+  getAncestors,
   getCourseInfo,
   getDocumentSections,
+  lastFileNode,
 } from '@stex-react/api';
 import { CommentNoteToggleView } from '@stex-react/comments';
 import {
+  CompetencyIndicator,
   ContentDashboard,
   ContentWithHighlight,
   LayoutWithFixedMenu,
   ServerLinksContext,
+  mmtHTMLToReact,
 } from '@stex-react/stex-react-renderer';
 import {
   CourseInfo,
@@ -255,6 +260,10 @@ const CourseViewPage: NextPage = () => {
     router.replace('/');
     return <>Course Not Found!</>;
   }
+  const ancestors = getAncestors(undefined, undefined, sectionId, docSections);
+  const sectionParentInfo = lastFileNode(ancestors);
+  const sectionNode = ancestors?.length > 0 ? ancestors[ancestors?.length - 1] : null;
+  const { archive, filepath } = sectionParentInfo || {};
 
   return (
     <MainLayout
@@ -308,6 +317,13 @@ const CourseViewPage: NextPage = () => {
                 </Button>
               </Link>
             </Box>
+            <Box sx={{ marginBottom: '10px',marginTop: '10px' }}>
+              <Typography variant="h6">
+                {sectionParentInfo
+                  ? mmtHTMLToReact(sectionParentInfo?.children[0]?.title)
+                  : ''}
+              </Typography>
+            </Box>
             {(viewMode === ViewMode.VIDEO_MODE ||
               viewMode === ViewMode.COMBINED_MODE) && (
               <VideoDisplay clipId={clipIds[sectionId]} audioOnly={audioOnly} />
@@ -330,7 +346,12 @@ const CourseViewPage: NextPage = () => {
               />
             )}
             <hr style={{ width: '98%', padding: '1px 0' }} />
-
+            <Box sx={{ marginTop: '10px', marginBottom: '10px' }}>
+              <CompetencyIndicator
+                contentUrl={XhtmlContentUrl(archive, filepath)}
+                sectionTitle={sectionNode?.title}
+              />
+            </Box>
             {viewMode !== ViewMode.VIDEO_MODE && (
               <CommentNoteToggleView
                 file={{ archive: slideArchive, filepath: slideFilepath }}
