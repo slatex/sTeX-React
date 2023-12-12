@@ -46,6 +46,7 @@ import {
   NoMaxWidthTooltip,
   mmtHTMLToReact,
 } from './mmtParser';
+import CompetencyIndicator from './CompetencyIndicator';
 
 export const ServerLinksContext = createContext({ mmtUrl: '', lmsUrl: '' });
 
@@ -195,6 +196,7 @@ export function StexReactRenderer({
   );
 }
 export {
+  CompetencyIndicator,
   CompetencyTable,
   ConfigureLevelSlider,
   ContentDashboard,
