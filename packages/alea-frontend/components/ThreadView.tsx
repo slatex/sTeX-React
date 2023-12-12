@@ -145,9 +145,7 @@ export function ThreadView({
       <CommentTree
         comments={threadComments}
         file={fileLoc}
-        refreshComments={() => {
-          console.log('TODO');
-        }}
+        refreshComments={() => doUpdate()}
       />
     </>
   );

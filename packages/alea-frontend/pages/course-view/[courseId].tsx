@@ -262,8 +262,8 @@ const CourseViewPage: NextPage = () => {
   }
   const ancestors = getAncestors(undefined, undefined, sectionId, docSections);
   const sectionParentInfo = lastFileNode(ancestors);
-  const sectionNode = ancestors?.length > 0 ? ancestors[ancestors?.length - 1] : null;
-  const { archive, filepath } = sectionParentInfo || {};
+  const sectionNode = ancestors?.length > 0 ? ancestors.at(-1) : undefined;
+  const { archive, filepath } = sectionParentInfo ?? {};
 
   return (
     <MainLayout
@@ -317,11 +317,9 @@ const CourseViewPage: NextPage = () => {
                 </Button>
               </Link>
             </Box>
-            <Box sx={{ marginBottom: '10px',marginTop: '10px' }}>
-              <Typography variant="h6">
-                {sectionParentInfo
-                  ? mmtHTMLToReact(sectionParentInfo?.children[0]?.title)
-                  : ''}
+            <Box sx={{ marginBottom: '10px', marginTop: '10px' }}>
+              <Typography variant="h6" sx={{ color: '#333' }}>
+                {mmtHTMLToReact(sectionNode?.title || '')}
               </Typography>
             </Box>
             {(viewMode === ViewMode.VIDEO_MODE ||

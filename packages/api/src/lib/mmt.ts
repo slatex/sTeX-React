@@ -147,7 +147,7 @@ export function getCoveredSections(
 
   let allChildrenCovered = true;
   const coveredSectionIds: string[] = [];
-  for (const child of sectionData.children) {
+  for (const child of sectionData.children || []) {
     const cResp = getCoveredSections(
       startSecNameExcl,
       endSecNameIncl,
