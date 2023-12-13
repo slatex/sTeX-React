@@ -273,6 +273,7 @@ export const en = {
     introLabel: 'Introduce yourself',
     studyProgramLabel: 'Study program (e.g. Masters in Computer Science)',
     semesterLabel: 'Semester #',
+    nameLabel: 'Name',
     emailLabel: 'E-Mail (e.g. you@fau.de)',
     preferredDays: 'Preferred days to meet',
     meetTypeLabel: 'Preferred Meeting Type',

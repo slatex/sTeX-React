@@ -35,7 +35,6 @@ import { StudyBuddyForm } from '../../components/StudyBuddyForm';
 import {
   StudyBuddyListing,
   StudyBuddyListingTable,
-  cleanupName,
 } from '../../components/StudyBuddyListingTable';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
@@ -236,8 +235,7 @@ const StudyBuddyPage: NextPage = () => {
           onAction={(buddy) => {
             connectionRequest(courseId, buddy.userId).then(async () => {
               refetchStudyBuddyLists();
-              const name = cleanupName(buddy.userName);
-              alert(t.connectedAlert.replace('$1', name));
+              alert(t.connectedAlert.replace('$1', buddy.userName));
             });
           }}
         />
@@ -249,8 +247,7 @@ const StudyBuddyPage: NextPage = () => {
           onAction={(buddy) => {
             removeConnectionRequest(courseId, buddy.userId).then(async () => {
               refetchStudyBuddyLists();
-              const name = cleanupName(buddy.userName);
-              alert(t.connectionRequestCancelled.replace('$1', name));
+              alert(t.connectionRequestCancelled.replace('$1', buddy.userName));
             });
           }}
         />
@@ -262,8 +259,7 @@ const StudyBuddyPage: NextPage = () => {
           onAction={(buddy) => {
             connectionRequest(courseId, buddy.userId).then(async () => {
               refetchStudyBuddyLists();
-              const name = cleanupName(buddy.userName);
-              alert(t.connectionRequestSent.replace('$1', name));
+              alert(t.connectionRequestSent.replace('$1', buddy.userName));
             });
           }}
         />

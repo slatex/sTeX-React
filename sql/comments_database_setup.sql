@@ -87,7 +87,7 @@ CREATE TABLE StudyBuddyUsers (
     email VARCHAR(255) NOT NULL,
     
     userName VARCHAR(255),
-    intro VARCHAR(255),
+    intro VARCHAR(1023),
     studyProgram VARCHAR(255),
     semester INT,
     meetType VARCHAR(255),

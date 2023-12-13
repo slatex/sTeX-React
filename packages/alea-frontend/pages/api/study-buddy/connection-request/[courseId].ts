@@ -7,13 +7,6 @@ import {
   sendNotification,
 } from '../../comment-utils';
 
-function cleanupName(name: string) {
-  if (name.startsWith('Fake User: ')) {
-    return name.slice(11).replace(/([A-Z])/g, ' $1');
-  }
-  return name;
-}
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -40,13 +33,12 @@ export default async function handler(
   );
 
   if (!results) return;
-  const simpleName = cleanupName(user.fullName);
   res.status(204).end();
   sendNotification(
     receiverId,
-    `${simpleName} would like to study together for the ${courseId} course.`,
+    `${user.fullName} would like to study together for the ${courseId} course.`,
     '',
-    `${simpleName} würde gerne gemeinsam für den ${courseId}-Kurs lernen.`,
+    `${user.fullName} würde gerne gemeinsam für den ${courseId}-Kurs lernen.`,
     '',
     NotificationType.STUDY_BUDDY,
     `/study-buddy/${courseId}`

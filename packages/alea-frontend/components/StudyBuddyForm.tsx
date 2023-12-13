@@ -1,8 +1,8 @@
+import { InfoOutlined } from '@mui/icons-material';
 import {
   Box,
   Checkbox,
   FormControl,
-  InputAdornment,
   InputLabel,
   ListItemText,
   MenuItem,
@@ -10,11 +10,16 @@ import {
   TextField,
   Tooltip,
 } from '@mui/material';
-import { Days, Languages, MeetType, StudyBuddy } from '@stex-react/api';
-import { getLocaleObject } from '../lang/utils';
+import {
+  Days,
+  Languages,
+  MeetType,
+  StudyBuddy,
+  getUserInfo,
+} from '@stex-react/api';
 import { useRouter } from 'next/router';
-import InfoIcon from '@mui/icons-material/Info';
-import { InfoOutlined } from '@mui/icons-material';
+import { useEffect, useState } from 'react';
+import { getLocaleObject } from '../lang/utils';
 
 export function StudyBuddyForm({
   studyBuddy,
@@ -24,8 +29,13 @@ export function StudyBuddyForm({
   onUpdate: (studyBuddy: StudyBuddy) => void;
 }) {
   const { studyBuddy: t } = getLocaleObject(useRouter());
+  const [userName, setUserName] = useState('');
+  useEffect(() => {
+    getUserInfo().then((u) => setUserName(u.fullName));
+  }, []);
   return (
     <Box>
+      <TextField label={t.nameLabel} value={userName}/>
       <Box display="flex" alignItems="center">
         <TextField
           error={!studyBuddy.email?.includes('@')}
@@ -34,7 +44,8 @@ export function StudyBuddyForm({
           value={studyBuddy.email}
           onChange={(e) => onUpdate({ ...studyBuddy, email: e.target.value })}
           required
-          sx={{ mb: '0.5rem', mr: '0.5rem' }}
+          sx={{ my: '0.5rem', mr: '0.5rem' }}
+          inputProps={{ maxLength: 250 }}
           fullWidth
         />
         <Tooltip
@@ -51,6 +62,7 @@ export function StudyBuddyForm({
           onUpdate({ ...studyBuddy, intro: e.target.value });
         }}
         sx={{ mb: '0.5rem' }}
+        inputProps={{ maxLength: 1000 }}
         fullWidth
       />
       <TextField
@@ -61,6 +73,7 @@ export function StudyBuddyForm({
           onUpdate({ ...studyBuddy, studyProgram: e.target.value });
         }}
         sx={{ mb: '0.5rem' }}
+        inputProps={{ maxLength: 250 }}
         fullWidth
       />
       <FormControl sx={{ mb: '0.5rem' }} fullWidth>
