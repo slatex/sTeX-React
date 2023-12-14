@@ -1,4 +1,5 @@
 import ArticleIcon from '@mui/icons-material/Article';
+import Diversity3Icon from '@mui/icons-material/Diversity3';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import QuizIcon from '@mui/icons-material/Quiz';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
@@ -6,16 +7,11 @@ import { Box, Button, CircularProgress } from '@mui/material';
 import { getCourseInfo } from '@stex-react/api';
 import {
   ContentFromUrl,
-  DisplayContext,
+  DisplayReason,
   DocumentWidthSetter,
   ServerLinksContext,
 } from '@stex-react/stex-react-renderer';
-import {
-  BG_COLOR,
-  CourseInfo,
-  Window,
-  XhtmlContentUrl,
-} from '@stex-react/utils';
+import { BG_COLOR, CourseInfo, XhtmlContentUrl } from '@stex-react/utils';
 import { NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -24,7 +20,6 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import { RecordedSyllabus } from '../../components/RecordedSyllabus';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
-import Diversity3Icon from '@mui/icons-material/Diversity3';
 
 function CourseComponentLink({
   href,
@@ -184,7 +179,7 @@ const CourseHomePage: NextPage = () => {
         </Box>
         <DocumentWidthSetter>
           <ContentFromUrl
-            displayReason={DisplayContext.NOTES}
+            displayReason={DisplayReason.NOTES}
             url={XhtmlContentUrl(
               courseInfo.notesArchive,
               `${courseInfo.landingFilepath}.${locale}.xhtml`
