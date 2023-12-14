@@ -266,17 +266,24 @@ export const de = {
 
     emailWarning:
       'Ihre E-Mail-Adresse wird nur mit den Benutzern geteilt, mit denen Sie eine Verbindung herstellen möchten.',
+    
+    insightHeading:'Studiengruppen-Einblicke',
+    totalUsers: 'Gesamtbenutzer',
+    activeUsers: 'Aktive Benutzer',
+    inactiveUsers: 'Inaktive Benutzer',
+    numberOfConnections: 'Anzahl der Verbindungen',
+    unacceptedRequest: 'Unakzeptierte Anfragen',
   },
   notification: {
     systemUpdates: 'Systemaktualisierungen',
     notifications: 'Benachrichtigungen',
     allNotifications: 'Alle Benachrichtigungen anzeigen',
   },
-  quizPerformanceTable:{
-    quizName: "Quizname",
-    quizDate: "Quizdatum",
-    maxPoint: "Maximale Punktzahl",
-    myScore: "Meine Punktzahl",
-    averageScore: "Durchschnittliche Punktzahl"    
-  }
+  quizPerformanceTable: {
+    quizName: 'Quizname',
+    quizDate: 'Quizdatum',
+    maxPoint: 'Maximale Punktzahl',
+    myScore: 'Meine Punktzahl',
+    averageScore: 'Durchschnittliche Punktzahl',
+  },
 };

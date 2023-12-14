@@ -280,17 +280,23 @@ export const en = {
 
     emailWarning:
       'Your email will be shared only with those users that you choose to connect to.',
+    insightHeading: 'Study Buddy Insights',
+    totalUsers: 'Total Users',
+    activeUsers: 'Active Users',
+    inactiveUsers: 'Inactive Users',
+    numberOfConnections: 'Number of Connections',
+    unacceptedRequest: 'Unaccepted Requests',
   },
   notification: {
     systemUpdates: 'System Updates',
     notifications: 'Notifications',
     allNotifications: 'See All Notifications',
   },
-  quizPerformanceTable:{
-    quizName:"Quiz Name",
-    quizDate:"Quiz Date",
-    maxPoint:"Max Point",
-    myScore:"My Score",
-    averageScore:"Average Score"
-  }
+  quizPerformanceTable: {
+    quizName: 'Quiz Name',
+    quizDate: 'Quiz Date',
+    maxPoint: 'Max Point',
+    myScore: 'My Score',
+    averageScore: 'Average Score',
+  },
 };

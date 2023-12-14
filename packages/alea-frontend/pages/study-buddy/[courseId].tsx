@@ -21,10 +21,14 @@ import {
   getCourseInfo,
   getStudyBuddyList,
   getStudyBuddyUserInfo,
+  getUserInfo,
+  UserInfo,
   isLoggedIn,
+  isModerator,
   removeConnectionRequest,
   setActive,
   updateStudyBuddyInfo,
+  getStudyBuddyUsersStats,
 } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { BG_COLOR, CourseInfo } from '@stex-react/utils';
@@ -64,6 +68,54 @@ function OptOutButton({
     </Button>
   );
 }
+
+function StatsForModerator() {
+  const router = useRouter();
+  const courseId = router.query.courseId as string;
+  const { studyBuddy: t } = getLocaleObject(router);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [activeUsers, setActiveUsers] = useState(0);
+  const [inactiveUsers, setInactiveUsers] = useState(0);
+  const [numberOfConnections, setNumberOfConnections] = useState(0);
+  const [unacceptedRequest, setUnacceptedRequest] = useState(0);
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getStudyBuddyUsersStats(courseId);
+      setTotalUsers(data.totalUsers);
+      setActiveUsers(data.activeUsers);
+      setInactiveUsers(data.inactiveUsers);
+      setNumberOfConnections(data.numberOfConnections);
+      setUnacceptedRequest(data.unacceptedRequests);
+    };
+    fetchData();
+  }, [courseId]);
+
+  return (
+    <>
+      <Typography variant="h4">{t.insightHeading}</Typography>
+      <Card sx={{ mt: '20px', mb: '20px' }}>
+        <CardContent>
+          <Typography style={{ fontWeight: 'bold' }}>
+            {t.totalUsers + ' : ' + totalUsers}
+          </Typography>
+          <Typography style={{ fontWeight: 'bold' }}>
+            {t.activeUsers + ' : ' + activeUsers}
+          </Typography>
+          <Typography style={{ fontWeight: 'bold' }}>
+            {t.inactiveUsers + ' : ' + inactiveUsers}
+          </Typography>
+          <Typography style={{ fontWeight: 'bold' }}>
+            {t.numberOfConnections + ' : ' + numberOfConnections}
+          </Typography>
+          <Typography style={{ fontWeight: 'bold' }}>
+            {t.unacceptedRequest + ' : ' + unacceptedRequest}
+          </Typography>
+        </CardContent>
+      </Card>
+    </>
+  );
+}
+
 const StudyBuddyPage: NextPage = () => {
   const router = useRouter();
   const courseId = router.query.courseId as string;
@@ -88,6 +140,7 @@ const StudyBuddyPage: NextPage = () => {
     languages: Languages.Deutsch,
     active: false,
   });
+  const [userInfo, setUserInfo] = useState<UserInfo | undefined>(null);
   const [agreed, setAgreed] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [courses, setCourses] = useState<
@@ -98,7 +151,9 @@ const StudyBuddyPage: NextPage = () => {
     if (!courseId || !fromServer?.active) return;
     if (courseId) getStudyBuddyList(courseId).then(setAllBuddies);
   }, [courseId, fromServer?.active]);
-
+  useEffect(() => {
+    getUserInfo().then(setUserInfo);
+  }, []);
   useEffect(() => {
     getCourseInfo(mmtUrl).then(setCourses);
   }, [mmtUrl]);
@@ -195,6 +250,7 @@ const StudyBuddyPage: NextPage = () => {
           )
         ) : (
           <>
+            {isModerator(userInfo?.userId) ? <StatsForModerator /> : null}
             <Typography variant="h4">{t.myProfile}</Typography>
             <Card sx={{ mt: '20px' }}>
               <CardContent>
