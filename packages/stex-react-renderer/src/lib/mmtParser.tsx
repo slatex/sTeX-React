@@ -2,7 +2,7 @@ import PlayCircleFilledWhiteIcon from '@mui/icons-material/PlayCircleFilledWhite
 import { Box, IconButton } from '@mui/material';
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
-import { getAncestors, lastFileNode } from '@stex-react/api';
+import { getAncestors, lastFileNode, reportEvent } from '@stex-react/api';
 import {
   PROBLEM_PARSED_MARKER,
   getProblem,
@@ -11,19 +11,26 @@ import {
 import {
   IS_MMT_VIEWER,
   XhtmlContentUrl,
-  urlWithContextParams,
   getCustomTag,
   localStore,
-  getSectionInfo,
+  urlWithContextParams,
 } from '@stex-react/utils';
 import { getOuterHTML } from 'domutils';
 import parse, { DOMNode, Element, domToReact } from 'html-react-parser';
 import { ElementType } from 'htmlparser2';
-import { createContext, forwardRef, useContext, useState } from 'react';
+import {
+  createContext,
+  forwardRef,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { Slide } from 'react-slideshow-image';
 import 'react-slideshow-image/dist/styles.css';
 import CompetencyIndicator from './CompetencyIndicator';
 import { ContentFromUrl } from './ContentFromUrl';
+import { DisplayContext, DisplayReason } from './ContentWithHightlight';
 import { ErrorBoundary } from './ErrorBoundary';
 import { ExpandableContent } from './ExpandableContent';
 import { DocSectionContext } from './InfoSidebar';
@@ -32,6 +39,7 @@ import MathJaxHack from './MathJaxHack';
 import { MathMLDisplay } from './MathMLDisplay';
 import { OverlayDialog, isHoverON } from './OverlayDialog';
 import { ServerLinksContext } from './stex-react-renderer';
+import { useOnScreen } from './useOnScreen';
 
 export const CustomItemsContext = createContext<{
   items: { [tag: string]: JSX.Element };
@@ -319,7 +327,6 @@ function SlideShowComponent({ domNode }: { domNode: Element }) {
           if (to !== (from + 1) % domNode.childNodes.length) {
             setIsManualUpdate(true);
           }
-          console.log('from', from, 'to', to);
         }}
         autoplay={!isManualUpdate}
       >
@@ -335,6 +342,79 @@ function CustomReplacement({ tag }: { tag: string }) {
   const { items } = useContext(CustomItemsContext);
   if (!items[tag]) return <>Tag [{tag}] not found</>;
   return items[tag];
+}
+
+function hoverUrlToUri(url: string) {
+  const regex = /\/fragment\?(.*?)(?:&|$)/;
+  const match = regex.exec(url);
+
+  if (match && match[1]) return match[1];
+  console.log(`Concept ID not found in the URL: [${url}]`);
+  return url;
+}
+
+const HOVER_STACK: { URI: string; timestamp_ms: number }[] = [];
+
+function addToHoverStack(url?: string) {
+  if (!url?.length) return;
+  const timestamp_ms = Date.now();
+  const URI = hoverUrlToUri(url);
+  HOVER_STACK.push({ URI, timestamp_ms });
+}
+
+function removeFromHoverStack(url?: string) {
+  if (!url?.length) return;
+  const timestamp_ms = Date.now();
+  const URI = hoverUrlToUri(url);
+  const lastElement =
+    HOVER_STACK.length > 0 ? HOVER_STACK[HOVER_STACK.length - 1] : undefined;
+  if (URI !== lastElement?.URI) {
+    console.error(
+      `Something went wrong. The URI to be removed is not the last one in the stack.
+      Stack: ${JSON.stringify(HOVER_STACK)}
+      Relevant: [${lastElement?.URI}]
+      URI to be removed: [${URI}]`
+    );
+    HOVER_STACK.splice(0, HOVER_STACK.length);
+    return;
+  }
+  const hoverDuration_ms =
+    timestamp_ms - HOVER_STACK[HOVER_STACK.length - 1].timestamp_ms;
+
+  HOVER_STACK.splice(HOVER_STACK.length - 1, 1);
+  if (hoverDuration_ms > 500)
+    reportEvent({ type: 'concept-hovered', URI, hoverDuration_ms });
+}
+
+export function Definiendum({ node }: { node: Element }) {
+  const ref = useRef();
+  const isVisible = useOnScreen(ref);
+  const [reported, setReported] = useState(false);
+  const { displayReason } = useContext(DisplayContext);
+  const latestReason =
+    displayReason?.length > 0 ? displayReason.at(-1) : undefined;
+  const URI = node.attribs['data-definiendum-uri'];
+
+  useEffect(() => {
+    if (!isVisible || reported || !latestReason) return;
+    if (
+      latestReason === DisplayReason.HOVER ||
+      latestReason === DisplayReason.ON_CLICK_DIALOG
+    ) { // These have their own separate events.
+      return;
+    }
+    reportEvent({
+      type: 'definiendum-read',
+      URI,
+      displayReason: latestReason,
+    });
+    setReported(true);
+  }, [reported, isVisible, latestReason, URI]);
+  return (
+    <Box ref={ref} display="inline">
+      {domToReact([node], { replace })}
+    </Box>
+  );
 }
 
 export const replace = (d: DOMNode): any => {
@@ -421,9 +501,16 @@ export const replace = (d: DOMNode): any => {
       }
     }
   }
+
+  const definiendumProcessed = domNode.attribs?.['definiendum-processed'];
+  const definiendaUri = domNode.attribs?.['data-definiendum-uri'];
+  if (definiendaUri && !definiendumProcessed) {
+    domNode.attribs['definiendum-processed'] = 'true';
+    return <Definiendum node={domNode} />;
+  }
   const hoverLink = isHoverON()
     ? domNode.attribs['data-overlay-link-hover']
-    : false;
+    : undefined;
   const clickLink = domNode.attribs['data-overlay-link-click'];
   const hoverParent = domNode.attribs['data-highlight-parent'];
   if ((hoverLink || clickLink) && !domNode.attribs['processed']) {
@@ -458,6 +545,8 @@ export const replace = (d: DOMNode): any => {
         isMath={isMath}
         displayNode={(topLevelDocUrl: string, locale) => (
           <NoMaxWidthTooltip
+            onOpen={() => addToHoverStack(hoverLink)}
+            onClose={() => removeFromHoverStack(hoverLink)}
             title={
               hoverLink ? (
                 <Box
@@ -469,6 +558,7 @@ export const replace = (d: DOMNode): any => {
                   boxShadow="2px 7px 31px 8px rgba(0,0,0,0.33)"
                 >
                   <ContentFromUrl
+                    displayReason={DisplayReason.HOVER}
                     topLevelDocUrl={topLevelDocUrl}
                     url={urlWithContextParams(
                       hoverLink,

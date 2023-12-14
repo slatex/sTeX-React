@@ -7,14 +7,15 @@ import { Slide } from '@stex-react/api';
 import {
   ContentWithHighlight,
   DocumentWidthSetter,
+  DisplayReason,
   ExpandableContextMenu,
 } from '@stex-react/stex-react-renderer';
+import { XhtmlContentUrl } from '@stex-react/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { setSlideNumAndSectionId } from '../pages/course-view/[courseId]';
 import styles from '../styles/slide-deck.module.scss';
-import { XhtmlContentUrl } from '@stex-react/utils';
 
 export function SlideNavBar({
   slideNum,
@@ -65,6 +66,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
   sectionId,
   navOnTop = false,
   slideNum = 1,
+  topLevelDocUrl = undefined,
   onSlideChange,
   goToNextSection = undefined,
   goToPrevSection = undefined,
@@ -73,6 +75,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
   sectionId: string;
   navOnTop?: boolean;
   slideNum?: number;
+  topLevelDocUrl?: string;
   onSlideChange?: (slide: Slide) => void;
   goToNextSection?: () => void;
   goToPrevSection?: () => void;
@@ -84,7 +87,6 @@ export const SlideDeck = memo(function SlidesFromUrl({
     undefined as Slide | undefined
   );
   const router = useRouter();
-  const outerBox = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let isCancelled = false;
@@ -105,7 +107,10 @@ export const SlideDeck = memo(function SlidesFromUrl({
       isCancelled = true; // avoids race condition on rapid deckId changes.
     };
   }, [courseId, sectionId]);
-  const contentUrl = XhtmlContentUrl(currentSlide?.archive, currentSlide?.filepath);
+  const contentUrl = XhtmlContentUrl(
+    currentSlide?.archive,
+    currentSlide?.filepath
+  );
 
   useEffect(() => {
     if (!slides?.length || loadedSectionId !== sectionId) return;
@@ -144,7 +149,9 @@ export const SlideDeck = memo(function SlidesFromUrl({
       {slides.length ? (
         <DocumentWidthSetter>
           <ContentWithHighlight
+            topLevelDocUrl={topLevelDocUrl}
             mmtHtml={currentSlide?.slideContent || ''}
+            displayReason={DisplayReason.SLIDES}
             renderWrapperParams={{ 'section-url': contentUrl }}
           />
         </DocumentWidthSetter>

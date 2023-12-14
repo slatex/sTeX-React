@@ -13,7 +13,7 @@ import {
 } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { ContentFromUrl } from './ContentFromUrl';
+import { ContentFromUrl, DisplayReason } from './ContentFromUrl';
 import { FileTree } from './FileTree';
 import { LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 import { getLocaleObject } from './lang/utils';
@@ -75,6 +75,7 @@ export function FileBrowser({
               </a>
               <hr style={{ width: '90%' }} />
               <ContentFromUrl
+                displayReason={DisplayReason.FILE_BROWSER}
                 topLevelDocUrl={XhtmlTopDocumentContentUrl({ archive, filepath })}
                 url={XhtmlTopDocumentContentUrl({ archive, filepath })}
                 modifyRendered={getChildrenOfBodyNode}

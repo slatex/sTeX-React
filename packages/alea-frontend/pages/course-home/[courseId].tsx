@@ -6,6 +6,7 @@ import { Box, Button, CircularProgress } from '@mui/material';
 import { getCourseInfo } from '@stex-react/api';
 import {
   ContentFromUrl,
+  DisplayContext,
   DocumentWidthSetter,
   ServerLinksContext,
 } from '@stex-react/stex-react-renderer';
@@ -183,6 +184,7 @@ const CourseHomePage: NextPage = () => {
         </Box>
         <DocumentWidthSetter>
           <ContentFromUrl
+            displayReason={DisplayContext.NOTES}
             url={XhtmlContentUrl(
               courseInfo.notesArchive,
               `${courseInfo.landingFilepath}.${locale}.xhtml`

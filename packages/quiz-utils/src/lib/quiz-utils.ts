@@ -191,9 +191,7 @@ function removeNodeWithAttrib(
 }
 
 function isInlineBlock(node: Element) {
-  return ['data-problem-scb-inline', 'data-problem-fillInSol-inline'].some(
-    (attrib) => node.attribs[attrib] === 'true'
-  );
+  return node.attribs['data-problem-scb-inline'] === 'true';
 }
 
 function findProblemRootNode(node: (ChildNode & Element) | Document) {

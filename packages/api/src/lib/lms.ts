@@ -78,11 +78,15 @@ export const ALL_DIMENSIONS = [
 export interface LMSEvent {
   type:
     | 'i-know'
-    | 'question-answered'
     | 'self-assessment-5StepLikertSmileys'
-    | 'course-init';
+    | 'course-init'
+    | 'concept-clicked'
+    | 'concept-hovered'
+    | 'definiendum-read';
 
-  URI?: string; // The uri that "i-know" or the question answered filename.
+  URI?: string; // The relevant concept.
+  hoverDuration_ms?: number; // The duration of the hover in ms.
+  displayReason?: string;
 
   course?: string; // The course id.
   grade?: string; // "1" to "5"
@@ -279,6 +283,11 @@ export async function getUriSmileys(
 }
 
 export async function reportEvent(event: LMSEvent) {
+  const disabled = ['concept-clicked', 'concept-hovered', 'definiendum-read'];
+  if (disabled.includes(event.type)) {
+    console.log('reportEvent - disabled', event);
+    return;
+  }
   return await lmsRequest('lms/input/events', 'POST', {}, event);
 }
 

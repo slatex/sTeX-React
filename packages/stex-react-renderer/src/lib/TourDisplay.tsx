@@ -25,7 +25,7 @@ import {
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { memo, useContext, useEffect, useRef, useState } from 'react';
-import { ContentFromUrl } from './ContentFromUrl';
+import { ContentFromUrl, DisplayReason } from './ContentFromUrl';
 import { getLocaleObject } from './lang/utils';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 import { mmtHTMLToReact } from './mmtParser';
@@ -220,6 +220,7 @@ function TourItemDisplay({
       />
       <Box sx={{ mt: '20px' }}>
         <ContentFromUrl
+          displayReason={DisplayReason.GUIDED_TOUR}
           url={`/:vollki/frag?path=${item.uri}&lang=${lang}`}
           modifyRendered={getChildrenOfBodyNode}
         />

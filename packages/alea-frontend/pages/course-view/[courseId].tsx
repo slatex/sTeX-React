@@ -332,6 +332,10 @@ const CourseViewPage: NextPage = () => {
                 navOnTop={viewMode === ViewMode.COMBINED_MODE}
                 courseId={courseId}
                 sectionId={sectionId}
+                topLevelDocUrl={XhtmlContentUrl(
+                  courses[courseId]?.notesArchive,
+                  courses[courseId]?.notesFilepath
+                )}
                 onSlideChange={(slide: Slide) => {
                   setPreNotes(slide?.preNotes || []);
                   setPostNotes(slide?.postNotes || []);

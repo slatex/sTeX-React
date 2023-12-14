@@ -27,6 +27,7 @@ import {
 import {
   ContentFromUrl,
   ContentWithHighlight,
+  DisplayReason,
   FixedPositionMenu,
   LayoutWithFixedMenu,
   LevelIcon,
@@ -195,10 +196,12 @@ function FlashCardFront({
 function FlashCardBack({
   uri,
   needUpdateMarker,
+  topLevelDocUrl,
   onFlip,
 }: {
   uri: string;
   needUpdateMarker: any;
+  topLevelDocUrl?: string;
   onFlip: () => void;
 }) {
   return (
@@ -212,7 +215,8 @@ function FlashCardBack({
         }}
       >
         <ContentFromUrl
-          topLevelDocUrl={`/:sTeX/fragment?${uri}`}
+          topLevelDocUrl={topLevelDocUrl}
+          displayReason={DisplayReason.FLASH_CARD}
           url={`/:sTeX/fragment?${uri}`}
           modifyRendered={getChildrenOfBodyNode}
         />
@@ -233,6 +237,7 @@ function FlashCard({
   htmlNodes,
   mode,
   defaultFlipped,
+  topLevelDocUrl,
   onNext,
   onPrev,
 }: {
@@ -240,6 +245,7 @@ function FlashCard({
   htmlNodes: string[];
   mode: FlashCardMode;
   defaultFlipped: boolean;
+  topLevelDocUrl?: string;
   onNext: () => void;
   onPrev: () => void;
 }) {
@@ -317,6 +323,7 @@ function FlashCard({
               needUpdateMarker={isFlipped}
             />
             <FlashCardBack
+              topLevelDocUrl={topLevelDocUrl}
               uri={uri}
               onFlip={() => setIsFlipped(false)}
               needUpdateMarker={isFlipped}
@@ -516,10 +523,12 @@ export function SummaryCard({
 export function FlashCards({
   mode,
   cards,
+  topLevelDocUrl,
   onFinish: onFinish,
 }: {
   mode: FlashCardMode;
   cards: FlashCardItem[];
+  topLevelDocUrl?: string;
   onFinish: () => void;
 }) {
   const [showDashboard, setShowDashboard] = useState(false);
@@ -543,6 +552,7 @@ export function FlashCards({
         mode={mode}
         cards={cards}
         cardNo={cardNo}
+        topLevelDocUrl={topLevelDocUrl}
         setCardNo={setCardNo}
         onFinish={onFinish}
       />
@@ -608,12 +618,14 @@ function FlashCardsContainer({
   mode,
   cards,
   cardNo,
+  topLevelDocUrl,
   setCardNo,
   onFinish: onFinish,
 }: {
   mode: FlashCardMode;
   cards: FlashCardItem[];
   cardNo: number;
+  topLevelDocUrl?: string;
   setCardNo: Dispatch<SetStateAction<number>>;
   onFinish: () => void;
 }) {
@@ -666,6 +678,7 @@ function FlashCardsContainer({
         uri={currentItem.uri}
         htmlNodes={(currentItem.instances || []).map((i) => i.htmlNode)}
         mode={mode}
+        topLevelDocUrl={topLevelDocUrl}
         defaultFlipped={defaultFlipped && !isDrill(mode)}
         onNext={() => {
           if (cardNo >= cards.length - 1 && isDrill(mode)) {
