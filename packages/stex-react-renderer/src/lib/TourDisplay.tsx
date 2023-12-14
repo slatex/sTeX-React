@@ -25,11 +25,12 @@ import {
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { memo, useContext, useEffect, useRef, useState } from 'react';
-import { ContentFromUrl, DisplayReason } from './ContentFromUrl';
+import { ContentFromUrl } from './ContentFromUrl';
 import { getLocaleObject } from './lang/utils';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 import { mmtHTMLToReact } from './mmtParser';
 import {
+  DisplayReason,
   SelfAssessmentDialog,
   ServerLinksContext,
 } from './stex-react-renderer';
