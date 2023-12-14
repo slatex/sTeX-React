@@ -393,6 +393,7 @@ export function ProblemDisplay({
 }) {
   const t = getLocaleObject(useRouter()).quiz;
   if (!problem) return <CircularProgress />;
+  const isEffectivelyFrozen = isFrozen || !problem.inputs?.length;
   const inputWidgets = problem.inputs.map((input, optIdx) => {
     return inputDisplay({
       input,
@@ -408,7 +409,7 @@ export function ProblemDisplay({
   const customItems = Object.assign(inputWidgets);
   const statement = removeInfoIfNeeded(
     problem.statement.outerHTML ?? '',
-    isFrozen
+    isEffectivelyFrozen
   );
 
   return (
@@ -425,7 +426,7 @@ export function ProblemDisplay({
         <CustomItemsContext.Provider value={{ items: customItems }}>
           <DocumentWidthSetter>{mmtHTMLToReact(statement)}</DocumentWidthSetter>
         </CustomItemsContext.Provider>
-        {onFreezeResponse && !isFrozen && (
+        {onFreezeResponse && !isEffectivelyFrozen && (
           <Button onClick={() => onFreezeResponse()} variant="contained">
             {t.checkSolution}
           </Button>
