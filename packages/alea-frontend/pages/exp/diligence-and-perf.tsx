@@ -51,9 +51,10 @@ const DiligenceAndPerformance: NextPage = () => {
                 ...Object.values(userAnonData.userData)
                   .map((userInfo) => {
                     const quizData = userInfo.quizInfo?.[quiz.id];
-                    if (!quizData?.quizScore === undefined) return undefined;
-                    const visitTime_hr = (quizData?.visitTime_sec ?? 0) / 3600;
-                    if (visitTime_hr === 0 && skipZeroTimes) return undefined;
+                    if (quizData?.quizScore === undefined) return undefined;
+                    if (!quizData.visitTime_sec && skipZeroTimes)
+                      return undefined;
+                    const visitTime_hr = quizData.visitTime_sec / 3600;
                     return [visitTime_hr, quizData.quizScore ?? 0];
                   })
                   .filter((x) => !!x),
