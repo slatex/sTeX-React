@@ -7,6 +7,7 @@ import {
   UserAnonData,
 } from '@stex-react/api';
 import { queryMatomoDbAndEndSet500OnError } from './matomo-db-utils';
+import { getAllQuizzes } from '@stex-react/node-utils';
 
 // SELECT user_id as userId, SUM(visit_total_time) visit_time  FROM matomo.matomo_log_visit  WHERE user_id IS NOT NULL AND visit_first_action_time >= '2023-10-01 10:00:00' AND visit_last_action_time <= '2023-10-30 10:00:00'   GROUP BY user_id
 
@@ -18,8 +19,8 @@ const QUIZ_DATA = [
   },
   {
     quizId: 'quiz-079df087',
-    prepStartTime: '2023-10-24 15:11:00',
-    prepEndTime: '2023-10-31 16:05:00',
+    prepStartTime: '2023-10-24 15:25:00',
+    prepEndTime: '2023-10-31 15:15:00',
   },
   {
     quizId: 'quiz-6d09501f',
@@ -31,6 +32,26 @@ const QUIZ_DATA = [
     prepStartTime: '2023-11-07 15:25:00',
     prepEndTime: '2023-11-14 15:15:00',
   },
+  {
+    quizId: 'quiz-f6c68dff',
+    prepStartTime: '2023-11-14 15:25:00',
+    prepEndTime: '2023-11-21 15:15:00',
+  },
+  {
+    quizId: 'quiz-a63a0ead',
+    prepStartTime: '2023-11-21 15:25:00',
+    prepEndTime: '2023-11-28 15:15:00',
+  },
+  {
+    quizId: 'quiz-f7a23040',
+    prepStartTime: '2023-11-28 15:25:00',
+    prepEndTime: '2023-12-05 15:15:00',
+  },
+  {
+    quizId: 'quiz-22fa2c95',
+    prepStartTime: '2023-12-05 15:25:00',
+    prepEndTime: '2023-12-12 15:15:00',
+  }
 ];
 export default async function handler(
   req: NextApiRequest,
@@ -80,18 +101,20 @@ export default async function handler(
       const { userId, visitTime_sec } = row;
       if (!userData[userId]) userData[userId] = { quizInfo: {} };
       if (!userData[userId].quizInfo[quizId]) {
-        userData[userId].quizInfo[quizId] = { quizScore: 0 };
+        userData[userId].quizInfo[quizId] = { quizScore: undefined };
       }
       userData[userId].quizInfo[quizId].visitTime_sec = visitTime_sec;
     }
   }
   const userIds = Object.keys(userData).sort(() => 0.5 - Math.random());
   for (const [idx, userId] of userIds.entries()) {
-    userData[idx] = userData[userId];
+    if (!userId.startsWith('fake') || !isModerator(userId)) {
+      userData[idx] = userData[userId];
+    }
     delete userData[userId];
   }
   res.status(200).json({
     userData,
-    quizIds: QUIZ_DATA.map((q) => q.quizId),
+    quizzes: getAllQuizzes(),
   } as UserAnonData);
 }

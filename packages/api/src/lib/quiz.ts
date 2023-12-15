@@ -181,14 +181,14 @@ export interface InsertAnswerRequest {
 export interface DiligenceAndPerformanceData {
   quizInfo: {
     [quizId: string]: {
-      quizScore: number;
+      quizScore?: number;
       visitTime_sec?: number;
     };
   };
 }
 export interface UserAnonData {
   userData: { [userId: string]: DiligenceAndPerformanceData };
-  quizIds: string[];
+  quizzes: Quiz[];
 }
 
 export interface QuizStubInfo {
