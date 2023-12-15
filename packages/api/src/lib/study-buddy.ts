@@ -58,3 +58,12 @@ export interface GetStudyBuddiesResponse {
   requestReceived: StudyBuddy[];
   other: StudyBuddy[];
 }
+
+export interface UserStats {
+  totalUsers: number;
+  activeUsers: number;
+  inactiveUsers: number;
+  numberOfConnections:number;
+  unacceptedRequests:number;
+  connections:{senderId:string,receiverId:string}[]
+}

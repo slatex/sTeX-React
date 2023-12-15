@@ -1,6 +1,10 @@
 import axios, { AxiosError } from 'axios';
-import { GetStudyBuddiesResponse, StudyBuddy } from './study-buddy';
 import { getAuthHeaders } from './lms';
+import {
+  GetStudyBuddiesResponse,
+  StudyBuddy,
+  UserStats
+} from './study-buddy';
 
 export async function getStudyBuddyUserInfo(courseId: string) {
   try {
@@ -18,11 +22,9 @@ export async function getStudyBuddyUserInfo(courseId: string) {
 }
 
 export async function updateStudyBuddyInfo(courseId: string, data: StudyBuddy) {
-  await axios.post(
-    `/api/study-buddy/update-info/${courseId}`,
-    data,
-    { headers: getAuthHeaders() }
-  );
+  await axios.post(`/api/study-buddy/update-info/${courseId}`, data, {
+    headers: getAuthHeaders(),
+  });
 }
 
 export async function getStudyBuddyList(courseId: string) {
@@ -53,7 +55,7 @@ export async function removeConnectionRequest(
   courseId: string,
   receiverId: string
 ) {
-   await axios.post(
+  await axios.post(
     `/api/study-buddy/remove-connection-request/${courseId}`,
     { receiverId },
     { headers: getAuthHeaders() }
@@ -67,4 +69,11 @@ export async function purgeStudyBuddyData() {
     { headers: getAuthHeaders() }
   );
   return resp.data as StudyBuddy;
+}
+
+export async function getStudyBuddyUsersStats(courseId: string) {
+  const resp = await axios.get(`/api/study-buddy/get-users-stats/${courseId}`, {
+    headers: getAuthHeaders(),
+  });
+  return resp.data as UserStats;
 }
