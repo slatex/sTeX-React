@@ -18,30 +18,36 @@ export default async function handler(
   }
   const courseId = req.query.courseId as string;
   const result1: any[] = await executeAndEndSet500OnError(
-    'SELECT COUNT(userId) as TotalUsers,SUM(CASE WHEN active = 1 THEN 1 ELSE 0 END) as ActiveUsers,SUM(CASE WHEN active = 0 THEN 1 ELSE 0 END) as InactiveUsers FROM StudyBuddyUsers WHERE courseId=?',
+    `SELECT 
+      COUNT(userId) as TotalUsers, 
+      SUM(CASE WHEN active = 1 THEN 1 ELSE 0 END) as ActiveUsers,
+      SUM(CASE WHEN active = 0 THEN 1 ELSE 0 END) as InactiveUsers 
+    FROM StudyBuddyUsers WHERE courseId = ?`,
     [courseId],
     res
   );
   const result2: any[] = await executeAndEndSet500OnError(
-    ` SELECT  ROUND(COUNT(*) / 2) AS NumberOfConnections
-        FROM StudyBuddyConnections as t1
-          WHERE EXISTS (SELECT 1 FROM StudyBuddyConnections as t2 WHERE t1.senderId = t2.receiverId
-          AND t1.receiverId = t2.senderId)`,
+    `SELECT ROUND(COUNT(*) / 2) AS NumberOfConnections
+    FROM StudyBuddyConnections as t1
+    WHERE EXISTS (
+      SELECT 1 FROM StudyBuddyConnections as t2 WHERE t1.senderId = t2.receiverId
+      AND t1.receiverId = t2.senderId
+    )`,
     [],
     res
   );
   const result3: any[] = await executeAndEndSet500OnError(
-    `SELECT COUNT(*) as TotalRequest FROM studybuddyconnections`,
+    `SELECT COUNT(*) as TotalRequests FROM StudyBuddyConnections`,
     [],
     res
   );
   if (!result1 || !result2 || !result3) return;
 
-  const connection: any[] = await executeAndEndSet500OnError(
-    `SELECT senderId,receiverId FROM StudyBuddyConnections`,
+  /*const connections: any[] = await executeAndEndSet500OnError(
+    `SELECT senderId, receiverId FROM StudyBuddyConnections`,
     [],
     res
-  );
+  );*/
 
   const combinedResults: UserStats = {
     totalUsers: result1[0].TotalUsers,
@@ -50,7 +56,7 @@ export default async function handler(
     numberOfConnections: result2[0].NumberOfConnections,
     unacceptedRequests:
       result3[0].TotalRequest - result2[0].NumberOfConnections * 2,
-    connections: connection,
+    connections: [],
   };
   res.status(200).json(combinedResults);
 }
