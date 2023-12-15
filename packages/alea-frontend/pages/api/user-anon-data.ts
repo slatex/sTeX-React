@@ -13,6 +13,11 @@ import { getAllQuizzes } from '@stex-react/node-utils';
 
 const QUIZ_DATA = [
   {
+    quizId: 'quiz-bc71f711',
+    prepStartTime: '2023-10-01 06:15:00',
+    prepEndTime: '2023-10-18 15:05:00',
+  },
+  {
     quizId: 'quiz-d1a3f406',
     prepStartTime: '2023-10-18 06:15:00',
     prepEndTime: '2023-10-24 15:05:00',

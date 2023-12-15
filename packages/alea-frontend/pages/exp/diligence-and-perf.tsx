@@ -3,12 +3,18 @@ import MainLayout from '../../layouts/MainLayout';
 import { UserAnonData, getAuthHeaders } from '@stex-react/api';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Box, CircularProgress } from '@mui/material';
+import {
+  Box,
+  Checkbox,
+  CircularProgress,
+  FormControlLabel,
+} from '@mui/material';
 import Chart from 'react-google-charts';
 import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 
 const DiligenceAndPerformance: NextPage = () => {
   const [userAnonData, setUserAnonData] = useState<UserAnonData | null>(null);
+  const [skipZeroTimes, setSkipZeroTimes] = useState(false);
 
   useEffect(() => {
     axios
@@ -22,6 +28,15 @@ const DiligenceAndPerformance: NextPage = () => {
   if (!userAnonData) return <CircularProgress />;
   return (
     <MainLayout title="Experiments | VoLL-KI">
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={skipZeroTimes}
+            onChange={(e) => setSkipZeroTimes(e.target.checked)}
+          />
+        }
+        label="Skip Zero Times"
+      />
       {userAnonData.quizzes
         .sort((a, b) => a.quizStartTs - b.quizStartTs)
         .map((quiz) => (
@@ -36,8 +51,9 @@ const DiligenceAndPerformance: NextPage = () => {
                 ...Object.values(userAnonData.userData)
                   .map((userInfo) => {
                     const quizData = userInfo.quizInfo?.[quiz.id];
-                    if (!quizData?.quizScore) return undefined;
+                    if (!quizData?.quizScore === undefined) return undefined;
                     const visitTime_hr = (quizData?.visitTime_sec ?? 0) / 3600;
+                    if (visitTime_hr === 0 && skipZeroTimes) return undefined;
                     return [visitTime_hr, quizData.quizScore ?? 0];
                   })
                   .filter((x) => !!x),
