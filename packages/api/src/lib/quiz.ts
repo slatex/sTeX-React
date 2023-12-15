@@ -181,8 +181,8 @@ export interface InsertAnswerRequest {
 export interface DiligenceAndPerformanceData {
   quizInfo: {
     [quizId: string]: {
-      quiz_score: number;
-      visit_time_sec?: number;
+      quizScore: number;
+      visitTime_sec?: number;
     };
   };
 }

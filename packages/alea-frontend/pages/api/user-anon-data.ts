@@ -42,7 +42,7 @@ export default async function handler(
     return;
   }
   const scoreInfo: any[] = await queryGradingDbAndEndSet500OnError(
-    `SELECT userId, quizId, SUM(points) as quiz_score
+    `SELECT userId, quizId, SUM(points) as quizScore
     FROM grading
     WHERE (quizId, problemId, userId, browserTimestamp_ms) IN (
       SELECT quizId, problemId, userId, MAX(browserTimestamp_ms) AS browserTimestamp_ms
@@ -57,15 +57,15 @@ export default async function handler(
 
   const userData: { [userId: string]: DiligenceAndPerformanceData } = {};
   for (const row of scoreInfo) {
-    const { userId, quizId, quiz_score } = row;
+    const { userId, quizId, quizScore } = row;
     if (!userData[userId]) userData[userId] = { quizInfo: {} };
-    userData[userId].quizInfo[quizId] = { quiz_score };
+    userData[userId].quizInfo[quizId] = { quizScore };
   }
 
   for (const quiz of QUIZ_DATA) {
     const { quizId, prepStartTime, prepEndTime } = quiz;
     const visitInfo: any[] = await queryMatomoDbAndEndSet500OnError(
-      `SELECT user_id as userId, SUM(visit_total_time) visit_time 
+      `SELECT user_id AS userId, SUM(visit_total_time) AS visitTime 
       FROM matomo.matomo_log_visit 
       WHERE 
         user_id IS NOT NULL AND
@@ -77,11 +77,11 @@ export default async function handler(
     );
     if (!visitInfo) return;
     for (const row of visitInfo) {
-      const { userId, visit_time } = row;
+      const { userId, visitTime } = row;
       if (userData[userId]) {
         if (!userData[userId][quizId])
-          userData[userId].quizInfo[quizId] = { quiz_score: 0 };
-        userData[userId].quizInfo[quizId] = visit_time;
+          userData[userId].quizInfo[quizId] = { quizScore: 0 };
+        userData[userId].quizInfo[quizId].visitTime_sec = visitTime;
       }
     }
   }

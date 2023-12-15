@@ -28,11 +28,11 @@ const DiligenceAndPerformance: NextPage = () => {
           width="100%"
           height="400px"
           data={[
-            ['Visit Time', 'Score'],
+            ['Visit Time (hr)', 'Score'],
             ...Object.values(userAnonData.userData).map((userInfo) => {
               const visitTime_hr =
-                userInfo.quizInfo[quizId].visit_time_sec / 3600;
-              return [visitTime_hr, userInfo.quizInfo[quizId].quiz_score];
+                (userInfo.quizInfo[quizId]?.visitTime_sec ?? 0) / 3600;
+              return [visitTime_hr, userInfo.quizInfo[quizId].quizScore];
             }),
           ]}
         />
