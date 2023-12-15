@@ -43,9 +43,9 @@ export enum QuadState {
   TRUE = 'TRUE',
   FALSE = 'FALSE',
   UNKNOWN = 'UNKNOWN',
-  
-  // Only for multi-answer MCQs. When the question creator has created an invalid option. 
-  // After the students have taken the quiz, if an option is marked as 'any', 
+
+  // Only for multi-answer MCQs. When the question creator has created an invalid option.
+  // After the students have taken the quiz, if an option is marked as 'any',
   // the response to that option will not affect the correctness of the problem.
   ANY = 'ANY',
 }
@@ -179,11 +179,16 @@ export interface InsertAnswerRequest {
 }
 
 export interface DiligenceAndPerformanceData {
-  visitTime_sec: number;
-  quizScores: { [quizId: string]: number };
+  quizInfo: {
+    [quizId: string]: {
+      quiz_score: number;
+      visit_time_sec?: number;
+    };
+  };
 }
 export interface UserAnonData {
   userData: { [userId: string]: DiligenceAndPerformanceData };
+  quizIds: string[];
 }
 
 export interface QuizStubInfo {

@@ -8,6 +8,7 @@ import Chart from 'react-google-charts';
 
 const DiligenceAndPerformance: NextPage = () => {
   const [userAnonData, setUserAnonData] = useState<UserAnonData | null>(null);
+
   useEffect(() => {
     axios
       .get('/api/user-anon-data', {
@@ -20,20 +21,22 @@ const DiligenceAndPerformance: NextPage = () => {
   if (!userAnonData) return <CircularProgress />;
   return (
     <MainLayout title="Experiments | VoLL-KI">
-      <Chart
-        chartType="ScatterChart"
-        width="100%"
-        height="400px"
-        data={[
-          ['Visit Time', 'Score'],
-          ...Object.values(userAnonData.userData).map(
-            ({ visitTime_sec, quizScores }) => [
-              visitTime_sec,
-              Object.values(quizScores).reduce((s, a) => s + a, 0),
-            ]
-          ),
-        ]}
-      />
+      {userAnonData.quizIds.map((quizId) => (
+        <Chart
+          key={quizId}
+          chartType="ScatterChart"
+          width="100%"
+          height="400px"
+          data={[
+            ['Visit Time', 'Score'],
+            ...Object.values(userAnonData.userData).map((userInfo) => {
+              const visitTime_hr =
+                userInfo.quizInfo[quizId].visit_time_sec / 3600;
+              return [visitTime_hr, userInfo.quizInfo[quizId].quiz_score];
+            }),
+          ]}
+        />
+      ))}
     </MainLayout>
   );
 };
