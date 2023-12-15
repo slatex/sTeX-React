@@ -29,11 +29,14 @@ const DiligenceAndPerformance: NextPage = () => {
           height="400px"
           data={[
             ['Visit Time (hr)', 'Score'],
-            ...Object.values(userAnonData.userData).map((userInfo) => {
-              const visitTime_hr =
-                (userInfo.quizInfo[quizId]?.visitTime_sec ?? 0) / 3600;
-              return [visitTime_hr, userInfo.quizInfo[quizId].quizScore];
-            }),
+            ...Object.values(userAnonData.userData)
+              .map((userInfo) => {
+                const quizData = userInfo.quizInfo?.[quizId];
+                if (!quizData) return undefined;
+                const visitTime_hr = (quizData?.visitTime_sec ?? 0) / 3600;
+                return [visitTime_hr, quizData.quizScore ?? 0];
+              })
+              .filter((x) => !!x),
           ]}
         />
       ))}

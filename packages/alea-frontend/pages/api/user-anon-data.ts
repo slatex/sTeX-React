@@ -65,7 +65,7 @@ export default async function handler(
   for (const quiz of QUIZ_DATA) {
     const { quizId, prepStartTime, prepEndTime } = quiz;
     const visitInfo: any[] = await queryMatomoDbAndEndSet500OnError(
-      `SELECT user_id AS userId, SUM(visit_total_time) AS visitTime 
+      `SELECT user_id AS userId, SUM(visit_total_time) AS visitTime_sec 
       FROM matomo.matomo_log_visit 
       WHERE 
         user_id IS NOT NULL AND
@@ -77,12 +77,12 @@ export default async function handler(
     );
     if (!visitInfo) return;
     for (const row of visitInfo) {
-      const { userId, visitTime } = row;
-      if (userData[userId]) {
-        if (!userData[userId][quizId])
-          userData[userId].quizInfo[quizId] = { quizScore: 0 };
-        userData[userId].quizInfo[quizId].visitTime_sec = visitTime;
+      const { userId, visitTime_sec } = row;
+      if (!userData[userId]) userData[userId] = { quizInfo: {} };
+      if (!userData[userId].quizInfo[quizId]) {
+        userData[userId].quizInfo[quizId] = { quizScore: 0 };
       }
+      userData[userId].quizInfo[quizId].visitTime_sec = visitTime_sec;
     }
   }
   const userIds = Object.keys(userData).sort(() => 0.5 - Math.random());
@@ -90,10 +90,8 @@ export default async function handler(
     userData[idx] = userData[userId];
     delete userData[userId];
   }
-  res
-    .status(200)
-    .json({
-      userData,
-      quizIds: QUIZ_DATA.map((q) => q.quizId),
-    } as UserAnonData);
+  res.status(200).json({
+    userData,
+    quizIds: QUIZ_DATA.map((q) => q.quizId),
+  } as UserAnonData);
 }
