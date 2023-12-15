@@ -259,6 +259,7 @@ export const de = {
     introLabel: 'Stellen Sie sich vor',
     studyProgramLabel: 'Studiengang (z. B. Master in Informatik)',
     semesterLabel: 'Semester #',
+    nameLabel: 'Name',
     emailLabel: 'E-Mail (z. B. you@fau.de)',
     preferredDays: 'Bevorzugte Tage für ein Treffen',
     meetTypeLabel: 'Bevorzugter Treffpunkt',
@@ -279,11 +280,14 @@ export const de = {
     notifications: 'Benachrichtigungen',
     allNotifications: 'Alle Benachrichtigungen anzeigen',
   },
-  quizPerformanceTable: {
-    quizName: 'Quizname',
-    quizDate: 'Quizdatum',
-    maxPoint: 'Maximale Punktzahl',
-    myScore: 'Meine Punktzahl',
-    averageScore: 'Durchschnittliche Punktzahl',
-  },
+  quizPerformanceTable:{
+    quizName: "Quizname",
+    quizDate: "Quizdatum",
+    maxPoints: "Maximale Punktzahl",
+    myScore: "Meine Punktzahl",
+    averageScore: "Durchschnittliche Punktzahl",
+    quizRecorrected: 'Dieses Quiz wurde erneut korrigiert', 
+    theProblem: 'Das Problem',
+    wasRecorrected: 'wurde erneut behoben'
+  }
 };

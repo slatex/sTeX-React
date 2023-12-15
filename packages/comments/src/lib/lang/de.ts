@@ -12,7 +12,7 @@ export const de = {
 
   // comment section
   startDiscussion: 'Starten Sie die Diskussion',
-  joinDiscussion: 'Beteiligen Sie sich an der Diskussion',
+  joinDiscussion: 'Erstelle einen neuen Kommentarthread',
   showHidden: 'Ausgeblendete Kommentare anzeigen',
   showSpam: 'Spam anzeigen',
 

@@ -133,8 +133,8 @@ function UpcomingQuizList({
 
 const PRACTICE_QUIZ_INFO = {
   'ai-1': {
-    startSecNameExcl: 'Arc Consistency',
-    endSecNameIncl: 'Propositional Natural Deduction Calculus',
+    startSecNameExcl: 'Propositional Natural Deduction Calculus',
+    endSecNameIncl: 'Practical Enhancements for Tableaux',
   },
 };
 
@@ -220,6 +220,7 @@ const QuizDashPage: NextPage = () => {
           practiceInfo={PRACTICE_QUIZ_INFO[courseId]}
         />
         <QuizPerformanceTable
+          courseId={courseId}
           quizList={previousQuizzes}
           header={t.previousQuizzes}
         />

@@ -30,6 +30,7 @@ import { getLocaleObject } from './lang/utils';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 import { mmtHTMLToReact } from './mmtParser';
 import {
+  DisplayReason,
   SelfAssessmentDialog,
   ServerLinksContext,
 } from './stex-react-renderer';
@@ -220,6 +221,7 @@ function TourItemDisplay({
       />
       <Box sx={{ mt: '20px' }}>
         <ContentFromUrl
+          displayReason={DisplayReason.GUIDED_TOUR}
           url={`/:vollki/frag?path=${item.uri}&lang=${lang}`}
           modifyRendered={getChildrenOfBodyNode}
         />

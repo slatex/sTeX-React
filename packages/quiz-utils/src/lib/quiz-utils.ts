@@ -7,6 +7,7 @@ import {
   Phase,
   Problem,
   ProblemResponse,
+  QuadState,
   Quiz,
   Tristate,
 } from '@stex-react/api';
@@ -87,11 +88,11 @@ export function isFillInInputCorrect(
 }
 
 function isSCQCorrect(options?: Option[], singleOptionIdx?: string) {
-  const correctOption = (options || []).find(
-    (o) => o.shouldSelect === Tristate.TRUE
+  const correctOptions = (options || []).filter(
+    (o) => o.shouldSelect === QuadState.TRUE
   );
-  if (!correctOption) return Tristate.UNKNOWN;
-  return correctOption.optionId === singleOptionIdx
+  if (!correctOptions.length) return Tristate.UNKNOWN;
+  return correctOptions.some((o) => o.optionId === singleOptionIdx)
     ? Tristate.TRUE
     : Tristate.FALSE;
 }
@@ -103,12 +104,13 @@ function isMCQCorrect(
   if (!options?.length) return Tristate.UNKNOWN;
   if (!multiOptionIdx) return Tristate.FALSE;
   const anyUnknown = options.some(
-    (option) => option.shouldSelect === Tristate.UNKNOWN
+    (option) => option.shouldSelect === QuadState.UNKNOWN
   );
   if (anyUnknown) return Tristate.UNKNOWN;
   for (const [idx, option] of options.entries() ?? []) {
+    if (option.shouldSelect === QuadState.ANY) continue;
     const isSelected = multiOptionIdx?.[idx] ?? false;
-    const shouldSelect = option.shouldSelect === Tristate.TRUE;
+    const shouldSelect = option.shouldSelect === QuadState.TRUE;
     if (isSelected !== shouldSelect) return Tristate.FALSE;
   }
   return Tristate.TRUE;
@@ -189,9 +191,7 @@ function removeNodeWithAttrib(
 }
 
 function isInlineBlock(node: Element) {
-  return ['data-problem-scb-inline', 'data-problem-fillInSol-inline'].some(
-    (attrib) => node.attribs[attrib] === 'true'
-  );
+  return node.attribs['data-problem-scb-inline'] === 'true';
 }
 
 function findProblemRootNode(node: (ChildNode & Element) | Document) {
@@ -204,6 +204,13 @@ function booleanStringToTriState(str: string) {
   return Tristate.UNKNOWN;
 }
 
+function stringToQuadState(str: string) {
+  if (str.toLowerCase() === 'true') return QuadState.TRUE;
+  if (str.toLowerCase() === 'false') return QuadState.FALSE;
+  if (str.toLowerCase() === 'any') return QuadState.ANY;
+  return QuadState.UNKNOWN;
+}
+
 function getChoiceInfo(
   choiceNode: Element,
   solNodeAttr: string,
@@ -214,7 +221,7 @@ function getChoiceInfo(
     ?.node;
   const feedbackHtml = feedbackNode ? DomUtils.getOuterHTML(feedbackNode) : '';
   removeNodeWithAttrib(choiceNode, [solNodeAttr]);
-  const shouldSelect = booleanStringToTriState(shouldSelectStr);
+  const shouldSelect = stringToQuadState(shouldSelectStr);
   const outerHTML = DomUtils.getOuterHTML(choiceNode);
   const optionId = `${idx}`;
   return { shouldSelect, value: { outerHTML }, feedbackHtml, optionId };

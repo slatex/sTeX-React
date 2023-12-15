@@ -18,10 +18,11 @@ import {
   useRef,
   useState,
 } from 'react';
+import CompetencyIndicator from './CompetencyIndicator';
 import CompetencyTable from './CompetencyTable';
 import { ContentDashboard } from './ContentDashboard';
 import { ContentFromUrl } from './ContentFromUrl';
-import { ContentWithHighlight } from './ContentWithHightlight';
+import { ContentWithHighlight, DisplayReason } from './ContentWithHightlight';
 import { DocFragManager } from './DocFragManager';
 import { DocProblemBrowser } from './DocProblemBrowser';
 import { DocumentWidthSetter } from './DocumentWidthSetter';
@@ -46,7 +47,6 @@ import {
   NoMaxWidthTooltip,
   mmtHTMLToReact,
 } from './mmtParser';
-import CompetencyIndicator from './CompetencyIndicator';
 
 export const ServerLinksContext = createContext({ mmtUrl: '', lmsUrl: '' });
 
@@ -54,10 +54,12 @@ export function StexReactRenderer({
   contentUrl,
   topOffset = 0,
   noFrills = false,
+  displayReason = DisplayReason.NOTES,
 }: {
   contentUrl: string;
   topOffset?: number;
   noFrills?: boolean;
+  displayReason?: DisplayReason;
 }) {
   const router = useRouter();
   const [showDashboard, setShowDashboard] = useState(
@@ -175,6 +177,7 @@ export function StexReactRenderer({
               >
                 <Box width={`${contentWidth}px`}>
                   <ContentFromUrl
+                    displayReason={displayReason}
                     topLevelDocUrl={contentUrl}
                     url={contentUrl}
                     modifyRendered={getChildrenOfBodyNode}
@@ -204,6 +207,7 @@ export {
   ContentWithHighlight,
   CustomItemsContext,
   DimIcon,
+  DisplayReason,
   DocProblemBrowser,
   DocumentWidthSetter,
   ExpandableContent,

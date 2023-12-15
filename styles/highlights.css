@@ -15,7 +15,8 @@
     margin:0 auto;
     border:2px solid #000;
     border-radius:5px;
-    padding:1%;
+    padding:5px;
+    padding-right:10px;
     --temp-width: calc(var(--document-width) - 20px);
     width: var(--temp-width);
     display:inline-block;

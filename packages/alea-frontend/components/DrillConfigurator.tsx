@@ -18,20 +18,32 @@ import {
   CardsWithSmileys,
   SmileyLevel,
   getAuthHeaders,
+  getCourseInfo,
   isLoggedIn,
   smileyToLevel,
 } from '@stex-react/api';
-import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
+import {
+  ServerLinksContext,
+  mmtHTMLToReact,
+} from '@stex-react/stex-react-renderer';
 import {
   PRIMARY_COL,
   SECONDARY_COL,
   Window,
+  XhtmlContentUrl,
   stableShuffle,
 } from '@stex-react/utils';
 import axios from 'axios';
 import { ConfigureLevelSlider } from '@stex-react/stex-react-renderer';
 import { useRouter } from 'next/router';
-import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react';
+import {
+  Dispatch,
+  Fragment,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { getLocaleObject } from '../lang/utils';
 import { FlashCardMode, FlashCards } from './FlashCards';
 
@@ -407,9 +419,13 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
     Understand: 0,
   });
   const [checkedChapterIdxs, setCheckedChapterIdxs] = useState<number[]>([]);
+  const [topLevelDocUrl, setTopLevelDocUrl] = useState<string | undefined>(
+    undefined
+  );
   const [started, setStarted] = useState(false);
   const [mode, setMode] = useState(FlashCardMode.REVISION_MODE);
   const [shuffle, setShuffle] = useState(true);
+  const { mmtUrl } = useContext(ServerLinksContext);
 
   const loggedIn = isLoggedIn();
 
@@ -423,6 +439,13 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
     sectionCounts,
     selectedChapters
   );
+  useEffect(() => {
+    getCourseInfo(mmtUrl).then((c) =>
+      setTopLevelDocUrl(
+        XhtmlContentUrl(c[courseId]?.notesArchive, c[courseId]?.notesFilepath)
+      )
+    );
+  }, [courseId, mmtUrl]);
   useEffect(() => {
     if (!courseId) return;
     setIsLoading(true);
@@ -444,6 +467,7 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
   if (started) {
     return (
       <FlashCards
+        topLevelDocUrl={topLevelDocUrl}
         mode={mode}
         cards={selectedCards.map((card) => ({ uri: card.uri, instances: [] }))}
         onFinish={() => setStarted(false)}

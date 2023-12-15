@@ -12,7 +12,7 @@ export const en = {
 
   // comment section
   startDiscussion: 'Start the discussion',
-  joinDiscussion: 'Join the discussion',
+  joinDiscussion: 'Create a new comment thread',
   showHidden: 'Show hidden comments',
   showSpam: 'Show spam',
 

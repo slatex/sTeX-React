@@ -1,22 +1,20 @@
 import { Box, LinearProgress } from '@mui/material';
 import axios from 'axios';
-import { createContext, memo, useContext, useEffect, useState } from 'react';
-import { ContentWithHighlight } from './ContentWithHightlight';
+import { memo, useContext, useEffect, useState } from 'react';
+import { ContentWithHighlight, DisplayReason } from './ContentWithHightlight';
 import { ServerLinksContext } from './stex-react-renderer';
-
-export const TopLevelContext = createContext<{ topLevelDocUrl: string }>({
-  topLevelDocUrl: '',
-});
 
 export const ContentFromUrl = memo(
   ({
     url,
     modifyRendered = undefined,
+    displayReason = undefined,
     topLevelDocUrl = undefined,
     minLoadingHeight = undefined,
   }: {
     url: string;
     modifyRendered?: (node: any) => any;
+    displayReason?: DisplayReason;
     topLevelDocUrl?: string;
     minLoadingHeight?: string;
   }) => {
@@ -46,19 +44,14 @@ export const ContentFromUrl = memo(
         </Box>
       );
     }
-    const mainElement = (
+    return (
       <ContentWithHighlight
         mmtHtml={mmtHtml}
+        topLevelDocUrl={topLevelDocUrl}
+        displayReason={displayReason}
         modifyRendered={modifyRendered}
         renderWrapperParams={{ 'section-url': url }}
       />
-    );
-    if (!topLevelDocUrl) return mainElement;
-
-    return (
-      <TopLevelContext.Provider value={{ topLevelDocUrl }}>
-        {mainElement}
-      </TopLevelContext.Provider>
     );
   }
 );

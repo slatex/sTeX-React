@@ -12,12 +12,6 @@ import { Fragment } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import { useRouter } from 'next/router';
 
-export function cleanupName(name: string) {
-  if (name.startsWith('Fake User: ')) {
-    return name.slice(11).replace(/([A-Z])/g, ' $1');
-  }
-  return name;
-}
 export function StudyBuddyListing({
   studyBuddy,
   actionIcon,
@@ -40,7 +34,7 @@ export function StudyBuddyListing({
         <Box sx={{ flex: '1 0 200px' }}>
           <Box>
             <span style={{ fontSize: '20px', fontWeight: 'bold' }}>
-              {cleanupName(studyBuddy.userName)}
+              {studyBuddy.userName}
             </span>
             {studyBuddy.email && <b>,&nbsp;{studyBuddy.email}</b>}
           </Box>

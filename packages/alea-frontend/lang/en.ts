@@ -273,6 +273,7 @@ export const en = {
     introLabel: 'Introduce yourself',
     studyProgramLabel: 'Study program (e.g. Masters in Computer Science)',
     semesterLabel: 'Semester #',
+    nameLabel: 'Name',
     emailLabel: 'E-Mail (e.g. you@fau.de)',
     preferredDays: 'Preferred days to meet',
     meetTypeLabel: 'Preferred Meeting Type',
@@ -295,8 +296,11 @@ export const en = {
   quizPerformanceTable: {
     quizName: 'Quiz Name',
     quizDate: 'Quiz Date',
-    maxPoint: 'Max Point',
+    maxPoints: 'Max Points',
     myScore: 'My Score',
     averageScore: 'Average Score',
+    quizRecorrected: 'This quiz was re-corrected',
+    theProblem: 'The problem',
+    wasRecorrected: 'was re-corrected',
   },
 };

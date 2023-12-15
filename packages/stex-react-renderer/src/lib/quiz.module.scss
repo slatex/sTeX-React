@@ -1,12 +1,12 @@
 .option {
-  border: 1px solid #AAA;
+  border: 1px solid #aaa;
   border-radius: 5px;
   padding-right: 10px;
   user-select: none;
 }
 
 .option_unsubmitted_selected {
-  background-color: #DDD;
+  background-color: #ddd;
 }
 
 .option_relevant {
@@ -19,8 +19,25 @@
   margin: 10px !important;
 }
 
-.correct {
+.should_select {
   background-color: #a3e9a0;
+}
+
+.should_not_select {
+  background-color: #f39797;
+}
+
+.to_be_ignored {
+  background-color: #f3f197;
+  margin-right: 10px;
+}
+
+.to_be_ignored::after {
+  content: 'Your response to this option will not affect your grade.';
+  color: #f00;
+  font-weight: bold;
+  font-size: 10px;
+  margin-left: 15px;
 }
 
 .incorrect {
@@ -30,6 +47,6 @@
 .got_right {
   border-color: #178717 !important;
 }
-.missed {
+.got_wrong {
   border-color: #da1010 !important;
 }

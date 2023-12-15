@@ -14,6 +14,7 @@ import {
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { ContentFromUrl } from './ContentFromUrl';
+import { DisplayReason } from './ContentWithHightlight';
 import { FileTree } from './FileTree';
 import { LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 import { getLocaleObject } from './lang/utils';
@@ -75,7 +76,11 @@ export function FileBrowser({
               </a>
               <hr style={{ width: '90%' }} />
               <ContentFromUrl
-                topLevelDocUrl={XhtmlTopDocumentContentUrl({ archive, filepath })}
+                displayReason={DisplayReason.FILE_BROWSER}
+                topLevelDocUrl={XhtmlTopDocumentContentUrl({
+                  archive,
+                  filepath,
+                })}
                 url={XhtmlTopDocumentContentUrl({ archive, filepath })}
                 modifyRendered={getChildrenOfBodyNode}
               />
