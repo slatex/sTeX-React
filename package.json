@@ -33,6 +33,7 @@
     "next-plugin-preval": "^1.2.5",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-force-graph-2d": "^1.25.3",
     "react-google-charts": "^4.0.0",
     "react-slideshow-image": "^4.3.0",
     "react-swipeable": "^7.0.0",

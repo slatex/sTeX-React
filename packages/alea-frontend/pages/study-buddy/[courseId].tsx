@@ -17,22 +17,24 @@ import {
   Languages,
   MeetType,
   StudyBuddy,
+  UserInfo,
+  UserStats,
   connectionRequest,
   getCourseInfo,
   getStudyBuddyList,
   getStudyBuddyUserInfo,
+  getStudyBuddyUsersStats,
   getUserInfo,
-  UserInfo,
   isLoggedIn,
   isModerator,
   removeConnectionRequest,
   setActive,
   updateStudyBuddyInfo,
-  getStudyBuddyUsersStats,
 } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { BG_COLOR, CourseInfo } from '@stex-react/utils';
 import { NextPage } from 'next';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { StudyBuddyForm } from '../../components/StudyBuddyForm';
@@ -43,6 +45,13 @@ import {
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
 import { CourseHeader } from '../course-home/[courseId]';
+
+const StudyBuddyConnectionsGraph = dynamic(
+  () => import('../../components/StudyBuddyConnectionsGraph'),
+  {
+    ssr: false,
+  }
+);
 
 function OptOutButton({
   studyBuddy,
@@ -77,6 +86,8 @@ function StatsForModerator() {
   const [inactiveUsers, setInactiveUsers] = useState(0);
   const [numberOfConnections, setNumberOfConnections] = useState(0);
   const [unacceptedRequest, setUnacceptedRequest] = useState(0);
+  const [connections, setConnections] = useState<UserStats['connections']>([]);
+  const [userIdsAndActiveStatus, setUserIdsAndActiveStatus] = useState([]);
   useEffect(() => {
     const fetchData = async () => {
       const data = await getStudyBuddyUsersStats(courseId);
@@ -85,6 +96,8 @@ function StatsForModerator() {
       setInactiveUsers(data.inactiveUsers);
       setNumberOfConnections(data.numberOfConnections);
       setUnacceptedRequest(data.unacceptedRequests);
+      setConnections(data.connections);
+      setUserIdsAndActiveStatus(data.userIdsAndActiveStatus);
     };
     fetchData();
   }, [courseId]);
@@ -109,6 +122,11 @@ function StatsForModerator() {
           <Typography style={{ fontWeight: 'bold' }}>
             {t.unacceptedRequest + ' : ' + unacceptedRequest}
           </Typography>
+          <hr />
+          <StudyBuddyConnectionsGraph
+            connections={connections}
+            userIdsAndActiveStatus={userIdsAndActiveStatus}
+          />
         </CardContent>
       </Card>
     </>

@@ -30,24 +30,45 @@ export default async function handler(
     `SELECT ROUND(COUNT(*) / 2) AS NumberOfConnections
     FROM StudyBuddyConnections as t1
     WHERE EXISTS (
-      SELECT 1 FROM StudyBuddyConnections as t2 WHERE t1.senderId = t2.receiverId
+      SELECT 1 FROM StudyBuddyConnections as t2 WHERE courseId = ? and t1.senderId = t2.receiverId
       AND t1.receiverId = t2.senderId
     )`,
-    [],
+    [courseId],
     res
   );
   const result3: any[] = await executeAndEndSet500OnError(
-    `SELECT COUNT(*) as TotalRequests FROM StudyBuddyConnections`,
-    [],
+    `SELECT COUNT(*) as TotalRequests FROM StudyBuddyConnections WHERE courseId=?`,
+    [courseId],
     res
   );
-  if (!result1 || !result2 || !result3) return;
 
-  /*const connections: any[] = await executeAndEndSet500OnError(
-    `SELECT senderId, receiverId FROM StudyBuddyConnections`,
-    [],
+  const connections: any[] = await executeAndEndSet500OnError(
+    `SELECT senderId , receiverId FROM StudyBuddyConnections WHERE courseId=?`,
+    [courseId],
     res
-  );*/
+  );
+
+  const userIdsAndActiveStatus: any[] = await executeAndEndSet500OnError(
+    `SELECT userId as id, active FROM StudyBuddyUsers WHERE courseId=?`,
+    [courseId],
+    res
+  );
+
+  if (!result1 || !result2 || !result3 || !connections || !userIdsAndActiveStatus)
+    return;
+
+  const userIdToAnonymousId = new Map<string, string>();
+  userIdsAndActiveStatus
+    .sort(() => 0.5 - Math.random())
+    .forEach((item, index) => {
+      userIdToAnonymousId.set(item.id, index.toString());
+      item.id = index.toString();
+    });
+
+  const anonymousConnections = connections.map((item) => ({
+    senderId: userIdToAnonymousId.get(item.senderId),
+    receiverId: userIdToAnonymousId.get(item.receiverId),
+  }));
 
   const combinedResults: UserStats = {
     totalUsers: result1[0].TotalUsers,
@@ -55,8 +76,9 @@ export default async function handler(
     inactiveUsers: result1[0].InactiveUsers,
     numberOfConnections: result2[0].NumberOfConnections,
     unacceptedRequests:
-      result3[0].TotalRequest - result2[0].NumberOfConnections * 2,
-    connections: [],
+      result3[0].TotalRequests - result2[0].NumberOfConnections * 2,
+    connections: anonymousConnections,
+    userIdsAndActiveStatus,
   };
   res.status(200).json(combinedResults);
 }
