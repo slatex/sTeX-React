@@ -54,7 +54,7 @@ export default async function handler(
     res
   );
 
-  if (!result1 || !result2 || !result3 || connections || userIdsAndActiveStatus)
+  if (!result1 || !result2 || !result3 || !connections || !userIdsAndActiveStatus)
     return;
 
   const userIdToAnonymousId = new Map<string, string>();

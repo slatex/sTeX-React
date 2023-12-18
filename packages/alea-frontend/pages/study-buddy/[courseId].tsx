@@ -46,8 +46,8 @@ import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
 import { CourseHeader } from '../course-home/[courseId]';
 
-const DynamicHeader = dynamic(
-  () => import('../../components/ForceGraphExample'),
+const StudyBuddyConnectionsGraph = dynamic(
+  () => import('../../components/StudyBuddyConnectionsGraph'),
   {
     ssr: false,
   }
@@ -123,7 +123,7 @@ function StatsForModerator() {
             {t.unacceptedRequest + ' : ' + unacceptedRequest}
           </Typography>
           <hr />
-          <DynamicHeader
+          <StudyBuddyConnectionsGraph
             connections={connections}
             userIdsAndActiveStatus={userIdsAndActiveStatus}
           />
