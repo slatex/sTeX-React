@@ -49,20 +49,26 @@ export default async function handler(
   );
 
   const userIdsAndActiveStatus: any[] = await executeAndEndSet500OnError(
-    `SELECT userId as id, active FROM StudyBuddyUsers WHERE courseId=?`,
+    `SELECT userId , active as activeStatus FROM StudyBuddyUsers WHERE courseId=?`,
     [courseId],
     res
   );
 
-  if (!result1 || !result2 || !result3 || !connections || !userIdsAndActiveStatus)
+  if (
+    !result1 ||
+    !result2 ||
+    !result3 ||
+    !connections ||
+    !userIdsAndActiveStatus
+  )
     return;
 
   const userIdToAnonymousId = new Map<string, string>();
   userIdsAndActiveStatus
     .sort(() => 0.5 - Math.random())
     .forEach((item, index) => {
-      userIdToAnonymousId.set(item.id, index.toString());
-      item.id = index.toString();
+      userIdToAnonymousId.set(item.userId, index.toString());
+      item.userId = index.toString();
     });
 
   const anonymousConnections = connections.map((item) => ({

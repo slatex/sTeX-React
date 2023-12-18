@@ -66,5 +66,5 @@ export interface UserStats {
   numberOfConnections: number;
   unacceptedRequests: number;
   connections: { senderId: string; receiverId: string }[];
-  userIdsAndActiveStatus: { userIds: string; activeStatus: boolean }[];
+  userIdsAndActiveStatus: { userId: string; activeStatus: boolean }[];
 }
