@@ -21,7 +21,7 @@ const StudyBuddyConnectionsGraph = ({
   userIdsAndActiveStatus: { userId: string; activeStatus: boolean }[];
 }) => {
   const processedConnections = new Set();
-  const transformConnections = (senderId, receiverId) => {
+  const transformConnections = (senderId: string, receiverId: string) => {
     const hasReverseConnection = connections.some(
       (conn) =>
         conn.senderId === receiverId &&
