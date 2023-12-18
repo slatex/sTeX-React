@@ -16,6 +16,9 @@ interface Link {
 const StudyBuddyConnectionsGraph = ({
   connections,
   userIdsAndActiveStatus,
+}: {
+  connections: { senderId: string; receiverId: string }[];
+  userIdsAndActiveStatus: { userId: string; activeStatus: boolean }[];
 }) => {
   const processedConnections = new Set();
   const transformConnections = (senderId, receiverId) => {
@@ -60,8 +63,8 @@ const StudyBuddyConnectionsGraph = ({
   );
 
   const transformedNodes = userIdsAndActiveStatus.map((item) => ({
-    id: item.id,
-    color: item.active ? 'green' : 'gray',
+    id: item.userId,
+    color: item.activeStatus ? 'green' : 'gray',
   }));
 
   const nodes: Node[] = transformedNodes;
