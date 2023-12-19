@@ -1,8 +1,3 @@
-import { NextPage } from 'next';
-import MainLayout from '../../layouts/MainLayout';
-import { UserAnonData, getAuthHeaders } from '@stex-react/api';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
 import {
   Box,
   Checkbox,
@@ -10,9 +5,13 @@ import {
   FormControlLabel,
   Typography,
 } from '@mui/material';
-import Chart from 'react-google-charts';
+import { UserAnonData, getAuthHeaders } from '@stex-react/api';
 import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
-import { SOME_DATA } from './data';
+import axios from 'axios';
+import { NextPage } from 'next';
+import { useEffect, useState } from 'react';
+import Chart from 'react-google-charts';
+import MainLayout from '../../layouts/MainLayout';
 
 const DiligenceAndPerformance: NextPage = () => {
   const [userAnonData, setUserAnonData] = useState<UserAnonData | null>(null);
