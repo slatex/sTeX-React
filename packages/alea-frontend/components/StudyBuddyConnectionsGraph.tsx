@@ -1,5 +1,5 @@
 import { Box } from '@mui/material';
-import React from 'react';
+import React, { useEffect } from 'react';
 import ForceGraph2D from 'react-force-graph-2d';
 
 interface Node {
@@ -20,6 +20,7 @@ const StudyBuddyConnectionsGraph = ({
   connections: { senderId: string; receiverId: string }[];
   userIdsAndActiveStatus: { userId: string; activeStatus: boolean }[];
 }) => {
+  const [displayWidth, setDisplayWidth] = React.useState(500);
   const processedConnections = new Set();
   const transformConnections = (senderId: string, receiverId: string) => {
     const hasReverseConnection = connections.some(
@@ -58,6 +59,14 @@ const StudyBuddyConnectionsGraph = ({
     }
   };
 
+  const containerRef = React.useRef<HTMLElement>(null);
+  useEffect(() => {
+    setDisplayWidth(containerRef.current?.clientWidth);
+    window.addEventListener('resize', () => {
+      setDisplayWidth(containerRef.current?.clientWidth);
+    });
+  }, []);
+
   const transformedConnections = connections.flatMap(
     ({ senderId, receiverId }) => transformConnections(senderId, receiverId)
   );
@@ -72,8 +81,10 @@ const StudyBuddyConnectionsGraph = ({
   const graphData = { nodes, links };
 
   return (
-    <Box sx={{ border: '1px solid black' }}>
+    <Box sx={{ border: '1px solid black' }} ref={containerRef}>
       <ForceGraph2D
+        width={displayWidth}
+        height={(displayWidth * 3) / 4}
         graphData={graphData}
         linkDirectionalArrowLength={3.5}
         linkCurvature={0.25}
