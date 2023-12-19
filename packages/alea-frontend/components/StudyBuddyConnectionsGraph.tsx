@@ -13,33 +13,23 @@ interface Link {
   color: string;
 }
 
-const transformConnections = (
+const transformConnection = (
   senderId: string,
   receiverId: string,
-  connections: { senderId: string; receiverId: string }[],
-  processedConnections: Set<string>
-): Link[] => {
-  const hasReverseConnection = connections.some(
+  connectionIdx: number,
+  connections: { senderId: string; receiverId: string }[]
+): Link => {
+  const reverseConnectionIdx = connections.findIndex(
     (conn) => conn.senderId === receiverId && conn.receiverId === senderId
   );
-
-  const isConnectionProcessed = processedConnections.has(
-    `${senderId}-${receiverId}`
-  );
-
-  if (isConnectionProcessed) return [];
-  processedConnections.add(`${senderId}-${receiverId}`);
-  const color = hasReverseConnection ? 'green' : 'gray';
-  if (hasReverseConnection) {
-    processedConnections.add(`${receiverId}-${senderId}`);
+  const hasReverseConnection = reverseConnectionIdx !== -1;
+  if (hasReverseConnection && reverseConnectionIdx < connectionIdx) {
+    // We already processed the reverse connection.
+    return undefined;
   }
-  return [
-    {
-      source: senderId,
-      target: receiverId,
-      color,
-    },
-  ];
+
+  const color = hasReverseConnection ? 'green' : 'gray';
+  return { source: senderId, target: receiverId, color };
 };
 
 const StudyBuddyConnectionsGraph = ({
@@ -50,7 +40,6 @@ const StudyBuddyConnectionsGraph = ({
   userIdsAndActiveStatus: { userId: string; activeStatus: boolean }[];
 }) => {
   const [displayWidth, setDisplayWidth] = useState(500);
-  const processedConnections = new Set<string>();
 
   const containerRef = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -60,23 +49,17 @@ const StudyBuddyConnectionsGraph = ({
     });
   }, []);
 
-  const transformedConnections = connections.flatMap(
-    ({ senderId, receiverId }) =>
-      transformConnections(
-        senderId,
-        receiverId,
-        connections,
-        processedConnections
-      )
-  );
+  const links = connections
+    .map(({ senderId, receiverId }, idx) =>
+      transformConnection(senderId, receiverId, idx, connections)
+    )
+    .filter((conn) => conn !== undefined);
 
-  const transformedNodes = userIdsAndActiveStatus.map((item) => ({
+  const nodes: Node[] = userIdsAndActiveStatus.map((item) => ({
     id: item.userId,
     color: item.activeStatus ? 'green' : 'gray',
   }));
 
-  const nodes: Node[] = transformedNodes;
-  const links: Link[] = transformedConnections;
   const graphData = { nodes, links };
 
   return (
