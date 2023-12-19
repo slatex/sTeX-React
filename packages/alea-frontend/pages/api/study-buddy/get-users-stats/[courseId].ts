@@ -43,7 +43,7 @@ export default async function handler(
   );
 
   const connections: any[] = await executeAndEndSet500OnError(
-    `SELECT senderId , receiverId FROM StudyBuddyConnections WHERE courseId=?`,
+    `SELECT senderId , receiverId FROM StudyBuddyConnections WHERE courseId=? ORDER BY timeOfIssue ASC`,
     [courseId],
     res
   );
