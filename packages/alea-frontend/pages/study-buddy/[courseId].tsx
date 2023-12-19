@@ -210,6 +210,7 @@ const StudyBuddyPage: NextPage = () => {
         display="flex"
         flexDirection="column"
       >
+        {isModerator(userInfo?.userId) ? <StatsForModerator /> : null}
         {notSignedUp || isEditing ? (
           !isLoading ? (
             <Card sx={{ mt: '20px' }}>
@@ -267,7 +268,6 @@ const StudyBuddyPage: NextPage = () => {
           )
         ) : (
           <>
-            {isModerator(userInfo?.userId) ? <StatsForModerator /> : null}
             <Typography variant="h4">{t.myProfile}</Typography>
             <Card sx={{ mt: '20px' }}>
               <CardContent>

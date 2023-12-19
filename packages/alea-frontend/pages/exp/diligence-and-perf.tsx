@@ -8,9 +8,11 @@ import {
   Checkbox,
   CircularProgress,
   FormControlLabel,
+  Typography,
 } from '@mui/material';
 import Chart from 'react-google-charts';
 import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
+import { SOME_DATA } from './data';
 
 const DiligenceAndPerformance: NextPage = () => {
   const [userAnonData, setUserAnonData] = useState<UserAnonData | null>(null);
@@ -28,40 +30,81 @@ const DiligenceAndPerformance: NextPage = () => {
   if (!userAnonData) return <CircularProgress />;
   return (
     <MainLayout title="Experiments | VoLL-KI">
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={skipZeroTimes}
-            onChange={(e) => setSkipZeroTimes(e.target.checked)}
-          />
-        }
-        label="Skip Zero Times"
-      />
-      {userAnonData.quizzes
-        .sort((a, b) => a.quizStartTs - b.quizStartTs)
-        .map((quiz) => (
-          <Box key={quiz.id}>
-            Quiz: {mmtHTMLToReact(quiz.title)}
-            <Chart
-              chartType="ScatterChart"
-              width="100%"
-              height="400px"
-              data={[
-                ['Visit Time (hr)', 'Score'],
-                ...Object.values(userAnonData.userData)
-                  .map((userInfo) => {
-                    const quizData = userInfo.quizInfo?.[quiz.id];
-                    if (quizData?.quizScore === undefined) return undefined;
-                    if (!quizData.visitTime_sec && skipZeroTimes)
-                      return undefined;
-                    const visitTime_hr = quizData.visitTime_sec / 3600;
-                    return [visitTime_hr, quizData.quizScore ?? 0];
-                  })
-                  .filter((x) => !!x),
-              ]}
+      <Box maxWidth="700px" px="10px" m="0 auto">
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={skipZeroTimes}
+              onChange={(e) => setSkipZeroTimes(e.target.checked)}
             />
-          </Box>
-        ))}
+          }
+          label="Skip Zero Times"
+        />
+        {userAnonData.quizzes
+          .sort((a, b) => a.quizStartTs - b.quizStartTs)
+          .map((quiz) => (
+            <Box key={quiz.id}>
+              <Typography variant="h6">
+                {mmtHTMLToReact(quiz.title)} ({quiz.id})
+              </Typography>
+              <Chart
+                chartType="ScatterChart"
+                width="100%"
+                height="400px"
+                options={{
+                  tooltip: {},
+                  hAxis: { title: 'Visit Time (hr)' },
+                  vAxis: { title: 'Score' },
+                  legend: 'none',
+                }}
+                data={[
+                  ['Visit Time (hr)', 'Time, Score'],
+                  ...Object.values(userAnonData.userData)
+                    .map((userInfo) => {
+                      const quizData = userInfo.quizInfo?.[quiz.id];
+                      if (quizData?.quizScore === undefined) return undefined;
+                      const visitTime_hr = (quizData.visitTime_sec ?? 0) / 3600;
+                      if (!visitTime_hr && skipZeroTimes) return undefined;
+                      return [visitTime_hr, quizData.quizScore];
+                    })
+                    .filter((x) => !!x),
+                ]}
+              />
+            </Box>
+          ))}
+
+        <Typography variant="h6">Combined</Typography>
+        <Chart
+          chartType="ScatterChart"
+          width="100%"
+          height="400px"
+          options={{
+            tooltip: {},
+            hAxis: { title: 'Visit Time (hr)' },
+            vAxis: { title: 'Score' },
+            legend: 'none',
+          }}
+          data={[
+            ['Visit Time (hr)', 'Time, Score'],
+            ...Object.values(userAnonData.userData)
+              .map((userInfo) => {
+                if (!userInfo.quizInfo) return undefined;
+                const score = Object.values(userInfo.quizInfo).reduce(
+                  (a, q) => a + (q.quizScore ?? 0),
+                  0
+                );
+                if (!score) return undefined;
+                const visitTime_hr =
+                  Object.values(userInfo.quizInfo).reduce(
+                    (a, q) => a + (q.visitTime_sec ?? 0),
+                    0
+                  ) / 3600;
+                return [visitTime_hr, score];
+              })
+              .filter((x) => !!x),
+          ]}
+        />
+      </Box>
     </MainLayout>
   );
 };
