@@ -76,22 +76,9 @@ const ExperimentsHome: NextPage = () => {
             </Box>
             <Box>
               <h2>Debug</h2>
-              <Button
-                variant="contained"
-                onClick={() => {
-                  if (localStore?.getItem('study-buddy')) {
-                    localStore.removeItem('study-buddy');
-                    alert('Study Buddy disabled');
-                  } else {
-                    localStore.setItem('study-buddy', 'true');
-                    alert('Study Buddy enabled');
-                  }
-                  window.location.reload();
-                }}
-              >
-                {localStore?.getItem('study-buddy') ? 'Disable ' : 'Enable '}{' '}
-                Study Buddy
-              </Button>
+              <InternalButtonLink href="/exp/gpt-questions">
+                GPT Questions page
+              </InternalButtonLink>
               <InternalButtonLink href="/debug-section">
                 Debug Document Sections
               </InternalButtonLink>

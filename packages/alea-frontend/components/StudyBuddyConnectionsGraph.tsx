@@ -1,6 +1,5 @@
 import { Box } from '@mui/material';
-import { connect } from 'http2';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ForceGraph2D from 'react-force-graph-2d';
 
 interface Node {

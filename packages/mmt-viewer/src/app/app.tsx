@@ -42,7 +42,9 @@ export function App() {
   );
 
   return (
-    <ServerLinksContext.Provider value={{ mmtUrl: baseUrl, lmsUrl: '' }}>
+    <ServerLinksContext.Provider
+      value={{ mmtUrl: baseUrl, lmsUrl: '', gptUrl: '' }}
+    >
       <MathJaxContext>{content}</MathJaxContext>
     </ServerLinksContext.Provider>
   );
