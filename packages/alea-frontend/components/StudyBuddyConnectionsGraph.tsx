@@ -1,4 +1,5 @@
 import { Box } from '@mui/material';
+import { connect } from 'http2';
 import { useEffect, useState, useRef } from 'react';
 import ForceGraph2D from 'react-force-graph-2d';
 
@@ -13,6 +14,8 @@ interface Link {
   color: string;
 }
 
+const FULL_CONNECTION_COL = '#00ff00';
+
 function isConnectedNode(
   connections: { senderId: string; receiverId: string }[],
   nodeId: string
@@ -26,6 +29,16 @@ function isConnectedNode(
 
     return connection.senderId === nodeId && hasReverseConnection;
   });
+}
+
+function isNodeActiveOrHasSomeConnection(
+  { userId, activeStatus },
+  connections: { senderId: string; receiverId: string }[]
+): boolean {
+  return (
+    activeStatus ||
+    connections.some((c) => c.senderId === userId || c.receiverId === userId)
+  );
 }
 
 const transformConnection = (
@@ -43,7 +56,7 @@ const transformConnection = (
     return undefined;
   }
 
-  const color = hasReverseConnection ? 'green' : 'gray';
+  const color = hasReverseConnection ? FULL_CONNECTION_COL : 'gray';
   return { source: senderId, target: receiverId, color };
 };
 
@@ -57,6 +70,8 @@ const StudyBuddyConnectionsGraph = ({
   const [displayWidth, setDisplayWidth] = useState(500);
 
   const containerRef = useRef<HTMLElement>(null);
+  const fgRef = useRef(null);
+
   useEffect(() => {
     setDisplayWidth(containerRef.current?.clientWidth);
     window.addEventListener('resize', () => {
@@ -70,26 +85,32 @@ const StudyBuddyConnectionsGraph = ({
     )
     .filter((conn) => conn !== undefined);
 
-  const nodes: Node[] = userIdsAndActiveStatus.map((item) => {
-    return {
-      id: item.userId,
-      color: isConnectedNode(connections, item.userId)
-        ? 'green'
-        : item.activeStatus
-        ? 'red'
-        : 'gray',
-    };
-  });
+  const nodes: Node[] = userIdsAndActiveStatus
+    .filter((n) => isNodeActiveOrHasSomeConnection(n, connections))
+    .map((item) => {
+      return {
+        id: item.userId,
+        color: isConnectedNode(connections, item.userId)
+          ? 'green'
+          : item.activeStatus
+          ? 'red'
+          : 'gray',
+      };
+    });
   const graphData = { nodes, links };
 
   return (
     <Box sx={{ border: '1px solid black' }} ref={containerRef}>
       <ForceGraph2D
+        ref={fgRef}
         width={displayWidth}
         height={(displayWidth * 3) / 4}
         graphData={graphData}
-        linkDirectionalArrowLength={10}
-        linkWidth={(v) => (v.color === 'green' ? 3 : 1)}
+        linkDirectionalArrowLength={4}
+        linkDirectionalArrowRelPos={1}
+        linkWidth={(v) => (v.color === FULL_CONNECTION_COL ? 2 : 1)}
+        cooldownTicks={100}
+        onEngineStop={() => fgRef.current.zoomToFit(400)}
       />
     </Box>
   );
