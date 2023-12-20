@@ -13,6 +13,21 @@ interface Link {
   color: string;
 }
 
+function isConnectedNode(
+  connections: { senderId: string; receiverId: string }[],
+  nodeId: string
+): boolean {
+  return connections.some((connection) => {
+    const hasReverseConnection = connections.some(
+      (innerconn) =>
+        innerconn.senderId === connection.receiverId &&
+        innerconn.receiverId === connection.senderId
+    );
+
+    return connection.senderId === nodeId && hasReverseConnection;
+  });
+}
+
 const transformConnection = (
   senderId: string,
   receiverId: string,
@@ -55,11 +70,16 @@ const StudyBuddyConnectionsGraph = ({
     )
     .filter((conn) => conn !== undefined);
 
-  const nodes: Node[] = userIdsAndActiveStatus.map((item) => ({
-    id: item.userId,
-    color: item.activeStatus ? 'green' : 'gray',
-  }));
-
+  const nodes: Node[] = userIdsAndActiveStatus.map((item) => {
+    return {
+      id: item.userId,
+      color: isConnectedNode(connections, item.userId)
+        ? 'green'
+        : item.activeStatus
+        ? 'red'
+        : 'gray',
+    };
+  });
   const graphData = { nodes, links };
 
   return (
