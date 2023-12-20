@@ -68,8 +68,8 @@ const StudyBuddyConnectionsGraph = ({
         width={displayWidth}
         height={(displayWidth * 3) / 4}
         graphData={graphData}
-        linkDirectionalArrowLength={3.5}
-        linkDirectionalArrowRelPos={1}
+        linkDirectionalArrowLength={10}
+        linkWidth={(v) => (v.color === 'green' ? 3 : 1)}
       />
     </Box>
   );

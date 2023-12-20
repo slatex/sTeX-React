@@ -19,7 +19,6 @@ export function useScrollDirection() {
       }
       lastScrollY = scrollY > 0 ? scrollY : 0;
     };
-    console.log('add list');
     window.addEventListener('scroll', updateScrollDirection); // add event listener
     return () => {
       window.removeEventListener('scroll', updateScrollDirection); // clean up
