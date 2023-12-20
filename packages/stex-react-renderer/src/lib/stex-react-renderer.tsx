@@ -48,7 +48,11 @@ import {
   mmtHTMLToReact,
 } from './mmtParser';
 
-export const ServerLinksContext = createContext({ mmtUrl: '', lmsUrl: '' });
+export const ServerLinksContext = createContext({
+  mmtUrl: '',
+  lmsUrl: '',
+  gptUrl: '',
+});
 
 export function StexReactRenderer({
   contentUrl,
