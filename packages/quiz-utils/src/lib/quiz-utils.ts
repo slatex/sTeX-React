@@ -22,6 +22,10 @@ const NODE_ATTRS_TO_TYPE: { [attrName: string]: InputType } = {
 };
 
 export const PROBLEM_PARSED_MARKER = 'problem-parsed';
+type MCQ_GRADING_SCHEME =
+  | 'ALL_OR_NOTHING'
+  | 'PARTIAL_CREDIT'
+  | 'PARTIAL_CREDIT_WITH_NEGATIVE_MARKING';
 
 function doesMatch(answerClass: FillInAnswerClass, trimmedActual?: string) {
   if (!trimmedActual) return false;
@@ -87,62 +91,89 @@ export function isFillInInputCorrect(
   return Tristate.FALSE;
 }
 
-function isSCQCorrect(options?: Option[], singleOptionIdx?: string) {
+function fillInCorrectnessQuotient(
+  answerClasses?: FillInAnswerClass[],
+  actual?: string
+) {
+  switch (isFillInInputCorrect(answerClasses, actual)) {
+    case Tristate.TRUE:
+      return 1;
+    case Tristate.FALSE:
+      return 0;
+    case Tristate.UNKNOWN:
+    default:
+      return NaN;
+  }
+}
+
+function scqCorrectnessQuotient(options?: Option[], singleOptionIdx?: string) {
   const correctOptions = (options || []).filter(
     (o) => o.shouldSelect === QuadState.TRUE
   );
-  if (!correctOptions.length) return Tristate.UNKNOWN;
-  return correctOptions.some((o) => o.optionId === singleOptionIdx)
-    ? Tristate.TRUE
-    : Tristate.FALSE;
+  if (!correctOptions.length) return NaN;
+  return correctOptions.some((o) => o.optionId === singleOptionIdx) ? 1 : 0;
 }
 
-function isMCQCorrect(
+function mcqCorrectnessQuotient(
   options?: Option[],
   multiOptionIdx?: { [index: number]: boolean }
 ) {
-  if (!options?.length) return Tristate.UNKNOWN;
-  if (!multiOptionIdx) return Tristate.FALSE;
+  if (!options?.length) return NaN;
+  if (!multiOptionIdx) return 0;
   const anyUnknown = options.some(
     (option) => option.shouldSelect === QuadState.UNKNOWN
   );
-  if (anyUnknown) return Tristate.UNKNOWN;
+  if (anyUnknown) return NaN;
+  let numCorrect = 0;
   for (const [idx, option] of options.entries() ?? []) {
-    if (option.shouldSelect === QuadState.ANY) continue;
+    if (option.shouldSelect === QuadState.ANY) {
+      numCorrect++;
+      continue;
+    }
     const isSelected = multiOptionIdx?.[idx] ?? false;
     const shouldSelect = option.shouldSelect === QuadState.TRUE;
-    if (isSelected !== shouldSelect) return Tristate.FALSE;
+    if (isSelected === shouldSelect) numCorrect++;
   }
-  return Tristate.TRUE;
+  switch (process.env['NEXT_PUBLIC_MCQ_GRADING_SCHEME'] as MCQ_GRADING_SCHEME) {
+    case 'ALL_OR_NOTHING':
+      return numCorrect === options.length ? 1 : 0;
+    case 'PARTIAL_CREDIT':
+      return numCorrect / options.length;
+    case 'PARTIAL_CREDIT_WITH_NEGATIVE_MARKING':
+    default:
+      return Math.max((2 * numCorrect - options.length) / options.length, 0);
+  }
 }
 
 export function getPoints(problem: Problem, response?: ProblemResponse) {
   if (!response) return 0;
-  const perInputCorrectness: Tristate[] = problem.inputs.map((input, idx) => {
-    const resp = response?.responses?.[idx];
-    const { type, fillInAnswerClasses, options } = input;
-    if (type !== input.type) {
-      console.error(
-        `Input [${idx}] (${type}) has unexpected response: ${resp.type}`
-      );
-      return Tristate.UNKNOWN;
+  const perInputCorrectnessQuotient: number[] = problem.inputs.map(
+    (input, idx) => {
+      const resp = response?.responses?.[idx];
+      const { type, fillInAnswerClasses, options } = input;
+      if (type !== input.type) {
+        console.error(
+          `Input [${idx}] (${type}) has unexpected response: ${resp.type}`
+        );
+        return NaN;
+      }
+      if (input.type === InputType.FILL_IN) {
+        return fillInCorrectnessQuotient(
+          fillInAnswerClasses,
+          resp.filledInAnswer
+        );
+      } else if (input.type === InputType.MCQ) {
+        return mcqCorrectnessQuotient(options, resp.multipleOptionIdxs);
+      } else if (input.type === InputType.SCQ) {
+        return scqCorrectnessQuotient(options, resp.singleOptionIdx);
+      } else {
+        console.error(`Unknown input type: ${input.type}`);
+        return NaN;
+      }
     }
-    if (input.type === InputType.FILL_IN) {
-      return isFillInInputCorrect(fillInAnswerClasses, resp.filledInAnswer);
-    } else if (input.type === InputType.MCQ) {
-      return isMCQCorrect(options, resp.multipleOptionIdxs);
-    } else if (input.type === InputType.SCQ) {
-      return isSCQCorrect(options, resp.singleOptionIdx);
-    } else {
-      console.error(`Unknown input type: ${input.type}`);
-      return Tristate.UNKNOWN;
-    }
-  });
-  if (perInputCorrectness.some((s) => s === Tristate.UNKNOWN)) return undefined;
-  const totalCorrect = perInputCorrectness.reduce(
-    (s, a) => s + (a === Tristate.TRUE ? 1 : 0),
-    0
   );
+  if (perInputCorrectnessQuotient.some((s) => isNaN(s))) return undefined;
+  const totalCorrect = perInputCorrectnessQuotient.reduce((s, a) => s + a, 0);
 
   return (problem.points * totalCorrect) / problem.inputs.length;
 }
