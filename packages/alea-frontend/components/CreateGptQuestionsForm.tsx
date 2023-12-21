@@ -50,7 +50,6 @@ export function CreateGptQuestionsForm({
     templateToFormData(template)
   );
   const [templateName, setTemplateName] = useState<string>('');
-  const { gptUrl } = useContext(ServerLinksContext);
 
   useEffect(() => {
     setFormData(templateToFormData(template));
@@ -169,10 +168,7 @@ export function CreateGptQuestionsForm({
         />
         <Button
           onClick={async () => {
-            await saveTemplate(
-              gptUrl,
-              formDataToTemplate(templateName, formData)
-            );
+            await saveTemplate(formDataToTemplate(templateName, formData));
             alert('template saved');
           }}
           variant="contained"
