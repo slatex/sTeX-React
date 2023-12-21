@@ -3,6 +3,17 @@ import { BarChart, TimedLineChart } from '../pages/quiz/results';
 import Chart from 'react-google-charts';
 import { convertHtmlStringToPlain } from '@stex-react/utils';
 
+function bucketToFirstNum(bucket: string) {
+  if (!bucket.includes(',')) {
+    const n = parseFloat(bucket);
+    if (n === 0) return -1e-6;
+    return n + 1e-6;
+  }
+
+  const lowerBound = bucket.split(',')[0].replace('[', '').trim();
+  return parseFloat(lowerBound);
+}
+
 export function QuizStatsDisplay({
   stats,
   maxProblems,
@@ -49,11 +60,10 @@ export function QuizStatsDisplay({
       <h2>Scores</h2>
       <BarChart
         data={Object.keys(stats.scoreHistogram)
-          .map((s) => +s)
-          .sort((a, b) => a - b)
-          .map((score) => ({
-            key: (Math.round(score * 100) / 100).toString(),
-            value: +stats.scoreHistogram[score] ?? 0,
+          .sort((a, b) => bucketToFirstNum(a) - bucketToFirstNum(b))
+          .map((bucket) => ({
+            key: bucket,
+            value: +stats.scoreHistogram[bucket] ?? 0,
           }))}
         column1="Score"
         column2="Number of students"

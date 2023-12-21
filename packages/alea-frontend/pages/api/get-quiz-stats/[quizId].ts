@@ -22,6 +22,12 @@ function missingProblemData() {
   };
 }
 
+function numberBucket(n: number) {
+  const lowerBound = Math.floor(n * 2) / 2;
+  const upperBound = lowerBound + 0.5;
+  return `[${lowerBound}, ${upperBound})`;
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -32,6 +38,24 @@ export default async function handler(
     res.status(403).send({ message: 'Unauthorized.' });
     return;
   }
+
+  const quiz = getQuiz(quizId);
+  const perProblemStats: { [problemKey: string]: PerProblemStats } = {};
+  for (const [problemId, problemStr] of Object.entries(quiz.problems)) {
+    const { points, header } = getProblem(problemStr, '');
+    perProblemStats[problemId] = {
+      header,
+      maxPoints: points,
+      correct: 0,
+      partial: 0,
+      incorrect: 0,
+    };
+  }
+  const totalPoints = Object.values(perProblemStats).reduce(
+    (acc, stat) => acc + stat.maxPoints,
+    0
+  );
+
   const results1: any[] = await queryGradingDbDontEndSet500OnError(
     `SELECT numProblems, COUNT(*) AS numStudents
     FROM (
@@ -73,7 +97,12 @@ export default async function handler(
   if (!results2) return;
   const scoreHistogram = {};
   for (const r2 of results2) {
-    scoreHistogram[r2.score] = r2.numStudents;
+    const { score } = r2;
+    let key = '';
+    if (score === 0) key = '0';
+    else if (score === totalPoints) key = `${score}`;
+    else key = numberBucket(score);
+    scoreHistogram[key] = r2.numStudents;
   }
   const results3: any[] = await queryGradingDbDontEndSet500OnError(
     `SELECT ROUND(UNIX_TIMESTAMP(postedTimestamp)/10)*10 AS ts, COUNT(*)/10 AS requestsPerSec 
@@ -103,19 +132,6 @@ export default async function handler(
   );
   if (!results4) return;
 
-  const quiz = getQuiz(quizId);
-  const perProblemStats: { [problemKey: string]: PerProblemStats } = {};
-  for (const [problemId, problemStr] of Object.entries(quiz.problems)) {
-    const { points, header } = getProblem(problemStr, '');
-    perProblemStats[problemId] = {
-      header,
-      maxPoints: points,
-      correct: 0,
-      partial: 0,
-      incorrect: 0,
-    };
-  }
-
   for (const r4 of results4) {
     const problemId = r4.problemId;
     if (!(problemId in perProblemStats)) {
@@ -129,7 +145,6 @@ export default async function handler(
       perProblemStats[problemId].correct += r4.numStudents;
     }
   }
-
 
   return res.status(200).json({
     attemptedHistogram,

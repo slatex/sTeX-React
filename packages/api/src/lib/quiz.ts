@@ -123,7 +123,7 @@ export interface PerProblemStats {
 
 export interface QuizStatsResponse {
   attemptedHistogram: { [attempted: number]: number };
-  scoreHistogram: { [score: number]: number };
+  scoreHistogram: { [scoreBucket: string]: number };
   requestsPerSec: { [ts: number]: number };
   perProblemStats: { [problemId: number]: PerProblemStats };
 }
