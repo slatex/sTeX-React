@@ -72,7 +72,7 @@ export default async function handler(
     FROM grading
     WHERE (quizId, problemId, userId, browserTimestamp_ms) IN (
       SELECT quizId, problemId, userId, MAX(browserTimestamp_ms) AS browserTimestamp_ms
-      FROM grading.grading
+      FROM grading
       GROUP BY quizId, problemId, userId
     )
     GROUP BY userId, quizId`,
