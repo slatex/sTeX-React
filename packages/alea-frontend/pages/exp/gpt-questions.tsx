@@ -1,5 +1,5 @@
-import { NextPage } from 'next';
-import MainLayout from '../../layouts/MainLayout';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import FileCopyIcon from '@mui/icons-material/FileCopy';
 import {
   Accordion,
   AccordionDetails,
@@ -10,19 +10,18 @@ import {
   Tooltip,
 } from '@mui/material';
 import {
-  Template,
-  getTemplates,
-  createGptQuestions,
   CreateGptQuestionsResponse,
+  Template,
+  createGptQuestions,
+  getTemplates,
   getUserInfo,
   isModerator,
 } from '@stex-react/api';
-import { useContext, useEffect, useState } from 'react';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { CreateGptQuestionsForm } from '../../components/CreateGptQuestionsForm';
-import FileCopyIcon from '@mui/icons-material/FileCopy';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { NextPage } from 'next';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import { CreateGptQuestionsForm } from '../../components/CreateGptQuestionsForm';
+import MainLayout from '../../layouts/MainLayout';
 
 const copyToClipboard = (text: string) => {
   navigator.clipboard
@@ -100,10 +99,15 @@ function OutputViewer({ response }: { response?: CreateGptQuestionsResponse }) {
   );
 }
 
+const ADDL_AUTHORIZED_USERS = [
+  'yz74isit', // Ali
+  'be92xusu', // Shams
+  'un03ivoq', // Abhinav
+];
+
 const GptQuestions: NextPage = () => {
   const router = useRouter();
   const [templates, setTemplates] = useState<Template[]>([]);
-  const { gptUrl } = useContext(ServerLinksContext);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const selectedTemplate = templates[selectedIndex];
   const [isFetchingOutput, setIsFetchingOutput] = useState(false);
@@ -112,7 +116,7 @@ const GptQuestions: NextPage = () => {
 
   useEffect(() => {
     getUserInfo().then(({ userId }) => {
-      if (!isModerator(userId)) {
+      if (!isModerator(userId) && !ADDL_AUTHORIZED_USERS.includes(userId)) {
         alert('You dont have permission to access this page!');
         router.push('/');
       }
@@ -120,8 +124,8 @@ const GptQuestions: NextPage = () => {
   }, []);
 
   useEffect(() => {
-    getTemplates(gptUrl).then(setTemplates);
-  }, [gptUrl]);
+    getTemplates().then(setTemplates);
+  }, []);
 
   return (
     <MainLayout title="GPT Questions | VoLL-KI">
@@ -151,7 +155,7 @@ const GptQuestions: NextPage = () => {
                 return;
               }
               setIsFetchingOutput(true);
-              setGptResponse(await createGptQuestions(gptUrl, f));
+              setGptResponse(await createGptQuestions(f));
               setIsFetchingOutput(false);
             }}
           />

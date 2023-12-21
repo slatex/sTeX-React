@@ -56,6 +56,11 @@ const QUIZ_DATA = [
     quizId: 'quiz-22fa2c95',
     prepStartTime: '2023-12-05 15:25:00',
     prepEndTime: '2023-12-12 15:15:00',
+  },
+  {
+    quizId: 'quiz-195da34a',
+    prepStartTime: '2023-12-12 15:25:00',
+    prepEndTime: '2023-12-19 15:15:00',
   }
 ];
 export default async function handler(

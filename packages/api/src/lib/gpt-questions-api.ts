@@ -7,24 +7,23 @@ import {
 import { getAuthHeaders } from './lms';
 
 export async function createGptQuestions(
-  gptUrl: string,
   request: CreateGptQuestionsRequest
 ) {
-  const resp = await axios.post(`${gptUrl}/api/create-questions`, request, {
+  const resp = await axios.post(`/api/gpt-redirect?apiname=create-questions`, request, {
     headers: getAuthHeaders(),
   });
   return resp.data as CreateGptQuestionsResponse;
 }
 
-export async function getTemplates(gptUrl: string) {
-  const resp = await axios.get(`${gptUrl}/api/get-templates`, {
+export async function getTemplates() {
+  const resp = await axios.get(`/api/gpt-redirect?apiname=get-templates`, {
     headers: getAuthHeaders(),
   });
   return resp.data as Template[];
 }
 
-export async function saveTemplate(gptUrl: string, template: Template) {
-  const resp = await axios.post(`${gptUrl}/api/save-template`, template, {
+export async function saveTemplate(template: Template) {
+  const resp = await axios.post(`/api/gpt-redirect?apiname=save-template`, template, {
     headers: getAuthHeaders(),
   });
   return resp.data as Template;
