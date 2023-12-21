@@ -23,7 +23,7 @@ $ nx serve alea-frontend --prod --port=<PORT_NUMBER> --hostname=0.0.0.0
 
 ## mmt-viewer
 
-mmt-viewer is a single react webpage built using the `stex-react-renderer` library. The production build of this application (html and js) are copied into MMT (with minor modifications) to serve active docs directly from MMT. This is a stand alone app that can be used for viewing active sTeX docs by replacing `CONTENT_URL_PLACEHOLDER` and `BASE_URL_PLACEHOLDER` with appropriate paths in [`index.html`](apps/mmt-viewer/src/index.html).
+mmt-viewer is a single react webpage built using the `stex-react-renderer` library. The production build of this application (html and js) are copied into MMT (with minor modifications) to serve active docs directly from MMT. This is a stand alone app that can be used for viewing active sTeX docs by replacing `CONTENT_URL_PLACEHOLDER` and `BASE_URL_PLACEHOLDER` with appropriate paths in [`index.html`](apps/mmt-viewer/src/index.html). 
 
 #### Development
 
