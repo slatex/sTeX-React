@@ -102,7 +102,8 @@ export default async function handler(
     if (score === 0) key = '0';
     else if (score === totalPoints) key = `${score}`;
     else key = numberBucket(score);
-    scoreHistogram[key] = r2.numStudents;
+    if(!(key in scoreHistogram)) scoreHistogram[key] = 0;
+    scoreHistogram[key] += r2.numStudents;
   }
   const results3: any[] = await queryGradingDbDontEndSet500OnError(
     `SELECT ROUND(UNIX_TIMESTAMP(postedTimestamp)/10)*10 AS ts, COUNT(*)/10 AS requestsPerSec 
