@@ -6,7 +6,8 @@ export const de = {
     guidedTourHeader: 'Themenbezogen, Freestyle-Lernen',
     footerInfo:
       'Aktive Kursmaterialien beinhalten Lernunterstützungsdienste, die auf einem Modell basieren, das bei jeder Interaktion mit den Materialien aktualisiert wird. Solche Modelle der Vorlieben und Kompetenzen eines Nutzenden enthalten hochsensible personenbezogene Daten. Daher werden die Lernunterstützungsdienste (und die entsprechende Sammlung von Nutzendenmodelldaten) nur verwendet, wenn der oder die Nutzende über den Single-Signon-Dienst der FAU angemeldet ist, und werden sicher und unter ausschließlicher Kontrolle des jeweiligen Nutzenden in der Voll-KI Trust Zone gespeichert.',
-
+    studyBuddyTooltip:
+      'Klicken Sie hier, um ganz einfach mit Kommilitonen in Kontakt zu treten, die Ihre Lernziele teilen',
     expIconHover1: 'Sehen Sie, was in unserem Labor braut.',
     expIconHover2: 'Äußerste Vorsicht walten lassen!',
     cardIntro:
@@ -275,8 +276,10 @@ export const de = {
     numberOfConnections: 'Anzahl der Verbindungen',
     unacceptedRequest: 'Unakzeptierte Anfragen',
     allCourses: 'Alle Kurse',
-    studyBuddyLink: 'Lernpartner-Link',
-    goToStudyBuddy: 'Zum Lernpartner gehen',
+    recent: 'Kürzlich',
+    removeFromRecents: 'Aus der aktuellen Liste entfernen',
+    findCourse:
+      'Finden Sie Ihren Kurs, um am Study Buddy-Programm teilzunehmen',
   },
   notification: {
     systemUpdates: 'Systemaktualisierungen',

@@ -38,8 +38,8 @@ const ForumPage: NextPage = () => {
     >
       <CourseHeader
         courseName={courseInfo.courseName}
-        courseImage={courseInfo.imageLink}
-        courseId={courseInfo.courseId}
+        imageLink={courseInfo.imageLink}
+        courseId={courseId}
       />
       <Box maxWidth="800px" m="auto" px="10px">
         {threadId ? (

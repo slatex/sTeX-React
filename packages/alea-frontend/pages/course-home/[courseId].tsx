@@ -48,58 +48,60 @@ const BG_COLORS = {
 };
 
 export function CourseHeader({
-  courseName,
-  courseImage,
   courseId,
+  courseName,
+  imageLink,
 }: {
-  courseName: string;
-  courseImage: string;
   courseId: string;
+  courseName: string;
+  imageLink?: string;
 }) {
   if (!courseName || !courseId) return <></>;
+  if (!imageLink) {
+    return (
+      <Box m="20px" textAlign="center" fontWeight="bold" fontSize="32px">
+        {courseName}
+      </Box>
+    );
+  }
   const allowCrop = ['ai-1', 'ai-2', 'lbs'].includes(courseId);
   return (
     <Box textAlign="center">
-      {courseImage ? (
-        <Link href={`/course-home/${courseId}`}>
-          <Box
-            display="flex"
-            position="relative"
-            width="100%"
-            maxHeight="200px"
-            overflow="hidden"
-            borderBottom="2px solid #DDD"
-            sx={{ backgroundImage: BG_COLORS[courseId] }}
-          >
-            {allowCrop ? (
-              <img
-                src={courseImage}
-                alt={courseName}
-                style={{
-                  objectFit: 'cover',
-                  width: '100%',
-                  aspectRatio: '16/9',
-                }}
-              />
-            ) : (
-              <img
-                src={courseImage}
-                alt={courseName}
-                style={{
-                  objectFit: 'contain',
-                  maxHeight: '200px',
-                  margin: 'auto',
-                }}
-              />
-            )}
-          </Box>
-        </Link>
-      ) : null}
-
-      <Box m="20px 0 32px">
-        <span style={{ fontWeight: 'bold', fontSize: '32px' }}>
-          {courseName}
-        </span>
+      <Link href={`/course-home/${courseId}`}>
+        <Box
+          display="flex"
+          position="relative"
+          width="100%"
+          maxHeight="200px"
+          overflow="hidden"
+          borderBottom="2px solid #DDD"
+          sx={{ backgroundImage: BG_COLORS[courseId] }}
+        >
+          {allowCrop ? (
+            <img
+              src={imageLink}
+              alt={courseName}
+              style={{
+                objectFit: 'cover',
+                width: '100%',
+                aspectRatio: '16/9',
+              }}
+            />
+          ) : (
+            <img
+              src={imageLink}
+              alt={courseName}
+              style={{
+                objectFit: 'contain',
+                maxHeight: '200px',
+                margin: 'auto',
+              }}
+            />
+          )}
+        </Box>
+      </Link>
+      <Box m="20px 0 32px" fontWeight="bold" fontSize="32px">
+        {courseName}
       </Box>
     </Box>
   );
@@ -140,8 +142,8 @@ const CourseHomePage: NextPage = () => {
     >
       <CourseHeader
         courseName={courseInfo.courseName}
-        courseImage={courseInfo.imageLink}
-        courseId={courseInfo.courseId}
+        imageLink={courseInfo.imageLink}
+        courseId={courseId}
       />
 
       <Box

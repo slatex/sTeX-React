@@ -185,8 +185,8 @@ const QuizDashPage: NextPage = () => {
     >
       <CourseHeader
         courseName={courseInfo.courseName}
-        courseImage={courseInfo.imageLink}
-        courseId={courseInfo.courseId}
+        imageLink={courseInfo.imageLink}
+        courseId={courseId}
       />
       <Box maxWidth="900px" m="auto" px="10px">
         <Typography variant="h4" sx={{ m: '30px 0 15px' }}>

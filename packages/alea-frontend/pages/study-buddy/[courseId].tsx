@@ -193,7 +193,6 @@ const StudyBuddyPage: NextPage = () => {
   const courseInfo = courses[courseId];
   const courseName =
     courseInfo?.courseName || masterCourses[courseId]?.courseName;
-  const courseImage = courseInfo?.imageLink;
   if (!courseName) {
     router.replace('/');
     return <>Course Not Found!</>;
@@ -208,7 +207,7 @@ const StudyBuddyPage: NextPage = () => {
     >
       <CourseHeader
         courseName={courseName}
-        courseImage={courseImage}
+        imageLink={courseInfo?.imageLink}
         courseId={courseId}
       />
       <Box

@@ -232,8 +232,19 @@ const StudentHomePage: NextPage = () => {
             </Tooltip>
             <h1>{t.header}</h1>
             <SiteDescription lang={router.locale} />
-            <h2>{`${t.courseSection} (${CURRENT_TERM})`}</h2>
           </Box>
+          <br />
+          <Link href="/study-buddy">
+            <Tooltip
+              title={
+                <Box sx={{ fontSize: 'medium' }}>{t.studyBuddyTooltip}</Box>
+              }
+            >
+              <Button variant="contained">Study Buddy Program</Button>
+            </Tooltip>
+          </Link>
+
+          <h2>{`${t.courseSection} (${CURRENT_TERM})`}</h2>
           <Box display="flex" flexWrap="wrap">
             {Object.values(courses)
               .filter((course) => course.isCurrent)

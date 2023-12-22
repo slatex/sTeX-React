@@ -71,6 +71,16 @@ export function createCourseInfo(
   };
 }
 
+export interface CoverageSnap {
+  timestamp_ms: number;
+  sectionName: string;
+  clipId?: string; // https://fau.tv/clip/id/{clipId}
+}
+
+export interface CoverageTimeline {
+  [courseId: string]: CoverageSnap[];
+}
+
 export const COURSES_INFO: { [courseId: string]: CourseInfo } = {
   'ai-1': createCourseInfo(
     'ai-1',
@@ -209,7 +219,7 @@ export const MaAI_COURSES: {
   'bia-project': { courseName: 'Biomedical Image Analysis Project' },
   'ci-project': { courseName: 'Computational Imaging Project' },
   'cfdla-project': {
-    courseName: 'Computer Architechtures for Deep Learning Applications',
+    courseName: 'Computer Architectures for Deep Learning Applications',
   },
   'fabrication-project': { courseName: 'Fabrication Project' },
   'hrr-project': {
@@ -295,7 +305,7 @@ export const MaAI_COURSES: {
   smcap: { courseName: 'Seminar Multi-Core Architectures and Programming' },
   snm: { courseName: 'Seminar Network Medicine' },
   snqa: { courseName: 'Seminar Nominal Quantities and Automation' },
-  snca: { courseName: 'Seminar Novel Computer Architechtures' },
+  snca: { courseName: 'Seminar Novel Computer Architectures' },
   srhw: { courseName: 'Seminar Surgical Robotics Hardware' },
   srs: { courseName: 'Seminar Surgical Robotics Software' },
   sti: { courseName: 'Seminar Theoretische Informatik' },
@@ -305,13 +315,3 @@ export const MaAI_COURSES: {
   toc: { courseName: 'Topics of Category Theory' },
   to: { courseName: 'Tracking Olympiad' },
 };
-
-export interface CoverageSnap {
-  timestamp_ms: number;
-  sectionName: string;
-  clipId?: string; // https://fau.tv/clip/id/{clipId}
-}
-
-export interface CoverageTimeline {
-  [courseId: string]: CoverageSnap[];
-}

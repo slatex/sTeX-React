@@ -8,6 +8,7 @@ export const en = {
       "Active course materials incorporate learning support services based on a model that is updated with every interaction with the materials. Such models of a user's preferences and competencies contain highly sensitive personal data. Therefore the learning support services (and corresponding user model data collection) are only enabled when the user is logged in via the FAU Single-Signon Service and are kept secure and under exclusive control of the respective user in the Voll-KI Trust Zone.",
     expIconHover1: "See what's brewing in our laboratory.",
     expIconHover2: 'Exercise Extreme Caution!',
+    studyBuddyTooltip: 'Click here to easily connect with fellow students who share your learning goals',
     cardIntro:
       '"Flash Cards" support reviewing and drilling the concepts of the' +
       ' course. Learners are shown cards with concept names that can be' +
@@ -288,8 +289,9 @@ export const en = {
     numberOfConnections: 'Number of Connections',
     unacceptedRequest: 'Unaccepted Requests',
     allCourses: 'All Courses',
-    studyBuddyLink: 'Study Buddy Link',
-    goToStudyBuddy: 'Go To Study Buddy',
+    recent: 'Recent',
+    removeFromRecents: 'Remove from recent list',
+    findCourse: 'Find your course to join its Study Buddy program',
   },
   notification: {
     systemUpdates: 'System Updates',
