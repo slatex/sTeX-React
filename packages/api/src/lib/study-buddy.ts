@@ -68,3 +68,8 @@ export interface UserStats {
   connections: { senderId: string; receiverId: string }[];
   userIdsAndActiveStatus: { userId: string; activeStatus: boolean }[];
 }
+
+export interface EnrolledCourseIds {
+  courseId: string;
+  activeStatus: boolean;
+}
