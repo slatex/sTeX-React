@@ -36,7 +36,11 @@ const ForumPage: NextPage = () => {
     <MainLayout
       title={(courseId || '').toUpperCase() + ` ${t.forum} | VoLL-KI`}
     >
-      <CourseHeader courseInfo={courseInfo} />
+      <CourseHeader
+        courseName={courseInfo.courseName}
+        courseImage={courseInfo.imageLink}
+        courseId={courseInfo.courseId}
+      />
       <Box maxWidth="800px" m="auto" px="10px">
         {threadId ? (
           <ThreadView threadId={threadId} courseId={courseId} />
