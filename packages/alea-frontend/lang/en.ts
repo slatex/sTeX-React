@@ -287,6 +287,9 @@ export const en = {
     inactiveUsers: 'Inactive Users',
     numberOfConnections: 'Number of Connections',
     unacceptedRequest: 'Unaccepted Requests',
+    allCourses: 'All Courses',
+    studyBuddyLink: 'Study Buddy Link',
+    goToStudyBuddy: 'Go To Study Buddy',
   },
   notification: {
     systemUpdates: 'System Updates',

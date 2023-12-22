@@ -32,7 +32,7 @@ import {
   updateStudyBuddyInfo,
 } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { BG_COLOR, CourseInfo } from '@stex-react/utils';
+import { BG_COLOR, CourseInfo, MaAI_COURSES } from '@stex-react/utils';
 import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
@@ -163,6 +163,7 @@ const StudyBuddyPage: NextPage = () => {
   const [courses, setCourses] = useState<
     { [id: string]: CourseInfo } | undefined
   >(undefined);
+  const masterCourses = MaAI_COURSES;
   const { mmtUrl } = useContext(ServerLinksContext);
   const refetchStudyBuddyLists = useCallback(() => {
     if (!courseId || !fromServer?.active) return;
@@ -190,7 +191,10 @@ const StudyBuddyPage: NextPage = () => {
 
   if (!router.isReady || !courses) return <CircularProgress />;
   const courseInfo = courses[courseId];
-  if (!courseInfo) {
+  const courseName =
+    courseInfo?.courseName || masterCourses[courseId]?.courseName;
+  const courseImage = courseInfo?.imageLink;
+  if (!courseName) {
     router.replace('/');
     return <>Course Not Found!</>;
   }
@@ -202,7 +206,11 @@ const StudyBuddyPage: NextPage = () => {
       title={(courseId || '').toUpperCase() + ` Study Buddy | VoLL-KI`}
       bgColor={BG_COLOR}
     >
-      <CourseHeader courseInfo={courseInfo} />
+      <CourseHeader
+        courseName={courseName}
+        courseImage={courseImage}
+        courseId={courseId}
+      />
       <Box
         maxWidth="900px"
         m="auto"
