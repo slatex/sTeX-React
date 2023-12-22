@@ -3,6 +3,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import {
   Autocomplete,
   Box,
+  Button,
   IconButton,
   Paper,
   Table,
@@ -50,6 +51,39 @@ function removeRecentCourse(courseCode: string) {
   }
 }
 
+function CourseStub({
+  courseCode,
+  onCancel,
+}: {
+  courseCode: string;
+  onCancel?: () => void;
+}) {
+  const router = useRouter();
+  const { studyBuddy: t } = getLocaleObject(router);
+  return (
+    <Button
+      sx={{ display: 'flex', alignItems: 'center' }}
+      variant="contained"
+      onClick={() => router.push(`/study-buddy/${courseCode}`)}
+    >
+      {MaAI_COURSES[courseCode].courseName}
+      {onCancel && (
+        <IconButton
+          onClick={(e) => {
+            e.stopPropagation();
+            onCancel();
+          }}
+          size="small"
+        >
+          <Tooltip title={t.removeFromRecents}>
+            <CloseIcon htmlColor="white" />
+          </Tooltip>
+        </IconButton>
+      )}
+    </Button>
+  );
+}
+
 function EnrolledCourses({ courseIds, courseList }) {
   const { studyBuddy: t } = getLocaleObject(useRouter());
   return (
@@ -67,19 +101,7 @@ function EnrolledCourses({ courseIds, courseList }) {
         }}
       >
         {courseIds.map((courseId: string) => (
-          <Box
-            key={courseId}
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              backgroundColor: PRIMARY_COL,
-              color: 'white',
-              borderRadius: '5px',
-              padding: '10px',
-            }}
-          >
-            {courseList[courseId]?.courseName}
-          </Box>
+          <CourseStub key={courseId} courseCode={courseId} />
         ))}
       </Box>
     </>
@@ -103,31 +125,14 @@ function ChosenStudyBuddyCourses() {
     >
       <Box>{t.recent}:&nbsp;</Box>
       {chosenCourses.map((courseCode) => (
-        <Box
+        <CourseStub
           key={courseCode}
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            backgroundColor: PRIMARY_COL,
-            color: 'white',
-            borderRadius: '5px',
-            padding: '5px',
-            cursor: 'pointer',
+          courseCode={courseCode}
+          onCancel={() => {
+            removeRecentCourse(courseCode);
+            forceRerender();
           }}
-        >
-          {MaAI_COURSES[courseCode].courseName}
-          <IconButton
-            onClick={() => {
-              removeRecentCourse(courseCode);
-              forceRerender();
-            }}
-            size="small"
-          >
-            <Tooltip title={t.removeFromRecents}>
-              <CloseIcon htmlColor="white" />
-            </Tooltip>
-          </IconButton>
-        </Box>
+        />
       ))}
     </Box>
   );
