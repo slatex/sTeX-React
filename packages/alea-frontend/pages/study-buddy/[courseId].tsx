@@ -271,7 +271,7 @@ const StudyBuddyPage: NextPage = () => {
           ) : isLoggedIn() ? (
             <CircularProgress />
           ) : (
-            <>Please log in to continue</>
+            <>{t.loginToContinue}</>
           )
         ) : (
           <>

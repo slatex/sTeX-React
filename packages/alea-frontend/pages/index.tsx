@@ -46,7 +46,6 @@ function CourseThumb({ course }: { course: CourseInfo }) {
   const router = useRouter();
   const { home } = getLocaleObject(router);
   const t = home.courseThumb;
-
   const {
     courseId,
     courseName,
@@ -196,7 +195,7 @@ function SiteDescription({ lang }: { lang: string }) {
 
 const StudentHomePage: NextPage = () => {
   const router = useRouter();
-  const { home: t } = getLocaleObject(router);
+  const { home: t, studyBuddy: s } = getLocaleObject(router);
   const { mmtUrl } = useContext(ServerLinksContext);
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
 
@@ -240,7 +239,7 @@ const StudentHomePage: NextPage = () => {
                 <Box sx={{ fontSize: 'medium' }}>{t.studyBuddyTooltip}</Box>
               }
             >
-              <Button variant="contained">Study Buddy Program</Button>
+              <Button variant="contained">{s.studyBuddyMasterCourse}</Button>
             </Tooltip>
           </Link>
 
