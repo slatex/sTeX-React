@@ -124,6 +124,11 @@ function mcqCorrectnessQuotient(
     (option) => option.shouldSelect === QuadState.UNKNOWN
   );
   if (anyUnknown) return NaN;
+
+  const numSelected = Object.values(multiOptionIdx ?? {}).filter(
+    (x) => x
+  ).length;
+  if (numSelected === 0) return 0;
   let numCorrect = 0;
   for (const [idx, option] of options.entries() ?? []) {
     if (option.shouldSelect === QuadState.ANY) {
@@ -134,6 +139,7 @@ function mcqCorrectnessQuotient(
     const shouldSelect = option.shouldSelect === QuadState.TRUE;
     if (isSelected === shouldSelect) numCorrect++;
   }
+
   switch (process.env['NEXT_PUBLIC_MCQ_GRADING_SCHEME'] as MCQ_GRADING_SCHEME) {
     case 'ALL_OR_NOTHING':
       return numCorrect === options.length ? 1 : 0;
