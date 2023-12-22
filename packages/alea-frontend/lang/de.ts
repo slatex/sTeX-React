@@ -267,27 +267,30 @@ export const de = {
 
     emailWarning:
       'Ihre E-Mail-Adresse wird nur mit den Benutzern geteilt, mit denen Sie eine Verbindung herstellen möchten.',
-    
-    insightHeading:'Studiengruppen-Einblicke',
+
+    insightHeading: 'Studiengruppen-Einblicke',
     totalUsers: 'Gesamtbenutzer',
     activeUsers: 'Aktive Benutzer',
     inactiveUsers: 'Inaktive Benutzer',
     numberOfConnections: 'Anzahl der Verbindungen',
     unacceptedRequest: 'Unakzeptierte Anfragen',
+    allCourses: 'Alle Kurse',
+    studyBuddyLink: 'Lernpartner-Link',
+    goToStudyBuddy: 'Zum Lernpartner gehen',
   },
   notification: {
     systemUpdates: 'Systemaktualisierungen',
     notifications: 'Benachrichtigungen',
     allNotifications: 'Alle Benachrichtigungen anzeigen',
   },
-  quizPerformanceTable:{
-    quizName: "Quizname",
-    quizDate: "Quizdatum",
-    maxPoints: "Maximale Punktzahl",
-    myScore: "Meine Punktzahl",
-    averageScore: "Durchschnittliche Punktzahl",
-    quizRecorrected: 'Dieses Quiz wurde erneut korrigiert', 
+  quizPerformanceTable: {
+    quizName: 'Quizname',
+    quizDate: 'Quizdatum',
+    maxPoints: 'Maximale Punktzahl',
+    myScore: 'Meine Punktzahl',
+    averageScore: 'Durchschnittliche Punktzahl',
+    quizRecorrected: 'Dieses Quiz wurde erneut korrigiert',
     theProblem: 'Das Problem',
-    wasRecorrected: 'wurde erneut behoben'
-  }
+    wasRecorrected: 'wurde erneut behoben',
+  },
 };

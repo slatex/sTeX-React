@@ -47,46 +47,54 @@ const BG_COLORS = {
   gdp: 'radial-gradient(circle, #4bffd7, #a11cff)',
 };
 
-export function CourseHeader({ courseInfo }: { courseInfo: CourseInfo }) {
-  const courseId = courseInfo.courseId;
-  if (!courseInfo) return <></>;
-  const { courseName, imageLink } = courseInfo;
+export function CourseHeader({
+  courseName,
+  courseImage,
+  courseId,
+}: {
+  courseName: string;
+  courseImage: string;
+  courseId: string;
+}) {
+  if (!courseName || !courseId) return <></>;
   const allowCrop = ['ai-1', 'ai-2', 'lbs'].includes(courseId);
   return (
     <Box textAlign="center">
-      <Link href={`/course-home/${courseId}`}>
-        <Box
-          display="flex"
-          position="relative"
-          width="100%"
-          maxHeight="200px"
-          overflow="hidden"
-          borderBottom="2px solid #DDD"
-          sx={{ backgroundImage: BG_COLORS[courseId] }}
-        >
-          {allowCrop ? (
-            <img
-              src={imageLink}
-              alt={courseName}
-              style={{
-                objectFit: 'cover',
-                width: '100%',
-                aspectRatio: '16/9',
-              }}
-            />
-          ) : (
-            <img
-              src={imageLink}
-              alt={courseName}
-              style={{
-                objectFit: 'contain',
-                maxHeight: '200px',
-                margin: 'auto',
-              }}
-            />
-          )}
-        </Box>
-      </Link>
+      {courseImage ? (
+        <Link href={`/course-home/${courseId}`}>
+          <Box
+            display="flex"
+            position="relative"
+            width="100%"
+            maxHeight="200px"
+            overflow="hidden"
+            borderBottom="2px solid #DDD"
+            sx={{ backgroundImage: BG_COLORS[courseId] }}
+          >
+            {allowCrop ? (
+              <img
+                src={courseImage}
+                alt={courseName}
+                style={{
+                  objectFit: 'cover',
+                  width: '100%',
+                  aspectRatio: '16/9',
+                }}
+              />
+            ) : (
+              <img
+                src={courseImage}
+                alt={courseName}
+                style={{
+                  objectFit: 'contain',
+                  maxHeight: '200px',
+                  margin: 'auto',
+                }}
+              />
+            )}
+          </Box>
+        </Link>
+      ) : null}
 
       <Box m="20px 0 32px">
         <span style={{ fontWeight: 'bold', fontSize: '32px' }}>
@@ -130,7 +138,11 @@ const CourseHomePage: NextPage = () => {
       title={(courseId || '').toUpperCase() + ` ${tCourseHome.title} | VoLL-KI`}
       bgColor={BG_COLOR}
     >
-      <CourseHeader courseInfo={courseInfo} />
+      <CourseHeader
+        courseName={courseInfo.courseName}
+        courseImage={courseInfo.imageLink}
+        courseId={courseInfo.courseId}
+      />
 
       <Box
         maxWidth="900px"
