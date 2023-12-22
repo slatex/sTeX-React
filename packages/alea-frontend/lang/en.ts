@@ -297,6 +297,7 @@ export const en = {
     removeFromRecents: 'Remove from recent list',
     findCourse: 'Find your course to join its Study Buddy program',
     studyBuddyMasterCourse: 'Study Buddy Program for Master AI Courses',
+    myEnrolledCourses: 'My Enrolled Courses',
     studyBuddyIntro:
       'Forming and maintaining study groups significantly enhances academic performance. Yet, with the rise of digital learning, connecting with like-minded peers can be challenging. Our Study Buddy Connect feature aims to bridge this gap. Simply log in to the ALeA system via FAU IDM, complete a study buddy request form, and match up with compatible study partners. You retain the choice to reach out to those suggested, empowering you to connect with fellow learners effectively.',
   },

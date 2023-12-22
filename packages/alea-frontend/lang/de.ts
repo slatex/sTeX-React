@@ -284,6 +284,7 @@ export const de = {
     findCourse:
       'Finden Sie Ihren Kurs, um am Study Buddy-Programm teilzunehmen',
     studyBuddyMasterCourse: 'Study Buddy-Programm für Master-KI-Kurse',
+    myEnrolledCourses: 'Meine eingeschriebenen Kurse',
     studyBuddyIntro:
       'Durch die Bildung und Pflege von Lerngruppen wird die Studienleistung deutlich gesteigert. Doch angesichts der zunehmenden Bedeutung des digitalen Lernens kann es eine Herausforderung sein, mit Gleichgesinnten in Kontakt zu treten. Unsere Study Buddy Connect-Funktion soll diese Lücke schließen. Melden Sie sich einfach über FAU IDM im ALeA-System an, füllen Sie ein Formular zur Anfrage als Studienpartner aus und vernetzen Sie sich mit kompatiblen Studienpartnern. Sie haben die Möglichkeit, sich an die vorgeschlagenen Personen zu wenden, wodurch Sie effektiv mit anderen Lernenden in Kontakt treten können',
   },

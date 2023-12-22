@@ -1,7 +1,8 @@
+import { Diversity3 } from '@mui/icons-material';
+import CloseIcon from '@mui/icons-material/Close';
 import {
   Autocomplete,
   Box,
-  Button,
   IconButton,
   Paper,
   Table,
@@ -17,12 +18,11 @@ import {
 import { MaAI_COURSES, PRIMARY_COL, localStore } from '@stex-react/utils';
 import type { NextPage } from 'next';
 import Link from 'next/link';
-import MainLayout from '../../layouts/MainLayout';
 import { useRouter } from 'next/router';
+import { useEffect, useReducer, useState } from 'react';
 import { getLocaleObject } from '../../lang/utils';
-import CloseIcon from '@mui/icons-material/Close';
-import { useReducer } from 'react';
-import { Diversity3 } from '@mui/icons-material';
+import MainLayout from '../../layouts/MainLayout';
+import { getEnrolledCourseIds } from '@stex-react/api';
 
 const RECENT_COURSE_KEY = 'recent-study-buddy-courses';
 function getRecentCourses() {
@@ -50,6 +50,41 @@ function removeRecentCourse(courseCode: string) {
   }
 }
 
+function EnrolledCourses({ courseIds, courseList }) {
+  const { studyBuddy: t } = getLocaleObject(useRouter());
+  return (
+    <>
+      <Typography variant="h5" textAlign="left" color="primary">
+        {t.myEnrolledCourses}
+      </Typography>
+      <Box
+        sx={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '10px',
+          alignItems: 'center',
+          mt: '10px',
+        }}
+      >
+        {courseIds.map((courseId: string) => (
+          <Box
+            key={courseId}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              backgroundColor: PRIMARY_COL,
+              color: 'white',
+              borderRadius: '5px',
+              padding: '10px',
+            }}
+          >
+            {courseList[courseId]?.courseName}
+          </Box>
+        ))}
+      </Box>
+    </>
+  );
+}
 function ChosenStudyBuddyCourses() {
   const chosenCourses = getRecentCourses();
   const { studyBuddy: t } = getLocaleObject(useRouter());
@@ -102,7 +137,11 @@ const Courses: NextPage = () => {
   const courseList = MaAI_COURSES;
   const { studyBuddy: t } = getLocaleObject(useRouter());
   const [, forceRerender] = useReducer((x) => x + 1, 0);
-
+  const [enrolledCourseIds, setEnrolledCourseIds] = useState([]);
+  useEffect(() => {
+    getEnrolledCourseIds().then(setEnrolledCourseIds);
+  }, []);
+  const courseIds = enrolledCourseIds.map((item) => item?.courseId);
   return (
     <MainLayout title="Courses-List">
       <Box
@@ -124,9 +163,12 @@ const Courses: NextPage = () => {
           Study Buddy <Diversity3 sx={{ ml: '5px' }} fontSize="inherit" />
         </Typography>
         <Typography variant="body1">{t.findCourse}</Typography>
-        <Typography sx={{ textAlign: 'left', mt: '10px' }}>
+        <Typography sx={{ textAlign: 'left', mt: '10px', mb: '10px' }}>
           {t.studyBuddyIntro}
         </Typography>
+        {courseIds.length ? (
+          <EnrolledCourses courseIds={courseIds} courseList={courseList} />
+        ) : null}
         <br />
         <Autocomplete
           id="combo-box-demo"
@@ -136,7 +178,6 @@ const Courses: NextPage = () => {
           }))}
           sx={{ width: 300 }}
           renderInput={(params) => {
-            console.log(params);
             return <TextField {...params} label="Course" />;
           }}
           onChange={async (e, v) => {

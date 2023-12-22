@@ -1,9 +1,10 @@
 import axios, { AxiosError } from 'axios';
 import { getAuthHeaders } from './lms';
 import {
+  EnrolledCourseIds,
   GetStudyBuddiesResponse,
   StudyBuddy,
-  UserStats
+  UserStats,
 } from './study-buddy';
 
 export async function getStudyBuddyUserInfo(courseId: string) {
@@ -76,4 +77,11 @@ export async function getStudyBuddyUsersStats(courseId: string) {
     headers: getAuthHeaders(),
   });
   return resp.data as UserStats;
+}
+
+export async function getEnrolledCourseIds() {
+  const resp = await axios.get(`api/study-buddy/get-enrolled-course-ids`, {
+    headers: getAuthHeaders(),
+  });
+  return resp.data as EnrolledCourseIds[];
 }
