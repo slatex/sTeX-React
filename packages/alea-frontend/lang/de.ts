@@ -173,7 +173,8 @@ export const de = {
   },
   learnerModelPriming: {
     learnerModelPriming: 'Lernermodell-Vorbereitung',
-    loginToContinue: 'Bitte einloggen zum Fortfahren',
+    loginToContinue:
+      'Bitte melden Sie sich an (mit Ihren FAU IDM-Zugangsdaten), um fortzufahren',
     intro:
       'Ein Großteil der ALeA-Dienste hängt von der Qualität der Daten im ALeA-Lernendenmodell ' +
       'ab. Das Lernendenmodell repräsentiert das Wissen bzw. die Kompetenz der Lernenden in ' +
@@ -220,6 +221,8 @@ export const de = {
       'Ich verstehe, dass diese Informationen verwendet werden, um andere Benutzer von Study Buddy Connect zu finden und mit ihnen in Kontakt zu treten.',
     join: 'Verbinden',
     update: 'Aktualisieren',
+    loginToContinue:
+      'Bitte melden Sie sich an (mit Ihren FAU IDM-Zugangsdaten), um fortzufahren',
     discard: 'Verwerfen',
     myProfile: 'Mein Profil',
     editInfo: 'Bearbeitungs Info',
@@ -280,6 +283,9 @@ export const de = {
     removeFromRecents: 'Aus der aktuellen Liste entfernen',
     findCourse:
       'Finden Sie Ihren Kurs, um am Study Buddy-Programm teilzunehmen',
+    studyBuddyMasterCourse: 'Study Buddy-Programm für Master-KI-Kurse',
+    studyBuddyIntro:
+      'Durch die Bildung und Pflege von Lerngruppen wird die Studienleistung deutlich gesteigert. Doch angesichts der zunehmenden Bedeutung des digitalen Lernens kann es eine Herausforderung sein, mit Gleichgesinnten in Kontakt zu treten. Unsere Study Buddy Connect-Funktion soll diese Lücke schließen. Melden Sie sich einfach über FAU IDM im ALeA-System an, füllen Sie ein Formular zur Anfrage als Studienpartner aus und vernetzen Sie sich mit kompatiblen Studienpartnern. Sie haben die Möglichkeit, sich an die vorgeschlagenen Personen zu wenden, wodurch Sie effektiv mit anderen Lernenden in Kontakt treten können',
   },
   notification: {
     systemUpdates: 'Systemaktualisierungen',

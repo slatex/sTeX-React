@@ -8,7 +8,8 @@ export const en = {
       "Active course materials incorporate learning support services based on a model that is updated with every interaction with the materials. Such models of a user's preferences and competencies contain highly sensitive personal data. Therefore the learning support services (and corresponding user model data collection) are only enabled when the user is logged in via the FAU Single-Signon Service and are kept secure and under exclusive control of the respective user in the Voll-KI Trust Zone.",
     expIconHover1: "See what's brewing in our laboratory.",
     expIconHover2: 'Exercise Extreme Caution!',
-    studyBuddyTooltip: 'Click here to easily connect with fellow students who share your learning goals',
+    studyBuddyTooltip:
+      'Click here to easily connect with fellow students who share your learning goals',
     cardIntro:
       '"Flash Cards" support reviewing and drilling the concepts of the' +
       ' course. Learners are shown cards with concept names that can be' +
@@ -189,7 +190,8 @@ export const en = {
   },
   learnerModelPriming: {
     learnerModelPriming: 'Learner Model Priming',
-    loginToContinue: 'Please login to continue',
+    loginToContinue:
+      'Please log in (with your FAU IDM credentials) to continue',
     intro:
       'A great part of the ALeA services depends on the quality of the ' +
       "ALeA learner model data - a subsystem that models the learner's knowledge/competency " +
@@ -236,6 +238,8 @@ export const en = {
     join: 'Join',
     update: 'Update',
     discard: 'Discard',
+    loginToContinue:
+      'Please log in (with your FAU IDM credentials) to continue',
     myProfile: 'My Profile',
     editInfo: 'Edit Info',
     reJoin: 'Re-join',
@@ -292,6 +296,9 @@ export const en = {
     recent: 'Recent',
     removeFromRecents: 'Remove from recent list',
     findCourse: 'Find your course to join its Study Buddy program',
+    studyBuddyMasterCourse: 'Study Buddy Program for Master AI Courses',
+    studyBuddyIntro:
+      'Forming and maintaining study groups significantly enhances academic performance. Yet, with the rise of digital learning, connecting with like-minded peers can be challenging. Our Study Buddy Connect feature aims to bridge this gap. Simply log in to the ALeA system via FAU IDM, complete a study buddy request form, and match up with compatible study partners. You retain the choice to reach out to those suggested, empowering you to connect with fellow learners effectively.',
   },
   notification: {
     systemUpdates: 'System Updates',

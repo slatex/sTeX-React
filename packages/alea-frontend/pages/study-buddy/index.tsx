@@ -123,8 +123,9 @@ const Courses: NextPage = () => {
         >
           Study Buddy <Diversity3 sx={{ ml: '5px' }} fontSize="inherit" />
         </Typography>
-        <Typography variant="body1">
-          {t.findCourse}
+        <Typography variant="body1">{t.findCourse}</Typography>
+        <Typography sx={{ textAlign: 'left', mt: '10px' }}>
+          {t.studyBuddyIntro}
         </Typography>
         <br />
         <Autocomplete
