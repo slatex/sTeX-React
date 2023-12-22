@@ -183,7 +183,11 @@ const QuizDashPage: NextPage = () => {
         ` ${tHome.courseThumb.quizzes} | VoLL-KI`
       }
     >
-      <CourseHeader courseInfo={courseInfo} />
+      <CourseHeader
+        courseName={courseInfo.courseName}
+        courseImage={courseInfo.imageLink}
+        courseId={courseInfo.courseId}
+      />
       <Box maxWidth="900px" m="auto" px="10px">
         <Typography variant="h4" sx={{ m: '30px 0 15px' }}>
           {t.quizDashboard}
