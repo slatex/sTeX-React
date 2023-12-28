@@ -35,6 +35,7 @@ function findDuplicates(arr: string[]): string[] {
 
   return duplicates;
 }
+
 export function CoverageUpdater({
   snaps,
   setSnaps,

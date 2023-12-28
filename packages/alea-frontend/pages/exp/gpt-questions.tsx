@@ -155,8 +155,14 @@ const GptQuestions: NextPage = () => {
                 return;
               }
               setIsFetchingOutput(true);
-              setGptResponse(await createGptQuestions(f));
-              setIsFetchingOutput(false);
+              try {
+                setGptResponse(await createGptQuestions(f));
+              } catch (e) {
+                alert('Error fetching output! see console for details.');
+                console.error(e);
+              } finally {
+                setIsFetchingOutput(false);
+              }
             }}
           />
         )}

@@ -104,6 +104,10 @@ export function XhtmlContentUrl(projectId: string, xhtmlFilepath: string) {
   return `/:sTeX/document?archive=${projectId}&filepath=${xhtmlFilepath}`;
 }
 
+export function fullDocumentUrl({ archive, filepath }: FileLocation) {
+  return `/:sTeX/fulldocument?archive=${archive}&filepath=${filepath}`;
+}
+
 export function XhtmlTopDocumentContentUrl({
   archive,
   filepath,

@@ -14,6 +14,7 @@ export interface Template {
 export type PostProcessingStep = 'JSON_TO_STEX' | 'REMOVE_NEWLINES';
 
 export interface CreateGptQuestionsRequest {
+  dryRun: boolean;
   templateStrs: string[];
   assignments: VariableAssignment[];
   postProcessingSteps: PostProcessingStep[];

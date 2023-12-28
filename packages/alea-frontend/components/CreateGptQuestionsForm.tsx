@@ -1,27 +1,43 @@
-import React, { useState, useEffect, ChangeEvent, useContext } from 'react';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
-  Button,
-  TextField,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  IconButton,
-  Grid,
-  Typography,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Box,
+  Button,
+  Checkbox,
+  FormControl,
+  FormControlLabel,
+  Grid,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  Typography,
 } from '@mui/material';
 import {
   CreateGptQuestionsRequest,
+  SectionsAPIData,
   Template,
+  getDocumentSections,
   saveTemplate,
 } from '@stex-react/api';
-import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
+import {
+  FileLocation,
+  convertHtmlStringToPlain,
+  fileLocToString,
+  fullDocumentUrl,
+  stringToFileLoc,
+} from '@stex-react/utils';
+import { ChangeEvent, useContext, useEffect, useState } from 'react';
 
 function templateToFormData(template: Template): CreateGptQuestionsRequest {
   return {
+    dryRun: true,
     templateStrs: template?.templateStrs || [],
     assignments: template?.defaultAssignment || [],
     postProcessingSteps: [],
@@ -39,6 +55,180 @@ function formDataToTemplate(
   };
 }
 
+function getGitlabUrl({ archive, filepath }: FileLocation) {
+  if (filepath.endsWith('.xhtml'))
+    filepath = filepath.replace('.xhtml', '.tex');
+  return `https://gl.mathhub.info/${archive}/-/blob/main/source/${filepath}`;
+}
+
+function getSectionNames(
+  data: SectionsAPIData,
+  level = 0,
+  parentFile: FileLocation = undefined
+): { name: string; parentFile: FileLocation }[] {
+  const names = [];
+  if (data.title?.length)
+    names.push({
+      name: '\xa0'.repeat(level * 4) + convertHtmlStringToPlain(data.title),
+      parentFile,
+    });
+  const { archive, filepath } = data;
+  const stexFilepath = filepath?.replace('.xhtml', '.tex');
+  const thisFileLoc =
+    archive && filepath ? { archive, filepath: stexFilepath } : undefined;
+  for (const c of data.children || []) {
+    names.push(
+      ...getSectionNames(
+        c,
+        level + (data.title?.length ? 1 : 0),
+        thisFileLoc || parentFile
+      )
+    );
+  }
+  return names;
+}
+
+function SectionPicker({
+  sectionParentId,
+  onChange,
+}: {
+  sectionParentId: string;
+  onChange: (value: string) => void;
+}) {
+  const { mmtUrl } = useContext(ServerLinksContext);
+  const [sections, setSectionNames] = useState<
+    { name: string; parentFile: FileLocation }[]
+  >([]);
+  const fileLoc = stringToFileLoc(sectionParentId);
+
+  useEffect(() => {
+    async function getSections() {
+      const archive = 'MiKoMH/AI';
+      const filepath = 'course/notes/notes1.tex';
+      const docSections = await getDocumentSections(mmtUrl, archive, filepath);
+      const s = getSectionNames(docSections);
+      console.log(s);
+      setSectionNames(s);
+    }
+    getSections();
+  }, [mmtUrl]);
+
+  return (
+    <>
+      <FormControl sx={{ m: '20px 5px 0' }}>
+        <InputLabel id="section-select-label">Section Name</InputLabel>
+        <Select
+          labelId="section-select-label"
+          value={sectionParentId}
+          onChange={(e) => onChange(e.target.value)}
+          label="Section Name"
+          sx={{ width: '300px' }}
+        >
+          {sections.map((option) => {
+            return (
+              <MenuItem
+                key={option.name + option.parentFile.filepath}
+                value={fileLocToString(option.parentFile)}
+              >
+                {option.name}
+              </MenuItem>
+            );
+          })}
+        </Select>
+      </FormControl>
+      <br />
+      <a
+        href={
+          mmtUrl +
+          fullDocumentUrl({
+            archive: fileLoc.archive,
+            filepath: fileLoc.filepath.replace('.tex', '.xhtml'),
+          })
+        }
+        style={{ textDecoration: 'underline' }}
+        target="_blank"
+      >
+        {sections
+          .find(
+            ({ parentFile: { archive, filepath } }) =>
+              archive === fileLoc.archive && filepath === fileLoc.filepath
+          )
+          ?.name?.trim() || ''}
+      </a>
+      &nbsp;
+      <a
+        href={getGitlabUrl(fileLoc)}
+        style={{ textDecoration: 'underline' }}
+        target="_blank"
+      >
+        Gitlab Link
+      </a>
+    </>
+  );
+}
+
+function AssignmentValueInput({
+  assignKey,
+  value,
+  onChange,
+}: {
+  assignKey: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const { mmtUrl } = useContext(ServerLinksContext);
+  const isSectionStex = assignKey.startsWith('SECTION_STEX');
+  if (isSectionStex)
+    return <SectionPicker sectionParentId={value} onChange={onChange} />;
+  const isFetchUrl = assignKey.startsWith('FETCH_URL');
+
+  const isUriDefMd = assignKey.startsWith('URI_DEF_MD');
+  const isFetchStex = assignKey.startsWith('FETCH_STEX');
+  const fileLoc = isFetchStex && stringToFileLoc(value);
+  return (
+    <>
+      <TextField
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        fullWidth
+        multiline
+        placeholder="Assignment Value"
+      />
+      {isFetchUrl && (
+        <a href={value} target="_blank" style={{ textDecoration: 'underline' }}>
+          {assignKey}
+        </a>
+      )}
+      {isFetchStex &&
+        (fileLoc?.archive && fileLoc?.filepath ? (
+          <a
+            href={getGitlabUrl(fileLoc)}
+            style={{ textDecoration: 'underline' }}
+            target="_blank"
+          >
+            Link
+          </a>
+        ) : (
+          <>
+            Must be of the form{' '}
+            <span style={{ backgroundColor: '#AAA', padding: '0 3px' }}>
+              archive||filepath
+            </span>
+          </>
+        ))}
+      {isUriDefMd && (
+        <a
+          href={`${mmtUrl}/:sTeX/declaration?${value}`}
+          style={{ textDecoration: 'underline' }}
+          target="_blank"
+        >
+          Definition
+        </a>
+      )}
+    </>
+  );
+}
+
 export function CreateGptQuestionsForm({
   template,
   onUpdate,
@@ -46,10 +236,10 @@ export function CreateGptQuestionsForm({
   template: Template;
   onUpdate: (formData: CreateGptQuestionsRequest) => void;
 }) {
+  const [templateName, setTemplateName] = useState<string>('');
   const [formData, setFormData] = useState<CreateGptQuestionsRequest>(
     templateToFormData(template)
   );
-  const [templateName, setTemplateName] = useState<string>('');
 
   useEffect(() => {
     setFormData(templateToFormData(template));
@@ -73,7 +263,7 @@ export function CreateGptQuestionsForm({
 
   return (
     <div>
-      <Typography variant="h6">Templates</Typography>
+      <Typography variant="h5">Templates</Typography>
       <FormControl fullWidth>
         {formData.templateStrs.map((template, index) => (
           <Box key={index} sx={{ mt: '10px' }}>
@@ -96,8 +286,42 @@ export function CreateGptQuestionsForm({
           <AddIcon />
         </IconButton>
       </FormControl>
-
-      <Typography variant="h6">Assignments</Typography>
+      <Typography variant="h5">Assignments</Typography>
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <b>Special Key Prefixes</b>
+        </AccordionSummary>
+        <AccordionDetails>
+          <table>
+            <tr>
+              <td>FETCH_STEX</td>
+              <td>value contains archive and filepath of the stex file. </td>
+              <td>
+                Template marker replaced by the stex (recursively expanded)
+              </td>
+            </tr>
+            <tr>
+              <td>SECTION_STEX</td>
+              <td>Choose a section from the dropdown</td>
+              <td>
+                Template marker replaced by the stex (recursively expanded)
+              </td>
+            </tr>
+            <tr>
+              <td>URI_DEF_MD</td>
+              <td>value is interpreted as a URI</td>
+              <td>
+                Template marker replaced by the concept definition (markdown)
+              </td>
+            </tr>
+            <tr>
+              <td>FETCH_URL</td>
+              <td>value is interpreted as a url</td>
+              <td>Template marker replaced by content fetched from url.</td>
+            </tr>
+          </table>
+        </AccordionDetails>
+      </Accordion>
       <FormControl fullWidth>
         {formData.assignments.map((assignment, idx) => (
           <Grid
@@ -107,7 +331,18 @@ export function CreateGptQuestionsForm({
             key={idx}
             sx={{ mt: '10px' }}
           >
-            <Grid item xs={6}>
+            <Grid item xs={1}>
+              <IconButton
+                onClick={() => {
+                  const n = formData.assignments.filter((_, i) => i !== idx);
+                  setFormData({ ...formData, assignments: n });
+                }}
+                sx={{color: 'crimson'}}
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Grid>
+            <Grid item xs={5}>
               <TextField
                 label="Assignment Key"
                 value={assignment.key}
@@ -119,24 +354,15 @@ export function CreateGptQuestionsForm({
               />
             </Grid>
             <Grid item xs={6}>
-              <TextField
-                label="Assignment Value"
+              <AssignmentValueInput
+                assignKey={assignment.key}
                 value={assignment.value}
-                onChange={(e) => {
-                  formData.assignments[idx].value = e.target.value;
+                onChange={(value) => {
+                  formData.assignments[idx].value = value;
                   setFormData({ ...formData });
                 }}
-                fullWidth
               />
             </Grid>
-            <IconButton
-              onClick={() => {
-                const n = formData.assignments.filter((_, i) => i !== idx);
-                setFormData({ ...formData, assignments: n });
-              }}
-            >
-              <DeleteIcon />
-            </IconButton>
           </Grid>
         ))}
         <IconButton
@@ -150,6 +376,20 @@ export function CreateGptQuestionsForm({
           <AddIcon />
         </IconButton>
       </FormControl>
+
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={formData.dryRun}
+            onChange={(e) =>
+              setFormData({ ...formData, dryRun: e.target.checked })
+            }
+            name="dryRun"
+          />
+        }
+        label="Dry Run"
+      />
+      <br />
 
       <Button
         variant="contained"
