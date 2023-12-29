@@ -17,7 +17,6 @@ function CodeEditor() {
       console.log = (...args) => capturedLogs.push(args);
       const evaluatedCode = eval(value);
       console.log = originalConsoleLog;
-      console.log(capturedLogs); //temp
       setResult({ result: evaluatedCode, logs: capturedLogs });
       setShowResult(true);
     } catch (error) {
