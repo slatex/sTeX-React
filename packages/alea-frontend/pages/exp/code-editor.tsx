@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import CodeMirror from '@uiw/react-codemirror';
 import { Button, Box } from '@mui/material';
 import { javascript } from '@codemirror/lang-javascript';
+import MainLayout from '../../layouts/MainLayout';
 
 function CodeEditor() {
   const defaultCode = "console.log('hello world!');";
@@ -16,7 +17,7 @@ function CodeEditor() {
       console.log = (...args) => capturedLogs.push(args);
       const evaluatedCode = eval(value);
       console.log = originalConsoleLog;
-      console.log(capturedLogs);//temp
+      console.log(capturedLogs); //temp
       setResult({ result: evaluatedCode, logs: capturedLogs });
       setShowResult(true);
     } catch (error) {
@@ -30,7 +31,7 @@ function CodeEditor() {
   };
 
   return (
-    <div>
+    <MainLayout title="CodeEditor | VoLL-KI">
       <CodeMirror
         value={value}
         height="300px"
@@ -82,7 +83,7 @@ function CodeEditor() {
           )}
         </Box>
       )}
-    </div>
+    </MainLayout>
   );
 }
 
