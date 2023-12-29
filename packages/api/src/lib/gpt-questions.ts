@@ -7,20 +7,28 @@ export interface VariableAssignment {
 
 export interface Template {
   templateName: string;
+  version: string;
+  updateMessage: string;
+
   templateStrs: string[];
   defaultAssignment: VariableAssignment[];
+  updater: string;
+  updateTime: string;
 }
 
 export type PostProcessingStep = 'JSON_TO_STEX' | 'REMOVE_NEWLINES';
 
 export interface CreateGptQuestionsRequest {
   dryRun: boolean;
+  templateName: string;
+  templateVersion: string;
   templateStrs: string[];
   assignments: VariableAssignment[];
   postProcessingSteps: PostProcessingStep[];
 }
 
-export interface CreateGptQuestionsResponse {
+export interface GptCompletionData {
+  multiAssignment?: VariableAssignment[];
   actualPrompts: string[];
   response: string;
   usage: {
@@ -29,4 +37,11 @@ export interface CreateGptQuestionsResponse {
     totalTokens: number;
     cost_USD: number;
   };
+}
+
+export interface CreateGptQuestionsResponse {
+  runId: string;
+  runTime: string;
+  runner: string;
+  completions: GptCompletionData[];
 }

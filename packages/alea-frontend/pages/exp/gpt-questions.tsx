@@ -10,12 +10,14 @@ import {
   Tooltip,
 } from '@mui/material';
 import {
+  CreateGptQuestionsRequest,
   CreateGptQuestionsResponse,
   Template,
   createGptQuestions,
   getTemplates,
   getUserInfo,
   isModerator,
+  saveTemplate,
 } from '@stex-react/api';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -35,8 +37,25 @@ const copyToClipboard = (text: string) => {
     });
 };
 
+function formDataToTemplate(
+  templateName: string,
+  updateMessage: string,
+  formData: CreateGptQuestionsRequest
+): Template {
+  return {
+    version: 'unused',
+    updateMessage,
+    templateName,
+    templateStrs: formData.templateStrs,
+    defaultAssignment: formData.assignments,
+    updater: 'unused',
+    updateTime: 'unused',
+  };
+}
+
 function OutputViewer({ response }: { response?: CreateGptQuestionsResponse }) {
-  if (!response)
+  const completion = response?.completions?.[0];
+  if (!completion)
     return (
       <i style={{ fontSize: 'large' }}>
         Click &apos;Get GPT Response&apos; to see some output
@@ -47,20 +66,20 @@ function OutputViewer({ response }: { response?: CreateGptQuestionsResponse }) {
       <h2>Output</h2>
       <h4>Usage</h4>
       <pre style={{ display: 'inline' }}>
-        Prompt Tokens: <b>{response.usage.promptTokens}</b>,{' '}
+        Prompt Tokens: <b>{completion.usage.promptTokens}</b>,{' '}
       </pre>
       <pre style={{ display: 'inline' }}>
-        Completion Tokens: <b>{response.usage.completionTokens}</b>,{' '}
+        Completion Tokens: <b>{completion.usage.completionTokens}</b>,{' '}
       </pre>
       <pre style={{ display: 'inline' }}>
-        Total Tokens: <b>{response.usage.totalTokens}</b>
+        Total Tokens: <b>{completion.usage.totalTokens}</b>
       </pre>
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           Actual Prompts
         </AccordionSummary>
         <AccordionDetails>
-          {(response.actualPrompts || []).map((prompt, idx) => (
+          {(completion.actualPrompts || []).map((prompt, idx) => (
             <TextField
               key={idx}
               value={prompt}
@@ -75,7 +94,7 @@ function OutputViewer({ response }: { response?: CreateGptQuestionsResponse }) {
       <pre>
         Approx Cost:{' '}
         <b>
-          {response.usage.cost_USD.toLocaleString('en-US', {
+          {completion.usage.cost_USD.toLocaleString('en-US', {
             style: 'currency',
             currency: 'USD',
             minimumFractionDigits: 2,
@@ -84,12 +103,12 @@ function OutputViewer({ response }: { response?: CreateGptQuestionsResponse }) {
         </b>
       </pre>
       <Tooltip title="Copy Response">
-        <IconButton onClick={() => copyToClipboard(response.response)}>
+        <IconButton onClick={() => copyToClipboard(completion.response)}>
           <FileCopyIcon />
         </IconButton>
       </Tooltip>
       <TextField
-        value={response.response}
+        value={completion.response}
         variant="outlined"
         fullWidth
         InputProps={{ readOnly: true }}
@@ -142,7 +161,8 @@ const GptQuestions: NextPage = () => {
             }}
             onClick={() => setSelectedIndex(idx)}
           >
-            {template.templateName}
+            {template.templateName}{' '}
+            <span style={{ fontSize: '10px' }}>{template.version}</span>
           </Box>
         ))}
         {selectedTemplate && (
@@ -163,6 +183,24 @@ const GptQuestions: NextPage = () => {
               } finally {
                 setIsFetchingOutput(false);
               }
+            }}
+            onSaveTemplate={async (
+              templateName: string,
+              formData: CreateGptQuestionsRequest
+            ) => {
+              const isExisting = templates.some(
+                (t) => t.templateName === templateName
+              );
+              const updateMessage = prompt(
+                `Template ${isExisting ? 'update ' : ''}description`
+              );
+              if (updateMessage === null) return;
+
+              await saveTemplate(
+                formDataToTemplate(templateName, updateMessage, formData)
+              );
+              alert(`Template ${isExisting ? 'updated' : 'saved'}!`);
+              getTemplates().then(setTemplates);
             }}
           />
         )}

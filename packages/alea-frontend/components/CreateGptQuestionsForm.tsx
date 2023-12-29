@@ -22,8 +22,7 @@ import {
   CreateGptQuestionsRequest,
   SectionsAPIData,
   Template,
-  getDocumentSections,
-  saveTemplate,
+  getDocumentSections
 } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import {
@@ -38,20 +37,11 @@ import { ChangeEvent, useContext, useEffect, useState } from 'react';
 function templateToFormData(template: Template): CreateGptQuestionsRequest {
   return {
     dryRun: true,
+    templateName: template?.templateName || '',
+    templateVersion: template?.version || '',
     templateStrs: template?.templateStrs || [],
     assignments: template?.defaultAssignment || [],
     postProcessingSteps: [],
-  };
-}
-
-function formDataToTemplate(
-  templateName: string,
-  formData: CreateGptQuestionsRequest
-): Template {
-  return {
-    templateName,
-    templateStrs: formData.templateStrs,
-    defaultAssignment: formData.assignments,
   };
 }
 
@@ -232,9 +222,14 @@ function AssignmentValueInput({
 export function CreateGptQuestionsForm({
   template,
   onUpdate,
+  onSaveTemplate,
 }: {
   template: Template;
   onUpdate: (formData: CreateGptQuestionsRequest) => void;
+  onSaveTemplate: (
+    templateName: string,
+    formData: CreateGptQuestionsRequest
+  ) => any;
 }) {
   const [templateName, setTemplateName] = useState<string>('');
   const [formData, setFormData] = useState<CreateGptQuestionsRequest>(
@@ -263,13 +258,13 @@ export function CreateGptQuestionsForm({
 
   return (
     <div>
-      <Typography variant="h5">Templates</Typography>
+      <Typography variant="h5">Prompts</Typography>
       <FormControl fullWidth>
         {formData.templateStrs.map((template, index) => (
           <Box key={index} sx={{ mt: '10px' }}>
             <TextField
               value={template}
-              label={'Template ' + (index + 1)}
+              label={'Prompt ' + (index + 1)}
               onChange={handleArrayItemChange(index, 'templateStrs')}
               fullWidth
               multiline
@@ -337,7 +332,7 @@ export function CreateGptQuestionsForm({
                   const n = formData.assignments.filter((_, i) => i !== idx);
                   setFormData({ ...formData, assignments: n });
                 }}
-                sx={{color: 'crimson'}}
+                sx={{ color: 'crimson' }}
               >
                 <DeleteIcon />
               </IconButton>
@@ -407,10 +402,7 @@ export function CreateGptQuestionsForm({
           size="small"
         />
         <Button
-          onClick={async () => {
-            await saveTemplate(formDataToTemplate(templateName, formData));
-            alert('template saved');
-          }}
+          onClick={() => onSaveTemplate(templateName, formData)}
           variant="contained"
           sx={{ ml: '10px' }}
           disabled={!templateName}
