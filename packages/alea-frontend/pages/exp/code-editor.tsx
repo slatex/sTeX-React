@@ -1,22 +1,23 @@
-import Editor from '@monaco-editor/react';
+import React, { useState } from 'react';
+import CodeMirror from '@uiw/react-codemirror';
 import { Button, Box } from '@mui/material';
-import { NextPage } from 'next';
-import { useState } from 'react';
+import { javascript } from '@codemirror/lang-javascript';
 import MainLayout from '../../layouts/MainLayout';
 
-const CodeEditor: NextPage = () => {
-  const [editorValue, setEditorValue] = useState<string>('// some comment');
-  const [showResult, setShowResult] = useState<boolean>(false);
-  const [result, setResult] = useState<any>(null);
+function CodeEditor() {
+  const defaultCode = "console.log('hello world!');";
+  const [value, setValue] = useState(defaultCode);
+  const [showResult, setShowResult] = useState(false);
+  const [result, setResult] = useState(null);
 
-  const handleRun = (code: string) => {
+  const handleRun = () => {
     try {
-      const capturedLogs: any[] = [];
+      const capturedLogs = [];
       const originalConsoleLog = console.log;
-      console.log = (...args: any[]) => capturedLogs.push(args);
-      const result = eval(code);
+      console.log = (...args) => capturedLogs.push(args);
+      const evaluatedCode = eval(value);
       console.log = originalConsoleLog;
-      setResult({ result, logs: capturedLogs });
+      setResult({ result: evaluatedCode, logs: capturedLogs });
       setShowResult(true);
     } catch (error) {
       setResult({ error: `Error: ${error.message}` });
@@ -24,32 +25,55 @@ const CodeEditor: NextPage = () => {
     }
   };
 
-  const handleEditorChange = (value: string | undefined) => {
-    value !== undefined && setEditorValue(value);
-    setShowResult(false);
+  const handleEditorChange = (val) => {
+    setValue(val);
   };
 
   return (
     <MainLayout title="CodeEditor | VoLL-KI">
-      <Editor
-        height="50vh"
-        defaultLanguage="javascript"
-        defaultValue={editorValue}
+      <CodeMirror
+        value={value}
+        height="300px"
+        extensions={[javascript({ jsx: true })]}
         onChange={handleEditorChange}
+        theme={'dark'}
       />
-      <Button onClick={() => handleRun(editorValue)} variant="contained">
-        Run
+      <Button onClick={handleRun} variant="contained" sx={{ m: '15px' }}>
+        Run Code
+      </Button>
+      <Button
+        onClick={() => setValue(defaultCode)}
+        variant="contained"
+        sx={{ m: '15px' }}
+      >
+        Reset
       </Button>
       {showResult && (
-        <Box mt={2} p={2} border={1} borderColor="black" borderRadius={4}>
-          <strong>Result:</strong>
+        <Box
+          p={2}
+          border={1}
+          borderColor="black"
+          bgcolor="#282c34"
+          color="white"
+          sx={{ height: '200px', overflowY: 'auto' }}
+        >
+          <Box display="flex" justifyContent="space-between" mx="20px">
+            <strong>Output</strong>
+            <strong
+              style={{ cursor: 'pointer' }}
+              onClick={() => setShowResult(false)}
+            >
+              X
+            </strong>
+          </Box>
+          <hr />
           {result.error ? (
             <pre>{result.error}</pre>
           ) : (
             <>
               {result.logs.map((log, index) => (
                 <Box key={index}>
-                  {log.map((item: any, i: number) => (
+                  {log.map((item, i) => (
                     <span key={i}>{JSON.stringify(item)}</span>
                   ))}
                 </Box>
@@ -60,6 +84,6 @@ const CodeEditor: NextPage = () => {
       )}
     </MainLayout>
   );
-};
+}
 
 export default CodeEditor;
