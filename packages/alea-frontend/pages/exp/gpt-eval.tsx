@@ -188,20 +188,22 @@ const GptEval: NextPage = () => {
         <Box mt="5px" mb="10px">
           <GptNavigator />
         </Box>
-        <Box display="flex" alignItems="center" gap="10px">
-          Filters:
-          <StringMultiSelector
-            name="Templates"
-            strings={templates.map((t) => t.templateName)}
-            selectedStrings={selectedTemplates}
-            onChange={setSelectedTemplates}
-          />
-          <StringMultiSelector
-            name="Runner"
-            strings={allRunners}
-            selectedStrings={selectedRunners}
-            onChange={setSelectedRunners}
-          />
+        <Box>
+          <Box display="flex" alignItems="center" gap="10px">
+            Filters:
+            <StringMultiSelector
+              name="Templates"
+              strings={templates.map((t) => t.templateName)}
+              selectedStrings={selectedTemplates}
+              onChange={setSelectedTemplates}
+            />
+            <StringMultiSelector
+              name="Runner"
+              strings={allRunners}
+              selectedStrings={selectedRunners}
+              onChange={setSelectedRunners}
+            />
+          </Box>
           {selectedRun && (
             <>
               <InputViewer request={selectedRun.request} />
