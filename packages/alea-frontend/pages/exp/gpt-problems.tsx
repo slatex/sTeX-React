@@ -13,8 +13,8 @@ import {
 } from '@mui/material';
 import {
   CompletionEval,
-  CreateGptQuestionsRequest,
-  CreateGptQuestionsResponse,
+  CreateGptProblemsRequest,
+  CreateGptProblemsResponse,
   Template,
   createGptQuestions,
   getEval,
@@ -27,7 +27,7 @@ import {
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { CreateGptQuestionsForm } from '../../components/CreateGptQuestionsForm';
+import { CreateGptProblemsForm } from '../../components/CreateGptQuestionsForm';
 import MainLayout from '../../layouts/MainLayout';
 import CompletionEvalForm from '../../components/GptEvalForm';
 import Link from 'next/link';
@@ -47,7 +47,7 @@ const copyToClipboard = (text: string) => {
 function formDataToTemplate(
   templateName: string,
   updateMessage: string,
-  formData: CreateGptQuestionsRequest
+  formData: CreateGptProblemsRequest
 ): Template {
   return {
     version: 'unused',
@@ -63,7 +63,7 @@ function formDataToTemplate(
 export function OutputViewer({
   response,
 }: {
-  response?: CreateGptQuestionsResponse;
+  response?: CreateGptProblemsResponse;
 }) {
   const [completionIdx, setCompletionIdx] = useState(0);
   const [completionEval, setCompletionEval] = useState<
@@ -158,7 +158,7 @@ export function OutputViewer({
 export function GptNavigator() {
   return (
     <Box display="flex" gap="10px">
-      <Link href="/exp/gpt-questions" passHref>
+      <Link href="/exp/gpt-problems" passHref>
         <Button color="secondary" variant="contained">
           Create
         </Button>
@@ -190,7 +190,7 @@ const GptQuestions: NextPage = () => {
   const selectedTemplate = templates[selectedIndex];
   const [isFetchingOutput, setIsFetchingOutput] = useState(false);
   const [gptResponse, setGptResponse] =
-    useState<CreateGptQuestionsResponse>(undefined);
+    useState<CreateGptProblemsResponse>(undefined);
 
   useEffect(() => {
     getUserInfo().then(({ userId }) => {
@@ -206,10 +206,10 @@ const GptQuestions: NextPage = () => {
   }, []);
 
   return (
-    <MainLayout title="GPT Questions | VoLL-KI">
+    <MainLayout title="GPT Problems | VoLL-KI">
       <Box px="10px" m="auto" maxWidth="850px">
         <Box textAlign="center" m="20px">
-          <h1>GPT Questions</h1>
+          <h1>GPT Problems</h1>
         </Box>
         <GptNavigator />
         <br />
@@ -230,7 +230,7 @@ const GptQuestions: NextPage = () => {
         </Box>
         <br />
         {selectedTemplate && (
-          <CreateGptQuestionsForm
+          <CreateGptProblemsForm
             key={selectedIndex}
             template={selectedTemplate}
             onUpdate={async (f) => {
@@ -250,7 +250,7 @@ const GptQuestions: NextPage = () => {
             }}
             onSaveTemplate={async (
               templateName: string,
-              formData: CreateGptQuestionsRequest
+              formData: CreateGptProblemsRequest
             ) => {
               const isExisting = templates.some(
                 (t) => t.templateName === templateName

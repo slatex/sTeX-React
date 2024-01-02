@@ -76,8 +76,8 @@ const ExperimentsHome: NextPage = () => {
             </Box>
             <Box>
               <h2>Debug</h2>
-              <InternalButtonLink href="/exp/gpt-questions">
-                GPT Questions page
+              <InternalButtonLink href="/exp/gpt-problems">
+                GPT Problems page
               </InternalButtonLink>
               <InternalButtonLink href="/debug-section">
                 Debug Document Sections

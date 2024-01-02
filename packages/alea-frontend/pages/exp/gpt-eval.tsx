@@ -8,7 +8,7 @@ import {
   Typography,
 } from '@mui/material';
 import {
-  CreateGptQuestionsRequest,
+  CreateGptProblemsRequest,
   GptRun,
   Template,
   getGptRuns,
@@ -24,7 +24,7 @@ import {
 import { shouldUseDrawer } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import CloseIcon from '@mui/icons-material/Close';
-import { GptNavigator, OutputViewer } from './gpt-questions';
+import { GptNavigator, OutputViewer } from './gpt-problems';
 
 function RunsDash({
   runs,
@@ -114,7 +114,7 @@ function KeyValueDisplay({
   );
 }
 
-function InputViewer({ request }: { request: CreateGptQuestionsRequest }) {
+function InputViewer({ request }: { request: CreateGptProblemsRequest }) {
   return (
     <Box>
       <Typography variant="h5" sx={{ textDecoration: 'underline' }}>
@@ -171,7 +171,7 @@ const GptEval: NextPage = () => {
   });
 
   return (
-    <MainLayout title="GPT Questions | VoLL-KI">
+    <MainLayout title="GPT Problems | VoLL-KI">
       <LayoutWithFixedMenu
         menu={
           <RunsDash

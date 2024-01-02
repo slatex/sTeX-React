@@ -19,7 +19,7 @@ import {
   Typography,
 } from '@mui/material';
 import {
-  CreateGptQuestionsRequest,
+  CreateGptProblemsRequest,
   SectionsAPIData,
   Template,
   getDocumentSections
@@ -34,7 +34,7 @@ import {
 } from '@stex-react/utils';
 import { ChangeEvent, useContext, useEffect, useState } from 'react';
 
-function templateToFormData(template: Template): CreateGptQuestionsRequest {
+function templateToFormData(template: Template): CreateGptProblemsRequest {
   return {
     dryRun: true,
     templateName: template?.templateName || '',
@@ -219,20 +219,20 @@ function AssignmentValueInput({
   );
 }
 
-export function CreateGptQuestionsForm({
+export function CreateGptProblemsForm({
   template,
   onUpdate,
   onSaveTemplate,
 }: {
   template: Template;
-  onUpdate: (formData: CreateGptQuestionsRequest) => void;
+  onUpdate: (formData: CreateGptProblemsRequest) => void;
   onSaveTemplate: (
     templateName: string,
-    formData: CreateGptQuestionsRequest
+    formData: CreateGptProblemsRequest
   ) => any;
 }) {
   const [templateName, setTemplateName] = useState<string>('');
-  const [formData, setFormData] = useState<CreateGptQuestionsRequest>(
+  const [formData, setFormData] = useState<CreateGptProblemsRequest>(
     templateToFormData(template)
   );
 

@@ -1,22 +1,22 @@
 import axios from 'axios';
 import {
   CompletionEval,
-  CreateGptQuestionsRequest,
-  CreateGptQuestionsResponse,
+  CreateGptProblemsRequest,
+  CreateGptProblemsResponse,
   GptRun,
   Template,
-} from './gpt-questions';
+} from './gpt-problems';
 import { getAuthHeaders } from './lms';
 
-export async function createGptQuestions(request: CreateGptQuestionsRequest) {
+export async function createGptQuestions(request: CreateGptProblemsRequest) {
   const resp = await axios.post(
-    `/api/gpt-redirect?apiname=create-questions`,
+    `/api/gpt-redirect?apiname=create-problems`,
     request,
     {
       headers: getAuthHeaders(),
     }
   );
-  return resp.data as CreateGptQuestionsResponse;
+  return resp.data as CreateGptProblemsResponse;
 }
 
 export async function getTemplates() {

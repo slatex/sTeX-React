@@ -196,7 +196,7 @@ function CompletionEvalForm({
       </Box>
       <Box mb={2}>
         <TextField
-          label="Number of Questions"
+          label="Number of Problems"
           type="number"
           value={numProblems}
           onChange={(e) => setNumProblems(parseInt(e.target.value) ?? 1)}

@@ -20,7 +20,7 @@ export interface Template {
 
 export type PostProcessingStep = 'JSON_TO_STEX' | 'REMOVE_NEWLINES';
 
-export interface CreateGptQuestionsRequest {
+export interface CreateGptProblemsRequest {
   dryRun: boolean;
   templateName: string;
   templateVersion: string;
@@ -41,7 +41,7 @@ export interface GptCompletionData {
   };
 }
 
-export interface CreateGptQuestionsResponse {
+export interface CreateGptProblemsResponse {
   runId: string;
   runTime: string;
   runner: string;
@@ -49,8 +49,8 @@ export interface CreateGptQuestionsResponse {
 }
 
 export interface GptRun {
-  request: CreateGptQuestionsRequest;
-  response: CreateGptQuestionsResponse;
+  request: CreateGptProblemsRequest;
+  response: CreateGptProblemsResponse;
 }
 
 export interface ProblemEval {
