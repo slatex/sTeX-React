@@ -27,7 +27,7 @@ import {
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { CreateGptProblemsForm } from '../../components/CreateGptQuestionsForm';
+import { CreateGptProblemsForm } from '../../components/CreateGptProblemsForm';
 import MainLayout from '../../layouts/MainLayout';
 import CompletionEvalForm from '../../components/GptEvalForm';
 import Link from 'next/link';
