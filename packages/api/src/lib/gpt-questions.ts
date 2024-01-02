@@ -1,3 +1,5 @@
+import { Tristate } from "./quiz";
+
 export interface VariableAssignment {
   // special keys:
   // To be documented.
@@ -44,4 +46,32 @@ export interface CreateGptQuestionsResponse {
   runTime: string;
   runner: string;
   completions: GptCompletionData[];
+}
+
+export interface GptRun {
+  request: CreateGptQuestionsRequest;
+  response: CreateGptQuestionsResponse;
+}
+
+export interface ProblemEval {
+  isUsable?: Tristate;
+  doesCompile?: Tristate;
+  hasCorrectImports?: Tristate;
+  
+  numContentErrors?: number;
+  numMissedAnnotations?: number;
+  numWrongAnnotations?: number;
+  textDescription?: string;
+  fixedProblem?: string;
+}
+
+export interface CompletionEval {
+  runId: string;
+  completionIdx: number;
+  version: string;
+  evaluator: string;
+
+  textDescription?: string;
+  problemEvals: ProblemEval[];
+  updateTime: string;
 }

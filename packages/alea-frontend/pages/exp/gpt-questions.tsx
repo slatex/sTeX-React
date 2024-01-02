@@ -5,18 +5,23 @@ import {
   AccordionDetails,
   AccordionSummary,
   Box,
+  Button,
   IconButton,
   TextField,
   Tooltip,
+  Typography,
 } from '@mui/material';
 import {
+  CompletionEval,
   CreateGptQuestionsRequest,
   CreateGptQuestionsResponse,
   Template,
   createGptQuestions,
+  getEval,
   getTemplates,
   getUserInfo,
   isModerator,
+  saveEval,
   saveTemplate,
 } from '@stex-react/api';
 import { NextPage } from 'next';
@@ -24,6 +29,8 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { CreateGptQuestionsForm } from '../../components/CreateGptQuestionsForm';
 import MainLayout from '../../layouts/MainLayout';
+import CompletionEvalForm from '../../components/GptEvalForm';
+import Link from 'next/link';
 
 const copyToClipboard = (text: string) => {
   navigator.clipboard
@@ -53,27 +60,35 @@ function formDataToTemplate(
   };
 }
 
-function OutputViewer({ response }: { response?: CreateGptQuestionsResponse }) {
-  const completion = response?.completions?.[0];
-  if (!completion)
+export function OutputViewer({
+  response,
+}: {
+  response?: CreateGptQuestionsResponse;
+}) {
+  const [completionIdx, setCompletionIdx] = useState(0);
+  const [completionEval, setCompletionEval] = useState<
+    CompletionEval | undefined
+  >(undefined);
+  useEffect(() => {
+    if (!response?.runId) return;
+    getEval(response.runId, completionIdx).then(setCompletionEval);
+  }, [response?.runId, completionIdx]);
+
+  const completion = response?.completions?.[completionIdx];
+  if (!completion) {
     return (
       <i style={{ fontSize: 'large' }}>
         Click &apos;Get GPT Response&apos; to see some output
       </i>
     );
+  }
+
   return (
     <Box>
-      <h2>Output</h2>
-      <h4>Usage</h4>
-      <pre style={{ display: 'inline' }}>
-        Prompt Tokens: <b>{completion.usage.promptTokens}</b>,{' '}
-      </pre>
-      <pre style={{ display: 'inline' }}>
-        Completion Tokens: <b>{completion.usage.completionTokens}</b>,{' '}
-      </pre>
-      <pre style={{ display: 'inline' }}>
-        Total Tokens: <b>{completion.usage.totalTokens}</b>
-      </pre>
+      <Typography variant="h5" mb="10px" sx={{ textDecoration: 'underline' }}>
+        Output
+      </Typography>
+
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           Actual Prompts
@@ -91,6 +106,18 @@ function OutputViewer({ response }: { response?: CreateGptQuestionsResponse }) {
           ))}
         </AccordionDetails>
       </Accordion>
+      <Typography variant="h6" mt="10px">
+        Usage
+      </Typography>
+      <pre style={{ display: 'inline' }}>
+        Prompt Tokens: <b>{completion.usage.promptTokens}</b>,{' '}
+      </pre>
+      <pre style={{ display: 'inline' }}>
+        Completion Tokens: <b>{completion.usage.completionTokens}</b>,{' '}
+      </pre>
+      <pre style={{ display: 'inline' }}>
+        Total Tokens: <b>{completion.usage.totalTokens}</b>
+      </pre>
       <pre>
         Approx Cost:{' '}
         <b>
@@ -114,6 +141,38 @@ function OutputViewer({ response }: { response?: CreateGptQuestionsResponse }) {
         InputProps={{ readOnly: true }}
         multiline
       />
+      {response?.runId && (
+        <CompletionEvalForm
+          runId={response.runId}
+          completionIdx={completionIdx}
+          initial={completionEval}
+          onSubmit={(completionEval) => {
+            saveEval(response.runId, completionIdx, completionEval);
+          }}
+        />
+      )}
+    </Box>
+  );
+}
+
+export function GptNavigator() {
+  return (
+    <Box display="flex" gap="10px">
+      <Link href="/exp/gpt-questions" passHref>
+        <Button color="secondary" variant="contained">
+          Create
+        </Button>
+      </Link>
+
+      <Link href="/exp/gpt-eval" passHref>
+        <Button color="secondary" variant="contained">
+          Evaluate
+        </Button>
+      </Link>
+
+      {/*<Link href="/exp/gpt-template" passHref>
+        <Button variant="contained">Template</Button>
+  </Link>*/}
     </Box>
   );
 }
@@ -152,19 +211,24 @@ const GptQuestions: NextPage = () => {
         <Box textAlign="center" m="20px">
           <h1>GPT Questions</h1>
         </Box>
-        {templates.map((template, idx) => (
-          <Box
-            key={template.templateName}
-            sx={{
-              cursor: 'pointer',
-              fontWeight: idx === selectedIndex ? 'bold' : 'normal',
-            }}
-            onClick={() => setSelectedIndex(idx)}
-          >
-            {template.templateName}{' '}
-            <span style={{ fontSize: '10px' }}>{template.version}</span>
-          </Box>
-        ))}
+        <GptNavigator />
+        <br />
+        <Box display="flex" gap="10px" flexWrap="wrap">
+          {templates.map((template, idx) => (
+            <Button
+              key={template.templateName}
+              sx={{ fontWeight: idx === selectedIndex ? 'bold' : 'normal' }}
+              onClick={() => setSelectedIndex(idx)}
+              variant="outlined"
+            >
+              {template.templateName}
+              <span style={{ fontSize: '8px', top: '-3px', left: '2px' }}>
+                v{template.version}
+              </span>
+            </Button>
+          ))}
+        </Box>
+        <br />
         {selectedTemplate && (
           <CreateGptQuestionsForm
             key={selectedIndex}
