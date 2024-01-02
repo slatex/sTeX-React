@@ -185,10 +185,11 @@ const GptEval: NextPage = () => {
         showDashboard={showDashboard}
         setShowDashboard={setShowDashboard}
       >
-        <Box mt="5px" mb="5px">
+        <Box mt="5px" mb="10px">
           <GptNavigator />
         </Box>
-        <Box>
+        <Box display="flex" alignItems="center" gap="10px">
+          Filters:
           <StringMultiSelector
             name="Templates"
             strings={templates.map((t) => t.templateName)}
