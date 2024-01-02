@@ -119,6 +119,7 @@ export interface PerProblemStats {
   correct: number;
   partial: number;
   incorrect: number;
+  avgQuotient: number;
 }
 
 export interface QuizStatsResponse {

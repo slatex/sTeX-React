@@ -93,6 +93,21 @@ export function QuizStatsDisplay({
         }}
         legendToggle
       />
+      <Chart
+        chartType="ColumnChart"
+        data={[
+          ['Quotient', 'AvgQuotient'],
+          ...Object.keys(stats.perProblemStats).map((problemId) => {
+            const { avgQuotient, header, maxPoints } =
+              stats.perProblemStats[problemId];
+            let disp = header ? convertHtmlStringToPlain(header) : '';
+            disp += ` (${problemId}) [${maxPoints}]`;
+            return [disp, avgQuotient];
+          }),
+        ]}
+        width="100%"
+        height="400px"
+      />
     </>
   );
 }
