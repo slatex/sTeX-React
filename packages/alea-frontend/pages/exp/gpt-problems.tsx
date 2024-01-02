@@ -147,7 +147,13 @@ export function OutputViewer({
           completionIdx={completionIdx}
           initial={completionEval}
           onSubmit={(completionEval) => {
-            saveEval(response.runId, completionIdx, completionEval);
+            try {
+              saveEval(completionEval);
+              alert('Saved!');
+            } catch (e) {
+              alert('Error saving! see console for details.');
+              console.error(e);
+            }
           }}
         />
       )}

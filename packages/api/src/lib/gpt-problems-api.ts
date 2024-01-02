@@ -44,11 +44,7 @@ export async function getGptRuns() {
   return resp.data as GptRun[];
 }
 
-export async function saveEval(
-  runId: string,
-  completionIdx: number,
-  evaluation: CompletionEval
-) {
+export async function saveEval(evaluation: CompletionEval) {
   const resp = await axios.post(
     `/api/gpt-redirect?apiname=save-eval`,
     evaluation,

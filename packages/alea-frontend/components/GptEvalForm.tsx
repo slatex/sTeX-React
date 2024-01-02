@@ -178,15 +178,11 @@ function CompletionEvalForm({
 
   return (
     <Box>
-      <Typography
-        variant="h5"
-        mt={2}
-        mb={1}
-        sx={{ textDecoration: 'underline' }}
-      >
+      <Typography variant="h5" mt={2} sx={{ textDecoration: 'underline' }}>
         Evaluation
       </Typography>
-      <Box mb={2}>
+      Evaluation Version: {initial?.version ?? ''}
+      <Box my={2}>
         <TextField
           label="Overall descriptive evaluation"
           value={textDescription}
