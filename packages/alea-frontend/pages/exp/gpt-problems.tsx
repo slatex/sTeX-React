@@ -141,7 +141,7 @@ export function OutputViewer({
         InputProps={{ readOnly: true }}
         multiline
       />
-      {response?.runId && (
+      {/*response?.runId && (
         <CompletionEvalForm
           runId={response.runId}
           completionIdx={completionIdx}
@@ -156,7 +156,7 @@ export function OutputViewer({
             }
           }}
         />
-      )}
+        )*/}
     </Box>
   );
 }
