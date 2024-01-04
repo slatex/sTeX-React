@@ -126,8 +126,7 @@ export default async function handler(
   }
 
   const results4: any[] = await queryGradingDbAndEndSet500OnError(
-    `SELECT quizId, problemId, points, COUNT(*) AS numStudents,avg
-    (points) as avgPoints from grading 
+    `SELECT quizId, problemId, points, COUNT(*) AS numStudents from grading 
     WHERE (quizId, problemId, userId, browserTimestamp_ms) IN ( 
         SELECT quizId, problemId, userId, MAX(browserTimestamp_ms) AS browserTimestamp_ms
         FROM grading
@@ -156,11 +155,11 @@ export default async function handler(
 
   const perProblemScoreSum = {};
   for (const result of results4) {
-    const { problemId, avgPoints, numStudents } = result;
+    const { problemId, points, numStudents } = result;
     if (!perProblemScoreSum[problemId]) {
       perProblemScoreSum[problemId] = 0;
     }
-    perProblemScoreSum[problemId] += avgPoints * numStudents;
+    perProblemScoreSum[problemId] += points * numStudents;
   }
 
   for (const problemId in perProblemScoreSum) {
