@@ -127,6 +127,7 @@ export interface QuizStatsResponse {
   scoreHistogram: { [scoreBucket: string]: number };
   requestsPerSec: { [ts: number]: number };
   perProblemStats: { [problemId: number]: PerProblemStats };
+  totalStudents: number;
 }
 
 // For recording quizzes at /quiz/old

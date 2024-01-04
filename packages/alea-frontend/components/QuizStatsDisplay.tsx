@@ -21,14 +21,10 @@ export function QuizStatsDisplay({
   stats: QuizStatsResponse;
   maxProblems: number;
 }) {
-  const totalStudents = Object.values(stats.attemptedHistogram).reduce(
-    (a, b) => a + +b,
-    0
-  );
   return (
     <>
       <h2>
-        Quiz attempted by <b style={{ color: 'red' }}>{totalStudents}</b>{' '}
+        Quiz attempted by <b style={{ color: 'red' }}>{stats.totalStudents}</b>{' '}
         students
       </h2>
 

@@ -75,10 +75,14 @@ export default async function handler(
     res
   );
   if (!results1) return;
-  const attemptedHistogram = {};
+  const attemptedHistogram: { [attemptedProblems: number]: number } = {};
   for (const r1 of results1) {
     attemptedHistogram[r1.numProblems] = r1.numStudents;
   }
+  const totalStudents = Object.values(attemptedHistogram).reduce(
+    (a, b) => a + +b,
+    0
+  );
   const results2: any[] = await queryGradingDbDontEndSet500OnError(
     `SELECT score, COUNT(*) AS numStudents
     FROM (
@@ -122,7 +126,8 @@ export default async function handler(
   }
 
   const results4: any[] = await queryGradingDbAndEndSet500OnError(
-    `SELECT quizId, problemId, points, COUNT(*) AS numStudents from grading 
+    `SELECT quizId, problemId, points, COUNT(*) AS numStudents,avg
+    (points) as avgPoints from grading 
     WHERE (quizId, problemId, userId, browserTimestamp_ms) IN ( 
         SELECT quizId, problemId, userId, MAX(browserTimestamp_ms) AS browserTimestamp_ms
         FROM grading
@@ -149,19 +154,20 @@ export default async function handler(
     }
   }
 
-  const results5: any[] = await queryGradingDbAndEndSet500OnError(
-    `SELECT  problemId, AVG(points) as avgPoints FROM grading  WHERE (quizId, problemId, userId, browserTimestamp_ms) IN ( 
-      SELECT quizId,problemId, userId, MAX(browserTimestamp_ms) AS browserTimestamp_ms
-    FROM grading
-    WHERE quizId=?
-    GROUP BY quizId, problemId,userId) GROUP BY problemId`,
-    [quizId],
-    res
-  );
+  const perProblemScoreSum = {};
+  for (const result of results4) {
+    const { problemId, avgPoints, numStudents } = result;
+    if (!perProblemScoreSum[problemId]) {
+      perProblemScoreSum[problemId] = 0;
+    }
+    perProblemScoreSum[problemId] += avgPoints * numStudents;
+  }
 
-  for (const r5 of results5) {
-    perProblemStats[r5.problemId].avgQuotient =
-      r5.avgPoints / perProblemStats[r5.problemId].maxPoints;
+  for (const problemId in perProblemScoreSum) {
+    const sum = perProblemScoreSum[problemId];
+    const average = sum / totalStudents;
+    perProblemStats[problemId].avgQuotient =
+      average / perProblemStats[problemId].maxPoints;
   }
 
   return res.status(200).json({
@@ -169,5 +175,6 @@ export default async function handler(
     scoreHistogram,
     requestsPerSec,
     perProblemStats,
+    totalStudents,
   } as QuizStatsResponse);
 }
