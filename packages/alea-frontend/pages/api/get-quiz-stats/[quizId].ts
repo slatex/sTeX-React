@@ -145,9 +145,9 @@ export default async function handler(
       perProblemStats[problemId] = missingProblemData();
     }
     const quotient = r4.points / perProblemStats[problemId].maxPoints;
-    if (quotient <= 0.5) {
+    if (quotient < 0.5) {
       perProblemStats[problemId].fail += r4.numStudents;
-    } else if (quotient >= 0.5 && quotient <= 0.7) {
+    } else if (quotient <= 0.7) {
       perProblemStats[problemId].pass += r4.numStudents;
     } else {
       perProblemStats[problemId].satisfactory += r4.numStudents;
