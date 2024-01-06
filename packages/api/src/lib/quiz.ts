@@ -116,9 +116,9 @@ export interface ProblemResponse {
 export interface PerProblemStats {
   header: string;
   maxPoints: number;
-  correct: number;
-  partial: number;
-  incorrect: number;
+  satisfactory: number;
+  pass: number;
+  fail: number;
   avgQuotient: number;
 }
 
@@ -127,6 +127,7 @@ export interface QuizStatsResponse {
   scoreHistogram: { [scoreBucket: string]: number };
   requestsPerSec: { [ts: number]: number };
   perProblemStats: { [problemId: number]: PerProblemStats };
+  totalStudents: number;
 }
 
 // For recording quizzes at /quiz/old

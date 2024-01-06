@@ -21,14 +21,10 @@ export function QuizStatsDisplay({
   stats: QuizStatsResponse;
   maxProblems: number;
 }) {
-  const totalStudents = Object.values(stats.attemptedHistogram).reduce(
-    (a, b) => a + +b,
-    0
-  );
   return (
     <>
       <h2>
-        Quiz attempted by <b style={{ color: 'red' }}>{totalStudents}</b>{' '}
+        Quiz attempted by <b style={{ color: 'red' }}>{stats.totalStudents}</b>{' '}
         students
       </h2>
 
@@ -71,13 +67,13 @@ export function QuizStatsDisplay({
       <Chart
         chartType="ColumnChart"
         data={[
-          ['Question', 'Correct', 'Partial', 'Incorrect'],
+          ['Question', 'Satisfactory', 'Pass', 'Fail'],
           ...Object.keys(stats.perProblemStats).map((problemId) => {
-            const { correct, incorrect, partial, header, maxPoints } =
+            const { satisfactory, fail, pass, header, maxPoints } =
               stats.perProblemStats[problemId];
             let disp = header ? convertHtmlStringToPlain(header) : '';
             disp += ` (${problemId}) [${maxPoints}]`;
-            return [disp, correct, partial, incorrect];
+            return [disp, satisfactory, pass, fail];
           }),
         ]}
         width="100%"
