@@ -67,13 +67,13 @@ export function QuizStatsDisplay({
       <Chart
         chartType="ColumnChart"
         data={[
-          ['Question', 'Correct', 'Partial', 'Incorrect'],
+          ['Question', 'Satisfactory', 'Pass', 'Fail'],
           ...Object.keys(stats.perProblemStats).map((problemId) => {
-            const { correct, incorrect, partial, header, maxPoints } =
+            const { satisfactory, fail, pass, header, maxPoints } =
               stats.perProblemStats[problemId];
             let disp = header ? convertHtmlStringToPlain(header) : '';
             disp += ` (${problemId}) [${maxPoints}]`;
-            return [disp, correct, partial, incorrect];
+            return [disp, satisfactory, pass, fail];
           }),
         ]}
         width="100%"

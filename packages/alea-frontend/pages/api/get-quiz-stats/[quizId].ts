@@ -16,9 +16,9 @@ function missingProblemData() {
   return {
     header: 'Missing problem',
     maxPoints: 0,
-    correct: 0,
-    partial: 0,
-    incorrect: 0,
+    satisfactory: 0,
+    pass: 0,
+    fail: 0,
     avgQuotient: 0,
   };
 }
@@ -47,9 +47,9 @@ export default async function handler(
     perProblemStats[problemId] = {
       header,
       maxPoints: points,
-      correct: 0,
-      partial: 0,
-      incorrect: 0,
+      satisfactory: 0,
+      pass: 0,
+      fail: 0,
       avgQuotient: 0,
     };
   }
@@ -144,12 +144,13 @@ export default async function handler(
     if (!(problemId in perProblemStats)) {
       perProblemStats[problemId] = missingProblemData();
     }
-    if (r4.points <= 0) {
-      perProblemStats[problemId].incorrect += r4.numStudents;
-    } else if (r4.points < perProblemStats[problemId].maxPoints) {
-      perProblemStats[problemId].partial += r4.numStudents;
+    const quotient = r4.points / perProblemStats[problemId].maxPoints;
+    if (quotient <= 0) {
+      perProblemStats[problemId].fail += r4.numStudents;
+    } else if (quotient >= 0.5 && quotient <= 0.7) {
+      perProblemStats[problemId].pass += r4.numStudents;
     } else {
-      perProblemStats[problemId].correct += r4.numStudents;
+      perProblemStats[problemId].satisfactory += r4.numStudents;
     }
   }
 

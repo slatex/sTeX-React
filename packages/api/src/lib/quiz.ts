@@ -116,9 +116,9 @@ export interface ProblemResponse {
 export interface PerProblemStats {
   header: string;
   maxPoints: number;
-  correct: number;
-  partial: number;
-  incorrect: number;
+  satisfactory: number;
+  pass: number;
+  fail: number;
   avgQuotient: number;
 }
 
