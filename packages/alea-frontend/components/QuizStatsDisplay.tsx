@@ -77,7 +77,7 @@ export function QuizStatsDisplay({
       <Chart
         chartType="ColumnChart"
         data={[
-          ['Question', 'Satisfactory', 'Pass', 'Fail'],
+          ['Question', 'Satisfactory (>70%)', 'Pass (50-70%)', 'Fail (<50%)'],
           ...Object.keys(stats.perProblemStats).map((problemId) => {
             const { satisfactory, fail, pass, header, maxPoints } =
               stats.perProblemStats[problemId];
