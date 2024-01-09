@@ -171,9 +171,14 @@ const Courses: NextPage = () => {
         <Typography sx={{ textAlign: 'left', mt: '10px', mb: '10px' }}>
           {t.studyBuddyIntro}
         </Typography>
+        <hr />
         {courseIds.length ? (
           <EnrolledCourses courseIds={courseIds} courseList={courseList} />
-        ) : null}
+        ) : (
+          <Typography sx={{ textAlign: 'left', mt: '10px', mb: '5px' }}>
+            {t.notEnrolledMessage}
+          </Typography>
+        )}
         <br />
         <Autocomplete
           id="combo-box-demo"

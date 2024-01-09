@@ -14,6 +14,16 @@ function bucketToFirstNum(bucket: string) {
   return parseFloat(lowerBound);
 }
 
+function getColorOfBar(avgQuotient: number): string {
+  if (avgQuotient < 0.5) {
+    return '#dc3912';
+  } else if (avgQuotient >= 0.5 && avgQuotient <= 0.7) {
+    return '#ff9900';
+  } else {
+    return '#109618';
+  }
+}
+
 export function QuizStatsDisplay({
   stats,
   maxProblems,
@@ -92,13 +102,13 @@ export function QuizStatsDisplay({
       <Chart
         chartType="ColumnChart"
         data={[
-          ['Quotient', 'AvgQuotient'],
+          ['Quotient', 'AvgQuotient', { role: 'style' }],
           ...Object.keys(stats.perProblemStats).map((problemId) => {
             const { avgQuotient, header, maxPoints } =
               stats.perProblemStats[problemId];
             let disp = header ? convertHtmlStringToPlain(header) : '';
             disp += ` (${problemId}) [${maxPoints}]`;
-            return [disp, avgQuotient];
+            return [disp, avgQuotient, getColorOfBar(avgQuotient)];
           }),
         ]}
         width="100%"
