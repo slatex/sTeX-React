@@ -1,19 +1,25 @@
+import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import {
   Box,
   Button,
   Checkbox,
   FormControlLabel,
   TextField,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import {
-  ProblemEval as ProblemEval,
   CompletionEval,
+  LikertLabels,
+  LikertRating,
+  LikertScaleSize,
+  LikertType,
+  ProblemEval,
   Tristate,
 } from '@stex-react/api';
 import { Fragment, useEffect, useState } from 'react';
-import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import HelpCenterIcon from '@mui/icons-material/HelpCenter';
 
 const TriStateCheckbox = ({
   value,
@@ -31,6 +37,7 @@ const TriStateCheckbox = ({
           checked={value === Tristate.TRUE}
           indeterminate={!value || value === Tristate.UNKNOWN}
           checkedIcon={<CheckBoxIcon htmlColor="green" />}
+          indeterminateIcon={<HelpCenterIcon htmlColor="orange" />}
           icon={<CancelRoundedIcon htmlColor="red" />}
           onChange={() => {
             switch (value) {
@@ -53,6 +60,63 @@ const TriStateCheckbox = ({
   );
 };
 
+function interpolateColor(i, scaleSize) {
+  const ratio = i / (scaleSize - 1);
+  const hue = Math.round(120 * ratio); // interpolate between red (0) and green (120)
+  const l = 25 + Math.round(15 * (1 - ratio)); // interpolate between red (25) and green (40)
+  return `hsl(${hue}, 100%, ${l}%)`;
+}
+
+function LikertInput({
+  title,
+  type,
+  rating,
+  onChange,
+}: {
+  title: string;
+  type: LikertType;
+  rating?: LikertRating;
+  onChange: (r: LikertRating) => void;
+}) {
+  const scaleSize = LikertScaleSize[type];
+
+  return (
+    <Box mb="10px">
+      <Typography variant="body1" fontWeight="bold">
+        {title}
+      </Typography>
+      {Array(scaleSize)
+        .fill(0)
+        .map((_, i) => (
+          <Fragment key={i}>
+            {scaleSize === 7 && i === 3 && <br />}
+            <Tooltip title={LikertLabels[type][i]}>
+              <Button
+                sx={{
+                  fontWeight: i + 1 === rating?.value ? 'bold' : undefined,
+                  fontSize: 'small',
+                  color: interpolateColor(i, scaleSize),
+                  border:
+                    i + 1 === rating?.value ? '1px solid #CCC' : undefined,
+                }}
+                onClick={() =>
+                  onChange({
+                    scaleSize: scaleSize as any,
+                    value: (i + 1) as any,
+                    label: LikertLabels[type][i],
+                  })
+                }
+              >
+                {LikertLabels[type][i]}
+              </Button>
+            </Tooltip>
+            {scaleSize === 7 && i === 3 && <br />}
+          </Fragment>
+        ))}
+    </Box>
+  );
+}
+
 function ProblemEvalForm({
   problemEval,
   onChange,
@@ -72,21 +136,46 @@ function ProblemEvalForm({
         fullWidth
       />
       <br />
-      <TriStateCheckbox
-        value={problemEval?.isUsable}
-        label="Is Usable"
-        onChange={(value) => onChange({ ...problemEval, isUsable: value })}
+      <LikertInput
+        title="How relevant is the problem to the provided material?"
+        type="relevant"
+        rating={problemEval.relevanceToMaterial}
+        onChange={(relevanceToMaterial) =>
+          onChange({ ...problemEval, relevanceToMaterial })
+        }
       />
+      <LikertInput
+        title="How difficult is the problem?"
+        type="difficult"
+        rating={problemEval.difficulty}
+        onChange={(difficulty) => onChange({ ...problemEval, difficulty })}
+      />
+      <LikertInput
+        title="How useful is the problem for learning?"
+        type="useful"
+        rating={problemEval.useful}
+        onChange={(useful) => onChange({ ...problemEval, useful })}
+      />
+
+      <LikertInput
+        title="Is the problem appropriate for the provided objectives?"
+        type="appropriate"
+        rating={problemEval.appropriateForObjective}
+        onChange={(appropriateForObjective) =>
+          onChange({ ...problemEval, appropriateForObjective })
+        }
+      />
+      <Typography variant="h5">Correctness</Typography>
       <TriStateCheckbox
         value={problemEval?.doesCompile}
         label="Does compile"
         onChange={(value) => onChange({ ...problemEval, doesCompile: value })}
       />
       <TriStateCheckbox
-        value={problemEval?.hasCorrectImports}
-        label="Has Correct Imports"
+        value={problemEval?.languageCorrect}
+        label="Is language correct"
         onChange={(value) =>
-          onChange({ ...problemEval, hasCorrectImports: value })
+          onChange({ ...problemEval, languageCorrect: value })
         }
       />
       <br />
@@ -99,6 +188,13 @@ function ProblemEvalForm({
         }
         name="numContentErrors"
         sx={{ mb: 2 }}
+      />
+      <br />
+      <LikertInput
+        title="Is the problem ambiguous?"
+        type="ambiguous"
+        rating={problemEval.ambiguous}
+        onChange={(ambiguous) => onChange({ ...problemEval, ambiguous })}
       />
       <br />
       <TextField
@@ -121,6 +217,29 @@ function ProblemEvalForm({
         }
         name="numWrongAnnotations"
       />
+      <br />
+      <br />
+      <TextField
+        label="Missed Imports"
+        type="number"
+        value={problemEval.numMissedImports || ''}
+        onChange={({ target }) =>
+          onChange({ ...problemEval, numMissedImports: +target.value })
+        }
+        name="numMissedImports"
+        sx={{ mr: 2 }}
+      />
+
+      <TextField
+        label="Wrong Imports"
+        type="number"
+        value={problemEval.numWrongImports || ''}
+        onChange={({ target }) =>
+          onChange({ ...problemEval, numWrongImports: +target.value })
+        }
+        name="numWrongImports"
+      />
+      <br />
       <TextField
         label="Corrected Problem"
         type="number"
