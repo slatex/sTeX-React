@@ -84,7 +84,7 @@ function CourseStub({
   );
 }
 
-function EnrolledCourses({ courseIds, courseList }) {
+function EnrolledCourses({ courseIds }) {
   const { studyBuddy: t } = getLocaleObject(useRouter());
   return (
     <>
@@ -173,7 +173,7 @@ const Courses: NextPage = () => {
         </Typography>
         <hr />
         {courseIds.length ? (
-          <EnrolledCourses courseIds={courseIds} courseList={courseList} />
+          <EnrolledCourses courseIds={courseIds} />
         ) : (
           <Typography sx={{ textAlign: 'left', mt: '10px', mb: '5px' }}>
             {t.notEnrolledMessage}
@@ -183,7 +183,7 @@ const Courses: NextPage = () => {
         <Autocomplete
           id="combo-box-demo"
           options={Object.keys(courseList).map((courseCode) => ({
-            label: courseList[courseCode].courseName,
+            label: courseList[courseCode]?.courseName,
             id: courseCode,
           }))}
           sx={{ width: 300 }}
@@ -218,7 +218,7 @@ const Courses: NextPage = () => {
                       href={`/study-buddy/${courseCode}`}
                       onClick={() => addRecentCourse(courseCode)}
                     >
-                      {courseList[courseCode].courseName}
+                      {courseList[courseCode]?.courseName}
                     </Link>
                   </TableCell>
                 </TableRow>
