@@ -66,7 +66,7 @@ function CourseStub({
       variant="contained"
       onClick={() => router.push(`/study-buddy/${courseCode}`)}
     >
-      {MaAI_COURSES[courseCode].courseName}
+      {MaAI_COURSES[courseCode]?.courseName ?? courseCode}
       {onCancel && (
         <IconButton
           onClick={(e) => {
