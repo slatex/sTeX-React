@@ -26,6 +26,14 @@ export async function getTemplates() {
   return resp.data as Template[];
 }
 
+export async function getTemplateVersions(templateName: string) {
+  const resp = await axios.get(
+    `/api/gpt-redirect?apiname=get-template-versions/${templateName}`,
+    { headers: getAuthHeaders() }
+  );
+  return resp.data as Template[];
+}
+
 export async function saveTemplate(template: Template) {
   const resp = await axios.post(
     `/api/gpt-redirect?apiname=save-template`,

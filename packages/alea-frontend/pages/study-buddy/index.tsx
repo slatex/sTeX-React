@@ -148,7 +148,7 @@ const Courses: NextPage = () => {
   }, []);
   const courseIds = enrolledCourseIds.map((item) => item?.courseId);
   return (
-    <MainLayout title="Courses-List">
+    <MainLayout title="Study Buddy | VoLL-KI">
       <Box
         sx={{
           margin: 'auto',
