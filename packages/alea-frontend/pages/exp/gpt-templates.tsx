@@ -42,9 +42,10 @@ function TemplateMenu({
         </Box>
       }
     >
-      <Box sx={{ cursor: 'pointer' }}>
+      <Box>
         {templates.map((template: Template) => (
           <Typography
+            sx={{ cursor: 'pointer' }}
             ml="20px"
             mt="5px"
             key={template.templateName}
@@ -68,7 +69,7 @@ function TemplatePrompt({
   updateMessage,
   updater,
 }: {
-  prompt: string;
+  prompt: string[];
   updateMessage: string;
   updater: string;
 }) {
@@ -83,12 +84,17 @@ function TemplatePrompt({
     <>
       <Box style={boxStyle}>
         <Typography>
-          <b>Update Message ({updater})</b> : {updateMessage}{' '}
+          <b>Update Message ({updater})</b> : {updateMessage}
         </Typography>
       </Box>
-      <Box style={boxStyle}>
-        <Typography>{prompt}</Typography>
-      </Box>
+      {prompt.map((templateString, idx) => (
+        <Box key={idx}>
+          <Typography fontWeight="bold">Prompt : {idx + 1}</Typography>
+          <Box style={boxStyle}>
+            <Typography>{templateString}</Typography>
+          </Box>
+        </Box>
+      ))}
     </>
   );
 }
@@ -96,7 +102,6 @@ function TemplatePrompt({
 const GptEval: NextPage = () => {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [templateVersions, setTemplateVersions] = useState<Template[]>([]);
-  const [selectedIndex, setSelectedIndex] = useState(0);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
 
@@ -138,10 +143,11 @@ const GptEval: NextPage = () => {
             {templateVersions?.map((template, idx) => (
               <Button
                 key={idx}
-                sx={{ fontWeight: idx === selectedIndex ? 'bold' : 'normal' }}
+                sx={{
+                  fontWeight: template === selectedTemplate ? 'bold' : 'normal',
+                }}
                 onClick={() => {
                   setSelectedTemplate(template);
-                  setSelectedIndex(idx);
                 }}
                 variant="outlined"
               >
@@ -154,7 +160,7 @@ const GptEval: NextPage = () => {
           </Box>
           {selectedTemplate && (
             <TemplatePrompt
-              prompt={selectedTemplate?.templateStrs[0]}
+              prompt={selectedTemplate?.templateStrs}
               updateMessage={selectedTemplate?.updateMessage}
               updater={selectedTemplate?.updater}
             />

@@ -44,7 +44,7 @@ const copyToClipboard = (text: string) => {
     });
 };
 
-export function formDataToTemplate(
+function formDataToTemplate(
   templateName: string,
   updateMessage: string,
   formData: CreateGptProblemsRequest
