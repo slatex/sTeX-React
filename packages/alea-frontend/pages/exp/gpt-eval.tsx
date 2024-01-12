@@ -99,7 +99,7 @@ function StringMultiSelector({
     </FormControl>
   );
 }
-function KeyValueDisplay({
+export function KeyValueDisplay({
   dispKey,
   value,
 }: {

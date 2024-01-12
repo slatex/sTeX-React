@@ -44,7 +44,7 @@ const copyToClipboard = (text: string) => {
     });
 };
 
-function formDataToTemplate(
+export function formDataToTemplate(
   templateName: string,
   updateMessage: string,
   formData: CreateGptProblemsRequest
@@ -175,10 +175,11 @@ export function GptNavigator() {
           Evaluate
         </Button>
       </Link>
-
-      {/*<Link href="/exp/gpt-template" passHref>
-        <Button variant="contained">Template</Button>
-  </Link>*/}
+      <Link href="/exp/gpt-templates" passHref>
+        <Button variant="contained" color="secondary">
+          Template
+        </Button>
+      </Link>
     </Box>
   );
 }
