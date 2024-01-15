@@ -22,7 +22,7 @@ import {
   CreateGptProblemsRequest,
   SectionsAPIData,
   Template,
-  getDocumentSections
+  getDocumentSections,
 } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import {
@@ -97,7 +97,6 @@ function SectionPicker({
       const filepath = 'course/notes/notes1.tex';
       const docSections = await getDocumentSections(mmtUrl, archive, filepath);
       const s = getSectionNames(docSections);
-      console.log(s);
       setSectionNames(s);
     }
     getSections();
@@ -222,20 +221,24 @@ function AssignmentValueInput({
 export function CreateGptProblemsForm({
   template,
   onUpdate,
+  templates,
   onSaveTemplate,
 }: {
   template: Template;
   onUpdate: (formData: CreateGptProblemsRequest) => void;
+  templates: Template[];
   onSaveTemplate: (
     templateName: string,
     formData: CreateGptProblemsRequest
   ) => any;
 }) {
-  const [templateName, setTemplateName] = useState<string>('');
+  const [templateName, setTemplateName] = useState<string>(
+    template.templateName || ''
+  );
   const [formData, setFormData] = useState<CreateGptProblemsRequest>(
     templateToFormData(template)
   );
-
+  const isExisting = templates.some((t) => t.templateName === templateName);
   useEffect(() => {
     setFormData(templateToFormData(template));
   }, [template]);
@@ -255,7 +258,6 @@ export function CreateGptProblemsForm({
     const newArray = formData[prop].filter((_, i) => i !== index);
     setFormData({ ...formData, [prop]: newArray });
   };
-
   return (
     <div>
       <Typography variant="h5">Prompts</Typography>
@@ -405,9 +407,8 @@ export function CreateGptProblemsForm({
           onClick={() => onSaveTemplate(templateName, formData)}
           variant="contained"
           sx={{ ml: '10px' }}
-          disabled={!templateName}
         >
-          Save Template
+          {isExisting ? 'Update Template' : 'Create Template'}
         </Button>
       </Box>
     </div>

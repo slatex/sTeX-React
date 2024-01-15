@@ -239,6 +239,7 @@ const GptQuestions: NextPage = () => {
         {selectedTemplate && (
           <CreateGptProblemsForm
             key={selectedIndex}
+            templates={templates}
             template={selectedTemplate}
             onUpdate={async (f) => {
               if (isFetchingOutput) {
