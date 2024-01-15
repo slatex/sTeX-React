@@ -175,10 +175,11 @@ export function GptNavigator() {
           Evaluate
         </Button>
       </Link>
-
-      {/*<Link href="/exp/gpt-template" passHref>
-        <Button variant="contained">Template</Button>
-  </Link>*/}
+      <Link href="/exp/gpt-templates" passHref>
+        <Button variant="contained" color="secondary">
+          Template
+        </Button>
+      </Link>
     </Box>
   );
 }
@@ -238,6 +239,7 @@ const GptQuestions: NextPage = () => {
         {selectedTemplate && (
           <CreateGptProblemsForm
             key={selectedIndex}
+            templates={templates}
             template={selectedTemplate}
             onUpdate={async (f) => {
               if (isFetchingOutput) {
