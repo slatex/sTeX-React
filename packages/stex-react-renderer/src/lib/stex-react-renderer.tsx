@@ -71,7 +71,6 @@ export function StexReactRenderer({
     !shouldUseDrawer() && !IS_MMT_VIEWER
   );
   const [renderOptions, setRenderOptions] = useState({
-    allowFolding: (localStore?.getItem('sectionFolding') || 'false') === 'true',
     noFrills,
   });
   const [sectionLocs, setSectionLocs] = useState<{
@@ -142,7 +141,6 @@ export function StexReactRenderer({
         value={{
           renderOptions,
           setRenderOptions: (o) => {
-            localStore?.setItem('sectionFolding', o.allowFolding.toString());
             setRenderOptions(o);
           },
         }}
