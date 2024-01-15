@@ -5,11 +5,13 @@
 
 import * as Sentry from "@sentry/nextjs";
 
-Sentry.init({
+const EDGE_MONITORING_ENABLED = false;
+
+EDGE_MONITORING_ENABLED && Sentry.init({
   dsn: "https://4fa96f6b7641562d8c76822d52686050@o4506222388183040.ingest.sentry.io/4506222402732032",
 
   // Adjust this value in production, or use tracesSampler for greater control
-  tracesSampleRate: 1,
+  tracesSampleRate: 0.01,
 
   // Setting this option to true will print useful information to the console while you're setting up Sentry.
   debug: false,
