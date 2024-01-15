@@ -32,7 +32,7 @@ import CompetencyIndicator from './CompetencyIndicator';
 import { ContentFromUrl } from './ContentFromUrl';
 import { DisplayContext, DisplayReason } from './ContentWithHightlight';
 import { ErrorBoundary } from './ErrorBoundary';
-import { ExpandableContent } from './ExpandableContent';
+import { ExpandableContent, ExpandableStaticContent } from './ExpandableContent';
 import { DocSectionContext } from './InfoSidebar';
 import { InlineProblemDisplay } from './InlineProblemDisplay';
 import MathJaxHack from './MathJaxHack';
@@ -604,7 +604,6 @@ export const replace = (d: DOMNode): any => {
         <ExpandableContent
           htmlTitle={domNode}
           contentUrl={inputRef}
-          title={domToReact(domNode.children, { replace }) as any}
         />
         &nbsp;
       </>
@@ -642,8 +641,7 @@ export const replace = (d: DOMNode): any => {
       (child) => !!(child as any).attribs?.['data-collapse-body']
     );
     return (
-      <ExpandableContent
-        htmlTitle={titleNodes}
+      <ExpandableStaticContent
         title={domToReact(titleNodes, { replace }) as any}
         defaultOpen={defaultOpen}
         staticContent={domToReact(bodyNodes, { replace }) as any}

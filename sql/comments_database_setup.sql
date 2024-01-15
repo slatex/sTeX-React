@@ -93,7 +93,8 @@ CREATE TABLE StudyBuddyUsers (
     meetType VARCHAR(255),
     languages VARCHAR(255),
     dayPreference VARCHAR(255),
-    
+    createdTimestamp timestamp DEFAULT CURRENT_TIMESTAMP,
+
     PRIMARY KEY (userId, courseId)
 );
 

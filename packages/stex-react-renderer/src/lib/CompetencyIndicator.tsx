@@ -21,7 +21,7 @@ import {
   getUriWeights,
   isLoggedIn,
 } from '@stex-react/api';
-import { BG_COLOR, getSectionInfo, localStore } from '@stex-react/utils';
+import { BG_COLOR, getSectionInfo } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import CompetencyTable from './CompetencyTable';

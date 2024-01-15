@@ -126,19 +126,25 @@ export class DocFragManager {
 
   reportLoadedFragment(
     url: string,
-    openAtLeastOnce: boolean,
+    wasSeen: boolean,
+    fetched: boolean,
+    rendered: boolean,
     ref?: HTMLElement
   ) {
     if (!ref) return;
-    //if (openAtLeastOnce) console.log('reported open: ' + url);
+    const state = rendered
+      ? DocFragDisplayStatus.RENDERED
+      : fetched
+      ? DocFragDisplayStatus.FETCHED
+      : wasSeen
+      ? DocFragDisplayStatus.TO_BE_SHOWN
+      : DocFragDisplayStatus.PLACEHOLDER;
+
+    if (state === DocFragDisplayStatus.TO_BE_SHOWN)
+      console.log('reported open: ' + url);
     const loc = getSectionInfo(url);
+    this.docFragDisplayStatus.set(fileLocToString(loc), state);
     this.fileLocElementMap.set(fileLocToString(loc), ref);
-    this.docFragDisplayStatus.set(
-      fileLocToString(loc),
-      openAtLeastOnce
-        ? DocFragDisplayStatus.TO_BE_SHOWN
-        : DocFragDisplayStatus.PLACEHOLDER
-    );
     this.scrollIfNeeded();
   }
 }

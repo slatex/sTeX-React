@@ -190,7 +190,7 @@ function RenderTree({
           }}
         >
           {preAdornment ? preAdornment(node.tocNode.id) : null}
-           {convertHtmlStringToPlain(node.tocNode.title)}
+           {convertHtmlStringToPlain(node.tocNode.title || 'Untitled')}
         </span>
       </Box>
       {isOpen && node.children.length > 0 && (
@@ -312,6 +312,7 @@ export function ContentDashboard({
       if (!courseId || coveredSectionIds !== undefined) return;
       const resp = await axios.get('/api/get-coverage-timeline');
       const snaps = (resp.data as CoverageTimeline)?.[courseId];
+      if(!snaps?.length) return;
       const endSec = snaps[snaps.length - 1].sectionName;
       const r = getCoveredSections('', endSec, docSections, true);
       setFetchedCoveredSectionIds(r.coveredSectionIds);
@@ -369,8 +370,7 @@ export function ContentDashboard({
                   <EditIcon />
                 </IconButton>
               </a>
-            )}{' '}
-            {/*<RendererDisplayOptions /> removed - as requested by Dennis*/}
+            )}
           </Box>
         </>
       }

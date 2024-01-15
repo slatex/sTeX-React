@@ -127,7 +127,6 @@ export function ThreadView({
                     fileLoc.filepath
                   )}
                   noFurtherExpansion={true}
-                  title={''}
                 />
               </DocumentWidthSetter>
             </Box>

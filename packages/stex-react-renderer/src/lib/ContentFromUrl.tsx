@@ -11,12 +11,16 @@ export const ContentFromUrl = memo(
     displayReason = undefined,
     topLevelDocUrl = undefined,
     minLoadingHeight = undefined,
+    onDataFetched = undefined,
+    onRendered = undefined,
   }: {
     url: string;
     modifyRendered?: (node: any) => any;
     displayReason?: DisplayReason;
     topLevelDocUrl?: string;
     minLoadingHeight?: string;
+    onDataFetched?: () => void;
+    onRendered?: () => void;
   }) => {
     const [mmtHtml, setMmtHtml] = useState<string | undefined>(undefined);
     const { mmtUrl } = useContext(ServerLinksContext);
@@ -32,9 +36,14 @@ export const ContentFromUrl = memo(
         .then((r) => {
           let html = `<span style={{ color: 'red' }}>Error loading: ${url}</span>`;
           if (r?.data) html = r.data;
+          onDataFetched?.();
           setMmtHtml(html.trim());
         });
     }, [mmtUrl, url]);
+
+    useEffect(() => {
+      if (mmtHtml !== undefined) onRendered?.();
+    });
 
     if (mmtHtml === undefined) {
       return (

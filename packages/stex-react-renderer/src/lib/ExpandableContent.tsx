@@ -11,6 +11,7 @@ import {
 import {
   MouseEvent,
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -20,7 +21,6 @@ import { ContentFromUrl } from './ContentFromUrl';
 import { ErrorBoundary } from './ErrorBoundary';
 import { ExpandableContextMenu } from './ExpandableContextMenu';
 import { DocSectionContext } from './InfoSidebar';
-import { RenderOptions } from './RendererDisplayOptions';
 import { SEPARATOR_inDocPath } from './collectIndexInfo';
 import { useOnScreen } from './useOnScreen';
 import { useRect } from './useRect';
@@ -37,173 +37,159 @@ function getInDocumentLink(childContext: string[]) {
   );
 }
 
+export function ExpandableStaticContent({
+  staticContent,
+  title,
+  defaultOpen = false,
+}: {
+  staticContent: any;
+  title: any;
+  defaultOpen?: boolean;
+}) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+
+  const changeState = (e: MouseEvent) => {
+    e.stopPropagation();
+    setIsOpen((v) => !v);
+  };
+
+  return (
+    <Box>
+      <Box display="flex" justifyContent="space-between">
+        <Box
+          display="flex"
+          alignItems="center"
+          sx={{ cursor: 'pointer' }}
+          onClick={changeState}
+        >
+          <IconButton sx={{ color: 'gray', p: '0' }} onClick={changeState}>
+            {isOpen ? (
+              <IndeterminateCheckBoxOutlinedIcon sx={{ fontSize: '20px' }} />
+            ) : (
+              <AddBoxOutlinedIcon sx={{ fontSize: '20px' }} />
+            )}
+          </IconButton>
+          <Box
+            sx={{
+              '& > *:hover': { background: '#DDD' },
+              width: 'fit-content',
+              px: '4px',
+              ml: '-2px',
+              borderRadius: '5px',
+            }}
+          >
+            {title}
+          </Box>
+        </Box>
+      </Box>
+      <Box display={isOpen ? 'flex' : 'none'}>
+        <Box
+          minWidth="20px"
+          sx={{
+            cursor: 'pointer',
+            '&:hover *': { borderLeft: '1px solid #333' },
+          }}
+          onClick={changeState}
+        >
+          <Box width="0" m="auto" borderLeft="1px solid #CCC" height="100%">
+            &nbsp;
+          </Box>
+        </Box>
+        <Box overflow="visible">{staticContent}</Box>
+      </Box>
+    </Box>
+  );
+}
+
 export function ExpandableContent({
   contentUrl,
-  staticContent,
-  defaultOpen = false,
-  title,
   htmlTitle,
   noFurtherExpansion = false,
 }: {
-  contentUrl?: string;
-  staticContent?: any;
-  defaultOpen?: boolean;
-  title: any;
+  contentUrl: string;
   htmlTitle?: any;
   noFurtherExpansion?: boolean;
 }) {
   const urlHash = createHash(getSectionInfo(contentUrl || ''));
-  const [openAtLeastOnce, setOpenAtLeastOnce] = useState(defaultOpen);
-  const [isOpen, setIsOpen] = useState(defaultOpen);
   const parentContext = useContext(ExpandContext);
   const childContext = [...parentContext, urlHash];
+  const [rendered, setRendered] = useState(false);
+  const [fetched, setFetched] = useState(false);
+  const [wasSeen, setWasSeen] = useState(false);
   if (noFurtherExpansion) childContext.push(STOP_EXPANSION_MARKER);
-
-  const titleText = convertHtmlNodeToPlain(htmlTitle);
-  const autoExpand =
-    !noFurtherExpansion && (!titleText || titleText.startsWith('http'));
-  const {
-    renderOptions: { allowFolding },
-  } = useContext(RenderOptions);
-
-  const { docFragManager, addSectionLoc } = useContext(DocSectionContext);
-  // Reference to the top-most box.
 
   const contentRef = useRef<HTMLElement>();
   const rect = useRect(contentRef);
   const isVisible = useOnScreen(contentRef);
+  const { docFragManager, addSectionLoc } = useContext(DocSectionContext);
+  // Reference to the top-most box.
+
+  const onRendered = useCallback(() => {
+    setRendered(true);
+    console.log('rendered', contentUrl);
+  }, [contentUrl]);
+  const onFetched = useCallback(() => {
+    setFetched(true);
+    console.log('fetched', contentUrl);
+  }, [contentUrl]);
+
   useEffect(() => {
-    if (isVisible && !openAtLeastOnce) {
-      if (docFragManager?.skipExpandLoc(contentUrl)) {
-        console.log('skipping due to scroll: ' + contentUrl);
-        return;
-      }
-      setIsOpen(true);
-      setOpenAtLeastOnce(true);
+    if (!isVisible || wasSeen) return;
+    if (docFragManager?.skipExpandLoc(contentUrl)) {
+      console.log('skipping due to scroll: ' + contentUrl);
+      return;
     }
-  }, [openAtLeastOnce, isVisible, docFragManager?.isScrolling]);
+    setWasSeen(true);
+  }, [wasSeen, isVisible, docFragManager, contentUrl]);
 
   useEffect(() => {
     if (!contentUrl) return;
     docFragManager?.reportLoadedFragment(
       contentUrl,
-      openAtLeastOnce,
+      wasSeen,
+      fetched,
+      rendered,
       contentRef?.current
     );
-  }, [childContext, openAtLeastOnce, contentRef?.current]); // Keep contentRef?.current here to make sure that the ref is reported when loaded.
+  }, [wasSeen, fetched, rendered, docFragManager, contentUrl]); // Keep contentRef?.current here to make sure that the ref is reported when loaded.
 
-  const changeState = (e: MouseEvent) => {
-    e.stopPropagation();
-    setOpenAtLeastOnce(true);
-    setIsOpen((v) => !v);
-  };
   const positionFromTop =
     rect && !IS_SERVER ? rect.top + window.scrollY : undefined;
+
   useEffect(() => {
     if (contentUrl && positionFromTop)
       addSectionLoc({ contentUrl, positionFromTop });
   }, [contentUrl, positionFromTop, addSectionLoc]);
 
   if (parentContext.includes(STOP_EXPANSION_MARKER)) return null;
+  const titleText = convertHtmlNodeToPlain(htmlTitle);
+  const showMenu =
+    noFurtherExpansion || (titleText && !titleText.startsWith('http'));
 
-  if (autoExpand && !staticContent) {
-    return (
-      <ErrorBoundary hidden={false}>
-        <Box ref={contentRef}>
-          <ContentFromUrl
-            url={contentUrl ?? ''}
-            modifyRendered={getChildrenOfBodyNode}
-            minLoadingHeight={'1000px'}
-          />
-        </Box>
-      </ErrorBoundary>
-    );
-  }
   return (
     <ErrorBoundary hidden={false}>
-      <Box
-        m="4px 0"
-        ref={contentRef}
-        minHeight={!openAtLeastOnce ? '1000px' : undefined}
-      >
-        {!allowFolding && !staticContent ? (
-          contentUrl && (
-            <Box position="absolute" right="10px">
-              <ExpandableContextMenu
-                sectionLink={getInDocumentLink(childContext)}
-                contentUrl={contentUrl}
-              />
-            </Box>
-          )
-        ) : (
-          <Box display="flex" justifyContent="space-between">
-            <Box
-              display="flex"
-              alignItems="center"
-              sx={{ cursor: 'pointer' }}
-              onClick={changeState}
-            >
-              <IconButton sx={{ color: 'gray', p: '0' }} onClick={changeState}>
-                {isOpen ? (
-                  <IndeterminateCheckBoxOutlinedIcon
-                    sx={{ fontSize: '20px' }}
-                  />
-                ) : (
-                  <AddBoxOutlinedIcon sx={{ fontSize: '20px' }} />
-                )}
-              </IconButton>
-              <Box
-                sx={{
-                  '& > *:hover': { background: '#DDD' },
-                  width: 'fit-content',
-                  px: '4px',
-                  ml: '-2px',
-                  borderRadius: '5px',
-                }}
-              >
-                {contentUrl ? (
-                  <b style={{ fontSize: 'large' }}>{title}</b>
-                ) : (
-                  title
-                )}
-              </Box>
-            </Box>
-            {contentUrl && (
-              <ExpandableContextMenu
-                sectionLink={getInDocumentLink(childContext)}
-                contentUrl={contentUrl}
-              />
-            )}
+      <Box minHeight={!wasSeen ? '1000px' : undefined} ref={contentRef}>
+        {showMenu && (
+          <Box position="absolute" right="10px">
+            <ExpandableContextMenu
+              sectionLink={getInDocumentLink(childContext)}
+              contentUrl={contentUrl}
+            />
           </Box>
         )}
 
-        {openAtLeastOnce ? (
-          <Box display={isOpen ? 'flex' : 'none'}>
-            <Box
-              minWidth="20px"
-              display={allowFolding || staticContent ? undefined : 'none'}
-              sx={{
-                cursor: 'pointer',
-                '&:hover *': { borderLeft: '1px solid #333' },
-              }}
-              onClick={changeState}
-            >
-              <Box width="0" m="auto" borderLeft="1px solid #CCC" height="100%">
-                &nbsp;
-              </Box>
-            </Box>
+        {wasSeen ? (
+          <Box display="flex">
             <Box overflow="visible">
-              {contentUrl ? (
-                <ExpandContext.Provider value={childContext}>
-                  <ContentFromUrl
-                    url={contentUrl}
-                    modifyRendered={getChildrenOfBodyNode}
-                    minLoadingHeight={'800px'}
-                  />
-                </ExpandContext.Provider>
-              ) : (
-                staticContent
-              )}
+              <ExpandContext.Provider value={childContext}>
+                <ContentFromUrl
+                  url={contentUrl}
+                  modifyRendered={getChildrenOfBodyNode}
+                  minLoadingHeight={'800px'}
+                  onDataFetched={onFetched}
+                  onRendered={onRendered}
+                />
+              </ExpandContext.Provider>
             </Box>
           </Box>
         ) : (

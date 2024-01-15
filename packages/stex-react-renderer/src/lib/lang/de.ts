@@ -3,10 +3,6 @@ export const de = {
   expandCollapseAll: 'Alles anzeigen/Minimieren',
   search: 'Suchen Inhaltsverzeichnis',
 
-  // render display options
-  sectionFoldingOn: 'Abschnitte einklappen',
-  sectionFoldingOff: 'Abschnitte ausklappen',
-
   // expandable context menu
   copySectionLink: 'Link zum Abschnitt kopieren',
   viewSource: 'Quelltext anzeigen',

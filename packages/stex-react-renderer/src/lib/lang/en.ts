@@ -3,10 +3,6 @@ export const en = {
   expandCollapseAll: 'Expand/collapse all',
   search: 'Search TOC',
 
-  // render display options
-  sectionFoldingOn: 'Turn On Section Folding',
-  sectionFoldingOff: 'Turn Off Section Folding',
-
   // expandable context menu
   copySectionLink: 'Copy Section Link',
   viewSource: 'View Source',
