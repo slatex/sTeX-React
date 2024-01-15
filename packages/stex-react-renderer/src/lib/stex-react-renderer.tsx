@@ -47,6 +47,7 @@ import {
   NoMaxWidthTooltip,
   mmtHTMLToReact,
 } from './mmtParser';
+//import { RenderStatusTree } from './RenderStatusTree';
 
 export const ServerLinksContext = createContext({
   mmtUrl: '',
@@ -161,6 +162,19 @@ export function StexReactRenderer({
           setShowDashboard={setShowDashboard}
           noFrills={noFrills}
         >
+          {/*<Box
+            position="fixed"
+            top="150px"
+            left="320px"
+            bgcolor="white"
+            height="60vh"
+            width="40vw"
+            zIndex={1000}
+            border="1px solid black"
+            overflow="auto"
+          >
+            <RenderStatusTree docFragManager={docFragManager} />
+        </Box>*/}
           <Box px="10px" bgcolor={BG_COLOR} ref={outerBox}>
             <Box
               sx={{ overflowWrap: 'anywhere', textAlign: 'left' }}

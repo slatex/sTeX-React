@@ -6,10 +6,12 @@ import {
   getSectionInfo,
 } from '@stex-react/utils';
 
-enum DocFragDisplayStatus {
+export enum DocFragDisplayStatus {
   NOT_LOADED,
   PLACEHOLDER,
   TO_BE_SHOWN,
+  FETCHED,
+  RENDERED,
 }
 
 function getFileLocationHierarchy(
@@ -33,7 +35,7 @@ function getFileLocationHierarchy(
 export class DocFragManager {
   public docSections: SectionsAPIData | undefined = undefined;
   private fileLocElementMap = new Map<string, HTMLElement>();
-  private docFragDisplayStatus = new Map<string, DocFragDisplayStatus>();
+  public docFragDisplayStatus = new Map<string, DocFragDisplayStatus>();
   private scrollFileLocHierarchy = [] as FileLocation[];
   private toScrollSectionId = undefined as string | undefined;
 
@@ -58,7 +60,7 @@ export class DocFragManager {
     this.scrollFileLocHierarchy =
       getFileLocationHierarchy(this.toScrollSectionId, this.docSections) ?? [];
     console.log('fileLocHierarchy', this.scrollFileLocHierarchy);
-    if(!this.scrollFileLocHierarchy.length) {
+    if (!this.scrollFileLocHierarchy.length) {
       this.scrollReset();
       return;
     }
@@ -86,7 +88,13 @@ export class DocFragManager {
     if (!this.scrollFileLocHierarchy.length) return;
     for (const fileLoc of this.scrollFileLocHierarchy.slice(1)) {
       const status = this.docFragDisplayStatus.get(fileLocToString(fileLoc));
-      if (!status || status !== DocFragDisplayStatus.TO_BE_SHOWN)
+      if (
+        !status ||
+        [
+          DocFragDisplayStatus.NOT_LOADED,
+          DocFragDisplayStatus.PLACEHOLDER,
+        ].includes(status)
+      )
         return fileLoc;
     }
   }
