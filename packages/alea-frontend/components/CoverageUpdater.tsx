@@ -49,6 +49,9 @@ export function CoverageUpdater({
     sectionNames.map((option) => option.trim())
   );
 
+  function setNoonDefaultTime(timestamp: number) {
+    return new Date(timestamp).setHours(12, 0, 0, 0);
+  }
   const handleAddItem = () => {
     if (!sectionName?.length) return;
     const newItem = {
@@ -68,7 +71,7 @@ export function CoverageUpdater({
           <tr key={item.timestamp_ms} style={{ border: '1px solid black' }}>
             <td style={{ textAlign: 'center' }}>
               <b>{idx + 1}.&nbsp;</b>
-              {dayjs(item.timestamp_ms).format('YYYY-MM-DD HH:mm')}
+              {dayjs(item.timestamp_ms).format('YYYY-MM-DD')}
             </td>
             <td
               style={{
@@ -109,12 +112,12 @@ export function CoverageUpdater({
         <tr>
           <td>
             <TextField
-              label="Timestamp"
-              type="datetime-local"
-              value={dayjs(selectedTimestamp).format('YYYY-MM-DDTHH:mm')}
+              label="Date"
+              type="date"
+              value={dayjs(selectedTimestamp).format('YYYY-MM-DD')}
               onChange={(e) => {
                 const timestamp = Date.parse(e.target.value);
-                setSelectedTimestamp(isNaN(timestamp) ? Date.now() : timestamp);
+                setSelectedTimestamp(setNoonDefaultTime(timestamp));
               }}
               InputLabelProps={{
                 shrink: true,
