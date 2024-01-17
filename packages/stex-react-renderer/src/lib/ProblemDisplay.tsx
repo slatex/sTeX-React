@@ -6,7 +6,14 @@ import {
   Checkbox,
   CircularProgress,
   MenuItem,
+  Paper,
   Select,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   TextField,
   Typography,
 } from '@mui/material';
@@ -14,6 +21,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio, { RadioProps } from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import {
+  FillInAnswerClass,
   Input,
   InputResponse,
   InputType,
@@ -376,6 +384,52 @@ function inputDisplay({
   }
 }
 
+function getParameters(type: string, input: FillInAnswerClass) {
+  switch (type) {
+    case 'numrange':
+      return `${input.endNum} - ${input.startNum}`;
+    case 'regex':
+      return input.regex || '';
+    case 'exact':
+      return input.exactMatch || '';
+    default:
+      return 'Unhandled Case';
+  }
+}
+
+function FillInTable({ fillInInputs }: { fillInInputs: Input[] }) {
+  const tableRows = fillInInputs.map(
+    (fillInInput: Input, fillInIndex: number) => {
+      return fillInInput.fillInAnswerClasses?.map(
+        (input: FillInAnswerClass, index: number) => (
+          <TableRow key={`${fillInIndex}-${index}`}>
+            <TableCell>{input?.type}</TableCell>
+            <TableCell>{getParameters(input?.type, input)}</TableCell>
+            <TableCell>{mmtHTMLToReact(input?.feedbackHtml || '')}</TableCell>
+            <TableCell>{input?.verdict.toString()}</TableCell>
+          </TableRow>
+        )
+      );
+    }
+  );
+  const tHeadStyle = { minWidth: '60px', fontWeight: 'bold' };
+  return (
+    <TableContainer component={Paper}>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell sx={tHeadStyle}>Match Type</TableCell>
+            <TableCell sx={tHeadStyle}>Parameter</TableCell>
+            <TableCell sx={tHeadStyle}>Feedback</TableCell>
+            <TableCell sx={tHeadStyle}>Verdict</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>{tableRows}</TableBody>
+      </Table>
+    </TableContainer>
+  );
+}
+
 export function ProblemDisplay({
   problem,
   isFrozen,
@@ -394,6 +448,8 @@ export function ProblemDisplay({
   const t = getLocaleObject(useRouter()).quiz;
   if (!problem) return <CircularProgress />;
   const isEffectivelyFrozen = isFrozen || !problem.inputs?.length;
+  const fillInInputs =
+    problem.inputs?.filter((input) => input.type === InputType.FILL_IN) || [];
   const inputWidgets = problem.inputs.map((input, optIdx) => {
     return inputDisplay({
       input,
@@ -426,6 +482,9 @@ export function ProblemDisplay({
         <CustomItemsContext.Provider value={{ items: customItems }}>
           <DocumentWidthSetter>{mmtHTMLToReact(statement)}</DocumentWidthSetter>
         </CustomItemsContext.Provider>
+        {problem.debug && fillInInputs.length > 0 && (
+          <FillInTable fillInInputs={fillInInputs} />
+        )}
         {onFreezeResponse && !isEffectivelyFrozen && (
           <Button onClick={() => onFreezeResponse()} variant="contained">
             {t.checkSolution}
