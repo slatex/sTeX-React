@@ -387,7 +387,7 @@ function inputDisplay({
 function getParameters(type: string, input: FillInAnswerClass) {
   switch (type) {
     case 'numrange':
-      return `${input.endNum} - ${input.startNum}`;
+      return `${input.startNum} - ${input.endNum}`;
     case 'regex':
       return input.regex || '';
     case 'exact':
