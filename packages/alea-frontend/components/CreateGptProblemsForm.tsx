@@ -167,7 +167,8 @@ function AssignmentValueInput({
 }) {
   const { mmtUrl } = useContext(ServerLinksContext);
   const isSectionStex = assignKey.startsWith('SECTION_STEX');
-  if (isSectionStex)
+  const isSectionTidyStex = assignKey.startsWith('SECTION_TIDY_STEX');
+  if (isSectionStex || isSectionTidyStex)
     return <SectionPicker sectionParentId={value} onChange={onChange} />;
   const isFetchUrl = assignKey.startsWith('FETCH_URL');
 
