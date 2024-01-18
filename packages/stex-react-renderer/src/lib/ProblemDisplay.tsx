@@ -22,6 +22,7 @@ import Radio, { RadioProps } from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import {
   FillInAnswerClass,
+  FillInAnswerClassType,
   Input,
   InputResponse,
   InputType,
@@ -386,31 +387,31 @@ function inputDisplay({
 
 function getParameters(type: string, input: FillInAnswerClass) {
   switch (type) {
-    case 'numrange':
+    case FillInAnswerClassType.numrange:
       return `${input.startNum} - ${input.endNum}`;
-    case 'regex':
+    case FillInAnswerClassType.regex:
       return input.regex || '';
-    case 'exact':
+    case FillInAnswerClassType.exact:
       return input.exactMatch || '';
     default:
       return 'Unhandled Case';
   }
 }
 
-function FillInTable({ fillInInputs }: { fillInInputs: Input[] }) {
-  const tableRows = fillInInputs.map(
-    (fillInInput: Input, fillInIndex: number) => {
-      return fillInInput.fillInAnswerClasses?.map(
-        (input: FillInAnswerClass, index: number) => (
-          <TableRow key={`${fillInIndex}-${index}`}>
-            <TableCell>{input?.type}</TableCell>
-            <TableCell>{getParameters(input?.type, input)}</TableCell>
-            <TableCell>{mmtHTMLToReact(input?.feedbackHtml || '')}</TableCell>
-            <TableCell>{input?.verdict.toString()}</TableCell>
-          </TableRow>
-        )
-      );
-    }
+function AnswerClassesTable({
+  fillInAnswerClass,
+}: {
+  fillInAnswerClass: FillInAnswerClass[];
+}) {
+  const tableRows = fillInAnswerClass.map(
+    (input: FillInAnswerClass, index: number) => (
+      <TableRow key={index}>
+        <TableCell>{input?.type}</TableCell>
+        <TableCell>{getParameters(input?.type, input)}</TableCell>
+        <TableCell>{mmtHTMLToReact(input?.feedbackHtml || '')}</TableCell>
+        <TableCell>{input?.verdict?.toString()}</TableCell>
+      </TableRow>
+    )
   );
   const tHeadStyle = { minWidth: '60px', fontWeight: 'bold' };
   return (
@@ -482,9 +483,13 @@ export function ProblemDisplay({
         <CustomItemsContext.Provider value={{ items: customItems }}>
           <DocumentWidthSetter>{mmtHTMLToReact(statement)}</DocumentWidthSetter>
         </CustomItemsContext.Provider>
-        {problem.debug && fillInInputs.length > 0 && (
-          <FillInTable fillInInputs={fillInInputs} />
-        )}
+        {problem.debug && fillInInputs.length > 0
+          ? fillInInputs.map((fillInInput) => (
+              <AnswerClassesTable
+                fillInAnswerClass={fillInInput?.fillInAnswerClasses || []}
+              />
+            ))
+          : null}
         {onFreezeResponse && !isEffectivelyFrozen && (
           <Button onClick={() => onFreezeResponse()} variant="contained">
             {t.checkSolution}
