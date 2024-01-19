@@ -301,7 +301,13 @@ export async function getDocIdx(mmtUrl: string) {
 }
 
 export async function getCourseInfo(mmtUrl: string) {
-  return COURSES_INFO;
+  const filtered = { ...COURSES_INFO };
+
+  // Don't show Luka's course on production.
+  if (process.env['NEXT_PUBLIC_SITE_VERSION'] === 'production') {
+    delete filtered['f29fa1'];
+  }
+  return filtered;
   /*try {
     const docIdx = await getDocIdx(mmtUrl);
     const courseInfo: { [courseId: string]: CourseInfo } = {};

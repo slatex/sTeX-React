@@ -137,6 +137,14 @@ export const COURSES_INFO: { [courseId: string]: CourseInfo } = {
     true,
     true
   ),
+  f29fa1: createCourseInfo(
+    'f29fa1',
+    'Foundations 1',
+    'courses/HW/foundations1',
+    'mod/lect2-stex.tex',
+    '',
+    false,
+    true)
 };
 
 export const MaAI_COURSES: {
