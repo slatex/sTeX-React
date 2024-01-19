@@ -290,31 +290,58 @@ export function CreateGptProblemsForm({
           <b>Special Key Prefixes</b>
         </AccordionSummary>
         <AccordionDetails>
-          <table>
+          <table
+            style={{ border: '1px solid black', borderCollapse: 'collapse' }}
+          >
             <tr>
+              <th>Prefix</th>
+              <th style={{ border: '1px solid black', padding: '0 10px' }}>
+                Interpretation of provided value
+              </th>
+              <th>Replaced by</th>
+            </tr>
+            <tr style={{ border: '1px solid black' }}>
               <td>FETCH_STEX</td>
-              <td>value contains archive and filepath of the stex file. </td>
+              <td style={{ border: '1px solid black', padding: '0 10px' }}>
+                value contains archive and filepath of the stex file.{' '}
+              </td>
               <td>
                 Template marker replaced by the stex (recursively expanded)
               </td>
             </tr>
-            <tr>
+            <tr style={{ border: '1px solid black' }}>
               <td>SECTION_STEX</td>
-              <td>Choose a section from the dropdown</td>
+              <td style={{ border: '1px solid black', padding: '0 10px' }}>
+                Choose a section from the dropdown
+              </td>
               <td>
                 Template marker replaced by the stex (recursively expanded)
               </td>
             </tr>
-            <tr>
+            <tr style={{ border: '1px solid black' }}>
+              <td>SECTION_TIDY_STEX</td>
+              <td style={{ border: '1px solid black', padding: '0 10px' }}>
+                Choose a section from the dropdown
+              </td>
+              <td>
+                Template marker replaced by the stex. All sub fragments are
+                dumped as is to make sure that valid stex is generated.
+              </td>
+            </tr>
+            <tr style={{ border: '1px solid black' }}>
               <td>URI_DEF_MD</td>
-              <td>value is interpreted as a URI</td>
+              <td style={{ border: '1px solid black', padding: '0 10px' }}>
+                value is interpreted as a URI
+              </td>
               <td>
                 Template marker replaced by the concept definition (markdown)
               </td>
             </tr>
-            <tr>
+            <tr style={{ border: '1px solid black' }}>
               <td>FETCH_URL</td>
-              <td>value is interpreted as a url</td>
+              <td style={{ border: '1px solid black', padding: '0 10px' }}>
+                value is interpreted as a url
+              </td>
               <td>Template marker replaced by content fetched from url.</td>
             </tr>
           </table>
