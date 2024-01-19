@@ -385,7 +385,7 @@ function inputDisplay({
   }
 }
 
-function getParameters(type: string, input: FillInAnswerClass) {
+function getParameters(type: FillInAnswerClassType, input: FillInAnswerClass) {
   switch (type) {
     case FillInAnswerClassType.numrange:
       return `${input.startNum} - ${input.endNum}`;
