@@ -25,7 +25,7 @@ const extractLastWordAfterQuestionMark = (url: string) => {
   return parts[parts.length - 1];
 };
 
-function getMMTHtml(uri: string) {
+export function getMMTHtml(uri: string) {
   const lastWord = extractLastWordAfterQuestionMark(uri);
   const hoverLink = `/:sTeX/fragment?${uri}`;
   const clickLink = `/:sTeX/declaration?${uri}`;

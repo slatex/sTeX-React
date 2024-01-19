@@ -39,7 +39,9 @@ import {
 
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useRouter } from 'next/router';
+import { getMMTHtml } from './CompetencyTable';
 import { DocumentWidthSetter } from './DocumentWidthSetter';
+import { DimIcon } from './SelfAssessmentDialog';
 import { getLocaleObject } from './lang/utils';
 import {
   CustomItemsContext,
@@ -431,6 +433,45 @@ function AnswerClassesTable({
   );
 }
 
+function capitalizeFirstLetter(str: string): string {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function handleObjectiveAndPreconditions(data: string, name: string) {
+  const res = data.split(',');
+  const groupedData: Record<string, string[]> = {};
+  res.forEach((input) => {
+    const [key, value] = input.split(':');
+    const capitalizedKey = capitalizeFirstLetter(key);
+    if (!groupedData[capitalizedKey]) {
+      groupedData[capitalizedKey] = [];
+    }
+    groupedData[capitalizedKey].push(decodeURIComponent(value));
+  });
+  return (
+    <Box>
+      <Typography fontWeight="bold">{name} :</Typography>
+      {Object.entries(groupedData).map(([key, values]) => (
+        <Box
+          key={key}
+          sx={{
+            border: '1px solid black',
+            padding: '10px',
+            marginBottom: '10px',
+            backgroundColor: 'white',
+          }}
+        >
+          <DimIcon dim={key as any} />
+          <hr />
+          {values.map((value, index) => (
+            <span key={index}>{mmtHTMLToReact(getMMTHtml(value))}, </span>
+          ))}
+        </Box>
+      ))}
+    </Box>
+  );
+}
+
 export function ProblemDisplay({
   problem,
   isFrozen,
@@ -483,6 +524,13 @@ export function ProblemDisplay({
         <CustomItemsContext.Provider value={{ items: customItems }}>
           <DocumentWidthSetter>{mmtHTMLToReact(statement)}</DocumentWidthSetter>
         </CustomItemsContext.Provider>
+        {problem.objectives &&
+          handleObjectiveAndPreconditions(problem.objectives, 'Objectives')}
+        {problem.preconditions &&
+          handleObjectiveAndPreconditions(
+            problem.preconditions,
+            'Preconditons'
+          )}
         {problem.debug && fillInInputs.length > 0
           ? fillInInputs.map((fillInInput) => (
               <AnswerClassesTable
