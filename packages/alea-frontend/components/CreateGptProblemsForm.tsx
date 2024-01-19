@@ -303,7 +303,7 @@ export function CreateGptProblemsForm({
             <tr style={{ border: '1px solid black' }}>
               <td>FETCH_STEX</td>
               <td style={{ border: '1px solid black', padding: '0 10px' }}>
-                value contains archive and filepath of the stex file.{' '}
+                Value is a combination of sTeX file&apos;s archive and filepath
               </td>
               <td>
                 Template marker replaced by the stex (recursively expanded)
@@ -312,7 +312,7 @@ export function CreateGptProblemsForm({
             <tr style={{ border: '1px solid black' }}>
               <td>SECTION_STEX</td>
               <td style={{ border: '1px solid black', padding: '0 10px' }}>
-                Choose a section from the dropdown
+                A section from AI-1 course
               </td>
               <td>
                 Template marker replaced by the stex (recursively expanded)
@@ -321,7 +321,7 @@ export function CreateGptProblemsForm({
             <tr style={{ border: '1px solid black' }}>
               <td>SECTION_TIDY_STEX</td>
               <td style={{ border: '1px solid black', padding: '0 10px' }}>
-                Choose a section from the dropdown
+                A section from AI-1 course
               </td>
               <td>
                 Template marker replaced by the stex. All sub fragments are
@@ -329,9 +329,9 @@ export function CreateGptProblemsForm({
               </td>
             </tr>
             <tr style={{ border: '1px solid black' }}>
-              <td>URI_DEF_MD</td>
+              <td>URI_DEF_MD (deprecated)</td>
               <td style={{ border: '1px solid black', padding: '0 10px' }}>
-                value is interpreted as a URI
+                Value is interpreted as an MMT URI
               </td>
               <td>
                 Template marker replaced by the concept definition (markdown)
@@ -340,7 +340,7 @@ export function CreateGptProblemsForm({
             <tr style={{ border: '1px solid black' }}>
               <td>FETCH_URL</td>
               <td style={{ border: '1px solid black', padding: '0 10px' }}>
-                value is interpreted as a url
+                Value is interpreted as a url
               </td>
               <td>Template marker replaced by content fetched from url.</td>
             </tr>
