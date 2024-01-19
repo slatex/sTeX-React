@@ -437,10 +437,10 @@ function capitalizeFirstLetter(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-function handleObjectiveAndPreconditions(data: string, name: string) {
-  const res = data.split(',');
+function groupingByBloomDimension(data: string) {
+  const DimensionAndURI = data.split(',');
   const groupedData: Record<string, string[]> = {};
-  res.forEach((input) => {
+  DimensionAndURI.forEach((input) => {
     const [key, value] = input.split(':');
     const capitalizedKey = capitalizeFirstLetter(key);
     if (!groupedData[capitalizedKey]) {
@@ -448,6 +448,11 @@ function handleObjectiveAndPreconditions(data: string, name: string) {
     }
     groupedData[capitalizedKey].push(decodeURIComponent(value));
   });
+  return groupedData;
+}
+
+function DimensionAndURIListDisplay(data: string, name: string) {
+  const groupedData = groupingByBloomDimension(data);
   return (
     <Box>
       <Typography fontWeight="bold">{name} :</Typography>
@@ -525,12 +530,9 @@ export function ProblemDisplay({
           <DocumentWidthSetter>{mmtHTMLToReact(statement)}</DocumentWidthSetter>
         </CustomItemsContext.Provider>
         {problem.objectives &&
-          handleObjectiveAndPreconditions(problem.objectives, 'Objectives')}
+          DimensionAndURIListDisplay(problem.objectives, 'Objectives')}
         {problem.preconditions &&
-          handleObjectiveAndPreconditions(
-            problem.preconditions,
-            'Preconditons'
-          )}
+          DimensionAndURIListDisplay(problem.preconditions, 'Preconditons')}
         {problem.debug && fillInInputs.length > 0
           ? fillInInputs.map((fillInInput) => (
               <AnswerClassesTable
