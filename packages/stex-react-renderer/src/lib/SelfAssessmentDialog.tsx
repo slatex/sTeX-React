@@ -32,11 +32,11 @@ const CustomTooltip = styled(({ className, ...props }: TooltipProps) => (
 
 export function DimIcon({
   dim,
-  white,
+  white = false,
   showTitle = true,
 }: {
   dim: BloomDimension;
-  white: boolean;
+  white?: boolean;
   showTitle?: boolean;
 }) {
   const t = getLocaleObject(useRouter());
