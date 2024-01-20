@@ -37,6 +37,12 @@ function RunsDash({
   onClose: () => void;
   onRunClick: (runId: string) => void;
 }) {
+  const sortedRuns = [...runs].sort((a, b) => {
+    return (
+      new Date(b.response.runTime).getTime() -
+      new Date(a.response.runTime).getTime() // descending order
+    );
+  });
   return (
     <FixedPositionMenu
       staticContent={
@@ -48,7 +54,7 @@ function RunsDash({
       }
     >
       <Box>
-        {runs.map(({ request, response }) => (
+        {sortedRuns.map(({ request, response }) => (
           <Box
             key={response.runId}
             onClick={() => onRunClick(response.runId)}
@@ -58,7 +64,7 @@ function RunsDash({
             sx={{ cursor: 'pointer' }}
           >
             {dayjs(response.runTime).format('MMM-DD HH:mm:ss')} (
-            {request.templateName})
+            <Typography variant="caption">{request.templateName}</Typography>)
           </Box>
         ))}
       </Box>
