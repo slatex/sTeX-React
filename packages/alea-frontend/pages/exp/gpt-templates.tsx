@@ -68,10 +68,14 @@ function TemplatePrompt({
   prompt,
   updateMessage,
   updater,
+  templateVersions,
+  selectedTemplate,
 }: {
   prompt: string[];
   updateMessage: string;
   updater: string;
+  templateVersions: Template[];
+  selectedTemplate: Template;
 }) {
   const boxStyle = {
     border: '1px solid gray',
@@ -84,9 +88,20 @@ function TemplatePrompt({
     <>
       <Box style={boxStyle}>
         <Typography>
-          <b>Update Message ({updater})</b> : {updateMessage}
+          <b>
+            Template Description (
+            {templateVersions[templateVersions.length - 1]?.updater})
+          </b>
+          :{templateVersions[templateVersions.length - 1]?.updateMessage}
         </Typography>
       </Box>
+      {selectedTemplate.version !== '0' ? (
+        <Box style={boxStyle}>
+          <Typography>
+            <b>Update Message ({updater})</b> : {updateMessage}
+          </Typography>
+        </Box>
+      ) : null}
       {prompt.map((templateString, idx) => (
         <Box key={idx}>
           <Typography fontWeight="bold">Prompt : {idx + 1}</Typography>
@@ -104,7 +119,6 @@ const GptEval: NextPage = () => {
   const [templateVersions, setTemplateVersions] = useState<Template[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
-
   useEffect(() => {
     getTemplates().then(setTemplates);
   }, []);
@@ -163,6 +177,8 @@ const GptEval: NextPage = () => {
               prompt={selectedTemplate?.templateStrs}
               updateMessage={selectedTemplate?.updateMessage}
               updater={selectedTemplate?.updater}
+              templateVersions={templateVersions}
+              selectedTemplate={selectedTemplate}
             />
           )}
           {selectedTemplate &&

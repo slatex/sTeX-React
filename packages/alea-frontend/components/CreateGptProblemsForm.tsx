@@ -1,6 +1,8 @@
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import CreateIcon from '@mui/icons-material/Create';
 import {
   Accordion,
   AccordionDetails,
@@ -434,9 +436,25 @@ export function CreateGptProblemsForm({
         <Button
           onClick={() => onSaveTemplate(templateName, formData)}
           variant="contained"
-          sx={{ ml: '10px' }}
+          sx={{
+            backgroundColor: isExisting ? 'orange' : 'green',
+            marginLeft: '10px',
+            '&:hover': {
+              backgroundColor: isExisting ? 'orange' : 'green',
+            },
+          }}
         >
-          {isExisting ? 'Update Template' : 'Create Template'}
+          {isExisting ? (
+            <>
+              Update Template
+              <CreateIcon sx={{ marginLeft: 1 }} />
+            </>
+          ) : (
+            <>
+              Create Template
+              <AddCircleOutlineIcon sx={{ marginLeft: 1 }} />
+            </>
+          )}
         </Button>
       </Box>
     </div>
