@@ -21,6 +21,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio, { RadioProps } from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import {
+  BloomDimension,
   FillInAnswerClass,
   FillInAnswerClassType,
   Input,
@@ -433,46 +434,68 @@ function AnswerClassesTable({
   );
 }
 
-function capitalizeFirstLetter(str: string): string {
-  return str.charAt(0).toUpperCase() + str.slice(1);
+function toBloomDimension(key: string): BloomDimension {
+  for (const dim of Object.values(BloomDimension)) {
+    if (dim.toLowerCase() === key.toLowerCase()) return dim;
+  }
+  throw new Error(`Invalid BloomDimension value: ${key}`);
 }
 
-function groupingByBloomDimension(data: string) {
-  const DimensionAndURI = data.split(',');
-  const groupedData: Record<string, string[]> = {};
-  DimensionAndURI.forEach((input) => {
-    const [key, value] = input.split(':');
-    const capitalizedKey = capitalizeFirstLetter(key);
-    if (!groupedData[capitalizedKey]) {
-      groupedData[capitalizedKey] = [];
-    }
-    groupedData[capitalizedKey].push(decodeURIComponent(value));
+function getBloomDimesionAndUriList(data: string) {
+  return data.split(',').map((dimAndURI) => {
+    const [key, value] = dimAndURI.split(':');
+    const dim = toBloomDimension(key);
+    const uri = decodeURIComponent(value);
+    return [dim, uri] as [BloomDimension, string];
   });
+}
+
+function groupingByBloomDimension(data?: string) {
+  const groupedData: Record<BloomDimension, string[]> = Object.assign(
+    {},
+    ...Object.values(BloomDimension).map((dim) => ({ [dim]: [] }))
+  );
+  if (!data) return groupedData;
+  const dimAndURIList = getBloomDimesionAndUriList(data);
+  for (const [dim, uri] of dimAndURIList) {
+    groupedData[dim].push(uri);
+  }
   return groupedData;
 }
 
-function DimensionAndURIListDisplay(data: string, name: string) {
+function DimAndURIListDisplay({
+  title,
+  data,
+}: {
+  title: string;
+  data?: string;
+}) {
   const groupedData = groupingByBloomDimension(data);
   return (
-    <Box>
-      <Typography fontWeight="bold">{name} :</Typography>
-      {Object.entries(groupedData).map(([key, values]) => (
-        <Box
-          key={key}
-          sx={{
-            border: '1px solid black',
-            padding: '10px',
-            marginBottom: '10px',
-            backgroundColor: 'white',
-          }}
-        >
-          <DimIcon dim={key as any} />
-          <hr />
-          {values.map((value, index) => (
-            <span key={index}>{mmtHTMLToReact(getMMTHtml(value))}, </span>
-          ))}
-        </Box>
-      ))}
+    <Box border="1px solid black" mb="10px" bgcolor="white">
+      <Typography fontWeight="bold" sx={{ p: '10px' }}>
+        {title}&nbsp;
+      </Typography>
+      {Object.values(BloomDimension).map((dim) =>
+        groupedData[dim].length ? (
+          <Box
+            key={dim}
+            borderTop="1px solid #AAA"
+            p="5px"
+            display="flex"
+            flexWrap="wrap"
+          >
+            <DimIcon dim={dim} />
+            &nbsp;
+            {groupedData[dim]?.map((uri, index) => (
+              <span key={index}>
+                {mmtHTMLToReact(getMMTHtml(uri))}
+                {index < groupedData[dim].length - 1 ? ',\xa0' : ''}
+              </span>
+            ))}
+          </Box>
+        ) : null
+      )}
     </Box>
   );
 }
@@ -529,17 +552,23 @@ export function ProblemDisplay({
         <CustomItemsContext.Provider value={{ items: customItems }}>
           <DocumentWidthSetter>{mmtHTMLToReact(statement)}</DocumentWidthSetter>
         </CustomItemsContext.Provider>
-        {problem.objectives &&
-          DimensionAndURIListDisplay(problem.objectives, 'Objectives')}
-        {problem.preconditions &&
-          DimensionAndURIListDisplay(problem.preconditions, 'Preconditons')}
-        {problem.debug && fillInInputs.length > 0
-          ? fillInInputs.map((fillInInput) => (
+        {problem.debug && (
+          <>
+            <DimAndURIListDisplay
+              title="Objectives"
+              data={problem.objectives}
+            />
+            <DimAndURIListDisplay
+              title="Preconditions"
+              data={problem.preconditions}
+            />
+            {(fillInInputs || []).map((fillInInput) => (
               <AnswerClassesTable
                 fillInAnswerClass={fillInInput?.fillInAnswerClasses || []}
               />
-            ))
-          : null}
+            ))}
+          </>
+        )}
         {onFreezeResponse && !isEffectivelyFrozen && (
           <Button onClick={() => onFreezeResponse()} variant="contained">
             {t.checkSolution}
