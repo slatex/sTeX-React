@@ -9,7 +9,7 @@ This document describes the steps taken to install matomo on Cortana. The follow
 cd ~
 wget https://dev.mysql.com/get/mysql-apt-config_0.8.22-1_all.deb
 sudo apt install ./mysql-apt-config_0.8.22-1_all.deb
-Sudo apt update
+sudo apt update
 sudo apt install mysql-server
                password: <Password1>
 ```
