@@ -133,8 +133,8 @@ function UpcomingQuizList({
 
 const PRACTICE_QUIZ_INFO = {
   'ai-1': {
-    startSecNameExcl: 'First-Order Tableau Calculi',
-    endSecNameIncl: 'The Semantic Web',
+    startSecNameExcl: 'The Semantic Web',
+    endSecNameIncl: 'Description Logics and the Semantic Web',
   },
 };
 
