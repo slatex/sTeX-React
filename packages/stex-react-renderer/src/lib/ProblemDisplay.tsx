@@ -27,6 +27,7 @@ import {
   Input,
   InputResponse,
   InputType,
+  Option,
   Problem,
   ProblemResponse,
   QuadState,
@@ -230,17 +231,44 @@ function FeedbackDisplay({
     </>
   );
 }
+const getBoxStyleForMCQandSCQ = (shouldSelect: QuadState) => {
+  const borderColor = getQuadStateColor(shouldSelect);
+  const border = `2px solid ${borderColor}`;
+  return {
+    border,
+    color: borderColor,
+    margin: '-10px 10px 10px 10px',
+    p: '10px',
+    borderRadius: '5px',
+  };
+};
+
+function DebugMCQandSCQ({
+  feedbackHtml,
+  shouldSelect,
+}: {
+  feedbackHtml: string;
+  shouldSelect: QuadState;
+}) {
+  return (
+    <Box sx={getBoxStyleForMCQandSCQ(shouldSelect)}>
+      {mmtHTMLToReact(feedbackHtml)}
+    </Box>
+  );
+}
 
 function inputDisplay({
   input,
   response,
   isFrozen,
   onUpdate,
+  debug,
 }: {
   input: Input;
   response: InputResponse;
   isFrozen: boolean;
   onUpdate: (value: InputResponse) => void;
+  debug: boolean;
 }) {
   const { type, inline } = input;
   const info = feedbackInfo(isFrozen, input, response);
@@ -297,27 +325,37 @@ function inputDisplay({
               } as InputResponse);
             }}
           >
-            {(input.options || []).map(({ optionId, shouldSelect, value }) => (
-              <FormControlLabel
-                key={optionId}
-                value={optionId}
-                control={<BpRadio />}
-                className={getClassNames(
-                  response.singleOptionIdx === optionId,
-                  isFrozen,
-                  shouldSelect
-                )}
-                label={
-                  <Box display="inline">
-                    {value.outerHTML
-                      ? mmtHTMLToReact(
-                          removeInfoIfNeeded(value.outerHTML, isFrozen)
-                        )
-                      : value.textContent}
-                  </Box>
-                }
-              />
-            ))}
+            {(input.options || []).map(
+              ({ optionId, shouldSelect, value, feedbackHtml }) => (
+                <>
+                  <FormControlLabel
+                    key={optionId}
+                    value={optionId}
+                    control={<BpRadio />}
+                    className={getClassNames(
+                      response.singleOptionIdx === optionId,
+                      isFrozen,
+                      shouldSelect
+                    )}
+                    label={
+                      <Box display="inline">
+                        {value.outerHTML
+                          ? mmtHTMLToReact(
+                              removeInfoIfNeeded(value.outerHTML, isFrozen)
+                            )
+                          : value.textContent}
+                      </Box>
+                    }
+                  />
+                  {debug && (
+                    <DebugMCQandSCQ
+                      feedbackHtml={feedbackHtml}
+                      shouldSelect={shouldSelect}
+                    />
+                  )}
+                </>
+              )
+            )}
           </RadioGroup>
           <FeedbackDisplay inline={inline} info={info} />
         </>
@@ -347,41 +385,51 @@ function inputDisplay({
   } else if (type === InputType.MCQ) {
     return (
       <Box display="inline-flex" flexDirection="column" width="100%">
-        {input.options?.map(({ optionId, value, shouldSelect }) => (
-          <FormControlLabel
-            key={optionId}
-            className={getClassNames(
-              response.multipleOptionIdxs?.[optionId] ?? false,
-              isFrozen,
-              shouldSelect
-            )}
-            control={
-              <Checkbox
-                checked={response.multipleOptionIdxs?.[optionId] ?? false}
-                onChange={(e) => {
-                  if (!response.multipleOptionIdxs) {
-                    console.error('Error: multipleOptionIdxs is undefined');
-                    response.multipleOptionIdxs = {};
-                  }
-                  response.multipleOptionIdxs[optionId] = e.target.checked;
-                  onUpdate({
-                    type: InputType.MCQ,
-                    multipleOptionIdxs: response.multipleOptionIdxs,
-                  } as InputResponse);
-                }}
+        {input.options?.map(
+          ({ optionId, value, shouldSelect, feedbackHtml }) => (
+            <>
+              <FormControlLabel
+                key={optionId}
+                className={getClassNames(
+                  response.multipleOptionIdxs?.[optionId] ?? false,
+                  isFrozen,
+                  shouldSelect
+                )}
+                control={
+                  <Checkbox
+                    checked={response.multipleOptionIdxs?.[optionId] ?? false}
+                    onChange={(e) => {
+                      if (!response.multipleOptionIdxs) {
+                        console.error('Error: multipleOptionIdxs is undefined');
+                        response.multipleOptionIdxs = {};
+                      }
+                      response.multipleOptionIdxs[optionId] = e.target.checked;
+                      onUpdate({
+                        type: InputType.MCQ,
+                        multipleOptionIdxs: response.multipleOptionIdxs,
+                      } as InputResponse);
+                    }}
+                  />
+                }
+                label={
+                  <Box display="inline">
+                    {value.outerHTML
+                      ? mmtHTMLToReact(
+                          removeInfoIfNeeded(value.outerHTML, isFrozen)
+                        )
+                      : value.textContent}
+                  </Box>
+                }
               />
-            }
-            label={
-              <Box display="inline">
-                {value.outerHTML
-                  ? mmtHTMLToReact(
-                      removeInfoIfNeeded(value.outerHTML, isFrozen)
-                    )
-                  : value.textContent}
-              </Box>
-            }
-          />
-        ))}
+              {debug && (
+                <DebugMCQandSCQ
+                  feedbackHtml={feedbackHtml}
+                  shouldSelect={shouldSelect}
+                />
+              )}
+            </>
+          )
+        )}
         <FeedbackDisplay inline={inline} info={info} />
       </Box>
     );
@@ -433,7 +481,50 @@ function AnswerClassesTable({
     </TableContainer>
   );
 }
+const getQuadStateColor = (shouldSelect: QuadState) => {
+  switch (shouldSelect) {
+    case QuadState.TRUE:
+      return 'green';
 
+    case QuadState.FALSE:
+      return 'red';
+
+    case QuadState.UNKNOWN:
+      return 'gray';
+
+    default:
+      return 'orange';
+  }
+};
+function InlineScqTable({ options }: { options: Option[] }) {
+  const tableRows = options.map(({ value, feedbackHtml, shouldSelect }) => (
+    <TableRow>
+      <TableCell>{mmtHTMLToReact(value.outerHTML)}</TableCell>
+      <TableCell sx={{ color: getQuadStateColor(shouldSelect) }}>
+        {mmtHTMLToReact(feedbackHtml)}
+      </TableCell>
+    </TableRow>
+  ));
+  const tHeadStyle = { minWidth: '60px', fontWeight: 'bold' };
+  return (
+    <TableContainer component={Paper} sx={{ marginBottom: '10px' }}>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell colSpan={2} align="center" sx={{ fontWeight: 'bold' }}>
+              For inline SCC
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell sx={tHeadStyle}>Options</TableCell>
+            <TableCell sx={tHeadStyle}>Feedback</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>{tableRows}</TableBody>
+      </Table>
+    </TableContainer>
+  );
+}
 function toBloomDimension(key: string): BloomDimension {
   for (const dim of Object.values(BloomDimension)) {
     if (dim.toLowerCase() === key.toLowerCase()) return dim;
@@ -520,6 +611,10 @@ export function ProblemDisplay({
   const isEffectivelyFrozen = isFrozen || !problem.inputs?.length;
   const fillInInputs =
     problem.inputs?.filter((input) => input.type === InputType.FILL_IN) || [];
+  const inlineSCQInputs =
+    problem.inputs?.filter(
+      (input) => input.type === InputType.SCQ && input.inline
+    ) || [];
   const inputWidgets = problem.inputs.map((input, optIdx) => {
     return inputDisplay({
       input,
@@ -530,6 +625,7 @@ export function ProblemDisplay({
         r.responses[optIdx] = resp;
         onResponseUpdate({ ...r });
       },
+      debug: problem.debug ?? false,
     });
   });
   const customItems = Object.assign(inputWidgets);
@@ -537,7 +633,6 @@ export function ProblemDisplay({
     problem.statement.outerHTML ?? '',
     isEffectivelyFrozen
   );
-
   return (
     <Card
       sx={{
@@ -554,6 +649,14 @@ export function ProblemDisplay({
         </CustomItemsContext.Provider>
         {problem.debug && (
           <>
+            {inlineSCQInputs.map((inlineInput) => (
+              <InlineScqTable options={inlineInput?.options || []} />
+            ))}
+            {(fillInInputs || []).map((fillInInput) => (
+              <AnswerClassesTable
+                fillInAnswerClass={fillInInput?.fillInAnswerClasses || []}
+              />
+            ))}
             <DimAndURIListDisplay
               title="Objectives"
               data={problem.objectives}
@@ -562,11 +665,6 @@ export function ProblemDisplay({
               title="Preconditions"
               data={problem.preconditions}
             />
-            {(fillInInputs || []).map((fillInInput) => (
-              <AnswerClassesTable
-                fillInAnswerClass={fillInInput?.fillInAnswerClasses || []}
-              />
-            ))}
           </>
         )}
         {onFreezeResponse && !isEffectivelyFrozen && (
