@@ -240,20 +240,7 @@ function DebugMCQandSCQ({
   shouldSelect: QuadState;
 }) {
   const getBoxStyleForMCQandSCQ = (shouldSelect: QuadState) => {
-    let borderColor;
-    switch (shouldSelect) {
-      case QuadState.TRUE:
-        borderColor = 'green';
-        break;
-      case QuadState.FALSE:
-        borderColor = 'red';
-        break;
-      case QuadState.UNKNOWN:
-        borderColor = 'gray';
-        break;
-      default:
-        borderColor = 'orange';
-    }
+    const borderColor = getQuadStateColor(shouldSelect);
     const border = `2px solid ${borderColor}`;
     return {
       border,
@@ -493,26 +480,26 @@ function AnswerClassesTable({
     </TableContainer>
   );
 }
+const getQuadStateColor = (shouldSelect: QuadState) => {
+  switch (shouldSelect) {
+    case QuadState.TRUE:
+      return 'green';
+
+    case QuadState.FALSE:
+      return 'red';
+
+    case QuadState.UNKNOWN:
+      return 'gray';
+
+    default:
+      return 'orange';
+  }
+};
 function InlineScqTable({ options }: { options: Option[] }) {
-  const getTextColor = (shouldSelect: QuadState) => {
-    switch (shouldSelect) {
-      case QuadState.TRUE:
-        return 'green';
-
-      case QuadState.FALSE:
-        return 'red';
-
-      case QuadState.UNKNOWN:
-        return 'gray';
-
-      default:
-        return 'orange';
-    }
-  };
   const tableRows = options.map(({ value, feedbackHtml, shouldSelect }) => (
     <TableRow>
       <TableCell>{mmtHTMLToReact(value.outerHTML)}</TableCell>
-      <TableCell sx={{ color: getTextColor(shouldSelect) }}>
+      <TableCell sx={{ color: getQuadStateColor(shouldSelect) }}>
         {mmtHTMLToReact(feedbackHtml)}
       </TableCell>
     </TableRow>
@@ -524,7 +511,7 @@ function InlineScqTable({ options }: { options: Option[] }) {
         <TableHead>
           <TableRow>
             <TableCell colSpan={2} align="center" sx={{ fontWeight: 'bold' }}>
-              SCQ - Inline
+              For inline SCC
             </TableCell>
           </TableRow>
           <TableRow>
@@ -623,7 +610,7 @@ export function ProblemDisplay({
   const isEffectivelyFrozen = isFrozen || !problem.inputs?.length;
   const fillInInputs =
     problem.inputs?.filter((input) => input.type === InputType.FILL_IN) || [];
-  const inlineInputs =
+  const inlineSCQInputs =
     problem.inputs?.filter(
       (input) => input.type === InputType.SCQ && input.inline
     ) || [];
@@ -637,7 +624,7 @@ export function ProblemDisplay({
         r.responses[optIdx] = resp;
         onResponseUpdate({ ...r });
       },
-      debug: problem.debug || false,
+      debug: problem.debug ?? false,
     });
   });
   const customItems = Object.assign(inputWidgets);
@@ -661,7 +648,7 @@ export function ProblemDisplay({
         </CustomItemsContext.Provider>
         {problem.debug && (
           <>
-            {inlineInputs.map((inlineInput) => (
+            {inlineSCQInputs.map((inlineInput) => (
               <InlineScqTable options={inlineInput?.options || []} />
             ))}
             {(fillInInputs || []).map((fillInInput) => (
