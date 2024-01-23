@@ -231,6 +231,17 @@ function FeedbackDisplay({
     </>
   );
 }
+const getBoxStyleForMCQandSCQ = (shouldSelect: QuadState) => {
+  const borderColor = getQuadStateColor(shouldSelect);
+  const border = `2px solid ${borderColor}`;
+  return {
+    border,
+    color: borderColor,
+    margin: '-10px 10px 10px 10px',
+    p: '10px',
+    borderRadius: '5px',
+  };
+};
 
 function DebugMCQandSCQ({
   feedbackHtml,
@@ -239,23 +250,13 @@ function DebugMCQandSCQ({
   feedbackHtml: string;
   shouldSelect: QuadState;
 }) {
-  const getBoxStyleForMCQandSCQ = (shouldSelect: QuadState) => {
-    const borderColor = getQuadStateColor(shouldSelect);
-    const border = `2px solid ${borderColor}`;
-    return {
-      border,
-      color: borderColor,
-      margin: '-10px 10px 10px 10px',
-      p: '10px',
-      borderRadius: '5px',
-    };
-  };
   return (
     <Box sx={getBoxStyleForMCQandSCQ(shouldSelect)}>
       {mmtHTMLToReact(feedbackHtml)}
     </Box>
   );
 }
+
 function inputDisplay({
   input,
   response,
