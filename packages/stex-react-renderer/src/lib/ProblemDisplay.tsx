@@ -231,17 +231,6 @@ function FeedbackDisplay({
     </>
   );
 }
-const getBoxStyleForMCQandSCQ = (shouldSelect: QuadState) => {
-  const borderColor = getQuadStateColor(shouldSelect);
-  const border = `2px solid ${borderColor}`;
-  return {
-    border,
-    color: borderColor,
-    margin: '-10px 10px 10px 10px',
-    p: '10px',
-    borderRadius: '5px',
-  };
-};
 
 function DebugMCQandSCQ({
   feedbackHtml,
@@ -250,8 +239,17 @@ function DebugMCQandSCQ({
   feedbackHtml: string;
   shouldSelect: QuadState;
 }) {
+  const textColor = getQuadStateColor(shouldSelect);
   return (
-    <Box sx={getBoxStyleForMCQandSCQ(shouldSelect)}>
+    <Box
+      sx={{
+        color: textColor,
+        border: `2px solid ${textColor}`,
+        margin: '-10px 10px 10px 10px',
+        p: '10px',
+        borderRadius: '5px',
+      }}
+    >
       {mmtHTMLToReact(feedbackHtml)}
     </Box>
   );
@@ -598,6 +596,7 @@ export function ProblemDisplay({
   showPoints = true,
   onResponseUpdate,
   onFreezeResponse,
+  debug = false,
 }: {
   problem: Problem | undefined;
   isFrozen: boolean;
@@ -605,6 +604,7 @@ export function ProblemDisplay({
   showPoints?: boolean;
   onResponseUpdate: (r: ProblemResponse) => void;
   onFreezeResponse?: () => void;
+  debug: boolean;
 }) {
   const t = getLocaleObject(useRouter()).quiz;
   if (!problem) return <CircularProgress />;
@@ -625,7 +625,7 @@ export function ProblemDisplay({
         r.responses[optIdx] = resp;
         onResponseUpdate({ ...r });
       },
-      debug: problem.debug ?? false,
+      debug: debug,
     });
   });
   const customItems = Object.assign(inputWidgets);
@@ -647,7 +647,7 @@ export function ProblemDisplay({
         <CustomItemsContext.Provider value={{ items: customItems }}>
           <DocumentWidthSetter>{mmtHTMLToReact(statement)}</DocumentWidthSetter>
         </CustomItemsContext.Provider>
-        {problem.debug && (
+        {debug && (
           <>
             {inlineSCQInputs.map((inlineInput) => (
               <InlineScqTable options={inlineInput?.options || []} />
