@@ -100,7 +100,6 @@ export interface Problem {
   inputs: Input[];
 
   points: number;
-  debug?:boolean;
 }
 
 export interface InputResponse {
