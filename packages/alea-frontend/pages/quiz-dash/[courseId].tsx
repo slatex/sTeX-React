@@ -133,8 +133,8 @@ function UpcomingQuizList({
 
 const PRACTICE_QUIZ_INFO = {
   'ai-1': {
-    startSecNameExcl: 'The Semantic Web',
-    endSecNameIncl: 'Description Logics and the Semantic Web',
+    startSecNameExcl: 'Description Logics and the Semantic Web',
+    endSecNameIncl: 'Partial Order Planning',
   },
 };
 
