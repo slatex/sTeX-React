@@ -604,7 +604,7 @@ export function ProblemDisplay({
   showPoints?: boolean;
   onResponseUpdate: (r: ProblemResponse) => void;
   onFreezeResponse?: () => void;
-  debug: boolean;
+  debug?: boolean;
 }) {
   const t = getLocaleObject(useRouter()).quiz;
   if (!problem) return <CircularProgress />;

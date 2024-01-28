@@ -36,6 +36,7 @@ export function InlineProblemDisplay({ problem }: { problem: Problem }) {
 
   return (
     <ProblemDisplay
+      debug={false}
       problem={problem}
       isFrozen={isFrozen}
       r={response}
