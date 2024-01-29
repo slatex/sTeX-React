@@ -114,6 +114,7 @@ const QuizPage: NextPage = () => {
     undefined
   );
   const [moderatorPhase, setModeratorPhase] = useState<Phase>(undefined);
+  const [debuggerMode, setDebuggerMode] = useState<boolean>(false);
   const clientQuizEndTimeMs = getClientEndTimeMs(quizInfo);
   const clientQuizStartTimeMs = getClientStartTimeMs(quizInfo);
 
@@ -159,7 +160,15 @@ const QuizPage: NextPage = () => {
       if (isModerator(userInfo?.userId)) {
         const p =
           'Hello moderator! Do you want to see the quiz in feedback release phase (press OK) or quiz started phase (press Cancel)?';
-        setModeratorPhase(confirm(p) ? Phase.FEEDBACK_RELEASED : Phase.STARTED);
+        const moderatorPhase = confirm(p)
+          ? Phase.FEEDBACK_RELEASED
+          : Phase.STARTED;
+        setModeratorPhase(moderatorPhase);
+        if (moderatorPhase === Phase.FEEDBACK_RELEASED) {
+          const debugMessage =
+            'Would you like to view the quiz in debugger mode?';
+          setDebuggerMode(confirm(debugMessage));
+        }
       }
     });
   }, []);
@@ -189,6 +198,7 @@ const QuizPage: NextPage = () => {
           />
         ) : (
           <QuizDisplay
+            debug={debuggerMode}
             isFrozen={phase !== Phase.STARTED}
             showPerProblemTime={false}
             problems={problems}

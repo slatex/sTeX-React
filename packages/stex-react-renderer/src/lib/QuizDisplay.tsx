@@ -241,6 +241,7 @@ export function QuizDisplay({
   showPerProblemTime = false,
   existingResponses,
   isFrozen,
+  debug,
   showRecordOption = false,
 }: {
   quizEndTs?: number;
@@ -248,6 +249,7 @@ export function QuizDisplay({
   problems: { [problemId: string]: Problem };
   existingResponses: { [problemId: string]: ProblemResponse };
   isFrozen: boolean;
+  debug:boolean;
   onResponse?: (problemId: string, r: ProblemResponse) => void;
   onSubmit?: (
     name: string | undefined,
@@ -364,6 +366,7 @@ export function QuizDisplay({
           <ProblemDisplay
             r={response}
             //problemUrl={problemUrl}
+            debug={debug}
             problem={problem}
             isFrozen={isFrozen}
             onResponseUpdate={(response) => {
