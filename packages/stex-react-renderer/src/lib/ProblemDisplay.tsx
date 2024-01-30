@@ -6,14 +6,7 @@ import {
   Checkbox,
   CircularProgress,
   MenuItem,
-  Paper,
   Select,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   TextField,
   Typography,
 } from '@mui/material';
@@ -22,12 +15,9 @@ import Radio, { RadioProps } from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import {
   BloomDimension,
-  FillInAnswerClass,
-  FillInAnswerClassType,
   Input,
   InputResponse,
   InputType,
-  Option,
   Problem,
   ProblemResponse,
   QuadState,
@@ -43,6 +33,11 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useRouter } from 'next/router';
 import { getMMTHtml } from './CompetencyTable';
 import { DocumentWidthSetter } from './DocumentWidthSetter';
+import {
+  AnswerClassesTable,
+  DebugMCQandSCQ,
+  InlineScqTable,
+} from './QuizDebug';
 import { DimIcon } from './SelfAssessmentDialog';
 import { getLocaleObject } from './lang/utils';
 import {
@@ -232,29 +227,6 @@ function FeedbackDisplay({
   );
 }
 
-function DebugMCQandSCQ({
-  feedbackHtml,
-  shouldSelect,
-}: {
-  feedbackHtml: string;
-  shouldSelect: QuadState;
-}) {
-  const textColor = getQuadStateColor(shouldSelect);
-  return (
-    <Box
-      sx={{
-        color: textColor,
-        border: `2px solid ${textColor}`,
-        margin: '-10px 10px 10px 10px',
-        p: '10px',
-        borderRadius: '5px',
-      }}
-    >
-      {mmtHTMLToReact(feedbackHtml)}
-    </Box>
-  );
-}
-
 function inputDisplay({
   input,
   response,
@@ -434,95 +406,6 @@ function inputDisplay({
   }
 }
 
-function getParameters(type: FillInAnswerClassType, input: FillInAnswerClass) {
-  switch (type) {
-    case FillInAnswerClassType.numrange:
-      return `${input.startNum} - ${input.endNum}`;
-    case FillInAnswerClassType.regex:
-      return input.regex || '';
-    case FillInAnswerClassType.exact:
-      return input.exactMatch || '';
-    default:
-      return 'Unhandled Case';
-  }
-}
-
-function AnswerClassesTable({
-  fillInAnswerClass,
-}: {
-  fillInAnswerClass: FillInAnswerClass[];
-}) {
-  const tableRows = fillInAnswerClass.map(
-    (input: FillInAnswerClass, index: number) => (
-      <TableRow key={index}>
-        <TableCell>{input?.type}</TableCell>
-        <TableCell>{getParameters(input?.type, input)}</TableCell>
-        <TableCell>{mmtHTMLToReact(input?.feedbackHtml || '')}</TableCell>
-        <TableCell>{input?.verdict?.toString()}</TableCell>
-      </TableRow>
-    )
-  );
-  const tHeadStyle = { minWidth: '60px', fontWeight: 'bold' };
-  return (
-    <TableContainer component={Paper}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell sx={tHeadStyle}>Match Type</TableCell>
-            <TableCell sx={tHeadStyle}>Parameter</TableCell>
-            <TableCell sx={tHeadStyle}>Feedback</TableCell>
-            <TableCell sx={tHeadStyle}>Verdict</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>{tableRows}</TableBody>
-      </Table>
-    </TableContainer>
-  );
-}
-const getQuadStateColor = (shouldSelect: QuadState) => {
-  switch (shouldSelect) {
-    case QuadState.TRUE:
-      return 'green';
-
-    case QuadState.FALSE:
-      return 'red';
-
-    case QuadState.UNKNOWN:
-      return 'gray';
-
-    default:
-      return 'orange';
-  }
-};
-function InlineScqTable({ options }: { options: Option[] }) {
-  const tableRows = options.map(({ value, feedbackHtml, shouldSelect }) => (
-    <TableRow>
-      <TableCell>{mmtHTMLToReact(value.outerHTML)}</TableCell>
-      <TableCell sx={{ color: getQuadStateColor(shouldSelect) }}>
-        {mmtHTMLToReact(feedbackHtml)}
-      </TableCell>
-    </TableRow>
-  ));
-  const tHeadStyle = { minWidth: '60px', fontWeight: 'bold' };
-  return (
-    <TableContainer component={Paper} sx={{ marginBottom: '10px' }}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell colSpan={2} align="center" sx={{ fontWeight: 'bold' }}>
-              For inline SCC
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell sx={tHeadStyle}>Options</TableCell>
-            <TableCell sx={tHeadStyle}>Feedback</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>{tableRows}</TableBody>
-      </Table>
-    </TableContainer>
-  );
-}
 function toBloomDimension(key: string): BloomDimension {
   for (const dim of Object.values(BloomDimension)) {
     if (dim.toLowerCase() === key.toLowerCase()) return dim;
@@ -596,7 +479,7 @@ export function ProblemDisplay({
   showPoints = true,
   onResponseUpdate,
   onFreezeResponse,
-  debug = false,
+  debug,
 }: {
   problem: Problem | undefined;
   isFrozen: boolean;
@@ -625,7 +508,7 @@ export function ProblemDisplay({
         r.responses[optIdx] = resp;
         onResponseUpdate({ ...r });
       },
-      debug: debug,
+      debug: debug ?? false,
     });
   });
   const customItems = Object.assign(inputWidgets);
