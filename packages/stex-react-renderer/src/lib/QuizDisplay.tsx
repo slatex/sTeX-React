@@ -193,7 +193,7 @@ export function ListStepper({
   onChange: (idx: number) => void;
 }) {
   const { quiz: t } = getLocaleObject(useRouter());
-  if(listSize <= 1) return null;
+  if (listSize <= 1) return null;
   return (
     <Box>
       <Button
@@ -241,7 +241,7 @@ export function QuizDisplay({
   showPerProblemTime = false,
   existingResponses,
   isFrozen,
-  debug,
+  debug = false,
   showRecordOption = false,
 }: {
   quizEndTs?: number;
@@ -249,7 +249,7 @@ export function QuizDisplay({
   problems: { [problemId: string]: Problem };
   existingResponses: { [problemId: string]: ProblemResponse };
   isFrozen: boolean;
-  debug:boolean;
+  debug?: boolean;
   onResponse?: (problemId: string, r: ProblemResponse) => void;
   onSubmit?: (
     name: string | undefined,
