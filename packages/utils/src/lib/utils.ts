@@ -168,6 +168,14 @@ export function getCookie(name: string) {
   return (parts.pop() as string).split(';').shift();
 }
 
+export function setCookie(name: string, value: string) {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() + 1); // Set expiry date to one year from now
+  const expiry = `; expires=${date.toUTCString()}`;
+  const path = '; path=/';
+  document.cookie = `${name}=${value}${expiry}${path}`;
+}
+
 export function deleteCookie(name: string) {
   const EXPIRY_STRING = '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
   document.cookie = name + EXPIRY_STRING;

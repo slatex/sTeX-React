@@ -1,4 +1,4 @@
-import { deleteCookie, getCookie } from '@stex-react/utils';
+import { deleteCookie, getCookie, setCookie } from '@stex-react/utils';
 import axios, { AxiosError } from 'axios';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -165,6 +165,14 @@ export function fakeLoginUsingRedirect(
   returnBackUrl: string | undefined,
   persona?: string
 ) {
+  if (!name && !persona) {
+    axios.get(`/api/fake-login/${fakeId}`).then((resp) => {
+      // For developers.
+      const access_token = resp.data.access_token;
+      setCookie('access_token', access_token);
+      window.location.replace(returnBackUrl || '/');
+    });
+  }
   if (!returnBackUrl) returnBackUrl = window.location.href;
   fakeId = fakeId.replace(/\W/g, '');
   const encodedReturnBackUrl = encodeURIComponent(returnBackUrl);
@@ -292,11 +300,11 @@ export async function reportEvent(event: LMSEvent) {
 }
 
 export async function getAllMyData() {
-  return await lmsRequest('/lms/output/all_my_data', 'POST', {}, {});
+  return await lmsRequest('lms/output/all_my_data', 'POST', {}, {});
 }
 
 export async function purgeAllMyData() {
-  return await lmsRequest('/lms/input/events', 'POST', {}, { type: 'purge' });
+  return await lmsRequest('lms/input/events', 'POST', {}, { type: 'purge' });
 }
 
 export async function resetFakeUserData(persona: string) {
