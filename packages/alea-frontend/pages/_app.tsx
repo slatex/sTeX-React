@@ -53,7 +53,6 @@ function CustomApp({ Component, pageProps }: AppProps) {
     <ServerLinksContext.Provider
       value={{
         mmtUrl: process.env.NEXT_PUBLIC_MMT_URL,
-        lmsUrl: process.env.NEXT_PUBLIC_LMS_URL,
         gptUrl: process.env.NEXT_PUBLIC_GPT_URL,
       }}
     >
