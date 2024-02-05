@@ -4,7 +4,7 @@ import axios, { AxiosError } from 'axios';
 const SERVER_TO_ADDRESS = {
   lmsV1: process.env['NEXT_PUBLIC_LMS_V1_URL'],
   lmsV2: process.env['NEXT_PUBLIC_LMS_V2_URL'],
-  auth: process.env['NEXT_PUBLIC_AUTH_URL'],
+  auth: process.env['NEXT_PUBLIC_AUTH_SERVER_URL'],
 };
 
 export type SmileyType =
