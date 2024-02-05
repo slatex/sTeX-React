@@ -1,3 +1,8 @@
+import QuizIcon from '@mui/icons-material/Quiz';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -5,19 +10,24 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import Tooltip from '@mui/material/Tooltip';
 import TableSortLabel from '@mui/material/TableSortLabel';
+import Tooltip from '@mui/material/Tooltip';
 
+import { Button, Link } from '@mui/material';
 import {
   ALL_DIMENSIONS,
   BloomDimension,
+  getProblemIdsForConcept,
   uriWeightToSmileyLevel,
 } from '@stex-react/api';
+import { PRIMARY_COL, PathToTour } from '@stex-react/utils';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import { SelfAssessmentDialogRow } from './SelfAssessmentDialog';
 import { getLocaleObject } from './lang/utils';
 import { mmtHTMLToReact } from './mmtParser';
-import { useState } from 'react';
+import { PracticeQuestions } from './PracticeQuestions';
 
 const extractLastWordAfterQuestionMark = (url: string) => {
   if (!url) return url;
@@ -33,20 +43,74 @@ export function getMMTHtml(uri: string) {
   return `<span data-overlay-link-click="${clickLink}" data-highlight-parent="${highlightParent}" data-overlay-link-hover="${hoverLink}" class="symcomp group-highlight rustex-contents">${lastWord}</span>`;
 }
 
+function QuizButton({ uri, mmtUrl }: { uri: string; mmtUrl?: string }) {
+  const [problemList, setProblemList] = useState<string[]>([]);
+  const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+  useEffect(() => {
+    if (!mmtUrl) return;
+    getProblemIdsForConcept(mmtUrl, uri).then(setProblemList);
+  }, [uri]);
+  if (problemList.length === 0) {
+    return null;
+  }
+  function handleCloseDialog() {
+    setDialogOpen(false);
+  }
+  return (
+    <>
+      <QuizIcon
+        sx={{
+          cursor: 'pointer',
+          backgroundColor: PRIMARY_COL,
+          color: 'white',
+          borderRadius: '50%',
+          padding: '8px',
+        }}
+        onClick={() => setDialogOpen(true)}
+      />
+      <Dialog
+        open={dialogOpen}
+        onClose={handleCloseDialog}
+        fullWidth={true}
+        maxWidth="md"
+      >
+        <DialogTitle>Practice Problems</DialogTitle>
+        <DialogContent>
+          <PracticeQuestions problemIds={problemList} />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={handleCloseDialog}
+            variant="contained"
+            color="primary"
+          >
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
+}
+
 export function CompetencyTable({
   URIs,
   competencyData,
   dimensions,
   onValueUpdate,
+  showTour,
+  mmtUrl,
 }: {
   URIs: string[];
   competencyData: any[];
   dimensions?: BloomDimension[];
   onValueUpdate?: () => void;
+  showTour?: boolean;
+  mmtUrl?: string;
 }) {
   const t = getLocaleObject(useRouter());
   const [orderBy, setOrderBy] = useState<string>('');
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
+
   const combinedData: { concepts: string; values: any }[] = [];
   const CONCEPT_COLUMN = 'concepts';
 
@@ -110,6 +174,11 @@ export function CompetencyTable({
                 </TableSortLabel>
               </TableCell>
             ))}
+            {showTour && (
+              <TableCell>
+                <b>Guided Tour</b>
+              </TableCell>
+            )}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -145,6 +214,32 @@ export function CompetencyTable({
                     )}
                   </TableCell>
                 )
+              )}
+              {showTour && (
+                <TableCell
+                  sx={{
+                    padding: '4px',
+                    textAlign: 'center',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Link
+                    href={PathToTour(URIs[index])}
+                    target="_blank"
+                    sx={{ marginRight: '10px' }}
+                  >
+                    <Image
+                      src="/guidedTour.png"
+                      alt="Tour Logo"
+                      width={40}
+                      height={40}
+                      style={{ cursor: 'pointer' }}
+                      priority={true}
+                    />
+                  </Link>
+                  <QuizButton uri={URIs[index]} mmtUrl={mmtUrl} />
+                </TableCell>
               )}
             </TableRow>
           ))}

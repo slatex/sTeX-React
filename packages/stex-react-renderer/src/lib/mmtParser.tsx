@@ -32,7 +32,10 @@ import CompetencyIndicator from './CompetencyIndicator';
 import { ContentFromUrl } from './ContentFromUrl';
 import { DisplayContext, DisplayReason } from './ContentWithHightlight';
 import { ErrorBoundary } from './ErrorBoundary';
-import { ExpandableContent, ExpandableStaticContent } from './ExpandableContent';
+import {
+  ExpandableContent,
+  ExpandableStaticContent,
+} from './ExpandableContent';
 import { DocSectionContext } from './InfoSidebar';
 import { InlineProblemDisplay } from './InlineProblemDisplay';
 import MathJaxHack from './MathJaxHack';
@@ -40,6 +43,7 @@ import { MathMLDisplay } from './MathMLDisplay';
 import { OverlayDialog, isHoverON } from './OverlayDialog';
 import { ServerLinksContext } from './stex-react-renderer';
 import { useOnScreen } from './useOnScreen';
+import TrafficLightIndicator from './TrafficLightIndicator';
 
 export const CustomItemsContext = createContext<{
   items: { [tag: string]: JSX.Element };
@@ -304,8 +308,14 @@ function SectionDisplay({ d }: { d: Element }) {
   const fileParent = lastFileNode(ancestors);
   if (!fileParent?.archive || !fileParent?.filepath) return actualSection;
   const { archive, filepath } = fileParent;
+  const showTraffciLight = localStore?.getItem('traffic-light');
   return (
     <>
+      {showTraffciLight && (
+        <TrafficLightIndicator
+          contentUrl={XhtmlContentUrl(archive, filepath)}
+        />
+      )}
       {actualSection}
       <CompetencyIndicator
         contentUrl={XhtmlContentUrl(archive, filepath)}
@@ -400,7 +410,8 @@ export function Definiendum({ node }: { node: Element }) {
     if (
       latestReason === DisplayReason.HOVER ||
       latestReason === DisplayReason.ON_CLICK_DIALOG
-    ) { // These have their own separate events.
+    ) {
+      // These have their own separate events.
       return;
     }
     reportEvent({
@@ -601,10 +612,7 @@ export const replace = (d: DOMNode): any => {
     const inputRef = domNode.attribs['data-inputref-url'];
     return (
       <>
-        <ExpandableContent
-          htmlTitle={domNode}
-          contentUrl={inputRef}
-        />
+        <ExpandableContent htmlTitle={domNode} contentUrl={inputRef} />
         &nbsp;
       </>
     );
