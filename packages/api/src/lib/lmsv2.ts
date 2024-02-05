@@ -10,6 +10,7 @@ import {
   getUriSmileys,
   getUriWeights,
   lmsRequest,
+  purgeAllMyData,
   reportEvent,
 } from './lms';
 
@@ -113,6 +114,7 @@ export async function getUriWeightsV2(
 
   if (!concepts?.length) return [];
   const data: LmsOutputMultipleResponse = await lmsRequest(
+    'lmsV2',
     'lms/output/multiple',
     'POST',
     null,
@@ -143,6 +145,7 @@ export async function getUriSmileysV2(
 
   if (!concepts?.length) return new Map();
   const data: LmsOutputMultipleResponse = await lmsRequest(
+    'lmsV2',
     'lms/output/multiple',
     'POST',
     null,
@@ -182,9 +185,8 @@ export async function getAllMyDataV2(): Promise<{
     views: any[];
   };
 }> {
-  // Its the same request for v1 so no change needed because this function is
-  // only used by the JSON dumper.
-  return await lmsRequest('lms/output/all_my_data', 'POST', {}, {});
+  if (USE_LMS_V1) return await getAllMyData();
+  return await lmsRequest('lmsV2', 'lms/output/all_my_data', 'POST', {}, {});
 }
 
 export async function getMyCompleteModel(): Promise<ConceptCompetenceInfo[]> {
@@ -200,6 +202,13 @@ export async function getMyCompleteModel(): Promise<ConceptCompetenceInfo[]> {
     }));
   }
   return (await getAllMyDataV2())?.model || [];
+}
+
+export async function purgeAllMyDataV2() {
+  if (USE_LMS_V1) return purgeAllMyData();
+  await lmsRequest('lmsV2', 'lms/input/events', 'POST', {}, {
+    type: 'purge',
+  } as PurgeEvent);
 }
 
 function toLMSEvent(event: LMS2Event): LMSEvent {
@@ -241,5 +250,5 @@ function toLMSEvent(event: LMS2Event): LMSEvent {
 
 export async function reportEventV2(event: LMS2Event) {
   if (USE_LMS_V1) return await reportEvent(toLMSEvent(event));
-  return await lmsRequest('lms/input/events', 'POST', {}, event);
+  return await lmsRequest('lmsV2', 'lms/input/events', 'POST', {}, event);
 }

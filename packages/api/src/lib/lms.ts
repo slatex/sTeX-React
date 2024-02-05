@@ -1,9 +1,11 @@
 import { deleteCookie, getCookie, setCookie } from '@stex-react/utils';
 import axios, { AxiosError } from 'axios';
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-const lmsServerAddress = process.env.NEXT_PUBLIC_LMS_URL;
+const SERVER_TO_ADDRESS = {
+  lmsV1: process.env['NEXT_PUBLIC_LMS_V1_URL'],
+  lmsV2: process.env['NEXT_PUBLIC_LMS_V2_URL'],
+  auth: process.env['NEXT_PUBLIC_AUTH_URL'],
+};
 
 export type SmileyType =
   | 'smiley-2'
@@ -152,7 +154,7 @@ export function getAuthHeaders() {
 export function loginUsingRedirect(returnBackUrl?: string) {
   if (!returnBackUrl) returnBackUrl = window.location.href;
 
-  const redirectUrl = `${lmsServerAddress}/login?target=${encodeURIComponent(
+  const redirectUrl = `${SERVER_TO_ADDRESS.auth}/login?target=${encodeURIComponent(
     returnBackUrl
   )}`;
 
@@ -185,13 +187,14 @@ export function fakeLoginUsingRedirect(
   const n = name || fakeId;
 
   const redirectUrl =
-    `${lmsServerAddress}/fake-login?fake-id=${fakeId}&target=${target}` +
+    `${SERVER_TO_ADDRESS.auth}/fake-login?fake-id=${fakeId}&target=${target}` +
     (name ? `&name=${n}` : '');
 
   window.location.replace(redirectUrl);
 }
 
 export async function lmsRequest(
+  server: 'lmsV1' | 'lmsV2' | 'auth',
   apiUrl: string,
   requestType: string,
   defaultVal: any,
@@ -203,7 +206,8 @@ export async function lmsRequest(
     return Promise.resolve(defaultVal);
   }
   try {
-    const fullUrl = `${lmsServerAddress}/${apiUrl}`;
+    const serverAddress = SERVER_TO_ADDRESS[server];
+    const fullUrl = `${serverAddress}/${apiUrl}`;
     const resp =
       requestType === 'POST'
         ? await axios.post(fullUrl, data, { headers })
@@ -250,7 +254,9 @@ export async function getUriWeights(
   URIs: string[]
 ): Promise<NumericCognitiveValues[]> {
   if (!URIs?.length) return [];
-  const resp = await lmsRequest('lms/output/multiple', 'POST', null, { URIs });
+  const resp = await lmsRequest('lmsV1', 'lms/output/multiple', 'POST', null, {
+    URIs,
+  });
   if (!resp?.model) return new Array(URIs.length).fill({});
   const model: { URI: string; values: NumericCognitiveValues }[] = resp.model;
   const compMap = new Map<string, NumericCognitiveValues>();
@@ -268,6 +274,7 @@ export async function getUriSmileys(
 ): Promise<Map<string, SmileyCognitiveValues>> {
   if (!URIs?.length) return new Map();
   const resp = await lmsRequest(
+    'lmsV1',
     'lms/output/multiple',
     'POST',
     null,
@@ -301,15 +308,21 @@ export async function reportEvent(event: LMSEvent) {
     console.log('reportEvent - disabled', event);
     return;
   }
-  return await lmsRequest('lms/input/events', 'POST', {}, event);
+  return await lmsRequest('lmsV1', 'lms/input/events', 'POST', {}, event);
 }
 
 export async function getAllMyData() {
-  return await lmsRequest('lms/output/all_my_data', 'POST', {}, {});
+  return await lmsRequest('lmsV1', 'lms/output/all_my_data', 'POST', {}, {});
 }
 
 export async function purgeAllMyData() {
-  return await lmsRequest('lms/input/events', 'POST', {}, { type: 'purge' });
+  return await lmsRequest(
+    'lmsV1',
+    'lms/input/events',
+    'POST',
+    {},
+    { type: 'purge' }
+  );
 }
 
 export async function resetFakeUserData(persona: string) {
@@ -340,7 +353,7 @@ export function lmsResponseToUserInfo(lmsRespData: any): UserInfo | undefined {
 let cachedUserInfo: UserInfo | undefined = undefined;
 export async function getUserInfo() {
   if (!cachedUserInfo) {
-    const v = await lmsRequest('getuserinfo', 'GET', undefined);
+    const v = await lmsRequest('auth', 'getuserinfo', 'GET', undefined);
     if (!v) return undefined;
     cachedUserInfo = lmsResponseToUserInfo(v);
   }

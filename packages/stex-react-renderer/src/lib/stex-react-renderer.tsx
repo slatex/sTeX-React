@@ -49,11 +49,7 @@ import {
 } from './mmtParser';
 //import { RenderStatusTree } from './RenderStatusTree';
 
-export const ServerLinksContext = createContext({
-  mmtUrl: '',
-  lmsUrl: '',
-  gptUrl: '',
-});
+export const ServerLinksContext = createContext({ mmtUrl: '', gptUrl: '' });
 
 export function StexReactRenderer({
   contentUrl,

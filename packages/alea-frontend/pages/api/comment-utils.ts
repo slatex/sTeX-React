@@ -111,7 +111,7 @@ export async function executeTxnAndEndSet500OnError(
 export async function getUserInfo(req: NextApiRequest) {
   if (!req.headers.authorization) return undefined;
   const headers = { Authorization: req.headers.authorization };
-  const lmsServerAddress = process.env.NEXT_PUBLIC_LMS_URL;
+  const lmsServerAddress = process.env.NEXT_PUBLIC_AUTH_SERVER_URL;
   const resp = await axios.get(`${lmsServerAddress}/getuserinfo`, { headers });
   return lmsResponseToUserInfo(resp.data);
 }

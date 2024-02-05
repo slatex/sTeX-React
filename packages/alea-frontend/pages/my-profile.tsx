@@ -13,7 +13,7 @@ import {
   getAllMyComments,
   getAllMyDataV2,
   getUserInfo,
-  purgeAllMyData,
+  purgeAllMyDataV2,
   purgeComments,
   purgeStudyBuddyData,
   purgeUserNotifications,
@@ -203,7 +203,7 @@ const MyProfilePage: NextPage = () => {
                 return;
               }
               try {
-                await purgeAllMyData();
+                await purgeAllMyDataV2();
                 await purgeComments();
                 await purgeUserNotifications();
                 await purgeStudyBuddyData();
