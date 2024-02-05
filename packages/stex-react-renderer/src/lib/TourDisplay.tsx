@@ -11,7 +11,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import {
   BloomDimension,
-  getUriSmileys,
+  getUriSmileysV2,
   NumericCognitiveValues,
   SmileyCognitiveValues,
   smileyToLevel,
@@ -441,15 +441,10 @@ function scrollNavToShowVisibleItems(
 export function TourDisplay({
   tourId,
   language = 'en',
-  getUriWeights = (uri: string[]) =>
-    Promise.resolve(new Array(uri.length).fill(0)),
-  reportEvent = (_) => Promise.resolve(),
   topOffset,
 }: {
   tourId: string;
   language?: string;
-  getUriWeights?: (uri: string[]) => Promise<NumericCognitiveValues[]>;
-  reportEvent?: (event: any) => Promise<void>;
   topOffset: number;
 }) {
   const [allItemsMap, setAllItemsMap] = useState(new Map<string, TourItem>());
@@ -472,7 +467,7 @@ export function TourDisplay({
       setFetchingItems(false);
       const apiEntries: TourAPIEntry[] = r.data;
       const tourUris = apiEntries.map((e) => e.id);
-      getUriSmileys(tourUris).then((smileyVals) => {
+      getUriSmileysV2(tourUris).then((smileyVals) => {
         const understood = [];
         for (const uri of tourUris) {
           if (isConceptUnderstood(smileyVals.get(uri))) {

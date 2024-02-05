@@ -2,7 +2,12 @@ import PlayCircleFilledWhiteIcon from '@mui/icons-material/PlayCircleFilledWhite
 import { Box, IconButton } from '@mui/material';
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
-import { getAncestors, lastFileNode, reportEvent } from '@stex-react/api';
+import {
+  ViewEvent,
+  getAncestors,
+  lastFileNode,
+  reportEventV2,
+} from '@stex-react/api';
 import {
   PROBLEM_PARSED_MARKER,
   getProblem,
@@ -32,7 +37,10 @@ import CompetencyIndicator from './CompetencyIndicator';
 import { ContentFromUrl } from './ContentFromUrl';
 import { DisplayContext, DisplayReason } from './ContentWithHightlight';
 import { ErrorBoundary } from './ErrorBoundary';
-import { ExpandableContent, ExpandableStaticContent } from './ExpandableContent';
+import {
+  ExpandableContent,
+  ExpandableStaticContent,
+} from './ExpandableContent';
 import { DocSectionContext } from './InfoSidebar';
 import { InlineProblemDisplay } from './InlineProblemDisplay';
 import MathJaxHack from './MathJaxHack';
@@ -383,7 +391,11 @@ function removeFromHoverStack(url?: string) {
 
   HOVER_STACK.splice(HOVER_STACK.length - 1, 1);
   if (hoverDuration_ms > 500)
-    reportEvent({ type: 'concept-hovered', URI, hoverDuration_ms });
+    reportEventV2({
+      type: 'view',
+      concept: URI,
+      payload: `Hovered for ${hoverDuration_ms}ms`,
+    } as ViewEvent);
 }
 
 export function Definiendum({ node }: { node: Element }) {
@@ -400,14 +412,15 @@ export function Definiendum({ node }: { node: Element }) {
     if (
       latestReason === DisplayReason.HOVER ||
       latestReason === DisplayReason.ON_CLICK_DIALOG
-    ) { // These have their own separate events.
+    ) {
+      // These have their own separate events.
       return;
     }
-    reportEvent({
-      type: 'definiendum-read',
-      URI,
-      displayReason: latestReason,
-    });
+    reportEventV2({
+      type: 'view',
+      concept: URI,
+      payload: `Definiendum was read: [${latestReason}]`,
+    } as ViewEvent);
     setReported(true);
   }, [reported, isVisible, latestReason, URI]);
   return (
@@ -601,10 +614,7 @@ export const replace = (d: DOMNode): any => {
     const inputRef = domNode.attribs['data-inputref-url'];
     return (
       <>
-        <ExpandableContent
-          htmlTitle={domNode}
-          contentUrl={inputRef}
-        />
+        <ExpandableContent htmlTitle={domNode} contentUrl={inputRef} />
         &nbsp;
       </>
     );

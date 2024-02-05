@@ -191,7 +191,7 @@ export function fakeLoginUsingRedirect(
   window.location.replace(redirectUrl);
 }
 
-async function lmsRequest(
+export async function lmsRequest(
   apiUrl: string,
   requestType: string,
   defaultVal: any,
@@ -219,7 +219,7 @@ async function lmsRequest(
   }
 }
 
-function cleanupNumericCognitiveValues(
+export function cleanupNumericCognitiveValues(
   dim: NumericCognitiveValues
 ): NumericCognitiveValues {
   return {
@@ -232,7 +232,7 @@ function cleanupNumericCognitiveValues(
   };
 }
 
-function cleanupSmileyCognitiveValues(
+export function cleanupSmileyCognitiveValues(
   dim: SmileyCognitiveValues
 ): SmileyCognitiveValues {
   const defaultSmiley = 'smiley-2';
@@ -291,7 +291,12 @@ export async function getUriSmileys(
 }
 
 export async function reportEvent(event: LMSEvent) {
-  const disabled = ['concept-clicked', 'concept-hovered', 'definiendum-read'];
+  const disabled = [
+    'concept-clicked',
+    'concept-hovered',
+    'definiendum-read',
+    'view',
+  ];
   if (disabled.includes(event.type)) {
     console.log('reportEvent - disabled', event);
     return;

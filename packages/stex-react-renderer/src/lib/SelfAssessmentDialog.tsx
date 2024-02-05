@@ -5,8 +5,9 @@ import Tooltip, { tooltipClasses, TooltipProps } from '@mui/material/Tooltip';
 import {
   ALL_SMILEY_LEVELS,
   BloomDimension,
-  getUriSmileys,
-  reportEvent,
+  getUriSmileysV2,
+  reportEventV2,
+  SelfAssessmentSmileysEvent,
   SmileyCognitiveValues,
   SmileyLevel,
   smileyToLevel,
@@ -228,13 +229,13 @@ export function SelfAssessmentDialogRow({
             <IconButton
               sx={{ p: '0' }}
               onClick={async () => {
-                await reportEvent({
+                await reportEventV2({
                   type: 'self-assessment-5StepLikertSmileys',
-                  URI: uri,
-                  values: {
+                  concept: uri,
+                  competencies: {
                     [dim]: `smiley${l}`,
                   },
-                });
+                } as SelfAssessmentSmileysEvent);
                 onValueUpdate();
               }}
             >
@@ -260,7 +261,7 @@ export function SelfAssessment2({
     undefined
   );
   function onValueUpdate() {
-    getUriSmileys([uri]).then((v) => setSmileys(v.get(uri)));
+    getUriSmileysV2([uri]).then((v) => setSmileys(v.get(uri)));
   }
   useEffect(() => {
     setSmileys(undefined);
@@ -294,7 +295,7 @@ export function SelfAssessmentDialog({
     undefined
   );
   function onValueUpdate() {
-    getUriSmileys([uri]).then((v) => {
+    getUriSmileysV2([uri]).then((v) => {
       setSmileys(v.get(uri));
       if (onUpdate) onUpdate(v.get(uri) as any);
     });

@@ -1,5 +1,5 @@
 import { Button } from '@mui/material';
-import { getUriWeights, reportEvent } from '@stex-react/api';
+import { IKnowEvent, getUriWeightsV2, reportEventV2 } from '@stex-react/api';
 import { localStore } from '@stex-react/utils';
 import type { NextPage } from 'next';
 import { useReducer } from 'react';
@@ -34,10 +34,10 @@ const Home: NextPage = () => {
             size="small"
             sx={{ m: '5px' }}
             onClick={async () => {
-              const resp = await reportEvent({
+              const resp = await reportEventV2({
                 type: 'i-know',
-                URI: 'testUri1',
-              });
+                concept: 'testUri1',
+              } as IKnowEvent);
               console.log(resp);
             }}
           >
@@ -49,7 +49,7 @@ const Home: NextPage = () => {
             size="small"
             sx={{ m: '5px' }}
             onClick={async () => {
-              const resp = await getUriWeights(['testUri1', 'testUri2']);
+              const resp = await getUriWeightsV2(['testUri1', 'testUri2']);
               console.log(resp);
             }}
           >

@@ -8,13 +8,14 @@ import {
 } from '@mui/material';
 import {
   COURSE_DESCRIPTIONS,
+  CourseInitEvent,
   GRADE_TO_PERCENT_LOOPUP,
   LMSEvent,
   POSSIBLE_GERMAN_GRADES,
   TO_EXCLUDE,
   UserInfo,
   getUserInfo,
-  reportEvent,
+  reportEventV2,
 } from '@stex-react/api';
 import { localStore } from '@stex-react/utils';
 import { useEffect, useState } from 'react';
@@ -188,10 +189,10 @@ const MyCourseHistory = () => {
               const grade = course?.grade;
               const percentage = course?.percentage;
               if (!grade && !percentage) return;
-              const event: LMSEvent = { type: 'course-init', course: courseId };
+              const event: CourseInitEvent = { type: 'course-init', course: courseId };
               if (grade) event.grade = grade;
               if (percentage) event.percentage = percentage.toString();
-              return reportEvent(event);
+              return reportEventV2(event);
             }).filter((x) => x);
             setIsLoading(true);
             Promise.all(promises).then(() => {

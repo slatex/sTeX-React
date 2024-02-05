@@ -1,7 +1,6 @@
 import { Box, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import { TourDisplay } from '@stex-react/stex-react-renderer';
 import { BG_COLOR } from '@stex-react/utils';
-import { getUriWeights, reportEvent } from '@stex-react/api';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -42,13 +41,7 @@ const GuidedTourPage: NextPage = () => {
         </FormControl>
       </Box>
       <Box flexGrow={1} bgcolor={BG_COLOR}>
-        <TourDisplay
-          tourId={tourId}
-          language={language}
-          getUriWeights={getUriWeights}
-          reportEvent={reportEvent}
-          topOffset={125}
-        />
+        <TourDisplay tourId={tourId} language={language} topOffset={125} />
       </Box>
     </MainLayout>
   );

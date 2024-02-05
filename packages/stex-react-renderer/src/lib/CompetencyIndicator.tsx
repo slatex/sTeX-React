@@ -18,7 +18,7 @@ import {
   DefiniendaItem,
   NumericCognitiveValues,
   getDefiniedaInDoc,
-  getUriWeights,
+  getUriWeightsV2,
   isLoggedIn,
 } from '@stex-react/api';
 import { BG_COLOR, getSectionInfo } from '@stex-react/utils';
@@ -86,12 +86,12 @@ const CompetencyIndicator = ({
     if (!definedData) return;
     const URIs = [...new Set(definedData.flatMap((data) => data.symbols))];
     setURIs(URIs);
-    getUriWeights(URIs).then((data) => setCompetencyData(data));
+    getUriWeightsV2(URIs).then((data) => setCompetencyData(data));
   }, [definedData]);
 
   function refetchCompetencyData() {
     if (!URIs?.length) return;
-    getUriWeights(URIs).then((data) => setCompetencyData(data));
+    getUriWeightsV2(URIs).then((data) => setCompetencyData(data));
   }
 
   const averages = TO_SHOW.reduce((acc, competency) => {

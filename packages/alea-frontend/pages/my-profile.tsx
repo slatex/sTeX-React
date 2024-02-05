@@ -11,7 +11,7 @@ import {
 import {
   UserInfo,
   getAllMyComments,
-  getAllMyData,
+  getAllMyDataV2,
   getUserInfo,
   purgeAllMyData,
   purgeComments,
@@ -143,7 +143,7 @@ const MyProfilePage: NextPage = () => {
         <Button
           variant="contained"
           onClick={() => {
-            getAllMyData().then((data) => {
+            getAllMyDataV2().then((data) => {
               downloadFile(
                 JSON.stringify(data, undefined, 2),
                 `${userInfo.userId}-lms-${Date.now()}.json`,

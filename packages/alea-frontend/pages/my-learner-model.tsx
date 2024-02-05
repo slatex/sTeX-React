@@ -1,13 +1,16 @@
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { Box, CircularProgress, IconButton, Tooltip } from '@mui/material';
-import { getAllMyData } from '@stex-react/api';
+import {
+  ConceptCompetenceInfo,
+  getMyCompleteModel
+} from '@stex-react/api';
+import { CompetencyTable } from '@stex-react/stex-react-renderer';
 import { FileLocation } from '@stex-react/utils';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
-import { CompetencyTable } from '@stex-react/stex-react-renderer';
 
 export interface NotesSection extends FileLocation {
   updatedTimestampSec: number;
@@ -17,16 +20,16 @@ const MyLearnerModelPage: NextPage = () => {
   const router = useRouter();
   const { myLearnerModel: t } = getLocaleObject(router);
   const [isLoading, setIsLoading] = useState(false);
-  const [competenceInfo, setCompetenceInfo] = useState<
-    { URI: string; values: { [key: string]: string } }[]
-  >([]);
+  const [competenceInfo, setCompetenceInfo] = useState<ConceptCompetenceInfo[]>(
+    []
+  );
 
   function refresh() {
     setIsLoading(true);
 
-    getAllMyData().then((d) => {
+    getMyCompleteModel().then((model) => {
       setIsLoading(false);
-      setCompetenceInfo(d.model || []);
+      setCompetenceInfo(model);
     });
   }
 
@@ -34,8 +37,8 @@ const MyLearnerModelPage: NextPage = () => {
     refresh();
   }, []);
 
-  const plainCompetencyData = competenceInfo.map((data) => data.values) || [];
-  const URIs = competenceInfo.map((v) => v.URI);
+  const plainCompetencyData = competenceInfo.map((data) => data.competences) || [];
+  const concepts = competenceInfo.map((v) => v.concept);
   return (
     <MainLayout title="My Learner Model | VoLL-KI">
       <Box p="10px" m="0 auto" maxWidth="800px">
@@ -79,7 +82,7 @@ const MyLearnerModelPage: NextPage = () => {
 
             {competenceInfo.length ? (
               <CompetencyTable
-                URIs={URIs}
+                URIs={concepts}
                 competencyData={plainCompetencyData}
               />
             ) : null}

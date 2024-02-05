@@ -3,10 +3,9 @@ import {
   getCourseInfo,
   getDefiniedaInDoc,
   getDocumentSections,
-  getUriSmileys,
+  getUriSmileysV2,
   SectionsAPIData,
 } from '@stex-react/api';
-import axios from 'axios';
 
 export const EXCLUDED_CHAPTERS = ['Preface', 'Administrativa', 'Resources'];
 const CARDS_CACHE: { [courseId: string]: CourseCards } = {};
@@ -138,7 +137,7 @@ export default async function handler(req, res) {
   }
 
   const smileyValues = Authorization
-    ? await getUriSmileys(uris, { Authorization })
+    ? await getUriSmileysV2(uris, { Authorization })
     : new Map();
 
   const output: CardsWithSmileys[] = [];
