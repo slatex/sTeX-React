@@ -15,6 +15,7 @@ import {
   CompletionEval,
   CreateGptProblemsRequest,
   CreateGptProblemsResponse,
+  GptCompletionData,
   Template,
   createGptQuestions,
   getEval,
@@ -60,52 +61,10 @@ function formDataToTemplate(
   };
 }
 
-export function OutputViewer({
-  response,
-}: {
-  response?: CreateGptProblemsResponse;
-}) {
-  const [completionIdx, setCompletionIdx] = useState(0);
-  const [completionEval, setCompletionEval] = useState<
-    CompletionEval | undefined
-  >(undefined);
-  useEffect(() => {
-    if (!response?.runId) return;
-    getEval(response.runId, completionIdx).then(setCompletionEval);
-  }, [response?.runId, completionIdx]);
-
-  const completion = response?.completions?.[completionIdx];
-  if (!completion) {
-    return (
-      <i style={{ fontSize: 'large' }}>
-        Click &apos;Get GPT Response&apos; to see some output
-      </i>
-    );
-  }
-
+function CompletionDisplay({ completion }: { completion?: GptCompletionData }) {
+  if (!completion) return null;
   return (
-    <Box>
-      <Typography variant="h5" mb="10px" sx={{ textDecoration: 'underline' }}>
-        Output
-      </Typography>
-
-      <Accordion>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          Actual Prompts
-        </AccordionSummary>
-        <AccordionDetails>
-          {(completion.actualPrompts || []).map((prompt, idx) => (
-            <TextField
-              key={idx}
-              value={prompt}
-              variant="outlined"
-              fullWidth
-              InputProps={{ readOnly: true }}
-              multiline
-            />
-          ))}
-        </AccordionDetails>
-      </Accordion>
+    <>
       <Typography variant="h6" mt="10px">
         Usage
       </Typography>
@@ -141,6 +100,79 @@ export function OutputViewer({
         InputProps={{ readOnly: true }}
         multiline
       />
+    </>
+  );
+}
+function CompletionActualPromptDisplay({
+  completion,
+  header = 'Actual Prompts',
+}: {
+  completion?: GptCompletionData;
+  header?: string;
+}) {
+  if (!completion?.actualPrompts) return null;
+  return (
+    <Accordion>
+      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+        {header}
+      </AccordionSummary>
+      <AccordionDetails>
+        {(completion.actualPrompts || []).map((prompt, idx) => (
+          <TextField
+            key={idx}
+            value={prompt}
+            variant="outlined"
+            fullWidth
+            InputProps={{ readOnly: true }}
+            multiline
+          />
+        ))}
+      </AccordionDetails>
+    </Accordion>
+  );
+}
+export function OutputViewer({
+  response,
+}: {
+  response?: CreateGptProblemsResponse;
+}) {
+  const [completionIdx, setCompletionIdx] = useState(0);
+  const [completionEval, setCompletionEval] = useState<
+    CompletionEval | undefined
+  >(undefined);
+  useEffect(() => {
+    if (!response?.runId) return;
+    getEval(response.runId, completionIdx).then(setCompletionEval);
+  }, [response?.runId, completionIdx]);
+
+  const completion = response?.completions?.[completionIdx];
+  const completion_tools = response?.completions_tools?.[completionIdx];
+
+  if (!completion) {
+    return (
+      <i style={{ fontSize: 'large' }}>
+        Click &apos;Get GPT Response&apos; to see some output
+      </i>
+    );
+  }
+
+  return (
+    <Box>
+      <Typography variant="h5" mb="10px" sx={{ textDecoration: 'underline' }}>
+        Output
+      </Typography>
+
+      <CompletionActualPromptDisplay
+        completion={completion_tools}
+        header="Actual Prompts (for function calling)"
+      />
+      <CompletionActualPromptDisplay
+        completion={completion}
+        header="Actual Prompts"
+      />
+
+      {completion_tools && <CompletionDisplay completion={completion_tools} />}
+      <CompletionDisplay completion={completion} />
       {response?.runId && (
         <CompletionEvalForm
           runId={response.runId}

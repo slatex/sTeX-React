@@ -39,6 +39,7 @@ import { ChangeEvent, useContext, useEffect, useState } from 'react';
 function templateToFormData(template: Template): CreateGptProblemsRequest {
   return {
     dryRun: true,
+    useTools: false, // template?.defaultAssignment.some((a) => a.key === 'FN_RESPONSE'),
     templateName: template?.templateName || '',
     templateVersion: template?.version || '',
     templateStrs: template?.templateStrs || [],
@@ -331,6 +332,27 @@ export function CreateGptProblemsForm({
               </td>
             </tr>
             <tr style={{ border: '1px solid black' }}>
+              <td>FN_ONLY</td>
+              <td style={{ border: '1px solid black', padding: '0 10px' }}>
+                Not special. Replaced as provided
+              </td>
+              <td>
+                Keys with these prefix are only replaced during the completion
+                (second) phase of the pipeline when using function calling.
+                Otherwise, they are simply removed.
+              </td>
+            </tr>
+            <tr style={{ border: '1px solid black' }}>
+              <td>FN_RESPONSE</td>
+              <td style={{ border: '1px solid black', padding: '0 10px' }}>
+                Value is unused.
+              </td>
+              <td>
+                The key will be replaced by the response of the function call
+                (in the second OpenAPI call) if function calling is used.
+              </td>
+            </tr>
+            <tr style={{ border: '1px solid black' }}>
               <td>URI_DEF_MD (deprecated)</td>
               <td style={{ border: '1px solid black', padding: '0 10px' }}>
                 Value is interpreted as an MMT URI
@@ -407,6 +429,25 @@ export function CreateGptProblemsForm({
       <FormControlLabel
         control={
           <Checkbox
+            checked={formData.useTools}
+            onChange={(e) => {
+              const useTools = e.target.checked;
+              if (useTools) {
+                setFormData({ ...formData, useTools, dryRun: false });
+              } else {
+                setFormData({ ...formData, useTools });
+              }
+            }}
+            name="useTools"
+          />
+        }
+        label="Use Function Calling (must set have FN_RESPONSE key)"
+      />
+      <br />
+
+      <FormControlLabel
+        control={
+          <Checkbox
             checked={formData.dryRun}
             onChange={(e) =>
               setFormData({ ...formData, dryRun: e.target.checked })
@@ -414,6 +455,7 @@ export function CreateGptProblemsForm({
             name="dryRun"
           />
         }
+        disabled={formData.useTools}
         label="Dry Run"
       />
       <br />

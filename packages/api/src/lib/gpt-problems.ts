@@ -22,6 +22,7 @@ export type PostProcessingStep = 'JSON_TO_STEX' | 'REMOVE_NEWLINES';
 
 export interface CreateGptProblemsRequest {
   dryRun: boolean;
+  useTools: boolean;
   templateName: string;
   templateVersion: string;
   templateStrs: string[];
@@ -45,6 +46,7 @@ export interface CreateGptProblemsResponse {
   runId: string;
   runTime: string;
   runner: string;
+  completions_tools: GptCompletionData[]; 
   completions: GptCompletionData[];
 }
 
