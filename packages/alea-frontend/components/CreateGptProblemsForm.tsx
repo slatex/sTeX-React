@@ -332,7 +332,18 @@ export function CreateGptProblemsForm({
               </td>
             </tr>
             <tr style={{ border: '1px solid black' }}>
-              <td>FN_ONLY</td>
+              <td>PRE_FN_ONLY</td>
+              <td style={{ border: '1px solid black', padding: '0 10px' }}>
+                Not special. Replaced as provided
+              </td>
+              <td>
+                Keys with these prefix are only replaced during the function
+                calling (first) phase of the pipeline when using function
+                calling. Otherwise, they are simply removed.
+              </td>
+            </tr>
+            <tr style={{ border: '1px solid black' }}>
+              <td>POST_FN_ONLY</td>
               <td style={{ border: '1px solid black', padding: '0 10px' }}>
                 Not special. Replaced as provided
               </td>
