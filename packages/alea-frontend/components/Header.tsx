@@ -164,7 +164,7 @@ export function Header({
     !localStore?.getItem(HIDE_BANNER_ITEM) ?? true
   );
   const background =
-    process.env.NEXT_PUBLIC_SITE_VERSION === 'development'
+    process.env.NEXT_PUBLIC_SITE_VERSION === 'production'
       ? undefined
       : process.env.NEXT_PUBLIC_SITE_VERSION === 'staging'
       ? 'crimson !important'
@@ -251,6 +251,7 @@ export function Header({
             <Link
               href="https://ddi-survey.cs.fau.de/limesurvey/ALeA"
               style={{ display: 'inline' }}
+              target="_blank"
             >
               <b>
                 <u>Click Here</u>

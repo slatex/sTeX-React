@@ -14,14 +14,13 @@ export const SYSTEM_UPDATES = [
         If you take part in the AI-1 quizzes you get a quiz mark for completing the survey.
         You may start the survey by scanning or clicking on the qr code below.
         Thank you for participating, it helps us out a lot!
-        \n ![qrcode](../ALeA_Eval.png)
-        `,
+        \n [![qrcode](../ALeA_Eval.png)](https://ddi-survey.cs.fau.de/limesurvey/ALeA)`,
     header_de: 'Neue Umfrage zu ALeA',
     content_de: `Helfen Sie uns, ALeA zu bewerten, indem Sie an dieser fünfzehnminütigen Umfrage teilnehmen.
         Wenn Sie an den AI-1-Quizzes teilnehmen, erhalten Sie eine Quiznote für die Teilnahme an der Umfrage.
         Sie können die Umfrage starten, indem Sie den unten stehenden QR-Code scannen oder anklicken.
         Vielen Dank für Ihre Teilnahme, sie hilft uns sehr!
-        \n ![qrcode](../ALeA_Eval.png)`,
+        \n [![qrcode](../ALeA_Eval.png)](https://ddi-survey.cs.fau.de/limesurvey/ALeA)`,
     postedTimestamp: '2024-02-07T16:30:00+05:30',
   },
   {
