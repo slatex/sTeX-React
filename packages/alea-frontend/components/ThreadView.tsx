@@ -84,7 +84,6 @@ export function ThreadView({
                     newState
                   );
                   doUpdate();
-                  alert(`Question marked as ${newState}!`);
                 }}
               >
                 Mark{' '}
