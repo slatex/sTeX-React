@@ -21,7 +21,7 @@ function getFileLocationHierarchy(
 ): FileLocation[] | undefined {
   if (s.id === sectionId) return currentH;
 
-  for (const child of s.children) {
+  for (const child of s.children || []) {
     const nextH = [...currentH];
     if (s.archive && s.filepath) {
       nextH.push({ archive: s.archive, filepath: s.filepath });
