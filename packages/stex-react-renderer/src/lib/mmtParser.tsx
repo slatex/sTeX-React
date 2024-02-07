@@ -48,6 +48,7 @@ import { MathMLDisplay } from './MathMLDisplay';
 import { OverlayDialog, isHoverON } from './OverlayDialog';
 import { ServerLinksContext } from './stex-react-renderer';
 import { useOnScreen } from './useOnScreen';
+import TrafficLightIndicator from './TrafficLightIndicator';
 
 export const CustomItemsContext = createContext<{
   items: { [tag: string]: JSX.Element };
@@ -312,8 +313,14 @@ function SectionDisplay({ d }: { d: Element }) {
   const fileParent = lastFileNode(ancestors);
   if (!fileParent?.archive || !fileParent?.filepath) return actualSection;
   const { archive, filepath } = fileParent;
+  const showTraffciLight = localStore?.getItem('traffic-light');
   return (
     <>
+      {showTraffciLight && (
+        <TrafficLightIndicator
+          contentUrl={XhtmlContentUrl(archive, filepath)}
+        />
+      )}
       {actualSection}
       <CompetencyIndicator
         contentUrl={XhtmlContentUrl(archive, filepath)}

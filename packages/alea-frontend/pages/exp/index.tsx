@@ -85,6 +85,22 @@ const ExperimentsHome: NextPage = () => {
               <InternalButtonLink href="/file-browser">
                 Article browser
               </InternalButtonLink>
+              <Button
+                variant="contained"
+                onClick={() => {
+                  if (localStore?.getItem('traffic-light')) {
+                    localStore.removeItem('traffic-light');
+                    alert('Traffic light disabled');
+                  } else {
+                    localStore.setItem('traffic-light', 'true');
+                    alert('Traffic light enabled');
+                  }
+                  window.location.reload();
+                }}
+              >
+                {localStore?.getItem('traffic-light') ? 'Disable ' : 'Enable '}
+                Traffic Light
+              </Button>
             </Box>
             <Box>
               <h2>System Info</h2>
