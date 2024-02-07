@@ -24,7 +24,7 @@ import { getLocaleObject } from '../lang/utils';
 import styles from '../styles/header.module.scss';
 import NotificationButton from './NotificationButton';
 
-export const HIDE_BANNER_ITEM = 'hide-priming-banner';
+export const HIDE_BANNER_ITEM = 'hide-survey-banner';
 
 function UserButton() {
   const router = useRouter();
@@ -247,9 +247,11 @@ export function Header({
           variant="dense"
         >
           <Box>
-            📣 Prime your learner model by entering your&nbsp;
-            <b>course grades</b> now ➡️{' '}
-            <Link href="/learner-model-init" style={{ display: 'inline' }}>
+            Help us to evaluate ALeA by participating in this study! ➡️{' '}
+            <Link
+              href="https://ddi-survey.cs.fau.de/limesurvey/ALeA"
+              style={{ display: 'inline' }}
+            >
               <b>
                 <u>Click Here</u>
               </b>

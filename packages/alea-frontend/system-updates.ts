@@ -6,13 +6,32 @@ export const SYSTEM_UPDATES = [
     header_de: '',
     content_de: '',
     postedTimestamp: '2023-02-11T00:20:00+05:30',
-  },*/ 
+  },*/
+  {
+    id: 'New survey about ALeA',
+    header: 'New survey about ALeA',
+    content: `Help us to evaluate ALeA by participating in this fifteen minute survey.
+        If you take part in the AI-1 quizzes you get a quiz mark for completing the survey.
+        You may start the survey by scanning or clicking on the qr code below.
+        Thank you for participating, it helps us out a lot!
+        \n ![qrcode](../ALeA_Eval.png)
+        `,
+    header_de: 'Neue Umfrage zu ALeA',
+    content_de: `Helfen Sie uns, ALeA zu bewerten, indem Sie an dieser fünfzehnminütigen Umfrage teilnehmen.
+        Wenn Sie an den AI-1-Quizzes teilnehmen, erhalten Sie eine Quiznote für die Teilnahme an der Umfrage.
+        Sie können die Umfrage starten, indem Sie den unten stehenden QR-Code scannen oder anklicken.
+        Vielen Dank für Ihre Teilnahme, sie hilft uns sehr!
+        \n ![qrcode](../ALeA_Eval.png)`,
+    postedTimestamp: '2024-02-07T16:30:00+05:30',
+  },
   {
     id: 'quiz-performance',
     header: 'Quiz Performance 📈',
-    content: 'Learners can now view their quiz scores on the [quiz dashboard](/quiz-dash/ai-1).',
+    content:
+      'Learners can now view their quiz scores on the [quiz dashboard](/quiz-dash/ai-1).',
     header_de: 'Quizleistung',
-    content_de: 'Lernende können ihre Quizergebnisse jetzt im [Quiz-Dashboard](/quiz-dash/ai-1) einsehen.',
+    content_de:
+      'Lernende können ihre Quizergebnisse jetzt im [Quiz-Dashboard](/quiz-dash/ai-1) einsehen.',
     postedTimestamp: '2023-12-08T13:10:00+05:30',
   },
   {

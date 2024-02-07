@@ -40,13 +40,15 @@ const UpdatesPage: NextPage = () => {
               </Typography>
             </Tooltip>
             <Typography>
-              <MdViewer
-                content={
-                  locale === 'de'
-                    ? update.content_de || update.content
-                    : update.content
-                }
-              />
+              <Box sx={{ img: { maxWidth: '200px !important' } }} id={'image' + update.id}>
+                <MdViewer
+                  content={
+                    locale === 'de'
+                      ? update.content_de || update.content
+                      : update.content
+                  }
+                />
+              </Box>
             </Typography>
           </Box>
         ))}
