@@ -246,3 +246,7 @@ export function roundToMinutes(timestamp_ms: number) {
   const msInAMinute = 60000;
   return Math.round(timestamp_ms / msInAMinute) * msInAMinute;
 }
+
+export function truncateString(str: string, maxLength: number) {
+  return str.length > maxLength ? str.slice(0, maxLength) + '...' : str;
+}

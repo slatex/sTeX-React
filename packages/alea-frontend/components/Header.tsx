@@ -164,7 +164,7 @@ export function Header({
     !localStore?.getItem(HIDE_BANNER_ITEM) ?? true
   );
   const background =
-    process.env.NEXT_PUBLIC_SITE_VERSION === 'production'
+    process.env.NEXT_PUBLIC_SITE_VERSION === 'development'
       ? undefined
       : process.env.NEXT_PUBLIC_SITE_VERSION === 'staging'
       ? 'crimson !important'
@@ -241,8 +241,8 @@ export function Header({
           sx={{
             display: 'flex',
             justifyContent: 'space-between',
-            background: 'beige',
-            color: '#333',
+            background: 'brown',
+            color: 'white',
           }}
           variant="dense"
         >
@@ -266,7 +266,7 @@ export function Header({
               }}
               sx={{ p: '5px' }}
             >
-              <HighlightOffIcon fontSize="large" />
+              <HighlightOffIcon htmlColor='white' fontSize="large" />
             </IconButton>
           </Tooltip>
         </Toolbar>

@@ -11,7 +11,7 @@ import {
   Quiz,
   Tristate,
 } from '@stex-react/api';
-import { getMMTCustomId } from '@stex-react/utils';
+import { getMMTCustomId, truncateString } from '@stex-react/utils';
 import { ChildNode, Document, Element } from 'domhandler';
 import { DomHandler, DomUtils, Parser, parseDocument } from 'htmlparser2';
 
@@ -68,12 +68,13 @@ export function getFillInFeedbackHtml(
   if (!correctAC)
     return '<i>Internal Error: No solution found in the problem!</i>';
   const { exactMatch, startNum, endNum, regex } = correctAC;
-  const displayValue = exactMatch || regex || `[${startNum}, ${endNum}]`;
 
   const isCorrect =
     isFillInInputCorrect(answerClasses, trimmedActual) === Tristate.TRUE;
   if (isCorrect) return 'Correct!';
-  return `The correct answer is <b><code>${displayValue}</code></b>`;
+  const forIncorrect = exactMatch || regex || `[${startNum}, ${endNum}]`;
+  const forIncorrectTrunc = truncateString(forIncorrect, 200);
+  return `The correct answer is <b><code>${forIncorrectTrunc}</code></b>`;
 }
 
 export function isFillInInputCorrect(
