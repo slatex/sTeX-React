@@ -304,7 +304,7 @@ export async function reportEvent(event: LMSEvent) {
     'definiendum-read',
     'view',
   ];
-  if (disabled.includes(event.type)) {
+  if (disabled.includes(event?.type)) {
     console.log('reportEvent - disabled', event);
     return;
   }

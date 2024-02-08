@@ -664,7 +664,7 @@ function FlashCardsContainer({
     };
   }, [cardType, mode]);
 
-  if (cardType === CardType.SUMMARY_CARD) {
+  if (cardType === CardType.SUMMARY_CARD || !cards?.length || !currentItem) {
     return (
       <SummaryCard
         items={cards.slice(0, drillCardsSeen)}
