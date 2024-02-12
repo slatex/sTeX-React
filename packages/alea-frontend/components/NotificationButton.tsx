@@ -178,27 +178,29 @@ function NotificationButton() {
         sx={{ '& .MuiMenu-list': { pb: 0 } }}
       >
         {sortedItems.slice(0, 7).map((item, idx) => (
-          <MenuItem key={idx} onClick={handleClose}>
+          <>
             <Link
               href={item.link}
               target={getLinkTarget(item.notificationType)}
             >
-              <Box display="flex" alignItems="center">
-                <Box marginRight="10px">
-                  <NotificationIcon type={item.notificationType} />
+              <MenuItem key={idx} onClick={handleClose}>
+                <Box display="flex" alignItems="center">
+                  <Box marginRight="10px">
+                    <NotificationIcon type={item.notificationType} />
+                  </Box>
+                  <Box>
+                    {item.header}
+                    <Typography display="block" variant="body2" color="gray">
+                      <DateView
+                        timestampMs={new Date(item.postedTimestamp)?.getTime()}
+                        style={{ fontSize: '14px' }}
+                      />
+                    </Typography>
+                  </Box>
                 </Box>
-                <Box>
-                  {item.header}
-                  <Typography display="block" variant="body2" color="gray">
-                    <DateView
-                      timestampMs={new Date(item.postedTimestamp)?.getTime()}
-                      style={{ fontSize: '14px' }}
-                    />
-                  </Typography>
-                </Box>
-              </Box>
+              </MenuItem>
             </Link>
-          </MenuItem>
+          </>
         ))}
         <Box textAlign="center" p="8px" bgcolor={PRIMARY_COL}>
           <Link href="/all-notifications">

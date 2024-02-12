@@ -1,4 +1,4 @@
-import { DialogContentText } from '@mui/material';
+import { DialogContentText, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -30,29 +30,39 @@ const trafficLightStyle = {
   margin: '0px 5px ',
   boxShadow: 'inset 0px 0px 5px 2px rgba(0, 0, 0, 0.5)',
 };
-const getColor = (color: string, marks: number) => {
+const getColor = (color: string, averageUnderstand: number) => {
   if (color === 'green') {
-    if (marks >= 80) {
+    if (averageUnderstand >= 0.8) {
       return 'lightgreen';
     } else {
       return 'gray';
     }
   }
   if (color === 'yellow') {
-    if (marks > 30 && marks < 80) {
+    if (averageUnderstand > 0.3 && averageUnderstand < 0.8) {
       return 'yellow';
     } else {
       return 'gray';
     }
   }
   if (color === 'red') {
-    if (marks < 30) {
+    if (averageUnderstand < 0.3) {
       return 'red';
     } else {
       return 'gray';
     }
   }
 };
+
+function getText(averageUnderstand: number): string {
+  if (averageUnderstand <= 0.3) {
+    return 'More preparation needed before proceeding.';
+  } else if (averageUnderstand > 0.3 && averageUnderstand <= 0.8) {
+    return 'Revise materials before progressing.';
+  } else {
+    return 'Ready to proceed. Congratulations!';
+  }
+}
 
 const TrafficLightIndicator = ({ contentUrl }: { contentUrl: string }) => {
   const { archive, filepath } = getSectionInfo(contentUrl);
@@ -84,18 +94,18 @@ const TrafficLightIndicator = ({ contentUrl }: { contentUrl: string }) => {
     if (!URIs?.length) return;
     getUriWeights(URIs).then((data) => setCompetencyData(data));
   }
-  const averages = TO_SHOW.reduce((acc, competency) => {
-    const avg = competencyData?.length
-      ? competencyData.reduce((sum, item) => sum + (item[competency] ?? 0), 0) /
-        competencyData.length
-      : 0;
-    acc[competency] = avg;
-    return acc;
-  }, {} as { [competency: string]: number });
+
+  const averageUnderstand = competencyData?.length
+    ? competencyData.reduce((sum, item) => sum + (item['Understand'] ?? 0), 0) /
+      competencyData.length
+    : 0;
+
   return (
     <>
       <Box
         sx={{
+          display: 'flex',
+          justifyContent: 'space-around',
           textAlign: 'center',
           border: '2px solid black',
           borderRadius: '10px',
@@ -103,28 +113,47 @@ const TrafficLightIndicator = ({ contentUrl }: { contentUrl: string }) => {
           backgroundColor: 'black',
           width: '150px',
           cursor: 'pointer',
+          transition: 'all 0.3s ease-in-out',
+          '&:hover': {
+            width: 'calc(100% - 30px)',
+            '& .hover-text': {
+              display: 'block',
+              color: 'white',
+              whiteSpace: 'nowrap',
+            },
+          },
         }}
         onClick={handleBoxClick}
       >
-        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'left',
+            marginLeft: '10px',
+            flexShrink: '0',
+          }}
+        >
           <Box
             sx={{
               ...trafficLightStyle,
-              backgroundColor: getColor('green', averages.Remember * 100),
+              backgroundColor: getColor('green', averageUnderstand),
             }}
           ></Box>
           <Box
             sx={{
               ...trafficLightStyle,
-              backgroundColor: getColor('yellow', averages.Remember * 100),
+              backgroundColor: getColor('yellow', averageUnderstand),
             }}
           ></Box>
           <Box
             sx={{
               ...trafficLightStyle,
-              backgroundColor: getColor('red', averages.Remember * 100),
+              backgroundColor: getColor('red', averageUnderstand),
             }}
           ></Box>
+        </Box>
+        <Box className="hover-text" sx={{ display: 'none' }}>
+          <Typography>{getText(averageUnderstand)}</Typography>
         </Box>
       </Box>
       <Dialog
@@ -143,7 +172,6 @@ const TrafficLightIndicator = ({ contentUrl }: { contentUrl: string }) => {
                 dimensions={TO_SHOW}
                 onValueUpdate={refetchCompetencyData}
                 showTour={true}
-                mmtUrl={mmtUrl}
               />
             </DialogContentText>
           ) : null}

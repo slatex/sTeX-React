@@ -3,8 +3,11 @@ import { Box, IconButton } from '@mui/material';
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
 import {
+  UserInformation,
   ViewEvent,
+  cachedUserInformation,
   getAncestors,
+  getUserInformation,
   lastFileNode,
   reportEventV2,
 } from '@stex-react/api';
@@ -299,6 +302,23 @@ function MMTImage({ d }: { d: Element }) {
 }
 
 function SectionDisplay({ d }: { d: Element }) {
+  const [competencyIndicatorStatus, setCompetencyIndicatorStatus] =
+    useState<boolean>(false);
+  const [showLight, setShowLight] = useState<boolean>(false);
+  useEffect(() => {
+    if (!cachedUserInformation) {
+      getUserInformation().then((res) => {
+        if (res) {
+          setShowLight(res.showTrafficLight);
+          setCompetencyIndicatorStatus(res.showCompetency);
+        }
+      });
+    } else {
+      setShowLight(cachedUserInformation.showTrafficLight);
+      setCompetencyIndicatorStatus(cachedUserInformation.showCompetency);
+    }
+  }, [showLight]);
+
   const { docFragManager } = useContext(DocSectionContext);
   const id = d.attribs['id'];
   const ancestors = getAncestors(
@@ -313,19 +333,22 @@ function SectionDisplay({ d }: { d: Element }) {
   const fileParent = lastFileNode(ancestors);
   if (!fileParent?.archive || !fileParent?.filepath) return actualSection;
   const { archive, filepath } = fileParent;
-  const showTraffciLight = localStore?.getItem('traffic-light');
+  const showTrafficLight = localStore?.getItem('traffic-light');
+
   return (
     <>
-      {showTraffciLight && (
+      {showTrafficLight && showLight ? (
         <TrafficLightIndicator
           contentUrl={XhtmlContentUrl(archive, filepath)}
         />
-      )}
+      ) : null}
       {actualSection}
-      <CompetencyIndicator
-        contentUrl={XhtmlContentUrl(archive, filepath)}
-        sectionTitle={sectionNode.title ?? ''}
-      />
+      {competencyIndicatorStatus ? (
+        <CompetencyIndicator
+          contentUrl={XhtmlContentUrl(archive, filepath)}
+          sectionTitle={sectionNode.title ?? ''}
+        />
+      ) : null}
     </>
   );
 }

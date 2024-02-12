@@ -8,6 +8,7 @@ import {
   QuestionStatus,
   UpdateCommentStateRequest,
   UpdateQuestionStateRequest,
+  UserInformation,
 } from './comment';
 import { getAuthHeaders, logoutAndGetToLoginPage } from './lms';
 
@@ -127,4 +128,38 @@ export async function purgeComments() {
 
 export async function getAllMyComments() {
   return await commentRequest('/api/get-all-my-comments', 'GET');
+}
+
+export let cachedUserInformation: UserInformation | undefined = undefined;
+
+export async function getUserInformation() {
+  if (!cachedUserInformation) {
+    const url = '/api/get-user-information';
+    const resp = await axios.get(url, { headers: getAuthHeaders() });
+    cachedUserInformation = resp.data;
+  }
+  return cachedUserInformation;
+}
+
+export async function updateTrafficLightStatus(trafficStatus: boolean) {
+  cachedUserInformation = undefined;
+  return await axios.post(
+    '/api/update-trafficlight-status',
+    { trafficStatus },
+    {
+      headers: getAuthHeaders(),
+    }
+  );
+}
+export async function updateCompetencyIndicatorStatus(
+  competencyIndicatorStatus: boolean
+) {
+  cachedUserInformation = undefined;
+  return await axios.post(
+    '/api/update-competency-indicator-status',
+    { competencyIndicatorStatus },
+    {
+      headers: getAuthHeaders(),
+    }
+  );
 }
