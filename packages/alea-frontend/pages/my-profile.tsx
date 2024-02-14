@@ -6,20 +6,30 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableRow,
   TextField,
+  Typography,
 } from '@mui/material';
 import {
   UserInfo,
   getAllMyComments,
   getAllMyDataV2,
   getUserInfo,
+  getUserInformation,
   purgeAllMyDataV2,
   purgeComments,
   purgeStudyBuddyData,
   purgeUserNotifications,
-  resetFakeUserData
+  resetFakeUserData,
+  updateCompetencyIndicatorStatus,
+  updateTrafficLightStatus,
 } from '@stex-react/api';
-import { downloadFile } from '@stex-react/utils';
+import { PRIMARY_COL, downloadFile } from '@stex-react/utils';
 import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -75,6 +85,9 @@ const MyProfilePage: NextPage = () => {
   const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
   const [openPurgeDialog, setOpenPurgeDialog] = useState(false);
   const [persona, setPresetProfileName] = useState<string>('Blank');
+  const [trafficLightStatus, setTrafficLightStatus] = useState<boolean>(false);
+  const [competencyIndicatorStatus, setCompetencyIndicatorStatus] =
+    useState<boolean>(false);
 
   useEffect(() => {
     getUserInfo().then((info) => {
@@ -86,6 +99,37 @@ const MyProfilePage: NextPage = () => {
     });
   }, [router]);
 
+  useEffect(() => {
+    getUserInformation().then((res) =>
+      setTrafficLightStatus(res.showTrafficLight)
+    );
+  }, [trafficLightStatus]);
+  useEffect(() => {
+    getUserInformation().then((res) =>
+      setCompetencyIndicatorStatus(res.showCompetency)
+    );
+  }, [competencyIndicatorStatus]);
+
+  async function handleTrafficLight(trafficLightStatus: boolean) {
+    try {
+      await updateTrafficLightStatus(trafficLightStatus);
+      setTrafficLightStatus(trafficLightStatus);
+      console.log('Traffic light status updated successfully.');
+    } catch (error) {
+      console.error('Error updating traffic light status:', error);
+    }
+  }
+  async function handleCompetencyIndicatorStatus(
+    competencyIndicatorStatus: boolean
+  ) {
+    try {
+      await updateCompetencyIndicatorStatus(competencyIndicatorStatus);
+      setCompetencyIndicatorStatus(competencyIndicatorStatus);
+      console.log('competency indicator status updated successfully.');
+    } catch (error) {
+      console.error('Error updating competency indicator status:', error);
+    }
+  }
   if (!userInfo) return <></>;
   return (
     <MainLayout title={`${userInfo.fullName} | VoLL-KI`}>
@@ -112,6 +156,43 @@ const MyProfilePage: NextPage = () => {
             {t.learnerModelPriming}
           </Button>
         </Link>
+        <br />
+        <TableContainer>
+          <Table>
+            <TableBody>
+              <TableRow>
+                <TableCell component="th" scope="row">
+                  <Typography fontWeight="bold" color={PRIMARY_COL}>
+                    Show Traffic Light on Notes
+                  </Typography>
+                </TableCell>
+                <TableCell align="right">
+                  <Switch
+                    checked={trafficLightStatus}
+                    onChange={() => handleTrafficLight(!trafficLightStatus)}
+                  />
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell component="th" scope="row">
+                  <Typography fontWeight="bold" color={PRIMARY_COL}>
+                    Show Competency Indicator on Notes
+                  </Typography>
+                </TableCell>
+                <TableCell align="right">
+                  <Switch
+                    checked={competencyIndicatorStatus}
+                    onChange={() =>
+                      handleCompetencyIndicatorStatus(
+                        !competencyIndicatorStatus
+                      )
+                    }
+                  />
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
         <br />
         <h2
           style={{

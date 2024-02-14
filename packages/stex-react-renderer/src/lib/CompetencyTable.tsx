@@ -23,11 +23,12 @@ import {
 import { PRIMARY_COL, PathToTour } from '@stex-react/utils';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { PracticeQuestions } from './PracticeQuestions';
 import { SelfAssessmentDialogRow } from './SelfAssessmentDialog';
 import { getLocaleObject } from './lang/utils';
 import { mmtHTMLToReact } from './mmtParser';
-import { PracticeQuestions } from './PracticeQuestions';
+import { ServerLinksContext } from './stex-react-renderer';
 
 const extractLastWordAfterQuestionMark = (url: string) => {
   if (!url) return url;
@@ -98,22 +99,19 @@ export function CompetencyTable({
   dimensions,
   onValueUpdate,
   showTour,
-  mmtUrl,
 }: {
   URIs: string[];
   competencyData: any[];
   dimensions?: BloomDimension[];
   onValueUpdate?: () => void;
   showTour?: boolean;
-  mmtUrl?: string;
 }) {
   const t = getLocaleObject(useRouter());
   const [orderBy, setOrderBy] = useState<string>('');
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
-
+  const { mmtUrl } = useContext(ServerLinksContext);
   const combinedData: { concepts: string; values: any }[] = [];
   const CONCEPT_COLUMN = 'concepts';
-
   for (let i = 0; i < URIs.length; i++) {
     const newObj = {
       values: competencyData[i],

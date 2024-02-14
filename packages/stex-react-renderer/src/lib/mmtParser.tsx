@@ -5,6 +5,8 @@ import { styled } from '@mui/material/styles';
 import {
   ViewEvent,
   getAncestors,
+  getUserInformation,
+  isLoggedIn,
   lastFileNode,
   reportEventV2,
 } from '@stex-react/api';
@@ -299,6 +301,18 @@ function MMTImage({ d }: { d: Element }) {
 }
 
 function SectionDisplay({ d }: { d: Element }) {
+  const [competencyIndicatorStatus, setCompetencyIndicatorStatus] = useState<
+    boolean | undefined
+  >(false);
+  const [showLight, setShowLight] = useState<boolean | undefined>(false);
+  useEffect(() => {
+    if(!isLoggedIn()) return;
+    getUserInformation().then((res) => {
+      setShowLight(res?.showTrafficLight);
+      setCompetencyIndicatorStatus(res?.showCompetency);
+    });
+  }, []);
+
   const { docFragManager } = useContext(DocSectionContext);
   const id = d.attribs['id'];
   const ancestors = getAncestors(
@@ -313,19 +327,22 @@ function SectionDisplay({ d }: { d: Element }) {
   const fileParent = lastFileNode(ancestors);
   if (!fileParent?.archive || !fileParent?.filepath) return actualSection;
   const { archive, filepath } = fileParent;
-  const showTraffciLight = localStore?.getItem('traffic-light');
+  const showTrafficLight = localStore?.getItem('traffic-light');
+
   return (
     <>
-      {showTraffciLight && (
+      {showTrafficLight && showLight ? (
         <TrafficLightIndicator
           contentUrl={XhtmlContentUrl(archive, filepath)}
         />
-      )}
+      ) : null}
       {actualSection}
-      <CompetencyIndicator
-        contentUrl={XhtmlContentUrl(archive, filepath)}
-        sectionTitle={sectionNode.title ?? ''}
-      />
+      {competencyIndicatorStatus ? (
+        <CompetencyIndicator
+          contentUrl={XhtmlContentUrl(archive, filepath)}
+          sectionTitle={sectionNode.title ?? ''}
+        />
+      ) : null}
     </>
   );
 }
