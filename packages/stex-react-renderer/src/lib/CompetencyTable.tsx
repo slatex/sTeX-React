@@ -20,15 +20,15 @@ import {
   getProblemIdsForConcept,
   uriWeightToSmileyLevel,
 } from '@stex-react/api';
-import { PRIMARY_COL, PathToTour, getSectionInfo } from '@stex-react/utils';
+import { PRIMARY_COL, PathToTour } from '@stex-react/utils';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
+import { PracticeQuestions } from './PracticeQuestions';
 import { SelfAssessmentDialogRow } from './SelfAssessmentDialog';
 import { getLocaleObject } from './lang/utils';
 import { mmtHTMLToReact } from './mmtParser';
 import { ServerLinksContext } from './stex-react-renderer';
-import { PracticeQuestions } from './PracticeQuestions';
 
 const extractLastWordAfterQuestionMark = (url: string) => {
   if (!url) return url;

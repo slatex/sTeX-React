@@ -17,5 +17,12 @@ export default async function handler(
     res
   );
   if (!result) return;
+  if (!result[0]) {
+    res.status(200).send({
+      showTrafficLight: true,
+      showCompetency: true,
+      notificationSeenTs: null,
+    });
+  }
   res.status(200).send(result[0]);
 }

@@ -10,21 +10,17 @@ export default async function handler(
     res.status(403).send({ message: "Couldn't get user info" });
     return;
   }
-  const { userId } = userInfo;
+  const { userId, givenName, sn } = userInfo;
   const { trafficStatus } = req.body;
-
   const updateResult = await executeAndEndSet500OnError(
-    `UPDATE userInfo
-    SET showTrafficLight = ?
-    WHERE userId = ?;`,
-    [trafficStatus, userId],
+    `INSERT INTO userInfo (userId, firstName, lastName, showTrafficLight)
+    VALUES (?, ?, ?, ?)
+    ON DUPLICATE KEY UPDATE firstName=VALUES(firstName), lastName=VALUES(lastName), showTrafficLight=VALUES(showTrafficLight);`,
+    [userId, givenName, sn, trafficStatus],
     res
   );
 
   if (!updateResult) return;
 
-  res.status(200).json({
-    success: true,
-    message: 'trafficLight status updated successfully',
-  });
+  res.status(204).end();
 }

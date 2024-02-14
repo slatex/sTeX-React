@@ -130,7 +130,7 @@ export async function getAllMyComments() {
   return await commentRequest('/api/get-all-my-comments', 'GET');
 }
 
-export let cachedUserInformation: UserInformation | undefined = undefined;
+let cachedUserInformation: UserInformation | undefined = undefined;
 
 export async function getUserInformation() {
   if (!cachedUserInformation) {

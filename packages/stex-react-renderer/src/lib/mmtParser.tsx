@@ -3,11 +3,10 @@ import { Box, IconButton } from '@mui/material';
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
 import {
-  UserInformation,
   ViewEvent,
-  cachedUserInformation,
   getAncestors,
   getUserInformation,
+  isLoggedIn,
   lastFileNode,
   reportEventV2,
 } from '@stex-react/api';
@@ -302,22 +301,17 @@ function MMTImage({ d }: { d: Element }) {
 }
 
 function SectionDisplay({ d }: { d: Element }) {
-  const [competencyIndicatorStatus, setCompetencyIndicatorStatus] =
-    useState<boolean>(false);
-  const [showLight, setShowLight] = useState<boolean>(false);
+  const [competencyIndicatorStatus, setCompetencyIndicatorStatus] = useState<
+    boolean | undefined
+  >(false);
+  const [showLight, setShowLight] = useState<boolean | undefined>(false);
   useEffect(() => {
-    if (!cachedUserInformation) {
-      getUserInformation().then((res) => {
-        if (res) {
-          setShowLight(res.showTrafficLight);
-          setCompetencyIndicatorStatus(res.showCompetency);
-        }
-      });
-    } else {
-      setShowLight(cachedUserInformation.showTrafficLight);
-      setCompetencyIndicatorStatus(cachedUserInformation.showCompetency);
-    }
-  }, [showLight]);
+    if(!isLoggedIn()) return;
+    getUserInformation().then((res) => {
+      setShowLight(res?.showTrafficLight);
+      setCompetencyIndicatorStatus(res?.showCompetency);
+    });
+  }, []);
 
   const { docFragManager } = useContext(DocSectionContext);
   const id = d.attribs['id'];

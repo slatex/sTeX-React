@@ -283,31 +283,36 @@ function CoverageConfigurator({
                       }
                     />
 
-                    <Box display="flex" alignItems="center" gap="5px 10px">
-                      <Button
-                        size="small"
-                        sx={{ fontWeight: 'bold' }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          startSingleChapter(idx, FlashCardMode.REVISION_MODE);
-                        }}
-                      >
-                        {t.revise}
-                      </Button>
-                      {loggedIn && (
+                    {selectedCards.length ? (
+                      <Box display="flex" alignItems="center" gap="5px 10px">
                         <Button
                           size="small"
-                          sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}
+                          sx={{ fontWeight: 'bold' }}
                           onClick={(e) => {
                             e.stopPropagation();
-                            startSingleChapter(idx, FlashCardMode.DRILL_MODE);
+                            startSingleChapter(
+                              idx,
+                              FlashCardMode.REVISION_MODE
+                            );
                           }}
                         >
-                          {t.drill}&nbsp;
-                          {shuffle && <ShuffleIcon fontSize="small" />}
+                          {t.revise}
                         </Button>
-                      )}
-                    </Box>
+                        {loggedIn && (
+                          <Button
+                            size="small"
+                            sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              startSingleChapter(idx, FlashCardMode.DRILL_MODE);
+                            }}
+                          >
+                            {t.drill}&nbsp;
+                            {shuffle && <ShuffleIcon fontSize="small" />}
+                          </Button>
+                        )}
+                      </Box>
+                    ) : null}
                   </ListItemButton>
                 </ListItem>
               </Fragment>
