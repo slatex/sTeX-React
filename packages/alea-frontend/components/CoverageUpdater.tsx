@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { CoverageSnap } from '@stex-react/utils';
 import dayjs from 'dayjs';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
 interface FormWithListProps {
@@ -44,6 +44,9 @@ export function CoverageUpdater({
   const [sectionName, setSectionName] = useState('');
   const [clipId, setClipId] = useState('');
   const [selectedTimestamp, setSelectedTimestamp] = useState(Date.now());
+  useEffect(() => {
+    setSectionName(snaps[snaps.length - 1]?.sectionName);
+  }, [snaps]);
 
   const duplicateNames: string[] = findDuplicates(
     sectionNames.map((option) => option.trim())
@@ -63,7 +66,6 @@ export function CoverageUpdater({
     setSectionName('');
     setSelectedTimestamp(Date.now());
   };
-
   return (
     <Box mt="10px">
       <table>
