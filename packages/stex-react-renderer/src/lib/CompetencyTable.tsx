@@ -13,7 +13,7 @@ import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import Tooltip from '@mui/material/Tooltip';
 
-import { Box, Button, Link } from '@mui/material';
+import { Box, Button, Link, Typography } from '@mui/material';
 import {
   ALL_DIMENSIONS,
   BloomDimension,
@@ -42,6 +42,38 @@ export function getMMTHtml(uri: string) {
   const clickLink = `/:sTeX/declaration?${uri}`;
   const highlightParent = Math.random() * 1000000;
   return `<span data-overlay-link-click="${clickLink}" data-highlight-parent="${highlightParent}" data-overlay-link-hover="${hoverLink}" class="symcomp group-highlight rustex-contents">${lastWord}</span>`;
+}
+
+function QuizIconWithProblemsCount({ problemIds }: { problemIds: string[] }) {
+  return (
+    <Box sx={{ position: 'relative' }}>
+      <Box
+        sx={{
+          position: 'absolute',
+          top: '1px',
+          right: '-2px',
+          backgroundColor: 'firebrick',
+          color: 'white',
+          borderRadius: '50%',
+          padding: '2px 4px 1px',
+          fontSize: '7px',
+          zIndex: 1,
+        }}
+      >
+        {problemIds.length}
+      </Box>
+      <QuizIcon
+        sx={{
+          cursor: 'pointer',
+          backgroundColor: PRIMARY_COL,
+          color: 'white',
+          borderRadius: '50%',
+          padding: '8px',
+        }}
+        fontSize='small'
+      />
+    </Box>
+  );
 }
 
 function QuizButton({ uri, mmtUrl }: { uri: string; mmtUrl?: string }) {
@@ -196,9 +228,16 @@ export function CompetencyTable({
           onClick={handleAllQuizzes}
           sx={{ marginBottom: '10px' }}
         >
-          {showAllQuizzes
-            ? 'close practice problem'
-            : `show all practice problem(${problemIds.length})`}
+          {showAllQuizzes ? (
+            t.practiceProblems.closeAllPracticeProblems
+          ) : (
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Typography>
+                {t.practiceProblems.showAllPracticeProblems}
+              </Typography>
+              <QuizIconWithProblemsCount problemIds={problemIds} />
+            </Box>
+          )}
         </Button>
       )}
       {showAllQuizzes && <PracticeQuestions problemIds={problemIds} />}
