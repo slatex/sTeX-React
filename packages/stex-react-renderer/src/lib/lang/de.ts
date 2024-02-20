@@ -63,13 +63,15 @@ export const de = {
     didntAnswer: 'Sie haben $1 Aufgaben nicht beantwortet. ',
     sureFinish: 'Sind Sie sicher, dass Sie den Vorgang abschließen möchten?',
     checkSolution: 'Lösung prüfen',
-    perSectionQuizButton: 'Übungsprobleme ($1)'
+    perSectionQuizButton: 'Übungsprobleme ($1)',
   },
   practiceProblems: {
     clickSection:
       'Klicken Sie auf einen Abschnitt im Inhaltsverzeichnis, um die damit verbundenen Probleme anzuzeigen.',
-    problemsFor:'Aufgaben für',
+    problemsFor: 'Aufgaben für',
     warning:
       'Hinweis: Diese Probleme dienen nur dazu, Ihnen beim Lernen zu helfen. Sie decken das Kursmaterial nicht vollständig ab und es gibt keine Garantie dafür, dass die Probleme korrekt sind oder dass sie repräsentativ für die Art von Problemen sind, die in den Tests oder der Prüfung behandelt werden.',
+    closeAllPracticeProblems: 'Alle Übungsaufgaben schließen',
+    showAllPracticeProblems: 'Alle Übungsaufgaben anzeigen',
   },
 };

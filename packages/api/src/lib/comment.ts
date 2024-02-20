@@ -12,7 +12,9 @@ export const MODERATORS = [
   'bu93bufa', // Robert Kurin
   'iv93baik', // Mahdi Mantash
 
-  ...(process.env['NEXT_PUBLIC_SITE_VERSION'] !== 'production' ? ['fake_joy'] : []), // fake moderator for staging
+  ...(process.env['NEXT_PUBLIC_SITE_VERSION'] !== 'production'
+    ? ['fake_joy']
+    : []), // fake moderator for staging
 ];
 
 export enum HiddenStatus {
@@ -102,6 +104,12 @@ export interface UpdateQuestionStateRequest {
   commentId: number;
   questionStatus?: QuestionStatus;
   commentType: CommentType;
+}
+
+export interface UserInformation {
+  showTrafficLight: boolean;
+  showCompetency: boolean;
+  notificationSeenTs: number;
 }
 
 export function isModerator(userId?: string) {

@@ -13,7 +13,7 @@ import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import Tooltip from '@mui/material/Tooltip';
 
-import { Button, Link } from '@mui/material';
+import { Box, Button, Link, Typography } from '@mui/material';
 import {
   ALL_DIMENSIONS,
   BloomDimension,
@@ -44,6 +44,38 @@ export function getMMTHtml(uri: string) {
   return `<span data-overlay-link-click="${clickLink}" data-highlight-parent="${highlightParent}" data-overlay-link-hover="${hoverLink}" class="symcomp group-highlight rustex-contents">${lastWord}</span>`;
 }
 
+function QuizIconWithProblemsCount({ problemIds }: { problemIds: string[] }) {
+  return (
+    <Box sx={{ position: 'relative' }}>
+      <Box
+        sx={{
+          position: 'absolute',
+          top: '1px',
+          right: '-2px',
+          backgroundColor: 'firebrick',
+          color: 'white',
+          borderRadius: '50%',
+          padding: '2px 4px 1px',
+          fontSize: '7px',
+          zIndex: 1,
+        }}
+      >
+        {problemIds.length}
+      </Box>
+      <QuizIcon
+        sx={{
+          cursor: 'pointer',
+          backgroundColor: PRIMARY_COL,
+          color: 'white',
+          borderRadius: '50%',
+          padding: '8px',
+        }}
+        fontSize='small'
+      />
+    </Box>
+  );
+}
+
 function QuizButton({ uri, mmtUrl }: { uri: string; mmtUrl?: string }) {
   const [problemList, setProblemList] = useState<string[]>([]);
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
@@ -59,16 +91,33 @@ function QuizButton({ uri, mmtUrl }: { uri: string; mmtUrl?: string }) {
   }
   return (
     <>
-      <QuizIcon
-        sx={{
-          cursor: 'pointer',
-          backgroundColor: PRIMARY_COL,
-          color: 'white',
-          borderRadius: '50%',
-          padding: '8px',
-        }}
-        onClick={() => setDialogOpen(true)}
-      />
+      <Box sx={{ position: 'relative' }}>
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '-2px',
+            right: '-8px',
+            backgroundColor: 'firebrick',
+            color: 'white',
+            borderRadius: '50%',
+            padding: '2px 6px 1px',
+            fontSize: '10px',
+            zIndex: 1,
+          }}
+        >
+          {problemList.length}
+        </Box>
+        <QuizIcon
+          sx={{
+            cursor: 'pointer',
+            backgroundColor: PRIMARY_COL,
+            color: 'white',
+            borderRadius: '50%',
+            padding: '8px',
+          }}
+          onClick={() => setDialogOpen(true)}
+        />
+      </Box>
       <Dialog
         open={dialogOpen}
         onClose={handleCloseDialog}
@@ -99,19 +148,41 @@ export function CompetencyTable({
   dimensions,
   onValueUpdate,
   showTour,
+  defaultSort,
 }: {
   URIs: string[];
   competencyData: any[];
   dimensions?: BloomDimension[];
   onValueUpdate?: () => void;
   showTour?: boolean;
+  defaultSort?: boolean;
 }) {
   const t = getLocaleObject(useRouter());
-  const [orderBy, setOrderBy] = useState<string>('');
+  const [orderBy, setOrderBy] = useState<string>(
+    defaultSort ? 'Understand' : ''
+  );
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
+  const [showAllQuizzes, setShowAllQuizes] = useState<boolean>(false);
+  const [problemIds, setProblemIds] = useState<string[]>([]);
   const { mmtUrl } = useContext(ServerLinksContext);
   const combinedData: { concepts: string; values: any }[] = [];
   const CONCEPT_COLUMN = 'concepts';
+  useEffect(() => {
+    async function fetchProblemIds() {
+      try {
+        const promises = URIs.map((uri) =>
+          getProblemIdsForConcept(mmtUrl, uri)
+        );
+        const results = await Promise.all(promises);
+        const flattenedProblemIds = results.flat();
+        setProblemIds(flattenedProblemIds);
+      } catch (error) {
+        console.error('Error fetching problem IDs:', error);
+      }
+    }
+    fetchProblemIds();
+  }, [URIs, mmtUrl]);
+
   for (let i = 0; i < URIs.length; i++) {
     const newObj = {
       values: competencyData[i],
@@ -120,14 +191,16 @@ export function CompetencyTable({
     combinedData.push(newObj);
   }
 
-  if (!URIs?.length || !competencyData?.length) return <p>Loading data... </p>;
+  function handleAllQuizzes() {
+    setShowAllQuizes(!showAllQuizzes);
+  }
 
+  if (!URIs?.length || !competencyData?.length) return <p>Loading data... </p>;
   const handleRequestSort = (property: string) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
-
   const sortedData = combinedData.slice().sort((a, b) => {
     if (orderBy === CONCEPT_COLUMN) {
       const aValue = extractLastWordAfterQuestionMark(a.concepts).toLowerCase();
@@ -148,102 +221,125 @@ export function CompetencyTable({
   });
 
   return (
-    <TableContainer component={Paper}>
-      <Table sx={{ textAlign: 'center' }}>
-        <TableHead>
-          <TableRow>
-            <TableCell>
-              <TableSortLabel
-                active={orderBy === CONCEPT_COLUMN}
-                direction={order}
-                onClick={() => handleRequestSort(CONCEPT_COLUMN)}
-              >
-                <b>{t.concepts}</b>
-              </TableSortLabel>
-            </TableCell>
-            {(dimensions || ALL_DIMENSIONS).map((header) => (
-              <TableCell key={header}>
+    <>
+      {showTour && (
+        <Button
+          variant="contained"
+          onClick={handleAllQuizzes}
+          sx={{ marginBottom: '10px' }}
+        >
+          {showAllQuizzes ? (
+            t.practiceProblems.closeAllPracticeProblems
+          ) : (
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Typography>
+                {t.practiceProblems.showAllPracticeProblems}
+              </Typography>
+              <QuizIconWithProblemsCount problemIds={problemIds} />
+            </Box>
+          )}
+        </Button>
+      )}
+      {showAllQuizzes && <PracticeQuestions problemIds={problemIds} />}
+      <TableContainer component={Paper}>
+        <Table sx={{ textAlign: 'center' }}>
+          <TableHead>
+            <TableRow>
+              <TableCell>
                 <TableSortLabel
-                  active={orderBy === header}
+                  active={orderBy === CONCEPT_COLUMN}
                   direction={order}
-                  onClick={() => handleRequestSort(header)}
+                  onClick={() => handleRequestSort(CONCEPT_COLUMN)}
                 >
-                  <b>{header}</b>
+                  <b>{t.concepts}</b>
                 </TableSortLabel>
               </TableCell>
-            ))}
-            {showTour && (
-              <TableCell>
-                <b>Guided Tour</b>
-              </TableCell>
-            )}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {sortedData.map((row, index) => (
-            <TableRow key={index}>
-              <TableCell>{mmtHTMLToReact(getMMTHtml(row.concepts))}</TableCell>
-              {(dimensions || ALL_DIMENSIONS).map(
-                (dimension: BloomDimension) => (
-                  <TableCell key={dimension}>
-                    {onValueUpdate ? (
-                      <Tooltip
-                        title={
-                          <SelfAssessmentDialogRow
-                            htmlName={extractLastWordAfterQuestionMark(
-                              URIs[index]
-                            )}
-                            dim={dimension}
-                            uri={URIs[index]}
-                            dimText={false}
-                            selectedLevel={uriWeightToSmileyLevel(
-                              Number(row.values[dimension])
-                            )}
-                            onValueUpdate={onValueUpdate}
-                          />
-                        }
-                      >
-                        <span style={{ cursor: 'pointer' }}>
-                          {Number(row.values[dimension]).toFixed(2)}
-                        </span>
-                      </Tooltip>
-                    ) : (
-                      <span>{Number(row.values[dimension]).toFixed(2)}</span>
-                    )}
-                  </TableCell>
-                )
-              )}
-              {showTour && (
-                <TableCell
-                  sx={{
-                    padding: '4px',
-                    textAlign: 'center',
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  <Link
-                    href={PathToTour(URIs[index])}
-                    target="_blank"
-                    sx={{ marginRight: '10px' }}
+              {(dimensions || ALL_DIMENSIONS).map((header) => (
+                <TableCell key={header}>
+                  <TableSortLabel
+                    active={orderBy === header}
+                    direction={order}
+                    onClick={() => handleRequestSort(header)}
                   >
-                    <Image
-                      src="/guidedTour.png"
-                      alt="Tour Logo"
-                      width={40}
-                      height={40}
-                      style={{ cursor: 'pointer' }}
-                      priority={true}
-                    />
-                  </Link>
-                  <QuizButton uri={URIs[index]} mmtUrl={mmtUrl} />
+                    <b>{header}</b>
+                  </TableSortLabel>
+                </TableCell>
+              ))}
+              {showTour && (
+                <TableCell>
+                  <b>Guided Tour</b>
                 </TableCell>
               )}
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableHead>
+          <TableBody>
+            {sortedData.map((row, index) => (
+              <TableRow key={index}>
+                <TableCell>
+                  {mmtHTMLToReact(getMMTHtml(row.concepts))}
+                </TableCell>
+                {(dimensions || ALL_DIMENSIONS).map(
+                  (dimension: BloomDimension) => (
+                    <TableCell key={dimension}>
+                      {onValueUpdate ? (
+                        <Tooltip
+                          title={
+                            <SelfAssessmentDialogRow
+                              htmlName={extractLastWordAfterQuestionMark(
+                                URIs[index]
+                              )}
+                              dim={dimension}
+                              uri={URIs[index]}
+                              dimText={false}
+                              selectedLevel={uriWeightToSmileyLevel(
+                                Number(row.values[dimension])
+                              )}
+                              onValueUpdate={onValueUpdate}
+                            />
+                          }
+                        >
+                          <span style={{ cursor: 'pointer' }}>
+                            {Number(row.values[dimension]).toFixed(2)}
+                          </span>
+                        </Tooltip>
+                      ) : (
+                        <span>{Number(row.values[dimension]).toFixed(2)}</span>
+                      )}
+                    </TableCell>
+                  )
+                )}
+                {showTour && (
+                  <TableCell
+                    sx={{
+                      padding: '4px',
+                      textAlign: 'center',
+                      display: 'flex',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Link
+                      href={PathToTour(URIs[index])}
+                      target="_blank"
+                      sx={{ marginRight: '10px' }}
+                    >
+                      <Image
+                        src="/guidedTour.png"
+                        alt="Tour Logo"
+                        width={40}
+                        height={40}
+                        style={{ cursor: 'pointer' }}
+                        priority={true}
+                      />
+                    </Link>
+                    <QuizButton uri={URIs[index]} mmtUrl={mmtUrl} />
+                  </TableCell>
+                )}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </>
   );
 }
 

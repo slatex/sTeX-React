@@ -105,17 +105,15 @@ const TrafficLightIndicator = ({ contentUrl }: { contentUrl: string }) => {
       <Box
         sx={{
           display: 'flex',
-          justifyContent: 'space-around',
           textAlign: 'center',
-          border: '2px solid black',
-          borderRadius: '10px',
-          padding: '10px',
-          backgroundColor: 'black',
-          width: '150px',
           cursor: 'pointer',
           transition: 'all 0.3s ease-in-out',
+          alignItems: 'center',
           '&:hover': {
             width: 'calc(100% - 30px)',
+            backgroundColor: 'black',
+            padding: '10px',
+            borderRadius: '10px',
             '& .hover-text': {
               display: 'block',
               color: 'white',
@@ -172,6 +170,7 @@ const TrafficLightIndicator = ({ contentUrl }: { contentUrl: string }) => {
                 dimensions={TO_SHOW}
                 onValueUpdate={refetchCompetencyData}
                 showTour={true}
+                defaultSort={true}
               />
             </DialogContentText>
           ) : null}
