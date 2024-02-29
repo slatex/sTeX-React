@@ -141,7 +141,7 @@ export async function getUriSmileysV2(
   concepts: string[],
   inputHeaders?: any
 ): Promise<Map<string, SmileyCognitiveValues>> {
-  if (USE_LMS_V1) return await getUriSmileys(concepts);
+  if (USE_LMS_V1) return await getUriSmileys(concepts, inputHeaders);
 
   if (!concepts?.length) return new Map();
   const data: LmsOutputMultipleResponse = await lmsRequest(

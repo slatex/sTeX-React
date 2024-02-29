@@ -60,7 +60,7 @@ function getText(averageUnderstand: number): string {
   } else if (averageUnderstand > 0.3 && averageUnderstand <= 0.8) {
     return 'Revise materials before progressing.';
   } else {
-    return 'Ready to proceed. Congratulations!';
+    return 'Ready to proceed.';
   }
 }
 
@@ -96,8 +96,10 @@ const TrafficLightIndicator = ({ contentUrl }: { contentUrl: string }) => {
   }
 
   const averageUnderstand = competencyData?.length
-    ? competencyData.reduce((sum, item) => sum + (item['Understand'] ?? 0), 0) /
-      competencyData.length
+    ? competencyData.reduce(
+        (sum, item) => sum + (item[BloomDimension.Understand] ?? 0),
+        0
+      ) / competencyData.length
     : 0;
 
   return (
