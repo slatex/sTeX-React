@@ -303,13 +303,13 @@ function MMTImage({ d }: { d: Element }) {
 function SectionDisplay({ d }: { d: Element }) {
   const [competencyIndicatorStatus, setCompetencyIndicatorStatus] = useState<
     boolean | undefined
-  >(false);
+  >(true);
   const [showLight, setShowLight] = useState<boolean | undefined>(false);
   useEffect(() => {
     if(!isLoggedIn()) return;
     getUserInformation().then((res) => {
       setShowLight(res?.showTrafficLight);
-      setCompetencyIndicatorStatus(res?.showCompetency);
+      //setCompetencyIndicatorStatus(res?.showCompetency);
     });
   }, []);
 
