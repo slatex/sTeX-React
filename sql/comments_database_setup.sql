@@ -79,6 +79,9 @@ CREATE TABLE userInfo (
     notificationSeenTs VARCHAR(255),
     showTrafficLight BOOLEAN,
     showCompetency BOOLEAN,
+    saltedPassword VARCHAR(255),
+    verificationToken VARCHAR(255),
+    isVerified BOOLEAN,
 );
 
 CREATE TABLE StudyBuddyUsers (
