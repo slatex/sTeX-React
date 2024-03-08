@@ -4,7 +4,7 @@ import { NextPage } from 'next';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import { useState } from 'react';
-import { forgotEmail } from '@stex-react/api';
+import { sendForgotEmail } from '@stex-react/api';
 
 const ForgotPasswordPage: NextPage = () => {
   const [email, setEmail] = useState('');
@@ -13,8 +13,7 @@ const ForgotPasswordPage: NextPage = () => {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSubmitted(true);
-    const res = await forgotEmail(email);
-    console.log(res);
+    await sendForgotEmail(email);
   }
 
   return (

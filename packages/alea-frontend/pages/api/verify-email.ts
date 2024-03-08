@@ -5,9 +5,9 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { email, verificationToken } = req.query;
+  const { email, verificationToken } = req.body;
   const existingUser = (await executeAndEndSet500OnError(
-    `SELECT * FROM userInfo WHERE userId = ? and verificationToken =?`,
+    `SELECT email FROM userInfo WHERE userId = ? and verificationToken =?`,
     [email, verificationToken],
     res
   )) as any[];
@@ -18,8 +18,8 @@ export default async function handler(
       [email, verificationToken],
       res
     );
-    res.status(201).json({ message: 'Email Verified Successfully.' });
+    res.status(200).json({ message: 'Email Verified Successfully.' });
   } else {
-    res.status(201).json({ message: 'Something went wrong.' });
+    res.status(401).json({ message: 'Invalid userId or verification token' });
   }
 }
