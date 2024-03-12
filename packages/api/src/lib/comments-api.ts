@@ -9,6 +9,7 @@ import {
   UpdateCommentStateRequest,
   UpdateQuestionStateRequest,
   UserInformation,
+  UserSignUpDetail,
 } from './comment';
 import { getAuthHeaders, logoutAndGetToLoginPage } from './lms';
 
@@ -162,4 +163,25 @@ export async function updateCompetencyIndicatorStatus(
       headers: getAuthHeaders(),
     }
   );
+}
+
+export async function signUpUser(userDetail: UserSignUpDetail) {
+  return await axios.post('/api/signup', { userDetail });
+}
+
+export async function logInUser(email: string, password: string) {
+  try {
+    const response = await axios.post('/api/login', { email, password });
+    return response;
+  } catch (error: any) {
+    return error.response;
+  }
+}
+
+export async function verifyEmail(email: string, verificationToken: string) {
+  return await axios.post('/api/verify-email', { email, verificationToken });
+}
+
+export async function sendForgotEmail(email: string) {
+  return await axios.post('/api/send-forgot-email', { email });
 }

@@ -111,6 +111,14 @@ export interface UserInformation {
   showCompetency: boolean;
   notificationSeenTs: number;
 }
+export interface UserSignUpDetail {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  verificationToken: string;
+}
 
 export function isModerator(userId?: string) {
   return !!userId && MODERATORS.includes(userId);

@@ -7,13 +7,14 @@ import {
   MenuItem,
   Select,
   TextField,
-  Typography
+  Typography,
 } from '@mui/material';
 import {
   fakeLoginUsingRedirect,
   isLoggedIn,
+  logInUser,
   loginUsingRedirect,
-  logout
+  logout,
 } from '@stex-react/api';
 import { BG_COLOR, IS_SERVER, localStore } from '@stex-react/utils';
 import { NextPage } from 'next';
@@ -22,6 +23,7 @@ import { useReducer, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 import styles from '../styles/utils.module.scss';
+import Link from 'next/link';
 
 const PresetPersonas = [
   { label: 'sabrina', info: 'FAU CS student' },
@@ -163,6 +165,9 @@ export function GuestLogin({ returnBackUrl }: { returnBackUrl: string }) {
   );
 }
 const LoginPage: NextPage = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
   const loggedIn = isLoggedIn();
   const router = useRouter();
   const [fakeId, setFakeId] = useState('');
@@ -170,6 +175,25 @@ const LoginPage: NextPage = () => {
   const [clickCount, updateClickCount] = useReducer((x) => x + 1, 0);
   const fakeLogin = clickCount >= 1;
   const { login: t } = getLocaleObject(router);
+  const handleEmailChange = (event) => {
+    setEmail(event.target.value);
+  };
+
+  const handlePasswordChange = (event) => {
+    setPassword(event.target.value);
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const response = await logInUser(email, password);
+    if (response.status === 200) {
+      alert('LogIn Succesfull');
+      setEmail('');
+      setPassword('');
+    } else {
+      alert('Invalid email or password');
+    }
+  };
 
   if (loggedIn && !IS_SERVER) router.push('/');
   return (
@@ -244,17 +268,100 @@ const LoginPage: NextPage = () => {
                   marginTop: '10px',
                 }}
               >
-                <hr style={{ width: '90%' }} />
                 <span
                   style={{ display: 'inline' }}
                   onDoubleClick={updateClickCount}
                 >
                   {t.rememberLogout}
                 </span>
-
-                <br />
                 <br />
                 <i style={{ color: 'red' }}>{t.logoutWarning}</i>
+                <br />
+                <br />
+                <Box display="flex">
+                  <hr style={{ marginRight: '10px' }} />
+                  <span
+                    style={{
+                      fontWeight: 'bold',
+                      color: 'black',
+                    }}
+                  >
+                    OR
+                  </span>
+                  <hr style={{ marginLeft: '10px' }} />
+                </Box>
+                <Box
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                  }}
+                >
+                  <TextField
+                    label="Email Address"
+                    id="outlined-basic-email"
+                    variant="outlined"
+                    margin="normal"
+                    fullWidth
+                    required
+                    value={email}
+                    onChange={handleEmailChange}
+                  />
+                  <TextField
+                    label="Password"
+                    id="outlined-basic-password"
+                    variant="outlined"
+                    margin="normal"
+                    fullWidth
+                    required
+                    type="password"
+                    value={password}
+                    onChange={handlePasswordChange}
+                  />
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    style={{ width: '100%', marginTop: 20 }}
+                    onClick={handleSubmit}
+                  >
+                    LOG IN
+                  </Button>
+                  <br />
+                  <Typography
+                    variant="body2"
+                    style={{
+                      marginTop: 10,
+                      textAlign: 'center',
+                      color: 'blue',
+                    }}
+                  >
+                    <Link href="/forgot-password">Forgot your password?</Link>
+                  </Typography>
+                  <br />
+                  <Typography sx={{ color: 'black' }}>
+                    Do not have an account?{' '}
+                    <Link
+                      href="/signup"
+                      style={{ width: '100%', color: 'blue' }}
+                    >
+                      Sign Up
+                    </Link>
+                  </Typography>
+                </Box>
+                <br />
+                <Box display="flex">
+                  <hr style={{ marginRight: '10px' }} />
+                  <span
+                    style={{
+                      fontWeight: 'bold',
+                      color: 'black',
+                    }}
+                  >
+                    OR
+                  </span>
+                  <hr style={{ marginLeft: '10px' }} />
+                </Box>
+                <br />
               </span>
 
               {!loggedIn && <GuestLogin returnBackUrl={returnBackUrl} />}
