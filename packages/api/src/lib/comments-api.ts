@@ -185,3 +185,15 @@ export async function verifyEmail(email: string, verificationToken: string) {
 export async function sendForgotEmail(email: string) {
   return await axios.post('/api/send-forgot-email', { email });
 }
+
+export async function resetPassword(
+  email: string,
+  newPassword: string,
+  resetPasswordToken: string
+) {
+  return await axios.post('/api/reset-password', {
+    email,
+    newPassword,
+    resetPasswordToken,
+  });
+}

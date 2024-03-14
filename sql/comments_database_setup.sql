@@ -82,6 +82,7 @@ CREATE TABLE userInfo (
     saltedPassword VARCHAR(255),
     verificationToken VARCHAR(255),
     isVerified BOOLEAN,
+    passwordResetToken VARCHAR(255),
 );
 
 CREATE TABLE StudyBuddyUsers (

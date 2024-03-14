@@ -19,7 +19,7 @@ const SignUpPage: NextPage = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    verificationToken: uuidv4(),
+    verificationToken: crypto.randomUUID(),
   });
   const [errors, setErrors] = useState({
     email: '',
@@ -91,14 +91,13 @@ const SignUpPage: NextPage = () => {
         email: '',
         password: '',
         confirmPassword: '',
-        verificationToken: uuidv4(),
+        verificationToken: crypto.randomUUID(),
       });
       router.push('/login');
     } catch (error) {
       console.error('Error signing up:', error.message);
     }
   };
-
   return (
     <MainLayout>
       <Box
