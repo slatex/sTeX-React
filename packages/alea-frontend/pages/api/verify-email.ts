@@ -20,6 +20,6 @@ export default async function handler(
     );
     res.status(200).json({ message: 'Email Verified Successfully.' });
   } else {
-    res.status(401).json({ message: 'Invalid userId or verification token' });
+    res.status(400).json({ message: 'Invalid userId or verification token' });
   }
 }

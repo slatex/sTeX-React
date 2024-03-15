@@ -123,3 +123,5 @@ export interface UserSignUpDetail {
 export function isModerator(userId?: string) {
   return !!userId && MODERATORS.includes(userId);
 }
+
+

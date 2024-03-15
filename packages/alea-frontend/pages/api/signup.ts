@@ -3,16 +3,19 @@ import { executeAndEndSet500OnError } from './comment-utils';
 import nodemailer from 'nodemailer';
 import bcrypt from 'bcrypt';
 
+export const SALT_ROUNDS = 10;
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const SALT_ROUNDS = 10;
   const { email, firstName, lastName, password, verificationToken } =
     req.body.userDetail;
 
   //verification link creation
-  const verificationLink = `${req.headers.origin}/verify?email=${email}&id=${verificationToken}`;
+  const verificationLink = `${
+    req.headers.origin
+  }/verify?email=${encodeURIComponent(email)}&id=${verificationToken}`;
 
   // password hashing
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);

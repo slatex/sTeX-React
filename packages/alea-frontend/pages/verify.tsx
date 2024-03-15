@@ -4,26 +4,24 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import MainLayout from '../layouts/MainLayout';
+import { getLocaleObject } from '../lang/utils';
 
 const VerifyEmail: NextPage = () => {
   const [data, setData] = useState('');
   const router = useRouter();
+  const { logInSystem: t } = getLocaleObject(router);
 
   useEffect(() => {
     if (!router.isReady) return;
     async function fetchData() {
       try {
         const { query } = router;
-        const res = await verifyEmail(
-          query.email as string,
-          query.id as string
-        );
-        setData(res.data.message);
+        await verifyEmail(query.email as string, query.id as string);
+        setData(t.verify200);
       } catch (error) {
-        setData(error.response.data.message)
+        setData(t.verify400);
       }
     }
-
     fetchData();
   }, [router.isReady, router]);
 

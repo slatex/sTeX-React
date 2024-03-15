@@ -1,25 +1,27 @@
 import { Box, Typography } from '@mui/material';
-import MainLayout from '../layouts/MainLayout';
-import { NextPage } from 'next';
-import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import { useState } from 'react';
-import Link from 'next/link';
-import { getLocaleObject } from '../lang/utils';
-import { useRouter } from 'next/router';
+import TextField from '@mui/material/TextField';
 import { UserSignUpDetail, signUpUser } from '@stex-react/api';
-import { v4 as uuidv4 } from 'uuid';
+import { NextPage } from 'next';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useState } from 'react';
+import { getLocaleObject } from '../lang/utils';
+import MainLayout from '../layouts/MainLayout';
+
+export const passwordRegex =
+  /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
 
 const SignUpPage: NextPage = () => {
   const router = useRouter();
-  const { login: t } = getLocaleObject(router);
+  const { login: t, logInSystem: l } = getLocaleObject(router);
   const [formData, setFormData] = useState<UserSignUpDetail>({
     firstName: '',
     lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
-    verificationToken: uuidv4(),
+    verificationToken: crypto.randomUUID(),
   });
   const [errors, setErrors] = useState({
     email: '',
@@ -43,7 +45,7 @@ const SignUpPage: NextPage = () => {
     if (!emailRegex.test(formData.email)) {
       setErrors((prevErrors) => ({
         ...prevErrors,
-        email: 'Invalid email address',
+        email: l.invalidEmail,
       }));
       return;
     } else {
@@ -54,12 +56,10 @@ const SignUpPage: NextPage = () => {
     }
 
     // Password validation
-    const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
     if (!passwordRegex.test(formData.password)) {
       setErrors((prevErrors) => ({
         ...prevErrors,
-        password:
-          'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number',
+        password: l.passwordRegex,
       }));
       return;
     } else {
@@ -73,7 +73,7 @@ const SignUpPage: NextPage = () => {
     if (formData.password !== formData.confirmPassword) {
       setErrors((prevErrors) => ({
         ...prevErrors,
-        confirmPassword: 'Passwords do not match',
+        confirmPassword: l.passwordConfirm,
       }));
       return;
     } else {
@@ -83,22 +83,21 @@ const SignUpPage: NextPage = () => {
       }));
     }
     try {
-      const response = await signUpUser(formData);
-      alert(response.data.message);
+      await signUpUser(formData);
+      alert(l.signUp200);
       setFormData({
         firstName: '',
         lastName: '',
         email: '',
         password: '',
         confirmPassword: '',
-        verificationToken: uuidv4(),
+        verificationToken: crypto.randomUUID(),
       });
       router.push('/login');
     } catch (error) {
       console.error('Error signing up:', error.message);
     }
   };
-
   return (
     <MainLayout>
       <Box
@@ -120,7 +119,7 @@ const SignUpPage: NextPage = () => {
             fontSize: 20,
           }}
         >
-          Sign up with your email address
+          {l.signUpEmail}
         </Typography>
         <TextField
           name="firstName"
@@ -184,13 +183,13 @@ const SignUpPage: NextPage = () => {
           color="primary"
           style={{ marginTop: '20px', width: '100%' }}
         >
-          SIGN UP
+          {l.signUp}
         </Button>
         <br />
         <Typography>
-          Already have an account?{' '}
+          {l.alreadyAccount}{' '}
           <Link href="/login" style={{ color: 'blue' }}>
-            Log In
+            {l.logIn}
           </Link>
         </Typography>
         <br />
@@ -208,7 +207,7 @@ const SignUpPage: NextPage = () => {
                 rel="noreferrer"
                 style={{ color: 'blue' }}
               >
-                Link
+                {l.link}
               </a>
             </li>
           </ul>
