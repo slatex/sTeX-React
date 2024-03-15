@@ -13,7 +13,9 @@ export default async function handler(
     req.body.userDetail;
 
   //verification link creation
-  const verificationLink = `${req.headers.origin}/verify?email=${email}&id=${verificationToken}`;
+  const verificationLink = `${
+    req.headers.origin
+  }/verify?email=${encodeURIComponent(email)}&id=${verificationToken}`;
 
   // password hashing
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
