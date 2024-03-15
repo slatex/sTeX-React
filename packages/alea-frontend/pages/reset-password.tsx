@@ -6,36 +6,38 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import MainLayout from '../layouts/MainLayout';
+import { passwordRegex } from './signup';
+import { getLocaleObject } from '../lang/utils';
 
 const ResetPasswordPage: NextPage = () => {
+  const router = useRouter();
+  const { logInSystem: t, learnerModelPriming: x } = getLocaleObject(router);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
-  const router = useRouter();
   const { query } = router;
   const handleSubmit = async () => {
     if (password !== confirmPassword) {
-      alert('Password and Confirm Password should be the same');
+      alert(t.passwordConfirm);
       return;
     }
-    const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
     if (!passwordRegex.test(password)) {
-      setError(
-        'Password must contain at least one uppercase letter, one lowercase letter, one digit, and be at least 8 characters long'
-      );
+      setError(t.passwordRegex);
       return;
     }
     try {
-      const res = await resetPassword(
-        query.email as string,
-        password,
-        query.id as string
-      );
-      alert(res.data.message);
-      router.push("/login")
+      await resetPassword(query.email as string, password, query.id as string);
+      alert(t.reset200);
+      router.push('/login');
     } catch (error) {
-      alert(error.response.data.message);
-      router.push("/login")
+      alert(
+        error.response.status == 400
+          ? t.reset400
+          : error.response.status === 409
+          ? t.reset409
+          : t.reset404
+      );
+      router.push('/login');
     }
   };
   return (
@@ -71,7 +73,7 @@ const ResetPasswordPage: NextPage = () => {
           onChange={(e) => setConfirmPassword(e.target.value)}
         />
         <Button variant="contained" color="primary" onClick={handleSubmit}>
-          Submit
+          {x.submit}
         </Button>
         {error && (
           <Box mt={2} width="300px">

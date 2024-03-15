@@ -317,4 +317,23 @@ export const en = {
     theProblem: 'The problem',
     wasRecorrected: 'was re-corrected',
   },
+  logInSystem: {
+    reset404: 'User not found.',
+    reset409: 'Password reset token not set.',
+    reset400: 'Invalid token',
+    reset200: 'Password updated successfully.',
+    passwordConfirm: 'Password and Confirm Password should be the same',
+    passwordRegex:
+      'Password must contain at least one uppercase letter, one lowercase letter, one digit, and be at least 8 characters long',
+    invalidEmail: 'Invalid email address',
+    signUpEmail: 'Sign up with your email address',
+    signUp: 'SIGN UP',
+    alreadyAccount: 'Already have an account?',
+    logIn: 'Log in',
+    link: 'Link',
+    verify200: 'Email Verified Successfully.',
+    verify400: 'Invalid userId or verification token',
+    signUp200: 'User Created Successfully',
+    signUp400: 'Email already exists',
+  },
 };

@@ -304,4 +304,23 @@ export const de = {
     theProblem: 'Das Problem',
     wasRecorrected: 'wurde erneut behoben',
   },
+  logInSystem: {
+    reset404: 'Benutzer nicht gefunden.',
+    reset409: 'Passwort-Zurücksetzungs-Token nicht festgelegt.',
+    reset400: 'Ungültiges Token',
+    reset200: 'Passwort erfolgreich aktualisiert.',
+    passwordConfirm: 'Passwort und Bestätigungspasswort müssen übereinstimmen',
+    passwordRegex:
+      'Das Passwort muss mindestens einen Großbuchstaben, einen Kleinbuchstaben, eine Ziffer enthalten und mindestens 8 Zeichen lang sein',
+    invalidEmail: 'Ungültige E-Mail-Adresse',
+    signUpEmail: 'Registrieren Sie sich mit Ihrer E-Mail-Adresse',
+    signUp: 'REGISTRIEREN',
+    alreadyAccount: 'Sie haben bereits ein Konto?',
+    logIn: 'Einloggen',
+    link: 'Verknüpfen',
+    verify200: 'E-Mail erfolgreich verifiziert.',
+    verify400: 'Ungültige Benutzer-ID oder Verifizierungstoken.',
+    signUp200: 'Benutzer erfolgreich erstellt.',
+    signUp400: 'E-Mail existiert bereits.',
+  },
 };
