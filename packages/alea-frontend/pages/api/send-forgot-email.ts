@@ -21,11 +21,13 @@ export default async function handler(
   //adding password-reset-token to database
   const resetToken = crypto.randomUUID();
   await executeAndEndSet500OnError(
-    `UPDATE userinfo SET passwordResetToken = ? WHERE userId = ?`,
-    [resetToken, email],
+    `UPDATE userinfo SET passwordResetToken = ? , passwordResetTokenGeneratedAt = ? WHERE userId = ?`,
+    [resetToken, Date.now(), email],
     res
   );
-  const resetPasswordLink = `${req.headers.origin}/reset-password?email=${encodeURIComponent(email)}&id=${resetToken}`;
+  const resetPasswordLink = `${
+    req.headers.origin
+  }/reset-password?email=${encodeURIComponent(email)}&id=${resetToken}`;
 
   const transporter = nodemailer.createTransport({
     service: 'Gmail',
