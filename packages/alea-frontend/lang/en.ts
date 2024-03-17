@@ -321,7 +321,7 @@ export const en = {
     reset404: 'User not found.',
     reset409: 'Password reset token not set.',
     reset400: 'Invalid token',
-    reset410: 'Reset link has expired.',
+    reset410: 'Password reset link has expired.',
     reset200: 'Password updated successfully.',
     passwordConfirm: 'Password and Confirm Password should be the same',
     passwordRegex:

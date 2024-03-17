@@ -9,7 +9,7 @@ export default async function handler(
 ) {
   const { email, resetPasswordToken, newPassword } = req.body;
   const userPasswordResetInfo = (await executeAndEndSet500OnError(
-    `SELECT passwordResetToken , passwordResetTokenGeneratedAt FROM userInfo WHERE userId = ?`,
+    `SELECT passwordResetToken , passwordResetRequestTimestampMs FROM userInfo WHERE userId = ?`,
     [email],
     res
   )) as any[];
@@ -28,9 +28,12 @@ export default async function handler(
   }
 
   const tokenGeneratedAt =
-    userPasswordResetInfo[0].passwordResetTokenGeneratedAt;
+    userPasswordResetInfo[0].passwordResetRequestTimestampMs;
   const currentTime = Date.now();
   // Check if the link has expired
+  if (!tokenGeneratedAt) {
+    return res.status(400).json({ message: 'Invalid token' });
+  }
   if (currentTime - tokenGeneratedAt > 2 * 60 * 60 * 1000) {
     return res.status(410).json({ message: 'Reset link has expired.' });
   }

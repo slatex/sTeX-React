@@ -21,7 +21,7 @@ export default async function handler(
   //adding password-reset-token to database
   const resetToken = crypto.randomUUID();
   await executeAndEndSet500OnError(
-    `UPDATE userinfo SET passwordResetToken = ? , passwordResetTokenGeneratedAt = ? WHERE userId = ?`,
+    `UPDATE userinfo SET passwordResetToken = ? ,   passwordResetRequestTimestampMs  = ? WHERE userId = ?`,
     [resetToken, Date.now(), email],
     res
   );
