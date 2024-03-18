@@ -108,9 +108,10 @@ export interface UpdateQuestionStateRequest {
 
 export interface UserInformation {
   showTrafficLight: boolean;
-  showCompetency: boolean;
+  showSectionReview: boolean;
   notificationSeenTs: number;
 }
+
 export interface UserSignUpDetail {
   firstName: string;
   lastName: string;

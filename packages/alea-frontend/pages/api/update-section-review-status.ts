@@ -11,12 +11,12 @@ export default async function handler(
     return;
   }
   const { userId, givenName, sn } = userInfo;
-  const { competencyIndicatorStatus } = req.body;
+  const { showSectionReview } = req.body;
   const updateResult = await executeAndEndSet500OnError(
-    `INSERT INTO userInfo (userId, firstName, lastName, showCompetency)
+    `INSERT INTO userInfo (userId, firstName, lastName, showSectionReview)
     VALUES (?, ?, ?, ?)
-    ON DUPLICATE KEY UPDATE firstName=VALUES(firstName), lastName=VALUES(lastName), showCompetency=VALUES(showCompetency);`,
-    [userId, givenName, sn, competencyIndicatorStatus],
+    ON DUPLICATE KEY UPDATE firstName=VALUES(firstName), lastName=VALUES(lastName), showSectionReview=VALUES(showSectionReview);`,
+    [userId, givenName, sn, showSectionReview],
     res
   );
 

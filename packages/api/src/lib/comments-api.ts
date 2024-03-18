@@ -152,13 +152,14 @@ export async function updateTrafficLightStatus(trafficStatus: boolean) {
     }
   );
 }
-export async function updateCompetencyIndicatorStatus(
-  competencyIndicatorStatus: boolean
+
+export async function updateSectionReviewStatus(
+  showSectionReview: boolean
 ) {
   cachedUserInformation = undefined;
   return await axios.post(
-    '/api/update-competency-indicator-status',
-    { competencyIndicatorStatus },
+    '/api/update-section-review-status',
+    { showSectionReview },
     {
       headers: getAuthHeaders(),
     }

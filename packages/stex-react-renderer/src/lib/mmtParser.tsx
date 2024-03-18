@@ -35,7 +35,7 @@ import {
 } from 'react';
 import { Slide } from 'react-slideshow-image';
 import 'react-slideshow-image/dist/styles.css';
-import CompetencyIndicator from './CompetencyIndicator';
+import SectionReview from './SectionReview';
 import { ContentFromUrl } from './ContentFromUrl';
 import { DisplayContext, DisplayReason } from './ContentWithHightlight';
 import { ErrorBoundary } from './ErrorBoundary';
@@ -301,7 +301,7 @@ function MMTImage({ d }: { d: Element }) {
 }
 
 function SectionDisplay({ d }: { d: Element }) {
-  const [competencyIndicatorStatus, setCompetencyIndicatorStatus] = useState<
+  const [showSectionReview, setShowSectionReview] = useState<
     boolean | undefined
   >(true);
   const [showLight, setShowLight] = useState<boolean | undefined>(false);
@@ -309,7 +309,7 @@ function SectionDisplay({ d }: { d: Element }) {
     if(!isLoggedIn()) return;
     getUserInformation().then((res) => {
       setShowLight(res?.showTrafficLight);
-      //setCompetencyIndicatorStatus(res?.showCompetency);
+      setShowSectionReview(res?.showSectionReview);
     });
   }, []);
 
@@ -337,8 +337,8 @@ function SectionDisplay({ d }: { d: Element }) {
         />
       ) : null}
       {actualSection}
-      {competencyIndicatorStatus ? (
-        <CompetencyIndicator
+      {showSectionReview ? (
+        <SectionReview
           contentUrl={XhtmlContentUrl(archive, filepath)}
           sectionTitle={sectionNode.title ?? ''}
         />

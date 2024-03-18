@@ -20,10 +20,10 @@ import {
 } from '@stex-react/api';
 import { CommentNoteToggleView } from '@stex-react/comments';
 import {
-  CompetencyIndicator,
   ContentDashboard,
   ContentWithHighlight,
   LayoutWithFixedMenu,
+  SectionReview,
   ServerLinksContext,
   mmtHTMLToReact,
 } from '@stex-react/stex-react-renderer';
@@ -349,7 +349,7 @@ const CourseViewPage: NextPage = () => {
             )}
             <hr style={{ width: '98%', padding: '1px 0' }} />
             <Box sx={{ marginTop: '10px', marginBottom: '10px' }}>
-              <CompetencyIndicator
+              <SectionReview
                 contentUrl={XhtmlContentUrl(archive, filepath)}
                 sectionTitle={sectionNode?.title}
               />

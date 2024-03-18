@@ -26,7 +26,7 @@ import {
   purgeStudyBuddyData,
   purgeUserNotifications,
   resetFakeUserData,
-  updateCompetencyIndicatorStatus,
+  updateSectionReviewStatus,
   updateTrafficLightStatus,
 } from '@stex-react/api';
 import { PRIMARY_COL, downloadFile } from '@stex-react/utils';
@@ -106,7 +106,7 @@ const MyProfilePage: NextPage = () => {
   }, [trafficLightStatus]);
   useEffect(() => {
     getUserInformation().then((res) =>
-      setCompetencyIndicatorStatus(res.showCompetency)
+      setCompetencyIndicatorStatus(res.showSectionReview)
     );
   }, [competencyIndicatorStatus]);
 
@@ -123,7 +123,7 @@ const MyProfilePage: NextPage = () => {
     competencyIndicatorStatus: boolean
   ) {
     try {
-      await updateCompetencyIndicatorStatus(competencyIndicatorStatus);
+      await updateSectionReviewStatus(competencyIndicatorStatus);
       setCompetencyIndicatorStatus(competencyIndicatorStatus);
       console.log('competency indicator status updated successfully.');
     } catch (error) {

@@ -78,7 +78,7 @@ CREATE TABLE userInfo (
     email VARCHAR(255),
     notificationSeenTs VARCHAR(255),
     showTrafficLight BOOLEAN,
-    showCompetency BOOLEAN,
+    showSectionReview BOOLEAN,
     saltedPassword VARCHAR(255),
     verificationToken VARCHAR(255),
     isVerified BOOLEAN,

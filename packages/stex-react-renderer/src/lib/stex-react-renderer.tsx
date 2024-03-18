@@ -18,7 +18,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import CompetencyIndicator from './CompetencyIndicator';
+import SectionReview from './SectionReview';
 import CompetencyTable from './CompetencyTable';
 import { ContentDashboard } from './ContentDashboard';
 import { ContentFromUrl } from './ContentFromUrl';
@@ -211,7 +211,7 @@ export function StexReactRenderer({
   );
 }
 export {
-  CompetencyIndicator,
+  SectionReview,
   CompetencyTable,
   ConfigureLevelSlider,
   ContentDashboard,

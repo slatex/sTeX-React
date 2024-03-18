@@ -59,7 +59,7 @@ const TO_SHOW = [
   BloomDimension.Apply,
 ];
 
-const CompetencyIndicator = ({
+const SectionReview = ({
   contentUrl,
   sectionTitle,
 }: {
@@ -181,4 +181,4 @@ const CompetencyIndicator = ({
   );
 };
 
-export default CompetencyIndicator;
+export default SectionReview;
