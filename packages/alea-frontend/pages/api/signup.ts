@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { executeAndEndSet500OnError } from './comment-utils';
 import nodemailer from 'nodemailer';
 import bcrypt from 'bcrypt';
+import { sendEmail } from './email-utils';
 
 export const SALT_ROUNDS = 10;
 
@@ -45,7 +46,6 @@ export default async function handler(
 
   if (!result) return;
 
-  // Send email with verification link
   const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
@@ -53,23 +53,11 @@ export default async function handler(
       pass: process.env.EMAIL_PASS,
     },
   });
-
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: 'Welcome to Our Platform! Please Verify Your Email',
-    text: `Thank you for registering with us. Please click on the following link to verify your email: ${verificationLink}`,
-  };
   res.status(201).json({ message: 'User created successfully' });
-  await new Promise((resolve, reject) => {
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error('Error occurred while sending email:', error);
-        reject(error);
-      } else {
-        console.log('Email sent:', info.response);
-        resolve(info);
-      }
-    });
-  });
+
+  // Send email with verification link.
+  await sendEmail(
+    email,
+    `Thank you for registering with us. Please click on the following link to verify your email: ${verificationLink}`
+  );
 }
