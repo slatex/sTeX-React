@@ -35,6 +35,8 @@ const ResetPasswordPage: NextPage = () => {
           ? t.reset400
           : error.response.status === 409
           ? t.reset409
+          : error.response.status === 410
+          ? t.reset410
           : t.reset404
       );
       router.push('/login');

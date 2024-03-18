@@ -308,6 +308,7 @@ export const de = {
     reset404: 'Benutzer nicht gefunden.',
     reset409: 'Passwort-Zurücksetzungs-Token nicht festgelegt.',
     reset400: 'Ungültiges Token',
+    reset410: 'Der Link zum Zurücksetzen des Passworts ist abgelaufen.',
     reset200: 'Passwort erfolgreich aktualisiert.',
     passwordConfirm: 'Passwort und Bestätigungspasswort müssen übereinstimmen',
     passwordRegex:

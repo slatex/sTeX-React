@@ -9,14 +9,14 @@ export default async function handler(
 ) {
   const { email, resetPasswordToken, newPassword } = req.body;
   const userPasswordResetInfo = (await executeAndEndSet500OnError(
-    `SELECT passwordResetToken FROM userInfo WHERE userId = ?`,
+    `SELECT passwordResetToken , passwordResetRequestTimestampMs FROM userInfo WHERE userId = ?`,
     [email],
     res
   )) as any[];
 
   if (userPasswordResetInfo.length === 0) {
     res.status(404).json({ message: 'User not found' });
-    return; 
+    return;
   }
 
   if (!userPasswordResetInfo[0].passwordResetToken) {
@@ -25,6 +25,17 @@ export default async function handler(
   }
   if (userPasswordResetInfo[0].passwordResetToken !== resetPasswordToken) {
     return res.status(400).json({ message: 'Invalid token' });
+  }
+
+  const tokenGeneratedAt =
+    userPasswordResetInfo[0].passwordResetRequestTimestampMs;
+  const currentTime = Date.now();
+  // Check if the link has expired
+  if (!tokenGeneratedAt) {
+    return res.status(400).json({ message: 'Invalid token' });
+  }
+  if (currentTime - tokenGeneratedAt > 2 * 60 * 60 * 1000) {
+    return res.status(410).json({ message: 'Reset link has expired.' });
   }
 
   //updating the password in database

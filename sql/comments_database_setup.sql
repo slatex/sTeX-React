@@ -83,6 +83,7 @@ CREATE TABLE userInfo (
     verificationToken VARCHAR(255),
     isVerified BOOLEAN,
     passwordResetToken VARCHAR(255),
+    passwordResetRequestTimestampMs BIGINT,
 );
 
 CREATE TABLE StudyBuddyUsers (
