@@ -16,7 +16,7 @@ import {
   loginUsingRedirect,
   logout,
 } from '@stex-react/api';
-import { BG_COLOR, IS_SERVER, localStore } from '@stex-react/utils';
+import { BG_COLOR, IS_SERVER, localStore, setCookie } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useReducer, useState } from 'react';
@@ -185,13 +185,18 @@ const LoginPage: NextPage = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const response = await logInUser(email, password);
-    if (response.status === 200) {
-      alert('LogIn Succesfull');
-      setEmail('');
-      setPassword('');
-    } else {
-      alert('Invalid email or password');
+    try {
+      const access_token = (await logInUser(email, password)).access_token;
+      if (!access_token?.length) throw new Error('No access token');
+      setCookie('access_token', access_token);
+      window.location.replace(returnBackUrl || '/');
+    } catch (error) {
+      if (error?.response?.status === 401) {
+        alert('Invalid email or password');
+      } else {
+        alert('Something went wrong');
+      }
+      console.error('Error:', error);
     }
   };
 

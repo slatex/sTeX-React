@@ -8,11 +8,15 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export async function sendEmail(recepientAddress: string, bodyText: string) {
+export async function sendEmail(
+  recepientAddress: string,
+  subject: string,
+  bodyText: string
+) {
   const mailOptions = {
     from: process.env.NODE_MAILER_EMAIL_ID,
     to: recepientAddress,
-    subject: 'ALeA Password Reset',
+    subject,
     text: bodyText,
   };
   await new Promise((resolve, reject) => {

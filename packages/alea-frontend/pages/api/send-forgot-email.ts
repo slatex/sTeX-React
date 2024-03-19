@@ -31,6 +31,7 @@ export default async function handler(
 
   await sendEmail(
     email,
+    'ALeA Password Reset',
     `Click on the given link to reset your password ${resetPasswordLink}.`
   );
   res.status(200).json({

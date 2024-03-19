@@ -153,9 +153,7 @@ export async function updateTrafficLightStatus(trafficStatus: boolean) {
   );
 }
 
-export async function updateSectionReviewStatus(
-  showSectionReview: boolean
-) {
+export async function updateSectionReviewStatus(showSectionReview: boolean) {
   cachedUserInformation = undefined;
   return await axios.post(
     '/api/update-section-review-status',
@@ -171,12 +169,8 @@ export async function signUpUser(userDetail: UserSignUpDetail) {
 }
 
 export async function logInUser(email: string, password: string) {
-  try {
-    const response = await axios.post('/api/login', { email, password });
-    return response;
-  } catch (error: any) {
-    return error.response;
-  }
+  const response = await axios.post('/api/login', { email, password });
+  return response.data;
 }
 
 export async function verifyEmail(email: string, verificationToken: string) {
