@@ -30,7 +30,7 @@ async function getUserScoresOrSet500Error(
           GROUP BY quizId, userId,problemId
       )
       GROUP BY userId,quizId;`,
-      [userId],
+      [],
       res
     );
     if (!result) return;

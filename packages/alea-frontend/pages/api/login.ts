@@ -1,14 +1,25 @@
+import axios from 'axios';
+import bcrypt from 'bcrypt';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { executeAndEndSet500OnError } from './comment-utils';
-import bcrypt from 'bcrypt';
 
 async function getAccessToken(
   userId: string,
   firstName: string,
   lastName: string
 ) {
-  // TODO
-  return undefined;
+  try {
+    return (
+      await axios.get(
+        process.env.NEXT_PUBLIC_LMS_V2_URL +
+          `/get-email-access-token?email=${userId}&givenName=${firstName}&sn=${lastName}`,
+        { headers: { Authorization: process.env.SERVER_SECRET } }
+      )
+    ).data;
+  } catch (e) {
+    console.log(e);
+    throw new Error('Failed to get access token');
+  }
 }
 
 export default async function handler(
