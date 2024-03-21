@@ -64,6 +64,7 @@ export const en = {
     sureFinish: 'Are you sure you want to finish?',
     checkSolution: 'Check Solution',
     perSectionQuizButton: 'Practice Problems ($1)',
+    hideProblems: 'Hide Problems',
   },
   practiceProblems: {
     clickSection:

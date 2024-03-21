@@ -11,6 +11,10 @@ export default async function handler(
 ) {
   const { email, firstName, lastName, password, verificationToken } =
     req.body.userDetail;
+
+  if (email.endsWith('@fau.de')) {
+    return res.status(400).json({ message: "Can't use this email" });
+  }
   const existingUser = (await executeAndEndSet500OnError(
     `SELECT userId FROM userInfo WHERE userId = ?`,
     [email],

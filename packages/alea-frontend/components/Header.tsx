@@ -1,6 +1,5 @@
 import { useMatomo } from '@jonkoops/matomo-tracker-react';
 import HelpIcon from '@mui/icons-material/Help';
-import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import WarningIcon from '@mui/icons-material/Warning';
 import {
   Box,
@@ -14,7 +13,6 @@ import {
 import AppBar from '@mui/material/AppBar';
 import { getUserInfo, isLoggedIn, logout } from '@stex-react/api';
 import { CountryFlag, useScrollDirection } from '@stex-react/react-utils';
-import { localStore } from '@stex-react/utils';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -160,9 +158,6 @@ export function Header({
   const loggedIn = isLoggedIn();
   const router = useRouter();
   const { header: t } = getLocaleObject(router);
-  const [surveyShown, setSurveyShown] = useState(
-    !localStore?.getItem(HIDE_BANNER_ITEM) ?? true
-  );
   const background =
     process.env.NEXT_PUBLIC_SITE_VERSION === 'production'
       ? undefined
@@ -235,43 +230,6 @@ export function Header({
           </Box>
         </Box>
       </Toolbar>
-
-      {surveyShown && (
-        <Toolbar
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            background: 'brown',
-            color: 'white',
-          }}
-          variant="dense"
-        >
-          <Box>
-            Help us to evaluate ALeA by participating in this study! ➡️{' '}
-            <Link
-              href="https://ddi-survey.cs.fau.de/limesurvey/ALeA"
-              style={{ display: 'inline' }}
-              target="_blank"
-            >
-              <b>
-                <u>Click Here</u>
-              </b>
-            </Link>
-            .
-          </Box>
-          <Tooltip title="Dismiss">
-            <IconButton
-              onClick={() => {
-                setSurveyShown(false);
-                localStore?.setItem(HIDE_BANNER_ITEM, 'hide');
-              }}
-              sx={{ p: '5px' }}
-            >
-              <HighlightOffIcon htmlColor='white' fontSize="large" />
-            </IconButton>
-          </Tooltip>
-        </Toolbar>
-      )}
     </AppBar>
   );
 }

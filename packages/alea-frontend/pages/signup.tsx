@@ -48,6 +48,13 @@ const SignUpPage: NextPage = () => {
         email: l.invalidEmail,
       }));
       return;
+    } else if (formData.email.endsWith('@fau.de')) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        email:
+          'You cannot use this email domain. Please log in using the FAU IDM portal',
+      }));
+      return;
     } else {
       setErrors((prevErrors) => ({
         ...prevErrors,

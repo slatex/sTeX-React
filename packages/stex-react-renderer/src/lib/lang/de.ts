@@ -64,6 +64,7 @@ export const de = {
     sureFinish: 'Sind Sie sicher, dass Sie den Vorgang abschließen möchten?',
     checkSolution: 'Lösung prüfen',
     perSectionQuizButton: 'Übungsprobleme ($1)',
+    hideProblems: 'Probleme ausblenden',
   },
   practiceProblems: {
     clickSection:
