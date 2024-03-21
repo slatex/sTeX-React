@@ -18,14 +18,12 @@ import { getLocaleObject } from './lang/utils';
 import { ServerLinksContext, mmtHTMLToReact } from './stex-react-renderer';
 
 function extractProjectIdAndFilepath(problemId: string) {
-  const url = problemId.replace('http://mathhub.info/', '');
+  const url = problemId
+    .replace('http://mathhub.info/', '')
+    .replace(/\?en.*/, '');
   const parts = url.split('/');
   const projectId = parts[0] + '/' + parts[1];
-  const filePath = parts
-    .slice(2, 5)
-    .join('/')
-    .split('?')[0]
-    .replace('.omdoc', '.tex');
+  const filePath = parts.slice(2).join('/').replace('.omdoc', '.tex');
   return [projectId, filePath];
 }
 export function PerSectionQuiz({
