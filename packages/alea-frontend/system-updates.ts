@@ -8,6 +8,20 @@ export const SYSTEM_UPDATES = [
     postedTimestamp: '2023-02-11T00:20:00+05:30',
   },*/
   {
+    id: 'Email-password login added',
+    header: 'Email-password login added',
+    content: `We're excited to announce that we've added a new feature to our system: email-password login! Now, in addition to our existing authentication methods, you can securely log in using your email address and password.
+      This feature enhances the security and convenience of accessing our platform. Your feedback is valuable to us as we continue to improve our services.
+      If you encounter any issues or have suggestions for further enhancements, please don't hesitate to reach out.
+      Thank you for being a part of our community!`,
+    header_de: 'Neues Feature: E-Mail-Passwort-Anmeldung hinzugefügt',
+    content_de: `Wir freuen uns, bekannt zu geben, dass wir unserem System ein neues Feature hinzugefügt haben: die Anmeldung per E-Mail und Passwort! Ab sofort können Sie sich neben unseren bestehenden Authentifizierungsmethoden sicher mit Ihrer E-Mail-Adresse und Ihrem Passwort anmelden.
+      Diese Funktion verbessert die Sicherheit und Bequemlichkeit beim Zugriff auf unsere Plattform. Ihr Feedback ist für uns wertvoll, während wir unsere Dienste kontinuierlich verbessern.
+      Wenn Sie auf Probleme stoßen oder Vorschläge für weitere Verbesserungen haben, zögern Sie bitte nicht, uns zu kontaktieren.
+      Vielen Dank, dass Sie Teil unserer Community sind!`,
+    postedTimestamp: '2024-03-20T16:30:00+05:30',
+  },
+  {
     id: 'New survey about ALeA',
     header: 'New survey about ALeA',
     content: `Help us to evaluate ALeA by participating in this fifteen minute survey.
