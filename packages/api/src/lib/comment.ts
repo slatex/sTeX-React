@@ -110,6 +110,7 @@ export interface UserInformation {
   showTrafficLight: boolean;
   showSectionReview: boolean;
   notificationSeenTs: number;
+  isVerified: boolean;
 }
 
 export interface UserSignUpDetail {

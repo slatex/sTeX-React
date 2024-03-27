@@ -27,7 +27,8 @@ export const en = {
   login: {
     alreadyLoggedIn: 'You are already logged in.',
     logout: 'Logout',
-    fauLogin: 'Login through FAU IdM-Portal',
+    fauLogin: 'Login with FAU IdM',
+    loginWithEmail: 'Log in with EMAIL',
     fakeLogin: 'Fake User Login',
     rememberLogout: 'Please remember to logout after you are done.',
     logoutWarning:
@@ -336,5 +337,8 @@ export const en = {
     verify400: 'Invalid userId or verification token',
     signUp200: 'User Created Successfully',
     signUp400: 'Email already exists',
+    verifcationMessage:
+      'Your email awaits verification. Tap the button to initiate the process and receive the verification email.',
+    sendVerifcationBtn: 'Send Verification Email',
   },
 };

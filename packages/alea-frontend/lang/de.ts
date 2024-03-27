@@ -29,6 +29,7 @@ export const de = {
     alreadyLoggedIn: 'Du bist bereits eingeloggt.',
     logout: 'Ausloggen',
     fauLogin: 'Anmeldung über das IdM-Portal der FAU',
+    loginWithEmail: 'Melden Sie sich mit E-MAIL an',
     fakeLogin: 'Falsche Anmeldung',
     rememberLogout: 'Bitte denken Sie daran, sich nach Abschluss abzumelden.',
     logoutWarning:
@@ -323,5 +324,8 @@ export const de = {
     verify400: 'Ungültige Benutzer-ID oder Verifizierungstoken.',
     signUp200: 'Benutzer erfolgreich erstellt.',
     signUp400: 'E-Mail existiert bereits.',
+    verifcationMessage:
+      'Ihre E-Mail wartet auf die Bestätigung. Tippen Sie auf die Schaltfläche, um den Vorgang zu starten und die Bestätigungs-E-Mail zu erhalten',
+    sendVerifcationBtn: 'Senden Sie E-Mail-Verifizierung',
   },
 };

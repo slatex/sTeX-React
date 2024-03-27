@@ -12,7 +12,7 @@ export default async function handler(
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
   const result: UserInformation = await executeAndEndSet500OnError(
-    `SELECT showTrafficLight, showSectionReview, notificationSeenTs FROM userInfo WHERE userId=?`,
+    `SELECT showTrafficLight, showSectionReview, notificationSeenTs ,isVerified FROM userInfo WHERE userId=?`,
     [userId],
     res
   );
@@ -22,6 +22,7 @@ export default async function handler(
       showTrafficLight: true,
       showSectionReview: true,
       notificationSeenTs: null,
+      isVerified: false,
     });
   }
   res.status(200).send(result[0]);

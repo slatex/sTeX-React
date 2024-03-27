@@ -16,14 +16,16 @@ import {
   loginUsingRedirect,
   logout,
 } from '@stex-react/api';
-import { BG_COLOR, IS_SERVER, localStore, setCookie } from '@stex-react/utils';
+import { BG_COLOR, IS_SERVER, setCookie } from '@stex-react/utils';
+import EmailIcon from '@mui/icons-material/Email';
 import { NextPage } from 'next';
+import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useReducer, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 import styles from '../styles/utils.module.scss';
-import Link from 'next/link';
 
 const PresetPersonas = [
   { label: 'sabrina', info: 'FAU CS student' },
@@ -31,10 +33,6 @@ const PresetPersonas = [
   { label: 'anushka', info: 'Philosophy background' },
   { label: 'blank', info: 'Empty learner model' },
 ];
-
-function capitalizeFirstLetter(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-}
 
 export function PersonaChooser({
   persona,
@@ -64,104 +62,6 @@ export function PersonaChooser({
         ))}
       </Select>
     </FormControl>
-  );
-}
-
-export function GuestLogin({ returnBackUrl }: { returnBackUrl: string }) {
-  const router = useRouter();
-  const {
-    login: { guest: t },
-  } = getLocaleObject(router);
-
-  const [persona, setProfileLabel] = useState<string>('sabrina');
-  const [guestId, setGuestId] = useState<string>('sabrina');
-  const [guestUserName, setGuestUserName] = useState<string>('Sabrina');
-  const [enableGuest, setEnableGuest] = useState(false);
-
-  return (
-    <>
-      {!enableGuest && (
-        <Button
-          fullWidth
-          variant="contained"
-          size="large"
-          sx={{ fontSize: '32x', my: '10px' }}
-          onClick={() => setEnableGuest(true)}
-        >
-          {t.entryButton}
-        </Button>
-      )}
-      <Box
-        sx={{
-          transition: 'height ease 500ms;',
-          height: enableGuest ? '240px' : '0px',
-          overflow: 'hidden',
-          border: enableGuest ? '1px solid #AAA' : 'undefined',
-          padding: enableGuest ? '5px' : 0,
-          borderRadius: '10px',
-          my: enableGuest ? '10px' : 0,
-        }}
-      >
-        <Box display="flex" alignItems="baseline" gap="10px">
-          <PersonaChooser
-            label={t.personaSelect}
-            persona={persona}
-            onPersonaUpdate={(label: string) => {
-              setProfileLabel(label);
-              for (const p of PresetPersonas) {
-                if (p.label === label) {
-                  setGuestId(p.label);
-                  setGuestUserName(capitalizeFirstLetter(p.label));
-                }
-              }
-            }}
-          />
-          <TextField
-            label={t.guestIdText}
-            value={guestId}
-            onChange={(e) => setGuestId(e.target.value)}
-            variant="standard"
-            margin="dense"
-            sx={{ flexGrow: '1' }}
-          />
-        </Box>
-        <TextField
-          label={t.guestNameText}
-          value={guestUserName}
-          onChange={(e) => setGuestUserName(e.target.value)}
-          variant="standard"
-          margin="dense"
-          fullWidth
-        />
-
-        <Typography color="#777" variant="body2" mt="10px">
-          {t.chooseLearnerHelperText}
-        </Typography>
-        <Button
-          fullWidth
-          variant="contained"
-          size="large"
-          sx={{ fontSize: '32x', mt: '5px' }}
-          onClick={() => {
-            let browserInstance = localStore.getItem('browser-instance');
-            if (!browserInstance) {
-              browserInstance = `${Math.floor(Math.random() * 1e7)}`;
-              localStore.setItem('browser-instance', browserInstance);
-            }
-            const fakeId = `guest_${browserInstance}_${guestId}`;
-            const guestName = 'Guest: ' + guestUserName;
-            fakeLoginUsingRedirect(fakeId, guestName, returnBackUrl, persona);
-          }}
-          disabled={!guestId?.length}
-        >
-          {t.loginButton}
-        </Button>
-      </Box>
-
-      <Typography color="#777" variant="body2">
-        {t.encourage}
-      </Typography>
-    </>
   );
 }
 const LoginPage: NextPage = () => {
@@ -264,7 +164,20 @@ const LoginPage: NextPage = () => {
                   }
                 }}
               >
-                {fakeLogin ? t.fakeLogin : t.fauLogin}
+                {fakeLogin ? (
+                  t.fakeLogin
+                ) : (
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Image
+                      src="https://community.fau.de/wp-content/themes/community.fau-erlangen/img/FAU_Logo_Bildmarke.svg"
+                      alt="FAU icon"
+                      width={30}
+                      height={32}
+                      style={{ filter: 'brightness(0) invert(1)' }}
+                    />
+                    <span style={{ marginLeft: '10px' }}>{t.fauLogin}</span>
+                  </Box>
+                )}
               </Button>
               <span
                 style={{
@@ -278,22 +191,26 @@ const LoginPage: NextPage = () => {
                   onDoubleClick={updateClickCount}
                 >
                   {t.rememberLogout}
+                  {t.logoutWarning}
                 </span>
                 <br />
-                <i style={{ color: 'red' }}>{t.logoutWarning}</i>
                 <br />
-                <br />
-                <Box display="flex">
-                  <hr style={{ marginRight: '10px' }} />
+                <Box display="flex" sx={{ margin: '25px 0px' }}>
+                  <hr
+                    style={{ marginRight: '10px', backgroundColor: 'black' }}
+                  />
                   <span
                     style={{
                       fontWeight: 'bold',
                       color: 'black',
+                      fontSize: '20px',
                     }}
                   >
                     OR
                   </span>
-                  <hr style={{ marginLeft: '10px' }} />
+                  <hr
+                    style={{ marginLeft: '10px', backgroundColor: 'black' }}
+                  />
                 </Box>
                 <Box
                   style={{
@@ -328,8 +245,12 @@ const LoginPage: NextPage = () => {
                     color="primary"
                     style={{ width: '100%', marginTop: 20 }}
                     onClick={handleSubmit}
+                    sx={{
+                      padding: '10px 20px',
+                    }}
                   >
-                    LOG IN
+                    <EmailIcon sx={{ marginRight: '10px' }} />
+                    {t.loginWithEmail}
                   </Button>
                   <br />
                   <Typography
@@ -343,7 +264,7 @@ const LoginPage: NextPage = () => {
                     <Link href="/forgot-password">Forgot your password?</Link>
                   </Typography>
                   <br />
-                  <Typography sx={{ color: 'black' }}>
+                  <Typography sx={{ color: 'black', marginBottom: '25px' }}>
                     Do not have an account?{' '}
                     <Link
                       href="/signup"
@@ -353,23 +274,7 @@ const LoginPage: NextPage = () => {
                     </Link>
                   </Typography>
                 </Box>
-                <br />
-                <Box display="flex">
-                  <hr style={{ marginRight: '10px' }} />
-                  <span
-                    style={{
-                      fontWeight: 'bold',
-                      color: 'black',
-                    }}
-                  >
-                    OR
-                  </span>
-                  <hr style={{ marginLeft: '10px' }} />
-                </Box>
-                <br />
               </span>
-
-              {!loggedIn && <GuestLogin returnBackUrl={returnBackUrl} />}
               <br />
               <Box className={styles['descriptive-box']}>
                 {t.notesHeader}
