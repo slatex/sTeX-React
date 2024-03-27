@@ -1,5 +1,6 @@
-import { Box, Button } from '@mui/material';
+import { Box, Button, IconButton, Tooltip, Typography } from '@mui/material';
 import LinearProgress from '@mui/material/LinearProgress';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import {
   Problem,
   ProblemResponse,
@@ -7,6 +8,7 @@ import {
   getProblemShtml,
 } from '@stex-react/api';
 import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
+import { sourceFileUrl } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useReducer, useState } from 'react';
 import { defaultProblemResponse } from './InlineProblemDisplay';
@@ -15,6 +17,15 @@ import { ListStepper } from './QuizDisplay';
 import { getLocaleObject } from './lang/utils';
 import { ServerLinksContext, mmtHTMLToReact } from './stex-react-renderer';
 
+function extractProjectIdAndFilepath(problemId: string) {
+  const url = problemId
+    .replace('http://mathhub.info/', '')
+    .replace(/\?en.*/, '');
+  const parts = url.split('/');
+  const projectId = parts[0] + '/' + parts[1];
+  const filePath = parts.slice(2).join('/').replace('.omdoc', '.tex');
+  return [projectId, filePath];
+}
 export function PerSectionQuiz({
   archive,
   filepath,
@@ -35,6 +46,7 @@ export function PerSectionQuiz({
   const [isFrozen, setIsFrozen] = useState<boolean[]>([]);
   const [, forceRerender] = useReducer((x) => x + 1, 0);
   const [startQuiz, setStartQuiz] = useState(!showButtonFirst);
+  const [show, setShow] = useState(true);
 
   useEffect(() => {
     if (!archive || !filepath) return;
@@ -61,6 +73,11 @@ export function PerSectionQuiz({
     });
   }, [startQuiz, problemIds, mmtUrl]);
 
+  function handleViewSource(problemId: string) {
+    const [projectId, filePath] = extractProjectIdAndFilepath(problemId);
+    const sourceLink = sourceFileUrl(projectId, filePath);
+    window.open(sourceLink, '_blank');
+  }
   if (isLoadingProblemIds) return null;
   if (!problemIds.length) return !showButtonFirst && <i>No problems found.</i>;
   if (!startQuiz) {
@@ -70,7 +87,13 @@ export function PerSectionQuiz({
       </Button>
     );
   }
-
+  if (!show) {
+    return (
+      <Button onClick={() => setShow(true)} variant="contained">
+        {t.perSectionQuizButton.replace('$1', problemIds.length.toString())}
+      </Button>
+    );
+  }
   if (isLoadingProblems) return <LinearProgress />;
 
   const problem = problems[problemIdx];
@@ -87,18 +110,30 @@ export function PerSectionQuiz({
       border="1px solid #CCC"
       borderRadius="5px"
     >
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        <h2>
-          {t.problem} {problemIdx + 1} {t.of} {problems.length}&nbsp;
-          {problem.header && <>({mmtHTMLToReact(problem.header)})</>}
-        </h2>
+      <Typography fontWeight="bold" textAlign="left">
+        {`${t.problem} ${problemIdx + 1} ${t.of} ${problems.length} `}
+      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <ListStepper
+          idx={problemIdx}
+          listSize={problems.length}
+          onChange={(idx) => setProblemIdx(idx)}
+        />
+        <IconButton
+          onClick={() => handleViewSource(problemIds[problemIdx])}
+          sx={{ float: 'right' }}
+        >
+          <Tooltip title="view source">
+            <OpenInNewIcon />
+          </Tooltip>
+        </IconButton>
       </Box>
-      <ListStepper
-        idx={problemIdx}
-        listSize={problems.length}
-        onChange={(idx) => setProblemIdx(idx)}
-      />
-      <Box my="10px">
+      {problem.header && (
+        <div style={{ color: '#555', marginTop: '10px' }}>
+          {mmtHTMLToReact(problem.header)}
+        </div>
+      )}
+      <Box mb="10px">
         <ProblemDisplay
           r={response}
           showPoints={false}
@@ -118,6 +153,11 @@ export function PerSectionQuiz({
             })
           }
         />
+      </Box>
+      <Box mb={2}>
+        <Button onClick={() => setShow(false)} variant="contained">
+          {t.hideProblems}
+        </Button>
       </Box>
     </Box>
   );
