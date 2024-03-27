@@ -41,7 +41,7 @@ export default async function handler(
   //updating the password in database
   const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
   await executeAndEndSet500OnError(
-    `UPDATE userinfo SET saltedPassword = ?,passwordResetToken=null WHERE userId = ?`,
+    `UPDATE userInfo SET saltedPassword = ?,passwordResetToken=null WHERE userId = ?`,
     [hashedPassword, email],
     res
   );
