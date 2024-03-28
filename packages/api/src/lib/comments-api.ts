@@ -192,3 +192,7 @@ export async function resetPassword(
     resetPasswordToken,
   });
 }
+
+export async function sendVerificationEmail(userId: string,verificationToken:string) {
+  return await axios.post('/api/send-verification-email', { userId,verificationToken });
+}

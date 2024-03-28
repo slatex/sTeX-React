@@ -1,3 +1,4 @@
+import EmailIcon from '@mui/icons-material/Email';
 import {
   Box,
   Button,
@@ -26,6 +27,7 @@ import {
   purgeStudyBuddyData,
   purgeUserNotifications,
   resetFakeUserData,
+  sendVerificationEmail,
   updateSectionReviewStatus,
   updateTrafficLightStatus,
 } from '@stex-react/api';
@@ -81,13 +83,14 @@ export function ConfirmPurgeDialogContent({
 
 const MyProfilePage: NextPage = () => {
   const router = useRouter();
-  const { myProfile: t } = getLocaleObject(router);
+  const { myProfile: t, logInSystem: l } = getLocaleObject(router);
   const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
   const [openPurgeDialog, setOpenPurgeDialog] = useState(false);
   const [persona, setPresetProfileName] = useState<string>('Blank');
   const [trafficLightStatus, setTrafficLightStatus] = useState<boolean>(false);
   const [competencyIndicatorStatus, setCompetencyIndicatorStatus] =
     useState<boolean>(false);
+  const [isVerifiedUser, setIsVerifiedUser] = useState<boolean>(false);
 
   useEffect(() => {
     getUserInfo().then((info) => {
@@ -109,6 +112,11 @@ const MyProfilePage: NextPage = () => {
       setCompetencyIndicatorStatus(res.showSectionReview)
     );
   }, [competencyIndicatorStatus]);
+  useEffect(() => {
+    getUserInformation().then((res) => {
+      setIsVerifiedUser(res.isVerified);
+    });
+  }, [isVerifiedUser]);
 
   async function handleTrafficLight(trafficLightStatus: boolean) {
     try {
@@ -130,6 +138,16 @@ const MyProfilePage: NextPage = () => {
       console.error('Error updating competency indicator status:', error);
     }
   }
+
+  async function handleVerification(userId: string) {
+    try {
+      await sendVerificationEmail(userId, crypto.randomUUID());
+      alert('verification email sent successfully');
+    } catch (error) {
+      alert('something went wrong please try again');
+      console.error('Error in sending verification email:', error);
+    }
+  }
   if (!userInfo) return <></>;
   return (
     <MainLayout title={`${userInfo.fullName} | VoLL-KI`}>
@@ -138,6 +156,18 @@ const MyProfilePage: NextPage = () => {
         <h3 style={{ marginTop: '-15px' }}>
           <i>{userInfo.userId}</i>
         </h3>
+        {!isVerifiedUser && (
+          <Box>
+            <Typography>{l.verifcationMessage}</Typography>
+            <Button
+              onClick={() => handleVerification(userInfo.userId)}
+              variant="contained"
+            >
+              {l.sendVerifcationBtn}
+              <EmailIcon sx={{ marginLeft: '5px' }} />
+            </Button>
+          </Box>
+        )}
         <hr />
         <Link href="/my-notes" passHref>
           <Button variant="contained" sx={{ m: '10px 0' }}>
