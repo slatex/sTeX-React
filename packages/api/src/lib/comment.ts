@@ -126,4 +126,7 @@ export function isModerator(userId?: string) {
   return !!userId && MODERATORS.includes(userId);
 }
 
-
+export enum AuthProvider {
+  EMAIL_PASSWORD = 'EMAIL_PASSWORD',
+  FAU_IDM = 'FAU_IDM',
+}

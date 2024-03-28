@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { sendEmail } from './email-utils';
 import { executeAndEndSet500OnError } from './comment-utils';
+import { sendVerificationEmail } from './signup';
 
 export default async function handler(
   req: NextApiRequest,
@@ -24,18 +24,13 @@ export default async function handler(
     res
   );
   // Verification link creation.
-  const verificationLink = `${
-    req.headers.origin
-  }/verify?email=${encodeURIComponent(
-    existingUser[0].email
-  )}&id=${verificationToken}`;
 
-  res.status(200).json({ message: 'verification email sent successfully' });
+  res.status(200).json({ message: 'Verification email sent successfully' });
 
   // Send email with verification link.
-  await sendEmail(
+  sendVerificationEmail(
     existingUser[0].email,
-    'Welcome to ALeA! Please Verify Your Email',
-    `Thank you for registering with us. Please click on the following link to verify your email: ${verificationLink}`
+    verificationToken,
+    req.headers.origin
   );
 }
