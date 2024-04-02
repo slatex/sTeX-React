@@ -5,7 +5,7 @@ export const en = {
     otherCourses: 'Other Courses',
     guidedTourHeader: 'Topic-Based, Free Style Learning',
     footerInfo:
-      "Active course materials incorporate learning support services based on a model that is updated with every interaction with the materials. Such models of a user's preferences and competencies contain highly sensitive personal data. Therefore the learning support services (and corresponding user model data collection) are only enabled when the user is logged in via the FAU Single-Signon Service and are kept secure and under exclusive control of the respective user in the Voll-KI Trust Zone.",
+      "Active course materials incorporate learning support services based on a model that is updated with every interaction with the materials. Such models of a user's preferences and competencies contain highly sensitive personal data. Therefore the learning support services (and corresponding user model data collection) are only enabled when the user is logged-in and are kept secure and under exclusive control of the respective user in the Voll-KI Trust Zone.",
     expIconHover1: "See what's brewing in our laboratory.",
     expIconHover2: 'Exercise Extreme Caution!',
     studyBuddyTooltip:
@@ -34,11 +34,16 @@ export const en = {
     logoutWarning:
       'Warning: Logging out from FAU IdM-Portal will NOT log you out here.',
     notesHeader:
-      'Note that you are logging into a research prototype system' +
-      ' for individualised learning support at the university level. Please' +
-      ' note the following consequences:',
+      'Active course materials incorporate learning support services based ' +
+      'on a model that is updated with every interaction with the materials. ' +
+      "Such models of a user's preferences and competencies contain highly " +
+      'sensitive personal data. Therefore the learning support services (and ' +
+      'corresponding user model data collection) are only enabled when the ' +
+      'user is logged-in and are kept secure and under exclusive control of ' +
+      'the respective user in the Voll-KI Trust Zone. Please ' +
+      'note the following consequences:',
     notesPoint1:
-      'This is not a production-ready system, so system ' +
+      'ALeA is not a production-ready system, so system ' +
       'functionality may change or go away without prior notice. ' +
       'You are participating in this experimental system ' +
       'voluntarily, we hope that the system will enhance your ' +

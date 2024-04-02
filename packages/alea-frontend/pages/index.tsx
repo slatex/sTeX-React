@@ -259,9 +259,6 @@ const StudentHomePage: NextPage = () => {
                 <CourseThumb key={c.courseId} course={c} />
               ))}
           </Box>
-          <hr style={{ width: '90%' }} />
-          <br />
-          <Box className={styles['descriptive-box']}>{t.footerInfo}</Box>
         </Box>
       </Box>
     </MainLayout>

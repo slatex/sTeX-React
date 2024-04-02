@@ -4,8 +4,6 @@ export const de = {
     courseSection: 'Aktuelles Semester',
     otherCourses: 'Weitere Kurse',
     guidedTourHeader: 'Themenbezogen, Freestyle-Lernen',
-    footerInfo:
-      'Aktive Kursmaterialien beinhalten Lernunterstützungsdienste, die auf einem Modell basieren, das bei jeder Interaktion mit den Materialien aktualisiert wird. Solche Modelle der Vorlieben und Kompetenzen eines Nutzenden enthalten hochsensible personenbezogene Daten. Daher werden die Lernunterstützungsdienste (und die entsprechende Sammlung von Nutzendenmodelldaten) nur verwendet, wenn der oder die Nutzende über den Single-Signon-Dienst der FAU angemeldet ist, und werden sicher und unter ausschließlicher Kontrolle des jeweiligen Nutzenden in der Voll-KI Trust Zone gespeichert.',
     studyBuddyTooltip:
       'Klicken Sie hier, um ganz einfach mit Kommilitonen in Kontakt zu treten, die Ihre Lernziele teilen',
     expIconHover1: 'Sehen Sie, was in unserem Labor braut.',
@@ -35,7 +33,7 @@ export const de = {
     logoutWarning:
       'Achtung: Durch das Abmelden vom FAU IdM-Portal werden Sie hier NICHT abgemeldet.',
     notesHeader:
-      'Beachten Sie, dass Sie sich in einen Forschungsprototyp für individualisierte Lernunterstützung auf Universitätsebene einloggen. Bitte beachten Sie folgende Konsequenzen:',
+      'Aktive Kursmaterialien beinhalten Lernunterstützungsdienste, die auf einem Modell basieren, das bei jeder Interaktion mit den Materialien aktualisiert wird. Solche Modelle der Vorlieben und Kompetenzen eines Nutzenden enthalten hochsensible personenbezogene Daten. Daher werden die Lernunterstützungsdienste (und die entsprechende Sammlung von Nutzendenmodelldaten) nur verwendet, wenn der Nutzende angemeldet ist, und werden sicher und unter ausschließlicher Kontrolle des jeweiligen Nutzenden in der Voll-KI Trust Zone gespeichert. Bitte beachten Sie folgende Konsequenzen:',
     notesPoint1:
       'Dies ist kein fertiges System, daher können sich die Systemfunktionen ohne vorherige Ankündigung ändern oder verschwinden. Sie nehmen freiwillig an diesem experimentellen System teil, wir hoffen, dass das System Ihre Lernerfahrung und Ihren Erfolg verbessern wird. Es gibt jedoch keine Vorteile und/oder Unterschiede in der Art und Weise, wie Sie im Kurs benotet oder bewertet werden.',
     notesPoint2:
