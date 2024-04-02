@@ -34,6 +34,30 @@ const PresetPersonas = [
   { label: 'blank', info: 'Empty learner model' },
 ];
 
+export function LoginInfoBox() {
+  const { login: t, logInSystem: l } = getLocaleObject(useRouter());
+  return (
+    <Box className={styles['descriptive-box']}>
+      {t.notesHeader}
+      <ul>
+        <li>{t.notesPoint1}</li>
+        <li>{t.notesPoint2}</li>
+        <li>{t.notesPoint3}</li>
+        <li>
+          {t.notesPoint4}:&nbsp;
+          <a
+            href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/home"
+            target="_blank"
+            rel="noreferrer"
+          >
+            {l.link}
+          </a>
+        </li>
+      </ul>
+    </Box>
+  );
+}
+
 export function PersonaChooser({
   persona,
   label,
@@ -154,7 +178,6 @@ const LoginPage: NextPage = () => {
                 fullWidth
                 variant="contained"
                 size="large"
-                sx={{ fontSize: '32x' }}
                 onClick={() => {
                   if (fakeLogin) {
                     if (fakeId)
@@ -191,8 +214,8 @@ const LoginPage: NextPage = () => {
                   onDoubleClick={updateClickCount}
                 >
                   {t.rememberLogout}
-                  {t.logoutWarning}
                 </span>
+                &nbsp;{t.logoutWarning}
                 <br />
                 <br />
                 <Box display="flex" sx={{ margin: '25px 0px' }}>
@@ -276,24 +299,7 @@ const LoginPage: NextPage = () => {
                 </Box>
               </span>
               <br />
-              <Box className={styles['descriptive-box']}>
-                {t.notesHeader}
-                <ul>
-                  <li>{t.notesPoint1}</li>
-                  <li>{t.notesPoint2}</li>
-                  <li>{t.notesPoint3}</li>
-                  <li>
-                    {t.notesPoint4}:&nbsp;
-                    <a
-                      href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/home"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Link
-                    </a>
-                  </li>
-                </ul>
-              </Box>
+              <LoginInfoBox />
             </>
           )}
         </Box>
