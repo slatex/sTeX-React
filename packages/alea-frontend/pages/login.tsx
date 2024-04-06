@@ -26,6 +26,7 @@ import { useReducer, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 import styles from '../styles/utils.module.scss';
+import { MdViewer } from '@stex-react/markdown';
 
 const PresetPersonas = [
   { label: 'sabrina', info: 'FAU CS student' },
@@ -38,20 +39,19 @@ export function LoginInfoBox() {
   const { login: t, logInSystem: l } = getLocaleObject(useRouter());
   return (
     <Box className={styles['descriptive-box']}>
-      {t.notesHeader}
+      <MdViewer content={t.notesHeader} />
       <ul>
-        <li>{t.notesPoint1}</li>
-        <li>{t.notesPoint2}</li>
-        <li>{t.notesPoint3}</li>
         <li>
-          {t.notesPoint4}:&nbsp;
-          <a
-            href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/home"
-            target="_blank"
-            rel="noreferrer"
-          >
-            {l.link}
-          </a>
+          <MdViewer content={t.notesPoint1} />
+        </li>
+        <li>
+          <MdViewer content={t.notesPoint2} />
+        </li>
+        <li>
+          <MdViewer content={t.notesPoint3} />
+        </li>
+        <li>
+          <MdViewer content={t.notesPoint4} />
         </li>
       </ul>
     </Box>
@@ -202,7 +202,7 @@ const LoginPage: NextPage = () => {
                   </Box>
                 )}
               </Button>
-              <span
+              <Box
                 style={{
                   fontFamily: 'Roboto',
                   color: '#777',
@@ -213,9 +213,9 @@ const LoginPage: NextPage = () => {
                   style={{ display: 'inline' }}
                   onDoubleClick={updateClickCount}
                 >
-                  {t.rememberLogout}
+                  {t.warning + ' : '}
                 </span>
-                &nbsp;{t.logoutWarning}
+                <span>{t.logoutWarning}</span>
                 <br />
                 <br />
                 <Box display="flex" sx={{ margin: '25px 0px' }}>
@@ -297,7 +297,7 @@ const LoginPage: NextPage = () => {
                     </Link>
                   </Typography>
                 </Box>
-              </span>
+              </Box>
               <br />
               <LoginInfoBox />
             </>

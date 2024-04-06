@@ -88,7 +88,7 @@ const MyProfilePage: NextPage = () => {
   const [openPurgeDialog, setOpenPurgeDialog] = useState(false);
   const [persona, setPresetProfileName] = useState<string>('Blank');
   const [trafficLightStatus, setTrafficLightStatus] = useState<boolean>(false);
-  const [competencyIndicatorStatus, setCompetencyIndicatorStatus] =
+  const [sectionReviewStatus, setSectionReviewStatus] =
     useState<boolean>(false);
   const [isVerifiedUser, setIsVerifiedUser] = useState<boolean>(false);
 
@@ -109,9 +109,9 @@ const MyProfilePage: NextPage = () => {
   }, [trafficLightStatus]);
   useEffect(() => {
     getUserInformation().then((res) =>
-      setCompetencyIndicatorStatus(res.showSectionReview)
+      setSectionReviewStatus(res.showSectionReview)
     );
-  }, [competencyIndicatorStatus]);
+  }, [sectionReviewStatus]);
   useEffect(() => {
     getUserInformation().then((res) => {
       setIsVerifiedUser(res.isVerified);
@@ -127,24 +127,22 @@ const MyProfilePage: NextPage = () => {
       console.error('Error updating traffic light status:', error);
     }
   }
-  async function handleCompetencyIndicatorStatus(
-    competencyIndicatorStatus: boolean
-  ) {
+  async function handleSectionReviewStatus(sectionReviewStatus: boolean) {
     try {
-      await updateSectionReviewStatus(competencyIndicatorStatus);
-      setCompetencyIndicatorStatus(competencyIndicatorStatus);
-      console.log('competency indicator status updated successfully.');
+      await updateSectionReviewStatus(sectionReviewStatus);
+      setSectionReviewStatus(sectionReviewStatus);
+      console.log('Section review status updated successfully.');
     } catch (error) {
-      console.error('Error updating competency indicator status:', error);
+      console.error('Error updating section review status:', error);
     }
   }
 
   async function handleVerification(userId: string) {
     try {
       await sendVerificationEmail(userId, crypto.randomUUID());
-      alert('verification email sent successfully');
+      alert(l.verificationEmail);
     } catch (error) {
-      alert('something went wrong please try again');
+      alert(l.somethingWentWrong);
       console.error('Error in sending verification email:', error);
     }
   }
@@ -206,16 +204,14 @@ const MyProfilePage: NextPage = () => {
               <TableRow>
                 <TableCell component="th" scope="row">
                   <Typography fontWeight="bold" color={PRIMARY_COL}>
-                    Show Competency Indicator on Notes
+                    Show the Review Section on Notes.
                   </Typography>
                 </TableCell>
                 <TableCell align="right">
                   <Switch
-                    checked={competencyIndicatorStatus}
+                    checked={sectionReviewStatus}
                     onChange={() =>
-                      handleCompetencyIndicatorStatus(
-                        !competencyIndicatorStatus
-                      )
+                      handleSectionReviewStatus(!sectionReviewStatus)
                     }
                   />
                 </TableCell>

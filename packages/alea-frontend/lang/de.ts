@@ -26,22 +26,22 @@ export const de = {
   login: {
     alreadyLoggedIn: 'Du bist bereits eingeloggt.',
     logout: 'Ausloggen',
-    fauLogin: 'Anmeldung über das IdM-Portal der FAU',
+    fauLogin: 'Melden Sie sich mit der FAU-IdM an',
     loginWithEmail: 'Melden Sie sich mit E-MAIL an',
     fakeLogin: 'Falsche Anmeldung',
-    rememberLogout: 'Bitte denken Sie daran, sich nach Abschluss abzumelden.',
+    warning: 'Warnung',
     logoutWarning:
-      'Achtung: Durch das Abmelden vom FAU IdM-Portal werden Sie hier NICHT abgemeldet.',
+      'Durch das Abmelden vom FAU IdM-Portal werden Sie hier NICHT abgemeldet.',
     notesHeader:
-      'Aktive Kursmaterialien beinhalten Lernunterstützungsdienste, die auf einem Modell basieren, das bei jeder Interaktion mit den Materialien aktualisiert wird. Solche Modelle der Vorlieben und Kompetenzen eines Nutzenden enthalten hochsensible personenbezogene Daten. Daher werden die Lernunterstützungsdienste (und die entsprechende Sammlung von Nutzendenmodelldaten) nur verwendet, wenn der Nutzende angemeldet ist, und werden sicher und unter ausschließlicher Kontrolle des jeweiligen Nutzenden in der Voll-KI Trust Zone gespeichert. Bitte beachten Sie folgende Konsequenzen:',
+      'Aktive Kursmaterialien beinhalten Lernunterstützungsdienste, die auf einem Modell basieren, das bei jeder Interaktion mit den Materialien aktualisiert wird. Solche Modelle der Vorlieben und Kompetenzen eines Nutzenden enthalten hochsensible **personenbezogene Daten**. Daher werden die Lernunterstützungsdienste (und die entsprechende Sammlung von Nutzendenmodelldaten) nur verwendet, wenn der Nutzende angemeldet ist, und werden sicher und unter ausschließlicher Kontrolle des jeweiligen Nutzenden in der **Voll-KI Trust Zone** gespeichert. Bitte beachten Sie folgende Konsequenzen:',
     notesPoint1:
-      'Dies ist kein fertiges System, daher können sich die Systemfunktionen ohne vorherige Ankündigung ändern oder verschwinden. Sie nehmen freiwillig an diesem experimentellen System teil, wir hoffen, dass das System Ihre Lernerfahrung und Ihren Erfolg verbessern wird. Es gibt jedoch keine Vorteile und/oder Unterschiede in der Art und Weise, wie Sie im Kurs benotet oder bewertet werden.',
+      '**Haftungsausschluss :** Dies ist kein fertiges System, daher können sich die Systemfunktionen ohne vorherige Ankündigung ändern oder verschwinden. Sie nehmen freiwillig an diesem experimentellen System teil, wir hoffen, dass das System Ihre Lernerfahrung und Ihren Erfolg verbessern wird. Es gibt jedoch keine Vorteile und/oder Unterschiede in der Art und Weise, wie Sie im Kurs benotet oder bewertet werden.',
     notesPoint2:
-      'Das System sammelt personalisierte Daten über alle Ihre Interaktionen mit dem System, einschließlich Klick-/Hover-/Mausbewegungs-Streams, Seitenanfragen, Ergebnisse von Quiz usw. Das System verwendet diese Daten, um Lernkompetenzmodelle zu generieren, welche wiederum die angezeigten Kursmaterialien und die Interaktion mit dem System beeinflussen.',
+      '**Datensammlung :** Das System sammelt personalisierte Daten über alle Ihre Interaktionen mit dem System, einschließlich Klick-/Hover-/Mausbewegungs-Streams, Seitenanfragen, Ergebnisse von Quiz usw. Das System verwendet diese Daten, um Lernkompetenzmodelle zu generieren, welche wiederum die angezeigten Kursmaterialien und die Interaktion mit dem System beeinflussen.',
     notesPoint3:
-      'Beachten Sie, dass auf personalisierte Daten nur Accounts zugreifen können, die mit Ihren persönlichen IDM-Anmeldeinformationen authentifiziert sind. Insbesondere werden ohne Ihre Einwilligung keine personenbezogenen Daten aus dem System heraus übermittelt.',
+      '**Datenschutz :** Beachten Sie, dass auf personalisierte Daten nur Accounts zugreifen können, die mit Ihren persönlichen IDM-Anmeldeinformationen authentifiziert sind. Insbesondere werden ohne Ihre Einwilligung keine personenbezogenen Daten aus dem System heraus übermittelt.',
     notesPoint4:
-      'Das Forschungsprojekt VoLL-KI wird diese Daten in aggregierter, anonymisierter und/oder pseudonymisierter Form zur Evaluation des Systems und der zugrunde liegenden Methoden verwenden. Wir werden uns nach besten Kräften bemühen, sicherzustellen, dass personalisierte Daten nicht aus aggregierten Daten rekonstruiert werden können. Details zum KI-System finden Sie hier',
+      '**Datenverwendung :** Das Forschungsprojekt VoLL-KI wird diese Daten in aggregierter, anonymisierter und/oder pseudonymisierter Form zur Evaluation des Systems und der zugrunde liegenden Methoden verwenden. Wir werden uns nach besten Kräften bemühen, sicherzustellen, dass personalisierte Daten nicht aus aggregierten Daten rekonstruiert werden können. Details zum KI-System finden Sie hier : [Link](https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/home)',
     guest: {
       encourage:
         'Während das VoLL-KI ALEA-System zunächst für Studierende der FAU gedacht ist, arbeiten wir daran, unser Angebot auf mehr Lernende auszudehnen. In der Zwischenzeit empfehlen wir Ihnen, sich als Gast anzumelden und das System zu testen.',
@@ -313,7 +313,7 @@ export const de = {
     passwordRegex:
       'Das Passwort muss mindestens einen Großbuchstaben, einen Kleinbuchstaben, eine Ziffer enthalten und mindestens 8 Zeichen lang sein',
     invalidEmail: 'Ungültige E-Mail-Adresse',
-    signUpEmail: 'Registrieren Sie sich mit Ihrer E-Mail-Adresse',
+    signUpEmail: 'Melden Sie sich mit Ihrer E-Mail-Adresse bei ALeA an',
     signUp: 'REGISTRIEREN',
     alreadyAccount: 'Sie haben bereits ein Konto?',
     logIn: 'Einloggen',
@@ -325,5 +325,8 @@ export const de = {
     verifcationMessage:
       'Ihre E-Mail wartet auf die Bestätigung. Tippen Sie auf die Schaltfläche, um den Vorgang zu starten und die Bestätigungs-E-Mail zu erhalten',
     sendVerifcationBtn: 'Senden Sie E-Mail-Verifizierung',
+    verificationEmail: 'Verifizierungs-E-Mail erfolgreich gesendet',
+    somethingWentWrong:
+      'Etwas ist schiefgegangen. Bitte versuchen Sie es erneut.',
   },
 };

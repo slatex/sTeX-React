@@ -146,6 +146,9 @@ function RenderTree({
         display="flex"
         ml={node.children.length > 0 ? undefined : '23px'}
         fontWeight={isSelected ? 'bold' : undefined}
+        sx={{
+          backgroundColor: isSelected ? 'blue' : 'inherit',
+        }}
       >
         {node.children.length > 0 && (
           <IconButton
@@ -163,7 +166,8 @@ function RenderTree({
           className={itemClassName}
           style={{
             cursor: 'pointer',
-            color: isSelected ? 'black' : undefined,
+            color: isSelected ? 'white' : undefined,
+            padding: isSelected ? '3px' : undefined,
           }}
           onClick={(e) => {
             e.stopPropagation();
@@ -190,7 +194,7 @@ function RenderTree({
           }}
         >
           {preAdornment ? preAdornment(node.tocNode.id) : null}
-           {convertHtmlStringToPlain(node.tocNode.title || 'Untitled')}
+          {convertHtmlStringToPlain(node.tocNode.title || 'Untitled')}
         </span>
       </Box>
       {isOpen && node.children.length > 0 && (
@@ -312,7 +316,7 @@ export function ContentDashboard({
       if (!courseId || coveredSectionIds !== undefined) return;
       const resp = await axios.get('/api/get-coverage-timeline');
       const snaps = (resp.data as CoverageTimeline)?.[courseId];
-      if(!snaps?.length) return;
+      if (!snaps?.length) return;
       const endSec = snaps[snaps.length - 1].sectionName;
       const r = getCoveredSections('', endSec, docSections, true);
       setFetchedCoveredSectionIds(r.coveredSectionIds);

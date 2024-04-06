@@ -27,23 +27,22 @@ export const en = {
   login: {
     alreadyLoggedIn: 'You are already logged in.',
     logout: 'Logout',
-    fauLogin: 'Login with FAU IdM',
+    fauLogin: 'Log in with FAU IdM',
     loginWithEmail: 'Log in with EMAIL',
     fakeLogin: 'Fake User Login',
-    rememberLogout: 'Please remember to logout after you are done.',
-    logoutWarning:
-      'Warning: Logging out from FAU IdM-Portal will NOT log you out here.',
+    warning: 'Warning',
+    logoutWarning: 'Logging out from FAU IdM-Portal will NOT log you out here.',
     notesHeader:
       'Active course materials incorporate learning support services based ' +
       'on a model that is updated with every interaction with the materials. ' +
       "Such models of a user's preferences and competencies contain highly " +
-      'sensitive personal data. Therefore the learning support services (and ' +
+      '**sensitive personal data**. Therefore the learning support services (and ' +
       'corresponding user model data collection) are only enabled when the ' +
       'user is logged-in and are kept secure and under exclusive control of ' +
-      'the respective user in the Voll-KI Trust Zone. Please ' +
+      'the respective user in the **Voll-KI Trust Zone**. Please ' +
       'note the following consequences:',
     notesPoint1:
-      'ALeA is not a production-ready system, so system ' +
+      '**Disclaimer :** ALeA is not a production-ready system, so system ' +
       'functionality may change or go away without prior notice. ' +
       'You are participating in this experimental system ' +
       'voluntarily, we hope that the system will enhance your ' +
@@ -51,24 +50,24 @@ export const en = {
       'renumeration and/or difference to the way you are graded or ' +
       'evaluated in the course.',
     notesPoint2:
-      'The system will collect personalized data on all of your ' +
+      '**Data Collection :** The system will collect personalized data on all of your ' +
       'interactions with the system, including ' +
       'click/hover/mouse-movement-streams, page requests, results ' +
       'of quizzes, etc. The system uses this data to generate ' +
       'learning competency models that in turn affect the generated ' +
       'course materials and the interaction with the system.',
     notesPoint3:
-      'Note that personalized data will only be accessible to ' +
+      '**Data Privacy :** Note that personalized data will only be accessible to ' +
       'agents that are authenticated with your personal IDM ' +
       'credentials. In particular, no personal data will be ' +
       'transmitted outside the system without your consent.',
     notesPoint4:
-      'The VoLL-KI research project will use this data in ' +
+      '**Data Use :** The VoLL-KI research project will use this data in ' +
       'aggregated, anonymised, and/or pseudonymized form to ' +
       'evaluate of the system and the underlying methods. We will ' +
       'use best professional effort to make sure that personalized ' +
       'data cannot be re-engineered from aggregated data. Details ' +
-      'about the KI System can be found here',
+      'about the KI System can be found here'+' : [Link](https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/home)',
     guest: {
       encourage:
         'While the VoLL-KI SSFC system is initially intended for FAU students, we ' +
@@ -148,7 +147,7 @@ export const en = {
 
     confirmPurge: 'Confirm Data Purge',
     purgeWarning:
-      'WARNING: This will delete all data the system has on you (learner model, interaction logs, comments, and notes) except for theinformation that/when you purged the data. Your learning experience may be significantly affected.',
+      'WARNING: This will delete all data the system has on you (learner model, interaction logs, comments, and notes) except for the information that/when you purged the data. Your learning experience may be significantly affected.',
     dataPurged: 'Data purged',
     purgeError: 'Some error purging data',
     purge: 'Purge',
@@ -333,7 +332,7 @@ export const en = {
     passwordRegex:
       'Password must contain at least one uppercase letter, one lowercase letter, one digit, and be at least 8 characters long',
     invalidEmail: 'Invalid email address',
-    signUpEmail: 'Sign up with your email address',
+    signUpEmail: 'Sign up to ALeA with your email address',
     signUp: 'SIGN UP',
     alreadyAccount: 'Already have an account?',
     logIn: 'Log in',
@@ -345,5 +344,7 @@ export const en = {
     verifcationMessage:
       'Your email awaits verification. Tap the button to initiate the process and receive the verification email.',
     sendVerifcationBtn: 'Send Verification Email',
+    verificationEmail: 'Verification email sent successfully',
+    somethingWentWrong: 'Something went wrong please try again',
   },
 };
