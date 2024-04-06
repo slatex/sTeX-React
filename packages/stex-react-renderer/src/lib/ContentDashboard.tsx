@@ -13,6 +13,7 @@ import {
 } from '@stex-react/api';
 import {
   CoverageTimeline,
+  PRIMARY_COL,
   convertHtmlStringToPlain,
   createHash,
   localStore,
@@ -146,9 +147,6 @@ function RenderTree({
         display="flex"
         ml={node.children.length > 0 ? undefined : '23px'}
         fontWeight={isSelected ? 'bold' : undefined}
-        sx={{
-          backgroundColor: isSelected ? 'blue' : 'inherit',
-        }}
       >
         {node.children.length > 0 && (
           <IconButton
@@ -167,7 +165,9 @@ function RenderTree({
           style={{
             cursor: 'pointer',
             color: isSelected ? 'white' : undefined,
-            padding: isSelected ? '3px' : undefined,
+            padding: isSelected ? '0 3px' : undefined,
+            backgroundColor: isSelected ? PRIMARY_COL : 'inherit',
+            borderRadius: "3px"
           }}
           onClick={(e) => {
             e.stopPropagation();
