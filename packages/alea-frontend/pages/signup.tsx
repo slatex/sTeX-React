@@ -1,14 +1,14 @@
 import { Box, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
-import { UserSignUpDetail, signUpUser } from '@stex-react/api';
+import { UserSignUpDetail, signUpUser, isLoggedIn } from '@stex-react/api';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
-import { BG_COLOR } from '@stex-react/utils';
+import { BG_COLOR, IS_SERVER } from '@stex-react/utils';
 import { LoginInfoBox } from './login';
 
 export const passwordRegex =
@@ -16,6 +16,7 @@ export const passwordRegex =
 
 const SignUpPage: NextPage = () => {
   const router = useRouter();
+  const loggedIn = isLoggedIn();
   const { login: t, logInSystem: l } = getLocaleObject(router);
   const [formData, setFormData] = useState<UserSignUpDetail>({
     firstName: '',
@@ -107,6 +108,7 @@ const SignUpPage: NextPage = () => {
       console.error('Error signing up:', error.message);
     }
   };
+  if (loggedIn && !IS_SERVER) router.push('/');
   return (
     <MainLayout>
       <Box sx={{ m: 'auto', maxWidth: '700px', px: '10px' }}>
@@ -199,7 +201,7 @@ const SignUpPage: NextPage = () => {
             {l.signUp}
           </Button>
           <br />
-          <Typography>
+          <Typography sx={{ marginBottom: '25px' }}>
             {l.alreadyAccount}{' '}
             <Link href="/login" style={{ color: 'blue' }}>
               {l.logIn}
