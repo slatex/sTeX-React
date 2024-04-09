@@ -30,7 +30,8 @@ export default async function handler(
     COURSE_ID_TO_HISTORICAL = new Map<string, GetHistoricalSyllabusResponse>();
 
     const syllabusFiles = readdirSync(process.env.RECORDED_SYLLABUS_DIR);
-    syllabusFiles.forEach((filename) => {
+    // Reverse the strings so that we get the recent semester first (for a course).
+    syllabusFiles.reverse().forEach((filename) => {
       const match = extractSemesterFromString(filename);
       if (!match) return;
       const { courseId, semester } = match;
