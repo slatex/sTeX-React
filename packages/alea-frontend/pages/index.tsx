@@ -138,7 +138,7 @@ function CourseThumb({ course }: { course: CourseInfo }) {
             </Link>
           </Tooltip>
 
-          {hasQuiz && (
+          {course.isCurrent && hasQuiz && (
             <Tooltip title={t.quizzes}>
               <Link href={quizzesLink} passHref>
                 <ColoredIconButton>

@@ -3,10 +3,8 @@ import {
   CURRENT_TERM,
   CourseInfo,
   FileLocation,
-  convertHtmlNodeToPlain,
   convertHtmlStringToPlain,
-  createCourseInfo,
-  localStore,
+  createCourseInfo
 } from '@stex-react/utils';
 import axios from 'axios';
 
@@ -301,14 +299,14 @@ export async function getDocIdx(mmtUrl: string) {
 }
 
 export async function getCourseInfo(mmtUrl: string) {
-  const filtered = { ...COURSES_INFO };
+/*  const filtered = { ...COURSES_INFO };
 
   // Don't show Luka's course on production.
   if (process.env['NEXT_PUBLIC_SITE_VERSION'] === 'production') {
     delete filtered['f29fa1'];
   }
-  return filtered;
-  /*try {
+  return filtered;*/
+  try {
     const docIdx = await getDocIdx(mmtUrl);
     const courseInfo: { [courseId: string]: CourseInfo } = {};
     for (const doc of docIdx) {
@@ -336,7 +334,7 @@ export async function getCourseInfo(mmtUrl: string) {
   } catch (err) {
     console.log(err);
     return COURSES_INFO;
-  }*/
+  }
 }
 
 export async function getCourseId(
