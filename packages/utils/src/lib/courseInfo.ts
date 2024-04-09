@@ -38,7 +38,7 @@ export function getQuizzesLink(courseId: string) {
   return `/quiz-dash/${courseId}`;
 }
 
-export const CURRENT_TERM = 'WS23/24';
+export const CURRENT_TERM = 'SS24';
 
 export function createCourseInfo(
   courseId: string,
@@ -87,31 +87,31 @@ export const COURSES_INFO: { [courseId: string]: CourseInfo } = {
     'Artifical Intelligence - I',
     'MiKoMH/AI',
     'course/notes/notes1.tex',
-    'course/notes/coursepage1.tex',
-    true,
-    true
+    'course/notes/coursepage1.tex'
   ),
   'ai-2': createCourseInfo(
     'ai-2',
     'Artifical Intelligence - II',
     'MiKoMH/AI',
     'course/notes/notes2.xhtml',
-    'course/notes/coursepage2'
+    'course/notes/coursepage2',
+    true,
+    true
   ),
   'iwgs-1': createCourseInfo(
     'iwgs-1',
     'IWGS - I',
     'MiKoMH/IWGS',
     'course/notes/notes-part1.xhtml',
-    'course/notes/coursepage1',
-    true
+    'course/notes/coursepage1'
   ),
   'iwgs-2': createCourseInfo(
     'iwgs-2',
     'IWGS - II',
     'MiKoMH/IWGS',
     'course/notes/notes-part2.xhtml',
-    'course/notes/coursepage2'
+    'course/notes/coursepage2',
+    true
   ),
   krmt: createCourseInfo(
     'krmt',
@@ -125,26 +125,22 @@ export const COURSES_INFO: { [courseId: string]: CourseInfo } = {
     'Logic-based Natural Language Semantics',
     'MiKoMH/LBS',
     'course/notes/notes.xhtml',
-    'course/notes/coursepage',
-    true
+    'course/notes/coursepage'
   ),
   gdp: createCourseInfo(
     'gdp',
     'Grundlagen der Programmierung',
     'courses/FAU/gdp',
     'course/notes/notes.de.xhtml',
-    'course/notes/coursepage',
-    true,
-    true
+    'course/notes/coursepage'
   ),
   f29fa1: createCourseInfo(
     'f29fa1',
     'Foundations 1',
     'courses/HW/foundations1',
     'mod/lect2-stex.tex',
-    '',
-    false,
-    true)
+    ''
+  ),
 };
 
 export const MaAI_COURSES: {
