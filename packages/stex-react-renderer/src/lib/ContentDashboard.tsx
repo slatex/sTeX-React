@@ -89,7 +89,7 @@ function applyFilterOne(
     if (newChild) newChildren.push(newChild);
   }
   const matchesThisNode = searchTerms.some((term) =>
-    node.tocNode.title.toLowerCase().includes(term)
+    node.tocNode.title?.toLowerCase().includes(term)
   );
   if (newChildren.length === 0 && !matchesThisNode) {
     return undefined;
