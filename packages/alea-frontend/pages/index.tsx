@@ -40,42 +40,30 @@ const aleaFeatures = [
   },
 ];
 
-const partneredUniversities = (router: any) => [
+const PARTNERED_UNIVERSITIES = [
   {
-    name: 'FAU',
+    code: 'FAU',
+    name: 'FAU, Erlangen-Nuremberg',
     logoSrc: '/faulogo.png',
-    altText: 'FAU - Logo',
-    width: 150,
-    height: 150,
-    onClick: () => router.push('/u/FAU'),
   },
   {
-    name: 'IISC Banglore',
+    code: 'IISc',
+    name: 'IISc, Bengaluru',
     logoSrc: '/iisc.png',
-    altText: 'IISC - Logo',
-    width: 140,
-    height: 140,
-    onClick: () => router.push('/u/IISc'),
   },
   {
-    name: 'Jacob',
+    code: 'Jacobs',
+    name: 'Jacobs University, Bremen',
     logoSrc: '/jacoblogo.png',
-    altText: 'Jacob - Logo',
-    width: 140,
-    height: 140,
-    onClick: () => router.push('/u/Jacobs'),
   },
   {
-    name: 'Heriot Watt',
+    code: 'Heriot Watt',
+    name: 'Heriot-Watt University, Edinburgh',
     logoSrc: '/heriott_logo.png',
-    altText: 'Heriot Watt - Logo',
-    width: 130,
-    height: 130,
-    onClick: () => router.push('/u/Heriot Watt'),
   },
 ];
 
-const featuredCourses = [
+const FEATURED_COURSES = [
   {
     courseImage: '/ai-1.jpg',
     courseName: 'AI -1',
@@ -104,84 +92,94 @@ const featuredCourses = [
 const BannerSection = () => {
   const router = useRouter();
   const { home: t } = getLocaleObject(router);
-  const isSmallScreen = useMediaQuery('(max-width:660px)');
+  const isSmallScreen = useMediaQuery('(max-width:800px)');
 
   return (
-    <Box
-      sx={{
-        margin: '0 auto',
-        maxWidth: '1200px',
-        display: 'flex',
-        alignItems: 'center',
-        padding: '100px 0px',
-        justifyContent: 'space-around',
-      }}
-    >
-      <Box>
-        <Typography
-          variant="h1"
-          sx={{
-            paddingBottom: 2,
-            color: PRIMARY_COL,
-            fontFamily: 'sans-serif,roboto',
-          }}
+    <>
+      <Tooltip
+        sx={{ float: 'right' }}
+        title={
+          <Box sx={{ fontSize: 'medium' }}>
+            <span style={{ display: 'block' }}>{t.expIconHover1}</span>
+            <span>{t.expIconHover2}</span>
+          </Box>
+        }
+      >
+        <IconButton
+          sx={{ float: 'right', zIndex: 2 }}
+          size="large"
+          onClick={() => router.push('/exp')}
         >
-          Adaptive learning assistant
-        </Typography>
-        <Typography
-          variant="body1"
-          width="400px"
-          mb="16px"
-          fontFamily={'sans-serif,roboto'}
-          display="flex"
-        >
-          Courses that adapt to the users preferences and competencies focused
-          on the knowledge conveyed in a particular knowledge unit.
-          <Tooltip
-            placement="right-start"
-            title={
-              <Box sx={{ fontSize: 'medium' }}>
-                <span style={{ display: 'block' }}>{t.expIconHover1}</span>
-                <span>{t.expIconHover2}</span>
-              </Box>
-            }
+          <Image
+            height={30}
+            width={30}
+            src="/experiment.svg"
+            alt="Experiments"
+          />
+        </IconButton>
+      </Tooltip>
+      <Box
+        sx={{
+          margin: '0 auto',
+          maxWidth: '1200px',
+          display: 'flex',
+          alignItems: 'center',
+          padding: '50px 20px 100px',
+          justifyContent: 'space-around',
+        }}
+      >
+        <Box>
+          <Typography
+            variant="h2"
+            sx={{
+              paddingBottom: 2,
+              color: PRIMARY_COL,
+              fontFamily: 'sans-serif,roboto',
+            }}
           >
-            <IconButton
-              sx={{ float: 'right', zIndex: 2 }}
-              size="large"
-              onClick={() => router.push('/exp')}
-            >
-              <Image
-                height={30}
-                width={30}
-                src="/experiment.svg"
-                alt="Experiments"
-              />
-            </IconButton>
-          </Tooltip>
-        </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          sx={{ marginRight: 1 }}
-          onClick={() => router.push('/signup')}
-        >
-          Sign up now
-        </Button>
-        <Button variant="outlined" onClick={() => router.push('#courses')}>
-          Explore our courses
-        </Button>
+            Adaptive learning assistant
+          </Typography>
+          <Typography
+            variant="body1"
+            width="400px"
+            mb="16px"
+            fontFamily={'sans-serif,roboto'}
+            display="flex"
+          >
+            Courses that adapt to the users preferences and competencies focused
+            on the knowledge conveyed in a particular knowledge unit.
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ marginRight: 1 }}
+            onClick={() => router.push('/signup')}
+          >
+            Sign up now
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={() => {
+              const element = document.querySelector('#courses');
+              if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+          >
+            Explore our courses
+          </Button>
+        </Box>
+        {!isSmallScreen && (
+          <Image
+            style={{ borderRadius: '50%' }}
+            src={'/collegestudent.jpeg'}
+            width={350}
+            height={350}
+            alt="profile"
+          />
+        )}
       </Box>
-      {!isSmallScreen && (
-        <Image
-          style={{ borderRadius: '50%' }}
-          src={'/collegestudent.png'}
-          width={350}
-          height={350}
-          alt="profile"
-        />
-      )}
-    </Box>
+    </>
   );
 };
 
@@ -210,7 +208,7 @@ function CourseCard({ key, course }) {
     >
       <Image
         height={120}
-        width={200}
+        width={courseId === 'iwgs-1' ? 100 : 200}
         src={courseImage}
         alt="couse-image"
         style={{ borderRadius: '10px' }}
@@ -234,6 +232,7 @@ function CourseCard({ key, course }) {
     </Box>
   );
 }
+
 function AleaFeatures({ img_url, title, description }) {
   return (
     <Box
@@ -268,7 +267,6 @@ function AleaFeatures({ img_url, title, description }) {
 
 const StudentHomePage: NextPage = () => {
   const router = useRouter();
-  const universities = partneredUniversities(router);
   return (
     <MainLayout title="Courses | VoLL-KI">
       <Box m="0 auto">
@@ -283,12 +281,9 @@ const StudentHomePage: NextPage = () => {
                 textAlign: 'center',
               }}
             >
-              Partnered with{' '}
-              <span style={{ color: PRIMARY_COL }}>Top Institutions</span> to
-              produce
-              <span style={{ color: ' green' }}>
-                {' '}
-                Best Quality Education content
+              <b>Top-tier educational content</b> developed at
+              <span style={{ color: PRIMARY_COL }}>
+                <b> esteemed institutions worldwide</b>
               </span>
               .
             </Typography>
@@ -297,10 +292,12 @@ const StudentHomePage: NextPage = () => {
               sx={{
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'space-around ',
+                flexWrap: 'wrap',
+                justifyContent: 'space-around',
+                gap: '20px',
               }}
             >
-              {universities.map((university, index) => (
+              {PARTNERED_UNIVERSITIES.map((university, index) => (
                 <Box
                   key={index}
                   sx={{
@@ -311,13 +308,15 @@ const StudentHomePage: NextPage = () => {
                 >
                   <Image
                     src={university.logoSrc}
-                    alt={university.altText}
-                    width={university.width}
-                    height={university.height}
+                    alt={university.name + ' - logo'}
+                    width={140}
+                    height={140}
                     style={{ cursor: 'pointer' }}
-                    onClick={university.onClick}
+                    onClick={() => router.push(`/u/${university.code}`)}
                   />
-                  <Typography>{university.name}</Typography>
+                  <Typography sx={{ fontWeight: '500' }}>
+                    {university.name}
+                  </Typography>
                 </Box>
               ))}
             </Box>
@@ -398,7 +397,7 @@ const StudentHomePage: NextPage = () => {
               alignItems: 'center',
             }}
           >
-            {featuredCourses.map((course) => (
+            {FEATURED_COURSES.map((course) => (
               <CourseCard key={course.courseId} course={course} />
             ))}
           </Box>
