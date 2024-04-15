@@ -67,7 +67,7 @@ export function PerSectionQuiz({
   }, [startQuiz, problemIds, mmtUrl]);
 
   function handleViewSource(problemId: string) {
-    const [projectId, filePath] = extractProjectIdAndFilepath(problemId); //extractProjectIdAndFilepathFromProblemURI
+    const [projectId, filePath] = extractProjectIdAndFilepath(problemId);
     const sourceLink = sourceFileUrl(projectId, filePath);
     window.open(sourceLink, '_blank');
   }
