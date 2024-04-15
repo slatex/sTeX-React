@@ -1,263 +1,406 @@
-import ArticleIcon from '@mui/icons-material/Article';
-import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
-import QuizIcon from '@mui/icons-material/Quiz';
-import SlideshowIcon from '@mui/icons-material/Slideshow';
-import { Box, Button, Card, IconButton, Tooltip } from '@mui/material';
-import { getCourseInfo } from '@stex-react/api';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import {
-  CURRENT_TERM,
-  CourseInfo,
-  PRIMARY_COL,
-  PRIMARY_COL_DARK_HOVER,
-} from '@stex-react/utils';
+  Box,
+  Button,
+  Typography,
+  useMediaQuery,
+  IconButton,
+  Tooltip,
+} from '@mui/material';
+import { PRIMARY_COL } from '@stex-react/utils';
 import { NextPage } from 'next';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useState, ReactNode } from 'react';
-import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
-import styles from '../styles/utils.module.scss';
-import Diversity3 from '@mui/icons-material/Diversity3';
+import { getLocaleObject } from '../lang/utils';
 
-function ELink({ href, children }: { href: string; children: any }) {
-  return (
-    <a href={href} target="_blank" rel="noreferrer">
-      {children}
-    </a>
-  );
-}
+const aleaFeatures = [
+  {
+    img_url: '/selfpaced.png',
+    title: 'Self paced learning',
+    description:
+      'Empowering students to learn at their own speed, fostering independence and personalized progress.',
+  },
+  {
+    img_url: '/University_Credits.png',
+    title: 'Adaptive learning',
+    description:
+      'Tailoring content and difficulty based on individual student performance, maximizing engagement and comprehension.',
+  },
+  {
+    img_url: '/up.png',
+    title: 'See student progress',
+    description:
+      'Providing real-time insights into student advancement, facilitating targeted support and encouragement.',
+  },
+  {
+    img_url: '/quiz.png',
+    title: 'Live Quizzes',
+    description:
+      'Offering interactive assessments in real-time, promoting active participation and immediate feedback for enhanced learning outcomes.',
+  },
+];
 
-function ColoredIconButton({ children }: { children: ReactNode }) {
-  return (
-    <IconButton
-      sx={{
-        bgcolor: PRIMARY_COL,
-        '&:hover, &.Mui-focusVisible': { bgcolor: PRIMARY_COL_DARK_HOVER },
-      }}
-    >
-      {children}
-    </IconButton>
-  );
-}
+const partneredUniversities = (router: any) => [
+  {
+    name: 'FAU',
+    logoSrc: '/faulogo.png',
+    altText: 'FAU - Logo',
+    width: 150,
+    height: 150,
+    onClick: () => router.push('/u/FAU'),
+  },
+  {
+    name: 'IISC Banglore',
+    logoSrc: '/iisc.png',
+    altText: 'IISC - Logo',
+    width: 140,
+    height: 140,
+    onClick: () => router.push('/u/IISc'),
+  },
+  {
+    name: 'Jacob',
+    logoSrc: '/jacoblogo.png',
+    altText: 'Jacob - Logo',
+    width: 140,
+    height: 140,
+    onClick: () => router.push('/u/Jacobs'),
+  },
+  {
+    name: 'Heriot Watt',
+    logoSrc: '/heriott_logo.png',
+    altText: 'Heriot Watt - Logo',
+    width: 130,
+    height: 130,
+    onClick: () => router.push('/u/Heriot Watt'),
+  },
+];
 
-function CourseThumb({ course }: { course: CourseInfo }) {
+const featuredCourses = [
+  {
+    courseImage: '/ai-1.jpg',
+    courseName: 'AI -1',
+    professor: 'Prof. Michael Kohlhase',
+    courseId: 'ai-1',
+  },
+  {
+    courseImage: '/gdp.png',
+    courseName: 'Grundlagen der Programmierung',
+    professor: 'Prof. Michael Kohlhase',
+    courseId: 'gdp',
+  },
+  {
+    courseImage: '/iwgs-1.jpg',
+    courseName: 'IWGS-1',
+    professor: 'Prof. Michael Kohlhase',
+    courseId: 'iwgs-1',
+  },
+  {
+    courseImage: '/lbs.jpg',
+    courseName: 'Logik-Basierte Sprachverarbeitung',
+    professor: 'Prof. Michael Kohlhase',
+    courseId: 'lbs',
+  },
+];
+const BannerSection = () => {
   const router = useRouter();
-  const { home } = getLocaleObject(router);
-  const t = home.courseThumb;
-  const {
-    courseId,
-    courseName,
-    courseHome,
-    imageLink,
-    notesLink,
-    slidesLink,
-    cardsLink,
-    forumLink,
-    quizzesLink,
-    hasQuiz,
-  } = course;
-  const width = courseId === 'iwgs-1' ? 83 : courseId === 'iwgs-2' ? 165 : 200;
+  const { home: t } = getLocaleObject(router);
+  const isSmallScreen = useMediaQuery('(max-width:660px)');
+
   return (
-    <Card
+    <Box
       sx={{
-        backgroundColor: 'hsl(210, 20%, 95%)',
-        border: '1px solid #CCC',
-        p: '10px',
-        m: '10px',
-        width: '200px',
+        margin: '0 auto',
+        maxWidth: '1200px',
+        display: 'flex',
+        alignItems: 'center',
+        padding: '100px 0px',
+        justifyContent: 'space-around',
       }}
     >
-      <Box
-        display="flex"
-        flexDirection="column"
-        justifyContent="space-between"
-        height="100%"
-      >
-        <Box display="flex" flexDirection="column" alignItems="center">
-          <Link href={courseHome} style={{ textAlign: 'center' }}>
-            <Image
-              src={imageLink}
-              width={width}
-              height={100}
-              alt={courseName}
-              style={{ display: 'block', margin: 'auto' }}
-              priority={true}
-            />
-            <span
-              style={{ fontSize: '16px', marginTop: '5px', fontWeight: 'bold' }}
-            >
-              {courseName.length > 50 ? courseId.toUpperCase() : courseName}
-            </span>
-          </Link>
-        </Box>
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          mt="5px"
-          gap="5px"
-          flexWrap="wrap"
+      <Box>
+        <Typography
+          variant="h1"
+          sx={{
+            paddingBottom: 2,
+            color: PRIMARY_COL,
+            fontFamily: 'sans-serif,roboto',
+          }}
         >
-          <Tooltip title={t.notes}>
-            <Link href={notesLink} passHref>
-              <Button size="small" variant="contained">
-                {t.notes}&nbsp;
-                <ArticleIcon />
-              </Button>
-            </Link>
+          Adaptive learning assistant
+        </Typography>
+        <Typography
+          variant="body1"
+          width="400px"
+          mb="16px"
+          fontFamily={'sans-serif,roboto'}
+          display="flex"
+        >
+          Courses that adapt to the users preferences and competencies focused
+          on the knowledge conveyed in a particular knowledge unit.
+          <Tooltip
+            placement="right-start"
+            title={
+              <Box sx={{ fontSize: 'medium' }}>
+                <span style={{ display: 'block' }}>{t.expIconHover1}</span>
+                <span>{t.expIconHover2}</span>
+              </Box>
+            }
+          >
+            <IconButton
+              sx={{ float: 'right', zIndex: 2 }}
+              size="large"
+              onClick={() => router.push('/exp')}
+            >
+              <Image
+                height={30}
+                width={30}
+                src="/experiment.svg"
+                alt="Experiments"
+              />
+            </IconButton>
           </Tooltip>
-
-          <Tooltip title={t.slides}>
-            <Link href={slidesLink} passHref>
-              <Button size="small" variant="contained">
-                {t.slides}&nbsp;
-                <SlideshowIcon />
-              </Button>
-            </Link>
-          </Tooltip>
-
-          <Tooltip title={home.cardIntro}>
-            <Link href={cardsLink} passHref>
-              <ColoredIconButton>
-                <Image
-                  src="/noun-flash-cards-2494102.svg"
-                  width={25}
-                  height={25}
-                  alt=""
-                />
-              </ColoredIconButton>
-            </Link>
-          </Tooltip>
-
-          <Tooltip title={t.forum}>
-            <Link href={forumLink} passHref>
-              <ColoredIconButton>
-                <QuestionAnswerIcon htmlColor="white" />
-              </ColoredIconButton>
-            </Link>
-          </Tooltip>
-
-          {course.isCurrent && hasQuiz && (
-            <Tooltip title={t.quizzes}>
-              <Link href={quizzesLink} passHref>
-                <ColoredIconButton>
-                  <QuizIcon htmlColor="white" />
-                </ColoredIconButton>
-              </Link>
-            </Tooltip>
-          )}
-
-          <Tooltip title={t.studyBuddy}>
-            <Link href={`/study-buddy/${courseId}`} passHref>
-              <ColoredIconButton>
-                <Diversity3 htmlColor="white" />
-              </ColoredIconButton>
-            </Link>
-          </Tooltip>
-        </Box>
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          sx={{ marginRight: 1 }}
+          onClick={() => router.push('/signup')}
+        >
+          Sign up now
+        </Button>
+        <Button variant="outlined" onClick={() => router.push('#courses')}>
+          Explore our courses
+        </Button>
       </Box>
-    </Card>
+      {!isSmallScreen && (
+        <Image
+          style={{ borderRadius: '50%' }}
+          src={'/collegestudent.png'}
+          width={350}
+          height={350}
+          alt="profile"
+        />
+      )}
+    </Box>
+  );
+};
+
+function CourseCard({ key, course }) {
+  const { courseImage, courseName, professor, courseId } = course;
+  const router = useRouter();
+  return (
+    <Box
+      key={key}
+      sx={{
+        cursor: 'pointer',
+        boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2)',
+        width: '220px',
+        margin: '15px',
+        textAlign: 'center',
+        height: '260px',
+        backgroundColor: 'rgb(237, 237, 237)',
+        borderRadius: '2rem',
+        padding: '1rem',
+        transition: 'transform 0.3s',
+        '&:hover': {
+          transform: 'scale(1.1)',
+        },
+      }}
+      onClick={() => router.push(`/course-home/${courseId}`)}
+    >
+      <Image
+        height={120}
+        width={200}
+        src={courseImage}
+        alt="couse-image"
+        style={{ borderRadius: '10px' }}
+      />
+      <Box sx={{ display: 'flex', flexDirection: 'column', marginTop: '10px' }}>
+        <Typography
+          sx={{
+            fontSize: '18px',
+            fontWeight: 'bold',
+            padding: '10px',
+            color: '#003786',
+          }}
+        >
+          {courseName}
+        </Typography>
+        <Typography sx={{ fontSize: '14px', padding: '5px' }}>FAU</Typography>
+        <Typography sx={{ fontSize: '14px', padding: '5px' }}>
+          {professor}
+        </Typography>
+      </Box>
+    </Box>
   );
 }
-
-function SiteDescription({ lang }: { lang: string }) {
-  if (lang === 'de') {
-    return (
-      <>
-        Das <ELink href="https://voll-ki.fau.de">VoLL-KI-Projekt</ELink> liefert{' '}
-        <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/Adaptive-Course-Materials">
-          KI-erweiterte Kursmaterialien
-        </ELink>{' '}
-        für Kurse in Informatik und Künstlicher Intelligenz an der FAU. Dies
-        sind interaktive Dokumente, die sich an die Präferenzen und Kompetenzen
-        der Benutzer anpassen und sich auf das in einer bestimmten
-        Wissenseinheit vermittelte Wissen konzentrieren.
-      </>
-    );
-  }
-  if (lang === 'en') {
-    return (
-      <>
-        The <ELink href="https://voll-ki.fau.de">VoLL-KI Project</ELink>{' '}
-        supplies{' '}
-        <ELink href="https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/Adaptive-Course-Materials">
-          AI-enhanced course materials
-        </ELink>{' '}
-        for courses in Computer Science and Artificial Intelligence at FAU.
-        These are interactive documents that adapt to the users preferences and
-        competencies focused on the knowledge conveyed in a particular knowledge
-        unit.
-      </>
-    );
-  }
+function AleaFeatures({ img_url, title, description }) {
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        width: '200px',
+        flexDirection: 'column',
+        margin: '50px 20px',
+      }}
+    >
+      <Image src={img_url} height={80} width={80} alt="University_Credits" />
+      <Typography
+        sx={{
+          fontSize: '18px',
+          fontWeight: 'bold',
+          marginTop: '15px',
+          wordWrap: 'break-word',
+          textAlign: 'center',
+        }}
+      >
+        {title}
+      </Typography>
+      <Typography
+        sx={{ fontSize: '12px', color: '#696969', textAlign: 'center' }}
+      >
+        {description}
+      </Typography>
+    </Box>
+  );
 }
 
 const StudentHomePage: NextPage = () => {
   const router = useRouter();
-  const { home: t, studyBuddy: s } = getLocaleObject(router);
-  const { mmtUrl } = useContext(ServerLinksContext);
-  const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
-
-  useEffect(() => {
-    if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
-  }, [mmtUrl]);
-
+  const universities = partneredUniversities(router);
   return (
     <MainLayout title="Courses | VoLL-KI">
-      <Box m="0 auto" maxWidth="800px">
-        <Box mx="10px">
-          <Box className={styles['descriptive-box']}>
-            <Tooltip
-              title={
-                <Box sx={{ fontSize: 'medium' }}>
-                  <span style={{ display: 'block' }}>{t.expIconHover1}</span>
-                  <span>{t.expIconHover2}</span>
+      <Box m="0 auto">
+        <BannerSection />
+        <Box sx={{ backgroundColor: '#F5F5F5', padding: '80px' }}>
+          <Box sx={{ margin: '0 auto', maxWidth: '1200px' }}>
+            <Typography
+              style={{
+                color: '#757575',
+                fontWeight: '400',
+                fontSize: '20px',
+                textAlign: 'center',
+              }}
+            >
+              Partnered with{' '}
+              <span style={{ color: PRIMARY_COL }}>Top Institutions</span> to
+              produce
+              <span style={{ color: ' green' }}>
+                {' '}
+                Best Quality Education content
+              </span>
+              .
+            </Typography>
+            <br />
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-around ',
+              }}
+            >
+              {universities.map((university, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Image
+                    src={university.logoSrc}
+                    alt={university.altText}
+                    width={university.width}
+                    height={university.height}
+                    style={{ cursor: 'pointer' }}
+                    onClick={university.onClick}
+                  />
+                  <Typography>{university.name}</Typography>
                 </Box>
-              }
-            >
-              <IconButton
-                sx={{ float: 'right', zIndex: 2 }}
-                size="large"
-                onClick={() => router.push('/exp')}
-              >
-                <Image
-                  height={30}
-                  width={30}
-                  src="/experiment.svg"
-                  alt="Experiments"
-                />
-              </IconButton>
-            </Tooltip>
-            <h1>{t.header}</h1>
-            <SiteDescription lang={router.locale} />
-          </Box>
-          <br />
-          <Link href="/study-buddy">
-            <Tooltip
-              title={
-                <Box sx={{ fontSize: 'medium' }}>{t.studyBuddyTooltip}</Box>
-              }
-            >
-              <Button variant="contained">{s.studyBuddyMasterCourse}</Button>
-            </Tooltip>
-          </Link>
-
-          <h2>{`${t.courseSection} (${CURRENT_TERM})`}</h2>
-          <Box display="flex" flexWrap="wrap">
-            {Object.values(courses)
-              .filter((course) => course.isCurrent)
-              .map((c) => (
-                <CourseThumb key={c.courseId} course={c} />
               ))}
+            </Box>
           </Box>
-          <h2>{t.otherCourses}</h2>
-          <Box display="flex" flexWrap="wrap">
-            {Object.values(courses)
-              .filter((course) => !course.isCurrent)
-              .map((c) => (
-                <CourseThumb key={c.courseId} course={c} />
-              ))}
+        </Box>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: '300px',
+            padding: '20px',
+            marginTop: '40px',
+            justifyContent: 'center',
+            alignItems: 'center',
+            margin: '0 auto',
+            maxWidth: '1200px',
+          }}
+        >
+          <Typography
+            sx={{
+              textAlign: 'center',
+              fontWeight: 'bold',
+              color: PRIMARY_COL,
+              fontSize: '24px',
+              marginTop: '30px',
+            }}
+          >
+            Why ALeA?
+          </Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+            }}
+          >
+            {aleaFeatures.map((feature, index) => (
+              <AleaFeatures
+                key={index}
+                img_url={feature.img_url}
+                title={feature.title}
+                description={feature.description}
+              />
+            ))}
+          </Box>
+        </Box>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: '300px',
+            padding: '20px',
+            marginTop: '40px',
+            justifyContent: 'center',
+            alignItems: 'center',
+            margin: '0 auto',
+            maxWidth: '1200px',
+          }}
+        >
+          <Typography
+            sx={{
+              fontWeight: 'bold',
+              color: PRIMARY_COL,
+              fontSize: '24px',
+              marginTop: '30px',
+            }}
+          >
+            Explore Courses
+          </Typography>
+          <Box
+            id="courses"
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-around',
+              marginTop: '40px',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+            }}
+          >
+            {featuredCourses.map((course) => (
+              <CourseCard key={course.courseId} course={course} />
+            ))}
           </Box>
         </Box>
       </Box>

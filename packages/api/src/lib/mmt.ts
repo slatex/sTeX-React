@@ -4,7 +4,7 @@ import {
   CourseInfo,
   FileLocation,
   convertHtmlStringToPlain,
-  createCourseInfo
+  createCourseInfo,
 } from '@stex-react/utils';
 import axios from 'axios';
 
@@ -289,17 +289,24 @@ export interface DocIdx {
 }
 
 let CACHED_DOCIDX: DocIdx[] | undefined = undefined;
-export async function getDocIdx(mmtUrl: string) {
+export async function getDocIdx(mmtUrl: string, institution?: string) {
   if (!CACHED_DOCIDX) {
     console.log('getting docidx');
     const resp = await axios.get(`${mmtUrl}/:sTeX/docidx`);
     CACHED_DOCIDX = resp.data as DocIdx[];
   }
-  return CACHED_DOCIDX;
+  console.log('cachedIdx ', CACHED_DOCIDX);
+  if (!institution) {
+    return CACHED_DOCIDX;
+  }
+  const filteredDocIdx = CACHED_DOCIDX.filter(
+    (doc) => doc.institution === institution
+  );
+  return filteredDocIdx;
 }
 
-export async function getCourseInfo(mmtUrl: string) {
-/*  const filtered = { ...COURSES_INFO };
+export async function getCourseInfo(mmtUrl: string, institution?: string) {
+  /*  const filtered = { ...COURSES_INFO };
 
   // Don't show Luka's course on production.
   if (process.env['NEXT_PUBLIC_SITE_VERSION'] === 'production') {
@@ -307,7 +314,7 @@ export async function getCourseInfo(mmtUrl: string) {
   }
   return filtered;*/
   try {
-    const docIdx = await getDocIdx(mmtUrl);
+    const docIdx = await getDocIdx(mmtUrl, institution);
     const courseInfo: { [courseId: string]: CourseInfo } = {};
     for (const doc of docIdx) {
       if (doc.type !== DocIdxType.course) continue;
@@ -326,10 +333,6 @@ export async function getCourseInfo(mmtUrl: string) {
         doc.quizzes ?? false
       );
     }
-    if (Object.keys(courseInfo).length === 0) {
-      console.log('courseInfo is empty');
-      return COURSES_INFO;
-    }
     return courseInfo;
   } catch (err) {
     console.log(err);
@@ -339,9 +342,10 @@ export async function getCourseInfo(mmtUrl: string) {
 
 export async function getCourseId(
   mmtUrl: string,
+  institution: string,
   { archive, filepath }: FileLocation
 ) {
-  const courses = await getCourseInfo(mmtUrl);
+  const courses = await getCourseInfo(mmtUrl, institution);
   for (const [courseId, info] of Object.entries(courses)) {
     if (archive === info.notesArchive && filepath === info.notesFilepath)
       return courseId;

@@ -16,16 +16,9 @@ import { ProblemDisplay } from './ProblemDisplay';
 import { ListStepper } from './QuizDisplay';
 import { getLocaleObject } from './lang/utils';
 import { ServerLinksContext, mmtHTMLToReact } from './stex-react-renderer';
+import { extractProjectIdAndFilepath } from './utils';
 
-function extractProjectIdAndFilepath(problemId: string) {
-  const url = problemId
-    .replace('http://mathhub.info/', '')
-    .replace(/\?en.*/, '');
-  const parts = url.split('/');
-  const projectId = parts[0] + '/' + parts[1];
-  const filePath = parts.slice(2).join('/').replace('.omdoc', '.tex');
-  return [projectId, filePath];
-}
+
 export function PerSectionQuiz({
   archive,
   filepath,
@@ -74,7 +67,7 @@ export function PerSectionQuiz({
   }, [startQuiz, problemIds, mmtUrl]);
 
   function handleViewSource(problemId: string) {
-    const [projectId, filePath] = extractProjectIdAndFilepath(problemId);
+    const [projectId, filePath] = extractProjectIdAndFilepath(problemId); //extractProjectIdAndFilepathFromProblemURI
     const sourceLink = sourceFileUrl(projectId, filePath);
     window.open(sourceLink, '_blank');
   }
