@@ -5,15 +5,15 @@ export const de = {
     otherCourses: 'Weitere Kurse',
     guidedTourHeader: 'Themenbezogen, Freestyle-Lernen',
     studyBuddyTooltip:
-      'Klicken Sie hier, um ganz einfach mit Kommiliton*Innen in Kontakt zu treten, die Ihre Lernziele teilen',
+      'Klicken Sie hier, um ganz einfach mit Kommiliton*Innen in Kontakt zu kommen, die gleiche Kurse besuchen',
     expIconHover1: 'Sehen Sie, was in unserem Labor braut.',
     expIconHover2: 'Äußerste Vorsicht walten lassen!',
     cardIntro:
       '"Flash Cards" unterstützen das Üben und Lernen der Konzepte ' +
       'des Kurses. Den Lernenden werden Karten mit Konzeptnamen gezeigt, ' +
       'die umgedreht werden können, um die Definition anzuzeigen. Die ' +
-      'Lernenden bewerten ihr Konzeptwissen selbst, was uns hilft, ' +
-      'die in Übungen gezeigten Karten zu anzupassen.',
+      'Lernenden bewerten ihr Wissen selbst, was uns hilft, ' +
+      'die angezeigten Karten zu anzupassen.',
     courseThumb: {
       notes: 'Skript',
       cards: 'Karten',
@@ -25,7 +25,7 @@ export const de = {
     newHome: {
       alea: 'Adaptiver Lernassistent',
       aleaDesc:
-        'Kurse, die sich an die Vorlieben und Kompetenzen der Lernenden anpassen und sich auf das in einer bestimmten Wissenseinheit vermittelte Wissen konzentrieren.',
+        'Kurse, die sich an die Präferenzen und Kompetenzen der Lernenden anpassen, abhängig von bestimmten Kursen .',
       signUpNow: 'Jetzt registrieren',
       exploreOurCourse: 'Entdecken Sie unsere Kurse',
       whyAlea: 'Warum ALeA?',
@@ -38,35 +38,35 @@ export const de = {
     alreadyLoggedIn: 'Sie sind bereits eingeloggt.',
     logout: 'Ausloggen',
     fauLogin: 'Melden Sie sich mit dem FAU-IdM an',
-    loginWithEmail: 'Melden Sie sich mit E-Mail an',
+    loginWithEmail: 'Melden Sie sich über E-Mail an',
     fakeLogin: 'Fake-Anmeldung',
     warning: 'Warnung',
     logoutWarning:
       'Durch das Abmelden vom FAU IdM-Portal werden Sie hier NICHT abgemeldet.',
     notesHeader:
-      'Aktive Kursmaterialien beinhalten Lernunterstützungsdienste, die auf einem Modell basieren, das bei jeder Interaktion mit den Materialien aktualisiert wird. Solche Modelle der Vorlieben und Kompetenzen eines Nutzenden enthalten hochsensible **personenbezogene Daten**. Daher werden die Lernunterstützungsdienste (und die entsprechende Sammlung von Nutzendenmodelldaten) nur verwendet, wenn der Nutzende angemeldet ist, und werden sicher und unter ausschließlicher Kontrolle des jeweiligen Nutzenden in der **Voll-KI Trust Zone** gespeichert. Bitte beachten Sie folgende Konsequenzen:',
+      'Interaktive Kursmaterialien beinhalten Lernunterstützungsangebote, die ein Lernendenmodell füllen, das bei jeder Interaktion mit den Materialien aktualisiert wird. Solche Präferenzen der Vorlieben und Kompetenzen eines Nutzenden enthalten hochsensible **personenbezogene Daten**. Daher werden die Lernunterstützungangebote (und die entsprechende Sammlung von Nutzendenmodelldaten) nur aufgerufen, wenn der oder Nutzende angemeldet ist, und sonst sicher und unter ausschließlicher Kontrolle des jeweiligen Nutzenden in der **Voll-KI Trust Zone** gespeichert. Bitte beachten Sie folgende Konsequenzen:',
     notesPoint1:
-      '**Haftungsausschluss :** Dies ist kein fertiges System, daher können sich die Systemfunktionen ohne vorherige Ankündigung ändern oder verschwinden. Sie nehmen freiwillig an diesem experimentellen System teil, wir hoffen, dass das System Ihre Lernerfahrung verbessern wird. Es gibt jedoch keine Vorteile und/oder Unterschiede in der Art und Weise, wie Sie im Kurs benotet oder bewertet werden.',
+      '**Haftungsausschluss :** Dies ist kein fertiges System, daher können sich die Systemfunktionen ohne vorherige Ankündigung ändern oder verschwinden. Sie nehmen freiwillig an diesem experimentellen System teil. Wir hoffen, dass das System Ihre Lernerfahrung verbessern wird. Es gibt jedoch keinen direkten Einfluss darauf, wie Sie im Kurs benotet oder bewertet werden.',
     notesPoint2:
       '**Datensammlung :** Das System sammelt personalisierte Daten über alle Ihre Interaktionen mit dem System, einschließlich Klick-/Hover-/Mausbewegungs-Streams, Seitenanfragen, Ergebnisse von Quizzen usw. Das System verwendet diese Daten, um Lernkompetenzmodelle zu generieren, welche wiederum die angezeigten Kursmaterialien und die Interaktion mit dem System beeinflussen.',
     notesPoint3:
       '**Datenschutz :** Beachten Sie, dass auf personalisierte Daten nur Accounts zugreifen können, die mit Ihren persönlichen Anmeldeinformationen authentifiziert sind. Insbesondere werden ohne Ihre Einwilligung keine personenbezogenen Daten aus dem System heraus übermittelt.',
     notesPoint4:
-      '**Datenverwendung :** Das Forschungsprojekt VoLl-KI wird diese Daten in aggregierter, anonymisierter und/oder pseudonymisierter Form zur Evaluation des Systems und der zugrunde liegenden Methoden verwenden. Wir werden uns nach besten Kräften bemühen, sicherzustellen, dass personalisierte Daten nicht aus aggregierten Daten rekonstruiert werden können. Details zum KI-System finden Sie hier : [Link](https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/home)',
+      '**Datenverwendung :** Das Forschungsprojekt VoLl-KI wird die gesammelten Daten in aggregierter, anonymisierter und/oder pseudonymisierter Form zur Evaluation des Systems und der zugrunde liegenden Methoden verwenden. Wir bemühen uns sicherzustellen, dass personenbezogene Daten nicht aus aggregierten Daten rekonstruiert werden können. Details zum KI-System finden Sie hier : [Link](https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/home)',
     guest: {
       encourage:
-        'Während das VoLl-KI ALeA-System zunächst für Studierende der FAU gedacht ist, arbeiten wir daran, unser Angebot auf mehr Lernende auszudehnen. In der Zwischenzeit empfehlen wir Ihnen, sich als Gast anzumelden und das System zu testen.',
+        'Während das VoLl-KI ALeA-System zunächst für Studierende der FAU gedacht ist, arbeiten wir daran, unser Angebot auf weitere Lernende auszudehnen. In der Zwischenzeit empfehlen wir Ihnen, sich als Gast anzumelden, um das System zu testen.',
       entryButton: 'Gast-Login',
       chooseLearnerHelperText:
         'Die Inhalte der Plattform sind auf die Kompetenzen der Lernenden zugeschnitten. Bitte wählen Sie oben eine Beispiel-Persona aus, um zu beginnen.',
-      personaSelect: 'Wählen Sie eine Persona',
+      personaSelect: 'Wählen Sie eine Person',
       guestIdText: 'Gast-ID',
       guestNameText: 'Gast-Username',
       loginButton: 'Als Gast einloggen',
     },
   },
   flashCards: {
-    header: 'Konfigurieren Sie Ihren Lernkartenstapel zum Lernen/Üben!',
+    header: 'Konfigurieren Sie Ihren Flashcard-Auswahl zum Lernen/Üben!',
     chooseCoverage: 'Wählen Sie ein Kartenset',
     chooseCoverageHover:
       'Wählen Sie die Karten im Stapel nach Kurskapiteln aus',
@@ -129,7 +129,7 @@ export const de = {
     dataDeletion: 'Datenlöschung',
     purgeData: 'Löschen Sie Ihre Daten',
 
-    choosePersona: 'Wählen Sie eine Persona',
+    choosePersona: 'Wählen Sie eine Person',
     resetFake: 'Fake-Benutzungsdaten zurücksetzen',
 
     confirmPurge: 'Bestätigen Sie die Datenlöschung',
