@@ -73,7 +73,7 @@ const FEATURED_COURSES = [
   {
     courseImage: '/gdp.png',
     courseName: 'Grundlagen der Programmierung',
-    professor: 'Michael Kohlhase',
+    professor: 'Vanessa Klein',
     courseId: 'gdp',
   },
   {
@@ -85,7 +85,7 @@ const FEATURED_COURSES = [
   {
     courseImage: '/lbs.jpg',
     courseName: 'Logik-Basierte Sprachverarbeitung',
-    professor: 'Vanessa Klein',
+    professor: 'Michael Kohlhase',
     courseId: 'lbs',
   },
 ];
