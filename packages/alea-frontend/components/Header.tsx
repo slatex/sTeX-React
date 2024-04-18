@@ -178,7 +178,17 @@ export function Header({
     >
       <Toolbar className={styles['toolbar']} sx={{ background }}>
         <Link href="/" passHref>
-          <Tooltip title={t.headerWarning}>
+          <Tooltip
+            placement='right'
+            title={
+              <Tooltip title={t.headerWarning}>
+                <WarningIcon
+                  fontSize="large"
+                  sx={{ cursor: 'pointer', color: '#e20' }}
+                />
+              </Tooltip>
+            }
+          >
             <Box display="flex" flexWrap="nowrap" alignItems="center">
               <Image
                 src="/alea-logo.svg"
@@ -187,10 +197,6 @@ export function Header({
                 height={64}
                 style={{ cursor: 'pointer' }}
                 priority={true}
-              />
-              <WarningIcon
-                fontSize="large"
-                sx={{ cursor: 'pointer', color: '#e20' }}
               />
             </Box>
           </Tooltip>
