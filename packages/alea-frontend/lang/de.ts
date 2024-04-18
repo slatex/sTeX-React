@@ -22,6 +22,17 @@ export const de = {
       quizzes: 'Quizze',
       studyBuddy: 'Study Buddy',
     },
+    newHome: {
+      alea: 'Adaptiver Lernassistent',
+      aleaDesc:
+        'Kurse, die sich an die Vorlieben und Kompetenzen der Benutzer anpassen und sich auf das in einer bestimmten Wissenseinheit vermittelte Wissen konzentrieren.',
+      signUpNow: 'Jetzt registrieren',
+      exploreOurCourse: 'Entdecken Sie unsere Kurse',
+      whyAlea: 'Warum ALeA?',
+      explorCourses: 'Kurse erkunden',
+      partneredWith:
+        'Hochwertige Bildungsinhalte + entwickelt an + angesehenen Institutionen weltweit',
+    },
   },
   login: {
     alreadyLoggedIn: 'Du bist bereits eingeloggt.',

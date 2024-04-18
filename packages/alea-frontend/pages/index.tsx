@@ -1,17 +1,17 @@
 import {
   Box,
   Button,
-  Typography,
-  useMediaQuery,
   IconButton,
   Tooltip,
+  Typography,
+  useMediaQuery,
 } from '@mui/material';
 import { PRIMARY_COL } from '@stex-react/utils';
 import { NextPage } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import MainLayout from '../layouts/MainLayout';
 import { getLocaleObject } from '../lang/utils';
+import MainLayout from '../layouts/MainLayout';
 
 const aleaFeatures = [
   {
@@ -65,33 +65,36 @@ const PARTNERED_UNIVERSITIES = [
 
 const FEATURED_COURSES = [
   {
-    courseImage: '/ai-1.jpg',
-    courseName: 'AI -1',
-    professor: 'Prof. Michael Kohlhase',
-    courseId: 'ai-1',
+    courseImage: '/ai-2.jpg',
+    courseName: 'AI -2',
+    professor: 'Dennis Müller',
+    courseId: 'ai-2',
   },
   {
     courseImage: '/gdp.png',
     courseName: 'Grundlagen der Programmierung',
-    professor: 'Prof. Michael Kohlhase',
+    professor: 'Michael Kohlhase',
     courseId: 'gdp',
   },
   {
     courseImage: '/iwgs-1.jpg',
     courseName: 'IWGS-1',
-    professor: 'Prof. Michael Kohlhase',
+    professor: 'Michael Kohlhase',
     courseId: 'iwgs-1',
   },
   {
     courseImage: '/lbs.jpg',
     courseName: 'Logik-Basierte Sprachverarbeitung',
-    professor: 'Prof. Michael Kohlhase',
+    professor: 'Vanessa Klein',
     courseId: 'lbs',
   },
 ];
 const BannerSection = () => {
   const router = useRouter();
-  const { home: t } = getLocaleObject(router);
+  const {
+    home: t,
+    home: { newHome: n },
+  } = getLocaleObject(router);
   const isSmallScreen = useMediaQuery('(max-width:800px)');
 
   return (
@@ -137,17 +140,16 @@ const BannerSection = () => {
               fontFamily: 'sans-serif,roboto',
             }}
           >
-            Adaptive learning assistant
+            {n.alea}
           </Typography>
           <Typography
             variant="body1"
-            width="400px"
+            maxWidth="400px"
             mb="16px"
             fontFamily={'sans-serif,roboto'}
             display="flex"
           >
-            Courses that adapt to the users preferences and competencies focused
-            on the knowledge conveyed in a particular knowledge unit.
+            {n.aleaDesc}
           </Typography>
           <Button
             variant="contained"
@@ -155,7 +157,7 @@ const BannerSection = () => {
             sx={{ marginRight: 1 }}
             onClick={() => router.push('/signup')}
           >
-            Sign up now
+            {n.signUpNow}
           </Button>
           <Button
             variant="outlined"
@@ -166,13 +168,13 @@ const BannerSection = () => {
               }
             }}
           >
-            Explore our courses
+            {n.exploreOurCourse}
           </Button>
         </Box>
         {!isSmallScreen && (
           <Image
             style={{ borderRadius: '50%' }}
-            src={'/collegestudent.jpeg'}
+            src={'/student.jpg'}
             width={350}
             height={350}
             alt="profile"
@@ -267,6 +269,9 @@ function AleaFeatures({ img_url, title, description }) {
 
 const StudentHomePage: NextPage = () => {
   const router = useRouter();
+  const {
+    home: { newHome: n },
+  } = getLocaleObject(router);
   return (
     <MainLayout title="Courses | VoLL-KI">
       <Box m="0 auto">
@@ -281,9 +286,10 @@ const StudentHomePage: NextPage = () => {
                 textAlign: 'center',
               }}
             >
-              <b>Top-tier educational content</b> developed at
+              <b>{n.partneredWith.split('+')[0]}</b>{' '}
+              {n.partneredWith.split('+')[1]}
               <span style={{ color: PRIMARY_COL }}>
-                <b> esteemed institutions worldwide</b>
+                <b> {n.partneredWith.split('+')[2]}</b>
               </span>
               .
             </Typography>
@@ -344,7 +350,7 @@ const StudentHomePage: NextPage = () => {
               marginTop: '30px',
             }}
           >
-            Why ALeA?
+            {n.whyAlea}
           </Typography>
           <Box
             sx={{
@@ -385,7 +391,7 @@ const StudentHomePage: NextPage = () => {
               marginTop: '30px',
             }}
           >
-            Explore Courses
+            {n.explorCourses}
           </Typography>
           <Box
             id="courses"

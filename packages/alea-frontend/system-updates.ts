@@ -6,7 +6,17 @@ export const SYSTEM_UPDATES = [
     header_de: '',
     content_de: '',
     postedTimestamp: '2023-02-11T00:20:00+05:30',
-  },*/
+  }*/
+  {
+    id: 'new-homepage',
+    header: 'Welcome to Our New Homepage!',
+    content:
+      "We're excited to announce the launch of our revamped homepage! Discover a wide range of top-rated courses offered by our partnered universities.",
+    header_de: 'Willkommen auf unserer neuen Startseite!',
+    content_de:
+      'Wir freuen uns, die Veröffentlichung unserer überarbeiteten Startseite bekannt zu geben! Entdecken Sie eine Vielzahl von erstklassigen Kursen, die von unseren Partneruniversitäten angeboten werden.',
+    postedTimestamp: '2024-04-16T00:20:00+05:30',
+  },
   {
     id: 'Email-password login added',
     header: 'Email-password login added',

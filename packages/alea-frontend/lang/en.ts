@@ -23,6 +23,17 @@ export const en = {
       quizzes: 'Quizzes',
       studyBuddy: 'Study Buddy',
     },
+    newHome: {
+      alea: 'Adaptive Learning Assistant',
+      aleaDesc:
+        'Courses that adapt to the users preferences and competencies focused on the knowledge conveyed in a particular knowledge unit.',
+      signUpNow: 'Sign up now',
+      exploreOurCourse: 'Explore our Courses',
+      whyAlea: 'Why ALeA?',
+      explorCourses: 'Explore Courses',
+      partneredWith:
+        'Top-tier educational content + developed at + esteemed institutions worldwide',
+    },
   },
   login: {
     alreadyLoggedIn: 'You are already logged in.',
@@ -67,7 +78,8 @@ export const en = {
       'evaluate of the system and the underlying methods. We will ' +
       'use best professional effort to make sure that personalized ' +
       'data cannot be re-engineered from aggregated data. Details ' +
-      'about the KI System can be found here'+' : [Link](https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/home)',
+      'about the KI System can be found here' +
+      ' : [Link](https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/home)',
     guest: {
       encourage:
         'While the VoLL-KI SSFC system is initially intended for FAU students, we ' +
