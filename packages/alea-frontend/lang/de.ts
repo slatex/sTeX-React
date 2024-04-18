@@ -1,18 +1,18 @@
 export const de = {
   home: {
-    header: 'VoLL-KI-basierte Kurse an der FAU',
+    header: 'VoLl-KI-basierte Kurse an der FAU',
     courseSection: 'Aktuelles Semester',
     otherCourses: 'Weitere Kurse',
     guidedTourHeader: 'Themenbezogen, Freestyle-Lernen',
     studyBuddyTooltip:
-      'Klicken Sie hier, um ganz einfach mit Kommilitonen in Kontakt zu treten, die Ihre Lernziele teilen',
+      'Klicken Sie hier, um ganz einfach mit Kommiliton*Innen in Kontakt zu treten, die Ihre Lernziele teilen',
     expIconHover1: 'Sehen Sie, was in unserem Labor braut.',
     expIconHover2: 'Äußerste Vorsicht walten lassen!',
     cardIntro:
       '"Flash Cards" unterstützen das Üben und Lernen der Konzepte ' +
       'des Kurses. Den Lernenden werden Karten mit Konzeptnamen gezeigt, ' +
       'die umgedreht werden können, um die Definition anzuzeigen. Die ' +
-      'Lernenden bewerten ihre Konzeptwissen selbst, was uns hilft, ' +
+      'Lernenden bewerten ihr Konzeptwissen selbst, was uns hilft, ' +
       'die in Übungen gezeigten Karten zu anzupassen.',
     courseThumb: {
       notes: 'Skript',
@@ -25,7 +25,7 @@ export const de = {
     newHome: {
       alea: 'Adaptiver Lernassistent',
       aleaDesc:
-        'Kurse, die sich an die Vorlieben und Kompetenzen der Benutzer anpassen und sich auf das in einer bestimmten Wissenseinheit vermittelte Wissen konzentrieren.',
+        'Kurse, die sich an die Vorlieben und Kompetenzen der Lernenden anpassen und sich auf das in einer bestimmten Wissenseinheit vermittelte Wissen konzentrieren.',
       signUpNow: 'Jetzt registrieren',
       exploreOurCourse: 'Entdecken Sie unsere Kurse',
       whyAlea: 'Warum ALeA?',
@@ -35,31 +35,31 @@ export const de = {
     },
   },
   login: {
-    alreadyLoggedIn: 'Du bist bereits eingeloggt.',
+    alreadyLoggedIn: 'Sie sind bereits eingeloggt.',
     logout: 'Ausloggen',
-    fauLogin: 'Melden Sie sich mit der FAU-IdM an',
-    loginWithEmail: 'Melden Sie sich mit E-MAIL an',
-    fakeLogin: 'Falsche Anmeldung',
+    fauLogin: 'Melden Sie sich mit dem FAU-IdM an',
+    loginWithEmail: 'Melden Sie sich mit E-Mail an',
+    fakeLogin: 'Fake-Anmeldung',
     warning: 'Warnung',
     logoutWarning:
       'Durch das Abmelden vom FAU IdM-Portal werden Sie hier NICHT abgemeldet.',
     notesHeader:
       'Aktive Kursmaterialien beinhalten Lernunterstützungsdienste, die auf einem Modell basieren, das bei jeder Interaktion mit den Materialien aktualisiert wird. Solche Modelle der Vorlieben und Kompetenzen eines Nutzenden enthalten hochsensible **personenbezogene Daten**. Daher werden die Lernunterstützungsdienste (und die entsprechende Sammlung von Nutzendenmodelldaten) nur verwendet, wenn der Nutzende angemeldet ist, und werden sicher und unter ausschließlicher Kontrolle des jeweiligen Nutzenden in der **Voll-KI Trust Zone** gespeichert. Bitte beachten Sie folgende Konsequenzen:',
     notesPoint1:
-      '**Haftungsausschluss :** Dies ist kein fertiges System, daher können sich die Systemfunktionen ohne vorherige Ankündigung ändern oder verschwinden. Sie nehmen freiwillig an diesem experimentellen System teil, wir hoffen, dass das System Ihre Lernerfahrung und Ihren Erfolg verbessern wird. Es gibt jedoch keine Vorteile und/oder Unterschiede in der Art und Weise, wie Sie im Kurs benotet oder bewertet werden.',
+      '**Haftungsausschluss :** Dies ist kein fertiges System, daher können sich die Systemfunktionen ohne vorherige Ankündigung ändern oder verschwinden. Sie nehmen freiwillig an diesem experimentellen System teil, wir hoffen, dass das System Ihre Lernerfahrung verbessern wird. Es gibt jedoch keine Vorteile und/oder Unterschiede in der Art und Weise, wie Sie im Kurs benotet oder bewertet werden.',
     notesPoint2:
-      '**Datensammlung :** Das System sammelt personalisierte Daten über alle Ihre Interaktionen mit dem System, einschließlich Klick-/Hover-/Mausbewegungs-Streams, Seitenanfragen, Ergebnisse von Quiz usw. Das System verwendet diese Daten, um Lernkompetenzmodelle zu generieren, welche wiederum die angezeigten Kursmaterialien und die Interaktion mit dem System beeinflussen.',
+      '**Datensammlung :** Das System sammelt personalisierte Daten über alle Ihre Interaktionen mit dem System, einschließlich Klick-/Hover-/Mausbewegungs-Streams, Seitenanfragen, Ergebnisse von Quizzen usw. Das System verwendet diese Daten, um Lernkompetenzmodelle zu generieren, welche wiederum die angezeigten Kursmaterialien und die Interaktion mit dem System beeinflussen.',
     notesPoint3:
-      '**Datenschutz :** Beachten Sie, dass auf personalisierte Daten nur Accounts zugreifen können, die mit Ihren persönlichen IDM-Anmeldeinformationen authentifiziert sind. Insbesondere werden ohne Ihre Einwilligung keine personenbezogenen Daten aus dem System heraus übermittelt.',
+      '**Datenschutz :** Beachten Sie, dass auf personalisierte Daten nur Accounts zugreifen können, die mit Ihren persönlichen Anmeldeinformationen authentifiziert sind. Insbesondere werden ohne Ihre Einwilligung keine personenbezogenen Daten aus dem System heraus übermittelt.',
     notesPoint4:
-      '**Datenverwendung :** Das Forschungsprojekt VoLL-KI wird diese Daten in aggregierter, anonymisierter und/oder pseudonymisierter Form zur Evaluation des Systems und der zugrunde liegenden Methoden verwenden. Wir werden uns nach besten Kräften bemühen, sicherzustellen, dass personalisierte Daten nicht aus aggregierten Daten rekonstruiert werden können. Details zum KI-System finden Sie hier : [Link](https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/home)',
+      '**Datenverwendung :** Das Forschungsprojekt VoLl-KI wird diese Daten in aggregierter, anonymisierter und/oder pseudonymisierter Form zur Evaluation des Systems und der zugrunde liegenden Methoden verwenden. Wir werden uns nach besten Kräften bemühen, sicherzustellen, dass personalisierte Daten nicht aus aggregierten Daten rekonstruiert werden können. Details zum KI-System finden Sie hier : [Link](https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/home)',
     guest: {
       encourage:
-        'Während das VoLL-KI ALEA-System zunächst für Studierende der FAU gedacht ist, arbeiten wir daran, unser Angebot auf mehr Lernende auszudehnen. In der Zwischenzeit empfehlen wir Ihnen, sich als Gast anzumelden und das System zu testen.',
+        'Während das VoLl-KI ALeA-System zunächst für Studierende der FAU gedacht ist, arbeiten wir daran, unser Angebot auf mehr Lernende auszudehnen. In der Zwischenzeit empfehlen wir Ihnen, sich als Gast anzumelden und das System zu testen.',
       entryButton: 'Gast-Login',
       chooseLearnerHelperText:
-        'Die Inhalte der Plattform sind auf die Kompetenzen der Lernenden zugeschnitten. Bitte wählen Sie oben eine Beispiel-Person aus, um zu beginnen.',
-      personaSelect: 'Wählen Sie eine Person',
+        'Die Inhalte der Plattform sind auf die Kompetenzen der Lernenden zugeschnitten. Bitte wählen Sie oben eine Beispiel-Persona aus, um zu beginnen.',
+      personaSelect: 'Wählen Sie eine Persona',
       guestIdText: 'Gast-ID',
       guestNameText: 'Gast-Username',
       loginButton: 'Als Gast einloggen',
@@ -109,7 +109,7 @@ export const de = {
       'Auf dieser Seite erhalten Sie einen Überblick über die kommenden Tests in den {courseId}-Vorlesungen. Beachten Sie, dass die Start- und Endzeiten streng sind. Seien Sie also pünktlich.',
     this: 'Dies',
     demoQuizText:
-      'ist ein Demo-Quiz - damit Sie Ihre Hard-/Software testen (Sie benötigen einen aktuellen Chrome- oder Firefox-Browser) und das Format sehen können. Insbesondere sollten Sie in der Lage sein, die Mathematik im Problem des Handlungsreisenden zu lesen.',
+      'ist ein Demo-Quiz - damit Sie Ihre Hard-/Software testen (Sie benötigen einen aktuellen Chrome- oder Firefox-Browser) und die Formatierung sehen können. Insbesondere sollten Sie in der Lage sein, die mathematische Notation im Problem des Handlungsreisenden zu lesen.',
     practiceProblems: 'Übungsprobleme',
   },
   vis: {
@@ -121,7 +121,7 @@ export const de = {
   myProfile: {
     myNotes: 'Meine Notizen',
     myCompetencyData: 'Meine Kompetenzdaten',
-    learnerModelPriming: 'Grundierung des Lernmodells',
+    learnerModelPriming: 'Fundament des Lernendenmodells',
 
     downloadData: 'Laden Sie Ihre Daten herunter',
     downloadNotes: 'Laden Sie Ihre Notizen und Kommentare herunter',
@@ -129,18 +129,18 @@ export const de = {
     dataDeletion: 'Datenlöschung',
     purgeData: 'Löschen Sie Ihre Daten',
 
-    choosePersona: 'Wählen Sie eine Person',
+    choosePersona: 'Wählen Sie eine Persona',
     resetFake: 'Fake-Benutzungsdaten zurücksetzen',
 
     confirmPurge: 'Bestätigen Sie die Datenlöschung',
     purgeWarning:
       'WARNUNG: Dadurch werden alle Daten gelöscht, die das System über Sie hat (Lernendenmodell, Interaktionsprotokolle, Kommentare und Notizen), mit Ausnahme der Informationen, dass/wann Sie die Daten gelöscht haben. Ihre Lernerfahrung kann erheblich beeinträchtigt werden.',
     dataPurged: 'Daten gelöscht',
-    purgeError: 'Einige Fehler beim Löschen von Daten',
+    purgeError: 'Fehler beim Löschen von Daten',
     purge: 'Säubern',
     cancel: 'Stornieren',
     confirmation: 'Bestätigung',
-    confirmText: 'Meine Daten tilgen',
+    confirmText: 'Meine Daten löschen',
     purgeInstruction:
       'Geben Sie diesen Text zur Bestätigung in das Feld unten ein',
   },
@@ -149,21 +149,21 @@ export const de = {
     description1:
       'Anhand Ihrer Interaktionen mit dem System bemühen wir uns, Ihre Kompetenz in Bezug auf verschiedene Konzepte einzuschätzen. Wir verwenden das erweiterte Bloom-Modell ',
     description2:
-      ', der Lernerkompetenzen für jedes Konzept in sechs kognitive Dimensionen einteilt. Als Folge sehen Sie sechs Wahrscheinlichkeitswerte, die die vorhergesagte Kompetenz dieses Konzepts darstellen. Dieses Kompetenzmodell (auch bekannt als Learner-Modell) wird in allen semantischen Diensten im VoLL-KI SSFC-System verwendet.',
+      ', welches Lernerkompetenzen für jedes Konzept in sechs kognitive Dimensionen einteilt. Als Folge sehen Sie sechs Werte, die die vorhergesagte Kompetenz dieses Konzepts darstellen. Dieses Kompetenzmodell (auch bekannt als Lernenden-Modell) wird in allen semantischen Diensten im VoLl-KI SSFC-System verwendet.',
   },
   courseView: {
     notes: 'Notizen',
-    instructorNotes: 'Notizen des Lehrenden',
+    instructorNotes: 'Notizen der Lehrenden',
     showSlides: 'Folien anzeigen',
-    showVideo: 'Videos zeigen',
-    showSlidesAndVideo: 'Zeigen Sie Folien und Videos',
+    showVideo: 'Videos anzeigen',
+    showSlidesAndVideo: 'Folien und Videos anzeigen',
     courseContent: 'Kursinhalt',
     personalizedSuggestion: 'Personalisierter Vorschlag',
   },
   forum: {
-    showReferredContent: 'Verwiesene Inhalte anzeigen',
+    showReferredContent: 'Verlinkte Inhalte anzeigen',
     askAQuestion: 'Stellen Sie eine Frage',
-    post: 'Post',
+    post: 'Abschicken',
     postAnonymously: 'Anonym posten',
     enterQuestion: 'Schreiben Sie hier Ihre Frage...',
     showRemarks: 'Bemerkungen anzeigen',
@@ -172,7 +172,7 @@ export const de = {
   // Multi-Page Components
   header: {
     headerWarning:
-      'WARNUNG: Research Prototype, er kann sich schlecht benehmen, abstürzen, Daten löschen, ... oder Sie sogar jederzeit ohne Vorwarnung glücklich machen!',
+      'WARNUNG: Forschungs-Prototyp! Kann sich schlecht benehmen, abstürzen, Daten löschen, ... oder Sie sogar jederzeit ohne Vorwarnung glücklich machen!',
     login: 'Anmeldung',
     profile: 'Profil',
     logOut: 'Ausloggen',
@@ -182,18 +182,18 @@ export const de = {
     changeLanguage: 'Sprache ändern',
   },
   learnerModelPriming: {
-    learnerModelPriming: 'Lernermodell-Vorbereitung',
+    learnerModelPriming: 'Lernermodell-Fundierung',
     loginToContinue:
       'Bitte melden Sie sich an (mit Ihren FAU IDM-Zugangsdaten), um fortzufahren',
     intro:
       'Ein Großteil der ALeA-Dienste hängt von der Qualität der Daten im ALeA-Lernendenmodell ' +
-      'ab. Das Lernendenmodell repräsentiert das Wissen bzw. die Kompetenz der Lernenden in ' +
+      'ab. Das Lernendenmodell repräsentiert das Wissen bzw. die Kompetenz der Lernenden im ' +
       'Bezug auf die Konzepte, die den Lernmaterialien zugrunde liegen. Die Daten im Modell ' +
       'basieren auf Aktivitäten der Lernenden im ALeA-System. Damit wir Ihnen möglichst von ' +
       'Anfang an die für Sie passenden Inhalte anbieten können, können Sie hier Ihre bisherigen ' +
       'Noten für die verschiedenen Module eintragen.',
     disclaimer:
-      'Die Noten, die sie unten eingeben, werden anonym gespeichert und nur für das ' +
+      'Die Noten, die sie unten eingeben, werden gespeichert und nur für das ' +
       'Lernendenmodell verwendet. Sie haben keinen Einfluss auf Ihre spätere Benotung in der ' +
       'Lehrveranstaltung und sind für die Lehrenden nicht einsehbar. Die Eingabe dient ' +
       'lediglich dazu, Ihnen ein besseres Lernerlebnis zu ermöglichen.',
@@ -226,49 +226,49 @@ export const de = {
   },
   studyBuddy: {
     fillForm:
-      'Füllen Sie das folgende Formular aus, um Freunde zum gemeinsamen Lernen zu finden.',
+      'Füllen Sie das folgende Formular aus, um Partner zum gemeinsamen Lernen zu finden.',
     agreementText:
-      'Ich verstehe, dass diese Informationen verwendet werden, um andere Benutzer von Study Buddy Connect zu finden und mit ihnen in Kontakt zu treten.',
+      'Ich verstehe, dass diese Informationen verwendet werden, um andere Nutzende von Study Buddy Connect zu finden und mit ihnen in Kontakt zu treten.',
     join: 'Verbinden',
     update: 'Aktualisieren',
     loginToContinue:
       'Bitte melden Sie sich an (mit Ihren FAU IDM-Zugangsdaten), um fortzufahren',
     discard: 'Verwerfen',
     myProfile: 'Mein Profil',
-    editInfo: 'Bearbeitungs Info',
+    editInfo: 'Informationen bearbeiten',
     reJoin: 'Wieder beitreten',
     optOut: 'Opt-out',
     notActive:
-      "Sie haben sich für diesen Kurs vom Study Buddy-Programm abgemeldet. Klicken Sie bitte auf 'Wieder beitreten', um nach Studienfreunden zu suchen.",
+      "Sie haben sich für diesen Kurs vom Study Buddy-Programm abgemeldet. Klicken Sie bitte auf 'Wieder beitreten', um nach Study Buddies zu suchen.",
 
     semester: 'semester',
     dayPreference: 'Tag Präferenz',
     meetPreference: 'Treffen Präferenz',
     languages: 'Sprachen',
 
-    connected: 'Angeschlossen',
+    connected: 'Verbunden',
     connectedSubtext:
       'Diese Lernenden haben Interesse an einer gemeinsamen Lerngruppe. Bitte treten Sie mit ihnen in Kontakt (senden Sie ihnen eine E-Mail).',
 
     requestReceived: 'Anfrage erhalten',
     requestReceivedSubtext:
-      'Diese Lernenden haben eine Anfrage gesandt, um sich mit Ihnen zu verbinden. Sobald Sie ihre Anfrage akzeptieren, können Sie sich mit ihnen per E-Mail verbinden.',
+      'Diese Lernenden haben eine Anfrage geschickt, um sich mit Ihnen zu verbinden. Sobald Sie ihre Anfrage akzeptieren, können Sie ihnen eine E-Mail schreiben.',
 
     requestSent: 'Anfrage gesendet',
     requestSentSubtext:
       'Sie haben diesen Lernenden eine Verbindungsanfrage gesendet. Bitte warten Sie darauf, dass diese Ihre Anfrage akzeptieren.',
 
-    lookingFor: 'Lernende suchen nach einem Lernpartner',
+    lookingFor: 'Lernende suchen nach einem Study Buddy',
     lookingForSubtext:
-      'Diese Lernenden suchen nach einem Lernpartner. Bitte senden Sie ihnen eine Verbindungsanfrage.',
+      'Diese Lernenden suchen nach einem Study Buddy. Bitte senden Sie ihnen eine Anfrage.',
 
     optOutPrompt:
-      'Sind Sie sicher, dass Sie das Lernpartner-Programm für $1 verlassen möchten?',
-    haveEnrolled: 'Sie nehmen am Lernpartner-Programm für $1 teil.',
+      'Sind Sie sicher, dass Sie das Study Buddy-Programm für $1 verlassen möchten?',
+    haveEnrolled: 'Sie nehmen am Study Buddy-Programm für $1 teil.',
     connectedAlert: 'Sie haben eine Verbindung zu $1 hergestellt.',
     connectionRequestCancelled:
-      'Die Verbindungsanfrage zu $1 wurde abgebrochen.',
-    connectionRequestSent: 'Verbindungsanfrage an $1 gesendet.',
+      'Die Anfrage zu $1 wurde abgebrochen.',
+    connectionRequestSent: 'Anfrage an $1 gesendet.',
 
     introLabel: 'Stellen Sie sich vor',
     studyProgramLabel: 'Studiengang (z. B. Master in Informatik)',
@@ -280,7 +280,7 @@ export const de = {
     languagesLabel: 'Sprachen, die Sie sprechen',
 
     emailWarning:
-      'Ihre E-Mail-Adresse wird nur mit den Benutzern geteilt, mit denen Sie eine Verbindung herstellen möchten.',
+      'Ihre E-Mail-Adresse wird nur mit Personen geteilt, mit denen Sie eine Verbindung herstellen möchten.',
 
     insightHeading: 'Studiengruppen-Einblicke',
     totalUsers: 'Gesamtbenutzer',
@@ -296,8 +296,8 @@ export const de = {
     studyBuddyMasterCourse: 'Study Buddy-Programm für Master-KI-Kurse',
     myEnrolledCourses: 'Meine eingeschriebenen Kurse',
     studyBuddyIntro:
-      'Durch die Bildung und Pflege von Lerngruppen wird die Studienleistung deutlich gesteigert. Doch angesichts der zunehmenden Bedeutung des digitalen Lernens kann es eine Herausforderung sein, mit Gleichgesinnten in Kontakt zu treten. Unsere Study Buddy Connect-Funktion soll diese Lücke schließen. Melden Sie sich einfach über FAU IDM im ALeA-System an, füllen Sie ein Formular zur Anfrage als Studienpartner aus und vernetzen Sie sich mit kompatiblen Studienpartnern. Sie haben die Möglichkeit, sich an die vorgeschlagenen Personen zu wenden, wodurch Sie effektiv mit anderen Lernenden in Kontakt treten können',
-    notEnrolledMessage: `Probier es für einen deiner Kurse aus (du kannst dich jederzeit abmelden, wenn es dir nicht gefällt). Wähle einfach einen KI-Kurs aus der unten stehenden Liste aus und sende eine Lernpartneranfrage`,
+      'Durch die Bildung und Pflege von Lerngruppen wird die Studienleistung deutlich gesteigert. Doch angesichts der zunehmenden Bedeutung des digitalen Lernens kann es eine Herausforderung sein, mit Gleichgesinnten in Kontakt zu treten. Unsere Study Buddy Connect-Funktion soll diese Lücke schließen. Melden Sie sich einfach über FAU IDM im ALeA-System an, füllen Sie ein Formular zur Anfrage aus und vernetzen Sie sich mit kompatiblen Study Buddies. Sie haben die Möglichkeit, sich an die vorgeschlagenen Personen zu wenden, wodurch Sie effektiv mit anderen Lernenden in Kontakt treten können',
+    notEnrolledMessage: `Probieren Sie es für einen Ihrer Kurse aus (Sie können sich jederzeit abmelden, falls es Ihnen nicht gefällt). Wählen Sie einfach einen Kurs aus der unten stehenden Liste aus und senden Sie eine Anfrage`,
   },
   notification: {
     systemUpdates: 'Systemaktualisierungen',
@@ -310,9 +310,9 @@ export const de = {
     maxPoints: 'Maximale Punktzahl',
     myScore: 'Meine Punktzahl',
     averageScore: 'Durchschnittliche Punktzahl',
-    quizRecorrected: 'Dieses Quiz wurde erneut korrigiert',
+    quizRecorrected: 'Dieses Quiz wurde erneut bewertet',
     theProblem: 'Das Problem',
-    wasRecorrected: 'wurde erneut behoben',
+    wasRecorrected: 'wurde erneut bewertet',
   },
   logInSystem: {
     reset404: 'Benutzer nicht gefunden.',
@@ -322,10 +322,10 @@ export const de = {
     reset200: 'Passwort erfolgreich aktualisiert.',
     passwordConfirm: 'Passwort und Bestätigungspasswort müssen übereinstimmen',
     passwordRegex:
-      'Das Passwort muss mindestens einen Großbuchstaben, einen Kleinbuchstaben, eine Ziffer enthalten und mindestens 8 Zeichen lang sein',
+      'Das Passwort muss mindestens einen Großbuchstaben, einen Kleinbuchstaben und eine Ziffer enthalten und mindestens acht Zeichen lang sein',
     invalidEmail: 'Ungültige E-Mail-Adresse',
     signUpEmail: 'Melden Sie sich mit Ihrer E-Mail-Adresse bei ALeA an',
-    signUp: 'REGISTRIEREN',
+    signUp: 'Registrieren',
     alreadyAccount: 'Sie haben bereits ein Konto?',
     logIn: 'Einloggen',
     link: 'Verknüpfen',
@@ -334,8 +334,8 @@ export const de = {
     signUp200: 'Benutzer erfolgreich erstellt.',
     signUp400: 'E-Mail existiert bereits.',
     verifcationMessage:
-      'Ihre E-Mail wartet auf die Bestätigung. Tippen Sie auf die Schaltfläche, um den Vorgang zu starten und die Bestätigungs-E-Mail zu erhalten',
-    sendVerifcationBtn: 'Senden Sie E-Mail-Verifizierung',
+      'Ihre E-Mail muss noch bestätigt werden Bestätigung. Klicken Sie auf die Schaltfläche, um den Vorgang zu starten und die Bestätigungs-E-Mail zu erhalten',
+    sendVerifcationBtn: 'Verifizierung-E-Mail senden',
     verificationEmail: 'Verifizierungs-E-Mail erfolgreich gesendet',
     somethingWentWrong:
       'Etwas ist schiefgegangen. Bitte versuchen Sie es erneut.',
