@@ -85,7 +85,7 @@ const FEATURED_COURSES = [
   {
     courseImage: '/iwgs-2.jpg',
     courseName: 'IWGS-2',
-    professor: 'Michael Kohlhase',
+    professor: 'Florian Rabe',
     courseId: 'iwgs-2',
   },
   {
@@ -310,6 +310,7 @@ const StudentHomePage: NextPage = () => {
                 <Box
                   key={index}
                   sx={{
+                    cursor: 'pointer',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
@@ -318,14 +319,13 @@ const StudentHomePage: NextPage = () => {
                       transform: 'scale(1.1)',
                     },
                   }}
+                  onClick={() => router.push(`/u/${university.code}`)}
                 >
                   <Image
                     src={university.logoSrc}
                     alt={university.name + ' - logo'}
                     width={140}
                     height={140}
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => router.push(`/u/${university.code}`)}
                   />
                   <Typography sx={{ fontWeight: '500' }}>
                     {university.name}
