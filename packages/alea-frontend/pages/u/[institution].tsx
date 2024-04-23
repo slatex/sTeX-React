@@ -60,7 +60,7 @@ function ColoredIconButton({ children }: { children: ReactNode }) {
   );
 }
 
-function CourseThumb({ course }: { course: CourseInfo }) {
+export function CourseThumb({ course }: { course: CourseInfo }) {
   const router = useRouter();
   const { home } = getLocaleObject(router);
   const t = home.courseThumb;
@@ -216,7 +216,9 @@ const StudentHomePage: NextPage = () => {
                 <Box sx={{ fontSize: 'medium' }}>{t.studyBuddyTooltip}</Box>
               }
             >
-              <Button variant="contained">{s.studyBuddyMasterCourse}</Button>
+              {institution === 'FAU' ? (
+                <Button variant="contained">{s.studyBuddyMasterCourse}</Button>
+              ) : null}
             </Tooltip>
           </Link>
 
