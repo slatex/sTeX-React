@@ -65,6 +65,12 @@ const PARTNERED_UNIVERSITIES = [
 
 const FEATURED_COURSES = [
   {
+    courseImage: '/ai-1.jpg',
+    courseName: 'AI-1',
+    professor: 'Michael Kohlhase',
+    courseId: 'ai-1',
+  },
+  {
     courseImage: '/ai-2.jpg',
     courseName: 'AI -2',
     professor: 'Dennis Müller',
@@ -77,10 +83,10 @@ const FEATURED_COURSES = [
     courseId: 'gdp',
   },
   {
-    courseImage: '/iwgs-1.jpg',
-    courseName: 'IWGS-1',
+    courseImage: '/iwgs-2.jpg',
+    courseName: 'IWGS-2',
     professor: 'Michael Kohlhase',
-    courseId: 'iwgs-1',
+    courseId: 'iwgs-2',
   },
   {
     courseImage: '/lbs.jpg',
@@ -162,10 +168,7 @@ const BannerSection = () => {
           <Button
             variant="outlined"
             onClick={() => {
-              const element = document.querySelector('#courses');
-              if (element) {
-                element.scrollIntoView({ behavior: 'smooth' });
-              }
+              router.push('/course-list');
             }}
           >
             {n.exploreOurCourse}
@@ -310,6 +313,10 @@ const StudentHomePage: NextPage = () => {
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
+                    transition: 'transform 0.3s',
+                    '&:hover': {
+                      transform: 'scale(1.1)',
+                    },
                   }}
                 >
                   <Image
