@@ -216,7 +216,9 @@ const StudentHomePage: NextPage = () => {
                 <Box sx={{ fontSize: 'medium' }}>{t.studyBuddyTooltip}</Box>
               }
             >
-              <Button variant="contained">{s.studyBuddyMasterCourse}</Button>
+              {institution === 'FAU' ? (
+                <Button variant="contained">{s.studyBuddyMasterCourse}</Button>
+              ) : null}
             </Tooltip>
           </Link>
 
