@@ -128,8 +128,15 @@ const CourseHomePage: NextPage = () => {
     return <>Course Not Found!</>;
   }
 
-  const { notesLink, slidesLink, cardsLink, forumLink, quizzesLink, hasQuiz } =
-    courseInfo;
+  const {
+    notesLink,
+    slidesLink,
+    cardsLink,
+    forumLink,
+    quizzesLink,
+    hasQuiz,
+    institution,
+  } = courseInfo;
 
   const locale = router.locale || 'en';
   const { home, courseHome: tCourseHome } = getLocaleObject(router);
@@ -186,10 +193,12 @@ const CourseHomePage: NextPage = () => {
               <QuizIcon fontSize="large" />
             </CourseComponentLink>
           )}
-          <CourseComponentLink href={`/study-buddy/${courseId}`}>
-            {t.studyBuddy}&nbsp;
-            <Diversity3Icon fontSize="large" />
-          </CourseComponentLink>
+          {institution==='FAU' && (
+            <CourseComponentLink href={`/study-buddy/${courseId}`}>
+              {t.studyBuddy}&nbsp;
+              <Diversity3Icon fontSize="large" />
+            </CourseComponentLink>
+          )}
         </Box>
         <DocumentWidthSetter>
           <ContentFromUrl
