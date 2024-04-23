@@ -65,6 +65,12 @@ const PARTNERED_UNIVERSITIES = [
 
 const FEATURED_COURSES = [
   {
+    courseImage: '/ai-1.jpg',
+    courseName: 'AI-1',
+    professor: 'Michael Kohlhase',
+    courseId: 'ai-1',
+  },
+  {
     courseImage: '/ai-2.jpg',
     courseName: 'AI -2',
     professor: 'Dennis Müller',
@@ -77,10 +83,10 @@ const FEATURED_COURSES = [
     courseId: 'gdp',
   },
   {
-    courseImage: '/iwgs-1.jpg',
-    courseName: 'IWGS-1',
-    professor: 'Michael Kohlhase',
-    courseId: 'iwgs-1',
+    courseImage: '/iwgs-2.jpg',
+    courseName: 'IWGS-2',
+    professor: 'Florian Rabe',
+    courseId: 'iwgs-2',
   },
   {
     courseImage: '/lbs.jpg',
@@ -162,10 +168,7 @@ const BannerSection = () => {
           <Button
             variant="outlined"
             onClick={() => {
-              const element = document.querySelector('#courses');
-              if (element) {
-                element.scrollIntoView({ behavior: 'smooth' });
-              }
+              router.push('/course-list');
             }}
           >
             {n.exploreOurCourse}
@@ -307,18 +310,22 @@ const StudentHomePage: NextPage = () => {
                 <Box
                   key={index}
                   sx={{
+                    cursor: 'pointer',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
+                    transition: 'transform 0.3s',
+                    '&:hover': {
+                      transform: 'scale(1.1)',
+                    },
                   }}
+                  onClick={() => router.push(`/u/${university.code}`)}
                 >
                   <Image
                     src={university.logoSrc}
                     alt={university.name + ' - logo'}
                     width={140}
                     height={140}
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => router.push(`/u/${university.code}`)}
                   />
                   <Typography sx={{ fontWeight: '500' }}>
                     {university.name}

@@ -13,6 +13,7 @@ export interface CourseInfo {
   quizzesLink: string;
   isCurrent: boolean;
   hasQuiz: boolean;
+  institution?: string;
 }
 
 export function getSlidesLink(courseId: string) {
@@ -47,7 +48,8 @@ export function createCourseInfo(
   notesFilepath: string,
   landingFilepath: string,
   isCurrent = false,
-  hasQuiz = false
+  hasQuiz = false,
+  institution?: string
 ): CourseInfo {
   notesFilepath = notesFilepath.replace('.tex', '.xhtml');
 
@@ -68,6 +70,7 @@ export function createCourseInfo(
     landingFilepath,
     isCurrent,
     hasQuiz,
+    institution,
   };
 }
 

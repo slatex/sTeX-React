@@ -330,7 +330,8 @@ export async function getCourseInfo(mmtUrl: string, institution?: string) {
         doc.notes,
         doc.landing,
         isCurrent,
-        doc.quizzes ?? false
+        doc.quizzes ?? false,
+        doc.institution,
       );
     }
     return courseInfo;
