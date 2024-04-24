@@ -23,7 +23,7 @@ export const de = {
       studyBuddy: 'Study Buddy',
     },
     newHome: {
-      alea: 'Adaptiver Lernassistent',
+      alea: 'ALeA: Adaptiver Lernassistent',
       aleaDesc:
         'Kurse, die sich an die Präferenzen und Kompetenzen der Lernenden anpassen, abhängig von bestimmten Kursen .',
       signUpNow: 'Jetzt registrieren',
