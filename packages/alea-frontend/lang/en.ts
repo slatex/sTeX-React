@@ -24,7 +24,7 @@ export const en = {
       studyBuddy: 'Study Buddy',
     },
     newHome: {
-      alea: 'ALeA: Adaptive Learning Assistant',
+      alea: 'ALᴇA: Adaptive Learning Assistant',
       aleaDesc:
         'Courses that adapt to the users preferences and competencies focused on the knowledge conveyed in a particular knowledge unit.',
       signUpNow: 'Sign up now',

@@ -17,6 +17,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
 import { QuizDisplay } from '@stex-react/stex-react-renderer';
+import { ForceFauLogin } from '../../components/ForceFAULogin';
 
 function ToBeStarted({ quizStartTs }: { quizStartTs?: number }) {
   const [showReload, setShowReload] = useState(false);
@@ -119,6 +120,16 @@ const QuizPage: NextPage = () => {
   const clientQuizStartTimeMs = getClientStartTimeMs(quizInfo);
 
   const phase = moderatorPhase ?? quizInfo?.phase;
+
+  const [forceFauLogin, setForceFauLogin] = useState(false);
+  useEffect(() => {
+    getUserInfo().then((i) => {
+      const uid = i?.userId;
+      if (!uid) return;
+      setForceFauLogin(uid.length !== 8 || uid.includes('@'));
+    });
+  });
+
   useEffect(() => {
     if (!quizId) return;
     getQuiz(quizId).then((quizInfo) => {
@@ -174,6 +185,13 @@ const QuizPage: NextPage = () => {
   }, []);
 
   if (!quizId) return null;
+  if (forceFauLogin) {
+    return (
+      <MainLayout title="Quizzes | VoLL-KI">
+        <ForceFauLogin />
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout title="Quizzes | VoLL-KI">
