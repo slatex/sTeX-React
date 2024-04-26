@@ -71,8 +71,10 @@ export async function getCourseQuizList(
 }
 
 export async function getPreviousQuizInfo(courseId: string) {
-  const resp = await axios.get(`/api/get-previous-quiz-info/${courseId}`,{
-    headers: getAuthHeaders(),
+  const headers = getAuthHeaders();
+  if (!headers) return { quizInfo: {} } as GetPreviousQuizInfoResponse;
+  const resp = await axios.get(`/api/get-previous-quiz-info/${courseId}`, {
+    headers,
   });
-  return resp.data as GetPreviousQuizInfoResponse ;
+  return resp.data as GetPreviousQuizInfoResponse;
 }

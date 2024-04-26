@@ -3,6 +3,7 @@ import {
   QuizStubInfo,
   getCourseInfo,
   getCourseQuizList,
+  getUserInfo,
 } from '@stex-react/api';
 import {
   ServerLinksContext,
@@ -18,6 +19,7 @@ import QuizPerformanceTable from '../../components/QuizPerformanceTable';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
 import { CourseHeader } from '../course-home/[courseId]';
+import { ForceFauLogin } from '../../components/ForceFAULogin';
 
 function QuizThumbnail({ quiz }: { quiz: QuizStubInfo }) {
   const { quizId, quizStartTs, quizEndTs, title } = quiz;
@@ -158,6 +160,15 @@ const QuizDashPage: NextPage = () => {
     (q) => q.quizStartTs < now && q.quizEndTs >= now
   );
 
+  const [forceFauLogin, setForceFauLogin] = useState(false);
+  useEffect(() => {
+    getUserInfo().then((i) => {
+      const uid = i?.userId;
+      if (!uid) return;
+      setForceFauLogin(uid.length !== 8 || uid.includes('@'));
+    });
+  });
+
   useEffect(() => {
     if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
   }, [mmtUrl]);
@@ -174,6 +185,19 @@ const QuizDashPage: NextPage = () => {
   if (!courseInfo) {
     router.replace('/');
     return <>Course Not Found!</>;
+  }
+
+  if (forceFauLogin) {
+    return (
+      <MainLayout
+        title={
+          (courseId || '').toUpperCase() +
+          ` ${tHome.courseThumb.quizzes} | VoLL-KI`
+        }
+      >
+        <ForceFauLogin />
+      </MainLayout>
+    );
   }
 
   return (

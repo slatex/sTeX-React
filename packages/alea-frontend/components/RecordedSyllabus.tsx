@@ -219,7 +219,7 @@ export function RecordedSyllabus({ courseId }: { courseId: string }) {
   }, [courseId]);
 
   if (!courseId) return null;
-  const timestamps = Object.keys(lectureDescs).map((n) => +n);
+  const timestamps = Object.keys(lectureDescs).map((n) => +n).sort();
 
   const currentSemRows = timestamps.map((timestamp_ms) => ({
     timestamp_ms,
