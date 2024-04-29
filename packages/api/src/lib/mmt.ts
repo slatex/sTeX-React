@@ -256,6 +256,7 @@ export enum DocIdxType {
   course = 'course',
   library = 'library',
   book = 'book',
+  university = 'university',
 }
 export interface Person {
   name: string;
@@ -286,16 +287,18 @@ export interface DocIdx {
   // for type book
   authors?: Person[];
   file?: string;
+  //university detail
+  country?: string;
+  place?: string;
+  url?: string;
 }
 
 let CACHED_DOCIDX: DocIdx[] | undefined = undefined;
 export async function getDocIdx(mmtUrl: string, institution?: string) {
   if (!CACHED_DOCIDX) {
-    console.log('getting docidx');
     const resp = await axios.get(`${mmtUrl}/:sTeX/docidx`);
     CACHED_DOCIDX = resp.data as DocIdx[];
   }
-  console.log('cachedIdx ', CACHED_DOCIDX);
   if (!institution) {
     return CACHED_DOCIDX;
   }
@@ -331,7 +334,7 @@ export async function getCourseInfo(mmtUrl: string, institution?: string) {
         doc.landing,
         isCurrent,
         doc.quizzes ?? false,
-        doc.institution,
+        doc.institution
       );
     }
     return courseInfo;

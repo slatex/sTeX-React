@@ -1,7 +1,12 @@
 import { Box, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
-import { UserSignUpDetail, signUpUser, isLoggedIn } from '@stex-react/api';
+import {
+  UserSignUpDetail,
+  signUpUser,
+  isLoggedIn,
+  loginUsingRedirect,
+} from '@stex-react/api';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -52,11 +57,10 @@ const SignUpPage: NextPage = () => {
       }));
       return;
     } else if (formData.email.endsWith('@fau.de')) {
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        email:
-          'You cannot use this email domain. Please log in using the FAU IDM portal',
-      }));
+      alert(
+        'You are using an FAU ID. You are being redirected to the FAU IdM-portal.'
+      );
+      loginUsingRedirect();
       return;
     } else {
       setErrors((prevErrors) => ({
