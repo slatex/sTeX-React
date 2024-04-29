@@ -109,7 +109,6 @@ export function CourseHeader({
 
 const CourseHomePage: NextPage = () => {
   const router = useRouter();
-  const [docWidth, setDocWidth] = useState(500);
   const containerRef = useRef<HTMLDivElement>(null);
   const courseId = router.query.courseId as string;
   const [courses, setCourses] = useState<
@@ -186,6 +185,7 @@ const CourseHomePage: NextPage = () => {
               <QuizIcon fontSize="large" />
             </CourseComponentLink>
           )}
+
           <CourseComponentLink href={`/study-buddy/${courseId}`}>
             {t.studyBuddy}&nbsp;
             <Diversity3Icon fontSize="large" />
