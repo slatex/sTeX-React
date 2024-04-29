@@ -75,7 +75,7 @@ export interface EnrolledCourseIds {
   courseId: string;
   activeStatus: boolean;
 }
-export interface GetSortedCoursesByConnectionStudybody {
+export interface GetSortedCoursesByConnectionsResponse {
   courseId: string
   member: number
 }
