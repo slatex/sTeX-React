@@ -59,17 +59,23 @@ export interface GetStudyBuddiesResponse {
   other: StudyBuddy[];
 }
 
-export interface UserStats {
+export interface UserStats extends AllCoursesStats {
+
+  connections: { senderId: string; receiverId: string }[];
+  userIdsAndActiveStatus: { userId: string; activeStatus: boolean }[];
+}
+export interface AllCoursesStats{
   totalUsers: number;
   activeUsers: number;
   inactiveUsers: number;
   numberOfConnections: number;
   unacceptedRequests: number;
-  connections: { senderId: string; receiverId: string }[];
-  userIdsAndActiveStatus: { userId: string; activeStatus: boolean }[];
 }
-
 export interface EnrolledCourseIds {
   courseId: string;
   activeStatus: boolean;
+}
+export interface GetSortedCoursesByConnectionStudybody {
+  courseId: string
+  member: number
 }
