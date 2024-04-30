@@ -130,3 +130,14 @@ export enum AuthProvider {
   EMAIL_PASSWORD = 'EMAIL_PASSWORD',
   FAU_IDM = 'FAU_IDM',
 }
+
+export interface Blog {
+  id: number;
+  title: string;
+  body: string;
+  authorId: string;
+  blogId: string;
+  createdAt: string;
+  updatedAt: string;
+  fullName: string;
+}
