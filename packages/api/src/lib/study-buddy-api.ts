@@ -3,7 +3,7 @@ import { getAuthHeaders } from './lms';
 import {
   AllCoursesStats,
   EnrolledCourseIds,
-  GetSortedCoursesByConnectionStudybody,
+  GetSortedCoursesByConnectionsResponse,
   GetStudyBuddiesResponse,
   StudyBuddy,
   UserStats,
@@ -81,13 +81,13 @@ export async function getStudyBuddyUsersStats(courseId: string) {
   return resp.data as UserStats;
 }
 export async function getAllUsersStatus(){
-  const resp= await axios.get<AllCoursesStats>('/api/study-buddy/get-all-users-status',{
+  const resp= await axios.get<AllCoursesStats>('/api/study-buddy/get-all-users-stats',{
     headers:getAuthHeaders(),
   });
   return resp.data;
 }
 export async function getStudyBodyCouresesSortedbyConnections() {
-  const resp=await axios.get<GetSortedCoursesByConnectionStudybody[]>('/api/study-buddy/get-courses-sortedby-connections',{
+  const resp=await axios.get<GetSortedCoursesByConnectionsResponse[]>('/api/study-buddy/get-courses-sortedby-connections',{
     headers:getAuthHeaders()
   });
   return resp.data;
