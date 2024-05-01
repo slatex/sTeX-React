@@ -109,13 +109,17 @@ function StudyBuddyOverviewGraph() {
   ));
 
   return (
-    <Box display="flex" flexWrap="wrap">
-      <List sx={{ maxWidth: '250px' }}>{courseList}</List>
+    <Box display="flex" flexWrap="wrap" gap="2px">
+      <Box sx={{ maxHeight: '400px', overflow: 'auto', flex: '240px 1 1' }}>
+        <List>{courseList}</List>
+      </Box>
       {selectedCourseIndex === null ? null : (
-        <StudyBuddyConnectionsGraph
-          connections={connections}
-          userIdsAndActiveStatus={userIdsAndActiveStatus}
-        />
+        <Box flex="400px 1 1">
+          <StudyBuddyConnectionsGraph
+            connections={connections}
+            userIdsAndActiveStatus={userIdsAndActiveStatus}
+          />
+        </Box>
       )}
     </Box>
   );
