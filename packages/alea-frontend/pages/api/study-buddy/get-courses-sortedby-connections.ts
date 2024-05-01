@@ -3,7 +3,7 @@ import {
     executeAndEndSet500OnError,
     getUserIdOrSetError,
 } from '../comment-utils';
-import { GetSortedCoursesByConnectionStudybody, isModerator } from '@stex-react/api';
+import { GetSortedCoursesByConnectionsResponse, isModerator } from '@stex-react/api';
 export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
@@ -15,7 +15,7 @@ export default async function handler(
         res.status(403).send({ message: 'Unauthorized.' });
         return;
     }
-    const result: GetSortedCoursesByConnectionStudybody[] = await executeAndEndSet500OnError(`
+    const result: GetSortedCoursesByConnectionsResponse[] = await executeAndEndSet500OnError(`
     SELECT
 	COUNT(courseId) as member,courseId
     FROM

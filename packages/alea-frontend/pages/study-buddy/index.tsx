@@ -28,10 +28,16 @@ import { useRouter } from 'next/router';
 import { useEffect, useReducer, useState } from 'react';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
-import { GetSortedCoursesByConnectionStudybody, UserInfo, UserStats, getAllUsersStatus, getEnrolledCourseIds, getStudyBodyCouresesSortedbyConnections, getStudyBuddyUsersStats, getUserInfo, isModerator } from '@stex-react/api';
+import { AllCoursesStats, GetSortedCoursesByConnectionsResponse, UserInfo, UserStats, getAllUsersStatus, getEnrolledCourseIds, getStudyBodyCouresesSortedbyConnections, getStudyBuddyUsersStats, getUserInfo, isModerator } from '@stex-react/api';
 import dynamic from 'next/dynamic';
 const StudyBuddyConnectionsGraph = dynamic(
   () => import('../../components/StudyBuddyConnectionsGraph'),
+  {
+    ssr: false,
+  }
+);
+const StudyBoddyModeratoreOverview = dynamic(
+  () => import('../../components/StudyBoddyModeratoreOverview'),
   {
     ssr: false,
   }
@@ -62,7 +68,7 @@ function removeRecentCourse(courseCode: string) {
   }
 }
 function StudyBuddyOverviewGrap(){
-  const [sortedCoureses,setSortedCoureses]=useState<GetSortedCoursesByConnectionStudybody[]>();
+  const [sortedCoureses,setSortedCoureses]=useState<GetSortedCoursesByConnectionsResponse[]>();
   const [selectedCourseIndex, setSelectedCourseIndex] = useState<string>(null);
   const [connections, setConnections] = useState<UserStats['connections']>([]);
   const [userIdsAndActiveStatus, setUserIdsAndActiveStatus] = useState([]);
@@ -99,21 +105,11 @@ function StudyBuddyOverviewGrap(){
           </>)
 }
 function StatsForModerator() {
-  const [totalUsers, setTotalUsers] = useState(0);
-  const [activeUsers, setActiveUsers] = useState(0);
-  const [inactiveUsers, setInactiveUsers] = useState(0);
-  const [numberOfConnections, setNumberOfConnections] = useState(0);
-  const [unacceptedRequest, setUnacceptedRequest] = useState(0);
-
+  const [overviewData, setOverviewData]=useState<AllCoursesStats>();
   const { studyBuddy: t } = getLocaleObject(useRouter());
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getAllUsersStatus();
-      setTotalUsers(data.totalUsers);
-      setActiveUsers(data.activeUsers);
-      setInactiveUsers(data.inactiveUsers);
-      setNumberOfConnections(data.numberOfConnections);
-      setUnacceptedRequest(data.unacceptedRequests);
+       getAllUsersStatus().then(setOverviewData);
     };
     fetchData();
   },[]);
@@ -123,21 +119,7 @@ function StatsForModerator() {
       <Typography variant="h4">{t.insightHeading}</Typography>
       <Card sx={{ mt: '20px', mb: '20px' }}>
         <CardContent>
-          <Typography style={{ fontWeight: 'bold' }}>
-            {t.totalUsers + ' : ' + totalUsers}
-          </Typography>
-          <Typography style={{ fontWeight: 'bold' }}>
-            {t.activeUsers + ' : ' + activeUsers}
-          </Typography>
-          <Typography style={{ fontWeight: 'bold' }}>
-            {t.inactiveUsers + ' : ' + inactiveUsers}
-          </Typography>
-          <Typography style={{ fontWeight: 'bold' }}>
-            {t.numberOfConnections + ' : ' + numberOfConnections}
-          </Typography>
-          <Typography style={{ fontWeight: 'bold' }}>
-            {t.unacceptedRequest + ' : ' + unacceptedRequest}
-          </Typography>
+            <StudyBoddyModeratoreOverview overviewData={overviewData}></StudyBoddyModeratoreOverview>
           <hr/>
           <StudyBuddyOverviewGrap></StudyBuddyOverviewGrap>
         </CardContent>
