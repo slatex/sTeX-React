@@ -15,6 +15,14 @@ export default async function handler(
         res.status(403).send({ message: 'Unauthorized.' });
         return;
     }
+
+    /*
+    This query counts a user multiple times if the user registered in multiple courses.
+    The reasons of this action 
+        The sum of all the course's stats should be equal to this number.
+        If change the query to remove duplicate people from the count, It is possible to find a person had been registered in many courses. I thought this can break the users' privacy.
+        A user always fills all the form input In study body for every course, so technically he/ she is a sprat user.
+    */
     const result1: any[] = await executeAndEndSet500OnError(
         `SELECT 
           COUNT(userId) as TotalUsers, 
