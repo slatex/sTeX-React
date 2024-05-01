@@ -4,7 +4,12 @@ import {
   Autocomplete,
   Box,
   Button,
+  Card,
+  CardContent,
   IconButton,
+  List,
+  ListItemButton,
+  ListItemText,
   Paper,
   Table,
   TableBody,
@@ -23,8 +28,20 @@ import { useRouter } from 'next/router';
 import { useEffect, useReducer, useState } from 'react';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
-import { getEnrolledCourseIds } from '@stex-react/api';
-
+import { AllCoursesStats, GetSortedCoursesByConnectionsResponse, UserInfo, UserStats, getAllUsersStatus, getEnrolledCourseIds, getStudyBodyCouresesSortedbyConnections, getStudyBuddyUsersStats, getUserInfo, isModerator } from '@stex-react/api';
+import dynamic from 'next/dynamic';
+const StudyBuddyConnectionsGraph = dynamic(
+  () => import('../../components/StudyBuddyConnectionsGraph'),
+  {
+    ssr: false,
+  }
+);
+const StudyBoddyModeratoreOverview = dynamic(
+  () => import('../../components/StudyBoddyModeratoreOverview'),
+  {
+    ssr: false,
+  }
+);
 const RECENT_COURSE_KEY = 'recent-study-buddy-courses';
 function getRecentCourses() {
   const chosenCourses = localStore?.getItem(RECENT_COURSE_KEY);
@@ -50,7 +67,67 @@ function removeRecentCourse(courseCode: string) {
     );
   }
 }
+function StudyBuddyOverviewGrap(){
+  const [sortedCoureses,setSortedCoureses]=useState<GetSortedCoursesByConnectionsResponse[]>();
+  const [selectedCourseIndex, setSelectedCourseIndex] = useState<string>(null);
+  const [connections, setConnections] = useState<UserStats['connections']>([]);
+  const [userIdsAndActiveStatus, setUserIdsAndActiveStatus] = useState([]);
+  useEffect(()=>{
+    const fetchData= ()=>{
+      getStudyBodyCouresesSortedbyConnections().then(setSortedCoureses);
+    };
+    fetchData();
+  },[]);
+  const handleListItemClick = async (
+    courseId: string,
+  ) => {
+    setSelectedCourseIndex(courseId);
+    const data = await getStudyBuddyUsersStats(courseId);
+    setConnections(data.connections);
+    setUserIdsAndActiveStatus(data.userIdsAndActiveStatus)
+  };
+  const courseList=sortedCoureses?.map((c,i)=>(
+    <ListItemButton key={i}
+    selected={selectedCourseIndex === c.courseId}
+    onClick={() => handleListItemClick(c.courseId)}>
+    <ListItemText primary={(MaAI_COURSES[c.courseId]?.courseName ?? c.courseId)+` (${c.member})`} />
+  </ListItemButton>
+))
+  return ( <>         
+  <List>
+    {courseList}
+    
+  </List>
+ {selectedCourseIndex===null?null:<StudyBuddyConnectionsGraph
+            connections={connections}
+            userIdsAndActiveStatus={userIdsAndActiveStatus}
+          /> } 
+          </>)
+}
+function StatsForModerator() {
+  const [overviewData, setOverviewData]=useState<AllCoursesStats>();
+  const { studyBuddy: t } = getLocaleObject(useRouter());
+  useEffect(() => {
+    const fetchData = async () => {
+       getAllUsersStatus().then(setOverviewData);
+    };
+    fetchData();
+  },[]);
 
+  return (
+    <>
+      <Typography variant="h4">{t.insightHeading}</Typography>
+      <Card sx={{ mt: '20px', mb: '20px' }}>
+        <CardContent>
+            <StudyBoddyModeratoreOverview overviewData={overviewData}></StudyBoddyModeratoreOverview>
+          <hr/>
+          <StudyBuddyOverviewGrap></StudyBuddyOverviewGrap>
+        </CardContent>
+      </Card>
+    </>
+  );
+
+}
 function CourseStub({
   courseCode,
   onCancel,
@@ -143,8 +220,10 @@ const Courses: NextPage = () => {
   const { studyBuddy: t } = getLocaleObject(useRouter());
   const [, forceRerender] = useReducer((x) => x + 1, 0);
   const [enrolledCourseIds, setEnrolledCourseIds] = useState([]);
+  const [userInfo, setUserInfo] = useState<UserInfo | undefined>(null);
   useEffect(() => {
     getEnrolledCourseIds().then(setEnrolledCourseIds);
+    getUserInfo().then(setUserInfo);
   }, []);
   const courseIds = enrolledCourseIds.map((item) => item?.courseId);
   return (
@@ -158,6 +237,7 @@ const Courses: NextPage = () => {
           p: '0 10px',
         }}
       >
+        {isModerator(userInfo?.userId) ? <StatsForModerator /> : null}
         <Typography
           variant="h3"
           display="flex"
