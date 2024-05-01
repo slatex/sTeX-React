@@ -73,6 +73,7 @@ export function ConfirmPurgeDialogContent({
             text.toLocaleLowerCase() !== t.confirmText.toLocaleLowerCase()
           }
           variant="contained"
+          color='error'
         >
           {t.purge}
         </Button>

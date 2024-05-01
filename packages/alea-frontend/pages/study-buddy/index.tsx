@@ -21,27 +21,32 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import {
+  AllCoursesStats,
+  GetSortedCoursesByConnectionsResponse,
+  UserInfo,
+  UserStats,
+  getAllUsersStats,
+  getEnrolledCourseIds,
+  getStudyBuddyCoursesSortedbyConnections,
+  getStudyBuddyUsersStats,
+  getUserInfo,
+  isModerator,
+} from '@stex-react/api';
 import { MaAI_COURSES, PRIMARY_COL, localStore } from '@stex-react/utils';
 import type { NextPage } from 'next';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useReducer, useState } from 'react';
+import StudyBuddyModeratorOverview from '../../components/StudyBuddyModeratorOverview';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
-import { AllCoursesStats, GetSortedCoursesByConnectionsResponse, UserInfo, UserStats, getAllUsersStatus, getEnrolledCourseIds, getStudyBodyCouresesSortedbyConnections, getStudyBuddyUsersStats, getUserInfo, isModerator } from '@stex-react/api';
-import dynamic from 'next/dynamic';
 const StudyBuddyConnectionsGraph = dynamic(
   () => import('../../components/StudyBuddyConnectionsGraph'),
-  {
-    ssr: false,
-  }
+  { ssr: false }
 );
-const StudyBoddyModeratoreOverview = dynamic(
-  () => import('../../components/StudyBoddyModeratoreOverview'),
-  {
-    ssr: false,
-  }
-);
+
 const RECENT_COURSE_KEY = 'recent-study-buddy-courses';
 function getRecentCourses() {
   const chosenCourses = localStore?.getItem(RECENT_COURSE_KEY);
@@ -67,67 +72,79 @@ function removeRecentCourse(courseCode: string) {
     );
   }
 }
-function StudyBuddyOverviewGrap(){
-  const [sortedCoureses,setSortedCoureses]=useState<GetSortedCoursesByConnectionsResponse[]>();
+function StudyBuddyOverviewGraph() {
+  const [sortedCourses, setSortedCourses] =
+    useState<GetSortedCoursesByConnectionsResponse[]>();
   const [selectedCourseIndex, setSelectedCourseIndex] = useState<string>(null);
   const [connections, setConnections] = useState<UserStats['connections']>([]);
   const [userIdsAndActiveStatus, setUserIdsAndActiveStatus] = useState([]);
-  useEffect(()=>{
-    const fetchData= ()=>{
-      getStudyBodyCouresesSortedbyConnections().then(setSortedCoureses);
+
+  useEffect(() => {
+    const fetchData = () => {
+      getStudyBuddyCoursesSortedbyConnections().then(setSortedCourses);
     };
     fetchData();
-  },[]);
-  const handleListItemClick = async (
-    courseId: string,
-  ) => {
+  }, []);
+
+  const handleListItemClick = async (courseId: string) => {
     setSelectedCourseIndex(courseId);
     const data = await getStudyBuddyUsersStats(courseId);
     setConnections(data.connections);
-    setUserIdsAndActiveStatus(data.userIdsAndActiveStatus)
+    setUserIdsAndActiveStatus(data.userIdsAndActiveStatus);
   };
-  const courseList=sortedCoureses?.map((c,i)=>(
-    <ListItemButton key={i}
-    selected={selectedCourseIndex === c.courseId}
-    onClick={() => handleListItemClick(c.courseId)}>
-    <ListItemText primary={(MaAI_COURSES[c.courseId]?.courseName ?? c.courseId)+` (${c.member})`} />
-  </ListItemButton>
-))
-  return ( <>         
-  <List>
-    {courseList}
-    
-  </List>
- {selectedCourseIndex===null?null:<StudyBuddyConnectionsGraph
-            connections={connections}
-            userIdsAndActiveStatus={userIdsAndActiveStatus}
-          /> } 
-          </>)
+
+  const courseList = sortedCourses?.map((c, i) => (
+    <ListItemButton
+      key={i}
+      selected={selectedCourseIndex === c.courseId}
+      onClick={() => handleListItemClick(c.courseId)}
+    >
+      <ListItemText
+        primary={
+          (MaAI_COURSES[c.courseId]?.courseName ?? c.courseId) +
+          ` (${c.member})`
+        }
+      />
+    </ListItemButton>
+  ));
+
+  return (
+    <Box display="flex" flexWrap="wrap">
+      <List sx={{ maxWidth: '250px' }}>{courseList}</List>
+      {selectedCourseIndex === null ? null : (
+        <StudyBuddyConnectionsGraph
+          connections={connections}
+          userIdsAndActiveStatus={userIdsAndActiveStatus}
+        />
+      )}
+    </Box>
+  );
 }
+
 function StatsForModerator() {
-  const [overviewData, setOverviewData]=useState<AllCoursesStats>();
+  const [overviewData, setOverviewData] = useState<AllCoursesStats>();
   const { studyBuddy: t } = getLocaleObject(useRouter());
   useEffect(() => {
     const fetchData = async () => {
-       getAllUsersStatus().then(setOverviewData);
+      getAllUsersStats().then(setOverviewData);
     };
     fetchData();
-  },[]);
+  }, []);
 
   return (
     <>
       <Typography variant="h4">{t.insightHeading}</Typography>
       <Card sx={{ mt: '20px', mb: '20px' }}>
         <CardContent>
-            <StudyBoddyModeratoreOverview overviewData={overviewData}></StudyBoddyModeratoreOverview>
-          <hr/>
-          <StudyBuddyOverviewGrap></StudyBuddyOverviewGrap>
+          <StudyBuddyModeratorOverview overviewData={overviewData} />
+          <hr />
+          <StudyBuddyOverviewGraph />
         </CardContent>
       </Card>
     </>
   );
-
 }
+
 function CourseStub({
   courseCode,
   onCancel,
@@ -214,6 +231,7 @@ function ChosenStudyBuddyCourses() {
     </Box>
   );
 }
+
 const Courses: NextPage = () => {
   const router = useRouter();
   const courseList = MaAI_COURSES;

@@ -46,19 +46,13 @@ import {
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
 import { CourseHeader } from '../course-home/[courseId]';
+import StudyBuddyModeratorOverview from '../../components/StudyBuddyModeratorOverview';
 
 const StudyBuddyConnectionsGraph = dynamic(
   () => import('../../components/StudyBuddyConnectionsGraph'),
-  {
-    ssr: false,
-  }
+  { ssr: false }
 );
-const StudyBoddyModeratoreOverview = dynamic(
-  () => import('../../components/StudyBoddyModeratoreOverview'),
-  {
-    ssr: false,
-  }
-);
+
 function OptOutButton({
   studyBuddy,
   courseId,
@@ -105,7 +99,7 @@ function StatsForModerator() {
       <Typography variant="h4">{t.insightHeading}</Typography>
       <Card sx={{ mt: '20px', mb: '20px' }}>
         <CardContent>
-        <StudyBoddyModeratoreOverview overviewData={overviewData}></StudyBoddyModeratoreOverview>
+          <StudyBuddyModeratorOverview overviewData={overviewData} />
           <hr />
           <StudyBuddyConnectionsGraph
             connections={connections}
