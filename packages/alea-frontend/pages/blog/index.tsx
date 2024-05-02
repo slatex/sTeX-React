@@ -29,7 +29,7 @@ const Blogs: NextPage = () => {
           </Typography>
           {blogs.map((blog) => (
             <Box
-              key={blog.id}
+              key={blog.blogId}
               border="1px solid #CCC"
               p="10px"
               m="20px"
@@ -44,11 +44,11 @@ const Blogs: NextPage = () => {
                 '&:hover': {
                   transform: 'scale(1.03)',
                 },
-                backgroundImage: 'radial-gradient(white,lightgray)'
+                backgroundImage: 'radial-gradient(white,lightgray)',
               }}
             >
               <MdViewer content={blog.title} />
-              <MdViewer content={blog.body.substring(0, 60).concat('...')} />
+              <MdViewer content={blog.body.concat('...')} />
               <Box
                 display="flex"
                 justifyContent="space-between"
@@ -56,10 +56,10 @@ const Blogs: NextPage = () => {
                 height="20px"
               >
                 <Typography fontSize={12} textAlign={'right'}>
-                  {blog.createdAt.substring(0, blog.createdAt.indexOf('T'))}
+                  {blog.createdAt.split('T')[0]}
                 </Typography>
                 <Typography display="flex" alignItems="center">
-                  Author : <MdViewer content={blog.fullName} />
+                  Author : <MdViewer content={blog.authorName} />
                 </Typography>
               </Box>
             </Box>

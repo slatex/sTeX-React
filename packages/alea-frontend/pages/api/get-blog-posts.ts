@@ -7,7 +7,7 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const blogs: Blog[] = await executeDontEndSet500OnError(
-    `SELECT * FROM blogs ORDER BY id DESC`,
+    `SELECT  blogId, title, SUBSTRING(body , 1 , 100) AS body , authorName, createdAt FROM blogs ORDER BY createdAt DESC;`,
     [],
     res
   );

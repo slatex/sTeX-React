@@ -208,7 +208,7 @@ export async function createBlogPost(
   body: string,
   blogId: string,
   authorId: string,
-  fullName: string
+  authorName: string
 ) {
   return await axios.post(
     '/api/create-blog-post',
@@ -217,7 +217,7 @@ export async function createBlogPost(
       body,
       blogId,
       authorId,
-      fullName,
+      authorName,
     },
     {
       headers: getAuthHeaders(),

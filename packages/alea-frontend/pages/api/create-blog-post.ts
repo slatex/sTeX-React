@@ -15,11 +15,11 @@ export default async function handler(
     res.status(403).send({ message: 'Unauthorized.' });
     return;
   }
-  const { title, body, blogId, authorId, fullName } = req.body;
+  const { title, body, blogId, authorId, authorName } = req.body;
 
   const result = await executeAndEndSet500OnError(
-    `INSERT INTO blogs (title, body, blogId , authorId, fullName) VALUES (?, ? ,? ,? ,? )`,
-    [title, body, blogId, authorId, fullName],
+    `INSERT INTO blogs (title, body, blogId , authorId, authorName) VALUES (?, ? ,? ,? ,? )`,
+    [title, body, blogId, authorId, authorName],
     res
   );
 

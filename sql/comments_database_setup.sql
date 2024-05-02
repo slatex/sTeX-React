@@ -105,6 +105,16 @@ CREATE TABLE StudyBuddyUsers (
     PRIMARY KEY (userId, courseId)
 );
 
+CREATE TABLE blogs (
+    blogId VARCHAR(255) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    body TEXT NOT NULL,
+    authorId VARCHAR(100) NOT NULL,
+    authorName  VARCHAR(255) NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE StudyBuddyConnections (
     senderId VARCHAR(255) NOT NULL,
     receiverId VARCHAR(255) NOT NULL,

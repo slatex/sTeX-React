@@ -15,8 +15,8 @@ const Blogs: NextPage = () => {
       const data = await getBlogPostsById(blogId as string);
       setBlog(data.data.blogs[0]);
     }
-    fetchData();
-  }, [blogId]);
+    if (router.isReady) fetchData();
+  }, [router.isReady, blogId]);
   if (!blog) return <Box m="20px">Loading...</Box>;
   return (
     <MainLayout>
@@ -35,15 +35,10 @@ const Blogs: NextPage = () => {
             <hr />
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Typography sx={{ display: 'flex', alignItems: 'center' }}>
-                <MdViewer content={blog.fullName} />
+                <MdViewer content={blog.authorName} />
               </Typography>
               <Typography fontWeight="bold">
-                <MdViewer
-                  content={blog.createdAt.substring(
-                    0,
-                    blog.createdAt.indexOf('T')
-                  )}
-                />
+                <MdViewer content={blog.createdAt.split('T')[0]} />
               </Typography>
             </Box>
             <MdViewer content={blog.body} />

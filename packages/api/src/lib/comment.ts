@@ -132,12 +132,11 @@ export enum AuthProvider {
 }
 
 export interface Blog {
-  id: number;
   title: string;
   body: string;
   authorId: string;
   blogId: string;
   createdAt: string;
   updatedAt: string;
-  fullName: string;
+  authorName: string;
 }

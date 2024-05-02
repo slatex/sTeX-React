@@ -15,7 +15,7 @@ function generateBlogId(title: string): string {
   return title
     .toLowerCase()
     .replace(/[^a-z0-9_ ]/g, '')
-    .replace(/ /g, '_');
+    .replace(/ /g, '-');
 }
 
 const CreateBlog: NextPage = () => {
