@@ -193,6 +193,41 @@ export async function resetPassword(
   });
 }
 
-export async function sendVerificationEmail(userId: string,verificationToken:string) {
-  return await axios.post('/api/send-verification-email', { userId,verificationToken });
+export async function sendVerificationEmail(
+  userId: string,
+  verificationToken: string
+) {
+  return await axios.post('/api/send-verification-email', {
+    userId,
+    verificationToken,
+  });
+}
+
+export async function createBlogPost(
+  title: string,
+  body: string,
+  blogId: string,
+  authorId: string,
+  authorName: string
+) {
+  return await axios.post(
+    '/api/create-blog-post',
+    {
+      title,
+      body,
+      blogId,
+      authorId,
+      authorName,
+    },
+    {
+      headers: getAuthHeaders(),
+    }
+  );
+}
+
+export async function getBlogPosts() {
+  return await axios.get('/api/get-blog-posts');
+}
+export async function getBlogPostsById(blogId: string) {
+  return await axios.get('/api/get-blog-posts-by-id', { params: { blogId } });
 }
