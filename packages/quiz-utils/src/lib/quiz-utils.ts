@@ -368,7 +368,9 @@ function getProblemPoints(rootNode: Element) {
   const pointsStr = rootNode?.attribs?.['data-problem-points'];
   if (!pointsStr) return 1;
   const parsedFloat = parseFloat(pointsStr);
-  return isNaN(parsedFloat) || parsedFloat < 0.001 ? 1 : parsedFloat;
+  if (isNaN(parsedFloat) || parsedFloat === 0) return 1; // Unfortunately, the default points are returned as "0". This has to be treated as 1 point.
+  if (parsedFloat < 1e-3) return 0; // A way to remove a problem from grading.
+  return parsedFloat;
 }
 
 function getProblemHeader(rootNode: Element) {

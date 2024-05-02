@@ -4,7 +4,12 @@ import {
   Autocomplete,
   Box,
   Button,
+  Card,
+  CardContent,
   IconButton,
+  List,
+  ListItemButton,
+  ListItemText,
   Paper,
   Table,
   TableBody,
@@ -16,14 +21,31 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import {
+  AllCoursesStats,
+  GetSortedCoursesByConnectionsResponse,
+  UserInfo,
+  UserStats,
+  getAllUsersStats,
+  getEnrolledCourseIds,
+  getStudyBuddyCoursesSortedbyConnections,
+  getStudyBuddyUsersStats,
+  getUserInfo,
+  isModerator,
+} from '@stex-react/api';
 import { MaAI_COURSES, PRIMARY_COL, localStore } from '@stex-react/utils';
 import type { NextPage } from 'next';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useReducer, useState } from 'react';
+import StudyBuddyModeratorOverview from '../../components/StudyBuddyModeratorOverview';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
-import { getEnrolledCourseIds } from '@stex-react/api';
+const StudyBuddyConnectionsGraph = dynamic(
+  () => import('../../components/StudyBuddyConnectionsGraph'),
+  { ssr: false }
+);
 
 const RECENT_COURSE_KEY = 'recent-study-buddy-courses';
 function getRecentCourses() {
@@ -49,6 +71,82 @@ function removeRecentCourse(courseCode: string) {
       chosenCourses.filter((c) => c !== courseCode).join(',')
     );
   }
+}
+function StudyBuddyOverviewGraph() {
+  const [sortedCourses, setSortedCourses] =
+    useState<GetSortedCoursesByConnectionsResponse[]>();
+  const [selectedCourseIndex, setSelectedCourseIndex] = useState<string>(null);
+  const [connections, setConnections] = useState<UserStats['connections']>([]);
+  const [userIdsAndActiveStatus, setUserIdsAndActiveStatus] = useState([]);
+
+  useEffect(() => {
+    const fetchData = () => {
+      getStudyBuddyCoursesSortedbyConnections().then(setSortedCourses);
+    };
+    fetchData();
+  }, []);
+
+  const handleListItemClick = async (courseId: string) => {
+    setSelectedCourseIndex(courseId);
+    const data = await getStudyBuddyUsersStats(courseId);
+    setConnections(data.connections);
+    setUserIdsAndActiveStatus(data.userIdsAndActiveStatus);
+  };
+
+  const courseList = sortedCourses?.map((c, i) => (
+    <ListItemButton
+      key={i}
+      selected={selectedCourseIndex === c.courseId}
+      onClick={() => handleListItemClick(c.courseId)}
+    >
+      <ListItemText
+        primary={
+          (MaAI_COURSES[c.courseId]?.courseName ?? c.courseId) +
+          ` (${c.member})`
+        }
+      />
+    </ListItemButton>
+  ));
+
+  return (
+    <Box display="flex" flexWrap="wrap" gap="2px">
+      <Box sx={{ maxHeight: '400px', overflow: 'auto', flex: '240px 1 1' }}>
+        <List>{courseList}</List>
+      </Box>
+      {selectedCourseIndex === null ? null : (
+        <Box flex="400px 1 1">
+          <StudyBuddyConnectionsGraph
+            connections={connections}
+            userIdsAndActiveStatus={userIdsAndActiveStatus}
+          />
+        </Box>
+      )}
+    </Box>
+  );
+}
+
+function StatsForModerator() {
+  const [overviewData, setOverviewData] = useState<AllCoursesStats>();
+  const { studyBuddy: t } = getLocaleObject(useRouter());
+  useEffect(() => {
+    const fetchData = async () => {
+      getAllUsersStats().then(setOverviewData);
+    };
+    fetchData();
+  }, []);
+
+  return (
+    <>
+      <Typography variant="h4">{t.insightHeading}</Typography>
+      <Card sx={{ mt: '20px', mb: '20px' }}>
+        <CardContent>
+          <StudyBuddyModeratorOverview overviewData={overviewData} />
+          <hr />
+          <StudyBuddyOverviewGraph />
+        </CardContent>
+      </Card>
+    </>
+  );
 }
 
 function CourseStub({
@@ -137,14 +235,17 @@ function ChosenStudyBuddyCourses() {
     </Box>
   );
 }
+
 const Courses: NextPage = () => {
   const router = useRouter();
   const courseList = MaAI_COURSES;
   const { studyBuddy: t } = getLocaleObject(useRouter());
   const [, forceRerender] = useReducer((x) => x + 1, 0);
   const [enrolledCourseIds, setEnrolledCourseIds] = useState([]);
+  const [userInfo, setUserInfo] = useState<UserInfo | undefined>(null);
   useEffect(() => {
     getEnrolledCourseIds().then(setEnrolledCourseIds);
+    getUserInfo().then(setUserInfo);
   }, []);
   const courseIds = enrolledCourseIds.map((item) => item?.courseId);
   return (
@@ -158,6 +259,7 @@ const Courses: NextPage = () => {
           p: '0 10px',
         }}
       >
+        {isModerator(userInfo?.userId) ? <StatsForModerator /> : null}
         <Typography
           variant="h3"
           display="flex"

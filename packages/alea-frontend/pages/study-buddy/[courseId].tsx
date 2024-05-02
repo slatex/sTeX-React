@@ -13,6 +13,7 @@ import {
   Typography,
 } from '@mui/material';
 import {
+  AllCoursesStats,
   GetStudyBuddiesResponse,
   Languages,
   MeetType,
@@ -45,12 +46,11 @@ import {
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
 import { CourseHeader } from '../course-home/[courseId]';
+import StudyBuddyModeratorOverview from '../../components/StudyBuddyModeratorOverview';
 
 const StudyBuddyConnectionsGraph = dynamic(
   () => import('../../components/StudyBuddyConnectionsGraph'),
-  {
-    ssr: false,
-  }
+  { ssr: false }
 );
 
 function OptOutButton({
@@ -81,21 +81,13 @@ function StatsForModerator() {
   const router = useRouter();
   const courseId = router.query.courseId as string;
   const { studyBuddy: t } = getLocaleObject(router);
-  const [totalUsers, setTotalUsers] = useState(0);
-  const [activeUsers, setActiveUsers] = useState(0);
-  const [inactiveUsers, setInactiveUsers] = useState(0);
-  const [numberOfConnections, setNumberOfConnections] = useState(0);
-  const [unacceptedRequest, setUnacceptedRequest] = useState(0);
+  const [overviewData, setOverviewData] = useState<AllCoursesStats>();
   const [connections, setConnections] = useState<UserStats['connections']>([]);
   const [userIdsAndActiveStatus, setUserIdsAndActiveStatus] = useState([]);
   useEffect(() => {
     const fetchData = async () => {
       const data = await getStudyBuddyUsersStats(courseId);
-      setTotalUsers(data.totalUsers);
-      setActiveUsers(data.activeUsers);
-      setInactiveUsers(data.inactiveUsers);
-      setNumberOfConnections(data.numberOfConnections);
-      setUnacceptedRequest(data.unacceptedRequests);
+      setOverviewData(data);
       setConnections(data.connections);
       setUserIdsAndActiveStatus(data.userIdsAndActiveStatus);
     };
@@ -107,21 +99,7 @@ function StatsForModerator() {
       <Typography variant="h4">{t.insightHeading}</Typography>
       <Card sx={{ mt: '20px', mb: '20px' }}>
         <CardContent>
-          <Typography style={{ fontWeight: 'bold' }}>
-            {t.totalUsers + ' : ' + totalUsers}
-          </Typography>
-          <Typography style={{ fontWeight: 'bold' }}>
-            {t.activeUsers + ' : ' + activeUsers}
-          </Typography>
-          <Typography style={{ fontWeight: 'bold' }}>
-            {t.inactiveUsers + ' : ' + inactiveUsers}
-          </Typography>
-          <Typography style={{ fontWeight: 'bold' }}>
-            {t.numberOfConnections + ' : ' + numberOfConnections}
-          </Typography>
-          <Typography style={{ fontWeight: 'bold' }}>
-            {t.unacceptedRequest + ' : ' + unacceptedRequest}
-          </Typography>
+          <StudyBuddyModeratorOverview overviewData={overviewData} />
           <hr />
           <StudyBuddyConnectionsGraph
             connections={connections}
