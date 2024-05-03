@@ -7,7 +7,7 @@ export enum MeetType {
 export enum Languages {
   Deutsch = 'Deutsch',
   English = 'English',
-
+  
   Arabic = 'Arabic',
   Bengali = 'Bengali',
   Hindi = 'Hindi',
@@ -16,6 +16,7 @@ export enum Languages {
   Korean = 'Korean',
   Mandarin = 'Mandarin',
   Marathi = 'Marathi',
+  Persian = 'Persian',
   Portuguese = 'Portuguese',
   Russian = 'Russian',
   Spanish = 'Spanish',
@@ -61,10 +62,10 @@ export interface GetStudyBuddiesResponse {
 
 export interface UserStats extends AllCoursesStats {
 
-  connections: { senderId: string; receiverId: string }[];
-  userIdsAndActiveStatus: { userId: string; activeStatus: boolean }[];
+  connections: { senderId: string; receiverId: string; }[];
+  userIdsAndActiveStatus: { userId: string; activeStatus: boolean; }[];
 }
-export interface AllCoursesStats{
+export interface AllCoursesStats {
   totalUsers: number;
   activeUsers: number;
   inactiveUsers: number;
@@ -76,6 +77,6 @@ export interface EnrolledCourseIds {
   activeStatus: boolean;
 }
 export interface GetSortedCoursesByConnectionsResponse {
-  courseId: string
-  member: number
+  courseId: string;
+  member: number;
 }
