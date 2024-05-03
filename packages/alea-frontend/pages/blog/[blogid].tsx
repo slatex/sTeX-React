@@ -1,5 +1,11 @@
 import { Box, Button, Typography } from '@mui/material';
-import { Blog, UserInfo, getBlogPostsById, getUserInfo } from '@stex-react/api';
+import {
+  Blog,
+  UserInfo,
+  getBlogPostsById,
+  getUserInfo,
+  isModerator,
+} from '@stex-react/api';
 import { MdViewer } from '@stex-react/markdown';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -29,7 +35,7 @@ const Blogs: NextPage = () => {
             <Button variant="contained" onClick={() => router.push(`/blog`)}>
               All Blogs
             </Button>
-            {userInfo && (
+            {isModerator(userInfo?.userId) && (
               <Button
                 variant="contained"
                 onClick={() => router.push(`/update-blog?blogid=${blogId}`)}

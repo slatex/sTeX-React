@@ -23,7 +23,7 @@ const CreateBlog: NextPage = () => {
   const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
-  const [blogId, setBlogId] = useState('');
+  const blogId= generateBlogId(title);
 
   useEffect(() => {
     const fetchDataAndCheckModerator = async () => {
@@ -46,7 +46,6 @@ const CreateBlog: NextPage = () => {
     );
     setTitle('');
     setBody('');
-    setBlogId('');
     alert('Success!');
   };
 
@@ -62,7 +61,6 @@ const CreateBlog: NextPage = () => {
             Create Blog
           </Typography>
           <TextField
-            id="outlined-basic"
             label="blogId"
             variant="outlined"
             disabled
@@ -75,7 +73,6 @@ const CreateBlog: NextPage = () => {
               value={title}
               onValueChange={(v) => {
                 setTitle(v);
-                setBlogId(generateBlogId(v));
               }}
               name="title_input"
               placeholder="Title of your blog post"

@@ -16,10 +16,9 @@ import MainLayout from '../layouts/MainLayout';
 const UpdateBlog: NextPage = () => {
   const router = useRouter();
   const { blogid } = router.query;
-  const [blogInfo, setBlogInfo] = useState<Blog>(undefined);
+  const [existingBlogInfo, setExistingBlogInfo] = useState<Blog>(undefined);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
-  const [hasChanged, setHasChanged] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
 
   useEffect(() => {
@@ -38,7 +37,7 @@ const UpdateBlog: NextPage = () => {
     const fetchBlogPost = async () => {
       const blogData = await getBlogPostsById(blogid as string);
       const blog = blogData.data.blogs[0];
-      setBlogInfo(blogData.data.blogs[0]);
+      setExistingBlogInfo(blogData.data.blogs[0]);
       setTitle(blog.title);
       setBody(blog.body);
     };
@@ -51,16 +50,13 @@ const UpdateBlog: NextPage = () => {
     router.push(`/blog/${blogid}`);
   };
 
-  useEffect(() => {
-    setHasChanged(title !== blogInfo?.title || body !== blogInfo?.body);
-  }, [title, body]);
+  const hasChanged =
+    title !== existingBlogInfo?.title || body !== existingBlogInfo?.body;
 
-  if (!blogInfo) {
+  if (!existingBlogInfo || !userInfo) {
     return <Typography>Loading...</Typography>;
   }
-  if (!userInfo) {
-    return <Typography>Loading...</Typography>;
-  }
+
   return (
     <MainLayout>
       <Box mx="10px">
