@@ -1,9 +1,11 @@
 import { Box, Button, TextField, Typography } from '@mui/material';
 import {
+  Blog,
   UserInfo,
-  createBlogPost,
+  getBlogPostsById,
   getUserInfo,
   isModerator,
+  updateBlogPost,
 } from '@stex-react/api';
 import { MdEditor } from '@stex-react/markdown';
 import { NextPage } from 'next';
@@ -11,19 +13,14 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import MainLayout from '../layouts/MainLayout';
 
-function generateBlogId(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9_ ]/g, '')
-    .replace(/ /g, '-');
-}
-
-const CreateBlog: NextPage = () => {
+const UpdateBlog: NextPage = () => {
   const router = useRouter();
-  const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
+  const { blogid } = router.query;
+  const [blogInfo, setBlogInfo] = useState<Blog>(undefined);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
-  const [blogId, setBlogId] = useState('');
+  const [hasChanged, setHasChanged] = useState(false);
+  const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
 
   useEffect(() => {
     const fetchDataAndCheckModerator = async () => {
@@ -36,48 +33,57 @@ const CreateBlog: NextPage = () => {
 
     fetchDataAndCheckModerator();
   }, [router]);
+
+  useEffect(() => {
+    const fetchBlogPost = async () => {
+      const blogData = await getBlogPostsById(blogid as string);
+      const blog = blogData.data.blogs[0];
+      setBlogInfo(blogData.data.blogs[0]);
+      setTitle(blog.title);
+      setBody(blog.body);
+    };
+    if (router.isReady) fetchBlogPost();
+  }, [router.isReady, blogid]);
+
   const handleSubmit = async () => {
-    await createBlogPost(
-      title,
-      body,
-      blogId,
-      userInfo?.userId,
-      userInfo?.fullName
-    );
-    setTitle('');
-    setBody('');
-    setBlogId('');
-    alert('Success!');
+    await updateBlogPost(title, body, blogid as string);
+    alert('Updates Successfully');
+    router.push(`/blog/${blogid}`);
   };
 
+  useEffect(() => {
+    setHasChanged(title !== blogInfo?.title || body !== blogInfo?.body);
+  }, [title, body]);
+
+  if (!blogInfo) {
+    return <Typography>Loading...</Typography>;
+  }
   if (!userInfo) {
     return <Typography>Loading...</Typography>;
   }
-
   return (
     <MainLayout>
       <Box mx="10px">
         <Box width="100%" m="0px 20px">
           <Typography fontSize={24} m="10px 0px">
-            Create Blog
+            Update Blog
           </Typography>
           <TextField
             id="outlined-basic"
             label="blogId"
             variant="outlined"
             disabled
-            value={blogId}
+            value={blogid}
             size="small"
             sx={{ mb: '20px' }}
           />
+
           <Box mb="20px">
             <MdEditor
               value={title}
-              onValueChange={(v) => {
-                setTitle(v);
-                setBlogId(generateBlogId(v));
-              }}
+              onValueChange={(v) => setTitle(v)}
               name="title_input"
+              minRows={2}
               placeholder="Title of your blog post"
               defaultPreview={true}
             />
@@ -87,21 +93,30 @@ const CreateBlog: NextPage = () => {
             onValueChange={(v) => setBody(v)}
             name="body_input"
             minRows={20}
-            placeholder="content of your blog post"
+            placeholder="Content of your blog post"
             defaultPreview={true}
           />
-          <Button
-            sx={{ m: '20px' }}
-            variant="contained"
-            color="primary"
-            onClick={handleSubmit}
-          >
-            Submit
-          </Button>
+          <Box display="flex" m="20px" gap="10px">
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => handleSubmit()}
+              disabled={!hasChanged}
+            >
+              Submit
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => router.push('/blog')}
+            >
+              Discard
+            </Button>
+          </Box>
         </Box>
       </Box>
     </MainLayout>
   );
 };
 
-export default CreateBlog;
+export default UpdateBlog;

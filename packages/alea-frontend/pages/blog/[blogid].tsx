@@ -1,5 +1,5 @@
-import { Box, Typography } from '@mui/material';
-import { Blog, getBlogPostsById } from '@stex-react/api';
+import { Box, Button, Typography } from '@mui/material';
+import { Blog, UserInfo, getBlogPostsById, getUserInfo } from '@stex-react/api';
 import { MdViewer } from '@stex-react/markdown';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -8,10 +8,13 @@ import MainLayout from '../../layouts/MainLayout';
 
 const Blogs: NextPage = () => {
   const [blog, setBlog] = useState<Blog | null>(null);
+  const [userInfo, setUserInfo] = useState<UserInfo>(null);
   const router = useRouter();
   const blogId = router.query.blogid;
   useEffect(() => {
     async function fetchData() {
+      const user = await getUserInfo();
+      setUserInfo(user);
       const data = await getBlogPostsById(blogId as string);
       setBlog(data.data.blogs[0]);
     }
@@ -22,6 +25,19 @@ const Blogs: NextPage = () => {
     <MainLayout>
       <Box mx="10px">
         <Box m="0 auto" maxWidth="800px">
+          <Box display="flex" justifyContent="space-between" m="20px">
+            <Button variant="contained" onClick={() => router.push(`/blog`)}>
+              All Blogs
+            </Button>
+            {userInfo && (
+              <Button
+                variant="contained"
+                onClick={() => router.push(`/update-blog?blogid=${blogId}`)}
+              >
+                Edit
+              </Button>
+            )}
+          </Box>
           <Box
             sx={{
               p: '20px',
