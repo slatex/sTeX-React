@@ -1,4 +1,4 @@
-import { TextareaAutosize } from '@mui/material';
+import { Box, TextareaAutosize } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { getLocaleObject } from './lang/utils';
@@ -16,6 +16,8 @@ interface MdEditorProps {
 
   value: string;
 
+  defaultPreview?: boolean;
+
   onValueChange: (v: string) => void;
 }
 
@@ -28,9 +30,10 @@ export function MdEditor({
   editingEnabled = true,
   value,
   onValueChange,
+  defaultPreview = false,
 }: MdEditorProps) {
   const t = getLocaleObject(useRouter());
-  const [autoPreview, setAutoPreview] = useState(false);
+  const [autoPreview, setAutoPreview] = useState(defaultPreview);
   const [manualAction, setManualAction] = useState<boolean | undefined>(
     undefined
   );
@@ -43,9 +46,16 @@ export function MdEditor({
   const showPreview =
     manualAction || (manualAction === undefined && autoPreview);
   return (
-    <>
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '20px',
+      }}
+    >
       {editingEnabled && (
-        <div>
+        <Box sx={{ maxWidth: '800px', flex: '1 1 400px' }}>
           <TextareaAutosize
             minRows={minRows}
             placeholder={placeholder}
@@ -58,21 +68,23 @@ export function MdEditor({
               onValueChange(v);
             }}
           />
-        </div>
+        </Box>
       )}
-      {autoPreview && (
-        <span
-          onClick={(_e) => setManualAction(!showPreview)}
-          style={{ cursor: 'pointer', userSelect: 'none', fontSize: '12px' }}
-        >
-          {showPreview ? t.hidePreview : t.showPreview}
-        </span>
-      )}
-      {(showPreview || !editingEnabled) && (
-        <div className={editingEnabled ? styles['edit_preview'] : ''}>
-          <MdViewer content={value} />
-        </div>
-      )}
-    </>
+      <Box sx={{ maxWidth: '800px', flex: '1 1 400px' }}>
+        {autoPreview && (
+          <span
+            onClick={(_e) => setManualAction(!showPreview)}
+            style={{ cursor: 'pointer', userSelect: 'none', fontSize: '12px' }}
+          >
+            {showPreview ? t.hidePreview : t.showPreview}
+          </span>
+        )}
+        {(showPreview || !editingEnabled) && (
+          <Box className={editingEnabled ? styles['edit_preview'] : ''}>
+            <MdViewer content={value} />
+          </Box>
+        )}
+      </Box>
+    </Box>
   );
 }

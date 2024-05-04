@@ -231,3 +231,17 @@ export async function getBlogPosts() {
 export async function getBlogPostsById(blogId: string) {
   return await axios.get('/api/get-blog-posts-by-id', { params: { blogId } });
 }
+
+export async function updateBlogPost(
+  title: string,
+  body: string,
+  blogid: string
+) {
+  return await axios.post(
+    '/api/update-blog-post',
+    { title, body, blogid },
+    {
+      headers: getAuthHeaders(),
+    }
+  );
+}
