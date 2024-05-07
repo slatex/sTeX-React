@@ -1,47 +1,74 @@
-import { Box, Button, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Typography,
+} from '@mui/material';
 import {
   Blog,
   UserInfo,
+  deleteBlogPost,
   getBlogPostsById,
   getUserInfo,
   isModerator,
 } from '@stex-react/api';
 import { MdViewer } from '@stex-react/markdown';
-import { NextPage } from 'next';
+import { GetServerSidePropsContext, NextPage } from 'next';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
 
-const Blogs: NextPage = () => {
-  const [blog, setBlog] = useState<Blog | null>(null);
+const Blogs: NextPage = ({ blog }: { blog: Blog }) => {
   const [userInfo, setUserInfo] = useState<UserInfo>(null);
+  const [openConfirmation, setOpenConfirmation] = useState(false);
   const router = useRouter();
-  const blogId = router.query.blogid;
+
   useEffect(() => {
     async function fetchData() {
       const user = await getUserInfo();
       setUserInfo(user);
-      const data = await getBlogPostsById(blogId as string);
-      setBlog(data.data.blogs[0]);
     }
-    if (router.isReady) fetchData();
-  }, [router.isReady, blogId]);
-  if (!blog) return <Box m="20px">Loading...</Box>;
+    fetchData();
+  }, []);
+
+  const handleDelete = () => {
+    setOpenConfirmation((prevState) => !prevState);
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      await deleteBlogPost(blog.blogId);
+    } catch (error) {
+      console.error('Error deleting blog:', error);
+    } finally {
+      setOpenConfirmation(false);
+      alert('blog deleted successfully');
+      router.push('/blog');
+    }
+  };
+
   return (
     <MainLayout>
       <Box mx="10px">
         <Box m="0 auto" maxWidth="800px">
           <Box display="flex" justifyContent="space-between" m="20px">
-            <Button variant="contained" onClick={() => router.push(`/blog`)}>
-              All Blogs
-            </Button>
+            <Link href={'/blog'}>
+              <Button variant="contained">All Blogs</Button>
+            </Link>
             {isModerator(userInfo?.userId) && (
-              <Button
-                variant="contained"
-                onClick={() => router.push(`/update-blog?blogid=${blogId}`)}
-              >
-                Edit
-              </Button>
+              <>
+                <Link href={`/update-blog?blogid=${blog.blogId}`}>
+                  <Button variant="contained">Edit</Button>
+                </Link>
+                <Button variant="contained" onClick={handleDelete}>
+                  Delete
+                </Button>
+              </>
             )}
           </Box>
           <Box
@@ -67,8 +94,34 @@ const Blogs: NextPage = () => {
           </Box>
         </Box>
       </Box>
+      <Dialog open={openConfirmation} onClose={handleDelete}>
+        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this blog?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDelete}>Cancel</Button>
+          <Button onClick={handleConfirmDelete}>Delete</Button>
+        </DialogActions>
+      </Dialog>
     </MainLayout>
   );
 };
 
 export default Blogs;
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const blogId = context.query.blogid as string;
+  const protocol = context.req.headers['x-forwarded-proto'] as string;
+  const host = context.req.headers.host;
+  try {
+    const res = await getBlogPostsById(blogId, true, protocol, host);
+    const blog = res.data.blogs[0];
+    return { props: { blog } };
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    return { props: { data: null } };
+  }
+}
