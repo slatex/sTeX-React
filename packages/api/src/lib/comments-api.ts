@@ -228,8 +228,20 @@ export async function createBlogPost(
 export async function getBlogPosts() {
   return await axios.get('/api/get-blog-posts');
 }
-export async function getBlogPostsById(blogId: string) {
-  return await axios.get('/api/get-blog-posts-by-id', { params: { blogId } });
+
+export async function getBlogPostsById(
+  blogId: string,
+  forSSR = false,
+  protocol?: string,
+  host?: string
+) {
+  const apiUrl = forSSR
+    ? `${protocol}://${host}/api/get-blog-posts-by-id`
+    : '/api/get-blog-posts-by-id';
+
+  return await axios.get(apiUrl, {
+    params: { blogId },
+  });
 }
 
 export async function updateBlogPost(
@@ -243,5 +255,13 @@ export async function updateBlogPost(
     {
       headers: getAuthHeaders(),
     }
+  );
+}
+
+export async function deleteBlogPost(blogId: string) {
+  return await axios.post(
+    '/api/delete-blog-post',
+    { blogId },
+    { headers: getAuthHeaders() }
   );
 }
