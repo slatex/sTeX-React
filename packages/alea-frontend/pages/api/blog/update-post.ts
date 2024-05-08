@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import {
   executeAndEndSet500OnError,
   getUserIdOrSetError,
-} from './comment-utils';
+} from '../comment-utils';
 import { isModerator } from '@stex-react/api';
 
 export default async function handler(
@@ -12,17 +12,15 @@ export default async function handler(
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
   if (!isModerator(userId)) {
-    res.status(403).send({ message: 'Unauthorized.' });
-    return;
+    return res.status(403).send({ message: 'Unauthorized.' });
   }
-  const { title, body, blogId, authorId, authorName } = req.body;
-
+  const { title, body, postId } = req.body;
   const result = await executeAndEndSet500OnError(
-    `INSERT INTO Blogs (title, body, blogId , authorId, authorName) VALUES (?, ? ,? ,? ,? )`,
-    [title, body, blogId, authorId, authorName],
+    `UPDATE BlogPosts SET title = ?, body = ? WHERE postId = ?`,
+    [title, body, postId],
     res
   );
 
   if (!result) return;
-  res.status(201).json({ message: 'Blog created successfully' });
+  res.status(201).json({ message: 'Blog post updated successfully' });
 }

@@ -131,12 +131,20 @@ export enum AuthProvider {
   FAU_IDM = 'FAU_IDM',
 }
 
-export interface Blog {
+export interface BlogPost {
   title: string;
   body: string;
   authorId: string;
-  blogId: string;
+  postId: string;
   createdAt: string;
   updatedAt: string;
   authorName: string;
+}
+
+export interface PostSnippet {
+  postId: string;
+  title: string;
+  bodySnippet: string;
+  authorName: string;
+  createdAt: string;
 }

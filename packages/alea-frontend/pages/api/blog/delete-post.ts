@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import {
   executeAndEndSet500OnError,
   getUserIdOrSetError,
-} from './comment-utils';
+} from '../comment-utils';
 import { isModerator } from '@stex-react/api';
 
 export default async function handler(
@@ -12,16 +12,17 @@ export default async function handler(
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
   if (!isModerator(userId)) {
-    res.status(403).send({ message: 'Unauthorized.' });
-    return;
+    return res.status(403).send({ message: 'Unauthorized.' });
   }
-  const { title, body, blogid } = req.body;
+
+  const { postId } = req.body;
+
   const result = await executeAndEndSet500OnError(
-    `UPDATE Blogs SET title= ? , body = ?  WHERE blogId = ?`,
-    [title, body, blogid],
+    `DELETE FROM BlogPosts WHERE postId = ?`,
+    [postId],
     res
   );
 
   if (!result) return;
-  res.status(201).json({ message: 'Blog updated successfully' });
+  res.status(200).json({ message: 'Post deleted successfully' });
 }
