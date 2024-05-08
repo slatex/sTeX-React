@@ -9,6 +9,6 @@ const MD = new MarkdownIt({
 }).use(TexmathPlugin);
 
 export function parseMarkdown(mdString: string): AstNode[] {
-  const tokens = MD.parse(mdString, undefined);
+  const tokens = MD.parse(mdString, {});
   return tokensToAST(tokens);
 }

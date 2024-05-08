@@ -27,9 +27,7 @@ export function DocumentWidthSetter({
   return (
     <Box
       ref={outerBox}
-      {...({
-        style: { '--document-width': `${contentWidth}px` },
-      } as any)}
+      {...({ style: { '--document-width': `${contentWidth}px` } } as any)}
     >
       {children}
     </Box>

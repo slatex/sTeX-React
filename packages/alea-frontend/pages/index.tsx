@@ -66,13 +66,13 @@ const PARTNERED_UNIVERSITIES = [
 const FEATURED_COURSES = [
   {
     courseImage: '/ai-1.jpg',
-    courseName: 'AI-1',
+    courseName: 'Artificial Intelligence - 1',
     professor: 'Michael Kohlhase',
     courseId: 'ai-1',
   },
   {
     courseImage: '/ai-2.jpg',
-    courseName: 'AI -2',
+    courseName: 'Artificial Intelligence - 2',
     professor: 'Dennis Müller',
     courseId: 'ai-2',
   },
