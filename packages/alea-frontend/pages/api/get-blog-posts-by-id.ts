@@ -8,7 +8,7 @@ export default async function handler(
 ) {
   const { blogId } = req.query;
   const blogs: Blog = await executeDontEndSet500OnError(
-    `SELECT * FROM blogs WHERE blogId = ?`,
+    `SELECT * FROM Blogs WHERE blogId = ?`,
     [blogId],
     res
   );

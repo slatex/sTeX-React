@@ -18,7 +18,7 @@ export default async function handler(
   const { title, body, blogId, authorId, authorName } = req.body;
 
   const result = await executeAndEndSet500OnError(
-    `INSERT INTO blogs (title, body, blogId , authorId, authorName) VALUES (?, ? ,? ,? ,? )`,
+    `INSERT INTO Blogs (title, body, blogId , authorId, authorName) VALUES (?, ? ,? ,? ,? )`,
     [title, body, blogId, authorId, authorName],
     res
   );

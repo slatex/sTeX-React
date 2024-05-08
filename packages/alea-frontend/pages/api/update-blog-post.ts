@@ -17,7 +17,7 @@ export default async function handler(
   }
   const { title, body, blogid } = req.body;
   const result = await executeAndEndSet500OnError(
-    `UPDATE blogs SET title= ? , body = ?  WHERE blogId = ?`,
+    `UPDATE Blogs SET title= ? , body = ?  WHERE blogId = ?`,
     [title, body, blogid],
     res
   );
