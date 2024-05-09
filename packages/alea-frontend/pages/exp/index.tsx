@@ -113,7 +113,7 @@ const ExperimentsHome: NextPage = () => {
               Auth server: {process.env.NEXT_PUBLIC_AUTH_SERVER_URL}
             </Box>
             <Box>
-              <h2>ALeA Servers</h2>
+              <h2>ALᴇA Servers</h2>
               <ExternalButtonLink
                 href="https://courses.voll-ki.fau.de"
                 text="Production"

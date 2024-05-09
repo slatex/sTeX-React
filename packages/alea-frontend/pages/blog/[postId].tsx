@@ -77,7 +77,7 @@ const BlogPostPage: NextPage = ({ post }: { post: BlogPost }) => {
             sx={{
               p: '20px',
               m: '20px',
-              minHeight: '80vh',
+              minHeight: 'calc(100vh - 270px)',
               boxShadow: '0 0 10px 0 gray',
               borderRadius: '5px',
             }}

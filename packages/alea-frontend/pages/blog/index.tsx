@@ -22,7 +22,7 @@ const BlogHomePage: NextPage = () => {
             variant="h3"
             fontFamily={'"Roboto", "Helvetica", "Arial", sans-serif'}
           >
-            ALeA Blog
+            ALᴇA Blog
           </Typography>
           {postSnippets.map((snippet) => (
             <Box
@@ -54,7 +54,7 @@ const BlogHomePage: NextPage = () => {
                   {snippet.createdAt.split('T')[0]}
                 </Typography>
                 <Typography display="flex" alignItems="center">
-                  Author: <MdViewer content={snippet.authorName} />
+                  Author:&nbsp;<MdViewer content={snippet.authorName} />
                 </Typography>
               </Box>
             </Box>
