@@ -1,8 +1,8 @@
 import { Box, Button, TextField, Typography } from '@mui/material';
 import {
-  Blog,
+  BlogPost,
   UserInfo,
-  getBlogPostsById,
+  getPostById,
   getUserInfo,
   isModerator,
   updateBlogPost,
@@ -11,12 +11,12 @@ import { MdEditor } from '@stex-react/markdown';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import MainLayout from '../layouts/MainLayout';
+import MainLayout from '../../layouts/MainLayout';
 
-const UpdateBlog: NextPage = () => {
+const EditPostPage: NextPage = () => {
   const router = useRouter();
-  const { blogid } = router.query;
-  const [existingBlogInfo, setExistingBlogInfo] = useState<Blog>(undefined);
+  const { postId } = router.query;
+  const [existingPostInfo, setExistingPostInfo] = useState<BlogPost>(undefined);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
@@ -35,25 +35,24 @@ const UpdateBlog: NextPage = () => {
 
   useEffect(() => {
     const fetchBlogPost = async () => {
-      const blogData = await getBlogPostsById(blogid as string);
-      const blog = blogData.data.blogs[0];
-      setExistingBlogInfo(blogData.data.blogs[0]);
-      setTitle(blog.title);
-      setBody(blog.body);
+      const post = await getPostById(postId as string);
+      setExistingPostInfo(post);
+      setTitle(post.title);
+      setBody(post.body);
     };
     if (router.isReady) fetchBlogPost();
-  }, [router.isReady, blogid]);
+  }, [router.isReady, postId]);
 
   const handleSubmit = async () => {
-    await updateBlogPost(title, body, blogid as string);
-    alert('Updates Successfully');
-    router.push(`/blog/${blogid}`);
+    await updateBlogPost(title, body, postId as string);
+    alert('Updated Successfully');
+    router.push(`/blog/${postId}`);
   };
 
   const hasChanged =
-    title !== existingBlogInfo?.title || body !== existingBlogInfo?.body;
+    title !== existingPostInfo?.title || body !== existingPostInfo?.body;
 
-  if (!existingBlogInfo || !userInfo) {
+  if (!existingPostInfo || !userInfo) {
     return <Typography>Loading...</Typography>;
   }
 
@@ -66,10 +65,10 @@ const UpdateBlog: NextPage = () => {
           </Typography>
           <TextField
             id="outlined-basic"
-            label="blogId"
+            label="postId"
             variant="outlined"
             disabled
-            value={blogid}
+            value={postId}
             size="small"
             sx={{ mb: '20px' }}
           />
@@ -115,4 +114,4 @@ const UpdateBlog: NextPage = () => {
   );
 };
 
-export default UpdateBlog;
+export default EditPostPage;

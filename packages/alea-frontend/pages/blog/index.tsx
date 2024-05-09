@@ -1,21 +1,18 @@
 import { Box, Typography } from '@mui/material';
-import { NextPage } from 'next';
-import MainLayout from '../../layouts/MainLayout';
-import { useEffect, useState } from 'react';
-import { Blog, getBlogPosts } from '@stex-react/api';
-import { useRouter } from 'next/router';
+import { PostSnippet, getPostSnippets } from '@stex-react/api';
 import { MdViewer } from '@stex-react/markdown';
+import { NextPage } from 'next';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import MainLayout from '../../layouts/MainLayout';
 
-const Blogs: NextPage = () => {
+const BlogHomePage: NextPage = () => {
   const router = useRouter();
-  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [postSnippets, setPostSnippets] = useState<PostSnippet[]>([]);
   useEffect(() => {
-    async function fetchData() {
-      const blogs = await getBlogPosts();
-      setBlogs(blogs.data);
-    }
-    fetchData();
+    getPostSnippets().then(setPostSnippets);
   }, []);
+
   return (
     <MainLayout>
       <Box mx="10px">
@@ -25,17 +22,15 @@ const Blogs: NextPage = () => {
             variant="h3"
             fontFamily={'"Roboto", "Helvetica", "Arial", sans-serif'}
           >
-            Blogs
+            ALeA Blog
           </Typography>
-          {blogs.map((blog) => (
+          {postSnippets.map((snippet) => (
             <Box
-              key={blog.blogId}
+              key={snippet.postId}
               border="1px solid #CCC"
               p="10px"
               m="20px"
-              onClick={() => {
-                router.push(`/blog/${blog.blogId}`);
-              }}
+              onClick={() => router.push(`/blog/${snippet.postId}`)}
               sx={{
                 cursor: 'pointer',
                 borderRadius: '10px',
@@ -47,8 +42,8 @@ const Blogs: NextPage = () => {
                 backgroundImage: 'radial-gradient(white,lightgray)',
               }}
             >
-              <MdViewer content={blog.title} />
-              <MdViewer content={blog.body.concat('...')} />
+              <MdViewer content={snippet.title} />
+              <MdViewer content={snippet.bodySnippet.concat('...')} />
               <Box
                 display="flex"
                 justifyContent="space-between"
@@ -56,10 +51,10 @@ const Blogs: NextPage = () => {
                 height="20px"
               >
                 <Typography fontSize={12} textAlign={'right'}>
-                  {blog.createdAt.split('T')[0]}
+                  {snippet.createdAt.split('T')[0]}
                 </Typography>
                 <Typography display="flex" alignItems="center">
-                  Author : <MdViewer content={blog.authorName} />
+                  Author: <MdViewer content={snippet.authorName} />
                 </Typography>
               </Box>
             </Box>
@@ -70,4 +65,4 @@ const Blogs: NextPage = () => {
   );
 };
 
-export default Blogs;
+export default BlogHomePage;

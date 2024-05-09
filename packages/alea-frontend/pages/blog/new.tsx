@@ -9,21 +9,22 @@ import { MdEditor } from '@stex-react/markdown';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import MainLayout from '../layouts/MainLayout';
+import MainLayout from '../../layouts/MainLayout';
 
-function generateBlogId(title: string): string {
+function generatePostId(title: string): string {
   return title
     .toLowerCase()
     .replace(/[^a-z0-9_ ]/g, '')
+    .trim()
     .replace(/ /g, '-');
 }
 
-const CreateBlog: NextPage = () => {
+const NewPostPage: NextPage = () => {
   const router = useRouter();
   const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
-  const blogId= generateBlogId(title);
+  const postId = generatePostId(title);
 
   useEffect(() => {
     const fetchDataAndCheckModerator = async () => {
@@ -40,7 +41,7 @@ const CreateBlog: NextPage = () => {
     await createBlogPost(
       title,
       body,
-      blogId,
+      postId,
       userInfo?.userId,
       userInfo?.fullName
     );
@@ -61,10 +62,10 @@ const CreateBlog: NextPage = () => {
             Create Blog
           </Typography>
           <TextField
-            label="blogId"
+            label="postId"
             variant="outlined"
             disabled
-            value={blogId}
+            value={postId}
             size="small"
             sx={{ mb: '20px' }}
           />
@@ -101,4 +102,4 @@ const CreateBlog: NextPage = () => {
   );
 };
 
-export default CreateBlog;
+export default NewPostPage;

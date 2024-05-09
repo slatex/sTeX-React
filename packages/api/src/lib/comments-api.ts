@@ -1,6 +1,8 @@
 import { FileLocation } from '@stex-react/utils';
 import axios, { AxiosError } from 'axios';
 import {
+  BlogPost,
+  PostSnippet,
   Comment,
   CommentType,
   EditCommentRequest,
@@ -206,62 +208,56 @@ export async function sendVerificationEmail(
 export async function createBlogPost(
   title: string,
   body: string,
-  blogId: string,
+  postId: string,
   authorId: string,
   authorName: string
 ) {
   return await axios.post(
-    '/api/create-blog-post',
+    '/api/blog/create-post',
     {
       title,
       body,
-      blogId,
+      postId,
       authorId,
       authorName,
     },
-    {
-      headers: getAuthHeaders(),
-    }
+    { headers: getAuthHeaders() }
   );
 }
 
-export async function getBlogPosts() {
-  return await axios.get('/api/get-blog-posts');
+export async function getPostSnippets(): Promise<PostSnippet[]> {
+  return (await axios.get('/api/blog/get-post-snippets')).data;
 }
 
-export async function getBlogPostsById(
-  blogId: string,
+export async function getPostById(
+  postId: string,
   forSSR = false,
   protocol?: string,
   host?: string
-) {
+): Promise<BlogPost> {
   const apiUrl = forSSR
-    ? `${protocol}://${host}/api/get-blog-posts-by-id`
-    : '/api/get-blog-posts-by-id';
+    ? `${protocol}://${host}/api/blog/get-post-by-id`
+    : '/api/blog/get-post-by-id';
 
-  return await axios.get(apiUrl, {
-    params: { blogId },
-  });
+  return (await axios.get(apiUrl, { params: { postId } })).data;
 }
 
 export async function updateBlogPost(
   title: string,
   body: string,
-  blogid: string
+  postId: string
 ) {
   return await axios.post(
-    '/api/update-blog-post',
-    { title, body, blogid },
-    {
-      headers: getAuthHeaders(),
-    }
+    '/api/blog/update-post',
+    { title, body, postId },
+    { headers: getAuthHeaders() }
   );
 }
 
-export async function deleteBlogPost(blogId: string) {
+export async function deleteBlogPost(postId: string) {
   return await axios.post(
-    '/api/delete-blog-post',
-    { blogId },
+    '/api/blog/delete-post',
+    { postId },
     { headers: getAuthHeaders() }
   );
 }

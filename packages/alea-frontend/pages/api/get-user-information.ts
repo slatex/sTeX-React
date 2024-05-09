@@ -26,7 +26,7 @@ export default async function handler(
   if (!result) return;
   if (!result[0]) {
     return res.status(200).send({
-      showTrafficLight: true,
+      showTrafficLight: false,
       showSectionReview: true,
       notificationSeenTs: null,
       isVerified: false,

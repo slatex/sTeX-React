@@ -105,8 +105,8 @@ CREATE TABLE StudyBuddyUsers (
     PRIMARY KEY (userId, courseId)
 );
 
-CREATE TABLE blogs (
-    blogId VARCHAR(255) NOT NULL,
+CREATE TABLE BlogPosts (
+    postId VARCHAR(255) NOT NULL,
     title VARCHAR(255) NOT NULL,
     body TEXT NOT NULL,
     authorId VARCHAR(100) NOT NULL,
