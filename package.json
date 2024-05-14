@@ -4,7 +4,7 @@
   "license": "GNU AGPL",
   "scripts": {
     "start": "nx serve",
-    "build": "nx build",
+    "build": "nx run nodejs-scripts:serve:production --watch=false && nx build",
     "test": "nx test",
     "reset": "nx reset",
     "nxgraph": "nx graph"

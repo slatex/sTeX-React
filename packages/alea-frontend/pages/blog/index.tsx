@@ -1,30 +1,63 @@
-import { Box, Typography } from '@mui/material';
-import { PostSnippet, getPostSnippets } from '@stex-react/api';
+import { Box, Button, Typography } from '@mui/material';
+import {
+  BlogPost,
+  PostSnippet,
+  UserInfo,
+  getPostSnippets,
+  getUserInfo,
+  isModerator,
+} from '@stex-react/api';
 import { MdViewer } from '@stex-react/markdown';
+import fs from 'fs';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
-
-const BlogHomePage: NextPage = () => {
+const BlogHomePage: NextPage = ({
+  postSnippets,
+}: {
+  postSnippets: PostSnippet[];
+}) => {
   const router = useRouter();
-  const [postSnippets, setPostSnippets] = useState<PostSnippet[]>([]);
+  const [userInfo, setUserInfo] = useState<UserInfo>(null);
+  const [snippets, setSnippets] = useState<PostSnippet[]>(postSnippets);
   useEffect(() => {
-    getPostSnippets().then(setPostSnippets);
-  }, []);
-
+    getUserInfo().then(setUserInfo);
+    async function fetchPost() {
+      const data = await getPostSnippets();
+      setSnippets(data);
+    }
+    if (router.isReady) fetchPost();
+  }, [router.isReady]);
   return (
     <MainLayout>
       <Box mx="10px">
         <Box m="0 auto" maxWidth="800px">
-          <Typography
-            m="20px"
-            variant="h3"
-            fontFamily={'"Roboto", "Helvetica", "Arial", sans-serif'}
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+            }}
           >
-            ALeA Blog
-          </Typography>
-          {postSnippets.map((snippet) => (
+            <Typography
+              m="20px"
+              variant="h3"
+              fontFamily={'"Roboto", "Helvetica", "Arial", sans-serif'}
+            >
+              ALeA Blog
+            </Typography>
+            {isModerator(userInfo?.userId) && (
+              <Button
+                onClick={() => router.push('/blog/new')}
+                variant="contained"
+              >
+                create new blog
+              </Button>
+            )}
+          </Box>
+          {snippets.map((snippet) => (
             <Box
               key={snippet.postId}
               border="1px solid #CCC"
@@ -66,3 +99,22 @@ const BlogHomePage: NextPage = () => {
 };
 
 export default BlogHomePage;
+
+function getPostData(postSnippets: BlogPost[]) {
+  return postSnippets.map((snippet) => {
+    return {
+      ...snippet,
+      bodySnippet: snippet.body.slice(0, 100),
+    };
+  });
+}
+export async function getStaticProps() {
+  const data = fs.readFileSync('../../static/blogData.json', 'utf8');
+  const jsonData = JSON.parse(data);
+  const postSnippets: PostSnippet[] = getPostData(jsonData);
+  return {
+    props: {
+      postSnippets: postSnippets,
+    },
+  };
+}

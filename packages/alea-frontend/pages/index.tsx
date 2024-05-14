@@ -12,6 +12,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
+import FeedIcon from '@mui/icons-material/Feed';
 
 const aleaFeatures = [
   {
@@ -157,6 +158,7 @@ const BannerSection = () => {
           >
             {n.aleaDesc}
           </Typography>
+
           <Button
             variant="contained"
             color="primary"
@@ -166,12 +168,23 @@ const BannerSection = () => {
             {n.signUpNow}
           </Button>
           <Button
+            sx={{ marginRight: 1 }}
             variant="outlined"
             onClick={() => {
               router.push('/course-list');
             }}
           >
             {n.exploreOurCourse}
+          </Button>
+          <Button
+            sx={{ margin: '5px' }}
+            variant="contained"
+            onClick={() => {
+              router.push('/blog');
+            }}
+          >
+            <FeedIcon />
+            blogs
           </Button>
         </Box>
         {!isSmallScreen && (
