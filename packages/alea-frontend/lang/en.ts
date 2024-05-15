@@ -29,7 +29,7 @@ export const en = {
         'Courses that adapt to the users preferences and competencies focused on the knowledge conveyed in a particular knowledge unit.',
       signUpNow: 'Sign up now',
       exploreOurCourse: 'Explore our Courses',
-      whyAlea: 'Why ALeA?',
+      whyAlea: 'Why ALᴇA?',
       explorCourses: 'Explore Courses',
       partneredWith:
         'Top-tier educational content + developed at + esteemed institutions worldwide',
@@ -53,7 +53,7 @@ export const en = {
       'the respective user in the **Voll-KI Trust Zone**. Please ' +
       'note the following consequences:',
     notesPoint1:
-      '**Disclaimer :** ALeA is not a production-ready system, so system ' +
+      '**Disclaimer :** ALᴇA is not a production-ready system, so system ' +
       'functionality may change or go away without prior notice. ' +
       'You are participating in this experimental system ' +
       'voluntarily, we hope that the system will enhance your ' +
@@ -210,10 +210,10 @@ export const en = {
     loginToContinue:
       'Please log in (with your FAU IDM credentials) to continue',
     intro:
-      'A great part of the ALeA services depends on the quality of the ' +
-      "ALeA learner model data - a subsystem that models the learner's knowledge/competency " +
+      'A great part of the ALᴇA services depends on the quality of the ' +
+      "ALᴇA learner model data - a subsystem that models the learner's knowledge/competency " +
       "of the concepts underlying the learning materials by monitoring learners' " +
-      'interactions with/in the ALeA system. The system will try its best to serve you by ' +
+      'interactions with/in the ALᴇA system. The system will try its best to serve you by ' +
       'taking inputs from you in an unintrusive way. However, to make our services more ' +
       'effective right from the beginning of your journey, we request you to share your past ' +
       'academic record so that we can have a reasonable initial estimate of your learner model.',
@@ -316,7 +316,7 @@ export const en = {
     studyBuddyMasterCourse: 'Study Buddy Program for Master AI Courses',
     myEnrolledCourses: 'My Enrolled Courses',
     studyBuddyIntro:
-      'Forming and maintaining study groups significantly enhances academic performance. Yet, with the rise of digital learning, connecting with like-minded peers can be challenging. Our Study Buddy Connect feature aims to bridge this gap. Simply log in to the ALeA system via FAU IDM, complete a study buddy request form, and match up with compatible study partners. You retain the choice to reach out to those suggested, empowering you to connect with fellow learners effectively.',
+      'Forming and maintaining study groups significantly enhances academic performance. Yet, with the rise of digital learning, connecting with like-minded peers can be challenging. Our Study Buddy Connect feature aims to bridge this gap. Simply log in to the ALᴇA system via FAU IDM, complete a study buddy request form, and match up with compatible study partners. You retain the choice to reach out to those suggested, empowering you to connect with fellow learners effectively.',
     notEnrolledMessage: `Try it out for one of your courses (you can always opt-out anytime if you don't like it). Just choose an AI course from the list below and send a study buddy request.`,
   },
   notification: {
@@ -344,7 +344,7 @@ export const en = {
     passwordRegex:
       'Password must contain at least one uppercase letter, one lowercase letter, one digit, and be at least 8 characters long',
     invalidEmail: 'Invalid email address',
-    signUpEmail: 'Sign up to ALeA with your email address',
+    signUpEmail: 'Sign up to ALᴇA with your email address',
     signUp: 'SIGN UP',
     alreadyAccount: 'Already have an account?',
     logIn: 'Log in',

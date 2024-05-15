@@ -192,7 +192,7 @@ export function Header({
             <Box display="flex" flexWrap="nowrap" alignItems="center">
               <Image
                 src="/alea-logo.svg"
-                alt="ALeA Logo"
+                alt="ALᴇA Logo"
                 width={99}
                 height={64}
                 style={{ cursor: 'pointer' }}

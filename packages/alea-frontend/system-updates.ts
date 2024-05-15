@@ -28,15 +28,15 @@ export const SYSTEM_UPDATES = [
     postedTimestamp: '2024-03-20T16:30:00+05:30',
   },
   {
-    id: 'New survey about ALeA',
-    header: 'New survey about ALeA',
-    content: `Help us to evaluate ALeA by participating in this fifteen minute survey.
+    id: 'New survey about ALᴇA',
+    header: 'New survey about ALᴇA',
+    content: `Help us to evaluate ALᴇA by participating in this fifteen minute survey.
         If you take part in the AI-1 quizzes you get a quiz mark for completing the survey.
         You may start the survey by scanning or clicking on the qr code below.
         Thank you for participating, it helps us out a lot!
         \n [![qrcode](../ALeA_Eval.png)](https://ddi-survey.cs.fau.de/limesurvey/ALeA)`,
-    header_de: 'Neue Umfrage zu ALeA',
-    content_de: `Helfen Sie uns, ALeA zu bewerten, indem Sie an dieser fünfzehnminütigen Umfrage teilnehmen.
+    header_de: 'Neue Umfrage zu ALᴇA',
+    content_de: `Helfen Sie uns, ALᴇA zu bewerten, indem Sie an dieser fünfzehnminütigen Umfrage teilnehmen.
         Wenn Sie an den AI-1-Quizzes teilnehmen, erhalten Sie eine Quiznote für die Teilnahme an der Umfrage.
         Sie können die Umfrage starten, indem Sie den unten stehenden QR-Code scannen oder anklicken.
         Vielen Dank für Ihre Teilnahme, sie hilft uns sehr!
@@ -75,10 +75,10 @@ export const SYSTEM_UPDATES = [
   },
   {
     id: 'notification',
-    header: 'Notifications in ALeA',
+    header: 'Notifications in ALᴇA',
     content:
       'You will now receive notifications when someone responds to your comment or question. Lookout for the ringing bell icon 🔔',
-    header_de: 'Benachrichtigungen in ALeA',
+    header_de: 'Benachrichtigungen in ALᴇA',
     content_de:
       'Sie erhalten nun Benachrichtigungen, wenn jemand auf Ihren Kommentar oder Ihre Frage antwortet. Achten Sie auf das Glockensymbol 🔔',
     postedTimestamp: '2023-11-26T00:20:00+05:30',
@@ -95,12 +95,12 @@ export const SYSTEM_UPDATES = [
   },
   {
     id: 'quizzes',
-    header: 'Quizzes in ALeA',
+    header: 'Quizzes in ALᴇA',
     content:
-      'We are pleased to announce the introduction of our new Quiz Feature on our ALeA! We will be utilizing this feature for the weekly quizzes in the AI-1 course conducted during lectures. To stay informed about upcoming quizzes, kindly visit the [quiz dashboard](https://courses.voll-ki.fau.de/quiz-dash/ai-1).',
-    header_de: 'Quizze in ALeA',
+      'We are pleased to announce the introduction of our new Quiz Feature on our ALᴇA! We will be utilizing this feature for the weekly quizzes in the AI-1 course conducted during lectures. To stay informed about upcoming quizzes, kindly visit the [quiz dashboard](https://courses.voll-ki.fau.de/quiz-dash/ai-1).',
+    header_de: 'Quizze in ALᴇA',
     content_de:
-      'Wir freuen uns, die Einführung unseres neuen Quiz-Features auf unserem ALeA bekannt zu geben! Wir werden diese Funktion für die wöchentlichen Tests im AI-1-Kurs nutzen, die während der Vorlesungen durchgeführt werden. Um über bevorstehende Quizze auf dem Laufenden zu bleiben, besuchen Sie bitte das [Quiz-Dashboard](https://courses.voll-ki.fau.de/quiz-dash/ai-1).',
+      'Wir freuen uns, die Einführung unseres neuen Quiz-Features auf unserem ALᴇA bekannt zu geben! Wir werden diese Funktion für die wöchentlichen Tests im AI-1-Kurs nutzen, die während der Vorlesungen durchgeführt werden. Um über bevorstehende Quizze auf dem Laufenden zu bleiben, besuchen Sie bitte das [Quiz-Dashboard](https://courses.voll-ki.fau.de/quiz-dash/ai-1).',
     postedTimestamp: '2023-10-11T20:40:00+05:30',
   },
   {
@@ -189,7 +189,7 @@ export const SYSTEM_UPDATES = [
     id: 'pp-guided-tour',
     header: 'Paper Prototype: Guided Tour',
     content:
-      'A [paper prototype](/exp/pp_dialogue_tour) to show how a conversational UI would work in ALeA.',
+      'A [paper prototype](/exp/pp_dialogue_tour) to show how a conversational UI would work in ALᴇA.',
     postedTimestamp: '2023-04-02T18:30:00+05:30',
   },
   {

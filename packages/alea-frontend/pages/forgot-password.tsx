@@ -65,7 +65,7 @@ const ForgotPasswordPage: NextPage = () => {
             SEND
           </Button>
           <Typography variant="body2" sx={{ mt: 2 }}>
-            If you still need help, contact ALeA Support.
+            If you still need help, contact ALᴇA Support.
           </Typography>
         </Box>
       )}

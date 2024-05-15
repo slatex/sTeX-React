@@ -73,14 +73,14 @@ const MyCourseHistory = () => {
 
   if (!userInfo) {
     return (
-      <MainLayout title={`${t.learnerModelPriming} | ALeA`}>
+      <MainLayout title={`${t.learnerModelPriming} | ALᴇA`}>
         {t.loginToContinue}
       </MainLayout>
     );
   }
 
   return (
-    <MainLayout title={`${t.learnerModelPriming} | ALeA`}>
+    <MainLayout title={`${t.learnerModelPriming} | ALᴇA`}>
       <Box maxWidth="800px" m="auto" p="10px">
         <h2>{t.learnerModelPriming}</h2>
         <p>{t.intro}</p>

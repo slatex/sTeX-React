@@ -28,7 +28,7 @@ export const de = {
         'Kurse, die sich an die Präferenzen und Kompetenzen der Lernenden anpassen, abhängig von bestimmten Kursen .',
       signUpNow: 'Jetzt registrieren',
       exploreOurCourse: 'Entdecken Sie unsere Kurse',
-      whyAlea: 'Warum ALeA?',
+      whyAlea: 'Warum ALᴇA?',
       explorCourses: 'Kurse erkunden',
       partneredWith:
         'Hochwertige Bildungsinhalte + entwickelt an + angesehenen Institutionen weltweit',
@@ -55,7 +55,7 @@ export const de = {
       '**Datenverwendung :** Das Forschungsprojekt VoLl-KI wird die gesammelten Daten in aggregierter, anonymisierter und/oder pseudonymisierter Form zur Evaluation des Systems und der zugrunde liegenden Methoden verwenden. Wir bemühen uns sicherzustellen, dass personenbezogene Daten nicht aus aggregierten Daten rekonstruiert werden können. Details zum KI-System finden Sie hier : [Link](https://gitos.rrze.fau.de/voll-ki/fau/SSFC/-/wikis/home)',
     guest: {
       encourage:
-        'Während das VoLl-KI ALeA-System zunächst für Studierende der FAU gedacht ist, arbeiten wir daran, unser Angebot auf weitere Lernende auszudehnen. In der Zwischenzeit empfehlen wir Ihnen, sich als Gast anzumelden, um das System zu testen.',
+        'Während das VoLl-KI ALᴇA-System zunächst für Studierende der FAU gedacht ist, arbeiten wir daran, unser Angebot auf weitere Lernende auszudehnen. In der Zwischenzeit empfehlen wir Ihnen, sich als Gast anzumelden, um das System zu testen.',
       entryButton: 'Gast-Login',
       chooseLearnerHelperText:
         'Die Inhalte der Plattform sind auf die Kompetenzen der Lernenden zugeschnitten. Bitte wählen Sie oben eine Beispiel-Persona aus, um zu beginnen.',
@@ -186,10 +186,10 @@ export const de = {
     loginToContinue:
       'Bitte melden Sie sich an (mit Ihren FAU IDM-Zugangsdaten), um fortzufahren',
     intro:
-      'Ein Großteil der ALeA-Dienste hängt von der Qualität der Daten im ALeA-Lernendenmodell ' +
+      'Ein Großteil der ALᴇA-Dienste hängt von der Qualität der Daten im ALᴇA-Lernendenmodell ' +
       'ab. Das Lernendenmodell repräsentiert das Wissen bzw. die Kompetenz der Lernenden im ' +
       'Bezug auf die Konzepte, die den Lernmaterialien zugrunde liegen. Die Daten im Modell ' +
-      'basieren auf Aktivitäten der Lernenden im ALeA-System. Damit wir Ihnen möglichst von ' +
+      'basieren auf Aktivitäten der Lernenden im ALᴇA-System. Damit wir Ihnen möglichst von ' +
       'Anfang an die für Sie passenden Inhalte anbieten können, können Sie hier Ihre bisherigen ' +
       'Noten für die verschiedenen Module eintragen.',
     disclaimer:
@@ -296,7 +296,7 @@ export const de = {
     studyBuddyMasterCourse: 'Study Buddy-Programm für Master-KI-Kurse',
     myEnrolledCourses: 'Meine eingeschriebenen Kurse',
     studyBuddyIntro:
-      'Durch die Bildung und Pflege von Lerngruppen wird die Studienleistung deutlich gesteigert. Doch angesichts der zunehmenden Bedeutung des digitalen Lernens kann es eine Herausforderung sein, mit Gleichgesinnten in Kontakt zu treten. Unsere Study Buddy Connect-Funktion soll diese Lücke schließen. Melden Sie sich einfach über FAU IDM im ALeA-System an, füllen Sie ein Formular zur Anfrage aus und vernetzen Sie sich mit kompatiblen Study Buddies. Sie haben die Möglichkeit, sich an die vorgeschlagenen Personen zu wenden, wodurch Sie effektiv mit anderen Lernenden in Kontakt treten können',
+      'Durch die Bildung und Pflege von Lerngruppen wird die Studienleistung deutlich gesteigert. Doch angesichts der zunehmenden Bedeutung des digitalen Lernens kann es eine Herausforderung sein, mit Gleichgesinnten in Kontakt zu treten. Unsere Study Buddy Connect-Funktion soll diese Lücke schließen. Melden Sie sich einfach über FAU IDM im ALᴇA-System an, füllen Sie ein Formular zur Anfrage aus und vernetzen Sie sich mit kompatiblen Study Buddies. Sie haben die Möglichkeit, sich an die vorgeschlagenen Personen zu wenden, wodurch Sie effektiv mit anderen Lernenden in Kontakt treten können',
     notEnrolledMessage: `Probieren Sie es für einen Ihrer Kurse aus (Sie können sich jederzeit abmelden, falls es Ihnen nicht gefällt). Wählen Sie einfach einen Kurs aus der unten stehenden Liste aus und senden Sie eine Anfrage`,
   },
   notification: {
@@ -324,7 +324,7 @@ export const de = {
     passwordRegex:
       'Das Passwort muss mindestens einen Großbuchstaben, einen Kleinbuchstaben und eine Ziffer enthalten und mindestens acht Zeichen lang sein',
     invalidEmail: 'Ungültige E-Mail-Adresse',
-    signUpEmail: 'Melden Sie sich mit Ihrer E-Mail-Adresse bei ALeA an',
+    signUpEmail: 'Melden Sie sich mit Ihrer E-Mail-Adresse bei ALᴇA an',
     signUp: 'Registrieren',
     alreadyAccount: 'Sie haben bereits ein Konto?',
     logIn: 'Einloggen',
