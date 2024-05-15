@@ -21,8 +21,11 @@ const BlogHomePage: NextPage = ({
   const router = useRouter();
   const [userInfo, setUserInfo] = useState<UserInfo>(null);
   const [snippets, setSnippets] = useState<PostSnippet[]>(postSnippets);
+
   useEffect(() => {
     getUserInfo().then(setUserInfo);
+  }, []);
+  useEffect(() => {
     async function fetchPost() {
       const data = await getPostSnippets();
       setSnippets(data);
@@ -100,21 +103,25 @@ const BlogHomePage: NextPage = ({
 
 export default BlogHomePage;
 
-function getPostData(postSnippets: BlogPost[]) {
-  return postSnippets.map((snippet) => {
+function convertToPostSnippets(blogData: BlogPost[]): PostSnippet[] {
+  return blogData.map((snippet) => {
     return {
-      ...snippet,
+      postId: snippet.postId,
+      title: snippet.title,
       bodySnippet: snippet.body.slice(0, 100),
+      authorName: snippet.authorName,
+      createdAt: snippet.createdAt,
     };
   });
 }
+
 export async function getStaticProps() {
   const data = fs.readFileSync('../../static/blogData.json', 'utf8');
   const jsonData = JSON.parse(data);
-  const postSnippets: PostSnippet[] = getPostData(jsonData);
+  const postSnippets = convertToPostSnippets(jsonData);
   return {
     props: {
-      postSnippets: postSnippets,
+      postSnippets,
     },
   };
 }

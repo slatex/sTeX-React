@@ -35,11 +35,13 @@ const BlogPostPage: NextPage = ({ post }: { post: BlogPost }) => {
   const [blogPost, setBlogPost] = useState<BlogPost>(post);
 
   useEffect(() => {
+    getUserInfo().then(setUserInfo);
+  }, []);
+
+  useEffect(() => {
     async function fetchBlog() {
       try {
-        const userInfoData = await getUserInfo();
         const blogData = await getPostById(postId as string);
-        setUserInfo(userInfoData);
         setBlogPost(blogData);
       } catch (error) {
         alert('the page youe are looking for is not available');
@@ -49,7 +51,7 @@ const BlogPostPage: NextPage = ({ post }: { post: BlogPost }) => {
     if (router.isReady && postId) {
       fetchBlog();
     }
-  }, [router.isReady, postId, router.isFallback, router]);
+  }, [router.isReady, postId, router]);
 
   const toggleDeleteDialogOpen = () => {
     setDeleteDialogOpen((prevState) => !prevState);

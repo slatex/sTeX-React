@@ -162,13 +162,13 @@ const BannerSection = () => {
           <Button
             variant="contained"
             color="primary"
-            sx={{ marginRight: 1 }}
+            sx={{ margin: '5px 5px 5px 0px' }}
             onClick={() => router.push('/signup')}
           >
             {n.signUpNow}
           </Button>
           <Button
-            sx={{ marginRight: 1 }}
+            sx={{ margin: '5px 5px 5px 0px' }}
             variant="outlined"
             onClick={() => {
               router.push('/course-list');
@@ -177,14 +177,14 @@ const BannerSection = () => {
             {n.exploreOurCourse}
           </Button>
           <Button
-            sx={{ margin: '5px' }}
+            sx={{ margin: '5px 5px 5px 0px' }}
             variant="contained"
             onClick={() => {
               router.push('/blog');
             }}
           >
             <FeedIcon />
-            blogs
+            blog
           </Button>
         </Box>
         {!isSmallScreen && (
