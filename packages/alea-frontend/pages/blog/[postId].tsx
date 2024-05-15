@@ -44,7 +44,7 @@ const BlogPostPage: NextPage = ({ post }: { post: BlogPost }) => {
         const blogData = await getPostById(postId as string);
         setBlogPost(blogData);
       } catch (error) {
-        alert('the page youe are looking for is not available');
+        alert('the page you are looking for is not available');
         router.push('/blog');
       }
     }
@@ -161,17 +161,9 @@ export async function getStaticProps({
     if (!post) {
       return { props: { post: null } };
     }
-    return {
-      props: {
-        post,
-      },
-    };
+    return { props: { post } };
   } catch (error) {
     console.error('Error fetching blog post:', error);
-    return {
-      props: {
-        post: null,
-      },
-    };
+    return { props: { post: null } };
   }
 }
