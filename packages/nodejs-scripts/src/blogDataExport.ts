@@ -13,32 +13,36 @@ const db = mysql({
   },
 });
 
-if (!process.env.BLOG_INFO_DIR || !process.env.MYSQL_HOST) {
-  console.log(
-    `Env vars not set. Set them at [.env.local] Exiting.`
+export function exportBlogPost() {
+  if (!process.env.BLOG_INFO_DIR || !process.env.MYSQL_HOST) {
+    console.log(`Env vars not set. Set them at [.env.local] Exiting.`);
+    exit(1);
+  }
+  const staticFilePath = path.join(
+    process.env.BLOG_INFO_DIR,
+    process.env.BLOG_INFO_FILE
   );
-  exit(1);
-}
+  const staticDataDir = path.dirname(staticFilePath);
 
-const staticFilePath = path.join(process.env.BLOG_INFO_DIR, process.env.BLOG_INFO_FILE);
-const staticDataDir = path.dirname(staticFilePath);
+  if (fs.existsSync(staticDataDir)) {
+    fs.rmdirSync(staticDataDir, { recursive: true });
+  }
+  fs.mkdirSync(staticDataDir, { recursive: true });
 
-if (fs.existsSync(staticDataDir)) {
-  fs.rmdirSync(staticDataDir, { recursive: true });
-}
-fs.mkdirSync(staticDataDir, { recursive: true });
+  db.query('SELECT * FROM BlogPosts', []).then((results: any[]) => {
+    const jsonData = JSON.stringify(results, null, 2);
 
-db.query('SELECT * FROM BlogPosts', []).then((results: any[]) => {
-  const jsonData = JSON.stringify(results, null, 2);
+    fs.writeFile(staticFilePath, jsonData, (err) => {
+      if (err) {
+        console.error('Error writing JSON file:', err);
+      } else {
+        console.log(
+          `Data has been written to ${process.env.BLOG_INFO_FILE} successfully.`
+        );
+      }
 
-  fs.writeFile(staticFilePath, jsonData, (err) => {
-    if (err) {
-      console.error('Error writing JSON file:', err);
-    } else {
-      console.log(`Data has been written to ${process.env.BLOG_INFO_FILE} successfully.`);
-    }
-
-    db.end();
-    exit(0);
+      db.end();
+      exit(0);
+    });
   });
-});
+}
