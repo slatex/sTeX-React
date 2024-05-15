@@ -50,3 +50,6 @@ Thumbs.db
 .nx/cache
 # Sentry Config File
 .sentryclirc
+
+#static folder
+static

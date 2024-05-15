@@ -20,20 +20,38 @@ import {
   isModerator,
 } from '@stex-react/api';
 import { MdViewer } from '@stex-react/markdown';
-import { GetServerSidePropsContext, NextPage } from 'next';
+import fs from 'fs';
+import { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
 
 const BlogPostPage: NextPage = ({ post }: { post: BlogPost }) => {
+  const router = useRouter();
+  const postId = router.query.postId;
   const [userInfo, setUserInfo] = useState<UserInfo>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const router = useRouter();
+  const [blogPost, setBlogPost] = useState<BlogPost>(post);
 
   useEffect(() => {
     getUserInfo().then(setUserInfo);
   }, []);
+
+  useEffect(() => {
+    async function fetchBlog() {
+      try {
+        const blogData = await getPostById(postId as string);
+        setBlogPost(blogData);
+      } catch (error) {
+        alert('the page youe are looking for is not available');
+        router.push('/blog');
+      }
+    }
+    if (router.isReady && postId) {
+      fetchBlog();
+    }
+  }, [router.isReady, postId, router]);
 
   const toggleDeleteDialogOpen = () => {
     setDeleteDialogOpen((prevState) => !prevState);
@@ -41,28 +59,32 @@ const BlogPostPage: NextPage = ({ post }: { post: BlogPost }) => {
 
   const handleConfirmDelete = async () => {
     try {
-      await deleteBlogPost(post.postId);
+      await deleteBlogPost(postId as string);
+      alert('Post deleted successfully');
+      router.push('/blog');
     } catch (error) {
       console.error('Error deleting post:', error);
       alert('Error deleting post');
     } finally {
       setDeleteDialogOpen(false);
-      alert('Post deleted successfully');
-      router.push('/blog');
     }
   };
+
+  if (router.isFallback || !blogPost || !postId) {
+    return <>loading...</>;
+  }
 
   return (
     <MainLayout>
       <Box mx="10px">
         <Box m="0 auto" maxWidth="800px">
           <Box display="flex" justifyContent="space-between" m="20px">
-            <Link href={'/blog'}>
+            <Link href="/blog">
               <Button variant="contained">All Posts</Button>
             </Link>
             {isModerator(userInfo?.userId) && (
               <Box display="flex" gap="10px">
-                <Link href={`/blog/edit?postId=${post.postId}`}>
+                <Link href={`/blog/edit?postId=${blogPost.postId}`}>
                   <IconButton>
                     <EditIcon />
                   </IconButton>
@@ -82,17 +104,17 @@ const BlogPostPage: NextPage = ({ post }: { post: BlogPost }) => {
               borderRadius: '5px',
             }}
           >
-            <MdViewer content={post.title} />
+            <MdViewer content={blogPost.title} />
             <hr />
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Typography sx={{ display: 'flex', alignItems: 'center' }}>
-                <MdViewer content={post.authorName} />
+                <MdViewer content={blogPost.authorName} />
               </Typography>
               <Typography fontWeight="bold">
-                <MdViewer content={post.createdAt.split('T')[0]} />
+                <MdViewer content={blogPost.createdAt.split('T')[0]} />
               </Typography>
             </Box>
-            <MdViewer content={post.body} />
+            <MdViewer content={blogPost.body} />
           </Box>
         </Box>
       </Box>
@@ -116,16 +138,40 @@ const BlogPostPage: NextPage = ({ post }: { post: BlogPost }) => {
 
 export default BlogPostPage;
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const postId = context.query.postId as string;
-  const protocol = context.req.headers['x-forwarded-proto'] as string;
-  const host = context.req.headers.host;
+export async function getStaticPaths() {
+  const data = fs.readFileSync('../../static/blogData.json', 'utf-8');
+  const jsonData = JSON.parse(data);
+  const paths = jsonData.map((blog: BlogPost) => ({
+    params: { postId: blog.postId },
+  }));
+  return { paths, fallback: true };
+}
+
+export async function getStaticProps({
+  params,
+}: {
+  params: { postId: string };
+}) {
   try {
-    const post = await getPostById(postId, true, protocol, host);
-    console.log(post);
-    return { props: { post } };
+    const data = fs.readFileSync('../../static/blogData.json', 'utf-8');
+    const jsonData = JSON.parse(data);
+    const post = jsonData.find(
+      (blog: BlogPost) => blog.postId === params.postId
+    );
+    if (!post) {
+      return { props: { post: null } };
+    }
+    return {
+      props: {
+        post,
+      },
+    };
   } catch (error) {
-    console.error('Error fetching data:', error);
-    return { props: { data: null } };
+    console.error('Error fetching blog post:', error);
+    return {
+      props: {
+        post: null,
+      },
+    };
   }
 }
