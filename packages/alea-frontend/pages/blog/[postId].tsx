@@ -59,7 +59,7 @@ const BlogPostPage: NextPage = ({ post }: { post: BlogPost }) => {
 
   const handleConfirmDelete = async () => {
     try {
-      await deleteBlogPost(post.postId);
+      await deleteBlogPost(postId as string);
       alert('Post deleted successfully');
       router.push('/blog');
     } catch (error) {
