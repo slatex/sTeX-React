@@ -432,6 +432,6 @@ export async function getStaticProps() {
   const filteredCourses = filteredKeys.map((key) => courses[key]);
   return {
     props: { filteredCourses },
-    revalidate: 10,
+    revalidate: 3600,
   };
 }
