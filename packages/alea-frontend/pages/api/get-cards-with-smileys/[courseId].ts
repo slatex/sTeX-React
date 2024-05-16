@@ -3,7 +3,7 @@ import {
   getCourseInfo,
   getDefiniedaInDoc,
   getDocumentSections,
-  getUriSmileysV2,
+  getUriSmileys,
   SectionsAPIData,
 } from '@stex-react/api';
 
@@ -137,7 +137,7 @@ export default async function handler(req, res) {
   }
 
   const smileyValues = Authorization
-    ? await getUriSmileysV2(uris, { Authorization })
+    ? await getUriSmileys(uris, { Authorization })
     : new Map();
 
   const output: CardsWithSmileys[] = [];

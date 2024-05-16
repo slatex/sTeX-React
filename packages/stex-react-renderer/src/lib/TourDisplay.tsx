@@ -11,7 +11,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import {
   BloomDimension,
-  getUriSmileysV2,
+  getUriSmileys,
   NumericCognitiveValues,
   SmileyCognitiveValues,
   smileyToLevel,
@@ -467,7 +467,7 @@ export function TourDisplay({
       setFetchingItems(false);
       const apiEntries: TourAPIEntry[] = r.data;
       const tourUris = apiEntries.map((e) => e.id);
-      getUriSmileysV2(tourUris).then((smileyVals) => {
+      getUriSmileys(tourUris).then((smileyVals) => {
         const understood = [];
         for (const uri of tourUris) {
           if (isConceptUnderstood(smileyVals.get(uri))) {

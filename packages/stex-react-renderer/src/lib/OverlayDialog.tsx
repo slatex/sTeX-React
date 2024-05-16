@@ -19,7 +19,7 @@ import { ContentFromUrl } from './ContentFromUrl';
 import { ErrorBoundary } from './ErrorBoundary';
 import { getLocaleObject } from './lang/utils';
 import { DisplayReason, ServerLinksContext } from './stex-react-renderer';
-import { ViewEvent, reportEventV2 } from '@stex-react/api';
+import { ViewEvent, reportEvent } from '@stex-react/api';
 import { DisplayContext } from './ContentWithHightlight';
 
 const HOVER_SWITCH = 'hoverSwitch';
@@ -68,7 +68,7 @@ export function OverlayDialog({
   const toDisplayNode = displayNode(topLevelDocUrl, locale);
   function showDialog() {
     setOpen(true);
-    reportEventV2({
+    reportEvent({
       type: 'view',
       concept: clickUrlToUri(contentUrl),
       payload: 'Concept was clicked to open the dialog.',
