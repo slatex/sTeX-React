@@ -10,18 +10,17 @@ import {
   COURSE_DESCRIPTIONS,
   CourseInitEvent,
   GRADE_TO_PERCENT_LOOPUP,
-  LMSEvent,
   POSSIBLE_GERMAN_GRADES,
   TO_EXCLUDE,
   UserInfo,
   getUserInfo,
-  reportEventV2,
+  reportEvent
 } from '@stex-react/api';
 import { localStore } from '@stex-react/utils';
-import { useEffect, useState } from 'react';
-import MainLayout from '../layouts/MainLayout';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
+import MainLayout from '../layouts/MainLayout';
 
 const COURSE_LIST = Object.keys(COURSE_DESCRIPTIONS).filter(
   (id) => !TO_EXCLUDE.includes(id)
@@ -192,7 +191,7 @@ const MyCourseHistory = () => {
               const event: CourseInitEvent = { type: 'course-init', course: courseId };
               if (grade) event.grade = grade;
               if (percentage) event.percentage = percentage.toString();
-              return reportEventV2(event);
+              return reportEvent(event);
             }).filter((x) => x);
             setIsLoading(true);
             Promise.all(promises).then(() => {

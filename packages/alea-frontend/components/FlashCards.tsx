@@ -20,7 +20,7 @@ import {
   BloomDimension,
   SmileyCognitiveValues,
   SmileyType,
-  getUriSmileysV2,
+  getUriSmileys,
   isLoggedIn,
   smileyToLevel,
 } from '@stex-react/api';
@@ -416,7 +416,7 @@ export function SummaryCard({
 
   useEffect(() => {
     setIsLoading(true);
-    getUriSmileysV2(items.map((item) => item.uri)).then((uriSmileys) => {
+    getUriSmileys(items.map((item) => item.uri)).then((uriSmileys) => {
       setIsLoading(false);
       setUriMap(uriSmileys);
     });

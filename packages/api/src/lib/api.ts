@@ -4,7 +4,6 @@ export * from './course-grade-info';
 export * from './gpt-problems';
 export * from './gpt-problems-api';
 export * from './lms';
-export * from './lmsv2';
 export * from  './misc';
 export * from './mmt';
 export * from './next-api';

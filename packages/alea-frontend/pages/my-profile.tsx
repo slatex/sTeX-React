@@ -19,10 +19,10 @@ import {
 import {
   UserInfo,
   getAllMyComments,
-  getAllMyDataV2,
+  getAllMyData,
   getUserInfo,
   getUserInformation,
-  purgeAllMyDataV2,
+  purgeAllMyData,
   purgeComments,
   purgeStudyBuddyData,
   purgeUserNotifications,
@@ -251,7 +251,7 @@ const MyProfilePage: NextPage = () => {
         <Button
           variant="contained"
           onClick={() => {
-            getAllMyDataV2().then((data) => {
+            getAllMyData().then((data) => {
               downloadFile(
                 JSON.stringify(data, undefined, 2),
                 `${userInfo.userId}-lms-${Date.now()}.json`,
@@ -311,7 +311,7 @@ const MyProfilePage: NextPage = () => {
                 return;
               }
               try {
-                await purgeAllMyDataV2();
+                await purgeAllMyData();
                 await purgeComments();
                 await purgeUserNotifications();
                 await purgeStudyBuddyData();

@@ -8,7 +8,7 @@ import {
   getUserInformation,
   isLoggedIn,
   lastFileNode,
-  reportEventV2,
+  reportEvent,
 } from '@stex-react/api';
 import {
   PROBLEM_PARSED_MARKER,
@@ -415,7 +415,7 @@ function removeFromHoverStack(url?: string) {
 
   HOVER_STACK.splice(HOVER_STACK.length - 1, 1);
   if (hoverDuration_ms > 500)
-    reportEventV2({
+    reportEvent({
       type: 'view',
       concept: URI,
       payload: `Hovered for ${hoverDuration_ms}ms`,
@@ -440,7 +440,7 @@ export function Definiendum({ node }: { node: Element }) {
       // These have their own separate events.
       return;
     }
-    reportEventV2({
+    reportEvent({
       type: 'view',
       concept: URI,
       payload: `Definiendum was read: [${latestReason}]`,

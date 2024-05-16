@@ -1,9 +1,191 @@
 import { deleteCookie, getCookie, setCookie } from '@stex-react/utils';
 import axios, { AxiosError } from 'axios';
 
+export type CognitiveValueConfidence = NumericCognitiveValues;
+
+export interface LMS2Event {
+  learner?: string; // The user id.
+  time?: string; // Format: '2022-11-24 19:19:18'
+  payload?: string; // Any string with arbitrary extra information to be used internally.
+  comment?: string; // Any string with arbitrary extra information to show the learner.
+}
+
+export interface ProblemAnswerEvent extends LMS2Event {
+  type: 'problem-answer';
+  uri: string; // The problem uri (eg. http://mathhub.info/iwgs/quizzes/creative_commons_21.tex)
+  score?: number; // The score of the learner.
+  'max-points'?: number; // The maximum points of the problem.
+  updates?: {
+    concept?: string; // The concept id.
+    dimension?: BloomDimension[]; // The dimension id.
+    quotient?: number; // float between 0.0 and 1.0 indicating how well the learner did for this concept/dimension.
+  }[];
+}
+
+export interface CourseInitEvent extends LMS2Event {
+  type: 'course-init';
+  course: string; // The course id.
+  grade?: string; // "1" to "5"
+  percentage?: string; // "0" to "100"
+}
+
+export interface IKnowEvent extends LMS2Event {
+  type: 'i-know';
+  // For i-know (a.k.a I understand)
+  concept?: string;
+}
+
+export interface SelfAssessmentEvent extends LMS2Event {
+  type: 'self-assessment';
+  concept: string;
+  competencies: NumericCognitiveValues;
+}
+
+export interface SelfAssessmentSmileysEvent extends LMS2Event {
+  type: 'self-assessment-5StepLikertSmileys';
+  concept: string;
+  competencies: SmileyCognitiveValues;
+}
+
+export interface PurgeEvent extends LMS2Event {
+  type: 'purge';
+}
+
+export interface ConceptClickedEvent extends LMS2Event {
+  type: 'concept-clicked';
+  concept: string;
+}
+
+export interface ConceptHoveredEvent extends LMS2Event {
+  type: 'concept-hovered';
+  concept: string;
+}
+
+export interface DefiniendumReadEvent extends LMS2Event {
+  type: 'definiendum-read';
+  concept: string;
+}
+
+export interface ViewEvent extends LMS2Event {
+  type: 'view';
+  concept: string;
+}
+
+export interface LoginEvent extends LMS2Event {
+  type: 'login';
+}
+
+export interface LmsOutputMultipleRequest {
+  concepts: string[];
+  'special-output'?: string;
+  'include-confidence'?: boolean;
+}
+
+export interface ConceptCompetenceInfo {
+  concept: string; // URI
+  competences: GenericCognitiveValues;
+  confidences?: CognitiveValueConfidence;
+}
+
+export interface LmsOutputMultipleResponse {
+  learner: string;
+  model: ConceptCompetenceInfo[];
+}
+
+export async function getUriWeights(
+  concepts: string[]
+): Promise<NumericCognitiveValues[]> {
+  if (!concepts?.length) return [];
+  const data: LmsOutputMultipleResponse = await lmsRequest(
+    'lms',
+    'lms/output/multiple',
+    'POST',
+    null,
+    {
+      concepts,
+      'include-confidence': false,
+    } as LmsOutputMultipleRequest
+  );
+  if (!data?.model) return new Array(concepts.length).fill({});
+
+  const compMap = new Map<string, NumericCognitiveValues>();
+  data.model.forEach((c) => {
+    compMap.set(
+      c.concept,
+      cleanupNumericCognitiveValues(c.competences as NumericCognitiveValues)
+    );
+  });
+  return concepts.map(
+    (concept) => compMap.get(concept) || cleanupNumericCognitiveValues({})
+  );
+}
+
+export async function getUriSmileys(
+  concepts: string[],
+  inputHeaders?: any
+): Promise<Map<string, SmileyCognitiveValues>> {
+  if (!concepts?.length) return new Map();
+  const data: LmsOutputMultipleResponse = await lmsRequest(
+    'lms',
+    'lms/output/multiple',
+    'POST',
+    null,
+    {
+      concepts,
+      'special-output': '5StepLikertSmileys',
+      'include-confidence': false,
+    },
+    inputHeaders
+  );
+  const compMap = new Map<string, SmileyCognitiveValues>();
+  if (!data?.model) return compMap;
+  data.model.forEach((c) => {
+    compMap.set(
+      c.concept,
+      cleanupSmileyCognitiveValues(c.competences as SmileyCognitiveValues)
+    );
+  });
+
+  concepts.map((concept) => {
+    if (!compMap.has(concept))
+      compMap.set(concept, cleanupSmileyCognitiveValues({}));
+  });
+  return compMap;
+}
+
+export async function getAllMyData(): Promise<{
+  learner: string;
+  model: ConceptCompetenceInfo[];
+  logs: {
+    answers: ProblemAnswerEvent[];
+    'course-inits': CourseInitEvent[];
+    'i-knows': IKnowEvent[];
+    logins: LoginEvent[];
+    purges: PurgeEvent[];
+    'self-assessments': SelfAssessmentEvent | SelfAssessmentSmileysEvent[];
+    views: any[];
+  };
+}> {
+  return await lmsRequest('lms', 'lms/output/all_my_data', 'POST', {}, {});
+}
+
+export async function getMyCompleteModel(): Promise<ConceptCompetenceInfo[]> {
+  return (await getAllMyData())?.model || [];
+}
+
+export async function purgeAllMyData() {
+  await lmsRequest('lms', 'lms/input/events', 'POST', {}, {
+    type: 'purge',
+  } as PurgeEvent);
+}
+
+
+export async function reportEvent(event: LMS2Event) {
+  return await lmsRequest('lms', 'lms/input/events', 'POST', {}, event);
+}
+
 const SERVER_TO_ADDRESS = {
-  lmsV1: process.env['NEXT_PUBLIC_LMS_V1_URL'],
-  lmsV2: process.env['NEXT_PUBLIC_LMS_V2_URL'],
+  lms: process.env['NEXT_PUBLIC_LMS_URL'],
   auth: process.env['NEXT_PUBLIC_AUTH_SERVER_URL'],
 };
 
@@ -77,26 +259,6 @@ export const ALL_DIMENSIONS = [
   BloomDimension.Create,
 ];
 
-export interface LMSEvent {
-  type:
-    | 'i-know'
-    | 'self-assessment-5StepLikertSmileys'
-    | 'course-init'
-    | 'concept-clicked'
-    | 'concept-hovered'
-    | 'definiendum-read';
-
-  URI?: string; // The relevant concept.
-  hoverDuration_ms?: number; // The duration of the hover in ms.
-  displayReason?: string;
-
-  course?: string; // The course id.
-  grade?: string; // "1" to "5"
-  percentage?: string; // "0" to "100"
-
-  answers?: any; // The answer of the question. Type TBD.
-  values?: GenericCognitiveValues;
-}
 
 export interface UserInfo {
   userId: string;
@@ -154,9 +316,9 @@ export function getAuthHeaders() {
 export function loginUsingRedirect(returnBackUrl?: string) {
   if (!returnBackUrl) returnBackUrl = window.location.href;
 
-  const redirectUrl = `${SERVER_TO_ADDRESS.auth}/login?target=${encodeURIComponent(
-    returnBackUrl
-  )}`;
+  const redirectUrl = `${
+    SERVER_TO_ADDRESS.auth
+  }/login?target=${encodeURIComponent(returnBackUrl)}`;
 
   window.location.replace(redirectUrl);
 }
@@ -194,7 +356,7 @@ export function fakeLoginUsingRedirect(
 }
 
 export async function lmsRequest(
-  server: 'lmsV1' | 'lmsV2' | 'auth',
+  server: 'lms' | 'auth',
   apiUrl: string,
   requestType: string,
   defaultVal: any,
@@ -249,97 +411,6 @@ export function cleanupSmileyCognitiveValues(
     Create: dim.Create || defaultSmiley,
   };
 }
-
-export async function getUriWeights(
-  URIs: string[]
-): Promise<NumericCognitiveValues[]> {
-  if (!URIs?.length) return [];
-  const resp = await lmsRequest('lmsV1', 'lms/output/multiple', 'POST', null, {
-    URIs,
-  });
-  if (!resp?.model) return new Array(URIs.length).fill({});
-  const model: { URI: string; values: NumericCognitiveValues }[] = resp.model;
-  const compMap = new Map<string, NumericCognitiveValues>();
-  model.forEach((c) => {
-    compMap.set(c.URI, cleanupNumericCognitiveValues(c.values));
-  });
-  return URIs.map(
-    (URI) => compMap.get(URI) || cleanupNumericCognitiveValues({})
-  );
-}
-
-export async function getUriSmileys(
-  URIs: string[],
-  inputHeaders?: any
-): Promise<Map<string, SmileyCognitiveValues>> {
-  if (!URIs?.length) return new Map();
-  const resp = await lmsRequest(
-    'lmsV1',
-    'lms/output/multiple',
-    'POST',
-    null,
-    {
-      URIs,
-      'special-output': '5StepLikertSmileys',
-    },
-    inputHeaders
-  );
-  const compMap = new Map<string, SmileyCognitiveValues>();
-  if (!resp?.model) return compMap;
-  const model: { URI: string; values: SmileyCognitiveValues }[] = resp.model;
-  model.forEach((c) => {
-    compMap.set(c.URI, cleanupSmileyCognitiveValues(c.values));
-  });
-
-  URIs.map((URI) => {
-    if (!compMap.has(URI)) compMap.set(URI, cleanupSmileyCognitiveValues({}));
-  });
-  return compMap;
-}
-
-export async function reportEvent(event: LMSEvent) {
-  const disabled = [
-    'concept-clicked',
-    'concept-hovered',
-    'definiendum-read',
-    'view',
-  ];
-  if (disabled.includes(event?.type)) {
-    console.log('reportEvent - disabled', event);
-    return;
-  }
-  return await lmsRequest('lmsV1', 'lms/input/events', 'POST', {}, event);
-}
-
-export async function getAllMyData() {
-  return await lmsRequest('lmsV1', 'lms/output/all_my_data', 'POST', {}, {});
-}
-
-export async function purgeAllMyData() {
-  return await lmsRequest(
-    'lmsV1',
-    'lms/input/events',
-    'POST',
-    {},
-    { type: 'purge' }
-  );
-}
-
-export async function resetFakeUserData(persona: string) {
-  const userInfo = await getUserInfo();
-  const userId = userInfo?.userId;
-  if (!userId || !userId.startsWith('fake')) return;
-  if (!(persona in FAKE_USER_DEFAULT_COMPETENCIES)) {
-    alert(`No defaults found for ${persona}`);
-    return;
-  }
-  const URIs = FAKE_USER_DEFAULT_COMPETENCIES[persona];
-  await purgeAllMyData();
-  for (const URI of URIs) {
-    await reportEvent({ type: 'i-know', URI });
-  }
-  alert(`User reset: ${userId} with persona: ${persona}`);
-}
 export function lmsResponseToUserInfo(lmsRespData: any): UserInfo | undefined {
   if (!lmsRespData) return undefined;
   return {
@@ -358,4 +429,28 @@ export async function getUserInfo() {
     cachedUserInfo = lmsResponseToUserInfo(v);
   }
   return cachedUserInfo;
+}
+
+export async function resetFakeUserData(persona: string) {
+  const userInfo = await getUserInfo();
+  const userId = userInfo?.userId;
+  if (!userId || !userId.startsWith('fake')) return;
+  if (!(persona in FAKE_USER_DEFAULT_COMPETENCIES)) {
+    alert(`No defaults found for ${persona}`);
+    return;
+  }
+  const URIs = FAKE_USER_DEFAULT_COMPETENCIES[persona];
+  await purgeAllMyData();
+  for (const URI of URIs) {
+    await reportEvent({
+      type: 'self-assessment-5StepLikertSmileys',
+      concept: URI,
+      competencies: {
+        Remember: 'smiley2',
+        Understand: 'smiley2',
+        Apply: 'smiley2',
+      },
+    } as SelfAssessmentSmileysEvent);
+  }
+  alert(`User reset: ${userId} with persona: ${persona}`);
 }

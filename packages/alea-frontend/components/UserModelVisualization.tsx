@@ -14,7 +14,7 @@ import {
   sugiyama,
 } from 'd3-dag';
 import { useContext, useEffect, useReducer, useState } from 'react';
-import { getUriWeightsV2 } from '@stex-react/api';
+import { getUriWeights } from '@stex-react/api';
 
 const nodeRadius = 20;
 
@@ -59,7 +59,7 @@ async function fetchDataForDag(
   const tourInfoUrl = `${mmtUrl}/:vollki/tour?path=${tourId}&user=nulluser&lang=${language}`;
   const apiEntries: TourAPIEntry[] = (await axios.get(tourInfoUrl)).data;
   const tourUris = apiEntries.map((e) => e.id);
-  const weights = await getUriWeightsV2(tourUris);
+  const weights = await getUriWeights(tourUris);
   const d3DagEntries = getD3DagEntries(
     apiEntries,
     weights.map((d) => d.Remember)
