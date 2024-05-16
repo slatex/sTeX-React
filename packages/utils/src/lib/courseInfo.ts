@@ -14,6 +14,8 @@ export interface CourseInfo {
   isCurrent: boolean;
   hasQuiz: boolean;
   institution?: string;
+  instances?: { semester: string; instructors?: { name: string }[] }[];
+  instructors?: { name: string }[];
 }
 
 export function getSlidesLink(courseId: string) {
@@ -49,7 +51,9 @@ export function createCourseInfo(
   landingFilepath: string,
   isCurrent = false,
   hasQuiz = false,
-  institution?: string
+  institution?: string,
+  instances?: { semester: string; instructors?: { name: string }[] }[],
+  instructors?: { name: string }[]
 ): CourseInfo {
   notesFilepath = notesFilepath.replace('.tex', '.xhtml');
 
@@ -71,6 +75,8 @@ export function createCourseInfo(
     isCurrent,
     hasQuiz,
     institution,
+    instances,
+    instructors,
   };
 }
 
