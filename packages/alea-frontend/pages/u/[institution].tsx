@@ -11,7 +11,6 @@ import {
   Typography,
 } from '@mui/material';
 import { getCourseInfo } from '@stex-react/api';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import {
   CURRENT_TERM,
   CourseInfo,
@@ -22,7 +21,7 @@ import { NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { ReactNode, useContext, useEffect, useState } from 'react';
+import { ReactNode } from 'react';
 
 import Diversity3 from '@mui/icons-material/Diversity3';
 import { getLocaleObject } from '../../lang/utils';
@@ -179,16 +178,16 @@ export function CourseThumb({ course }: { course: CourseInfo }) {
   );
 }
 
-const StudentHomePage: NextPage = () => {
+const StudentHomePage: NextPage = ({
+  courses,
+}: {
+  [id: string]: CourseInfo;
+}) => {
   const router = useRouter();
   const { query } = router;
   const { home: t, studyBuddy: s } = getLocaleObject(router);
-  const { mmtUrl } = useContext(ServerLinksContext);
-  const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
   const institution = query.institution as string;
-  useEffect(() => {
-    if (mmtUrl) getCourseInfo(mmtUrl, institution as string).then(setCourses);
-  }, [mmtUrl, institution]);
+  if (!courses) return null;
   return (
     <MainLayout title="Courses | VoLL-KI">
       <Box m="0 auto" maxWidth="800px">
@@ -246,3 +245,29 @@ const StudentHomePage: NextPage = () => {
 };
 
 export default StudentHomePage;
+export async function getStaticPaths() {
+  const paths = Object.keys(UniversityDetail).map((key) => {
+    return { params: { institution: key } };
+  });
+  return {
+    paths,
+    fallback: false,
+  };
+}
+export async function getStaticProps({ params }) {
+  if (!params || !params.institution) {
+    return {
+      props: {
+        courses: null,
+      },
+    };
+  }
+  const mmtUrl = 'https://stexmmt.mathhub.info';
+  const courses = await getCourseInfo(mmtUrl, params.institution);
+  return {
+    props: {
+      courses,
+    },
+    revalidate: 3600,
+  };
+}

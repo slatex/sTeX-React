@@ -1,3 +1,4 @@
+import FeedIcon from '@mui/icons-material/Feed';
 import {
   Box,
   Button,
@@ -6,13 +7,23 @@ import {
   Typography,
   useMediaQuery,
 } from '@mui/material';
-import { PRIMARY_COL } from '@stex-react/utils';
+import { getCourseInfo } from '@stex-react/api';
+import { CourseInfo, PRIMARY_COL } from '@stex-react/utils';
 import { NextPage } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
-import FeedIcon from '@mui/icons-material/Feed';
+
+function getInstructor(courseData: CourseInfo, currentSemester: string) {
+  for (const instance of courseData.instances) {
+    if (instance.semester === currentSemester) {
+      if (instance.instructors && instance.instructors.length > 0) {
+        return instance.instructors[0].name;
+      }
+    }
+  }
+}
 
 const aleaFeatures = [
   {
@@ -64,38 +75,8 @@ const PARTNERED_UNIVERSITIES = [
   },
 ];
 
-const FEATURED_COURSES = [
-  {
-    courseImage: '/ai-1.jpg',
-    courseName: 'Artificial Intelligence - 1',
-    professor: 'Michael Kohlhase',
-    courseId: 'ai-1',
-  },
-  {
-    courseImage: '/ai-2.jpg',
-    courseName: 'Artificial Intelligence - 2',
-    professor: 'Dennis Müller',
-    courseId: 'ai-2',
-  },
-  {
-    courseImage: '/gdp.png',
-    courseName: 'Grundlagen der Programmierung',
-    professor: 'Vanessa Klein',
-    courseId: 'gdp',
-  },
-  {
-    courseImage: '/iwgs-2.jpg',
-    courseName: 'IWGS-2',
-    professor: 'Florian Rabe',
-    courseId: 'iwgs-2',
-  },
-  {
-    courseImage: '/lbs.jpg',
-    courseName: 'Logik-Basierte Sprachverarbeitung',
-    professor: 'Michael Kohlhase',
-    courseId: 'lbs',
-  },
-];
+const FEATURED_COURSES = ['ai-1', 'ai-2', 'gdp', 'iwgs-2', 'lbs'];
+
 const BannerSection = () => {
   const router = useRouter();
   const {
@@ -202,7 +183,8 @@ const BannerSection = () => {
 };
 
 function CourseCard({ key, course }) {
-  const { courseImage, courseName, professor, courseId } = course;
+  const { imageLink: courseImage, courseName, courseId, institution } = course;
+  const instructor = getInstructor(course, 'SS24');
   const router = useRouter();
   return (
     <Box
@@ -240,11 +222,13 @@ function CourseCard({ key, course }) {
             color: '#003786',
           }}
         >
-          {courseName}
+          {courseName.length > 50 ? courseId.toUpperCase() : courseName}
         </Typography>
-        <Typography sx={{ fontSize: '14px', padding: '5px' }}>FAU</Typography>
         <Typography sx={{ fontSize: '14px', padding: '5px' }}>
-          {professor}
+          {institution}
+        </Typography>
+        <Typography sx={{ fontSize: '14px', padding: '5px' }}>
+          {instructor}
         </Typography>
       </Box>
     </Box>
@@ -283,7 +267,11 @@ function AleaFeatures({ img_url, title, description }) {
   );
 }
 
-const StudentHomePage: NextPage = () => {
+const StudentHomePage: NextPage = ({
+  filteredCourses,
+}: {
+  filteredCourses: CourseInfo[];
+}) => {
   const router = useRouter();
   const {
     home: { newHome: n },
@@ -423,7 +411,7 @@ const StudentHomePage: NextPage = () => {
               alignItems: 'center',
             }}
           >
-            {FEATURED_COURSES.map((course) => (
+            {filteredCourses.map((course) => (
               <CourseCard key={course.courseId} course={course} />
             ))}
           </Box>
@@ -434,3 +422,16 @@ const StudentHomePage: NextPage = () => {
 };
 
 export default StudentHomePage;
+
+export async function getStaticProps() {
+  const mmtUrl = 'https://stexmmt.mathhub.info';
+  const courses = await getCourseInfo(mmtUrl);
+  const filteredKeys = Object.keys(courses).filter((key) =>
+    FEATURED_COURSES.includes(courses[key].courseId)
+  );
+  const filteredCourses = filteredKeys.map((key) => courses[key]);
+  return {
+    props: { filteredCourses },
+    revalidate: 3600,
+  };
+}
