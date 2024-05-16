@@ -6,15 +6,8 @@ import {
   SmileyCognitiveValues,
   cleanupNumericCognitiveValues,
   cleanupSmileyCognitiveValues,
-  getAllMyData,
-  getUriSmileys,
-  getUriWeights,
-  lmsRequest,
-  purgeAllMyData,
-  reportEvent,
+  lmsRequest
 } from './lms';
-
-export const USE_LMS_V1 = process.env['NEXT_PUBLIC_USE_LMS_V1'] !== 'false';
 
 export type CognitiveValueConfidence = NumericCognitiveValues;
 
@@ -110,8 +103,6 @@ export interface LmsOutputMultipleResponse {
 export async function getUriWeightsV2(
   concepts: string[]
 ): Promise<NumericCognitiveValues[]> {
-  if (USE_LMS_V1) return await getUriWeights(concepts);
-
   if (!concepts?.length) return [];
   const data: LmsOutputMultipleResponse = await lmsRequest(
     'lmsV2',
@@ -141,8 +132,6 @@ export async function getUriSmileysV2(
   concepts: string[],
   inputHeaders?: any
 ): Promise<Map<string, SmileyCognitiveValues>> {
-  if (USE_LMS_V1) return await getUriSmileys(concepts, inputHeaders);
-
   if (!concepts?.length) return new Map();
   const data: LmsOutputMultipleResponse = await lmsRequest(
     'lmsV2',
@@ -185,27 +174,14 @@ export async function getAllMyDataV2(): Promise<{
     views: any[];
   };
 }> {
-  if (USE_LMS_V1) return await getAllMyData();
   return await lmsRequest('lmsV2', 'lms/output/all_my_data', 'POST', {}, {});
 }
 
 export async function getMyCompleteModel(): Promise<ConceptCompetenceInfo[]> {
-  if (USE_LMS_V1) {
-    const v1Model: { URI: string; values: { [key: string]: string } }[] = (
-      await getAllMyData()
-    ).model;
-    return v1Model.map((c) => ({
-      concept: c.URI,
-      competences: cleanupNumericCognitiveValues(
-        c.values as NumericCognitiveValues
-      ),
-    }));
-  }
   return (await getAllMyDataV2())?.model || [];
 }
 
 export async function purgeAllMyDataV2() {
-  if (USE_LMS_V1) return purgeAllMyData();
   await lmsRequest('lmsV2', 'lms/input/events', 'POST', {}, {
     type: 'purge',
   } as PurgeEvent);
@@ -249,6 +225,5 @@ function toLMSEvent(event: LMS2Event): LMSEvent {
 }
 
 export async function reportEventV2(event: LMS2Event) {
-  if (USE_LMS_V1) return await reportEvent(toLMSEvent(event));
   return await lmsRequest('lmsV2', 'lms/input/events', 'POST', {}, event);
 }

@@ -250,52 +250,7 @@ export function cleanupSmileyCognitiveValues(
   };
 }
 
-export async function getUriWeights(
-  URIs: string[]
-): Promise<NumericCognitiveValues[]> {
-  if (!URIs?.length) return [];
-  const resp = await lmsRequest('lmsV1', 'lms/output/multiple', 'POST', null, {
-    URIs,
-  });
-  if (!resp?.model) return new Array(URIs.length).fill({});
-  const model: { URI: string; values: NumericCognitiveValues }[] = resp.model;
-  const compMap = new Map<string, NumericCognitiveValues>();
-  model.forEach((c) => {
-    compMap.set(c.URI, cleanupNumericCognitiveValues(c.values));
-  });
-  return URIs.map(
-    (URI) => compMap.get(URI) || cleanupNumericCognitiveValues({})
-  );
-}
 
-export async function getUriSmileys(
-  URIs: string[],
-  inputHeaders?: any
-): Promise<Map<string, SmileyCognitiveValues>> {
-  if (!URIs?.length) return new Map();
-  const resp = await lmsRequest(
-    'lmsV1',
-    'lms/output/multiple',
-    'POST',
-    null,
-    {
-      URIs,
-      'special-output': '5StepLikertSmileys',
-    },
-    inputHeaders
-  );
-  const compMap = new Map<string, SmileyCognitiveValues>();
-  if (!resp?.model) return compMap;
-  const model: { URI: string; values: SmileyCognitiveValues }[] = resp.model;
-  model.forEach((c) => {
-    compMap.set(c.URI, cleanupSmileyCognitiveValues(c.values));
-  });
-
-  URIs.map((URI) => {
-    if (!compMap.has(URI)) compMap.set(URI, cleanupSmileyCognitiveValues({}));
-  });
-  return compMap;
-}
 
 export async function reportEvent(event: LMSEvent) {
   const disabled = [
@@ -311,9 +266,6 @@ export async function reportEvent(event: LMSEvent) {
   return await lmsRequest('lmsV1', 'lms/input/events', 'POST', {}, event);
 }
 
-export async function getAllMyData() {
-  return await lmsRequest('lmsV1', 'lms/output/all_my_data', 'POST', {}, {});
-}
 
 export async function purgeAllMyData() {
   return await lmsRequest(
