@@ -183,8 +183,14 @@ const BannerSection = () => {
 };
 
 function CourseCard({ key, course }) {
-  const { imageLink: courseImage, courseName, courseId, institution } = course;
-  const instructor = getInstructor(course, 'SS24');
+  const {
+    imageLink: courseImage,
+    courseName,
+    courseId,
+    institution,
+    instructors,
+  } = course;
+  const instructor = getInstructor(course, 'SS24') ?? instructors[0].name;
   const router = useRouter();
   return (
     <Box
