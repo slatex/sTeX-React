@@ -180,12 +180,14 @@ export function CourseThumb({ course }: { course: CourseInfo }) {
 
 const StudentHomePage: NextPage = ({
   courses,
+  locale,
 }: {
-  [id: string]: CourseInfo;
+  courses: { [id: string]: CourseInfo };
+  locale: string;
 }) => {
   const router = useRouter();
   const { query } = router;
-  const { home: t, studyBuddy: s } = getLocaleObject(router);
+  const { home: t, studyBuddy: s } = getLocaleObject({ locale });
   const institution = query.institution as string;
   if (!courses) return null;
   return (
@@ -245,16 +247,25 @@ const StudentHomePage: NextPage = ({
 };
 
 export default StudentHomePage;
+
 export async function getStaticPaths() {
-  const paths = Object.keys(UniversityDetail).map((key) => {
-    return { params: { institution: key } };
+  const languages = ['en', 'de'];
+  const paths = [];
+  languages.forEach((lang) => {
+    Object.keys(UniversityDetail).forEach((key) => {
+      paths.push({
+        params: { institution: key },
+        locale: lang,
+      });
+    });
   });
   return {
     paths,
     fallback: false,
   };
 }
-export async function getStaticProps({ params }) {
+
+export async function getStaticProps({ params, locale }) {
   if (!params || !params.institution) {
     return {
       props: {
@@ -267,6 +278,7 @@ export async function getStaticProps({ params }) {
   return {
     props: {
       courses,
+      locale,
     },
     revalidate: 3600,
   };
