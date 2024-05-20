@@ -123,6 +123,24 @@ CREATE TABLE StudyBuddyConnections (
     PRIMARY KEY (senderId, receiverId, courseId)
 );
 
+create TABLE AccessControl (
+id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+description TEXT,
+updaterId INT UNSIGNED NULL,
+isOpen BOOLEAN,
+createdAt DATETIME,
+updatedAt DATETIME,
+PRIMARY KEY (id)
+);
+
+CREATE TABLE AccessControlMember(
+id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+accessControl INT UNSIGNED not NULL,
+accessControlMember INT UNSIGNED NULL,
+userMember VARCHAR(50),
+PRIMARY KEY(id),
+FOREIGN KEY (accessControl) REFERENCES AccessControl(id)
+);
 ALTER TABLE StudyBuddyConnections ADD CONSTRAINT StudyBuddyConnections_fk0 FOREIGN KEY (senderId) REFERENCES StudyBuddyUsers(userId);
 ALTER TABLE StudyBuddyConnections ADD CONSTRAINT StudyBuddyConnections_fk1 FOREIGN KEY (receiverId) REFERENCES StudyBuddyUsers(userId);
 

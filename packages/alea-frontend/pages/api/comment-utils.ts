@@ -6,6 +6,7 @@ import {
   lmsResponseToUserInfo,
 } from '@stex-react/api';
 import axios from 'axios';
+import { Dayjs } from 'dayjs';
 import { NextApiRequest } from 'next';
 import mysql from 'serverless-mysql';
 
@@ -186,4 +187,7 @@ export async function sendNotification(
   if (postNotification['error']) {
     console.error(postNotification['error']);
   }
+}
+export function getMysqlDate(date:Dayjs){
+  return date.toISOString().slice(0, 19).replace('T', ' ')
 }
