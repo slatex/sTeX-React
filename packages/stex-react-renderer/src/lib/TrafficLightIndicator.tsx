@@ -18,11 +18,6 @@ import { useContext, useEffect, useState } from 'react';
 import CompetencyTable from './CompetencyTable';
 import { ServerLinksContext } from './stex-react-renderer';
 
-const TO_SHOW = [
-  BloomDimension.Remember,
-  BloomDimension.Understand,
-  BloomDimension.Apply,
-];
 const trafficLightStyle = {
   width: '30px',
   height: '30px',
@@ -169,7 +164,6 @@ const TrafficLightIndicator = ({ contentUrl }: { contentUrl: string }) => {
               <CompetencyTable
                 URIs={URIs}
                 competencyData={competencyData}
-                dimensions={TO_SHOW}
                 onValueUpdate={refetchCompetencyData}
                 showTour={true}
                 defaultSort={true}

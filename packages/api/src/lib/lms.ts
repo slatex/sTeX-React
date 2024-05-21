@@ -259,6 +259,7 @@ export const ALL_DIMENSIONS = [
   BloomDimension.Create,
 ];
 
+export const SHOW_DIMENSIONS = ALL_DIMENSIONS.slice(0, 3);
 
 export interface UserInfo {
   userId: string;
@@ -453,4 +454,29 @@ export async function resetFakeUserData(persona: string) {
     } as SelfAssessmentSmileysEvent);
   }
   alert(`User reset: ${userId} with persona: ${persona}`);
+}
+
+export type HistoryEventType =
+  | CourseInitEvent
+  | IKnowEvent
+  | SelfAssessmentEvent
+  | SelfAssessmentSmileysEvent
+  | PurgeEvent;
+
+export interface HistoryItem {
+  event: HistoryEventType;
+  'new-values': NumericCognitiveValues;
+}
+export interface ConceptHistory {
+  learner: string;
+  concept: string;
+  history: HistoryItem[];
+}
+
+export async function getConceptHistory(
+  concept: string
+): Promise<ConceptHistory> {
+  return await lmsRequest('lms', 'lms/output/history', 'POST', null, {
+    concept,
+  });
 }
