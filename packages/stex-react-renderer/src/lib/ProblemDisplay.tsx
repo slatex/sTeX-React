@@ -19,18 +19,24 @@ import {
   InputResponse,
   InputType,
   Problem,
+  ProblemAnswerEvent,
   ProblemResponse,
   QuadState,
   Tristate,
+  UserInfo,
+  getUserInfo,
+  postAnswer,
 } from '@stex-react/api';
 import {
   getFillInFeedbackHtml,
+  getPoints,
   isFillInInputCorrect,
   removeAnswerInfo,
 } from '@stex-react/quiz-utils';
 
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import { getMMTHtml } from './CompetencyTable';
 import { DocumentWidthSetter } from './DocumentWidthSetter';
 import {
@@ -472,7 +478,66 @@ function DimAndURIListDisplay({
   );
 }
 
+type ConceptDimension = {
+  concept: string;
+  dimensions: string[];
+  quotient: number;
+};
+function transformData(
+  dimensionAndURI: string[],
+  quotient: number
+): ConceptDimension[] {
+  const conceptUpdate: { [url: string]: ConceptDimension } = {};
+
+  dimensionAndURI.forEach((item) => {
+    const [dimension, uri] = item.split(':');
+    const url = decodeURIComponent(uri);
+    if (!conceptUpdate[url]) {
+      conceptUpdate[url] = {
+        concept: url,
+        dimensions: [],
+        quotient,
+      };
+    }
+    if (!conceptUpdate[url].dimensions.includes(dimension)) {
+      conceptUpdate[url].dimensions.push(dimension);
+    }
+  });
+  return Object.values(conceptUpdate);
+}
+
+function getUpdates(objectives: string, quotient: number) {
+  const dimensionAndURI = objectives.split(',');
+  return transformData(dimensionAndURI, quotient);
+}
+
+function handleSubmit(
+  problem: Problem,
+  uri: string,
+  response: ProblemResponse,
+  userId: string
+) {
+  const maxPoint = problem.points;
+  const points = getPoints(problem, response);
+  const quotient = points ? points / maxPoint : 0;
+  const currentTime = new Date().toISOString();
+  const updates = getUpdates(problem.objectives, quotient);
+  const answerObject: ProblemAnswerEvent = {
+    type: 'problem-answer',
+    uri: uri.substring(0, uri.indexOf('.en')) + '.tex',
+    learner: userId,
+    score: points,
+    'max-points': maxPoint,
+    updates: updates,
+    time: currentTime,
+    payload: '',
+    comment: ' ',
+  };
+  postAnswer(answerObject);
+}
+
 export function ProblemDisplay({
+  uri,
   problem,
   isFrozen,
   r,
@@ -481,6 +546,7 @@ export function ProblemDisplay({
   onFreezeResponse,
   debug,
 }: {
+  uri?: string;
   problem: Problem | undefined;
   isFrozen: boolean;
   r: ProblemResponse;
@@ -489,7 +555,15 @@ export function ProblemDisplay({
   onFreezeResponse?: () => void;
   debug?: boolean;
 }) {
+  const [userId, setUserId] = useState<string>('');
   const t = getLocaleObject(useRouter()).quiz;
+  useEffect(() => {
+    getUserInfo().then((u: UserInfo | undefined) => {
+      if (u) {
+        setUserId(u.userId as string);
+      }
+    });
+  }, []);
   if (!problem) return <CircularProgress />;
   const isEffectivelyFrozen = isFrozen || !problem.inputs?.length;
   const fillInInputs =
@@ -551,8 +625,16 @@ export function ProblemDisplay({
           </>
         )}
         {onFreezeResponse && !isEffectivelyFrozen && (
-          <Button onClick={() => onFreezeResponse()} variant="contained">
-            {t.checkSolution}
+          <Button
+            onClick={() => {
+              onFreezeResponse();
+              if (uri) {
+                handleSubmit(problem, uri, r, userId);
+              }
+            }}
+            variant="contained"
+          >
+            submit
           </Button>
         )}
       </Box>

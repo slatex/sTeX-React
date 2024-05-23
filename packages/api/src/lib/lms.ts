@@ -179,7 +179,6 @@ export async function purgeAllMyData() {
   } as PurgeEvent);
 }
 
-
 export async function reportEvent(event: LMS2Event) {
   return await lmsRequest('lms', 'lms/input/events', 'POST', {}, event);
 }
@@ -479,4 +478,8 @@ export async function getConceptHistory(
   return await lmsRequest('lms', 'lms/output/history', 'POST', null, {
     concept,
   });
+}
+
+export async function postAnswer(answer: ProblemAnswerEvent) {
+  return await lmsRequest('lms', '/lms/input/events', 'POST', null, answer);
 }
