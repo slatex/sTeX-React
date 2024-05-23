@@ -265,9 +265,9 @@ export function CompetencyTable({
                   <b>{t.concepts}</b>
                 </TableSortLabel>
               </TableCell>
-              <TableCell>
+              {/* <TableCell>
                 <b>History</b>
-              </TableCell>
+              </TableCell> */}
               {SHOW_DIMENSIONS.map((header) => (
                 <TableCell key={header}>
                   <TableSortLabel
@@ -292,7 +292,7 @@ export function CompetencyTable({
                 <TableCell>
                   {mmtHTMLToReact(getMMTHtml(row.concepts))}
                 </TableCell>
-                <TableCell>
+                {/* <TableCell>
                   <Tooltip
                     title="View how you reached the current competency level"
                     placement="right-start"
@@ -302,7 +302,7 @@ export function CompetencyTable({
                       sx={{ cursor: 'pointer' }}
                     />
                   </Tooltip>
-                </TableCell>
+                </TableCell> */}
                 {SHOW_DIMENSIONS.map((dimension: BloomDimension) => (
                   <TableCell key={dimension}>
                     <Tooltip
