@@ -17,6 +17,7 @@ import {
   BloomDimension,
   DefiniendaItem,
   NumericCognitiveValues,
+  SHOW_DIMENSIONS,
   getDefiniedaInDoc,
   getUriWeights,
   isLoggedIn,
@@ -53,12 +54,6 @@ function CompetencyBar({ dim, val }: { dim: BloomDimension; val: number }) {
   );
 }
 
-const TO_SHOW = [
-  BloomDimension.Remember,
-  BloomDimension.Understand,
-  BloomDimension.Apply,
-];
-
 const SectionReview = ({
   contentUrl,
   sectionTitle,
@@ -94,7 +89,7 @@ const SectionReview = ({
     getUriWeights(URIs).then((data) => setCompetencyData(data));
   }
 
-  const averages = TO_SHOW.reduce((acc, competency) => {
+  const averages = SHOW_DIMENSIONS.reduce((acc, competency) => {
     const avg = competencyData?.length
       ? competencyData.reduce((sum, item) => sum + (item[competency] ?? 0), 0) /
         competencyData.length
@@ -114,7 +109,7 @@ const SectionReview = ({
         >
           <Box style={{ display: 'flex' }}>
             <Box className={styles['summary-competence-bar-container']}>
-              {TO_SHOW.map((dim) => (
+              {SHOW_DIMENSIONS.map((dim) => (
                 <CompetencyBar key={dim} dim={dim} val={averages[dim]} />
               ))}
             </Box>
@@ -127,7 +122,7 @@ const SectionReview = ({
         </AccordionSummary>
         <AccordionDetails>
           <Box className={styles['details-competence-bar-container']}>
-            {TO_SHOW.map((dim) => (
+            {SHOW_DIMENSIONS.map((dim) => (
               <Tooltip
                 key={dim}
                 title={`${dim}: ${(averages[dim] * 100).toFixed(1)}%`}
@@ -161,7 +156,6 @@ const SectionReview = ({
               <CompetencyTable
                 URIs={URIs}
                 competencyData={competencyData}
-                dimensions={TO_SHOW}
                 onValueUpdate={refetchCompetencyData}
               />
             </DialogContentText>

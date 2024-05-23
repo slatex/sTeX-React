@@ -1,4 +1,5 @@
 import QuizIcon from '@mui/icons-material/Quiz';
+import TimelineIcon from '@mui/icons-material/Timeline';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -15,8 +16,8 @@ import Tooltip from '@mui/material/Tooltip';
 
 import { Box, Button, Link, Typography } from '@mui/material';
 import {
-  ALL_DIMENSIONS,
   BloomDimension,
+  SHOW_DIMENSIONS,
   getProblemIdsForConcept,
   uriWeightToSmileyLevel,
 } from '@stex-react/api';
@@ -24,6 +25,7 @@ import { PRIMARY_COL, PathToTour } from '@stex-react/utils';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
+import ConceptHistoryTable from './ConceptHistoryTable';
 import { PracticeQuestions } from './PracticeQuestions';
 import { SelfAssessmentDialogRow } from './SelfAssessmentDialog';
 import { getLocaleObject } from './lang/utils';
@@ -70,7 +72,7 @@ function QuizIconWithProblemsCount({ problemIds }: { problemIds: string[] }) {
           borderRadius: '50%',
           padding: '8px',
         }}
-        fontSize='small'
+        fontSize="small"
       />
     </Box>
   );
@@ -145,14 +147,12 @@ function QuizButton({ uri, mmtUrl }: { uri: string; mmtUrl?: string }) {
 export function CompetencyTable({
   URIs,
   competencyData,
-  dimensions,
   onValueUpdate,
   showTour,
   defaultSort,
 }: {
   URIs: string[];
   competencyData: any[];
-  dimensions?: BloomDimension[];
   onValueUpdate?: () => void;
   showTour?: boolean;
   defaultSort?: boolean;
@@ -164,6 +164,8 @@ export function CompetencyTable({
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
   const [showAllQuizzes, setShowAllQuizes] = useState<boolean>(false);
   const [problemIds, setProblemIds] = useState<string[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [concept, setConcept] = useState<string>('');
   const { mmtUrl } = useContext(ServerLinksContext);
   const combinedData: { concepts: string; values: any }[] = [];
   const CONCEPT_COLUMN = 'concepts';
@@ -189,6 +191,15 @@ export function CompetencyTable({
       concepts: URIs[i],
     };
     combinedData.push(newObj);
+  }
+
+  const handleCloseDialog = () => {
+    setShowHistory(false);
+  };
+
+  function handleHistoryClick(concept: string) {
+    setShowHistory(true);
+    setConcept(concept);
   }
 
   function handleAllQuizzes() {
@@ -254,7 +265,10 @@ export function CompetencyTable({
                   <b>{t.concepts}</b>
                 </TableSortLabel>
               </TableCell>
-              {(dimensions || ALL_DIMENSIONS).map((header) => (
+              {/* <TableCell>
+                <b>History</b>
+              </TableCell> */}
+              {SHOW_DIMENSIONS.map((header) => (
                 <TableCell key={header}>
                   <TableSortLabel
                     active={orderBy === header}
@@ -278,36 +292,41 @@ export function CompetencyTable({
                 <TableCell>
                   {mmtHTMLToReact(getMMTHtml(row.concepts))}
                 </TableCell>
-                {(dimensions || ALL_DIMENSIONS).map(
-                  (dimension: BloomDimension) => (
-                    <TableCell key={dimension}>
-                      {onValueUpdate ? (
-                        <Tooltip
-                          title={
-                            <SelfAssessmentDialogRow
-                              htmlName={extractLastWordAfterQuestionMark(
-                                URIs[index]
-                              )}
-                              dim={dimension}
-                              uri={URIs[index]}
-                              dimText={false}
-                              selectedLevel={uriWeightToSmileyLevel(
-                                Number(row.values[dimension])
-                              )}
-                              onValueUpdate={onValueUpdate}
-                            />
-                          }
-                        >
-                          <span style={{ cursor: 'pointer' }}>
-                            {Number(row.values[dimension]).toFixed(2)}
-                          </span>
-                        </Tooltip>
-                      ) : (
-                        <span>{Number(row.values[dimension]).toFixed(2)}</span>
-                      )}
-                    </TableCell>
-                  )
-                )}
+                {/* <TableCell>
+                  <Tooltip
+                    title="View how you reached the current competency level"
+                    placement="right-start"
+                  >
+                    <TimelineIcon
+                      onClick={() => handleHistoryClick(row.concepts)}
+                      sx={{ cursor: 'pointer' }}
+                    />
+                  </Tooltip>
+                </TableCell> */}
+                {SHOW_DIMENSIONS.map((dimension: BloomDimension) => (
+                  <TableCell key={dimension}>
+                    <Tooltip
+                      title={
+                        <SelfAssessmentDialogRow
+                          htmlName={extractLastWordAfterQuestionMark(
+                            URIs[index]
+                          )}
+                          dim={dimension}
+                          uri={URIs[index]}
+                          dimText={false}
+                          selectedLevel={uriWeightToSmileyLevel(
+                            Number(row.values[dimension])
+                          )}
+                          onValueUpdate={onValueUpdate}
+                        />
+                      }
+                    >
+                      <span style={{ cursor: 'pointer' }}>
+                        {Number(row.values[dimension]).toFixed(2)}
+                      </span>
+                    </Tooltip>
+                  </TableCell>
+                ))}
                 {showTour && (
                   <TableCell
                     sx={{
@@ -339,6 +358,11 @@ export function CompetencyTable({
           </TableBody>
         </Table>
       </TableContainer>
+      <ConceptHistoryTable
+        open={showHistory}
+        onClose={handleCloseDialog}
+        concept={concept}
+      />
     </>
   );
 }

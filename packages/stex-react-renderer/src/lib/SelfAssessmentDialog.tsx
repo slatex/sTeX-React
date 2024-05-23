@@ -1,15 +1,15 @@
 import PendingOutlinedIcon from '@mui/icons-material/PendingOutlined';
 import { Box, Dialog, IconButton, Slider } from '@mui/material';
+import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
-import Tooltip, { tooltipClasses, TooltipProps } from '@mui/material/Tooltip';
 import {
   ALL_SMILEY_LEVELS,
   BloomDimension,
-  getUriSmileys,
-  reportEvent,
   SelfAssessmentSmileysEvent,
   SmileyCognitiveValues,
   SmileyLevel,
+  getUriSmileys,
+  reportEvent,
   smileyToLevel,
 } from '@stex-react/api';
 import { BG_COLOR, PRIMARY_COL, SECONDARY_COL } from '@stex-react/utils';
@@ -191,7 +191,7 @@ export function SelfAssessmentDialogRow({
   htmlName: string;
   dimText: boolean;
   selectedLevel?: number;
-  onValueUpdate: () => void;
+  onValueUpdate?: () => void;
 }) {
   const t = getLocaleObject(useRouter());
   return (
@@ -236,7 +236,7 @@ export function SelfAssessmentDialogRow({
                     [dim]: `smiley${l}`,
                   },
                 } as SelfAssessmentSmileysEvent);
-                onValueUpdate();
+                onValueUpdate?.();
               }}
             >
               <LevelIcon level={l} highlighted={l === selectedLevel} />
