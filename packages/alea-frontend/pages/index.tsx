@@ -422,6 +422,34 @@ const StudentHomePage: NextPage = ({
             ))}
           </Box>
         </Box>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            backgroundColor: '#F5F5F5',
+            padding: '20px',
+            mb: '-10px',
+          }}
+        >
+          <Typography
+            style={{
+              textAlign: 'center',
+              marginTop: '20px',
+              fontWeight: '400',
+              fontSize: '20px',
+            }}
+          >
+            The VoLL-KI Project is funded by the German Ministry of Research and
+            education (BMBF) with almost 5 Million Euro and runs Dec. 2021 to
+            November 2025.
+          </Typography>
+          <img
+            src="/fau_kwarc.png"
+            alt="Explore courses"
+            style={{ padding: '20px', maxWidth: '100%' }}
+          />
+        </Box>
       </Box>
     </MainLayout>
   );
