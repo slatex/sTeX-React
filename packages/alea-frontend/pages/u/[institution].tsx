@@ -42,7 +42,7 @@ const UniversityDetail = {
   },
   'Heriot Watt': {
     fullName: 'Heriot-Watt University',
-    logo: '/heriott.png',
+    logo: '/heriott_logo.png',
   },
 };
 

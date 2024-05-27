@@ -1,9 +1,13 @@
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { Box, CircularProgress, IconButton, Tooltip } from '@mui/material';
 import {
-  ConceptCompetenceInfo,
-  getMyCompleteModel
-} from '@stex-react/api';
+  Box,
+  Button,
+  CircularProgress,
+  IconButton,
+  Snackbar,
+  Tooltip,
+} from '@mui/material';
+import { ConceptCompetenceInfo, getMyCompleteModel } from '@stex-react/api';
 import { CompetencyTable } from '@stex-react/stex-react-renderer';
 import { FileLocation } from '@stex-react/utils';
 import type { NextPage } from 'next';
@@ -23,6 +27,7 @@ const MyLearnerModelPage: NextPage = () => {
   const [competenceInfo, setCompetenceInfo] = useState<ConceptCompetenceInfo[]>(
     []
   );
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   function refresh() {
     setIsLoading(true);
@@ -37,8 +42,10 @@ const MyLearnerModelPage: NextPage = () => {
     refresh();
   }, []);
 
-  const plainCompetencyData = competenceInfo.map((data) => data.competences) || [];
+  const plainCompetencyData =
+    competenceInfo.map((data) => data.competences) || [];
   const concepts = competenceInfo.map((v) => v.concept);
+
   return (
     <MainLayout title="My Learner Model | VoLL-KI">
       <Box p="10px" m="0 auto" maxWidth="800px">
@@ -84,11 +91,29 @@ const MyLearnerModelPage: NextPage = () => {
               <CompetencyTable
                 URIs={concepts}
                 competencyData={plainCompetencyData}
+                onValueUpdate={() => setSnackbarOpen(true)}
               />
             ) : null}
           </Box>
         )}
       </Box>
+      <Snackbar
+        open={snackbarOpen}
+        onClose={() => setSnackbarOpen(false)}
+        message="To see updates, click on refresh"
+        action={
+          <Button
+            color="secondary"
+            size="small"
+            onClick={() => {
+              setSnackbarOpen(false);
+              refresh();
+            }}
+          >
+            REFRESH
+          </Button>
+        }
+      />
     </MainLayout>
   );
 };
