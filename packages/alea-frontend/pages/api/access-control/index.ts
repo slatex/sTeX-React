@@ -1,19 +1,18 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import {
-    executeAndEndSet500OnError,
-    getMysqlDate,
-} from '../comment-utils';
-import dayjs from 'dayjs';
+import { executeAndEndSet500OnError } from '../comment-utils';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method == 'POST') {
-        const data = req.body;
-        await executeAndEndSet500OnError(`INSERT INTO AccessControl (description, updaterId, isOpen, createdAt, updatedAt)
-        VALUES (?, ?, ?, ?, ?);`, [data.description, data.updaterId, data.isOpen, getMysqlDate(dayjs()), new Date().toISOString().slice(0, 19).replace('T', ' ')], res);
-        res.status(201).send([]);
+        const { description, updaterId, isOpen } = req.body;
+        if(!description||!updaterId||isOpen==null){
+            res.status(422).end()
+        }
+        await executeAndEndSet500OnError(`INSERT INTO AccessControlList (description, updaterACLId, isOpen)
+        VALUES (?, ?, ?);`, [description, updaterId, isOpen], res);
+        res.status(201).end();
     }
     else if (req.method == "GET") {
-        const result = await executeAndEndSet500OnError(`select * from AccessControl`, [], res);
+        const result = await executeAndEndSet500OnError(`select * from AccessControlList`, [], res);
         res.status(200).send(result);
     }
-    res.status(404);
+    res.status(404).end();
 }

@@ -1,22 +1,31 @@
-import dayjs from "dayjs";
 import { NextApiRequest, NextApiResponse } from "next";
-import { executeAndEndSet500OnError, getMysqlDate } from "../../comment-utils";
+import { executeAndEndSet500OnError, getUserIdOrSetError } from "../../comment-utils";
 
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method == 'GET') {
-        const acl = (await executeAndEndSet500OnError(`select * from AccessControl where id=?`, [req.query.aclid], res))[0];
-        const members = await executeAndEndSet500OnError('select * from AccessControlMember where accessControl=?', [req.query.aclid], res);
+        const acl = (await executeAndEndSet500OnError(`select * from AccessControlList where id=?`, [req.query.aclid], res))[0];
+        const members = await executeAndEndSet500OnError('select * from ACLMembership where parentACLId=?', [req.query.aclid], res);
         res.send({ acl, members });
-        return;
     }
     else if (req.method == 'PUT') {
-        const data = req.body;
-        await executeAndEndSet500OnError(`UPDATE AccessControl SET description=?, updaterId=?, isOpen=?,updatedAt=? where id=?`,
-            [data.description, data.updaterId, data.isOpen, getMysqlDate(dayjs()), req.query.aclid], res);
-        res.send([]);
-        return;
+        // const userId = await getUserIdOrSetError(req, res);
+        const userId = '2455dxf';
+        const { description, updaterId, isOpen } = req.body;
+        if (!description || !updaterId || isOpen==null) {
+            res.status(422).end();
+            console.log('test')
+        }
+        const updaterACLIder = (await executeAndEndSet500OnError<Array<any>>(`SELECT AccessControlList.id FROM AccessControlList
+        INNER JOIN
+            ACLMembership
+        ON 
+            AccessControlList.id = ACLMembership.parentACLId
+        WHERE
+        ACLMembership.memberUserId =?`, [userId], res)).map(c => c.id);
+        await executeAndEndSet500OnError(`UPDATE AccessControlList SET description=?, updaterACLId=?, isOpen=? where id=? AND updaterACLId in (?)`,
+            [description, updaterId, isOpen, req.query.aclid, updaterACLIder], res);
+        res.status(200).end();
     }
-    res.status(404);
-    return;
+    res.status(404).end();
 }
