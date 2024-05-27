@@ -14,6 +14,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio, { RadioProps } from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import {
+  AnswerUpdateEntry,
   BloomDimension,
   Input,
   InputResponse,
@@ -478,16 +479,11 @@ function DimAndURIListDisplay({
   );
 }
 
-type ConceptDimension = {
-  concept: string;
-  dimensions: string[];
-  quotient: number;
-};
 function transformData(
   dimensionAndURI: string[],
   quotient: number
-): ConceptDimension[] {
-  const conceptUpdate: { [url: string]: ConceptDimension } = {};
+): AnswerUpdateEntry[] {
+  const conceptUpdate: { [url: string]: AnswerUpdateEntry } = {};
 
   dimensionAndURI.forEach((item) => {
     const [dimension, uri] = item.split(':');
