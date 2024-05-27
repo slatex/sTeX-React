@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const { description, updaterId, isOpen } = req.body;
         if (!description || !updaterId || isOpen==null) {
             res.status(422).end();
-            console.log('test')
+            return;
         }
         const updaterACLIder = (await executeAndEndSet500OnError<Array<any>>(`SELECT AccessControlList.id FROM AccessControlList
         INNER JOIN
