@@ -9,8 +9,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         res.send({ acl, members });
     }
     else if (req.method == 'PUT') {
-        // const userId = await getUserIdOrSetError(req, res);
-        const userId = '2455dxf';
+        const userId = await getUserIdOrSetError(req, res);
         const { description, updaterId, isOpen } = req.body;
         if (!description || !updaterId || isOpen==null) {
             res.status(422).end();
