@@ -99,7 +99,6 @@ const MyLearnerModelPage: NextPage = () => {
       </Box>
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={6000}
         onClose={() => setSnackbarOpen(false)}
         message="To see updates, click on refresh"
         action={
