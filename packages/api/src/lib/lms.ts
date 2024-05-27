@@ -10,16 +10,18 @@ export interface LMS2Event {
   comment?: string; // Any string with arbitrary extra information to show the learner.
 }
 
+export interface AnswerUpdateEntry {
+  concept: string;
+  dimensions: string[];
+  quotient: number;
+}
+
 export interface ProblemAnswerEvent extends LMS2Event {
   type: 'problem-answer';
   uri: string; // The problem uri (eg. http://mathhub.info/iwgs/quizzes/creative_commons_21.tex)
   score?: number; // The score of the learner.
   'max-points'?: number; // The maximum points of the problem.
-  updates?: {
-    concept?: string; // The concept id.
-    dimension?: BloomDimension[]; // The dimension id.
-    quotient?: number; // float between 0.0 and 1.0 indicating how well the learner did for this concept/dimension.
-  }[];
+  updates?: AnswerUpdateEntry[];
 }
 
 export interface CourseInitEvent extends LMS2Event {
@@ -178,7 +180,6 @@ export async function purgeAllMyData() {
     type: 'purge',
   } as PurgeEvent);
 }
-
 
 export async function reportEvent(event: LMS2Event) {
   return await lmsRequest('lms', 'lms/input/events', 'POST', {}, event);
@@ -479,4 +480,8 @@ export async function getConceptHistory(
   return await lmsRequest('lms', 'lms/output/history', 'POST', null, {
     concept,
   });
+}
+
+export async function postAnswer(answer: ProblemAnswerEvent) {
+  return await lmsRequest('lms', '/lms/input/events', 'POST', null, answer);
 }

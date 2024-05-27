@@ -1,6 +1,6 @@
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Button, IconButton, Tooltip, Typography } from '@mui/material';
 import LinearProgress from '@mui/material/LinearProgress';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import {
   Problem,
   ProblemResponse,
@@ -17,7 +17,6 @@ import { ListStepper } from './QuizDisplay';
 import { getLocaleObject } from './lang/utils';
 import { ServerLinksContext, mmtHTMLToReact } from './stex-react-renderer';
 import { extractProjectIdAndFilepath } from './utils';
-
 
 export function PerSectionQuiz({
   archive,
@@ -129,6 +128,7 @@ export function PerSectionQuiz({
       <Box mb="10px">
         <ProblemDisplay
           r={response}
+          uri={problemIds[problemIdx]}
           showPoints={false}
           problem={problem}
           isFrozen={isFrozen[problemIdx]}
