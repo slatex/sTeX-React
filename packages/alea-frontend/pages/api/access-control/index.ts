@@ -10,7 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return;
         }
         await executeAndEndSet500OnError(`INSERT INTO AccessControlList (id,description,updaterACLId ,isOpen)
-        VALUES (?,?, ?);`, [id, description, updaterId, isOpen], res);
+        VALUES (?,?, ?,?);`, [id, description, updaterId, isOpen], res);
         res.status(201).end();
     }
     else if (req.method == "GET") {
