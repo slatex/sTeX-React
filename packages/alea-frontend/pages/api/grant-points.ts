@@ -1,7 +1,7 @@
 import { GrantPointsRequest, isModerator } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
 import {
-  checkIfPostOrSetError,
+  checkIfTypeOrSetError,
   executeAndEndSet500OnError,
   getExistingCommentDontEnd,
   getExistingPointsDontEnd,
@@ -12,7 +12,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (!checkIfPostOrSetError(req, res)) return;
+  if (!checkIfTypeOrSetError(req, res)) return;
   const granterId = await getUserIdOrSetError(req, res);
   if (!isModerator(granterId)) {
     res

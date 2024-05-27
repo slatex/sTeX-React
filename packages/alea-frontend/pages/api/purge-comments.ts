@@ -1,12 +1,12 @@
 import { isModerator } from '@stex-react/api';
 import {
-  checkIfPostOrSetError,
+  checkIfTypeOrSetError,
   executeTxnAndEndSet500OnError,
   getUserIdOrSetError
 } from './comment-utils';
 
 export default async function handler(req, res) {
-  if (!checkIfPostOrSetError(req, res)) return;
+  if (!checkIfTypeOrSetError(req, res)) return;
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
 

@@ -1,7 +1,7 @@
 import { Quiz, isModerator } from '@stex-react/api';
 import fs from 'fs';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { checkIfPostOrSetError, getUserIdOrSetError } from './comment-utils';
+import { checkIfTypeOrSetError, getUserIdOrSetError } from './comment-utils';
 import {
   doesQuizExist,
   getBackupQuizFilePath,
@@ -28,7 +28,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (!checkIfPostOrSetError(req, res)) return;
+  if (!checkIfTypeOrSetError(req, res)) return;
   const userId = await getUserIdOrSetError(req, res);
   if (!isModerator(userId)) {
     res.status(403).send({ message: 'Unauthorized.' });
