@@ -124,9 +124,9 @@ CREATE TABLE StudyBuddyConnections (
 );
 
 create TABLE AccessControlList (
-id string NOT NULL AUTO_INCREMENT,
+id varchar(13) NOT NULL,
 description TEXT,
-updaterACLId INT UNSIGNED NULL,
+updaterACLId varchar(13) NULL,
 isOpen BOOLEAN,
 createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -135,8 +135,8 @@ PRIMARY KEY (id)
 
 CREATE TABLE ACLMembership(
 id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-parentACLId string not NULL,
-memberACLId INT UNSIGNED NULL,
+parentACLId varchar(13) not NULL,
+memberACLId varchar(13) NULL,
 memberUserId VARCHAR(255),
 createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 PRIMARY KEY(id),
