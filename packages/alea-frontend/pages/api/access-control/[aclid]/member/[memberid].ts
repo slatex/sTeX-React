@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { checkIfTypeOrSetError, executeAndEndSet500OnError, getUserIdOrSetError } from "../../../comment-utils";
+import { checkIfDeleteOrSetError, executeAndEndSet500OnError, getUserIdOrSetError } from "../../../comment-utils";
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    if (!checkIfTypeOrSetError(req, res, 'DELETE'))
+    if (!checkIfDeleteOrSetError(req, res))
         return;
     const userId = await getUserIdOrSetError(req, res);
     const { memberid, aclid } = req.query;
