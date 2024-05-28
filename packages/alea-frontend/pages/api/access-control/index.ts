@@ -2,10 +2,9 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { executeAndEndSet500OnError } from '../comment-utils';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method == 'POST') {
-        const { description, isOpen } = req.body;
-        const id = (Math.random() * 9e6).toString(36);
+        const { id, description, isOpen } = req.body;
         const updaterId = req.body.updaterId ?? id;
-        if (!description || isOpen == null) {
+        if (!id || !description || isOpen == null) {
             res.status(422).end();
             return;
         }
