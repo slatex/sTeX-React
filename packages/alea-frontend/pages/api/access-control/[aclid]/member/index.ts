@@ -1,9 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { checkIfTypeOrSetError, executeAndEndSet500OnError } from "../../../comment-utils";
+import { checkIfPostOrSetError, executeAndEndSet500OnError } from "../../../comment-utils";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 
-    if (!checkIfTypeOrSetError(req, res))
+    if (!checkIfPostOrSetError(req, res))
         return;
     const data = req.body;
     const aclId = req.query.aclid;

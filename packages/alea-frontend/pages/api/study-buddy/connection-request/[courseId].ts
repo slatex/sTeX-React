@@ -1,7 +1,7 @@
 import { NotificationType } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
 import {
-  checkIfTypeOrSetError,
+  checkIfPostOrSetError,
   executeAndEndSet500OnError,
   getUserInfo,
   sendNotification,
@@ -11,7 +11,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (!checkIfTypeOrSetError(req, res)) return;
+  if (!checkIfPostOrSetError(req, res)) return;
   const user = await getUserInfo(req);
   const userId = user?.userId;
   if (!userId) {

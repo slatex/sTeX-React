@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { checkIfTypeOrSetError } from './comment-utils';
+import { checkIfPostOrSetError } from './comment-utils';
 import { XhtmlContentUrl } from '@stex-react/utils';
 import { fetchDocument } from './prefetchHelper';
 import { GetDocumentsRequest } from '@stex-react/api';
@@ -8,7 +8,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (!checkIfTypeOrSetError(req, res)) return;
+  if (!checkIfPostOrSetError(req, res)) return;
 
   const docs = (req.body as GetDocumentsRequest)?.docs;
   if (!docs?.length) {

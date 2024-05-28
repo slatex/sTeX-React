@@ -9,7 +9,7 @@ import {
 import { CURRENT_TERM, PathToArticle } from '@stex-react/utils';
 import axios from 'axios';
 import {
-  checkIfTypeOrSetError,
+  checkIfPostOrSetError,
   executeAndEndSet500OnError,
   getExistingCommentDontEnd,
   getUserIdOrSetError,
@@ -85,7 +85,7 @@ async function sendCommentNotifications(
 }
 
 export default async function handler(req, res) {
-  if (!checkIfTypeOrSetError(req, res)) return;
+  if (!checkIfPostOrSetError(req, res)) return;
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
 

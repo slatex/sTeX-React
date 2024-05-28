@@ -161,7 +161,9 @@ export async function getExistingPointsDontEnd(
   }
   return { existing: existingGrant[0], error: undefined };
 }
-
+export function checkIfPostOrSetError(req, res) {
+  return checkIfTypeOrSetError(req, res, 'POST');
+}
 export function checkIfTypeOrSetError(req, res, type: 'POST' | 'DELETE' = 'POST') {
   if (req.method !== type) {
     res.status(405).send({ message: `Only ${type} requests allowed` });
