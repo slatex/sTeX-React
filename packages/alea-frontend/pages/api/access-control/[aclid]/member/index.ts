@@ -8,14 +8,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const data = req.body;
     const aclId = req.query.aclid;
     const aclMember: string = data.aclMember;
-    const userMemeber: string = data.userMemeber;
-    if (!aclMember && !userMemeber || userMemeber && aclMember) {
+    const userMember: string = data.userMember;
+    if (!aclMember && !userMember || userMember && aclMember) {
         res.status(422).end();
         return;
     }
 
     await executeAndEndSet500OnError(`INSERT INTO ACLMembership (parentACLId, memberACLId, memberUserId)
-        VALUES (?, ?, ?);`, [aclId, aclMember, userMemeber], res);
+        VALUES (?, ?, ?);`, [aclId, aclMember, userMember], res);
     res.status(201).end();
 
 }       
