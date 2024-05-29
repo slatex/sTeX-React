@@ -92,6 +92,7 @@ const MyLearnerModelPage: NextPage = () => {
                 URIs={concepts}
                 competencyData={plainCompetencyData}
                 onValueUpdate={() => setSnackbarOpen(true)}
+                fetchProblem={false}
               />
             ) : null}
           </Box>

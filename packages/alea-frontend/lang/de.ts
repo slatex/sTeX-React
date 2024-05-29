@@ -29,9 +29,11 @@ export const de = {
       signUpNow: 'Jetzt registrieren',
       exploreOurCourse: 'Entdecken Sie unsere Kurse',
       whyAlea: 'Warum ALᴇA?',
-      explorCourses: 'Kurse erkunden',
+      exploreCourses: 'Kurse erkunden',
       partneredWith:
         'Hochwertige Bildungsinhalte + entwickelt an + angesehenen Institutionen weltweit',
+      vollKiProjectInfo:
+        'Das VoLL-KI-Projekt wird vom Bundesministerium für Bildung und Forschung (BMBF) unter der Fördernummer 16DHBKI089 mit fast 5 Millionen Euro gefördert und läuft von Dezember 2021 bis November 2025.',
     },
   },
   login: {
@@ -266,8 +268,7 @@ export const de = {
       'Sind Sie sicher, dass Sie das Study Buddy-Programm für $1 verlassen möchten?',
     haveEnrolled: 'Sie nehmen am Study Buddy-Programm für $1 teil.',
     connectedAlert: 'Sie haben eine Verbindung zu $1 hergestellt.',
-    connectionRequestCancelled:
-      'Die Anfrage zu $1 wurde abgebrochen.',
+    connectionRequestCancelled: 'Die Anfrage zu $1 wurde abgebrochen.',
     connectionRequestSent: 'Anfrage an $1 gesendet.',
 
     introLabel: 'Stellen Sie sich vor',

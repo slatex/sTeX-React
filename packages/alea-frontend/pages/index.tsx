@@ -405,7 +405,7 @@ const StudentHomePage: NextPage = ({
               marginTop: '30px',
             }}
           >
-            {n.explorCourses}
+            {n.exploreCourses}
           </Typography>
           <Box
             id="courses"
@@ -440,9 +440,7 @@ const StudentHomePage: NextPage = ({
               fontSize: '20px',
             }}
           >
-            The VoLL-KI Project is funded by the German Ministry of Research and
-            education (BMBF) with almost 5 Million Euro and runs Dec. 2021 to
-            November 2025.
+            {n.vollKiProjectInfo}
           </Typography>
           <img
             src="/fau_kwarc.png"
