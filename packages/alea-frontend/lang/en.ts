@@ -30,9 +30,11 @@ export const en = {
       signUpNow: 'Sign up now',
       exploreOurCourse: 'Explore our Courses',
       whyAlea: 'Why ALᴇA?',
-      explorCourses: 'Explore Courses',
+      exploreCourses: 'Explore Courses',
       partneredWith:
         'Top-tier educational content + developed at + esteemed institutions worldwide',
+      vollKiProjectInfo:
+        'The VoLL-KI Project is funded by the German Ministry of Research and education (BMBF) under the grant 16DHBKI089 with almost 5 Million Euro and runs Dec. 2021 to November 2025.',
     },
   },
   login: {

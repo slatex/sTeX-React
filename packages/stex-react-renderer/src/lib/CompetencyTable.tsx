@@ -150,12 +150,14 @@ export function CompetencyTable({
   onValueUpdate,
   showTour,
   defaultSort,
+  fetchProblem = true,
 }: {
   URIs: string[];
   competencyData: any[];
   onValueUpdate?: () => void;
   showTour?: boolean;
   defaultSort?: boolean;
+  fetchProblem?: boolean;
 }) {
   const t = getLocaleObject(useRouter());
   const [orderBy, setOrderBy] = useState<string>(
@@ -172,6 +174,7 @@ export function CompetencyTable({
   useEffect(() => {
     async function fetchProblemIds() {
       try {
+        if (!fetchProblem) return;
         const promises = URIs.map((uri) =>
           getProblemIdsForConcept(mmtUrl, uri)
         );
