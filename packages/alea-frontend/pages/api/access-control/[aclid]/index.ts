@@ -15,15 +15,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             res.status(422).end();
             return;
         }
-        const updaterACLIder = (await executeAndEndSet500OnError<Array<any>>(`SELECT AccessControlList.id FROM AccessControlList
-        INNER JOIN
-            ACLMembership
-        ON 
-            AccessControlList.id = ACLMembership.parentACLId
-        WHERE
-        ACLMembership.memberUserId =?`, [userId], res)).map(c => c.id);
-        await executeAndEndSet500OnError(`UPDATE AccessControlList SET description=?, updaterACLId=?, isOpen=? where id=? AND updaterACLId in (?)`,
-            [description, updaterId, isOpen, req.query.aclid, updaterACLIder], res);
+        //TODO: Check the user have right to add member or a acl to the this acl, this should be done in redis flatten.
+        await executeAndEndSet500OnError(`UPDATE AccessControlList SET description=?, updaterACLId=?, isOpen=? where id=?`,
+            [description, updaterId, isOpen, req.query.aclid], res);
         res.status(200).end();
     }
     res.status(404).end();
