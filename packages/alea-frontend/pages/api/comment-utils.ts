@@ -128,7 +128,7 @@ export async function getUserIdOrSetError(req, res) {
 
 export async function getExistingCommentDontEnd(
   commentId: number
-): Promise<{ existing: Comment; error?: number }> {
+): Promise<{ existing: Comment; error?: number; }> {
   const existingComments = await executeQuery(
     'SELECT * FROM comments WHERE commentId = ? AND (isDeleted IS NULL OR isDeleted !=1)',
     [commentId]
@@ -146,7 +146,7 @@ export async function getExistingCommentDontEnd(
 
 export async function getExistingPointsDontEnd(
   commentId: number
-): Promise<{ existing: PointsGrant; error?: number }> {
+): Promise<{ existing: PointsGrant; error?: number; }> {
   const existingGrant = await executeQuery(
     'SELECT * FROM points WHERE commentId = ?',
     [commentId]
@@ -161,10 +161,15 @@ export async function getExistingPointsDontEnd(
   }
   return { existing: existingGrant[0], error: undefined };
 }
-
 export function checkIfPostOrSetError(req, res) {
-  if (req.method !== 'POST') {
-    res.status(405).send({ message: 'Only POST requests allowed' });
+  return checkIfTypeOrSetError(req, res, 'POST');
+}
+export function checkIfDeleteOrSetError(req,res){
+  return checkIfTypeOrSetError(req,res,'DELETE');
+}
+function checkIfTypeOrSetError(req, res, type: 'POST' | 'DELETE') {
+  if (req.method !== type) {
+    res.status(405).send({ message: `Only ${type} requests allowed` });
     return false;
   }
   return true;

@@ -123,6 +123,25 @@ CREATE TABLE StudyBuddyConnections (
     PRIMARY KEY (senderId, receiverId, courseId)
 );
 
+create TABLE AccessControlList (
+id varchar(255) NOT NULL,
+description TEXT,
+updaterACLId varchar(255) NULL,
+isOpen BOOLEAN,
+createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+PRIMARY KEY (id)
+);
+
+CREATE TABLE ACLMembership(
+id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+parentACLId varchar(255) not NULL,
+memberACLId varchar(255) NULL,
+memberUserId VARCHAR(255),
+createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+PRIMARY KEY(id),
+FOREIGN KEY (parentACLId) REFERENCES AccessControlList(id)
+);
 ALTER TABLE StudyBuddyConnections ADD CONSTRAINT StudyBuddyConnections_fk0 FOREIGN KEY (senderId) REFERENCES StudyBuddyUsers(userId);
 ALTER TABLE StudyBuddyConnections ADD CONSTRAINT StudyBuddyConnections_fk1 FOREIGN KEY (receiverId) REFERENCES StudyBuddyUsers(userId);
 
