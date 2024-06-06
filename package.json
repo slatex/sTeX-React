@@ -30,6 +30,7 @@
     "html-react-parser": "^3.0.4",
     "html-to-text": "^9.0.5",
     "htmlparser2": "^8.0.1",
+    "ioredis": "^5.4.1",
     "markdown-it": "^13.0.1",
     "mathjax-full": "^3.2.2",
     "next": "^13.5.6",
