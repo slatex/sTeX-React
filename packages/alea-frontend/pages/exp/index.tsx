@@ -4,13 +4,13 @@ import WarningIcon from '@mui/icons-material/Warning';
 import { Box, Button, IconButton } from '@mui/material';
 import { BloomDimension } from '@stex-react/api';
 import { SelfAssessment2 } from '@stex-react/stex-react-renderer';
+import { localStore } from '@stex-react/utils';
 import type { NextPage } from 'next';
 import Link from 'next/link';
 import { BrowserAutocomplete } from '../../components/BrowserAutocomplete';
 import { SearchBar } from '../../components/SearchBar';
 import { ToursAutocomplete } from '../../components/ToursAutocomplete';
 import MainLayout from '../../layouts/MainLayout';
-import { localStore } from '@stex-react/utils';
 
 function ExternalButtonLink({ href, text }: { href: string; text: string }) {
   return (
@@ -60,6 +60,18 @@ const ExperimentsHome: NextPage = () => {
             </Box>
             <Box>
               <h2>Paper Prototypes (What we are working towards)</h2>
+              <Box display="flex">
+                <InternalButtonLink href="/course_lm_exp/ai_structure.html">
+                  Course Structure
+                </InternalButtonLink>
+                <InternalButtonLink href="/course_lm_exp/lm_visualising_1.html">
+                  Course Structure with Learner Model
+                </InternalButtonLink>
+                <InternalButtonLink href="/course_lm_exp/lm_visualising_2.html">
+                  Course Structure with Learner Model 2
+                </InternalButtonLink>
+              </Box>
+              <br />
               <InternalButtonLink href="/exp/pp_dialogue_tour">
                 Dialogue Guided Tour
               </InternalButtonLink>
@@ -106,7 +118,7 @@ const ExperimentsHome: NextPage = () => {
               <h2>System Info</h2>
               MMT server: {process.env.NEXT_PUBLIC_MMT_URL}
               <br />
-              LMS  server: {process.env.NEXT_PUBLIC_LMS_URL}
+              LMS server: {process.env.NEXT_PUBLIC_LMS_URL}
               <br />
               Auth server: {process.env.NEXT_PUBLIC_AUTH_SERVER_URL}
             </Box>
