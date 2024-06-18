@@ -90,6 +90,7 @@ export interface Input {
   options?: Option[]; // For MCQ and SCQ types.
   fillInAnswerClasses?: FillInAnswerClass[]; // For FILL_IN type.
   inline: boolean;
+  ignoreForScoring?: boolean;
 }
 
 export interface Problem {
