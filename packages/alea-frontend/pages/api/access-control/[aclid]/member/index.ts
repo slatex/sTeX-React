@@ -22,5 +22,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await executeAndEndSet500OnError(`INSERT INTO ACLMembership (parentACLId, memberACLId, memberUserId)
         VALUES (?, ?, ?);`, [aclId, aclMember, userMember], res);
     res.status(201).end();
-
 }       

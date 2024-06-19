@@ -137,11 +137,12 @@ CREATE TABLE ACLMembership(
 id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 parentACLId varchar(255) not NULL,
 memberACLId varchar(255) NULL,
-memberUserId VARCHAR(255),
+memberUserId VARCHAR(255) NULL,
 createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 PRIMARY KEY(id),
 FOREIGN KEY (parentACLId) REFERENCES AccessControlList(id)
 );
+
 ALTER TABLE StudyBuddyConnections ADD CONSTRAINT StudyBuddyConnections_fk0 FOREIGN KEY (senderId) REFERENCES StudyBuddyUsers(userId);
 ALTER TABLE StudyBuddyConnections ADD CONSTRAINT StudyBuddyConnections_fk1 FOREIGN KEY (receiverId) REFERENCES StudyBuddyUsers(userId);
 

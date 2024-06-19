@@ -4,6 +4,10 @@ import { executeAndEndSet500OnError, getUserIdOrSetError } from "../../comment-u
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method == 'GET') {
+        // const acl = (await executeAndEndSet500OnError(`select * from AccessControlList where id=?`, [req.query.aclid], res))[0];
+        // const members = await executeAndEndSet500OnError('select * from ACLMembership where parentACLId=?', [req.query.aclid], res);
+        // res.send({ acl, members });
+        // console.log("aclid" + req.query.aclid);
         const acl = (await executeAndEndSet500OnError(`select * from AccessControlList where id=?`, [req.query.aclid], res))[0];
         const members = await executeAndEndSet500OnError('select * from ACLMembership where parentACLId=?', [req.query.aclid], res);
         res.send({ acl, members });
@@ -20,5 +24,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             [description, updaterId, isOpen, req.query.aclid], res);
         res.status(200).end();
     }
-    res.status(404).end();
+    // res.status(404).end();
 }
