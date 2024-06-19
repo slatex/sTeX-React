@@ -26,11 +26,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     else if (req.method == "GET") {
         const result = await executeAndEndSet500OnError(`select id from AccessControlList`, [], res);
         res.status(200).send(result);
-        // const result = await executeAndEndSet500OnError(`SELECT acl.*
-        //                 FROM AccessControlList acl
-        //                 LEFT JOIN ACLMembership acm ON acl.id = acm.memberACLId
-        //                 WHERE acm.memberACLId IS NULL`, [], res);
-        // res.status(200).send(result);
     }
     res.status(404).end();
 }
