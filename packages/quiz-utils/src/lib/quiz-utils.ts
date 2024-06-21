@@ -154,8 +154,8 @@ function mcqCorrectnessQuotient(
 
 export function getPoints(problem: Problem, response?: ProblemResponse) {
   if (!response) return 0;
-  const perInputCorrectnessQuotient: number[] = problem.inputs.map(
-    (input, idx) => {
+  const perInputCorrectnessQuotient: number[] = problem.inputs
+    .map((input, idx) => {
       const resp = response?.responses?.[idx];
       const { type, fillInAnswerClasses, options } = input;
       if (type !== input.type) {
@@ -164,6 +164,7 @@ export function getPoints(problem: Problem, response?: ProblemResponse) {
         );
         return NaN;
       }
+      if (input.ignoreForScoring) return null;
       if (input.type === InputType.FILL_IN) {
         return fillInCorrectnessQuotient(
           fillInAnswerClasses,
@@ -177,12 +178,15 @@ export function getPoints(problem: Problem, response?: ProblemResponse) {
         console.error(`Unknown input type: ${input.type}`);
         return NaN;
       }
-    }
-  );
+    })
+    .filter((v) => v !== null) as number[];
+    
+  const numGradable = perInputCorrectnessQuotient.length;
+  if (numGradable === 0) return 0;
   if (perInputCorrectnessQuotient.some((s) => isNaN(s))) return undefined;
   const totalCorrect = perInputCorrectnessQuotient.reduce((s, a) => s + a, 0);
 
-  return (problem.points * totalCorrect) / problem.inputs.length;
+  return (problem.points * totalCorrect) / numGradable;
 }
 
 function recursivelyFindNodes(
@@ -230,6 +234,10 @@ function removeNodeWithAttrib(
 
 function isInlineBlock(node: Element) {
   return node.attribs['data-problem-scb-inline'] === 'true';
+}
+
+function isIgnoredForScoring(node: Element) {
+  return node.attribs['data-problem-ignore-scoring'] === 'true';
 }
 
 function findProblemRootNode(node: (ChildNode & Element) | Document) {
@@ -353,13 +361,14 @@ function findInputs(
   return inputNodes.map(({ node, attrName }, idx) => {
     const type = NODE_ATTRS_TO_TYPE[attrName] ?? InputType.FILL_IN;
     const inline = isInlineBlock(node);
+    const ignoreForScoring = isIgnoredForScoring(node);
     node.attribs['id'] = getMMTCustomId(`${idx}`);
     if ([InputType.MCQ, InputType.SCQ].includes(type)) {
       const options = getOptionSet(node, type);
       return { type, options, inline } as Input;
     } else {
       const fillInAnswerClasses = getFillInAnswerClasses(node);
-      return { type, fillInAnswerClasses, inline } as Input;
+      return { type, fillInAnswerClasses, inline, ignoreForScoring } as Input;
     }
   });
 }

@@ -115,6 +115,12 @@ function getDropdownClassNames(
 }
 
 function fillInFeedback(input: Input, response: InputResponse) {
+  if (input.ignoreForScoring) {
+    return {
+      isCorrect: Tristate.TRUE,
+      feedbackHtml: 'Your response to this input will not be graded.',
+    };
+  }
   const expected = input.fillInAnswerClasses;
   if (!expected) return { isCorrect: Tristate.UNKNOWN, feedbackHtml: '' };
   const actual = response.filledInAnswer;
@@ -140,6 +146,12 @@ function quadStateToTristate(qs: QuadState) {
 
 function scbFeedback(input: Input, response: InputResponse) {
   const { singleOptionIdx } = response;
+  if (input.ignoreForScoring) {
+    return {
+      isCorrect: Tristate.TRUE,
+      feedbackHtml: 'Your response to this input will not be graded.',
+    };
+  }
   const chosen = (input.options || []).find(
     (o) => o.optionId === singleOptionIdx
   );
