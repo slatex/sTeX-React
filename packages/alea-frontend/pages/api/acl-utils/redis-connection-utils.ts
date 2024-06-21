@@ -11,7 +11,6 @@ const db = new Redis({
 export async function set(key: RedisKey, data: string | Buffer | number) {
     try {
         await db.set(key, data);
-        return;
     } catch (error) {
         return { error };
     }
@@ -27,7 +26,6 @@ export async function setAndEndSet500OnError(key: RedisKey, data: string | Buffe
     if (result['error']) {
         res.status(500).send(result['error']);
     }
-    return;
 }
 export async function getAndEndSet500OnError<T>(key: RedisKey, res: NextApiResponse): Promise<T> {
     const result = await get(key);
