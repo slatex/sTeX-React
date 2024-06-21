@@ -1,59 +1,64 @@
-import { Box, Button, TextField, Typography, Checkbox, FormControlLabel, IconButton, Chip } from "@mui/material";
-import { NextPage } from "next";
-import MainLayout from "packages/alea-frontend/layouts/MainLayout";
-import { useState } from "react";
-import AddIcon from '@mui/icons-material/Add';
-import RemoveIcon from '@mui/icons-material/Remove';
-import axios from "axios";
+import {
+  Box,
+  Button,
+  Checkbox,
+  Chip,
+  FormControlLabel,
+  TextField,
+  Typography,
+} from '@mui/material';
+import { CreateACLRequest } from '@stex-react/api';
+import axios from 'axios';
+import { NextPage } from 'next';
+import { useState } from 'react';
+import MainLayout from '../../layouts/MainLayout';
 
 const CreateACl: NextPage = () => {
-  const [aclId, setAclId] = useState<string|''>('');
-  const [description, setDescription] = useState<string|''>('');
-  const [memberIds, setMemberIds] = useState<string[]>([]);
-  const [memberACLs, setMemberACLs] = useState<string[]>([]);
-  const [updaterACL, setUpdaterACL] = useState<string|''>('');
-  const [isOpen, setIsOpen] = useState<Boolean>(false);
+  const [aclId, setAclId] = useState<string | ''>('');
+  const [description, setDescription] = useState<string | ''>('');
+  const [memberUserIds, setMemberUserIds] = useState<string[]>([]);
+  const [memberACLIds, setMemberACLIds] = useState<string[]>([]);
+  const [updaterACLId, setUpdaterACLId] = useState<string | ''>('');
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleAddMemberId = (event) => {
     if (event.key === 'Enter' && event.target.value) {
-      setMemberIds([...memberIds, event.target.value]);
+      setMemberUserIds([...memberUserIds, event.target.value]);
       event.target.value = '';
     }
   };
 
-  const handleRemoveMemberId = (idToRemove:string) => {
-    setMemberIds(memberIds.filter(id => id !== idToRemove));
+  const handleRemoveMemberId = (idToRemove: string) => {
+    setMemberUserIds(memberUserIds.filter((id) => id !== idToRemove));
   };
 
   const handleAddMemberACL = (event) => {
     if (event.key === 'Enter' && event.target.value) {
-      setMemberACLs([...memberACLs, event.target.value]);
+      setMemberACLIds([...memberACLIds, event.target.value]);
       event.target.value = '';
     }
   };
 
-  const handleRemoveMemberACL = (aclToRemove:string) => {
-    setMemberACLs(memberACLs.filter(acl => acl !== aclToRemove));
+  const handleRemoveMemberACL = (aclToRemove: string) => {
+    setMemberACLIds(memberACLIds.filter((acl) => acl !== aclToRemove));
   };
 
   const handleSubmit = async () => {
-    const newAcl = {
+    const newAcl: CreateACLRequest = {
       id: aclId,
       description,
-      memberIds,
-      memberACLs,
-      updaterACL,
-      isOpen
+      memberUserIds,
+      memberACLIds,
+      updaterACLId,
+      isOpen,
     };
     console.log('New ACL:', newAcl);
-    try{
-      const res = await axios.post('/api/access-control', newAcl);
+    try {
+      const res = await axios.post('/api/access-control/create-acl', newAcl);
       console.log(res);
-    }
-    catch(e){
+    } catch (e) {
       console.log(e);
     }
-
   };
 
   return (
@@ -91,7 +96,7 @@ const CreateACl: NextPage = () => {
               fullWidth
             />
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-              {memberIds.map((id, index) => (
+              {memberUserIds.map((id, index) => (
                 <Chip
                   key={index}
                   label={id}
@@ -110,7 +115,7 @@ const CreateACl: NextPage = () => {
               fullWidth
             />
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-              {memberACLs.map((acl, index) => (
+              {memberACLIds.map((acl, index) => (
                 <Chip
                   key={index}
                   label={acl}
@@ -122,8 +127,8 @@ const CreateACl: NextPage = () => {
           <TextField
             label="Updater ACL"
             variant="outlined"
-            value={updaterACL}
-            onChange={(e) => setUpdaterACL(e.target.value)}
+            value={updaterACLId}
+            onChange={(e) => setUpdaterACLId(e.target.value)}
             size="small"
             sx={{ mb: '20px' }}
             fullWidth

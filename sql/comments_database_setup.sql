@@ -123,19 +123,19 @@ CREATE TABLE StudyBuddyConnections (
     PRIMARY KEY (senderId, receiverId, courseId)
 );
 
-create TABLE AccessControlList (
-    id varchar(255) PRIMARY KEY,
+CREATE TABLE AccessControlList (
+    id VARCHAR  (255) PRIMARY KEY,
     description TEXT,
-    updaterACLId varchar(255) NULL,
+    updaterACLId VARCHAR(255),
     isOpen BOOLEAN,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE ACLMembership(
     id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    parentACLId varchar(255) NOT NULL,
-    memberACLId varchar(255) NULL,
+    parentACLId VARCHAR(255) NOT NULL,
+    memberACLId VARCHAR(255) NULL,
     memberUserId VARCHAR(255) NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (parentACLId) REFERENCES AccessControlList(id)

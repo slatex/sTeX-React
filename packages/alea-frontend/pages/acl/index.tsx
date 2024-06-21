@@ -1,32 +1,24 @@
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
 import {
-  Button,
   Box,
+  Button,
+  Divider,
   List,
   ListItem,
   ListItemText,
-  Divider,
 } from '@mui/material';
+import { getAllAclIds } from '@stex-react/api';
 import { NextPage } from 'next';
-import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
-import axios from 'axios';
 import Link from 'next/link';
-
-interface Acls {
-  id: string;
-}
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import MainLayout from '../../layouts/MainLayout';
 
 const AclPage: NextPage = () => {
   const router = useRouter();
-  const [acls, setAcls] = useState<Acls[]>([]);
+  const [aclIds, setAclIds] = useState<string[]>([]);
 
   useEffect(() => {
-    const fetchAcls = async () => {
-      const { data } = await axios.get('api/access-control');
-      setAcls(data);
-    };
-    fetchAcls();
+    getAllAclIds().then(setAclIds);
   }, []);
 
   return (
@@ -40,7 +32,7 @@ const AclPage: NextPage = () => {
           boxSizing: 'border-box',
         }}
       >
-        <h1>All ACL's</h1>
+        <h1>All ACL&apos;s</h1>
         <Box>
           <Button
             variant="contained"
@@ -52,8 +44,8 @@ const AclPage: NextPage = () => {
         </Box>
 
         <List>
-          {acls.map((acl, index) => (
-            <Link href={`acl/${acl?.id}`} key={index}>
+          {aclIds.map((acl, index) => (
+            <Link href={`acl/${acl}`} key={index}>
               <Box>
                 <ListItem
                   button
@@ -64,13 +56,13 @@ const AclPage: NextPage = () => {
                   }}
                 >
                   <ListItemText
-                    primary={acl?.id}
+                    primary={acl}
                     primaryTypographyProps={{
                       fontWeight: 'bold',
                     }}
                   />
                 </ListItem>
-                {index < acls.length - 1 && <Divider />}
+                {index < aclIds.length - 1 && <Divider />}
               </Box>
             </Link>
           ))}

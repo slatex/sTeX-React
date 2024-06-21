@@ -10,8 +10,8 @@ export default async function handler(
   const id = req.query.id as string;
   if (!id) return res.status(422).send(`Missing param id.`);
   const acls: any[] = await executeAndEndSet500OnError(
-    `SELECT * from AccessControlList where id = ?`,
-    [req.query.aclid],
+    `SELECT * FROM AccessControlList where id = ?`,
+    [id],
     res
   );
   const dbAcl = acls?.[0];
@@ -19,7 +19,7 @@ export default async function handler(
 
   const members: ACLMembership[] = await executeAndEndSet500OnError(
     'SELECT * FROM ACLMembership WHERE parentACLId = ?',
-    [req.query.aclid],
+    [id],
     res
   );
   const acl: AccessControlList = {
@@ -30,8 +30,8 @@ export default async function handler(
     createdAt: dbAcl.createdAt,
     updatedAt: dbAcl.updatedAt,
 
-    memberACLIds: members.map((m) => m.memberUserId).filter((a) => a),
-    memberUserIds: members.map((m) => m.memberACLId).filter((u) => u),
+    memberACLIds: members.map((m) => m.memberACLId).filter((a) => a),
+    memberUserIds: members.map((m) => m.memberUserId).filter((u) => u),
   };
   res.status(200).send(acl);
 }

@@ -6,15 +6,12 @@ import {
   ListItemText,
   Typography,
 } from '@mui/material';
+import { AccessControlList } from '@stex-react/api';
 import axios from 'axios';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
 import React, { useEffect, useState } from 'react';
-
-
-
-
+import MainLayout from '../../layouts/MainLayout';
 
 const AclId: NextPage = () => {
   const { query } = useRouter();
@@ -25,21 +22,17 @@ const AclId: NextPage = () => {
 
   async function getMembers() {
     try {
-      const { data } = await axios.get(`/api/access-control/${query.aclId}`);
-      const { members, acl } = data;
+      const resp = await axios.get(
+        `/api/access-control/get-acl?id=${query.aclId}`
+      );
+      const acl = resp.data as AccessControlList;
       setDesc(acl?.description);
 
       const aclIds = new Set<string>();
       const userMembers = new Set<string>();
 
-      members.forEach((member) => {
-        if (member.memberACLId) {
-          aclIds.add(member.memberACLId);
-        }
-        if (member.memberUserId) {
-          userMembers.add(member.memberUserId);
-        }
-      });
+      acl.memberACLIds.forEach((m) => aclIds.add(m));
+      acl.memberUserIds.forEach((m) => userMembers.add(m));
       setAllMemberUserIds(Array.from(userMembers));
       setAcls(Array.from(aclIds));
     } catch (e) {
