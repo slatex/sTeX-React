@@ -1,4 +1,3 @@
-import { NextApiResponse } from "next";
 import { executeAndEndSet500OnError } from "../comment-utils";
 import { addSet, getSet } from "./redis-connection-utils";
 
@@ -7,7 +6,7 @@ export class Flattening {
     private _aclslisted: string[] = [];
     private readonly _membersSavePostfix = 'members';
     private readonly _aclsSavePostfix = 'acls';
-    constructor (private res: NextApiResponse, private readonly _aclMembership: ACLMembership[]) {
+    constructor (private readonly _aclMembership: ACLMembership[]) {
     }
     public async findMembers(AclId: string): Promise<string[]> {
         const output: Set<string> = new Set<string>();
