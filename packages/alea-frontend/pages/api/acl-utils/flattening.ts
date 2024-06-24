@@ -1,8 +1,8 @@
 import { addToCachedSet, getFromCachedSet } from "./redis-connection-utils";
 
 export class Flattening {
-    private _aclsWantToSearch: Set<string> = new Set<string>();
-    private _aclslisted: string[] = [];
+    private _ancestorChain: Set<string> = new Set<string>();
+    private _alreadyComputed: string[] = [];
     private readonly _membersSavePostfix = 'members';
     private readonly _aclsSavePostfix = 'acls';
     constructor (private readonly _aclMembership: ACLMembership[]) {
@@ -23,20 +23,20 @@ export class Flattening {
     public async findACL(AclId: string) {
         const output: Set<string> = new Set<string>();
         const redisName = `${AclId}-${this._aclsSavePostfix}`;
-        if (this._aclslisted.includes(AclId))
+        if (this._alreadyComputed.includes(AclId))
             return (await getFromCachedSet(redisName)) as string[];
         const acls = this._aclMembership.filter(c => c.parentACLId&& !c.memberUserId);
         for (const acl of acls) {
             output.add(acl.memberACLId);
-            if (!this._aclsWantToSearch.has(acl.memberACLId)) {// break deepend on each other loop
-                this._aclsWantToSearch.add(acl.memberACLId);
+            if (!this._ancestorChain.has(acl.memberACLId)) {// break deepend on each other loop
+                this._ancestorChain.add(acl.memberACLId);
                 for (const treeMember of (await this.findACL(acl.memberACLId))) {
                     output.add(treeMember);
                 }
             }
         }
-        this._aclsWantToSearch.delete(AclId);
-        this._aclslisted.push(AclId);
+        this._ancestorChain.delete(AclId);
+        this._alreadyComputed.push(AclId);
         if (output.size != 0)
             await addToCachedSet(redisName, Array.from(output));
         return Array.from(output);
