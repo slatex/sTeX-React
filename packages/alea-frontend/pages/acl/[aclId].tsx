@@ -6,7 +6,7 @@ import {
   ListItemText,
   Typography,
 } from '@mui/material';
-import { AccessControlList } from '@stex-react/api';
+import { AccessControlList, getAcl } from '@stex-react/api';
 import axios from 'axios';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -22,12 +22,8 @@ const AclId: NextPage = () => {
 
   async function getMembers() {
     try {
-      const resp = await axios.get(
-        `/api/access-control/get-acl?id=${query.aclId}`
-      );
-      const acl = resp.data as AccessControlList;
+      const acl = await getAcl(query.aclId as string);
       setDesc(acl?.description);
-
       const aclIds = new Set<string>();
       const userMembers = new Set<string>();
 

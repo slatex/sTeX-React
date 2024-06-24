@@ -6,12 +6,16 @@ import {
   FormControlLabel,
   TextField,
   Typography,
+  InputAdornment,
+  IconButton,
 } from '@mui/material';
-import { CreateACLRequest } from '@stex-react/api';
-import axios from 'axios';
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import GroupIcon from '@mui/icons-material/Group';
+import { CreateACLRequest, createAcl } from '@stex-react/api';
 import { NextPage } from 'next';
 import { useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
+import { useRouter } from 'next/router';
 
 const CreateACl: NextPage = () => {
   const [aclId, setAclId] = useState<string | ''>('');
@@ -20,11 +24,16 @@ const CreateACl: NextPage = () => {
   const [memberACLIds, setMemberACLIds] = useState<string[]>([]);
   const [updaterACLId, setUpdaterACLId] = useState<string | ''>('');
   const [isOpen, setIsOpen] = useState(false);
+  const [tempMemberUserId, setTempMemberUserId] = useState<string>('');
+  const [tempMemberACL, setTempMemberACL] = useState<string>('');
+  const router = useRouter();
 
-  const handleAddMemberId = (event) => {
-    if (event.key === 'Enter' && event.target.value) {
-      setMemberUserIds([...memberUserIds, event.target.value]);
-      event.target.value = '';
+  const handleAddMemberId = (event: React.KeyboardEvent<HTMLInputElement> | React.MouseEvent<HTMLElement>) => {
+    if ((event.type === 'keydown' && (event as React.KeyboardEvent).key === 'Enter') || event.type === 'click') {
+      if (tempMemberUserId) {
+        setMemberUserIds([...memberUserIds, tempMemberUserId]);
+        setTempMemberUserId('');
+      }
     }
   };
 
@@ -32,10 +41,12 @@ const CreateACl: NextPage = () => {
     setMemberUserIds(memberUserIds.filter((id) => id !== idToRemove));
   };
 
-  const handleAddMemberACL = (event) => {
-    if (event.key === 'Enter' && event.target.value) {
-      setMemberACLIds([...memberACLIds, event.target.value]);
-      event.target.value = '';
+  const handleAddMemberACL = (event: React.KeyboardEvent<HTMLInputElement> | React.MouseEvent<HTMLElement>) => {
+    if ((event.type === 'keydown' && (event as React.KeyboardEvent).key === 'Enter') || event.type === 'click') {
+      if (tempMemberACL) {
+        setMemberACLIds([...memberACLIds, tempMemberACL]);
+        setTempMemberACL('');
+      }
     }
   };
 
@@ -54,8 +65,8 @@ const CreateACl: NextPage = () => {
     };
     console.log('New ACL:', newAcl);
     try {
-      const res = await axios.post('/api/access-control/create-acl', newAcl);
-      console.log(res);
+      await createAcl(newAcl);
+      router.replace(`/acl/${aclId}`);
     } catch (e) {
       console.log(e);
     }
@@ -63,95 +74,124 @@ const CreateACl: NextPage = () => {
 
   return (
     <MainLayout>
-      <Box mx="10px">
-        <Box width="100%" m="0px 20px">
-          <Typography fontSize={24} m="10px 0px">
-            Create ACL
-          </Typography>
+      <Box
+        sx={{
+          m: '0 auto',
+          maxWidth: '800px',
+          p: '10px',
+          width: '100%',
+          boxSizing: 'border-box',
+        }}
+      >
+        <Typography fontSize={24} m="10px 0px">
+          Create ACL
+        </Typography>
+        <TextField
+          label="ACL ID"
+          variant="outlined"
+          value={aclId}
+          onChange={(e) => setAclId(e.target.value)}
+          size="small"
+          sx={{ mb: '20px' }}
+          fullWidth
+        />
+        <TextField
+          label="Description"
+          variant="outlined"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          size="small"
+          sx={{ mb: '20px' }}
+          fullWidth
+        />
+        <Box mb="20px">
           <TextField
-            label="ACL ID"
+            label="Add Member ID"
             variant="outlined"
-            value={aclId}
-            onChange={(e) => setAclId(e.target.value)}
             size="small"
-            sx={{ mb: '20px' }}
+            value={tempMemberUserId}
+            onChange={(e) => setTempMemberUserId(e.target.value)}
+            onKeyDown={handleAddMemberId}
+            sx={{ mb: '10px' }}
             fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <IconButton onClick={handleAddMemberId}>
+                    <AccountCircle />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
-          <TextField
-            label="Description"
-            variant="outlined"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            size="small"
-            sx={{ mb: '20px' }}
-            fullWidth
-          />
-          <Box mb="20px">
-            <TextField
-              label="Add Member ID"
-              variant="outlined"
-              size="small"
-              onKeyPress={handleAddMemberId}
-              sx={{ mb: '10px' }}
-              fullWidth
-            />
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-              {memberUserIds.map((id, index) => (
-                <Chip
-                  key={index}
-                  label={id}
-                  onDelete={() => handleRemoveMemberId(id)}
-                />
-              ))}
-            </Box>
-          </Box>
-          <Box mb="20px">
-            <TextField
-              label="Add Member ACL"
-              variant="outlined"
-              size="small"
-              onKeyPress={handleAddMemberACL}
-              sx={{ mb: '10px' }}
-              fullWidth
-            />
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-              {memberACLIds.map((acl, index) => (
-                <Chip
-                  key={index}
-                  label={acl}
-                  onDelete={() => handleRemoveMemberACL(acl)}
-                />
-              ))}
-            </Box>
-          </Box>
-          <TextField
-            label="Updater ACL"
-            variant="outlined"
-            value={updaterACLId}
-            onChange={(e) => setUpdaterACLId(e.target.value)}
-            size="small"
-            sx={{ mb: '20px' }}
-            fullWidth
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={isOpen}
-                onChange={(e) => setIsOpen(e.target.checked)}
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+            {memberUserIds.map((id, index) => (
+              <Chip
+                key={index}
+                label={id}
+                onDelete={() => handleRemoveMemberId(id)}
               />
-            }
-            label="Is Open"
-            sx={{ mb: '20px' }}
-          />
-          <Button
-            sx={{ m: '20px' }}
-            variant="contained"
-            color="primary"
-            onClick={handleSubmit}
-          >
-            Create
-          </Button>
+            ))}
+          </Box>
         </Box>
+        <Box mb="20px">
+          <TextField
+            label="Add Member ACL"
+            variant="outlined"
+            size="small"
+            value={tempMemberACL}
+            onChange={(e) => setTempMemberACL(e.target.value)}
+            onKeyDown={handleAddMemberACL}
+            sx={{ mb: '10px' }}
+            fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <IconButton onClick={handleAddMemberACL}>
+                    <GroupIcon />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+            {memberACLIds.map((acl, index) => (
+              <Chip
+                key={index}
+                label={acl}
+                onDelete={() => handleRemoveMemberACL(acl)}
+              />
+            ))}
+          </Box>
+        </Box>
+        <TextField
+          label="Updater ACL"
+          variant="outlined"
+          value={updaterACLId}
+          onChange={(e) => setUpdaterACLId(e.target.value)}
+          size="small"
+          sx={{ mb: '20px' }}
+          fullWidth
+        />
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={isOpen}
+              onChange={(e) => setIsOpen(e.target.checked)}
+            />
+          }
+          label="Is Open"
+          sx={{ mb: '20px' }}
+        />
+        <Button
+          sx={{ m: '20px' }}
+          variant="contained"
+          color="primary"
+          onClick={handleSubmit}
+          disabled={!aclId || !updaterACLId}
+        >
+          Create
+        </Button>
       </Box>
     </MainLayout>
   );
