@@ -1,4 +1,4 @@
-import { addSet, getSet } from "./redis-connection-utils";
+import { addToCachedSet, getFromCachedSet } from "./redis-connection-utils";
 
 export class Flattening {
     private _aclsWantToSearch: Set<string> = new Set<string>();
@@ -17,14 +17,14 @@ export class Flattening {
             output.add(member.memberUserId);
         }
         if (output.size != 0)
-            await addSet(redisName, Array.from(output));
+            await addToCachedSet(redisName, Array.from(output));
         return Array.from(output);
     }
     public async findACL(AclId: string) {
         const output: Set<string> = new Set<string>();
         const redisName = `${AclId}-${this._aclsSavePostfix}`;
         if (this._aclslisted.includes(AclId))
-            return (await getSet(redisName)) as string[];
+            return (await getFromCachedSet(redisName)) as string[];
         const acls = this._aclMembership.filter(c => c.parentACLId&& !c.memberUserId);
         for (const acl of acls) {
             output.add(acl.memberACLId);
@@ -38,7 +38,7 @@ export class Flattening {
         this._aclsWantToSearch.delete(AclId);
         this._aclslisted.push(AclId);
         if (output.size != 0)
-            await addSet(redisName, Array.from(output));
+            await addToCachedSet(redisName, Array.from(output));
         return Array.from(output);
     }
 };

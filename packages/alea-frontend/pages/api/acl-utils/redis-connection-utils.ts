@@ -8,27 +8,27 @@ const db = new Redis({
     password: process.env.REDIS_PASSWORD,
     username: process.env.REDIS_USERNAME
 });
-export async function set(key: RedisKey, data: string | Buffer | number) {
+export async function setCacheEntry(key: RedisKey, data: string | Buffer | number) {
     try {
         await db.set(key, data);
     } catch (error) {
         return { error };
     }
 }
-export async function get(key: RedisKey) {
+export async function getCacheEntry(key: RedisKey) {
     try {
         return await db.get(key);
     }
     catch (error) { return { error }; }
 }
-export async function setAndEndSet500OnError(key: RedisKey, data: string | Buffer | number, res: NextApiResponse) {
-    const result = await set(key, data);
+export async function setCacheEntryAndEndSet500OnError(key: RedisKey, data: string | Buffer | number, res: NextApiResponse) {
+    const result = await setCacheEntry(key, data);
     if (result['error']) {
         res.status(500).send(result['error']);
     }
 }
-export async function getAndEndSet500OnError<T>(key: RedisKey, res: NextApiResponse): Promise<T> {
-    const result = await get(key);
+export async function getCacheEntryAndEndSet500OnError<T>(key: RedisKey, res: NextApiResponse): Promise<T> {
+    const result = await getCacheEntry(key);
     if (result['error']) {
         res.status(500).send(result);
         console.log(result['error']);
@@ -36,9 +36,9 @@ export async function getAndEndSet500OnError<T>(key: RedisKey, res: NextApiRespo
     }
     return result as T;
 }
-export async function addSet(key: RedisKey, members: (string | Buffer | number)[]) {
+export async function addToCachedSet(key: RedisKey, members: (string | Buffer | number)[]) {
     await db.sadd(key, members);
 }
-export async function getSet(key: RedisKey): Promise<(string | Buffer | number)[]> {
+export async function getFromCachedSet(key: RedisKey): Promise<(string | Buffer | number)[]> {
     return await db.smembers(key);
 }
