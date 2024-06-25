@@ -1,9 +1,8 @@
+import { AccessControlList } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
 import {
   checkIfPostOrSetError,
-  executeAndEndSet500OnError,
   executeTxnAndEndSet500OnError,
-  getUserIdOrSetError,
 } from '../comment-utils';
 
 export default async function handler(
@@ -11,25 +10,29 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if (!checkIfPostOrSetError(req, res)) return;
-  const userId = getUserIdOrSetError(req, res);
-  if (!userId) return;
+  const acl = req.body as AccessControlList;
 
-  const { id, description, isOpen } = req.body;
-  if (!id || !description || isOpen == null) {
+  const { id, description, isOpen, updaterACLId, memberUserIds, memberACLIds } =
+    acl;
+  if (
+    !id ||
+    !description ||
+    !updaterACLId ||
+    isOpen == null ||
+    !memberUserIds ||
+    !memberACLIds
+  ) {
     return res.status(422).send('Missing required fields.');
   }
-  const memberIds = req.body.memberIds ?? [];
-  const memberAcls = req.body.memberAcls ?? [];
 
   // Check that memberIds and memberACLs are valid arrays
   const updaterId = req.body.updaterId ?? id;
-  const values = new Array(memberIds.length + memberAcls.length).fill(
-    '(?, ?, ?)'
-  );
+  const numMembershipRows = memberUserIds.length + memberACLIds.length;
+  const values = new Array(numMembershipRows).fill('(?, ?, ?)');
 
   const memberQueryParams = [];
-  for (const userId of memberIds) memberQueryParams.push(id, null, userId);
-  for (const aclId of memberAcls) memberQueryParams.push(id, aclId, null);
+  for (const userId of memberUserIds) memberQueryParams.push(id, null, userId);
+  for (const aclId of memberACLIds) memberQueryParams.push(id, aclId, null);
 
   const memberQuery = `INSERT INTO ACLMembership (parentACLId, memberACLId, memberUserId) VALUES 
   ${values.join(', ')}`;

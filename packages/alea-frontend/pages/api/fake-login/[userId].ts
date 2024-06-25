@@ -11,7 +11,7 @@ export default async function handler(
     {
       maxRedirects: 0,
       validateStatus: function (status) {
-        return status >= 200 && status < 303; // default
+        return status >= 200 && status < 303; 
       },
     }
   );
