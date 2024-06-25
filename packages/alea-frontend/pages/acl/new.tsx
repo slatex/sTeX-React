@@ -63,7 +63,6 @@ const CreateACl: NextPage = () => {
       updaterACLId,
       isOpen,
     };
-    console.log('New ACL:', newAcl);
     try {
       await createAcl(newAcl);
       router.replace(`/acl/${aclId}`);
