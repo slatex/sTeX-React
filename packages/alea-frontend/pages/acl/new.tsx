@@ -28,7 +28,7 @@ const CreateACl: NextPage = () => {
   const [tempMemberACL, setTempMemberACL] = useState<string>('');
   const router = useRouter();
 
-  const handleAddMemberId = (event: React.KeyboardEvent<HTMLInputElement> | React.MouseEvent<HTMLElement>) => {
+  const handleAddMemberId = (event: React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLElement>) => {
     if ((event.type === 'keydown' && (event as React.KeyboardEvent).key === 'Enter') || event.type === 'click') {
       if (tempMemberUserId) {
         setMemberUserIds([...memberUserIds, tempMemberUserId]);
@@ -41,7 +41,7 @@ const CreateACl: NextPage = () => {
     setMemberUserIds(memberUserIds.filter((id) => id !== idToRemove));
   };
 
-  const handleAddMemberACL = (event: React.KeyboardEvent<HTMLInputElement> | React.MouseEvent<HTMLElement>) => {
+  const handleAddMemberACL = (event: React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLElement>) => {
     if ((event.type === 'keydown' && (event as React.KeyboardEvent).key === 'Enter') || event.type === 'click') {
       if (tempMemberACL) {
         setMemberACLIds([...memberACLIds, tempMemberACL]);

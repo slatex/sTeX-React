@@ -39,7 +39,7 @@ function fromNow(d: Date, t: any) {
     return t.aMonthAgo;
   } else if (fromNowMs <= 345 * DAY_MS) {
     return replaceMarker(t.xMonthsAgo, Math.round(fromNowMs / MONTH_MS));
-  } else if (fromNowMs <= 545) {
+  } else if (fromNowMs <= 545 * DAY_MS) {
     return t.aYearAgo;
   } else {
     // (days > 545)
