@@ -55,8 +55,7 @@ function ConceptHistoryTable({
               <TableRow>
                 <TableCell colSpan={5} align="center">
                   <Typography variant="body1" fontWeight="bold">
-                    Sorry, we do not have any history associated with this
-                    concept.
+                    There is no history associated with this concept.
                   </Typography>
                 </TableCell>
               </TableRow>
