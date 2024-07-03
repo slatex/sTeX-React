@@ -12,8 +12,7 @@ export default async function handler(
   if (!checkIfPostOrSetError(req, res)) return;
   const acl = req.body as AccessControlList;
 
-  const { id, description, isOpen, updaterACLId, memberUserIds, memberACLIds } =
-    acl;
+  const { id, description, isOpen, updaterACLId, memberUserIds, memberACLIds } = acl;
   
   if (
     !id ||

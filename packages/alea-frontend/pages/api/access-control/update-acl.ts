@@ -24,8 +24,5 @@ export default async function handler(
     [description, updaterACLId, !!isOpen, id],
     res
   );
-
-
-
   return res.status(204).end();
 }

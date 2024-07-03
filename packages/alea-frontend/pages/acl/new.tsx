@@ -30,7 +30,6 @@ const CreateACl: NextPage = () => {
 
   const handleAddMemberId = (event: React.KeyboardEvent<HTMLInputElement> | React.MouseEvent<HTMLElement>) => {
     if ((event.type === 'keydown' && (event as React.KeyboardEvent).key === 'Enter') || event.type === 'click') {
-      console.log("called on enter");
       if (tempMemberUserId) {
         setMemberUserIds([...memberUserIds, tempMemberUserId]);
         setTempMemberUserId('');
@@ -65,7 +64,6 @@ const CreateACl: NextPage = () => {
       isOpen,
     };
     try {
-      console.log(newAcl);
       await createAcl(newAcl);
       router.replace(`/acl/${aclId}`);
     } catch (e) {
