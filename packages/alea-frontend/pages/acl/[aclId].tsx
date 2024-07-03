@@ -5,6 +5,8 @@ import {
   ListItem,
   ListItemText,
   Typography,
+  Button,
+  IconButton,
 } from '@mui/material';
 import { AccessControlList, getAcl } from '@stex-react/api';
 import axios from 'axios';
@@ -12,18 +14,23 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
+import Link from 'next/link';
+import { Edit } from '@mui/icons-material';
 
 const AclId: NextPage = () => {
-  const { query } = useRouter();
+  const router = useRouter();
+  const { query } = router;
 
   const [acls, setAcls] = useState<string[]>([]);
   const [allMemberUserIds, setAllMemberUserIds] = useState<string[]>([]);
   const [desc, setDesc] = useState<string>(null);
+  const [updaterACLId, setUpdaterACLId] = useState<string>(null);
 
   async function getMembers() {
     try {
       const acl = await getAcl(query.aclId as string);
       setDesc(acl?.description);
+      setUpdaterACLId(acl?.updaterACLId);
       const aclIds = new Set<string>();
       const userMembers = new Set<string>();
 
@@ -60,12 +67,51 @@ const AclId: NextPage = () => {
             fontFamily: 'Arial, sans-serif',
           }}
         >
-          <Typography variant="h4" color="primary" gutterBottom>
-            {query.aclId}
-          </Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <Typography variant="h4" color="primary" gutterBottom>
+              {query.aclId}
+            </Typography>
+            
+            <Button
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+              }}
+              variant="contained"
+              color="primary"
+              startIcon={<Edit />}
+              onClick={() => router.push(`/acl/edit/${query?.aclId}`)}
+            >
+              Edit
+            </Button>
+          </Box>
           {desc && (
-            <Typography variant="subtitle1" color="textSecondary">
+            <Typography variant="subtitle1" color="textSecondary" sx={{ mt: 2 }}>
               Description: {desc}
+            </Typography>
+          )}
+          {updaterACLId && (
+            <Typography variant="subtitle1" color="textSecondary">
+              Updater:{' '}
+              <Link href={`/acl/${updaterACLId}`}>
+                <Typography
+                  variant="subtitle1"
+                  color="secondary"
+                  component="a"
+                  sx={{
+                    textDecoration: 'underline',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {updaterACLId}
+                </Typography>
+              </Link>
             </Typography>
           )}
 

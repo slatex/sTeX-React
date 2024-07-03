@@ -14,6 +14,7 @@ export default async function handler(
 
   const { id, description, isOpen, updaterACLId, memberUserIds, memberACLIds } =
     acl;
+  
   if (
     !id ||
     !description ||
@@ -26,7 +27,7 @@ export default async function handler(
   }
 
   // Check that memberIds and memberACLs are valid arrays
-  const updaterId = req.body.updaterId ?? id;
+  const updaterId = req.body.updaterACLId ?? id;
   const numMembershipRows = memberUserIds.length + memberACLIds.length;
   const values = new Array(numMembershipRows).fill('(?, ?, ?)');
 
@@ -44,6 +45,7 @@ export default async function handler(
     memberQuery,
     memberQueryParams
   );
+
 
   res.status(201).end();
 }
