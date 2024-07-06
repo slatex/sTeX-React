@@ -164,10 +164,13 @@ export async function getExistingPointsDontEnd(
 export function checkIfPostOrSetError(req, res) {
   return checkIfTypeOrSetError(req, res, 'POST');
 }
+export function checkIfGetOrSetError(req,res){
+  return checkIfTypeOrSetError(req,res,'GET')
+}
 export function checkIfDeleteOrSetError(req,res){
   return checkIfTypeOrSetError(req,res,'DELETE');
 }
-function checkIfTypeOrSetError(req, res, type: 'POST' | 'DELETE') {
+function checkIfTypeOrSetError(req, res, type: 'POST' | 'DELETE'|'GET') {
   if (req.method !== type) {
     res.status(405).send({ message: `Only ${type} requests allowed` });
     return false;

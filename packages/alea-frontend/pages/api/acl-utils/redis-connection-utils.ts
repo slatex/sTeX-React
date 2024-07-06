@@ -42,3 +42,6 @@ export async function addToCachedSet(key: RedisKey, members: (string | Buffer | 
 export async function getFromCachedSet(key: RedisKey): Promise<(string | Buffer | number)[]> {
     return await db.smembers(key);
 }
+export async function isMemberOfCachedSet(key: RedisKey, member: string | Buffer | number) {
+    return (await db.sismember(key, member)) === 0 ? false : true;
+}

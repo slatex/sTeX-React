@@ -1,18 +1,17 @@
+import { AclSavePostfix, getRedisName } from "./acl-common-utils";
 import { addToCachedSet, getFromCachedSet } from "./redis-connection-utils";
 
 export class Flattening {
     private _ancestorChain: Set<string> = new Set<string>();
     private _alreadyComputed: string[] = [];
-    private readonly _membersSavePostfix = 'members';
-    private readonly _aclsSavePostfix = 'acls';
     constructor (private readonly _aclMembership: ACLMembership[]) {
     }
     public async findMembers(AclId: string): Promise<string[]> {
         const output: Set<string> = new Set<string>();
-        const redisName = `${AclId}-${this._membersSavePostfix}`;
+        const redisName = getRedisName(AclId, AclSavePostfix.members);
         const allAcls = await this.findACL(AclId);
         allAcls.push(AclId);
-        const members = this._aclMembership.filter(c=>c.memberUserId && allAcls.includes(c.parentACLId))
+        const members = this._aclMembership.filter(c => c.memberUserId && allAcls.includes(c.parentACLId));
         for (const member of members.filter(c => c.memberUserId)) {
             output.add(member.memberUserId);
         }
@@ -22,10 +21,10 @@ export class Flattening {
     }
     public async findACL(AclId: string) {
         const output: Set<string> = new Set<string>();
-        const redisName = `${AclId}-${this._aclsSavePostfix}`;
+        const redisName = getRedisName(AclId, AclSavePostfix.acl);;
         if (this._alreadyComputed.includes(AclId))
             return (await getFromCachedSet(redisName)) as string[];
-        const acls = this._aclMembership.filter(c => c.parentACLId&& !c.memberUserId);
+        const acls = this._aclMembership.filter(c => c.parentACLId && !c.memberUserId);
         for (const acl of acls) {
             output.add(acl.memberACLId);
             if (!this._ancestorChain.has(acl.memberACLId)) {// break deepend on each other loop
@@ -48,3 +47,4 @@ export interface ACLMembership {
     memberACLId: string;
     parentACLId: string;
 }
+
