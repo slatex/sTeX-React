@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { checkIfGetOrSetError, getUserIdOrSetError } from "../comment-utils";
-import { isMemberOfAcl } from "../acl-utils/acl-commen-utils";
+import { isMemberOfAcl } from "../acl-utils/acl-common-utils";
 
 export default async function handler(
     req: NextApiRequest,

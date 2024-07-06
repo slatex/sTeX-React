@@ -1,4 +1,4 @@
-import { AclSavePostfix, getRedisName } from "./acl-commen-utils";
+import { AclSavePostfix, getRedisName } from "./acl-common-utils";
 import { addToCachedSet, getFromCachedSet } from "./redis-connection-utils";
 
 export class Flattening {
