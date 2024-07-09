@@ -10,7 +10,6 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if (!checkIfPostOrSetError(req, res)) return;
-  // TODO: Check if from updaterACLId
   const id = req.body.id as string;
   if (!id || typeof id !== 'string') return res.status(422).send('Missing id.');
   if (!await isCurrentUserMemberOfAClupdater(id, res, req))
