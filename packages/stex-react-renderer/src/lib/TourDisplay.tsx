@@ -245,11 +245,22 @@ function computeOrderedList(
   currentId: string,
   level: number,
   orderedList: TourItem[],
-  addOnlyTemp: boolean
+  addOnlyTemp: boolean,
+  callStack: Set<string> = new Set()
 ): void {
   const deps = tourItems.get(currentId)?.dependencies || [];
   const alreadyPreset = orderedList.some((item) => item.uri === currentId);
   if (alreadyPreset) return;
+
+  if (callStack.has(currentId)) {
+    console.error(
+      `Circular dependency detected: ${currentId} is already in the call stack`
+    );
+    return;
+  }
+
+  callStack.add(currentId);
+
   const isUnderstood = understoodUri.includes(currentId);
 
   for (const d of deps) {
@@ -260,9 +271,13 @@ function computeOrderedList(
       d,
       level + 1,
       orderedList,
-      addOnlyTemp || isUnderstood
+      addOnlyTemp || isUnderstood,
+      callStack
     );
   }
+
+  callStack.delete(currentId);
+  
   if ((!isUnderstood && !addOnlyTemp) || tempShowUri.includes(currentId)) {
     const currentItem = tourItems.get(currentId);
     if (!currentItem) {
