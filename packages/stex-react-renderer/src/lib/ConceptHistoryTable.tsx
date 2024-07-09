@@ -35,9 +35,12 @@ const eventTypeMapping: { [key: string]: string } = {
 
 function getProblemUrl(url: string): string {
   const parts = url.split('/');
-
   const startIndex = 3;
-  const endIndex = parts.indexOf('problems') + 1;
+  let endIndex = parts.indexOf('problems') + 1;
+
+  if (endIndex === 0) {
+    endIndex = startIndex + 2;
+  }
 
   const archive = parts.slice(startIndex, endIndex).join('/');
   const filepath = parts.slice(endIndex).join('/').split('?')[0];
@@ -46,6 +49,29 @@ function getProblemUrl(url: string): string {
     '.omdoc',
     '.xhtml'
   )}`;
+}
+
+function computeCompetenciesByDate(conceptHistoryData: ConceptHistory) {
+  let previousRemember = 0;
+  let previousUnderstand = 0;
+  let previousApply = 0;
+
+  const competenciesByDate = new Map<string, [number, number, number]>();
+
+  conceptHistoryData.history.forEach((data) => {
+    const date = (data.event.time as string).split(' ')[0];
+    const remember = data['new-values'].Remember ?? previousRemember;
+    const understand = data['new-values'].Understand ?? previousUnderstand;
+    const apply = data['new-values'].Apply ?? previousApply;
+
+    previousRemember = remember;
+    previousUnderstand = understand;
+    previousApply = apply;
+
+    competenciesByDate.set(date, [remember, understand, apply]);
+  });
+
+  return competenciesByDate;
 }
 
 function ConceptHistoryTable({
@@ -72,24 +98,9 @@ function ConceptHistoryTable({
     fetchConceptHistory();
   }, [concept]);
 
-  let previousRemember = 0;
-  let previousUnderstand = 0;
-  let previousApply = 0;
-
-  const competenciesByDate = new Map<string, [number, number, number]>();
-
-  conceptHistoryData?.history?.forEach((data) => {
-    const date = (data.event.time as string).split(' ')[0];
-    const remember = data['new-values'].Remember ?? previousRemember;
-    const understand = data['new-values'].Understand ?? previousUnderstand;
-    const apply = data['new-values'].Apply ?? previousApply;
-
-    previousRemember = remember;
-    previousUnderstand = understand;
-    previousApply = apply;
-
-    competenciesByDate.set(date, [remember, understand, apply]);
-  });
+  const competenciesByDate = conceptHistoryData
+    ? computeCompetenciesByDate(conceptHistoryData)
+    : new Map<string, [number, number, number]>();
 
   const chartData = Array.from(competenciesByDate.entries()).map(
     ([date, values]) => [date, ...values]
@@ -176,9 +187,15 @@ function ConceptHistoryTable({
                         </Link>
                       ) : null}
                     </TableCell>
-                    <TableCell>{data['new-values'].Remember}</TableCell>
-                    <TableCell>{data['new-values'].Understand}</TableCell>
-                    <TableCell>{data['new-values'].Apply}</TableCell>
+                    <TableCell>
+                      {data['new-values'].Remember?.toFixed(2)}
+                    </TableCell>
+                    <TableCell>
+                      {data['new-values'].Understand?.toFixed(2)}
+                    </TableCell>
+                    <TableCell>
+                      {data['new-values'].Apply?.toFixed(2)}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
