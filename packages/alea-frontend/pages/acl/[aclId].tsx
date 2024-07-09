@@ -7,8 +7,9 @@ import {
   Typography,
   Button,
   IconButton,
+  TextField,
 } from '@mui/material';
-import { AccessControlList, getAcl } from '@stex-react/api';
+import { AccessControlList, getAcl, isMember, isUserMember } from '@stex-react/api';
 import axios from 'axios';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -25,6 +26,10 @@ const AclId: NextPage = () => {
   const [allMemberUserIds, setAllMemberUserIds] = useState<string[]>([]);
   const [desc, setDesc] = useState<string>(null);
   const [updaterACLId, setUpdaterACLId] = useState<string>(null);
+  const [isUserMembers, setIsUserMembers] = useState<boolean>(false);
+  const [userIdInput, setUserIdInput] = useState<string>('');
+  const [membershipStatus, setMembershipStatus] = useState<string>('');
+  const [isUpdaterMember, setIsUpdaterMember] = useState<boolean>(false);
 
   async function getMembers() {
     try {
@@ -43,11 +48,45 @@ const AclId: NextPage = () => {
     }
   }
 
+  async function checkUserMember(){
+    try {
+      const res : boolean = await isUserMember(query.aclId);
+      console.log(res);
+      setIsUserMembers(res);
+    }catch(e){
+      console.log(e);
+    }
+  }
+
+  async function handleCheckUser(){
+    try{
+      const res :  boolean = await isMember(query.aclId as string, userIdInput as string);
+      setMembershipStatus(res ? `${userIdInput} is a member of this ACL.` : `${userIdInput} is not a member of this ACL.`);
+    }catch(e){
+      console.log(e);
+    }
+  }
+
+  async function isUserIsUpdater(){
+    try{
+      const res : boolean = await isUserMember(updaterACLId);
+      if(res){
+        setIsUpdaterMember(true);
+      }else{
+        setIsUpdaterMember(false);
+      }
+    }catch(e){
+      console.log(e);
+    }
+  }
+
   useEffect(() => {
     if (query.aclId) {
       getMembers();
+      checkUserMember();
+      isUserIsUpdater();
     }
-  }, [query.aclId]);
+  }, [query.aclId, updaterACLId]);
 
   return (
     <MainLayout>
@@ -77,19 +116,31 @@ const AclId: NextPage = () => {
             <Typography variant="h4" color="primary" gutterBottom>
               {query.aclId}
             </Typography>
-            
-            <Button
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-              }}
-              variant="contained"
-              color="primary"
-              startIcon={<Edit />}
-              onClick={() => router.push(`/acl/edit/${query?.aclId}`)}
-            >
-              Edit
-            </Button>
+
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: '30px' }}>
+
+              <div style={{
+                width: '20px',
+                height: '20px',
+                borderRadius: '50%',
+                backgroundColor: isUserMembers ? 'green' : 'red',
+                marginLeft: '10px', 
+              }}></div>
+
+              {isUpdaterMember && <Button
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                  variant="contained"
+                  color="primary"
+                  startIcon={<Edit />}
+                  onClick={() => router.push(`/acl/edit/${query?.aclId}`)}
+                >
+                  Edit
+                </Button>
+              }
+            </Box>
           </Box>
           {desc && (
             <Typography variant="subtitle1" color="textSecondary" sx={{ mt: 2 }}>
@@ -112,6 +163,28 @@ const AclId: NextPage = () => {
                   {updaterACLId}
                 </Typography>
               </Link>
+            </Typography>
+          )}
+          <Box sx={{ marginTop: '32px', display: 'flex', alignItems: 'center' }}>
+            <TextField
+              label="User ID"
+              variant="outlined"
+              size="small"
+              value={userIdInput}
+              onChange={(e) => setUserIdInput(e.target.value)}
+              sx={{ marginRight: '10px' }}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleCheckUser}
+            >
+              Check Membership
+            </Button>
+          </Box>
+          {membershipStatus && (
+            <Typography sx={{ marginTop: '16px' }}>
+              {membershipStatus}
             </Typography>
           )}
 
@@ -174,3 +247,6 @@ const AclId: NextPage = () => {
 };
 
 export default AclId;
+
+
+
