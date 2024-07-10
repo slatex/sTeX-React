@@ -17,6 +17,16 @@ export async function getAcl(aclId:string){
   return resp.data as AccessControlList;
 }
 
+export async function updateAcl(updateAcl : UpdateACLRequest){
+  await axios.post('/api/access-control/update-acl', updateAcl)
+}
+
+
+export type UpdateACLRequest = Omit<
+  AccessControlList,
+   'updatedAt'|'createdAt'
+>;
+
 export type CreateACLRequest = Omit<
   AccessControlList,
   'createdAt' | 'updatedAt'

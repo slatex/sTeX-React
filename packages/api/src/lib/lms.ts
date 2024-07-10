@@ -171,8 +171,15 @@ export async function getAllMyData(): Promise<{
   return await lmsRequest('lms', 'lms/output/all_my_data', 'POST', {}, {});
 }
 
+export async function getMyModel(): Promise<{
+  learner: string;
+  model: ConceptCompetenceInfo[];
+}> {
+  return await lmsRequest('lms', 'lms/output/my_model', 'POST', {}, {});
+}
+
 export async function getMyCompleteModel(): Promise<ConceptCompetenceInfo[]> {
-  return (await getAllMyData())?.model || [];
+  return (await getMyModel())?.model || [];
 }
 
 export async function purgeAllMyData() {
@@ -462,7 +469,8 @@ export type HistoryEventType =
   | IKnowEvent
   | SelfAssessmentEvent
   | SelfAssessmentSmileysEvent
-  | PurgeEvent;
+  | PurgeEvent
+  | ProblemAnswerEvent;
 
 export interface HistoryItem {
   event: HistoryEventType;
