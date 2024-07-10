@@ -17,6 +17,7 @@ import {
   BloomDimension,
   ConceptHistory,
   getConceptHistory,
+  HistoryItem,
 } from '@stex-react/api';
 import { useEffect, useState } from 'react';
 import { Chart } from 'react-google-charts';
@@ -49,6 +50,96 @@ function getProblemUrl(url: string): string {
     '.omdoc',
     '.xhtml'
   )}`;
+}
+
+function EventRow({
+  data,
+  prevValues,
+}: {
+  data: HistoryItem;
+  prevValues: any;
+}) {
+  const { prevRemember, prevUnderstand, prevApply } = prevValues;
+
+  const remember =
+    data['new-values']?.Remember !== undefined
+      ? data['new-values'].Remember
+      : prevRemember;
+  const understand =
+    data['new-values']?.Understand !== undefined
+      ? data['new-values'].Understand
+      : prevUnderstand;
+  const apply =
+    data['new-values']?.Apply !== undefined
+      ? data['new-values'].Apply
+      : prevApply;
+
+  const deltaRemember = remember - prevRemember;
+  const deltaUnderstand = understand - prevUnderstand;
+  const deltaApply = apply - prevApply;
+
+  prevValues.prevRemember = remember;
+  prevValues.prevUnderstand = understand;
+  prevValues.prevApply = apply;
+
+  return (
+    <TableRow>
+      <TableCell>{(data.event.time as string).split(' ')[0]}</TableCell>
+      <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
+        {eventTypeMapping[data.event.type]}
+        {data.event.type === 'problem-answer' && (
+          <Link
+            href={getProblemUrl(data.event.uri)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <OpenInNewIcon />
+          </Link>
+        )}
+      </TableCell>
+      <TableCell>
+        {remember.toFixed(2)}{' '}
+        <span
+          style={{
+            color:
+              deltaRemember > 0
+                ? 'green'
+                : deltaRemember < 0
+                ? 'red'
+                : 'inherit',
+          }}
+        >
+          {deltaRemember !== 0 && `(${deltaRemember.toFixed(2)})`}
+        </span>
+      </TableCell>
+      <TableCell>
+        {understand.toFixed(2)}{' '}
+        <span
+          style={{
+            color:
+              deltaUnderstand > 0
+                ? 'green'
+                : deltaUnderstand < 0
+                ? 'red'
+                : 'inherit',
+          }}
+        >
+          {deltaUnderstand !== 0 && `(${deltaUnderstand.toFixed(2)})`}
+        </span>
+      </TableCell>
+      <TableCell>
+        {apply.toFixed(2)}{' '}
+        <span
+          style={{
+            color:
+              deltaApply > 0 ? 'green' : deltaApply < 0 ? 'red' : 'inherit',
+          }}
+        >
+          {deltaApply !== 0 && `(${deltaApply.toFixed(2)})`}
+        </span>
+      </TableCell>
+    </TableRow>
+  );
 }
 
 function computeCompetenciesByDate(conceptHistoryData: ConceptHistory) {
@@ -128,6 +219,12 @@ function ConceptHistoryTable({
 
   const hasData = (conceptHistoryData?.history?.length ?? 0) > 0;
 
+  const prevValues = {
+    prevRemember: 0,
+    prevUnderstand: 0,
+    prevApply: 0,
+  };
+
   return (
     <Dialog open={open} onClose={onClose} fullWidth={true} maxWidth="lg">
       <DialogTitle>{mmtHTMLToReact(getMMTHtml(concept))}</DialogTitle>
@@ -172,31 +269,7 @@ function ConceptHistoryTable({
               </TableHead>
               <TableBody>
                 {conceptHistoryData?.history.map((data, index) => (
-                  <TableRow key={index}>
-                    <TableCell>
-                      {(data.event.time as string).split(' ')[0]}
-                    </TableCell>
-                    <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-                      {eventTypeMapping[data.event.type]}
-                      {data.event.type === 'problem-answer' ? (
-                        <Link
-                          href={getProblemUrl(data.event.uri)}
-                          target="_blank"
-                        >
-                          <OpenInNewIcon />
-                        </Link>
-                      ) : null}
-                    </TableCell>
-                    <TableCell>
-                      {data['new-values'].Remember?.toFixed(2)}
-                    </TableCell>
-                    <TableCell>
-                      {data['new-values'].Understand?.toFixed(2)}
-                    </TableCell>
-                    <TableCell>
-                      {data['new-values'].Apply?.toFixed(2)}
-                    </TableCell>
-                  </TableRow>
+                  <EventRow key={index} data={data} prevValues={prevValues} />
                 ))}
               </TableBody>
             </Table>
