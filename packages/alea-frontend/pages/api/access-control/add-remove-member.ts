@@ -19,8 +19,7 @@ export default async function handler(
   if (!aclId || !memberId || isAclMember === null || toBeAdded === null) {
     return res.status(422).send('Missing fields.');
   }
-  const acl: AccessControlList = await executeAndEndSet500OnError('select * from AccessControlList where id=?', [aclId], res)[0];
-
+  const acl: AccessControlList = (await executeAndEndSet500OnError('select isOpen from AccessControlList where id=?', [aclId], res))[0];
   // check if in updaterACL or (1) isOpen for self-additions (2) is self deletion
   let query = '';
   let params: string[] = [];
