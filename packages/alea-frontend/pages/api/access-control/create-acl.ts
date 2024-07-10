@@ -2,6 +2,7 @@ import { AccessControlList } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
 import {
   checkIfPostOrSetError,
+  executeAndEndSet500OnError,
   executeTxnAndEndSet500OnError,
 } from '../comment-utils';
 
@@ -24,9 +25,11 @@ export default async function handler(
   ) {
     return res.status(422).send('Missing required fields.');
   }
-
-  // Check that memberIds and memberACLs are valid arrays
-  const updaterId = req.body.updaterACLId ?? id;
+  const membersCount = (await executeAndEndSet500OnError<[]>('select userId from userInfo where userId in (?)', [memberUserIds], res)).length;
+  const aclCount = (await executeAndEndSet500OnError<[]>('select id from AccessControlList where id in (?)', [memberACLIds], res)).length;
+  if (membersCount != memberUserIds.length || aclCount != memberACLIds.length)
+    return res.status(422).send('Invalid item');
+  const updaterId = req.body.updaterId ?? id;
   const numMembershipRows = memberUserIds.length + memberACLIds.length;
   const values = new Array(numMembershipRows).fill('(?, ?, ?)');
 
