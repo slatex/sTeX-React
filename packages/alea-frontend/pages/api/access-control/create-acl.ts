@@ -13,8 +13,8 @@ export default async function handler(
   if (!checkIfPostOrSetError(req, res)) return;
   const acl = req.body as AccessControlList;
 
-  const { id, description, isOpen, updaterACLId, memberUserIds, memberACLIds } =
-    acl;
+  const { id, description, isOpen, updaterACLId, memberUserIds, memberACLIds } = acl;
+  
   if (
     !id ||
     !description ||
@@ -47,6 +47,7 @@ export default async function handler(
     memberQuery,
     memberQueryParams
   );
+
 
   res.status(201).end();
 }

@@ -11,8 +11,9 @@ export default async function handler(
 ) {
   if (!checkIfPostOrSetError(req, res)) return;
 
-  const { id, description, isOpen, updaterACLId } = req.body;
-  if (!id || !description || isOpen || !updaterACLId) {
+  const { id, description, isOpen, memberUserIds, memberACLIds,   updaterACLId } = req.body;
+
+  if (!id || !description || !updaterACLId) {
     return res.status(422).send('Missing required fields.');
   }
   if (!await isCurrentUserMemberOfAClupdater(id, res, req))
