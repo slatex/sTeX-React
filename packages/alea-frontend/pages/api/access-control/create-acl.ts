@@ -29,7 +29,6 @@ export default async function handler(
   const aclCount = (await executeAndEndSet500OnError<[]>('select id from AccessControlList where id in (?)', [memberACLIds], res)).length;
   if (membersCount != memberUserIds.length || aclCount != memberACLIds.length)
     return res.status(422).send('Invalid item');
-  // Check that memberIds and memberACLs are valid arrays
   const updaterId = req.body.updaterId ?? id;
   const numMembershipRows = memberUserIds.length + memberACLIds.length;
   const values = new Array(numMembershipRows).fill('(?, ?, ?)');
