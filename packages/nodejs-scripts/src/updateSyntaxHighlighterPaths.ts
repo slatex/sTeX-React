@@ -1,8 +1,11 @@
 import fs from 'fs';
+import path from 'path';
 
 export function updateSyntaxHighlighterPaths() {
-  const filePath =
-    'C:/Users/Admin/Desktop/sTeX-React/node_modules/myst-to-react/dist/code.js';
+  const filePath = path.join(
+    __dirname,
+    '../../../../../../node_modules/myst-to-react/dist/code.js'
+  );
 
   try {
     const fileContent = fs.readFileSync(filePath, 'utf8');
