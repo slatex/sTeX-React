@@ -275,9 +275,6 @@ function computeOrderedList(
       callStack
     );
   }
-
-  callStack.delete(currentId);
-  
   if ((!isUnderstood && !addOnlyTemp) || tempShowUri.includes(currentId)) {
     const currentItem = tourItems.get(currentId);
     if (!currentItem) {
