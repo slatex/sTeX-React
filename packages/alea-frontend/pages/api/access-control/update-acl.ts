@@ -13,7 +13,7 @@ export default async function handler(
   const userId = getUserIdOrSetError(req, res);
   if (!userId) return;
 
-  const { id, description, isOpen, memberUserIds, memberACLIds,   updaterACLId } = req.body.updateAcl;
+  const { id, description, isOpen, memberUserIds, memberACLIds,   updaterACLId } = req.body;
   if (!id || !description || !updaterACLId){
     return res.status(422).send('Missing required fields.');
   }

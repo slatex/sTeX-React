@@ -20,20 +20,20 @@ import { Edit } from '@mui/icons-material';
 
 const AclId: NextPage = () => {
   const router = useRouter();
-  const { query } = router;
+  const aclId = router.query.aclId as string;
 
   const [acls, setAcls] = useState<string[]>([]);
   const [allMemberUserIds, setAllMemberUserIds] = useState<string[]>([]);
   const [desc, setDesc] = useState<string>(null);
   const [updaterACLId, setUpdaterACLId] = useState<string>(null);
-  const [isUserMembers, setIsUserMembers] = useState<boolean>(false);
+  const [userIsMember, setUserIsMember] = useState<boolean>(false);
   const [userIdInput, setUserIdInput] = useState<string>('');
   const [membershipStatus, setMembershipStatus] = useState<string>('');
   const [isUpdaterMember, setIsUpdaterMember] = useState<boolean>(false);
 
   async function getMembers() {
     try {
-      const acl = await getAcl(query.aclId as string);
+      const acl = await getAcl(aclId as string);
       setDesc(acl?.description);
       setUpdaterACLId(acl?.updaterACLId);
       const aclIds = new Set<string>();
@@ -48,19 +48,14 @@ const AclId: NextPage = () => {
     }
   }
 
-  async function checkUserMember(){
-    try {
-      const res : boolean = await isUserMember(query.aclId);
-      console.log(res);
-      setIsUserMembers(res);
-    }catch(e){
-      console.log(e);
-    }
+  async function checkIsUserMember(){
+      const res : boolean = await isUserMember(aclId as string);
+      setUserIsMember(res);
   }
 
   async function handleCheckUser(){
     try{
-      const res :  boolean = await isMember(query.aclId as string, userIdInput as string);
+      const res :  boolean = await isMember(aclId as string, userIdInput as string);
       setMembershipStatus(res ? `${userIdInput} is a member of this ACL.` : `${userIdInput} is not a member of this ACL.`);
     }catch(e){
       console.log(e);
@@ -81,12 +76,12 @@ const AclId: NextPage = () => {
   }
 
   useEffect(() => {
-    if (query.aclId) {
+    if (aclId) {
       getMembers();
-      checkUserMember();
+      checkIsUserMember();
       isUserIsUpdater();
     }
-  }, [query.aclId, updaterACLId]);
+  }, [aclId, updaterACLId]);
 
   return (
     <MainLayout>
@@ -114,19 +109,20 @@ const AclId: NextPage = () => {
             }}
           >
             <Typography variant="h4" color="primary" gutterBottom>
-              {query.aclId}
+              {aclId}
             </Typography>
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: '30px' }}>
 
-              <div style={{
-                width: '20px',
-                height: '20px',
-                borderRadius: '50%',
-                backgroundColor: isUserMembers ? 'green' : 'red',
-                marginLeft: '10px', 
-              }}></div>
-
+            <Box
+            sx={{
+              width: 20,
+              height: 20,
+              borderRadius: '50%',
+              backgroundColor: userIsMember ? 'green' : 'red',
+              ml: 1, // shorthand for marginLeft: '10px'
+            }}
+          ></Box>
               {isUpdaterMember && <Button
                   sx={{
                     display: 'flex',

@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { checkIfDeleteOrSetError, checkIfGetOrSetError, checkIfPostOrSetError, executeAndEndSet500OnError, getUserIdOrSetError } from "../comment-utils";
+import {  checkIfPostOrSetError, executeAndEndSet500OnError, getUserIdOrSetError } from "../comment-utils";
 import { isModerator } from "@stex-react/api";
 import { ACLMembership, Flattening } from "../acl-utils/flattening";
 
