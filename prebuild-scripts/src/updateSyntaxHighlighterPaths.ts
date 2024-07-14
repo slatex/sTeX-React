@@ -4,7 +4,7 @@ import path from 'path';
 export function updateSyntaxHighlighterPaths() {
   const filePath = path.join(
     __dirname,
-    '../../../../../../node_modules/myst-to-react/dist/code.js'
+    '../../../../node_modules/myst-to-react/dist/code.js'
   );
 
   try {
