@@ -1,22 +1,21 @@
-import AccountCircle from '@mui/icons-material/AccountCircle';
-import GroupIcon from '@mui/icons-material/Group';
 import {
   Box,
   Button,
   Checkbox,
   Chip,
   FormControlLabel,
-  IconButton,
-  InputAdornment,
   TextField,
   Typography,
+  InputAdornment,
+  IconButton,
 } from '@mui/material';
-import { UpdateACLRequest, getAcl, updateAcl } from '@stex-react/api';
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import GroupIcon from '@mui/icons-material/Group';
 import { NextPage } from 'next';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import MainLayout from '../../../layouts/MainLayout';
-
-import { useEffect, useState } from 'react';
+import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
+import { UpdateACLRequest, getAcl, updateAcl } from '@stex-react/api';
 
 const UpdateAcl: NextPage = () => {
   const router = useRouter();
@@ -50,14 +49,13 @@ const UpdateAcl: NextPage = () => {
     fetchAclDetails();
   }, [query.aclId]);
 
-  const handleAddMemberIdOnKeyDown = () => {
-    if (tempMemberUserId) {
-      setMemberUserIds([...memberUserIds, tempMemberUserId]);
-      setTempMemberUserId('');
-    }
-  };
-  const handleAddMemberIdOnClick = () => {
-    if (tempMemberUserId) {
+  function isEnterKeyEvent(event:  React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLElement>) {
+    return event.type === 'keydown' && (event as React.KeyboardEvent).key === 'Enter';
+  }
+
+  const handleAddMemberId = (event: React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLElement>) => {
+    if (!tempMemberUserId) return;
+    if (isEnterKeyEvent(event) || event.type === 'click') {
       setMemberUserIds([...memberUserIds, tempMemberUserId]);
       setTempMemberUserId('');
     }
@@ -67,14 +65,9 @@ const UpdateAcl: NextPage = () => {
     setMemberUserIds(memberUserIds.filter((id) => id !== idToRemove));
   };
 
-  const handleAddMemberACLOnKeyDown = () => {
-    if (tempMemberACL) {
-      setMemberACLIds([...memberACLIds, tempMemberACL]);
-      setTempMemberACL('');
-    }
-  };
-  const handleAddMemberACLOnClick = () => {
-    if (tempMemberACL) {
+  const handleAddMemberACL = (event: React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLElement>) => {
+    if (!tempMemberACL) return;
+    if (isEnterKeyEvent(event) || event.type === 'click') {
       setMemberACLIds([...memberACLIds, tempMemberACL]);
       setTempMemberACL('');
     }
@@ -140,13 +133,13 @@ const UpdateAcl: NextPage = () => {
             size="small"
             value={tempMemberUserId}
             onChange={(e) => setTempMemberUserId(e.target.value)}
-            onKeyDown={handleAddMemberIdOnKeyDown}
+            onKeyDown={handleAddMemberId}
             sx={{ mb: '10px' }}
             fullWidth
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <IconButton onClick={handleAddMemberIdOnClick}>
+                  <IconButton onClick={handleAddMemberId}>
                     <AccountCircle />
                   </IconButton>
                 </InputAdornment>
@@ -170,13 +163,13 @@ const UpdateAcl: NextPage = () => {
             size="small"
             value={tempMemberACL}
             onChange={(e) => setTempMemberACL(e.target.value)}
-            onKeyDown={handleAddMemberACLOnKeyDown}
+            onKeyDown={handleAddMemberACL}
             sx={{ mb: '10px' }}
             fullWidth
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <IconButton onClick={handleAddMemberACLOnClick}>
+                  <IconButton onClick={handleAddMemberACL}>
                     <GroupIcon />
                   </IconButton>
                 </InputAdornment>

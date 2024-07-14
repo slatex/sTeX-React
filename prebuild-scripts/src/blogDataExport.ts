@@ -3,7 +3,7 @@ import { exit } from 'process';
 import fs from 'fs';
 import path from 'path';
 
-const db = mysql({
+const db = process.env.MY_SQL_HOST ? mysql({
   config: {
     host: process.env.MYSQL_HOST,
     port: +process.env.MYSQL_PORT,
@@ -11,13 +11,14 @@ const db = mysql({
     user: process.env.MYSQL_USER,
     password: process.env.MYSQL_PASSWORD,
   },
-});
+}) : undefined;
 
 const BLOG_INFO_FILEPATH = './static/blogData.json';
 export function exportBlogPost() {
   if (!process.env.MYSQL_HOST) {
     console.log(`Env vars not set. Set them at [.env.local] Exiting.`);
-    exit(1);
+    fs.writeFile(BLOG_INFO_FILEPATH, '[]', console.error);
+    return;
   }
 
   const staticDataDir = path.dirname(BLOG_INFO_FILEPATH);
