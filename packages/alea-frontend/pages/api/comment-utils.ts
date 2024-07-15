@@ -170,6 +170,7 @@ export function checkIfGetOrSetError(req,res){
 export function checkIfDeleteOrSetError(req,res){
   return checkIfTypeOrSetError(req,res,'DELETE');
 }
+
 function checkIfTypeOrSetError(req, res, type: 'POST' | 'DELETE'|'GET') {
   if (req.method !== type) {
     res.status(405).send({ message: `Only ${type} requests allowed` });

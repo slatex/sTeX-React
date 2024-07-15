@@ -15,7 +15,7 @@ import { NextPage } from 'next';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
-import { UpdateACLRequest, getAcl, updateAcl } from '@stex-react/api';
+import { UpdateACLRequest, getAcl, isValid, updateAcl } from '@stex-react/api';
 
 const UpdateAcl: NextPage = () => {
   const router = useRouter();
@@ -29,7 +29,8 @@ const UpdateAcl: NextPage = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [tempMemberUserId, setTempMemberUserId] = useState<string>('');
   const [tempMemberACL, setTempMemberACL] = useState<string>('');
-
+  const [isInvalid, setIsInvalid] = useState<string>('');
+  const [isUpdaterACLValid, setIsUpdaterACLValid] = useState<boolean>(true);
   useEffect(() => {
     const fetchAclDetails = async () => {
       if (query.aclId) {
@@ -49,27 +50,36 @@ const UpdateAcl: NextPage = () => {
     fetchAclDetails();
   }, [query.aclId]);
 
-  function isEnterKeyEvent(event:  React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLElement>) {
-    return event.type === 'keydown' && (event as React.KeyboardEvent).key === 'Enter';
-  }
-
   const handleAddMemberId = (event: React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLElement>) => {
+    
     if (!tempMemberUserId) return;
-    if (isEnterKeyEvent(event) || event.type === 'click') {
+    if (isEnterKeyEvent(event)  ||event.type === 'click') {
       setMemberUserIds([...memberUserIds, tempMemberUserId]);
       setTempMemberUserId('');
     }
   };
 
+  function isEnterKeyEvent(event:  React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLElement>) {
+    return event.type === 'keydown' && (event as React.KeyboardEvent).key === 'Enter';
+  }
+
   const handleRemoveMemberId = (idToRemove: string) => {
     setMemberUserIds(memberUserIds.filter((id) => id !== idToRemove));
   };
 
-  const handleAddMemberACL = (event: React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLElement>) => {
-    if (!tempMemberACL) return;
-    if (isEnterKeyEvent(event) || event.type === 'click') {
-      setMemberACLIds([...memberACLIds, tempMemberACL]);
-      setTempMemberACL('');
+  const handleAddMemberACL = async (
+    event: React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLElement>
+  ) => {
+    if (isEnterKeyEvent(event) ||
+      event.type === 'click') {
+      const res = await isValid(tempMemberACL);
+      if (tempMemberACL && res) {
+        setMemberACLIds([...memberACLIds, tempMemberACL]);
+        setTempMemberACL('');
+        setIsInvalid('');
+      } else {
+        setIsInvalid(`${tempMemberACL} is not a valid ACL.`);
+      }
     }
   };
 
@@ -91,6 +101,15 @@ const UpdateAcl: NextPage = () => {
       router.replace(`/acl/${aclId}`);
     } catch (e) {
       console.log(e);
+    }
+  };
+
+  const handleUpdaterACLIdBlur = async () => {
+    if (updaterACLId) {
+      const isValidUpdater = await isValid(updaterACLId);
+      setIsUpdaterACLValid(isValidUpdater);
+    } else {
+      setIsUpdaterACLValid(null);
     }
   };
 
@@ -176,6 +195,9 @@ const UpdateAcl: NextPage = () => {
               ),
             }}
           />
+          {isInvalid ? (
+            <Typography color="error">{isInvalid}</Typography>
+          ) : null}
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
             {memberACLIds.map((acl, index) => (
               <Chip
@@ -191,9 +213,14 @@ const UpdateAcl: NextPage = () => {
           variant="outlined"
           value={updaterACLId}
           onChange={(e) => setUpdaterACLId(e.target.value)}
+          onBlur={handleUpdaterACLIdBlur}
           size="small"
           sx={{ mb: '20px' }}
           fullWidth
+          error={isUpdaterACLValid === false}
+          helperText={
+            isUpdaterACLValid === false ? 'Updater ACL is invalid' : ''
+          }
         />
         <FormControlLabel
           control={
@@ -210,7 +237,7 @@ const UpdateAcl: NextPage = () => {
           variant="contained"
           color="primary"
           onClick={handleSubmit}
-          disabled={!aclId || !updaterACLId}
+          disabled={!aclId || !updaterACLId || !isUpdaterACLValid}
         >
           Update
         </Button>

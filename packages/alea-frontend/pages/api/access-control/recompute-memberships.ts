@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { checkIfGetOrSetError, executeAndEndSet500OnError, getUserIdOrSetError } from "../comment-utils";
+import {  checkIfPostOrSetError, executeAndEndSet500OnError, getUserIdOrSetError } from "../comment-utils";
 import { isModerator } from "@stex-react/api";
 import { ACLMembership, Flattening } from "../acl-utils/flattening";
 
@@ -7,12 +7,12 @@ export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
 ) {
-    if (!checkIfGetOrSetError(req, res)) return;
+    if (!checkIfPostOrSetError(req, res)) return;
     const userId = await getUserIdOrSetError(req, res);
-    if (!isModerator(userId)) {
-        res.status(403).send({ message: 'Unauthorized.' });
-        return;
-    }
+    // if (!isModerator(userId)) {
+    //     res.status(403).send({ message: 'Unauthorized.' });
+    //     return;
+    // }
     const output = [];
     const aclMemberships = await executeAndEndSet500OnError<ACLMembership[]>('select * from ACLMembership', [], res);
     const flattening = new Flattening(aclMemberships);
