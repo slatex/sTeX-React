@@ -20,6 +20,7 @@ import { Edit } from '@mui/icons-material';
 
 const AclId: NextPage = () => {
   const router = useRouter();
+  const { query } = router;
   const aclId = router.query.aclId as string;
 
   const [acls, setAcls] = useState<string[]>([]);

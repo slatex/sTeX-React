@@ -50,33 +50,28 @@ const UpdateAcl: NextPage = () => {
     fetchAclDetails();
   }, [query.aclId]);
 
-  const handleAddMemberId = (
-    event: React.KeyboardEvent<HTMLInputElement> | React.MouseEvent<HTMLElement>
-  ) => {
-    if (
-      (event.type === 'keydown' &&
-        (event as React.KeyboardEvent).key === 'Enter') ||
-      event.type === 'click'
-    ) {
-      if (tempMemberUserId) {
-        setMemberUserIds([...memberUserIds, tempMemberUserId]);
-        setTempMemberUserId('');
-      }
+  const handleAddMemberId = (event: React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLElement>) => {
+    
+    if (!tempMemberUserId) return;
+    if (isEnterKeyEvent(event)  ||event.type === 'click') {
+      setMemberUserIds([...memberUserIds, tempMemberUserId]);
+      setTempMemberUserId('');
     }
   };
+
+  function isEnterKeyEvent(event:  React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLElement>) {
+    return event.type === 'keydown' && (event as React.KeyboardEvent).key === 'Enter';
+  }
 
   const handleRemoveMemberId = (idToRemove: string) => {
     setMemberUserIds(memberUserIds.filter((id) => id !== idToRemove));
   };
 
   const handleAddMemberACL = async (
-    event: React.KeyboardEvent<HTMLInputElement> | React.MouseEvent<HTMLElement>
+    event: React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLElement>
   ) => {
-    if (
-      (event.type === 'keydown' &&
-        (event as React.KeyboardEvent).key === 'Enter') ||
-      event.type === 'click'
-    ) {
+    if (isEnterKeyEvent(event) ||
+      event.type === 'click') {
       const res = await isValid(tempMemberACL);
       if (tempMemberACL && res) {
         setMemberACLIds([...memberACLIds, tempMemberACL]);
@@ -213,7 +208,6 @@ const UpdateAcl: NextPage = () => {
             ))}
           </Box>
         </Box>
-
         <TextField
           label="Updater ACL"
           variant="outlined"
