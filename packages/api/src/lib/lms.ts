@@ -469,7 +469,8 @@ export type HistoryEventType =
   | IKnowEvent
   | SelfAssessmentEvent
   | SelfAssessmentSmileysEvent
-  | PurgeEvent;
+  | PurgeEvent
+  | ProblemAnswerEvent;
 
 export interface HistoryItem {
   event: HistoryEventType;
