@@ -50,16 +50,19 @@ const UpdateAcl: NextPage = () => {
     fetchAclDetails();
   }, [query.aclId]);
 
-  const handleAddMemberId = (event: React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLElement>) => {
-    
+  const handleAddMemberId = (
+    event: React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLElement>
+  ) => {
     if (!tempMemberUserId) return;
-    if (isEnterKeyEvent(event)  ||event.type === 'click') {
+    if (isEnterKeyEvent(event) || event.type === 'click') {
       setMemberUserIds([...memberUserIds, tempMemberUserId]);
       setTempMemberUserId('');
     }
   };
 
-  function isEnterKeyEvent(event:  React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLElement>) {
+  function isEnterKeyEvent(
+    event: React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLElement>
+  ) {
     return event.type === 'keydown' && (event as React.KeyboardEvent).key === 'Enter';
   }
 
@@ -70,8 +73,7 @@ const UpdateAcl: NextPage = () => {
   const handleAddMemberACL = async (
     event: React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLElement>
   ) => {
-    if (isEnterKeyEvent(event) ||
-      event.type === 'click') {
+    if (isEnterKeyEvent(event) || event.type === 'click') {
       const res = await isValid(tempMemberACL);
       if (tempMemberACL && res) {
         setMemberACLIds([...memberACLIds, tempMemberACL]);
@@ -105,12 +107,11 @@ const UpdateAcl: NextPage = () => {
   };
 
   const handleUpdaterACLIdBlur = async () => {
-    if (updaterACLId) {
-      const isValidUpdater = await isValid(updaterACLId);
-      setIsUpdaterACLValid(isValidUpdater);
-    } else {
-      setIsUpdaterACLValid(null);
+    let isValidUpdater = !!updaterACLId;
+    if (isValidUpdater) {
+      isValidUpdater = updaterACLId === aclId || (await isValid(updaterACLId));
     }
+    setIsUpdaterACLValid(isValidUpdater);
   };
 
   return (
@@ -167,11 +168,7 @@ const UpdateAcl: NextPage = () => {
           />
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
             {memberUserIds.map((id, index) => (
-              <Chip
-                key={index}
-                label={id}
-                onDelete={() => handleRemoveMemberId(id)}
-              />
+              <Chip key={index} label={id} onDelete={() => handleRemoveMemberId(id)} />
             ))}
           </Box>
         </Box>
@@ -195,16 +192,10 @@ const UpdateAcl: NextPage = () => {
               ),
             }}
           />
-          {isInvalid ? (
-            <Typography color="error">{isInvalid}</Typography>
-          ) : null}
+          {isInvalid ? <Typography color="error">{isInvalid}</Typography> : null}
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
             {memberACLIds.map((acl, index) => (
-              <Chip
-                key={index}
-                label={acl}
-                onDelete={() => handleRemoveMemberACL(acl)}
-              />
+              <Chip key={index} label={acl} onDelete={() => handleRemoveMemberACL(acl)} />
             ))}
           </Box>
         </Box>
@@ -218,17 +209,10 @@ const UpdateAcl: NextPage = () => {
           sx={{ mb: '20px' }}
           fullWidth
           error={isUpdaterACLValid === false}
-          helperText={
-            isUpdaterACLValid === false ? 'Updater ACL is invalid' : ''
-          }
+          helperText={isUpdaterACLValid === false ? 'Updater ACL is invalid' : ''}
         />
         <FormControlLabel
-          control={
-            <Checkbox
-              checked={isOpen}
-              onChange={(e) => setIsOpen(e.target.checked)}
-            />
-          }
+          control={<Checkbox checked={isOpen} onChange={(e) => setIsOpen(e.target.checked)} />}
           label="Is Open"
           sx={{ mb: '20px' }}
         />

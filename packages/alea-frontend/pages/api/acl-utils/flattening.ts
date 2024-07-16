@@ -1,15 +1,15 @@
-import {AbstractCacheStore} from './abstract-cache-store'
+import { AbstractCacheStore } from './abstract-cache-store'
 import { AclSavePostfix, getCacheKey } from "./acl-common-utils";
 
 
 export class Flattening {
     private _ancestorChain: Set<string> = new Set<string>();
     private _alreadyComputed: string[] = [];
-    constructor (private readonly _aclMembership: ACLMembership[], private _cacheStore: AbstractCacheStore ) {
+    constructor(private readonly _aclMembership: ACLMembership[], private _cacheStore: AbstractCacheStore) {
     }
     public async findMembers(AclId: string): Promise<string[]> {
         const output: Set<string> = new Set<string>();
-        const keyName =  getCacheKey(AclId, AclSavePostfix.members);
+        const keyName = getCacheKey(AclId, AclSavePostfix.members);
         const allAcls = await this.findACL(AclId);
         allAcls.push(AclId);
         const members = this._aclMembership.filter(c => c.memberUserId && allAcls.includes(c.parentACLId));
@@ -17,14 +17,14 @@ export class Flattening {
             output.add(member.memberUserId);
         }
         if (output.size != 0)
-            await this._cacheStore.addToCachedSet(keyName, Array.from(output));
+            await this._cacheStore.addToSet(keyName, Array.from(output));
         return Array.from(output);
     }
     public async findACL(AclId: string): Promise<string[]> {
         const output: Set<string> = new Set<string>();
         const KeyName = getCacheKey(AclId, AclSavePostfix.acl);
         if (this._alreadyComputed.includes(AclId))
-            return (await  this._cacheStore.getFromCachedSet(KeyName)) as string[];
+            return (await this._cacheStore.getFromSet(KeyName)) as string[];
         const acls = this._aclMembership.filter(c => c.parentACLId && !c.memberUserId);
         for (const acl of acls) {
             output.add(acl.memberACLId);
@@ -38,7 +38,7 @@ export class Flattening {
         this._ancestorChain.delete(AclId);
         this._alreadyComputed.push(AclId);
         if (output.size != 0)
-            await this._cacheStore.addToCachedSet(KeyName, Array.from(output));
+            await this._cacheStore.addToSet(KeyName, Array.from(output));
         return Array.from(output);
     }
 };
