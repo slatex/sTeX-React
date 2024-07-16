@@ -4,6 +4,7 @@ import { DEFAULT_RENDERERS, MyST } from 'myst-to-react';
 import React from 'react';
 
 import { Theme, ThemeProvider } from '@myst-theme/providers';
+import { MdLatex } from './latex/md-latex';
 
 export const MY_RENDERERS: Record<string, NodeRenderer> = {
   ...DEFAULT_RENDERERS,
@@ -25,6 +26,12 @@ export const MY_RENDERERS: Record<string, NodeRenderer> = {
       </>
     );
   },
+  inlineMath({ node }) {
+    return <MdLatex key={node.key} latex={node.value} displayMode={false} />
+  },
+  math({ node }) {
+    return <MdLatex key={node.key} latex={node.value} displayMode={true} />
+  }
 };
 
 export function MystViewer({ content }: { content: string }) {

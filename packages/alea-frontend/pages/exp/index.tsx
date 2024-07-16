@@ -11,6 +11,8 @@ import { BrowserAutocomplete } from '../../components/BrowserAutocomplete';
 import { SearchBar } from '../../components/SearchBar';
 import { ToursAutocomplete } from '../../components/ToursAutocomplete';
 import MainLayout from '../../layouts/MainLayout';
+import { MystEditor } from '@stex-react/myst';
+import { useState } from 'react';
 
 function ExternalButtonLink({ href, text }: { href: string; text: string }) {
   return (
@@ -34,6 +36,7 @@ function InternalButtonLink({ href, children }: any) {
 }
 
 const ExperimentsHome: NextPage = () => {
+  const [value, setValue] = useState('# This is a Myst Test\n\n**Math** works: $E=mc^2$.');
   return (
     <MainLayout title="Experiments | VoLL-KI">
       <IconButton sx={{ float: 'right' }}>
@@ -166,6 +169,7 @@ const ExperimentsHome: NextPage = () => {
               />
             </Box>
           </Box>
+          <MystEditor name="sample-edit" value={value} onValueChange={setValue} defaultPreview={true} />
         </main>
       </div>
     </MainLayout>

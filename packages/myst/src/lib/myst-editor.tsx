@@ -2,7 +2,7 @@ import { Box, TextareaAutosize } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { getLocaleObject } from './lang/utils';
-import styles from './markdown.module.scss';
+import styles from './myst.module.scss';
 import { MystViewer } from './myst-viewer';
 
 interface MdEditorProps {
@@ -23,7 +23,7 @@ interface MdEditorProps {
 
 const PREVIEW_TRIGGER_SET = /[#$()_+[\]{}|~*<>=]/;
 
-export function MdEditor({
+export function MystEditor({
   name,
   minRows = 2,
   placeholder = '',

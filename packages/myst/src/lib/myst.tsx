@@ -1,3 +1,4 @@
 import { MystViewer } from './myst-viewer';
+import { MystEditor } from './myst-editor';
 
-export { MystViewer };
+export { MystEditor, MystViewer };
