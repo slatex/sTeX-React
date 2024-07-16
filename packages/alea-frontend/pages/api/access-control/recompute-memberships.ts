@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import {  checkIfPostOrSetError, executeAndEndSet500OnError, getUserIdOrSetError } from "../comment-utils";
 import { isModerator } from "@stex-react/api";
+import { CACHE_STORE } from "../acl-utils/cache-store";
 import { ACLMembership, Flattening } from "../acl-utils/flattening";
 
 export default async function handler(
@@ -15,7 +16,7 @@ export default async function handler(
     // }
     const output = [];
     const aclMemberships = await executeAndEndSet500OnError<ACLMembership[]>('select * from ACLMembership', [], res);
-    const flattening = new Flattening(aclMemberships);
+    const flattening = new Flattening(aclMemberships, CACHE_STORE);
     const result = await executeAndEndSet500OnError<{ id: string; }[]>(`select id from AccessControlList`, [], res);
     for (const element of result) {
         output.push({ name: element.id, members: await flattening.findMembers(element.id), acls: await flattening.findACL(element.id) });

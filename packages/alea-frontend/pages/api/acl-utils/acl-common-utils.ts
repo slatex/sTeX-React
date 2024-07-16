@@ -1,17 +1,17 @@
 import { AccessControlList } from "@stex-react/api";
 import { executeAndEndSet500OnError, getUserIdOrSetError } from "../comment-utils";
-import { isMemberOfCachedSet } from "./redis-connection-utils";
+import {CACHE_STORE} from './cache-store'
 
 
 export enum AclSavePostfix {
     acl = 'acls',
     members = 'members'
 }
-export function getRedisName(aclId: string, savePostfix: AclSavePostfix) {
+export function getCacheKey(aclId: string, savePostfix: AclSavePostfix) {
     return `${aclId}-${savePostfix}`;
 }
 export async function isMemberOfAcl(acl: string, userId: string) {
-    return await isMemberOfCachedSet(getRedisName(acl, AclSavePostfix.members), userId);
+    return await CACHE_STORE.isMemberOfCachedSet(getCacheKey(acl, AclSavePostfix.members), userId);
 };
 export async function isCurrentUserMemberOfAClupdater(aclId: string, res, req): Promise<boolean> {
     const userId = await getUserIdOrSetError(req, res);
