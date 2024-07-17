@@ -19,13 +19,13 @@ import {
   getUserInfo,
   isModerator,
 } from '@stex-react/api';
-import { MdViewer } from '@stex-react/markdown';
 import fs from 'fs';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
+import { MystViewer } from '@stex-react/myst';
 
 const BlogPostPage: NextPage = ({ post }: { post: BlogPost }) => {
   const router = useRouter();
@@ -104,17 +104,17 @@ const BlogPostPage: NextPage = ({ post }: { post: BlogPost }) => {
               borderRadius: '5px',
             }}
           >
-            <MdViewer content={blogPost.title} />
+            <MystViewer content={blogPost.title} />
             <hr />
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Typography sx={{ display: 'flex', alignItems: 'center' }}>
-                <MdViewer content={blogPost.authorName} />
+                <MystViewer content={blogPost.authorName} />
               </Typography>
               <Typography fontWeight="bold">
-                <MdViewer content={blogPost.createdAt.split('T')[0]} />
+                <MystViewer content={blogPost.createdAt.split('T')[0]} />
               </Typography>
             </Box>
-            <MdViewer content={blogPost.body} />
+            <MystViewer content={blogPost.body} />
           </Box>
         </Box>
       </Box>

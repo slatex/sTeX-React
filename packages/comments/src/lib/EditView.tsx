@@ -7,15 +7,12 @@ import {
   editComment,
   getUserInfo,
 } from '@stex-react/api';
-import { MdEditor } from '@stex-react/markdown';
-import {
-  CURRENT_TERM,
-  FileLocation,
-} from '@stex-react/utils';
+import { CURRENT_TERM, FileLocation } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { discardDraft, retrieveDraft, saveDraft } from './comment-helpers';
 import { getLocaleObject } from './lang/utils';
+import { MystEditor } from '@stex-react/myst';
 
 interface EditViewProps {
   file: FileLocation;
@@ -110,7 +107,7 @@ export function EditView({
       style={{ border: 0, margin: 0, padding: 0 }}
     >
       <div style={{ marginBottom: '5px' }}>
-        <MdEditor
+        <MystEditor
           name="comment-edit"
           placeholder={placeholder}
           value={inputText}

@@ -5,7 +5,7 @@ import { getLocaleObject } from './lang/utils';
 import styles from './myst.module.scss';
 import { MystViewer } from './myst-viewer';
 
-interface MdEditorProps {
+interface MystEditorProps {
   name: string;
 
   minRows?: number;
@@ -31,7 +31,7 @@ export function MystEditor({
   value,
   onValueChange,
   defaultPreview = false,
-}: MdEditorProps) {
+}: MystEditorProps) {
   const t = getLocaleObject(useRouter());
   const [autoPreview, setAutoPreview] = useState(defaultPreview);
   const [manualAction, setManualAction] = useState<boolean | undefined>(

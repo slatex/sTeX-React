@@ -31,13 +31,13 @@ import {
   getUserInfo,
   isModerator,
 } from '@stex-react/api';
-import { MdEditor } from '@stex-react/markdown';
 import { DateView } from '@stex-react/react-utils';
 import { CURRENT_TERM } from '@stex-react/utils';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useReducer, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
+import { MystEditor } from '@stex-react/myst';
 function getDraftKey(courseId: string) {
   return `question-draft-${courseId}`;
 }
@@ -69,7 +69,7 @@ export function AskAQuestionDialog({
     <>
       <DialogTitle>{t.askAQuestion}</DialogTitle>
       <DialogContent>
-        <MdEditor
+        <MystEditor
           name="question-input"
           minRows={5}
           placeholder={t.enterQuestion}

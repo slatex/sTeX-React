@@ -3,7 +3,7 @@ import { exit } from 'process';
 import fs from 'fs';
 import path from 'path';
 
-const db = process.env.MY_SQL_HOST ? mysql({
+const db = process.env.MYSQL_HOST ? mysql({
   config: {
     host: process.env.MYSQL_HOST,
     port: +process.env.MYSQL_PORT,

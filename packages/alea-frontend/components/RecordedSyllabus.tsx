@@ -5,7 +5,6 @@ import {
   SectionInfo,
   SyllabusRow,
 } from '@stex-react/api';
-import { MdViewer } from '@stex-react/markdown';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
@@ -13,6 +12,7 @@ import { getLocaleObject } from '../lang/utils';
 import { useRouter } from 'next/router';
 import DownloadIcon from '@mui/icons-material/Download';
 import { CURRENT_TERM } from '@stex-react/utils';
+import { MystViewer } from '@stex-react/myst';
 
 function joinerForLevel(level: number) {
   switch (level) {
@@ -158,7 +158,7 @@ function SyllabusTable({
               {dayjs(timestamp_ms).format(showYear ? 'DD-MMM-YY' : 'DD-MMM')}
             </td>
             <td style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              <MdViewer content={topics} />
+              <MystViewer content={topics} />
             </td>
             {hasAnyVideoClip && (
               <td>
@@ -219,7 +219,9 @@ export function RecordedSyllabus({ courseId }: { courseId: string }) {
   }, [courseId]);
 
   if (!courseId) return null;
-  const timestamps = Object.keys(lectureDescs).map((n) => +n).sort();
+  const timestamps = Object.keys(lectureDescs)
+    .map((n) => +n)
+    .sort();
 
   const currentSemRows = timestamps.map((timestamp_ms) => ({
     timestamp_ms,

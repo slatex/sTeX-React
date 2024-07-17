@@ -7,7 +7,7 @@ import {
   getUserInfo,
   isModerator,
 } from '@stex-react/api';
-import { MdViewer } from '@stex-react/markdown';
+import { MystViewer } from '@stex-react/myst';
 import fs from 'fs';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -78,8 +78,8 @@ const BlogHomePage: NextPage = ({
                 backgroundImage: 'radial-gradient(white,lightgray)',
               }}
             >
-              <MdViewer content={snippet.title} />
-              <MdViewer content={snippet.bodySnippet.concat('...')} />
+              <MystViewer content={snippet.title} />
+              <MystViewer content={snippet.bodySnippet.concat('...')} />
               <Box
                 display="flex"
                 justifyContent="space-between"
@@ -90,7 +90,7 @@ const BlogHomePage: NextPage = ({
                   {snippet.createdAt.split('T')[0]}
                 </Typography>
                 <Typography display="flex" alignItems="center">
-                  Author: <MdViewer content={snippet.authorName} />
+                  Author: <MystViewer content={snippet.authorName} />
                 </Typography>
               </Box>
             </Box>
