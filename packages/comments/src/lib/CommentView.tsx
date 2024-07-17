@@ -1,13 +1,13 @@
-import { MdViewer } from '@stex-react/markdown';
-import { useState } from 'react';
 import { Comment } from '@stex-react/api';
+import { useState } from 'react';
 import { CommentLabel } from './CommentLabel';
 import { CommentReply } from './CommentReply';
 import { EditView } from './EditView';
 
+import { MystViewer } from '@stex-react/myst';
+import { discardDraft } from './comment-helpers';
 import styles from './comments.module.scss';
 import { SelectedInfo } from './selected-info';
-import { discardDraft } from './comment-helpers';
 
 export function CommentView({
   comment,
@@ -34,7 +34,7 @@ export function CommentView({
               <SelectedInfo text={comment.selectedText} />
               {!editingComment && (
                 <div style={{ margin: '-1em 0 0' }}>
-                  <MdViewer content={comment.statement || ''} />
+                  <MystViewer content={comment.statement || ''} />
                 </div>
               )}
               <EditView

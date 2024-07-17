@@ -10,8 +10,9 @@ import {
   Tooltip,
 } from '@mui/material';
 import { Comment } from '@stex-react/api';
-import { MdViewer } from '@stex-react/markdown';
+import { MystViewer } from '@stex-react/myst';
 import { getSectionInfo } from '@stex-react/utils';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { getTotalComments } from './comment-helpers';
 import { CommentNoteToggleView } from './comment-note-toggle-view';
@@ -20,7 +21,6 @@ import {
   getPublicCommentTrees,
 } from './comment-store-manager';
 import { getLocaleObject } from './lang/utils';
-import { useRouter } from 'next/router';
 
 function buttonProps(backgroundColor: string) {
   return {
@@ -111,7 +111,7 @@ export function CommentButton({ url = '' }: { url?: string }) {
         <Tooltip
           title={
             <Box>
-              <MdViewer content={topNote?.statement || ''} />
+              <MystViewer content={topNote?.statement || ''} />
               {numPrivateNotes > 1 ? '..and more' : ''}
             </Box>
           }
@@ -134,7 +134,7 @@ export function CommentButton({ url = '' }: { url?: string }) {
             numPublicComments > 0 ? (
               <Box>
                 <b>{topComment?.userName}</b>&nbsp;<i>says:</i>
-                <MdViewer content={topComment?.statement || ''} />
+                <MystViewer content={topComment?.statement || ''} />
                 {numPublicComments > 1 ? t.andMore : ''}
               </Box>
             ) : (

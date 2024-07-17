@@ -13,7 +13,7 @@ import type { NextPage } from 'next';
 import { useEffect, useState } from 'react';
 import Chart from 'react-google-charts';
 import MainLayout from '../../layouts/MainLayout';
-import { MdViewer } from '@stex-react/markdown';
+import { MystViewer } from '@stex-react/myst';
 import { QuizResult } from '@stex-react/api';
 
 function getChartCell(id: string) {
@@ -99,7 +99,7 @@ function TimingInfo({
   }));
   return (
     <>
-      <MdViewer content={title} />
+      <MystViewer content={title} />
       <BarChart data={data} column1="User name" column2={`Time (${unit})`} />
     </>
   );

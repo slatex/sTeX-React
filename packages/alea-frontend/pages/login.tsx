@@ -26,7 +26,7 @@ import { useReducer, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 import styles from '../styles/utils.module.scss';
-import { MdViewer } from '@stex-react/markdown';
+import { MystViewer } from '@stex-react/myst';
 
 const PresetPersonas = [
   { label: 'sabrina', info: 'FAU CS student' },
@@ -39,19 +39,19 @@ export function LoginInfoBox() {
   const { login: t, logInSystem: l } = getLocaleObject(useRouter());
   return (
     <Box className={styles['descriptive-box']}>
-      <MdViewer content={t.notesHeader} />
+      <MystViewer content={t.notesHeader} />
       <ul>
         <li>
-          <MdViewer content={t.notesPoint1} />
+          <MystViewer content={t.notesPoint1} />
         </li>
         <li>
-          <MdViewer content={t.notesPoint2} />
+          <MystViewer content={t.notesPoint2} />
         </li>
         <li>
-          <MdViewer content={t.notesPoint3} />
+          <MystViewer content={t.notesPoint3} />
         </li>
         <li>
-          <MdViewer content={t.notesPoint4} />
+          <MystViewer content={t.notesPoint4} />
         </li>
       </ul>
     </Box>
