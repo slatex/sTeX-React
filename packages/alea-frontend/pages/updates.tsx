@@ -1,5 +1,5 @@
 import { Box, Tooltip, Typography } from '@mui/material';
-import { MdViewer } from '@stex-react/markdown';
+import { MystViewer } from '@stex-react/myst';
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import type { NextPage } from 'next';
@@ -40,8 +40,11 @@ const UpdatesPage: NextPage = () => {
               </Typography>
             </Tooltip>
             <Typography>
-              <Box sx={{ img: { maxWidth: '200px !important' } }} id={'image' + update.id}>
-                <MdViewer
+              <Box
+                sx={{ img: { maxWidth: '200px !important' } }}
+                id={'image' + update.id}
+              >
+                <MystViewer
                   content={
                     locale === 'de'
                       ? update.content_de || update.content

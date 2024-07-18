@@ -2,6 +2,6 @@
 
 This library was generated with [Nx](https://nx.dev).
 
-## Building
+## Running unit tests
 
-Run `nx build myst` to build the library.
+Run `nx test myst` to execute the unit tests via [Jest](https://jestjs.io).

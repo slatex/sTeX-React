@@ -1,14 +1,38 @@
-import { RedisKey } from "ioredis";
-import { NextApiResponse } from "next";
+import { RedisKey } from 'ioredis';
+import { NextApiResponse } from 'next';
 
+export type CacheValueType = string | Buffer | number;
 
 export abstract class AbstractCacheStore {
-    abstract setCacheEntry(key: RedisKey, data: string | Buffer | number): Promise<{error: any}>
-    abstract getCacheEntry(key: RedisKey): Promise<string | {error: any}>
-    abstract setCacheEntryAndEndSet500OnError(key: RedisKey, data: string | Buffer | number, res: NextApiResponse): Promise<void>
-    abstract getCacheEntryAndEndSet500OnError(key: RedisKey, res: NextApiResponse): Promise<string | {error: any}>;
-    abstract addToCachedSet(key: RedisKey, members: (string | Buffer | number)[]): Promise<void>;
-    abstract getFromCachedSet(key: RedisKey): Promise<(string | Buffer | number)[]>;
-    abstract isMemberOfCachedSet(key: RedisKey, member: string | Buffer | number): Promise<boolean>;
+  abstract setEntry(key: RedisKey, data: CacheValueType): Promise<{ error: any }>;
+  abstract getEntry(key: RedisKey): Promise<string | { error: any }>;
+  abstract addToSet(key: RedisKey, members: CacheValueType[]): Promise<void>;
+  abstract getFromSet(key: RedisKey): Promise<CacheValueType[]>;
+  abstract isMemberOfSet(key: RedisKey, member: CacheValueType): Promise<boolean>;
 }
 
+export async function getCacheEntryAndEndSet500OnError<T>(
+  store: AbstractCacheStore,
+  key: RedisKey,
+  res: NextApiResponse
+) {
+  const result = await store.getEntry(key);
+  if (result['error']) {
+    res.status(500).send(result);
+    console.log(result['error']);
+    return undefined;
+  }
+  return result as T;
+}
+
+export async function setCacheEntryAndEndSet500OnError(
+  store: AbstractCacheStore,
+  key: RedisKey,
+  data: CacheValueType,
+  res: NextApiResponse
+): Promise<void> {
+  const result = await store.setEntry(key, data);
+  if (result['error']) {
+    res.status(500).send(result['error']);
+  }
+}

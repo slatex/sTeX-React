@@ -3,27 +3,14 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/myst/src",
   "projectType": "library",
+  "tags": [],
   "targets": {
-    "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/packages/myst",
-        "main": "packages/myst/src/index.ts",
-        "tsConfig": "packages/myst/tsconfig.lib.json",
-        "assets": ["packages/myst/*.md"]
-      }
-    },
     "lint": {
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": [
-          "packages/myst/**/*.ts",
-          "packages/myst/package.json"
-        ]
+        "lintFilePatterns": ["packages/myst/**/*.{ts,tsx,js,jsx}"]
       }
     }
-  },
-  "tags": []
+  }
 }

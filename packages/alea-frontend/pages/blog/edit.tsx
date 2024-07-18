@@ -7,11 +7,11 @@ import {
   isModerator,
   updateBlogPost,
 } from '@stex-react/api';
-import { MdEditor } from '@stex-react/markdown';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
+import { MystEditor } from '@stex-react/myst';
 
 const EditPostPage: NextPage = () => {
   const router = useRouter();
@@ -74,7 +74,7 @@ const EditPostPage: NextPage = () => {
           />
 
           <Box mb="20px">
-            <MdEditor
+            <MystEditor
               value={title}
               onValueChange={(v) => setTitle(v)}
               name="title_input"
@@ -83,7 +83,7 @@ const EditPostPage: NextPage = () => {
               defaultPreview={true}
             />
           </Box>
-          <MdEditor
+          <MystEditor
             value={body}
             onValueChange={(v) => setBody(v)}
             name="body_input"
