@@ -15,7 +15,7 @@ export default async function handler(
   const { aclId, resourceId, actionId } = req.body;
   if (!aclId || !resourceId || !actionId)
     return res.status(422).send('Missing required fields');
-  if (!(await isMemberOfAcl('sys-org', userId as string))) {
+  if (!(await isMemberOfAcl('sys-admin', userId as string))) {
     return res.status(400).send('unauthorized');
   }
   const resourceQuery = `INSERT INTO resourceaccess (aclId, resourceId, actionId) VALUES (?, ?, ?)`;

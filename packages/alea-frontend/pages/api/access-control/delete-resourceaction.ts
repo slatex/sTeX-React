@@ -12,7 +12,7 @@ export default async function handler(
 ) {
   if (!checkIfPostOrSetError(req, res)) return;
   const userId = await getUserIdOrSetError(req, res);
-  if (!(await isMemberOfAcl('sys-org', userId))) {
+  if (!(await isMemberOfAcl('sys-admin', userId))) {
     return res.status(400).send('not valid');
   }
   const { resourceId, actionId } = req.body;
