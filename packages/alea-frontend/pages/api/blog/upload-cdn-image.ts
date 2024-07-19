@@ -23,7 +23,7 @@ export default async function handler(
     const data = response.data;
     if (!data.success) {
       console.error("imgbb upload error: ", data);
-      return res.status(500).send;
+      return res.status(500).send({message: "Error Uploading image to imgbb"});
     }
     const metadata = data.data;
 

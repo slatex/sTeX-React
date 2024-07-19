@@ -150,7 +150,7 @@ export interface PostSnippet {
   createdAt: string;
 }
 
-export interface cdnImages {
+export interface CdnImage {
   id: string,
   metadata: CdnImageMetadata
 }

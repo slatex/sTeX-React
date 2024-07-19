@@ -1,16 +1,15 @@
 import { Box, Button } from '@mui/material'
-import clipboard from 'clipboard';
 import React, { useState } from 'react'
 
 const ImageCard = ({ imageUrl, imageId }) => {
 
     const handleIdCopy = () => {
-        clipboard.copy(imageId);
+        navigator.clipboard.writeText(imageId);
     }
 
     const handleMarkdownCopy = () => {
         const markdown = `![markdownImage](${imageUrl})`;
-        clipboard.copy(markdown);
+        navigator.clipboard.writeText(markdown);
     }
 
     return (

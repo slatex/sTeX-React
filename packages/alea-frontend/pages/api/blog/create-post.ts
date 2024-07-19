@@ -16,23 +16,10 @@ export default async function handler(
   }
   const { title, body, postId, authorId, authorName, heroImageId, heroImageUrl } = req.body;
 
-  let sqlQuery = `INSERT INTO BlogPosts (title, body, postId, authorId, authorName`
-  let addedQuery = `) VALUES (?, ?, ?, ?, ?`;
-  let values = [title, body, postId, authorId, authorName];
+  if(!heroImageId || !heroImageUrl) return;
 
-  if (heroImageId) {
-    sqlQuery += `, heroImageId`;
-    addedQuery += `, ?`;
-    values.push(heroImageId);
-  }
-  if (heroImageUrl) {
-    sqlQuery += `, heroImageUrl`;
-    addedQuery += `, ?`;
-    values.push(heroImageUrl);
-  }
-
-  addedQuery += `)`;
-  sqlQuery += addedQuery;
+  const sqlQuery = `INSERT INTO BlogPosts (title, body, postId, authorId, authorName, heroImageId, heroImageUrl) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+  const values = [title, body, postId, authorId, authorName, heroImageId, heroImageUrl];
 
 
   const result = await executeAndEndSet500OnError(

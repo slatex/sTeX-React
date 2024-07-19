@@ -14,7 +14,7 @@ export default async function handler(
         [],
         res
       );
-    
+      if (!cdnImages) return;
       res.status(200).json(cdnImages);
   
   }
