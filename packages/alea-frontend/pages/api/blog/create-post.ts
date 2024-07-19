@@ -14,11 +14,30 @@ export default async function handler(
   if (!isModerator(userId)) {
     return res.status(403).send({ message: 'Unauthorized.' });
   }
-  const { title, body, postId, authorId, authorName } = req.body;
+  const { title, body, postId, authorId, authorName, heroImageId, heroImageUrl } = req.body;
+
+  let sqlQuery = `INSERT INTO BlogPosts (title, body, postId, authorId, authorName`
+  let addedQuery = `) VALUES (?, ?, ?, ?, ?`;
+  let values = [title, body, postId, authorId, authorName];
+
+  if (heroImageId) {
+    sqlQuery += `, heroImageId`;
+    addedQuery += `, ?`;
+    values.push(heroImageId);
+  }
+  if (heroImageUrl) {
+    sqlQuery += `, heroImageUrl`;
+    addedQuery += `, ?`;
+    values.push(heroImageUrl);
+  }
+
+  addedQuery += `)`;
+  sqlQuery += addedQuery;
+
 
   const result = await executeAndEndSet500OnError(
-    `INSERT INTO BlogPosts (title, body, postId, authorId, authorName) VALUES (?, ?, ?, ?, ?)`,
-    [title, body, postId, authorId, authorName],
+    sqlQuery,
+    values,
     res
   );
 

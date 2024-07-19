@@ -12,6 +12,7 @@ import {
   UpdateQuestionStateRequest,
   UserInformation,
   UserSignUpDetail,
+  CdnImageMetadata,
 } from './comment';
 import { getAuthHeaders, logoutAndGetToLoginPage } from './lms';
 
@@ -210,7 +211,9 @@ export async function createBlogPost(
   body: string,
   postId: string,
   authorId: string,
-  authorName: string
+  authorName: string,
+  heroImageId?: string,
+  heroImageUrl?: string,
 ) {
   return await axios.post(
     '/api/blog/create-post',
@@ -220,6 +223,8 @@ export async function createBlogPost(
       postId,
       authorId,
       authorName,
+      heroImageId,
+      heroImageUrl
     },
     { headers: getAuthHeaders() }
   );
@@ -260,4 +265,24 @@ export async function deleteBlogPost(postId: string) {
     { postId },
     { headers: getAuthHeaders() }
   );
+}
+
+export async function uploadCdnImage(imageBase64: string): Promise<object> {
+  const response = await axios.post("/api/blog/upload-cdn-image", {
+    image: imageBase64,
+  });
+  if (response.data) {
+    return response.data;
+  } else {
+    throw new Error("Failed to upload image");
+  }
+}
+
+export async function getCdnImages(): Promise<CdnImageMetadata[]> {
+  const res = (await axios.get('/api/blog/get-cdn-images')).data;
+  const values: CdnImageMetadata [] = res.map((val: any) => {
+    return JSON.parse(val.metadata);
+  });
+  console.log(values);
+  return values;
 }
