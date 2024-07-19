@@ -21,21 +21,17 @@ function generatePostId(title: string): string {
 }
 
 const NewPostPage: NextPage = () => {
+  const draft_blogTitle = 'draft-blogTitle';
+  const draft_blogBody = 'draft-blogBody';
   const router = useRouter();
   const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
-  const [title, setTitle] = useState('');
-  const [body, setBody] = useState('');
+  const [title, setTitle] = useState(
+    localStore?.getItem(draft_blogTitle) ?? ''
+  );
+  const [body, setBody] = useState(localStore?.getItem(draft_blogBody) ?? '');
   const postId = generatePostId(title);
 
-  if (title) localStore.setItem('blogTitle', title);
-  if (body) localStore.setItem('blogBody', body);
-
   useEffect(() => {
-    const savedTitle = localStore.getItem('blogTitle');
-    const savedBody = localStore.getItem('blogBody');
-    if (savedTitle) setTitle(savedTitle);
-    if (savedBody) setBody(savedBody);
-
     const fetchDataAndCheckModerator = async () => {
       const info = await getUserInfo();
       setUserInfo(info);
@@ -85,6 +81,7 @@ const NewPostPage: NextPage = () => {
               value={title}
               onValueChange={(v) => {
                 setTitle(v);
+                localStore.setItem(draft_blogTitle, title);
               }}
               name="title_input"
               placeholder="Title of your blog post"
@@ -93,7 +90,10 @@ const NewPostPage: NextPage = () => {
           </Box>
           <MystEditor
             value={body}
-            onValueChange={(v) => setBody(v)}
+            onValueChange={(v) => {
+              setBody(v);
+              localStore.setItem(draft_blogBody, body);
+            }}
             name="body_input"
             minRows={20}
             placeholder="content of your blog post"
