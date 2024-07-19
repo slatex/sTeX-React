@@ -1,15 +1,21 @@
-import { Box, Button, TextField, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, TextField, Typography } from '@mui/material';
 import {
+  CdnImageMetadata,
   UserInfo,
   createBlogPost,
+  getCdnImages,
   getUserInfo,
   isModerator,
+  uploadCdnImage,
 } from '@stex-react/api';
+import { MystEditor } from '@stex-react/myst';
+import { localStore } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
 import { MystEditor } from '@stex-react/myst';
+import ImageCard from 'packages/alea-frontend/components/ImageCard';
 
 function generatePostId(title: string): string {
   return title
@@ -20,11 +26,53 @@ function generatePostId(title: string): string {
 }
 
 const NewPostPage: NextPage = () => {
+  const draft_blogTitle = 'draft-blogTitle';
+  const draft_blogBody = 'draft-blogBody';
   const router = useRouter();
   const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
-  const [title, setTitle] = useState('');
-  const [body, setBody] = useState('');
+  const [title, setTitle] = useState(
+    localStore?.getItem(draft_blogTitle) ?? ''
+  );
+  const [body, setBody] = useState(localStore?.getItem(draft_blogBody) ?? '');
   const postId = generatePostId(title);
+  const [imageUploadResponses, setImageUploadResponses] = useState<
+    CdnImageMetadata[] | {}[]
+  >([]);
+  const [heroImageUrl, setHeroImageUrl] = useState("");
+
+
+  const handleImagesUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onloadend = async () => {
+      try {
+        const base64Image = (reader.result as string).split(",")[1];
+        const response: CdnImageMetadata | {} = await uploadCdnImage(
+          base64Image
+        );
+        console.log(response);
+        setImageUploadResponses((prev) => [...prev, response]);
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        alert("Failed to upload image. Please try again.");
+      }
+    };
+  };
+
+  const loadImages = async () => {
+    const data = await getCdnImages();
+    setImageUploadResponses(data);
+  }
+
+  useEffect(() => {
+    loadImages();
+  }, []);
+
 
   useEffect(() => {
     const fetchDataAndCheckModerator = async () => {
@@ -34,24 +82,36 @@ const NewPostPage: NextPage = () => {
         router.push('/blog');
       }
     };
-
     fetchDataAndCheckModerator();
   }, [router]);
+
   const handleSubmit = async () => {
     await createBlogPost(
       title,
       body,
       postId,
       userInfo?.userId,
-      userInfo?.fullName
+      userInfo?.fullName,
+      imageUploadResponses[imageUploadResponses.length - 1]['id'],
+      imageUploadResponses[imageUploadResponses.length - 1]['display_url'],
     );
     setTitle('');
     setBody('');
+    localStore.removeItem('blogTitle');
+    localStore.removeItem('blogBody');
     alert('Success!');
   };
 
   if (!userInfo) {
     return <Typography>Loading...</Typography>;
+  }
+
+  const getImageUrl = (e: any) => {
+    if(!e.target.value) return;
+    const res = imageUploadResponses.filter((data) => {
+      return data.id === e.target.value;
+    });
+    setHeroImageUrl(res[0]['display_url']);
   }
 
   return (
@@ -61,6 +121,32 @@ const NewPostPage: NextPage = () => {
           <Typography fontSize={24} m="10px 0px">
             Create Blog
           </Typography>
+          {imageUploadResponses.length > 0 && (
+            <Box
+              sx={{
+                padding: "20px",
+                margin: "10px 0px",
+                marginRight: "30px",
+                display: "flex",
+                gap: "10px",
+                overflowX: "auto",
+                boxShadow: "0 0 10px  gray",
+                borderRadius: "10px",
+              }}
+            >
+              {imageUploadResponses.map((data) => (
+                <ImageCard imageId={data.id} imageUrl={data.display_url} />
+              ))}
+            </Box>
+          )
+          }
+          <Box
+            sx={{
+              margin: "10px 0px"
+            }}>
+            <input type="file" accept="image/*" onChange={handleImagesUpload} />
+          </Box>
+
           <TextField
             label="postId"
             variant="outlined"
@@ -69,20 +155,56 @@ const NewPostPage: NextPage = () => {
             size="small"
             sx={{ mb: '20px' }}
           />
+          <TextField
+            label="HeroImage Url"
+            variant="outlined"
+            disabled
+            value={heroImageUrl}
+            size="small"
+            sx={{ mb: '20px' }}
+          />
           <Box mb="20px">
             <MystEditor
               value={title}
               onValueChange={(v) => {
                 setTitle(v);
+                localStore.setItem(draft_blogTitle, title);
               }}
               name="title_input"
               placeholder="Title of your blog post"
               defaultPreview={true}
             />
+            <Box
+            sx={{
+              gap:"10px",
+              mt:"10px",
+              display:'flex',
+              alignItems: 'center'
+            }}
+            >
+              <TextField
+                label="HeroImage Id"
+                variant="outlined"
+                size="small"
+                sx={{ mb: '20px', mr:'20px'}}
+                onChange={(e) => getImageUrl(e)}
+              />
+              <Box
+                component="img"
+                sx={{
+                  maxHeight: { xs: 100, md: 100 },
+                  maxWidth: { xs: 100, md: 100 },
+                }}
+                src={heroImageUrl}
+              />
+            </Box>
           </Box>
           <MystEditor
             value={body}
-            onValueChange={(v) => setBody(v)}
+            onValueChange={(v) => {
+              setBody(v);
+              localStore.setItem(draft_blogBody, body);
+            }}
             name="body_input"
             minRows={20}
             placeholder="content of your blog post"

@@ -39,7 +39,7 @@ export const MY_RENDERERS: Record<string, NodeRenderer> = {
         target="_blank"
         href={node.url}
         rel="noreferrer"
-        style={{ color: 'blue' }}
+        style={{ color: 'blue', display: 'inline-flex', alignItems: 'center' }}
       >
         <MyST ast={node.children} />
         <OpenInNewIcon />
