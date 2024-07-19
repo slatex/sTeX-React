@@ -80,12 +80,11 @@ const CreateACl: NextPage = () => {
 
 
   const handleUpdaterACLIdBlur = async () => {
-    if (updaterACLId) {
-      const isValidUpdater = await isValid(updaterACLId);
-      setIsUpdaterACLValid(isValidUpdater);
-    } else {
-      setIsUpdaterACLValid(null);
+    let isValidUpdater = !!updaterACLId;
+    if (isValidUpdater) {
+      isValidUpdater = updaterACLId === aclId || (await isValid(updaterACLId));
     }
+    setIsUpdaterACLValid(isValidUpdater);
   };
 
   return (

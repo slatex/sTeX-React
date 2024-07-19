@@ -14,11 +14,17 @@ export default async function handler(
   if (!isModerator(userId)) {
     return res.status(403).send({ message: 'Unauthorized.' });
   }
-  const { title, body, postId, authorId, authorName } = req.body;
+  const { title, body, postId, authorId, authorName, heroImageId, heroImageUrl } = req.body;
+
+  if(!heroImageId || !heroImageUrl) return;
+
+  const sqlQuery = `INSERT INTO BlogPosts (title, body, postId, authorId, authorName, heroImageId, heroImageUrl) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+  const values = [title, body, postId, authorId, authorName, heroImageId, heroImageUrl];
+
 
   const result = await executeAndEndSet500OnError(
-    `INSERT INTO BlogPosts (title, body, postId, authorId, authorName) VALUES (?, ?, ?, ?, ?)`,
-    [title, body, postId, authorId, authorName],
+    sqlQuery,
+    values,
     res
   );
 

@@ -83,7 +83,7 @@ CREATE TABLE userInfo (
     verificationToken VARCHAR(255),
     isVerified BOOLEAN,
     passwordResetToken VARCHAR(255),
-    passwordResetRequestTimestampMs BIGINT,
+    passwordResetRequestTimestampMs BIGINT
 );
 
 CREATE TABLE StudyBuddyUsers (
@@ -112,7 +112,14 @@ CREATE TABLE BlogPosts (
     authorId VARCHAR(100) NOT NULL,
     authorName VARCHAR(255) NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    heroImageId VARCHAR(255),
+    heroImageUrl VARCHAR(255),
+);
+
+CREATE TABLE CdnImages (
+    id VARCHAR(255) NOT NULL,
+    metadata JSON NOT NUll,
 );
 
 CREATE TABLE StudyBuddyConnections (
