@@ -148,6 +148,16 @@ CREATE TABLE ACLMembership(
     FOREIGN KEY (parentACLId) REFERENCES AccessControlList(id)
 );
 
+CREATE TABLE ResourceAccess(
+    resourceId VARCHAR(255) NOT NULL,
+    actionId VARCHAR(255) NOT NULL,
+    aclId VARCHAR(255) NOT NULL,
+    PRIMARY KEY (resourceId, actionId),
+    FOREIGN KEY(aclId) REFERENCES AccessControlList(id),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP    
+);
+
 ALTER TABLE StudyBuddyConnections ADD CONSTRAINT StudyBuddyConnections_fk0 FOREIGN KEY (senderId) REFERENCES StudyBuddyUsers(userId);
 ALTER TABLE StudyBuddyConnections ADD CONSTRAINT StudyBuddyConnections_fk1 FOREIGN KEY (receiverId) REFERENCES StudyBuddyUsers(userId);
 

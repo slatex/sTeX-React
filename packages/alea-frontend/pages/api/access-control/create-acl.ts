@@ -20,12 +20,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     !memberUserIds ||
     !memberACLIds
   ) {
-    console.log(!id);
-    console.log(!updaterACLId);
-    console.log(isOpen === null);
-    console.log(isOpen === undefined);
-    console.log(!memberUserIds);
-    console.log(!memberACLIds);
     return res.status(422).send('Missing required fields.');
   }
   const membersCount = memberUserIds.length
