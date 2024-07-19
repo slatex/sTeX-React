@@ -15,14 +15,19 @@ export default async function handler(
   const { aclId, resourceId, actionId } = req.body;
   if (!aclId || !resourceId || !actionId)
     return res.status(422).send('Missing required fields');
-  if (!(await isMemberOfAcl('sys-admin', userId as string))) {
-    return res.status(400).send('unauthorized');
+  if (!(await isMemberOfAcl('sys-org', userId as string))) {
+    return res.status(403).send('unauthorized');
   }
+  const query = `SELECT resourceId, actionId, aclId FROM resourceaccess WHERE resourceId = ? AND actionId = ? AND aclId = ?`;
+  const isExists : [{resourceId: string, actionId: string, aclId: string}] = await executeAndEndSet500OnError(query, [resourceId, actionId, aclId], res);
+  if(isExists.length>0) return res.status(409).send('already exists');
+
   const resourceQuery = `INSERT INTO resourceaccess (aclId, resourceId, actionId) VALUES (?, ?, ?)`;
-  await executeAndEndSet500OnError(
+  const result = await executeAndEndSet500OnError(
     resourceQuery,
     [aclId, resourceId, actionId],
     res
   );
-  return res.status(200).send('created');
+  if (!result) return;
+  res.status(200).send('created');
 }

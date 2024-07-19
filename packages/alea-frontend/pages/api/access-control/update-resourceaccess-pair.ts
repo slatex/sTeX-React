@@ -13,12 +13,13 @@ export default async function handler(
   if (!checkIfPostOrSetError(req, res)) return;
   const { aclId, resourceId, actionId } = req.body;
   const userId = await getUserIdOrSetError(req, res);
-  if (!(await isMemberOfAcl('sys-admin', userId))) {
-    return res.status(400).send('not valid');
+  if (!(await isMemberOfAcl('sys-org', userId))) {
+    res.status(403).send({message : 'not valid'});
   }
   if (!aclId || !resourceId || !actionId)
-    return res.status(422).send(`Missing params.`);
+   res.status(422).send(`Missing params.`);
   const query = `UPDATE resourceaccess SET aclId = ? WHERE resourceId = ? and actionId = ?`;
-  await executeAndEndSet500OnError(query, [aclId, resourceId, actionId], res);
-  res.status(200).send('updated');
+  const result  = await executeAndEndSet500OnError(query, [aclId, resourceId, actionId], res);
+  if(!result) return;
+  res.status(200).send({message : 'updated'});
 }

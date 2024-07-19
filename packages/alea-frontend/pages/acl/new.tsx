@@ -46,7 +46,6 @@ const CreateACl: NextPage = () => {
   const handleAddMemberACL = async (event: React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLElement>) => {
     if ((event.type === 'keydown' && (event as React.KeyboardEvent).key === 'Enter') || event.type === 'click') {
       const res = await isValid(tempMemberACL);
-      console.log(res);
       if (tempMemberACL && res) {
         setMemberACLIds([...memberACLIds, tempMemberACL]);
         setTempMemberACL('');

@@ -8,3 +8,11 @@ export interface AccessControlList {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface ResourceAction {
+  resourceId: string;
+  actionId: string;
+  aclId: string;
+  createdAt: string;
+  updatedAt: string;
+}

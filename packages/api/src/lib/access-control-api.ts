@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { AccessControlList } from './access-control';
+import { AccessControlList, ResourceAction } from './access-control';
 import { getAuthHeaders } from './lms';
 
 export async function getAllAclIds() : Promise<string[]> {
@@ -42,6 +42,26 @@ export async function recomputeMemberships() : Promise<number>{
   return data as number;
 }
 
+export async function createResourceAction(resourceData : CreateResourceAction) : Promise<void>{
+  await axios.post('/api/access-control/create-resourceaction', resourceData , { headers: getAuthHeaders() });
+}
+export async function updateResourceAction(resourceData : UpdateResourceAction) : Promise<void>{
+  await axios.post('/api/access-control/update-resourceaccess-pair', resourceData , { headers: getAuthHeaders() });
+}
+export async function deleteResourceAction(resourceId : string, actionId : string) : Promise<void>{
+  await axios.post('/api/access-control/delete-resourceaction', { resourceId, actionId }, { headers: getAuthHeaders() });
+}
+
+export async function getAllResourceActions() : Promise<ResourceAction[]>{
+  const {data} = await axios.get('/api/access-control/get-all-resourceacces-pairs', { headers: getAuthHeaders() });
+  return data as ResourceAction[];
+}
+
+export async function canAccessResource() : Promise<boolean> {
+  const {data} = await axios.get('/api/access-control/can-access-resource', { headers: getAuthHeaders() });
+  return data as boolean;
+}
+
 export type UpdateACLRequest = Omit<
   AccessControlList,
    'updatedAt'|'createdAt'
@@ -49,5 +69,14 @@ export type UpdateACLRequest = Omit<
 
 export type CreateACLRequest = Omit<
   AccessControlList,
+  'createdAt' | 'updatedAt'
+>;
+
+export type CreateResourceAction = Omit<
+  ResourceAction,
+  'createdAt' | 'updatedAt'
+>;
+export type UpdateResourceAction = Omit<
+  ResourceAction,
   'createdAt' | 'updatedAt'
 >;

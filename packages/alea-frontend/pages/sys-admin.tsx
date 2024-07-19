@@ -22,7 +22,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import CheckIcon from '@mui/icons-material/Check';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { getAuthHeaders, recomputeMemberships } from '@stex-react/api';
+import { createResourceAction, deleteResourceAction, getAllResourceActions, getAuthHeaders, isValid, recomputeMemberships, UpdateResourceAction, updateResourceAction } from '@stex-react/api';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
@@ -33,25 +33,19 @@ const SysAdmin: NextPage = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState('');
   const [resourceActions, setResourceActions] = useState([]);
-  const [editing, setEditing] = useState<{
-    aclId: string;
-    actionId: string;
-    resourceId: string;
-  } | null>(null);
+  const [isRecomputing, setIsRecomputing] = useState<boolean>(false);
+  const [editing, setEditing] = useState<UpdateResourceAction | null>(null);
   const [newAclId, setNewAclId] = useState<string | null>('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteResource, setDeleteResource] = useState<{
     resourceId: string;
     actionId: string;
-  } | null>(null);
+  }| null>(null);
 
   useEffect(() => {
     async function getAllResources() {
       try {
-        const { data } = await axios.get(
-          '/api/access-control/get-all-resourceacces-pairs',
-          { headers: getAuthHeaders() }
-        );
+        const data = await getAllResourceActions();
         setResourceActions(data);
       } catch (e) {
         console.error(e);
@@ -62,21 +56,19 @@ const SysAdmin: NextPage = () => {
 
   async function handleRecomputeClick() {
     try {
+      setIsRecomputing(true);
       await recomputeMemberships();
-      // router.push('/');
+      setIsRecomputing(false);
     } catch (e) {
       console.log(e);
+      setIsRecomputing(false);
     }
   }
   async function handleCreateClick() {
     if (!aclId || !resourceId || !actionId) return;
     try {
       setIsSubmitting(true);
-      await axios.post(
-        '/api/access-control/create-resourceaction',
-        { aclId, resourceId, actionId },
-        { headers: getAuthHeaders() }
-      );
+      await createResourceAction({ aclId, resourceId, actionId });
       setResourceActions((prev) => [
         ...prev,
         {
@@ -101,11 +93,11 @@ const SysAdmin: NextPage = () => {
 
   async function handleUpdateClick(resourceId: string, actionId: string) {
     try {
-      await axios.post(
-        '/api/access-control/update-resourceaccess-pair',
-        { aclId: newAclId, resourceId, actionId },
-        { headers: getAuthHeaders() }
-      );
+      if(!await isValid(newAclId)){
+        setError('Invalid ACL');
+        return;
+      }
+      await updateResourceAction({ resourceId, actionId, aclId: newAclId });
       setEditing(null);
       setNewAclId('');
       setError('');
@@ -125,11 +117,7 @@ const SysAdmin: NextPage = () => {
     aclId,
     actionId,
     resourceId,
-  }: {
-    aclId: string;
-    actionId: string;
-    resourceId: string;
-  }) => {
+  }:UpdateResourceAction) => {
     setEditing({ aclId, actionId, resourceId });
     setNewAclId(aclId);
   };
@@ -142,16 +130,9 @@ const SysAdmin: NextPage = () => {
     setDeleteDialogOpen(false);
     setDeleteResource(null);
   }
-  function handleDeleteConfirm() {
+  async function handleDeleteConfirm() {
     try {
-      axios.post(
-        '/api/access-control/delete-resourceaction',
-        {
-          resourceId: deleteResource?.resourceId,
-          actionId: deleteResource?.actionId,
-        },
-        { headers: getAuthHeaders() }
-      );
+      await deleteResourceAction(deleteResource?.resourceId, deleteResource?.actionId);
       setResourceActions((prev) =>
         prev.filter(
           (entry) =>
@@ -175,6 +156,7 @@ const SysAdmin: NextPage = () => {
         }}
         variant="contained"
         color="primary"
+        disabled={isRecomputing}
         onClick={() => handleRecomputeClick()}
       >
         Recompute Memberships
@@ -254,10 +236,12 @@ const SysAdmin: NextPage = () => {
                 <TableCell>{entry.resourceId}</TableCell>
                 <TableCell>{entry.actionId}</TableCell>
                 <TableCell>
-                  {error && (
-                    <Typography color="error" mb="20px">
-                      {error}
-                    </Typography>
+                  {error && editing?.aclId === entry.aclId &&
+                   editing?.resourceId === entry.resourceId &&
+                   editing?.actionId === entry.actionId && (
+                  <Typography color="error" pb="5px" variant="body2" sx={{ fontSize: '0.8rem' }}>
+                    {error}
+                  </Typography>
                   )}
                   {editing?.aclId === entry.aclId &&
                   editing?.resourceId === entry.resourceId &&

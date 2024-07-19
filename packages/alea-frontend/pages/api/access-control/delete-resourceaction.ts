@@ -12,12 +12,13 @@ export default async function handler(
 ) {
   if (!checkIfPostOrSetError(req, res)) return;
   const userId = await getUserIdOrSetError(req, res);
-  if (!(await isMemberOfAcl('sys-admin', userId))) {
-    return res.status(400).send('not valid');
+  if (!(await isMemberOfAcl('sys-org', userId))) {
+    return res.status(403).send({message : 'Unauthorized'});
   }
   const { resourceId, actionId } = req.body;
   if (!resourceId) return res.status(422).send('Missing resourceId');
   const query = `DELETE FROM resourceaccess WHERE resourceId = ? and actionId = ?`;
-  await executeAndEndSet500OnError(query, [resourceId, actionId], res);
-  return res.status(200).send('deleted');
+  const result = await executeAndEndSet500OnError(query, [resourceId, actionId], res);
+  if(!result) return;
+  return res.status(200).send({message : 'deleted'});
 }
