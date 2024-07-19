@@ -5,11 +5,12 @@ import {
   getUserInfo,
   isModerator,
 } from '@stex-react/api';
+import { MystEditor } from '@stex-react/myst';
+import { localStore } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
-import { MystEditor } from '@stex-react/myst';
 
 function generatePostId(title: string): string {
   return title
@@ -26,7 +27,15 @@ const NewPostPage: NextPage = () => {
   const [body, setBody] = useState('');
   const postId = generatePostId(title);
 
+  if (title) localStore.setItem('blogTitle', title);
+  if (body) localStore.setItem('blogBody', body);
+
   useEffect(() => {
+    const savedTitle = localStore.getItem('blogTitle');
+    const savedBody = localStore.getItem('blogBody');
+    if (savedTitle) setTitle(savedTitle);
+    if (savedBody) setBody(savedBody);
+
     const fetchDataAndCheckModerator = async () => {
       const info = await getUserInfo();
       setUserInfo(info);
@@ -34,9 +43,9 @@ const NewPostPage: NextPage = () => {
         router.push('/blog');
       }
     };
-
     fetchDataAndCheckModerator();
   }, [router]);
+
   const handleSubmit = async () => {
     await createBlogPost(
       title,
@@ -47,6 +56,8 @@ const NewPostPage: NextPage = () => {
     );
     setTitle('');
     setBody('');
+    localStore.removeItem('blogTitle');
+    localStore.removeItem('blogBody');
     alert('Success!');
   };
 
