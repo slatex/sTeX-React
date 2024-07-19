@@ -8,6 +8,8 @@ import {
   isModerator,
   uploadCdnImage,
 } from '@stex-react/api';
+import { MystEditor } from '@stex-react/myst';
+import { localStore } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -24,10 +26,14 @@ function generatePostId(title: string): string {
 }
 
 const NewPostPage: NextPage = () => {
+  const draft_blogTitle = 'draft-blogTitle';
+  const draft_blogBody = 'draft-blogBody';
   const router = useRouter();
   const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
-  const [title, setTitle] = useState('');
-  const [body, setBody] = useState('');
+  const [title, setTitle] = useState(
+    localStore?.getItem(draft_blogTitle) ?? ''
+  );
+  const [body, setBody] = useState(localStore?.getItem(draft_blogBody) ?? '');
   const postId = generatePostId(title);
   const [imageUploadResponses, setImageUploadResponses] = useState<
     CdnImageMetadata[] | {}[]
@@ -76,7 +82,6 @@ const NewPostPage: NextPage = () => {
         router.push('/blog');
       }
     };
-
     fetchDataAndCheckModerator();
   }, [router]);
 
@@ -92,6 +97,8 @@ const NewPostPage: NextPage = () => {
     );
     setTitle('');
     setBody('');
+    localStore.removeItem('blogTitle');
+    localStore.removeItem('blogBody');
     alert('Success!');
   };
 
@@ -161,6 +168,7 @@ const NewPostPage: NextPage = () => {
               value={title}
               onValueChange={(v) => {
                 setTitle(v);
+                localStore.setItem(draft_blogTitle, title);
               }}
               name="title_input"
               placeholder="Title of your blog post"
@@ -193,7 +201,10 @@ const NewPostPage: NextPage = () => {
           </Box>
           <MystEditor
             value={body}
-            onValueChange={(v) => setBody(v)}
+            onValueChange={(v) => {
+              setBody(v);
+              localStore.setItem(draft_blogBody, body);
+            }}
             name="body_input"
             minRows={20}
             placeholder="content of your blog post"
