@@ -22,9 +22,16 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import CheckIcon from '@mui/icons-material/Check';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { createResourceAction, deleteResourceAction, getAllResourceActions, getAuthHeaders, isValid, recomputeMemberships, UpdateResourceAction, updateResourceAction } from '@stex-react/api';
+import {
+  createResourceAction,
+  deleteResourceAction,
+  getAllResourceActions,
+  isValid,
+  recomputeMemberships,
+  UpdateResourceAction,
+  updateResourceAction,
+} from '@stex-react/api';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 
 const SysAdmin: NextPage = () => {
   const [aclId, setAclId] = useState<string | null>('');
@@ -40,7 +47,7 @@ const SysAdmin: NextPage = () => {
   const [deleteResource, setDeleteResource] = useState<{
     resourceId: string;
     actionId: string;
-  }| null>(null);
+  } | null>(null);
 
   useEffect(() => {
     async function getAllResources() {
@@ -93,7 +100,7 @@ const SysAdmin: NextPage = () => {
 
   async function handleUpdateClick(resourceId: string, actionId: string) {
     try {
-      if(!await isValid(newAclId)){
+      if (!(await isValid(newAclId))) {
         setError('Invalid ACL');
         return;
       }
@@ -113,11 +120,7 @@ const SysAdmin: NextPage = () => {
       setError(e.response.data.message);
     }
   }
-  const handleEditClick = ({
-    aclId,
-    actionId,
-    resourceId,
-  }:UpdateResourceAction) => {
+  const handleEditClick = ({ aclId, actionId, resourceId }: UpdateResourceAction) => {
     setEditing({ aclId, actionId, resourceId });
     setNewAclId(aclId);
   };
@@ -236,13 +239,19 @@ const SysAdmin: NextPage = () => {
                 <TableCell>{entry.resourceId}</TableCell>
                 <TableCell>{entry.actionId}</TableCell>
                 <TableCell>
-                  {error && editing?.aclId === entry.aclId &&
-                   editing?.resourceId === entry.resourceId &&
-                   editing?.actionId === entry.actionId && (
-                  <Typography color="error" pb="5px" variant="body2" sx={{ fontSize: '0.8rem' }}>
-                    {error}
-                  </Typography>
-                  )}
+                  {error &&
+                    editing?.aclId === entry.aclId &&
+                    editing?.resourceId === entry.resourceId &&
+                    editing?.actionId === entry.actionId && (
+                      <Typography
+                        color="error"
+                        pb="5px"
+                        variant="body2"
+                        sx={{ fontSize: '0.8rem' }}
+                      >
+                        {error}
+                      </Typography>
+                    )}
                   {editing?.aclId === entry.aclId &&
                   editing?.resourceId === entry.resourceId &&
                   editing?.actionId === entry.actionId ? (
@@ -263,25 +272,18 @@ const SysAdmin: NextPage = () => {
                   editing?.actionId === entry.actionId ? (
                     <IconButton
                       color="primary"
-                      onClick={() =>
-                        handleUpdateClick(entry.resourceId, entry.actionId)
-                      }
+                      onClick={() => handleUpdateClick(entry.resourceId, entry.actionId)}
                     >
                       <CheckIcon />
                     </IconButton>
                   ) : (
-                    <IconButton
-                      color="primary"
-                      onClick={() => handleEditClick(entry)}
-                    >
+                    <IconButton color="primary" onClick={() => handleEditClick(entry)}>
                       <EditIcon />
                     </IconButton>
                   )}
                   <IconButton
                     color="secondary"
-                    onClick={() =>
-                      handleDeleteClick(entry.resourceId, entry.actionId)
-                    }
+                    onClick={() => handleDeleteClick(entry.resourceId, entry.actionId)}
                   >
                     <DeleteIcon />
                   </IconButton>
