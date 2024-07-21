@@ -34,7 +34,8 @@ const NewPostPage: NextPage = () => {
   const [body, setBody] = useState(localStore?.getItem(DRAFT_BLOG_BODY_KEY) ?? '');
   const postId = generatePostId(title);
   const [imageUploadResponses, setImageUploadResponses] = useState<CdnImageMetadata[] | {}[]>([]);
-  const [heroImageUrl, setHeroImageUrl] = useState('');
+  const [heroImageUrl, setHeroImageUrl] = useState<string|undefined>(undefined);
+  const [heroImageId, setHeroImageId] = useState<string|undefined>(undefined);
 
   const handleImagesUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -82,8 +83,8 @@ const NewPostPage: NextPage = () => {
       postId,
       userInfo?.userId,
       userInfo?.fullName,
-      imageUploadResponses[imageUploadResponses.length - 1]['id'],
-      imageUploadResponses[imageUploadResponses.length - 1]['display_url']
+      heroImageId,
+      heroImageUrl
     );
     setTitle('');
     setBody('');
@@ -95,14 +96,6 @@ const NewPostPage: NextPage = () => {
   if (!userInfo) {
     return <Typography>Loading...</Typography>;
   }
-
-  const getImageUrl = (e: any) => {
-    if (!e.target.value) return;
-    const res = imageUploadResponses.filter((data) => {
-      return data.id === e.target.value;
-    });
-    setHeroImageUrl(res[0]['display_url']);
-  };
 
   return (
     <MainLayout>
@@ -173,7 +166,19 @@ const NewPostPage: NextPage = () => {
                 variant="outlined"
                 size="small"
                 sx={{ mb: '20px', mr: '20px' }}
-                onChange={(e) => getImageUrl(e)}
+                value={heroImageId}
+                onChange={(e) => {
+                  const imageId = e.target.value;
+                  const img = imageUploadResponses.find((data) => {
+                    return data.id === e.target.value;
+                  });
+                  if(!img) {
+                    setHeroImageId('');
+                    return;
+                  }
+                  setHeroImageId(imageId);
+                  setHeroImageUrl(img['display_url']);
+                }}
               />
               <Box
                 component="img"

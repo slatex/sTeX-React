@@ -23,7 +23,8 @@ export default async function handler(
     const data = response.data;
     if (!data.success) {
       console.error("imgbb upload error: ", data);
-      return res.status(500).send({message: "Error Uploading image to imgbb"});
+      console.error(JSON.stringify(data.error));
+      return res.status(500).send({message: "Error Uploading image to imgbb", data, e: "dff"});
     }
     const metadata = data.data;
 
@@ -38,7 +39,8 @@ export default async function handler(
     return res.status(200).json(metadata);
   } catch (error) {
     console.error("Error uploading image to imgbb:", error);
-    return res.status(500).json({ message: "Error uploading image to imgbb" });
+    console.error(JSON.stringify(error));
+    return res.status(500).json({ message: "Error uploading image to imgbb", error });
   }
 
 }

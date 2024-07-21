@@ -137,6 +137,9 @@ export interface BlogPost {
   body: string;
   authorId: string;
   postId: string;
+  heroImageId: string;
+  heroImageUrl: string;
+
   createdAt: string;
   updatedAt: string;
   authorName: string;
