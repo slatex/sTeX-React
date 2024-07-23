@@ -3,19 +3,16 @@ import { executeAndEndSet500OnError, getUserIdOrSetError } from '../comment-util
 import { isModerator } from '@stex-react/api';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  console.log('ds');
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
 
-  console.log('ds1');
   if (!isModerator(userId)) {
     return res.status(403).send({ message: 'Unauthorized.' });
   }
 
-  console.log('ds2');
-  const { title, body, postId, authorId, authorName, heroImageId, heroImageUrl } = req.body;
+  const { title, body, postId, authorId, authorName, heroImageId, heroImageUrl , heroImagePosition} = req.body;
 
-  const sqlQuery = `INSERT INTO BlogPosts (title, body, postId, authorId, authorName, heroImageId, heroImageUrl) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+  const sqlQuery = `INSERT INTO BlogPosts (title, body, postId, authorId, authorName, heroImageId, heroImageUrl , heroImagePosition) VALUES (?, ?, ?, ?, ?, ?, ? ,?)`;
   const values = [
     title,
     body,
@@ -24,6 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     authorName,
     heroImageId ?? null,
     heroImageUrl ?? null,
+    heroImagePosition ?? null,
   ];
 
   const result = await executeAndEndSet500OnError(sqlQuery, values, res);

@@ -50,11 +50,7 @@ export async function deleteComment(commentId: number) {
 }
 
 export async function getComments(files: FileLocation[]): Promise<Comment[]> {
-  const comments: Comment[] = await commentRequest(
-    `/api/get-comments`,
-    'POST',
-    { files }
-  );
+  const comments: Comment[] = await commentRequest(`/api/get-comments`, 'POST', { files });
   return comments;
 }
 
@@ -70,9 +66,7 @@ export async function getThreadsForCourseInstance(
   return comments;
 }
 
-export async function getCommentsForThread(
-  threadId: number
-): Promise<Comment[]> {
+export async function getCommentsForThread(threadId: number): Promise<Comment[]> {
   const comments: Comment[] = await commentRequest(
     `/api/get-comments-for-thread/${threadId}`,
     'GET'
@@ -110,11 +104,10 @@ export async function getCourseInstanceThreads(
   courseId: string,
   courseTerm: string
 ): Promise<Comment[]> {
-  const comments: Comment[] = await commentRequest(
-    `/api/get-course-instance-threads`,
-    'POST',
-    { courseId, courseTerm }
-  );
+  const comments: Comment[] = await commentRequest(`/api/get-course-instance-threads`, 'POST', {
+    courseId,
+    courseTerm,
+  });
   return comments;
 }
 
@@ -196,10 +189,7 @@ export async function resetPassword(
   });
 }
 
-export async function sendVerificationEmail(
-  userId: string,
-  verificationToken: string
-) {
+export async function sendVerificationEmail(userId: string, verificationToken: string) {
   return await axios.post('/api/send-verification-email', {
     userId,
     verificationToken,
@@ -214,6 +204,7 @@ export async function createBlogPost(
   authorName: string,
   heroImageId?: string,
   heroImageUrl?: string,
+  heroImagePosition?: string
 ) {
   return await axios.post(
     '/api/blog/create-post',
@@ -224,7 +215,8 @@ export async function createBlogPost(
       authorId,
       authorName,
       heroImageId,
-      heroImageUrl
+      heroImageUrl,
+      heroImagePosition,
     },
     { headers: getAuthHeaders() }
   );
@@ -250,27 +242,28 @@ export async function getPostById(
 export async function updateBlogPost(
   title: string,
   body: string,
+  heroImageId: string,
+  heroImageUrl: string,
+  heroImagePosition: string,
   postId: string
 ) {
   return await axios.post(
     '/api/blog/update-post',
-    { title, body, postId },
+    { title, body, heroImageId, heroImageUrl, postId, heroImagePosition },
     { headers: getAuthHeaders() }
   );
 }
 
 export async function deleteBlogPost(postId: string) {
-  return await axios.post(
-    '/api/blog/delete-post',
-    { postId },
-    { headers: getAuthHeaders() }
-  );
+  return await axios.post('/api/blog/delete-post', { postId }, { headers: getAuthHeaders() });
 }
 
 export async function uploadCdnImage(imageBase64: string): Promise<object> {
-  return (await axios.post("/api/blog/upload-cdn-image", {
-    image: imageBase64,
-  })).data;
+  return (
+    await axios.post('/api/blog/upload-cdn-image', {
+      image: imageBase64,
+    })
+  ).data;
 }
 
 export async function getCdnImages(): Promise<CdnImageMetadata[]> {
