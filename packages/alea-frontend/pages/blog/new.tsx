@@ -1,18 +1,20 @@
 import { Box, Button, TextField, Typography } from '@mui/material';
 import {
+  BlogPost,
   CdnImageMetadata,
   UserInfo,
   createBlogPost,
   getCdnImages,
   getUserInfo,
   isModerator,
+  updateBlogPost,
   uploadCdnImage,
 } from '@stex-react/api';
 import { MystEditor } from '@stex-react/myst';
 import { localStore } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import ImageCard from 'packages/alea-frontend/components/ImageCard';
+import ImageCard from '../../components/ImageCard';
 import { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
 
@@ -27,15 +29,33 @@ function generatePostId(title: string): string {
 const DRAFT_BLOG_TITLE_KEY = 'draft-blogTitle';
 const DRAFT_BLOG_BODY_KEY = 'draft-blogBody';
 
-const NewPostPage: NextPage = () => {
+export function EditPostComponent({ existingPost }: { existingPost?: BlogPost }) {
   const router = useRouter();
   const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
-  const [title, setTitle] = useState(localStore?.getItem(DRAFT_BLOG_TITLE_KEY) ?? '');
-  const [body, setBody] = useState(localStore?.getItem(DRAFT_BLOG_BODY_KEY) ?? '');
-  const postId = generatePostId(title);
+  const [title, setTitle] = useState(
+    existingPost?.title ?? localStore?.getItem(DRAFT_BLOG_TITLE_KEY) ?? ''
+  );
+  const [body, setBody] = useState(
+    existingPost?.body ?? localStore?.getItem(DRAFT_BLOG_BODY_KEY) ?? ''
+  );
+  const postId = existingPost ? existingPost.postId : generatePostId(title);
   const [imageUploadResponses, setImageUploadResponses] = useState<CdnImageMetadata[] | {}[]>([]);
-  const [heroImageUrl, setHeroImageUrl] = useState<string|undefined>(undefined);
-  const [heroImageId, setHeroImageId] = useState<string|undefined>(undefined);
+  const [heroImageUrl, setHeroImageUrl] = useState<string | undefined>(
+    existingPost?.heroImageUrl ?? undefined
+  );
+  const [heroImageId, setHeroImageId] = useState<string | undefined>(
+    existingPost?.heroImageId ?? undefined
+  );
+  const [heroImagePosition, setHeroImagePosition] = useState<string | undefined>(
+    existingPost?.heroImagePosition ?? undefined
+  );
+
+  const hasChanged =
+    title !== existingPost?.title ||
+    body !== existingPost?.body ||
+    heroImageId !== existingPost?.heroImageId ||
+    heroImageUrl !== existingPost?.heroImageUrl ||
+    heroImagePosition !== existingPost?.heroImagePosition;
 
   const handleImagesUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -47,7 +67,6 @@ const NewPostPage: NextPage = () => {
       try {
         const base64Image = (reader.result as string).split(',')[1];
         const response: CdnImageMetadata | {} = await uploadCdnImage(base64Image);
-        console.log(response);
         setImageUploadResponses((prev) => [...prev, response]);
       } catch (error) {
         console.error('Error uploading image:', error);
@@ -77,20 +96,26 @@ const NewPostPage: NextPage = () => {
   }, [router]);
 
   const handleSubmit = async () => {
-    await createBlogPost(
-      title,
-      body,
-      postId,
-      userInfo?.userId,
-      userInfo?.fullName,
-      heroImageId,
-      heroImageUrl
-    );
+    if (existingPost) {
+      await updateBlogPost(title, body, heroImageId, heroImageUrl, heroImagePosition, postId);
+    } else {
+      await createBlogPost(
+        title,
+        body,
+        postId,
+        userInfo?.userId,
+        userInfo?.fullName,
+        heroImageId,
+        heroImageUrl,
+        heroImagePosition
+      );
+    }
     setTitle('');
     setBody('');
     localStore.removeItem(DRAFT_BLOG_TITLE_KEY);
     localStore.removeItem(DRAFT_BLOG_BODY_KEY);
     alert('Success!');
+    router.push('/blog');
   };
 
   if (!userInfo) {
@@ -98,11 +123,11 @@ const NewPostPage: NextPage = () => {
   }
 
   return (
-    <MainLayout>
+    <>
       <Box mx="10px">
         <Box width="100%" m="0px 20px">
           <Typography fontSize={24} m="10px 0px">
-            Create Blog
+            {existingPost ? 'Edit Post' : 'Create Post'}
           </Typography>
           {imageUploadResponses.length > 0 && (
             <Box
@@ -118,7 +143,7 @@ const NewPostPage: NextPage = () => {
               }}
             >
               {imageUploadResponses.map((data) => (
-                <ImageCard imageId={data.id} imageUrl={data.display_url} />
+                <ImageCard imageId={data.id} imageUrl={data.display_url} key={data.id} />
               ))}
             </Box>
           )}
@@ -155,39 +180,57 @@ const NewPostPage: NextPage = () => {
             />
             <Box
               sx={{
-                gap: '10px',
                 mt: '10px',
                 display: 'flex',
+                gap: '300px',
                 alignItems: 'center',
+                flexWrap: 'wrap',
               }}
             >
-              <TextField
-                label="HeroImage Id"
-                variant="outlined"
-                size="small"
-                sx={{ mb: '20px', mr: '20px' }}
-                value={heroImageId}
-                onChange={(e) => {
-                  const imageId = e.target.value;
-                  const img = imageUploadResponses.find((data) => {
-                    return data.id === e.target.value;
-                  });
-                  if(!img) {
-                    setHeroImageId('');
-                    return;
-                  }
-                  setHeroImageId(imageId);
-                  setHeroImageUrl(img['display_url']);
-                }}
-              />
-              <Box
-                component="img"
-                sx={{
-                  maxHeight: { xs: 100, md: 100 },
-                  maxWidth: { xs: 100, md: 100 },
-                }}
-                src={heroImageUrl}
-              />
+              <Box sx={{ display: 'flex', flexDirection: 'column', width: '520px' }}>
+                <TextField
+                  label="HeroImage Id"
+                  variant="outlined"
+                  size="small"
+                  sx={{ mb: '20px', mr: '20px', width: '100%' }}
+                  value={heroImageId}
+                  onChange={(e) => {
+                    const imageId = e.target.value;
+                    const img = imageUploadResponses.find((data) => {
+                      return data.id === e.target.value;
+                    });
+                    if (!img) {
+                      setHeroImageId('');
+                      return;
+                    }
+                    setHeroImageId(imageId);
+                    setHeroImageUrl(img['display_url']);
+                  }}
+                />
+                <TextField
+                  value={heroImagePosition}
+                  label="Object Position (e.g. 0 25%)"
+                  variant="outlined"
+                  size="small"
+                  onChange={(e) => setHeroImagePosition(e.target.value)}
+                  error={!heroImageId}
+                  sx={{ width: '100%' }}
+                />
+              </Box>
+              {heroImageId && (
+                <Box sx={{ width: '520px', display: 'flex', justifyContent: 'center' }}>
+                  <img
+                    src={heroImageUrl}
+                    style={{
+                      height: '200px',
+                      width: '100%',
+                      objectFit: 'cover',
+                      objectPosition: heroImagePosition,
+                    }}
+                    alt="hero image"
+                  />
+                </Box>
+              )}
             </Box>
           </Box>
           <MystEditor
@@ -201,11 +244,24 @@ const NewPostPage: NextPage = () => {
             placeholder="content of your blog post"
             defaultPreview={true}
           />
-          <Button sx={{ m: '20px' }} variant="contained" color="primary" onClick={handleSubmit}>
-            Submit
+          <Button
+            sx={{ m: '20px' }}
+            variant="contained"
+            color="primary"
+            onClick={handleSubmit}
+            disabled={!hasChanged}
+          >
+            {existingPost ? 'Update Post' : 'Create Post'}
           </Button>
         </Box>
       </Box>
+    </>
+  );
+}
+const NewPostPage: NextPage = () => {
+  return (
+    <MainLayout>
+      <EditPostComponent />
     </MainLayout>
   );
 };

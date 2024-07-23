@@ -8,10 +8,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!isModerator(userId)) {
     return res.status(403).send({ message: 'Unauthorized.' });
   }
-  const { title, body, postId, heroImageId, heroImageUrl } = req.body;
+  const { title, body, postId, heroImageId, heroImageUrl, heroImagePosition } = req.body;
   const result = await executeAndEndSet500OnError(
-    `UPDATE BlogPosts SET title = ?, body = ?, heroImageId = ?, heroImageUrl = ? WHERE postId = ?`,
-    [title, body, heroImageId ?? null, heroImageUrl ?? null, postId],
+    `UPDATE BlogPosts SET title = ?, body = ?, heroImageId = ?, heroImageUrl = ? , heroImagePosition = ? WHERE postId = ?`,
+    [title, body, heroImageId ?? null, heroImageUrl ?? null, heroImagePosition ?? null, postId],
     res
   );
 

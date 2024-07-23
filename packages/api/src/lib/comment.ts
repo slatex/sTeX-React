@@ -139,6 +139,7 @@ export interface BlogPost {
   postId: string;
   heroImageId: string;
   heroImageUrl: string;
+  heroImagePosition:string;
 
   createdAt: string;
   updatedAt: string;
@@ -148,9 +149,9 @@ export interface BlogPost {
 export interface PostSnippet {
   postId: string;
   title: string;
-  bodySnippet: string;
   authorName: string;
   createdAt: string;
+  heroImageUrl: string;
 }
 
 export interface CdnImage {
