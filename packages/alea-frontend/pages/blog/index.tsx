@@ -73,7 +73,7 @@ const BlogHomePage: NextPage = ({ postSnippets }: { postSnippets: PostSnippet[] 
                 },
               }}
             >
-              <img src={snippet.heroImageUrl} alt="hero image" height="300px" width="100%" />
+              <img src={snippet.heroImageUrl} alt="hero image" height="300px" width="100%" style={{objectFit: "cover", objectPosition: snippet.heroImagePosition}} />
               <MystViewer content={snippet.title} />
               <Box
                 display="flex"
@@ -108,6 +108,7 @@ function convertToPostSnippets(blogData: BlogPost[]): PostSnippet[] {
       authorName: snippet.authorName,
       createdAt: snippet.createdAt,
       heroImageUrl: snippet.heroImageUrl,
+      heroImagePosition: snippet.heroImagePosition,
     };
   });
 }
