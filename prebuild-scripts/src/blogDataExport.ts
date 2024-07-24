@@ -28,7 +28,7 @@ export function exportBlogPost() {
   }
   fs.mkdirSync(staticDataDir, { recursive: true });
 
-  db.query('SELECT * FROM BlogPosts', []).then((results: any[]) => {
+  db.query('SELECT * FROM BlogPosts ORDER BY createdAt DESC', []).then((results: any[]) => {
     const jsonData = JSON.stringify(results, null, 2);
 
     fs.writeFile(BLOG_INFO_FILEPATH, jsonData, (err) => {

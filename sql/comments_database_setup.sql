@@ -111,8 +111,17 @@ CREATE TABLE BlogPosts (
     body TEXT NOT NULL,
     authorId VARCHAR(100) NOT NULL,
     authorName VARCHAR(255) NOT NULL,
+    heroImageId VARCHAR(255),
+    heroImageUrl VARCHAR(255),
+    heroImagePosition VARCHAR(255),
+
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE CdnImages (
+    id VARCHAR(255) NOT NULL,
+    metadata JSON NOT NUll
 );
 
 CREATE TABLE StudyBuddyConnections (

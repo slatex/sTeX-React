@@ -13,11 +13,7 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
-const BlogHomePage: NextPage = ({
-  postSnippets,
-}: {
-  postSnippets: PostSnippet[];
-}) => {
+const BlogHomePage: NextPage = ({ postSnippets }: { postSnippets: PostSnippet[] }) => {
   const router = useRouter();
   const [userInfo, setUserInfo] = useState<UserInfo>(null);
   const [snippets, setSnippets] = useState<PostSnippet[]>(postSnippets);
@@ -52,10 +48,7 @@ const BlogHomePage: NextPage = ({
               ALeA Blog
             </Typography>
             {isModerator(userInfo?.userId) && (
-              <Button
-                onClick={() => router.push('/blog/new')}
-                variant="contained"
-              >
+              <Button onClick={() => router.push('/blog/new')} variant="contained">
                 create new blog
               </Button>
             )}
@@ -64,10 +57,13 @@ const BlogHomePage: NextPage = ({
             <Box
               key={snippet.postId}
               border="1px solid #CCC"
-              p="10px"
+              p="20px"
               m="20px"
               onClick={() => router.push(`/blog/${snippet.postId}`)}
               sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
                 cursor: 'pointer',
                 borderRadius: '10px',
                 boxShadow: '0px 0px 10px #CCC',
@@ -75,16 +71,17 @@ const BlogHomePage: NextPage = ({
                 '&:hover': {
                   transform: 'scale(1.03)',
                 },
-                backgroundImage: 'radial-gradient(white,lightgray)',
               }}
             >
+              <img src={snippet.heroImageUrl} alt="hero image" height="300px" width="100%" style={{objectFit: "cover", objectPosition: snippet.heroImagePosition}} />
               <MystViewer content={snippet.title} />
-              <MystViewer content={snippet.bodySnippet.concat('...')} />
               <Box
                 display="flex"
+                flexDirection={'row'}
                 justifyContent="space-between"
                 alignItems="center"
                 height="20px"
+                width="100%"
               >
                 <Typography fontSize={12} textAlign={'right'}>
                   {snippet.createdAt.split('T')[0]}
@@ -108,9 +105,10 @@ function convertToPostSnippets(blogData: BlogPost[]): PostSnippet[] {
     return {
       postId: snippet.postId,
       title: snippet.title,
-      bodySnippet: snippet.body.slice(0, 100),
       authorName: snippet.authorName,
       createdAt: snippet.createdAt,
+      heroImageUrl: snippet.heroImageUrl,
+      heroImagePosition: snippet.heroImagePosition,
     };
   });
 }

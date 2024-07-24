@@ -106,6 +106,15 @@ const BlogPostPage: NextPage = ({ post }: { post: BlogPost }) => {
           >
             <MystViewer content={blogPost.title} />
             <hr />
+            {blogPost.heroImageUrl && (
+              <img
+                src={blogPost.heroImageUrl}
+                height={300}
+                width="100%"
+                style={{ objectFit: 'cover' }}
+                alt="post_banner"
+              />
+            )}
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Typography sx={{ display: 'flex', alignItems: 'center' }}>
                 <MystViewer content={blogPost.authorName} />
@@ -121,9 +130,7 @@ const BlogPostPage: NextPage = ({ post }: { post: BlogPost }) => {
       <Dialog open={deleteDialogOpen} onClose={toggleDeleteDialogOpen}>
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Are you sure you want to delete this post?
-          </DialogContentText>
+          <DialogContentText>Are you sure you want to delete this post?</DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={toggleDeleteDialogOpen}>Cancel</Button>
@@ -147,17 +154,11 @@ export async function getStaticPaths() {
   return { paths, fallback: true };
 }
 
-export async function getStaticProps({
-  params,
-}: {
-  params: { postId: string };
-}) {
+export async function getStaticProps({ params }: { params: { postId: string } }) {
   try {
     const data = fs.readFileSync('../../static/blogData.json', 'utf-8');
     const jsonData = JSON.parse(data);
-    const post = jsonData.find(
-      (blog: BlogPost) => blog.postId === params.postId
-    );
+    const post = jsonData.find((blog: BlogPost) => blog.postId === params.postId);
     if (!post) {
       return { props: { post: null } };
     }

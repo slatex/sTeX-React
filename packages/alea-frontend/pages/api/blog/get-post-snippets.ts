@@ -7,7 +7,7 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const posts: PostSnippet[] = await executeDontEndSet500OnError(
-    `SELECT postId, title, SUBSTRING(body, 1, 100) AS bodySnippet, authorName, createdAt 
+    `SELECT postId, title, authorName, createdAt, heroImageUrl, heroImagePosition
     FROM BlogPosts
     ORDER BY createdAt DESC`,
     [],

@@ -1,15 +1,22 @@
 import { Box, Button, TextField, Typography } from '@mui/material';
 import {
+  BlogPost,
+  CdnImageMetadata,
   UserInfo,
   createBlogPost,
+  getCdnImages,
   getUserInfo,
   isModerator,
+  updateBlogPost,
+  uploadCdnImage,
 } from '@stex-react/api';
+import { MystEditor } from '@stex-react/myst';
+import { localStore } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
+import ImageCard from '../../components/ImageCard';
 import { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
-import { MystEditor } from '@stex-react/myst';
 
 function generatePostId(title: string): string {
   return title
@@ -19,12 +26,63 @@ function generatePostId(title: string): string {
     .replace(/ /g, '-');
 }
 
-const NewPostPage: NextPage = () => {
+const DRAFT_BLOG_TITLE_KEY = 'draft-blogTitle';
+const DRAFT_BLOG_BODY_KEY = 'draft-blogBody';
+
+export function EditPostComponent({ existingPost }: { existingPost?: BlogPost }) {
   const router = useRouter();
   const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
-  const [title, setTitle] = useState('');
-  const [body, setBody] = useState('');
-  const postId = generatePostId(title);
+  const [title, setTitle] = useState(
+    existingPost?.title ?? localStore?.getItem(DRAFT_BLOG_TITLE_KEY) ?? ''
+  );
+  const [body, setBody] = useState(
+    existingPost?.body ?? localStore?.getItem(DRAFT_BLOG_BODY_KEY) ?? ''
+  );
+  const postId = existingPost ? existingPost.postId : generatePostId(title);
+  const [imageUploadResponses, setImageUploadResponses] = useState<CdnImageMetadata[] | {}[]>([]);
+  const [heroImageUrl, setHeroImageUrl] = useState<string | undefined>(
+    existingPost?.heroImageUrl ?? undefined
+  );
+  const [heroImageId, setHeroImageId] = useState<string | undefined>(
+    existingPost?.heroImageId ?? undefined
+  );
+  const [heroImagePosition, setHeroImagePosition] = useState<string | undefined>(
+    existingPost?.heroImagePosition ?? undefined
+  );
+
+  const hasChanged =
+    title !== existingPost?.title ||
+    body !== existingPost?.body ||
+    heroImageId !== existingPost?.heroImageId ||
+    heroImageUrl !== existingPost?.heroImageUrl ||
+    heroImagePosition !== existingPost?.heroImagePosition;
+
+  const handleImagesUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onloadend = async () => {
+      try {
+        const base64Image = (reader.result as string).split(',')[1];
+        const response: CdnImageMetadata | {} = await uploadCdnImage(base64Image);
+        setImageUploadResponses((prev) => [...prev, response]);
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        alert('Failed to upload image. Please try again.');
+      }
+    };
+  };
+
+  const loadImages = async () => {
+    const data = await getCdnImages();
+    setImageUploadResponses(data);
+  };
+
+  useEffect(() => {
+    loadImages();
+  }, []);
 
   useEffect(() => {
     const fetchDataAndCheckModerator = async () => {
@@ -34,18 +92,30 @@ const NewPostPage: NextPage = () => {
         router.push('/blog');
       }
     };
-
     fetchDataAndCheckModerator();
   }, [router]);
+
   const handleSubmit = async () => {
-    await createBlogPost(
-      title,
-      body,
-      postId,
-    );
+    if (existingPost) {
+      await updateBlogPost(title, body, heroImageId, heroImageUrl, heroImagePosition, postId);
+    } else {
+      await createBlogPost(
+        title,
+        body,
+        postId,
+        userInfo?.userId,
+        userInfo?.fullName,
+        heroImageId,
+        heroImageUrl,
+        heroImagePosition
+      );
+    }
     setTitle('');
     setBody('');
+    localStore.removeItem(DRAFT_BLOG_TITLE_KEY);
+    localStore.removeItem(DRAFT_BLOG_BODY_KEY);
     alert('Success!');
+    router.push('/blog');
   };
 
   if (!userInfo) {
@@ -53,12 +123,34 @@ const NewPostPage: NextPage = () => {
   }
 
   return (
-    <MainLayout>
+    <>
       <Box mx="10px">
         <Box width="100%" m="0px 20px">
           <Typography fontSize={24} m="10px 0px">
-            Create Blog
+            {existingPost ? 'Edit Post' : 'Create Post'}
           </Typography>
+          {imageUploadResponses.length > 0 && (
+            <Box
+              sx={{
+                padding: '20px',
+                margin: '10px 0px',
+                marginRight: '30px',
+                display: 'flex',
+                gap: '10px',
+                overflowX: 'auto',
+                boxShadow: '0 0 10px  gray',
+                borderRadius: '10px',
+              }}
+            >
+              {imageUploadResponses.map((data) => (
+                <ImageCard imageId={data.id} imageUrl={data.display_url} key={data.id} />
+              ))}
+            </Box>
+          )}
+          <Box m="10px 0px">
+            <input type="file" accept="image/*" onChange={handleImagesUpload} />
+          </Box>
+
           <TextField
             label="postId"
             variant="outlined"
@@ -67,20 +159,86 @@ const NewPostPage: NextPage = () => {
             size="small"
             sx={{ mb: '20px' }}
           />
+          <TextField
+            label="HeroImage Url"
+            variant="outlined"
+            disabled
+            value={heroImageUrl}
+            size="small"
+            sx={{ mb: '20px' }}
+          />
           <Box mb="20px">
             <MystEditor
               value={title}
               onValueChange={(v) => {
                 setTitle(v);
+                localStore.setItem(DRAFT_BLOG_TITLE_KEY, title);
               }}
               name="title_input"
               placeholder="Title of your blog post"
               defaultPreview={true}
             />
+            <Box
+              sx={{
+                mt: '10px',
+                display: 'flex',
+                gap: '300px',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+              }}
+            >
+              <Box sx={{ display: 'flex', flexDirection: 'column', width: '520px' }}>
+                <TextField
+                  label="HeroImage Id"
+                  variant="outlined"
+                  size="small"
+                  sx={{ mb: '20px', mr: '20px', width: '100%' }}
+                  value={heroImageId}
+                  onChange={(e) => {
+                    const imageId = e.target.value;
+                    const img = imageUploadResponses.find((data) => {
+                      return data.id === e.target.value;
+                    });
+                    if (!img) {
+                      setHeroImageId('');
+                      return;
+                    }
+                    setHeroImageId(imageId);
+                    setHeroImageUrl(img['display_url']);
+                  }}
+                />
+                <TextField
+                  value={heroImagePosition}
+                  label="Object Position (e.g. 0 25%)"
+                  variant="outlined"
+                  size="small"
+                  onChange={(e) => setHeroImagePosition(e.target.value)}
+                  error={!heroImageId}
+                  sx={{ width: '100%' }}
+                />
+              </Box>
+              {heroImageId && (
+                <Box sx={{ width: '520px', display: 'flex', justifyContent: 'center' }}>
+                  <img
+                    src={heroImageUrl}
+                    style={{
+                      height: '200px',
+                      width: '100%',
+                      objectFit: 'cover',
+                      objectPosition: heroImagePosition,
+                    }}
+                    alt="hero image"
+                  />
+                </Box>
+              )}
+            </Box>
           </Box>
           <MystEditor
             value={body}
-            onValueChange={(v) => setBody(v)}
+            onValueChange={(v) => {
+              setBody(v);
+              localStore.setItem(DRAFT_BLOG_BODY_KEY, body);
+            }}
             name="body_input"
             minRows={20}
             placeholder="content of your blog post"
@@ -91,11 +249,19 @@ const NewPostPage: NextPage = () => {
             variant="contained"
             color="primary"
             onClick={handleSubmit}
+            disabled={!hasChanged}
           >
-            Submit
+            {existingPost ? 'Update Post' : 'Create Post'}
           </Button>
         </Box>
       </Box>
+    </>
+  );
+}
+const NewPostPage: NextPage = () => {
+  return (
+    <MainLayout>
+      <EditPostComponent />
     </MainLayout>
   );
 };

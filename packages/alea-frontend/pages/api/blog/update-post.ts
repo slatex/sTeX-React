@@ -6,10 +6,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const userId = await getUserIdIfAuthorizedOrSetError(req, res, blogResourceId(), Action.UPDATE);
   if (!userId) return res.status(403).send({ message: 'unauthorized' });
 
-  const { title, body, postId } = req.body;
+  const { title, body, postId, heroImageId, heroImageUrl, heroImagePosition } = req.body;
   const result = await executeAndEndSet500OnError(
-    `UPDATE BlogPosts SET title = ?, body = ? WHERE postId = ?`,
-    [title, body, postId],
+    `UPDATE BlogPosts SET title = ?, body = ?, heroImageId = ?, heroImageUrl = ? , heroImagePosition = ? WHERE postId = ?`,
+    [title, body, heroImageId ?? null, heroImageUrl ?? null, heroImagePosition ?? null, postId],
     res
   );
 

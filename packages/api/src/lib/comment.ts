@@ -137,6 +137,10 @@ export interface BlogPost {
   body: string;
   authorId: string;
   postId: string;
+  heroImageId: string;
+  heroImageUrl: string;
+  heroImagePosition: string;
+
   createdAt: string;
   updatedAt: string;
   authorName: string;
@@ -145,7 +149,38 @@ export interface BlogPost {
 export interface PostSnippet {
   postId: string;
   title: string;
-  bodySnippet: string;
   authorName: string;
   createdAt: string;
+  heroImageUrl: string;
+  heroImagePosition: string;
+}
+
+export interface CdnImage {
+  id: string,
+  metadata: CdnImageMetadata
+}
+
+export interface CdnImageMetadata {
+  id: string;
+  title: string;
+  url_viewer: string;
+  url: string;
+  display_url: string;
+  width: string;
+  height: string;
+  size: string;
+  time: string;
+  expiration: string;
+  image: Image;
+  thumb: Image;
+  medium: Image;
+  delete_url: string;
+}
+
+export interface Image {
+  filename: string;
+  name: string;
+  mime: string;
+  extension: string;
+  url: string;
 }

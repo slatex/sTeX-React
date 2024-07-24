@@ -12,6 +12,7 @@ import {
   UpdateQuestionStateRequest,
   UserInformation,
   UserSignUpDetail,
+  CdnImageMetadata,
 } from './comment';
 import { getAuthHeaders, logoutAndGetToLoginPage } from './lms';
 
@@ -195,13 +196,27 @@ export async function sendVerificationEmail(userId: string, verificationToken: s
   });
 }
 
-export async function createBlogPost(title: string, body: string, postId: string) {
+export async function createBlogPost(
+  title: string,
+  body: string,
+  postId: string,
+  authorId: string,
+  authorName: string,
+  heroImageId?: string,
+  heroImageUrl?: string,
+  heroImagePosition?: string
+) {
   return await axios.post(
     '/api/blog/create-post',
     {
       title,
       body,
       postId,
+      authorId,
+      authorName,
+      heroImageId,
+      heroImageUrl,
+      heroImagePosition,
     },
     { headers: getAuthHeaders() }
   );
@@ -224,14 +239,37 @@ export async function getPostById(
   return (await axios.get(apiUrl, { params: { postId } })).data;
 }
 
-export async function updateBlogPost(title: string, body: string, postId: string) {
+export async function updateBlogPost(
+  title: string,
+  body: string,
+  heroImageId: string,
+  heroImageUrl: string,
+  heroImagePosition: string,
+  postId: string
+) {
   return await axios.post(
     '/api/blog/update-post',
-    { title, body, postId },
+    { title, body, heroImageId, heroImageUrl, postId, heroImagePosition },
     { headers: getAuthHeaders() }
   );
 }
 
 export async function deleteBlogPost(postId: string) {
   return await axios.post('/api/blog/delete-post', { postId }, { headers: getAuthHeaders() });
+}
+
+export async function uploadCdnImage(imageBase64: string): Promise<object> {
+  return (
+    await axios.post('/api/blog/upload-cdn-image', {
+      image: imageBase64,
+    })
+  ).data;
+}
+
+export async function getCdnImages(): Promise<CdnImageMetadata[]> {
+  const res = (await axios.get('/api/blog/get-cdn-images')).data;
+  const values: CdnImageMetadata[] = res.map((val: any) => {
+    return JSON.parse(val.metadata);
+  });
+  return values;
 }
