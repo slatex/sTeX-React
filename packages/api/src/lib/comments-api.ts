@@ -49,11 +49,7 @@ export async function deleteComment(commentId: number) {
 }
 
 export async function getComments(files: FileLocation[]): Promise<Comment[]> {
-  const comments: Comment[] = await commentRequest(
-    `/api/get-comments`,
-    'POST',
-    { files }
-  );
+  const comments: Comment[] = await commentRequest(`/api/get-comments`, 'POST', { files });
   return comments;
 }
 
@@ -69,9 +65,7 @@ export async function getThreadsForCourseInstance(
   return comments;
 }
 
-export async function getCommentsForThread(
-  threadId: number
-): Promise<Comment[]> {
+export async function getCommentsForThread(threadId: number): Promise<Comment[]> {
   const comments: Comment[] = await commentRequest(
     `/api/get-comments-for-thread/${threadId}`,
     'GET'
@@ -109,11 +103,10 @@ export async function getCourseInstanceThreads(
   courseId: string,
   courseTerm: string
 ): Promise<Comment[]> {
-  const comments: Comment[] = await commentRequest(
-    `/api/get-course-instance-threads`,
-    'POST',
-    { courseId, courseTerm }
-  );
+  const comments: Comment[] = await commentRequest(`/api/get-course-instance-threads`, 'POST', {
+    courseId,
+    courseTerm,
+  });
   return comments;
 }
 
@@ -195,31 +188,20 @@ export async function resetPassword(
   });
 }
 
-export async function sendVerificationEmail(
-  userId: string,
-  verificationToken: string
-) {
+export async function sendVerificationEmail(userId: string, verificationToken: string) {
   return await axios.post('/api/send-verification-email', {
     userId,
     verificationToken,
   });
 }
 
-export async function createBlogPost(
-  title: string,
-  body: string,
-  postId: string,
-  authorId: string,
-  authorName: string
-) {
+export async function createBlogPost(title: string, body: string, postId: string) {
   return await axios.post(
     '/api/blog/create-post',
     {
       title,
       body,
       postId,
-      authorId,
-      authorName,
     },
     { headers: getAuthHeaders() }
   );
@@ -242,11 +224,7 @@ export async function getPostById(
   return (await axios.get(apiUrl, { params: { postId } })).data;
 }
 
-export async function updateBlogPost(
-  title: string,
-  body: string,
-  postId: string
-) {
+export async function updateBlogPost(title: string, body: string, postId: string) {
   return await axios.post(
     '/api/blog/update-post',
     { title, body, postId },
@@ -255,9 +233,5 @@ export async function updateBlogPost(
 }
 
 export async function deleteBlogPost(postId: string) {
-  return await axios.post(
-    '/api/blog/delete-post',
-    { postId },
-    { headers: getAuthHeaders() }
-  );
+  return await axios.post('/api/blog/delete-post', { postId }, { headers: getAuthHeaders() });
 }

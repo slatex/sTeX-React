@@ -9,7 +9,7 @@ import { isMemberOfAcl } from '../acl-utils/acl-common-utils';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfGetOrSetError(req, res)) return;
   const userId = await getUserIdOrSetError(req, res);
-  if (!(await isMemberOfAcl('sys-admin', userId))) {
+  if (!(await isMemberOfAcl('sys-org', userId))) {
     return res.status(403).send({ message: 'not valid' });
   }
   const query = `SELECT aclId, resourceId, actionId, createdAt, updatedAt FROM resourceaccess`;

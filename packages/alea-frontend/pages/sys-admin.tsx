@@ -74,8 +74,16 @@ const SysAdmin: NextPage = () => {
   async function handleCreateClick() {
     if (!aclId || !resourceId || !actionId) return;
     try {
+      const isAclValid = await isValid(aclId);
+      if(!isAclValid){
+        setAclId('');
+        setError('invalid acl id');
+        setIsSubmitting(false);
+        return;
+      }
       setIsSubmitting(true);
-      await createResourceAction({ aclId, resourceId, actionId });
+      const upperCaseActionId = actionId.toUpperCase();
+      await createResourceAction({ aclId, resourceId, actionId : upperCaseActionId });
       setResourceActions((prev) => [
         ...prev,
         {

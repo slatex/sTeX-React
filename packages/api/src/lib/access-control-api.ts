@@ -42,11 +42,9 @@ export async function isValid(id: string): Promise<boolean> {
 }
 
 export async function recomputeMemberships(): Promise<number> {
-  const { data } = await axios.post(
-    '/api/access-control/recompute-memberships',
-    {},
-    { headers: getAuthHeaders() }
-  );
+  const { data } = await axios.get('/api/access-control/recompute-memberships', {
+    headers: getAuthHeaders(),
+  });
   return data as number;
 }
 

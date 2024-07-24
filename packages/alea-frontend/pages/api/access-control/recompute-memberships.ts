@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import {  checkIfPostOrSetError, executeAndEndSet500OnError, getUserIdOrSetError } from "../comment-utils";
+import {  checkIfGetOrSetError, executeAndEndSet500OnError, getUserIdOrSetError } from "../comment-utils";
 import { isModerator } from "@stex-react/api";
 import { CACHE_STORE } from "../acl-utils/cache-store";
 import { ACLMembership, Flattening } from "../acl-utils/flattening";
@@ -8,7 +8,7 @@ export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
 ) {
-    if (!checkIfPostOrSetError(req, res)) return;
+    if (!checkIfGetOrSetError(req, res)) return;
     const userId = await getUserIdOrSetError(req, res);
     // if (!isModerator(userId)) {
     //     res.status(403).send({ message: 'Unauthorized.' });

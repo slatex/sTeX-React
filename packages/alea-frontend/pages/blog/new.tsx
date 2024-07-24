@@ -42,8 +42,6 @@ const NewPostPage: NextPage = () => {
       title,
       body,
       postId,
-      userInfo?.userId,
-      userInfo?.fullName
     );
     setTitle('');
     setBody('');
