@@ -13,8 +13,8 @@ import {
 } from '@mui/material';
 import {
   BlogPost,
+  canAccessResource,
   deleteBlogPost,
-  getAuthHeaders,
   getPostById,
 } from '@stex-react/api';
 import fs from 'fs';
@@ -24,7 +24,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
 import { MystViewer } from '@stex-react/myst';
-import axios from 'axios';
+import { Action } from '@stex-react/utils';
 
 const BlogPostPage: NextPage = ({ post }: { post: BlogPost }) => {
   const router = useRouter();
@@ -50,10 +50,9 @@ const BlogPostPage: NextPage = ({ post }: { post: BlogPost }) => {
 
   useEffect(() => {
     async function checkIsUserCanDeleteOrEdit() {
-      const { data } = await axios.get(`/api/blog/can-deleteoredit?postId=${postId}`, {
-        headers: getAuthHeaders(),
-      });
-      if (data.canEdit) setCanEditOrDelete(true);
+      if(await canAccessResource('/blog', Action.UPDATE)) {
+        setCanEditOrDelete(true);
+      }
     }
     checkIsUserCanDeleteOrEdit();
   }, []);
