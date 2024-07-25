@@ -10,7 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!checkIfPostOrSetError(req, res)) return;
   const { aclId, resourceId, actionId } = req.body;
   const userId = await getUserIdOrSetError(req, res);
-  if (!(await isMemberOfAcl('sys-org', userId))) {
+  if (!(await isMemberOfAcl('sys-admin', userId))) {
     res.status(403).send({ message: 'not valid' });
   }
   if (!aclId || !resourceId || !actionId) res.status(422).send(`Missing params.`);
