@@ -1,24 +1,24 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { checkIfPostOrSetError, executeAndEndSet500OnError, getUserIdOrSetError } from "../comment-utils";
-import { CACHE_STORE } from "../acl-utils/cache-store";
-import { ACLMembership, Flattening } from "../acl-utils/flattening";
+import { NextApiRequest, NextApiResponse } from 'next';
+import { CACHE_STORE } from '../acl-utils/cache-store';
+import { ACLMembership, Flattening } from '../acl-utils/flattening';
+import { checkIfPostOrSetError, executeAndEndSet500OnError } from '../comment-utils';
 
-export default async function handler(
-    req: NextApiRequest,
-    res: NextApiResponse
-) {
-    if (!checkIfPostOrSetError(req, res)) return;
-    // const userId = await getUserIdOrSetError(req, res);
-    // if (!isModerator(userId)) {
-    //     res.status(403).send({ message: 'Unauthorized.' });
-    //     return;
-    // }
-    const output = [];
-    const aclMemberships = await executeAndEndSet500OnError<ACLMembership[]>('select * from ACLMembership', [], res);
-    const flattening = new Flattening(aclMemberships, CACHE_STORE);
-    const result = await executeAndEndSet500OnError<{ id: string; }[]>(`select id from AccessControlList`, [], res);
-    for (const element of result) {
-        output.push({ name: element.id, members: await flattening.findMembers(element.id), acls: await flattening.findACL(element.id) });
-    }
-    res.send(output.length);
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (!checkIfPostOrSetError(req, res)) return;
+  const aclMemberships = await executeAndEndSet500OnError<ACLMembership[]>(
+    'SELECT * FROM ACLMembership',
+    [],
+    res
+  );
+  const flattening = new Flattening(aclMemberships, CACHE_STORE);
+  const result = await executeAndEndSet500OnError<{ id: string }[]>(
+    `SELECT id FROM AccessControlList`,
+    [],
+    res
+  );
+  for (const element of result) {
+    await flattening.findMembers(element.id);
+    await flattening.findACL(element.id);
+  }
+  res.status(200).end();
 }

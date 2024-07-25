@@ -11,7 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const { resourceId, actionId } = req.query;
   if (!resourceId || !actionId) return res.status(422).send({ messge: `Missing params.` });
   const userId = await getUserIdOrSetError(req, res);
-  const aclQuery = `SELECT aclId FROM resourceaccess WHERE resourceId = ? AND actionId = ?`;
+  const aclQuery = `SELECT aclId FROM ResourceAccess WHERE resourceId = ? AND actionId = ?`;
   const acl: { aclId: string }[] = await executeAndEndSet500OnError(
     aclQuery,
     [resourceId, actionId],

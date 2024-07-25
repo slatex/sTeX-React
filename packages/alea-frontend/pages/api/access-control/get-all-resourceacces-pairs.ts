@@ -12,7 +12,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!(await isMemberOfAcl('sys-admin', userId))) {
     return res.status(403).send({ message: 'not valid' });
   }
-  const query = `SELECT aclId, resourceId, actionId, createdAt, updatedAt FROM resourceaccess`;
+  const query = `SELECT aclId, resourceId, actionId, createdAt, updatedAt FROM ResourceAccess`;
   const result = await executeAndEndSet500OnError(query, [], res);
   if (!result) return;
   return res.status(200).send(result);

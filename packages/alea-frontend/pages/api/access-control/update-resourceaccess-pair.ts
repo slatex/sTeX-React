@@ -14,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.status(403).send({ message: 'not valid' });
   }
   if (!aclId || !resourceId || !actionId) res.status(422).send(`Missing params.`);
-  const query = `UPDATE resourceaccess SET aclId = ? WHERE resourceId = ? and actionId = ?`;
+  const query = `UPDATE ResourceAccess SET aclId = ? WHERE resourceId = ? and actionId = ?`;
   const result = await executeAndEndSet500OnError(query, [aclId, resourceId, actionId], res);
   if (!result) return;
   res.status(200).send({ message: 'updated' });
