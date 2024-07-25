@@ -9,7 +9,9 @@ import {
   DialogContentText,
   DialogTitle,
   IconButton,
+  MenuItem,
   Paper,
+  Select,
   Table,
   TableBody,
   TableCell,
@@ -32,6 +34,7 @@ import {
   updateResourceAction,
 } from '@stex-react/api';
 import { useEffect, useState } from 'react';
+import { Action } from '@stex-react/utils';
 
 const SysAdmin: NextPage = () => {
   const [aclId, setAclId] = useState<string | null>('');
@@ -74,8 +77,15 @@ const SysAdmin: NextPage = () => {
   async function handleCreateClick() {
     if (!aclId || !resourceId || !actionId) return;
     try {
+      const isAclValid = await isValid(aclId);
+      if(!isAclValid){
+        setAclId('');
+        setError('invalid acl id');
+        setIsSubmitting(false);
+        return;
+      }
       setIsSubmitting(true);
-      await createResourceAction({ aclId, resourceId, actionId });
+      await createResourceAction({ aclId, resourceId, actionId});
       setResourceActions((prev) => [
         ...prev,
         {
@@ -194,15 +204,22 @@ const SysAdmin: NextPage = () => {
           sx={{ mb: '20px' }}
           fullWidth
         />
-        <TextField
-          label="Action ID"
-          variant="outlined"
+        <Select
           value={actionId}
-          onChange={(e) => setActionId(e.target.value)}
-          size="small"
-          sx={{ mb: '20px' }}
+          onChange={(e) => setActionId(e.target.value as Action)}
+          displayEmpty
           fullWidth
-        />
+          sx={{ mb: '20px' }}
+        >
+          <MenuItem value="" disabled>
+            Select Action
+          </MenuItem>
+          {Object.values(Action).map((action) => (
+            <MenuItem key={action} value={action}>
+              {action}
+            </MenuItem>
+          ))}
+        </Select>
         {error != '' && (
           <Typography color="error" mb="20px">
             {error}

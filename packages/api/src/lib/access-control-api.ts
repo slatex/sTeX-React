@@ -42,11 +42,9 @@ export async function isValid(id: string): Promise<boolean> {
 }
 
 export async function recomputeMemberships(): Promise<number> {
-  const { data } = await axios.post(
-    '/api/access-control/recompute-memberships',
-    {},
-    { headers: getAuthHeaders() }
-  );
+  const { data } = await axios.post('/api/access-control/recompute-memberships', {
+    headers: getAuthHeaders(),
+  });
   return data as number;
 }
 
@@ -75,8 +73,8 @@ export async function getAllResourceActions(): Promise<ResourceAction[]> {
   return data as ResourceAction[];
 }
 
-export async function canAccessResource(): Promise<boolean> {
-  const { data } = await axios.get('/api/access-control/can-access-resource', {
+export async function canAccessResource(resourceId : string, actionId : string): Promise<boolean> {
+  const { data } = await axios.get(`/api/access-control/can-access-resource?resourceId=${resourceId}&actionId=${actionId}`, {
     headers: getAuthHeaders(),
   });
   return data as boolean;
