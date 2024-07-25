@@ -1,10 +1,5 @@
 import { Box, Button, Typography } from '@mui/material';
-import {
-  BlogPost,
-  PostSnippet,
-  canAccessResource,
-  getPostSnippets,
-} from '@stex-react/api';
+import { BlogPost, PostSnippet, canAccessResource, getPostSnippets } from '@stex-react/api';
 import { MystViewer } from '@stex-react/myst';
 import fs from 'fs';
 import { NextPage } from 'next';
@@ -17,13 +12,14 @@ const BlogHomePage: NextPage = ({ postSnippets }: { postSnippets: PostSnippet[] 
   const [snippets, setSnippets] = useState<PostSnippet[]>(postSnippets);
   const [canCreate, setCanCreate] = useState<boolean>(false);
 
-  useEffect(()=>{
-    async function isUserAuthorized(){
-      if( await canAccessResource(blogResourceId(), Action.CREATE)){
+  useEffect(() => {
+    async function isUserAuthorized() {
+      if (await canAccessResource(blogResourceId(), Action.CREATE)) {
         setCanCreate(true);
       }
     }
-  }, [])
+    isUserAuthorized();
+  }, []);
 
   useEffect(() => {
     async function fetchPost() {
@@ -53,7 +49,7 @@ const BlogHomePage: NextPage = ({ postSnippets }: { postSnippets: PostSnippet[] 
             </Typography>
             {canCreate && (
               <Button onClick={() => router.push('/blog/new')} variant="contained">
-                create new blog
+                Create new post
               </Button>
             )}
           </Box>
@@ -77,7 +73,13 @@ const BlogHomePage: NextPage = ({ postSnippets }: { postSnippets: PostSnippet[] 
                 },
               }}
             >
-              <img src={snippet.heroImageUrl} alt="hero image" height="300px" width="100%" style={{objectFit: "cover", objectPosition: snippet.heroImagePosition}} />
+              <img
+                src={snippet.heroImageUrl}
+                alt="hero image"
+                height="300px"
+                width="100%"
+                style={{ objectFit: 'cover', objectPosition: snippet.heroImagePosition }}
+              />
               <MystViewer content={snippet.title} />
               <Box
                 display="flex"
