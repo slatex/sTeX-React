@@ -2,10 +2,8 @@ import { Box, Button, Typography } from '@mui/material';
 import {
   BlogPost,
   PostSnippet,
-  UserInfo,
+  canAccessResource,
   getPostSnippets,
-  getUserInfo,
-  isModerator,
 } from '@stex-react/api';
 import { MystViewer } from '@stex-react/myst';
 import fs from 'fs';
@@ -13,14 +11,20 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
+import { Action } from '@stex-react/utils';
 const BlogHomePage: NextPage = ({ postSnippets }: { postSnippets: PostSnippet[] }) => {
   const router = useRouter();
-  const [userInfo, setUserInfo] = useState<UserInfo>(null);
   const [snippets, setSnippets] = useState<PostSnippet[]>(postSnippets);
+  const [canCreate, setCanCreate] = useState<boolean>(false);
 
-  useEffect(() => {
-    getUserInfo().then(setUserInfo);
-  }, []);
+  useEffect(()=>{
+    async function isUserAuthorized(){
+      if( await canAccessResource('/blog', Action.CREATE)){
+        setCanCreate(true);
+      }
+    }
+  }, [])
+
   useEffect(() => {
     async function fetchPost() {
       const data = await getPostSnippets();
@@ -47,7 +51,7 @@ const BlogHomePage: NextPage = ({ postSnippets }: { postSnippets: PostSnippet[] 
             >
               ALeA Blog
             </Typography>
-            {isModerator(userInfo?.userId) && (
+            {canCreate && (
               <Button onClick={() => router.push('/blog/new')} variant="contained">
                 create new blog
               </Button>

@@ -2,16 +2,14 @@ import { Box, Button, TextField, Typography } from '@mui/material';
 import {
   BlogPost,
   CdnImageMetadata,
-  UserInfo,
+  canAccessResource,
   createBlogPost,
   getCdnImages,
-  getUserInfo,
-  isModerator,
   updateBlogPost,
   uploadCdnImage,
 } from '@stex-react/api';
 import { MystEditor } from '@stex-react/myst';
-import { localStore } from '@stex-react/utils';
+import { Action, localStore } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import ImageCard from '../../components/ImageCard';
@@ -31,7 +29,6 @@ const DRAFT_BLOG_BODY_KEY = 'draft-blogBody';
 
 export function EditPostComponent({ existingPost }: { existingPost?: BlogPost }) {
   const router = useRouter();
-  const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
   const [title, setTitle] = useState(
     existingPost?.title ?? localStore?.getItem(DRAFT_BLOG_TITLE_KEY) ?? ''
   );
@@ -84,16 +81,15 @@ export function EditPostComponent({ existingPost }: { existingPost?: BlogPost })
     loadImages();
   }, []);
 
-  useEffect(() => {
-    const fetchDataAndCheckModerator = async () => {
-      const info = await getUserInfo();
-      setUserInfo(info);
-      if (!isModerator(info?.userId)) {
+  useEffect(()=>{
+    async function isUserAuthorized(){
+      if(!await canAccessResource('/blog ', Action.CREATE)){
         router.push('/blog');
       }
-    };
-    fetchDataAndCheckModerator();
-  }, [router]);
+    }
+    isUserAuthorized();
+  }, []);
+
 
   const handleSubmit = async () => {
     if (existingPost) {
@@ -103,8 +99,6 @@ export function EditPostComponent({ existingPost }: { existingPost?: BlogPost })
         title,
         body,
         postId,
-        userInfo?.userId,
-        userInfo?.fullName,
         heroImageId,
         heroImageUrl,
         heroImagePosition
@@ -117,10 +111,6 @@ export function EditPostComponent({ existingPost }: { existingPost?: BlogPost })
     alert('Success!');
     router.push('/blog');
   };
-
-  if (!userInfo) {
-    return <Typography>Loading...</Typography>;
-  }
 
   return (
     <>

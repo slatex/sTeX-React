@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { executeAndEndSet500OnError } from '../comment-utils';
-import { Action, blogResourceId, getUserIdIfAuthorizedOrSetError } from '../resource-action-utils';
+import { Action } from '@stex-react/utils';
+import { blogResourceId, getUserIdIfAuthorizedOrSetError } from '../access-control/resource-utils';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const userId = await getUserIdIfAuthorizedOrSetError(req, res, blogResourceId(), Action.UPDATE);

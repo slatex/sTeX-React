@@ -13,11 +13,9 @@ import {
 } from '@mui/material';
 import {
   BlogPost,
-  UserInfo,
   deleteBlogPost,
+  getAuthHeaders,
   getPostById,
-  getUserInfo,
-  isModerator,
 } from '@stex-react/api';
 import fs from 'fs';
 import { NextPage } from 'next';
@@ -26,17 +24,14 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
 import { MystViewer } from '@stex-react/myst';
+import axios from 'axios';
 
 const BlogPostPage: NextPage = ({ post }: { post: BlogPost }) => {
   const router = useRouter();
   const postId = router.query.postId;
-  const [userInfo, setUserInfo] = useState<UserInfo>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [blogPost, setBlogPost] = useState<BlogPost>(post);
-
-  useEffect(() => {
-    getUserInfo().then(setUserInfo);
-  }, []);
+  const [canEditOrDelete, setCanEditOrDelete] = useState<boolean>(false);
 
   useEffect(() => {
     async function fetchBlog() {
@@ -52,6 +47,16 @@ const BlogPostPage: NextPage = ({ post }: { post: BlogPost }) => {
       fetchBlog();
     }
   }, [router.isReady, postId, router]);
+
+  useEffect(() => {
+    async function checkIsUserCanDeleteOrEdit() {
+      const { data } = await axios.get(`/api/blog/can-deleteoredit?postId=${postId}`, {
+        headers: getAuthHeaders(),
+      });
+      if (data.canEdit) setCanEditOrDelete(true);
+    }
+    checkIsUserCanDeleteOrEdit();
+  }, []);
 
   const toggleDeleteDialogOpen = () => {
     setDeleteDialogOpen((prevState) => !prevState);
@@ -82,7 +87,7 @@ const BlogPostPage: NextPage = ({ post }: { post: BlogPost }) => {
             <Link href="/blog">
               <Button variant="contained">All Posts</Button>
             </Link>
-            {isModerator(userInfo?.userId) && (
+            {canEditOrDelete && (
               <Box display="flex" gap="10px">
                 <Link href={`/blog/edit?postId=${blogPost.postId}`}>
                   <IconButton>
