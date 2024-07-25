@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
 import { EditPostComponent } from './new';
-import { Action } from '@stex-react/utils';
+import { Action, blogResourceId } from '@stex-react/utils';
 
 const EditPostPage: NextPage = () => {
   const router = useRouter();
@@ -14,7 +14,7 @@ const EditPostPage: NextPage = () => {
 
   useEffect(() => {
     async function isUserAuthorized() {
-      if(!await canAccessResource('/blog', Action.UPDATE)) {
+      if(!await canAccessResource(blogResourceId(), Action.UPDATE)) {
         router.push('/blog');
       }
       isUserAuthorized();

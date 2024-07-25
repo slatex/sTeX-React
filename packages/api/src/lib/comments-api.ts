@@ -200,8 +200,6 @@ export async function createBlogPost(
   title: string,
   body: string,
   postId: string,
-  // authorId: string,
-  // authorName: string,
   heroImageId?: string,
   heroImageUrl?: string,
   heroImagePosition?: string
@@ -212,8 +210,6 @@ export async function createBlogPost(
       title,
       body,
       postId,
-      // authorId,
-      // authorName,
       heroImageId,
       heroImageUrl,
       heroImagePosition,

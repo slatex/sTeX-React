@@ -24,7 +24,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
 import { MystViewer } from '@stex-react/myst';
-import { Action } from '@stex-react/utils';
+import { Action, blogResourceId } from '@stex-react/utils';
 
 const BlogPostPage: NextPage = ({ post }: { post: BlogPost }) => {
   const router = useRouter();
@@ -50,7 +50,7 @@ const BlogPostPage: NextPage = ({ post }: { post: BlogPost }) => {
 
   useEffect(() => {
     async function checkIsUserCanDeleteOrEdit() {
-      if(await canAccessResource('/blog', Action.UPDATE)) {
+      if(await canAccessResource(blogResourceId(), Action.UPDATE)) {
         setCanEditOrDelete(true);
       }
     }

@@ -15,11 +15,3 @@ export async function getUserIdIfAuthorizedOrSetError(req : NextApiRequest, res 
       return userId;
     return undefined;
 }
-  export function blogResourceId() {
-    return '/blog';
-  }
-  
-  export function commentResourceId(courseId: string, instance: string) {
-    return `/course/${courseId}/instance/${instance}/comments`;
-  }
-  
