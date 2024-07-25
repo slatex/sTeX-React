@@ -48,7 +48,7 @@ const BlogHomePage: NextPage = ({ postSnippets }: { postSnippets: PostSnippet[] 
             </Typography>
             {canCreate && (
               <Button onClick={() => router.push('/blog/new')} variant="contained">
-                create new blog
+                Create new post
               </Button>
             )}
           </Box>

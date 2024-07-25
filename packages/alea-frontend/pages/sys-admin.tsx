@@ -35,6 +35,7 @@ import {
 } from '@stex-react/api';
 import { useEffect, useState } from 'react';
 import { Action } from '@stex-react/utils';
+import { DateView } from '@stex-react/react-utils';
 
 const SysAdmin: NextPage = () => {
   const [aclId, setAclId] = useState<string | null>('');
@@ -52,15 +53,15 @@ const SysAdmin: NextPage = () => {
     actionId: string;
   } | null>(null);
 
-  useEffect(() => {
-    async function getAllResources() {
-      try {
-        const data = await getAllResourceActions();
-        setResourceActions(data);
-      } catch (e) {
-        console.error(e);
-      }
+  async function getAllResources() {
+    try {
+      const data = await getAllResourceActions();
+      setResourceActions(data);
+    } catch (e) {
+      console.error(e);
     }
+  }
+  useEffect(() => {
     getAllResources();
   }, []);
 
@@ -78,14 +79,14 @@ const SysAdmin: NextPage = () => {
     if (!aclId || !resourceId || !actionId) return;
     try {
       const isAclValid = await isValid(aclId);
-      if(!isAclValid){
+      if (!isAclValid) {
         setAclId('');
         setError('invalid acl id');
         setIsSubmitting(false);
         return;
       }
       setIsSubmitting(true);
-      await createResourceAction({ aclId, resourceId, actionId});
+      await createResourceAction({ aclId, resourceId, actionId });
       setResourceActions((prev) => [
         ...prev,
         {
@@ -101,6 +102,7 @@ const SysAdmin: NextPage = () => {
       setActionId('');
       setError('');
       setIsSubmitting(false);
+      getAllResources();
     } catch (e) {
       console.log(e);
       setError(e.response.data.message);
@@ -187,15 +189,6 @@ const SysAdmin: NextPage = () => {
           Create a New Resource Access
         </Typography>
         <TextField
-          label="ACL ID"
-          variant="outlined"
-          value={aclId}
-          onChange={(e) => setAclId(e.target.value)}
-          size="small"
-          sx={{ mb: '20px' }}
-          fullWidth
-        />
-        <TextField
           label="Resource ID"
           variant="outlined"
           value={resourceId}
@@ -220,6 +213,15 @@ const SysAdmin: NextPage = () => {
             </MenuItem>
           ))}
         </Select>
+        <TextField
+          label="ACL ID"
+          variant="outlined"
+          value={aclId}
+          onChange={(e) => setAclId(e.target.value)}
+          size="small"
+          sx={{ mb: '20px' }}
+          fullWidth
+        />
         {error != '' && (
           <Typography color="error" mb="20px">
             {error}
@@ -281,8 +283,12 @@ const SysAdmin: NextPage = () => {
                     entry.aclId
                   )}
                 </TableCell>
-                <TableCell>{entry.createdAt}</TableCell>
-                <TableCell>{entry.updatedAt}</TableCell>
+                <TableCell>
+                  <DateView timestampMs={new Date(entry.createdAt).getTime()} />
+                </TableCell>
+                <TableCell>
+                  <DateView timestampMs={new Date(entry.updatedAt).getTime()} />
+                </TableCell>
                 <TableCell sx={{ textAlign: 'center', display: 'flex' }}>
                   {editing?.aclId === entry.aclId &&
                   editing?.resourceId === entry.resourceId &&
@@ -299,7 +305,7 @@ const SysAdmin: NextPage = () => {
                     </IconButton>
                   )}
                   <IconButton
-                    color="secondary"
+                    color="warning"
                     onClick={() => handleDeleteClick(entry.resourceId, entry.actionId)}
                   >
                     <DeleteIcon />

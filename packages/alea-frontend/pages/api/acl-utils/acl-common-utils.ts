@@ -14,6 +14,7 @@ export async function isMemberOfAcl(acl: string, userId: string) {
 }
 export async function isCurrentUserMemberOfAClupdater(aclId: string, res, req): Promise<boolean> {
   const userId = await getUserIdOrSetError(req, res);
+  if(!userId) return false;
   const acl: AccessControlList = (
     await executeAndEndSet500OnError(
       'select updaterACLId from AccessControlList where id=?',

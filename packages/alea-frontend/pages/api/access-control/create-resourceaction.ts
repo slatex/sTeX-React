@@ -14,12 +14,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!(await isMemberOfAcl('sys-admin', userId as string))) {
     return res.status(403).send('unauthorized');
   }
-  const query = `SELECT resourceId, actionId, aclId FROM resourceaccess WHERE resourceId = ? AND actionId = ? AND aclId = ?`;
+  const query = `SELECT resourceId, actionId, aclId FROM ResourceAccess WHERE resourceId = ? AND actionId = ? AND aclId = ?`;
   const isExists: [{ resourceId: string; actionId: string; aclId: string }] =
     await executeAndEndSet500OnError(query, [resourceId, actionId, aclId], res);
   if (isExists.length > 0) return res.status(409).send('already exists');
 
-  const resourceQuery = `INSERT INTO resourceaccess (aclId, resourceId, actionId) VALUES (?, ?, ?)`;
+  const resourceQuery = `INSERT INTO ResourceAccess (aclId, resourceId, actionId) VALUES (?, ?, ?)`;
   const result = await executeAndEndSet500OnError(
     resourceQuery,
     [aclId, resourceId, actionId],
