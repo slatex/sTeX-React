@@ -29,16 +29,18 @@ function to2DecimalPoints(num: number) {
 }
 export function endSemSummary() {
   if (!process.env.QUIZ_INFO_DIR || !process.env.QUIZ_LMS_INFO_FILE) {
-    console.log(
-      `Env vars not set. Set them at [nodejs-scripts/.env.local] Exiting.`
-    );
+    console.log(`Env vars not set. Set them at [nodejs-scripts/.env.local] Exiting.`);
     exit(1);
   }
   const TO_EXCLUDE_QUIZZES = ['quiz-bc71f711'];
   const TOP_N = 10;
   const quizzes: any[] = getAllQuizzes()
     .sort((a, b) => a.quizStartTs - b.quizStartTs)
-    .filter((quiz) => !TO_EXCLUDE_QUIZZES.includes(quiz.id));
+    .filter(
+      (quiz) =>
+        quiz.courseId === process.env.QUIZ_SUMMARY_COURSE_ID &&
+        quiz.courseTerm === process.env.QUIZ_SUMMARY_COURSE_TERM
+    );
   const MAX_POINTS: Record<string, number> = {};
   for (const quiz of quizzes) {
     MAX_POINTS[quiz.id] = 0;
@@ -48,16 +50,19 @@ export function endSemSummary() {
     }
   }
 
+  const quizIds = quizzes.map((q) => q.id);
+  const placeholders = quizIds.map(() => '?').join(', ');
   db.query(
     `SELECT userId, quizId, sum(points) as score
 FROM grading
 WHERE (quizId, userId, problemId, browserTimestamp_ms) IN (
   SELECT quizId, userId,problemId, MAX(browserTimestamp_ms) AS browserTimestamp_ms
   FROM grading
+  WHERE quizId IN (${placeholders})
   GROUP BY quizId, userId,problemId
 )
 GROUP BY userId,quizId`,
-    []
+    quizIds
   ).then((results: any[]) => {
     const USER_ID_TO_QUIZ_SCORES: Record<string, UserQuizData> = {};
     for (const result of results) {
@@ -76,18 +81,14 @@ GROUP BY userId,quizId`,
         (quizData) => quizData.percentage
       );
       quizPercentages.sort((a, b) => b - a);
-      userData.sumTopN =
-        quizPercentages.slice(0, TOP_N).reduce((a, b) => a + b, 0) / TOP_N;
+      userData.sumTopN = quizPercentages.slice(0, TOP_N).reduce((a, b) => a + b, 0) / TOP_N;
     }
 
     // Write to csv
     const csvLines: string[] = [];
     const header = [
       'user_id',
-      ...quizzes.flatMap((quiz, idx) => [
-        `(${idx + 1}) ${quiz.id}`,
-        `(${idx + 1}) ${quiz.id} %`,
-      ]),
+      ...quizzes.flatMap((quiz, idx) => [`(${idx + 1}) ${quiz.id}`, `(${idx + 1}) ${quiz.id} %`]),
       `Top ${TOP_N} avg %`,
     ];
     csvLines.push(header.join(','));
