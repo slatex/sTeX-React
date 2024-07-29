@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getAllQuizzes } from '../quiz-utils';
+import { getAllQuizzes } from '../quiz/quiz-utils';
 import { queryGradingDbAndEndSet500OnError } from '../grading-db-utils';
 import { getUserIdOrSetError } from '../comment-utils';
 import { isModerator } from '@stex-react/api';

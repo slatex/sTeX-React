@@ -6,16 +6,8 @@ import { checkIfPostOrSetError } from '../comment-utils';
 import { doesQuizExist, writeQuizFile } from '@stex-react/node-utils';
 import { getUserIdIfAuthorizedOrSetError } from '../access-control/resource-utils';
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
-  // const userId = await getUserIdOrSetError(req, res);
-  // if (!isModerator(userId)) {
-  //   res.status(403).send({ message: 'Unauthorized.' });
-  //   return;
-  // }
   const {
     courseId,
     courseTerm,
@@ -27,9 +19,14 @@ export default async function handler(
     problems,
   } = req.body as Quiz;
 
-  const userId = await getUserIdIfAuthorizedOrSetError(req, res, quizResourceId(courseId, courseTerm), Action.CREATE);
-  if(!userId) return res.status(403).send({ message: 'unauthorized' });
-  
+  const userId = await getUserIdIfAuthorizedOrSetError(
+    req,
+    res,
+    quizResourceId(courseId, courseTerm),
+    Action.CREATE
+  );
+  if (!userId) return res.status(403).send({ message: 'unauthorized' });
+
   const quiz = {
     id: 'quiz-' + uuidv4().substring(0, 8),
     version: 0,
