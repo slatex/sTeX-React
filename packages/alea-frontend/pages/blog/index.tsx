@@ -18,6 +18,7 @@ const BlogHomePage: NextPage = ({ postSnippets }: { postSnippets: PostSnippet[] 
         setCanCreate(true);
       }
     }
+    isUserAuthorized();
   }, []);
 
   useEffect(() => {

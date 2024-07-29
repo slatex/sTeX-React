@@ -23,7 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     req,
     res,
     quizResourceId(courseId, courseTerm),
-    Action.CREATE
+    Action.MUTATE
   );
   if (!userId) return res.status(403).send({ message: 'unauthorized' });
 
