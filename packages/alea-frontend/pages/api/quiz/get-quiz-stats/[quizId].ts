@@ -4,13 +4,10 @@ import {
   isModerator,
 } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getUserIdOrSetError } from '../comment-utils';
-import {
-  queryGradingDbAndEndSet500OnError,
-  queryGradingDbDontEndSet500OnError,
-} from '../grading-db-utils';
+import { getUserIdOrSetError } from '../../comment-utils';
 import { getQuiz } from '../quiz-utils';
 import { getProblem } from '@stex-react/quiz-utils';
+import { queryGradingDbAndEndSet500OnError, queryGradingDbDontEndSet500OnError } from '../../grading-db-utils';
 
 function missingProblemData() {
   return {

@@ -25,7 +25,7 @@ import {
   ServerLinksContext,
   mmtHTMLToReact,
 } from '@stex-react/stex-react-renderer';
-import { CourseInfo, roundToMinutes } from '@stex-react/utils';
+import { CourseInfo, CURRENT_TERM, roundToMinutes } from '@stex-react/utils';
 import axios, { AxiosResponse } from 'axios';
 import dayjs from 'dayjs';
 import type { NextPage } from 'next';
@@ -101,6 +101,7 @@ const QuizDashboardPage: NextPage = () => {
   const [feedbackReleaseTs, setFeedbackReleaseTs] = useState<number>(
     roundToMinutes(Date.now())
   );
+  const [courseTerm, setCourseTerm] = useState<string>(CURRENT_TERM);
   const [manuallySetPhase, setManuallySetPhase] = useState<string>(Phase.UNSET);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [problems, setProblems] = useState<{ [problemId: string]: string }>({});
@@ -159,6 +160,7 @@ const QuizDashboardPage: NextPage = () => {
       setManuallySetPhase(Phase.UNSET);
       setTitle('');
       setProblems({});
+      setCourseTerm(CURRENT_TERM);
       return;
     }
 
@@ -171,6 +173,7 @@ const QuizDashboardPage: NextPage = () => {
     setCourseId(selected.courseId);
     setTitle(selected.title);
     setProblems(selected.problems);
+    setCourseTerm(selected.courseTerm);
   }, [selectedQuizId, quizzes]);
 
   useEffect(() => {
@@ -278,6 +281,7 @@ const QuizDashboardPage: NextPage = () => {
               id: selectedQuizId,
               title,
               courseId,
+              courseTerm,
               quizStartTs,
               quizEndTs,
               feedbackReleaseTs,

@@ -14,7 +14,7 @@ const EditPostPage: NextPage = () => {
 
   useEffect(() => {
     async function isUserAuthorized() {
-      if(!await canAccessResource(blogResourceId(), Action.UPDATE)) {
+      if(!await canAccessResource(blogResourceId(), Action.MUTATE)) {
         router.push('/blog');
       }
       isUserAuthorized();

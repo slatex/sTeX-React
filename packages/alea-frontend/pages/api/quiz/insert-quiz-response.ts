@@ -1,9 +1,9 @@
 import { InsertAnswerRequest, Phase } from '@stex-react/api';
 import { getPoints, getProblem, getQuizPhase } from '@stex-react/quiz-utils';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { checkIfPostOrSetError, getUserIdOrSetError } from './comment-utils';
-import { queryGradingDbAndEndSet500OnError } from './grading-db-utils';
 import { getQuiz } from './quiz-utils';
+import { checkIfPostOrSetError, getUserIdOrSetError } from '../comment-utils';
+import { queryGradingDbAndEndSet500OnError } from '../grading-db-utils';
 
 export default async function handler(
   req: NextApiRequest,

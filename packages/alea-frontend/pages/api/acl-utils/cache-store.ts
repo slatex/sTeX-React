@@ -1,3 +1,5 @@
+import { executeQuery } from '../comment-utils';
+import { ACLMembership, Flattening } from './flattening';
 import { InMemoryStore } from './inmemory-store';
 import { RedisStore } from './redis-store';
 
@@ -17,3 +19,14 @@ if (
 ) {
   globalThis.CACHE_STORE = CACHE_STORE;
 }
+
+export async function register() {
+  const aclMemberships = await executeQuery<ACLMembership[]>('SELECT * FROM ACLMembership', []);
+  const flattening = new Flattening(aclMemberships, CACHE_STORE);
+  const result = await executeQuery<{ id: string }[]>(`SELECT id FROM AccessControlList`, []);
+  for (const element of result) {
+    await flattening.findMembers(element.id);
+    await flattening.findACL(element.id);
+  }
+}
+register();

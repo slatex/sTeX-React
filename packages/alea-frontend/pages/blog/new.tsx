@@ -83,7 +83,7 @@ export function EditPostComponent({ existingPost }: { existingPost?: BlogPost })
 
   useEffect(()=>{
     async function isUserAuthorized(){
-      if(!await canAccessResource(blogResourceId(), Action.CREATE)){
+      if(!await canAccessResource(blogResourceId(), Action.MUTATE)){
         router.push('/blog');
       }
     }

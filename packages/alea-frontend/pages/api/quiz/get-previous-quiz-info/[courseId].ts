@@ -1,19 +1,11 @@
-import {
-  GetPreviousQuizInfoResponse,
-  Phase,
-  PreviousQuizInfo,
-  Problem,
-} from '@stex-react/api';
+import { GetPreviousQuizInfoResponse, Phase, PreviousQuizInfo, Problem } from '@stex-react/api';
 import { getProblem, getQuizPhase } from '@stex-react/quiz-utils';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getUserIdOrSetError } from '../comment-utils';
-import { queryGradingDbAndEndSet500OnError } from '../grading-db-utils';
 import { getAllQuizzes } from '../quiz-utils';
+import { queryGradingDbAndEndSet500OnError } from '../../grading-db-utils';
+import { getUserIdOrSetError } from '../../comment-utils';
 
-const USER_TO_QUIZ_SCORES_CACHE = new Map<
-  string,
-  { [quizId: string]: number }
->();
+const USER_TO_QUIZ_SCORES_CACHE = new Map<string, { [quizId: string]: number }>();
 const QUIZ_AVG_SCORES_CACHE = new Map<string, number>();
 
 async function getUserScoresOrSet500Error(
@@ -38,8 +30,7 @@ async function getUserScoresOrSet500Error(
       const score = quiz['score'];
       const quizId = quiz['quizId'];
       const userId = quiz['userId'];
-      if (!USER_TO_QUIZ_SCORES_CACHE.has(userId))
-        USER_TO_QUIZ_SCORES_CACHE.set(userId, {});
+      if (!USER_TO_QUIZ_SCORES_CACHE.has(userId)) USER_TO_QUIZ_SCORES_CACHE.set(userId, {});
       USER_TO_QUIZ_SCORES_CACHE.get(userId)[quizId] = score;
     });
   }
@@ -74,10 +65,7 @@ async function getQuizAveragesOrSet500Error(
   return QUIZ_AVG_SCORES_CACHE;
 }
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
   const courseId = req.query.courseId as string;

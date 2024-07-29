@@ -8,9 +8,9 @@ import {
 import { getQuizPhase, removeAnswerInfo } from '@stex-react/quiz-utils';
 import { simpleNumberHash } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getUserIdOrSetError } from '../comment-utils';
-import { queryGradingDbAndEndSet500OnError } from '../grading-db-utils';
 import { getQuiz, getQuizTimes } from '@stex-react/node-utils';
+import { queryGradingDbAndEndSet500OnError } from '../../grading-db-utils';
+import { getUserIdOrSetError } from '../../comment-utils';
 
 async function getUserQuizResponseOrSetError(
   quizId: string,
