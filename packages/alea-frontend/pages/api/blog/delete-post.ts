@@ -4,7 +4,7 @@ import { getUserIdIfAuthorizedOrSetError } from '../access-control/resource-util
 import { executeAndEndSet500OnError } from '../comment-utils';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const userId = await getUserIdIfAuthorizedOrSetError(req, res, blogResourceId(), Action.DELETE);
+  const userId = await getUserIdIfAuthorizedOrSetError(req, res, blogResourceId(), Action.MUTATE);
   if (!userId) return res.status(403).send({ message: 'unauthorized' });
 
   const { postId } = req.body;

@@ -36,6 +36,7 @@ import {
 import { useEffect, useState } from 'react';
 import { Action } from '@stex-react/utils';
 import { DateView } from '@stex-react/react-utils';
+import Link from 'next/link';
 
 const SysAdmin: NextPage = () => {
   const [aclId, setAclId] = useState<string | null>('');
@@ -167,7 +168,7 @@ const SysAdmin: NextPage = () => {
         sx={{
           display: 'flex',
           alignItems: 'center',
-          margin: '50px auto',
+          margin: '20px auto',
         }}
         variant="contained"
         color="primary"
@@ -176,6 +177,19 @@ const SysAdmin: NextPage = () => {
       >
         Recompute Memberships
       </Button>
+      <Link href={`/acl`}>
+      <Button
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          margin: '10px auto',
+        }}
+        variant="contained"
+        color="primary"
+      >
+        ACL Page
+      </Button>
+    </Link>
       <Box
         sx={{
           m: '0 auto',

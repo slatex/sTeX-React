@@ -14,11 +14,10 @@ const BlogHomePage: NextPage = ({ postSnippets }: { postSnippets: PostSnippet[] 
 
   useEffect(() => {
     async function isUserAuthorized() {
-      if (await canAccessResource(blogResourceId(), Action.CREATE)) {
+      if (await canAccessResource(blogResourceId(), Action.MUTATE)) {
         setCanCreate(true);
       }
     }
-    isUserAuthorized();
   }, []);
 
   useEffect(() => {

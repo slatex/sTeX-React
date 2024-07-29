@@ -22,7 +22,7 @@ export async function insertAnswer(
     browserTimestamp_ms: Date.now(),
   };
   try {
-    await axios.post('/api/insert-quiz-response', req, {
+    await axios.post('/api/quiz/insert-quiz-response', req, {
       headers: getAuthHeaders(),
     });
     return true;
@@ -39,27 +39,27 @@ export async function insertAnswer(
 }
 
 export async function getQuiz(quizId: string) {
-  const resp = await axios.get(`/api/get-quiz/${quizId}`, {
+  const resp = await axios.get(`/api/quiz/get-quiz/${quizId}`, {
     headers: getAuthHeaders(),
   });
   return resp.data as GetQuizResponse;
 }
 
 export async function getQuizStats(quizId: string) {
-  const resp = await axios.get(`/api/get-quiz-stats/${quizId}`, {
+  const resp = await axios.get(`/api/quiz/get-quiz-stats/${quizId}`, {
     headers: getAuthHeaders(),
   });
   return resp.data as QuizStatsResponse;
 }
 
 export async function createQuiz(quiz: Quiz) {
-  return await axios.post('/api/create-quiz', quiz, {
+  return await axios.post('/api/quiz/create-quiz', quiz, {
     headers: getAuthHeaders(),
   });
 }
 
 export async function updateQuiz(quiz: Quiz) {
-  return await axios.post('/api/update-quiz', quiz, {
+  return await axios.post('/api/quiz/update-quiz', quiz, {
     headers: getAuthHeaders(),
   });
 }
@@ -67,13 +67,13 @@ export async function updateQuiz(quiz: Quiz) {
 export async function getCourseQuizList(
   courseId: string
 ): Promise<QuizStubInfo[]> {
-  return (await axios.get(`/api/get-course-quiz-list/${courseId}`)).data;
+  return (await axios.get(`/api/quiz/get-course-quiz-list/${courseId}`)).data;
 }
 
 export async function getPreviousQuizInfo(courseId: string) {
   const headers = getAuthHeaders();
   if (!headers) return { quizInfo: {} } as GetPreviousQuizInfoResponse;
-  const resp = await axios.get(`/api/get-previous-quiz-info/${courseId}`, {
+  const resp = await axios.get(`/api/quiz/get-previous-quiz-info/${courseId}`, {
     headers,
   });
   return resp.data as GetPreviousQuizInfoResponse;

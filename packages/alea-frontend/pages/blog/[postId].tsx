@@ -50,7 +50,7 @@ const BlogPostPage: NextPage = ({ post }: { post: BlogPost }) => {
 
   useEffect(() => {
     async function checkIsUserCanDeleteOrEdit() {
-      if(await canAccessResource(blogResourceId(), Action.UPDATE)) {
+      if(await canAccessResource(blogResourceId(), Action.MUTATE)) {
         setCanEditOrDelete(true);
       }
     }
