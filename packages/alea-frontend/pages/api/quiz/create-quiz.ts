@@ -6,10 +6,7 @@ import { checkIfPostOrSetError } from '../comment-utils';
 import { doesQuizExist, writeQuizFile } from '@stex-react/node-utils';
 import { getUserIdIfAuthorizedOrSetError } from '../access-control/resource-utils';
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
   const {
     courseId,

@@ -6,7 +6,7 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
-import { Action, blogResourceId } from '@stex-react/utils';
+import { Action, getResourceId, ResourceName } from '@stex-react/utils';
 const BlogHomePage: NextPage = ({ postSnippets }: { postSnippets: PostSnippet[] }) => {
   const router = useRouter();
   const [snippets, setSnippets] = useState<PostSnippet[]>(postSnippets);
@@ -14,10 +14,11 @@ const BlogHomePage: NextPage = ({ postSnippets }: { postSnippets: PostSnippet[] 
 
   useEffect(() => {
     async function isUserAuthorized() {
-      if (await canAccessResource(blogResourceId(), Action.MUTATE)) {
+      if (await canAccessResource(getResourceId(ResourceName.BLOG, {}), Action.MUTATE)) {
         setCanCreate(true);
       }
     }
+    isUserAuthorized();
   }, []);
 
   useEffect(() => {

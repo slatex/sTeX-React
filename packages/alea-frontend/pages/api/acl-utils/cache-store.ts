@@ -22,8 +22,16 @@ if (
 
 export async function register() {
   const aclMemberships = await executeQuery<ACLMembership[]>('SELECT * FROM ACLMembership', []);
+  if ('error' in aclMemberships) {
+    console.error('Error fetching ACLMemberships', aclMemberships['error']);
+    return;
+  }
   const flattening = new Flattening(aclMemberships, CACHE_STORE);
   const result = await executeQuery<{ id: string }[]>(`SELECT id FROM AccessControlList`, []);
+  if ('error' in result) {
+    console.error('Error fetching AccessControlList', result['error']);
+    return;
+  }
   for (const element of result) {
     await flattening.findMembers(element.id);
     await flattening.findACL(element.id);

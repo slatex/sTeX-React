@@ -12,6 +12,7 @@ export const MODERATORS = [
   'bu93bufa', // Robert Kurin
   'iv93baik', // Mahdi Mantash
   'fy98ticu', // Marcel Schutz
+  'it78ubil', // Felix Grelka
 
   ...(process.env['NEXT_PUBLIC_SITE_VERSION'] !== 'production'
     ? ['fake_joy']
