@@ -1,5 +1,5 @@
 import { Quiz, isModerator } from '@stex-react/api';
-import { Action, quizResourceId } from '@stex-react/utils';
+import { Action, getResourceId, ResourceName } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { v4 as uuidv4 } from 'uuid';
 import { checkIfPostOrSetError } from '../comment-utils';
@@ -11,11 +11,6 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if (!checkIfPostOrSetError(req, res)) return;
-  // const userId = await getUserIdOrSetError(req, res);
-  // if (!isModerator(userId)) {
-  //   res.status(403).send({ message: 'Unauthorized.' });
-  //   return;
-  // }
   const {
     courseId,
     courseTerm,
@@ -27,7 +22,7 @@ export default async function handler(
     problems,
   } = req.body as Quiz;
 
-  const userId = await getUserIdIfAuthorizedOrSetError(req, res, quizResourceId(courseId, courseTerm), Action.CREATE);
+  const userId = await getUserIdIfAuthorizedOrSetError(req, res, getResourceId(ResourceName.COURSE_QUIZ, { courseId, courseTerm }), Action.CREATE);
   if(!userId) return res.status(403).send({ message: 'unauthorized' });
   
   const quiz = {

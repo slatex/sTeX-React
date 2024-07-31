@@ -1,10 +1,10 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { executeAndEndSet500OnError } from '../comment-utils';
-import { Action, blogResourceId } from '@stex-react/utils';
+import { Action, getResourceId, ResourceName } from '@stex-react/utils';
 import { getUserIdIfAuthorizedOrSetError } from '../access-control/resource-utils';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const userId = await getUserIdIfAuthorizedOrSetError(req, res, blogResourceId(), Action.MUTATE);
+  const userId = await getUserIdIfAuthorizedOrSetError(req, res, getResourceId(ResourceName.BLOG, {}), Action.MUTATE);
   if (!userId) return res.status(403).send({ message: 'unauthorized' });
 
   const { title, body, postId, heroImageId, heroImageUrl, heroImagePosition } = req.body;

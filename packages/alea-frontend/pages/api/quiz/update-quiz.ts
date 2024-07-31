@@ -1,7 +1,7 @@
 import { Quiz, isModerator } from '@stex-react/api';
 import fs from 'fs';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { checkIfPostOrSetError, getUserIdOrSetError } from '../comment-utils';
+import { checkIfPostOrSetError } from '../comment-utils';
 import {
   doesQuizExist,
   getBackupQuizFilePath,
@@ -9,7 +9,7 @@ import {
   writeQuizFile
 } from '@stex-react/node-utils';
 import { getUserIdIfAuthorizedOrSetError } from '../access-control/resource-utils';
-import { Action, CURRENT_TERM, quizResourceId } from '@stex-react/utils';
+import { Action, getResourceId, ResourceName } from '@stex-react/utils';
 
 // function to rewrite the quiz file with the new quiz info and backup the old version.
 export function updateQuiz(
@@ -33,8 +33,9 @@ export default async function handler(
     
   if (!checkIfPostOrSetError(req, res)) return;
   const quiz = req.body as Quiz;
+  const { courseId, courseTerm } = quiz;
 
-  const userId = await getUserIdIfAuthorizedOrSetError(req, res, quizResourceId(quiz.courseId, quiz.courseTerm), Action.MUTATE);
+  const userId = await getUserIdIfAuthorizedOrSetError(req, res, getResourceId(ResourceName.COURSE_QUIZ, { courseId, courseTerm }), Action.MUTATE);
   if(!userId) return res.status(403).send({ message: 'unauthorized' });
   
   if (!doesQuizExist(quiz?.id)) {
