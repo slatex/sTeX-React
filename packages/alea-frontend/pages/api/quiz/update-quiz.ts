@@ -1,15 +1,15 @@
-import { Quiz } from '@stex-react/api';
+import { Quiz, isModerator } from '@stex-react/api';
+import fs from 'fs';
+import { checkIfPostOrSetError } from '../comment-utils';
 import {
   doesQuizExist,
   getBackupQuizFilePath,
   getQuiz,
   writeQuizFile,
 } from '@stex-react/node-utils';
-import { Action, quizResourceId } from '@stex-react/utils';
-import fs from 'fs';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getUserIdIfAuthorizedOrSetError } from '../access-control/resource-utils';
-import { checkIfPostOrSetError } from '../comment-utils';
+import { Action, getResourceId, ResourceName } from '@stex-react/utils';
 
 // function to rewrite the quiz file with the new quiz info and backup the old version.
 export function updateQuiz(quizId, updatedQuizFunc: (existingQuiz: Quiz) => Quiz) {
@@ -26,15 +26,11 @@ export function updateQuiz(quizId, updatedQuizFunc: (existingQuiz: Quiz) => Quiz
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
   const quiz = req.body as Quiz;
+  const { courseId, courseTerm } = quiz;
 
-  const userId = await getUserIdIfAuthorizedOrSetError(
-    req,
-    res,
-    quizResourceId(quiz.courseId, quiz.courseTerm),
-    Action.MUTATE
-  );
-  if (!userId) return res.status(403).send({ message: 'unauthorized' });
-
+  const userId = await getUserIdIfAuthorizedOrSetError(req, res, getResourceId(ResourceName.COURSE_QUIZ, { courseId, instanceId : courseTerm }), Action.MUTATE);
+  if(!userId) return res.status(403).send({ message: 'unauthorized' });
+  
   if (!doesQuizExist(quiz?.id)) {
     res.status(400).json({ message: `Quiz not found: [${quiz?.id}]` });
     return;

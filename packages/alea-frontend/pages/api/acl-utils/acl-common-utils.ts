@@ -1,6 +1,7 @@
 import { AccessControlList } from '@stex-react/api';
 import { executeAndEndSet500OnError, getUserIdOrSetError } from '../comment-utils';
 import { CACHE_STORE } from './cache-store';
+import { NextApiRequest, NextApiResponse } from 'next';
 
 export enum AclSavePostfix {
   acl = 'acls',
@@ -23,4 +24,30 @@ export async function isCurrentUserMemberOfAClupdater(aclId: string, res, req): 
     )
   )[0];
   return await isMemberOfAcl(acl.updaterACLId, userId);
+}
+
+export async function validateMemberAndAclIds(
+  res : NextApiResponse,
+  memberUserIds, 
+  memberACLIds
+){
+  const memberCount = memberUserIds.length ? (
+    await executeAndEndSet500OnError<[]>(
+      'select userId from userInfo where userId in (?)',
+      [memberUserIds],
+      res
+    )
+  ).length :
+  0;
+  const aclCount = memberACLIds.length ? (
+    await executeAndEndSet500OnError<[]>(
+      'select id from AccessControlList where id in (?)',
+      [memberACLIds],
+      res
+    )
+  ).length : 
+  0;
+  if (memberCount !== memberUserIds.length || aclCount !== memberACLIds.length)
+    return false;
+  return true;
 }
