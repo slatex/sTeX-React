@@ -3,16 +3,16 @@ import { isMemberOfAcl } from '../acl-utils/acl-common-utils';
 import { executeAndEndSet500OnError, getUserIdOrSetError } from '../comment-utils';
 import { Action, getResourceId, isValidAction, ResourceName } from '@stex-react/utils';
 
-export interface AllowResourceAction {
+export interface ResourceActionParams {
   name: ResourceName;
   action: Action;
   variables?: Record<string, string>;
 }
 
-export async function getUserIdIfAuthorizedOrSetError2(
+export async function getUserIdIfAnyAuthorizedOrSetError(
   req: NextApiRequest,
   res: NextApiResponse,
-  resourceActions: AllowResourceAction[]
+  resourceActions: ResourceActionParams[]
 ) {
   const userId: string | undefined = await getUserIdOrSetError(req, res);
   if (!userId) return undefined;
@@ -34,6 +34,7 @@ export async function getUserIdIfAuthorizedOrSetError2(
     );
     if (await isMemberOfAcl(acl[0].aclId, userId as string)) return userId;
   }
+  res.status(403).send({ message: 'unauthorized' });
   return undefined;
 }
 
@@ -44,7 +45,7 @@ export async function getUserIdIfAuthorizedOrSetError(
   actionId: Action,
   variables?: Record<string, string>
 ) {
-  return await getUserIdIfAuthorizedOrSetError2(req, res, [
+  return await getUserIdIfAnyAuthorizedOrSetError(req, res, [
     { name: resourceName, action: actionId, variables },
   ]);
 }

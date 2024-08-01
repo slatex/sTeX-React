@@ -1,24 +1,20 @@
 import { Box, Button, Typography } from '@mui/material';
-import { BlogPost, PostSnippet, canAccessResource, getPostSnippets } from '@stex-react/api';
+import { BlogPost, canAccessResource, getPostSnippets, PostSnippet } from '@stex-react/api';
 import { MystViewer } from '@stex-react/myst';
+import { Action, ResourceName } from '@stex-react/utils';
 import fs from 'fs';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
-import { Action, getResourceId, ResourceName } from '@stex-react/utils';
+
 const BlogHomePage: NextPage = ({ postSnippets }: { postSnippets: PostSnippet[] }) => {
   const router = useRouter();
   const [snippets, setSnippets] = useState<PostSnippet[]>(postSnippets);
   const [canCreate, setCanCreate] = useState<boolean>(false);
 
   useEffect(() => {
-    async function isUserAuthorized() {
-      if (await canAccessResource(getResourceId(ResourceName.BLOG, {}), Action.MUTATE)) {
-        setCanCreate(true);
-      }
-    }
-    isUserAuthorized();
+    canAccessResource(ResourceName.BLOG, Action.MUTATE).then(setCanCreate);
   }, []);
 
   useEffect(() => {

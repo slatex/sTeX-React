@@ -1,10 +1,10 @@
-import { Quiz, isModerator } from '@stex-react/api';
-import {Action, getResourceId, ResourceName } from '@stex-react/utils';
+import { Quiz } from '@stex-react/api';
+import { doesQuizExist, writeQuizFile } from '@stex-react/node-utils';
+import { Action, ResourceName } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { v4 as uuidv4 } from 'uuid';
-import { checkIfPostOrSetError } from '../comment-utils';
-import { doesQuizExist, writeQuizFile } from '@stex-react/node-utils';
 import { getUserIdIfAuthorizedOrSetError } from '../access-control/resource-utils';
+import { checkIfPostOrSetError } from '../comment-utils';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
@@ -19,9 +19,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     problems,
   } = req.body as Quiz;
 
-  const userId = await getUserIdIfAuthorizedOrSetError(req, res, ResourceName.COURSE_QUIZ, Action.MUTATE, { courseId, instanceId : courseTerm });
-  if(!userId) return res.status(403).send({ message: 'unauthorized' });
-  
+  const userId = await getUserIdIfAuthorizedOrSetError(
+    req,
+    res,
+    ResourceName.COURSE_QUIZ,
+    Action.MUTATE,
+    { courseId, instanceId: courseTerm }
+  );
+  if (!userId) return;
+
   const quiz = {
     id: 'quiz-' + uuidv4().substring(0, 8),
     version: 0,

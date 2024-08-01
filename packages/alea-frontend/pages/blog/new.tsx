@@ -1,19 +1,19 @@
 import { Box, Button, TextField, Typography } from '@mui/material';
 import {
   BlogPost,
-  CdnImageMetadata,
   canAccessResource,
+  CdnImageMetadata,
   createBlogPost,
   getCdnImages,
   updateBlogPost,
   uploadCdnImage,
 } from '@stex-react/api';
 import { MystEditor } from '@stex-react/myst';
-import { Action, getResourceId, localStore, ResourceName } from '@stex-react/utils';
+import { Action, localStore, ResourceName } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import ImageCard from '../../components/ImageCard';
 import { useEffect, useState } from 'react';
+import ImageCard from '../../components/ImageCard';
 import MainLayout from '../../layouts/MainLayout';
 
 function generatePostId(title: string): string {
@@ -81,28 +81,20 @@ export function EditPostComponent({ existingPost }: { existingPost?: BlogPost })
     loadImages();
   }, []);
 
-  useEffect(()=>{
-    async function isUserAuthorized(){
-      if(!await canAccessResource(getResourceId(ResourceName.BLOG, {}), Action.MUTATE)){
+  useEffect(() => {
+    async function redirectIfNotAuthorized() {
+      if (!(await canAccessResource(ResourceName.BLOG, Action.MUTATE))) {
         router.push('/blog');
       }
     }
-    isUserAuthorized();
+    redirectIfNotAuthorized();
   }, []);
-
 
   const handleSubmit = async () => {
     if (existingPost) {
       await updateBlogPost(title, body, heroImageId, heroImageUrl, heroImagePosition, postId);
     } else {
-      await createBlogPost(
-        title,
-        body,
-        postId,
-        heroImageId,
-        heroImageUrl,
-        heroImagePosition
-      );
+      await createBlogPost(title, body, postId, heroImageId, heroImageUrl, heroImagePosition);
     }
     setTitle('');
     setBody('');

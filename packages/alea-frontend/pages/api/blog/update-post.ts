@@ -5,7 +5,7 @@ import { getUserIdIfAuthorizedOrSetError } from '../access-control/resource-util
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const userId = await getUserIdIfAuthorizedOrSetError(req, res, ResourceName.BLOG, Action.MUTATE);
-  if (!userId) return res.status(403).send({ message: 'unauthorized' });
+  if (!userId) return;
 
   const { title, body, postId, heroImageId, heroImageUrl, heroImagePosition } = req.body;
   const result = await executeAndEndSet500OnError(

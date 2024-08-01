@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { AccessControlList, ResourceAction } from './access-control';
 import { getAuthHeaders } from './lms';
+import { Action, getResourceId, ResourceName } from '@stex-react/utils';
 
 export async function getAllAclIds(): Promise<string[]> {
   const resp = await axios.get('/api/access-control/get-all-acl-ids');
@@ -76,9 +77,14 @@ export async function getAllResourceActions(): Promise<ResourceAction[]> {
   return data as ResourceAction[];
 }
 
-export async function canAccessResource(resourceId: string, actionId: string): Promise<boolean> {
+export async function canAccessResource(
+  resourceName: ResourceName,
+  actionId: Action,
+  variables: Record<string, string> = {}
+): Promise<boolean> {
+  const resourceId = getResourceId(resourceName, variables);
   const { data } = await axios.get(
-    `/api/access-control/can-access-resource?resourceId=${resourceId}&actionId=${actionId}`,
+    `/api/access-control/can-access-resource?resourceId=${resourceName}&actionId=${actionId}`,
     {
       headers: getAuthHeaders(),
     }

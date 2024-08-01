@@ -11,12 +11,7 @@ import {
   IconButton,
   Typography,
 } from '@mui/material';
-import {
-  BlogPost,
-  canAccessResource,
-  deleteBlogPost,
-  getPostById,
-} from '@stex-react/api';
+import { BlogPost, canAccessResource, deleteBlogPost, getPostById } from '@stex-react/api';
 import fs from 'fs';
 import { NextPage } from 'next';
 import Link from 'next/link';
@@ -50,7 +45,7 @@ const BlogPostPage: NextPage = ({ post }: { post: BlogPost }) => {
 
   useEffect(() => {
     async function checkIsUserCanDeleteOrEdit() {
-      if(await canAccessResource(getResourceId(ResourceName.BLOG, {}), Action.MUTATE)) {
+      if (await canAccessResource(ResourceName.BLOG, Action.MUTATE)) {
         setCanEditOrDelete(true);
       }
     }

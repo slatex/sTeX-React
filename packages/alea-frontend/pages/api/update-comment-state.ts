@@ -1,11 +1,28 @@
-import { UpdateCommentStateRequest } from '@stex-react/api';
+import { Comment, UpdateCommentStateRequest } from '@stex-react/api';
+import { Action, ResourceName } from '@stex-react/utils';
+import {
+  getUserIdIfAnyAuthorizedOrSetError,
+  ResourceActionParams,
+} from './access-control/resource-utils';
 import {
   checkIfPostOrSetError,
   executeTxnAndEndSet500OnError,
   getExistingCommentDontEnd,
 } from './comment-utils';
-import { getUserIdIfAuthorizedOrSetError2 } from './access-control/resource-utils';
-import { Action, ResourceName } from '@stex-react/utils';
+
+export async function getUserIdForModerationOrSetError(req, res, c: Comment) {
+  const resourceActions: ResourceActionParams[] = [
+    { name: ResourceName.ALL_COMMENTS, action: Action.MODERATE },
+  ];
+  if (c.courseId && c.courseTerm) {
+    resourceActions.push({
+      name: ResourceName.COURSE_COMMENTS,
+      action: Action.MODERATE,
+      variables: { courseId: c.courseId, instanceId: c.courseTerm },
+    });
+  }
+  return await getUserIdIfAnyAuthorizedOrSetError(req, res, resourceActions);
+}
 
 export default async function handler(req, res) {
   if (!checkIfPostOrSetError(req, res)) return;
@@ -20,31 +37,8 @@ export default async function handler(req, res) {
     res.status(error || 404).json({ message: 'Comment not found' });
     return;
   }
-  let userId: string | undefined;
-  if (existing.courseId && existing.courseTerm) {
-    userId = await getUserIdIfAuthorizedOrSetError2(req, res, [
-      {
-        name: ResourceName.COURSE_COMMENTS,
-        action: Action.MODERATE,
-        variables: { courseId: existing.courseId, instanceId: existing.courseTerm },
-      },
-      {
-        name: ResourceName.ALL_COMMENTS,
-        action: Action.MODERATE,
-        variables: {},
-      },
-    ]);
-  } else {
-    userId = await getUserIdIfAuthorizedOrSetError2(req, res, [
-      {
-        name: ResourceName.ALL_COMMENTS,
-        action: Action.MODERATE,
-        variables: {},
-      },
-    ]);
-  }
-
-  if (!userId) return res.status(403).json({ message: 'unauthorized' });
+  const userId = await getUserIdForModerationOrSetError(req, res, existing);
+  if (!userId) return;
 
   const results = await executeTxnAndEndSet500OnError(
     res,
