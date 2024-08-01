@@ -42,7 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     : 0;
   if (/*membersCount !== memberUserIds.length ||*/ aclCount !== memberACLIds.length)
     return res.status(422).send('Invalid item');
-  const updaterId = req.body.updaterId ?? id;
+  const updaterId = req.body.updaterACLId ?? id;
   const numMembershipRows = memberUserIds.length + memberACLIds.length;
   const values = new Array(numMembershipRows).fill('(?, ?, ?)');
 
