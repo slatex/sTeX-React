@@ -70,7 +70,11 @@ export function getResourceId(resourceName: ResourceName, variables: Record<stri
   }
   const components = resourceType.components.map((component) => {
     if (component.type == ComponentType.VARIABLE) {
-      return variables[component.name!];
+      const value = variables[component.name!];
+      if (!value) {
+        throw new Error(`Variable ${component.name} is required but not provided`);
+      }
+      return value;
     } else {
       return component.value;
     }
