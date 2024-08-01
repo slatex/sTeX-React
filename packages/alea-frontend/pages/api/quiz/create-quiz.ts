@@ -19,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     problems,
   } = req.body as Quiz;
 
-  const userId = await getUserIdIfAuthorizedOrSetError(req, res, getResourceId(ResourceName.COURSE_QUIZ, { courseId, instanceId : courseTerm }), Action.MUTATE);
+  const userId = await getUserIdIfAuthorizedOrSetError(req, res, ResourceName.COURSE_QUIZ, Action.MUTATE, { courseId, instanceId : courseTerm });
   if(!userId) return res.status(403).send({ message: 'unauthorized' });
   
   const quiz = {

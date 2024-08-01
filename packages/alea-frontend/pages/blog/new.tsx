@@ -9,7 +9,7 @@ import {
   uploadCdnImage,
 } from '@stex-react/api';
 import { MystEditor } from '@stex-react/myst';
-import { Action, blogResourceId, localStore } from '@stex-react/utils';
+import { Action, getResourceId, localStore, ResourceName } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import ImageCard from '../../components/ImageCard';
@@ -83,7 +83,7 @@ export function EditPostComponent({ existingPost }: { existingPost?: BlogPost })
 
   useEffect(()=>{
     async function isUserAuthorized(){
-      if(!await canAccessResource(blogResourceId(), Action.MUTATE)){
+      if(!await canAccessResource(getResourceId(ResourceName.BLOG, {}), Action.MUTATE)){
         router.push('/blog');
       }
     }

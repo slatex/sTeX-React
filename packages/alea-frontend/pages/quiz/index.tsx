@@ -12,12 +12,12 @@ import {
   Quiz,
   QuizStatsResponse,
   UserInfo,
+  canAccessResource,
   createQuiz,
   getAuthHeaders,
   getCourseInfo,
   getQuizStats,
   getUserInfo,
-  isModerator,
   updateQuiz,
 } from '@stex-react/api';
 import { getQuizPhase } from '@stex-react/quiz-utils';
@@ -25,7 +25,7 @@ import {
   ServerLinksContext,
   mmtHTMLToReact,
 } from '@stex-react/stex-react-renderer';
-import { CourseInfo, CURRENT_TERM, roundToMinutes } from '@stex-react/utils';
+import { Action, CourseInfo, CURRENT_TERM, getResourceId, ResourceName, roundToMinutes } from '@stex-react/utils';
 import axios, { AxiosResponse } from 'axios';
 import dayjs from 'dayjs';
 import type { NextPage } from 'next';
@@ -113,8 +113,8 @@ const QuizDashboardPage: NextPage = () => {
     totalStudents: 0,
   });
   const [isUpdating, setIsUpdating] = useState(false);
+  const [canAccess, setCanAccess] = useState(false);
   const [courseId, setCourseId] = useState('ai-1');
-  const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
   const { mmtUrl } = useContext(ServerLinksContext);
   const isNew = isNewQuiz(selectedQuizId);
@@ -180,16 +180,24 @@ const QuizDashboardPage: NextPage = () => {
     setQuizEndTs((prev) => Math.max(prev, quizStartTs));
     setFeedbackReleaseTs((prev) => Math.max(prev, quizStartTs, quizEndTs));
   }, [quizStartTs, quizEndTs]);
-
-  useEffect(() => {
-    getUserInfo().then(setUserInfo);
-  }, []);
   useEffect(() => {
     getCourseInfo(mmtUrl).then(setCourses);
   }, [mmtUrl]);
 
   if (!selectedQuiz && !isNew) return <>Error</>;
-  if (!isModerator(userInfo?.userId)) return <Box p="20px">Unauthorized</Box>;
+
+  useEffect(()=>{
+    async function isUserAuthorized(){
+    if(!await canAccessResource(getResourceId(ResourceName.COURSE_QUIZ, { courseId, instanceId : courseTerm }), Action.MUTATE)){
+        setCanAccess(false);
+        return;
+    }
+    setCanAccess(true);
+    }
+    isUserAuthorized()
+  }, [])
+
+  if(!canAccess) return <>UnAuthorized</>;
 
   return (
     <MainLayout title="Quizzes | VoLL-KI">

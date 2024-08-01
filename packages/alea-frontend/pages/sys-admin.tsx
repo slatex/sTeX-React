@@ -276,7 +276,7 @@ const SysAdmin: NextPage = () => {
             onChange={(e) => setResourceType(e.target.value as ResourceName)}
             displayEmpty
             variant="outlined"
-            margin="normal"
+            // margin="normal"
             size="small"
           >
             <MenuItem value="">
@@ -309,7 +309,7 @@ const SysAdmin: NextPage = () => {
             onChange={(e) => handleActionClick(e.target.value as Action)}
             displayEmpty
             variant="outlined"
-            margin="normal"
+            // margin="normal"
             size="small"
             disabled={!resourceType}
             sx={{ mb: '20px' }}

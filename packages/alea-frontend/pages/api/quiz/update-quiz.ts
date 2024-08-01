@@ -9,7 +9,7 @@ import {
 } from '@stex-react/node-utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getUserIdIfAuthorizedOrSetError } from '../access-control/resource-utils';
-import { Action, getResourceId, ResourceName } from '@stex-react/utils';
+import { Action, ResourceName } from '@stex-react/utils';
 
 // function to rewrite the quiz file with the new quiz info and backup the old version.
 export function updateQuiz(quizId, updatedQuizFunc: (existingQuiz: Quiz) => Quiz) {
@@ -28,7 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const quiz = req.body as Quiz;
   const { courseId, courseTerm } = quiz;
 
-  const userId = await getUserIdIfAuthorizedOrSetError(req, res, getResourceId(ResourceName.COURSE_QUIZ, { courseId, instanceId : courseTerm }), Action.MUTATE);
+  const userId = await getUserIdIfAuthorizedOrSetError(req, res, ResourceName.COURSE_QUIZ, Action.MUTATE, { courseId, instanceId : courseTerm });
   if(!userId) return res.status(403).send({ message: 'unauthorized' });
   
   if (!doesQuizExist(quiz?.id)) {
