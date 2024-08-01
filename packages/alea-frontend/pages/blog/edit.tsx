@@ -1,11 +1,10 @@
-import { Typography } from '@mui/material';
 import { BlogPost, canAccessResource, getPostById } from '@stex-react/api';
+import { Action, ResourceName } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
 import { EditPostComponent } from './new';
-import { Action, blogResourceId } from '@stex-react/utils';
 
 const EditPostPage: NextPage = () => {
   const router = useRouter();
@@ -14,11 +13,11 @@ const EditPostPage: NextPage = () => {
 
   useEffect(() => {
     async function isUserAuthorized() {
-      if(!await canAccessResource(blogResourceId(), Action.MUTATE)) {
+      if (!(await canAccessResource(ResourceName.BLOG, Action.MUTATE))) {
         router.push('/blog');
       }
-      isUserAuthorized();
     }
+    isUserAuthorized();
   }, []);
 
   useEffect(() => {

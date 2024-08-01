@@ -11,12 +11,7 @@ import {
   IconButton,
   Typography,
 } from '@mui/material';
-import {
-  BlogPost,
-  canAccessResource,
-  deleteBlogPost,
-  getPostById,
-} from '@stex-react/api';
+import { BlogPost, canAccessResource, deleteBlogPost, getPostById } from '@stex-react/api';
 import fs from 'fs';
 import { NextPage } from 'next';
 import Link from 'next/link';
@@ -24,7 +19,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
 import { MystViewer } from '@stex-react/myst';
-import { Action, blogResourceId } from '@stex-react/utils';
+import { Action, getResourceId, ResourceName } from '@stex-react/utils';
 
 const BlogPostPage: NextPage = ({ post }: { post: BlogPost }) => {
   const router = useRouter();
@@ -50,7 +45,7 @@ const BlogPostPage: NextPage = ({ post }: { post: BlogPost }) => {
 
   useEffect(() => {
     async function checkIsUserCanDeleteOrEdit() {
-      if(await canAccessResource(blogResourceId(), Action.MUTATE)) {
+      if (await canAccessResource(ResourceName.BLOG, Action.MUTATE)) {
         setCanEditOrDelete(true);
       }
     }

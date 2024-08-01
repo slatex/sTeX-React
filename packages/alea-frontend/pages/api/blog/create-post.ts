@@ -1,11 +1,11 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { executeAndEndSet500OnError, executeQuery } from '../comment-utils';
-import { Action, getResourceId, ResourceName } from '@stex-react/utils';
+import { Action, ResourceName } from '@stex-react/utils';
 import { getUserIdIfAuthorizedOrSetError } from '../access-control/resource-utils';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const userId = await getUserIdIfAuthorizedOrSetError(req, res, getResourceId(ResourceName.BLOG, {}), Action.MUTATE);
-  if (!userId) return res.status(403).send({ message: 'unauthorized' });
+  const userId = await getUserIdIfAuthorizedOrSetError(req, res,ResourceName.BLOG,  Action.MUTATE);
+  if (!userId) return;
 
   const { title, body, postId, heroImageId, heroImageUrl, heroImagePosition } = req.body;
   const userName = await executeQuery(`SELECT firstName, lastName FROM userInfo WHERE userId = ?`, [

@@ -5,12 +5,14 @@ export enum Action {
   DELETE = 'DELETE',
 
   MUTATE = 'MUTATE',
+  MODERATE = 'MODERATE',
 }
 
 export enum ResourceName {
   BLOG = 'Blog',
   COURSE_QUIZ = 'Course Quiz',
   COURSE_COMMENTS = 'Course comments',
+  ALL_COMMENTS = 'All comments',
 }
 
 export enum ComponentType {
@@ -49,7 +51,7 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
   },
   {
     name: ResourceName.COURSE_COMMENTS,
-    possibleActions: [Action.CREATE, Action.READ, Action.UPDATE, Action.DELETE],
+    possibleActions: [Action.CREATE, Action.READ, Action.UPDATE, Action.DELETE, Action.MODERATE],
     components: [
       { type: ComponentType.FIXED, value: 'course' },
       { name: 'courseId', type: ComponentType.VARIABLE, value: '' },
@@ -57,6 +59,11 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
       { name: 'instanceId', type: ComponentType.VARIABLE, value: '' },
       { type: ComponentType.FIXED, value: 'comments' },
     ],
+  },
+  {
+    name: ResourceName.ALL_COMMENTS,
+    possibleActions: [Action.MODERATE],
+    components: [{ type: ComponentType.FIXED, value: 'comments' }],
   },
 ];
 
@@ -80,4 +87,12 @@ export function getResourceId(resourceName: ResourceName, variables: Record<stri
     }
   });
   return '/' + components.join('/');
+}
+
+export function isValidAction(actionId: Action, resourceName: ResourceName) {
+  const resourceType = RESOURCE_TYPE_MAP.get(resourceName);
+  if (!resourceType) {
+    throw new Error(`Resource type ${resourceName} not found`);
+  }
+  return resourceType.possibleActions.includes(actionId);
 }
