@@ -1,7 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { isMemberOfAcl } from '../acl-utils/acl-common-utils';
-import { executeAndEndSet500OnError, getUserIdOrSetError } from '../comment-utils';
+import { getUserIdOrSetError } from '../comment-utils';
 import { Action, getResourceId, isValidAction, ResourceName } from '@stex-react/utils';
+import { returnAclIdForResourceIdAndActionId } from '../resourceaccess-utils/resource-common-utils';
 
 export interface ResourceActionParams {
   name: ResourceName;
@@ -26,15 +27,20 @@ export async function getUserIdIfAnyAuthorizedOrSetError(
       );
     }
 
-    const aclQuery = `SELECT aclId FROM ResourceAccess WHERE resourceId = ? AND actionId = ?`;
-    const acl: { aclId: string }[] = await executeAndEndSet500OnError(
-      aclQuery,
-      [resourceId, resourceAction.action],
-      res
-    );
-    if (await isMemberOfAcl(acl[0].aclId, userId as string)) return userId;
+    // const aclQuery = `SELECT aclId FROM ResourceAccess WHERE resourceId = ? AND actionId = ?`;
+    // const acl: { aclId: string }[] = await executeAndEndSet500OnError(
+    //   aclQuery,
+    //   [resourceId, resourceAction.action],
+    //   res
+    // );
+    // if (await isMemberOfAcl(acl[0].aclId, userId as string)) return userId;
+
+    const aclId = await returnAclIdForResourceIdAndActionId(resourceId, resourceAction.action);
+    if (typeof aclId === 'object' && 'error' in aclId) {
+      continue;
+    }
+    if (aclId && (await isMemberOfAcl(aclId, userId as string))) return userId;
   }
-  res.status(403).send({ message: 'unauthorized' });
   return undefined;
 }
 
