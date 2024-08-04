@@ -1,13 +1,14 @@
 import { ResourceAction } from '@stex-react/api';
-import { ResourceAbstractCacheStore } from './resource-cache-store';
+import { AbstractResourceAssignmentCache } from './resource-cache-store';
 import { getCacheKey } from './resource-common-utils';
 
-export class InmemoryCache extends ResourceAbstractCacheStore {
+export class InmemoryCache extends AbstractResourceAssignmentCache {
   private cache: Map<string, string> = new Map();
   async initialize(resourceAccessData: ResourceAction[]) {
     this.storeResourceAccessData(resourceAccessData);
   }
   async storeResourceAccessData(resourceAccessData: ResourceAction[]) {
+    this.cache.clear();
     for (const resource of resourceAccessData) {
       const key = getCacheKey(resource.resourceId, resource.actionId);
       this.cache.set(key, resource.aclId);

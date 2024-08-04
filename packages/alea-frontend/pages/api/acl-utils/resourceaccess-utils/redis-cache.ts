@@ -1,23 +1,28 @@
-import { Redis } from 'ioredis';
-import { ResourceAbstractCacheStore } from './resource-cache-store';
+import { AbstractResourceAssignmentCache } from './resource-cache-store';
 import { ResourceAction } from '@stex-react/api';
 import { getCacheKey } from './resource-common-utils';
+import { RedisInstance } from '../redis-utils';
 
-export class RedisCache extends ResourceAbstractCacheStore {
-  private db = new Redis({
-    port: +process.env.REDIS_PORT,
-    host: process.env.REDIS_HOST,
-    lazyConnect: true,
-    password: process.env.REDIS_PASSWORD,
-    username: process.env.REDIS_USERNAME,
-  });
+export class RedisCache extends AbstractResourceAssignmentCache {
+  private db = RedisInstance;
   async initialize(resourceAccessData: ResourceAction[]) {
-    console.log('initializing in redis');
     this.storeResourceAccessData(resourceAccessData);
   }
   async storeResourceAccessData(resourceAccessData: ResourceAction[]) {
+
+    this.db.keys('resource-assignment:*', (err, keys) => {
+      if (err) {
+        throw new Error(`Error fetching keys from redis: ${err.message}`);
+      }
+      if (keys.length === 0) return;
+      this.db.del(...keys, (err, reply) => {
+        if (err) {
+          throw new Error(`Error fetching keys from redis: ${err.message}`);
+        } 
+      });
+    });
+
     for (const resource of resourceAccessData) {
-      console.log('in the loop for every resource');
       const key = getCacheKey(resource.resourceId, resource.actionId);
       await this.db.set(key, resource.aclId);
     }

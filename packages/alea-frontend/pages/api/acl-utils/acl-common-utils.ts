@@ -8,7 +8,7 @@ export enum AclSavePostfix {
   members = 'members',
 }
 export function getCacheKey(aclId: string, savePostfix: AclSavePostfix) {
-  return `${aclId}-${savePostfix}`;
+  return `acl-membership:${aclId}-${savePostfix}`;
 }
 export async function isMemberOfAcl(acl: string, userId: string) {
   return await CACHE_STORE.isMemberOfSet(getCacheKey(acl, AclSavePostfix.members), userId);

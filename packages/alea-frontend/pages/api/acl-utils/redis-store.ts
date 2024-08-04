@@ -1,15 +1,9 @@
 import Redis, { RedisKey } from 'ioredis';
 import { AbstractCacheStore, CacheValueType } from './abstract-cache-store';
+import { RedisInstance } from './redis-utils';
 
 export class RedisStore extends AbstractCacheStore {
-  private db = new Redis({
-    port: +process.env.REDIS_PORT,
-    host: process.env.REDIS_HOST,
-    lazyConnect: true,
-    password: process.env.REDIS_PASSWORD,
-    username: process.env.REDIS_USERNAME,
-  });
-
+  private db = RedisInstance;
   async setEntry(key: RedisKey, data: CacheValueType): Promise<{ error: any }> {
     try {
       await this.db.set(key, data);

@@ -1,6 +1,6 @@
 import { RESOURCE_CACHE } from './resource-store';
 export function getCacheKey(resourceId: string, actionId: string) {
-  return `${resourceId}-${actionId}`;
+  return `resource-assignment:${resourceId}-${actionId}`;
 }
 
 export async function returnAclIdForResourceIdAndActionId(resourceId: string, actionId: string) {

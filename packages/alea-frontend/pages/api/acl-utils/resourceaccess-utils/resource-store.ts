@@ -1,7 +1,7 @@
 import { ResourceAction } from '@stex-react/api';
 import { RedisCache } from './redis-cache';
 import { InmemoryCache } from './inmemory-cache';
-import { executeQuery } from '../comment-utils';
+import { executeQuery } from '../../comment-utils';
 
 function createResourceCacheSingleton() {
   return process.env['CACHE_STORE'] === 'redis' ? new RedisCache() : new InmemoryCache();
@@ -14,8 +14,7 @@ declare global {
 export const RESOURCE_CACHE =
   globalThis.RESOURCE_CACHE ?? (globalThis.RESOURCE_CACHE = createResourceCacheSingleton());
 
-(async function initializeResourceCache() {
-  console.log('Initializing ResourceCache');
+export async function initializeResourceCache() {
   try {
     const resourceAccessData = await executeQuery<ResourceAction[]>(
       'SELECT * FROM ResourceAccess',
@@ -29,4 +28,5 @@ export const RESOURCE_CACHE =
   } catch (error) {
     console.error('Error during ResourceCache initialization:', error);
   }
-})();
+}
+initializeResourceCache();
