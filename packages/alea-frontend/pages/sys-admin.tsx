@@ -259,17 +259,8 @@ const SysAdmin: NextPage = () => {
           }}
         >
           <Typography fontSize={22} m="10px 0">
-            Resource Action
+            Resource-Action Assignments
           </Typography>
-          <TextField
-            fullWidth
-            margin="normal"
-            label="ACL ID"
-            value={aclId}
-            onChange={(e) => setAclId(e.target.value)}
-            variant="outlined"
-            size="small"
-          />
           <Select
             fullWidth
             value={resourceType}
@@ -288,7 +279,7 @@ const SysAdmin: NextPage = () => {
               </MenuItem>
             ))}
           </Select>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '5px', mb: '20px' }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '5px', my: "5px" }}>
             {resourceComponents.map((component, index) => (
               <TextField
                 key={index}
@@ -297,12 +288,21 @@ const SysAdmin: NextPage = () => {
                 value={component.value}
                 onChange={(e) => handleComponentChange(index, e.target.value)}
                 variant="outlined"
-                disabled={component.type === ComponentType.FIXED}
+                disabled={component.type !== ComponentType.VARIABLE}
                 size="small"
                 sx={{ flex: '1 1 calc(20% - 10px)', minWidth: '120px' }}
               />
             ))}
           </Box>
+          <TextField
+            label="Resource ID"
+            variant="outlined"
+            value={resourceId}
+            size="small"
+            sx={{ mb: '20px' }}
+            fullWidth
+            disabled
+          />
           <Select
             fullWidth
             value={actionId}
@@ -329,13 +329,13 @@ const SysAdmin: NextPage = () => {
             </Typography>
           )}
           <TextField
-            label="Resource ID"
-            variant="outlined"
-            value={resourceId}
-            size="small"
-            sx={{ mb: '20px' }}
             fullWidth
-            disabled
+            margin="normal"
+            label="ACL ID"
+            value={aclId}
+            onChange={(e) => setAclId(e.target.value)}
+            variant="outlined"
+            size="small"
           />
           <Button
             variant="contained"
@@ -344,11 +344,11 @@ const SysAdmin: NextPage = () => {
             disabled={isSubmitting || !aclId || !resourceId || !actionId}
             sx={{ alignSelf: 'center' }}
           >
-            Create
+            Add New Assignment
           </Button>
         </Box>
 
-        <Box sx={{ textAlign: 'center', mb: 4 }}>
+        <Box sx={{ textAlign: 'center', my: 4 }}>
           <Typography variant="h6">Resource Access Management</Typography>
         </Box>
         <TableContainer component={Paper} sx={{ margin: 'auto' }}>

@@ -33,7 +33,7 @@ export async function getUserIdIfAnyAuthorizedOrSetError(
     }
     if (aclId && (await isMemberOfAcl(aclId, userId as string))) return userId;
   }
-  return res.status(403).send({message : 'unAuthorized'});
+  return res.status(403).send('unauthorized');
 }
 
 export async function getUserIdIfAuthorizedOrSetError(

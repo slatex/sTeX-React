@@ -71,12 +71,12 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
   {
     name: ResourceName.ALL_COMMENTS,
     possibleActions: [Action.MODERATE],
-    components: [{ type: ComponentType.FIXED, value: 'comments' }],
+    components: [{ type: ComponentType.FIXED, value: '**' }],
   },
   {
     name : ResourceName.GLOBAL_ACCESS,
     possibleActions : [Action.ACCESS_CONTROL],
-    components : [{type : ComponentType.WILDCARD2, value : 'global-access'}]
+    components : [{type : ComponentType.WILDCARD2, value : '**'}]
   }, 
   {
     name : ResourceName.COURSE_ACCESS,
@@ -86,7 +86,7 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
       {name : 'courseId',type : ComponentType.VARIABLE},
       {type : ComponentType.FIXED, value : 'instance'},
       {name : 'instanceId',type : ComponentType.VARIABLE},
-      {type : ComponentType.WILDCARD2}
+      {type : ComponentType.WILDCARD2, value: '**'}
     ]
   }
 ];
