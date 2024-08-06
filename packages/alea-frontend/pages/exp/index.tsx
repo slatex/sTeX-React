@@ -61,7 +61,7 @@ const ExperimentsHome: NextPage = () => {
                 Quiz Dashboard
               </InternalButtonLink>
               <InternalButtonLink href="/sys-admin">
-              Systems Administrator
+              System Administrator
               </InternalButtonLink>
             </Box>
             <Box>

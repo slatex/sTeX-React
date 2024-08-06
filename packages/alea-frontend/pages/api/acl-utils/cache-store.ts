@@ -1,6 +1,6 @@
 import { executeQuery } from '../comment-utils';
 import { ACLMembership, Flattening } from './flattening';
-import { InMemoryStore } from './inmemory-store';
+import { InMemoryStore } from './inmemory-acl-membership-cache';
 import { RedisStore } from './redis-store';
 
 function cacheSingleton() {
