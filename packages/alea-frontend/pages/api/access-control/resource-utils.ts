@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { isMemberOfAcl } from '../acl-utils/acl-common-utils';
-import { getUserIdOrSetError } from '../comment-utils';
+import { executeAndEndSet500OnError, getUserIdOrSetError } from '../comment-utils';
 import { Action, getResourceId, isValidAction, ResourceName } from '@stex-react/utils';
 import { returnAclIdForResourceIdAndActionId } from '../acl-utils/resourceaccess-utils/resource-common-utils';
 
@@ -46,4 +46,31 @@ export async function getUserIdIfAuthorizedOrSetError(
   return await getUserIdIfAnyAuthorizedOrSetError(req, res, [
     { name: resourceName, action: actionId, variables },
   ]);
+}
+function wildCardToRegexExp(wildCardPattern: string) {
+  return new RegExp(`^${wildCardPattern.replace(/\/\*\*/, '(/.*)?').replace(/\/\*/, '/[^/]+')}$`);
+}
+export async function checkIfUserAuthorizedForResourceAction(
+  res: NextApiResponse,
+  resourceId: string,
+  userId: string
+) {
+  const query = 'SELECT resourceId, aclId FROM ResourceAccess WHERE actionId = ?';
+  const accessControlEntries: Array<{ resourceId: string; aclId: string }> =
+    await executeAndEndSet500OnError(query, [Action.ACCESS_CONTROL], res);
+  const matchingAclIds: Set<string> = new Set();
+  for (const accessControlEntry of accessControlEntries) {
+    const regex = wildCardToRegexExp(accessControlEntry.resourceId);
+    if (regex.test(resourceId)) {
+      matchingAclIds.add(accessControlEntry.aclId);
+    }
+  }
+  let userHasAccess = false;
+  for (const matchingAclId of matchingAclIds) {
+    if (await isMemberOfAcl(matchingAclId, userId as string)) {
+      userHasAccess = true;
+      break;
+    }
+  }
+  return userHasAccess;
 }
