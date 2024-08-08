@@ -9,8 +9,7 @@ import {
   IconButton,
   TextField,
 } from '@mui/material';
-import { AccessControlList, getAcl, isMember, isUserMember } from '@stex-react/api';
-import axios from 'axios';
+import {getAcl, getAllAclMembers, isMember, isUserMember } from '@stex-react/api';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
@@ -31,7 +30,8 @@ const AclId: NextPage = () => {
   const [userIdInput, setUserIdInput] = useState<string>('');
   const [membershipStatus, setMembershipStatus] = useState<string>('');
   const [isUpdaterMember, setIsUpdaterMember] = useState<boolean>(false);
-
+  const [allMemberNamesAndIds, setAllMemberNamesAndIds] = useState([]);
+  const [showAllMembers, setShowAllMembers] = useState<boolean>(false);
   async function getMembers() {
     try {
       const acl = await getAcl(aclId as string);
@@ -52,6 +52,14 @@ const AclId: NextPage = () => {
   async function checkIsUserMember(){
       const res : boolean = await isUserMember(aclId as string);
       setUserIsMember(res);
+  }
+
+  async function getAllMembersOfAcl(){
+    if(allMemberNamesAndIds.length === 0){
+      const data : {fullName : string, userId : string}[] = await getAllAclMembers(aclId as string);
+      setAllMemberNamesAndIds(data);
+    }
+    setShowAllMembers(!showAllMembers);
   }
 
   async function handleCheckUser(){
@@ -82,6 +90,7 @@ const AclId: NextPage = () => {
       checkIsUserMember();
       isUserIsUpdater();
     }
+    setShowAllMembers(false);
   }, [aclId, updaterACLId]);
 
   return (
@@ -232,6 +241,42 @@ const AclId: NextPage = () => {
                       <ListItemText primary={user} />
                     </ListItem>
                     {index < allMemberUserIds.length - 1 && <Divider />}
+                  </React.Fragment>
+                ))}
+              </List>
+            </Box>
+          )}
+          <Button
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                  variant="contained"
+                  color="primary"
+                  onClick={()=>getAllMembersOfAcl()}
+                >
+                  {showAllMembers ? 'Hide All Members' : 'Show All Members'}
+          </Button>
+          {allMemberNamesAndIds.length !==0 && showAllMembers && (
+            <Box sx={{ marginTop: '32px' }}>
+              <Typography variant="h6" color="secondary">
+                All Members Of {aclId}
+              </Typography>
+              <List>
+                {allMemberNamesAndIds.map((user, index) => (
+                  <React.Fragment key={user}>
+                    <ListItem
+                      button
+                      component="a"
+                      sx={{
+                        '&:hover': {
+                          backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                        },
+                      }}
+                    >
+                      <ListItemText primary={`${user.fullName} (${user.userId})`} />
+                    </ListItem>
+                    {index < allMemberNamesAndIds.length - 1 && <Divider />}
                   </React.Fragment>
                 ))}
               </List>

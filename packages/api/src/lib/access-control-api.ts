@@ -17,6 +17,11 @@ export async function getAcl(aclId: string): Promise<AccessControlList> {
   return resp.data as AccessControlList;
 }
 
+export async function getAllAclMembers(aclId : string): Promise<{fullName : string, userId : string}[]> {
+  const resp = await axios.get(`/api/access-control/get-all-members?id=${aclId}`);
+  return resp.data;
+}
+
 export async function updateAcl(updateAcl: UpdateACLRequest): Promise<void> {
   await axios.post('/api/access-control/update-acl', updateAcl, { headers: getAuthHeaders() });
 }

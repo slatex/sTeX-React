@@ -28,6 +28,7 @@ import {
   createResourceAction,
   deleteResourceAction,
   getAllResourceActions,
+  isUserMember,
   isValid,
   recomputeMemberships,
   UpdateResourceAction,
@@ -45,8 +46,10 @@ import {
 } from '@stex-react/utils';
 import { DateView } from '@stex-react/react-utils';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 const SysAdmin: NextPage = () => {
+  const router = useRouter();
   const [aclId, setAclId] = useState<string | null>('');
   const [resourceType, setResourceType] = useState<ResourceName | ''>('');
   const [resourceComponents, setResourceComponents] = useState<ResourceIdComponent[]>([]);
@@ -75,6 +78,11 @@ const SysAdmin: NextPage = () => {
   }
 
   useEffect(() => {
+    async function isUserAnSysAdmin() {
+      if(!await isUserMember('sys-admin'))
+        router.push('/');
+    }
+    isUserAnSysAdmin();
     getAllResources();
   }, []);
 
