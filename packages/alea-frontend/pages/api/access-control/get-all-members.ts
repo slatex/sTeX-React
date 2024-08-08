@@ -1,0 +1,18 @@
+import { NextApiRequest, NextApiResponse } from 'next';
+import { AclSavePostfix, getCacheKey } from '../acl-utils/acl-common-utils';
+import { checkIfGetOrSetError, executeDontEndSet500OnError } from '../comment-utils';
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (!checkIfGetOrSetError(req, res)) return;
+  const aclId = req.query.id as string;
+  const members = await CACHE_STORE.getFromSet(getCacheKey(aclId, AclSavePostfix.members));
+  const result: { firstname: string; lastname: string; userId: string }[] =
+    await executeDontEndSet500OnError(
+      `select firstname, lastname, userId from userInfo where userId IN (?)`,
+      [members],
+      res
+    );
+  res
+    .status(200)
+    .send(result.map((c) => ({ fullName: `${c.firstname} ${c.lastname}`, userId: c.userId })));
+}
