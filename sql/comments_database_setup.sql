@@ -172,9 +172,20 @@ CREATE TABLE Answer  (
   id int NOT NULL,
   questionId varchar(255) NOT NULL,
   userId varchar(255) NOT NULL,
-  answer longtext NULL,
+  answer TEXT NULL,
   question_title varchar(510) NOT NULL,
   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
+);
+CREATE TABLE Grading  (
+  id int NOT NULL,
+  checkerId varchar(255) NOT NULL,
+  answerId int NOT NULL,
+  customFeedback TEXT NULL,
+  totalPoints float NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  FOREIGN KEY (answerId) REFERENCES Answer (id)
 );
