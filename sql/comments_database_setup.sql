@@ -204,3 +204,13 @@ CREATE TABLE GradingAnswerClass  (
   PRIMARY KEY (id),
   FOREIGN KEY (gradingId) REFERENCES Grading (id)
 );
+CREATE TABLE ReviewRequest   (
+  id int NOT NULL,
+  reviewType enum('INSTRUCTOR','PEER') NOT NULL,
+  answerId int NOT NULL,
+  userId varchar(255) NOT NULL,
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  FOREIGN KEY (answerId) REFERENCES Answer (id)
+);
