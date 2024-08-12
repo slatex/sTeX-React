@@ -168,3 +168,13 @@ SELECT DISTINCT t1.senderId, t1.receiverId FROM StudyBuddyConnections t1 JOIN St
 
 /* Query to get 1-way connection requests */
 SELECT t1.senderId, t1.receiverId FROM StudyBuddyConnections t1 LEFT JOIN StudyBuddyConnections t2 ON t1.senderId = t2.receiverId AND t1.receiverId = t2.senderId WHERE t2.senderId IS NULL AND t2.receiverId IS NULL AND t1.senderId < t1.receiverId;
+CREATE TABLE Answer  (
+  id int NOT NULL,
+  questionId varchar(255) NOT NULL,
+  userId varchar(255) NOT NULL,
+  answer longtext NULL,
+  question_title varchar(510) NOT NULL,
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+);
