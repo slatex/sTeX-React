@@ -189,3 +189,18 @@ CREATE TABLE Grading  (
   PRIMARY KEY (id),
   FOREIGN KEY (answerId) REFERENCES Answer (id)
 );
+CREATE TABLE GradingAnswerClass  (
+  id int NOT NULL,
+  gradingId int NOT NULL,
+  answerClassId varchar(255) NOT NULL,
+  points float NOT NULL,
+  isTrait boolean NOT NULL,
+  closed boolean NOT NULL,
+  title varchar(255) NOT NULL,
+  description TEXT NULL,
+  count int NULL DEFAULT 1,
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  FOREIGN KEY (gradingId) REFERENCES Grading (id)
+);
