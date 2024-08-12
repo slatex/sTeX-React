@@ -82,13 +82,12 @@ export async function canAccessResource(
   actionId: Action,
   variables: Record<string, string> = {}
 ): Promise<boolean> {
-  const resourceId = getResourceId(resourceName, variables);
-  const { data } = await axios.get(
-    `/api/access-control/can-access-resource?resourceId=${resourceName}&actionId=${actionId}`,
-    {
-      headers: getAuthHeaders(),
-    }
-  );
+  const queryParams = new URLSearchParams({ resourceName, actionId });
+  for (const [key, value] of Object.entries(variables)) {
+    queryParams.append(key, value);
+  }
+  const url = `/api/access-control/can-access-resource?${queryParams.toString()}`;
+  const {data} = await axios.get(url, { headers: getAuthHeaders() });
   return data as boolean;
 }
 

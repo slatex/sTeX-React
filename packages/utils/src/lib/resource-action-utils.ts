@@ -6,24 +6,31 @@ export enum Action {
 
   MUTATE = 'MUTATE',
   MODERATE = 'MODERATE',
+
+  ACCESS_CONTROL = 'ACCESS_CONTROL',
 }
 
 export enum ResourceName {
   BLOG = 'Blog',
-  COURSE_QUIZ = 'Course Quiz',
-  COURSE_COMMENTS = 'Course comments',
-  ALL_COMMENTS = 'All comments',
+  COURSE_QUIZ = 'Course-Quiz',
+  COURSE_COMMENTS = 'Course-Comments',
+  ALL_COMMENTS = 'All-Comments',
+  GLOBAL_ACCESS = 'Global-Access',
+  COURSE_ACCESS = 'Course-Access'
 }
 
 export enum ComponentType {
   FIXED = 'FIXED',
   VARIABLE = 'VARIABLE',
+
+  WILDCARD1 = 'WILDCARD1',
+  WILDCARD2 = 'WILDCARD2'
 }
 
 export interface ResourceIdComponent {
   name?: string;
   type: ComponentType;
-  value: string;
+  value? : string;
 }
 
 export interface ResourceType {
@@ -31,6 +38,7 @@ export interface ResourceType {
   possibleActions: Action[];
   components: ResourceIdComponent[];
 }
+
 
 export const ALL_RESOURCE_TYPES: ResourceType[] = [
   {
@@ -63,8 +71,24 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
   {
     name: ResourceName.ALL_COMMENTS,
     possibleActions: [Action.MODERATE],
-    components: [{ type: ComponentType.FIXED, value: 'comments' }],
+    components: [{ type: ComponentType.FIXED, value: '**' }],
   },
+  {
+    name : ResourceName.GLOBAL_ACCESS,
+    possibleActions : [Action.ACCESS_CONTROL],
+    components : [{type : ComponentType.WILDCARD2, value : '**'}]
+  }, 
+  {
+    name : ResourceName.COURSE_ACCESS,
+    possibleActions : [Action.ACCESS_CONTROL],
+    components : [
+      {type : ComponentType.FIXED, value : 'course'},
+      {name : 'courseId',type : ComponentType.VARIABLE},
+      {type : ComponentType.FIXED, value : 'instance'},
+      {name : 'instanceId',type : ComponentType.VARIABLE},
+      {type : ComponentType.WILDCARD2, value: '**'}
+    ]
+  }
 ];
 
 export const RESOURCE_TYPE_MAP = new Map<ResourceName, ResourceType>(
@@ -82,7 +106,14 @@ export function getResourceId(resourceName: ResourceName, variables: Record<stri
         throw new Error(`Variable ${component.name} is required but not provided`);
       }
       return value;
-    } else {
+    }
+    else if (component.type == ComponentType.WILDCARD1) {
+      return '*';
+    }
+    else if(component.type == ComponentType.WILDCARD2){
+      return '**';
+    }
+    else {
       return component.value;
     }
   });
