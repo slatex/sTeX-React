@@ -1,12 +1,7 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Button, IconButton, Tooltip, Typography } from '@mui/material';
 import LinearProgress from '@mui/material/LinearProgress';
-import {
-  Problem,
-  ProblemResponse,
-  getProblemIdsForFile,
-  getProblemShtml,
-} from '@stex-react/api';
+import { Problem, ProblemResponse, getProblemIdsForFile, getProblemShtml } from '@stex-react/api';
 import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
 import { sourceFileUrl } from '@stex-react/utils';
 import { useRouter } from 'next/router';
@@ -54,9 +49,7 @@ export function PerSectionQuiz({
     const problems$ = problemIds.map((p) => getProblemShtml(mmtUrl, p));
     setIsLoadingProblems(true);
     Promise.all(problems$).then((problemStrs) => {
-      const problems = problemStrs.map((p) =>
-        getProblem(hackAwayProblemId(p), '')
-      );
+      const problems = problemStrs.map((p) => getProblem(hackAwayProblemId(p), ''));
       setProblems(problems);
       setResponses(problems.map((p) => defaultProblemResponse(p)));
       setIsFrozen(problems.map(() => false));
@@ -121,9 +114,7 @@ export function PerSectionQuiz({
         </IconButton>
       </Box>
       {problem.header && (
-        <div style={{ color: '#555', marginTop: '10px' }}>
-          {mmtHTMLToReact(problem.header)}
-        </div>
+        <div style={{ color: '#555', marginTop: '10px' }}>{mmtHTMLToReact(problem.header)}</div>
       )}
       <Box mb="10px">
         <ProblemDisplay

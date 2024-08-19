@@ -22,10 +22,7 @@ import {
   isLoggedIn,
   smileyToLevel,
 } from '@stex-react/api';
-import {
-  ServerLinksContext,
-  mmtHTMLToReact,
-} from '@stex-react/stex-react-renderer';
+import { ServerLinksContext, mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import {
   PRIMARY_COL,
   SECONDARY_COL,
@@ -36,28 +33,16 @@ import {
 import axios from 'axios';
 import { ConfigureLevelSlider } from '@stex-react/stex-react-renderer';
 import { useRouter } from 'next/router';
-import {
-  Dispatch,
-  Fragment,
-  SetStateAction,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import { Dispatch, Fragment, SetStateAction, useContext, useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import { FlashCardMode, FlashCards } from './FlashCards';
 
 const FLASH_CARD_SCROLL_Y = 62;
-function cardMeetsLevelReqs(
-  card: CardsWithSmileys,
-  loggedIn: boolean,
-  levels: ConfiguredLevel
-) {
+function cardMeetsLevelReqs(card: CardsWithSmileys, loggedIn: boolean, levels: ConfiguredLevel) {
   if (!loggedIn) return true;
-  const dimsToConsider = [
-    BloomDimension.Remember,
-    BloomDimension.Understand,
-  ].filter((dim) => (levels as any)[dim] !== undefined);
+  const dimsToConsider = [BloomDimension.Remember, BloomDimension.Understand].filter(
+    (dim) => (levels as any)[dim] !== undefined
+  );
   if (!dimsToConsider.length) return true;
   return dimsToConsider.some(
     (dim) => (smileyToLevel(card.smileys[dim]) as any) <= (levels as any)[dim]
@@ -149,8 +134,7 @@ function LevelConfigurator({
             }}
             onIconClick={() => {
               setLevels((prev) => {
-                const newVal =
-                  (levels as any)[dim] === undefined ? 2 : undefined;
+                const newVal = (levels as any)[dim] === undefined ? 2 : undefined;
                 return getUpdatedConfigLevel(prev, dim, newVal);
               });
             }}
@@ -210,115 +194,100 @@ function CoverageConfigurator({
         </Typography>
       </Tooltip>
       <List sx={{ bgcolor: 'background.paper' }}>
-        {sectionCounts.map(
-          ({ chapterTitle, sectionTitle, totalCount, selectedCards }, idx) => {
-            const labelId = `checkbox-list-label-${idx}`;
-            const isChapterStart =
-              idx === 0 || sectionCounts[idx - 1].chapterTitle !== chapterTitle;
+        {sectionCounts.map(({ chapterTitle, sectionTitle, totalCount, selectedCards }, idx) => {
+          const labelId = `checkbox-list-label-${idx}`;
+          const isChapterStart = idx === 0 || sectionCounts[idx - 1].chapterTitle !== chapterTitle;
 
-            return (
-              <Fragment key={idx}>
-                {isChapterStart && (
-                  <ListItem disablePadding>
-                    <ListItemButton
-                      onClick={() => {
-                        const idxs: number[] = [];
-                        for (const [idx, section] of sectionCounts.entries()) {
-                          if (section.chapterTitle === chapterTitle)
-                            idxs.push(idx);
-                        }
-                        const setAll = idxs.some(
-                          (idx) => !checkedChapterIdxs.includes(idx)
-                        );
-                        const newChecked = [...checkedChapterIdxs];
-                        if (setAll) {
-                          idxs.forEach((idx) => addIfNeeded(newChecked, idx));
-                        } else {
-                          idxs.forEach((idx) =>
-                            removeIfNeeded(newChecked, idx)
-                          );
-                        }
-                        setCheckedChapterIdxs(newChecked);
-                      }}
-                    >
-                      <b
-                        style={{
-                          display: 'block',
-                          color: PRIMARY_COL,
-                          fontSize: 'large',
-                        }}
-                      >
-                        {mmtHTMLToReact(chapterTitle)}
-                      </b>
-                    </ListItemButton>
-                  </ListItem>
-                )}
+          return (
+            <Fragment key={idx}>
+              {isChapterStart && (
                 <ListItem disablePadding>
                   <ListItemButton
-                    onClick={handleToggle(idx)}
-                    dense
-                    sx={{ p: '0 0 0 10px', m: '0' }}
-                  >
-                    <ListItemIcon sx={{ minWidth: '30px' }}>
-                      <Checkbox
-                        edge="start"
-                        checked={checkedChapterIdxs.indexOf(idx) !== -1}
-                        tabIndex={-1}
-                        disableRipple
-                        inputProps={{ 'aria-labelledby': labelId }}
-                      />
-                    </ListItemIcon>
-                    <ListItemText
-                      id={labelId}
-                      primary={
-                        <Box sx={{ fontSize: '14px' }}>
-                          <b style={{ display: 'block', color: PRIMARY_COL }}>
-                            {mmtHTMLToReact(sectionTitle)}
-                          </b>
-                          <b style={{ color: SECONDARY_COL }}>
-                            {loggedIn && selectedCards.length + '/'}
-                            {totalCount}&nbsp;{t.concepts}
-                          </b>
-                        </Box>
+                    onClick={() => {
+                      const idxs: number[] = [];
+                      for (const [idx, section] of sectionCounts.entries()) {
+                        if (section.chapterTitle === chapterTitle) idxs.push(idx);
                       }
-                    />
-
-                    {selectedCards.length ? (
-                      <Box display="flex" alignItems="center" gap="5px 10px">
-                        <Button
-                          size="small"
-                          sx={{ fontWeight: 'bold' }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            startSingleChapter(
-                              idx,
-                              FlashCardMode.REVISION_MODE
-                            );
-                          }}
-                        >
-                          {t.revise}
-                        </Button>
-                        {loggedIn && (
-                          <Button
-                            size="small"
-                            sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              startSingleChapter(idx, FlashCardMode.DRILL_MODE);
-                            }}
-                          >
-                            {t.drill}&nbsp;
-                            {shuffle && <ShuffleIcon fontSize="small" />}
-                          </Button>
-                        )}
-                      </Box>
-                    ) : null}
+                      const setAll = idxs.some((idx) => !checkedChapterIdxs.includes(idx));
+                      const newChecked = [...checkedChapterIdxs];
+                      if (setAll) {
+                        idxs.forEach((idx) => addIfNeeded(newChecked, idx));
+                      } else {
+                        idxs.forEach((idx) => removeIfNeeded(newChecked, idx));
+                      }
+                      setCheckedChapterIdxs(newChecked);
+                    }}
+                  >
+                    <b
+                      style={{
+                        display: 'block',
+                        color: PRIMARY_COL,
+                        fontSize: 'large',
+                      }}
+                    >
+                      {mmtHTMLToReact(chapterTitle)}
+                    </b>
                   </ListItemButton>
                 </ListItem>
-              </Fragment>
-            );
-          }
-        )}
+              )}
+              <ListItem disablePadding>
+                <ListItemButton onClick={handleToggle(idx)} dense sx={{ p: '0 0 0 10px', m: '0' }}>
+                  <ListItemIcon sx={{ minWidth: '30px' }}>
+                    <Checkbox
+                      edge="start"
+                      checked={checkedChapterIdxs.indexOf(idx) !== -1}
+                      tabIndex={-1}
+                      disableRipple
+                      inputProps={{ 'aria-labelledby': labelId }}
+                    />
+                  </ListItemIcon>
+                  <ListItemText
+                    id={labelId}
+                    primary={
+                      <Box sx={{ fontSize: '14px' }}>
+                        <b style={{ display: 'block', color: PRIMARY_COL }}>
+                          {mmtHTMLToReact(sectionTitle)}
+                        </b>
+                        <b style={{ color: SECONDARY_COL }}>
+                          {loggedIn && selectedCards.length + '/'}
+                          {totalCount}&nbsp;{t.concepts}
+                        </b>
+                      </Box>
+                    }
+                  />
+
+                  {selectedCards.length ? (
+                    <Box display="flex" alignItems="center" gap="5px 10px">
+                      <Button
+                        size="small"
+                        sx={{ fontWeight: 'bold' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          startSingleChapter(idx, FlashCardMode.REVISION_MODE);
+                        }}
+                      >
+                        {t.revise}
+                      </Button>
+                      {loggedIn && (
+                        <Button
+                          size="small"
+                          sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            startSingleChapter(idx, FlashCardMode.DRILL_MODE);
+                          }}
+                        >
+                          {t.drill}&nbsp;
+                          {shuffle && <ShuffleIcon fontSize="small" />}
+                        </Button>
+                      )}
+                    </Box>
+                  ) : null}
+                </ListItemButton>
+              </ListItem>
+            </Fragment>
+          );
+        })}
       </List>
     </>
   );
@@ -342,12 +311,7 @@ function ReviseAndDrillButtons({
   return (
     <Box textAlign={'center'} mt="20px">
       <FormControlLabel
-        control={
-          <Checkbox
-            checked={shuffle}
-            onChange={(e) => setShuffle(e.target.checked)}
-          />
-        }
+        control={<Checkbox checked={shuffle} onChange={(e) => setShuffle(e.target.checked)} />}
         label={t.shuffleCards}
       />
       <Box display="flex" gap="10px" justifyContent="center" mb="5px">
@@ -415,18 +379,14 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
   const { home, flashCards: t } = getLocaleObject(router);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [courseCards, setCourseCards] = useState<
-    CardsWithSmileys[] | undefined
-  >(undefined);
+  const [courseCards, setCourseCards] = useState<CardsWithSmileys[] | undefined>(undefined);
 
   const [levels, setLevels] = useState<ConfiguredLevel>({
     Remember: 0,
     Understand: 0,
   });
   const [checkedChapterIdxs, setCheckedChapterIdxs] = useState<number[]>([]);
-  const [topLevelDocUrl, setTopLevelDocUrl] = useState<string | undefined>(
-    undefined
-  );
+  const [topLevelDocUrl, setTopLevelDocUrl] = useState<string | undefined>(undefined);
   const [started, setStarted] = useState(false);
   const [mode, setMode] = useState(FlashCardMode.REVISION_MODE);
   const [shuffle, setShuffle] = useState(true);
@@ -435,20 +395,11 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
   const loggedIn = isLoggedIn();
 
   const sectionCounts = getSectionCounts(levels, loggedIn, courseCards);
-  const selectedChapters = checkedChapterIdxs.map(
-    (idx) => sectionCounts[idx].sectionTitle
-  );
-  const selectedCards = getSelectedCards(
-    mode,
-    shuffle,
-    sectionCounts,
-    selectedChapters
-  );
+  const selectedChapters = checkedChapterIdxs.map((idx) => sectionCounts[idx].sectionTitle);
+  const selectedCards = getSelectedCards(mode, shuffle, sectionCounts, selectedChapters);
   useEffect(() => {
     getCourseInfo(mmtUrl).then((c) =>
-      setTopLevelDocUrl(
-        XhtmlContentUrl(c[courseId]?.notesArchive, c[courseId]?.notesFilepath)
-      )
+      setTopLevelDocUrl(XhtmlContentUrl(c[courseId]?.notesArchive, c[courseId]?.notesFilepath))
     );
   }, [courseId, mmtUrl]);
   useEffect(() => {
@@ -497,9 +448,7 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
         flexDirection="row-reverse"
       >
         <Box zIndex={1} maxWidth="250px">
-          {loggedIn && (
-            <LevelConfigurator levels={levels} setLevels={setLevels} />
-          )}
+          {loggedIn && <LevelConfigurator levels={levels} setLevels={setLevels} />}
           <ReviseAndDrillButtons
             shuffle={shuffle}
             setShuffle={setShuffle}
