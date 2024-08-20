@@ -4,9 +4,13 @@ import { Typography, Button, Box, Tooltip } from '@mui/material';
 import { PerSectionQuiz } from 'packages/stex-react-renderer/src/lib/PerSectionQuiz';
 import MainLayout from '../layouts/MainLayout';
 import { PRIMARY_COL } from '@stex-react/utils';
+import { getLocaleObject } from 'packages/stex-react-renderer/src/lib/lang/utils';
+// import { getLocaleObject } from '../lang/utils';
 
 const PerSectionQuizPage: React.FC = () => {
   const router = useRouter();
+  const { practiceProblems: t } = getLocaleObject(router);
+
   const { archive, filepath, title, courseId } = router.query as {
     archive: string;
     filepath: string;
@@ -43,7 +47,7 @@ const PerSectionQuizPage: React.FC = () => {
             }}
             onClick={handleButtonClick}
           >
-            Course Problem Page
+            {t.courseProblemPage}&nbsp;
           </Button>
         </Tooltip>
         {/* <Box display="flex" flexDirection="column" alignItems="center">
@@ -61,7 +65,7 @@ const PerSectionQuizPage: React.FC = () => {
             fontWeight: 'bold',
           }}
         >
-          Problems for
+          {t.problemsFor}&nbsp;
           <span
             style={{
               color: PRIMARY_COL,
@@ -83,11 +87,7 @@ const PerSectionQuizPage: React.FC = () => {
         />
         <br />
         <Box textAlign="left" mx="auto" mt="20px">
-          <b style={{ color: 'red' }}>
-            Note: These problems are only to aid your learning. They do not cover the course
-            material exhaustively and there are no guarantees that the problems are correct or that
-            they are representative of kinds of problems that will be on the quizzes or the exam.
-          </b>
+          <b style={{ color: 'red' }}>{t.warning}&nbsp;</b>
         </Box>
       </Box>
     </MainLayout>

@@ -4,6 +4,7 @@ import LaunchIcon from '@mui/icons-material/Launch';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 import { PRIMARY_COL } from '@stex-react/utils';
+import { getLocaleObject } from '../lang/utils';
 
 interface Node {
   title: string;
@@ -55,7 +56,7 @@ const extractTitlesAndMetadata = (
   const currentArchive = node.archive || parentArchive;
   const currentFilepath = node.filepath || parentFilepath;
 
-  if (node.title) {
+  if (node.title === '' || node.title) {
     const cleanTitle = removeHtmlTags(node.title);
     result.push({
       title: cleanTitle,
@@ -80,6 +81,8 @@ const extractTitlesAndMetadata = (
 const ProblemList: FC<ProblemListProps> = ({ data, courseId }) => {
   const [problemCounts, setProblemCounts] = useState<Record<string, number>>({});
   const router = useRouter();
+  const { home } = getLocaleObject(router);
+  const t = home.courseThumb;
 
   useEffect(() => {
     if (!courseId) return;
@@ -132,7 +135,7 @@ const ProblemList: FC<ProblemListProps> = ({ data, courseId }) => {
           textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
         }}
       >
-        Practice
+        {t.practice}&nbsp;
       </Typography>
       <Paper
         sx={{
@@ -209,7 +212,7 @@ const ProblemList: FC<ProblemListProps> = ({ data, courseId }) => {
                                 fontWeight: 300,
                               }}
                             >
-                              {problemCount} problems
+                              {problemCount} {t.problems}
                             </Typography>
                           )}
                         </>
@@ -239,7 +242,7 @@ const ProblemList: FC<ProblemListProps> = ({ data, courseId }) => {
                     }
                   >
                     <LaunchIcon fontSize="small" sx={{ marginRight: '8px' }} />
-                    Practice
+                    {t.practice}&nbsp;
                   </Button>
                 </ListItem>
               );

@@ -169,7 +169,7 @@ const CourseHomePage: NextPage = () => {
             <Diversity3Icon fontSize="large" />
           </CourseComponentLink>
           <CourseComponentLink href={`/practice-problems/${courseId}`}>
-            {<p>Practice</p>}&nbsp;
+            {<p>{t.practice}</p>}&nbsp;
             <PreviewIcon fontSize="large" />
           </CourseComponentLink>
         </Box>

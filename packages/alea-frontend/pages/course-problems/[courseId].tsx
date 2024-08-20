@@ -29,7 +29,6 @@ const CourseProblemsPage: NextPage = () => {
     return <>Course Not Found!</>;
   }
   const url = XhtmlContentUrl(courseInfo.notesArchive, courseInfo.notesFilepath);
-  console.log('uR', url);
 
   return (
     <MainLayout title={(courseId || '').toUpperCase() + ` ${t.notes} | VoLL-KI`}>
