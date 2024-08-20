@@ -8,10 +8,6 @@ import { useContext, useEffect, useState } from 'react';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
 import ProblemList from 'packages/alea-frontend/components/ProblemList';
-import ProblemList1 from 'packages/alea-frontend/components/ProblemList1';
-import ProblemList2 from 'packages/alea-frontend/components/ProblemList2';
-import ProblemList3 from 'packages/alea-frontend/components/ProblemList3';
-import ProblemList4 from 'packages/alea-frontend/components/ProblemList4';
 
 const CourseProblemsPage: NextPage = () => {
   const router = useRouter();
@@ -61,12 +57,8 @@ const CourseProblemsPage: NextPage = () => {
   if (!data) return <CircularProgress />;
 
   return (
-    <MainLayout title={`${(courseId || '').toUpperCase()} ${t.notes} | VoLL-KI`}>
+    <MainLayout title={`${(courseId || '').toUpperCase()} Problems | VoLL-KI`}>
       <ProblemList data={data} courseId={courseId} />
-      <ProblemList3 data={data} courseId={courseId} />
-      <ProblemList4 data={data} courseId={courseId} />
-      <ProblemList1 data={data} courseId={courseId} />
-      <ProblemList2 data={data} courseId={courseId} />
     </MainLayout>
   );
 };

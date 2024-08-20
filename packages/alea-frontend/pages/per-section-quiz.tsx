@@ -1,11 +1,10 @@
 import React from 'react';
 import { useRouter } from 'next/router';
-import { Typography, Button, Box, Tooltip } from '@mui/material';
+import { Button, Box, Tooltip } from '@mui/material';
 import { PerSectionQuiz } from 'packages/stex-react-renderer/src/lib/PerSectionQuiz';
 import MainLayout from '../layouts/MainLayout';
 import { PRIMARY_COL } from '@stex-react/utils';
 import { getLocaleObject } from 'packages/stex-react-renderer/src/lib/lang/utils';
-// import { getLocaleObject } from '../lang/utils';
 
 const PerSectionQuizPage: React.FC = () => {
   const router = useRouter();
@@ -27,7 +26,7 @@ const PerSectionQuizPage: React.FC = () => {
   }
 
   return (
-    <MainLayout title="All Comments | VoLL-KI">
+    <MainLayout title="PerSection Problems | VoLL-KI">
       <Box display="flex" mt="10px" justifyContent="center" alignItems="center">
         <Tooltip title="Go to Course Problem Page">
           <Button
@@ -50,14 +49,7 @@ const PerSectionQuizPage: React.FC = () => {
             {t.courseProblemPage}&nbsp;
           </Button>
         </Tooltip>
-        {/* <Box display="flex" flexDirection="column" alignItems="center">
-          <Typography variant="h6" color="textSecondary" fontWeight="bold">
-            Problems for
-          </Typography>
-          <Typography variant="h6" color={PRIMARY_COL} fontWeight="bold">
-            {title || 'Unknown Title'}
-          </Typography>
-        </Box> */}
+
         <b
           style={{
             color: 'gray',
