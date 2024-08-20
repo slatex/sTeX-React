@@ -3,12 +3,20 @@ import Diversity3Icon from '@mui/icons-material/Diversity3';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import QuizIcon from '@mui/icons-material/Quiz';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
-import { Box, Button, CircularProgress } from '@mui/material';
-import { getCourseInfo } from '@stex-react/api';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Divider,
+  TextareaAutosize,
+  Typography,
+} from '@mui/material';
+import { getCourseInfo, getRagResponse } from '@stex-react/api';
 import {
   ContentFromUrl,
   DisplayReason,
   DocumentWidthSetter,
+  ExpandableContent,
   ServerLinksContext,
 } from '@stex-react/stex-react-renderer';
 import { BG_COLOR, CourseInfo, XhtmlContentUrl } from '@stex-react/utils';
@@ -21,19 +29,12 @@ import { RecordedSyllabus } from '../../components/RecordedSyllabus';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
 
-function CourseComponentLink({
-  href,
-  children,
-}: {
-  href: string;
-  children: any;
-}) {
+const queryReferencesText = 'Check out these handpicked references for your query :- ';
+
+function CourseComponentLink({ href, children }: { href: string; children: any }) {
   return (
     <Link href={href}>
-      <Button
-        variant="contained"
-        sx={{ width: '100%', height: '48px', fontSize: '16px' }}
-      >
+      <Button variant="contained" sx={{ width: '100%', height: '48px', fontSize: '16px' }}>
         {children}
       </Button>
     </Link>
@@ -111,9 +112,10 @@ const CourseHomePage: NextPage = () => {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const courseId = router.query.courseId as string;
-  const [courses, setCourses] = useState<
-    { [id: string]: CourseInfo } | undefined
-  >(undefined);
+  const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
+  const [query, setQuery] = useState('');
+  const [references, setReferences] = useState<{ archive: string; filepath: string }[]>([]);
+  const [loading, setIsLoading] = useState(false);
   const { mmtUrl } = useContext(ServerLinksContext);
 
   useEffect(() => {
@@ -127,12 +129,18 @@ const CourseHomePage: NextPage = () => {
     return <>Course Not Found!</>;
   }
 
-  const { notesLink, slidesLink, cardsLink, forumLink, quizzesLink, hasQuiz } =
-    courseInfo;
+  const { notesLink, slidesLink, cardsLink, forumLink, quizzesLink, hasQuiz } = courseInfo;
 
   const locale = router.locale || 'en';
   const { home, courseHome: tCourseHome } = getLocaleObject(router);
   const t = home.courseThumb;
+
+  async function handleQuery(query: string) {
+    setIsLoading(true);
+    const res = await getRagResponse(query);
+    setReferences(res.sources);
+    setIsLoading(false);
+  }
 
   return (
     <MainLayout
@@ -145,13 +153,7 @@ const CourseHomePage: NextPage = () => {
         courseId={courseId}
       />
 
-      <Box
-        maxWidth="900px"
-        m="auto"
-        px="10px"
-        display="flex"
-        flexDirection="column"
-      >
+      <Box maxWidth="900px" m="auto" px="10px" display="flex" flexDirection="column">
         <Box
           display="grid"
           gridTemplateColumns="repeat(auto-fill,minmax(185px, 1fr))"
@@ -168,12 +170,7 @@ const CourseHomePage: NextPage = () => {
           </CourseComponentLink>
           <CourseComponentLink href={cardsLink}>
             {t.cards}&nbsp;{' '}
-            <Image
-              src="/noun-flash-cards-2494102.svg"
-              width={35}
-              height={35}
-              alt=""
-            />
+            <Image src="/noun-flash-cards-2494102.svg" width={35} height={35} alt="" />
           </CourseComponentLink>
           <CourseComponentLink href={forumLink}>
             {t.forum}&nbsp;
@@ -191,6 +188,59 @@ const CourseHomePage: NextPage = () => {
             <Diversity3Icon fontSize="large" />
           </CourseComponentLink>
         </Box>
+        {courseId === 'iwgs-1' && (
+          <Box sx={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+            <TextareaAutosize
+              minRows={2}
+              placeholder="Write Your Query..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              style={{
+                padding: '5px',
+                fontSize: '16px ',
+                marginBottom: '20px',
+                width: '100%',
+              }}
+            />
+            <Button
+              variant="contained"
+              sx={{ width: '100px', height: '48px' }}
+              onClick={() => handleQuery(query)}
+            >
+              {loading ? <CircularProgress color="inherit" /> : 'Query'}
+            </Button>
+          </Box>
+        )}
+        {references.length > 0 && (
+          <>
+            <Typography fontWeight="bold">{queryReferencesText}</Typography>
+            <Box
+              bgcolor="#DDD"
+              borderRadius="5px"
+              mb="15px"
+              sx={{
+                padding: '10px',
+              }}
+            >
+              <Box width="600px" m="0 auto 30px" p="10px">
+                <DocumentWidthSetter>
+                  {references.map((ref, idx) => (
+                    <>
+                      <Divider sx={{ marginBottom: '20px', marginTop: '20px', fontWeight: 'bold' }}>
+                        Reference - {idx + 1}
+                      </Divider>
+                      <ExpandableContent
+                        key={ref.filepath}
+                        contentUrl={XhtmlContentUrl(ref.archive, ref.filepath + '.xhtml')}
+                        noFurtherExpansion={true}
+                      />
+                    </>
+                  ))}
+                </DocumentWidthSetter>
+              </Box>
+            </Box>
+          </>
+        )}
         <DocumentWidthSetter>
           <ContentFromUrl
             displayReason={DisplayReason.NOTES}
