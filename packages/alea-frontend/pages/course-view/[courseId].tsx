@@ -2,13 +2,7 @@ import ArticleIcon from '@mui/icons-material/Article';
 import MergeIcon from '@mui/icons-material/Merge';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
 import VideoCameraFrontIcon from '@mui/icons-material/VideoCameraFront';
-import {
-  Box,
-  Button,
-  CircularProgress,
-  ToggleButtonGroup,
-  Typography,
-} from '@mui/material';
+import { Box, Button, CircularProgress, ToggleButtonGroup, Typography } from '@mui/material';
 import {
   SectionInfo,
   SectionsAPIData,
@@ -77,9 +71,7 @@ function ToggleModeButton({
       onChange={(event, newVal) => {
         if (!newVal) {
           newVal =
-            viewMode === ViewMode.COMBINED_MODE
-              ? ViewMode.SLIDE_MODE
-              : ViewMode.COMBINED_MODE;
+            viewMode === ViewMode.COMBINED_MODE ? ViewMode.SLIDE_MODE : ViewMode.COMBINED_MODE;
         }
         updateViewMode(newVal);
       }}
@@ -91,31 +83,21 @@ function ToggleModeButton({
       <TooltipToggleButton value={ViewMode.VIDEO_MODE} title={t.showVideo}>
         <VideoCameraFrontIcon />
       </TooltipToggleButton>
-      <TooltipToggleButton
-        value={ViewMode.COMBINED_MODE}
-        title={t.showSlidesAndVideo}
-      >
+      <TooltipToggleButton value={ViewMode.COMBINED_MODE} title={t.showSlidesAndVideo}>
         <MergeIcon />
       </TooltipToggleButton>
     </ToggleButtonGroup>
   );
 }
 
-function populateClipIds(
-  sections: SectionInfo[],
-  clipIds: { [sectionId: string]: string }
-) {
+function populateClipIds(sections: SectionInfo[], clipIds: { [sectionId: string]: string }) {
   for (const section of sections) {
     clipIds[section.id] = section.clipId;
     populateClipIds(section.children, clipIds);
   }
 }
 
-export function setSlideNumAndSectionId(
-  router: NextRouter,
-  slideNum: number,
-  sectionId?: string
-) {
+export function setSlideNumAndSectionId(router: NextRouter, slideNum: number, sectionId?: string) {
   const { pathname, query } = router;
   const courseId = query.courseId as string;
   if (sectionId) {
@@ -150,9 +132,7 @@ const CourseViewPage: NextPage = () => {
   const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
   const [preNotes, setPreNotes] = useState([] as string[]);
   const [postNotes, setPostNotes] = useState([] as string[]);
-  const [docSections, setDocSections] = useState<SectionsAPIData | undefined>(
-    undefined
-  );
+  const [docSections, setDocSections] = useState<SectionsAPIData | undefined>(undefined);
   const [courseSections, setCourseSections] = useState<string[]>([]);
   const [slideCounts, setSlideCounts] = useState<{
     [sectionId: string]: number;
@@ -164,9 +144,7 @@ const CourseViewPage: NextPage = () => {
   const { mmtUrl } = useContext(ServerLinksContext);
   const { courseView: t, home: tHome } = getLocaleObject(router);
   const [contentUrl, setContentUrl] = useState(undefined as string);
-  const [courses, setCourses] = useState<
-    { [id: string]: CourseInfo } | undefined
-  >(undefined);
+  const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
 
   useEffect(() => {
     if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
@@ -176,9 +154,7 @@ const CourseViewPage: NextPage = () => {
     if (!router.isReady || !courses?.[courseId]) return;
     const { notesArchive, notesFilepath } = courses[courseId];
     setContentUrl(XhtmlContentUrl(notesArchive, notesFilepath));
-    axios
-      .get(`/api/get-slide-counts/${courseId}`)
-      .then((resp) => setSlideCounts(resp.data));
+    axios.get(`/api/get-slide-counts/${courseId}`).then((resp) => setSlideCounts(resp.data));
   }, [router.isReady, courses, courseId]);
 
   useEffect(() => {
@@ -207,29 +183,18 @@ const CourseViewPage: NextPage = () => {
     }
     if (!slideNum) {
       someParamMissing = true;
-      query.slideNum =
-        localStore?.getItem(`lastReadSlideNum-${courseId}`) || '1';
+      query.slideNum = localStore?.getItem(`lastReadSlideNum-${courseId}`) || '1';
     }
     if (!viewMode) {
       someParamMissing = true;
-      query.viewMode =
-        localStore?.getItem('defaultMode') || ViewMode.SLIDE_MODE.toString();
+      query.viewMode = localStore?.getItem('defaultMode') || ViewMode.SLIDE_MODE.toString();
     }
     if (!audioOnlyStr) {
       someParamMissing = true;
       query.audioOnly = localStore?.getItem('audioOnly') || 'false';
     }
     if (someParamMissing) router.replace({ pathname, query });
-  }, [
-    router,
-    router.isReady,
-    sectionId,
-    slideNum,
-    viewMode,
-    courseId,
-    audioOnlyStr,
-    slideCounts,
-  ]);
+  }, [router, router.isReady, sectionId, slideNum, viewMode, courseId, audioOnlyStr, slideCounts]);
 
   useEffect(() => {
     async function getIndex() {
@@ -266,12 +231,7 @@ const CourseViewPage: NextPage = () => {
   const { archive, filepath } = sectionParentInfo ?? {};
 
   return (
-    <MainLayout
-      title={
-        (courseId || '').toUpperCase() +
-        ` ${tHome.courseThumb.slides} | VoLL-KI`
-      }
-    >
+    <MainLayout title={(courseId || '').toUpperCase() + ` ${tHome.courseThumb.slides} | VoLL-KI`}>
       <LayoutWithFixedMenu
         menu={
           contentUrl?.length ? (
@@ -296,11 +256,7 @@ const CourseViewPage: NextPage = () => {
       >
         <Box display="flex">
           <Box maxWidth="800px" margin="0 auto" width="100%">
-            <Box
-              display="flex"
-              alignItems="center"
-              justifyContent="space-between"
-            >
+            <Box display="flex" alignItems="center" justifyContent="space-between">
               <ToggleModeButton
                 viewMode={viewMode}
                 updateViewMode={(mode) => {
@@ -322,12 +278,10 @@ const CourseViewPage: NextPage = () => {
                 {mmtHTMLToReact(sectionNode?.title || '')}
               </Typography>
             </Box>
-            {(viewMode === ViewMode.VIDEO_MODE ||
-              viewMode === ViewMode.COMBINED_MODE) && (
+            {(viewMode === ViewMode.VIDEO_MODE || viewMode === ViewMode.COMBINED_MODE) && (
               <VideoDisplay clipId={clipIds[sectionId]} audioOnly={audioOnly} />
             )}
-            {(viewMode === ViewMode.SLIDE_MODE ||
-              viewMode === ViewMode.COMBINED_MODE) && (
+            {(viewMode === ViewMode.SLIDE_MODE || viewMode === ViewMode.COMBINED_MODE) && (
               <SlideDeck
                 navOnTop={viewMode === ViewMode.COMBINED_MODE}
                 courseId={courseId}

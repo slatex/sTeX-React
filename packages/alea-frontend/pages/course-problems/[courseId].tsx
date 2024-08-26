@@ -1,9 +1,6 @@
 import { Button, CircularProgress } from '@mui/material';
 import { getCourseInfo } from '@stex-react/api';
-import {
-  DocProblemBrowser,
-  ServerLinksContext,
-} from '@stex-react/stex-react-renderer';
+import { DocProblemBrowser, ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { CourseInfo, XhtmlContentUrl } from '@stex-react/utils';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -18,9 +15,7 @@ const CourseProblemsPage: NextPage = () => {
   const courseId = router.query.courseId as string;
   const startSecNameExcl = router.query.startSecNameExcl as string;
   const endSecNameIncl = router.query.endSecNameIncl as string;
-  const [courses, setCourses] = useState<
-    { [id: string]: CourseInfo } | undefined
-  >(undefined);
+  const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
   const { mmtUrl } = useContext(ServerLinksContext);
 
   useEffect(() => {
@@ -33,15 +28,10 @@ const CourseProblemsPage: NextPage = () => {
     router.replace('/');
     return <>Course Not Found!</>;
   }
-  const url = XhtmlContentUrl(
-    courseInfo.notesArchive,
-    courseInfo.notesFilepath
-  );
+  const url = XhtmlContentUrl(courseInfo.notesArchive, courseInfo.notesFilepath);
 
   return (
-    <MainLayout
-      title={(courseId || '').toUpperCase() + ` ${t.notes} | VoLL-KI`}
-    >
+    <MainLayout title={(courseId || '').toUpperCase() + ` ${t.notes} | VoLL-KI`}>
       {startSecNameExcl && endSecNameIncl && (
         <Button
           variant="contained"
