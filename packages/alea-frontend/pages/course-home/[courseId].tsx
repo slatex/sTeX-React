@@ -37,6 +37,7 @@ const BG_COLORS = {
   'iwgs-2': 'radial-gradient(circle, #5b6956, #8f9868)',
   krmt: 'radial-gradient(circle, white, #f5f5b7)',
   gdp: 'radial-gradient(circle, #4bffd7, #a11cff)',
+  rip: 'radial-gradient(circle, #fcef6e, #3f2e86)',
 };
 
 export function CourseHeader({
@@ -173,6 +174,7 @@ const CourseHomePage: NextPage = () => {
             <Image src="/practice_problems.svg" width={35} height={35} alt="" />
           </CourseComponentLink>
         </Box>
+        <br />
         <DocumentWidthSetter>
           <ContentFromUrl
             displayReason={DisplayReason.NOTES}

@@ -44,8 +44,7 @@ export const de = {
     loginWithEmail: 'Melden Sie sich über E-Mail an',
     fakeLogin: 'Fake-Anmeldung',
     warning: 'Warnung',
-    logoutWarning:
-      'Durch das Abmelden vom FAU IdM-Portal werden Sie hier NICHT abgemeldet.',
+    logoutWarning: 'Durch das Abmelden vom FAU IdM-Portal werden Sie hier NICHT abgemeldet.',
     notesHeader:
       'Interaktive Kursmaterialien beinhalten Lernunterstützungsangebote, die ein Lernendenmodell füllen, das bei jeder Interaktion mit den Materialien aktualisiert wird. Solche Präferenzen der Vorlieben und Kompetenzen eines Nutzenden enthalten hochsensible **personenbezogene Daten**. Daher werden die Lernunterstützungangebote (und die entsprechende Sammlung von Nutzendenmodelldaten) nur aufgerufen, wenn der oder Nutzende angemeldet ist, und sonst sicher und unter ausschließlicher Kontrolle des jeweiligen Nutzenden in der **Voll-KI Trust Zone** gespeichert. Bitte beachten Sie folgende Konsequenzen:',
     notesPoint1:
@@ -71,8 +70,7 @@ export const de = {
   flashCards: {
     header: 'Konfigurieren Sie Ihren Flashcard-Auswahl zum Lernen/Üben!',
     chooseCoverage: 'Wählen Sie ein Kartenset',
-    chooseCoverageHover:
-      'Wählen Sie die Karten im Stapel nach Kurskapiteln aus',
+    chooseCoverageHover: 'Wählen Sie die Karten im Stapel nach Kurskapiteln aus',
     chooseCompetency: 'Wählen Sie Kompetenzstufen',
     chooseCompetencyHover:
       'Wählen Sie die Kompetenzstufen (geschätzt durch das Lernendenmodell), bis zu denen Karten in den Kartenstapel aufgenommen werden sollen',
@@ -144,8 +142,7 @@ export const de = {
     cancel: 'Stornieren',
     confirmation: 'Bestätigung',
     confirmText: 'Meine Daten löschen',
-    purgeInstruction:
-      'Geben Sie diesen Text zur Bestätigung in das Feld unten ein',
+    purgeInstruction: 'Geben Sie diesen Text zur Bestätigung in das Feld unten ein',
   },
   myLearnerModel: {
     learnerModel: 'Lernendenmodell',
@@ -186,8 +183,7 @@ export const de = {
   },
   learnerModelPriming: {
     learnerModelPriming: 'Lernermodell-Fundierung',
-    loginToContinue:
-      'Bitte melden Sie sich an (mit Ihren FAU IDM-Zugangsdaten), um fortzufahren',
+    loginToContinue: 'Bitte melden Sie sich an (mit Ihren FAU IDM-Zugangsdaten), um fortzufahren',
     intro:
       'Ein Großteil der ALᴇA-Dienste hängt von der Qualität der Daten im ALᴇA-Lernendenmodell ' +
       'ab. Das Lernendenmodell repräsentiert das Wissen bzw. die Kompetenz der Lernenden im ' +
@@ -228,14 +224,12 @@ export const de = {
     video: 'Video',
   },
   studyBuddy: {
-    fillForm:
-      'Füllen Sie das folgende Formular aus, um Partner zum gemeinsamen Lernen zu finden.',
+    fillForm: 'Füllen Sie das folgende Formular aus, um Partner zum gemeinsamen Lernen zu finden.',
     agreementText:
       'Ich verstehe, dass diese Informationen verwendet werden, um andere Nutzende von Study Buddy Connect zu finden und mit ihnen in Kontakt zu treten.',
     join: 'Verbinden',
     update: 'Aktualisieren',
-    loginToContinue:
-      'Bitte melden Sie sich an (mit Ihren FAU IDM-Zugangsdaten), um fortzufahren',
+    loginToContinue: 'Bitte melden Sie sich an (mit Ihren FAU IDM-Zugangsdaten), um fortzufahren',
     discard: 'Verwerfen',
     myProfile: 'Mein Profil',
     editInfo: 'Informationen bearbeiten',
@@ -265,8 +259,7 @@ export const de = {
     lookingForSubtext:
       'Diese Lernenden suchen nach einem Study Buddy. Bitte senden Sie ihnen eine Anfrage.',
 
-    optOutPrompt:
-      'Sind Sie sicher, dass Sie das Study Buddy-Programm für $1 verlassen möchten?',
+    optOutPrompt: 'Sind Sie sicher, dass Sie das Study Buddy-Programm für $1 verlassen möchten?',
     haveEnrolled: 'Sie nehmen am Study Buddy-Programm für $1 teil.',
     connectedAlert: 'Sie haben eine Verbindung zu $1 hergestellt.',
     connectionRequestCancelled: 'Die Anfrage zu $1 wurde abgebrochen.',
@@ -293,8 +286,7 @@ export const de = {
     allCourses: 'Alle Kurse',
     recent: 'Kürzlich',
     removeFromRecents: 'Aus der aktuellen Liste entfernen',
-    findCourse:
-      'Finden Sie Ihren Kurs, um am Study Buddy-Programm teilzunehmen',
+    findCourse: 'Finden Sie Ihren Kurs, um am Study Buddy-Programm teilzunehmen',
     studyBuddyMasterCourse: 'Study Buddy-Programm für Master-KI-Kurse',
     myEnrolledCourses: 'Meine eingeschriebenen Kurse',
     studyBuddyIntro:
@@ -339,11 +331,11 @@ export const de = {
       'Ihre E-Mail muss noch bestätigt werden Bestätigung. Klicken Sie auf die Schaltfläche, um den Vorgang zu starten und die Bestätigungs-E-Mail zu erhalten',
     sendVerifcationBtn: 'Verifizierung-E-Mail senden',
     verificationEmail: 'Verifizierungs-E-Mail erfolgreich gesendet',
-    somethingWentWrong:
-      'Etwas ist schiefgegangen. Bitte versuchen Sie es erneut.',
+    somethingWentWrong: 'Etwas ist schiefgegangen. Bitte versuchen Sie es erneut.',
   },
   practiceProblems: {
     practiceProblems: 'Übungsaufgaben',
+    practiceProblemsDescription: 'Die folgenden Aufgaben sollen Ihnen beim Lernen helfen. Sie decken den Kursstoff nicht erschöpfend ab und es gibt keine Garantie dafür, dass die Aufgaben richtig sind oder dass sie repräsentativ für die Aufgabentypen sind, die in den Tests oder der Prüfung vorkommen werden.',
     problems: 'Probleme',
     practice: 'Üben',
   },
