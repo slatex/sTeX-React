@@ -10,11 +10,7 @@ import {
   lastFileNode,
   reportEvent,
 } from '@stex-react/api';
-import {
-  PROBLEM_PARSED_MARKER,
-  getProblem,
-  hackAwayProblemId,
-} from '@stex-react/quiz-utils';
+import { PROBLEM_PARSED_MARKER, getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
 import {
   IS_MMT_VIEWER,
   XhtmlContentUrl,
@@ -25,42 +21,30 @@ import {
 import { getOuterHTML } from 'domutils';
 import parse, { DOMNode, Element, domToReact } from 'html-react-parser';
 import { ElementType } from 'htmlparser2';
-import {
-  createContext,
-  forwardRef,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { createContext, forwardRef, useContext, useEffect, useRef, useState } from 'react';
 import { Slide } from 'react-slideshow-image';
 import 'react-slideshow-image/dist/styles.css';
-import SectionReview from './SectionReview';
 import { ContentFromUrl } from './ContentFromUrl';
 import { DisplayContext, DisplayReason } from './ContentWithHightlight';
 import { ErrorBoundary } from './ErrorBoundary';
-import {
-  ExpandableContent,
-  ExpandableStaticContent,
-} from './ExpandableContent';
+import { ExpandableContent, ExpandableStaticContent } from './ExpandableContent';
 import { DocSectionContext } from './InfoSidebar';
 import { InlineProblemDisplay } from './InlineProblemDisplay';
 import MathJaxHack from './MathJaxHack';
 import { MathMLDisplay } from './MathMLDisplay';
 import { OverlayDialog, isHoverON } from './OverlayDialog';
+import SectionReview from './SectionReview';
+import TrafficLightIndicator from './TrafficLightIndicator';
 import { ServerLinksContext } from './stex-react-renderer';
 import { useOnScreen } from './useOnScreen';
-import TrafficLightIndicator from './TrafficLightIndicator';
 
 export const CustomItemsContext = createContext<{
   items: { [tag: string]: JSX.Element };
 }>({ items: {} });
 
-export const NoMaxWidthTooltip = styled(
-  ({ className, ...props }: TooltipProps) => (
-    <Tooltip {...props} classes={{ popper: className }} />
-  )
-)({
+export const NoMaxWidthTooltip = styled(({ className, ...props }: TooltipProps) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))({
   [`& .${tooltipClasses.tooltip}`]: {
     maxWidth: 'none',
     margin: '0',
@@ -117,8 +101,7 @@ function getChildrenOfBodyNode(htmlNode: JSX.Element) {
 }
 
 function isVisible(node: any) {
-  if (node?.type === 'text' && (node as any)?.data?.trim().length === 0)
-    return false;
+  if (node?.type === 'text' && (node as any)?.data?.trim().length === 0) return false;
   const visibilityAttrib = node?.attribs?.['stex:visible'];
   return node && visibilityAttrib !== 'false';
 }
@@ -155,8 +138,7 @@ function isMMTHref(d: Element) {
 
 function MMTHrefReplaced({ d }: { d: Element }) {
   const { mmtUrl } = useContext(ServerLinksContext);
-  if (isMMTLink(d.attribs['href']))
-    d.attribs['href'] = mmtUrl + d.attribs['href'];
+  if (isMMTLink(d.attribs['href'])) d.attribs['href'] = mmtUrl + d.attribs['href'];
   return <>{domToReact([d], { replace })}</>;
 }
 
@@ -175,18 +157,10 @@ export const HighlightContext = createContext({
     /**/
   },
 });
-function Highlightable({
-  highlightId,
-  domNode,
-}: {
-  highlightId: string;
-  domNode: any;
-}) {
+function Highlightable({ highlightId, domNode }: { highlightId: string; domNode: any }) {
   const isMath = isInMath(domNode);
-  const { highlightedParentId, setHighlightedParentId } =
-    useContext(HighlightContext);
-  const backgroundColor =
-    highlightedParentId === highlightId ? 'yellow' : 'unset';
+  const { highlightedParentId, setHighlightedParentId } = useContext(HighlightContext);
+  const backgroundColor = highlightedParentId === highlightId ? 'yellow' : 'unset';
 
   /*// Fix setStyleProp in node_modules\html-react-parser\lib\utilities.js
     function setStyleProp(style, props) {
@@ -237,11 +211,7 @@ function fixMtextNodes(d: DOMNode, indexInParent = 0) {
     const child = mtext.children?.[0] as Element;
     if (child?.attribs?.['xmlns'] === 'http://www.w3.org/1999/xhtml') {
       const semantics = new Element('semantics', {}, [
-        new Element(
-          'annotation-xml',
-          { encoding: 'application/xhtml+xml' },
-          mtext.childNodes
-        ),
+        new Element('annotation-xml', { encoding: 'application/xhtml+xml' }, mtext.childNodes),
       ]);
       if (mtext.parent) mtext.parent.children[indexInParent] = semantics;
     }
@@ -300,42 +270,51 @@ function MMTImage({ d }: { d: Element }) {
   return <>{domToReact([d], { replace })}</>;
 }
 
-function SectionDisplay({ d }: { d: Element }) {
-  const [showSectionReview, setShowSectionReview] = useState<
-    boolean | undefined
-  >(true);
-  const [showLight, setShowLight] = useState<boolean | undefined>(false);
+function SectionTitleDisplay({ d }: { d: Element }) {
+  const [showLight, setShowLight] = useState<boolean>(false);
   useEffect(() => {
-    if(!isLoggedIn()) return;
+    if (!isLoggedIn()) return;
     getUserInformation().then((res) => {
-      setShowLight(res?.showTrafficLight);
-      setShowSectionReview(res?.showSectionReview);
+      setShowLight(res?.showTrafficLight ?? false);
     });
   }, []);
-
   const { docFragManager } = useContext(DocSectionContext);
-  const id = d.attribs['id'];
-  const ancestors = getAncestors(
-    undefined,
-    undefined,
-    id,
-    docFragManager?.docSections
+  const id = (d.parent as Element)?.attribs?.['id'];
+  const ancestors = getAncestors(undefined, undefined, id, docFragManager?.docSections);
+  const actualSectionTitle = <>{domToReact([d])}</>;
+  if (!ancestors) return <>{actualSectionTitle}</>;
+  const fileParent = lastFileNode(ancestors);
+  if (!fileParent?.archive || !fileParent?.filepath) return actualSectionTitle;
+  const { archive, filepath } = fileParent;
+  return (
+    <>
+      {actualSectionTitle}
+      {showLight ? <TrafficLightIndicator contentUrl={XhtmlContentUrl(archive, filepath)} /> : null}
+    </>
   );
+}
+
+function SectionDisplay({ d }: { d: Element }) {
+  const [showSectionReview, setShowSectionReview] = useState<boolean>(false);
+  useEffect(() => {
+    if (!isLoggedIn()) return;
+    getUserInformation().then((res) => {
+      setShowSectionReview(res?.showSectionReview ?? false);
+    });
+  }, []);
+  const { docFragManager } = useContext(DocSectionContext);
+
+  const id = d.attribs['id'];
+  const ancestors = getAncestors(undefined, undefined, id, docFragManager?.docSections);
   const actualSection = <>{domToReact([d], { replace })}</>;
-  if (!ancestors) return actualSection;
+  if (!ancestors) return <>{actualSection}NOOOOOOOOO</>;
   const sectionNode = ancestors[ancestors?.length - 1];
   const fileParent = lastFileNode(ancestors);
   if (!fileParent?.archive || !fileParent?.filepath) return actualSection;
   const { archive, filepath } = fileParent;
-  const showTrafficLight = localStore?.getItem('traffic-light');
 
   return (
     <>
-      {showTrafficLight && showLight ? (
-        <TrafficLightIndicator
-          contentUrl={XhtmlContentUrl(archive, filepath)}
-        />
-      ) : null}
       {actualSection}
       {showSectionReview ? (
         <SectionReview
@@ -398,8 +377,7 @@ function removeFromHoverStack(url?: string) {
   if (!url?.length) return;
   const timestamp_ms = Date.now();
   const URI = hoverUrlToUri(url);
-  const lastElement =
-    HOVER_STACK.length > 0 ? HOVER_STACK[HOVER_STACK.length - 1] : undefined;
+  const lastElement = HOVER_STACK.length > 0 ? HOVER_STACK[HOVER_STACK.length - 1] : undefined;
   if (URI !== lastElement?.URI) {
     console.error(
       `Something went wrong. The URI to be removed is not the last one in the stack.
@@ -410,8 +388,7 @@ function removeFromHoverStack(url?: string) {
     HOVER_STACK.splice(0, HOVER_STACK.length);
     return;
   }
-  const hoverDuration_ms =
-    timestamp_ms - HOVER_STACK[HOVER_STACK.length - 1].timestamp_ms;
+  const hoverDuration_ms = timestamp_ms - HOVER_STACK[HOVER_STACK.length - 1].timestamp_ms;
 
   HOVER_STACK.splice(HOVER_STACK.length - 1, 1);
   if (hoverDuration_ms > 500)
@@ -427,16 +404,12 @@ export function Definiendum({ node }: { node: Element }) {
   const isVisible = useOnScreen(ref);
   const [reported, setReported] = useState(false);
   const { displayReason } = useContext(DisplayContext);
-  const latestReason =
-    displayReason?.length > 0 ? displayReason.at(-1) : undefined;
+  const latestReason = displayReason?.length > 0 ? displayReason.at(-1) : undefined;
   const URI = node.attribs['data-definiendum-uri'];
 
   useEffect(() => {
     if (!isVisible || reported || !latestReason) return;
-    if (
-      latestReason === DisplayReason.HOVER ||
-      latestReason === DisplayReason.ON_CLICK_DIALOG
-    ) {
+    if (latestReason === DisplayReason.HOVER || latestReason === DisplayReason.ON_CLICK_DIALOG) {
       // These have their own separate events.
       return;
     }
@@ -455,6 +428,7 @@ export function Definiendum({ node }: { node: Element }) {
 }
 
 export const replace = (d: DOMNode): any => {
+
   const domNode = getElement(d);
 
   if (!domNode) return;
@@ -477,6 +451,10 @@ export const replace = (d: DOMNode): any => {
   if (nodeId && domNode.attribs?.['data-with-bindings'] && !sectionProcessed) {
     domNode.attribs['section-processed'] = 'true';
     return <SectionDisplay d={domNode} />;
+  }
+  
+  if (domNode.attribs['class']?.includes('shtml-sectitle')){
+    return <SectionTitleDisplay d={domNode} />;
   }
 
   // Remove section numbers;
@@ -503,11 +481,7 @@ export const replace = (d: DOMNode): any => {
 
   if (!isVisible(domNode)) return <></>;
 
-  if (
-    domNode.name === 'head' ||
-    domNode.name === 'iframe' ||
-    domNode.name === 'script'
-  ) {
+  if (domNode.name === 'head' || domNode.name === 'iframe' || domNode.name === 'script') {
     return <></>;
   }
 
@@ -532,8 +506,7 @@ export const replace = (d: DOMNode): any => {
         const width = getStyleTag(customStyle, 'width');
         if (width?.endsWith('%')) {
           const newWidth = `;width: calc(100% - ${2 * +leftM.slice(0, -2)}px)`;
-          domNode.attribs['style'] =
-            removeStyleTag(customStyle, 'width') + newWidth;
+          domNode.attribs['style'] = removeStyleTag(customStyle, 'width') + newWidth;
         }
       }
     }
@@ -545,9 +518,7 @@ export const replace = (d: DOMNode): any => {
     domNode.attribs['definiendum-processed'] = 'true';
     return <Definiendum node={domNode} />;
   }
-  const hoverLink = isHoverON()
-    ? domNode.attribs['data-overlay-link-hover']
-    : undefined;
+  const hoverLink = isHoverON() ? domNode.attribs['data-overlay-link-hover'] : undefined;
   const clickLink = domNode.attribs['data-overlay-link-click'];
   const hoverParent = domNode.attribs['data-highlight-parent'];
   if ((hoverLink || clickLink) && !domNode.attribs['processed']) {
@@ -557,20 +528,12 @@ export const replace = (d: DOMNode): any => {
     const WithHighlightable = forwardRef((props, ref) => {
       return isMath ? (
         /* @ts-expect-error: 'mrow is MathML which does not exist on JSX.IntrinsicElements(ts2339) */
-        <mrow
-          {...props}
-          style={{ display: 'inline', cursor: 'pointer' }}
-          ref={ref as any}
-        >
+        <mrow {...props} style={{ display: 'inline', cursor: 'pointer' }} ref={ref as any}>
           <Highlightable domNode={domNode} highlightId={hoverParent} />
           {/* @ts-expect-error: 'mrow is MathML which does not exist on JSX.IntrinsicElements(ts2339) */}
         </mrow>
       ) : (
-        <div
-          {...props}
-          style={{ display: 'inline', cursor: 'pointer' }}
-          ref={ref as any}
-        >
+        <div {...props} style={{ display: 'inline', cursor: 'pointer' }} ref={ref as any}>
           <Highlightable domNode={domNode} highlightId={hoverParent} />
         </div>
       );
@@ -597,11 +560,7 @@ export const replace = (d: DOMNode): any => {
                   <ContentFromUrl
                     displayReason={DisplayReason.HOVER}
                     topLevelDocUrl={topLevelDocUrl}
-                    url={urlWithContextParams(
-                      hoverLink,
-                      locale,
-                      topLevelDocUrl
-                    )}
+                    url={urlWithContextParams(hoverLink, locale, topLevelDocUrl)}
                     modifyRendered={getChildrenOfBodyNode}
                   />
                 </Box>
@@ -610,11 +569,7 @@ export const replace = (d: DOMNode): any => {
               )
             }
           >
-            {hoverParent ? (
-              <WithHighlightable />
-            ) : (
-              (domToReact([domNode], { replace }) as any)
-            )}
+            {hoverParent ? <WithHighlightable /> : (domToReact([domNode], { replace }) as any)}
           </NoMaxWidthTooltip>
         )}
       />
@@ -631,8 +586,7 @@ export const replace = (d: DOMNode): any => {
     domNode.attribs['href'] = guidedTourPath;
     return;
   }
-  if (isMMTHref(domNode) && !IS_MMT_VIEWER)
-    return <MMTHrefReplaced d={domNode} />;
+  if (isMMTHref(domNode) && !IS_MMT_VIEWER) return <MMTHrefReplaced d={domNode} />;
 
   if (domNode.attribs?.['class'] === 'inputref') {
     const inputRef = domNode.attribs['data-inputref-url'];
@@ -644,10 +598,7 @@ export const replace = (d: DOMNode): any => {
     );
   }
   if (domNode.name === 'math') {
-    if (
-      typeof MathMLElement === 'function' &&
-      !localStore?.getItem('forceMathJax')
-    ) {
+    if (typeof MathMLElement === 'function' && !localStore?.getItem('forceMathJax')) {
       return;
     }
     if ((domNode.parent as any)?.name === 'mjx-assistive-mml') return <></>;

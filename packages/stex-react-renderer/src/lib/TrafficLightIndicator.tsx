@@ -7,9 +7,8 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import {
   BloomDimension,
-  DefiniendaItem,
   NumericCognitiveValues,
-  getDefiniedaInDoc,
+  getSectionDependencies,
   getUriWeights,
   isLoggedIn,
 } from '@stex-react/api';
@@ -63,21 +62,17 @@ const TrafficLightIndicator = ({ contentUrl }: { contentUrl: string }) => {
   const { archive, filepath } = getSectionInfo(contentUrl);
   const { mmtUrl } = useContext(ServerLinksContext);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [competencyData, setCompetencyData] = useState<
-    NumericCognitiveValues[] | null
-  >(null);
-  const [definedData, setDefinedData] = useState<DefiniendaItem[] | null>(null);
+  const [competencyData, setCompetencyData] = useState<NumericCognitiveValues[] | null>(null);
   const [URIs, setURIs] = useState<string[]>([]);
   useEffect(() => {
     if (!isLoggedIn()) return;
-    getDefiniedaInDoc(mmtUrl, archive, filepath).then(setDefinedData);
+    getSectionDependencies(mmtUrl, archive, filepath).then(uris=>{
+      setURIs(uris);
+
+      getUriWeights(uris).then((data) => setCompetencyData(data));
+    });
   }, [archive, filepath, mmtUrl]);
-  useEffect(() => {
-    if (!definedData) return;
-    const URIs = [...new Set(definedData.flatMap((data) => data.symbols))];
-    setURIs(URIs);
-    getUriWeights(URIs).then((data) => setCompetencyData(data));
-  }, [definedData]);
+  
   const handleBoxClick = () => {
     setDialogOpen(true);
   };
@@ -91,10 +86,8 @@ const TrafficLightIndicator = ({ contentUrl }: { contentUrl: string }) => {
   }
 
   const averageUnderstand = competencyData?.length
-    ? competencyData.reduce(
-        (sum, item) => sum + (item[BloomDimension.Understand] ?? 0),
-        0
-      ) / competencyData.length
+    ? competencyData.reduce((sum, item) => sum + (item[BloomDimension.Understand] ?? 0), 0) /
+      competencyData.length
     : 0;
 
   return (
@@ -151,12 +144,7 @@ const TrafficLightIndicator = ({ contentUrl }: { contentUrl: string }) => {
           <Typography>{getText(averageUnderstand)}</Typography>
         </Box>
       </Box>
-      <Dialog
-        open={dialogOpen}
-        onClose={handleCloseDialog}
-        fullWidth={true}
-        maxWidth="lg"
-      >
+      <Dialog open={dialogOpen} onClose={handleCloseDialog} fullWidth={true} maxWidth="lg">
         <DialogTitle>Competency Table</DialogTitle>
         <DialogContent>
           {competencyData ? (

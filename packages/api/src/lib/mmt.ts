@@ -30,10 +30,7 @@ if it has arguments archive/filePath as in other places, it will return an
 array of objects with fields "path" and "problems", the former being a definiendum
 and the second the list of problems with that definiendum as objective.
 */
-export async function getProblemIdsForConcept(
-  mmtUrl: string,
-  conceptUri: string
-) {
+export async function getProblemIdsForConcept(mmtUrl: string, conceptUri: string) {
   const url = `${mmtUrl}/:sTeX/query/problems?path=${conceptUri}`;
   const resp = await axios.get(url);
   const problemIds = resp.data as string[];
@@ -43,11 +40,7 @@ export async function getProblemIdsForConcept(
   return [...new Set(problemIds)];
 }
 
-export async function getProblemIdsForFile(
-  mmtUrl: string,
-  archive: string,
-  filepath: string
-) {
+export async function getProblemIdsForFile(mmtUrl: string, archive: string, filepath: string) {
   const url = `${mmtUrl}/:sTeX/query/problems?archive=${archive}&filepath=${filepath}`;
   const resp = await axios.get(url);
   const infoByFile = resp.data as { path: string; problems: string[] }[];
@@ -89,14 +82,9 @@ export function getAncestors(
   sectionData: SectionsAPIData | undefined,
   ancestors: SectionsAPIData[] = []
 ): SectionsAPIData[] | undefined {
-  if (!sectionData) return undefined;
+  if (!sectionData || !sectionId) return undefined;
 
-  if (
-    archive &&
-    filepath &&
-    sectionData.archive === archive &&
-    sectionData.filepath === filepath
-  ) {
+  if (archive && filepath && sectionData.archive === archive && sectionData.filepath === filepath) {
     return [...ancestors, sectionData];
   }
   if (sectionId && sectionData.id === sectionId) {
@@ -132,8 +120,7 @@ export function getCoveredSections(
   coveredSectionIds: string[];
 } {
   const wasStartedForMe = started;
-  if (!sectionData)
-    return { started, ended: true, coveredSectionIds: [], fullyCovered: false };
+  if (!sectionData) return { started, ended: true, coveredSectionIds: [], fullyCovered: false };
 
   const isSec = isSection(sectionData);
   let iAmEnding = false;
@@ -146,12 +133,7 @@ export function getCoveredSections(
   let allChildrenCovered = true;
   const coveredSectionIds: string[] = [];
   for (const child of sectionData.children || []) {
-    const cResp = getCoveredSections(
-      startSecNameExcl,
-      endSecNameIncl,
-      child,
-      started
-    );
+    const cResp = getCoveredSections(startSecNameExcl, endSecNameIncl, child, started);
     if (!cResp.fullyCovered) allChildrenCovered = false;
     coveredSectionIds.push(...cResp.coveredSectionIds);
 
@@ -197,14 +179,8 @@ export function isFile(data: SectionsAPIData) {
 export function isSection(data: SectionsAPIData) {
   return !isFile(data);
 }
-export async function getDocumentSections(
-  mmtUrl: string,
-  archive: string,
-  filepath: string
-) {
-  const resp = await axios.get(
-    `${mmtUrl}/:sTeX/sections?archive=${archive}&filepath=${filepath}`
-  );
+export async function getDocumentSections(mmtUrl: string, archive: string, filepath: string) {
+  const resp = await axios.get(`${mmtUrl}/:sTeX/sections?archive=${archive}&filepath=${filepath}`);
   return resp.data as SectionsAPIData;
 }
 
@@ -302,9 +278,7 @@ export async function getDocIdx(mmtUrl: string, institution?: string) {
   if (!institution) {
     return CACHED_DOCIDX;
   }
-  const filteredDocIdx = CACHED_DOCIDX.filter(
-    (doc) => doc.institution === institution
-  );
+  const filteredDocIdx = CACHED_DOCIDX.filter((doc) => doc.institution === institution);
   return filteredDocIdx;
 }
 
@@ -353,8 +327,7 @@ export async function getCourseId(
 ) {
   const courses = await getCourseInfo(mmtUrl, institution);
   for (const [courseId, info] of Object.entries(courses)) {
-    if (archive === info.notesArchive && filepath === info.notesFilepath)
-      return courseId;
+    if (archive === info.notesArchive && filepath === info.notesFilepath) return courseId;
   }
   return undefined;
 }
@@ -370,11 +343,7 @@ export interface DefiniendaItem {
 }
 
 // Gets list of symbols defined in a document. Includes nested docs.
-export async function getDefiniedaInDoc(
-  mmtUrl: string,
-  archive: string,
-  filepath: string
-) {
+export async function getDefiniedaInDoc(mmtUrl: string, archive: string, filepath: string) {
   const resp = await axios.get(
     `${mmtUrl}/:sTeX/definienda?archive=${archive}&filepath=${filepath}`
   );
@@ -382,8 +351,48 @@ export async function getDefiniedaInDoc(
 }
 
 export async function getUriFragment(URI: string) {
-  const resp = await axios.get(
-    `https://stexmmt.mathhub.info//:sTeX/fragment?${URI}`
-  );
+  const resp = await axios.get(`https://stexmmt.mathhub.info//:sTeX/fragment?${URI}`);
   return resp.data as string;
+}
+
+//////////////////
+// :query/sparql
+//////////////////
+
+export interface SparqlResponse {
+  head?: {
+    vars: string[];
+  };
+  results?: {
+    bindings: Record<string, { type: string; value: string }>[];
+  };
+}
+export async function sparqlQuery(mmtUrl: string, query: string) {
+  const resp = await axios.post(`${mmtUrl}/:query/sparql`, query, {
+    headers: { 'Content-Type': 'text/plain' },
+  });
+  return resp.data as SparqlResponse;
+}
+
+function getSparlQueryForDependencies(archive: string, filepath: string) {
+  const lastDot = filepath.lastIndexOf('.');
+  filepath = filepath.slice(0, lastDot) + '.omdoc';
+  const omdoc = `http://mathhub.info/${archive}/${filepath}`;
+  return `SELECT ?x WHERE {
+  <${omdoc}#> (<http://mathhub.info/ulo#crossrefs>|<http://mathhub.info/ulo#specifies>|<http://mathhub.info/ulo#contains>|<http://mathhub.info/ulo#has-language-module>)+ ?x .
+  ?x <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://mathhub.info/ulo#constant> .
+  MINUS {
+    <${omdoc}#> (<http://mathhub.info/ulo#crossrefs>|<http://mathhub.info/ulo#specifies>|<http://mathhub.info/ulo#contains>|<http://mathhub.info/ulo#has-language-module>)+/<http://mathhub.info/ulo#defines> ?x .
+  }
+}`;
+}
+export async function getSectionDependencies(mmtUrl: string, archive: string, filepath: string) {
+  const query = getSparlQueryForDependencies(archive, filepath);
+  const sparqlResponse = await sparqlQuery(mmtUrl, query);
+
+  const dependencies: string[] = [];
+  for (const binding of sparqlResponse.results?.bindings || []) {
+    dependencies.push(binding['x'].value);
+  }
+  return dependencies;
 }
