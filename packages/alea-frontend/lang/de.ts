@@ -21,6 +21,8 @@ export const de = {
       forum: 'Forum',
       quizzes: 'Quizze',
       studyBuddy: 'Study Buddy',
+      practice: 'Üben',
+      problems: 'Aufgabe',
     },
     newHome: {
       alea: 'ALᴇA: Adaptiver Lernassistent',
