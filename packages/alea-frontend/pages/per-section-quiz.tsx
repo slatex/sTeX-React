@@ -1,10 +1,12 @@
-import React from 'react';
-import { useRouter } from 'next/router';
-import { Button, Box, Tooltip } from '@mui/material';
-import { PerSectionQuiz } from 'packages/stex-react-renderer/src/lib/PerSectionQuiz';
-import MainLayout from '../layouts/MainLayout';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { Box, IconButton, Tooltip } from '@mui/material';
+import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import { PRIMARY_COL } from '@stex-react/utils';
+import { useRouter } from 'next/router';
 import { getLocaleObject } from 'packages/stex-react-renderer/src/lib/lang/utils';
+import { PerSectionQuiz } from 'packages/stex-react-renderer/src/lib/PerSectionQuiz';
+import React from 'react';
+import MainLayout from '../layouts/MainLayout';
 
 const PerSectionQuizPage: React.FC = () => {
   const router = useRouter();
@@ -27,50 +29,27 @@ const PerSectionQuizPage: React.FC = () => {
 
   return (
     <MainLayout title="PerSection Problems | VoLL-KI">
-      <Box display="flex" mt="10px" justifyContent="center" alignItems="center">
-        <Tooltip title="Go to Course Problem Page">
-          <Button
-            variant="outlined"
-            sx={{
-              fontSize: '0.875rem',
-              borderColor: PRIMARY_COL,
-              color: PRIMARY_COL,
-              marginRight: '2rem',
-              marginLeft: '1rem',
-              height: 'auto',
-              padding: '14px 12px',
-              '&:hover': {
-                backgroundColor: PRIMARY_COL,
-                color: 'white',
-              },
-            }}
-            onClick={handleButtonClick}
-          >
-            {t.courseProblemPage}&nbsp;
-          </Button>
-        </Tooltip>
+      <Box px="10px" bgcolor="white" maxWidth="800px" m="0 auto">
+        <Box display="flex" mt="10px" gap="10px" alignItems="center" my={2}>
+          <Tooltip title={t.backToAllCourseProblems}>
+            <IconButton onClick={handleButtonClick}>
+              <ArrowBackIcon />
+            </IconButton>
+          </Tooltip>
 
-        <b
-          style={{
-            color: 'gray',
-            fontSize: '1.5rem',
-            fontWeight: 'bold',
-          }}
-        >
-          {t.problemsFor}&nbsp;
-          <span
-            style={{
-              color: PRIMARY_COL,
-              fontSize: '1.5rem',
-              fontWeight: 'bold',
-            }}
-          >
-            {` ${title || 'Unknown Title'}`}
-          </span>
-        </b>
-      </Box>
-
-      <Box px="10px" bgcolor="white" margin="10px">
+          <b style={{ color: 'gray', fontSize: '1.5rem', fontWeight: 'bold' }}>
+            {t.problemsFor}&nbsp;
+            <span
+              style={{
+                color: PRIMARY_COL,
+                fontSize: '1.5rem',
+                fontWeight: 'bold',
+              }}
+            >
+              {title ? mmtHTMLToReact(title) : 'Untitled'} ({courseId.toUpperCase()})
+            </span>
+          </b>
+        </Box>
         <PerSectionQuiz
           key={archive}
           archive={archive}

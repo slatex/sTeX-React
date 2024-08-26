@@ -88,7 +88,7 @@ export function PerSectionQuiz({
 
   return (
     <Box
-      px="10px"
+      px={1}
       maxWidth="800px"
       m="auto"
       bgcolor="white"

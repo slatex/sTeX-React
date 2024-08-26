@@ -74,6 +74,6 @@ export const de = {
       'Hinweis: Diese Probleme dienen nur dazu, Ihnen beim Lernen zu helfen. Sie decken das Kursmaterial nicht vollständig ab und es gibt keine Garantie dafür, dass die Probleme korrekt sind oder dass sie repräsentativ für die Art von Problemen sind, die in den Tests oder der Prüfung behandelt werden.',
     closeAllPracticeProblems: 'Alle Übungsaufgaben schließen',
     showAllPracticeProblems: 'Alle Übungsaufgaben anzeigen',
-    courseProblemPage: 'Kursaufgaben-Seite'
+    backToAllCourseProblems: 'Zurück zu allen Kursproblemen',
   },
 };

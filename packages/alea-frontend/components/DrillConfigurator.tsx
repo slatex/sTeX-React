@@ -218,13 +218,7 @@ function CoverageConfigurator({
                       setCheckedChapterIdxs(newChecked);
                     }}
                   >
-                    <b
-                      style={{
-                        display: 'block',
-                        color: PRIMARY_COL,
-                        fontSize: 'large',
-                      }}
-                    >
+                    <b style={{ display: 'block', color: PRIMARY_COL, fontSize: 'large' }}>
                       {mmtHTMLToReact(chapterTitle)}
                     </b>
                   </ListItemButton>

@@ -169,8 +169,8 @@ const CourseHomePage: NextPage = () => {
             <Diversity3Icon fontSize="large" />
           </CourseComponentLink>
           <CourseComponentLink href={`/practice-problems/${courseId}`}>
-            {<p>{t.practice}</p>}&nbsp;
-            <PreviewIcon fontSize="large" />
+            {<p>{t.practiceProblems}</p>}&nbsp;
+            <Image src="/practice_problems.svg" width={35} height={35} alt="" />
           </CourseComponentLink>
         </Box>
         <DocumentWidthSetter>

@@ -22,8 +22,7 @@ export const en = {
       forum: 'Forum',
       quizzes: 'Quizzes',
       studyBuddy: 'Study Buddy',
-      practice: 'Practice',
-      problems:'problems',
+      practiceProblems: 'Practice Problems',
     },
     newHome: {
       alea: 'ALᴇA: Adaptive Learning Assistant',
@@ -211,8 +210,7 @@ export const en = {
   },
   learnerModelPriming: {
     learnerModelPriming: 'Learner Model Priming',
-    loginToContinue:
-      'Please log in (with your FAU IDM credentials) to continue',
+    loginToContinue: 'Please log in (with your FAU IDM credentials) to continue',
     intro:
       'A great part of the ALᴇA services depends on the quality of the ' +
       "ALᴇA learner model data - a subsystem that models the learner's knowledge/competency " +
@@ -259,8 +257,7 @@ export const en = {
     join: 'Join',
     update: 'Update',
     discard: 'Discard',
-    loginToContinue:
-      'Please log in (with your FAU IDM credentials) to continue',
+    loginToContinue: 'Please log in (with your FAU IDM credentials) to continue',
     myProfile: 'My Profile',
     editInfo: 'Edit Info',
     reJoin: 'Re-join',
@@ -288,8 +285,7 @@ export const en = {
     lookingForSubtext:
       'These learners are looking for a study buddy. Please go ahead and send them a connection request.',
 
-    optOutPrompt:
-      'Are you sure you want to leave the study buddy program for $1?',
+    optOutPrompt: 'Are you sure you want to leave the study buddy program for $1?',
     haveEnrolled: 'You have enrolled in the study buddy program for $1.',
 
     connectedAlert: 'You have connected to $1',
@@ -305,8 +301,7 @@ export const en = {
     meetTypeLabel: 'Preferred Meeting Type',
     languagesLabel: 'Languages you speak',
 
-    emailWarning:
-      'Your email will be shared only with those users that you choose to connect to.',
+    emailWarning: 'Your email will be shared only with those users that you choose to connect to.',
     insightHeading: 'Study Buddy Insights',
     totalUsers: 'Total Users',
     activeUsers: 'Active Users',
@@ -362,5 +357,12 @@ export const en = {
     sendVerifcationBtn: 'Send Verification Email',
     verificationEmail: 'Verification email sent successfully',
     somethingWentWrong: 'Something went wrong please try again',
+  },
+  practiceProblems: {
+    practiceProblems: 'Practice Problems',
+    practiceProblemsDescription:
+      'The following problems are meant to aid your learning. They do not cover the course material exhaustively and there are no guarantees that the problems are correct or that they are representative of the kinds of problems that will be on the quizzes or the exam.',
+    problems: 'problems',
+    practice: 'Practice',
   },
 };

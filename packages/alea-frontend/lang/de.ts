@@ -21,8 +21,7 @@ export const de = {
       forum: 'Forum',
       quizzes: 'Quizze',
       studyBuddy: 'Study Buddy',
-      practice: 'Üben',
-      problems: 'Aufgabe',
+      practiceProblems: 'Übungsaufgaben',
     },
     newHome: {
       alea: 'ALᴇA: Adaptiver Lernassistent',
@@ -342,5 +341,10 @@ export const de = {
     verificationEmail: 'Verifizierungs-E-Mail erfolgreich gesendet',
     somethingWentWrong:
       'Etwas ist schiefgegangen. Bitte versuchen Sie es erneut.',
+  },
+  practiceProblems: {
+    practiceProblems: 'Übungsaufgaben',
+    problems: 'Probleme',
+    practice: 'Üben',
   },
 };

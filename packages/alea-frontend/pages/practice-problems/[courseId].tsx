@@ -1,64 +1,43 @@
 import { CircularProgress } from '@mui/material';
-import { getCourseInfo } from '@stex-react/api';
+import { getCourseInfo, getDocumentSections, SectionsAPIData } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { CourseInfo } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useState } from 'react';
-import { getLocaleObject } from '../../lang/utils';
-import MainLayout from '../../layouts/MainLayout';
 import ProblemList from 'packages/alea-frontend/components/ProblemList';
+import { useContext, useEffect, useState } from 'react';
+import MainLayout from '../../layouts/MainLayout';
 
 const CourseProblemsPage: NextPage = () => {
   const router = useRouter();
-  const { home } = getLocaleObject(router);
-  const t = home.courseThumb;
   const courseId = router.query.courseId as string;
 
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
-  const [data, setData] = useState<any>(null);
+  const [sectionsData, setSectionsData] = useState<SectionsAPIData | undefined>(undefined);
   const { mmtUrl } = useContext(ServerLinksContext);
 
   useEffect(() => {
-    if (mmtUrl) {
-      getCourseInfo(mmtUrl).then(setCourses);
-    }
+    if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
   }, [mmtUrl]);
 
   useEffect(() => {
-    if (courses && courseId) {
-      const courseInfo = courses[courseId];
-      if (courseInfo) {
-        const { notesArchive, notesFilepath } = courseInfo;
-        const contentUrl = `https://stexmmt.mathhub.info/:sTeX/sections?archive=${notesArchive}&filepath=${notesFilepath}`;
-
-        const fetchData = async () => {
-          try {
-            const response = await fetch(contentUrl);
-            const fetchedData = await response.json();
-            setData(fetchedData);
-          } catch (error) {
-            console.error('Error fetching data:', error);
-          }
-        };
-
-        fetchData();
-      }
+    if (!courses || !courseId) return;
+    const courseInfo = courses?.[courseId];
+    if (!courseInfo) {
+      router.replace('/');
+      return;
     }
+
+    const { notesArchive, notesFilepath } = courseInfo;
+    getDocumentSections(mmtUrl, notesArchive, notesFilepath).then(setSectionsData);
   }, [courses, courseId]);
 
   if (!router.isReady || !courses) return <CircularProgress />;
-  const courseInfo = courses[courseId];
-  if (!courseInfo) {
-    router.replace('/');
-    return <>Course Not Found!</>;
-  }
-
-  if (!data) return <CircularProgress />;
+  if (!sectionsData) return <CircularProgress />;
 
   return (
     <MainLayout title={`${(courseId || '').toUpperCase()} Problems | VoLL-KI`}>
-      <ProblemList data={data} courseId={courseId} />
+      <ProblemList courseSections={sectionsData} courseId={courseId} />
     </MainLayout>
   );
 };
