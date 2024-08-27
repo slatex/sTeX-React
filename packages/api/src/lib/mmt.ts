@@ -296,6 +296,10 @@ export async function getCourseInfo(mmtUrl: string, institution?: string) {
     for (const doc of docIdx) {
       if (doc.type !== DocIdxType.course) continue;
       if (!doc.acronym || !doc.landing || !doc.notes) continue;
+      // Disable rip course on production till we get approval from I2 people.
+      if (doc.acronym === 'rip' && process.env['NEXT_PUBLIC_SITE_VERSION'] === 'production') {
+        continue;
+      }
       doc.acronym = doc.acronym.toLowerCase();
 
       const isCurrent = doc.instances?.some((i) => i.semester === CURRENT_TERM);
