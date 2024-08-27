@@ -1,5 +1,6 @@
 import ArticleIcon from '@mui/icons-material/Article';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
+import PreviewIcon from '@mui/icons-material/Preview';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import QuizIcon from '@mui/icons-material/Quiz';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
@@ -29,9 +30,13 @@ import { RecordedSyllabus } from '../../components/RecordedSyllabus';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
 
-const queryReferencesText = 'Check out these handpicked references for your query :- ';
-
-function CourseComponentLink({ href, children }: { href: string; children: any }) {
+function CourseComponentLink({
+  href,
+  children,
+}: {
+  href: string;
+  children: any;
+}) {
   return (
     <Link href={href}>
       <Button variant="contained" sx={{ width: '100%', height: '48px', fontSize: '16px' }}>
@@ -46,6 +51,7 @@ const BG_COLORS = {
   'iwgs-2': 'radial-gradient(circle, #5b6956, #8f9868)',
   krmt: 'radial-gradient(circle, white, #f5f5b7)',
   gdp: 'radial-gradient(circle, #4bffd7, #a11cff)',
+  rip: 'radial-gradient(circle, #fcef6e, #3f2e86)',
 };
 
 export function CourseHeader({
@@ -112,10 +118,9 @@ const CourseHomePage: NextPage = () => {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const courseId = router.query.courseId as string;
-  const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
-  const [query, setQuery] = useState('');
-  const [references, setReferences] = useState<{ archive: string; filepath: string }[]>([]);
-  const [loading, setIsLoading] = useState(false);
+  const [courses, setCourses] = useState<
+    { [id: string]: CourseInfo } | undefined
+  >(undefined);
   const { mmtUrl } = useContext(ServerLinksContext);
 
   useEffect(() => {
@@ -187,60 +192,11 @@ const CourseHomePage: NextPage = () => {
             {t.studyBuddy}&nbsp;
             <Diversity3Icon fontSize="large" />
           </CourseComponentLink>
+          <CourseComponentLink href={`/practice-problems/${courseId}`}>
+            {<p>{t.practiceProblems}</p>}&nbsp;
+            <Image src="/practice_problems.svg" width={35} height={35} alt="" />
+          </CourseComponentLink>
         </Box>
-        {courseId === 'iwgs-1' && (
-          <Box sx={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-            <TextareaAutosize
-              minRows={2}
-              placeholder="Write Your Query..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              style={{
-                padding: '5px',
-                fontSize: '16px ',
-                marginBottom: '20px',
-                width: '100%',
-              }}
-            />
-            <Button
-              variant="contained"
-              sx={{ width: '100px', height: '48px' }}
-              onClick={() => handleQuery(query)}
-            >
-              {loading ? <CircularProgress color="inherit" /> : 'Query'}
-            </Button>
-          </Box>
-        )}
-        {references.length > 0 && (
-          <>
-            <Typography fontWeight="bold">{queryReferencesText}</Typography>
-            <Box
-              bgcolor="#DDD"
-              borderRadius="5px"
-              mb="15px"
-              sx={{
-                padding: '10px',
-              }}
-            >
-              <Box width="600px" m="0 auto 30px" p="10px">
-                <DocumentWidthSetter>
-                  {references.map((ref, idx) => (
-                    <>
-                      <Divider sx={{ marginBottom: '20px', marginTop: '20px', fontWeight: 'bold' }}>
-                        Reference - {idx + 1}
-                      </Divider>
-                      <ExpandableContent
-                        key={ref.filepath}
-                        contentUrl={XhtmlContentUrl(ref.archive, ref.filepath + '.xhtml')}
-                        noFurtherExpansion={true}
-                      />
-                    </>
-                  ))}
-                </DocumentWidthSetter>
-              </Box>
-            </Box>
-          </>
-        )}
         <DocumentWidthSetter>
           <ContentFromUrl
             displayReason={DisplayReason.NOTES}

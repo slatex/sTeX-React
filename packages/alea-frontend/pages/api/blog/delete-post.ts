@@ -1,22 +1,13 @@
+import { Action, ResourceName } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
-import {
-  executeAndEndSet500OnError,
-  getUserIdOrSetError,
-} from '../comment-utils';
-import { isModerator } from '@stex-react/api';
+import { getUserIdIfAuthorizedOrSetError } from '../access-control/resource-utils';
+import { executeAndEndSet500OnError } from '../comment-utils';
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  const userId = await getUserIdOrSetError(req, res);
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const userId = await getUserIdIfAuthorizedOrSetError(req, res, ResourceName.BLOG, Action.MUTATE);
   if (!userId) return;
-  if (!isModerator(userId)) {
-    return res.status(403).send({ message: 'Unauthorized.' });
-  }
 
   const { postId } = req.body;
-
   const result = await executeAndEndSet500OnError(
     `DELETE FROM BlogPosts WHERE postId = ?`,
     [postId],

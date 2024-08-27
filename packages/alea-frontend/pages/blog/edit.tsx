@@ -1,5 +1,5 @@
-import { Typography } from '@mui/material';
-import { BlogPost, UserInfo, getPostById, getUserInfo, isModerator } from '@stex-react/api';
+import { BlogPost, canAccessResource, getPostById } from '@stex-react/api';
+import { Action, ResourceName } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -10,18 +10,15 @@ const EditPostPage: NextPage = () => {
   const router = useRouter();
   const { postId } = router.query;
   const [existingPostInfo, setExistingPostInfo] = useState<BlogPost>(undefined);
-  const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
 
   useEffect(() => {
-    const fetchDataAndCheckModerator = async () => {
-      const info = await getUserInfo();
-      setUserInfo(info);
-      if (!isModerator(info?.userId)) {
+    async function isUserAuthorized() {
+      if (!(await canAccessResource(ResourceName.BLOG, Action.MUTATE))) {
         router.push('/blog');
       }
-    };
-    fetchDataAndCheckModerator();
-  }, [router]);
+    }
+    isUserAuthorized();
+  }, []);
 
   useEffect(() => {
     const fetchBlogPost = async () => {
@@ -30,10 +27,6 @@ const EditPostPage: NextPage = () => {
     };
     if (router.isReady) fetchBlogPost();
   }, [router.isReady, postId]);
-
-  if (!existingPostInfo || !userInfo) {
-    return <Typography>Loading...</Typography>;
-  }
   return (
     <MainLayout>
       <EditPostComponent existingPost={existingPostInfo} />

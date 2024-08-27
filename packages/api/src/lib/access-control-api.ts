@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { AccessControlList, ResourceAction } from './access-control';
 import { getAuthHeaders } from './lms';
+import { Action, getResourceId, ResourceName } from '@stex-react/utils';
 
 export async function getAllAclIds(): Promise<string[]> {
   const resp = await axios.get('/api/access-control/get-all-acl-ids');
@@ -41,13 +42,14 @@ export async function isValid(id: string): Promise<boolean> {
   return data as boolean;
 }
 
-export async function recomputeMemberships(): Promise<number> {
-  const { data } = await axios.post(
+export async function recomputeMemberships(): Promise<void> {
+  await axios.post(
     '/api/access-control/recompute-memberships',
     {},
-    { headers: getAuthHeaders() }
+    {
+      headers: getAuthHeaders(),
+    }
   );
-  return data as number;
 }
 
 export async function createResourceAction(resourceData: CreateResourceAction): Promise<void> {
@@ -75,10 +77,17 @@ export async function getAllResourceActions(): Promise<ResourceAction[]> {
   return data as ResourceAction[];
 }
 
-export async function canAccessResource(): Promise<boolean> {
-  const { data } = await axios.get('/api/access-control/can-access-resource', {
-    headers: getAuthHeaders(),
-  });
+export async function canAccessResource(
+  resourceName: ResourceName,
+  actionId: Action,
+  variables: Record<string, string> = {}
+): Promise<boolean> {
+  const queryParams = new URLSearchParams({ resourceName, actionId });
+  for (const [key, value] of Object.entries(variables)) {
+    queryParams.append(key, value);
+  }
+  const url = `/api/access-control/can-access-resource?${queryParams.toString()}`;
+  const {data} = await axios.get(url, { headers: getAuthHeaders() });
   return data as boolean;
 }
 

@@ -1,21 +1,19 @@
 import { Box, Button, TextField, Typography } from '@mui/material';
 import {
   BlogPost,
+  canAccessResource,
   CdnImageMetadata,
-  UserInfo,
   createBlogPost,
   getCdnImages,
-  getUserInfo,
-  isModerator,
   updateBlogPost,
   uploadCdnImage,
 } from '@stex-react/api';
 import { MystEditor } from '@stex-react/myst';
-import { localStore } from '@stex-react/utils';
+import { Action, localStore, ResourceName } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import ImageCard from '../../components/ImageCard';
 import { useEffect, useState } from 'react';
+import ImageCard from '../../components/ImageCard';
 import MainLayout from '../../layouts/MainLayout';
 
 function generatePostId(title: string): string {
@@ -31,7 +29,6 @@ const DRAFT_BLOG_BODY_KEY = 'draft-blogBody';
 
 export function EditPostComponent({ existingPost }: { existingPost?: BlogPost }) {
   const router = useRouter();
-  const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
   const [title, setTitle] = useState(
     existingPost?.title ?? localStore?.getItem(DRAFT_BLOG_TITLE_KEY) ?? ''
   );
@@ -85,30 +82,19 @@ export function EditPostComponent({ existingPost }: { existingPost?: BlogPost })
   }, []);
 
   useEffect(() => {
-    const fetchDataAndCheckModerator = async () => {
-      const info = await getUserInfo();
-      setUserInfo(info);
-      if (!isModerator(info?.userId)) {
+    async function redirectIfNotAuthorized() {
+      if (!(await canAccessResource(ResourceName.BLOG, Action.MUTATE))) {
         router.push('/blog');
       }
-    };
-    fetchDataAndCheckModerator();
-  }, [router]);
+    }
+    redirectIfNotAuthorized();
+  }, []);
 
   const handleSubmit = async () => {
     if (existingPost) {
       await updateBlogPost(title, body, heroImageId, heroImageUrl, heroImagePosition, postId);
     } else {
-      await createBlogPost(
-        title,
-        body,
-        postId,
-        userInfo?.userId,
-        userInfo?.fullName,
-        heroImageId,
-        heroImageUrl,
-        heroImagePosition
-      );
+      await createBlogPost(title, body, postId, heroImageId, heroImageUrl, heroImagePosition);
     }
     setTitle('');
     setBody('');
@@ -117,10 +103,6 @@ export function EditPostComponent({ existingPost }: { existingPost?: BlogPost })
     alert('Success!');
     router.push('/blog');
   };
-
-  if (!userInfo) {
-    return <Typography>Loading...</Typography>;
-  }
 
   return (
     <>

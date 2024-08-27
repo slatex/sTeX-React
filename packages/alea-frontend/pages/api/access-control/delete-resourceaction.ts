@@ -14,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
   const { resourceId, actionId } = req.body;
   if (!resourceId) return res.status(422).send('Missing resourceId');
-  const query = `DELETE FROM resourceaccess WHERE resourceId = ? and actionId = ?`;
+  const query = `DELETE FROM ResourceAccess WHERE resourceId = ? and actionId = ?`;
   const result = await executeAndEndSet500OnError(query, [resourceId, actionId], res);
   if (!result) return;
   return res.status(200).send({ message: 'deleted' });

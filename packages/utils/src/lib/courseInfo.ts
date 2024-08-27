@@ -150,6 +150,13 @@ export const COURSES_INFO: { [courseId: string]: CourseInfo } = {
     'mod/lect2-stex.tex',
     ''
   ),
+  rip: createCourseInfo(
+    'rip',
+    'Repetitorium Informatik',
+    'courses/FAU/rip/course',
+    'course/notes/notes.de.xhtml',
+    'course/notes/coursepage'
+  ),
 };
 
 export const MaAI_COURSES: {

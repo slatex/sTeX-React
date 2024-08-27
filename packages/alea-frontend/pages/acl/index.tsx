@@ -39,7 +39,7 @@ const AclPage: NextPage = () => {
             color="primary"
             onClick={() => router.push('acl/new')}
           >
-            Go to create new ACL
+            Create new ACL
           </Button>
         </Box>
 

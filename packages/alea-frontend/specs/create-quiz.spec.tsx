@@ -1,7 +1,7 @@
 import { Phase, Quiz } from '@stex-react/api';
 import axios from 'axios';
 import { createMocks } from 'node-mocks-http';
-import createQuiz from '../pages/api/create-quiz';
+import createQuiz from '../pages/api/quiz/create-quiz';
 import { CURRENT_TERM } from '@stex-react/utils';
 
 jest.mock('axios');

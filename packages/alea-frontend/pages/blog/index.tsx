@@ -1,26 +1,22 @@
 import { Box, Button, Typography } from '@mui/material';
-import {
-  BlogPost,
-  PostSnippet,
-  UserInfo,
-  getPostSnippets,
-  getUserInfo,
-  isModerator,
-} from '@stex-react/api';
+import { BlogPost, canAccessResource, getPostSnippets, PostSnippet } from '@stex-react/api';
 import { MystViewer } from '@stex-react/myst';
+import { Action, ResourceName } from '@stex-react/utils';
 import fs from 'fs';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
+
 const BlogHomePage: NextPage = ({ postSnippets }: { postSnippets: PostSnippet[] }) => {
   const router = useRouter();
-  const [userInfo, setUserInfo] = useState<UserInfo>(null);
   const [snippets, setSnippets] = useState<PostSnippet[]>(postSnippets);
+  const [canCreate, setCanCreate] = useState<boolean>(false);
 
   useEffect(() => {
-    getUserInfo().then(setUserInfo);
+    canAccessResource(ResourceName.BLOG, Action.MUTATE).then(setCanCreate);
   }, []);
+
   useEffect(() => {
     async function fetchPost() {
       const data = await getPostSnippets();
@@ -47,9 +43,9 @@ const BlogHomePage: NextPage = ({ postSnippets }: { postSnippets: PostSnippet[] 
             >
               ALeA Blog
             </Typography>
-            {isModerator(userInfo?.userId) && (
+            {canCreate && (
               <Button onClick={() => router.push('/blog/new')} variant="contained">
-                create new blog
+                Create new post
               </Button>
             )}
           </Box>
@@ -73,7 +69,13 @@ const BlogHomePage: NextPage = ({ postSnippets }: { postSnippets: PostSnippet[] 
                 },
               }}
             >
-              <img src={snippet.heroImageUrl} alt="hero image" height="300px" width="100%" style={{objectFit: "cover", objectPosition: snippet.heroImagePosition}} />
+              <img
+                src={snippet.heroImageUrl}
+                alt="hero image"
+                height="300px"
+                width="100%"
+                style={{ objectFit: 'cover', objectPosition: snippet.heroImagePosition }}
+              />
               <MystViewer content={snippet.title} />
               <Box
                 display="flex"

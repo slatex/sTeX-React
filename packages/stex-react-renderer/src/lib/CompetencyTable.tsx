@@ -1,4 +1,3 @@
-import QuizIcon from '@mui/icons-material/Quiz';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -48,32 +47,24 @@ export function getMMTHtml(uri: string) {
 
 function QuizIconWithProblemsCount({ problemIds }: { problemIds: string[] }) {
   return (
-    <Box sx={{ position: 'relative' }}>
+    <Box sx={{ display: "flex", position: 'relative' }}>
       <Box
         sx={{
           position: 'absolute',
-          top: '1px',
-          right: '-2px',
+          top: '-5px',
+          right: '-14px',
+          padding: '2px 6px 1px',
           backgroundColor: 'firebrick',
           color: 'white',
           borderRadius: '50%',
-          padding: '2px 4px 1px',
-          fontSize: '7px',
           zIndex: 1,
+          fontSize: '10px',
         }}
       >
         {problemIds.length}
       </Box>
-      <QuizIcon
-        sx={{
-          cursor: 'pointer',
-          backgroundColor: PRIMARY_COL,
-          color: 'white',
-          borderRadius: '50%',
-          padding: '8px',
-        }}
-        fontSize="small"
-      />
+
+      <Image src="/practice_problems.svg" width={24} height={24} alt="" />
     </Box>
   );
 }
@@ -109,33 +100,26 @@ function QuizButton({ uri, mmtUrl }: { uri: string; mmtUrl?: string }) {
         >
           {problemList.length}
         </Box>
-        <QuizIcon
+        <Box
           sx={{
             cursor: 'pointer',
             backgroundColor: PRIMARY_COL,
             color: 'white',
             borderRadius: '50%',
-            padding: '8px',
+            padding: '7px 8px 3px',
           }}
           onClick={() => setDialogOpen(true)}
-        />
+        >
+          <Image src="/practice_problems.svg" width={24} height={24} alt="" />
+        </Box>
       </Box>
-      <Dialog
-        open={dialogOpen}
-        onClose={handleCloseDialog}
-        fullWidth={true}
-        maxWidth="md"
-      >
+      <Dialog open={dialogOpen} onClose={handleCloseDialog} fullWidth={true} maxWidth="md">
         <DialogTitle>Practice Problems</DialogTitle>
         <DialogContent>
           <PracticeQuestions problemIds={problemList} />
         </DialogContent>
         <DialogActions>
-          <Button
-            onClick={handleCloseDialog}
-            variant="contained"
-            color="primary"
-          >
+          <Button onClick={handleCloseDialog} variant="contained" color="primary">
             Close
           </Button>
         </DialogActions>
@@ -160,9 +144,7 @@ export function CompetencyTable({
   fetchProblem?: boolean;
 }) {
   const t = getLocaleObject(useRouter());
-  const [orderBy, setOrderBy] = useState<string>(
-    defaultSort ? 'Understand' : ''
-  );
+  //const [orderBy, setOrderBy] = useState<string>(defaultSort ? 'Understand' : '');
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
   const [showAllQuizzes, setShowAllQuizes] = useState<boolean>(false);
   const [problemIds, setProblemIds] = useState<string[]>([]);
@@ -175,9 +157,7 @@ export function CompetencyTable({
     async function fetchProblemIds() {
       try {
         if (!fetchProblem) return;
-        const promises = URIs.map((uri) =>
-          getProblemIdsForConcept(mmtUrl, uri)
-        );
+        const promises = URIs.map((uri) => getProblemIdsForConcept(mmtUrl, uri));
         const results = await Promise.all(promises);
         const flattenedProblemIds = results.flat();
         setProblemIds(flattenedProblemIds);
@@ -210,18 +190,16 @@ export function CompetencyTable({
   }
 
   if (!URIs?.length || !competencyData?.length) return <p>Loading data... </p>;
-  const handleRequestSort = (property: string) => {
+  /*8const handleRequestSort = (property: string) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
-  };
-  const sortedData = combinedData.slice().sort((a, b) => {
+  };*/
+  /*const sortedData = combinedData.slice().sort((a, b) => {
     if (orderBy === CONCEPT_COLUMN) {
       const aValue = extractLastWordAfterQuestionMark(a.concepts).toLowerCase();
       const bValue = extractLastWordAfterQuestionMark(b.concepts).toLowerCase();
-      return order === 'asc'
-        ? aValue.localeCompare(bValue)
-        : bValue.localeCompare(aValue);
+      return order === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
     } else {
       const aValue = a.values[orderBy];
       const bValue = b.values[orderBy];
@@ -232,23 +210,17 @@ export function CompetencyTable({
         return bValue - aValue;
       }
     }
-  });
+  })*/;
 
   return (
     <>
       {showTour && (
-        <Button
-          variant="contained"
-          onClick={handleAllQuizzes}
-          sx={{ marginBottom: '10px' }}
-        >
+        <Button variant="contained" onClick={handleAllQuizzes} sx={{ marginBottom: '10px' }}>
           {showAllQuizzes ? (
             t.practiceProblems.closeAllPracticeProblems
           ) : (
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Typography>
-                {t.practiceProblems.showAllPracticeProblems}
-              </Typography>
+              <Typography>{t.practiceProblems.showAllPracticeProblems}</Typography>&nbsp;
               <QuizIconWithProblemsCount problemIds={problemIds} />
             </Box>
           )}
@@ -261,9 +233,9 @@ export function CompetencyTable({
             <TableRow>
               <TableCell>
                 <TableSortLabel
-                  active={orderBy === CONCEPT_COLUMN}
+                  //active={orderBy === CONCEPT_COLUMN}
                   direction={order}
-                  onClick={() => handleRequestSort(CONCEPT_COLUMN)}
+                  //onClick={() => handleRequestSort(CONCEPT_COLUMN)}
                 >
                   <b>{t.concepts}</b>
                 </TableSortLabel>
@@ -274,9 +246,9 @@ export function CompetencyTable({
               {SHOW_DIMENSIONS.map((header) => (
                 <TableCell key={header}>
                   <TableSortLabel
-                    active={orderBy === header}
+                    //active={orderBy === header}
                     direction={order}
-                    onClick={() => handleRequestSort(header)}
+                    //onClick={() => handleRequestSort(header)}
                   >
                     <b>{header}</b>
                   </TableSortLabel>
@@ -290,11 +262,9 @@ export function CompetencyTable({
             </TableRow>
           </TableHead>
           <TableBody>
-            {sortedData.map((row, index) => (
+            {combinedData.map((row, index) => (
               <TableRow key={index}>
-                <TableCell>
-                  {mmtHTMLToReact(getMMTHtml(row.concepts))}
-                </TableCell>
+                <TableCell>{mmtHTMLToReact(getMMTHtml(row.concepts))}</TableCell>
                 <TableCell>
                   <Tooltip
                     title="View how you reached the current competency level"
@@ -311,15 +281,11 @@ export function CompetencyTable({
                     <Tooltip
                       title={
                         <SelfAssessmentDialogRow
-                          htmlName={extractLastWordAfterQuestionMark(
-                            URIs[index]
-                          )}
+                          htmlName={extractLastWordAfterQuestionMark(URIs[index])}
                           dim={dimension}
                           uri={URIs[index]}
                           dimText={false}
-                          selectedLevel={uriWeightToSmileyLevel(
-                            Number(row.values[dimension])
-                          )}
+                          selectedLevel={uriWeightToSmileyLevel(Number(row.values[dimension]))}
                           onValueUpdate={onValueUpdate}
                         />
                       }
@@ -361,11 +327,7 @@ export function CompetencyTable({
           </TableBody>
         </Table>
       </TableContainer>
-      <ConceptHistoryTable
-        open={showHistory}
-        onClose={handleCloseDialog}
-        concept={concept}
-      />
+      <ConceptHistoryTable open={showHistory} onClose={handleCloseDialog} concept={concept} />
     </>
   );
 }
