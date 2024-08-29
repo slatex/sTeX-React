@@ -168,3 +168,49 @@ SELECT DISTINCT t1.senderId, t1.receiverId FROM StudyBuddyConnections t1 JOIN St
 
 /* Query to get 1-way connection requests */
 SELECT t1.senderId, t1.receiverId FROM StudyBuddyConnections t1 LEFT JOIN StudyBuddyConnections t2 ON t1.senderId = t2.receiverId AND t1.receiverId = t2.senderId WHERE t2.senderId IS NULL AND t2.receiverId IS NULL AND t1.senderId < t1.receiverId;
+CREATE TABLE Answer  (
+  id int NOT NULL,
+  questionId varchar(255) NOT NULL,
+  userId varchar(255) NOT NULL,
+  answer TEXT NULL,
+  question_title varchar(510) NOT NULL,
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+);
+CREATE TABLE Grading  (
+  id int NOT NULL,
+  checkerId varchar(255) NOT NULL,
+  answerId int NOT NULL,
+  customFeedback TEXT NULL,
+  totalPoints float NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  FOREIGN KEY (answerId) REFERENCES Answer (id)
+);
+CREATE TABLE GradingAnswerClass  (
+  id int NOT NULL,
+  gradingId int NOT NULL,
+  answerClassId varchar(255) NOT NULL,
+  points float NOT NULL,
+  isTrait boolean NOT NULL,
+  closed boolean NOT NULL,
+  title varchar(255) NOT NULL,
+  description TEXT NULL,
+  count int NULL DEFAULT 1,
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  FOREIGN KEY (gradingId) REFERENCES Grading (id)
+);
+CREATE TABLE ReviewRequest   (
+  id int NOT NULL,
+  reviewType enum('INSTRUCTOR','PEER') NOT NULL,
+  answerId int NOT NULL,
+  userId varchar(255) NOT NULL,
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  FOREIGN KEY (answerId) REFERENCES Answer (id)
+);
