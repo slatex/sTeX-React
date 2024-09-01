@@ -26,6 +26,7 @@ import {
   GetSortedCoursesByConnectionsResponse,
   UserInfo,
   UserStats,
+  canUserModerate,
   getAllUsersStats,
   getEnrolledCourseIds,
   getStudyBuddyCoursesSortedbyConnections,
@@ -243,9 +244,16 @@ const Courses: NextPage = () => {
   const [, forceRerender] = useReducer((x) => x + 1, 0);
   const [enrolledCourseIds, setEnrolledCourseIds] = useState([]);
   const [userInfo, setUserInfo] = useState<UserInfo | undefined>(null);
+  const [isUserAModerator, setIsUserAModerator] = useState(false);
   useEffect(() => {
     getEnrolledCourseIds().then(setEnrolledCourseIds);
     getUserInfo().then(setUserInfo);
+    async function isUserAuthorized(){
+      if(await canUserModerate()){
+        setIsUserAModerator(true);
+      }
+    }
+    isUserAuthorized();
   }, []);
   const courseIds = enrolledCourseIds.map((item) => item?.courseId);
   return (
@@ -259,7 +267,7 @@ const Courses: NextPage = () => {
           p: '0 10px',
         }}
       >
-        {isModerator(userInfo?.userId) ? <StatsForModerator /> : null}
+        {isUserAModerator ? <StatsForModerator /> : null}
         <Typography
           variant="h3"
           display="flex"

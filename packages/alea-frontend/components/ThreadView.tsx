@@ -6,12 +6,13 @@ import {
   CommentType,
   QuestionStatus,
   UserInfo,
+  canAccessResource,
   getCommentsForThread,
   getUserInfo,
   isModerator,
   updateQuestionState,
 } from '@stex-react/api';
-import { XhtmlContentUrl } from '@stex-react/utils';
+import { Action, CURRENT_TERM, ResourceName, XhtmlContentUrl } from '@stex-react/utils';
 import { organizeHierarchically } from '@stex-react/comments';
 import { CommentTree } from '@stex-react/comments';
 import {
@@ -37,7 +38,7 @@ export function ThreadView({
   const [showContent, setShowContent] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
   const [updateCounter, doUpdate] = useReducer((x) => x + 1, 0);
-
+  const [isUserAuthorized, setIsUserAuthorized] = useState<boolean>(false);
   useEffect(() => {
     if (!threadId) return;
     getCommentsForThread(threadId).then((comments) => {
@@ -48,6 +49,13 @@ export function ThreadView({
 
   useEffect(() => {
     getUserInfo().then(setUserInfo);
+    async function checkUserAuthorization() {
+      setIsUserAuthorized(await canAccessResource(ResourceName.COURSE_COMMENTS, Action.MODERATE, {
+        courseId,
+        CURRENT_TERM
+      }));
+    }
+    checkUserAuthorization();
   }, []);
 
   if (!threadComments?.length) return null;
@@ -68,7 +76,7 @@ export function ThreadView({
         </Link>
         <Box display="flex" alignItems="center">
           <QuestionStatusIcon comment={threadComments[0]} />
-          {isModerator(userInfo?.userId) &&
+          {isUserAuthorized &&
           threadComments[0].commentType === CommentType.QUESTION ? (
             <>
               <Button

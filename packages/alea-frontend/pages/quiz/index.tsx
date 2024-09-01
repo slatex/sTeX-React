@@ -113,7 +113,7 @@ const QuizDashboardPage: NextPage = () => {
   );
 
   useEffect(() => {
-    axios.get('/api/get-all-quizzes', { headers: getAuthHeaders() }).then((res) => {
+    axios.get(`/api/get-all-quizzes?courseId=${courseId}&courseTerm=${courseTerm}`, { headers: getAuthHeaders() }).then((res) => {
       const allQuizzes: Quiz[] = res.data;
       allQuizzes?.sort((a, b) => b.quizStartTs - a.quizStartTs);
       setQuizzes(allQuizzes);
@@ -124,9 +124,9 @@ const QuizDashboardPage: NextPage = () => {
   useEffect(() => {
     if (!selectedQuizId || selectedQuizId == NEW_QUIZ_ID) return;
 
-    getQuizStats(selectedQuizId).then(setStats);
+    getQuizStats(selectedQuizId, courseId, courseTerm).then(setStats);
     const interval = setInterval(() => {
-      getQuizStats(selectedQuizId).then(setStats);
+      getQuizStats(selectedQuizId, courseId, courseTerm).then(setStats);
     }, 5000);
 
     return () => clearInterval(interval);

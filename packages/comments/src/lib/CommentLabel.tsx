@@ -2,6 +2,7 @@ import ReplyIcon from '@mui/icons-material/Reply';
 import ShieldTwoToneIcon from '@mui/icons-material/ShieldTwoTone';
 import { Box, Button, Tooltip } from '@mui/material';
 import {
+  canUserModerate,
   Comment,
   getUserInfo,
   isHiddenNotSpam,
@@ -85,16 +86,22 @@ export function CommentLabel({
   const statusStyle = isSpam(hiddenStatus) ? 'spam_status' : 'hidden_status';
 
   useEffect(() => {
-    getUserInfo().then(
-      (userInfo) => {
-        const userId = userInfo?.userId;
-        const isLoggedIn = !!userId;
-        setIsLoggedIn(isLoggedIn);
-        setFromCurrentUser(isLoggedIn && userId === comment?.userId);
-        setCanModerate(isModerator(userId));
-      },
-      () => setFromCurrentUser(false)
-    );
+    // getUserInfo().then(
+    //   (userInfo) => {
+    //     const userId = userInfo?.userId;
+    //     const isLoggedIn = !!userId;
+    //     setIsLoggedIn(isLoggedIn);
+    //     setFromCurrentUser(isLoggedIn && userId === comment?.userId);
+    //     setCanModerate(isModerator(userId));
+    //   },
+    //   () => setFromCurrentUser(false)
+    // );
+    async function isUserAuthorized(){
+      if ( await canUserModerate(comment.courseId, comment.courseTerm)){
+        setCanModerate(true);
+      }
+    }
+    isUserAuthorized();
   }, [comment?.userId]);
 
   if (comment.isDeleted)

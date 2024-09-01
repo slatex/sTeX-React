@@ -5,16 +5,17 @@ import {
   getExistingCommentDontEnd,
   getUserIdOrSetError,
 } from './comment-utils';
+import { getUserIdForCommentsModerationOrSetError } from './access-control/resource-utils';
 
 export default async function handler(req, res) {
   if (!checkIfPostOrSetError(req, res)) return;
-  const userId = await getUserIdOrSetError(req, res);
-  if (!userId) return;
+  // const userId = await getUserIdOrSetError(req, res);
+  // if (!userId) return;
 
-  if (!isModerator(userId)) {
-    res.status(403).json({ message: 'Not a moderator' });
-    return;
-  }
+  // if (!isModerator(userId)) {
+  //   res.status(403).json({ message: 'Not a moderator' });
+  //   return;
+  // }
   const { commentId, questionStatus, commentType } =
     req.body as UpdateQuestionStateRequest;
   if (!commentId || !commentType) {
@@ -22,6 +23,8 @@ export default async function handler(req, res) {
     return;
   }
   const { existing, error } = await getExistingCommentDontEnd(commentId);
+  const userId = await getUserIdForCommentsModerationOrSetError(req, res, existing);
+  if (!userId) return;
   if (!existing || existing.isPrivate) {
     res.status(error || 404).json({ message: 'Comment not found' });
     return;

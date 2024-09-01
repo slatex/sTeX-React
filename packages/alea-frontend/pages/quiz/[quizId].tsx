@@ -4,13 +4,14 @@ import {
   Phase,
   Problem,
   UserInfo,
+  canAccessResource,
   getQuiz,
   getUserInfo,
   insertAnswer,
   isModerator,
 } from '@stex-react/api';
 import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
-import { localStore } from '@stex-react/utils';
+import { Action, localStore, ResourceName } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -114,6 +115,8 @@ const QuizPage: NextPage = () => {
   const [quizInfo, setQuizInfo] = useState<GetQuizResponse | undefined>(
     undefined
   );
+  const [courseId, setCourseId] = useState<string>('');
+  const [instanceId, setInstanceId] = useState<string>('');
   const [moderatorPhase, setModeratorPhase] = useState<Phase>(undefined);
   const [debuggerMode, setDebuggerMode] = useState<boolean>(false);
   const clientQuizEndTimeMs = getClientEndTimeMs(quizInfo);
@@ -134,6 +137,8 @@ const QuizPage: NextPage = () => {
     if (!quizId) return;
     getQuiz(quizId).then((quizInfo) => {
       setQuizInfo(quizInfo);
+      setCourseId(quizInfo.courseId);
+      setInstanceId(quizInfo.courseTerm);
       const problemObj: { [problemId: string]: Problem } = {};
       Object.keys(quizInfo.problems).map((problemId) => {
         const html = hackAwayProblemId(quizInfo.problems[problemId]);
@@ -168,19 +173,35 @@ const QuizPage: NextPage = () => {
   useEffect(() => {
     getUserInfo().then((userInfo) => {
       setUserInfo(userInfo);
-      if (isModerator(userInfo?.userId)) {
-        const p =
-          'Hello moderator! Do you want to see the quiz in feedback release phase (press OK) or quiz started phase (press Cancel)?';
-        const moderatorPhase = confirm(p)
-          ? Phase.FEEDBACK_RELEASED
-          : Phase.STARTED;
-        setModeratorPhase(moderatorPhase);
-        if (moderatorPhase === Phase.FEEDBACK_RELEASED) {
-          const debugMessage =
-            'Would you like to view the quiz in debugger mode?';
-          setDebuggerMode(confirm(debugMessage));
-        }
+      if(canAccessResource(ResourceName.COURSE_QUIZ, Action.MUTATE, {
+        courseId,
+        instanceId,
+      })){
+          const p =
+            'Hello moderator! Do you want to see the quiz in feedback release phase (press OK) or quiz started phase (press Cancel)?';
+            const moderatorPhase = confirm(p)
+            ? Phase.FEEDBACK_RELEASED
+            : Phase.STARTED;
+          setModeratorPhase(moderatorPhase);
+          if (moderatorPhase === Phase.FEEDBACK_RELEASED) {
+            const debugMessage =
+              'Would you like to view the quiz in debugger mode?';
+            setDebuggerMode(confirm(debugMessage));
+          }
       }
+      // if (isModerator(userInfo?.userId)) {
+      //   const p =
+      //     'Hello moderator! Do you want to see the quiz in feedback release phase (press OK) or quiz started phase (press Cancel)?';
+      //   const moderatorPhase = confirm(p)
+      //     ? Phase.FEEDBACK_RELEASED
+      //     : Phase.STARTED;
+      //   setModeratorPhase(moderatorPhase);
+      //   if (moderatorPhase === Phase.FEEDBACK_RELEASED) {
+      //     const debugMessage =
+      //       'Would you like to view the quiz in debugger mode?';
+      //     setDebuggerMode(confirm(debugMessage));
+      //   }
+      // }
     });
   }, []);
 

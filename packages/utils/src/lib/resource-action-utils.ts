@@ -16,7 +16,11 @@ export enum ResourceName {
   COURSE_COMMENTS = 'Course-Comments',
   ALL_COMMENTS = 'All-Comments',
   GLOBAL_ACCESS = 'Global-Access',
-  COURSE_ACCESS = 'Course-Access'
+  COURSE_ACCESS = 'Course-Access',
+  NOTES = 'Notes',
+  COURSE_STUDY_BUDDY = 'Course-Study-Buddy',
+  ALL_STUDY_BUDDY = 'All-Study-Buddy',
+  EXPERIMENTAL = 'Experimental'
 }
 
 export enum ComponentType {
@@ -71,7 +75,7 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
   {
     name: ResourceName.ALL_COMMENTS,
     possibleActions: [Action.MODERATE],
-    components: [{ type: ComponentType.FIXED, value: '**' }],
+    components: [{ type: ComponentType.FIXED, value: "comments" }],
   },
   {
     name : ResourceName.GLOBAL_ACCESS,
@@ -87,6 +91,40 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
       {type : ComponentType.FIXED, value : 'instance'},
       {name : 'instanceId',type : ComponentType.VARIABLE},
       {type : ComponentType.WILDCARD2, value: '**'}
+    ]
+  },
+  {
+    name : ResourceName.NOTES,
+    possibleActions : [Action.MUTATE],
+    components : [
+      {type : ComponentType.FIXED, value : 'course'},
+      {name : 'courseId', type : ComponentType.VARIABLE},
+      {type : ComponentType.FIXED, value : 'instance'},
+      {name : 'instanceId', type : ComponentType.VARIABLE},
+      {type : ComponentType.FIXED, value : 'notes'},
+    ]
+  },
+  {
+    name : ResourceName.COURSE_STUDY_BUDDY,
+    possibleActions : [Action.MODERATE],
+    components : [
+      {type : ComponentType.FIXED, value : 'course'},
+      {name : 'courseId', type : ComponentType.VARIABLE},
+      {type : ComponentType.FIXED, value : 'instance'},
+      {name : 'instanceId', type : ComponentType.VARIABLE},
+      {type : ComponentType.FIXED, value : 'study-buddy'},
+    ]
+  },
+  {
+    name : ResourceName.ALL_STUDY_BUDDY,
+    possibleActions : [Action.MODERATE],
+    components : [{type : ComponentType.FIXED, value : 'study-buddy'}]
+  },
+  {
+    name : ResourceName.EXPERIMENTAL,
+    possibleActions : [Action.MUTATE],
+    components : [
+      {type : ComponentType.FIXED, value : 'exp'}
     ]
   }
 ];

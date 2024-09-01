@@ -4,6 +4,8 @@ import {
   getUserIdOrSetError,
 } from '../../comment-utils';
 import { UserStats, isModerator } from '@stex-react/api';
+import { getUserIdForStudyBuddyModerationOrSetError } from '../../access-control/resource-utils';
+import { CURRENT_TERM } from '@stex-react/utils';
 
 export default async function handler(
   req: NextApiRequest,
@@ -12,11 +14,15 @@ export default async function handler(
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
 
-  if (!isModerator(userId)) {
-    res.status(403).send({ message: 'Unauthorized.' });
-    return;
-  }
+  // if (!isModerator(userId)) {
+  //   res.status(403).send({ message: 'Unauthorized.' });
+  //   return;
+  // }
   const courseId = req.query.courseId as string;
+  if( ! await getUserIdForStudyBuddyModerationOrSetError(req, res, courseId, CURRENT_TERM)){
+    return res.status(403).send({ message: 'Unauthorized.' });
+  }
+  
   const result1: any[] = await executeAndEndSet500OnError(
     `SELECT 
       COUNT(userId) as TotalUsers, 

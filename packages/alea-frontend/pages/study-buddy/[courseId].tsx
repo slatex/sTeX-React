@@ -20,6 +20,7 @@ import {
   StudyBuddy,
   UserInfo,
   UserStats,
+  canUserModerate,
   connectionRequest,
   getCourseInfo,
   getStudyBuddyList,
@@ -33,7 +34,7 @@ import {
   updateStudyBuddyInfo,
 } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { BG_COLOR, CourseInfo, MaAI_COURSES } from '@stex-react/utils';
+import { BG_COLOR, CourseInfo, CURRENT_TERM, MaAI_COURSES } from '@stex-react/utils';
 import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
@@ -141,6 +142,7 @@ const StudyBuddyPage: NextPage = () => {
   const [courses, setCourses] = useState<
     { [id: string]: CourseInfo } | undefined
   >(undefined);
+  const [isUserAModerator, setIsUserAModerator] = useState(false);
   const masterCourses = MaAI_COURSES;
   const { mmtUrl } = useContext(ServerLinksContext);
   const refetchStudyBuddyLists = useCallback(() => {
@@ -165,6 +167,12 @@ const StudyBuddyPage: NextPage = () => {
       setIsLoading(false);
       setFromServer(data);
     });
+    async function isUserAuthorized(){
+      if(await canUserModerate(courseId, CURRENT_TERM)){
+        setIsUserAModerator(true);
+      }
+    }
+    isUserAuthorized();
   }, [courseId]);
 
   if (!router.isReady || !courses) return <CircularProgress />;

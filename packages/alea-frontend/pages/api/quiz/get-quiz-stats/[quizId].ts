@@ -1,6 +1,7 @@
 import {
   PerProblemStats,
   QuizStatsResponse,
+  canAccessResource,
   isModerator,
 } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
@@ -8,6 +9,7 @@ import { getUserIdOrSetError } from '../../comment-utils';
 import { getQuiz } from '../quiz-utils';
 import { getProblem } from '@stex-react/quiz-utils';
 import { queryGradingDbAndEndSet500OnError, queryGradingDbDontEndSet500OnError } from '../../grading-db-utils';
+import { Action, ResourceName } from '@stex-react/utils';
 
 function missingProblemData() {
   return {
@@ -31,10 +33,20 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const quizId = req.query.quizId as string;
+  const courseId = req.query.courseId as string;
+  const instanceId = req.query.courseTerm as string;
   const userId = await getUserIdOrSetError(req, res);
-  if (!isModerator(userId)) {
-    res.status(403).send({ message: 'Unauthorized.' });
-    return;
+  if(!userId) return;
+  // if (!isModerator(userId)) {
+  //   res.status(403).send({ message: 'Unauthorized.' });
+  //   return;
+  // }
+
+  if(! (await canAccessResource(ResourceName.COURSE_QUIZ, Action.MUTATE, {
+    courseId,
+    instanceId
+  }))){
+    return res.status(403).send({ message: 'Unauthorized.' });
   }
 
   const quiz = getQuiz(quizId);

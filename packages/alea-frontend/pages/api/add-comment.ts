@@ -4,9 +4,10 @@ import {
   DEFAULT_POINTS,
   GrantReason,
   NotificationType,
+  canAccessResource,
   isModerator,
 } from '@stex-react/api';
-import { CURRENT_TERM, PathToArticle } from '@stex-react/utils';
+import { Action, CURRENT_TERM, PathToArticle, ResourceName } from '@stex-react/utils';
 import axios from 'axios';
 import {
   checkIfPostOrSetError,
@@ -35,11 +36,16 @@ async function sendCommentAlert(
   userId: string,
   isPrivate: boolean,
   isQuestion: boolean,
-  link: string
+  link: string,
+  courseId, 
+  courseTerm,
 ) {
   if (isPrivate) return;
   const fullLink = `https://courses.voll-ki.fau.de${link}`;
-  const message = isModerator(userId)
+  const message = await canAccessResource(ResourceName.COURSE_COMMENTS, Action.MODERATE, {
+    courseId,
+    courseTerm
+  })
     ? `A moderator posted at ${fullLink}`
     : `A ${isQuestion ? 'question' : 'comment'} was posted at ${fullLink}`;
   await sendAlert(message);
@@ -176,7 +182,9 @@ export default async function handler(req, res) {
     userId,
     isPrivate,
     commentType === CommentType.QUESTION,
-    linkToComment({ threadId, courseId, courseTerm, archive, filepath })
+    linkToComment({ threadId, courseId, courseTerm, archive, filepath }),
+    courseId, 
+    courseTerm,
   );
   await sendCommentNotifications(parentComment, userId);
 }

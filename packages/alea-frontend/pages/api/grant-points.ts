@@ -7,6 +7,7 @@ import {
   getExistingPointsDontEnd,
   getUserIdOrSetError,
 } from './comment-utils';
+import { getUserIdForCommentsModerationOrSetError } from './access-control/resource-utils';
 
 export default async function handler(
   req: NextApiRequest,
@@ -14,12 +15,12 @@ export default async function handler(
 ) {
   if (!checkIfPostOrSetError(req, res)) return;
   const granterId = await getUserIdOrSetError(req, res);
-  if (!isModerator(granterId)) {
-    res
-      .status(403)
-      .send({ message: 'You are not allowed to do this operation.' });
-    return;
-  }
+  // if (!isModerator(granterId)) {
+  //   res
+  //     .status(403)
+  //     .send({ message: 'You are not allowed to do this operation.' });
+  //   return;
+  // }
 
   const { commentId, points, reason } = req.body as GrantPointsRequest;
   if (!commentId || !reason || points === undefined) {
@@ -29,6 +30,8 @@ export default async function handler(
 
   const { existing: comment, error: commentFetchError } =
     await getExistingCommentDontEnd(commentId);
+  const userId = await getUserIdForCommentsModerationOrSetError(req, res, comment);
+  if (!userId) return;
   const commenterId = comment?.userId;
   if (!commenterId || comment.isAnonymous || comment.isPrivate) {
     res
@@ -38,6 +41,8 @@ export default async function handler(
   }
 
   const { existing: existingGrant } = await getExistingPointsDontEnd(commentId);
+
+
 
   let results = undefined;
   if (existingGrant) {

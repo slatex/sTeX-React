@@ -27,12 +27,13 @@ import {
   QuestionStatus,
   UserInfo,
   addComment,
+  canAccessResource,
   getCourseInstanceThreads,
   getUserInfo,
   isModerator,
 } from '@stex-react/api';
 import { DateView } from '@stex-react/react-utils';
-import { CURRENT_TERM } from '@stex-react/utils';
+import { Action, CURRENT_TERM, ResourceName } from '@stex-react/utils';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useReducer, useState } from 'react';
@@ -121,8 +122,16 @@ function ForumViewControls({
   const [openQuestionDialog, setOpenQuestionDialog] = useState(false);
   const courseId = useRouter()?.query?.courseId as string;
   const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
+  const [isUserAuthorized, setIsUserAuthorized] = useState<boolean>(false);
   useEffect(() => {
     getUserInfo().then(setUserInfo);
+    async function checkUserAuthorization() {
+      setIsUserAuthorized(await canAccessResource(ResourceName.COURSE_COMMENTS, Action.MODERATE, {
+        courseId,
+        CURRENT_TERM
+      }));
+    }
+    checkUserAuthorization();
   }, []);
 
   return (
@@ -141,7 +150,7 @@ function ForumViewControls({
         <AddIcon />
         &nbsp;{t.askAQuestion}
       </Button>
-      {isModerator(userInfo?.userId) && (
+      {isUserAuthorized && (
         <Box display="flex">
           <FormControlLabel
             control={

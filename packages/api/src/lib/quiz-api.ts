@@ -45,8 +45,8 @@ export async function getQuiz(quizId: string) {
   return resp.data as GetQuizResponse;
 }
 
-export async function getQuizStats(quizId: string) {
-  const resp = await axios.get(`/api/quiz/get-quiz-stats/${quizId}`, {
+export async function getQuizStats(quizId: string, courseId : string, courseTerm : string) {
+  const resp = await axios.get(`/api/quiz/get-quiz-stats/${quizId}?courseId=${courseId}&courseTerm=${courseTerm}`, {
     headers: getAuthHeaders(),
   });
   return resp.data as QuizStatsResponse;

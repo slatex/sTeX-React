@@ -5,9 +5,11 @@ import {
   isModerator,
   DiligenceAndPerformanceData,
   UserAnonData,
+  canAccessResource,
 } from '@stex-react/api';
 import { queryMatomoDbAndEndSet500OnError } from './matomo-db-utils';
 import { getAllQuizzes } from '@stex-react/node-utils';
+import { Action, ResourceName } from '@stex-react/utils';
 
 // SELECT user_id as userId, SUM(visit_total_time) visit_time  FROM matomo.matomo_log_visit  WHERE user_id IS NOT NULL AND visit_first_action_time >= '2023-10-01 10:00:00' AND visit_last_action_time <= '2023-10-30 10:00:00'   GROUP BY user_id
 
@@ -68,10 +70,13 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const userId = await getUserIdOrSetError(req, res);
-  if (!isModerator(userId)) {
-    res.status(403).send({ message: 'Unauthorized.' });
-    return;
-  }
+  // if (!isModerator(userId)) {
+  //   res.status(403).send({ message: 'Unauthorized.' });
+  //   return;
+  // }
+  if( ! await canAccessResource(ResourceName.EXPERIMENTAL, Action.MUTATE))
+    return res.status(403).send({ message: 'Unauthorized.' });
+  
   const scoreInfo: any[] = await queryGradingDbAndEndSet500OnError(
     `SELECT userId, quizId, SUM(points) as quizScore
     FROM grading

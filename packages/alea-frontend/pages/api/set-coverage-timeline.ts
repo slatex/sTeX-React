@@ -1,5 +1,5 @@
-import { isModerator } from '@stex-react/api';
-import { CoverageSnap, CoverageTimeline } from '@stex-react/utils';
+import { canAccessResource, isModerator } from '@stex-react/api';
+import { Action, CoverageSnap, CoverageTimeline, CURRENT_TERM, ResourceName } from '@stex-react/utils';
 import fs from 'fs';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { checkIfPostOrSetError, getUserIdOrSetError } from './comment-utils';
@@ -20,16 +20,20 @@ export default async function handler(
 ) {
   if (!checkIfPostOrSetError(req, res)) return;
   const userId = await getUserIdOrSetError(req, res);
-  if (!isModerator(userId)) {
-    res
-      .status(403)
-      .send({ message: 'You are not allowed to do this operation.' });
-    return;
-  }
 
   const snaps = req.body.snaps as CoverageSnap[];
   const courseId = req.body.courseId as string;
   const filePath = process.env.RECORDED_SYLLABUS_DIR + '/' + CURRENT_SEM_FILE;
+
+  if(! await canAccessResource(ResourceName.NOTES, Action.MUTATE, {
+    courseId : courseId,
+    instanceId : CURRENT_TERM
+  })){
+      res
+      .status(403)
+      .send({ message: 'You are not allowed to do this operation.' });
+    return;
+  }
 
   // Read the existing file data, if it exists
   let existingData: CoverageTimeline = {};

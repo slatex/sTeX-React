@@ -96,6 +96,13 @@ export async function canAccessResource(
   return data as boolean;
 }
 
+export async function canUserModerate(courseId?: string, instanceId?: string): Promise<boolean> {
+  const {data} = await axios.get(`/api/access-control/can-user-moderate?courseId=${courseId}&courseTerm=${instanceId}`, {
+    headers : getAuthHeaders()
+  });
+  return data as boolean;
+}
+
 export type UpdateACLRequest = Omit<AccessControlList, 'updatedAt' | 'createdAt'>;
 
 export type CreateACLRequest = Omit<AccessControlList, 'createdAt' | 'updatedAt'>;

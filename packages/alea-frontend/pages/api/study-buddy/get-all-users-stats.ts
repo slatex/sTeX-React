@@ -4,6 +4,7 @@ import {
   executeAndEndSet500OnError,
   getUserIdOrSetError,
 } from '../comment-utils';
+import { getUserIdForStudyBuddyModerationOrSetError } from '../access-control/resource-utils';
 
 export default async function handler(
   req: NextApiRequest,
@@ -12,9 +13,13 @@ export default async function handler(
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
 
-  if (!isModerator(userId)) {
-    res.status(403).send({ message: 'Unauthorized.' });
-    return;
+  // if (!isModerator(userId)) {
+  //   res.status(403).send({ message: 'Unauthorized.' });
+  //   return;
+  // }
+  
+  if(! await getUserIdForStudyBuddyModerationOrSetError(req, res)){
+    return res.status(403).send({ message: 'Unauthorized.' });
   }
 
   /*

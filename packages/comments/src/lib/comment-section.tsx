@@ -10,7 +10,7 @@ import {
   Menu,
   MenuItem,
 } from '@mui/material';
-import { Comment, getUserInfo, isModerator } from '@stex-react/api';
+import { canUserModerate, Comment, getUserInfo, isModerator } from '@stex-react/api';
 import { ReactNode, useEffect, useReducer, useRef, useState } from 'react';
 import { CommentFilters } from './comment-filters';
 import {
@@ -182,11 +182,17 @@ export function CommentSection({
   );
 
   useEffect(() => {
-    getUserInfo().then((userInfo) => {
-      const userId = userInfo?.userId;
-      setCanAddComment(!!userId);
-      setCanModerate(isModerator(userId));
-    });
+    // getUserInfo().then((userInfo) => {
+    //   const userId = userInfo?.userId;
+    //   setCanAddComment(!!userId);
+    //   setCanModerate(isModerator(userId));
+    // });
+    async function isUserAuthorized(){
+      if(await canUserModerate()) {
+        setCanModerate(true);
+      }
+    }
+    isUserAuthorized();
   }, []);
 
   useEffect(() => {

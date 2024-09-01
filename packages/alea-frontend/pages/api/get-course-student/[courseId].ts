@@ -9,10 +9,11 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const userId = await getUserIdOrSetError(req, res);
-  if (!isModerator(userId)) {
-    res.status(403).send({ message: 'Unauthorized.' });
-    return;
-  }
+  // if (!isModerator(userId)) {
+  //   res.status(403).send({ message: 'Unauthorized.' });
+  //   return;
+  // }
+  // this api is not yet used anywhere, 
   const courseId = req.query.courseId as string;
   if (!courseId) {
     res.status(400).json({ message: 'Missing courseId.' });

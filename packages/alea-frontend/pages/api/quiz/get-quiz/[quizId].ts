@@ -3,10 +3,11 @@ import {
   InputResponse,
   Phase,
   ProblemResponse,
+  canAccessResource,
   isModerator,
 } from '@stex-react/api';
 import { getQuizPhase, removeAnswerInfo } from '@stex-react/quiz-utils';
-import { simpleNumberHash } from '@stex-react/utils';
+import { Action, ResourceName, simpleNumberHash } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getQuiz, getQuizTimes } from '@stex-react/node-utils';
 import { queryGradingDbAndEndSet500OnError } from '../../grading-db-utils';
@@ -52,9 +53,15 @@ function shuffleArray(arr: any[], seed: number) {
 
 function reorderBasedOnUserId(
   problems: { [problemId: string]: string },
-  userId: string
+  userId: string,
+  courseId : string,
+  courseTerm : string
 ) {
-  if (isModerator(userId)) return problems;
+  // if (isModerator(userId)) return problems;
+  if(canAccessResource(ResourceName.COURSE_QUIZ, Action.MUTATE, {
+    courseId,
+    instanceId : courseTerm
+  })) return problems;
   const problemIds = Object.keys(problems);
   shuffleArray(problemIds, simpleNumberHash(userId));
   const shuffled: { [problemId: string]: string } = {};
@@ -94,15 +101,19 @@ export default async function handler(
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
 
-  const isMod = isModerator(userId);
+  // const isMod = isModerator(userId);
   const quizId = req.query.quizId as string;
-
   const quizInfo = getQuiz(quizId);
+  const {courseTerm, courseId} = quizInfo;
   if (!quizInfo) {
     res.status(400).json({ message: `Quiz not found: [${quizId}]` });
     return;
   }
-
+  const isMod = await canAccessResource(ResourceName.COURSE_QUIZ, Action.MUTATE, {
+    courseId,
+    instanceId : courseTerm
+  });
+  
   const phase = getQuizPhase(quizInfo);
   const quizTimes = getQuizTimes(quizInfo);
   const problems = getPhaseAppropriateProblems(quizInfo.problems, isMod, phase);
@@ -113,7 +124,7 @@ export default async function handler(
     currentServerTs: Date.now(),
     ...quizTimes,
     phase,
-    problems: reorderBasedOnUserId(problems, userId),
+    problems: reorderBasedOnUserId(problems, userId, courseId, courseTerm),
     responses,
   } as GetQuizResponse);
   return;

@@ -9,13 +9,8 @@ export default async function handler(req, res) {
   if (!checkIfPostOrSetError(req, res)) return;
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
-
-  if (isModerator(userId)) {
-    res
-      .status(400)
-      .send("Moderators data can't be purged. Contact admin for help.");
-    return;
-  }
+  
+  // no need of access-control
 
   const commentUpdate = await executeTxnAndEndSet500OnError(
     res,

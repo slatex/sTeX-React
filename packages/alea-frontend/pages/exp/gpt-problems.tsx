@@ -17,6 +17,7 @@ import {
   CreateGptProblemsResponse,
   GptCompletionData,
   Template,
+  canAccessResource,
   createGptQuestions,
   getEval,
   getTemplates,
@@ -32,6 +33,7 @@ import { CreateGptProblemsForm } from '../../components/CreateGptProblemsForm';
 import MainLayout from '../../layouts/MainLayout';
 import CompletionEvalForm from '../../components/GptEvalForm';
 import Link from 'next/link';
+import { Action, ResourceName } from '@stex-react/utils';
 
 const copyToClipboard = (text: string) => {
   navigator.clipboard
@@ -232,12 +234,17 @@ const GptQuestions: NextPage = () => {
     useState<CreateGptProblemsResponse>(undefined);
 
   useEffect(() => {
-    getUserInfo().then(({ userId }) => {
-      if (!isModerator(userId) && !ADDL_AUTHORIZED_USERS.includes(userId)) {
-        alert('You dont have permission to access this page!');
-        router.push('/');
-      }
-    });
+    // getUserInfo().then(({ userId }) => {
+    //   if (!isModerator(userId) && !ADDL_AUTHORIZED_USERS.includes(userId)) {
+    //     alert('You dont have permission to access this page!');
+    //     router.push('/');
+    //   }
+    // });
+    async function isUserAuthorized(){
+      if(! await canAccessResource(ResourceName.EXPERIMENTAL, Action.MUTATE))
+          router.push('/');
+    }
+    isUserAuthorized();
   }, []);
 
   useEffect(() => {
