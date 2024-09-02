@@ -1,7 +1,6 @@
 import { Phase, Quiz } from '@stex-react/api';
 import dayjs from 'dayjs';
 import fs from 'fs';
-import { DomHandler, DomUtils, Parser } from 'htmlparser2';
 import path from 'path';
 
 let QUIZ_CACHE: Map<string, Quiz> | undefined = undefined;
