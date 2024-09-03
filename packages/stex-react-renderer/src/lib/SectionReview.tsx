@@ -138,7 +138,7 @@ const SectionReview = ({
               </Tooltip>
             ))}
           </Box>
-          <PerSectionQuiz archive={archive} filepath={filepath} />
+          <PerSectionQuiz archive={archive} filepath={filepath} showHideButton={true}/>
         </AccordionDetails>
       </Accordion>
       <Dialog

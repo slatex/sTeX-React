@@ -2,7 +2,7 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Button, IconButton, Tooltip, Typography } from '@mui/material';
 import LinearProgress from '@mui/material/LinearProgress';
 import { Problem, ProblemResponse, getProblemIdsForFile, getProblemShtml } from '@stex-react/api';
-import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
+import { getProblem, getSolution, hackAwayProblemId } from '@stex-react/quiz-utils';
 import { sourceFileUrl } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useReducer, useState } from 'react';
@@ -17,15 +17,18 @@ export function PerSectionQuiz({
   archive,
   filepath,
   showButtonFirst = true,
+  showHideButton = false,
 }: {
   archive: string;
   filepath: string;
   showButtonFirst?: boolean;
+  showHideButton?: boolean;
 }) {
   const t = getLocaleObject(useRouter()).quiz;
   const { mmtUrl } = useContext(ServerLinksContext);
   const [problemIds, setProblemIds] = useState<string[]>([]);
   const [problems, setProblems] = useState<Problem[]>([]);
+  const [solutions, setSolutions] = useState<(string | undefined)[]>([]);
   const [isLoadingProblemIds, setIsLoadingProblemIds] = useState<boolean>(true);
   const [isLoadingProblems, setIsLoadingProblems] = useState<boolean>(true);
   const [responses, setResponses] = useState<ProblemResponse[]>([]);
@@ -34,6 +37,7 @@ export function PerSectionQuiz({
   const [, forceRerender] = useReducer((x) => x + 1, 0);
   const [startQuiz, setStartQuiz] = useState(!showButtonFirst);
   const [show, setShow] = useState(true);
+  const [disableCheck, setDisableCheck] = useState(false);
 
   useEffect(() => {
     if (!archive || !filepath) return;
@@ -50,7 +54,9 @@ export function PerSectionQuiz({
     setIsLoadingProblems(true);
     Promise.all(problems$).then((problemStrs) => {
       const problems = problemStrs.map((p) => getProblem(hackAwayProblemId(p), ''));
+      const solutions = problemStrs.map((p) => getSolution(p));
       setProblems(problems);
+      setSolutions(solutions);
       setResponses(problems.map((p) => defaultProblemResponse(p)));
       setIsFrozen(problems.map(() => false));
       setProblemIdx(0);
@@ -83,6 +89,7 @@ export function PerSectionQuiz({
 
   const problem = problems[problemIdx];
   const response = responses[problemIdx];
+  const solution = solutions[problemIdx];
 
   if (!problem || !response) return <>error</>;
 
@@ -102,7 +109,10 @@ export function PerSectionQuiz({
         <ListStepper
           idx={problemIdx}
           listSize={problems.length}
-          onChange={(idx) => setProblemIdx(idx)}
+          onChange={(idx) => {
+            setProblemIdx(idx);
+            setDisableCheck(false);
+          }}
         />
         <IconButton
           onClick={() => handleViewSource(problemIds[problemIdx])}
@@ -138,10 +148,25 @@ export function PerSectionQuiz({
           }
         />
       </Box>
-      <Box mb={2}>
-        <Button onClick={() => setShow(false)} variant="contained">
-          {t.hideProblems}
-        </Button>
+      <Box
+        mb={2}
+        sx={{ display: 'flex', gap: '10px', flexDirection: 'column', alignItems: 'flex-start' }}
+      >
+        {solution && (
+          <Button onClick={() => setDisableCheck(true)} variant="contained" disabled={disableCheck}>
+            {t.checkSolution}
+          </Button>
+        )}
+        {showHideButton && (
+          <Button onClick={() => setShow(false)} variant="contained">
+            {t.hideProblems}
+          </Button>
+        )}
+      </Box>
+      <Box mb="10px">
+        {disableCheck && solution && (
+          <div style={{ color: '#555', marginTop: '10px' }}>{mmtHTMLToReact(solution)}</div>
+        )}
       </Box>
     </Box>
   );
