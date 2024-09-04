@@ -2,7 +2,7 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Button, IconButton, Tooltip, Typography } from '@mui/material';
 import LinearProgress from '@mui/material/LinearProgress';
 import { Problem, ProblemResponse, getProblemIdsForFile, getProblemShtml } from '@stex-react/api';
-import { getProblem, getSolution, hackAwayProblemId } from '@stex-react/quiz-utils';
+import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
 import { sourceFileUrl } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useReducer, useState } from 'react';
@@ -28,7 +28,6 @@ export function PerSectionQuiz({
   const { mmtUrl } = useContext(ServerLinksContext);
   const [problemIds, setProblemIds] = useState<string[]>([]);
   const [problems, setProblems] = useState<Problem[]>([]);
-  const [solutions, setSolutions] = useState<(string | undefined)[]>([]);
   const [isLoadingProblemIds, setIsLoadingProblemIds] = useState<boolean>(true);
   const [isLoadingProblems, setIsLoadingProblems] = useState<boolean>(true);
   const [responses, setResponses] = useState<ProblemResponse[]>([]);
@@ -54,9 +53,7 @@ export function PerSectionQuiz({
     setIsLoadingProblems(true);
     Promise.all(problems$).then((problemStrs) => {
       const problems = problemStrs.map((p) => getProblem(hackAwayProblemId(p), ''));
-      const solutions = problemStrs.map((p) => getSolution(p));
       setProblems(problems);
-      setSolutions(solutions);
       setResponses(problems.map((p) => defaultProblemResponse(p)));
       setIsFrozen(problems.map(() => false));
       setProblemIdx(0);
@@ -89,7 +86,7 @@ export function PerSectionQuiz({
 
   const problem = problems[problemIdx];
   const response = responses[problemIdx];
-  const solution = solutions[problemIdx];
+  const solution = problems[problemIdx]?.solution;
 
   if (!problem || !response) return <>error</>;
 

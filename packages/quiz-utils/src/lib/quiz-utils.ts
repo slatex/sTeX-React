@@ -359,26 +359,21 @@ function getProblemSolution(rootNode: Element) {
   return header ? DomUtils.getOuterHTML(header) : '';
 }
 
-export function getSolution(htmlStr: string) {
-  const htmlDoc = parseDocument(htmlStr);
-  const solutionRootNode = findSolutionRootNode(htmlDoc);
-  if (!solutionRootNode) return;
-  const solution = getProblemSolution(solutionRootNode);
-  return solution;
-}
-
 export function getProblem(htmlStr: string, problemUrl = '') {
   const htmlDoc = parseDocument(htmlStr);
   const problemRootNode = findProblemRootNode(htmlDoc);
   problemRootNode.attribs[PROBLEM_PARSED_MARKER] = 'true';
+  const solutionRootNode = findSolutionRootNode(htmlDoc)??"";
   const points = getProblemPoints(problemRootNode);
   const header = getProblemHeader(problemRootNode);
+  const solution = getProblemSolution(solutionRootNode);
   if (!problemRootNode) {
     return {
       header: '',
       objectives: '',
       preconditions: '',
       inputs: [],
+      solution: '',
       points: 0,
       statement: { outerHTML: `<span>Not found: ${problemUrl}</span>` },
     } as Problem;
@@ -397,6 +392,7 @@ export function getProblem(htmlStr: string, problemUrl = '') {
     preconditions: problemRootNode?.attribs?.['data-problem-preconditions'] ?? '',
     statement: { outerHTML: DomUtils.getOuterHTML(problemRootNode) }, // The mcb block is already marked display:none.
     inputs,
+    solution,
     points,
   } as Problem;
   return problem;
