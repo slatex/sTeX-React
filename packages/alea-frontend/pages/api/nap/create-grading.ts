@@ -11,7 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const { answerId } = req.body as CreateGrading;
   let { customFeedback, answerClasses } = req.body as CreateGrading;
   answerClasses = answerClasses.filter((c) => c.count != 0);
-  customFeedback = customFeedback.trim();
+  customFeedback = customFeedback?.trim();
   if (!answerId || answerClasses.length == 0) {
     res.status(422).end();
   }
