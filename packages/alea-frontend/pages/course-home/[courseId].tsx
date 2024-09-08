@@ -1,5 +1,6 @@
 import ArticleIcon from '@mui/icons-material/Article';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
+import PreviewIcon from '@mui/icons-material/Preview';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import QuizIcon from '@mui/icons-material/Quiz';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
@@ -21,19 +22,10 @@ import { RecordedSyllabus } from '../../components/RecordedSyllabus';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
 
-function CourseComponentLink({
-  href,
-  children,
-}: {
-  href: string;
-  children: any;
-}) {
+function CourseComponentLink({ href, children }: { href: string; children: any }) {
   return (
     <Link href={href}>
-      <Button
-        variant="contained"
-        sx={{ width: '100%', height: '48px', fontSize: '16px' }}
-      >
+      <Button variant="contained" sx={{ width: '100%', height: '48px', fontSize: '16px' }}>
         {children}
       </Button>
     </Link>
@@ -45,6 +37,7 @@ const BG_COLORS = {
   'iwgs-2': 'radial-gradient(circle, #5b6956, #8f9868)',
   krmt: 'radial-gradient(circle, white, #f5f5b7)',
   gdp: 'radial-gradient(circle, #4bffd7, #a11cff)',
+  rip: 'radial-gradient(circle, #fcef6e, #3f2e86)',
 };
 
 export function CourseHeader({
@@ -111,9 +104,7 @@ const CourseHomePage: NextPage = () => {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const courseId = router.query.courseId as string;
-  const [courses, setCourses] = useState<
-    { [id: string]: CourseInfo } | undefined
-  >(undefined);
+  const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
   const { mmtUrl } = useContext(ServerLinksContext);
 
   useEffect(() => {
@@ -127,8 +118,7 @@ const CourseHomePage: NextPage = () => {
     return <>Course Not Found!</>;
   }
 
-  const { notesLink, slidesLink, cardsLink, forumLink, quizzesLink, hasQuiz } =
-    courseInfo;
+  const { notesLink, slidesLink, cardsLink, forumLink, quizzesLink, hasQuiz } = courseInfo;
 
   const locale = router.locale || 'en';
   const { home, courseHome: tCourseHome } = getLocaleObject(router);
@@ -145,13 +135,7 @@ const CourseHomePage: NextPage = () => {
         courseId={courseId}
       />
 
-      <Box
-        maxWidth="900px"
-        m="auto"
-        px="10px"
-        display="flex"
-        flexDirection="column"
-      >
+      <Box maxWidth="900px" m="auto" px="10px" display="flex" flexDirection="column">
         <Box
           display="grid"
           gridTemplateColumns="repeat(auto-fill,minmax(185px, 1fr))"
@@ -168,12 +152,7 @@ const CourseHomePage: NextPage = () => {
           </CourseComponentLink>
           <CourseComponentLink href={cardsLink}>
             {t.cards}&nbsp;{' '}
-            <Image
-              src="/noun-flash-cards-2494102.svg"
-              width={35}
-              height={35}
-              alt=""
-            />
+            <Image src="/noun-flash-cards-2494102.svg" width={35} height={35} alt="" />
           </CourseComponentLink>
           <CourseComponentLink href={forumLink}>
             {t.forum}&nbsp;
@@ -190,7 +169,12 @@ const CourseHomePage: NextPage = () => {
             {t.studyBuddy}&nbsp;
             <Diversity3Icon fontSize="large" />
           </CourseComponentLink>
+          <CourseComponentLink href={`/practice-problems/${courseId}`}>
+            {<p>{t.practiceProblems}</p>}&nbsp;
+            <Image src="/practice_problems.svg" width={35} height={35} alt="" />
+          </CourseComponentLink>
         </Box>
+        <br />
         <DocumentWidthSetter>
           <ContentFromUrl
             displayReason={DisplayReason.NOTES}

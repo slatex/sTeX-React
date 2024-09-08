@@ -345,6 +345,7 @@ export function fakeLoginUsingRedirect(
       setCookie('access_token', access_token);
       window.location.replace(returnBackUrl || '/');
     });
+    return;
   }
   if (!returnBackUrl) returnBackUrl = window.location.href;
   fakeId = fakeId.replace(/\W/g, '');

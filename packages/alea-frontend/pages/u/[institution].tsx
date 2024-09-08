@@ -2,21 +2,9 @@ import ArticleIcon from '@mui/icons-material/Article';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import QuizIcon from '@mui/icons-material/Quiz';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
-import {
-  Box,
-  Button,
-  Card,
-  IconButton,
-  Tooltip,
-  Typography,
-} from '@mui/material';
+import { Box, Button, Card, IconButton, Tooltip, Typography } from '@mui/material';
 import { getCourseInfo } from '@stex-react/api';
-import {
-  CURRENT_TERM,
-  CourseInfo,
-  PRIMARY_COL,
-  PRIMARY_COL_DARK_HOVER,
-} from '@stex-react/utils';
+import { CURRENT_TERM, CourseInfo, PRIMARY_COL, PRIMARY_COL_DARK_HOVER } from '@stex-react/utils';
 import { NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -86,12 +74,7 @@ export function CourseThumb({ course }: { course: CourseInfo }) {
         width: '200px',
       }}
     >
-      <Box
-        display="flex"
-        flexDirection="column"
-        justifyContent="space-between"
-        height="100%"
-      >
+      <Box display="flex" flexDirection="column" justifyContent="space-between" height="100%">
         <Box display="flex" flexDirection="column" alignItems="center">
           <Link href={courseHome} style={{ textAlign: 'center' }}>
             <Image
@@ -102,20 +85,12 @@ export function CourseThumb({ course }: { course: CourseInfo }) {
               style={{ display: 'block', margin: 'auto' }}
               priority={true}
             />
-            <span
-              style={{ fontSize: '16px', marginTop: '5px', fontWeight: 'bold' }}
-            >
+            <span style={{ fontSize: '16px', marginTop: '5px', fontWeight: 'bold' }}>
               {courseName.length > 50 ? courseId.toUpperCase() : courseName}
             </span>
           </Link>
         </Box>
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          mt="5px"
-          gap="5px"
-          flexWrap="wrap"
-        >
+        <Box display="flex" justifyContent="space-between" mt="5px" gap="5px" flexWrap="wrap">
           <Tooltip title={t.notes}>
             <Link href={notesLink} passHref>
               <Button size="small" variant="contained">
@@ -137,12 +112,7 @@ export function CourseThumb({ course }: { course: CourseInfo }) {
           <Tooltip title={home.cardIntro}>
             <Link href={cardsLink} passHref>
               <ColoredIconButton>
-                <Image
-                  src="/noun-flash-cards-2494102.svg"
-                  width={25}
-                  height={25}
-                  alt=""
-                />
+                <Image src="/noun-flash-cards-2494102.svg" width={25} height={25} alt="" />
               </ColoredIconButton>
             </Link>
           </Tooltip>
@@ -202,21 +172,12 @@ const StudentHomePage: NextPage = ({
               width={150}
               height={150}
             />
-            <Typography
-              fontFamily={'Roboto'}
-              fontWeight={500}
-              ml={2}
-              color={'#04316a'}
-            >
+            <Typography fontFamily={'Roboto'} fontWeight={500} ml={2} color={'#04316a'}>
               {UniversityDetail[institution]?.fullName}
             </Typography>
           </Box>
           <Link href="/study-buddy">
-            <Tooltip
-              title={
-                <Box sx={{ fontSize: 'medium' }}>{t.studyBuddyTooltip}</Box>
-              }
-            >
+            <Tooltip title={<Box sx={{ fontSize: 'medium' }}>{t.studyBuddyTooltip}</Box>}>
               {institution === 'FAU' ? (
                 <Button variant="contained">{s.studyBuddyMasterCourse}</Button>
               ) : null}
@@ -234,6 +195,10 @@ const StudentHomePage: NextPage = ({
           <h2>{t.otherCourses}</h2>
           <Box display="flex" flexWrap="wrap">
             {Object.values(courses)
+              .filter(
+                ({courseId}) =>
+                  !['rip', 'spinf'].includes(courseId) || process.env.NEXT_PUBLIC_SITE_VERSION !== 'production'
+              )
               .filter((course) => !course.isCurrent)
               .map((c) => (
                 <CourseThumb key={c.courseId} course={c} />

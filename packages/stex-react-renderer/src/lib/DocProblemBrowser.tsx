@@ -23,20 +23,14 @@ import { mmtHTMLToReact } from './mmtParser';
 import { ServerLinksContext } from './stex-react-renderer';
 import { getLocaleObject } from './lang/utils';
 
-function shortenDocSections(
-  coveredSectionIds: string[],
-  docSections?: SectionsAPIData
-) {
+function shortenDocSections(coveredSectionIds: string[], docSections?: SectionsAPIData) {
   if (!coveredSectionIds.length || !docSections) return docSections;
   const newChildren: SectionsAPIData[] = [];
   for (const child of docSections.children || []) {
     const shortenedChild = shortenDocSections(coveredSectionIds, child);
     if (shortenedChild) newChildren.push(shortenedChild);
   }
-  if (
-    !newChildren.length &&
-    !coveredSectionIds.includes(docSections.id ?? '')
-  ) {
+  if (!newChildren.length && !coveredSectionIds.includes(docSections.id ?? '')) {
     return undefined;
   }
   const shortenedDocSections: SectionsAPIData = { ...docSections };
@@ -61,35 +55,20 @@ export function DocProblemBrowser({
   noFrills?: boolean;
 }) {
   const { practiceProblems: t } = getLocaleObject(useRouter());
-  const [showDashboard, setShowDashboard] = useState(
-    !shouldUseDrawer() && !IS_MMT_VIEWER
-  );
-  const [docSections, setDocSections] = useState<SectionsAPIData | undefined>(
-    undefined
-  );
+  const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer() && !IS_MMT_VIEWER);
+  const [docSections, setDocSections] = useState<SectionsAPIData | undefined>(undefined);
   const { mmtUrl } = useContext(ServerLinksContext);
   const [selectedSection, setSelectedSection] = useState('');
-  const ancestors = getAncestors(
-    undefined,
-    undefined,
-    selectedSection,
-    docSections
-  );
-  const [problemCounts, setProblemCounts] = useState<{ [id: string]: number }>(
-    {}
-  );
+  const ancestors = getAncestors(undefined, undefined, selectedSection, docSections);
+  const [problemCounts, setProblemCounts] = useState<{ [id: string]: number }>({});
 
   const sectionParentInfo = lastFileNode(ancestors);
   const coveredSectionIds =
     startSecNameExcl && endSecNameIncl
-      ? getCoveredSections(startSecNameExcl, endSecNameIncl, docSections)
-          .coveredSectionIds
+      ? getCoveredSections(startSecNameExcl, endSecNameIncl, docSections).coveredSectionIds
       : [];
 
-  const shortenedDocSections = shortenDocSections(
-    coveredSectionIds,
-    docSections
-  );
+  const shortenedDocSections = shortenDocSections(coveredSectionIds, docSections);
 
   useEffect(() => {
     const { archive, filepath } = getSectionInfo(contentUrl);
@@ -103,7 +82,6 @@ export function DocProblemBrowser({
       setProblemCounts(resp.data);
     });
   }, [courseId]);
-
   if (!docSections) return <CircularProgress />;
 
   return (
