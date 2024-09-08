@@ -25,3 +25,12 @@ export enum ReviewType {
   PEER = 'Peer',
   INSTRUCTOR = 'INSTRUCTOR',
 }
+export interface Answer{
+  id:number;
+  questionId:string;
+  userId:string;
+  answer:string;
+  question_title:string;
+  createdAt:Date;
+  updatedAt:Date;
+}
