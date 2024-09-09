@@ -56,31 +56,23 @@ function doesMatch(answerClass: FillInAnswerClass, trimmedActual?: string) {
   }
 }
 
-export function getFillInFeedbackHtml(
-  fillInInput: Input,
-  trimmedActual?: string
-) {
+export function getFillInFeedbackHtml(fillInInput: Input, trimmedActual?: string) {
   const answerClasses = fillInInput.fillInAnswerClasses ?? [];
   const matchedAC = answerClasses.find((ac) => doesMatch(ac, trimmedActual));
   if (matchedAC?.feedbackHtml) return matchedAC.feedbackHtml;
 
   const correctAC = answerClasses.find((a) => a.verdict);
-  if (!correctAC)
-    return '<i>Internal Error: No solution found in the problem!</i>';
+  if (!correctAC) return '<i>Internal Error: No solution found in the problem!</i>';
   const { exactMatch, startNum, endNum, regex } = correctAC;
 
-  const isCorrect =
-    isFillInInputCorrect(answerClasses, trimmedActual) === Tristate.TRUE;
+  const isCorrect = isFillInInputCorrect(answerClasses, trimmedActual) === Tristate.TRUE;
   if (isCorrect) return 'Correct!';
   const forIncorrect = exactMatch || regex || `[${startNum}, ${endNum}]`;
   const forIncorrectTrunc = truncateString(forIncorrect, 200);
   return `The correct answer is <b><code>${forIncorrectTrunc}</code></b>`;
 }
 
-export function isFillInInputCorrect(
-  answerClasses?: FillInAnswerClass[],
-  actual?: string
-) {
+export function isFillInInputCorrect(answerClasses?: FillInAnswerClass[], actual?: string) {
   if (!answerClasses?.length) return Tristate.UNKNOWN;
   const trimmedActual = actual?.trim();
   if (!trimmedActual?.length) return Tristate.FALSE;
@@ -92,10 +84,7 @@ export function isFillInInputCorrect(
   return Tristate.FALSE;
 }
 
-function fillInCorrectnessQuotient(
-  answerClasses?: FillInAnswerClass[],
-  actual?: string
-) {
+function fillInCorrectnessQuotient(answerClasses?: FillInAnswerClass[], actual?: string) {
   switch (isFillInInputCorrect(answerClasses, actual)) {
     case Tristate.TRUE:
       return 1;
@@ -108,27 +97,18 @@ function fillInCorrectnessQuotient(
 }
 
 function scqCorrectnessQuotient(options?: Option[], singleOptionIdx?: string) {
-  const correctOptions = (options || []).filter(
-    (o) => o.shouldSelect === QuadState.TRUE
-  );
+  const correctOptions = (options || []).filter((o) => o.shouldSelect === QuadState.TRUE);
   if (!correctOptions.length) return NaN;
   return correctOptions.some((o) => o.optionId === singleOptionIdx) ? 1 : 0;
 }
 
-function mcqCorrectnessQuotient(
-  options?: Option[],
-  multiOptionIdx?: { [index: number]: boolean }
-) {
+function mcqCorrectnessQuotient(options?: Option[], multiOptionIdx?: { [index: number]: boolean }) {
   if (!options?.length) return NaN;
   if (!multiOptionIdx) return 0;
-  const anyUnknown = options.some(
-    (option) => option.shouldSelect === QuadState.UNKNOWN
-  );
+  const anyUnknown = options.some((option) => option.shouldSelect === QuadState.UNKNOWN);
   if (anyUnknown) return NaN;
 
-  const numSelected = Object.values(multiOptionIdx ?? {}).filter(
-    (x) => x
-  ).length;
+  const numSelected = Object.values(multiOptionIdx ?? {}).filter((x) => x).length;
   if (numSelected === 0) return 0;
   let numCorrect = 0;
   for (const [idx, option] of options.entries() ?? []) {
@@ -159,17 +139,12 @@ export function getPoints(problem: Problem, response?: ProblemResponse) {
       const resp = response?.responses?.[idx];
       const { type, fillInAnswerClasses, options } = input;
       if (type !== input.type) {
-        console.error(
-          `Input [${idx}] (${type}) has unexpected response: ${resp.type}`
-        );
+        console.error(`Input [${idx}] (${type}) has unexpected response: ${resp.type}`);
         return NaN;
       }
       if (input.ignoreForScoring) return null;
       if (input.type === InputType.FILL_IN) {
-        return fillInCorrectnessQuotient(
-          fillInAnswerClasses,
-          resp.filledInAnswer
-        );
+        return fillInCorrectnessQuotient(fillInAnswerClasses, resp.filledInAnswer);
       } else if (input.type === InputType.MCQ) {
         return mcqCorrectnessQuotient(options, resp.multipleOptionIdxs);
       } else if (input.type === InputType.SCQ) {
@@ -180,7 +155,7 @@ export function getPoints(problem: Problem, response?: ProblemResponse) {
       }
     })
     .filter((v) => v !== null) as number[];
-    
+
   const numGradable = perInputCorrectnessQuotient.length;
   if (numGradable === 0) return 0;
   if (perInputCorrectnessQuotient.some((s) => isNaN(s))) return undefined;
@@ -211,10 +186,7 @@ function recursivelyFindNodes(
   return foundList;
 }
 
-function removeNodeWithAttrib(
-  node: (ChildNode & Element) | Document,
-  attrNames: string[]
-) {
+function removeNodeWithAttrib(node: (ChildNode & Element) | Document, attrNames: string[]) {
   if (node instanceof Element) {
     for (const attrName of attrNames) {
       const attrVal = node.attribs[attrName];
@@ -244,6 +216,10 @@ function findProblemRootNode(node: (ChildNode & Element) | Document) {
   return recursivelyFindNodes(node, ['data-problem'])?.[0]?.node;
 }
 
+function findSolutionRootNode(node: (ChildNode & Element) | Document) {
+  return recursivelyFindNodes(node, ['data-problem-solution'])?.[0]?.node;
+}
+
 function booleanStringToTriState(str: string) {
   if (str.toLowerCase() === 'true') return Tristate.TRUE;
   if (str.toLowerCase() === 'false') return Tristate.FALSE;
@@ -263,8 +239,7 @@ function getChoiceInfo(
   shouldSelectStr: string,
   idx: number
 ) {
-  const feedbackNode = recursivelyFindNodes(choiceNode, [solNodeAttr])?.[0]
-    ?.node;
+  const feedbackNode = recursivelyFindNodes(choiceNode, [solNodeAttr])?.[0]?.node;
   const feedbackHtml = feedbackNode ? DomUtils.getOuterHTML(feedbackNode) : '';
   removeNodeWithAttrib(choiceNode, [solNodeAttr]);
   const shouldSelect = stringToQuadState(shouldSelectStr);
@@ -274,8 +249,7 @@ function getChoiceInfo(
 }
 
 function getOptionSet(optionBlock: Element, type: InputType): Option[] {
-  const problemNodeAttr =
-    type === InputType.MCQ ? 'data-problem-mc' : 'data-problem-sc';
+  const problemNodeAttr = type === InputType.MCQ ? 'data-problem-mc' : 'data-problem-sc';
   const solutionNodeAttr = problemNodeAttr + '-solution';
   return recursivelyFindNodes(optionBlock, [problemNodeAttr]).map(
     ({ node: choiceNode, attrVal: shouldSelectStr }, idx) =>
@@ -336,9 +310,7 @@ function getAnswerClass(node: Element): FillInAnswerClass | undefined {
 }
 
 function getFillInAnswerClasses(fillInSolNode: Element): FillInAnswerClass[] {
-  const answerClassNodes = recursivelyFindNodes(fillInSolNode, [
-    'data-fillin-type',
-  ]);
+  const answerClassNodes = recursivelyFindNodes(fillInSolNode, ['data-fillin-type']);
   if (!answerClassNodes?.length) {
     const exactMatch = DomUtils.textContent(fillInSolNode);
     if (!exactMatch) return [];
@@ -349,14 +321,9 @@ function getFillInAnswerClasses(fillInSolNode: Element): FillInAnswerClass[] {
     .filter((x) => x) as FillInAnswerClass[];
 }
 
-function findInputs(
-  problemRootNode: (ChildNode & Element) | Document
-): Input[] {
+function findInputs(problemRootNode: (ChildNode & Element) | Document): Input[] {
   const rootProblemNodeMarkers = Object.keys(NODE_ATTRS_TO_TYPE);
-  const inputNodes = recursivelyFindNodes(
-    problemRootNode,
-    rootProblemNodeMarkers
-  );
+  const inputNodes = recursivelyFindNodes(problemRootNode, rootProblemNodeMarkers);
   removeNodeWithAttrib(problemRootNode, rootProblemNodeMarkers);
   return inputNodes.map(({ node, attrName }, idx) => {
     const type = NODE_ATTRS_TO_TYPE[attrName] ?? InputType.FILL_IN;
@@ -383,8 +350,13 @@ function getProblemPoints(rootNode: Element) {
 }
 
 function getProblemHeader(rootNode: Element) {
-  const header = recursivelyFindNodes(rootNode, ['data-problem-title'])?.[0]
-    ?.node;
+  const header = recursivelyFindNodes(rootNode, ['data-problem-title'])?.[0]?.node;
+  return header ? DomUtils.getOuterHTML(header) : '';
+}
+
+function getProblemSolution(rootNode?: Element) {
+  if(!rootNode) return '';
+  const header = recursivelyFindNodes(rootNode, ['data-problem-solution'])?.[0]?.node;
   return header ? DomUtils.getOuterHTML(header) : '';
 }
 
@@ -392,14 +364,17 @@ export function getProblem(htmlStr: string, problemUrl = '') {
   const htmlDoc = parseDocument(htmlStr);
   const problemRootNode = findProblemRootNode(htmlDoc);
   problemRootNode.attribs[PROBLEM_PARSED_MARKER] = 'true';
+  const solutionRootNode = findSolutionRootNode(htmlDoc);
   const points = getProblemPoints(problemRootNode);
   const header = getProblemHeader(problemRootNode);
+  const solution = getProblemSolution(solutionRootNode);
   if (!problemRootNode) {
     return {
       header: '',
       objectives: '',
       preconditions: '',
       inputs: [],
+      solution: '',
       points: 0,
       statement: { outerHTML: `<span>Not found: ${problemUrl}</span>` },
     } as Problem;
@@ -415,10 +390,10 @@ export function getProblem(htmlStr: string, problemUrl = '') {
   const problem = {
     header,
     objectives: problemRootNode?.attribs?.['data-problem-objectives'] ?? '',
-    preconditions:
-      problemRootNode?.attribs?.['data-problem-preconditions'] ?? '',
+    preconditions: problemRootNode?.attribs?.['data-problem-preconditions'] ?? '',
     statement: { outerHTML: DomUtils.getOuterHTML(problemRootNode) }, // The mcb block is already marked display:none.
     inputs,
+    solution,
     points,
   } as Problem;
   return problem;
@@ -448,10 +423,7 @@ const ATTRIBS_TO_REMOVE = [
   'data-highlight-parent',
 ];
 
-const ATTRIBS_OF_ANSWER_ELEMENTS = [
-  'data-problem-sc-solution',
-  'data-problem-mc-solution',
-];
+const ATTRIBS_OF_ANSWER_ELEMENTS = ['data-problem-sc-solution', 'data-problem-mc-solution'];
 
 const ATTRIBS_OF_PARENTS_OF_ANSWER_ELEMENTS = ['data-problem-fillinsol'];
 
