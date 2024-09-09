@@ -1,4 +1,4 @@
-export interface AnswerClass {
+export interface CreateAnswerClass {
   answerClassId: string;
   points: number;
   isTrait: boolean;
@@ -10,11 +10,11 @@ export interface AnswerClass {
 export interface CreateGrading {
   customFeedback: string;
   answerId: number;
-  answerClasses: AnswerClass[];
+  answerClasses: CreateAnswerClass[];
 }
 export interface UpdateGrading {
   customFeedback: string;
-  answerClasses: AnswerClass[];
+  answerClasses: CreateAnswerClass[];
   id: number;
 }
 export interface CreateAnswer {
@@ -42,4 +42,25 @@ export interface Answer {
   question_title: string;
   createdAt: Date;
   updatedAt: Date;
+}
+export interface Grade {
+  id:number;
+  checkerId: string;
+  answerId: number;
+  customFeedback: string;
+  totalPoints: number;
+  answerClasses: AnswerClass[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+export interface AnswerClass {
+  id: number;
+  answerClassId: string;
+  gradingId:number;
+  points: number;
+  isTrait: boolean;
+  closed: boolean;
+  title: string;
+  description: string; //from API
+  count: number;
 }
