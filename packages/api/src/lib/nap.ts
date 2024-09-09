@@ -12,6 +12,11 @@ export interface CreateGrading {
   answerId: number;
   answerClasses: AnswerClass[];
 }
+export interface UpdateGrading {
+  customFeedback: string;
+  answerClasses: AnswerClass[];
+  id: number;
+}
 export interface CreateAnswer {
   answer: string;
   questionId: string;
