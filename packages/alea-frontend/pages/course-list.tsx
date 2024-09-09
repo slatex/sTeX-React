@@ -33,54 +33,43 @@ const CourseList: NextPage = () => {
     groupedCourses[course.institution].push(course);
   });
 
-  const universities = docIdx.filter(
-    (doc) => doc.type === DocIdxType.university
-  );
+  const universities = docIdx.filter((doc) => doc.type === DocIdxType.university);
   return (
     <MainLayout title="Course-List | VoLL-KI">
       <Box m="0 auto" maxWidth="800px">
-        {Object.entries(groupedCourses).map(
-          ([institution, institutionCourses]) => (
-            <Box key={institution}>
-              <Typography variant="h3">{institution}</Typography>
-              {universities.map((uni) => {
-                if (uni.acronym === institution) {
-                  return (
-                    <Box key={uni.title}>
-                      <Typography
-                        display="flex"
-                        alignItems="center"
-                        fontWeight="bold"
-                      >
-                        {uni.title}{' '}
-                        <Link href={uni.url} target="_blank">
-                          <OpenInNewIcon style={{ color: PRIMARY_COL }} />
-                        </Link>
-                      </Typography>
-                      <Typography>{uni.country + ', ' + uni.place}</Typography>
-                      <Typography display="flex" alignItems="center">
-                        View sources
-                        <Link
-                          href={`https://gl.mathhub.info/${uni.archive}`}
-                          target="_blank"
-                        >
-                          <OpenInNewIcon style={{ color: PRIMARY_COL }} />
-                        </Link>
-                      </Typography>
-                    </Box>
-                  );
-                }
-                return null;
-              })}
-              <Box display="flex" flexWrap="wrap">
-                {institutionCourses.map((c) => (
+        {Object.entries(groupedCourses).map(([institution, institutionCourses]) => (
+          <Box key={institution}>
+            <Typography variant="h3">{institution}</Typography>
+            {universities.map((uni) => {
+              if (uni.acronym !== institution) return null;
+              return (
+                <Box key={uni.title}>
+                  <Typography display="flex" alignItems="center" fontWeight="bold">
+                    {uni.title}{' '}
+                    <Link href={uni.url} target="_blank">
+                      <OpenInNewIcon style={{ color: PRIMARY_COL }} />
+                    </Link>
+                  </Typography>
+                  <Typography>{uni.country + ', ' + uni.place}</Typography>
+                  <Typography display="flex" alignItems="center">
+                    View sources
+                    <Link href={`https://gl.mathhub.info/${uni.archive}`} target="_blank">
+                      <OpenInNewIcon style={{ color: PRIMARY_COL }} />
+                    </Link>
+                  </Typography>
+                </Box>
+              );
+            })}
+            <Box display="flex" flexWrap="wrap">
+              {institutionCourses
+                .filter((c) => !['rip', 'spinf'].includes(c.courseId))
+                .map((c) => (
                   <CourseThumb key={c.courseId} course={c} />
                 ))}
-              </Box>
-              <hr style={{ width: '90%' }} />
             </Box>
-          )
-        )}
+            <hr style={{ width: '90%' }} />
+          </Box>
+        ))}
       </Box>
     </MainLayout>
   );
