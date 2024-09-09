@@ -17,6 +17,10 @@ export interface CreateAnswer {
   questionId: string;
   question_title: string;
 }
+export interface UpdateAnswer {
+  answer: string;
+  id: number;
+}
 export interface CreateReviewRequest {
   answerId: number;
   reviewType: ReviewType;
@@ -25,12 +29,12 @@ export enum ReviewType {
   PEER = 'Peer',
   INSTRUCTOR = 'INSTRUCTOR',
 }
-export interface Answer{
-  id:number;
-  questionId:string;
-  userId:string;
-  answer:string;
-  question_title:string;
-  createdAt:Date;
-  updatedAt:Date;
+export interface Answer {
+  id: number;
+  questionId: string;
+  userId: string;
+  answer: string;
+  question_title: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
