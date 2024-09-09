@@ -13,6 +13,7 @@ import {
   UserInformation,
   UserSignUpDetail,
   CdnImageMetadata,
+  TempUserSignup,
 } from './comment';
 import { getAuthHeaders, logoutAndGetToLoginPage } from './lms';
 
@@ -164,8 +165,8 @@ export async function signUpUser(userDetail: UserSignUpDetail) {
   return await axios.post('/api/signup', { userDetail });
 }
 
-export async function logInUser(email: string, password: string) {
-  const response = await axios.post('/api/login', { email, password });
+export async function logInUser(userId: string, password: string) {
+  const response = await axios.post('/api/login', { userId, password });
   return response.data;
 }
 
@@ -268,4 +269,18 @@ export async function getCdnImages(): Promise<CdnImageMetadata[]> {
     return JSON.parse(val.metadata);
   });
   return values;
+}
+
+export async function tempUserSignUP(tempUserDetail: TempUserSignup) {
+  return await axios.post('/api/temp-login/signup', { tempUserDetail });
+}
+
+export async function tempLogInUser(userId: string, password: string) {
+  const response = await axios.post('/api/temp-login/login', { userId, password });
+  return response.data;
+}
+
+export async function checkIfAvatarExists(userId: string) {
+  const response = await axios.post('/api/temp-login/avatar-exist', { userId });
+  return response.data;
 }

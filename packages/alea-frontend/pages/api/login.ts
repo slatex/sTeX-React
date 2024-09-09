@@ -3,11 +3,7 @@ import bcrypt from 'bcrypt';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { executeAndEndSet500OnError } from './comment-utils';
 
-async function getAccessToken(
-  userId: string,
-  firstName: string,
-  lastName: string
-) {
+async function getAccessToken(userId: string, firstName: string, lastName: string) {
   try {
     return (
       await axios.get(
@@ -22,14 +18,11 @@ async function getAccessToken(
   }
 }
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  const { email, password } = req.body;
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const { userId, password } = req.body;
   const existingUsers = (await executeAndEndSet500OnError(
     `SELECT firstName, lastName, saltedPassword FROM userInfo WHERE userId = ?`,
-    [email],
+    [userId],
     res
   )) as any[];
 
@@ -45,7 +38,7 @@ export default async function handler(
   }
 
   const access_token = await getAccessToken(
-    email,
+    userId,
     existingUsers[0].firstName,
     existingUsers[0].lastName
   );
