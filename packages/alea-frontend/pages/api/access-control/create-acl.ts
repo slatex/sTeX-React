@@ -2,7 +2,6 @@ import { AccessControlList } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
 import {
   checkIfPostOrSetError,
-  executeAndEndSet500OnError,
   executeTxnAndEndSet500OnError,
 } from '../comment-utils';
 import { validateMemberAndAclIds } from '../acl-utils/acl-common-utils';

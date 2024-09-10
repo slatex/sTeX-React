@@ -354,7 +354,8 @@ function getProblemHeader(rootNode: Element) {
   return header ? DomUtils.getOuterHTML(header) : '';
 }
 
-function getProblemSolution(rootNode: Element) {
+function getProblemSolution(rootNode?: Element) {
+  if(!rootNode) return '';
   const header = recursivelyFindNodes(rootNode, ['data-problem-solution'])?.[0]?.node;
   return header ? DomUtils.getOuterHTML(header) : '';
 }
@@ -363,7 +364,7 @@ export function getProblem(htmlStr: string, problemUrl = '') {
   const htmlDoc = parseDocument(htmlStr);
   const problemRootNode = findProblemRootNode(htmlDoc);
   problemRootNode.attribs[PROBLEM_PARSED_MARKER] = 'true';
-  const solutionRootNode = findSolutionRootNode(htmlDoc)??"";
+  const solutionRootNode = findSolutionRootNode(htmlDoc);
   const points = getProblemPoints(problemRootNode);
   const header = getProblemHeader(problemRootNode);
   const solution = getProblemSolution(solutionRootNode);

@@ -1,4 +1,4 @@
-import Redis, { RedisKey } from 'ioredis';
+import { RedisKey } from 'ioredis';
 import { AbstractCacheStore, CacheValueType } from './abstract-cache-store';
 import { RedisInstance } from './redis-utils';
 
