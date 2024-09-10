@@ -2,17 +2,18 @@ import { FileLocation } from '@stex-react/utils';
 import axios, { AxiosError } from 'axios';
 import {
   BlogPost,
-  PostSnippet,
+  CdnImageMetadata,
   Comment,
   CommentType,
   EditCommentRequest,
   HiddenStatus,
+  PostSnippet,
   QuestionStatus,
+  TempUserSignupRequest,
   UpdateCommentStateRequest,
   UpdateQuestionStateRequest,
   UserInformation,
   UserSignUpDetail,
-  CdnImageMetadata,
 } from './comment';
 import { getAuthHeaders, logoutAndGetToLoginPage } from './lms';
 
@@ -164,8 +165,8 @@ export async function signUpUser(userDetail: UserSignUpDetail) {
   return await axios.post('/api/signup', { userDetail });
 }
 
-export async function logInUser(email: string, password: string) {
-  const response = await axios.post('/api/login', { email, password });
+export async function logInUser(userId: string, password: string) {
+  const response = await axios.post('/api/login', { userId, password });
   return response.data;
 }
 
@@ -268,4 +269,13 @@ export async function getCdnImages(): Promise<CdnImageMetadata[]> {
     return JSON.parse(val.metadata);
   });
   return values;
+}
+
+export async function tempUserSignUp(tempUserSignupRequest: TempUserSignupRequest) {
+  return await axios.post('/api/temp-login/signup', tempUserSignupRequest);
+}
+
+export async function checkIfUserIdExists(userId: string) {
+  const response = await axios.post('/api/userid-exists', { userId });
+  return response.data as { exists: boolean };
 }

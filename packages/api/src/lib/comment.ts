@@ -14,9 +14,7 @@ export const MODERATORS = [
   'fy98ticu', // Marcel Schutz
   'it78ubil', // Felix Grelka
 
-  ...(process.env['NEXT_PUBLIC_SITE_VERSION'] !== 'production'
-    ? ['fake_joy']
-    : []), // fake moderator for staging
+  ...(process.env['NEXT_PUBLIC_SITE_VERSION'] !== 'production' ? ['fake_joy'] : []), // fake moderator for staging
 ];
 
 export enum HiddenStatus {
@@ -79,9 +77,7 @@ export interface Comment {
 }
 
 export function isHiddenNotSpam(status?: HiddenStatus) {
-  return (
-    !!status && ![HiddenStatus.UNHIDDEN, HiddenStatus.SPAM].includes(status)
-  );
+  return !!status && ![HiddenStatus.UNHIDDEN, HiddenStatus.SPAM].includes(status);
 }
 export function isSpam(status?: HiddenStatus) {
   return status === HiddenStatus.SPAM;
@@ -157,8 +153,8 @@ export interface PostSnippet {
 }
 
 export interface CdnImage {
-  id: string,
-  metadata: CdnImageMetadata
+  id: string;
+  metadata: CdnImageMetadata;
 }
 
 export interface CdnImageMetadata {
@@ -184,4 +180,13 @@ export interface Image {
   mime: string;
   extension: string;
   url: string;
+}
+
+export const TEMP_USER_ID_PREFIX = '_temp_';
+
+export interface TempUserSignupRequest {
+  userId: string;
+  firstName: string;
+  lastName: string;
+  password: string;
 }
