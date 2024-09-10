@@ -182,9 +182,11 @@ export interface Image {
   url: string;
 }
 
-export interface TempUserSignup {
+export const TEMP_USER_ID_PREFIX = '_temp_';
+
+export interface TempUserSignupRequest {
   userId: string;
   firstName: string;
   lastName: string;
-  password: string | number;
+  password: string;
 }

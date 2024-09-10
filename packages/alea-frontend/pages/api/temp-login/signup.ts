@@ -1,20 +1,16 @@
+import { TEMP_USER_ID_PREFIX } from '@stex-react/api';
 import bcrypt from 'bcrypt';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { executeAndEndSet500OnError } from '../comment-utils';
 import { SALT_ROUNDS } from '../signup';
-
+import { doesUserIdExist } from '../userid-exists';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { userId, firstName, lastName, password } = req.body.tempUserDetail;
-  const existingUser = (await executeAndEndSet500OnError(
-    `SELECT userId FROM userInfo WHERE userId = ?`,
-    [userId],
-    res
-  )) as any[];
+  const { userId, firstName, lastName, password } = req.body;
 
-  if (existingUser.length === 1) {
-    return res.status(400).json({ message: 'user already exists' });
-  }
+  if (!userId.startsWith(TEMP_USER_ID_PREFIX)) return res.status(400).send('Invalid user ID');
+
+  if (await doesUserIdExist(userId, res)) return res.status(400).send('User already exists');
 
   const saltedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 

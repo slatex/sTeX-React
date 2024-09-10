@@ -2,18 +2,18 @@ import { FileLocation } from '@stex-react/utils';
 import axios, { AxiosError } from 'axios';
 import {
   BlogPost,
-  PostSnippet,
+  CdnImageMetadata,
   Comment,
   CommentType,
   EditCommentRequest,
   HiddenStatus,
+  PostSnippet,
   QuestionStatus,
+  TempUserSignupRequest,
   UpdateCommentStateRequest,
   UpdateQuestionStateRequest,
   UserInformation,
   UserSignUpDetail,
-  CdnImageMetadata,
-  TempUserSignup,
 } from './comment';
 import { getAuthHeaders, logoutAndGetToLoginPage } from './lms';
 
@@ -271,16 +271,11 @@ export async function getCdnImages(): Promise<CdnImageMetadata[]> {
   return values;
 }
 
-export async function tempUserSignUP(tempUserDetail: TempUserSignup) {
-  return await axios.post('/api/temp-login/signup', { tempUserDetail });
+export async function tempUserSignUp(tempUserSignupRequest: TempUserSignupRequest) {
+  return await axios.post('/api/temp-login/signup', tempUserSignupRequest);
 }
 
-export async function tempLogInUser(userId: string, password: string) {
-  const response = await axios.post('/api/temp-login/login', { userId, password });
-  return response.data;
-}
-
-export async function checkIfAvatarExists(userId: string) {
-  const response = await axios.post('/api/temp-login/avatar-exist', { userId });
-  return response.data;
+export async function checkIfUserIdExists(userId: string) {
+  const response = await axios.post('/api/userid-exists', { userId });
+  return response.data as { exists: boolean };
 }

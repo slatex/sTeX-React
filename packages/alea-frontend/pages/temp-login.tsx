@@ -9,7 +9,12 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { checkIfAvatarExists, logInUser, tempUserSignUP } from '@stex-react/api';
+import {
+  checkIfUserIdExists,
+  logInUser,
+  TEMP_USER_ID_PREFIX,
+  tempUserSignUp,
+} from '@stex-react/api';
 import { BG_COLOR, PRIMARY_COL, setCookie } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -22,7 +27,9 @@ function capitalizeFirstLetter(str: string): string {
 }
 
 function modifyUserId(personality: string, animalName: string): string {
-  return `temp_${capitalizeFirstLetter(personality)}${capitalizeFirstLetter(animalName)}`;
+  return `${TEMP_USER_ID_PREFIX}${capitalizeFirstLetter(personality)}${capitalizeFirstLetter(
+    animalName
+  )}`;
 }
 
 const TempLoginPage: NextPage = () => {
@@ -46,9 +53,8 @@ const TempLoginPage: NextPage = () => {
         setIsCheckingAvatar(true);
         const updatedUserId = modifyUserId(formData.personality, formData.animalName);
         setUserId(updatedUserId);
-        const res = await checkIfAvatarExists(updatedUserId);
+        const res = await checkIfUserIdExists(updatedUserId);
         setIsAvatarExist(res.exists);
-        console.log(res.exists);
         setIsCheckingAvatar(false);
       }
     };
@@ -97,7 +103,7 @@ const TempLoginPage: NextPage = () => {
       return;
     }
     try {
-      const res = await tempUserSignUP({
+      const res = await tempUserSignUp({
         userId,
         firstName: formData.personality,
         lastName: formData.animalName,
@@ -134,7 +140,7 @@ const TempLoginPage: NextPage = () => {
           <Typography variant="body1" textAlign="center" mb={2}>
             {!isLoginMode && <strong style={{ color: PRIMARY_COL }}>Choose Your Avatar</strong>}
           </Typography>
-          <Box sx={{ display: 'flex' }}>
+          <Box sx={{ display: 'flex', gap: '10px' }}>
             <FormControl>
               <InputLabel id="select-personality">Personality</InputLabel>
               <Select
@@ -223,6 +229,9 @@ const TempLoginPage: NextPage = () => {
           <Button
             variant="contained"
             onClick={handleSubmit}
+            disabled={
+              isCheckingAvatar || isAvatarExist || !formData.personality || !formData.animalName
+            }
             sx={{ mt: 2, display: 'block', mx: 'auto' }}
           >
             {isLoginMode ? 'Login' : 'Sign Up'}
