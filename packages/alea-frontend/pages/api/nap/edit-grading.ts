@@ -4,13 +4,13 @@ import {
   executeAndEndSet500OnError,
   getUserIdOrSetError,
 } from '../comment-utils';
-import { UpdateGrading } from '@stex-react/api';
+import { UpdateGradingRequest } from '@stex-react/api';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
   const userId = await getUserIdOrSetError(req, res);
-  const { id } = req.body as UpdateGrading;
-  let { customFeedback, answerClasses } = req.body as UpdateGrading;
+  const { id } = req.body as UpdateGradingRequest;
+  let { customFeedback, answerClasses } = req.body as UpdateGradingRequest;
   answerClasses = answerClasses.filter((c) => c.count != 0);
   customFeedback = customFeedback?.trim();
   if (!id || answerClasses.length == 0) {
