@@ -182,7 +182,7 @@ export interface Image {
   url: string;
 }
 
-export const TEMP_USER_ID_PREFIX = '_temp_';
+export const ANON_USER_ID_PREFIX = '_anon_';
 
 export interface TempUserSignupRequest {
   userId: string;

@@ -271,8 +271,8 @@ export async function getCdnImages(): Promise<CdnImageMetadata[]> {
   return values;
 }
 
-export async function tempUserSignUp(tempUserSignupRequest: TempUserSignupRequest) {
-  return await axios.post('/api/temp-login/signup', tempUserSignupRequest);
+export async function anonUserSignUp(tempUserSignupRequest: TempUserSignupRequest) {
+  return await axios.post('/api/anon-login/signup', tempUserSignupRequest);
 }
 
 export async function checkIfUserIdExists(userId: string) {
