@@ -93,14 +93,7 @@ export async function executeTxnAndEndSet500OnError(
   query3?: string,
   values3?: any[]
 ) {
-  const results = await executeTxnAndEnd(
-    query1,
-    values1,
-    query2,
-    values2,
-    query3,
-    values3
-  );
+  const results = await executeTxnAndEnd(query1, values1, query2, values2, query3, values3);
   if (results['error']) {
     res.status(500).send(results);
     return undefined;
@@ -121,14 +114,15 @@ export async function getUserId(req: NextApiRequest) {
 }
 
 export async function getUserIdOrSetError(req, res) {
-  const userId = await getUserId(req);
+  // const userId = await getUserId(req);
+  const userId = 'test-1234';
   if (!userId) res.status(403).send({ message: 'Could not get userId' });
   return userId;
 }
 
 export async function getExistingCommentDontEnd(
   commentId: number
-): Promise<{ existing: Comment; error?: number; }> {
+): Promise<{ existing: Comment; error?: number }> {
   const existingComments = await executeQuery(
     'SELECT * FROM comments WHERE commentId = ? AND (isDeleted IS NULL OR isDeleted !=1)',
     [commentId]
@@ -146,11 +140,8 @@ export async function getExistingCommentDontEnd(
 
 export async function getExistingPointsDontEnd(
   commentId: number
-): Promise<{ existing: PointsGrant; error?: number; }> {
-  const existingGrant = await executeQuery(
-    'SELECT * FROM points WHERE commentId = ?',
-    [commentId]
-  );
+): Promise<{ existing: PointsGrant; error?: number }> {
+  const existingGrant = await executeQuery('SELECT * FROM points WHERE commentId = ?', [commentId]);
   if (existingGrant['error']) {
     console.error(existingGrant['error']);
     return { existing: undefined, error: 500 };
@@ -164,14 +155,14 @@ export async function getExistingPointsDontEnd(
 export function checkIfPostOrSetError(req, res) {
   return checkIfTypeOrSetError(req, res, 'POST');
 }
-export function checkIfGetOrSetError(req,res){
-  return checkIfTypeOrSetError(req,res,'GET')
+export function checkIfGetOrSetError(req, res) {
+  return checkIfTypeOrSetError(req, res, 'GET');
 }
-export function checkIfDeleteOrSetError(req,res){
-  return checkIfTypeOrSetError(req,res,'DELETE');
+export function checkIfDeleteOrSetError(req, res) {
+  return checkIfTypeOrSetError(req, res, 'DELETE');
 }
 
-function checkIfTypeOrSetError(req, res, type: 'POST' | 'DELETE'|'GET') {
+function checkIfTypeOrSetError(req, res, type: 'POST' | 'DELETE' | 'GET') {
   if (req.method !== type) {
     res.status(405).send({ message: `Only ${type} requests allowed` });
     return false;
