@@ -20,7 +20,7 @@ export interface UpdateGradingRequest {
 export interface CreateAnswerRequest {
   answer: string;
   questionId: string;
-  question_title: string;
+  questionTitle: string;
 }
 export interface UpdateAnswerRequest {
   answer: string;
