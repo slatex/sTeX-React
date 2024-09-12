@@ -1,4 +1,4 @@
-export interface CreateAnswerClass {
+export interface CreateAnswerClassRequest {
   answerClassId: string;
   points: number;
   isTrait: boolean;
@@ -7,22 +7,22 @@ export interface CreateAnswerClass {
   description: string; //from API
   count: number;
 }
-export interface CreateGrading {
+export interface CreateGradingRequest {
   customFeedback: string;
   answerId: number;
-  answerClasses: CreateAnswerClass[];
+  answerClasses: CreateAnswerClassRequest[];
 }
-export interface UpdateGrading {
+export interface UpdateGradingRequest {
   customFeedback: string;
-  answerClasses: CreateAnswerClass[];
+  answerClasses: CreateAnswerClassRequest[];
   id: number;
 }
-export interface CreateAnswer {
+export interface CreateAnswerRequest {
   answer: string;
   questionId: string;
   question_title: string;
 }
-export interface UpdateAnswer {
+export interface UpdateAnswerRequest {
   answer: string;
   id: number;
 }
@@ -34,7 +34,7 @@ export enum ReviewType {
   PEER = 'Peer',
   INSTRUCTOR = 'INSTRUCTOR',
 }
-export interface Answer {
+export interface AnswerResponse {
   id: number;
   questionId: string;
   userId: string;
@@ -43,20 +43,20 @@ export interface Answer {
   createdAt: Date;
   updatedAt: Date;
 }
-export interface Grade {
-  id:number;
+export interface GradeResponse {
+  id: number;
   checkerId: string;
   answerId: number;
   customFeedback: string;
   totalPoints: number;
-  answerClasses: AnswerClass[];
+  answerClasses: AnswerClassResponse[];
   createdAt: Date;
   updatedAt: Date;
 }
-export interface AnswerClass {
+export interface AnswerClassResponse {
   id: number;
   answerClassId: string;
-  gradingId:number;
+  gradingId: number;
   points: number;
   isTrait: boolean;
   closed: boolean;

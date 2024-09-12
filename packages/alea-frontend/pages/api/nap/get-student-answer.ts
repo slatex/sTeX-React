@@ -1,19 +1,19 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { checkIfGetOrSetError, executeAndEndSet500OnError } from '../comment-utils';
-import { Answer, AnswerClass, Grade } from '@stex-react/api';
+import { AnswerResponse, AnswerClassResponse, GradeResponse } from '@stex-react/api';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfGetOrSetError(req, res)) return;
   const id = req.query.id as string;
   const answer = (
-    await executeAndEndSet500OnError<Answer[]>(`select * from Answer where id=?`, [id], res)
+    await executeAndEndSet500OnError<AnswerResponse[]>(`select * from Answer where id=?`, [id], res)
   )[0];
-  const grades = await executeAndEndSet500OnError<Grade[]>(
+  const grades = await executeAndEndSet500OnError<GradeResponse[]>(
     `select * from Grading where answerId=?`,
     [id],
     res
   );
-  const gradesAnswerClasses = await executeAndEndSet500OnError<AnswerClass[]>(
+  const gradesAnswerClasses = await executeAndEndSet500OnError<AnswerClassResponse[]>(
     'select * from GradingAnswerClass where gradingId in (?)',
     [grades.flatMap((c) => c.id)],
     res
