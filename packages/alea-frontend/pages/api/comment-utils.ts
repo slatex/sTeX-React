@@ -38,7 +38,7 @@ export async function executeQueryAndEnd<T>(query: string, values: any[]) {
   }
 }
 
-export async function executeAndEndSet500OnError<T>(
+export async function executeAndEndSet500OnError<T = any>(
   query: string,
   values: any[],
   res
