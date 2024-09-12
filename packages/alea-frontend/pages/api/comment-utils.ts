@@ -114,8 +114,7 @@ export async function getUserId(req: NextApiRequest) {
 }
 
 export async function getUserIdOrSetError(req, res) {
-  // const userId = await getUserId(req);
-  const userId = 'test-1234';
+  const userId = await getUserId(req);
   if (!userId) res.status(403).send({ message: 'Could not get userId' });
   return userId;
 }
