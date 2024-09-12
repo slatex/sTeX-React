@@ -12,8 +12,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!userId) return;
   const { answer, id } = req.body as UpdateAnswerRequest;
   await executeAndEndSet500OnError(
-    `Update Answer Set answer=? where id=? and userId=?`,
-    [answer, id, userId],
+    `Update Answer Set answer=? where id=? and userId=? and not EXISTS (select * from Grading where answerId=?)`,
+    [answer, id, userId, id],
     res
   );
   res.status(200).end();
