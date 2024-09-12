@@ -9,6 +9,7 @@ import {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
   const userId = await getUserIdOrSetError(req, res);
+  if (!userId) return;
   const { answer, id } = req.body as UpdateAnswerRequest;
   await executeAndEndSet500OnError(
     `Update Answer Set answer=? where id=? and userId=?`,
