@@ -27,9 +27,7 @@ function capitalizeFirstLetter(str: string): string {
 }
 
 function modifyUserId(personality: string, animalName: string): string {
-  return `${ANON_USER_ID_PREFIX}${capitalizeFirstLetter(personality)}${capitalizeFirstLetter(
-    animalName
-  )}`;
+  return `${ANON_USER_ID_PREFIX}${personality}_${animalName}`;
 }
 
 const AnonLoginPage: NextPage = () => {
@@ -106,8 +104,8 @@ const AnonLoginPage: NextPage = () => {
     try {
       const res = await anonUserSignUp({
         userId,
-        firstName: formData.personality,
-        lastName: formData.animalName,
+        firstName: capitalizeFirstLetter(formData.personality),
+        lastName: capitalizeFirstLetter(formData.animalName),
         password: formData.password,
       });
       alert(res.data.message);
