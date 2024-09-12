@@ -10,10 +10,10 @@ import {
   Typography,
 } from '@mui/material';
 import {
+  anonUserSignUp,
   checkIfUserIdExists,
   logInUser,
-  TEMP_USER_ID_PREFIX,
-  tempUserSignUp,
+  ANON_USER_ID_PREFIX,
 } from '@stex-react/api';
 import { BG_COLOR, PRIMARY_COL, setCookie } from '@stex-react/utils';
 import { NextPage } from 'next';
@@ -27,12 +27,12 @@ function capitalizeFirstLetter(str: string): string {
 }
 
 function modifyUserId(personality: string, animalName: string): string {
-  return `${TEMP_USER_ID_PREFIX}${capitalizeFirstLetter(personality)}${capitalizeFirstLetter(
+  return `${ANON_USER_ID_PREFIX}${capitalizeFirstLetter(personality)}${capitalizeFirstLetter(
     animalName
   )}`;
 }
 
-const TempLoginPage: NextPage = () => {
+const AnonLoginPage: NextPage = () => {
   const [userId, setUserId] = useState('');
   const [formData, setFormData] = useState({
     password: '',
@@ -63,6 +63,7 @@ const TempLoginPage: NextPage = () => {
 
   const toggleMode = () => {
     setIsLoginMode((prevMode) => !prevMode);
+    setFocused(false);
   };
 
   const handleSelectChange = (e) => {
@@ -103,7 +104,7 @@ const TempLoginPage: NextPage = () => {
       return;
     }
     try {
-      const res = await tempUserSignUp({
+      const res = await anonUserSignUp({
         userId,
         firstName: formData.personality,
         lastName: formData.animalName,
@@ -115,8 +116,8 @@ const TempLoginPage: NextPage = () => {
         confirmPassword: '',
         password: '',
       });
-      setIsLoginMode(true);
       setFocused(false);
+      setIsLoginMode(true);
     } catch (error) {
       alert(error.response.data.message);
     }
@@ -140,7 +141,7 @@ const TempLoginPage: NextPage = () => {
           <Typography variant="body1" textAlign="center" mb={2}>
             {!isLoginMode && <strong style={{ color: PRIMARY_COL }}>Choose Your Avatar</strong>}
           </Typography>
-          <Box sx={{ display: 'flex', gap: '10px' }}>
+          <Box sx={{ display: 'flex' }}>
             <FormControl>
               <InputLabel id="select-personality">Personality</InputLabel>
               <Select
@@ -191,6 +192,7 @@ const TempLoginPage: NextPage = () => {
             value={formData.password}
             onChange={handleInputChange}
             onFocus={() => setFocused(true)}
+            required
             sx={{
               my: 2,
               textAlign: 'center',
@@ -213,6 +215,7 @@ const TempLoginPage: NextPage = () => {
               value={formData.confirmPassword}
               onChange={handleInputChange}
               onFocus={() => setFocused(true)}
+              required
               sx={{
                 my: 2,
                 textAlign: 'center',
@@ -230,7 +233,11 @@ const TempLoginPage: NextPage = () => {
             variant="contained"
             onClick={handleSubmit}
             disabled={
-              isCheckingAvatar || isAvatarExist || !formData.personality || !formData.animalName
+              isCheckingAvatar ||
+              isAvatarExist ||
+              !formData.personality ||
+              !formData.animalName ||
+              !formData.password
             }
             sx={{ mt: 2, display: 'block', mx: 'auto' }}
           >
@@ -245,4 +252,4 @@ const TempLoginPage: NextPage = () => {
   );
 };
 
-export default TempLoginPage;
+export default AnonLoginPage;

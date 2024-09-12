@@ -63,12 +63,12 @@ export const en = {
     didntAnswer: "You didn't answer $1 problems. ",
     sureFinish: 'Are you sure you want to finish?',
     checkSolution: 'Check Solution',
+    hideSolution: 'Hide Solution',
     perSectionQuizButton: 'Practice Problems ($1)',
     hideProblems: 'Hide Problems',
   },
   practiceProblems: {
-    clickSection:
-      'Click on a section in the TOC to see problems associated with it.',
+    clickSection: 'Click on a section in the TOC to see problems associated with it.',
     problemsFor: 'Problems for',
     warning:
       'Note: These problems are only to aid your learning. They do not cover the course material exhaustively and there are no guarantees that the problems are correct or that they are representative of the kinds of problems that will be on the quizzes or the exam.',

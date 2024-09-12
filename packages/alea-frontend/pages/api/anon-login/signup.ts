@@ -1,4 +1,4 @@
-import { TEMP_USER_ID_PREFIX } from '@stex-react/api';
+import { ANON_USER_ID_PREFIX } from '@stex-react/api';
 import bcrypt from 'bcrypt';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { executeAndEndSet500OnError } from '../comment-utils';
@@ -8,7 +8,7 @@ import { doesUserIdExist } from '../userid-exists';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { userId, firstName, lastName, password } = req.body;
 
-  if (!userId.startsWith(TEMP_USER_ID_PREFIX)) return res.status(400).send('Invalid user ID');
+  if (!userId.startsWith(ANON_USER_ID_PREFIX)) return res.status(400).send('Invalid user ID');
 
   if (await doesUserIdExist(userId, res)) return res.status(400).send('User already exists');
 
