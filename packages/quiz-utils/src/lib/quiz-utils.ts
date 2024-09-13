@@ -216,8 +216,8 @@ function findProblemRootNode(node: (ChildNode & Element) | Document) {
   return recursivelyFindNodes(node, ['data-problem'])?.[0]?.node;
 }
 
-function findSolutionRootNode(node: (ChildNode & Element) | Document) {
-  return recursivelyFindNodes(node, ['data-problem-solution'])?.[0]?.node;
+function findSolutionRootNodes(node: (ChildNode & Element) | Document): Element[] {
+  return recursivelyFindNodes(node, ['data-problem-solution']).map((result) => result.node);
 }
 
 function booleanStringToTriState(str: string) {
@@ -354,27 +354,29 @@ function getProblemHeader(rootNode: Element) {
   return header ? DomUtils.getOuterHTML(header) : '';
 }
 
-function getProblemSolution(rootNode?: Element) {
-  if(!rootNode) return '';
-  const header = recursivelyFindNodes(rootNode, ['data-problem-solution'])?.[0]?.node;
-  return header ? DomUtils.getOuterHTML(header) : '';
+function getProblemSolution(rootNode?: Element): string {
+  if (!rootNode) return '';
+  const solutionNodes = findSolutionRootNodes(rootNode);
+  return solutionNodes.map((node) => DomUtils.getOuterHTML(node)).join('\n');
 }
 
 export function getProblem(htmlStr: string, problemUrl = '') {
   const htmlDoc = parseDocument(htmlStr);
   const problemRootNode = findProblemRootNode(htmlDoc);
   problemRootNode.attribs[PROBLEM_PARSED_MARKER] = 'true';
-  const solutionRootNode = findSolutionRootNode(htmlDoc);
+  const solutionRootNode = findSolutionRootNodes(htmlDoc);
   const points = getProblemPoints(problemRootNode);
   const header = getProblemHeader(problemRootNode);
-  const solution = getProblemSolution(solutionRootNode);
+  const solutions = solutionRootNode.map((solutionRootNode) =>
+    getProblemSolution(solutionRootNode)
+  );
   if (!problemRootNode) {
     return {
       header: '',
       objectives: '',
       preconditions: '',
       inputs: [],
-      solution: '',
+      solutions: [],
       points: 0,
       statement: { outerHTML: `<span>Not found: ${problemUrl}</span>` },
     } as Problem;
@@ -393,7 +395,7 @@ export function getProblem(htmlStr: string, problemUrl = '') {
     preconditions: problemRootNode?.attribs?.['data-problem-preconditions'] ?? '',
     statement: { outerHTML: DomUtils.getOuterHTML(problemRootNode) }, // The mcb block is already marked display:none.
     inputs,
-    solution,
+    solutions: solutions,
     points,
   } as Problem;
   return problem;

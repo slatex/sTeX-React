@@ -18,6 +18,7 @@ import {
   localStore,
   urlWithContextParams,
 } from '@stex-react/utils';
+import CodeMirror from '@uiw/react-codemirror';
 import { getOuterHTML } from 'domutils';
 import parse, { DOMNode, Element, domToReact } from 'html-react-parser';
 import { ElementType } from 'htmlparser2';
@@ -35,6 +36,7 @@ import { MathMLDisplay } from './MathMLDisplay';
 import { OverlayDialog, isHoverON } from './OverlayDialog';
 import SectionReview from './SectionReview';
 import TrafficLightIndicator from './TrafficLightIndicator';
+import { langSelector } from './helper/langSelector';
 import { ServerLinksContext } from './stex-react-renderer';
 import { useOnScreen } from './useOnScreen';
 
@@ -428,7 +430,6 @@ export function Definiendum({ node }: { node: Element }) {
 }
 
 export const replace = (d: DOMNode): any => {
-
   const domNode = getElement(d);
 
   if (!domNode) return;
@@ -452,8 +453,8 @@ export const replace = (d: DOMNode): any => {
     domNode.attribs['section-processed'] = 'true';
     return <SectionDisplay d={domNode} />;
   }
-  
-  if (domNode.attribs['class']?.includes('shtml-sectitle')){
+
+  if (domNode.attribs['class']?.includes('shtml-sectitle')) {
     return <SectionTitleDisplay d={domNode} />;
   }
 
@@ -480,6 +481,24 @@ export const replace = (d: DOMNode): any => {
   }
 
   if (!isVisible(domNode)) return <></>;
+
+  if (domNode.name === 'code') {
+    const codeContent = domNode.children
+      .map((child) => {
+        if (child.type === 'text') {
+          return child.data;
+        }
+        return ' ';
+      })
+      .join('');
+    return (
+      <CodeMirror
+        value={codeContent.trim()}
+        theme="dark"
+        extensions={[langSelector(domNode.attribs['language'])]}
+      />
+    );
+  }
 
   if (domNode.name === 'head' || domNode.name === 'iframe' || domNode.name === 'script') {
     return <></>;
