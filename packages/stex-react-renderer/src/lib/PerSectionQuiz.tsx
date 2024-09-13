@@ -154,18 +154,20 @@ export function PerSectionQuiz({
             {showSolution ? t.hideSolution : t.checkSolution}
           </Button>
         )}
+        {showSolution && (
+          <Box mb="10px">
+            {solutions.map((solution) => (
+              <div style={{ color: '#555' }}>{mmtHTMLToReact(solution)}</div>
+            ))}
+          </Box>
+        )}
         {showHideButton && (
           <Button onClick={() => setShow(false)} variant="contained">
             {t.hideProblems}
           </Button>
         )}
       </Box>
-      <Box mb="10px">
-        {showSolution &&
-          solutions.map((solution) => (
-            <div style={{ color: '#555', marginTop: '10px' }}>{mmtHTMLToReact(solution)}</div>
-          ))}
-      </Box>
+      
     </Box>
   );
 }
