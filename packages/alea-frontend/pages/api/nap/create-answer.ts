@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const { answer,questionId, questionTitle } = req.body as CreateAnswerRequest;
   if (!answer || !questionId || !questionTitle) res.status(422).end();
   const result = await executeAndEndSet500OnError(
-    `INSERT INTO Answer (questionId, userId, answer,question_title) VALUES (?,?,?,?)`,
+    `INSERT INTO Answer (questionId, userId, answer,questionTitle) VALUES (?,?,?,?)`,
     [questionId, userId, answer, questionTitle],
     res
   );

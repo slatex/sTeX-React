@@ -39,7 +39,7 @@ export interface AnswerResponse {
   questionId: string;
   userId: string;
   answer: string;
-  question_title: string;
+  questionTitle: string;
   createdAt: Date;
   updatedAt: Date;
 }
