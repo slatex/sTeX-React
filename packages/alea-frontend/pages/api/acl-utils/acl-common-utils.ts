@@ -1,7 +1,7 @@
 import { AccessControlList } from '@stex-react/api';
 import { executeAndEndSet500OnError, getUserIdOrSetError } from '../comment-utils';
 import { CACHE_STORE } from './cache-store';
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextApiResponse } from 'next';
 
 export enum AclSavePostfix {
   acl = 'acls',

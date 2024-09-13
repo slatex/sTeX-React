@@ -1,5 +1,4 @@
 import { CdnImageMetadata } from "@stex-react/api";
-import axios from "axios";
 import { NextApiRequest, NextApiResponse } from "next";
 import { executeDontEndSet500OnError } from "../comment-utils";
 

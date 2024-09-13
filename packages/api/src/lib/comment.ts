@@ -60,9 +60,7 @@ export interface Comment {
 }
 
 export function isHiddenNotSpam(status?: HiddenStatus) {
-  return (
-    !!status && ![HiddenStatus.UNHIDDEN, HiddenStatus.SPAM].includes(status)
-  );
+  return !!status && ![HiddenStatus.UNHIDDEN, HiddenStatus.SPAM].includes(status);
 }
 export function isSpam(status?: HiddenStatus) {
   return status === HiddenStatus.SPAM;
@@ -134,8 +132,8 @@ export interface PostSnippet {
 }
 
 export interface CdnImage {
-  id: string,
-  metadata: CdnImageMetadata
+  id: string;
+  metadata: CdnImageMetadata;
 }
 
 export interface CdnImageMetadata {
@@ -161,4 +159,13 @@ export interface Image {
   mime: string;
   extension: string;
   url: string;
+}
+
+export const ANON_USER_ID_PREFIX = '_anon_';
+
+export interface TempUserSignupRequest {
+  userId: string;
+  firstName: string;
+  lastName: string;
+  password: string;
 }

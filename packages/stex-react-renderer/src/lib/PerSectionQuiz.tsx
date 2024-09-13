@@ -36,7 +36,7 @@ export function PerSectionQuiz({
   const [, forceRerender] = useReducer((x) => x + 1, 0);
   const [startQuiz, setStartQuiz] = useState(!showButtonFirst);
   const [show, setShow] = useState(true);
-  const [disableCheck, setDisableCheck] = useState(false);
+  const [showSolution, setShowSolution] = useState(false);
 
   useEffect(() => {
     if (!archive || !filepath) return;
@@ -108,7 +108,7 @@ export function PerSectionQuiz({
           listSize={problems.length}
           onChange={(idx) => {
             setProblemIdx(idx);
-            setDisableCheck(false);
+            setShowSolution(false);
           }}
         />
         <IconButton
@@ -150,8 +150,8 @@ export function PerSectionQuiz({
         sx={{ display: 'flex', gap: '10px', flexDirection: 'column', alignItems: 'flex-start' }}
       >
         {solution && (
-          <Button onClick={() => setDisableCheck(true)} variant="contained" disabled={disableCheck}>
-            {t.checkSolution}
+          <Button variant="contained" onClick={() => setShowSolution(!showSolution)}>
+            {showSolution ? t.hideSolution : t.checkSolution}
           </Button>
         )}
         {showHideButton && (
@@ -161,7 +161,7 @@ export function PerSectionQuiz({
         )}
       </Box>
       <Box mb="10px">
-        {disableCheck && solution && (
+        {showSolution && (
           <div style={{ color: '#555', marginTop: '10px' }}>{mmtHTMLToReact(solution)}</div>
         )}
       </Box>
