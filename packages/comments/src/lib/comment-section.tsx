@@ -10,7 +10,7 @@ import {
   Menu,
   MenuItem,
 } from '@mui/material';
-import { Comment, getUserInfo, isModerator } from '@stex-react/api';
+import { canModerateComment, Comment, getUserInfo } from '@stex-react/api';
 import { ReactNode, useEffect, useReducer, useRef, useState } from 'react';
 import { CommentFilters } from './comment-filters';
 import {
@@ -22,7 +22,7 @@ import { CommentView } from './CommentView';
 
 import { Refresh } from '@mui/icons-material';
 import styles from './comments.module.scss';
-import { FileLocation } from '@stex-react/utils';
+import { CURRENT_TERM, FileLocation } from '@stex-react/utils';
 import { getLocaleObject } from './lang/utils';
 import { useRouter } from 'next/router';
 
@@ -146,8 +146,10 @@ export function CommentSection({
   selectedElement?: any;
   allCommentsMode?: boolean;
 }) {
+  const router = useRouter();
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
-  const t = getLocaleObject(useRouter());
+  const t = getLocaleObject(router);
+  const courseId = router.query.courseId as string;
 
   // Menu Crap start
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -182,11 +184,8 @@ export function CommentSection({
   );
 
   useEffect(() => {
-    getUserInfo().then((userInfo) => {
-      const userId = userInfo?.userId;
-      setCanAddComment(!!userId);
-      setCanModerate(isModerator(userId));
-    });
+    getUserInfo().then((userInfo) => setCanAddComment(!!userInfo?.userId));
+    canModerateComment(courseId, CURRENT_TERM).then(setCanModerate);
   }, []);
 
   useEffect(() => {

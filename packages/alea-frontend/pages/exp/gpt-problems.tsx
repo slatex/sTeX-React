@@ -17,11 +17,10 @@ import {
   CreateGptProblemsResponse,
   GptCompletionData,
   Template,
+  canAccessResource,
   createGptQuestions,
   getEval,
   getTemplates,
-  getUserInfo,
-  isModerator,
   saveEval,
   saveTemplate,
 } from '@stex-react/api';
@@ -32,6 +31,7 @@ import { CreateGptProblemsForm } from '../../components/CreateGptProblemsForm';
 import MainLayout from '../../layouts/MainLayout';
 import CompletionEvalForm from '../../components/GptEvalForm';
 import Link from 'next/link';
+import { Action, ResourceName } from '@stex-react/utils';
 
 const copyToClipboard = (text: string) => {
   navigator.clipboard
@@ -216,12 +216,6 @@ export function GptNavigator() {
   );
 }
 
-const ADDL_AUTHORIZED_USERS = [
-  'yz74isit', // Ali
-  'be92xusu', // Shams
-  'un03ivoq', // Abhinav
-];
-
 const GptQuestions: NextPage = () => {
   const router = useRouter();
   const [templates, setTemplates] = useState<Template[]>([]);
@@ -232,8 +226,8 @@ const GptQuestions: NextPage = () => {
     useState<CreateGptProblemsResponse>(undefined);
 
   useEffect(() => {
-    getUserInfo().then(({ userId }) => {
-      if (!isModerator(userId) && !ADDL_AUTHORIZED_USERS.includes(userId)) {
+    canAccessResource(ResourceName.EXPERIMENTAL, Action.MUTATE).then((hasAccess) => {
+      if (!hasAccess) {
         alert('You dont have permission to access this page!');
         router.push('/');
       }

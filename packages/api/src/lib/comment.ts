@@ -1,22 +1,5 @@
 import { FileLocation } from '@stex-react/utils';
 
-export const MODERATORS = [
-  'yp70uzyj', // Michael
-  'yn06uhoc', // Jonas
-  'ub59asib', // Dominic
-  'do45qahi', // Dennis
-  'ym23eqaw', // Abhishek
-  'co39hywa', // Florian
-  'yp68abes', // Marc
-  'oc45ujef', // Florian Guthmann
-  'bu93bufa', // Robert Kurin
-  'iv93baik', // Mahdi Mantash
-  'fy98ticu', // Marcel Schutz
-  'it78ubil', // Felix Grelka
-
-  ...(process.env['NEXT_PUBLIC_SITE_VERSION'] !== 'production' ? ['fake_joy'] : []), // fake moderator for staging
-];
-
 export enum HiddenStatus {
   UNHIDDEN = 'UNHIDDEN',
   SPAM = 'SPAM',
@@ -118,10 +101,6 @@ export interface UserSignUpDetail {
   password: string;
   confirmPassword: string;
   verificationToken: string;
-}
-
-export function isModerator(userId?: string) {
-  return !!userId && MODERATORS.includes(userId);
 }
 
 export enum AuthProvider {

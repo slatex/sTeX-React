@@ -1,5 +1,6 @@
-import { GrantPointsRequest, isModerator } from '@stex-react/api';
+import { GrantPointsRequest } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { canUserModerateComments as canUserModerateComments } from './access-control/resource-utils';
 import {
   checkIfPostOrSetError,
   executeAndEndSet500OnError,
@@ -8,18 +9,10 @@ import {
   getUserIdOrSetError,
 } from './comment-utils';
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
   const granterId = await getUserIdOrSetError(req, res);
-  if (!isModerator(granterId)) {
-    res
-      .status(403)
-      .send({ message: 'You are not allowed to do this operation.' });
-    return;
-  }
+  if (!granterId) return;
 
   const { commentId, points, reason } = req.body as GrantPointsRequest;
   if (!commentId || !reason || points === undefined) {
@@ -27,8 +20,12 @@ export default async function handler(
     return;
   }
 
-  const { existing: comment, error: commentFetchError } =
-    await getExistingCommentDontEnd(commentId);
+  const { existing: comment, error: commentFetchError } = await getExistingCommentDontEnd(
+    commentId
+  );
+  if (!(await canUserModerateComments(granterId, comment.courseId, comment.courseTerm))) {
+    res.status(403).send('Unauthorized');
+  }
   const commenterId = comment?.userId;
   if (!commenterId || comment.isAnonymous || comment.isPrivate) {
     res

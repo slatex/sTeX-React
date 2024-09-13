@@ -28,6 +28,7 @@ import {
   createResourceAction,
   deleteResourceAction,
   getAllResourceActions,
+  isUserMember,
   isValid,
   recomputeMemberships,
   UpdateResourceAction,
@@ -45,8 +46,10 @@ import {
 } from '@stex-react/utils';
 import { DateView } from '@stex-react/react-utils';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 const SysAdmin: NextPage = () => {
+  const router = useRouter();
   const [aclId, setAclId] = useState<string | null>('');
   const [resourceType, setResourceType] = useState<ResourceName | ''>('');
   const [resourceComponents, setResourceComponents] = useState<ResourceIdComponent[]>([]);
@@ -75,6 +78,9 @@ const SysAdmin: NextPage = () => {
   }
 
   useEffect(() => {
+    isUserMember('sys-admin').then((isSysAdmin) => {
+      if (!isSysAdmin) router.push('/');
+    });
     getAllResources();
   }, []);
 
@@ -279,7 +285,7 @@ const SysAdmin: NextPage = () => {
               </MenuItem>
             ))}
           </Select>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '5px', my: "5px" }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '5px', my: '5px' }}>
             {resourceComponents.map((component, index) => (
               <TextField
                 key={index}

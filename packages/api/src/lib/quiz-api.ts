@@ -1,13 +1,13 @@
 import axios, { AxiosError } from 'axios';
 import { getAuthHeaders } from './lms';
 import {
+  GetPreviousQuizInfoResponse,
   GetQuizResponse,
   InsertAnswerRequest,
+  ProblemResponse,
   Quiz,
   QuizStatsResponse,
   QuizStubInfo,
-  ProblemResponse,
-  GetPreviousQuizInfoResponse,
 } from './quiz';
 
 export async function insertAnswer(
@@ -45,10 +45,11 @@ export async function getQuiz(quizId: string) {
   return resp.data as GetQuizResponse;
 }
 
-export async function getQuizStats(quizId: string) {
-  const resp = await axios.get(`/api/quiz/get-quiz-stats/${quizId}`, {
-    headers: getAuthHeaders(),
-  });
+export async function getQuizStats(quizId: string, courseId: string, courseTerm: string) {
+  const resp = await axios.get(
+    `/api/quiz/get-quiz-stats/${quizId}?courseId=${courseId}&courseTerm=${courseTerm}`,
+    { headers: getAuthHeaders() }
+  );
   return resp.data as QuizStatsResponse;
 }
 
@@ -64,9 +65,7 @@ export async function updateQuiz(quiz: Quiz) {
   });
 }
 
-export async function getCourseQuizList(
-  courseId: string
-): Promise<QuizStubInfo[]> {
+export async function getCourseQuizList(courseId: string): Promise<QuizStubInfo[]> {
   return (await axios.get(`/api/quiz/get-course-quiz-list/${courseId}`)).data;
 }
 
