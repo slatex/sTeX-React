@@ -2,11 +2,10 @@ import ReplyIcon from '@mui/icons-material/Reply';
 import ShieldTwoToneIcon from '@mui/icons-material/ShieldTwoTone';
 import { Box, Button, Tooltip } from '@mui/material';
 import {
-  canUserModerate,
+  canModerateComment,
   Comment,
   getUserInfo,
   isHiddenNotSpam,
-  isModerator,
   isSpam,
   pointsToLevel,
 } from '@stex-react/api';
@@ -28,7 +27,7 @@ export function LevelIcon({
 }) {
   if (!totalPoints) return null;
   const level = pointsToLevel(totalPoints);
-  const hue = (360 / NUM_LEVELS) * ((level+1)%NUM_LEVELS);
+  const hue = (360 / NUM_LEVELS) * ((level + 1) % NUM_LEVELS);
   const color = `hsl(${hue}deg 100% 30%)`;
   const hoverColor = `hsl(${hue}deg 42% 79%)`;
   return (
@@ -86,26 +85,19 @@ export function CommentLabel({
   const statusStyle = isSpam(hiddenStatus) ? 'spam_status' : 'hidden_status';
 
   useEffect(() => {
-    // getUserInfo().then(
-    //   (userInfo) => {
-    //     const userId = userInfo?.userId;
-    //     const isLoggedIn = !!userId;
-    //     setIsLoggedIn(isLoggedIn);
-    //     setFromCurrentUser(isLoggedIn && userId === comment?.userId);
-    //     setCanModerate(isModerator(userId));
-    //   },
-    //   () => setFromCurrentUser(false)
-    // );
-    async function isUserAuthorized(){
-      if ( await canUserModerate(comment.courseId, comment.courseTerm)){
-        setCanModerate(true);
-      }
-    }
-    isUserAuthorized();
+    getUserInfo().then(
+      (userInfo) => {
+        const userId = userInfo?.userId;
+        const isLoggedIn = !!userId;
+        setIsLoggedIn(isLoggedIn);
+        setFromCurrentUser(isLoggedIn && userId === comment?.userId);
+      },
+      () => setFromCurrentUser(false)
+    );
+    canModerateComment(comment.courseId, comment.courseTerm).then(setCanModerate);
   }, [comment?.userId]);
 
-  if (comment.isDeleted)
-    return <i className={styles['deleted_message']}>{t.wasDeleted}</i>;
+  if (comment.isDeleted) return <i className={styles['deleted_message']}>{t.wasDeleted}</i>;
 
   return (
     <Box
@@ -121,10 +113,7 @@ export function CommentLabel({
             <span className={styles['user_link']}>
               {comment.isAnonymous ? <i>Anonymous</i> : comment.userName}
             </span>
-            <LevelIcon
-              totalPoints={comment.totalPoints}
-              newPoints={comment.pointsGranted}
-            />
+            <LevelIcon totalPoints={comment.totalPoints} newPoints={comment.pointsGranted} />
             &nbsp;
           </>
         )}
@@ -137,11 +126,7 @@ export function CommentLabel({
         {isLoggedIn && !isPrivateNote && (
           <>
             &nbsp; &nbsp;
-            <Button
-              onClick={() => setOpenReply(true)}
-              size="small"
-              sx={{ p: '0' }}
-            >
+            <Button onClick={() => setOpenReply(true)} size="small" sx={{ p: '0' }}>
               <ReplyIcon />
               &nbsp;{t.reply}
             </Button>

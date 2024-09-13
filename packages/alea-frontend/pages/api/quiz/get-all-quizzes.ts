@@ -1,24 +1,20 @@
-import { canAccessResource, isModerator } from '@stex-react/api';
-import { NextApiRequest, NextApiResponse } from 'next';
 import { getAllQuizzes } from '@stex-react/node-utils';
-import { getUserIdOrSetError } from '../comment-utils';
 import { Action, ResourceName } from '@stex-react/utils';
+import { NextApiRequest, NextApiResponse } from 'next';
+import { getUserIdIfAuthorizedOrSetError } from '../access-control/resource-utils';
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  const userId = await getUserIdOrSetError(req, res);
-  if(!userId) return;
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const courseId = req.query.courseId as string;
   const instanceId = req.query.courseTerm as string;
 
-  if (! await canAccessResource(ResourceName.COURSE_QUIZ, Action.MUTATE, {
-    courseId,
-    instanceId
-  })){
-    res.status(403).send({ message: 'Unauthorized.' });
-  }
+  const userId = await getUserIdIfAuthorizedOrSetError(
+    req,
+    res,
+    ResourceName.COURSE_QUIZ,
+    Action.MUTATE,
+    { courseId, instanceId }
+  );
+  if (!userId) return;
 
   res.status(200).json(getAllQuizzes());
 }

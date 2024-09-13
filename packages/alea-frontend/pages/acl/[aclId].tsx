@@ -1,21 +1,20 @@
+import { Edit } from '@mui/icons-material';
 import {
   Box,
+  Button,
   Divider,
   List,
   ListItem,
   ListItemText,
-  Typography,
-  Button,
-  IconButton,
   TextField,
+  Typography,
 } from '@mui/material';
-import {getAcl, getAllAclMembers, isMember, isUserMember } from '@stex-react/api';
+import { getAcl, getAllAclMembers, isMember, isUserMember } from '@stex-react/api';
 import { NextPage } from 'next';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
-import Link from 'next/link';
-import { Edit } from '@mui/icons-material';
 
 const AclId: NextPage = () => {
   const router = useRouter();
@@ -32,6 +31,7 @@ const AclId: NextPage = () => {
   const [isUpdaterMember, setIsUpdaterMember] = useState<boolean>(false);
   const [allMemberNamesAndIds, setAllMemberNamesAndIds] = useState([]);
   const [showAllMembers, setShowAllMembers] = useState<boolean>(false);
+
   async function getMembers() {
     try {
       const acl = await getAcl(aclId as string);
@@ -49,37 +49,41 @@ const AclId: NextPage = () => {
     }
   }
 
-  async function checkIsUserMember(){
-      const res : boolean = await isUserMember(aclId as string);
-      setUserIsMember(res);
+  async function checkIsUserMember() {
+    const res: boolean = await isUserMember(aclId as string);
+    setUserIsMember(res);
   }
 
-  async function getAllMembersOfAcl(){
-    if(allMemberNamesAndIds.length === 0){
-      const data : {fullName : string, userId : string}[] = await getAllAclMembers(aclId as string);
+  async function getAllMembersOfAcl() {
+    if (allMemberNamesAndIds.length === 0) {
+      const data: { fullName: string; userId: string }[] = await getAllAclMembers(aclId as string);
       setAllMemberNamesAndIds(data);
     }
     setShowAllMembers(!showAllMembers);
   }
 
-  async function handleCheckUser(){
-    try{
-      const res :  boolean = await isMember(aclId as string, userIdInput as string);
-      setMembershipStatus(res ? `${userIdInput} is a member of this ACL.` : `${userIdInput} is not a member of this ACL.`);
-    }catch(e){
+  async function handleCheckUser() {
+    try {
+      const res: boolean = await isMember(aclId as string, userIdInput as string);
+      setMembershipStatus(
+        res
+          ? `${userIdInput} is a member of this ACL.`
+          : `${userIdInput} is not a member of this ACL.`
+      );
+    } catch (e) {
       console.log(e);
     }
   }
 
-  async function isUserIsUpdater(){
-    try{
-      const res : boolean = await isUserMember(updaterACLId);
-      if(res){
+  async function isUserIsUpdater() {
+    try {
+      const res: boolean = await isUserMember(updaterACLId);
+      if (res) {
         setIsUpdaterMember(true);
-      }else{
+      } else {
         setIsUpdaterMember(false);
       }
-    }catch(e){
+    } catch (e) {
       console.log(e);
     }
   }
@@ -123,17 +127,17 @@ const AclId: NextPage = () => {
             </Typography>
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: '30px' }}>
-
-            <Box
-            sx={{
-              width: 20,
-              height: 20,
-              borderRadius: '50%',
-              backgroundColor: userIsMember ? 'green' : 'red',
-              ml: 1, // shorthand for marginLeft: '10px'
-            }}
-          ></Box>
-              {isUpdaterMember && <Button
+              <Box
+                sx={{
+                  width: 20,
+                  height: 20,
+                  borderRadius: '50%',
+                  backgroundColor: userIsMember ? 'green' : 'red',
+                  ml: 1, // shorthand for marginLeft: '10px'
+                }}
+              ></Box>
+              {isUpdaterMember && (
+                <Button
                   sx={{
                     display: 'flex',
                     alignItems: 'center',
@@ -145,7 +149,7 @@ const AclId: NextPage = () => {
                 >
                   Edit
                 </Button>
-              }
+              )}
             </Box>
           </Box>
           {desc && (
@@ -180,18 +184,12 @@ const AclId: NextPage = () => {
               onChange={(e) => setUserIdInput(e.target.value)}
               sx={{ marginRight: '10px' }}
             />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleCheckUser}
-            >
+            <Button variant="contained" color="primary" onClick={handleCheckUser}>
               Check Membership
             </Button>
           </Box>
           {membershipStatus && (
-            <Typography sx={{ marginTop: '16px' }}>
-              {membershipStatus}
-            </Typography>
+            <Typography sx={{ marginTop: '16px' }}>{membershipStatus}</Typography>
           )}
 
           {acls.length !== 0 && (
@@ -247,17 +245,17 @@ const AclId: NextPage = () => {
             </Box>
           )}
           <Button
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
-                  variant="contained"
-                  color="primary"
-                  onClick={()=>getAllMembersOfAcl()}
-                >
-                  {showAllMembers ? 'Hide All Members' : 'Show All Members'}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+            }}
+            variant="contained"
+            color="primary"
+            onClick={() => getAllMembersOfAcl()}
+          >
+            {showAllMembers ? 'Hide All Members' : 'Show All Members'}
           </Button>
-          {allMemberNamesAndIds.length !==0 && showAllMembers && (
+          {allMemberNamesAndIds.length !== 0 && showAllMembers && (
             <Box sx={{ marginTop: '32px' }}>
               <Typography variant="h6" color="secondary">
                 All Members Of {aclId}
@@ -289,6 +287,3 @@ const AclId: NextPage = () => {
 };
 
 export default AclId;
-
-
-

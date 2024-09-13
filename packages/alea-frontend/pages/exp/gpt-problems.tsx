@@ -21,8 +21,6 @@ import {
   createGptQuestions,
   getEval,
   getTemplates,
-  getUserInfo,
-  isModerator,
   saveEval,
   saveTemplate,
 } from '@stex-react/api';
@@ -218,12 +216,6 @@ export function GptNavigator() {
   );
 }
 
-const ADDL_AUTHORIZED_USERS = [
-  'yz74isit', // Ali
-  'be92xusu', // Shams
-  'un03ivoq', // Abhinav
-];
-
 const GptQuestions: NextPage = () => {
   const router = useRouter();
   const [templates, setTemplates] = useState<Template[]>([]);
@@ -234,17 +226,12 @@ const GptQuestions: NextPage = () => {
     useState<CreateGptProblemsResponse>(undefined);
 
   useEffect(() => {
-    // getUserInfo().then(({ userId }) => {
-    //   if (!isModerator(userId) && !ADDL_AUTHORIZED_USERS.includes(userId)) {
-    //     alert('You dont have permission to access this page!');
-    //     router.push('/');
-    //   }
-    // });
-    async function isUserAuthorized(){
-      if(! await canAccessResource(ResourceName.EXPERIMENTAL, Action.MUTATE))
-          router.push('/');
-    }
-    isUserAuthorized();
+    canAccessResource(ResourceName.EXPERIMENTAL, Action.MUTATE).then((hasAccess) => {
+      if (!hasAccess) {
+        alert('You dont have permission to access this page!');
+        router.push('/');
+      }
+    });
   }, []);
 
   useEffect(() => {

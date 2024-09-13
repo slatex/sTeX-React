@@ -4,7 +4,7 @@ import {
   executeAndEndSet500OnError,
   getUserIdOrSetError,
 } from '../comment-utils';
-import { checkIfUserAuthorizedForResourceAction } from './resource-utils';
+import { canUpdateAccessControlEntries } from './resource-utils';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
@@ -12,12 +12,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const { aclId, resourceId, actionId } = req.body;
   if (!aclId || !resourceId || !actionId) return res.status(422).send('Missing required fields');
 
-  if (!(await checkIfUserAuthorizedForResourceAction(res, resourceId, userId)))
+  if (!(await canUpdateAccessControlEntries(res, resourceId, userId)))
     return res.status(403).send('unauthorized');
 
-  const existingQuiry = `SELECT resourceId, actionId, aclId FROM ResourceAccess WHERE resourceId = ? AND actionId = ? AND aclId = ?`;
+  const existingQuery = `SELECT resourceId, actionId, aclId FROM ResourceAccess WHERE resourceId = ? AND actionId = ? AND aclId = ?`;
   const isExists: [{ resourceId: string; actionId: string; aclId: string }] =
-    await executeAndEndSet500OnError(existingQuiry, [resourceId, actionId, aclId], res);
+    await executeAndEndSet500OnError(existingQuery, [resourceId, actionId, aclId], res);
   if (isExists.length > 0) return res.status(409).send('already exists');
 
   const resourceQuery = `INSERT INTO ResourceAccess (aclId, resourceId, actionId) VALUES (?, ?, ?)`;

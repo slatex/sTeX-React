@@ -11,16 +11,23 @@ export enum Action {
 }
 
 export enum ResourceName {
-  BLOG = 'Blog',
-  COURSE_QUIZ = 'Course-Quiz',
-  COURSE_COMMENTS = 'Course-Comments',
-  ALL_COMMENTS = 'All-Comments',
-  GLOBAL_ACCESS = 'Global-Access',
-  COURSE_ACCESS = 'Course-Access',
-  NOTES = 'Notes',
-  COURSE_STUDY_BUDDY = 'Course-Study-Buddy',
-  ALL_STUDY_BUDDY = 'All-Study-Buddy',
-  EXPERIMENTAL = 'Experimental'
+  BLOG = 'BLOG',
+  EXPERIMENTAL = 'EXPERIMENTAL',
+
+  // Resources related to specific courses.
+  COURSE_NOTES = 'COURSE_NOTES',
+  COURSE_QUIZ = 'COURSE_QUIZ',
+  COURSE_COMMENTS = 'COURSE_COMMENTS',
+  COURSE_STUDY_BUDDY = 'COURSE_STUDY_BUDDY',
+  
+  // Resources related to all courses.
+  ALL_COMMENTS = 'ALL_COMMENTS',
+  ALL_STUDY_BUDDY = 'ALL_STUDY_BUDDY',
+  
+  
+  // For managing access control updates only.
+  GLOBAL_ACCESS = 'GLOBAL_ACCESS',
+  COURSE_ACCESS = 'GLOBAL_ACCESS',
 }
 
 export enum ComponentType {
@@ -51,6 +58,24 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
     components: [{ type: ComponentType.FIXED, value: 'blog' }],
   },
   {
+    name : ResourceName.EXPERIMENTAL,
+    possibleActions : [Action.MUTATE],
+    components : [
+      {type : ComponentType.FIXED, value : 'experimental'}
+    ]
+  },
+  {
+    name : ResourceName.COURSE_NOTES,
+    possibleActions : [Action.MUTATE],
+    components : [
+      {type : ComponentType.FIXED, value : 'course'},
+      {name : 'courseId', type : ComponentType.VARIABLE},
+      {type : ComponentType.FIXED, value : 'instance'},
+      {name : 'instanceId', type : ComponentType.VARIABLE},
+      {type : ComponentType.FIXED, value : 'notes'},
+    ]
+  },
+  {
     name: ResourceName.COURSE_QUIZ,
     possibleActions: [Action.MUTATE],
     components: [
@@ -73,9 +98,25 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
     ],
   },
   {
+    name : ResourceName.COURSE_STUDY_BUDDY,
+    possibleActions : [Action.MODERATE],
+    components : [
+      {type : ComponentType.FIXED, value : 'course'},
+      {name : 'courseId', type : ComponentType.VARIABLE},
+      {type : ComponentType.FIXED, value : 'instance'},
+      {name : 'instanceId', type : ComponentType.VARIABLE},
+      {type : ComponentType.FIXED, value : 'study-buddy'},
+    ]
+  },
+  {
     name: ResourceName.ALL_COMMENTS,
     possibleActions: [Action.MODERATE],
     components: [{ type: ComponentType.FIXED, value: "comments" }],
+  },
+  {
+    name : ResourceName.ALL_STUDY_BUDDY,
+    possibleActions : [Action.MODERATE],
+    components : [{type : ComponentType.FIXED, value : 'study-buddy'}]
   },
   {
     name : ResourceName.GLOBAL_ACCESS,
@@ -91,40 +132,6 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
       {type : ComponentType.FIXED, value : 'instance'},
       {name : 'instanceId',type : ComponentType.VARIABLE},
       {type : ComponentType.WILDCARD2, value: '**'}
-    ]
-  },
-  {
-    name : ResourceName.NOTES,
-    possibleActions : [Action.MUTATE],
-    components : [
-      {type : ComponentType.FIXED, value : 'course'},
-      {name : 'courseId', type : ComponentType.VARIABLE},
-      {type : ComponentType.FIXED, value : 'instance'},
-      {name : 'instanceId', type : ComponentType.VARIABLE},
-      {type : ComponentType.FIXED, value : 'notes'},
-    ]
-  },
-  {
-    name : ResourceName.COURSE_STUDY_BUDDY,
-    possibleActions : [Action.MODERATE],
-    components : [
-      {type : ComponentType.FIXED, value : 'course'},
-      {name : 'courseId', type : ComponentType.VARIABLE},
-      {type : ComponentType.FIXED, value : 'instance'},
-      {name : 'instanceId', type : ComponentType.VARIABLE},
-      {type : ComponentType.FIXED, value : 'study-buddy'},
-    ]
-  },
-  {
-    name : ResourceName.ALL_STUDY_BUDDY,
-    possibleActions : [Action.MODERATE],
-    components : [{type : ComponentType.FIXED, value : 'study-buddy'}]
-  },
-  {
-    name : ResourceName.EXPERIMENTAL,
-    possibleActions : [Action.MUTATE],
-    components : [
-      {type : ComponentType.FIXED, value : 'exp'}
     ]
   }
 ];

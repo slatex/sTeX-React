@@ -1,7 +1,7 @@
+import { Action, ResourceName } from '@stex-react/utils';
 import axios from 'axios';
 import { AccessControlList, ResourceAction } from './access-control';
 import { getAuthHeaders } from './lms';
-import { Action, getResourceId, ResourceName } from '@stex-react/utils';
 
 export async function getAllAclIds(): Promise<string[]> {
   const resp = await axios.get('/api/access-control/get-all-acl-ids');
@@ -17,7 +17,9 @@ export async function getAcl(aclId: string): Promise<AccessControlList> {
   return resp.data as AccessControlList;
 }
 
-export async function getAllAclMembers(aclId : string): Promise<{fullName : string, userId : string}[]> {
+export async function getAllAclMembers(
+  aclId: string
+): Promise<{ fullName: string; userId: string }[]> {
   const resp = await axios.get(`/api/access-control/get-all-members?id=${aclId}`);
   return resp.data;
 }
@@ -92,13 +94,21 @@ export async function canAccessResource(
     queryParams.append(key, value);
   }
   const url = `/api/access-control/can-access-resource?${queryParams.toString()}`;
-  const {data} = await axios.get(url, { headers: getAuthHeaders() });
+  const { data } = await axios.get(url, { headers: getAuthHeaders() });
   return data as boolean;
 }
 
-export async function canUserModerate(courseId?: string, instanceId?: string): Promise<boolean> {
-  const {data} = await axios.get(`/api/access-control/can-user-moderate?courseId=${courseId}&courseTerm=${instanceId}`, {
-    headers : getAuthHeaders()
+export async function canModerateComment(courseId?: string, courseTerm?: string) {
+  const { data } = await axios.get('/api/access-control/can-moderate-comment', {
+    headers: getAuthHeaders(),
+    params: { courseId, courseTerm },
+  });
+  return data as boolean;
+}
+export async function canModerateStudyBuddy(courseId?: string, courseTerm?: string) {
+  const { data } = await axios.get('/api/access-control/can-moderate-study-buddy', {
+    headers: getAuthHeaders(),
+    params: { courseId, courseTerm },
   });
   return data as boolean;
 }

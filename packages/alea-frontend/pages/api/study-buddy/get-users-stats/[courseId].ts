@@ -1,27 +1,16 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import {
-  executeAndEndSet500OnError,
-  getUserIdOrSetError,
-} from '../../comment-utils';
-import { UserStats, isModerator } from '@stex-react/api';
-import { getUserIdForStudyBuddyModerationOrSetError } from '../../access-control/resource-utils';
+import { UserStats } from '@stex-react/api';
 import { CURRENT_TERM } from '@stex-react/utils';
+import { NextApiRequest, NextApiResponse } from 'next';
+import { getUserIdIfCanModerateStudyBuddyOrSetError } from '../../access-control/resource-utils';
+import { executeAndEndSet500OnError } from '../../comment-utils';
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const userId = await getUserIdOrSetError(req, res);
-  if (!userId) return;
-
-  // if (!isModerator(userId)) {
-  //   res.status(403).send({ message: 'Unauthorized.' });
-  //   return;
-  // }
   const courseId = req.query.courseId as string;
-  if( ! await getUserIdForStudyBuddyModerationOrSetError(req, res, courseId, CURRENT_TERM)){
-    return res.status(403).send({ message: 'Unauthorized.' });
-  }
+  const userId = await getUserIdIfCanModerateStudyBuddyOrSetError(req, res, courseId, CURRENT_TERM);
+  if (!userId) return;
   
   const result1: any[] = await executeAndEndSet500OnError(
     `SELECT 

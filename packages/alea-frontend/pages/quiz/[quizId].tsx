@@ -1,24 +1,23 @@
 import { Box, Button, CircularProgress } from '@mui/material';
 import {
+  canAccessResource,
+  getQuiz,
   GetQuizResponse,
+  getUserInfo,
+  insertAnswer,
   Phase,
   Problem,
   UserInfo,
-  canAccessResource,
-  getQuiz,
-  getUserInfo,
-  insertAnswer,
-  isModerator,
 } from '@stex-react/api';
 import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
+import { QuizDisplay } from '@stex-react/stex-react-renderer';
 import { Action, localStore, ResourceName } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import MainLayout from '../../layouts/MainLayout';
-import { QuizDisplay } from '@stex-react/stex-react-renderer';
 import { ForceFauLogin } from '../../components/ForceFAULogin';
+import MainLayout from '../../layouts/MainLayout';
 
 function ToBeStarted({ quizStartTs }: { quizStartTs?: number }) {
   const [showReload, setShowReload] = useState(false);
@@ -36,8 +35,7 @@ function ToBeStarted({ quizStartTs }: { quizStartTs?: number }) {
     <Box p="10px">
       {quizStartTs ? (
         <>
-          The quiz will begin at{' '}
-          {dayjs(roundedTs).format('HH:mm on YYYY-MM-DD')}
+          The quiz will begin at {dayjs(roundedTs).format('HH:mm on YYYY-MM-DD')}
           <br />
           {showReload && (
             <Button variant="contained" onClick={() => location.reload()}>
@@ -52,17 +50,10 @@ function ToBeStarted({ quizStartTs }: { quizStartTs?: number }) {
   );
 }
 
-function EarlyFinish({
-  quizEndTs,
-  goBack,
-}: {
-  quizEndTs?: number;
-  goBack: () => void;
-}) {
+function EarlyFinish({ quizEndTs, goBack }: { quizEndTs?: number; goBack: () => void }) {
   return (
     <Box p="10px">
-      The quiz is still open till{' '}
-      {dayjs(quizEndTs).format('HH:mm on YYYY-MM-DD')}
+      The quiz is still open till {dayjs(quizEndTs).format('HH:mm on YYYY-MM-DD')}
       <br />
       <Button onClick={() => goBack()} variant="contained">
         Click here
@@ -107,14 +98,10 @@ const QuizPage: NextPage = () => {
   const router = useRouter();
   const quizId = router.query.quizId as string;
 
-  const [problems, setProblems] = useState<{ [problemId: string]: Problem }>(
-    {}
-  );
+  const [problems, setProblems] = useState<{ [problemId: string]: Problem }>({});
   const [finished, setFinished] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo | undefined | null>(null);
-  const [quizInfo, setQuizInfo] = useState<GetQuizResponse | undefined>(
-    undefined
-  );
+  const [quizInfo, setQuizInfo] = useState<GetQuizResponse | undefined>(undefined);
   const [courseId, setCourseId] = useState<string>('');
   const [instanceId, setInstanceId] = useState<string>('');
   const [moderatorPhase, setModeratorPhase] = useState<Phase>(undefined);
@@ -171,39 +158,26 @@ const QuizPage: NextPage = () => {
   }, [quizId]);
 
   useEffect(() => {
-    getUserInfo().then((userInfo) => {
-      setUserInfo(userInfo);
-      if(canAccessResource(ResourceName.COURSE_QUIZ, Action.MUTATE, {
-        courseId,
-        instanceId,
-      })){
-          const p =
-            'Hello moderator! Do you want to see the quiz in feedback release phase (press OK) or quiz started phase (press Cancel)?';
-            const moderatorPhase = confirm(p)
-            ? Phase.FEEDBACK_RELEASED
-            : Phase.STARTED;
-          setModeratorPhase(moderatorPhase);
-          if (moderatorPhase === Phase.FEEDBACK_RELEASED) {
-            const debugMessage =
-              'Would you like to view the quiz in debugger mode?';
-            setDebuggerMode(confirm(debugMessage));
-          }
-      }
-      // if (isModerator(userInfo?.userId)) {
-      //   const p =
-      //     'Hello moderator! Do you want to see the quiz in feedback release phase (press OK) or quiz started phase (press Cancel)?';
-      //   const moderatorPhase = confirm(p)
-      //     ? Phase.FEEDBACK_RELEASED
-      //     : Phase.STARTED;
-      //   setModeratorPhase(moderatorPhase);
-      //   if (moderatorPhase === Phase.FEEDBACK_RELEASED) {
-      //     const debugMessage =
-      //       'Would you like to view the quiz in debugger mode?';
-      //     setDebuggerMode(confirm(debugMessage));
-      //   }
-      // }
-    });
+    getUserInfo().then(setUserInfo);
   }, []);
+
+  useEffect(() => {
+    if (!courseId || !instanceId) return;
+    canAccessResource(ResourceName.COURSE_QUIZ, Action.MUTATE, {
+      courseId,
+      instanceId,
+    }).then((isModerator) => {
+      if (!isModerator) return;
+      const p =
+        'Hello moderator! Do you want to see the quiz in feedback release phase (press OK) or quiz started phase (press Cancel)?';
+      const moderatorPhase = confirm(p) ? Phase.FEEDBACK_RELEASED : Phase.STARTED;
+      setModeratorPhase(moderatorPhase);
+      if (moderatorPhase === Phase.FEEDBACK_RELEASED) {
+        const debugMessage = 'Would you like to view the quiz in debugger mode?';
+        setDebuggerMode(confirm(debugMessage));
+      }
+    });
+  }, [courseId, instanceId]);
 
   if (!quizId) return null;
   if (forceFauLogin) {
@@ -245,11 +219,7 @@ const QuizPage: NextPage = () => {
             existingResponses={quizInfo?.responses}
             onResponse={async (problemId, response) => {
               if (!quizId?.length) return;
-              const answerAccepted = await insertAnswer(
-                quizId,
-                problemId,
-                response
-              );
+              const answerAccepted = await insertAnswer(quizId, problemId, response);
               if (!answerAccepted) {
                 alert('Answers are no longer being accepted');
                 location.reload();

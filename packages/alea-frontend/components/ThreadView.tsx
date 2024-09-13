@@ -9,34 +9,22 @@ import {
   canAccessResource,
   getCommentsForThread,
   getUserInfo,
-  isModerator,
   updateQuestionState,
 } from '@stex-react/api';
+import { CommentTree, organizeHierarchically } from '@stex-react/comments';
+import { DocumentWidthSetter, ExpandableContent } from '@stex-react/stex-react-renderer';
 import { Action, CURRENT_TERM, ResourceName, XhtmlContentUrl } from '@stex-react/utils';
-import { organizeHierarchically } from '@stex-react/comments';
-import { CommentTree } from '@stex-react/comments';
-import {
-  DocumentWidthSetter,
-  ExpandableContent,
-} from '@stex-react/stex-react-renderer';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useReducer, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import { QuestionStatusIcon } from './ForumView';
 
-export function ThreadView({
-  courseId,
-  threadId,
-}: {
-  courseId: string;
-  threadId: number;
-}) {
+export function ThreadView({ courseId, threadId }: { courseId: string; threadId: number }) {
   const { forum: t } = getLocaleObject(useRouter());
   const [threadComments, setThreadComments] = useState<Comment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showContent, setShowContent] = useState(false);
-  const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
   const [updateCounter, doUpdate] = useReducer((x) => x + 1, 0);
   const [isUserAuthorized, setIsUserAuthorized] = useState<boolean>(false);
   useEffect(() => {
@@ -48,15 +36,11 @@ export function ThreadView({
   }, [threadId, updateCounter]);
 
   useEffect(() => {
-    getUserInfo().then(setUserInfo);
-    async function checkUserAuthorization() {
-      setIsUserAuthorized(await canAccessResource(ResourceName.COURSE_COMMENTS, Action.MODERATE, {
-        courseId,
-        CURRENT_TERM
-      }));
-    }
-    checkUserAuthorization();
-  }, []);
+    canAccessResource(ResourceName.COURSE_COMMENTS, Action.MODERATE, {
+      courseId,
+      CURRENT_TERM,
+    }).then(setIsUserAuthorized);
+  }, [courseId]);
 
   if (!threadComments?.length) return null;
   const fileLoc = {
@@ -76,8 +60,7 @@ export function ThreadView({
         </Link>
         <Box display="flex" alignItems="center">
           <QuestionStatusIcon comment={threadComments[0]} />
-          {isUserAuthorized &&
-          threadComments[0].commentType === CommentType.QUESTION ? (
+          {isUserAuthorized && threadComments[0].commentType === CommentType.QUESTION ? (
             <>
               <Button
                 variant="contained"
@@ -86,11 +69,7 @@ export function ThreadView({
                     currentState === QuestionStatus.UNANSWERED
                       ? QuestionStatus.ANSWERED
                       : QuestionStatus.UNANSWERED;
-                  await updateQuestionState(
-                    threadId,
-                    CommentType.QUESTION,
-                    newState
-                  );
+                  await updateQuestionState(threadId, CommentType.QUESTION, newState);
                   doUpdate();
                 }}
               >
@@ -107,11 +86,7 @@ export function ThreadView({
                   const confirmText =
                     'Are you sure you want to mark this comment as a remark and hide it from the forum? You can also consider marking it as answered instead.';
                   if (!confirm(confirmText)) return;
-                  await updateQuestionState(
-                    threadId,
-                    CommentType.REMARK,
-                    QuestionStatus.OTHER
-                  );
+                  await updateQuestionState(threadId, CommentType.REMARK, QuestionStatus.OTHER);
                   doUpdate();
                   alert(`Comment type changed to a remark!`);
                 }}
@@ -129,30 +104,19 @@ export function ThreadView({
             <Box maxWidth="600px" m="0 auto 30px" p="10px">
               <DocumentWidthSetter>
                 <ExpandableContent
-                  contentUrl={XhtmlContentUrl(
-                    fileLoc.archive,
-                    fileLoc.filepath
-                  )}
+                  contentUrl={XhtmlContentUrl(fileLoc.archive, fileLoc.filepath)}
                   noFurtherExpansion={true}
                 />
               </DocumentWidthSetter>
             </Box>
           </Box>
         ) : (
-          <Button
-            onClick={() => setShowContent(true)}
-            variant="contained"
-            sx={{ mb: '15px' }}
-          >
+          <Button onClick={() => setShowContent(true)} variant="contained" sx={{ mb: '15px' }}>
             {t.showReferredContent}&nbsp;
             <VisibilityIcon />
           </Button>
         ))}
-      <CommentTree
-        comments={threadComments}
-        file={fileLoc}
-        refreshComments={() => doUpdate()}
-      />
+      <CommentTree comments={threadComments} file={fileLoc} refreshComments={() => doUpdate()} />
     </>
   );
 }

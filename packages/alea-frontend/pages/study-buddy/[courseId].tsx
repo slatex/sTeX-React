@@ -20,7 +20,7 @@ import {
   StudyBuddy,
   UserInfo,
   UserStats,
-  canUserModerate,
+  canModerateStudyBuddy,
   connectionRequest,
   getCourseInfo,
   getStudyBuddyList,
@@ -28,7 +28,6 @@ import {
   getStudyBuddyUsersStats,
   getUserInfo,
   isLoggedIn,
-  isModerator,
   removeConnectionRequest,
   setActive,
   updateStudyBuddyInfo,
@@ -142,7 +141,7 @@ const StudyBuddyPage: NextPage = () => {
   const [courses, setCourses] = useState<
     { [id: string]: CourseInfo } | undefined
   >(undefined);
-  const [isUserAModerator, setIsUserAModerator] = useState(false);
+  const [isModerator, setIsModerator] = useState(false);
   const masterCourses = MaAI_COURSES;
   const { mmtUrl } = useContext(ServerLinksContext);
   const refetchStudyBuddyLists = useCallback(() => {
@@ -167,12 +166,7 @@ const StudyBuddyPage: NextPage = () => {
       setIsLoading(false);
       setFromServer(data);
     });
-    async function isUserAuthorized(){
-      if(await canUserModerate(courseId, CURRENT_TERM)){
-        setIsUserAModerator(true);
-      }
-    }
-    isUserAuthorized();
+    canModerateStudyBuddy(courseId, CURRENT_TERM).then(setIsModerator);
   }, [courseId]);
 
   if (!router.isReady || !courses) return <CircularProgress />;
@@ -203,7 +197,7 @@ const StudyBuddyPage: NextPage = () => {
         display="flex"
         flexDirection="column"
       >
-        {isModerator(userInfo?.userId) ? <StatsForModerator /> : null}
+        {isModerator ? <StatsForModerator /> : null}
         {notSignedUp || isEditing ? (
           !isLoading ? (
             <Card sx={{ mt: '20px' }}>

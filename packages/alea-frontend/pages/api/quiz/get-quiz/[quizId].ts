@@ -2,16 +2,15 @@ import {
   GetQuizResponse,
   InputResponse,
   Phase,
-  ProblemResponse,
-  canAccessResource,
-  isModerator,
+  ProblemResponse
 } from '@stex-react/api';
+import { getQuiz, getQuizTimes } from '@stex-react/node-utils';
 import { getQuizPhase, removeAnswerInfo } from '@stex-react/quiz-utils';
 import { Action, ResourceName, simpleNumberHash } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getQuiz, getQuizTimes } from '@stex-react/node-utils';
-import { queryGradingDbAndEndSet500OnError } from '../../grading-db-utils';
+import { isUserIdAuthorizedForAny, ResourceActionParams } from '../../access-control/resource-utils';
 import { getUserIdOrSetError } from '../../comment-utils';
+import { queryGradingDbAndEndSet500OnError } from '../../grading-db-utils';
 
 async function getUserQuizResponseOrSetError(
   quizId: string,
@@ -52,16 +51,12 @@ function shuffleArray(arr: any[], seed: number) {
 }
 
 function reorderBasedOnUserId(
+  isModerator: boolean,
   problems: { [problemId: string]: string },
-  userId: string,
-  courseId : string,
-  courseTerm : string
+  userId: string
 ) {
-  // if (isModerator(userId)) return problems;
-  if(canAccessResource(ResourceName.COURSE_QUIZ, Action.MUTATE, {
-    courseId,
-    instanceId : courseTerm
-  })) return problems;
+  if (isModerator) return problems;
+
   const problemIds = Object.keys(problems);
   shuffleArray(problemIds, simpleNumberHash(userId));
   const shuffled: { [problemId: string]: string } = {};
@@ -109,14 +104,18 @@ export default async function handler(
     res.status(400).json({ message: `Quiz not found: [${quizId}]` });
     return;
   }
-  const isMod = await canAccessResource(ResourceName.COURSE_QUIZ, Action.MUTATE, {
-    courseId,
-    instanceId : courseTerm
-  });
+
+  const moderatorAction: ResourceActionParams = {
+    name: ResourceName.COURSE_QUIZ,
+    action: Action.MUTATE,
+    variables: { courseId, instanceId: courseTerm },
+  };
+  const isModerator = await isUserIdAuthorizedForAny(userId, [moderatorAction]);
+
   
   const phase = getQuizPhase(quizInfo);
   const quizTimes = getQuizTimes(quizInfo);
-  const problems = getPhaseAppropriateProblems(quizInfo.problems, isMod, phase);
+  const problems = getPhaseAppropriateProblems(quizInfo.problems, isModerator, phase);
   const responses = await getUserQuizResponseOrSetError(quizId, userId, res);
   if (!responses) return;
 
@@ -124,7 +123,7 @@ export default async function handler(
     currentServerTs: Date.now(),
     ...quizTimes,
     phase,
-    problems: reorderBasedOnUserId(problems, userId, courseId, courseTerm),
+    problems: reorderBasedOnUserId(isModerator, problems, userId),
     responses,
   } as GetQuizResponse);
   return;

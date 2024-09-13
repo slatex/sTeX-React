@@ -26,13 +26,13 @@ import {
   GetSortedCoursesByConnectionsResponse,
   UserInfo,
   UserStats,
-  canUserModerate,
+  canModerateComment,
+  canModerateStudyBuddy,
   getAllUsersStats,
   getEnrolledCourseIds,
   getStudyBuddyCoursesSortedbyConnections,
   getStudyBuddyUsersStats,
   getUserInfo,
-  isModerator,
 } from '@stex-react/api';
 import { MaAI_COURSES, PRIMARY_COL, localStore } from '@stex-react/utils';
 import type { NextPage } from 'next';
@@ -67,15 +67,11 @@ function addRecentCourse(courseCode: string) {
 function removeRecentCourse(courseCode: string) {
   const chosenCourses = getRecentCourses();
   if (chosenCourses.includes(courseCode)) {
-    localStore?.setItem(
-      RECENT_COURSE_KEY,
-      chosenCourses.filter((c) => c !== courseCode).join(',')
-    );
+    localStore?.setItem(RECENT_COURSE_KEY, chosenCourses.filter((c) => c !== courseCode).join(','));
   }
 }
 function StudyBuddyOverviewGraph() {
-  const [sortedCourses, setSortedCourses] =
-    useState<GetSortedCoursesByConnectionsResponse[]>();
+  const [sortedCourses, setSortedCourses] = useState<GetSortedCoursesByConnectionsResponse[]>();
   const [selectedCourseIndex, setSelectedCourseIndex] = useState<string>(null);
   const [connections, setConnections] = useState<UserStats['connections']>([]);
   const [userIdsAndActiveStatus, setUserIdsAndActiveStatus] = useState([]);
@@ -101,10 +97,7 @@ function StudyBuddyOverviewGraph() {
       onClick={() => handleListItemClick(c.courseId)}
     >
       <ListItemText
-        primary={
-          (MaAI_COURSES[c.courseId]?.courseName ?? c.courseId) +
-          ` (${c.member})`
-        }
+        primary={(MaAI_COURSES[c.courseId]?.courseName ?? c.courseId) + ` (${c.member})`}
       />
     </ListItemButton>
   ));
@@ -150,13 +143,7 @@ function StatsForModerator() {
   );
 }
 
-function CourseStub({
-  courseCode,
-  onCancel,
-}: {
-  courseCode: string;
-  onCancel?: () => void;
-}) {
+function CourseStub({ courseCode, onCancel }: { courseCode: string; onCancel?: () => void }) {
   const router = useRouter();
   const { studyBuddy: t } = getLocaleObject(router);
   return (
@@ -245,15 +232,11 @@ const Courses: NextPage = () => {
   const [enrolledCourseIds, setEnrolledCourseIds] = useState([]);
   const [userInfo, setUserInfo] = useState<UserInfo | undefined>(null);
   const [isUserAModerator, setIsUserAModerator] = useState(false);
+
   useEffect(() => {
     getEnrolledCourseIds().then(setEnrolledCourseIds);
     getUserInfo().then(setUserInfo);
-    async function isUserAuthorized(){
-      if(await canUserModerate()){
-        setIsUserAModerator(true);
-      }
-    }
-    isUserAuthorized();
+    canModerateStudyBuddy().then(setIsUserAModerator);
   }, []);
   const courseIds = enrolledCourseIds.map((item) => item?.courseId);
   return (
@@ -315,9 +298,7 @@ const Courses: NextPage = () => {
           <Table sx={{ textAlign: 'center', maxWidth: '800px' }}>
             <TableHead>
               <TableRow sx={{ backgroundColor: PRIMARY_COL }}>
-                <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>
-                  {t.allCourses}
-                </TableCell>
+                <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>{t.allCourses}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

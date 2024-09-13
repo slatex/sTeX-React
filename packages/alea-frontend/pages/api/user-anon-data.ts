@@ -2,7 +2,6 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { queryGradingDbAndEndSet500OnError } from './grading-db-utils';
 import { getUserIdOrSetError } from './comment-utils';
 import {
-  isModerator,
   DiligenceAndPerformanceData,
   UserAnonData,
   canAccessResource,
@@ -10,6 +9,7 @@ import {
 import { queryMatomoDbAndEndSet500OnError } from './matomo-db-utils';
 import { getAllQuizzes } from '@stex-react/node-utils';
 import { Action, ResourceName } from '@stex-react/utils';
+import { getUserIdIfAuthorizedOrSetError } from './access-control/resource-utils';
 
 // SELECT user_id as userId, SUM(visit_total_time) visit_time  FROM matomo.matomo_log_visit  WHERE user_id IS NOT NULL AND visit_first_action_time >= '2023-10-01 10:00:00' AND visit_last_action_time <= '2023-10-30 10:00:00'   GROUP BY user_id
 
@@ -69,13 +69,8 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const userId = await getUserIdOrSetError(req, res);
-  // if (!isModerator(userId)) {
-  //   res.status(403).send({ message: 'Unauthorized.' });
-  //   return;
-  // }
-  if( ! await canAccessResource(ResourceName.EXPERIMENTAL, Action.MUTATE))
-    return res.status(403).send({ message: 'Unauthorized.' });
+  const userId = await getUserIdIfAuthorizedOrSetError(req, res, ResourceName.EXPERIMENTAL, Action.MUTATE);
+  if (!userId) return;
   
   const scoreInfo: any[] = await queryGradingDbAndEndSet500OnError(
     `SELECT userId, quizId, SUM(points) as quizScore
@@ -123,7 +118,7 @@ export default async function handler(
   }
   const userIds = Object.keys(userData).sort(() => 0.5 - Math.random());
   for (const [idx, userId] of userIds.entries()) {
-    if (!userId.startsWith('fake') || !isModerator(userId)) {
+    if (!userId.startsWith('fake')) {
       userData[idx] = userData[userId];
     }
     delete userData[userId];

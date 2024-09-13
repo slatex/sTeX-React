@@ -78,11 +78,9 @@ const SysAdmin: NextPage = () => {
   }
 
   useEffect(() => {
-    async function isUserAnSysAdmin() {
-      if(!await isUserMember('sys-admin'))
-        router.push('/');
-    }
-    isUserAnSysAdmin();
+    isUserMember('sys-admin').then((isSysAdmin) => {
+      if (!isSysAdmin) router.push('/');
+    });
     getAllResources();
   }, []);
 
@@ -287,7 +285,7 @@ const SysAdmin: NextPage = () => {
               </MenuItem>
             ))}
           </Select>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '5px', my: "5px" }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '5px', my: '5px' }}>
             {resourceComponents.map((component, index) => (
               <TextField
                 key={index}

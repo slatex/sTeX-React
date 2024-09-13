@@ -1,19 +1,18 @@
+import { Action, ResourceName } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getAllQuizzes } from '../quiz/quiz-utils';
+import { getUserIdIfAuthorizedOrSetError } from '../access-control/resource-utils';
 import { queryGradingDbAndEndSet500OnError } from '../grading-db-utils';
-import { getUserIdOrSetError } from '../comment-utils';
-import { isModerator } from '@stex-react/api';
+import { getAllQuizzes } from '../quiz/quiz-utils';
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  const userId = await getUserIdOrSetError(req, res);
-  // if (!isModerator(userId)) {
-  //   res.status(403).send({ message: 'Unauthorized.' });
-  //   return;
-  // }
-  // this api is not yet used anywhere, 
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const userId = await getUserIdIfAuthorizedOrSetError(
+    req,
+    res,
+    ResourceName.EXPERIMENTAL,
+    Action.MUTATE
+  );
+  if (!userId) return;
+
   const courseId = req.query.courseId as string;
   if (!courseId) {
     res.status(400).json({ message: 'Missing courseId.' });
