@@ -1,13 +1,13 @@
-import {
-  PerProblemStats,
-  QuizStatsResponse,
-  isModerator,
-} from '@stex-react/api';
-import { NextApiRequest, NextApiResponse } from 'next';
-import { getUserIdOrSetError } from '../../comment-utils';
-import { getQuiz } from '../quiz-utils';
+import { PerProblemStats, QuizStatsResponse } from '@stex-react/api';
 import { getProblem } from '@stex-react/quiz-utils';
-import { queryGradingDbAndEndSet500OnError, queryGradingDbDontEndSet500OnError } from '../../grading-db-utils';
+import { Action, ResourceName } from '@stex-react/utils';
+import { NextApiRequest, NextApiResponse } from 'next';
+import { getUserIdIfAuthorizedOrSetError } from '../../access-control/resource-utils';
+import {
+  queryGradingDbAndEndSet500OnError,
+  queryGradingDbDontEndSet500OnError,
+} from '../../grading-db-utils';
+import { getQuiz } from '../quiz-utils';
 
 function missingProblemData() {
   return {
@@ -26,16 +26,18 @@ function numberBucket(n: number) {
   return `[${lowerBound}, ${upperBound})`;
 }
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const quizId = req.query.quizId as string;
-  const userId = await getUserIdOrSetError(req, res);
-  if (!isModerator(userId)) {
-    res.status(403).send({ message: 'Unauthorized.' });
-    return;
-  }
+  const courseId = req.query.courseId as string;
+  const instanceId = req.query.courseTerm as string;
+  const userId = await getUserIdIfAuthorizedOrSetError(
+    req,
+    res,
+    ResourceName.COURSE_QUIZ,
+    Action.MUTATE,
+    { courseId, instanceId }
+  );
+  if (!userId) return;
 
   const quiz = getQuiz(quizId);
   const perProblemStats: { [problemKey: string]: PerProblemStats } = {};
@@ -50,10 +52,7 @@ export default async function handler(
       avgQuotient: 0,
     };
   }
-  const totalPoints = Object.values(perProblemStats).reduce(
-    (acc, stat) => acc + stat.maxPoints,
-    0
-  );
+  const totalPoints = Object.values(perProblemStats).reduce((acc, stat) => acc + stat.maxPoints, 0);
 
   const results1: any[] = await queryGradingDbDontEndSet500OnError(
     `SELECT numProblems, COUNT(*) AS numStudents
@@ -76,10 +75,7 @@ export default async function handler(
   for (const r1 of results1) {
     attemptedHistogram[r1.numProblems] = r1.numStudents;
   }
-  const totalStudents = Object.values(attemptedHistogram).reduce(
-    (a, b) => a + +b,
-    0
-  );
+  const totalStudents = Object.values(attemptedHistogram).reduce((a, b) => a + +b, 0);
   const results2: any[] = await queryGradingDbDontEndSet500OnError(
     `SELECT score, COUNT(*) AS numStudents
     FROM (
@@ -163,8 +159,7 @@ export default async function handler(
   for (const problemId in perProblemScoreSum) {
     const sum = perProblemScoreSum[problemId];
     const average = sum / totalStudents;
-    perProblemStats[problemId].avgQuotient =
-      average / perProblemStats[problemId].maxPoints;
+    perProblemStats[problemId].avgQuotient = average / perProblemStats[problemId].maxPoints;
   }
 
   return res.status(200).json({

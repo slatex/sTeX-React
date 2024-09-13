@@ -7,13 +7,15 @@ import UnfoldMoreDoubleIcon from '@mui/icons-material/UnfoldMoreDouble';
 import { Box, IconButton, TextField, Tooltip } from '@mui/material';
 import {
   SectionsAPIData,
+  canAccessResource,
   getCoveredSections,
-  getUserInfo,
-  isModerator,
 } from '@stex-react/api';
 import {
+  Action,
+  CURRENT_TERM,
   CoverageTimeline,
   PRIMARY_COL,
+  ResourceName,
   convertHtmlStringToPlain,
   createHash,
   localStore,
@@ -302,12 +304,11 @@ export function ContentDashboard({
   const dashInfo = root?.type !== TOCNodeType.FILE ? undefined : root;
 
   useEffect(() => {
-    getUserInfo().then((info) => {
-      if (!info?.userId || !isModerator(info.userId) || !courseId) {
-        setCovUpdateLink(undefined);
-        return;
-      }
-      setCovUpdateLink(`/coverage-update?courseId=${courseId}`);
+    canAccessResource(ResourceName.COURSE_NOTES, Action.MUTATE, {
+      courseId: courseId as string,
+      instanceId: CURRENT_TERM,
+    }).then((canMutate) => {
+      setCovUpdateLink(canMutate ? `/coverage-update?courseId=${courseId}`: undefined);
     });
   }, [contentUrl, courseId]);
 

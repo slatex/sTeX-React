@@ -4,10 +4,10 @@ import {
   DEFAULT_POINTS,
   GrantReason,
   NotificationType,
-  isModerator,
 } from '@stex-react/api';
 import { CURRENT_TERM, PathToArticle } from '@stex-react/utils';
 import axios from 'axios';
+import { canUserModerateComments } from './access-control/resource-utils';
 import {
   checkIfPostOrSetError,
   executeAndEndSet500OnError,
@@ -16,13 +16,7 @@ import {
   sendNotification,
 } from './comment-utils';
 
-function linkToComment({
-  threadId,
-  courseId,
-  courseTerm,
-  archive,
-  filepath,
-}: any) {
+function linkToComment({ threadId, courseId, courseTerm, archive, filepath }: any) {
   if (threadId && courseId && courseTerm === CURRENT_TERM) {
     return `/forum/${courseId}/${threadId}`;
   }
@@ -35,11 +29,13 @@ async function sendCommentAlert(
   userId: string,
   isPrivate: boolean,
   isQuestion: boolean,
-  link: string
+  link: string,
+  courseId,
+  courseTerm
 ) {
   if (isPrivate) return;
   const fullLink = `https://courses.voll-ki.fau.de${link}`;
-  const message = isModerator(userId)
+  const message = (await canUserModerateComments(userId, courseId, courseTerm))
     ? `A moderator posted at ${fullLink}`
     : `A ${isQuestion ? 'question' : 'comment'} was posted at ${fullLink}`;
   await sendAlert(message);
@@ -65,10 +61,7 @@ export async function sendAlert(message: string) {
   );
 }
 
-async function sendCommentNotifications(
-  parentComment?: Comment,
-  userId?: string
-) {
+async function sendCommentNotifications(parentComment?: Comment, userId?: string) {
   if (!parentComment) return;
   const parentUserId = parentComment.userId;
   if (parentUserId && parentUserId !== userId) {
@@ -117,9 +110,7 @@ export default async function handler(req, res) {
   let threadId: number | undefined = undefined;
   let parentComment: Comment = undefined;
   if (parentCommentId) {
-    const { existing, error } = await getExistingCommentDontEnd(
-      parentCommentId
-    );
+    const { existing, error } = await getExistingCommentDontEnd(parentCommentId);
     parentComment = existing;
     if (!parentComment) {
       res.status(error || 404).json({ message: 'Parent comment not found' });
@@ -176,7 +167,9 @@ export default async function handler(req, res) {
     userId,
     isPrivate,
     commentType === CommentType.QUESTION,
-    linkToComment({ threadId, courseId, courseTerm, archive, filepath })
+    linkToComment({ threadId, courseId, courseTerm, archive, filepath }),
+    courseId,
+    courseTerm
   );
   await sendCommentNotifications(parentComment, userId);
 }

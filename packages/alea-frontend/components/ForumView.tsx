@@ -27,17 +27,17 @@ import {
   QuestionStatus,
   UserInfo,
   addComment,
+  canModerateComment,
   getCourseInstanceThreads,
   getUserInfo,
-  isModerator,
 } from '@stex-react/api';
+import { MystEditor } from '@stex-react/myst';
 import { DateView } from '@stex-react/react-utils';
 import { CURRENT_TERM } from '@stex-react/utils';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useReducer, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
-import { MystEditor } from '@stex-react/myst';
 function getDraftKey(courseId: string) {
   return `question-draft-${courseId}`;
 }
@@ -117,13 +117,21 @@ function ForumViewControls({
   setShowUnanswered: (show: boolean) => void;
   markUpdate: () => void;
 }) {
-  const { forum: t } = getLocaleObject(useRouter());
+  const router = useRouter();
+  const { forum: t } = getLocaleObject(router);
   const [openQuestionDialog, setOpenQuestionDialog] = useState(false);
-  const courseId = useRouter()?.query?.courseId as string;
+  const courseId = router.query?.courseId as string;
   const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
+  const [isUserAuthorized, setIsUserAuthorized] = useState<boolean>(false);
+
   useEffect(() => {
     getUserInfo().then(setUserInfo);
   }, []);
+
+  useEffect(() => {
+    if (!courseId) return;
+    canModerateComment(courseId, CURRENT_TERM).then(setIsUserAuthorized);
+  }, [courseId]);
 
   return (
     <Box
@@ -141,7 +149,7 @@ function ForumViewControls({
         <AddIcon />
         &nbsp;{t.askAQuestion}
       </Button>
-      {isModerator(userInfo?.userId) && (
+      {isUserAuthorized && (
         <Box display="flex">
           <FormControlLabel
             control={
@@ -199,8 +207,7 @@ function ForumViewControls({
 }
 
 function QuestionStatusIconNoHover({ comment }: { comment: Comment }) {
-  if (comment.commentType !== CommentType.QUESTION)
-    return <ChatIcon sx={{ color: 'gray' }} />;
+  if (comment.commentType !== CommentType.QUESTION) return <ChatIcon sx={{ color: 'gray' }} />;
   switch (comment.questionStatus) {
     case QuestionStatus.UNANSWERED:
       return <QuestionMarkIcon sx={{ color: 'goldenrod' }} />;
@@ -215,9 +222,7 @@ export function QuestionStatusIcon({ comment }: { comment: Comment }) {
   return (
     <Tooltip
       title={
-        comment.commentType === CommentType.QUESTION
-          ? comment.questionStatus
-          : CommentType.REMARK
+        comment.commentType === CommentType.QUESTION ? comment.questionStatus : CommentType.REMARK
       }
     >
       <Box>
@@ -243,9 +248,7 @@ export function ForumView() {
 
   if (!router.isReady || !courseId) return <CircularProgress />;
   const toShow = showUnanswered
-    ? threadComments.filter(
-        (c) => c.questionStatus === QuestionStatus.UNANSWERED
-      )
+    ? threadComments.filter((c) => c.questionStatus === QuestionStatus.UNANSWERED)
     : showRemarks
     ? threadComments
     : threadComments.filter((c) => c.commentType === CommentType.QUESTION);
@@ -253,8 +256,7 @@ export function ForumView() {
     <>
       {['ai-1', 'ai-2'].includes(courseId) && (
         <Box fontSize="large">
-          Feel free to ask questions here or connect with your instructors and
-          classmates{' '}
+          Feel free to ask questions here or connect with your instructors and classmates{' '}
           <a
             href="https://matrix.to/#/#ai-12:fau.de"
             target="_blank"
@@ -279,10 +281,7 @@ export function ForumView() {
         {toShow.map((comment, index) => (
           <Box key={index} bgcolor={index % 2 ? '#EEE' : undefined}>
             <ListItem disablePadding>
-              <Link
-                href={`/forum/${courseId}/${comment.threadId}`}
-                style={{ width: '100%' }}
-              >
+              <Link href={`/forum/${courseId}/${comment.threadId}`} style={{ width: '100%' }}>
                 <ListItemButton style={{ cursor: 'pointer' }}>
                   <ListItemIcon>
                     <QuestionStatusIcon comment={comment} />
@@ -303,9 +302,7 @@ export function ForumView() {
                     secondary={
                       <Box display="flex" justifyContent="space-between">
                         <span>{comment.userName}</span>
-                        <DateView
-                          timestampMs={(comment.postedTimestampSec ?? 0) * 1000}
-                        />
+                        <DateView timestampMs={(comment.postedTimestampSec ?? 0) * 1000} />
                       </Box>
                     }
                   />

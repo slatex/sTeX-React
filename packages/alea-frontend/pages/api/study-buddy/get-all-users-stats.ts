@@ -1,21 +1,14 @@
-import { AllCoursesStats, isModerator } from '@stex-react/api';
+import { AllCoursesStats } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
-import {
-  executeAndEndSet500OnError,
-  getUserIdOrSetError,
-} from '../comment-utils';
+import { executeAndEndSet500OnError } from '../comment-utils';
+import { getUserIdIfCanModerateStudyBuddyOrSetError } from '../access-control/resource-utils';
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const userId = await getUserIdOrSetError(req, res);
+  const userId = await getUserIdIfCanModerateStudyBuddyOrSetError(req, res)
   if (!userId) return;
-
-  if (!isModerator(userId)) {
-    res.status(403).send({ message: 'Unauthorized.' });
-    return;
-  }
 
   /*
     This query counts a user multiple times if the user registered in multiple courses.
