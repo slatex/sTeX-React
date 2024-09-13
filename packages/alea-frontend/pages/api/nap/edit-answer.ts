@@ -11,6 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
   const { answer, id } = req.body as UpdateAnswerRequest;
+  //TODO:Limit the editing untill anybody grade it
   await executeAndEndSet500OnError(
     `Update Answer Set answer=? where id=? and userId=? and not EXISTS (select * from Grading where answerId=?)`,
     [answer, id, userId, id],
