@@ -21,10 +21,10 @@ export const SYSTEM_UPDATES = [
     id: 'traffic-light',
     header: 'Traffic Light on Notes',
     content:
-      'Traffic lights are available on the course notes, indicating your competency in a particular chapter. Green indicates strong understanding, yellow shows partial understanding, and red highlights areas that need improvement.',
+    'Traffic lights are available on the course notes, indicating your readiness for a section. A green light indicates that you have the required prerequisites for it. A red light indicates that you need to work on the prerequisites before you are ready to jump into this section.',
     header_de: 'Ampelsystem in den Notizen',
     content_de:
-      'In den Kursnotizen ist ein Ampelsystem vorhanden, das Ihre Kompetenz in einem bestimmten Kapitel anzeigt. Grün zeigt ein starkes Verständnis, Gelb zeigt ein teilweises Verständnis und Rot hebt Bereiche hervor, die verbessert werden müssen.',
+      'Ampeln sind in den Kursnotizen verfügbar und zeigen Ihre Bereitschaft für einen Abschnitt an. Ein grünes Licht zeigt an, dass Sie die erforderlichen Voraussetzungen dafür haben. Ein rotes Licht zeigt an, dass Sie an den Voraussetzungen arbeiten müssen, bevor Sie bereit sind, in diesen Abschnitt einzutauchen.',
     postedTimestamp: '2024-09-01T00:20:00+05:30',
   },
   {
