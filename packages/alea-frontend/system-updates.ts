@@ -8,16 +8,6 @@ export const SYSTEM_UPDATES = [
     postedTimestamp: '2023-02-11T00:20:00+05:30',
   }*/
   {
-    id: 'traffic-light',
-    header: 'Traffic Light on Notes',
-    content:
-      'Traffic lights are available on the course notes, indicating your competency in a particular chapter. Green indicates strong understanding, yellow shows partial understanding, and red highlights areas that need improvement.',
-    header_de: 'Ampelsystem in den Notizen',
-    content_de:
-      'In den Kursnotizen ist ein Ampelsystem vorhanden, das Ihre Kompetenz in einem bestimmten Kapitel anzeigt. Grün zeigt ein starkes Verständnis, Gelb zeigt ein teilweises Verständnis und Rot hebt Bereiche hervor, die verbessert werden müssen.',
-    postedTimestamp: '2023-09-03T00:20:00+05:30',
-  },
-  {
     id: 'exam-prep-problems',
     header: 'Exam Prep: Practice Problems',
     content:
@@ -25,7 +15,17 @@ export const SYSTEM_UPDATES = [
     header_de: 'Prüfungsvorbereitung: Übungsaufgaben',
     content_de:
       'Um deine Prüfungsvorbereitung zu unterstützen, wurde ein neuer Abschnitt zu den Kurs-Startseiten hinzugefügt. Klicke auf "Übungsaufgaben", um alle Übungsaufgaben nach Kapitel und Abschnitt geordnet zu finden. [AI-2 Übungsaufgaben](/practice-problems/ai-2)',
-    postedTimestamp: '2024-08-27T00:20:00+05:30',
+    postedTimestamp: '2024-09-13T00:20:00+05:30',
+  },
+  {
+    id: 'traffic-light',
+    header: 'Traffic Light on Notes',
+    content:
+      'Traffic lights are available on the course notes, indicating your competency in a particular chapter. Green indicates strong understanding, yellow shows partial understanding, and red highlights areas that need improvement.',
+    header_de: 'Ampelsystem in den Notizen',
+    content_de:
+      'In den Kursnotizen ist ein Ampelsystem vorhanden, das Ihre Kompetenz in einem bestimmten Kapitel anzeigt. Grün zeigt ein starkes Verständnis, Gelb zeigt ein teilweises Verständnis und Rot hebt Bereiche hervor, die verbessert werden müssen.',
+    postedTimestamp: '2024-09-01T00:20:00+05:30',
   },
   {
     id: 'new-homepage',
