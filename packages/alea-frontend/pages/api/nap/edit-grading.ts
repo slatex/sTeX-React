@@ -9,6 +9,7 @@ import { UpdateGradingRequest } from '@stex-react/api';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
   const userId = await getUserIdOrSetError(req, res);
+  //TODO:Need ACL. only grader owner can change it.
   if (!userId) return;
   const { id } = req.body as UpdateGradingRequest;
   let { customFeedback, answerClasses } = req.body as UpdateGradingRequest;
