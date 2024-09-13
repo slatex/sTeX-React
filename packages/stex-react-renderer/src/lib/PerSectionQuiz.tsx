@@ -86,7 +86,7 @@ export function PerSectionQuiz({
 
   const problem = problems[problemIdx];
   const response = responses[problemIdx];
-  const solution = problems[problemIdx]?.solution;
+  const solutions = problems[problemIdx]?.solutions;
 
   if (!problem || !response) return <>error</>;
 
@@ -149,7 +149,7 @@ export function PerSectionQuiz({
         mb={2}
         sx={{ display: 'flex', gap: '10px', flexDirection: 'column', alignItems: 'flex-start' }}
       >
-        {solution && (
+        {solutions?.length > 0 && (
           <Button variant="contained" onClick={() => setShowSolution(!showSolution)}>
             {showSolution ? t.hideSolution : t.checkSolution}
           </Button>
@@ -161,9 +161,10 @@ export function PerSectionQuiz({
         )}
       </Box>
       <Box mb="10px">
-        {showSolution && (
-          <div style={{ color: '#555', marginTop: '10px' }}>{mmtHTMLToReact(solution)}</div>
-        )}
+        {showSolution &&
+          solutions.map((solution) => (
+            <div style={{ color: '#555', marginTop: '10px' }}>{mmtHTMLToReact(solution)}</div>
+          ))}
       </Box>
     </Box>
   );

@@ -99,7 +99,7 @@ export interface Problem {
   preconditions: string;
   statement: { outerHTML: string };
   inputs: Input[];
-  solution:string;
+  solutions:string[];
   points: number;
 }
 
