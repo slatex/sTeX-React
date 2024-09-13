@@ -149,7 +149,7 @@ export function PerSectionQuiz({
         mb={2}
         sx={{ display: 'flex', gap: '10px', flexDirection: 'column', alignItems: 'flex-start' }}
       >
-        {solutions.length > 0 && (
+        {solutions?.length > 0 && (
           <Button variant="contained" onClick={() => setShowSolution(!showSolution)}>
             {showSolution ? t.hideSolution : t.checkSolution}
           </Button>

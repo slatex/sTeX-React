@@ -484,12 +484,7 @@ export const replace = (d: DOMNode): any => {
 
   if (domNode.name === 'code') {
     const codeContent = domNode.children
-      .map((child) => {
-        if (child.type === 'text') {
-          return child.data;
-        }
-        return ' ';
-      })
+      .map((child) => (child.type === 'text' ? child.data : ' '))
       .join('');
     return (
       <CodeMirror

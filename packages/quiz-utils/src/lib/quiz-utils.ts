@@ -354,7 +354,7 @@ function getProblemHeader(rootNode: Element) {
   return header ? DomUtils.getOuterHTML(header) : '';
 }
 
-function getProblemSolution(rootNode?: Element): string {
+function getProblemSolutions(rootNode?: Element): string {
   if (!rootNode) return '';
   const solutionNodes = findSolutionRootNodes(rootNode);
   return solutionNodes.map((node) => DomUtils.getOuterHTML(node)).join('\n');
@@ -368,7 +368,7 @@ export function getProblem(htmlStr: string, problemUrl = '') {
   const points = getProblemPoints(problemRootNode);
   const header = getProblemHeader(problemRootNode);
   const solutions = solutionRootNode.map((solutionRootNode) =>
-    getProblemSolution(solutionRootNode)
+    getProblemSolutions(solutionRootNode)
   );
   if (!problemRootNode) {
     return {
