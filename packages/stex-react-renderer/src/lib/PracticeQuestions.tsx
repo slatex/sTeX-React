@@ -1,5 +1,5 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { Box, IconButton, Tooltip } from '@mui/material';
+import { Box, Button, IconButton, Tooltip } from '@mui/material';
 import LinearProgress from '@mui/material/LinearProgress';
 import { Problem, ProblemResponse, getProblemShtml } from '@stex-react/api';
 import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
@@ -35,6 +35,7 @@ export function PracticeQuestions({
   const [problemIdx, setProblemIdx] = useState(0);
   const [isFrozen, setIsFrozen] = useState<boolean[]>([]);
   const [, forceRerender] = useReducer((x) => x + 1, 0);
+  const [showSolution, setShowSolution] = useState(false);
 
   useEffect(() => {
     const problems$ = problemIds.map((p) => getProblemShtml(mmtUrl, p));
@@ -53,6 +54,7 @@ export function PracticeQuestions({
 
   const problem = problems[problemIdx];
   const response = responses[problemIdx];
+  const solutions = problems[problemIdx]?.solutions;
 
   if (!problem || !response) return <>error</>;
 
@@ -75,7 +77,10 @@ export function PracticeQuestions({
         <ListStepper
           idx={problemIdx}
           listSize={problems.length}
-          onChange={(idx) => setProblemIdx(idx)}
+          onChange={(idx) => {
+            setProblemIdx(idx);
+            setShowSolution(false);
+          }}
         />
         <IconButton onClick={() => handleViewSource(problemIds[problemIdx])}>
           <Tooltip title="view source">
@@ -103,6 +108,23 @@ export function PracticeQuestions({
             })
           }
         />
+      </Box>
+      <Box
+        mb={2}
+        sx={{ display: 'flex', gap: '10px', flexDirection: 'column', alignItems: 'flex-start' }}
+      >
+        {solutions?.length > 0 && (
+          <Button variant="contained" onClick={() => setShowSolution(!showSolution)}>
+            {showSolution ? t.hideSolution : t.checkSolution}
+          </Button>
+        )}
+        {showSolution && (
+          <Box mb="10px">
+            {solutions.map((solution) => (
+              <div style={{ color: '#555' }}>{mmtHTMLToReact(solution)}</div>
+            ))}
+          </Box>
+        )}
       </Box>
     </Box>
   );
