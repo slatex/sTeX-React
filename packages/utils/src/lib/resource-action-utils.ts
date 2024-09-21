@@ -27,7 +27,7 @@ export enum ResourceName {
   
   // For managing access control updates only.
   GLOBAL_ACCESS = 'GLOBAL_ACCESS',
-  COURSE_ACCESS = 'GLOBAL_ACCESS',
+  COURSE_ACCESS = 'COURSE_ACCESS',
 }
 
 export enum ComponentType {
@@ -50,6 +50,10 @@ export interface ResourceType {
   components: ResourceIdComponent[];
 }
 
+export interface ResourceActionPair {
+  resourceId: string;
+  actionId: string;
+}
 
 export const ALL_RESOURCE_TYPES: ResourceType[] = [
   {

@@ -1,4 +1,4 @@
-import { Action, ResourceName } from '@stex-react/utils';
+import { Action, ResourceActionPair, ResourceName } from '@stex-react/utils';
 import axios from 'axios';
 import { AccessControlList, ResourceAction } from './access-control';
 import { getAuthHeaders } from './lms';
@@ -6,6 +6,11 @@ import { getAuthHeaders } from './lms';
 export async function getAllAclIds(): Promise<string[]> {
   const resp = await axios.get('/api/access-control/get-all-acl-ids');
   return resp.data as string[];
+}
+
+export async function getSpecificAclIds(resourceActionPairs  :ResourceActionPair[]){
+  const resp = await axios.post('/api/access-control/get-specific-aclids', {resourceActionPairs});
+  return resp.data;
 }
 
 export async function createAcl(newAcl: CreateACLRequest): Promise<void> {
@@ -82,7 +87,7 @@ export async function getAllResourceActions(): Promise<ResourceAction[]> {
     headers: getAuthHeaders(),
   });
   return data as ResourceAction[];
-}
+} 
 
 export async function canAccessResource(
   resourceName: ResourceName,
