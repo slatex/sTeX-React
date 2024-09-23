@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export async function getRagResponse(query: string, courseId?: string) {
   try {
-    const response = await axios.post('http://localhost:5000/query_metadata', {
+    const response = await axios.post(`${process.env['NEXT_PUBLIC_GENAI_URL']}/query_metadata`, {
       query: query,
       course_id: courseId,
     });

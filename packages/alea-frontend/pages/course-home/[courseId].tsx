@@ -135,7 +135,7 @@ const CourseHomePage: NextPage = () => {
   const showSearchBar = ['ai-1', 'ai-2', 'iwgs-1', 'iwgs-2'].includes(courseId);
   function handleSearch() {
     if (!searchQuery) return;
-    router.push(`/search/${courseId}?query=${searchQuery}`);
+    router.push(`/search/${courseId}?query=${encodeURIComponent(searchQuery)}`);
   }
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {

@@ -12,6 +12,7 @@ import {
   getCourseInfo,
   getDocumentSections,
   getRagResponse,
+  isSection,
   SectionsAPIData,
 } from '@stex-react/api';
 import {
@@ -33,14 +34,63 @@ interface Reference {
   courseId: string;
 }
 
-function ResultDocument(
-  ref: Reference,
-  idx: number,
-  courseId: string,
-  parentIdData: { id: string | null; title: string | null }
-) {
+function findNearestSection(
+  archive: string,
+  filepath: string,
+  rootNode: SectionsAPIData | undefined
+): SectionsAPIData {
+  if (!rootNode) {
+    return null;
+  }
+  const ancestors = findAncestorsForFile(archive, filepath, rootNode);
+  if (!ancestors) {
+    return null;
+  }
+  for (let i = ancestors.length - 1; i >= 0; i--) {
+    if (isSection(ancestors[i])) {
+      return ancestors[i];
+    }
+  }
+  return null;
+}
+
+function findAncestorsForFile(
+  archive: string,
+  filepath: string,
+  rootNode: SectionsAPIData
+): SectionsAPIData[] | null {
+  if (archive === rootNode.archive && filepath === rootNode.filepath) {
+    return [rootNode];
+  }
+
+  if (!rootNode.children?.length) {
+    return null;
+  }
+  for (const child of rootNode.children) {
+    const result = findAncestorsForFile(archive, filepath, child);
+    if (result) {
+      return [rootNode, ...result];
+    }
+  }
+  return null;
+}
+
+function ResultDocument({
+  reference,
+  courseId,
+  sectionData,
+}: {
+  reference: Reference;
+  courseId: string;
+  sectionData: SectionsAPIData;
+}) {
+  const parentIdData = findNearestSection(
+    reference.archive,
+    `${reference.filepath}.xhtml`,
+    sectionData
+  );
   return (
-    <DocumentWidthSetter key={`${ref.filepath}-${idx}`}>
+    <DocumentWidthSetter>
       <Box
         sx={{
           borderRadius: '5px',
@@ -67,7 +117,7 @@ function ResultDocument(
         <hr />
 
         <ExpandableContent
-          contentUrl={XhtmlContentUrl(ref.archive, `${ref.filepath}.xhtml`)}
+          contentUrl={XhtmlContentUrl(reference.archive, `${reference.filepath}.xhtml`)}
           noFurtherExpansion
         />
       </Box>
@@ -119,34 +169,9 @@ const SearchPage: NextPage = () => {
     fetchResults();
   }, [query, courseId]);
 
-  const findParentIdByArchiveAndFilepath = useCallback(
-    (
-      sectionData: SectionsAPIData | undefined,
-      archive: string,
-      filepath: string
-    ): { id: string | null; title: string | null } | null => {
-      const searchSection = (
-        section: SectionsAPIData
-      ): { id: string | null; title: string | null } | null => {
-        if (section.children) {
-          for (const child of section.children) {
-            if (child.archive === archive && child.filepath === filepath) {
-              return { id: section.id || null, title: section.title || null };
-            }
-            const result = searchSection(child);
-            if (result) return result;
-          }
-        }
-        return null;
-      };
-      return sectionData ? searchSection(sectionData) : null;
-    },
-    []
-  );
-
   const handleSearch = () => {
     if (searchQuery) {
-      router.push(`/search/${courseId}?query=${searchQuery}`);
+      router.push(`/search/${courseId}?query=${encodeURIComponent(searchQuery)}`);
     }
   };
 
@@ -212,17 +237,14 @@ const SearchPage: NextPage = () => {
           references.length > 0 && (
             <Box bgcolor="white" borderRadius="5px" mb="15px" p="10px">
               <Box maxWidth="800px" m="0 auto" p="10px">
-                {references.map((ref, idx) => {
-                  const parentIdData = findParentIdByArchiveAndFilepath(
-                    sectionData,
-                    ref.archive,
-                    `${ref.filepath}.xhtml`
-                  );
-                  if (parentIdData) {
-                    return ResultDocument(ref, idx, courseId, parentIdData);
-                  }
-                  return null;
-                })}
+                {references.map((reference, idx) => (
+                  <ResultDocument
+                    reference={reference}
+                    courseId={courseId}
+                    key={idx}
+                    sectionData={sectionData}
+                  />
+                ))}
               </Box>
             </Box>
           )
