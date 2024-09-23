@@ -15,6 +15,7 @@ export * from './points';
 export * from './points-api';
 export * from './quiz';
 export * from './quiz-api';
+export * from './rag';
 export * from './request-aggregator';
 export * from './study-buddy';
 export * from './study-buddy-api';
