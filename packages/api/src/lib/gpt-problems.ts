@@ -1,4 +1,20 @@
-import { Tristate } from './quiz';
+
+
+export enum TemplateTypes {
+  CONTEXT_BASED = 'CONTEXT_BASED',
+  FROM_SAMPLE_PROBLEM = 'FROM_SAMPLE_PROBLEM',
+  FROM_MORE_EXAMPLES = 'FROM_MORE_EXAMPLES',
+  FROM_CONCEPT_COMPARISON = 'FROM_CONCEPT_COMPARISON',
+  REMOVE_AMBIGUITY = 'REMOVE_AMBIGUITY',
+  FIX_REFERENCES = 'FIX_REFERENCES',
+  FIX_DISTRACTORS = 'FIX_DISTRACTORS',
+}
+
+export enum GptResponseFormat {
+  JSON_FORMAT = 'JSON_FORMAT',
+  LATEX_FORMST = 'LATEX_FORMAT',
+}
+
 
 export interface VariableAssignment {
   // special keys:
@@ -6,153 +22,96 @@ export interface VariableAssignment {
   key: string;
   value: string;
 }
+export const defaultAssignment: VariableAssignment[] = [
+  { key: 'CONCEPT', value: 'Minimax Algorithm' },
+  { key: 'COURSE', value: 'AI' },
+  { key: 'COMPETENCY', value: 'understand' },
+];
 
 export interface Template {
-  templateName: string;
-  version: string;
-  updateMessage: string;
-
-  templateStrs: string[];
-  defaultAssignment: VariableAssignment[];
-  updater: string;
-  updateTime: string;
-}
-
-export type PostProcessingStep = 'JSON_TO_STEX' | 'REMOVE_NEWLINES';
-
-export interface CreateGptProblemsRequest {
-  dryRun: boolean;
-  useTools: boolean;
+  templateType:string;
   templateName: string;
   templateVersion: string;
-  templateStrs: string[];
-  assignments: VariableAssignment[];
-  postProcessingSteps: PostProcessingStep[];
+  templateId:number;
+  updateMessage: string;
+  templateStr: string[];
+  defaultAssignments: VariableAssignment[];
+  updater: string;
+  updated_time: string;
+  gptResponseFormat:string;
+  
 }
 
-export interface GptCompletionData {
-  multiAssignment?: VariableAssignment[];
-  actualPrompts: string[];
-  response: string;
-  usage: {
-    completionTokens: number;
-    promptTokens: number;
-    totalTokens: number;
-    cost_USD: number;
-  };
+export interface GenerationObj {
+  generationId:number;
+  templateId:number;
+  gptResponse:string;
+  createdAt:string;
+  promptText:string;
+  assignment:VariableAssignment[];
+
 }
+export interface GenerationHistory {
+  generationId:number;
+  templateId:number;
+  gptResponse:string;
+  createdAt:string;
+  promptText:string[];
+  assignment:VariableAssignment[];
+
+}
+export interface CreateGptProblemsRequest {
+  templateName: string;
+  templateVersion: string;
+  templateId:number,
+  templateStr: string[];
+  assignments: VariableAssignment[];
+}
+
+
 
 export interface CreateGptProblemsResponse {
-  runId: string;
-  runTime: string;
-  runner: string;
-  completions_tools: GptCompletionData[]; 
-  completions: GptCompletionData[];
+  message:string;
+  generationObj:GenerationObj;
+
 }
 
-export interface GptRun {
-  request: CreateGptProblemsRequest;
-  response: CreateGptProblemsResponse;
+export interface TemplateData {
+  templateName: string;
+  templateVersion: string;
 }
 
-export type LikertType =
-  | 'ambiguous'
-  | 'appropriate'
-  | 'difficult'
-  | 'relevant'
-  | 'useful';
-
-export interface LikertRating {
-  label: string;
-  value: 1 | 2 | 3 | 4 | 5 | 6 | 7;
-  scaleSize: 3 | 4 | 5 | 7;
+export interface ClickedButtons {
+  [key: number]: 'More Problems' | 'Add References' | 'Edit' | 'Fix Distractor' | 'Remove Ambiguity' | undefined;
 }
 
-export const LikertLabels: { [key in LikertType]: string[] } = {
-  appropriate: [  
-    // Template: Level of Appropriateness
-    'Absolutely inappropriate',
-    'Inappropriate',
-    'Slightly inappropriate',
-    'Neutral',
-    'Slightly appropriate',
-    'Appropriate',
-    'Very appropriate',
-  ],
-  ambiguous: [
-    // Template: Level of Problem
-    'Ambiguous',
-    'Somewhat ambiguous',
-    'Slightly ambiguous',
-    'Not at all ambiguous',
-  ],
-  difficult: [
-    // Level of Difficulty
-    'Very easy',
-    'Easy',
-    'Neutral',
-    'Difficult',
-    'Very difficult',
-  ],
-
-  relevant: [
-    // Template: Level of Appropriateness
-    'Absolutely irrelevant',
-    'Irrelevant',
-    'Slightly irrelevant',
-    'Neutral',
-    'Slighlty relevant',
-    'Relevant',
-    'Very relevant',
-  ],
-  useful: [
-    // Template: Level of Appropriateness
-    'Completely useless',
-    'Somewhat useless',
-    'Slightly useless',
-    'Neutral',
-    'Slightly useful',
-    'Somewhat useful',
-    'Very useful',
-  ],
-  
-};
-
-export const LikertScaleSize: { [key in LikertType]: number } = Object.keys(
-  LikertLabels
-).reduce((acc, likertTypeStr) => {
-  const likertType = likertTypeStr as LikertType;
-  acc[likertType] = LikertLabels[likertType].length;
-  return acc;
-}, {} as { [key in LikertType]: number });
-
-export interface ProblemEval {
-  relevanceToMaterial?: LikertRating;
-  difficulty?: LikertRating;
-  useful?: LikertRating;
-  appropriateForObjective?: LikertRating;
-
-  // Correctness of the content of the problem.
-  doesCompile?: Tristate;
-  languageCorrect?: Tristate;
-  numContentErrors?: number;
-  ambiguous?: LikertRating;
-  numMissedAnnotations?: number;
-  numWrongAnnotations?: number;
-  numMissedImports?: number;
-  numWrongImports?: number;
-
-  textDescription?: string;
-  fixedProblem?: string;
+export interface Problem {
+  id: number;
+  question: string;
+  correctAnswer: string;
+  options: string[];
+  type: string; 
 }
 
-export interface CompletionEval {
-  runId: string;
-  completionIdx: number;
-  version: string;
-  evaluator: string;
 
-  textDescription?: string;
-  problemEvals: ProblemEval[];
-  updateTime: string;
+export interface VersionData {
+  assignment: VariableAssignment[];
+  id: number;
+  modificationType: string; 
+  question: string; 
+  templateId: number;
+  type: string; 
+  updateTime: string; 
+  version: number;
 }
+
+export interface ResponseData {
+  assignments: VariableAssignment[];
+  createdAt: string; 
+  extractQuestion: boolean;
+  generationId: number;
+  gptResponse: string; 
+  promptStr: string;
+  templateId: number;
+}
+
