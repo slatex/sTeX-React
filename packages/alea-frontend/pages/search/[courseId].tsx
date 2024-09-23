@@ -107,7 +107,7 @@ const SearchPage: NextPage = () => {
     const fetchResults = async () => {
       setIsLoading(true);
       try {
-        const response = await getRagResponse(query, courseId.toUpperCase());
+        const response = await getRagResponse(query, courseId);
         setReferences(response?.sources || []);
       } catch (error) {
         console.error('Error fetching RAG response:', error);
