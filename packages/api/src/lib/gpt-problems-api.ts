@@ -72,3 +72,13 @@ export async function getEval(runId: string, completionIdx: number) {
   );
   return resp.data as CompletionEval;
 }
+
+export async function searchCourseNotes(query: string, courseId: string) {
+  const resp = await axios.get(
+    `/api/gpt-redirect?query=${query}&=course_id=${courseId}&apiname=query_metadata`,
+    {
+      headers: getAuthHeaders(),
+    }
+  );
+  return resp.data;
+}

@@ -11,8 +11,8 @@ import Tooltip from '@mui/material/Tooltip';
 import {
   getCourseInfo,
   getDocumentSections,
-  getRagResponse,
   isSection,
+  searchCourseNotes,
   SectionsAPIData,
 } from '@stex-react/api';
 import {
@@ -25,7 +25,7 @@ import { PRIMARY_COL, XhtmlContentUrl } from '@stex-react/utils';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
 
 interface Reference {
@@ -157,7 +157,7 @@ const SearchPage: NextPage = () => {
     const fetchResults = async () => {
       setIsLoading(true);
       try {
-        const response = await getRagResponse(query, courseId);
+        const response = await searchCourseNotes(query, courseId);
         setReferences(response?.sources || []);
       } catch (error) {
         console.error('Error fetching RAG response:', error);
