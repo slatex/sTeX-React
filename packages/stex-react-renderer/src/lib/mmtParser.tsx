@@ -309,7 +309,7 @@ function SectionDisplay({ d }: { d: Element }) {
   const id = d.attribs['id'];
   const ancestors = getAncestors(undefined, undefined, id, docFragManager?.docSections);
   const actualSection = <>{domToReact([d], { replace })}</>;
-  if (!ancestors) return <>{actualSection}NOOOOOOOOO</>;
+  if (!ancestors) return <>{actualSection}</>;
   const sectionNode = ancestors[ancestors?.length - 1];
   const fileParent = lastFileNode(ancestors);
   if (!fileParent?.archive || !fileParent?.filepath) return actualSection;
