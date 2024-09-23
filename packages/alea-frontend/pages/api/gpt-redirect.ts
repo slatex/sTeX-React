@@ -1,6 +1,11 @@
 import axios, { Method } from 'axios';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+function apiNameNameToPath(apiName: string) {
+  if(apiName === 'query_metadata') return `${process.env.NEXT_PUBLIC_GPT_URL}/search/${apiName}`;
+  return `${process.env.NEXT_PUBLIC_GPT_URL}/api/${apiName}`;
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -12,9 +17,10 @@ export default async function handler(
     if (!apiname || typeof apiname !== 'string') {
       return res.status(400).json({ error: 'Invalid URL' });
     }
-
-    const queryString = new URLSearchParams(otherQueryParams as Record<string, string>).toString();
-    const url = `${process.env.NEXT_PUBLIC_GPT_URL}/api/${apiname}${queryString ? `?${queryString}` : ''}`;
+    const queryString = Object.entries(otherQueryParams).map(
+      ([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value as string)}`
+    ).join('&');
+    const url = `${apiNameNameToPath(apiname)}${queryString ? `?${queryString}` : ''}`;
 
     const axiosConfig = {
       method: method as Method,

@@ -13,6 +13,7 @@ import {
   getDocumentSections,
   isSection,
   searchCourseNotes,
+  SearchResult,
   SectionsAPIData,
 } from '@stex-react/api';
 import {
@@ -27,12 +28,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
-
-interface Reference {
-  archive: string;
-  filepath: string;
-  courseId: string;
-}
 
 function findNearestSection(
   archive: string,
@@ -80,7 +75,7 @@ function ResultDocument({
   courseId,
   sectionData,
 }: {
-  reference: Reference;
+  reference: SearchResult;
   courseId: string;
   sectionData: SectionsAPIData;
 }) {
@@ -129,7 +124,7 @@ const SearchPage: NextPage = () => {
   const router = useRouter();
   const { query, courseId } = router.query as { query?: string; courseId?: string };
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [references, setReferences] = useState<Reference[]>([]);
+  const [references, setReferences] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { mmtUrl } = useContext(ServerLinksContext);
   const [sectionData, setSectionData] = useState<SectionsAPIData | undefined>();
