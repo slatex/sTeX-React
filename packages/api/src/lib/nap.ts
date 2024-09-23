@@ -19,6 +19,7 @@ export interface UpdateGradingRequest {
 }
 export interface CreateAnswerRequest {
   answer: string;
+  subProblemId: string;
   questionId: string;
   questionTitle: string;
 }
