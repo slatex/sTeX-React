@@ -63,6 +63,7 @@ export const de = {
     didntAnswer: 'Sie haben $1 Aufgaben nicht beantwortet. ',
     sureFinish: 'Sind Sie sicher, dass Sie den Vorgang abschließen möchten?',
     checkSolution: 'Lösung prüfen',
+    hideSolution: 'Lösung ausblenden',
     perSectionQuizButton: 'Übungsprobleme ($1)',
     hideProblems: 'Probleme ausblenden',
   },

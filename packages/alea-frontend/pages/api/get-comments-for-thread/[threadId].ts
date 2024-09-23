@@ -1,5 +1,5 @@
 import { Comment } from '@stex-react/api';
-import { executeAndEndSet500OnError, executeDontEndSet500OnError } from '../comment-utils';
+import { executeDontEndSet500OnError } from '../comment-utils';
 import { processResults } from '../get-comments';
 
 export default async function handler(req, res) {

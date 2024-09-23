@@ -20,6 +20,7 @@ import {
   StudyBuddy,
   UserInfo,
   UserStats,
+  canModerateStudyBuddy,
   connectionRequest,
   getCourseInfo,
   getStudyBuddyList,
@@ -27,13 +28,12 @@ import {
   getStudyBuddyUsersStats,
   getUserInfo,
   isLoggedIn,
-  isModerator,
   removeConnectionRequest,
   setActive,
   updateStudyBuddyInfo,
 } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { BG_COLOR, CourseInfo, MaAI_COURSES } from '@stex-react/utils';
+import { BG_COLOR, CourseInfo, CURRENT_TERM, MaAI_COURSES } from '@stex-react/utils';
 import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
@@ -141,6 +141,7 @@ const StudyBuddyPage: NextPage = () => {
   const [courses, setCourses] = useState<
     { [id: string]: CourseInfo } | undefined
   >(undefined);
+  const [isModerator, setIsModerator] = useState(false);
   const masterCourses = MaAI_COURSES;
   const { mmtUrl } = useContext(ServerLinksContext);
   const refetchStudyBuddyLists = useCallback(() => {
@@ -165,6 +166,7 @@ const StudyBuddyPage: NextPage = () => {
       setIsLoading(false);
       setFromServer(data);
     });
+    canModerateStudyBuddy(courseId, CURRENT_TERM).then(setIsModerator);
   }, [courseId]);
 
   if (!router.isReady || !courses) return <CircularProgress />;
@@ -195,7 +197,7 @@ const StudyBuddyPage: NextPage = () => {
         display="flex"
         flexDirection="column"
       >
-        {isModerator(userInfo?.userId) ? <StatsForModerator /> : null}
+        {isModerator ? <StatsForModerator /> : null}
         {notSignedUp || isEditing ? (
           !isLoading ? (
             <Card sx={{ mt: '20px' }}>

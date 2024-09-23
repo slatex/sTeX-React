@@ -35,8 +35,6 @@ export async function getProblemIdsForConcept(mmtUrl: string, conceptUri: string
   const resp = await axios.get(url);
   const problemIds = resp.data as string[];
   if (!problemIds?.length) return [];
-  console.log(problemIds);
-  console.log([...new Set(problemIds)]);
   return [...new Set(problemIds)];
 }
 
@@ -378,12 +376,12 @@ function getSparlQueryForDependencies(archive: string, filepath: string) {
   const lastDot = filepath.lastIndexOf('.');
   filepath = filepath.slice(0, lastDot) + '.omdoc';
   const omdoc = `http://mathhub.info/${archive}/${filepath}`;
-  return `SELECT ?x WHERE {
-  <${omdoc}#> (<http://mathhub.info/ulo#crossrefs>|<http://mathhub.info/ulo#specifies>|<http://mathhub.info/ulo#contains>|<http://mathhub.info/ulo#has-language-module>)+ ?x .
+  return `SELECT DISTINCT ?x WHERE {
+  <${omdoc}#> (<http://mathhub.info/ulo#crossrefs>|<http://mathhub.info/ulo#specifies>|<http://mathhub.info/ulo#contains>|<http://mathhub.info/ulo#has-language-module>)+/<http://mathhub.info/ulo#crossrefs> ?x .
   ?x <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://mathhub.info/ulo#constant> .
   MINUS {
-    <${omdoc}#> (<http://mathhub.info/ulo#crossrefs>|<http://mathhub.info/ulo#specifies>|<http://mathhub.info/ulo#contains>|<http://mathhub.info/ulo#has-language-module>)+/<http://mathhub.info/ulo#defines> ?x .
-  }
+    <${omdoc}#> (<http://mathhub.info/ulo#crossrefs>|<http://mathhub.info/ulo#specifies>|<http://mathhub.info/ulo#contains>|<http://mathhub.info/ulo#has-language-module>)+/(<http://mathhub.info/ulo#defines>|^<http://mathhub.info/ulo#docref>) ?x .
+  }.
 }`;
 }
 export async function getSectionDependencies(mmtUrl: string, archive: string, filepath: string) {

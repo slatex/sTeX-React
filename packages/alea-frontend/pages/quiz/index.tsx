@@ -1,28 +1,19 @@
 import { OpenInNew } from '@mui/icons-material';
 import { Box, Button, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import {
-  Phase,
-  Quiz,
-  QuizStatsResponse,
-  UserInfo,
   canAccessResource,
   createQuiz,
   getAuthHeaders,
   getCourseInfo,
   getQuizStats,
-  getUserInfo,
+  Phase,
+  Quiz,
+  QuizStatsResponse,
   updateQuiz,
 } from '@stex-react/api';
 import { getQuizPhase } from '@stex-react/quiz-utils';
-import { ServerLinksContext, mmtHTMLToReact } from '@stex-react/stex-react-renderer';
-import {
-  Action,
-  CourseInfo,
-  CURRENT_TERM,
-  getResourceId,
-  ResourceName,
-  roundToMinutes,
-} from '@stex-react/utils';
+import { mmtHTMLToReact, ServerLinksContext } from '@stex-react/stex-react-renderer';
+import { Action, CourseInfo, CURRENT_TERM, ResourceName, roundToMinutes } from '@stex-react/utils';
 import axios, { AxiosResponse } from 'axios';
 import dayjs from 'dayjs';
 import type { NextPage } from 'next';
@@ -113,20 +104,24 @@ const QuizDashboardPage: NextPage = () => {
   );
 
   useEffect(() => {
-    axios.get('/api/get-all-quizzes', { headers: getAuthHeaders() }).then((res) => {
-      const allQuizzes: Quiz[] = res.data;
-      allQuizzes?.sort((a, b) => b.quizStartTs - a.quizStartTs);
-      setQuizzes(allQuizzes);
-      if (allQuizzes?.length) setSelectedQuizId(allQuizzes[0].id);
-    });
-  }, []);
+    axios
+      .get(`/api/get-all-quizzes?courseId=${courseId}&courseTerm=${courseTerm}`, {
+        headers: getAuthHeaders(),
+      })
+      .then((res) => {
+        const allQuizzes: Quiz[] = res.data;
+        allQuizzes?.sort((a, b) => b.quizStartTs - a.quizStartTs);
+        setQuizzes(allQuizzes);
+        if (allQuizzes?.length) setSelectedQuizId(allQuizzes[0].id);
+      });
+  }, [courseId, courseTerm]);
 
   useEffect(() => {
     if (!selectedQuizId || selectedQuizId == NEW_QUIZ_ID) return;
 
-    getQuizStats(selectedQuizId).then(setStats);
+    getQuizStats(selectedQuizId, courseId, courseTerm).then(setStats);
     const interval = setInterval(() => {
-      getQuizStats(selectedQuizId).then(setStats);
+      getQuizStats(selectedQuizId, courseId, courseTerm).then(setStats);
     }, 5000);
 
     return () => clearInterval(interval);

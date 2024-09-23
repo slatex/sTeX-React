@@ -1,24 +1,5 @@
 import { FileLocation } from '@stex-react/utils';
 
-export const MODERATORS = [
-  'yp70uzyj', // Michael
-  'yn06uhoc', // Jonas
-  'ub59asib', // Dominic
-  'do45qahi', // Dennis
-  'ym23eqaw', // Abhishek
-  'co39hywa', // Florian
-  'yp68abes', // Marc
-  'oc45ujef', // Florian Guthmann
-  'bu93bufa', // Robert Kurin
-  'iv93baik', // Mahdi Mantash
-  'fy98ticu', // Marcel Schutz
-  'it78ubil', // Felix Grelka
-
-  ...(process.env['NEXT_PUBLIC_SITE_VERSION'] !== 'production'
-    ? ['fake_joy']
-    : []), // fake moderator for staging
-];
-
 export enum HiddenStatus {
   UNHIDDEN = 'UNHIDDEN',
   SPAM = 'SPAM',
@@ -79,9 +60,7 @@ export interface Comment {
 }
 
 export function isHiddenNotSpam(status?: HiddenStatus) {
-  return (
-    !!status && ![HiddenStatus.UNHIDDEN, HiddenStatus.SPAM].includes(status)
-  );
+  return !!status && ![HiddenStatus.UNHIDDEN, HiddenStatus.SPAM].includes(status);
 }
 export function isSpam(status?: HiddenStatus) {
   return status === HiddenStatus.SPAM;
@@ -124,10 +103,6 @@ export interface UserSignUpDetail {
   verificationToken: string;
 }
 
-export function isModerator(userId?: string) {
-  return !!userId && MODERATORS.includes(userId);
-}
-
 export enum AuthProvider {
   EMAIL_PASSWORD = 'EMAIL_PASSWORD',
   FAU_IDM = 'FAU_IDM',
@@ -157,8 +132,8 @@ export interface PostSnippet {
 }
 
 export interface CdnImage {
-  id: string,
-  metadata: CdnImageMetadata
+  id: string;
+  metadata: CdnImageMetadata;
 }
 
 export interface CdnImageMetadata {
@@ -184,4 +159,13 @@ export interface Image {
   mime: string;
   extension: string;
   url: string;
+}
+
+export const ANON_USER_ID_PREFIX = '_anon_';
+
+export interface TempUserSignupRequest {
+  userId: string;
+  firstName: string;
+  lastName: string;
+  password: string;
 }

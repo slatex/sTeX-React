@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import {
   checkIfPostOrSetError,
-  executeAndEndSet500OnError,
   executeTxnAndEndSet500OnError,
 } from '../comment-utils';
 import {

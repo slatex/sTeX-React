@@ -99,7 +99,7 @@ export interface Problem {
   preconditions: string;
   statement: { outerHTML: string };
   inputs: Input[];
-  solution:string;
+  solutions:string[];
   points: number;
 }
 
@@ -162,6 +162,9 @@ export interface QuizResult {
 }
 
 export interface GetQuizResponse {
+  courseId : string,
+  courseTerm : string,
+
   currentServerTs: number;
   quizStartTs?: number;
   quizEndTs?: number;

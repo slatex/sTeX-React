@@ -4,15 +4,15 @@ import {
   executeAndEndSet500OnError,
   getUserIdOrSetError,
 } from '../comment-utils';
-import { isMemberOfAcl } from '../acl-utils/acl-common-utils';
+import { canUpdateAccessControlEntries } from './resource-utils';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
   const userId = await getUserIdOrSetError(req, res);
-  if (!(await isMemberOfAcl('sys-admin', userId))) {
-    return res.status(403).send({ message: 'Unauthorized' });
-  }
   const { resourceId, actionId } = req.body;
+  if (!(await canUpdateAccessControlEntries(res, resourceId, userId))) {
+    return res.status(403).send('unauthorized');
+  }
   if (!resourceId) return res.status(422).send('Missing resourceId');
   const query = `DELETE FROM ResourceAccess WHERE resourceId = ? and actionId = ?`;
   const result = await executeAndEndSet500OnError(query, [resourceId, actionId], res);

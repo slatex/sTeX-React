@@ -8,6 +8,26 @@ export const SYSTEM_UPDATES = [
     postedTimestamp: '2023-02-11T00:20:00+05:30',
   }*/
   {
+    id: 'exam-prep-problems',
+    header: 'Exam Prep: Practice Problems',
+    content:
+      'To aid your exam preparation, a new section has been added to the course home pages. Click "Practice Problems" to access all practice problems organized by chapter and section. [AI-2 practice problems](/practice-problems/ai-2)',
+    header_de: 'Prüfungsvorbereitung: Übungsaufgaben',
+    content_de:
+      'Um deine Prüfungsvorbereitung zu unterstützen, wurde ein neuer Abschnitt zu den Kurs-Startseiten hinzugefügt. Klicke auf "Übungsaufgaben", um alle Übungsaufgaben nach Kapitel und Abschnitt geordnet zu finden. [AI-2 Übungsaufgaben](/practice-problems/ai-2)',
+    postedTimestamp: '2024-09-13T00:20:00+05:30',
+  },
+  {
+    id: 'traffic-light',
+    header: 'Traffic Light on Notes',
+    content:
+    'Traffic lights are available on the course notes, indicating your readiness for a section. A green light indicates that you have the required prerequisites for it. A red light indicates that you need to work on the prerequisites before you are ready to jump into this section.',
+    header_de: 'Ampelsystem in den Notizen',
+    content_de:
+      'Ampeln sind in den Kursnotizen verfügbar und zeigen Ihre Bereitschaft für einen Abschnitt an. Ein grünes Licht zeigt an, dass Sie die erforderlichen Voraussetzungen dafür haben. Ein rotes Licht zeigt an, dass Sie an den Voraussetzungen arbeiten müssen, bevor Sie bereit sind, in diesen Abschnitt einzutauchen.',
+    postedTimestamp: '2024-09-01T00:20:00+05:30',
+  },
+  {
     id: 'new-homepage',
     header: 'Welcome to Our New Homepage!',
     content:
@@ -46,8 +66,7 @@ export const SYSTEM_UPDATES = [
   {
     id: 'quiz-performance',
     header: 'Quiz Performance 📈',
-    content:
-      'Learners can now view their quiz scores on the [quiz dashboard](/quiz-dash/ai-1).',
+    content: 'Learners can now view their quiz scores on the [quiz dashboard](/quiz-dash/ai-1).',
     header_de: 'Quizleistung',
     content_de:
       'Lernende können ihre Quizergebnisse jetzt im [Quiz-Dashboard](/quiz-dash/ai-1) einsehen.',
@@ -118,8 +137,7 @@ export const SYSTEM_UPDATES = [
     header: 'Course Descriptions',
     content: 'Home pages of courses now show a description of the course.',
     header_de: 'Kursbeschreibungen',
-    content_de:
-      'Startseiten von Kursen zeigen jetzt eine Beschreibung des Kurses.',
+    content_de: 'Startseiten von Kursen zeigen jetzt eine Beschreibung des Kurses.',
     postedTimestamp: '2023-06-13T19:20:00+05:30',
   },
   {
@@ -137,8 +155,7 @@ export const SYSTEM_UPDATES = [
     header: 'Flash Cards arranged by sections',
     content: 'Flash cards can now be browsed by course section.',
     header_de: 'Lernkarten nach Abschnitten geordnet',
-    content_de:
-      'Lernkarten können jetzt nach Kursabschnitten durchsucht werden.',
+    content_de: 'Lernkarten können jetzt nach Kursabschnitten durchsucht werden.',
     postedTimestamp: '2023-05-10T21:50:00+05:30',
   },
   {
@@ -219,8 +236,7 @@ export const SYSTEM_UPDATES = [
   {
     id: 'feb-week-2-lectures',
     header: 'AI-1 slides/videos updated',
-    content:
-      'Videos and slides for the final (Feb 8th and 9th) AI-1 lectures are now available.',
+    content: 'Videos and slides for the final (Feb 8th and 9th) AI-1 lectures are now available.',
     postedTimestamp: '2023-02-11T00:20:00+05:30',
   },
   {
@@ -236,15 +252,13 @@ export const SYSTEM_UPDATES = [
   {
     id: 'feb-week-1-lectures',
     header: 'AI-1 slides/videos updated',
-    content:
-      'Videos and slides for the last two lectures (Feb 1st and 2nd) are now available.',
+    content: 'Videos and slides for the last two lectures (Feb 1st and 2nd) are now available.',
     postedTimestamp: '2023-02-04T21:45:00+05:30',
   },
   {
     id: 'quiz-demo',
     header: 'Quiz demo is functional again',
-    content:
-      '...but only on the [staging server](https://courses-staging.kwarc.info/quiz).',
+    content: '...but only on the [staging server](https://courses-staging.kwarc.info/quiz).',
     postedTimestamp: '2023-02-01T23:45:00+05:30',
   },
   {

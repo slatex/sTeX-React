@@ -27,7 +27,7 @@ export class RedisCache extends AbstractResourceAssignmentCache {
       await this.db.set(key, resource.aclId);
     }
   }
-  async getAclId(resourceId: string, actionId: string): Promise<string | { error: any }> {
+  async getAclId(resourceId: string, actionId: string): Promise<string|undefined> {
     const key = getCacheKey(resourceId, actionId);
     const aclId = await this.db.get(key);
     if (!aclId) return undefined;

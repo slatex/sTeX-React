@@ -1,9 +1,10 @@
-import { isModerator } from '@stex-react/api';
-import { CoverageSnap, CoverageTimeline } from '@stex-react/utils';
+import { canAccessResource } from '@stex-react/api';
+import { Action, CoverageSnap, CoverageTimeline, CURRENT_TERM, ResourceName } from '@stex-react/utils';
 import fs from 'fs';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { checkIfPostOrSetError, getUserIdOrSetError } from './comment-utils';
 import { CURRENT_SEM_FILE } from './get-coverage-timeline';
+import { getUserIdIfAuthorizedOrSetError } from './access-control/resource-utils';
 
 function backupFileName() {
   return (
@@ -19,16 +20,21 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if (!checkIfPostOrSetError(req, res)) return;
-  const userId = await getUserIdOrSetError(req, res);
-  if (!isModerator(userId)) {
-    res
-      .status(403)
-      .send({ message: 'You are not allowed to do this operation.' });
-    return;
-  }
-
   const snaps = req.body.snaps as CoverageSnap[];
   const courseId = req.body.courseId as string;
+
+  const userId = await getUserIdIfAuthorizedOrSetError(
+    req,
+    res,
+    ResourceName.COURSE_NOTES,
+    Action.MUTATE,
+    {
+      courseId: courseId,
+      instanceId: CURRENT_TERM,
+    }
+  );
+  if(!userId) return;
+  
   const filePath = process.env.RECORDED_SYLLABUS_DIR + '/' + CURRENT_SEM_FILE;
 
   // Read the existing file data, if it exists
