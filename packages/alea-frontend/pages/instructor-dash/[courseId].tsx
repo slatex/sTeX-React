@@ -1,11 +1,11 @@
-import { Box, Grid, IconButton, TextField, Typography } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
 import CheckIcon from '@mui/icons-material/Check';
+import EditIcon from '@mui/icons-material/Edit';
+import { Box, Grid, IconButton, TextField, Typography } from '@mui/material';
+import { getSpecificAclIds, updateResourceAction } from '@stex-react/api';
+import { Action, CURRENT_TERM, ResourceActionPair } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
 import { useEffect, useState } from 'react';
-import { Action, CURRENT_TERM, ResourceActionPair } from '@stex-react/utils';
-import { getSpecificAclIds, updateResourceAction } from '@stex-react/api';
 
 const InstructorDash = () => {
   interface AclData {
@@ -23,10 +23,10 @@ const InstructorDash = () => {
         size="small"
         variant="outlined"
         sx={{
-          width: '120px', 
+          width: '120px',
           '& .MuiInputBase-input': {
-            padding: '4px 8px', 
-            fontSize: '12px', 
+            padding: '4px 8px',
+            fontSize: '12px',
           },
         }}
       />
@@ -135,10 +135,6 @@ const InstructorDash = () => {
     }
     getAclData();
   }, [courseId]);
-
-  console.log(aclData);
-  console.log(editingValues);
-  console.log(isAnyDataEditing);
 
   return (
     <MainLayout>

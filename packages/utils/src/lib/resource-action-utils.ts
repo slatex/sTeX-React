@@ -19,12 +19,11 @@ export enum ResourceName {
   COURSE_QUIZ = 'COURSE_QUIZ',
   COURSE_COMMENTS = 'COURSE_COMMENTS',
   COURSE_STUDY_BUDDY = 'COURSE_STUDY_BUDDY',
-  
+
   // Resources related to all courses.
   ALL_COMMENTS = 'ALL_COMMENTS',
   ALL_STUDY_BUDDY = 'ALL_STUDY_BUDDY',
-  
-  
+
   // For managing access control updates only.
   GLOBAL_ACCESS = 'GLOBAL_ACCESS',
   COURSE_ACCESS = 'COURSE_ACCESS',
@@ -35,13 +34,13 @@ export enum ComponentType {
   VARIABLE = 'VARIABLE',
 
   WILDCARD1 = 'WILDCARD1',
-  WILDCARD2 = 'WILDCARD2'
+  WILDCARD2 = 'WILDCARD2',
 }
 
 export interface ResourceIdComponent {
   name?: string;
   type: ComponentType;
-  value? : string;
+  value?: string;
 }
 
 export interface ResourceType {
@@ -62,22 +61,20 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
     components: [{ type: ComponentType.FIXED, value: 'blog' }],
   },
   {
-    name : ResourceName.EXPERIMENTAL,
-    possibleActions : [Action.MUTATE],
-    components : [
-      {type : ComponentType.FIXED, value : 'experimental'}
-    ]
+    name: ResourceName.EXPERIMENTAL,
+    possibleActions: [Action.MUTATE],
+    components: [{ type: ComponentType.FIXED, value: 'experimental' }],
   },
   {
-    name : ResourceName.COURSE_NOTES,
-    possibleActions : [Action.MUTATE],
-    components : [
-      {type : ComponentType.FIXED, value : 'course'},
-      {name : 'courseId', type : ComponentType.VARIABLE},
-      {type : ComponentType.FIXED, value : 'instance'},
-      {name : 'instanceId', type : ComponentType.VARIABLE},
-      {type : ComponentType.FIXED, value : 'notes'},
-    ]
+    name: ResourceName.COURSE_NOTES,
+    possibleActions: [Action.MUTATE],
+    components: [
+      { type: ComponentType.FIXED, value: 'course' },
+      { name: 'courseId', type: ComponentType.VARIABLE },
+      { type: ComponentType.FIXED, value: 'instance' },
+      { name: 'instanceId', type: ComponentType.VARIABLE },
+      { type: ComponentType.FIXED, value: 'notes' },
+    ],
   },
   {
     name: ResourceName.COURSE_QUIZ,
@@ -102,42 +99,42 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
     ],
   },
   {
-    name : ResourceName.COURSE_STUDY_BUDDY,
-    possibleActions : [Action.MODERATE],
-    components : [
-      {type : ComponentType.FIXED, value : 'course'},
-      {name : 'courseId', type : ComponentType.VARIABLE},
-      {type : ComponentType.FIXED, value : 'instance'},
-      {name : 'instanceId', type : ComponentType.VARIABLE},
-      {type : ComponentType.FIXED, value : 'study-buddy'},
-    ]
+    name: ResourceName.COURSE_STUDY_BUDDY,
+    possibleActions: [Action.MODERATE],
+    components: [
+      { type: ComponentType.FIXED, value: 'course' },
+      { name: 'courseId', type: ComponentType.VARIABLE },
+      { type: ComponentType.FIXED, value: 'instance' },
+      { name: 'instanceId', type: ComponentType.VARIABLE },
+      { type: ComponentType.FIXED, value: 'study-buddy' },
+    ],
   },
   {
     name: ResourceName.ALL_COMMENTS,
     possibleActions: [Action.MODERATE],
-    components: [{ type: ComponentType.FIXED, value: "comments" }],
+    components: [{ type: ComponentType.FIXED, value: 'comments' }],
   },
   {
-    name : ResourceName.ALL_STUDY_BUDDY,
-    possibleActions : [Action.MODERATE],
-    components : [{type : ComponentType.FIXED, value : 'study-buddy'}]
+    name: ResourceName.ALL_STUDY_BUDDY,
+    possibleActions: [Action.MODERATE],
+    components: [{ type: ComponentType.FIXED, value: 'study-buddy' }],
   },
   {
-    name : ResourceName.GLOBAL_ACCESS,
-    possibleActions : [Action.ACCESS_CONTROL],
-    components : [{type : ComponentType.WILDCARD2, value : '**'}]
-  }, 
+    name: ResourceName.GLOBAL_ACCESS,
+    possibleActions: [Action.ACCESS_CONTROL],
+    components: [{ type: ComponentType.WILDCARD2, value: '**' }],
+  },
   {
-    name : ResourceName.COURSE_ACCESS,
-    possibleActions : [Action.ACCESS_CONTROL],
-    components : [
-      {type : ComponentType.FIXED, value : 'course'},
-      {name : 'courseId',type : ComponentType.VARIABLE},
-      {type : ComponentType.FIXED, value : 'instance'},
-      {name : 'instanceId',type : ComponentType.VARIABLE},
-      {type : ComponentType.WILDCARD2, value: '**'}
-    ]
-  }
+    name: ResourceName.COURSE_ACCESS,
+    possibleActions: [Action.ACCESS_CONTROL],
+    components: [
+      { type: ComponentType.FIXED, value: 'course' },
+      { name: 'courseId', type: ComponentType.VARIABLE },
+      { type: ComponentType.FIXED, value: 'instance' },
+      { name: 'instanceId', type: ComponentType.VARIABLE },
+      { type: ComponentType.WILDCARD2, value: '**' },
+    ],
+  },
 ];
 
 export const RESOURCE_TYPE_MAP = new Map<ResourceName, ResourceType>(
@@ -155,14 +152,11 @@ export function getResourceId(resourceName: ResourceName, variables: Record<stri
         throw new Error(`Variable ${component.name} is required but not provided`);
       }
       return value;
-    }
-    else if (component.type == ComponentType.WILDCARD1) {
+    } else if (component.type == ComponentType.WILDCARD1) {
       return '*';
-    }
-    else if(component.type == ComponentType.WILDCARD2){
+    } else if (component.type == ComponentType.WILDCARD2) {
       return '**';
-    }
-    else {
+    } else {
       return component.value;
     }
   });
