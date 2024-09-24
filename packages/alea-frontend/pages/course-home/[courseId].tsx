@@ -130,22 +130,15 @@ const CourseHomePage: NextPage = () => {
   }, [mmtUrl]);
 
   useEffect(() => {
-    if (courses && courseId) {
-      const courseInfo = courses[courseId];
-      const instanceId = courseInfo.instances[0].semester;
-      async function isInstructorOfCourse() {
-        if (
-          await canAccessResource(ResourceName.COURSE_ACCESS, Action.ACCESS_CONTROL, {
-            courseId,
-            instanceId: CURRENT_TERM,
-          })
-        ) {
-          setIsInstructor(true);
-        }
-      }
-      isInstructorOfCourse();
+    if (!courseId) return;
+    async function checkAccess() {
+      await canAccessResource(ResourceName.COURSE_ACCESS, Action.ACCESS_CONTROL, {
+        courseId,
+        instanceId: CURRENT_TERM,
+      }).then(setIsInstructor);
     }
-  }, [courses, courseId]);
+    checkAccess();
+  }, [courseId]);
 
   if (!router.isReady || !courses) return <CircularProgress />;
   const courseInfo = courses[courseId];
@@ -220,6 +213,7 @@ const CourseHomePage: NextPage = () => {
           </CourseComponentLink>
           {isInstructor && (
             <CourseComponentLink href={`/instructor-dash/${courseId}`}>
+              {<p>{t.instructorDashBoard}</p>}&nbsp;
               <PersonIcon fontSize="large" />
             </CourseComponentLink>
           )}

@@ -54,6 +54,10 @@ export interface ResourceActionPair {
   actionId: string;
 }
 
+export interface GetSpeicificAclIdsResponse {
+  [key: string]: string;
+}
+
 export const ALL_RESOURCE_TYPES: ResourceType[] = [
   {
     name: ResourceName.BLOG,

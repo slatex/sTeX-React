@@ -118,7 +118,7 @@ const InstructorDash = () => {
 
   useEffect(() => {
     async function getAclData() {
-      const { aclIds } = await getSpecificAclIds(resourceActionPairs);
+      const aclIds = await getSpecificAclIds(resourceActionPairs);
       setAclData({
         notes: aclIds[`/course/${courseId}/instance/ss24/notes`] || '',
         quiz: aclIds[`/course/${courseId}/instance/ss24/quiz`] || '',
