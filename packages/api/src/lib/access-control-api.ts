@@ -8,8 +8,8 @@ export async function getAllAclIds(): Promise<string[]> {
   return resp.data as string[];
 }
 
-export async function getSpecificAclIds(resourceActionPairs  :ResourceActionPair[]){
-  const resp = await axios.post('/api/access-control/get-specific-aclids', {resourceActionPairs});
+export async function getSpecificAclIds(resourceActionPairs: ResourceActionPair[]) {
+  const resp = await axios.post('/api/access-control/get-specific-aclids', { resourceActionPairs });
   return resp.data;
 }
 
@@ -87,7 +87,7 @@ export async function getAllResourceActions(): Promise<ResourceAction[]> {
     headers: getAuthHeaders(),
   });
   return data as ResourceAction[];
-} 
+}
 
 export async function canAccessResource(
   resourceName: ResourceName,

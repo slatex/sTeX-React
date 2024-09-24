@@ -1,8 +1,8 @@
 import ArticleIcon from '@mui/icons-material/Article';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
-import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer'
+import PersonIcon from '@mui/icons-material/Person';
+import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import QuizIcon from '@mui/icons-material/Quiz';
-import PersonIcon from '@mui/icons-material/Person'
 import { canAccessResource, getCourseInfo } from '@stex-react/api';
 import SearchIcon from '@mui/icons-material/Search';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
@@ -20,7 +20,14 @@ import {
   DocumentWidthSetter,
   ServerLinksContext,
 } from '@stex-react/stex-react-renderer';
-import { Action, BG_COLOR, CourseInfo, CURRENT_TERM, ResourceName, XhtmlContentUrl } from '@stex-react/utils';
+import {
+  Action,
+  BG_COLOR,
+  CourseInfo,
+  CURRENT_TERM,
+  ResourceName,
+  XhtmlContentUrl,
+} from '@stex-react/utils';
 import { NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -116,7 +123,7 @@ const CourseHomePage: NextPage = () => {
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState('');
   const { mmtUrl } = useContext(ServerLinksContext);
-  const [isIstructor, setIsInstructor] = useState<boolean>(false);
+  const [isInstructor, setIsInstructor] = useState<boolean>(false);
 
   useEffect(() => {
     if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
@@ -127,10 +134,12 @@ const CourseHomePage: NextPage = () => {
       const courseInfo = courses[courseId];
       const instanceId = courseInfo.instances[0].semester;
       async function isInstructorOfCourse() {
-        if(await canAccessResource(ResourceName.COURSE_ACCESS, Action.ACCESS_CONTROL, {
-          courseId, 
-          instanceId : CURRENT_TERM
-        })){
+        if (
+          await canAccessResource(ResourceName.COURSE_ACCESS, Action.ACCESS_CONTROL, {
+            courseId,
+            instanceId: CURRENT_TERM,
+          })
+        ) {
           setIsInstructor(true);
         }
       }
@@ -144,7 +153,6 @@ const CourseHomePage: NextPage = () => {
     router.replace('/');
     return <>Course Not Found!</>;
   }
-
 
   const { notesLink, slidesLink, cardsLink, forumLink, quizzesLink, hasQuiz } = courseInfo;
 
@@ -210,10 +218,10 @@ const CourseHomePage: NextPage = () => {
             {<p>{t.practiceProblems}</p>}&nbsp;
             <Image src="/practice_problems.svg" width={35} height={35} alt="" />
           </CourseComponentLink>
-          {isIstructor && (
-              <CourseComponentLink href={`/instructor-dash/${courseId}`}>
-                <PersonIcon fontSize="large" />
-              </CourseComponentLink>
+          {isInstructor && (
+            <CourseComponentLink href={`/instructor-dash/${courseId}`}>
+              <PersonIcon fontSize="large" />
+            </CourseComponentLink>
           )}
         </Box>
         {showSearchBar && (
