@@ -169,29 +169,28 @@ SELECT DISTINCT t1.senderId, t1.receiverId FROM StudyBuddyConnections t1 JOIN St
 /* Query to get 1-way connection requests */
 SELECT t1.senderId, t1.receiverId FROM StudyBuddyConnections t1 LEFT JOIN StudyBuddyConnections t2 ON t1.senderId = t2.receiverId AND t1.receiverId = t2.senderId WHERE t2.senderId IS NULL AND t2.receiverId IS NULL AND t1.senderId < t1.receiverId;
 CREATE TABLE Answer  (
-  id int NOT NULL,
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   questionId varchar(255) NOT NULL,
   userId varchar(255) NOT NULL,
   answer TEXT NULL,
-  question_title varchar(510) NOT NULL,
+  questionTitle varchar(510) NOT NULL,
   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (id)
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 CREATE TABLE Grading  (
-  id int NOT NULL,
+  id int UNSIGNED NOT NULL AUTO_INCREMENT,
   checkerId varchar(255) NOT NULL,
-  answerId int NOT NULL,
+  answerId int UNSIGNED NOT NULL,
   customFeedback TEXT NULL,
   totalPoints float NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  FOREIGN KEY (answerId) REFERENCES Answer (id)
+  FOREIGN KEY (answerId) REFERENCES Answer (id) ON DELETE CASCADE
 );
 CREATE TABLE GradingAnswerClass  (
-  id int NOT NULL,
-  gradingId int NOT NULL,
+  id int UNSIGNED NOT NULL AUTO_INCREMENT,
+  gradingId int UNSIGNED NOT NULL,
   answerClassId varchar(255) NOT NULL,
   points float NOT NULL,
   isTrait boolean NOT NULL,
@@ -202,15 +201,15 @@ CREATE TABLE GradingAnswerClass  (
   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  FOREIGN KEY (gradingId) REFERENCES Grading (id)
+  FOREIGN KEY (gradingId) REFERENCES Grading (id) ON DELETE CASCADE
 );
 CREATE TABLE ReviewRequest   (
-  id int NOT NULL,
+  id int UNSIGNED NOT NULL AUTO_INCREMENT,
   reviewType enum('INSTRUCTOR','PEER') NOT NULL,
-  answerId int NOT NULL,
+  answerId  int UNSIGNED NOT NULL,
   userId varchar(255) NOT NULL,
   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  FOREIGN KEY (answerId) REFERENCES Answer (id)
+  FOREIGN KEY (answerId) REFERENCES Answer (id) ON DELETE CASCADE
 );

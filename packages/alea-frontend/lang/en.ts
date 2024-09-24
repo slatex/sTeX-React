@@ -30,6 +30,7 @@ export const en = {
         'Courses that adapt to the users preferences and competencies focused on the knowledge conveyed in a particular knowledge unit.',
       signUpNow: 'Sign up now',
       exploreOurCourse: 'Explore our Courses',
+      publications: 'Publications',
       whyAlea: 'Why ALᴇA?',
       exploreCourses: 'Explore Courses',
       partneredWith:

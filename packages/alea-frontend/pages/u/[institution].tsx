@@ -197,7 +197,7 @@ const StudentHomePage: NextPage = ({
             {Object.values(courses)
               .filter(
                 ({courseId}) =>
-                  !['rip', 'spinf'].includes(courseId) || process.env.NEXT_PUBLIC_SITE_VERSION !== 'production'
+                  !['spinf'].includes(courseId) || process.env.NEXT_PUBLIC_SITE_VERSION !== 'production'
               )
               .filter((course) => !course.isCurrent)
               .map((c) => (

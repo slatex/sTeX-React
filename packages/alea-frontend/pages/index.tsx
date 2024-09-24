@@ -1,12 +1,5 @@
 import FeedIcon from '@mui/icons-material/Feed';
-import {
-  Box,
-  Button,
-  IconButton,
-  Tooltip,
-  Typography,
-  useMediaQuery,
-} from '@mui/material';
+import { Box, Button, IconButton, Tooltip, Typography, useMediaQuery } from '@mui/material';
 import { getCourseInfo } from '@stex-react/api';
 import { CourseInfo, PRIMARY_COL } from '@stex-react/utils';
 import { NextPage } from 'next';
@@ -14,6 +7,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 
 function getInstructor(courseData: CourseInfo, currentSemester: string) {
   for (const instance of courseData.instances) {
@@ -101,12 +95,7 @@ const BannerSection = () => {
           size="large"
           onClick={() => router.push('/exp')}
         >
-          <Image
-            height={30}
-            width={30}
-            src="/experiment.svg"
-            alt="Experiments"
-          />
+          <Image height={30} width={30} src="/experiment.svg" alt="Experiments" />
         </IconButton>
       </Tooltip>
       <Box
@@ -158,7 +147,7 @@ const BannerSection = () => {
             {n.exploreOurCourse}
           </Button>
           <Button
-            sx={{ margin: '5px 5px 5px 0px' }}
+            sx={{ margin: '5px 5px 5px 0px', gap: '5px' }}
             variant="contained"
             onClick={() => {
               router.push('/blog');
@@ -166,6 +155,16 @@ const BannerSection = () => {
           >
             <FeedIcon />
             blog
+          </Button>
+          <Button
+            sx={{ margin: '5px 5px 5px 0px', gap: '5px' }}
+            variant="outlined"
+            onClick={() => {
+              router.push('https://kwarc.github.io/bibs/voll-ki/');
+            }}
+          >
+            <LibraryBooksIcon />
+            {n.publications}
           </Button>
         </Box>
         {!isSmallScreen && (
@@ -183,13 +182,7 @@ const BannerSection = () => {
 };
 
 function CourseCard({ key, course }) {
-  const {
-    imageLink: courseImage,
-    courseName,
-    courseId,
-    institution,
-    instructors,
-  } = course;
+  const { imageLink: courseImage, courseName, courseId, institution, instructors } = course;
   const instructor = getInstructor(course, 'SS24') ?? instructors[0].name;
   const router = useRouter();
   return (
@@ -230,12 +223,8 @@ function CourseCard({ key, course }) {
         >
           {courseName.length > 50 ? courseId.toUpperCase() : courseName}
         </Typography>
-        <Typography sx={{ fontSize: '14px', padding: '5px' }}>
-          {institution}
-        </Typography>
-        <Typography sx={{ fontSize: '14px', padding: '5px' }}>
-          {instructor}
-        </Typography>
+        <Typography sx={{ fontSize: '14px', padding: '5px' }}>{institution}</Typography>
+        <Typography sx={{ fontSize: '14px', padding: '5px' }}>{instructor}</Typography>
       </Box>
     </Box>
   );
@@ -264,20 +253,14 @@ function AleaFeatures({ img_url, title, description }) {
       >
         {title}
       </Typography>
-      <Typography
-        sx={{ fontSize: '12px', color: '#696969', textAlign: 'center' }}
-      >
+      <Typography sx={{ fontSize: '12px', color: '#696969', textAlign: 'center' }}>
         {description}
       </Typography>
     </Box>
   );
 }
 
-const StudentHomePage: NextPage = ({
-  filteredCourses,
-}: {
-  filteredCourses: CourseInfo[];
-}) => {
+const StudentHomePage: NextPage = ({ filteredCourses }: { filteredCourses: CourseInfo[] }) => {
   const router = useRouter();
   const {
     home: { newHome: n },
@@ -296,8 +279,7 @@ const StudentHomePage: NextPage = ({
                 textAlign: 'center',
               }}
             >
-              <b>{n.partneredWith.split('+')[0]}</b>{' '}
-              {n.partneredWith.split('+')[1]}
+              <b>{n.partneredWith.split('+')[0]}</b> {n.partneredWith.split('+')[1]}
               <span style={{ color: PRIMARY_COL }}>
                 <b> {n.partneredWith.split('+')[2]}</b>
               </span>
@@ -334,9 +316,7 @@ const StudentHomePage: NextPage = ({
                     width={140}
                     height={140}
                   />
-                  <Typography sx={{ fontWeight: '500' }}>
-                    {university.name}
-                  </Typography>
+                  <Typography sx={{ fontWeight: '500' }}>{university.name}</Typography>
                 </Box>
               ))}
             </Box>

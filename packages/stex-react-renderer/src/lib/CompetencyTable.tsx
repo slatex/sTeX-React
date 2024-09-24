@@ -47,7 +47,7 @@ export function getMMTHtml(uri: string) {
 
 function QuizIconWithProblemsCount({ problemIds }: { problemIds: string[] }) {
   return (
-    <Box sx={{ display: "flex", position: 'relative' }}>
+    <Box sx={{ display: 'flex', position: 'relative' }}>
       <Box
         sx={{
           position: 'absolute',
@@ -210,9 +210,7 @@ export function CompetencyTable({
         return bValue - aValue;
       }
     }
-  })*/;
-
-  return (
+  })*/ return (
     <>
       {showTour && (
         <Button variant="contained" onClick={handleAllQuizzes} sx={{ marginBottom: '10px' }}>
@@ -256,7 +254,7 @@ export function CompetencyTable({
               ))}
               {showTour && (
                 <TableCell>
-                  <b>Guided Tour</b>
+                  <b>Resources</b>
                 </TableCell>
               )}
             </TableRow>
