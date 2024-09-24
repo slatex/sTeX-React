@@ -62,7 +62,7 @@ const CourseList: NextPage = () => {
             })}
             <Box display="flex" flexWrap="wrap">
               {institutionCourses
-                .filter((c) => !['rip', 'spinf'].includes(c.courseId))
+                .filter((c) => !['spinf'].includes(c.courseId))
                 .map((c) => (
                   <CourseThumb key={c.courseId} course={c} />
                 ))}

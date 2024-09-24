@@ -45,6 +45,7 @@ const BG_COLORS = {
   krmt: 'radial-gradient(circle, white, #f5f5b7)',
   gdp: 'radial-gradient(circle, #4bffd7, #a11cff)',
   rip: 'radial-gradient(circle, #fcef6e, #3f2e86)',
+  spinf: 'radial-gradient(circle, #b2bbc0, #184e6d)',
 };
 
 export function CourseHeader({
