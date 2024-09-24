@@ -11,9 +11,8 @@ import {
 import { getAuthHeaders } from './lms';
 
 
-
 export async function checkTemplateExists(templateName: string) {
-  const response = await axios.get('http://127.0.0.1:5000/api/templates/check', {
+  const response = await axios.get(`${process.env['NEXT_PUBLIC_GPT_URL']}/api/templates/check`, {
     params: { name: templateName },
   });
   return response.data;
@@ -21,14 +20,14 @@ export async function checkTemplateExists(templateName: string) {
 
 
 export async function createTemplate(templateCreationData:any){
-  const resp= await axios.post('http://127.0.0.1:5000/api/templates',templateCreationData,
+  const resp= await axios.post(`${process.env['NEXT_PUBLIC_GPT_URL']}/api/templates`,templateCreationData,
 {headers: getAuthHeaders()});
 return resp.data
 }
 
 
 export async function getTemplates() {
-    const resp = await axios.get('http://127.0.0.1:5000/api/templates',{
+    const resp = await axios.get(`${process.env['NEXT_PUBLIC_GPT_URL']}/api/templates`,{
     headers: getAuthHeaders()
   });
     return resp.data as Template[]; 
@@ -36,7 +35,7 @@ export async function getTemplates() {
 
 export async function createGeneration(formData:CreateGptProblemsRequest ) {
   const response = await axios.post(
-    'http://localhost:5000/api/generation_api',
+    `${process.env['NEXT_PUBLIC_GPT_URL']}/api/generation_api`,
     formData,
     {
       headers: getAuthHeaders(),
@@ -47,7 +46,7 @@ export async function createGeneration(formData:CreateGptProblemsRequest ) {
 
 export async function getGenerationsHistory(templateType: string) {
   const response = await axios.get(
-    'http://localhost:5000/api/generations_history',
+    `${process.env['NEXT_PUBLIC_GPT_URL']}/api/generations_history`,
     {
       params: { templateType },
       headers: getAuthHeaders(),
@@ -57,7 +56,7 @@ export async function getGenerationsHistory(templateType: string) {
 
 
   export async function fetchTemplateDetails(templateId: number): Promise<TemplateData> {
-    const response = await axios.get(`http://127.0.0.1:5000/api/templates/${templateId}`,
+    const response = await axios.get(`${process.env['NEXT_PUBLIC_GPT_URL']}/api/templates/${templateId}`,
       { headers: getAuthHeaders()},
     );
     return {
@@ -70,7 +69,7 @@ export async function getGenerationsHistory(templateType: string) {
 
   export async function extractQuestions  (extractedJson:Problem[], generationObj:ResponseData) {
       const response = await axios.post(
-        'http://127.0.0.1:5000/api/question_extraction',
+       `${process.env['NEXT_PUBLIC_GPT_URL']}/api/question_extraction`,
         {
           
           extractedJson: extractedJson,
@@ -83,7 +82,7 @@ export async function getGenerationsHistory(templateType: string) {
 
 export async function fetchAllVersions(generationId:number){
     
-      const response = await axios.post('http://127.0.0.1:5000/api/get_all_versions', {
+      const response = await axios.post(`${process.env['NEXT_PUBLIC_GPT_URL']}/api/get_all_versions`, {
         generationId,
       }, { headers: getAuthHeaders() },);
       return response.data;
@@ -92,7 +91,7 @@ export async function fetchAllVersions(generationId:number){
 
 export async function addReferences (currentProblem:Problem,generationId:number){
     
-      const response = await axios.post('http://127.0.0.1:5000/api/add-references', {
+      const response = await axios.post(`${process.env['NEXT_PUBLIC_GPT_URL']}/api/add-references`, {
         currentProblem,
         generationId,
       } ,{ headers: getAuthHeaders() });
@@ -102,7 +101,7 @@ export async function addReferences (currentProblem:Problem,generationId:number)
 
   export async function fixDistractor (currentProblem:Problem,generationId:number){
 
-      const response = await axios.post('http://127.0.0.1:5000/api/fix-distractors', {
+      const response = await axios.post(`${process.env['NEXT_PUBLIC_GPT_URL']}/api/fix-distractors`, {
         currentProblem,
         generationId,
       } ,{ headers: getAuthHeaders() });
@@ -112,7 +111,7 @@ export async function addReferences (currentProblem:Problem,generationId:number)
 
     export async function removeAmbiguity (currentProblem:Problem,generationId:number){
 
-      const response = await axios.post('http://127.0.0.1:5000/api/remove-ambiguity', {
+      const response = await axios.post(`${process.env['NEXT_PUBLIC_GPT_URL']}/api/remove-ambiguity`, {
         currentProblem,
         generationId,
       } ,{ headers: getAuthHeaders() });
