@@ -29,6 +29,7 @@ export const de = {
         'Kurse, die sich an die Präferenzen und Kompetenzen der Lernenden anpassen, abhängig von bestimmten Kursen .',
       signUpNow: 'Jetzt registrieren',
       exploreOurCourse: 'Entdecken Sie unsere Kurse',
+      publications: 'Veröffentlichungen',
       whyAlea: 'Warum ALᴇA?',
       exploreCourses: 'Kurse erkunden',
       partneredWith:
@@ -335,7 +336,8 @@ export const de = {
   },
   practiceProblems: {
     practiceProblems: 'Übungsaufgaben',
-    practiceProblemsDescription: 'Die folgenden Aufgaben sollen Ihnen beim Lernen helfen. Sie decken den Kursstoff nicht erschöpfend ab und es gibt keine Garantie dafür, dass die Aufgaben richtig sind oder dass sie repräsentativ für die Aufgabentypen sind, die in den Tests oder der Prüfung vorkommen werden.',
+    practiceProblemsDescription:
+      'Die folgenden Aufgaben sollen Ihnen beim Lernen helfen. Sie decken den Kursstoff nicht erschöpfend ab und es gibt keine Garantie dafür, dass die Aufgaben richtig sind oder dass sie repräsentativ für die Aufgabentypen sind, die in den Tests oder der Prüfung vorkommen werden.',
     problems: 'Probleme',
     practice: 'Üben',
   },

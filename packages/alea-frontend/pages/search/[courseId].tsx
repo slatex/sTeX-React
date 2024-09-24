@@ -41,6 +41,9 @@ function findNearestSection(
   if (!ancestors) {
     return null;
   }
+  const sectionChild = ancestors.at(-1).children.find((c) => isSection(c));
+  if (sectionChild) return sectionChild;
+
   for (let i = ancestors.length - 1; i >= 0; i--) {
     if (isSection(ancestors[i])) {
       return ancestors[i];
