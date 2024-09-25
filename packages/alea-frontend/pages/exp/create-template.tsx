@@ -372,6 +372,8 @@ const CreateTemplate: NextPage = () => {
   const [selectedResponseFormat, setSelectedResponseFormat] = useState<GptResponseFormat>(
     GptResponseFormat.JSON_FORMAT
   );
+  const [templateExists, setTemplateExists] = useState<boolean>(false);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -382,6 +384,23 @@ const CreateTemplate: NextPage = () => {
       }
     });
   }, []);
+
+  useEffect(() => {
+    const checkIfTemplateExists = async () => {
+      if (templateName) {
+        try {
+          const checkResult = await checkTemplateExists(templateName);
+          setTemplateExists(checkResult.exists);
+        } catch (error) {
+          console.error('Error checking if template exists:', error);
+        }
+      } else {
+        setTemplateExists(false);
+      }
+    };
+
+    checkIfTemplateExists();
+  }, [templateName]);
 
   const handlePromptChange = (newtemplateStr: string) => {
     setTemplateStr(newtemplateStr);
@@ -450,6 +469,7 @@ const CreateTemplate: NextPage = () => {
           createResult.templateId
         }, Version: ${templateVersion}`
       );
+      setTemplateExists(true);
     } catch (error) {
       console.error('Error handling template creation or update:', error);
     }
@@ -526,7 +546,7 @@ const CreateTemplate: NextPage = () => {
             onClick={() => handleCreateTemplate()}
             disabled={!templateName}
           >
-            Create
+            {templateExists ? 'Update' : 'Create'}{' '}
           </Button>
         </Box>
       </Box>
