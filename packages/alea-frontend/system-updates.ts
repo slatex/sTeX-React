@@ -8,6 +8,16 @@ export const SYSTEM_UPDATES = [
     postedTimestamp: '2023-02-11T00:20:00+05:30',
   }*/
   {
+    id: 'search',
+    header: 'Search in Notes',
+    content:
+      'You can now efficiently search through your notes and receive the most relevant results for your query. All associated reference files will be provided to ensure comprehensive search outcomes.',
+    header_de: 'Suche in Notizen',
+    content_de:
+      'Sie können jetzt effizient in Ihren Notizen suchen und die relevantesten Ergebnisse für Ihre Anfrage erhalten. Alle zugehörigen Referenzdateien werden bereitgestellt, um umfassende Suchergebnisse zu gewährleisten.',
+    postedTimestamp: '2024-09-24T00:20:00+05:30',
+  },
+  {
     id: 'exam-prep-problems',
     header: 'Exam Prep: Practice Problems',
     content:
@@ -21,7 +31,7 @@ export const SYSTEM_UPDATES = [
     id: 'traffic-light',
     header: 'Traffic Light on Notes',
     content:
-    'Traffic lights are available on the course notes, indicating your readiness for a section. A green light indicates that you have the required prerequisites for it. A red light indicates that you need to work on the prerequisites before you are ready to jump into this section.',
+      'Traffic lights are available on the course notes, indicating your readiness for a section. A green light indicates that you have the required prerequisites for it. A red light indicates that you need to work on the prerequisites before you are ready to jump into this section.',
     header_de: 'Ampelsystem in den Notizen',
     content_de:
       'Ampeln sind in den Kursnotizen verfügbar und zeigen Ihre Bereitschaft für einen Abschnitt an. Ein grünes Licht zeigt an, dass Sie die erforderlichen Voraussetzungen dafür haben. Ein rotes Licht zeigt an, dass Sie an den Voraussetzungen arbeiten müssen, bevor Sie bereit sind, in diesen Abschnitt einzutauchen.',

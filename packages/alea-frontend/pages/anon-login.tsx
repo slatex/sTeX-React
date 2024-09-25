@@ -81,8 +81,9 @@ const AnonLoginPage: NextPage = () => {
   };
 
   async function handleLogin() {
+    const modifiedUserId = modifyUserId(formData.personality, formData.animalName);
     try {
-      const access_token = (await logInUser(userId, formData.password)).access_token;
+      const access_token = (await logInUser(modifiedUserId, formData.password)).access_token;
       if (!access_token?.length) throw new Error('No access token');
       setCookie('access_token', access_token);
       window.location.replace(returnBackUrl || '/');
