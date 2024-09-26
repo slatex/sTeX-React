@@ -5,8 +5,8 @@ import { executeAndEndSet500OnError } from '../comment-utils';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const resourceActions: ResourceActionPair[] = req.body.resourceActionPairs;
 
-  if (!resourceActions.length) return res.status(400).send('Invalid Input');
-
+  if (!resourceActions?.length) return res.status(400).send('Invalid Input');
+  
   const placeholders = resourceActions.map(() => '(?, ?)').join(', ');
   const queryParams = resourceActions.flatMap(({ resourceId, actionId }) => [resourceId, actionId]);
   const query = `

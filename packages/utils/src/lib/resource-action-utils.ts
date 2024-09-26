@@ -54,7 +54,7 @@ export interface ResourceActionPair {
   actionId: string;
 }
 
-export interface GetSpeicificAclIdsResponse {
+export interface GetSpecificAclIdsResponse {
   [key: string]: string;
 }
 
