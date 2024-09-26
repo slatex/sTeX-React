@@ -1,7 +1,7 @@
 import CheckIcon from '@mui/icons-material/Check';
 import EditIcon from '@mui/icons-material/Edit';
 import { Box, Grid, IconButton, TextField, Typography } from '@mui/material';
-import { getSpecificAclIds, updateResourceAction } from '@stex-react/api';
+import { getSpecificAclIds, isValid, updateResourceAction } from '@stex-react/api';
 import { Action, CURRENT_TERM, ResourceActionPair } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
@@ -107,6 +107,12 @@ const InstructorDash = () => {
   const updateAclId = async (field: keyof AclData, aclId: string) => {
     const resourceId = `/course/${courseId}/instance/${CURRENT_TERM}/${field}`;
     const actionId = resourceActionPairs.find((r) => r.resourceId === resourceId)?.actionId || '';
+    const res = await isValid(aclId);
+    if(!res){
+      console.log("invalid aclId")
+      setEditingValues({...editingValues, [field]: aclData[field]});
+      return;
+    }
     await updateResourceAction({
       resourceId,
       actionId,
