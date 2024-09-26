@@ -46,7 +46,7 @@ const aleaFeatures = [
   },
 ];
 
-const PARTNERED_UNIVERSITIES = [
+export const PARTNERED_UNIVERSITIES = [
   {
     code: 'FAU',
     name: 'FAU, Erlangen-Nuremberg',
@@ -66,6 +66,11 @@ const PARTNERED_UNIVERSITIES = [
     code: 'Heriot Watt',
     name: 'Heriot-Watt University, Edinburgh',
     logoSrc: '/heriott_logo.png',
+  },
+  {
+    code: 'others',
+    name: 'Other Institutions',
+    logoSrc: '/others.png',
   },
 ];
 
@@ -313,7 +318,7 @@ const StudentHomePage: NextPage = ({ filteredCourses }: { filteredCourses: Cours
                   <Image
                     src={university.logoSrc}
                     alt={university.name + ' - logo'}
-                    width={140}
+                    width={university.code === 'others' ? 160 : 140}
                     height={140}
                   />
                   <Typography sx={{ fontWeight: '500' }}>{university.name}</Typography>
