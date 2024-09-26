@@ -4,6 +4,8 @@ import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import QuizIcon from '@mui/icons-material/Quiz';
 import SearchIcon from '@mui/icons-material/Search';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+
 import {
   Box,
   Button,
@@ -183,7 +185,10 @@ const CourseHomePage: NextPage = () => {
               <QuizIcon fontSize="large" />
             </CourseComponentLink>
           )}
-
+          <CourseComponentLink href={`/homework/${courseId}`}>
+            {t.homeworks}&nbsp;
+            <AssignmentTurnedInIcon fontSize="large" />
+          </CourseComponentLink>
           <CourseComponentLink href={`/study-buddy/${courseId}`}>
             {t.studyBuddy}&nbsp;
             <Diversity3Icon fontSize="large" />

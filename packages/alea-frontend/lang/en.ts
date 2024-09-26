@@ -21,6 +21,7 @@ export const en = {
       slides: 'Slides',
       forum: 'Forum',
       quizzes: 'Quizzes',
+      homeworks:'Homeworks',
       studyBuddy: 'Study Buddy',
       practiceProblems: 'Practice Problems',
     },
@@ -143,6 +144,15 @@ export const en = {
     demoQuizText:
       'is a demo quiz - so that you can test your hard/software (you will need a recent chrome or firefox browser) and see the format. In particular, you should be able to read the Math in the travelling salesperson problem.',
     practiceProblems: 'Practice Problems',
+  },
+    homework: {
+   
+    homeworkDashboard: 'Homework Dashboard',
+    
+    previousHomeworks: 'Previous Homeworks',
+    
+    onTimeWarning:
+      'This page gives you an overview over the upcoming Homeworks in the {courseId} lectures. ',
   },
   vis: {
     goToTour: 'Go To Tour',
@@ -333,6 +343,13 @@ export const en = {
     quizRecorrected: 'This quiz was re-corrected',
     theProblem: 'The problem',
     wasRecorrected: 'was re-corrected',
+  },
+  homeworkPerformanceTable: {
+    homeworkName: 'Homework Name',
+    homeworkDate: 'Homework Date',
+    maxPoints: 'Max Points',
+    myScore: 'My Score',
+    averageScore: 'Average Score',
   },
   logInSystem: {
     reset404: 'User not found.',

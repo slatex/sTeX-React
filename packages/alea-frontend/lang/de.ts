@@ -20,6 +20,7 @@ export const de = {
       slides: 'Folien',
       forum: 'Forum',
       quizzes: 'Quizze',
+      homeworks:'Hausaufgaben',
       studyBuddy: 'Study Buddy',
       practiceProblems: 'Übungsaufgaben',
     },
@@ -114,6 +115,15 @@ export const de = {
       'ist ein Demo-Quiz - damit Sie Ihre Hard-/Software testen (Sie benötigen einen aktuellen Chrome- oder Firefox-Browser) und die Formatierung sehen können. Insbesondere sollten Sie in der Lage sein, die mathematische Notation im Problem des Handlungsreisenden zu lesen.',
     practiceProblems: 'Übungsprobleme',
   },
+  homework: {
+  homeworkDashboard: 'Hausaufgaben-Dashboard',
+  
+  previousHomeworks: 'Frühere Hausaufgaben',
+  
+  onTimeWarning:
+    'Diese Seite gibt Ihnen einen Überblick über die anstehenden Hausaufgaben in den {courseId} Vorlesungen.',
+},
+
   vis: {
     goToTour: 'Gehen Sie zur Tour',
   },
@@ -309,6 +319,13 @@ export const de = {
     theProblem: 'Das Problem',
     wasRecorrected: 'wurde erneut bewertet',
   },
+  homeworkPerformanceTable: {
+  homeworkName: 'Name der Hausaufgabe',
+  homeworkDate: 'Hausaufgabedatum',
+  maxPoints: 'Maximale Punkte',
+  myScore: 'Meine Punktzahl',
+  averageScore: 'Durchschnittliche Punktzahl',
+},
   logInSystem: {
     reset404: 'Benutzer nicht gefunden.',
     reset409: 'Passwort-Zurücksetzungs-Token nicht festgelegt.',
@@ -336,8 +353,7 @@ export const de = {
   },
   practiceProblems: {
     practiceProblems: 'Übungsaufgaben',
-    practiceProblemsDescription:
-      'Die folgenden Aufgaben sollen Ihnen beim Lernen helfen. Sie decken den Kursstoff nicht erschöpfend ab und es gibt keine Garantie dafür, dass die Aufgaben richtig sind oder dass sie repräsentativ für die Aufgabentypen sind, die in den Tests oder der Prüfung vorkommen werden.',
+    practiceProblemsDescription: 'Die folgenden Aufgaben sollen Ihnen beim Lernen helfen. Sie decken den Kursstoff nicht erschöpfend ab und es gibt keine Garantie dafür, dass die Aufgaben richtig sind oder dass sie repräsentativ für die Aufgabentypen sind, die in den Tests oder der Prüfung vorkommen werden.',
     problems: 'Probleme',
     practice: 'Üben',
   },
