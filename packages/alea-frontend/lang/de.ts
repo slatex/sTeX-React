@@ -22,6 +22,7 @@ export const de = {
       quizzes: 'Quizze',
       studyBuddy: 'Study Buddy',
       practiceProblems: 'Übungsaufgaben',
+      instructorDashBoard : 'Lehrer-Dashboard'
     },
     newHome: {
       alea: 'ALᴇA: Adaptiver Lernassistent',
