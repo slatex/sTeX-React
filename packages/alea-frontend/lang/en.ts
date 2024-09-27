@@ -24,6 +24,7 @@ export const en = {
       homeworks:'Homeworks',
       studyBuddy: 'Study Buddy',
       practiceProblems: 'Practice Problems',
+      instructorDashBoard : 'Instructor Dashboard',
     },
     newHome: {
       alea: 'ALᴇA: Adaptive Learning Assistant',

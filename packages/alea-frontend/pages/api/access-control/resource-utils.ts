@@ -14,7 +14,7 @@ export async function isUserIdAuthorizedForAny(
   userId: string,
   resourceActions: ResourceActionParams[]
 ) {
-  if(!userId) return false;
+  if (!userId) return false;
   for (const resourceAction of resourceActions) {
     const resourceId = getResourceId(resourceAction.name, resourceAction.variables);
 
