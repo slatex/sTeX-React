@@ -17,6 +17,7 @@ import {
   Typography,
 } from '@mui/material';
 import {
+  ANON_USER_ID_PREFIX,
   UserInfo,
   getAllMyComments,
   getAllMyData,
@@ -40,11 +41,7 @@ import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 import { PersonaChooser } from './login';
 
-export function ConfirmPurgeDialogContent({
-  onClose,
-}: {
-  onClose: (confirmed: boolean) => void;
-}) {
+export function ConfirmPurgeDialogContent({ onClose }: { onClose: (confirmed: boolean) => void }) {
   const router = useRouter();
   const { myProfile: t } = getLocaleObject(router);
   const [text, setText] = useState('');
@@ -59,21 +56,15 @@ export function ConfirmPurgeDialogContent({
           Enter this text in the box below to confirm: <b>{t.confirmText}</b>
           <br /> <br />
         </DialogContentText>
-        <TextField
-          label={t.confirmation}
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-        />
+        <TextField label={t.confirmation} value={text} onChange={(e) => setText(e.target.value)} />
       </DialogContent>
       <DialogActions>
         <Button onClick={() => onClose(false)}>{t.cancel}</Button>
         <Button
           onClick={() => onClose(true)}
-          disabled={
-            text.toLocaleLowerCase() !== t.confirmText.toLocaleLowerCase()
-          }
+          disabled={text.toLocaleLowerCase() !== t.confirmText.toLocaleLowerCase()}
           variant="contained"
-          color='error'
+          color="error"
         >
           {t.purge}
         </Button>
@@ -89,8 +80,7 @@ const MyProfilePage: NextPage = () => {
   const [openPurgeDialog, setOpenPurgeDialog] = useState(false);
   const [persona, setPresetProfileName] = useState<string>('Blank');
   const [trafficLightStatus, setTrafficLightStatus] = useState<boolean>(false);
-  const [sectionReviewStatus, setSectionReviewStatus] =
-    useState<boolean>(false);
+  const [sectionReviewStatus, setSectionReviewStatus] = useState<boolean>(false);
   const [isVerifiedUser, setIsVerifiedUser] = useState<boolean>(false);
 
   useEffect(() => {
@@ -104,14 +94,10 @@ const MyProfilePage: NextPage = () => {
   }, [router]);
 
   useEffect(() => {
-    getUserInformation().then((res) =>
-      setTrafficLightStatus(res.showTrafficLight)
-    );
+    getUserInformation().then((res) => setTrafficLightStatus(res.showTrafficLight));
   }, [trafficLightStatus]);
   useEffect(() => {
-    getUserInformation().then((res) =>
-      setSectionReviewStatus(res.showSectionReview)
-    );
+    getUserInformation().then((res) => setSectionReviewStatus(res.showSectionReview));
   }, [sectionReviewStatus]);
   useEffect(() => {
     getUserInformation().then((res) => {
@@ -155,13 +141,10 @@ const MyProfilePage: NextPage = () => {
         <h3 style={{ marginTop: '-15px' }}>
           <i>{userInfo.userId}</i>
         </h3>
-        {!isVerifiedUser && (
+        {!isVerifiedUser && !userInfo.userId.startsWith(ANON_USER_ID_PREFIX) && (
           <Box>
             <Typography>{l.verifcationMessage}</Typography>
-            <Button
-              onClick={() => handleVerification(userInfo.userId)}
-              variant="contained"
-            >
+            <Button onClick={() => handleVerification(userInfo.userId)} variant="contained">
               {l.sendVerifcationBtn}
               <EmailIcon sx={{ marginLeft: '5px' }} />
             </Button>
@@ -211,9 +194,7 @@ const MyProfilePage: NextPage = () => {
                 <TableCell align="right">
                   <Switch
                     checked={sectionReviewStatus}
-                    onChange={() =>
-                      handleSectionReviewStatus(!sectionReviewStatus)
-                    }
+                    onChange={() => handleSectionReviewStatus(!sectionReviewStatus)}
                   />
                 </TableCell>
               </TableRow>
@@ -300,10 +281,7 @@ const MyProfilePage: NextPage = () => {
             </Button>
           </Box>
         )}
-        <Dialog
-          onClose={() => setOpenPurgeDialog(false)}
-          open={openPurgeDialog}
-        >
+        <Dialog onClose={() => setOpenPurgeDialog(false)} open={openPurgeDialog}>
           <ConfirmPurgeDialogContent
             onClose={async (confirmed) => {
               if (!confirmed) {
