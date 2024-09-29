@@ -200,11 +200,6 @@ const StudentHomePage: NextPage = ({
           <h2>{t.otherCourses}</h2>
           <Box display="flex" flexWrap="wrap">
             {Object.values(courses)
-              .filter(
-                ({ courseId }) =>
-                  !['spinf'].includes(courseId) ||
-                  process.env.NEXT_PUBLIC_SITE_VERSION !== 'production'
-              )
               .filter((course) => !course.isCurrent)
               .map((c) => (
                 <CourseThumb key={c.courseId} course={c} />
