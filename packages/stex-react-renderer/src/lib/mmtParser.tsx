@@ -4,7 +4,9 @@ import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
 import {
   ViewEvent,
+  generateApfelToken,
   getAncestors,
+  getUserInfo,
   getUserInformation,
   isLoggedIn,
   lastFileNode,
@@ -40,6 +42,7 @@ import { langSelector } from './helper/langSelector';
 import { ServerLinksContext } from './stex-react-renderer';
 import { useOnScreen } from './useOnScreen';
 
+const APFEL_TOKEN = 'apfel-token';
 export const CustomItemsContext = createContext<{
   items: { [tag: string]: JSX.Element };
 }>({ items: {} });
@@ -429,6 +432,32 @@ export function Definiendum({ node }: { node: Element }) {
   );
 }
 
+const ApfelHrefWithToken = ({ href, children }: { href: string; children: React.ReactNode }) => {
+  const [updatedHref, setUpdatedHref] = useState(href);
+  useEffect(() => {
+    const updateHrefWithToken = async () => {
+      const userInfo = await getUserInfo();
+      if (!userInfo) return;
+      let token = localStore?.getItem(APFEL_TOKEN);
+
+      if (!token) {
+        const tokenResponse = await generateApfelToken(userInfo.userId, Date.now());
+        token = tokenResponse.token;
+        localStore?.setItem(APFEL_TOKEN, token as string);
+      }
+
+      if (token) {
+        const url = new URL(href);
+        url.searchParams.set(APFEL_TOKEN, token);
+        setUpdatedHref(url.toString());
+      }
+    };
+    updateHrefWithToken();
+  }, [href]);
+
+  return <a href={updatedHref}>{children}</a>;
+};
+
 export const replace = (d: DOMNode): any => {
   const domNode = getElement(d);
 
@@ -493,6 +522,20 @@ export const replace = (d: DOMNode): any => {
         extensions={[langSelector(domNode.attribs['language'])]}
       />
     );
+  }
+
+  if (domNode.name === 'a') {
+    const href = domNode.attribs['href'];
+    if (
+      href?.startsWith('https://apple.alea.education/') ||
+      href?.startsWith('https://apfel.alea.education/')
+    ) {
+      return (
+        <ApfelHrefWithToken href={href}>
+          {domToReact(domNode.children, { replace })}
+        </ApfelHrefWithToken>
+      );
+    }
   }
 
   if (domNode.name === 'head' || domNode.name === 'iframe' || domNode.name === 'script') {

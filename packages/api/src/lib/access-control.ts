@@ -16,3 +16,7 @@ export interface ResourceAction {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface GetSpecificAclIdsResponse {
+  [key: string]: string;
+}
