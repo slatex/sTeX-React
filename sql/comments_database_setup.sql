@@ -213,3 +213,13 @@ CREATE TABLE ReviewRequest   (
   PRIMARY KEY (id),
   FOREIGN KEY (answerId) REFERENCES Answer (id) ON DELETE CASCADE
 );
+
+CREATE TABLE homework (
+    homeworkId INT PRIMARY KEY AUTO_INCREMENT,    
+    homeworkName VARCHAR(255) ,          
+    homeworkDate DATE ,                  
+    courseId VARCHAR(255)  ,                
+    courseInstance VARCHAR(255)  ,                   
+    archive VARCHAR(255),                          
+    filepath VARCHAR(255)                        
+);

@@ -4,6 +4,7 @@ import { Box, Grid, IconButton, TextField, Typography } from '@mui/material';
 import { getSpecificAclIds, isValid, updateResourceAction } from '@stex-react/api';
 import { Action, CURRENT_TERM, ResourceActionPair } from '@stex-react/utils';
 import { useRouter } from 'next/router';
+import HomeworkManager from 'packages/alea-frontend/components/HomeworkManager';
 import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
 import { useEffect, useState } from 'react';
 
@@ -108,9 +109,9 @@ const InstructorDash = () => {
     const resourceId = `/course/${courseId}/instance/${CURRENT_TERM}/${field}`;
     const actionId = resourceActionPairs.find((r) => r.resourceId === resourceId)?.actionId || '';
     const res = await isValid(aclId);
-    if(!res){
-      console.log("invalid aclId")
-      setEditingValues({...editingValues, [field]: aclData[field]});
+    if (!res) {
+      console.log('invalid aclId');
+      setEditingValues({ ...editingValues, [field]: aclData[field] });
       return;
     }
     await updateResourceAction({
@@ -182,6 +183,23 @@ const InstructorDash = () => {
             </Grid>
           ))}
         </Grid>
+      </Box>
+      <hr></hr>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          // justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh', // To center it vertically as well
+          textAlign: 'center',
+        }}
+      >
+        {' '}
+        {/* <Typography variant="h4" gutterBottom>
+          Homework Management
+        </Typography> */}
+        <HomeworkManager />
       </Box>
     </MainLayout>
   );
