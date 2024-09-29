@@ -14,11 +14,10 @@ $ npm start alea-frontend
 
 #### Serve for production
 
-alea-frontend is currently being served at https://courses.voll-ki.fau.de using the following commands:
+alea-frontend is currently being served at https://courses.voll-ki.fau.de using the following command:
 
 ```
-$ npm run build alea-frontend
-$ nx serve alea-frontend --prod --port=<PORT_NUMBER> --hostname=0.0.0.0
+$ sudo true && git pull && nx reset && npm run build alea-frontend && sudo nice -n -20 nx serve alea-frontend --prod --port=3300 --hostname=0.0.0.0
 ```
 
 ## mmt-viewer

@@ -205,10 +205,12 @@ const CourseHomePage: NextPage = () => {
               <QuizIcon fontSize="large" />
             </CourseComponentLink>
           )}
-          <CourseComponentLink href={`/homework/${courseId}`}>
-            {t.homeworks}&nbsp;
-            <AssignmentTurnedInIcon fontSize="large" />
-          </CourseComponentLink>
+          {process.env.NEXT_PUBLIC_SITE_VERSION !== 'production' && (
+            <CourseComponentLink href={`/homework/${courseId}`}>
+              {t.homeworks}&nbsp;
+              <AssignmentTurnedInIcon fontSize="large" />
+            </CourseComponentLink>
+          )}
           <CourseComponentLink href={`/study-buddy/${courseId}`}>
             {t.studyBuddy}&nbsp;
             <Diversity3Icon fontSize="large" />

@@ -88,7 +88,7 @@ function HomeworkPerformanceTable({ courseId }: { courseId: string }) {
   return (
     <>
       <Typography variant="h5" sx={{ m: '30px 0 15px' }}>
-        {tHW.previousHomeworks}
+        {tHW.givenHomeworks}
       </Typography>
       <TableContainer component={Paper}>
         <Table>

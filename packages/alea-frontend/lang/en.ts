@@ -21,10 +21,10 @@ export const en = {
       slides: 'Slides',
       forum: 'Forum',
       quizzes: 'Quizzes',
-      homeworks:'Homeworks',
+      homeworks: 'Homeworks',
       studyBuddy: 'Study Buddy',
       practiceProblems: 'Practice Problems',
-      instructorDashBoard : 'Instructor Dashboard',
+      instructorDashBoard: 'Instructor Dashboard',
     },
     newHome: {
       alea: 'ALᴇA: Adaptive Learning Assistant',
@@ -146,14 +146,11 @@ export const en = {
       'is a demo quiz - so that you can test your hard/software (you will need a recent chrome or firefox browser) and see the format. In particular, you should be able to read the Math in the travelling salesperson problem.',
     practiceProblems: 'Practice Problems',
   },
-    homework: {
-   
+  homework: {
     homeworkDashboard: 'Homework Dashboard',
-    
-    previousHomeworks: 'Previous Homeworks',
-    
-    onTimeWarning:
+    homeworkDashboardDescription:
       'This page gives you an overview over the upcoming Homeworks in the {courseId} lectures. ',
+    givenHomeworks: 'Given Homeworks',
   },
   vis: {
     goToTour: 'Go To Tour',

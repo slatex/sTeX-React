@@ -14,22 +14,17 @@ import HomeworkManager from 'packages/alea-frontend/components/HomeworkManager';
 
 const HomeworkPage: NextPage = () => {
   const router = useRouter();
-
   const courseId = router.query.id as string;
   const { homework: t, home: tHome } = getLocaleObject(router);
 
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
-
-  const { mmtUrl } = useContext(ServerLinksContext);
-
   const [forceFauLogin, setForceFauLogin] = useState(false);
+  const { mmtUrl } = useContext(ServerLinksContext);
 
   useEffect(() => {
     getUserInfo().then((i) => {
       const uid = i?.userId;
-
       if (!uid) return;
-
       setForceFauLogin(uid.length !== 8 || uid.includes('@'));
     });
   });
@@ -43,7 +38,6 @@ const HomeworkPage: NextPage = () => {
   const courseInfo = courses[courseId];
   if (!courseInfo) {
     router.replace('/');
-
     return <>Course Not Found!</>;
   }
 
@@ -71,11 +65,9 @@ const HomeworkPage: NextPage = () => {
         <Typography variant="h4" sx={{ m: '30px 0 15px' }}>
           {t.homeworkDashboard}
         </Typography>
-
         <Typography variant="body1" sx={{ color: '#333' }}>
-          {t.onTimeWarning.replace('{courseId}', courseId.toUpperCase())}
+          {t.homeworkDashboardDescription.replace('{courseId}', courseId.toUpperCase())}
         </Typography>
-
         <HomeworkPerformanceTable courseId={courseId} />
       </Box>
     </MainLayout>
