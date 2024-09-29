@@ -20,7 +20,7 @@ import { useRouter } from 'next/router';
 function HomeworkPerformanceTable({ courseId }: { courseId: string }) {
   const { homeworkPerformanceTable: t, homework: tHW } = getLocaleObject(useRouter());
 
-  const homeworkData = [
+  const HOMEWORK_DATA = [
     {
       name: 'Prolog',
       date: '25-10-2024',
@@ -53,7 +53,7 @@ function HomeworkPerformanceTable({ courseId }: { courseId: string }) {
   return (
     <>
       <Typography variant="h5" sx={{ m: '30px 0 15px' }}>
-        {tHW.previousHomeworks}
+        {tHW.givenHomeworks}
       </Typography>
       <TableContainer component={Paper}>
         <Table>
@@ -77,7 +77,7 @@ function HomeworkPerformanceTable({ courseId }: { courseId: string }) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {homeworkData.map((homework, index) => (
+            {HOMEWORK_DATA.map((homework, index) => (
               <TableRow key={index}>
                 <TableCell sx={{ color: PRIMARY_COL, wordBreak: 'break-word', minWidth: '100px' }}>
                   <Link

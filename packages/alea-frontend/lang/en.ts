@@ -148,9 +148,9 @@ export const en = {
   },
   homework: {
     homeworkDashboard: 'Homework Dashboard',
-    previousHomeworks: 'Previous Homeworks',
-    onTimeWarning:
+    homeworkDashboardDescription:
       'This page gives you an overview over the upcoming Homeworks in the {courseId} lectures. ',
+    givenHomeworks: 'Given Homeworks',
   },
   vis: {
     goToTour: 'Go To Tour',

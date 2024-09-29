@@ -118,10 +118,11 @@ export const de = {
   },
   homework: {
     homeworkDashboard: 'Hausaufgaben-Dashboard',
-    previousHomeworks: 'Frühere Hausaufgaben',
-    onTimeWarning:
+    homeworkDashboardDescription:
       'Diese Seite gibt Ihnen einen Überblick über die anstehenden Hausaufgaben in den {courseId} Vorlesungen.',
+    givenHomeworks: ' Hausaufgaben Gegeben',
   },
+
   vis: {
     goToTour: 'Gehen Sie zur Tour',
   },
