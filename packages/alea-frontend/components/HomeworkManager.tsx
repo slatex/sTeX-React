@@ -5,106 +5,120 @@ import {
   TextField,
   Typography,
   Snackbar,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemSecondaryAction,
-  Alert,
-  IconButton,
-  Grid,
-  Card,
-  CardContent,
-  TableCell,
+  Table,
   TableBody,
   TableContainer,
-  Table,
   TableHead,
   TableRow,
+  TableCell,
   Paper,
+  IconButton,
   Dialog,
   DialogTitle,
   DialogActions,
   DialogContent,
   DialogContentText,
+  Alert,
 } from '@mui/material';
 import { Edit, Delete } from '@mui/icons-material';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import { CURRENT_TERM, PRIMARY_COL } from '@stex-react/utils';
+import {
+  AdminHomework,
+  getHomeworkList,
+  createHomework,
+  updateHomework,
+  deleteHomework,
+} from '@stex-react/api';
+import Link from 'next/link';
+import { getLocaleObject } from '../lang/utils';
+import { useRouter } from 'next/router';
 
-const HomeworkManager = () => {
-  const [homeworks, setHomeworks] = useState<any[]>([]);
+const HomeworkManager = ({ courseId }) => {
+  const [homeworks, setHomeworks] = useState<AdminHomework[]>([]);
   const [homeworkId, setHomeworkId] = useState<number | null>(null);
-  const [homeworkName, setHomeworkName] = useState('');
-  const [homeworkDate, setHomeworkDate] = useState('');
-  const [archive, setArchive] = useState('');
-  const [filepath, setFilepath] = useState('');
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [message, setMessage] = useState('');
+  const [homeworkName, setHomeworkName] = useState<string>('');
+  const [homeworkDate, setHomeworkDate] = useState<string>('');
+  const [archive, setArchive] = useState<string>('');
+  const [filepath, setFilepath] = useState<string>('');
+  const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
+  const [message, setMessage] = useState<string>('');
   const [view, setView] = useState<'list' | 'create' | 'edit'>('list');
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
   const [selectedHomeworkId, setSelectedHomeworkId] = useState<number | null>(null);
+  const { homeworkManager: t } = getLocaleObject(useRouter());
 
-  const getHomework = () => [
-    {
-      homeworkId: 1,
-      homeworkName: 'Math Assignment',
-      homeworkDate: '2024-09-30',
-      archive: 'no',
-      filepath: '/homework/math.pdf',
-    },
-    {
-      homeworkId: 2,
-      homeworkName: 'Science Project',
-      homeworkDate: '2024-10-01',
-      archive: 'no',
-      filepath: '/homework/science.pdf/',
-    },
-  ];
+  const getHomeworks = async () => {
+    try {
+      const homeworkList = await getHomeworkList(courseId);
+      setHomeworks(homeworkList);
+    } catch (error) {
+      console.error('An unexpected error occurred', error);
+      setMessage('An error occured');
+    }
+    setOpenSnackbar(true);
+  };
 
   useEffect(() => {
     if (view === 'list') {
-      const fetchedHomeworks = getHomework();
-      setHomeworks(fetchedHomeworks);
+      getHomeworks();
     }
-  }, [view]);
+  }, [view, courseId]);
 
-  const handleSave = () => {
-    if (homeworkId) {
-      const updatedHomeworks = homeworks.map((hw) =>
-        hw.homeworkId === homeworkId
-          ? { homeworkId, homeworkName, homeworkDate, archive, filepath }
-          : hw
-      );
-      setHomeworks(updatedHomeworks);
-      setMessage('Homework updated successfully!');
-    } else {
-      const newHomework = {
-        homeworkId: Date.now(),
-        homeworkName,
-        homeworkDate,
-        archive,
-        filepath,
-      };
-      setHomeworks([...homeworks, newHomework]);
-      setMessage('Homework created successfully!');
+  const handleSave = async () => {
+    const body = {
+      homeworkName,
+      homeworkDate,
+      archive,
+      filepath,
+      ...(homeworkId ? { homeworkId } : {}),
+      courseId,
+      courseInstance: CURRENT_TERM,
+    };
+
+    try {
+      let response;
+      if (homeworkId) {
+        response = await updateHomework(body);
+      } else {
+        response = await createHomework(body);
+      }
+      console.log('resDD', response);
+      setMessage(response.data.message);
+      setOpenSnackbar(true);
+      resetForm(false);
+      getHomeworks();
+    } catch (error) {
+      console.error('Error details:', error);
+      setMessage(error.response?.data?.message || 'An error occurred');
+      setOpenSnackbar(true);
     }
-    setOpenSnackbar(true);
-    resetForm();
   };
 
-  const handleEdit = (homework: any) => {
+  const handleEdit = (homework: AdminHomework) => {
     setHomeworkId(homework.homeworkId);
     setHomeworkName(homework.homeworkName);
-    setHomeworkDate(homework.homeworkDate);
+    const localDate = new Date(homework.homeworkDate);
+    const formattedDate = `${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(
+      2,
+      '0'
+    )}-${String(localDate.getDate()).padStart(2, '0')}`;
+    setHomeworkDate(formattedDate);
     setArchive(homework.archive);
     setFilepath(homework.filepath);
     setView('edit');
   };
-
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (selectedHomeworkId) {
-      const updatedHomeworks = homeworks.filter((hw) => hw.homeworkId !== selectedHomeworkId);
-      setHomeworks(updatedHomeworks);
-      setMessage('Homework deleted successfully!');
-      setOpenSnackbar(true);
+      try {
+        const response = await deleteHomework(selectedHomeworkId);
+        setMessage(response.message);
+        setOpenSnackbar(true);
+        getHomeworks();
+      } catch (error) {
+        setMessage(error?.response?.data?.message || 'An error occurred');
+        setOpenSnackbar(true);
+      }
     }
     setDeleteDialogOpen(false);
   };
@@ -114,13 +128,20 @@ const HomeworkManager = () => {
     setDeleteDialogOpen(true);
   };
 
-  const resetForm = () => {
+  const resetForm = (isCancelled = true) => {
     setHomeworkId(null);
     setHomeworkName('');
     setHomeworkDate('');
     setArchive('');
     setFilepath('');
     setView('list');
+    if (isCancelled) {
+      if (homeworkId) {
+        setMessage('Homework updation cancelled');
+      } else {
+        setMessage('Homework creation cancelled');
+      }
+    }
   };
 
   const handleCloseSnackbar = () => {
@@ -131,22 +152,13 @@ const HomeworkManager = () => {
   return (
     <Box
       sx={{
-        width: { xs: '100%', sm: '70%' }, // Full width on small screens, 70% on larger
-        margin: '0 auto', // Center the box horizontally
-        padding: '0 16px', // Optional: Add padding to prevent content from touching screen edges
+        width: { xs: '100%', sm: '70%' },
+        margin: '0 auto',
+        padding: '0 16px',
       }}
     >
-      <Typography
-        variant="h4"
-        gutterBottom
-        // sx={{
-        //   whiteSpace: 'normal', // Allows text to wrap
-        //   wordBreak: 'break-word', // Breaks long words
-        //   textAlign: 'center', // Centers text on small screens
-        //   // fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' }, // Adjust font size based on screen width
-        // }}
-      >
-        Homework Management
+      <Typography variant="h4" gutterBottom>
+        {t.homeworkManagement}{' '}
       </Typography>
       <Box
         sx={{
@@ -158,10 +170,6 @@ const HomeworkManager = () => {
           py: 3,
           border: '1px solid #ccc',
           borderRadius: 2,
-          // maxWidth: 100,
-          minWidth: '300px',
-          margin: 'auto',
-          // mx: 'auto',
         }}
       >
         {view === 'list' && (
@@ -175,7 +183,7 @@ const HomeworkManager = () => {
               }}
             >
               <Typography variant="h5" gutterBottom sx={{ fontWeight: 700 }}>
-                Homeworks
+                {t.homeworks}
               </Typography>
               <Button
                 variant="contained"
@@ -186,76 +194,65 @@ const HomeworkManager = () => {
                   marginLeft: '5px',
                 }}
               >
-                Create Homework
+                {t.createHomework}{' '}
               </Button>
             </Box>
-            {/* <Box sx={{ overflowX: 'auto', width: '100%' }}> */}
-            {/* <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell style={{ fontWeight: 'bold' }}>Homework Name</TableCell>
-                    <TableCell style={{ fontWeight: 'bold' }}>Date</TableCell>
-                    <TableCell style={{ fontWeight: 'bold' }}>Archive</TableCell>
-                    <TableCell style={{ fontWeight: 'bold' }}>File Path</TableCell>
-                    <TableCell style={{ fontWeight: 'bold' }}>Actions</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {homeworks.map((homework) => (
-                    <TableRow key={homework.homeworkId}>
-                      <TableCell>{homework.homeworkName}</TableCell>
-                      <TableCell>{homework.homeworkDate}</TableCell>
-                      <TableCell>{homework.archive}</TableCell>
-                      <TableCell style={{ wordBreak: 'break-word', maxWidth: '300px' }}>
-                        {homework.filepath}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer> */}
-            {/* </Box> */}
 
-            <TableContainer component={Paper}>
+            <TableContainer component={Paper} sx={{ maxHeight: '500px', overflowY: 'auto' }}>
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell style={{ fontWeight: 'bold' }}>Homework Name</TableCell>
-                    <TableCell style={{ fontWeight: 'bold' }}>Date</TableCell>
-                    <TableCell style={{ fontWeight: 'bold' }}>Archive</TableCell>
-                    <TableCell style={{ fontWeight: 'bold' }}>File Path</TableCell>
-                    <TableCell style={{ fontWeight: 'bold' }}>Actions</TableCell>
+                    <TableCell style={{ fontWeight: 'bold' }}>{t.homeworkName}</TableCell>
+                    <TableCell style={{ fontWeight: 'bold' }}>{t.date}</TableCell>
+                    <TableCell style={{ fontWeight: 'bold' }}>{t.archive}</TableCell>
+                    <TableCell style={{ fontWeight: 'bold' }}>{t.filePath}</TableCell>
+                    <TableCell style={{ fontWeight: 'bold' }}>{t.actions}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {homeworks.map((homework) => (
-                    <TableRow key={homework.homeworkId}>
-                      <TableCell>{homework.homeworkName}</TableCell>
-                      <TableCell>{homework.homeworkDate}</TableCell>
-                      <TableCell>{homework.archive}</TableCell>
-                      <TableCell
-                        style={{
-                          wordBreak: 'break-word',
-                          whiteSpace: 'normal',
-                          maxWidth: '300px',
-                        }}
-                      >
-                        {homework.filepath}
-                      </TableCell>
-                      <TableCell>
-                        <IconButton color="primary" onClick={() => handleEdit(homework)}>
-                          <Edit />
-                        </IconButton>
-                        <IconButton
-                          color="error"
-                          onClick={() => confirmDelete(homework.homeworkId)}
-                        >
-                          <Delete />
-                        </IconButton>
+                  {homeworks.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={5}>
+                        <Typography variant="h6" sx={{ textAlign: 'center' }}>
+                          {t.noHomeworkAvailable}{' '}
+                        </Typography>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )}
+
+                  {homeworks.map((homework) => {
+                    const localDate = new Date(homework.homeworkDate);
+                    const formattedDate = `${localDate.getFullYear()}-${String(
+                      localDate.getMonth() + 1
+                    ).padStart(2, '0')}-${String(localDate.getDate()).padStart(2, '0')}`;
+                    return (
+                      <TableRow key={homework.homeworkId}>
+                        <TableCell>{homework.homeworkName}</TableCell>
+                        <TableCell>{formattedDate}</TableCell>
+                        <TableCell>{homework.archive}</TableCell>
+                        <TableCell
+                          style={{
+                            wordBreak: 'break-word',
+                            whiteSpace: 'normal',
+                            maxWidth: '300px',
+                          }}
+                        >
+                          {homework.filepath}
+                        </TableCell>
+                        <TableCell>
+                          <IconButton color="primary" onClick={() => handleEdit(homework)}>
+                            <Edit />
+                          </IconButton>
+                          <IconButton
+                            color="error"
+                            onClick={() => confirmDelete(homework.homeworkId)}
+                          >
+                            <Delete />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </TableContainer>
@@ -272,7 +269,7 @@ const HomeworkManager = () => {
             sx={{ width: '100%', mt: 3 }}
           >
             <TextField
-              label="Homework Name"
+              label={t.homeworkName}
               variant="outlined"
               fullWidth
               margin="normal"
@@ -281,7 +278,7 @@ const HomeworkManager = () => {
               required
             />
             <TextField
-              label="Homework Date"
+              label={t.date}
               type="date"
               variant="outlined"
               fullWidth
@@ -293,26 +290,32 @@ const HomeworkManager = () => {
             />
             <Box sx={{ display: 'flex', gap: 2 }}>
               <TextField
-                label="Archive"
+                label={t.archive}
                 variant="outlined"
                 fullWidth
                 value={archive}
                 onChange={(e) => setArchive(e.target.value)}
               />
               <TextField
-                label="Filepath"
+                label={t.filePath}
                 variant="outlined"
                 fullWidth
                 value={filepath}
                 onChange={(e) => setFilepath(e.target.value)}
               />
+              <Link
+                href={`https://gl.mathhub.info/${archive}/-/blob/main/source/${filepath}`}
+                target="_blank"
+              >
+                <OpenInNewIcon style={{ color: PRIMARY_COL }} />
+              </Link>
             </Box>
             <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
               <Button type="submit" variant="contained" color="primary">
-                {homeworkId ? 'Update Homework' : 'Save Homework'}
+                {homeworkId ? t.updateHomework : t.saveHomework}
               </Button>
-              <Button variant="outlined" color="secondary" onClick={resetForm}>
-                Cancel
+              <Button variant="contained" color="secondary" onClick={() => resetForm()}>
+                {t.cancel}
               </Button>
             </Box>
           </Box>
@@ -334,11 +337,11 @@ const HomeworkManager = () => {
             <DialogContentText>Are you sure you want to delete this homework?</DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setDeleteDialogOpen(false)} color="secondary">
+            <Button onClick={() => setDeleteDialogOpen(false)} color="primary">
               Cancel
             </Button>
             <Button onClick={handleDelete} color="error">
-              Yes
+              Delete
             </Button>
           </DialogActions>
         </Dialog>

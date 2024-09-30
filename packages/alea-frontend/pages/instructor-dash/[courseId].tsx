@@ -184,22 +184,17 @@ const InstructorDash = () => {
           ))}
         </Grid>
       </Box>
-      <hr></hr>
+      <hr />
       <Box
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          // justifyContent: 'center',
           alignItems: 'center',
-          height: '100vh', // To center it vertically as well
           textAlign: 'center',
         }}
       >
         {' '}
-        {/* <Typography variant="h4" gutterBottom>
-          Homework Management
-        </Typography> */}
-        <HomeworkManager />
+        <HomeworkManager courseId={courseId} />
       </Box>
     </MainLayout>
   );

@@ -34,6 +34,7 @@ const CourseList: NextPage = () => {
   });
 
   const universities = docIdx.filter((doc) => doc.type === DocIdxType.university);
+  console.log('univ', universities);
   return (
     <MainLayout title="Course-List | VoLL-KI">
       <Box m="0 auto" maxWidth="800px">

@@ -1,16 +1,15 @@
 import { Box, CircularProgress, Typography } from '@mui/material';
 import { getCourseInfo, getUserInfo } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { CourseInfo } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import HomeworkPerformanceTable from '../../components/HomeworkPerformanceTable';
-import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
+import { getLocaleObject } from '../../lang/utils';
+import { CourseInfo } from '@stex-react/utils';
 import { CourseHeader } from '../course-home/[courseId]';
 import { ForceFauLogin } from '../../components/ForceFAULogin';
-import HomeworkManager from 'packages/alea-frontend/components/HomeworkManager';
 
 const HomeworkPage: NextPage = () => {
   const router = useRouter();
@@ -60,7 +59,6 @@ const HomeworkPage: NextPage = () => {
         imageLink={courseInfo.imageLink}
         courseId={courseId}
       />
-      {/* <HomeworkManager /> */}
       <Box maxWidth="900px" m="auto" px="10px">
         <Typography variant="h4" sx={{ m: '30px 0 15px' }}>
           {t.homeworkDashboard}

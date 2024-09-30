@@ -1,3 +1,5 @@
+import { updateHomework } from '@stex-react/api';
+
 export const en = {
   home: {
     header: 'VoLL-KI based Courses at FAU',
@@ -348,6 +350,20 @@ export const en = {
     maxPoints: 'Max Points',
     myScore: 'My Score',
     averageScore: 'Average Score',
+  },
+  homeworkManager: {
+    homeworkManagement: 'Homework Management',
+    homeworks: 'Homeworks',
+    createHomework: 'Create Homework',
+    homeworkName: 'Homework Name',
+    date: 'Date',
+    archive: 'Archive',
+    filePath: 'File Path',
+    actions: 'Actions',
+    saveHomework: 'Save Homework',
+    updateHomework: 'Update Homework',
+    cancel: 'Cancel',
+    noHomeworkAvailable: 'No homework available.',
   },
   logInSystem: {
     reset404: 'User not found.',
