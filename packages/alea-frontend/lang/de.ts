@@ -20,9 +20,10 @@ export const de = {
       slides: 'Folien',
       forum: 'Forum',
       quizzes: 'Quizze',
+      homeworks: 'Hausaufgaben',
       studyBuddy: 'Study Buddy',
       practiceProblems: 'Übungsaufgaben',
-      instructorDashBoard : 'Lehrer-Dashboard'
+      instructorDashBoard: 'Lehrer-Dashboard',
     },
     newHome: {
       alea: 'ALᴇA: Adaptiver Lernassistent',
@@ -115,6 +116,13 @@ export const de = {
       'ist ein Demo-Quiz - damit Sie Ihre Hard-/Software testen (Sie benötigen einen aktuellen Chrome- oder Firefox-Browser) und die Formatierung sehen können. Insbesondere sollten Sie in der Lage sein, die mathematische Notation im Problem des Handlungsreisenden zu lesen.',
     practiceProblems: 'Übungsprobleme',
   },
+  homework: {
+    homeworkDashboard: 'Hausaufgaben-Dashboard',
+    homeworkDashboardDescription:
+      'Diese Seite gibt Ihnen einen Überblick über die anstehenden Hausaufgaben in den {courseId} Vorlesungen.',
+    givenHomeworks: ' Hausaufgaben Gegeben',
+  },
+
   vis: {
     goToTour: 'Gehen Sie zur Tour',
   },
@@ -309,6 +317,13 @@ export const de = {
     quizRecorrected: 'Dieses Quiz wurde erneut bewertet',
     theProblem: 'Das Problem',
     wasRecorrected: 'wurde erneut bewertet',
+  },
+  homeworkPerformanceTable: {
+    homeworkName: 'Name der Hausaufgabe',
+    homeworkDate: 'Hausaufgabedatum',
+    maxPoints: 'Maximale Punkte',
+    myScore: 'Meine Punktzahl',
+    averageScore: 'Durchschnittliche Punktzahl',
   },
   logInSystem: {
     reset404: 'Benutzer nicht gefunden.',

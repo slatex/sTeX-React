@@ -6,6 +6,8 @@ import QuizIcon from '@mui/icons-material/Quiz';
 import { canAccessResource, getCourseInfo } from '@stex-react/api';
 import SearchIcon from '@mui/icons-material/Search';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+
 import {
   Box,
   Button,
@@ -201,6 +203,12 @@ const CourseHomePage: NextPage = () => {
             <CourseComponentLink href={quizzesLink}>
               {t.quizzes}&nbsp;
               <QuizIcon fontSize="large" />
+            </CourseComponentLink>
+          )}
+          {process.env.NEXT_PUBLIC_SITE_VERSION !== 'production' && (
+            <CourseComponentLink href={`/homework/${courseId}`}>
+              {t.homeworks}&nbsp;
+              <AssignmentTurnedInIcon fontSize="large" />
             </CourseComponentLink>
           )}
           <CourseComponentLink href={`/study-buddy/${courseId}`}>
