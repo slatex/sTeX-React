@@ -22,6 +22,11 @@ export async function getAcl(aclId: string): Promise<AccessControlList> {
   return resp.data as AccessControlList;
 }
 
+export async function getCourseAcls(courseId: string, instanceId : string) {
+    const resp = await axios.get(`/api/access-control/get-course-acls?courseId=${courseId}&instanceId=${instanceId}`);
+    return resp.data;
+}
+
 export async function getAllAclMembers(
   aclId: string
 ): Promise<{ fullName: string; userId: string }[]> {
