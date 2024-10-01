@@ -31,7 +31,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res
   );
 
-  // here i am doing this because when ever there is a empty array, it causing error
   const numMembershipRows = memberUserIds.length + memberACLIds.length;
   if (numMembershipRows > 0) {
     const values = new Array(numMembershipRows).fill('(?, ?, ?)');

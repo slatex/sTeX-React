@@ -12,7 +12,13 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { createAcl, getCourseAcls, getSpecificAclIds, isValid, updateResourceAction } from '@stex-react/api';
+import {
+  createAcl,
+  getCourseAcls,
+  getSpecificAclIds,
+  isValid,
+  updateResourceAction,
+} from '@stex-react/api';
 import { Action, CURRENT_TERM, ResourceActionPair } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
@@ -57,8 +63,7 @@ const InstructorDash = () => {
   };
 
   const router = useRouter();
-  const { query } = router;
-  let { courseId } = query;
+  const courseId = router.query.courseId as string;
   const fields = [
     { key: 'notes', label: 'Notes Management' },
     { key: 'quiz', label: 'Quiz Management' },
@@ -101,7 +106,7 @@ const InstructorDash = () => {
     comments: '',
     studyBuddy: '',
   });
-  const [acls, setAcls] = useState<{ id: string }[]>([]);
+  const [acls, setAcls] = useState<string[]>([]);
   const [newAclId, setNewAclId] = useState('');
   const handleAclClick = (aclId: string) => {
     router.push(`/acl/${aclId}`);
@@ -138,37 +143,38 @@ const InstructorDash = () => {
     async function getAclData() {
       const aclIds = await getSpecificAclIds(resourceActionPairs);
       setAclData({
-        notes: aclIds[`/course/${courseId}/instance/ss24/notes`] || '',
-        quiz: aclIds[`/course/${courseId}/instance/ss24/quiz`] || '',
-        comments: aclIds[`/course/${courseId}/instance/ss24/comments`] || '',
-        studyBuddy: aclIds[`/course/${courseId}/instance/ss24/study-buddy`] || '',
+        notes: aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/notes`] || '',
+        quiz: aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/quiz`] || '',
+        comments: aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/comments`] || '',
+        studyBuddy: aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/study-buddy`] || '',
       });
 
       setEditingValues({
-        notes: aclIds[`/course/${courseId}/instance/ss24/notes`] || '',
-        quiz: aclIds[`/course/${courseId}/instance/ss24/quiz`] || '',
-        comments: aclIds[`/course/${courseId}/instance/ss24/comments`] || '',
-        studyBuddy: aclIds[`/course/${courseId}/instance/ss24/study-buddy`] || '',
+        notes: aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/notes`] || '',
+        quiz: aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/quiz`] || '',
+        comments: aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/comments`] || '',
+        studyBuddy: aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/study-buddy`] || '',
       });
     }
     getAclData();
   }, [courseId]);
   useEffect(() => {
+    if (!courseId) return;
     async function getAcls() {
-      const data  = await getCourseAcls(courseId as string, CURRENT_TERM); 
+      const data = await getCourseAcls(courseId, CURRENT_TERM);
       setAcls(data);
     }
-    if(newAclId==''){
+    if (newAclId == '') {
       getAcls();
     }
-  }, [courseId, newAclId ]);
+  }, [courseId, newAclId]);
 
   async function handleCreateAclClick() {
     if (newAclId == '' || !courseId) return;
     const aclId = `${courseId}-${CURRENT_TERM}-${newAclId}`;
     const updaterACLId = `${courseId}-${CURRENT_TERM}-instructors`;
     const res = await isValid(updaterACLId);
-    if (!res){
+    if (!res) {
       setNewAclId('');
       return;
     }
@@ -227,16 +233,16 @@ const InstructorDash = () => {
         <List>
           {acls.map((acl, index) => {
             return (
-              <Box key={acl.id}>
+              <Box key={acl}>
                 <ListItem
                   sx={{
                     cursor: 'pointer',
                     '&:hover': { backgroundColor: '#f0f0f0' },
                   }}
-                  onClick={() => router.push(`/acl/${acl.id}`)}
+                  onClick={() => router.push(`/acl/${acl}`)}
                   disableGutters
                 >
-                  <ListItemText primary={acl.id || '-'} sx={{ fontSize: '14px' }} />
+                  <ListItemText primary={acl || '-'} sx={{ fontSize: '14px' }} />
                 </ListItem>
                 {index < acls.length - 1 && <Divider />}
               </Box>
@@ -252,10 +258,10 @@ const InstructorDash = () => {
             value={newAclId}
             onChange={(e) => setNewAclId(e.target.value)}
             size="small"
-            sx={{ mb: 0, width: '20%', fontSize: '12px', ml:0.5, p: 0 }}
+            sx={{ mb: 0, width: '20%', fontSize: '12px', ml: 0.5, p: 0 }}
             label="New ACL"
           />
-          <Button onClick={handleCreateAclClick}  variant="contained" sx={{ mt: 0, ml: 1 }}>
+          <Button onClick={handleCreateAclClick} variant="contained" sx={{ mt: 0, ml: 1 }}>
             Create
           </Button>
         </Box>
