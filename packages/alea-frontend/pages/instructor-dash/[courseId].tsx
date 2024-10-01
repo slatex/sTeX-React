@@ -21,6 +21,7 @@ import {
 } from '@stex-react/api';
 import { Action, CURRENT_TERM, ResourceActionPair } from '@stex-react/utils';
 import { useRouter } from 'next/router';
+import HomeworkManager from 'packages/alea-frontend/components/HomeworkManager';
 import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
 import { useEffect, useState } from 'react';
 
@@ -127,6 +128,7 @@ const InstructorDash = () => {
     const actionId = resourceActionPairs.find((r) => r.resourceId === resourceId)?.actionId || '';
     const res = await isValid(aclId);
     if (!res) {
+      console.error('invalid aclId');
       setEditingValues({ ...editingValues, [field]: aclData[field] });
       return;
     }
@@ -265,6 +267,18 @@ const InstructorDash = () => {
             Create
           </Button>
         </Box>
+      </Box>
+      <hr />
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          textAlign: 'center',
+        }}
+      >
+        {' '}
+        <HomeworkManager courseId={courseId} />
       </Box>
     </MainLayout>
   );

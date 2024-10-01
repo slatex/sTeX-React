@@ -17,7 +17,6 @@ const HomeworkDocPage: React.FC = () => {
   }
 
   const contentUrl = `:sTeX/document?archive=${archive}&filepath=${filepath}`;
-
   return (
     <MainLayout title={`Homework | ${courseId}`}>
       <Box px="10px" bgcolor="white" maxWidth="800px" m="0 auto">
