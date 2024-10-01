@@ -148,6 +148,7 @@ const HomeworkManager = ({ courseId }) => {
     setOpenSnackbar(false);
     setMessage('');
   };
+  const sourcePath = filepath.replace('xhtml', 'tex');
 
   return (
     <Box
@@ -304,7 +305,7 @@ const HomeworkManager = ({ courseId }) => {
                 onChange={(e) => setFilepath(e.target.value)}
               />
               <Link
-                href={`https://gl.mathhub.info/${archive}/-/blob/main/source/${filepath}`}
+                href={`https://gl.mathhub.info/${archive}/-/blob/main/source/${sourcePath}`}
                 target="_blank"
               >
                 <OpenInNewIcon style={{ color: PRIMARY_COL }} />
