@@ -8,7 +8,7 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
-import { AdminHomework, UserHomework, getHomeworkList } from '@stex-react/api';
+import { HomeworkInfo, LearnerHomeworkInfo, getHomeworkList } from '@stex-react/api';
 import { PRIMARY_COL } from '@stex-react/utils';
 import { getLocaleObject } from '../lang/utils';
 import { useEffect, useState } from 'react';
@@ -17,13 +17,13 @@ import Link from 'next/link';
 
 function HomeworkPerformanceTable({ courseId }: { courseId: string }) {
   const { homeworkPerformanceTable: t, homework: tHW } = getLocaleObject(useRouter());
-  const [homeworkData, setHomeworkData] = useState<UserHomework[]>([]);
+  const [homeworkData, setHomeworkData] = useState<LearnerHomeworkInfo[]>([]);
 
   useEffect(() => {
     const getHomeworkData = async () => {
       try {
         const data = await getHomeworkList(courseId);
-        const mappedData: UserHomework[] = data.map((homework: AdminHomework) => ({
+        const mappedData: LearnerHomeworkInfo[] = data.map((homework: HomeworkInfo) => ({
           name: homework.homeworkName,
           date: new Date(homework.homeworkDate).toLocaleDateString('en-GB'),
           maxPoints: 100,

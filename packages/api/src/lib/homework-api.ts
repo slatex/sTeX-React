@@ -1,12 +1,12 @@
 import axios from 'axios';
 import { getAuthHeaders } from './lms';
-import { AdminHomework } from './homework';
+import { HomeworkInfo } from './homework';
 
 export async function getHomeworkList(courseId: string) {
   const resp = await axios.get(`/api/homework/get-homework/?courseId=${courseId}`, {
     headers: getAuthHeaders(),
   });
-  return resp.data as AdminHomework[];
+  return resp.data as HomeworkInfo[];
 }
 
 export async function createHomework(data: any) {

@@ -24,7 +24,7 @@ import { Edit, Delete } from '@mui/icons-material';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { CURRENT_TERM, PRIMARY_COL } from '@stex-react/utils';
 import {
-  AdminHomework,
+  HomeworkInfo,
   getHomeworkList,
   createHomework,
   updateHomework,
@@ -35,7 +35,7 @@ import { getLocaleObject } from '../lang/utils';
 import { useRouter } from 'next/router';
 
 const HomeworkManager = ({ courseId }) => {
-  const [homeworks, setHomeworks] = useState<AdminHomework[]>([]);
+  const [homeworks, setHomeworks] = useState<HomeworkInfo[]>([]);
   const [homeworkId, setHomeworkId] = useState<number | null>(null);
   const [homeworkName, setHomeworkName] = useState<string>('');
   const [homeworkDate, setHomeworkDate] = useState<string>('');
@@ -95,7 +95,7 @@ const HomeworkManager = ({ courseId }) => {
     }
   };
 
-  const handleEdit = (homework: AdminHomework) => {
+  const handleEdit = (homework: HomeworkInfo) => {
     setHomeworkId(homework.homeworkId);
     setHomeworkName(homework.homeworkName);
     const localDate = new Date(homework.homeworkDate);

@@ -1,4 +1,4 @@
-export interface AdminHomework {
+export interface HomeworkInfo {
   homeworkId: number;
   homeworkName: string;
   homeworkDate: string;
@@ -8,7 +8,7 @@ export interface AdminHomework {
   filepath: string;
 }
 
-export interface UserHomework {
+export interface LearnerHomeworkInfo {
   name: string;
   date: string;
   maxPoints: number;
