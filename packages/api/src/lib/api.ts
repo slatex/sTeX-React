@@ -19,3 +19,4 @@ export * from './request-aggregator';
 export * from './study-buddy';
 export * from './study-buddy-api';
 export * from './nap';
+export * from './nap-api';

@@ -1,4 +1,5 @@
 import {
+  AnswerClass,
   FillInAnswerClass,
   FillInAnswerClassType,
   Input,
@@ -9,10 +10,12 @@ import {
   ProblemResponse,
   QuadState,
   Quiz,
+  SubProblemData,
   Tristate,
 } from '@stex-react/api';
 import { getMMTCustomId, truncateString } from '@stex-react/utils';
 import { ChildNode, Document, Element } from 'domhandler';
+import { copyFileSync } from 'fs';
 import { DomHandler, DomUtils, Parser, parseDocument } from 'htmlparser2';
 
 const NODE_ATTRS_TO_TYPE: { [attrName: string]: InputType } = {
@@ -171,7 +174,7 @@ function recursivelyFindNodes(
   if (node instanceof Element) {
     for (const attrName of attrNames) {
       const attrVal = node.attribs[attrName];
-      if (attrVal) return [{ node, attrName, attrVal }];
+      if (attrVal || attrVal === '') return [{ node, attrName, attrVal }];
     }
   }
   const foundList: { node: Element; attrName: string; attrVal: any }[] = [];
@@ -308,7 +311,36 @@ function getAnswerClass(node: Element): FillInAnswerClass | undefined {
       return undefined;
   }
 }
+function getSubProblems(rootNode: Element): SubProblemData[] {
+  const rawAnswerclasses = recursivelyFindNodes(rootNode, ['data-problem-answerclass']);
+  const subproblems: SubProblemData[] = [];
+  for (const rawAnswerClass of rawAnswerclasses) {
+    if (rawAnswerClass.attrVal === '') {
+      subproblems.push({ answerclasses: [], solution: getProblemSolution(rawAnswerClass.node) });
+      continue;
+    }
 
+    subproblems.at(-1)?.answerclasses.push({
+      className: getAnswerClassId(rawAnswerClass.attrVal),
+      description: '',
+      title: DomUtils.textContent(rawAnswerClass.node),
+      points: getPointsFromAnswerClass(rawAnswerClass.node),
+    });
+  }
+  return subproblems;
+}
+function getAnswerClassId(attribute: string): string {
+  const startIndex = attribute.indexOf('{');
+  const endIndex = attribute.indexOf('}');
+  if (startIndex == -1 || endIndex == -1) {
+    return attribute;
+  }
+  return attribute.substring(startIndex, endIndex);
+}
+function getPointsFromAnswerClass(rawClass: Element): number {
+  const pointElemnt = recursivelyFindNodes(rawClass, ['data-problem-answerclass-pts'])[0];
+  return Number(pointElemnt?.attrVal ?? '0');
+}
 function getFillInAnswerClasses(fillInSolNode: Element): FillInAnswerClass[] {
   const answerClassNodes = recursivelyFindNodes(fillInSolNode, ['data-fillin-type']);
   if (!answerClassNodes?.length) {
@@ -354,7 +386,7 @@ function getProblemHeader(rootNode: Element) {
   return header ? DomUtils.getOuterHTML(header) : '';
 }
 
-function getProblemSolutions(rootNode?: Element): string {
+function getProblemSolution(rootNode?: Element): string {
   if (!rootNode) return '';
   const solutionNodes = findSolutionRootNodes(rootNode);
   return solutionNodes.map((node) => DomUtils.getOuterHTML(node)).join('\n');
@@ -364,19 +396,18 @@ export function getProblem(htmlStr: string, problemUrl = '') {
   const htmlDoc = parseDocument(htmlStr);
   const problemRootNode = findProblemRootNode(htmlDoc);
   problemRootNode.attribs[PROBLEM_PARSED_MARKER] = 'true';
-  const solutionRootNode = findSolutionRootNodes(htmlDoc);
   const points = getProblemPoints(problemRootNode);
   const header = getProblemHeader(problemRootNode);
-  const solutions = solutionRootNode.map((solutionRootNode) =>
-    getProblemSolutions(solutionRootNode)
-  );
+  
+  const subproblems = getSubProblems(problemRootNode);
+  console.log(problemUrl);
   if (!problemRootNode) {
     return {
       header: '',
       objectives: '',
       preconditions: '',
       inputs: [],
-      solutions: [],
+      subProblemDatas: [],
       points: 0,
       statement: { outerHTML: `<span>Not found: ${problemUrl}</span>` },
     } as Problem;
@@ -395,7 +426,7 @@ export function getProblem(htmlStr: string, problemUrl = '') {
     preconditions: problemRootNode?.attribs?.['data-problem-preconditions'] ?? '',
     statement: { outerHTML: DomUtils.getOuterHTML(problemRootNode) }, // The mcb block is already marked display:none.
     inputs,
-    solutions: solutions,
+    subProblemDatas: subproblems,
     points,
   } as Problem;
   return problem;

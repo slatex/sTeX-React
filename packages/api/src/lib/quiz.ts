@@ -92,15 +92,24 @@ export interface Input {
   inline: boolean;
   ignoreForScoring?: boolean;
 }
-
+export interface SubProblemData {
+  solution: string;
+  answerclasses: AnswerClass[];
+}
+export interface AnswerClass {
+  className: string;
+  points: number;
+  title: string;
+  description: string;
+}
 export interface Problem {
   header: string;
   objectives: string;
   preconditions: string;
   statement: { outerHTML: string };
   inputs: Input[];
-  solutions:string[];
   points: number;
+  subProblemDatas: SubProblemData[];
 }
 
 export interface InputResponse {
@@ -162,8 +171,8 @@ export interface QuizResult {
 }
 
 export interface GetQuizResponse {
-  courseId : string,
-  courseTerm : string,
+  courseId: string;
+  courseTerm: string;
 
   currentServerTs: number;
   quizStartTs?: number;
@@ -247,8 +256,7 @@ export function getElapsedTime(events: TimerEvent[], problemIdx: number) {
       case TimerEventType.PAUSE:
       case TimerEventType.SUBMIT:
         isPaused = true;
-        if (wasThisProblem && lastStartTime_ms)
-          totalTime += e.timestamp_ms - lastStartTime_ms;
+        if (wasThisProblem && lastStartTime_ms) totalTime += e.timestamp_ms - lastStartTime_ms;
         lastStartTime_ms = undefined;
         break;
       case TimerEventType.UNPAUSE:
@@ -265,11 +273,7 @@ export function getElapsedTime(events: TimerEvent[], problemIdx: number) {
         currentProblemIdx = e.problemIdx;
     }
   }
-  if (
-    (!problemIdx || currentProblemIdx === problemIdx) &&
-    !isPaused &&
-    lastStartTime_ms
-  ) {
+  if ((!problemIdx || currentProblemIdx === problemIdx) && !isPaused && lastStartTime_ms) {
     totalTime += Date.now() - lastStartTime_ms;
   }
   return totalTime;
