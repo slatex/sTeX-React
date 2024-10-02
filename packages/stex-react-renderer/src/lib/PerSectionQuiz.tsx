@@ -2,12 +2,7 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Button, IconButton, Tooltip, Typography, TextField } from '@mui/material';
 
 import LinearProgress from '@mui/material/LinearProgress';
-import {
-  Problem,
-  ProblemResponse,
-  getProblemIdsForFile,
-  getProblemShtml,
-} from '@stex-react/api';
+import { Problem, ProblemResponse, getProblemIdsForFile, getProblemShtml } from '@stex-react/api';
 import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
 import { sourceFileUrl } from '@stex-react/utils';
 import { useRouter } from 'next/router';
@@ -154,15 +149,18 @@ export function PerSectionQuiz({
         {
           <Box>
             {subProblems.map((c, i) => (
-              <div style={{ minWidth: '35vw' }}>
-                <span>{t.answer} {i + 1}: </span>
+              <Box >
+                <span>
+                  {t.answer} {i + 1}:{' '}
+                </span>
                 <SubProblemAnswer
+                  showPoints={false}
                   problemHeader={problem.header}
                   questionId={problemIds[problemIdx]}
                   subProblem={c}
                   subProblemId={i.toString()}
                 ></SubProblemAnswer>
-              </div>
+              </Box>
             ))}
           </Box>
         }

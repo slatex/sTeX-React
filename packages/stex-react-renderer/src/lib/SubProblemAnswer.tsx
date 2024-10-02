@@ -1,30 +1,52 @@
-import { Button, TextField, Box } from '@mui/material';
 import {
+  Button,
+  TextField,
+  Box,
+  Dialog,
+  List,
+  ListItemButton,
+  ListItemText,
+  Divider,
+  AppBar,
+  IconButton,
+  Toolbar,
+  Typography,
+} from '@mui/material';
+import {
+  AnswerResponse,
   createAnswer,
   CreateAnswerClassRequest,
   createGradring,
+  getAnswers,
   SubProblemData,
 } from '@stex-react/api';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 import { useRouter } from 'next/router';
-import { ChangeEvent, SyntheticEvent, useState } from 'react';
+import { ChangeEvent, SyntheticEvent, useEffect, useState } from 'react';
 import { getLocaleObject } from './lang/utils';
-
+import CloseIcon from '@mui/icons-material/Close';
+import { defaultAnswerClasses } from '@stex-react/quiz-utils';
 export function SubProblemAnswer({
   subProblem,
   problemHeader,
   questionId,
   subProblemId,
+  showPoints,
 }: {
   subProblem: SubProblemData;
   questionId: string;
   subProblemId: string;
   problemHeader: string;
+  showPoints: boolean;
 }) {
+  dayjs.extend(relativeTime);
   const t = getLocaleObject(useRouter()).quiz;
   const [showSolution, setShowSolution] = useState(false);
   const [answer, setAnswer] = useState('');
   const [feedback, setFeedBack] = useState('');
   const [answerId, setAnswerId] = useState(0);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [answerClasses, setAnswerClasses] = useState(
     subProblem.answerclasses.map((c) => ({
       count: 0,
@@ -33,6 +55,12 @@ export function SubProblemAnswer({
       points: c.points,
     }))
   );
+  const [answers, setAnswers] = useState<AnswerResponse[]>([]);
+  useEffect(() => {
+    getAnswers().then((c) =>
+      setAnswers(c.filter((c) => c.questionId === questionId && c.subProblemId === subProblemId))
+    );
+  }, [answerId]);
   async function onSubmitAnswer(event: SyntheticEvent) {
     event.preventDefault();
     if (showSolution) {
@@ -70,22 +98,25 @@ export function SubProblemAnswer({
     event.preventDefault();
     setShowSolution(false);
     if (answer === '') return;
-    const acs: CreateAnswerClassRequest[] = subProblem.answerclasses.map((c) => {
-      return {
-        answerClassId: c.className,
-        closed: false,
-        description: c.description,
-        title: c.title,
-        isTrait: false,
-        points: c.points,
-        count: answerClasses.find((d) => d.id === c.className)?.count || 0,
-      };
-    });
-    await createGradring({
-      answerClasses: acs.filter((c) => c.count > 0),
-      answerId: answerId,
-      customFeedback: feedback,
-    });
+    const acs: CreateAnswerClassRequest[] = subProblem.answerclasses
+      .map((c) => {
+        return {
+          answerClassId: c.className,
+          closed: false,
+          description: c.description,
+          title: c.title,
+          isTrait: false,
+          points: c.points,
+          count: answerClasses.find((d) => d.id === c.className)?.count || 0,
+        };
+      })
+      .filter((c) => c.count > 0);
+    if (acs.length > 0)
+      await createGradring({
+        answerClasses: acs,
+        answerId: answerId,
+        customFeedback: feedback,
+      });
     setAnswer('');
     setAnswerId(0);
     setFeedBack('');
@@ -98,16 +129,22 @@ export function SubProblemAnswer({
           disabled={showSolution}
           multiline
           fullWidth
-          placeholder={t.answer+"..."}
+          placeholder={t.answer + '...'}
           minRows={5}
           style={{ display: 'block' }}
           value={answer}
           onChange={(e) => setAnswer(e.target.value)}
         />
-        <Button type="submit" variant="contained">
-          {showSolution ? t.hideSolution : t.checkSolution}
-        </Button>
+        <div style={{ display: 'flex', gap: '3px' }}>
+          <Button type="submit" variant="contained">
+            {showSolution ? t.hideSolution : t.checkSolution}
+          </Button>
+          <Button disabled={showSolution} onClick={() => setIsHistoryOpen(true)} type="button">
+            Show older answers
+          </Button>
+        </div>
       </form>
+
       {showSolution && (
         <form onSubmit={onSaveGrading}>
           {answerClasses.map((d) => (
@@ -119,7 +156,8 @@ export function SubProblemAnswer({
                 type="number"
                 defaultValue="0"
               ></TextField>
-              {`${d.title} (${t.point}:${d.points})`}
+              {`${d.title}`}
+              {showPoints && ` (${t.point}:${d.points})`}
             </Box>
           ))}
           <span>{t.feedback}</span>
@@ -137,6 +175,43 @@ export function SubProblemAnswer({
           </Button>
         </form>
       )}
+      <Dialog fullScreen open={isHistoryOpen} onClose={() => setIsHistoryOpen(false)}>
+        <AppBar sx={{ position: 'relative' }}>
+          <Toolbar>
+            <IconButton
+              edge="start"
+              color="inherit"
+              onClick={() => setIsHistoryOpen(false)}
+              aria-label="close"
+            >
+              <CloseIcon />
+            </IconButton>
+            <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
+              History
+            </Typography>
+          </Toolbar>
+        </AppBar>
+        <List>
+          {answers.map((c) => (
+            <>
+              <ListItemButton
+                onClick={() => {
+                  setAnswer(c.answer);
+                  setAnswerId(c.id);
+                  setShowSolution(true);
+                  setIsHistoryOpen(false);
+                }}
+              >
+                <ListItemText
+                  primary={c.answer}
+                  secondary={dayjs(c.updatedAt.toString()).toNow(true)}
+                />
+              </ListItemButton>
+              <Divider />
+            </>
+          ))}
+        </List>
+      </Dialog>
     </>
   );
 }
