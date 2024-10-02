@@ -2,17 +2,21 @@ import {
   Button,
   TextField,
   Box,
+  RadioGroup,
+  Radio,
   Dialog,
   List,
   ListItemButton,
   ListItemText,
   Divider,
   AppBar,
+  FormControlLabel,
   IconButton,
   Toolbar,
   Typography,
 } from '@mui/material';
 import {
+  AnswerClass,
   AnswerResponse,
   createAnswer,
   CreateAnswerClassRequest,
@@ -27,6 +31,7 @@ import { ChangeEvent, SyntheticEvent, useEffect, useState } from 'react';
 import { getLocaleObject } from './lang/utils';
 import CloseIcon from '@mui/icons-material/Close';
 import { defaultAnswerClasses } from '@stex-react/quiz-utils';
+import { mmtHTMLToReact } from './mmtParser';
 export function SubProblemAnswer({
   subProblem,
   problemHeader,
@@ -48,12 +53,13 @@ export function SubProblemAnswer({
   const [answerId, setAnswerId] = useState(0);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [answerClasses, setAnswerClasses] = useState(
-    subProblem.answerclasses.map((c) => ({
+    [...defaultAnswerClasses, ...subProblem.answerclasses].map((c) => ({
       count: 0,
-      id: c.className,
-      title: c.title,
-      points: c.points,
+      ...c,
     }))
+  );
+  const [selectedAnswerClass, setSelectAnswerClass] = useState<AnswerClass>(
+    defaultAnswerClasses[0]
   );
   const [answers, setAnswers] = useState<AnswerResponse[]>([]);
   useEffect(() => {
@@ -80,12 +86,23 @@ export function SubProblemAnswer({
     if (created.status === 201) setAnswerId(created.answerId.id);
     else setShowSolution(false);
   }
+  const handleDefaulAnswerClassesChange = (id: string) => {
+    const newAnswerClasses = answerClasses.map((answerclass) => {
+      if (answerclass.className === id) {
+        setSelectAnswerClass(answerclass);
+        return { ...answerclass, count: 1 };
+      }
+      return { ...answerclass, count: 0 };
+    });
+
+    setAnswerClasses(newAnswerClasses);
+  };
   const handleAnswerClassesChange = (
     id: string,
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const newAnswerClasses = answerClasses.map((answerclass) => {
-      if (answerclass.id === id) {
+      if (answerclass.className === id) {
         const newCount = +event.target.value;
         return { ...answerclass, count: newCount >= 0 ? newCount : 0 };
       }
@@ -102,12 +119,12 @@ export function SubProblemAnswer({
       .map((c) => {
         return {
           answerClassId: c.className,
-          closed: false,
+          closed: c.closed,
           description: c.description,
           title: c.title,
-          isTrait: false,
+          isTrait: c.isTrait,
           points: c.points,
-          count: answerClasses.find((d) => d.id === c.className)?.count || 0,
+          count: answerClasses.find((d) => d.className === c.className)?.count || 0,
         };
       })
       .filter((c) => c.count > 0);
@@ -120,6 +137,7 @@ export function SubProblemAnswer({
     setAnswer('');
     setAnswerId(0);
     setFeedBack('');
+    setSelectAnswerClass(answerClasses[0]);
   }
 
   return (
@@ -147,19 +165,35 @@ export function SubProblemAnswer({
 
       {showSolution && (
         <form onSubmit={onSaveGrading}>
-          {answerClasses.map((d) => (
-            <Box my="5px">
-              <TextField
-                size="small"
-                onChange={(e) => handleAnswerClassesChange(d.id, e)}
-                style={{ marginLeft: '10px', width: '3vw' }}
-                type="number"
-                defaultValue="0"
-              ></TextField>
-              {`${d.title}`}
-              {showPoints && ` (${t.point}:${d.points})`}
-            </Box>
-          ))}
+          <div style={{ color: '#555' }}>{mmtHTMLToReact(subProblem.solution)}</div>
+          <RadioGroup defaultValue={answerClasses[0].className}>
+            {answerClasses
+              .filter((c) => !c.isTrait)
+              .map((d) => (
+                <FormControlLabel
+                  onChange={(e) => handleDefaulAnswerClassesChange(d.className)}
+                  value={d.className}
+                  control={<Radio />}
+                  label={`${d.title}, ${d.description}`}
+                />
+              ))}
+          </RadioGroup>
+          {(!selectedAnswerClass?.closed ?? true) &&
+            answerClasses
+              .filter((c) => c.isTrait)
+              .map((d) => (
+                <Box my="5px">
+                  <TextField
+                    size="small"
+                    onChange={(e) => handleAnswerClassesChange(d.className, e)}
+                    style={{ marginLeft: '10px', width: '3vw' }}
+                    type="number"
+                    defaultValue="0"
+                  ></TextField>
+                  {`${d.title}, ${d.description}`}
+                  {showPoints && ` (${t.point}:${d.points})`}
+                </Box>
+              ))}
           <span>{t.feedback}</span>
           <TextField
             multiline

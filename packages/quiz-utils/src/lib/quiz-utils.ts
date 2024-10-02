@@ -325,6 +325,8 @@ function getSubProblems(rootNode: Element): SubProblemData[] {
       description: '',
       title: DomUtils.textContent(rawAnswerClass.node),
       points: getPointsFromAnswerClass(rawAnswerClass.node),
+      closed: false,
+      isTrait: true,
     });
   }
   return subproblems;
@@ -398,7 +400,7 @@ export function getProblem(htmlStr: string, problemUrl = '') {
   problemRootNode.attribs[PROBLEM_PARSED_MARKER] = 'true';
   const points = getProblemPoints(problemRootNode);
   const header = getProblemHeader(problemRootNode);
-  
+
   const subproblems = getSubProblems(problemRootNode);
   console.log(problemUrl);
   if (!problemRootNode) {
@@ -502,3 +504,104 @@ export function removeAnswerInfo(problem: string) {
   // Convert the modified DOM back to HTML
   return DomUtils.getOuterHTML(modifiedDom);
 }
+
+export const defaultAnswerClasses: AnswerClass[] = [
+  {
+    className: 'ac-defualt-01',
+    title: 'Entirely correct',
+    description: "Student's answer is correct and complete regarding all aspects.",
+    points: 1000,
+    closed: true,
+    isTrait: false,
+  },
+  {
+    className: 'ac-defualt-02',
+    title: 'Entirely wrong',
+    description: "Student's answer is completely unrelated to expected answers.",
+    points: 0,
+    closed: true,
+    isTrait: false,
+  },
+  {
+    className: 'ac-defualt-03',
+    title: 'Empty',
+    description: 'Student has left this question entirely or mostly blank.',
+    points: 0,
+    closed: true,
+    isTrait: false,
+  },
+  {
+    className: 'ac-defualt-04',
+    title: 'Crossed out',
+    description: 'Student has crossed out all answers.',
+
+    points: 0,
+    closed: true,
+    isTrait: false,
+  },
+  {
+    className: 'ac-defualt-05',
+    title: 'Illegible',
+    description: "Student's answer to this question cannot be deciphered despite honest effort.",
+
+    points: 0,
+    closed: true,
+    isTrait: false,
+  },
+  {
+    className: 'ac-defualt-06',
+    title: 'Correct, but...',
+    description: "Student's answer is mostly correct.",
+    isTrait: false,
+    points: 1000,
+    closed: false,
+  },
+  {
+    className: 'ac-defualt-07',
+    title: 'Wrong, but...',
+    description: "Student's answer is mostly wrong.",
+    isTrait: false,
+    points: 0,
+    closed: false,
+  },
+  {
+    className: 'ac-defualt-08',
+    title: 'Abandoned',
+    description: 'Abandoned',
+    isTrait: false,
+    points: 0,
+    closed: false,
+  },
+  {
+    className: 'ac-defualt-09',
+    title: 'Minor errors',
+    description: "Student's answer contains minor errors.",
+    closed: false,
+    isTrait: true,
+    points: -0.5,
+  },
+  {
+    className: 'ac-defualt-10',
+    title: 'Argumentation flawed',
+    description: "Student's argumentation is unsound/imprecise.",
+    closed: false,
+    isTrait: true,
+    points: -0.5,
+  },
+  {
+    className: 'ac-defualt-11',
+    title: 'Syntax errors',
+    description: 'Student uses syntax incorrectly.',
+    closed: false,
+    isTrait: true,
+    points: -0.5,
+  },
+  {
+    className: 'ac-defualt-12',
+    title: 'Formal errors',
+    description: "Student's answer misses formal requirements.",
+    closed: false,
+    isTrait: true,
+    points: -0.5,
+  },
+];

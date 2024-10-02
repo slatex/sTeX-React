@@ -100,6 +100,8 @@ export interface AnswerClass {
   className: string;
   points: number;
   title: string;
+  closed: boolean;
+  isTrait: boolean;
   description: string;
 }
 export interface Problem {
