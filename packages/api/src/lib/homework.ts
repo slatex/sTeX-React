@@ -17,3 +17,13 @@ export interface LearnerHomeworkInfo {
   archive: string;
   filepath: string;
 }
+
+export interface HomeworkData {
+  homeworkName: string;
+  homeworkDate: string;
+  archive: boolean;
+  filepath: string;
+  homeworkId?: number;
+  courseId: string;
+  courseInstance: string;
+}

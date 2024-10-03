@@ -37,14 +37,14 @@ import { useRouter } from 'next/router';
 const HomeworkManager = ({ courseId }) => {
   const [homeworks, setHomeworks] = useState<HomeworkInfo[]>([]);
   const [homeworkId, setHomeworkId] = useState<number | null>(null);
-  const [homeworkName, setHomeworkName] = useState<string>('');
-  const [homeworkDate, setHomeworkDate] = useState<string>('');
-  const [archive, setArchive] = useState<string>('');
-  const [filepath, setFilepath] = useState<string>('');
-  const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
-  const [message, setMessage] = useState<string>('');
+  const [homeworkName, setHomeworkName] = useState('');
+  const [homeworkDate, setHomeworkDate] = useState('');
+  const [archive, setArchive] = useState('');
+  const [filepath, setFilepath] = useState('');
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [message, setMessage] = useState('');
   const [view, setView] = useState<'list' | 'create' | 'edit'>('list');
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedHomeworkId, setSelectedHomeworkId] = useState<number | null>(null);
   const { homeworkManager: t } = getLocaleObject(useRouter());
 
