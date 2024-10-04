@@ -84,10 +84,11 @@ const CourseNotesPage: NextPage = () => {
         onClick={handleSearchClick}
         style={{
           position: 'fixed',
-          right: '100px',
-          top: '100px',
+          right: '10px',
+          top: '80px',
           zIndex: 1000,
-          transform: 'scale(1.5)',
+          background: '#FFFFFFF0',
+          transform: 'scale(1.1)',
         }}
       >
         <SearchIcon style={{ color: PRIMARY_COL }} />
