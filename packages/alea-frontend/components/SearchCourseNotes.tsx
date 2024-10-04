@@ -192,7 +192,7 @@ const SearchCourseNotes = ({
         <TextField
           fullWidth
           variant="outlined"
-          placeholder={`Search in ${courseId || 'the'} course`}
+          placeholder={`Search in ${courseId.toUpperCase() || 'the'} notes`}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
