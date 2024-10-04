@@ -243,8 +243,8 @@ const CourseHomePage: NextPage = () => {
               variant="outlined"
               placeholder="Search in notes..."
               InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
+                startAdornment: (
+                  <InputAdornment position="start">
                     <IconButton>
                       <SearchIcon onClick={() => handleSearch()} />
                     </IconButton>
