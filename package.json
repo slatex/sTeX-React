@@ -3,8 +3,9 @@
   "version": "0.0.0",
   "license": "GNU AGPL",
   "scripts": {
-    "start": "nx serve",
-    "build": "nx run nodejs-scripts:serve:production --watch=false && nx run prebuild-scripts:serve:production --watch=false && nx build",
+    "prebuild": "nx run prebuild-scripts:serve:production --watch=false",
+    "start": "npm run prebuild && nx serve ",
+    "build": "npm run prebuild && nx build",
     "test": "nx test",
     "reset": "nx reset",
     "nxgraph": "nx graph"
@@ -21,6 +22,7 @@
     "@sentry/nextjs": "^7.80.0",
     "@swc/helpers": "0.5.3",
     "@types/htmlparser2": "^3.10.4",
+    "@types/jsonwebtoken": "^9.0.7",
     "@uiw/codemirror-extensions-langs": "^4.21.21",
     "@uiw/react-codemirror": "^4.21.21",
     "axios": "^1.4.0",
@@ -34,6 +36,7 @@
     "html-to-text": "^9.0.5",
     "htmlparser2": "^8.0.1",
     "ioredis": "^5.4.1",
+    "jsonwebtoken": "^9.0.2",
     "markdown-it": "^13.0.1",
     "mathjax-full": "^3.2.2",
     "myst-parser": "^1.4.4",

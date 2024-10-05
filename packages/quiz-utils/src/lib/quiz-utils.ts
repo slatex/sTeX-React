@@ -500,7 +500,7 @@ export function removeAnswerInfo(problem: string) {
     return node;
   };
 
-  const modifiedDom = handler.dom.map((n) => traverse(n));
+  const modifiedDom = handler.dom.map((n) => traverse(n)).filter(Boolean);
   // Convert the modified DOM back to HTML
   return DomUtils.getOuterHTML(modifiedDom);
 }

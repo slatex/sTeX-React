@@ -14,6 +14,7 @@ import { ReactNode } from 'react';
 import Diversity3 from '@mui/icons-material/Diversity3';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
+import { PARTNERED_UNIVERSITIES } from '..';
 
 const UniversityDetail = {
   FAU: {
@@ -31,6 +32,10 @@ const UniversityDetail = {
   'Heriot Watt': {
     fullName: 'Heriot-Watt University',
     logo: '/heriott_logo.png',
+  },
+  others: {
+    fullName: 'Other Institutions',
+    logo: '/others.png',
   },
 };
 
@@ -169,7 +174,7 @@ const StudentHomePage: NextPage = ({
             <Image
               src={UniversityDetail[institution]?.logo}
               alt={UniversityDetail[institution]?.fullName}
-              width={150}
+              width={UniversityDetail[institution]?.fullName === 'Other Institutions' ? 170 : 150}
               height={150}
             />
             <Typography fontFamily={'Roboto'} fontWeight={500} ml={2} color={'#04316a'}>
@@ -195,10 +200,6 @@ const StudentHomePage: NextPage = ({
           <h2>{t.otherCourses}</h2>
           <Box display="flex" flexWrap="wrap">
             {Object.values(courses)
-              .filter(
-                ({courseId}) =>
-                  !['rip', 'spinf'].includes(courseId) || process.env.NEXT_PUBLIC_SITE_VERSION !== 'production'
-              )
               .filter((course) => !course.isCurrent)
               .map((c) => (
                 <CourseThumb key={c.courseId} course={c} />
@@ -223,6 +224,10 @@ export async function getStaticPaths() {
         locale: lang,
       });
     });
+    paths.push({
+      params: { institution: 'others' },
+      locale: lang,
+    });
   });
   return {
     paths,
@@ -239,7 +244,18 @@ export async function getStaticProps({ params, locale }) {
     };
   }
   const mmtUrl = 'https://stexmmt.mathhub.info';
-  const courses = await getCourseInfo(mmtUrl, params.institution);
+  const allCourses = await getCourseInfo(mmtUrl);
+
+  const courses =
+    params.institution === 'others'
+      ? Object.keys(allCourses)
+          .filter(
+            (key) =>
+              !PARTNERED_UNIVERSITIES.map((uni) => uni.code).includes(allCourses[key].institution)
+          )
+          .map((key) => allCourses[key])
+      : await getCourseInfo(mmtUrl, params.institution);
+
   return {
     props: {
       courses,

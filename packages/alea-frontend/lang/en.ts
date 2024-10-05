@@ -1,3 +1,5 @@
+import { updateHomework } from '@stex-react/api';
+
 export const en = {
   home: {
     header: 'VoLL-KI based Courses at FAU',
@@ -21,8 +23,10 @@ export const en = {
       slides: 'Slides',
       forum: 'Forum',
       quizzes: 'Quizzes',
+      homeworks: 'Homeworks',
       studyBuddy: 'Study Buddy',
       practiceProblems: 'Practice Problems',
+      instructorDashBoard: 'Instructor Dashboard',
     },
     newHome: {
       alea: 'ALᴇA: Adaptive Learning Assistant',
@@ -30,6 +34,7 @@ export const en = {
         'Courses that adapt to the users preferences and competencies focused on the knowledge conveyed in a particular knowledge unit.',
       signUpNow: 'Sign up now',
       exploreOurCourse: 'Explore our Courses',
+      publications: 'Publications',
       whyAlea: 'Why ALᴇA?',
       exploreCourses: 'Explore Courses',
       partneredWith:
@@ -142,6 +147,12 @@ export const en = {
     demoQuizText:
       'is a demo quiz - so that you can test your hard/software (you will need a recent chrome or firefox browser) and see the format. In particular, you should be able to read the Math in the travelling salesperson problem.',
     practiceProblems: 'Practice Problems',
+  },
+  homework: {
+    homeworkDashboard: 'Homework Dashboard',
+    homeworkDashboardDescription:
+      'This page gives you an overview over the upcoming Homeworks in the {courseId} lectures. ',
+    givenHomeworks: 'Given Homeworks',
   },
   vis: {
     goToTour: 'Go To Tour',
@@ -332,6 +343,27 @@ export const en = {
     quizRecorrected: 'This quiz was re-corrected',
     theProblem: 'The problem',
     wasRecorrected: 'was re-corrected',
+  },
+  homeworkPerformanceTable: {
+    homeworkName: 'Homework Name',
+    homeworkDate: 'Homework Date',
+    maxPoints: 'Max Points',
+    myScore: 'My Score',
+    averageScore: 'Average Score',
+  },
+  homeworkManager: {
+    homeworkManagement: 'Homework Management',
+    homeworks: 'Homeworks',
+    createHomework: 'Create Homework',
+    homeworkName: 'Homework Name',
+    date: 'Date',
+    archive: 'Archive',
+    filePath: 'File Path',
+    actions: 'Actions',
+    saveHomework: 'Save Homework',
+    updateHomework: 'Update Homework',
+    cancel: 'Cancel',
+    noHomeworkAvailable: 'No homework available.',
   },
   logInSystem: {
     reset404: 'User not found.',

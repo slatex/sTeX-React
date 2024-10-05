@@ -376,7 +376,7 @@ function getSparlQueryForDependencies(archive: string, filepath: string) {
   const lastDot = filepath.lastIndexOf('.');
   filepath = filepath.slice(0, lastDot) + '.omdoc';
   const omdoc = `http://mathhub.info/${archive}/${filepath}`;
-  return `SELECT ?x WHERE {
+  return `SELECT DISTINCT ?x WHERE {
   <${omdoc}#> (<http://mathhub.info/ulo#crossrefs>|<http://mathhub.info/ulo#specifies>|<http://mathhub.info/ulo#contains>|<http://mathhub.info/ulo#has-language-module>)+/<http://mathhub.info/ulo#crossrefs> ?x .
   ?x <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://mathhub.info/ulo#constant> .
   MINUS {

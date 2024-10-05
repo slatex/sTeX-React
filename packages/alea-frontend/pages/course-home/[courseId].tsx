@@ -1,18 +1,35 @@
 import ArticleIcon from '@mui/icons-material/Article';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
-import PreviewIcon from '@mui/icons-material/Preview';
+import PersonIcon from '@mui/icons-material/Person';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import QuizIcon from '@mui/icons-material/Quiz';
+import { canAccessResource, getCourseInfo } from '@stex-react/api';
+import SearchIcon from '@mui/icons-material/Search';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
-import { Box, Button, CircularProgress } from '@mui/material';
-import { getCourseInfo } from '@stex-react/api';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+
+import {
+  Box,
+  Button,
+  CircularProgress,
+  IconButton,
+  InputAdornment,
+  TextField,
+} from '@mui/material';
 import {
   ContentFromUrl,
   DisplayReason,
   DocumentWidthSetter,
   ServerLinksContext,
 } from '@stex-react/stex-react-renderer';
-import { BG_COLOR, CourseInfo, XhtmlContentUrl } from '@stex-react/utils';
+import {
+  Action,
+  BG_COLOR,
+  CourseInfo,
+  CURRENT_TERM,
+  ResourceName,
+  XhtmlContentUrl,
+} from '@stex-react/utils';
 import { NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -38,6 +55,7 @@ const BG_COLORS = {
   krmt: 'radial-gradient(circle, white, #f5f5b7)',
   gdp: 'radial-gradient(circle, #4bffd7, #a11cff)',
   rip: 'radial-gradient(circle, #fcef6e, #3f2e86)',
+  spinf: 'radial-gradient(circle, #b2bbc0, #184e6d)',
 };
 
 export function CourseHeader({
@@ -105,11 +123,24 @@ const CourseHomePage: NextPage = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const courseId = router.query.courseId as string;
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
+  const [searchQuery, setSearchQuery] = useState('');
   const { mmtUrl } = useContext(ServerLinksContext);
+  const [isInstructor, setIsInstructor] = useState<boolean>(false);
 
   useEffect(() => {
     if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
   }, [mmtUrl]);
+
+  useEffect(() => {
+    if (!courseId) return;
+    async function checkAccess() {
+      await canAccessResource(ResourceName.COURSE_ACCESS, Action.ACCESS_CONTROL, {
+        courseId,
+        instanceId: CURRENT_TERM,
+      }).then(setIsInstructor);
+    }
+    checkAccess();
+  }, [courseId]);
 
   if (!router.isReady || !courses) return <CircularProgress />;
   const courseInfo = courses[courseId];
@@ -124,6 +155,16 @@ const CourseHomePage: NextPage = () => {
   const { home, courseHome: tCourseHome } = getLocaleObject(router);
   const t = home.courseThumb;
 
+  const showSearchBar = ['ai-1', 'ai-2', 'iwgs-1', 'iwgs-2'].includes(courseId);
+  function handleSearch() {
+    if (!searchQuery) return;
+    router.push(`/search/${courseId}?query=${encodeURIComponent(searchQuery)}`);
+  }
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      handleSearch();
+    }
+  };
   return (
     <MainLayout
       title={(courseId || '').toUpperCase() + ` ${tCourseHome.title} | VoLL-KI`}
@@ -164,7 +205,12 @@ const CourseHomePage: NextPage = () => {
               <QuizIcon fontSize="large" />
             </CourseComponentLink>
           )}
-
+          {process.env.NEXT_PUBLIC_SITE_VERSION !== 'production' && (
+            <CourseComponentLink href={`/homework/${courseId}`}>
+              {t.homeworks}&nbsp;
+              <AssignmentTurnedInIcon fontSize="large" />
+            </CourseComponentLink>
+          )}
           <CourseComponentLink href={`/study-buddy/${courseId}`}>
             {t.studyBuddy}&nbsp;
             <Diversity3Icon fontSize="large" />
@@ -173,7 +219,48 @@ const CourseHomePage: NextPage = () => {
             {<p>{t.practiceProblems}</p>}&nbsp;
             <Image src="/practice_problems.svg" width={35} height={35} alt="" />
           </CourseComponentLink>
+          {isInstructor && (
+            <CourseComponentLink href={`/instructor-dash/${courseId}`}>
+              {<p>{t.instructorDashBoard}</p>}&nbsp;
+              <PersonIcon fontSize="large" />
+            </CourseComponentLink>
+          )}
         </Box>
+        {showSearchBar && (
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: '100%',
+              padding: '10px',
+              maxWidth: '600px',
+              margin: '0 auto',
+            }}
+          >
+            <TextField
+              fullWidth
+              variant="outlined"
+              placeholder="Search in notes..."
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <IconButton>
+                      <SearchIcon onClick={() => handleSearch()} />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                backgroundColor: 'white',
+                borderRadius: '30px',
+                mt: '10px',
+              }}
+              onKeyDown={handleKeyDown}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </Box>
+        )}
         <br />
         <DocumentWidthSetter>
           <ContentFromUrl
