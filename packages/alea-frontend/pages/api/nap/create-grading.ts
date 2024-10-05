@@ -14,14 +14,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   answerClasses = answerClasses.filter((c) => c.count != 0);
   customFeedback = customFeedback?.trim();
   if (!answerId || answerClasses.length == 0) {
+    
     res.status(422).end();
+    return;
   }
   answerClasses.forEach((element) => {
     if (
       !element.answerClassId ||
       element.closed == null ||
       element.isTrait == null ||
-      !element.description ||
+      // !element.description ||
       !element.title ||
       !element.points
     )
