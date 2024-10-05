@@ -238,6 +238,7 @@ export function SubProblemAnswer({
               >
                 <ListItemText
                   primary={c.answer}
+                  style={{whiteSpace: "pre-line"}}
                   secondary={dayjs(c.updatedAt.toString()).toNow(true)}
                 />
               </ListItemButton>
