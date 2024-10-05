@@ -54,8 +54,7 @@ export function PracticeQuestions({
 
   const problem = problems[problemIdx];
   const response = responses[problemIdx];
-  const solutions = problems[problemIdx]?.solutions;
-
+  const subProblems = problems[problemIdx].subProblemDatas;
   if (!problem || !response) return <>error</>;
 
   return (
@@ -120,8 +119,8 @@ export function PracticeQuestions({
         )}
         {showSolution && (
           <Box mb="10px">
-            {solutions.map((solution) => (
-              <div style={{ color: '#555' }}>{mmtHTMLToReact(solution)}</div>
+            {subProblems.map((problem) => (
+              <div style={{ color: '#555' }}>{mmtHTMLToReact(problem.solution)}</div>
             ))}
           </Box>
         )}
