@@ -1,7 +1,8 @@
 export interface HomeworkInfo {
   homeworkId: number;
   homeworkName: string;
-  homeworkDate: string;
+  homeworkGivenDate: string;
+  answerReleaseDate: string;
   courseId: string;
   courseInstance: string;
   archive: string;
@@ -10,7 +11,8 @@ export interface HomeworkInfo {
 
 export interface LearnerHomeworkInfo {
   name: string;
-  date: string;
+  homeworkGivenDate: string;
+  answerReleaseDate: string;
   maxPoints: number;
   myScore: number;
   avgScore: number;
@@ -20,8 +22,9 @@ export interface LearnerHomeworkInfo {
 
 export interface HomeworkData {
   homeworkName: string;
-  homeworkDate: string;
-  archive: boolean;
+  homeworkGivenDate: string;
+  answerReleaseDate: string;
+  archive: string;
   filepath: string;
   homeworkId?: number;
   courseId: string;
