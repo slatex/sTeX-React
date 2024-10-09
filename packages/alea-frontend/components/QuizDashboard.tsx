@@ -91,7 +91,6 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
   });
   const [isUpdating, setIsUpdating] = useState(false);
   const [canAccess, setCanAccess] = useState(false);
-  const [quizCourseId, setQuizCourseId] = useState(courseId);
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
   const { mmtUrl } = useContext(ServerLinksContext);
   const isNew = isNewQuiz(selectedQuizId);
@@ -108,7 +107,7 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
 
   useEffect(() => {
     axios
-      .get(`/api/get-all-quizzes?courseId=${quizCourseId}&courseTerm=${courseTerm}`, {
+      .get(`/api/get-all-quizzes?courseId=${courseId}&courseTerm=${courseTerm}`, {
         headers: getAuthHeaders(),
       })
       .then((res) => {
@@ -120,7 +119,7 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
   }, [courseId, courseTerm]);
 
   useEffect(() => {
-    if (!selectedQuizId || selectedQuizId == NEW_QUIZ_ID) return;
+    if (!selectedQuizId || selectedQuizId === NEW_QUIZ_ID) return;
 
     getQuizStats(selectedQuizId, courseId, courseTerm).then(setStats);
     const interval = setInterval(() => {
@@ -149,7 +148,6 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
     setQuizEndTs(selected.quizEndTs);
     setFeedbackReleaseTs(selected.feedbackReleaseTs);
     setManuallySetPhase(selected.manuallySetPhase);
-    setQuizCourseId(selected.courseId);
     setTitle(selected.title);
     setProblems(selected.problems);
     setCourseTerm(selected.courseTerm);
@@ -172,7 +170,7 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
     }).then(setCanAccess);
   }, []);
 
-  if (!canAccess) return <>UnAuthorized</>;
+  if (!canAccess) return <>Unauthorized</>;
 
   return (
     <Box m="auto" maxWidth="800px" p="10px">
@@ -203,21 +201,6 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
         setTimestamp={setQuizStartTs}
         label="Quiz start time"
       />
-      <FormControl variant="outlined" sx={{ minWidth: '300px', m: '10px 0' }}>
-        <InputLabel id="course-id-label">Course Id</InputLabel>
-        <Select
-          label="Course Id"
-          labelId="course-id-label"
-          value={quizCourseId}
-          onChange={(e) => setQuizCourseId(e.target.value)}
-        >
-          {['', ...Object.keys(courses)].map((enumValue) => (
-            <MenuItem key={enumValue} value={enumValue}>
-              {enumValue}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
       <CheckboxWithTimestamp
         timestamp={quizEndTs}
         setTimestamp={setQuizEndTs}
@@ -257,7 +240,7 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
           const quiz = {
             id: selectedQuizId,
             title,
-            courseId: quizCourseId,
+            courseId,
             courseTerm,
             quizStartTs,
             quizEndTs,

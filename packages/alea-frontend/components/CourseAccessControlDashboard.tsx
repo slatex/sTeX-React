@@ -20,17 +20,44 @@ import {
 } from '@stex-react/api';
 import { Action, CURRENT_TERM, ResourceActionPair } from '@stex-react/utils';
 import { useRouter } from 'next/router';
-import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
 import { useEffect, useState } from 'react';
 
-const CourseAccessControlDashboard = ({ courseId }) => {
-  interface AclData {
-    notes: string;
-    quiz: string;
-    comments: string;
-    studyBuddy: string;
-  }
+interface AclData {
+  notes: string;
+  quiz: string;
+  comments: string;
+  studyBuddy: string;
+}
 
+const FIELDS = [
+  { key: 'notes', label: 'Notes Management' },
+  { key: 'quiz', label: 'Quiz Management' },
+  { key: 'comments', label: 'Comments Moderation' },
+  { key: 'studyBuddy', label: 'Study Buddy Management' },
+] as const;
+
+const resourceActionPairs: ResourceActionPair[] = [
+  {
+    resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/notes`,
+    actionId: Action.MUTATE,
+  },
+  {
+    resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/quiz`,
+    actionId: Action.MUTATE,
+  },
+  {
+    resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/comments`,
+    actionId: Action.MODERATE,
+  },
+  {
+    resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/study-buddy`,
+    actionId: Action.MODERATE,
+  },
+];
+
+
+const CourseAccessControlDashboard = ({ courseId }) => {
+  const router = useRouter();
   const renderEditableField = (field: keyof AclData) => {
     return isAnyDataEditing[field] ? (
       <TextField
@@ -60,31 +87,7 @@ const CourseAccessControlDashboard = ({ courseId }) => {
       </Typography>
     );
   };
-  const router = useRouter();
-  const fields = [
-    { key: 'notes', label: 'Notes Management' },
-    { key: 'quiz', label: 'Quiz Management' },
-    { key: 'comments', label: 'Comments Moderation' },
-    { key: 'studyBuddy', label: 'Study Buddy Management' },
-  ];
-  const resourceActionPairs: ResourceActionPair[] = [
-    {
-      resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/notes`,
-      actionId: Action.MUTATE,
-    },
-    {
-      resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/quiz`,
-      actionId: Action.MUTATE,
-    },
-    {
-      resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/comments`,
-      actionId: Action.MODERATE,
-    },
-    {
-      resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/study-buddy`,
-      actionId: Action.MODERATE,
-    },
-  ];
+
   const [isAnyDataEditing, setIsAnyDataEditing] = useState({
     notes: false,
     quiz: false,
@@ -195,7 +198,7 @@ const CourseAccessControlDashboard = ({ courseId }) => {
       </Typography>
 
       <Grid container spacing={1}>
-        {fields.map((field) => (
+        {FIELDS.map((field) => (
           <Grid item xs={6} key={field.key}>
             <Box
               display="flex"
