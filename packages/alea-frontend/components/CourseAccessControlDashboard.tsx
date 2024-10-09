@@ -36,7 +36,7 @@ const FIELDS = [
   { key: 'studyBuddy', label: 'Study Buddy Management' },
 ] as const;
 
-const resourceActionPairs: ResourceActionPair[] = [
+const getResourseActionPairs = (courseId: string) => [
   {
     resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/notes`,
     actionId: Action.MUTATE,
@@ -54,7 +54,6 @@ const resourceActionPairs: ResourceActionPair[] = [
     actionId: Action.MODERATE,
   },
 ];
-
 
 const CourseAccessControlDashboard = ({ courseId }) => {
   const router = useRouter();
@@ -122,6 +121,8 @@ const CourseAccessControlDashboard = ({ courseId }) => {
     }
     setIsAnyDataEditing({ ...isAnyDataEditing, [field]: !isAnyDataEditing[field] });
   };
+  const resourceActionPairs: ResourceActionPair[] = getResourseActionPairs(courseId);
+
   const updateAclId = async (field: keyof AclData, aclId: string) => {
     const resourceId = `/course/${courseId}/instance/${CURRENT_TERM}/${field}`;
     const actionId = resourceActionPairs.find((r) => r.resourceId === resourceId)?.actionId || '';
@@ -171,7 +172,7 @@ const CourseAccessControlDashboard = ({ courseId }) => {
   }, [courseId]);
 
   async function handleCreateAclClick() {
-    if (newAclId == '' || !courseId) return;
+    if (!newAclId || !courseId) return;
     const aclId = `${courseId}-${CURRENT_TERM}-${newAclId}`;
     const updaterACLId = `${courseId}-${CURRENT_TERM}-instructors`;
     const res = await isValid(updaterACLId);
