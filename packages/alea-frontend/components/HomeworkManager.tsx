@@ -152,13 +152,13 @@ const HomeworkManager = ({ courseId }) => {
 
   return (
     <Box
+      maxWidth="900px"
       sx={{
-        width: { xs: '100%', sm: '70%' },
         margin: '0 auto',
         padding: '0 16px',
       }}
     >
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h4" align="center" gutterBottom>
         {t.homeworkManagement}{' '}
       </Typography>
       <Box
