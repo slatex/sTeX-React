@@ -5,12 +5,13 @@ import CourseAccessControlDashboard from 'packages/alea-frontend/components/Cour
 import HomeworkManager from 'packages/alea-frontend/components/HomeworkManager';
 import QuizDashboard from 'packages/alea-frontend/components/QuizDashboard';
 import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
-import { Tabs, Tab, Typography } from '@mui/material';
+import { Tabs, Tab } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
 import { CourseHeader } from '../course-home/[courseId]';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { getCourseInfo } from '@stex-react/api';
 import { CourseInfo } from '@stex-react/utils';
+import InstructorStudyBuddyModeration from 'packages/alea-frontend/components/InstructorStudyBuddyModeration';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -77,6 +78,7 @@ const InstructorDash: NextPage = () => {
           <Tab label="Access Control" />
           <Tab label="Homework Manager" />
           <Tab label="Quiz Dashboard" />
+          <Tab label="Study Buddy" />
         </Tabs>
         <TabPanel value={value} index={0}>
           <CourseAccessControlDashboard courseId={courseId} />
@@ -86,6 +88,9 @@ const InstructorDash: NextPage = () => {
         </TabPanel>
         <TabPanel value={value} index={2}>
           <QuizDashboard courseId={courseId} />
+        </TabPanel>
+        <TabPanel value={value} index={3}>
+          <InstructorStudyBuddyModeration courseId={courseId} />
         </TabPanel>
       </Box>
     </MainLayout>
