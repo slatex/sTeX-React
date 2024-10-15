@@ -25,15 +25,17 @@ import { useEffect, useState } from 'react';
 interface AclData {
   notes: string;
   quiz: string;
+  homework: string;
   comments: string;
-  studyBuddy: string;
+  'study-buddy': string;
 }
 
 const FIELDS = [
   { key: 'notes', label: 'Notes Management' },
   { key: 'quiz', label: 'Quiz Management' },
+  { key: 'homework', label: 'Homework Management' },
   { key: 'comments', label: 'Comments Moderation' },
-  { key: 'studyBuddy', label: 'Study Buddy Management' },
+  { key: 'study-buddy', label: 'Study Buddy Management' },
 ] as const;
 
 const getResourseActionPairs = (courseId: string) => [
@@ -43,6 +45,10 @@ const getResourseActionPairs = (courseId: string) => [
   },
   {
     resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/quiz`,
+    actionId: Action.MUTATE,
+  },
+  {
+    resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/homework`,
     actionId: Action.MUTATE,
   },
   {
@@ -90,20 +96,22 @@ const CourseAccessControlDashboard = ({ courseId }) => {
   const [isAnyDataEditing, setIsAnyDataEditing] = useState({
     notes: false,
     quiz: false,
+    homework: false,
     comments: false,
-    studyBuddy: false,
+    'study-buddy': false,
   });
   const [editingValues, setEditingValues] = useState({
     notes: '',
     quiz: '',
     comments: '',
-    studyBuddy: '',
+    "study-buddy": '',
   });
   const [aclData, setAclData] = useState<AclData>({
     notes: '',
     quiz: '',
+    homework: '',
     comments: '',
-    studyBuddy: '',
+    'study-buddy': '',
   });
   const [acls, setAcls] = useState<string[]>([]);
   const [newAclId, setNewAclId] = useState('');
@@ -147,15 +155,16 @@ const CourseAccessControlDashboard = ({ courseId }) => {
       setAclData({
         notes: aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/notes`],
         quiz: aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/quiz`],
+        homework: aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/homework`],
         comments: aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/comments`],
-        studyBuddy: aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/study-buddy`],
+        'study-buddy': aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/study-buddy`],
       });
 
       setEditingValues({
         notes: aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/notes`],
         quiz: aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/quiz`],
         comments: aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/comments`],
-        studyBuddy: aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/study-buddy`],
+        'study-buddy': aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/study-buddy`],
       });
     }
     getAclData();
