@@ -20,13 +20,5 @@ export interface LearnerHomeworkInfo {
   filepath: string;
 }
 
-export interface HomeworkData {
-  homeworkName: string;
-  homeworkGivenDate: string;
-  answerReleaseDate: string;
-  archive: string;
-  filepath: string;
-  homeworkId?: number;
-  courseId: string;
-  courseInstance: string;
-}
+export type CreateHomeworkRequest = Omit<HomeworkInfo, 'homeworkId'>;
+export type UpdateHomeworkRequest = HomeworkInfo;

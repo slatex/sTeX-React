@@ -19,6 +19,7 @@ export enum ResourceName {
   COURSE_QUIZ = 'COURSE_QUIZ',
   COURSE_COMMENTS = 'COURSE_COMMENTS',
   COURSE_STUDY_BUDDY = 'COURSE_STUDY_BUDDY',
+  COURSE_HOMEWORK = 'COURSE_HOMEWORK',
 
   // Resources related to all courses.
   ALL_COMMENTS = 'ALL_COMMENTS',
@@ -111,6 +112,17 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
       { type: ComponentType.FIXED, value: 'instance' },
       { name: 'instanceId', type: ComponentType.VARIABLE },
       { type: ComponentType.FIXED, value: 'study-buddy' },
+    ],
+  },
+  {
+    name: ResourceName.COURSE_HOMEWORK,
+    possibleActions: [Action.MUTATE],
+    components: [
+      { type: ComponentType.FIXED, value: 'course' },
+      { name: 'courseId', type: ComponentType.VARIABLE, value: '' },
+      { type: ComponentType.FIXED, value: 'instance' },
+      { name: 'instanceId', type: ComponentType.VARIABLE, value: '' },
+      { type: ComponentType.FIXED, value: 'homework' },
     ],
   },
   {

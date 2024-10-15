@@ -20,6 +20,8 @@ import {
   createHomework,
   updateHomework,
   deleteHomework,
+  UpdateHomeworkRequest,
+  CreateHomeworkRequest,
 } from '@stex-react/api';
 import { getLocaleObject } from '../lang/utils';
 import { useRouter } from 'next/router';
@@ -73,9 +75,9 @@ const HomeworkManager = ({ courseId }) => {
     try {
       let response;
       if (homeworkId) {
-        response = await updateHomework(body);
+        response = await updateHomework(body as UpdateHomeworkRequest);
       } else {
-        response = await createHomework(body);
+        response = await createHomework(body as CreateHomeworkRequest);
       }
       setMessage(response.data.message);
       setOpenSnackbar(true);
@@ -102,7 +104,7 @@ const HomeworkManager = ({ courseId }) => {
   const handleDelete = async () => {
     if (selectedHomeworkId) {
       try {
-        const response = await deleteHomework(selectedHomeworkId);
+        const response = await deleteHomework(selectedHomeworkId, courseId);
         setMessage(response.message);
         setOpenSnackbar(true);
         getHomeworks();
