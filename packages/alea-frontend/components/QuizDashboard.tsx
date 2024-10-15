@@ -21,8 +21,7 @@ import { useContext, useEffect, useState } from 'react';
 import { CheckboxWithTimestamp } from './CheckBoxWithTimestamp';
 import { QuizFileReader } from './QuizFileReader';
 import { QuizStatsDisplay } from './QuizStatsDisplay';
-import MainLayout from '../layouts/MainLayout';
-MainLayout;
+
 const NEW_QUIZ_ID = 'New';
 
 function isNewQuiz(quizId: string) {

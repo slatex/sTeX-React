@@ -11,7 +11,7 @@ import { CourseHeader } from '../course-home/[courseId]';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { getCourseInfo } from '@stex-react/api';
 import { CourseInfo } from '@stex-react/utils';
-import InstructorStudyBuddyModeration from 'packages/alea-frontend/components/InstructorStudyBuddyModeration';
+import { StudyBuddyModeratorStats } from 'packages/alea-frontend/components/StudyBuddyModeratorStats';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -90,7 +90,7 @@ const InstructorDash: NextPage = () => {
           <QuizDashboard courseId={courseId} />
         </TabPanel>
         <TabPanel value={value} index={3}>
-          <InstructorStudyBuddyModeration courseId={courseId} />
+          <StudyBuddyModeratorStats courseId={courseId} />
         </TabPanel>
       </Box>
     </MainLayout>

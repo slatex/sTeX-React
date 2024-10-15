@@ -13,53 +13,34 @@ import {
   Typography,
 } from '@mui/material';
 import {
-  AllCoursesStats,
-  GetStudyBuddiesResponse,
-  Languages,
-  MeetType,
-  StudyBuddy,
-  UserInfo,
-  UserStats,
-  canModerateStudyBuddy,
   connectionRequest,
   getCourseInfo,
+  GetStudyBuddiesResponse,
   getStudyBuddyList,
   getStudyBuddyUserInfo,
-  getStudyBuddyUsersStats,
   getUserInfo,
   isLoggedIn,
+  Languages,
+  MeetType,
   removeConnectionRequest,
   setActive,
+  StudyBuddy,
   updateStudyBuddyInfo,
+  UserInfo,
 } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { BG_COLOR, CourseInfo, CURRENT_TERM, MaAI_COURSES } from '@stex-react/utils';
+import { BG_COLOR, CourseInfo, MaAI_COURSES } from '@stex-react/utils';
 import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { StudyBuddyForm } from '../../components/StudyBuddyForm';
-import {
-  StudyBuddyListing,
-  StudyBuddyListingTable,
-} from '../../components/StudyBuddyListingTable';
+import { StudyBuddyListing, StudyBuddyListingTable } from '../../components/StudyBuddyListingTable';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
 import { CourseHeader } from '../course-home/[courseId]';
-import StudyBuddyModeratorOverview from '../../components/StudyBuddyModeratorOverview';
 
-const StudyBuddyConnectionsGraph = dynamic(
-  () => import('../../components/StudyBuddyConnectionsGraph'),
-  { ssr: false }
-);
-
-function OptOutButton({
-  studyBuddy,
-  courseId,
-}: {
-  studyBuddy: StudyBuddy;
-  courseId: string;
-}) {
+function OptOutButton({ studyBuddy, courseId }: { studyBuddy: StudyBuddy; courseId: string }) {
   const { studyBuddy: t } = getLocaleObject(useRouter());
   return (
     <Button
@@ -77,51 +58,13 @@ function OptOutButton({
   );
 }
 
-function StatsForModerator() {
-  const router = useRouter();
-  const courseId = router.query.courseId as string;
-  const { studyBuddy: t } = getLocaleObject(router);
-  const [overviewData, setOverviewData] = useState<AllCoursesStats>();
-  const [connections, setConnections] = useState<UserStats['connections']>([]);
-  const [userIdsAndActiveStatus, setUserIdsAndActiveStatus] = useState([]);
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await getStudyBuddyUsersStats(courseId);
-      setOverviewData(data);
-      setConnections(data.connections);
-      setUserIdsAndActiveStatus(data.userIdsAndActiveStatus);
-    };
-    fetchData();
-  }, [courseId]);
-
-  return (
-    <>
-      <Typography variant="h4">{t.insightHeading}</Typography>
-      <Card sx={{ mt: '20px', mb: '20px' }}>
-        <CardContent>
-          <StudyBuddyModeratorOverview overviewData={overviewData} />
-          <hr />
-          <StudyBuddyConnectionsGraph
-            connections={connections}
-            userIdsAndActiveStatus={userIdsAndActiveStatus}
-          />
-        </CardContent>
-      </Card>
-    </>
-  );
-}
-
 const StudyBuddyPage: NextPage = () => {
   const router = useRouter();
   const courseId = router.query.courseId as string;
   const { studyBuddy: t } = getLocaleObject(router);
   const [isLoading, setIsLoading] = useState(true);
-  const [fromServer, setFromServer] = useState<StudyBuddy | undefined>(
-    undefined
-  );
-  const [allBuddies, setAllBuddies] = useState<
-    GetStudyBuddiesResponse | undefined
-  >(undefined);
+  const [fromServer, setFromServer] = useState<StudyBuddy | undefined>(undefined);
+  const [allBuddies, setAllBuddies] = useState<GetStudyBuddiesResponse | undefined>(undefined);
   const [userInput, setUserInput] = useState<StudyBuddy>({
     userId: '',
     userName: '',
@@ -138,10 +81,7 @@ const StudyBuddyPage: NextPage = () => {
   const [userInfo, setUserInfo] = useState<UserInfo | undefined>(null);
   const [agreed, setAgreed] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [courses, setCourses] = useState<
-    { [id: string]: CourseInfo } | undefined
-  >(undefined);
-  const [isModerator, setIsModerator] = useState(false);
+  const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
   const masterCourses = MaAI_COURSES;
   const { mmtUrl } = useContext(ServerLinksContext);
   const refetchStudyBuddyLists = useCallback(() => {
@@ -166,13 +106,11 @@ const StudyBuddyPage: NextPage = () => {
       setIsLoading(false);
       setFromServer(data);
     });
-    canModerateStudyBuddy(courseId, CURRENT_TERM).then(setIsModerator);
   }, [courseId]);
 
   if (!router.isReady || !courses) return <CircularProgress />;
   const courseInfo = courses[courseId];
-  const courseName =
-    courseInfo?.courseName || masterCourses[courseId]?.courseName;
+  const courseName = courseInfo?.courseName || masterCourses[courseId]?.courseName;
   if (!courseName) {
     router.replace('/');
     return <>Course Not Found!</>;
@@ -185,19 +123,8 @@ const StudyBuddyPage: NextPage = () => {
       title={(courseId || '').toUpperCase() + ` Study Buddy | VoLL-KI`}
       bgColor={BG_COLOR}
     >
-      <CourseHeader
-        courseName={courseName}
-        imageLink={courseInfo?.imageLink}
-        courseId={courseId}
-      />
-      <Box
-        maxWidth="900px"
-        m="auto"
-        px="10px"
-        display="flex"
-        flexDirection="column"
-      >
-        {isModerator ? <StatsForModerator /> : null}
+      <CourseHeader courseName={courseName} imageLink={courseInfo?.imageLink} courseId={courseId} />
+      <Box maxWidth="900px" m="auto" px="10px" display="flex" flexDirection="column">
         {notSignedUp || isEditing ? (
           !isLoading ? (
             <Card sx={{ mt: '20px' }}>
@@ -210,10 +137,7 @@ const StudyBuddyPage: NextPage = () => {
                 />
                 <FormControlLabel
                   control={
-                    <Checkbox
-                      value={agreed}
-                      onChange={(e) => setAgreed(e.target.checked)}
-                    />
+                    <Checkbox value={agreed} onChange={(e) => setAgreed(e.target.checked)} />
                   }
                   label={t.agreementText}
                 />
@@ -234,10 +158,7 @@ const StudyBuddyPage: NextPage = () => {
                       {notSignedUp ? t.join : t.update}
                     </Button>
                     {!notSignedUp && (
-                      <Button
-                        variant="contained"
-                        onClick={() => setIsEditing(false)}
-                      >
+                      <Button variant="contained" onClick={() => setIsEditing(false)}>
                         {t.discard}
                       </Button>
                     )}
@@ -270,9 +191,7 @@ const StudyBuddyPage: NextPage = () => {
                 >
                   {t.editInfo}
                 </Button>
-                {!fromServer.active && (
-                  <OptOutButton studyBuddy={fromServer} courseId={courseId} />
-                )}
+                {!fromServer.active && <OptOutButton studyBuddy={fromServer} courseId={courseId} />}
               </CardActions>
             </Card>
           </>
