@@ -6,14 +6,7 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
 
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
-import {
-  Box,
-  IconButton,
-  Menu,
-  MenuItem,
-  Tooltip,
-  Typography,
-} from '@mui/material';
+import { Box, IconButton, Menu, MenuItem, Tooltip, Typography } from '@mui/material';
 import { keyframes } from '@mui/system';
 import {
   Notification,
@@ -78,12 +71,8 @@ function NotificationBell({ shouldRing }: { shouldRing: boolean }) {
   );
 }
 
-export function changeSystemUpdateToNotification(
-  systemUpdate: any,
-  locale: string
-): Notification {
-  const { content, header, content_de, header_de, postedTimestamp } =
-    systemUpdate;
+export function changeSystemUpdateToNotification(systemUpdate: any, locale: string): Notification {
+  const { content, header, content_de, header_de, postedTimestamp } = systemUpdate;
   return {
     postedTimestamp,
     link: `/updates#${systemUpdate.id}`,
@@ -102,9 +91,7 @@ export function useNotificationData() {
 
   const allItems = [
     ...notifications,
-    ...SYSTEM_UPDATES.map((update) =>
-      changeSystemUpdateToNotification(update, locale)
-    ),
+    ...SYSTEM_UPDATES.map((update) => changeSystemUpdateToNotification(update, locale)),
   ];
 
   const sortedItems = allItems.sort((a, b) => {
@@ -118,9 +105,7 @@ export function useNotificationData() {
 function NotificationButton() {
   const router = useRouter();
   const { notification: t } = getLocaleObject(router);
-  const [notificationSeenTime, setNotificationSeenTime] = useState<
-    string | undefined
-  >(undefined);
+  const [notificationSeenTime, setNotificationSeenTime] = useState<string | undefined>(undefined);
   // System info menu crap start
   const [anchorEl, setAnchorEl] = useState<any>(null);
   const open = Boolean(anchorEl);
@@ -142,15 +127,10 @@ function NotificationButton() {
 
   function shouldRing(topUpdate) {
     if (!isLoggedIn()) {
-      const lastNotificationSeenTime = localStore?.getItem(
-        'notification-seen-time'
-      );
+      const lastNotificationSeenTime = localStore?.getItem('notification-seen-time');
       return lastNotificationSeenTime !== topUpdate;
     } else {
-      return (
-        notificationSeenTime !== undefined &&
-        notificationSeenTime.toString() !== topUpdate
-      );
+      return notificationSeenTime !== undefined && notificationSeenTime.toString() !== topUpdate;
     }
   }
 
@@ -178,35 +158,28 @@ function NotificationButton() {
         sx={{ '& .MuiMenu-list': { pb: 0 } }}
       >
         {sortedItems.slice(0, 7).map((item, idx) => (
-          <>
-            <Link
-              href={item.link}
-              target={getLinkTarget(item.notificationType)}
-            >
-              <MenuItem key={idx} onClick={handleClose}>
-                <Box display="flex" alignItems="center">
-                  <Box marginRight="10px">
-                    <NotificationIcon type={item.notificationType} />
-                  </Box>
-                  <Box>
-                    {item.header}
-                    <Typography display="block" variant="body2" color="gray">
-                      <DateView
-                        timestampMs={new Date(item.postedTimestamp)?.getTime()}
-                        style={{ fontSize: '14px' }}
-                      />
-                    </Typography>
-                  </Box>
+          <Link key={item.link} href={item.link} target={getLinkTarget(item.notificationType)}>
+            <MenuItem key={idx} onClick={handleClose}>
+              <Box display="flex" alignItems="center">
+                <Box marginRight="10px">
+                  <NotificationIcon type={item.notificationType} />
                 </Box>
-              </MenuItem>
-            </Link>
-          </>
+                <Box>
+                  {item.header}
+                  <Typography display="block" variant="body2" color="gray">
+                    <DateView
+                      timestampMs={new Date(item.postedTimestamp)?.getTime()}
+                      style={{ fontSize: '14px' }}
+                    />
+                  </Typography>
+                </Box>
+              </Box>
+            </MenuItem>
+          </Link>
         ))}
         <Box textAlign="center" p="8px" bgcolor={PRIMARY_COL}>
           <Link href="/all-notifications">
-            <Typography style={{ color: 'white' }}>
-              {t.allNotifications}
-            </Typography>
+            <Typography style={{ color: 'white' }}>{t.allNotifications}</Typography>
           </Link>
         </Box>
       </Menu>

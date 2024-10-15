@@ -25,7 +25,8 @@ function HomeworkPerformanceTable({ courseId }: { courseId: string }) {
         const data = await getHomeworkList(courseId);
         const mappedData: LearnerHomeworkInfo[] = data.map((homework: HomeworkInfo) => ({
           name: homework.homeworkName,
-          date: new Date(homework.homeworkDate).toLocaleDateString('en-GB'),
+          homeworkGivenDate: new Date(homework.homeworkGivenDate).toLocaleDateString('en-GB'),
+          answerReleaseDate: new Date(homework.answerReleaseDate).toLocaleDateString('en-GB'),
           maxPoints: 100,
           myScore: 0,
           avgScore: 0,
@@ -54,7 +55,10 @@ function HomeworkPerformanceTable({ courseId }: { courseId: string }) {
                 <b>{t.homeworkName}</b>
               </TableCell>
               <TableCell>
-                <b>{t.homeworkDate}</b>
+                <b>{t.homeworkGivenDate}</b>
+              </TableCell>
+              <TableCell>
+                <b>{t.answerReleaseDate}</b>
               </TableCell>
               <TableCell>
                 <b>{t.maxPoints}</b>
@@ -107,8 +111,11 @@ function HomeworkPerformanceTable({ courseId }: { courseId: string }) {
                     onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
                     onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
                   >
-                    {homework.date}
+                    {homework.homeworkGivenDate}
                   </Link>
+                </TableCell>
+                <TableCell sx={{ color: PRIMARY_COL, wordBreak: 'break-word', minWidth: '100px' }}>
+                  {homework.answerReleaseDate}
                 </TableCell>
                 <TableCell sx={{ color: PRIMARY_COL, wordBreak: 'break-word', minWidth: '100px' }}>
                   {homework.maxPoints}

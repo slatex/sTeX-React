@@ -217,7 +217,8 @@ CREATE TABLE ReviewRequest   (
 CREATE TABLE homework (
     homeworkId INT PRIMARY KEY AUTO_INCREMENT,    
     homeworkName VARCHAR(255),          
-    homeworkDate DATE,                  
+    homeworkGivenDate DATE,                  
+    answerReleaseDate DATE,                  
     courseId VARCHAR(255),                
     courseInstance VARCHAR(255),                   
     archive VARCHAR(255),                          

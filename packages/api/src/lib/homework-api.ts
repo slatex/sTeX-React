@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { getAuthHeaders } from './lms';
-import { HomeworkInfo } from './homework';
+import { CreateHomeworkRequest, HomeworkInfo, UpdateHomeworkRequest } from './homework';
 
 export async function getHomeworkList(courseId: string) {
   const resp = await axios.get(`/api/homework/get-homework/?courseId=${courseId}`, {
@@ -9,22 +9,25 @@ export async function getHomeworkList(courseId: string) {
   return resp.data as HomeworkInfo[];
 }
 
-export async function createHomework(data: any) {
+export async function createHomework(data: CreateHomeworkRequest) {
   return axios.post('/api/homework/create-homework', data, {
     headers: getAuthHeaders(),
   });
 }
 
-export async function updateHomework(data: any) {
-  return axios.put('/api/homework/update-homework', data, {
+export async function updateHomework(data: UpdateHomeworkRequest) {
+  return axios.post('/api/homework/update-homework', data, {
     headers: getAuthHeaders(),
   });
 }
 
-export async function deleteHomework(homeworkId: number) {
-  const response = await axios.delete('/api/homework/delete-homework', {
-    data: { homeworkId },
-    headers: getAuthHeaders(),
-  });
+export async function deleteHomework(homeworkId: number, courseId: string) {
+  const response = await axios.post(
+    '/api/homework/delete-homework',
+    { homeworkId, courseId },
+    {
+      headers: getAuthHeaders(),
+    }
+  );
   return response.data;
 }
