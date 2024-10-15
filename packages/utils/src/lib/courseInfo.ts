@@ -41,7 +41,8 @@ export function getQuizzesLink(courseId: string) {
   return `/quiz-dash/${courseId}`;
 }
 
-export const CURRENT_TERM = 'SS24';
+export const CURRENT_TERM_URI_UNSAFE = 'WS23/24';
+export const CURRENT_TERM = 'WS23-24';
 
 export function createCourseInfo(
   courseId: string,

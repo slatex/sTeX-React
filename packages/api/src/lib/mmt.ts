@@ -1,6 +1,7 @@
 import {
   COURSES_INFO,
   CURRENT_TERM,
+  CURRENT_TERM_URI_UNSAFE,
   CourseInfo,
   FileLocation,
   convertHtmlStringToPlain,
@@ -272,6 +273,11 @@ export async function getDocIdx(mmtUrl: string, institution?: string) {
   if (!CACHED_DOCIDX) {
     const resp = await axios.get(`${mmtUrl}/:sTeX/docidx`);
     CACHED_DOCIDX = resp.data as DocIdx[];
+    CACHED_DOCIDX.forEach((doc) => {
+      doc.instances = doc.instances?.map((i) =>
+        i.semester === CURRENT_TERM_URI_UNSAFE ? { ...i, semester: CURRENT_TERM } : i
+      );
+    });
   }
   if (!institution) {
     return CACHED_DOCIDX;
