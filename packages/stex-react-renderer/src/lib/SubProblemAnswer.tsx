@@ -209,7 +209,7 @@ export function SubProblemAnswer({
           </Button>
         </form>
       )}
-      <Dialog fullScreen open={isHistoryOpen} onClose={() => setIsHistoryOpen(false)}>
+      <Dialog maxWidth='lg' fullWidth={true} open={isHistoryOpen} onClose={() => setIsHistoryOpen(false)}>
         <AppBar sx={{ position: 'relative' }}>
           <Toolbar>
             <IconButton
