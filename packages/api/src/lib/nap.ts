@@ -19,6 +19,7 @@ export interface UpdateGradingRequest {
 }
 export interface CreateAnswerRequest {
   answer: string;
+  subProblemId: string;
   questionId: string;
   questionTitle: string;
 }
@@ -37,6 +38,7 @@ export enum ReviewType {
 export interface AnswerResponse {
   id: number;
   questionId: string;
+  subProblemId: string;
   userId: string;
   answer: string;
   questionTitle: string;

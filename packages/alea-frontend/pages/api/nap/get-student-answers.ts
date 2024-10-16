@@ -11,7 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
   const answers = await executeAndEndSet500OnError<AnswerResponse[]>(
-    `select id,questionId,userId,answer,createdAt,updatedAt,questionTitle from Answer where userId=?`,
+    `select id,questionId,subProblemId,userId,answer,createdAt,updatedAt,questionTitle from Answer where userId=? order by id desc`,
     [userId],
     res
   );

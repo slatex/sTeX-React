@@ -62,10 +62,14 @@ export const de = {
     next: 'Nächste',
     didntAnswer: 'Sie haben $1 Aufgaben nicht beantwortet. ',
     sureFinish: 'Sind Sie sicher, dass Sie den Vorgang abschließen möchten?',
-    checkSolution: 'Lösung prüfen',
-    hideSolution: 'Lösung ausblenden',
+    checkSolution: 'Speichern Sie die Antwort und zeigen Sie die Lösung.',
+    hideSolution: 'Speichern Sie die Antwort und zeigen Sie die Lösung an',
     perSectionQuizButton: 'Übungsprobleme ($1)',
     hideProblems: 'Probleme ausblenden',
+    answer: 'Antwort',
+    point: 'Punkt',
+    submit: 'Senden',
+    feedback: 'Feedback',
   },
   practiceProblems: {
     clickSection:
