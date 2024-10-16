@@ -122,6 +122,7 @@ export async function canModerateComment(courseId?: string, courseTerm?: string)
   });
   return data as boolean;
 }
+
 export async function canModerateStudyBuddy(courseId?: string, courseTerm?: string) {
   const { data } = await axios.get('/api/access-control/can-moderate-study-buddy', {
     headers: getAuthHeaders(),

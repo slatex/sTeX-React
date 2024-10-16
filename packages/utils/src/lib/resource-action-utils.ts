@@ -1,3 +1,5 @@
+import { CURRENT_TERM } from "./courseInfo";
+
 export enum Action {
   CREATE = 'CREATE',
   READ = 'READ',
@@ -19,6 +21,7 @@ export enum ResourceName {
   COURSE_QUIZ = 'COURSE_QUIZ',
   COURSE_COMMENTS = 'COURSE_COMMENTS',
   COURSE_STUDY_BUDDY = 'COURSE_STUDY_BUDDY',
+  COURSE_HOMEWORK = 'COURSE_HOMEWORK',
 
   // Resources related to all courses.
   ALL_COMMENTS = 'ALL_COMMENTS',
@@ -76,7 +79,7 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
       { type: ComponentType.FIXED, value: 'course' },
       { name: 'courseId', type: ComponentType.VARIABLE },
       { type: ComponentType.FIXED, value: 'instance' },
-      { name: 'instanceId', type: ComponentType.VARIABLE },
+      { name: 'instanceId', type: ComponentType.VARIABLE, value: CURRENT_TERM },
       { type: ComponentType.FIXED, value: 'notes' },
     ],
   },
@@ -85,9 +88,9 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
     possibleActions: [Action.MUTATE],
     components: [
       { type: ComponentType.FIXED, value: 'course' },
-      { name: 'courseId', type: ComponentType.VARIABLE, value: '' },
+      { name: 'courseId', type: ComponentType.VARIABLE },
       { type: ComponentType.FIXED, value: 'instance' },
-      { name: 'instanceId', type: ComponentType.VARIABLE, value: '' },
+      { name: 'instanceId', type: ComponentType.VARIABLE, value: CURRENT_TERM },
       { type: ComponentType.FIXED, value: 'quiz' },
     ],
   },
@@ -96,9 +99,9 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
     possibleActions: [Action.CREATE, Action.READ, Action.UPDATE, Action.DELETE, Action.MODERATE],
     components: [
       { type: ComponentType.FIXED, value: 'course' },
-      { name: 'courseId', type: ComponentType.VARIABLE, value: '' },
+      { name: 'courseId', type: ComponentType.VARIABLE },
       { type: ComponentType.FIXED, value: 'instance' },
-      { name: 'instanceId', type: ComponentType.VARIABLE, value: '' },
+      { name: 'instanceId', type: ComponentType.VARIABLE, value: CURRENT_TERM },
       { type: ComponentType.FIXED, value: 'comments' },
     ],
   },
@@ -109,8 +112,19 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
       { type: ComponentType.FIXED, value: 'course' },
       { name: 'courseId', type: ComponentType.VARIABLE },
       { type: ComponentType.FIXED, value: 'instance' },
-      { name: 'instanceId', type: ComponentType.VARIABLE },
+      { name: 'instanceId', type: ComponentType.VARIABLE, value: CURRENT_TERM },
       { type: ComponentType.FIXED, value: 'study-buddy' },
+    ],
+  },
+  {
+    name: ResourceName.COURSE_HOMEWORK,
+    possibleActions: [Action.MUTATE],
+    components: [
+      { type: ComponentType.FIXED, value: 'course' },
+      { name: 'courseId', type: ComponentType.VARIABLE },
+      { type: ComponentType.FIXED, value: 'instance' },
+      { name: 'instanceId', type: ComponentType.VARIABLE, value: CURRENT_TERM },
+      { type: ComponentType.FIXED, value: 'homework' },
     ],
   },
   {
@@ -135,7 +149,7 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
       { type: ComponentType.FIXED, value: 'course' },
       { name: 'courseId', type: ComponentType.VARIABLE },
       { type: ComponentType.FIXED, value: 'instance' },
-      { name: 'instanceId', type: ComponentType.VARIABLE },
+      { name: 'instanceId', type: ComponentType.VARIABLE, value: CURRENT_TERM },
       { type: ComponentType.WILDCARD2, value: '**' },
     ],
   },

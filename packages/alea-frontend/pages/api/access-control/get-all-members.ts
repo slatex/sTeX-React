@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { AclSavePostfix, getCacheKey } from '../acl-utils/acl-common-utils';
 import { checkIfGetOrSetError, executeDontEndSet500OnError } from '../comment-utils';
+import { CACHE_STORE } from '../acl-utils/cache-store';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfGetOrSetError(req, res)) return;

@@ -1,12 +1,12 @@
 import ArticleIcon from '@mui/icons-material/Article';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import PersonIcon from '@mui/icons-material/Person';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import QuizIcon from '@mui/icons-material/Quiz';
-import { canAccessResource, getCourseInfo } from '@stex-react/api';
 import SearchIcon from '@mui/icons-material/Search';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
-import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import { canAccessResource, getCourseInfo } from '@stex-react/api';
 
 import {
   Box,
@@ -205,7 +205,7 @@ const CourseHomePage: NextPage = () => {
               <QuizIcon fontSize="large" />
             </CourseComponentLink>
           )}
-          {process.env.NEXT_PUBLIC_SITE_VERSION !== 'production' && (
+          {courseId === 'lbs' && (
             <CourseComponentLink href={`/homework/${courseId}`}>
               {t.homeworks}&nbsp;
               <AssignmentTurnedInIcon fontSize="large" />

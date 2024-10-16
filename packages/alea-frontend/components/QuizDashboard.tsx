@@ -18,10 +18,9 @@ import axios, { AxiosResponse } from 'axios';
 import dayjs from 'dayjs';
 import type { NextPage } from 'next';
 import { useContext, useEffect, useState } from 'react';
-import { CheckboxWithTimestamp } from '../../components/CheckBoxWithTimestamp';
-import { QuizFileReader } from '../../components/QuizFileReader';
-import { QuizStatsDisplay } from '../../components/QuizStatsDisplay';
-import MainLayout from '../../layouts/MainLayout';
+import { CheckboxWithTimestamp } from './CheckBoxWithTimestamp';
+import { QuizFileReader } from './QuizFileReader';
+import { QuizStatsDisplay } from './QuizStatsDisplay';
 
 const NEW_QUIZ_ID = 'New';
 
@@ -67,8 +66,11 @@ const QuizDurationInfo = ({ quizStartTs, quizEndTs, feedbackReleaseTs }) => {
     </Box>
   );
 };
+interface QuizDashboardProps {
+  courseId: string;
+}
 
-const QuizDashboardPage: NextPage = () => {
+const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
   const [selectedQuizId, setSelectedQuizId] = useState<string>(NEW_QUIZ_ID);
 
   const [title, setTitle] = useState<string>('');
@@ -88,7 +90,6 @@ const QuizDashboardPage: NextPage = () => {
   });
   const [isUpdating, setIsUpdating] = useState(false);
   const [canAccess, setCanAccess] = useState(false);
-  const [courseId, setCourseId] = useState('ai-1');
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
   const { mmtUrl } = useContext(ServerLinksContext);
   const isNew = isNewQuiz(selectedQuizId);
@@ -105,7 +106,7 @@ const QuizDashboardPage: NextPage = () => {
 
   useEffect(() => {
     axios
-      .get(`/api/get-all-quizzes?courseId=${courseId}&courseTerm=${courseTerm}`, {
+      .get(`/api/quiz/get-all-quizzes?courseId=${courseId}&courseTerm=${courseTerm}`, {
         headers: getAuthHeaders(),
       })
       .then((res) => {
@@ -117,7 +118,7 @@ const QuizDashboardPage: NextPage = () => {
   }, [courseId, courseTerm]);
 
   useEffect(() => {
-    if (!selectedQuizId || selectedQuizId == NEW_QUIZ_ID) return;
+    if (!selectedQuizId || selectedQuizId === NEW_QUIZ_ID) return;
 
     getQuizStats(selectedQuizId, courseId, courseTerm).then(setStats);
     const interval = setInterval(() => {
@@ -146,7 +147,6 @@ const QuizDashboardPage: NextPage = () => {
     setQuizEndTs(selected.quizEndTs);
     setFeedbackReleaseTs(selected.feedbackReleaseTs);
     setManuallySetPhase(selected.manuallySetPhase);
-    setCourseId(selected.courseId);
     setTitle(selected.title);
     setProblems(selected.problems);
     setCourseTerm(selected.courseTerm);
@@ -169,136 +169,118 @@ const QuizDashboardPage: NextPage = () => {
     }).then(setCanAccess);
   }, []);
 
-  if (!canAccess) return <>UnAuthorized</>;
+  if (!canAccess) return <>Unauthorized</>;
 
   return (
-    <MainLayout title="Quizzes | VoLL-KI">
-      <Box m="auto" maxWidth="800px" p="10px">
-        <Select value={selectedQuizId} onChange={(e) => setSelectedQuizId(e.target.value)}>
-          <MenuItem value="New">New</MenuItem>
-          {quizzes.map((quiz) => (
-            <MenuItem key={quiz.id} value={quiz.id}>
-              {mmtHTMLToReact(quiz.title)}&nbsp;({quiz.id})
+    <Box m="auto" maxWidth="800px" p="10px">
+      <Select value={selectedQuizId} onChange={(e) => setSelectedQuizId(e.target.value)}>
+        <MenuItem value="New">New</MenuItem>
+        {quizzes.map((quiz) => (
+          <MenuItem key={quiz.id} value={quiz.id}>
+            {mmtHTMLToReact(quiz.title)}&nbsp;({quiz.id})
+          </MenuItem>
+        ))}
+      </Select>
+
+      <h2>{isNew ? 'New Quiz' : selectedQuizId}</h2>
+      <b>{mmtHTMLToReact(title)}</b>
+      {selectedQuiz && (
+        <b>
+          <br />
+          Current State: {getQuizPhase(selectedQuiz)}
+        </b>
+      )}
+      <QuizDurationInfo
+        quizStartTs={quizStartTs}
+        quizEndTs={quizEndTs}
+        feedbackReleaseTs={feedbackReleaseTs}
+      />
+      <CheckboxWithTimestamp
+        timestamp={quizStartTs}
+        setTimestamp={setQuizStartTs}
+        label="Quiz start time"
+      />
+      <CheckboxWithTimestamp
+        timestamp={quizEndTs}
+        setTimestamp={setQuizEndTs}
+        label="Quiz end time"
+      />
+      <CheckboxWithTimestamp
+        timestamp={feedbackReleaseTs}
+        setTimestamp={setFeedbackReleaseTs}
+        label="Feedback release time"
+      />
+      <FormControl variant="outlined" sx={{ minWidth: '300px', m: '10px 0' }}>
+        <InputLabel id="manually-set-phase-label">Manually set phase</InputLabel>
+        <Select
+          label="Manually Set Phase"
+          labelId="manually-set-phase-label"
+          value={manuallySetPhase}
+          onChange={(e) => setManuallySetPhase(e.target.value)}
+        >
+          {Object.values(Phase).map((enumValue) => (
+            <MenuItem key={enumValue} value={enumValue}>
+              {enumValue}
             </MenuItem>
           ))}
         </Select>
+      </FormControl>
+      <QuizFileReader setTitle={setTitle} setProblems={setProblems} />
+      <i>{Object.keys(problems).length} problems found.</i>
+      <br />
 
-        <h2>{isNew ? 'New Quiz' : selectedQuizId}</h2>
-        <b>{mmtHTMLToReact(title)}</b>
-        {selectedQuiz && (
-          <b>
-            <br />
-            Current State: {getQuizPhase(selectedQuiz)}
-          </b>
-        )}
-        <QuizDurationInfo
-          quizStartTs={quizStartTs}
-          quizEndTs={quizEndTs}
-          feedbackReleaseTs={feedbackReleaseTs}
-        />
-        <CheckboxWithTimestamp
-          timestamp={quizStartTs}
-          setTimestamp={setQuizStartTs}
-          label="Quiz start time"
-        />
-        <FormControl variant="outlined" sx={{ minWidth: '300px', m: '10px 0' }}>
-          <InputLabel id="course-id-label">Course Id</InputLabel>
-          <Select
-            label="Course Id"
-            labelId="course-id-label"
-            value={courseId}
-            onChange={(e) => setCourseId(e.target.value)}
-          >
-            {['', ...Object.keys(courses)].map((enumValue) => (
-              <MenuItem key={enumValue} value={enumValue}>
-                {enumValue}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <CheckboxWithTimestamp
-          timestamp={quizEndTs}
-          setTimestamp={setQuizEndTs}
-          label="Quiz end time"
-        />
-        <CheckboxWithTimestamp
-          timestamp={feedbackReleaseTs}
-          setTimestamp={setFeedbackReleaseTs}
-          label="Feedback release time"
-        />
-        <FormControl variant="outlined" sx={{ minWidth: '300px', m: '10px 0' }}>
-          <InputLabel id="manually-set-phase-label">Manually set phase</InputLabel>
-          <Select
-            label="Manually Set Phase"
-            labelId="manually-set-phase-label"
-            value={manuallySetPhase}
-            onChange={(e) => setManuallySetPhase(e.target.value)}
-          >
-            {Object.values(Phase).map((enumValue) => (
-              <MenuItem key={enumValue} value={enumValue}>
-                {enumValue}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <QuizFileReader setTitle={setTitle} setProblems={setProblems} />
-        <i>{Object.keys(problems).length} problems found.</i>
-        <br />
-
-        <b style={{ color: 'red' }}>{formErrorReason}</b>
-        <br />
-        <Button
-          disabled={!!formErrorReason || isUpdating}
-          variant="contained"
-          onClick={async (e) => {
-            setIsUpdating(true);
-            const quiz = {
-              id: selectedQuizId,
-              title,
-              courseId,
-              courseTerm,
-              quizStartTs,
-              quizEndTs,
-              feedbackReleaseTs,
-              manuallySetPhase,
-              problems,
-            } as Quiz;
-            let resp: AxiosResponse;
-            try {
-              resp = await (isNew ? createQuiz(quiz) : updateQuiz(quiz));
-            } catch (e) {
-              alert(e);
-              location.reload();
-            }
-            console.log(resp?.data);
-            if (![200, 204].includes(resp.status)) {
-              alert(`Error: ${resp.status} ${resp.statusText}`);
-            } else {
-              alert(`Quiz ${isNew ? 'created' : 'updated'} successfully.`);
-            }
+      <b style={{ color: 'red' }}>{formErrorReason}</b>
+      <br />
+      <Button
+        disabled={!!formErrorReason || isUpdating}
+        variant="contained"
+        onClick={async (e) => {
+          setIsUpdating(true);
+          const quiz = {
+            id: selectedQuizId,
+            title,
+            courseId,
+            courseTerm,
+            quizStartTs,
+            quizEndTs,
+            feedbackReleaseTs,
+            manuallySetPhase,
+            problems,
+          } as Quiz;
+          let resp: AxiosResponse;
+          try {
+            resp = await (isNew ? createQuiz(quiz) : updateQuiz(quiz));
+          } catch (e) {
+            alert(e);
             location.reload();
-          }}
-        >
-          {isNew ? 'Create New Quiz' : 'Update Quiz'}
-        </Button>
-        <br />
-        <br />
-        {!isNew && (
-          <a href={`/quiz/${selectedQuizId}`} target="_blank">
-            <Button variant="contained">
-              Go To Quiz&nbsp;
-              <OpenInNew />
-            </Button>
-          </a>
-        )}
+          }
+          if (![200, 204].includes(resp.status)) {
+            alert(`Error: ${resp.status} ${resp.statusText}`);
+          } else {
+            alert(`Quiz ${isNew ? 'created' : 'updated'} successfully.`);
+          }
+          location.reload();
+        }}
+      >
+        {isNew ? 'Create New Quiz' : 'Update Quiz'}
+      </Button>
+      <br />
+      <br />
+      {!isNew && (
+        <a href={`/quiz/${selectedQuizId}`} target="_blank">
+          <Button variant="contained">
+            Go To Quiz&nbsp;
+            <OpenInNew />
+          </Button>
+        </a>
+      )}
 
-        <QuizStatsDisplay
-          stats={stats}
-          maxProblems={Object.keys(selectedQuiz?.problems || {}).length || 1}
-        />
-      </Box>
-    </MainLayout>
+      <QuizStatsDisplay
+        stats={stats}
+        maxProblems={Object.keys(selectedQuiz?.problems || {}).length || 1}
+      />
+    </Box>
   );
 };
 
-export default QuizDashboardPage;
+export default QuizDashboard;
