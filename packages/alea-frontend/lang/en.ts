@@ -353,7 +353,6 @@ export const en = {
     averageScore: 'Average Score',
   },
   homeworkManager: {
-    homeworkManagement: 'Homework Management',
     homeworks: 'Homeworks',
     createHomework: 'Create Homework',
     homeworkName: 'Homework Name',

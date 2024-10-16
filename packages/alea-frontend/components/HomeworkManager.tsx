@@ -151,9 +151,6 @@ const HomeworkManager = ({ courseId }) => {
         padding: '0 16px',
       }}
     >
-      <Typography variant="h4" align="center" gutterBottom>
-        {t.homeworkManagement}{' '}
-      </Typography>
       <Box
         sx={{
           display: 'flex',

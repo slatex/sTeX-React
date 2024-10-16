@@ -327,7 +327,6 @@ export const de = {
     averageScore: 'Durchschnittliche Punktzahl',
   },
   homeworkManager: {
-    homeworkManagement: 'Hausaufgabenverwaltung',
     homeworks: 'Hausaufgaben',
     createHomework: 'Hausaufgabe erstellen',
     homeworkName: 'Name der Hausaufgabe',
