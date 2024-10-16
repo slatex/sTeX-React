@@ -7,12 +7,15 @@ export enum AclSavePostfix {
   acl = 'acls',
   members = 'members',
 }
+
 export function getCacheKey(aclId: string, savePostfix: AclSavePostfix) {
   return `acl-membership:${aclId}-${savePostfix}`;
 }
+
 export async function isMemberOfAcl(acl: string, userId: string) {
   return await CACHE_STORE.isMemberOfSet(getCacheKey(acl, AclSavePostfix.members), userId);
 }
+
 export async function isCurrentUserMemberOfAClupdater(aclId: string, res, req): Promise<boolean> {
   const userId = await getUserIdOrSetError(req, res);
   if(!userId) return false;

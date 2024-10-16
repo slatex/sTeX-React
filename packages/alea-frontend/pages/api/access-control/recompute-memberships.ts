@@ -11,14 +11,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res
   );
   const flattening = new Flattening(aclMemberships, CACHE_STORE);
-  const result = await executeAndEndSet500OnError<{ id: string }[]>(
+  const acls = await executeAndEndSet500OnError<{ id: string }[]>(
     `SELECT id FROM AccessControlList`,
     [],
     res
   );
-  for (const element of result) {
-    await flattening.findMembers(element.id);
-    await flattening.findACL(element.id);
+  for (const acl of acls) {
+    await flattening.findMembers(acl.id);
+    await flattening.findACL(acl.id);
   }
   res.status(200).end();
 }
