@@ -17,8 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res
   );
   for (const acl of acls) {
-    await flattening.findMembers(acl.id);
-    await flattening.findACL(acl.id);
+    await flattening.cacheAndGetFlattenedMembers(acl.id);
   }
   res.status(200).end();
 }

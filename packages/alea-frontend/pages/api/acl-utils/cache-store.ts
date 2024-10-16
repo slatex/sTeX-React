@@ -27,14 +27,13 @@ export async function register() {
     return;
   }
   const flattening = new Flattening(aclMemberships, CACHE_STORE);
-  const result = await executeQuery<{ id: string }[]>(`SELECT id FROM AccessControlList`, []);
-  if ('error' in result) {
-    console.error('Error fetching AccessControlList', result['error']);
+  const acls = await executeQuery<{ id: string }[]>(`SELECT id FROM AccessControlList`, []);
+  if ('error' in acls) {
+    console.error('Error fetching AccessControlList', acls['error']);
     return;
   }
-  for (const element of result) {
-    await flattening.findMembers(element.id);
-    await flattening.findACL(element.id);
+  for (const acl of acls) {
+    await flattening.cacheAndGetFlattenedMembers(acl.id);
   }
 }
 register();
