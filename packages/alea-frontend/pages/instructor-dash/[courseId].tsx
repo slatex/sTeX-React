@@ -1,23 +1,52 @@
-import { Box } from '@mui/material';
+import { Box, Tab, Tabs } from '@mui/material';
+import { getCourseInfo } from '@stex-react/api';
+import { ServerLinksContext } from '@stex-react/stex-react-renderer';
+import { CourseInfo } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import CourseAccessControlDashboard from 'packages/alea-frontend/components/CourseAccessControlDashboard';
 import HomeworkManager from 'packages/alea-frontend/components/HomeworkManager';
 import QuizDashboard from 'packages/alea-frontend/components/QuizDashboard';
+import { StudyBuddyModeratorStats } from 'packages/alea-frontend/components/StudyBuddyModeratorStats';
 import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
-import { Tabs, Tab } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
 import { CourseHeader } from '../course-home/[courseId]';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { getCourseInfo } from '@stex-react/api';
-import { CourseInfo } from '@stex-react/utils';
-import { StudyBuddyModeratorStats } from 'packages/alea-frontend/components/StudyBuddyModeratorStats';
 
 interface TabPanelProps {
   children?: React.ReactNode;
   value: number;
   index: number;
 }
+
+type TabName = 'access-control' | 'homework-manager' | 'quiz-dashboard' | 'study-buddy';
+
+const TAB_MAPPING: Record<TabName, number> = {
+  'access-control': 0,
+  'homework-manager': 1,
+  'quiz-dashboard': 2,
+  'study-buddy': 3,
+};
+
+function ChosenTab({ tabName, courseId }: { tabName: TabName; courseId: string }) {
+  switch (tabName) {
+    case 'access-control':
+      return <CourseAccessControlDashboard courseId={courseId} />;
+    case 'homework-manager':
+      return <HomeworkManager courseId={courseId} />;
+    case 'quiz-dashboard':
+      return <QuizDashboard courseId={courseId} />;
+    case 'study-buddy':
+      return <StudyBuddyModeratorStats courseId={courseId} />;
+    default:
+      return null;
+  }
+}
+
+const toUserFriendlyName = (tabName: string) => {
+  return tabName
+    .replace(/-/g, ' ') // Replace hyphens with spaces
+    .replace(/\b\w/g, (str) => str.toUpperCase()); // Capitalize the first letter of each word
+};
 
 const TabPanel = (props: TabPanelProps) => {
   const { children, value, index, ...other } = props;
@@ -39,16 +68,39 @@ const TabPanel = (props: TabPanelProps) => {
 const InstructorDash: NextPage = () => {
   const router = useRouter();
   const courseId = router.query.courseId as string;
-  const [value, setValue] = useState(0);
+  const tab = router.query.tab as TabName;
+
   const { mmtUrl } = useContext(ServerLinksContext);
-  const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
+  const [courses, setCourses] = useState<Record<string, CourseInfo> | undefined>(undefined);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
+    const tabName = Object.keys(TAB_MAPPING).find((key) => TAB_MAPPING[key] === newValue);
+    router.push(
+      {
+        pathname: router.pathname,
+        query: { ...router.query, tab: tabName },
+      },
+      undefined,
+      { shallow: true }
+    );
   };
   useEffect(() => {
     if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
   }, [mmtUrl]);
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    if (TAB_MAPPING.hasOwnProperty(tab)) return;
+    router.replace(
+      {
+        pathname: router.pathname,
+        query: { ...router.query, tab: Object.keys(TAB_MAPPING)[0] },
+      },
+      undefined,
+      { shallow: true }
+    );
+  }, [router.isReady, tab]);
+  const chosenTabValue = TAB_MAPPING[tab] ?? 0;
 
   const courseInfo = courses?.[courseId];
 
@@ -61,7 +113,7 @@ const InstructorDash: NextPage = () => {
       />
       <Box sx={{ width: '100%', margin: 'auto', maxWidth: '900px' }}>
         <Tabs
-          value={value}
+          value={chosenTabValue}
           onChange={handleChange}
           aria-label="Instructor Dashboard Tabs"
           sx={{
@@ -75,23 +127,15 @@ const InstructorDash: NextPage = () => {
             },
           }}
         >
-          <Tab label="Access Control" />
-          <Tab label="Homework Manager" />
-          <Tab label="Quiz Dashboard" />
-          <Tab label="Study Buddy" />
+          {Object.keys(TAB_MAPPING).map((tabName) => (
+            <Tab key={tabName} label={toUserFriendlyName(tabName)} />
+          ))}
         </Tabs>
-        <TabPanel value={value} index={0}>
-          <CourseAccessControlDashboard courseId={courseId} />
-        </TabPanel>
-        <TabPanel value={value} index={1}>
-          <HomeworkManager courseId={courseId} />
-        </TabPanel>
-        <TabPanel value={value} index={2}>
-          <QuizDashboard courseId={courseId} />
-        </TabPanel>
-        <TabPanel value={value} index={3}>
-          <StudyBuddyModeratorStats courseId={courseId} />
-        </TabPanel>
+        {Object.entries(TAB_MAPPING).map(([tabName, value]) => (
+          <TabPanel key={tabName} value={chosenTabValue} index={value}>
+            <ChosenTab tabName={tabName as TabName} courseId={courseId} />
+          </TabPanel>
+        ))}
       </Box>
     </MainLayout>
   );

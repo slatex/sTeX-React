@@ -106,7 +106,7 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
 
   useEffect(() => {
     axios
-      .get(`/api/get-all-quizzes?courseId=${courseId}&courseTerm=${courseTerm}`, {
+      .get(`/api/quiz/get-all-quizzes?courseId=${courseId}&courseTerm=${courseTerm}`, {
         headers: getAuthHeaders(),
       })
       .then((res) => {
