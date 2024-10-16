@@ -15,12 +15,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     [],
     res
   );
-  for (const element of result) {
+  /*for (const element of result) {
     output.push({
       name: element.id,
       members: await flattening.findMembers(element.id),
       acls: await flattening.findACL(element.id),
     });
-  }
+  }*/
   res.send(output);
 }
