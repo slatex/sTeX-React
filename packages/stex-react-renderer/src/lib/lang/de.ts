@@ -64,6 +64,8 @@ export const de = {
     sureFinish: 'Sind Sie sicher, dass Sie den Vorgang abschließen möchten?',
     checkSolution: 'Speichern Sie die Antwort und zeigen Sie die Lösung.',
     hideSolution: 'Speichern Sie die Antwort und zeigen Sie die Lösung an',
+    showSolution: '',
+    saveAndGrade: '',
     perSectionQuizButton: 'Übungsprobleme ($1)',
     hideProblems: 'Probleme ausblenden',
     answer: 'Antwort',
