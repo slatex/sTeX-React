@@ -37,7 +37,7 @@ export async function getUserIdIfAnyAuthorizedOrSetError(
 ) {
   const userId: string | undefined = await getUserIdOrSetError(req, res);
   if (!userId) return undefined;
-  if (isUserIdAuthorizedForAny(userId, resourceActions)) return userId;
+  if (await isUserIdAuthorizedForAny(userId, resourceActions)) return userId;
 
   return res.status(403).send('unauthorized');
 }
