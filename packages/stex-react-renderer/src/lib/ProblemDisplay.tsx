@@ -426,8 +426,10 @@ function inputDisplay({
 }
 
 function toBloomDimension(key: string): BloomDimension {
+  const key_lc = key.toLowerCase();
+  if (key_lc === 'analyze') return BloomDimension.Analyse;
   for (const dim of Object.values(BloomDimension)) {
-    if (dim.toLowerCase() === key.toLowerCase()) return dim;
+    if (dim.toLowerCase() === key_lc) return dim;
   }
   throw new Error(`Invalid BloomDimension value: ${key}`);
 }
