@@ -1,5 +1,11 @@
 import axios from 'axios';
-import { AnswerClassResponse, AnswerResponse, CreateAnswerRequest, CreateGradingRequest } from './nap';
+import {
+  AnswerClassResponse,
+  AnswerResponse,
+  CreateAnswerRequest,
+  CreateGradingRequest,
+  CreateReviewRequest,
+} from './nap';
 import { getAuthHeaders } from './lms';
 
 export async function createAnswer(answer: CreateAnswerRequest) {
@@ -16,4 +22,9 @@ export async function getAnswers() {
   return axios
     .get<AnswerResponse[]>('api/nap/get-student-answers', { headers: getAuthHeaders() })
     .then((c) => c.data);
+}
+export async function createReviewRequest(request: CreateReviewRequest) {
+  return axios
+    .post('api/nap/create-review-request', request, { headers: getAuthHeaders() })
+    .then((c) => ({ status: c.status }));
 }
