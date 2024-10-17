@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import {
   checkIfPostOrSetError,
+  executeAndEndSet500OnError,
   executeTxnAndEndSet500OnError,
 } from '../comment-utils';
 import {
@@ -19,24 +20,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!(await validateMemberAndAclIds(res, memberUserIds, memberACLIds)))
     return res.status(422).send('Invalid items');
 
-  const numMembershipRows = memberUserIds.length + memberACLIds.length;
-  const values = new Array(numMembershipRows).fill('(?, ?, ?)');
-
-  const memberQueryParams = [];
-  for (const userId of memberUserIds) memberQueryParams.push(id, null, userId);
-  for (const aclId of memberACLIds) memberQueryParams.push(id, aclId, null);
-
-  const memberQuery = `INSERT INTO ACLMembership (parentACLId, memberACLId, memberUserId) VALUES 
-  ${values.join(', ')}`;
   await executeTxnAndEndSet500OnError(
     res,
     'UPDATE AccessControlList SET description=?, updaterACLId=?, isOpen=? WHERE id=?',
     [description, updaterACLId, !!isOpen, id],
     'DELETE FROM ACLMembership WHERE parentACLId=?',
-    [id],
-    memberQuery,
-    memberQueryParams
+    [id]
   );
-
+  const numMembershipRows = memberUserIds.length + memberACLIds.length;
+  if (numMembershipRows > 0) {
+    const values = new Array(numMembershipRows).fill('(?, ?, ?)');
+    const memberQueryParams = [];
+    for (const userId of memberUserIds) memberQueryParams.push(id, null, userId);
+    for (const aclId of memberACLIds) memberQueryParams.push(id, aclId, null);
+    const memberQuery = `INSERT INTO ACLMembership (parentACLId, memberACLId, memberUserId) VALUES 
+    ${values.join(', ')}`;
+    await executeAndEndSet500OnError(memberQuery, memberQueryParams, res);
+  }
   return res.status(204).end();
 }
