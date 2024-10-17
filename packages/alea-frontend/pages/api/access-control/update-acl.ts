@@ -20,13 +20,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!(await validateMemberAndAclIds(res, memberUserIds, memberACLIds)))
     return res.status(422).send('Invalid items');
 
-  await executeTxnAndEndSet500OnError(
+  const result = await executeTxnAndEndSet500OnError(
     res,
     'UPDATE AccessControlList SET description=?, updaterACLId=?, isOpen=? WHERE id=?',
     [description, updaterACLId, !!isOpen, id],
     'DELETE FROM ACLMembership WHERE parentACLId=?',
     [id]
   );
+  if(!result) return;
   const numMembershipRows = memberUserIds.length + memberACLIds.length;
   if (numMembershipRows > 0) {
     const values = new Array(numMembershipRows).fill('(?, ?, ?)');
@@ -35,7 +36,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     for (const aclId of memberACLIds) memberQueryParams.push(id, aclId, null);
     const memberQuery = `INSERT INTO ACLMembership (parentACLId, memberACLId, memberUserId) VALUES 
     ${values.join(', ')}`;
-    await executeAndEndSet500OnError(memberQuery, memberQueryParams, res);
+    const resp = await executeAndEndSet500OnError(memberQuery, memberQueryParams, res);
+    if(!resp) return;
   }
   return res.status(204).end();
 }
