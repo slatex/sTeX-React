@@ -49,6 +49,7 @@ export async function queryGradingDbDontEndSet500OnError<T>(
 ): Promise<T> {
   const results = await queryGradingDb<T>(query, values);
   if (results['error']) {
+    console.error(results['error']);
     res.status(500).send(results);
     return undefined;
   }

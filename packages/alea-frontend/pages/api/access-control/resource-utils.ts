@@ -37,7 +37,7 @@ export async function getUserIdIfAnyAuthorizedOrSetError(
 ) {
   const userId: string | undefined = await getUserIdOrSetError(req, res);
   if (!userId) return undefined;
-  if (isUserIdAuthorizedForAny(userId, resourceActions)) return userId;
+  if (await isUserIdAuthorizedForAny(userId, resourceActions)) return userId;
 
   return res.status(403).send('unauthorized');
 }
@@ -107,7 +107,7 @@ export async function getUserIdIfCanModerateCommentsOrSetError(
 ) {
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
-  if (canUserModerateComments(userId, c.courseId, c.courseTerm)) return userId;
+  if (await canUserModerateComments(userId, c.courseId, c.courseTerm)) return userId;
   res.status(403).send('unauthorized');
   return undefined;
 }
@@ -138,7 +138,7 @@ export async function getUserIdIfCanModerateStudyBuddyOrSetError(
 ) {
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
-  if (canUserModerateStudyBuddy(userId, courseId, instanceId)) return userId;
+  if (await canUserModerateStudyBuddy(userId, courseId, instanceId)) return userId;
   res.status(403).send('unauthorized');
   return undefined;
 }

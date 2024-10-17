@@ -21,8 +21,7 @@ import { useContext, useEffect, useState } from 'react';
 import { CheckboxWithTimestamp } from './CheckBoxWithTimestamp';
 import { QuizFileReader } from './QuizFileReader';
 import { QuizStatsDisplay } from './QuizStatsDisplay';
-import MainLayout from '../layouts/MainLayout';
-MainLayout;
+
 const NEW_QUIZ_ID = 'New';
 
 function isNewQuiz(quizId: string) {
@@ -107,7 +106,7 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
 
   useEffect(() => {
     axios
-      .get(`/api/get-all-quizzes?courseId=${courseId}&courseTerm=${courseTerm}`, {
+      .get(`/api/quiz/get-all-quizzes?courseId=${courseId}&courseTerm=${courseTerm}`, {
         headers: getAuthHeaders(),
       })
       .then((res) => {

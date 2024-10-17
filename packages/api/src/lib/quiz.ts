@@ -99,7 +99,7 @@ export interface Problem {
   preconditions: string;
   statement: { outerHTML: string };
   inputs: Input[];
-  solutions:string[];
+  solutions: string[];
   points: number;
 }
 
@@ -162,8 +162,8 @@ export interface QuizResult {
 }
 
 export interface GetQuizResponse {
-  courseId : string,
-  courseTerm : string,
+  courseId: string;
+  courseTerm: string;
 
   currentServerTs: number;
   quizStartTs?: number;
@@ -247,8 +247,7 @@ export function getElapsedTime(events: TimerEvent[], problemIdx: number) {
       case TimerEventType.PAUSE:
       case TimerEventType.SUBMIT:
         isPaused = true;
-        if (wasThisProblem && lastStartTime_ms)
-          totalTime += e.timestamp_ms - lastStartTime_ms;
+        if (wasThisProblem && lastStartTime_ms) totalTime += e.timestamp_ms - lastStartTime_ms;
         lastStartTime_ms = undefined;
         break;
       case TimerEventType.UNPAUSE:
@@ -265,11 +264,7 @@ export function getElapsedTime(events: TimerEvent[], problemIdx: number) {
         currentProblemIdx = e.problemIdx;
     }
   }
-  if (
-    (!problemIdx || currentProblemIdx === problemIdx) &&
-    !isPaused &&
-    lastStartTime_ms
-  ) {
+  if ((!problemIdx || currentProblemIdx === problemIdx) && !isPaused && lastStartTime_ms) {
     totalTime += Date.now() - lastStartTime_ms;
   }
   return totalTime;
