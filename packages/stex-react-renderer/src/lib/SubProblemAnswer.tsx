@@ -17,6 +17,7 @@ import {
   Menu,
   MenuItem,
 } from '@mui/material';
+
 import {
   AnswerClass,
   AnswerResponse,
@@ -37,6 +38,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { defaultAnswerClasses } from '@stex-react/quiz-utils';
 import { mmtHTMLToReact } from './mmtParser';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import { GradingSubProblems } from './nap/GradingProblem';
 export function SubProblemAnswer({
   subProblem,
   problemHeader,
@@ -52,22 +54,13 @@ export function SubProblemAnswer({
 }) {
   dayjs.extend(relativeTime);
   const t = getLocaleObject(useRouter()).quiz;
+  const courseId = useRouter().query.courseId?.toString() ?? '';
   const [showGrading, setShowGrading] = useState(false);
   const [answer, setAnswer] = useState('');
-  const [feedback, setFeedBack] = useState('');
   const [answerId, setAnswerId] = useState(0);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [showSolution, setShowSolution] = useState(false);
-  const [answerClasses, setAnswerClasses] = useState(
-    [...defaultAnswerClasses, ...subProblem.answerclasses].map((c) => ({
-      count: 0,
-      ...c,
-    }))
-  );
-  const [selectedAnswerClass, setSelectAnswerClass] = useState<AnswerClass>(
-    defaultAnswerClasses[0]
-  );
   const [answers, setAnswers] = useState<AnswerResponse[]>([]);
   useEffect(() => {
     getAnswers().then((c) =>
@@ -89,55 +82,18 @@ export function SubProblemAnswer({
       questionId: questionId,
       questionTitle: problemHeader,
       subProblemId: subProblemId,
+      courseId: courseId,
     });
     if (created.status !== 201) return;
     setAnswerId(created.answerId.id);
     setShowGrading(true);
     setShowSolution(true);
   }
-  const handleDefaulAnswerClassesChange = (id: string) => {
-    const newAnswerClasses = answerClasses.map((answerclass) => {
-      if (answerclass.className === id) {
-        setSelectAnswerClass(answerclass);
-        return { ...answerclass, count: 1 };
-      }
-      return { ...answerclass, count: 0 };
-    });
 
-    setAnswerClasses(newAnswerClasses);
-  };
-  const handleAnswerClassesChange = (
-    id: string,
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const newAnswerClasses = answerClasses.map((answerclass) => {
-      if (answerclass.className === id) {
-        const newCount = +event.target.value;
-        return { ...answerclass, count: newCount >= 0 ? newCount : 0 };
-      }
-      return answerclass;
-    });
-
-    setAnswerClasses(newAnswerClasses);
-  };
-  async function onSaveGrading(event: SyntheticEvent) {
-    event.preventDefault();
+  async function onSaveGrading(acs: CreateAnswerClassRequest[], feedback: string) {
     setShowGrading(false);
     setShowSolution(false);
     if (answer === '') return;
-    const acs: CreateAnswerClassRequest[] = subProblem.answerclasses
-      .map((c) => {
-        return {
-          answerClassId: c.className,
-          closed: c.closed,
-          description: c.description,
-          title: c.title,
-          isTrait: c.isTrait,
-          points: c.points,
-          count: answerClasses.find((d) => d.className === c.className)?.count || 0,
-        };
-      })
-      .filter((c) => c.count > 0);
     if (acs.length > 0)
       await createGradring({
         answerClasses: acs,
@@ -146,8 +102,6 @@ export function SubProblemAnswer({
       });
     setAnswer('');
     setAnswerId(0);
-    setFeedBack('');
-    setSelectAnswerClass(answerClasses[0]);
   }
 
   function handleClose(): void {
@@ -165,6 +119,7 @@ export function SubProblemAnswer({
       questionId: questionId,
       questionTitle: problemHeader,
       subProblemId: subProblemId,
+      courseId: courseId,
     });
     handleClose();
   }
@@ -180,12 +135,13 @@ export function SubProblemAnswer({
       questionId: questionId,
       questionTitle: problemHeader,
       subProblemId: subProblemId,
+      courseId: '',
     });
     if (answerCreated.status !== 201) return;
 
     await createReviewRequest({ answerId: answerCreated.answerId.id, reviewType: ReviewType.PEER });
     setAnswer('');
-    handleClose()
+    handleClose();
   }
 
   return (
@@ -215,49 +171,10 @@ export function SubProblemAnswer({
       </form>
       {showSolution && <div style={{ color: '#555' }}>{mmtHTMLToReact(subProblem.solution)}</div>}
       {showGrading && (
-        <form onSubmit={onSaveGrading}>
-          <RadioGroup defaultValue={answerClasses[0].className}>
-            {answerClasses
-              .filter((c) => !c.isTrait)
-              .map((d) => (
-                <FormControlLabel
-                  onChange={(e) => handleDefaulAnswerClassesChange(d.className)}
-                  value={d.className}
-                  control={<Radio />}
-                  label={`${d.title}, ${d.description}`}
-                />
-              ))}
-          </RadioGroup>
-          {(!selectedAnswerClass?.closed ?? true) &&
-            answerClasses
-              .filter((c) => c.isTrait)
-              .map((d) => (
-                <Box my="5px">
-                  <TextField
-                    size="small"
-                    onChange={(e) => handleAnswerClassesChange(d.className, e)}
-                    style={{ marginLeft: '10px', width: '3vw' }}
-                    type="number"
-                    defaultValue="0"
-                  ></TextField>
-                  {`${d.title}, ${d.description}`}
-                  {showPoints && ` (${t.point}:${d.points})`}
-                </Box>
-              ))}
-          <span>{t.feedback}</span>
-          <TextField
-            multiline
-            fullWidth
-            placeholder={t.feedback}
-            minRows={5}
-            value={feedback}
-            style={{ display: 'block' }}
-            onChange={(e) => setFeedBack(e.target.value)}
-          />
-          <Button type="submit" variant="contained">
-            {t.submit}
-          </Button>
-        </form>
+        <GradingSubProblems
+          rawAnswerClasses={subProblem.answerclasses}
+          onGraded={onSaveGrading}
+        ></GradingSubProblems>
       )}
       <Dialog
         maxWidth="lg"

@@ -225,3 +225,5 @@ CREATE TABLE homework (
     archive VARCHAR(255),                          
     filepath VARCHAR(255)                        
 );
+ALTER TABLE Answer ADD COLUMN courseId varchar(255) NULL;
+ALTER TABLE Answer ADD COLUMN courseInstance varchar(255) NULL;
