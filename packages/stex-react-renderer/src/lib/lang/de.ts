@@ -71,6 +71,7 @@ export const de = {
     answer: 'Antwort',
     point: 'Punkt',
     submit: 'Senden',
+    reset: 'Zurücksetzen',
     feedback: 'Feedback',
   },
   practiceProblems: {

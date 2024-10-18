@@ -122,6 +122,7 @@ export function GradingSubProblems({
       <Button type="submit" variant="contained">
         {t.submit}
       </Button>
+      <Button type="reset">{t.reset}</Button>
     </form>
   );
 }

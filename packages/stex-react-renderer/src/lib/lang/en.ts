@@ -64,6 +64,7 @@ export const en = {
     answer: 'Answer',
     point: 'Point',
     submit: 'Submit',
+    reset: 'Reset',
     feedback: 'Feedback',
     sureFinish: 'Are you sure you want to finish?',
     showSolution: 'Show Solution',
