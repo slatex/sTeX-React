@@ -111,8 +111,15 @@ export async function canAccessResource(
     queryParams.append(key, value);
   }
   const url = `/api/access-control/can-access-resource?${queryParams.toString()}`;
-  const { data } = await axios.get(url, { headers: getAuthHeaders() });
-  return data as boolean;
+  try {
+    const { data } = await axios.get(url, { headers: getAuthHeaders() });
+    return data as boolean;
+  } catch (e: any) {
+    if (e?.response?.status !== 403 && e?.response?.status !== 401) {
+      console.error(e);
+    }
+    return false;
+  }
 }
 
 export async function canModerateComment(courseId?: string, courseTerm?: string) {

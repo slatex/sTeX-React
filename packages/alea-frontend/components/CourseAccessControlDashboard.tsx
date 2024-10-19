@@ -191,11 +191,11 @@ const CourseAccessControlDashboard = ({ courseId }) => {
     }
     await createAcl({
       id: aclId,
-      description: newAclId,
+      description: `${newAclId} for ${courseId} (${CURRENT_TERM})`,
       memberUserIds: [],
       memberACLIds: [],
       updaterACLId,
-      isOpen: true,
+      isOpen: false,
     });
     setNewAclId('');
     getAcls();
@@ -203,10 +203,6 @@ const CourseAccessControlDashboard = ({ courseId }) => {
 
   return (
     <Box display="flex" flexDirection="column" maxWidth="900px" m="auto" p="20px" gap="20px">
-      <Typography variant="h4" textAlign="center">
-        Access Control for {!courseId ? ' ' : courseId.toString().toUpperCase()}
-      </Typography>
-
       <Grid container spacing={1}>
         {FIELDS.map((field) => (
           <Grid item xs={6} key={field.key}>

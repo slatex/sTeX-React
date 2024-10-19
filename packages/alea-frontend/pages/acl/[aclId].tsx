@@ -49,14 +49,9 @@ const AclId: NextPage = () => {
     }
   }
 
-  async function checkIsUserMember() {
-    const res: boolean = await isUserMember(aclId as string);
-    setUserIsMember(res);
-  }
-
   async function getAllMembersOfAcl() {
     if (allMemberNamesAndIds.length === 0) {
-      const data: { fullName: string; userId: string }[] = await getAllAclMembers(aclId as string);
+      const data: { fullName: string; userId: string }[] = await getAllAclMembers(aclId);
       setAllMemberNamesAndIds(data);
     }
     setShowAllMembers(!showAllMembers);
@@ -64,7 +59,7 @@ const AclId: NextPage = () => {
 
   async function handleCheckUser() {
     try {
-      const res: boolean = await isMember(aclId as string, userIdInput as string);
+      const res: boolean = await isMember(aclId, userIdInput);
       setMembershipStatus(
         res
           ? `${userIdInput} is a member of this ACL.`
@@ -75,24 +70,11 @@ const AclId: NextPage = () => {
     }
   }
 
-  async function isUserIsUpdater() {
-    try {
-      const res: boolean = await isUserMember(updaterACLId);
-      if (res) {
-        setIsUpdaterMember(true);
-      } else {
-        setIsUpdaterMember(false);
-      }
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
   useEffect(() => {
     if (aclId) {
       getMembers();
-      checkIsUserMember();
-      isUserIsUpdater();
+      isUserMember(aclId).then(setUserIsMember).catch(console.error);
+      isUserMember(updaterACLId).then(setIsUpdaterMember).catch(console.error);
     }
     setShowAllMembers(false);
   }, [aclId, updaterACLId]);

@@ -28,7 +28,6 @@ export function StudyBuddyModeratorStats({ courseId }: { courseId: string }) {
 
   return (
     <>
-      <Typography variant="h4">{t.insightHeading}</Typography>
       <Card sx={{ mt: '20px', mb: '20px' }}>
         <CardContent>
           <StudyBuddyModeratorOverview overviewData={overviewData} />

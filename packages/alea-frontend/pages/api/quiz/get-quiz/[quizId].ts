@@ -96,7 +96,6 @@ export default async function handler(
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
 
-  // const isMod = isModerator(userId);
   const quizId = req.query.quizId as string;
   const quizInfo = getQuiz(quizId);
   const {courseTerm, courseId} = quizInfo;
@@ -112,7 +111,6 @@ export default async function handler(
   };
   const isModerator = await isUserIdAuthorizedForAny(userId, [moderatorAction]);
 
-  
   const phase = getQuizPhase(quizInfo);
   const quizTimes = getQuizTimes(quizInfo);
   const problems = getPhaseAppropriateProblems(quizInfo.problems, isModerator, phase);
@@ -120,6 +118,8 @@ export default async function handler(
   if (!responses) return;
 
   res.status(200).json({
+    courseId,
+    courseTerm,
     currentServerTs: Date.now(),
     ...quizTimes,
     phase,

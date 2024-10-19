@@ -19,7 +19,7 @@ export async function getCacheEntryAndEndSet500OnError<T>(
   const result = await store.getEntry(key);
   if (result['error']) {
     res.status(500).send(result);
-    console.log(result['error']);
+    console.error(result['error']);
     return undefined;
   }
   return result as T;
