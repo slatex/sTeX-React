@@ -53,8 +53,8 @@ export function SubProblemAnswer({
   showPoints: boolean;
 }) {
   dayjs.extend(relativeTime);
-  const t = getLocaleObject(useRouter()).quiz;
-  const courseId = useRouter().query.courseId?.toString() ?? '';
+  const router = useRouter();
+  const t = getLocaleObject(router).quiz;
   const [showGrading, setShowGrading] = useState(false);
   const [answer, setAnswer] = useState('');
   const [answerId, setAnswerId] = useState(0);
@@ -75,6 +75,7 @@ export function SubProblemAnswer({
       setAnswer('');
       return;
     }
+    console.log(router.query.courseId);
 
     if (answer === '') return;
     const created = await createAnswer({
@@ -82,7 +83,7 @@ export function SubProblemAnswer({
       questionId: questionId,
       questionTitle: problemHeader,
       subProblemId: subProblemId,
-      courseId: courseId,
+      courseId: router.query.courseId?.toString() ?? '',
     });
     if (created.status !== 201) return;
     setAnswerId(created.answerId.id);
@@ -119,7 +120,7 @@ export function SubProblemAnswer({
       questionId: questionId,
       questionTitle: problemHeader,
       subProblemId: subProblemId,
-      courseId: courseId,
+      courseId: router.query.courseId?.toString() ?? '',
     });
     handleClose();
   }
@@ -128,18 +129,18 @@ export function SubProblemAnswer({
     setShowSolution(!showSolution);
   }
 
-  async function OnSaveAndReviewRequest(): Promise<void> {
+  async function OnSaveAndReviewRequest(reviewType: ReviewType): Promise<void> {
     if (answer === '') return;
     const answerCreated = await createAnswer({
       answer: answer,
       questionId: questionId,
       questionTitle: problemHeader,
       subProblemId: subProblemId,
-      courseId: '',
+      courseId: router.query.courseId?.toString() ?? '',
     });
     if (answerCreated.status !== 201) return;
 
-    await createReviewRequest({ answerId: answerCreated.answerId.id, reviewType: ReviewType.PEER });
+    await createReviewRequest({ answerId: answerCreated.answerId.id, reviewType: reviewType });
     setAnswer('');
     handleClose();
   }
@@ -234,7 +235,12 @@ export function SubProblemAnswer({
           {showSolution ? t.hideSolution : t.showSolution}
         </MenuItem>
         <Divider sx={{ my: 0.5 }} />
-        <MenuItem onClick={OnSaveAndReviewRequest}>Save & Submit review request</MenuItem>
+        <MenuItem onClick={() => OnSaveAndReviewRequest(ReviewType.PEER)}>
+          Save & Submit a peer review request
+        </MenuItem>
+        <MenuItem onClick={() => OnSaveAndReviewRequest(ReviewType.INSTRUCTOR)}>
+          Save & Submit a instructor review request
+        </MenuItem>
         {/* <MenuItem onClick={handleClose}> </MenuItem> */}
       </Menu>
     </>

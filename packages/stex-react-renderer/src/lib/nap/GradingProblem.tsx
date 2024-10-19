@@ -10,13 +10,16 @@ export function GradingSubProblems({
   onGraded,
   showPoints = false,
   addDefaultAnswerClasses = true,
+  showBackButton = false,
 }: {
   rawAnswerClasses: AnswerClass[];
   addDefaultAnswerClasses?: boolean;
   showPoints?: boolean;
+  showBackButton?: boolean;
   onGraded: (answerClass: CreateAnswerClassRequest[], feedback: string) => void;
 }) {
-  const t = getLocaleObject(useRouter()).quiz;
+  const router = useRouter();
+  const t = getLocaleObject(router).quiz;
   const [answerClasses, setAnswerClasses] = useState(
     [...defaultAnswerClasses, ...rawAnswerClasses].map((c) => ({
       count: 0,
@@ -81,7 +84,7 @@ export function GradingSubProblems({
   }
   return (
     <form onSubmit={onSaveGrading}>
-      <RadioGroup defaultValue={answerClasses[0].className}>
+      <RadioGroup>
         {answerClasses
           .filter((c) => !c.isTrait)
           .map((d) => (
@@ -122,7 +125,7 @@ export function GradingSubProblems({
       <Button type="submit" variant="contained">
         {t.submit}
       </Button>
-      <Button type="reset">{t.reset}</Button>
+      {showBackButton && <Button onClick={() => router.back()}>Back</Button>}
     </form>
   );
 }
