@@ -21,7 +21,9 @@ export interface CreateAnswerRequest {
   answer: string;
   subProblemId: string;
   questionId: string;
+  courseInstance?: string;
   questionTitle: string;
+  courseId: string;
 }
 export interface UpdateAnswerRequest {
   answer: string;
@@ -41,6 +43,7 @@ export interface AnswerResponse {
   subProblemId: string;
   userId: string;
   answer: string;
+  courseInstance: string;
   questionTitle: string;
   createdAt: Date;
   updatedAt: Date;
@@ -65,4 +68,8 @@ export interface AnswerClassResponse {
   title: string;
   description: string; //from API
   count: number;
+}
+export interface ReviewRequest {
+  answer: { id: number; answerId: number; questionTitle: string; updatedAt: Date }[];
+  questionTitle: string;
 }
