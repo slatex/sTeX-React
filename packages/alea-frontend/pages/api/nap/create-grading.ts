@@ -14,8 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   answerClasses = answerClasses.filter((c) => c.count != 0);
   customFeedback = customFeedback?.trim();
   if (!answerId || answerClasses.length == 0) {
-    
-    res.status(422).end();
+    res.status(422).send('General Problem');
     return;
   }
   answerClasses.forEach((element) => {
@@ -25,14 +24,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       element.isTrait == null ||
       // !element.description ||
       !element.title ||
-      !element.points
+      element.points==null
     )
-      res.status(422).end();
+      res.status(422).send('ACS problem' + JSON.stringify(element));
     return;
   });
-  const values = new Array(answerClasses.length).fill(
-    '(?, ?, ?,?,?,?,?,?)'
-  );
+  const values = new Array(answerClasses.length).fill('(?, ?, ?,?,?,?,?,?)');
   let totalPoints = 0;
   for (const answerClass of answerClasses) {
     totalPoints += answerClass.count * answerClass.points;
@@ -42,17 +39,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     [userId, answerId, customFeedback, totalPoints],
     res
   );
-  const answerClassesParams = answerClasses
-    .flatMap((c) => [
-      gradingResult.insertId,
-      c.answerClassId,
-      c.points,
-      c.isTrait,
-      c.closed,
-      c.title,
-      c.description,
-      c.count,
-    ]);
+  const answerClassesParams = answerClasses.flatMap((c) => [
+    gradingResult.insertId,
+    c.answerClassId,
+    c.points,
+    c.isTrait,
+    c.closed,
+    c.title,
+    c.description,
+    c.count,
+  ]);
   await executeAndEndSet500OnError(
     `INSERT INTO GradingAnswerClass (gradingId,answerClassId,points,isTrait,closed,title,description,count) values ${values.join(
       ', '
