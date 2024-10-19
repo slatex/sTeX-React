@@ -6,7 +6,7 @@ import {
   lmsResponseToUserInfo,
 } from '@stex-react/api';
 import axios from 'axios';
-import { NextApiRequest } from 'next';
+import { NextApiRequest, NextApiResponse } from 'next';
 import mysql from 'serverless-mysql';
 
 const db = mysql({
@@ -195,4 +195,13 @@ export async function sendNotification(
   if (postNotification['error']) {
     console.error(postNotification['error']);
   }
+}
+export function checkIfQueryParameterExistOrSetError(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  query: string
+): boolean {
+  if (req.query[query]) return true;
+  res.status(422);
+  return false;
 }
