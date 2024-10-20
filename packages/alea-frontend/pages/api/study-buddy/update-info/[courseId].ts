@@ -6,6 +6,7 @@ import {
   getUserInfo,
 } from '../../comment-utils';
 import { getSbCourseId } from '../study-buddy-utils';
+import { CURRENT_TERM } from '@stex-react/utils';
 
 export default async function handler(
   req: NextApiRequest,
@@ -17,7 +18,9 @@ export default async function handler(
   if (!userId) return res.status(403).send('User info not available');
 
   const courseId = req.query.courseId as string;
-  const sbCourseId = getSbCourseId(courseId);
+  let instanceId = req.query.instanceId as string;
+  if (!instanceId) instanceId = CURRENT_TERM;
+  const sbCourseId = getSbCourseId(courseId, instanceId);
 
   const {
     intro,
