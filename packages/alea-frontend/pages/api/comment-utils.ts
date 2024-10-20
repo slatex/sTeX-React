@@ -202,6 +202,6 @@ export function checkIfQueryParameterExistOrSetError(
   query: string
 ): boolean {
   if (req.query[query]) return true;
-  res.status(422);
+  res.status(422).end();
   return false;
 }
