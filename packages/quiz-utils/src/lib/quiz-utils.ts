@@ -542,7 +542,7 @@ export const defaultAnswerClasses: AnswerClass[] = [
   {
     className: 'ac-defualt-05',
     title: 'Illegible',
-    description: "Student's answer to this question cannot be deciphered despite honest effort.",
+    description: "Student's answer to this question cannot be incomprehensible despite honest effort.",
 
     points: 0,
     closed: true,
