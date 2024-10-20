@@ -88,7 +88,7 @@ CREATE TABLE userInfo (
 
 CREATE TABLE StudyBuddyUsers (
     userId VARCHAR(255) NOT NULL,
-    courseId VARCHAR(255) NOT NULL,
+    sbCourseId VARCHAR(255) NOT NULL,
 
     active BOOLEAN NOT NULL,
     email VARCHAR(255) NOT NULL,
@@ -102,7 +102,7 @@ CREATE TABLE StudyBuddyUsers (
     dayPreference VARCHAR(255),
     createdTimestamp timestamp DEFAULT CURRENT_TIMESTAMP,
 
-    PRIMARY KEY (userId, courseId)
+    PRIMARY KEY (userId, sbCourseId)
 );
 
 CREATE TABLE BlogPosts (
@@ -127,9 +127,9 @@ CREATE TABLE CdnImages (
 CREATE TABLE StudyBuddyConnections (
     senderId VARCHAR(255) NOT NULL,
     receiverId VARCHAR(255) NOT NULL,
-    courseId VARCHAR(255) NOT NULL,
+    sbCourseId VARCHAR(255) NOT NULL,
     timeOfIssue TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (senderId, receiverId, courseId)
+    PRIMARY KEY (senderId, receiverId, sbCourseId)
 );
 
 CREATE TABLE AccessControlList (

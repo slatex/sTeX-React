@@ -5,6 +5,7 @@ import {
   executeAndEndSet500OnError,
   getUserInfo,
 } from '../../comment-utils';
+import { getSbCourseId } from '../study-buddy-utils';
 
 export default async function handler(
   req: NextApiRequest,
@@ -13,12 +14,10 @@ export default async function handler(
   if (!checkIfPostOrSetError(req, res)) return;
   const user = await getUserInfo(req);
   const userId = user?.userId;
-  if (!userId) {
-    res.status(403).send({ message: 'User info not available' });
-    return;
-  }
+  if (!userId) return res.status(403).send('User info not available');
 
   const courseId = req.query.courseId as string;
+  const sbCourseId = getSbCourseId(courseId);
 
   const {
     intro,
@@ -35,7 +34,7 @@ export default async function handler(
   let results = undefined;
 
   results = await executeAndEndSet500OnError(
-    'REPLACE INTO StudyBuddyUsers (userName, intro, studyProgram, email, semester, meetType, languages, dayPreference, active, userId, courseId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    'REPLACE INTO StudyBuddyUsers (userName, intro, studyProgram, email, semester, meetType, languages, dayPreference, active, userId, sbCourseId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
     [
       user.fullName,
       intro,
@@ -47,7 +46,7 @@ export default async function handler(
       dayPreference,
       active,
       userId,
-      courseId,
+      sbCourseId,
     ],
     res
   );

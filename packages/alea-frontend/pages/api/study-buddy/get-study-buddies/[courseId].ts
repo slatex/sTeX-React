@@ -4,6 +4,7 @@ import {
   executeAndEndSet500OnError,
   getUserIdOrSetError,
 } from '../../comment-utils';
+import { getSbCourseId } from '../study-buddy-utils';
 
 const SENT_STATUS = 'sent';
 const RECEIVED_STATUS = 'received';
@@ -17,17 +18,18 @@ export default async function handler(
   if (!userId) return;
 
   const courseId = req.query.courseId as string;
+  const sbCourseId = getSbCourseId(courseId);
   const receivedRequests: any[] = await executeAndEndSet500OnError(
-    'SELECT senderId FROM StudyBuddyConnections WHERE receiverId=? AND courseId=?',
-    [userId, courseId],
+    'SELECT senderId FROM StudyBuddyConnections WHERE receiverId=? AND sbCourseId=?',
+    [userId, sbCourseId],
     res
   );
 
   if (!receivedRequests) return;
 
   const sentRequests: any[] = await executeAndEndSet500OnError(
-    'SELECT receiverId FROM StudyBuddyConnections WHERE senderId=? AND courseId=?',
-    [userId, courseId],
+    'SELECT receiverId FROM StudyBuddyConnections WHERE senderId=? AND sbCourseId=?',
+    [userId, sbCourseId],
     res
   );
 
@@ -35,8 +37,8 @@ export default async function handler(
 
   // TODO: should not select *
   const allStudybuddies: StudyBuddy[] = await executeAndEndSet500OnError(
-    'SELECT * FROM StudyBuddyUsers WHERE NOT userId=? AND courseId=? AND active=?',
-    [userId, courseId, true],
+    'SELECT * FROM StudyBuddyUsers WHERE NOT userId=? AND sbCourseId=? AND active=?',
+    [userId, sbCourseId, true],
     res
   );
 
