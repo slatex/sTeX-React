@@ -5,6 +5,7 @@ import {
 } from '../comment-utils';
 import { EnrolledCourseIds } from '@stex-react/api';
 import { CURRENT_TERM } from '@stex-react/utils';
+import { getCourseIdAndInstanceFromSbCourseId } from './study-buddy-utils';
 
 export default async function handler(
   req: NextApiRequest,
@@ -16,12 +17,16 @@ export default async function handler(
   let instanceId = req.query.instanceId as string;
   if (!instanceId) instanceId = CURRENT_TERM;
 
-  const result: EnrolledCourseIds[] = await executeAndEndSet500OnError(
-    `SELECT courseId, active as activeStatus from StudyBuddyUsers 
+  const results: any[] = await executeAndEndSet500OnError(
+    `SELECT sbCourseId, active as activeStatus from StudyBuddyUsers 
     WHERE sbCourseId LIKE '%${instanceId}' AND userId=?`,
     [userId],
     res
   );
+  const enrolledCourseIds: EnrolledCourseIds[] = results.map((r) => ({
+    courseId: getCourseIdAndInstanceFromSbCourseId(r.sbCourseId).courseId,
+    activeStatus: r.activeStatus,
+  }));
 
-  res.status(200).json(result);
+  res.status(200).json(enrolledCourseIds);
 }
