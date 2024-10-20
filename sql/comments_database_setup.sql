@@ -171,6 +171,7 @@ SELECT t1.senderId, t1.receiverId FROM StudyBuddyConnections t1 LEFT JOIN StudyB
 CREATE TABLE Answer  (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   questionId varchar(255) NOT NULL,
+  subProblemId varchar(255) NOT NUll,
   userId varchar(255) NOT NULL,
   answer TEXT NULL,
   questionTitle varchar(510) NOT NULL,
@@ -224,3 +225,5 @@ CREATE TABLE homework (
     archive VARCHAR(255),                          
     filepath VARCHAR(255)                        
 );
+ALTER TABLE Answer ADD COLUMN courseId varchar(255) NULL;
+ALTER TABLE Answer ADD COLUMN courseInstance varchar(255) NULL;

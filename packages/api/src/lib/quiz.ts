@@ -92,15 +92,26 @@ export interface Input {
   inline: boolean;
   ignoreForScoring?: boolean;
 }
-
+export interface SubProblemData {
+  solution: string;
+  answerclasses: AnswerClass[];
+}
+export interface AnswerClass {
+  className: string;
+  points: number;
+  title: string;
+  closed: boolean;
+  isTrait: boolean;
+  description: string;
+}
 export interface Problem {
   header: string;
   objectives: string;
   preconditions: string;
   statement: { outerHTML: string };
   inputs: Input[];
-  solutions: string[];
   points: number;
+  subProblemDatas: SubProblemData[];
 }
 
 export interface InputResponse {
