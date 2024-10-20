@@ -10,7 +10,8 @@ import QuizDashboard from 'packages/alea-frontend/components/QuizDashboard';
 import { StudyBuddyModeratorStats } from 'packages/alea-frontend/components/StudyBuddyModeratorStats';
 import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
 import { useContext, useEffect, useState } from 'react';
-import { CourseHeader } from '../course-home/[courseId]';
+import { CourseHeader } from '../../course-home/[courseId]';
+import { ProblemReviewModeratorStats } from 'packages/alea-frontend/components/ProblemReviewModeratorStats';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -18,13 +19,19 @@ interface TabPanelProps {
   index: number;
 }
 
-type TabName = 'access-control' | 'homework-manager' | 'quiz-dashboard' | 'study-buddy';
+type TabName =
+  | 'access-control'
+  | 'homework-manager'
+  | 'quiz-dashboard'
+  | 'study-buddy'
+  | 'problem-review';
 
 const TAB_MAPPING: Record<TabName, number> = {
   'access-control': 0,
   'homework-manager': 1,
   'quiz-dashboard': 2,
   'study-buddy': 3,
+  'problem-review': 4,
 };
 
 function ChosenTab({ tabName, courseId }: { tabName: TabName; courseId: string }) {
@@ -37,6 +44,8 @@ function ChosenTab({ tabName, courseId }: { tabName: TabName; courseId: string }
       return <QuizDashboard courseId={courseId} />;
     case 'study-buddy':
       return <StudyBuddyModeratorStats courseId={courseId} />;
+    case 'problem-review':
+      return <ProblemReviewModeratorStats courseId={courseId}></ProblemReviewModeratorStats>
     default:
       return null;
   }

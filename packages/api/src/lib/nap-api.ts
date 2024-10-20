@@ -5,6 +5,7 @@ import {
   CreateAnswerRequest,
   CreateGradingRequest,
   CreateReviewRequest,
+  ReviewType,
 } from './nap';
 import { getAuthHeaders } from './lms';
 
@@ -28,11 +29,11 @@ export async function createReviewRequest(request: CreateReviewRequest) {
     .post('/api/nap/create-review-request', request, { headers: getAuthHeaders() })
     .then((c) => ({ status: c.status }));
 }
-export async function getReviewRequests(couserId?: string) {
+export async function getReviewRequests(reviewType: ReviewType, couserId?: string) {
   return axios
     .get('/api/nap/get-review-requests', {
       headers: getAuthHeaders(),
-      params: { couserId: couserId },
+      params: { couserId: couserId, reviewType: ReviewType[reviewType] },
     })
     .then((c) => c.data);
 }

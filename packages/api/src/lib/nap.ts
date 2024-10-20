@@ -34,7 +34,7 @@ export interface CreateReviewRequest {
   reviewType: ReviewType;
 }
 export enum ReviewType {
-  PEER = 'Peer',
+  PEER = 'PEER',
   INSTRUCTOR = 'INSTRUCTOR',
 }
 export interface AnswerResponse {
