@@ -19,9 +19,16 @@ export async function createGradring(gradeing: CreateGradingRequest) {
     .post('/api/nap/create-grading', gradeing, { headers: getAuthHeaders() })
     .then((c) => ({ status: c.status, data: c.data as number }));
 }
-export async function getAnswers() {
+export async function getAnswers(couserId: string, questionId: string, subProblemId: string) {
   return axios
-    .get<AnswerResponse[]>('/api/nap/get-student-answers', { headers: getAuthHeaders() })
+    .get<AnswerResponse[]>('/api/nap/get-student-answers', {
+      headers: getAuthHeaders(),
+      params: {
+        couserId: couserId,
+        questionId: questionId,
+        subProblemId: subProblemId,
+      },
+    })
     .then((c) => c.data);
 }
 export async function createReviewRequest(request: CreateReviewRequest) {

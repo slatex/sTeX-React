@@ -1,16 +1,12 @@
 import {
   Button,
   TextField,
-  Box,
-  RadioGroup,
-  Radio,
   Dialog,
   List,
   ListItemButton,
   ListItemText,
   Divider,
   AppBar,
-  FormControlLabel,
   IconButton,
   Toolbar,
   Typography,
@@ -19,7 +15,6 @@ import {
 } from '@mui/material';
 
 import {
-  AnswerClass,
   AnswerResponse,
   createAnswer,
   CreateAnswerClassRequest,
@@ -32,10 +27,9 @@ import {
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useRouter } from 'next/router';
-import { ChangeEvent, SyntheticEvent, useEffect, useState } from 'react';
+import { SyntheticEvent, useEffect, useState } from 'react';
 import { getLocaleObject } from './lang/utils';
 import CloseIcon from '@mui/icons-material/Close';
-import { defaultAnswerClasses } from '@stex-react/quiz-utils';
 import { mmtHTMLToReact } from './mmtParser';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { GradingSubProblems } from './nap/GradingProblem';
@@ -54,6 +48,7 @@ export function SubProblemAnswer({
 }) {
   dayjs.extend(relativeTime);
   const router = useRouter();
+  const courseId = router.query.courseId?.toString() ?? '';
   const t = getLocaleObject(router).quiz;
   const [showGrading, setShowGrading] = useState(false);
   const [answer, setAnswer] = useState('');
@@ -63,10 +58,8 @@ export function SubProblemAnswer({
   const [showSolution, setShowSolution] = useState(false);
   const [answers, setAnswers] = useState<AnswerResponse[]>([]);
   useEffect(() => {
-    getAnswers().then((c) =>
-      setAnswers(c.filter((c) => c.questionId === questionId && c.subProblemId === subProblemId))
-    );
-  }, [answerId]);
+    if (courseId) getAnswers(courseId, questionId, subProblemId).then(setAnswers);
+  }, [answerId, courseId, questionId, subProblemId]);
   async function onSubmitAnswer(event: SyntheticEvent) {
     event.preventDefault();
     if (showGrading) {
@@ -75,16 +68,8 @@ export function SubProblemAnswer({
       setAnswer('');
       return;
     }
-    console.log(router.query.courseId);
 
-    if (answer === '') return;
-    const created = await createAnswer({
-      answer: answer,
-      questionId: questionId,
-      questionTitle: problemHeader,
-      subProblemId: subProblemId,
-      courseId: router.query.courseId?.toString() ?? '',
-    });
+    const created= await SaveAnswers();
     if (created.status !== 201) return;
     setAnswerId(created.answerId.id);
     setShowGrading(true);
@@ -114,14 +99,7 @@ export function SubProblemAnswer({
   }
 
   async function OnOnlySaveAnswer(): Promise<void> {
-    if (answer === '') return;
-    await createAnswer({
-      answer: answer,
-      questionId: questionId,
-      questionTitle: problemHeader,
-      subProblemId: subProblemId,
-      courseId: router.query.courseId?.toString() ?? '',
-    });
+    SaveAnswers();
     handleClose();
   }
 
@@ -130,21 +108,23 @@ export function SubProblemAnswer({
   }
 
   async function OnSaveAndReviewRequest(reviewType: ReviewType): Promise<void> {
-    if (answer === '') return;
-    const answerCreated = await createAnswer({
-      answer: answer,
-      questionId: questionId,
-      questionTitle: problemHeader,
-      subProblemId: subProblemId,
-      courseId: router.query.courseId?.toString() ?? '',
-    });
+    const answerCreated = await SaveAnswers();
     if (answerCreated.status !== 201) return;
 
     await createReviewRequest({ answerId: answerCreated.answerId.id, reviewType: reviewType });
     setAnswer('');
     handleClose();
   }
-
+  async function SaveAnswers() {
+    if (answer === '') return { status: 423, answerId: null };
+    return createAnswer({
+      answer: answer,
+      questionId: questionId,
+      questionTitle: problemHeader,
+      subProblemId: subProblemId,
+      courseId: courseId,
+    });
+  }
   return (
     <>
       <form onSubmit={onSubmitAnswer}>
