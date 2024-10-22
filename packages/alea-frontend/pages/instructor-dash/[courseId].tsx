@@ -1,7 +1,7 @@
 import { Box, Tab, Tabs } from '@mui/material';
-import { getCourseInfo } from '@stex-react/api';
+import { canAccessResource, getCourseInfo } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { CourseInfo } from '@stex-react/utils';
+import { Action, CourseInfo, CURRENT_TERM, ResourceName } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import CourseAccessControlDashboard from 'packages/alea-frontend/components/CourseAccessControlDashboard';
@@ -20,11 +20,11 @@ interface TabPanelProps {
 
 type TabName = 'access-control' | 'homework-manager' | 'quiz-dashboard' | 'study-buddy';
 
-const TAB_MAPPING: Record<TabName, number> = {
-  'access-control': 0,
-  'homework-manager': 1,
-  'quiz-dashboard': 2,
-  'study-buddy': 3,
+const TAB_ACCESS_REQUIREMENTS: Record<TabName, { resource: ResourceName; action: Action }> = {
+  'access-control': { resource: ResourceName.COURSE_ACCESS, action: Action.ACCESS_CONTROL },
+  'homework-manager': { resource: ResourceName.COURSE_HOMEWORK, action: Action.MUTATE },
+  'quiz-dashboard': { resource: ResourceName.COURSE_QUIZ, action: Action.MUTATE },
+  'study-buddy': { resource: ResourceName.COURSE_STUDY_BUDDY, action: Action.MODERATE },
 };
 
 function ChosenTab({ tabName, courseId }: { tabName: TabName; courseId: string }) {
@@ -73,12 +73,16 @@ const InstructorDash: NextPage = () => {
   const { mmtUrl } = useContext(ServerLinksContext);
   const [courses, setCourses] = useState<Record<string, CourseInfo> | undefined>(undefined);
 
+  const [tabs, setTabs] = useState<TabName[]>([]);
+  const [currentTab, setCurrentTab] = useState<number>(0);
+  
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    const tabName = Object.keys(TAB_MAPPING).find((key) => TAB_MAPPING[key] === newValue);
+    setCurrentTab(newValue);
+    const selectedTab = tabs[newValue];
     router.push(
       {
         pathname: router.pathname,
-        query: { ...router.query, tab: tabName },
+        query: { ...router.query, tab: selectedTab },
       },
       undefined,
       { shallow: true }
@@ -89,18 +93,45 @@ const InstructorDash: NextPage = () => {
   }, [mmtUrl]);
 
   useEffect(() => {
-    if (!router.isReady) return;
-    if (TAB_MAPPING.hasOwnProperty(tab)) return;
-    router.replace(
-      {
-        pathname: router.pathname,
-        query: { ...router.query, tab: Object.keys(TAB_MAPPING)[0] },
-      },
-      undefined,
-      { shallow: true }
-    );
-  }, [router.isReady, tab]);
-  const chosenTabValue = TAB_MAPPING[tab] ?? 0;
+    if (!courseId) return;
+
+    async function checkTabAccess() {
+      const accessibleTabs: TabName[] = [];
+      for (const [tabName, { resource, action }] of Object.entries(TAB_ACCESS_REQUIREMENTS) as [
+        TabName,
+        { resource: ResourceName; action: Action }
+      ][]) {
+        const hasAccess = await canAccessResource(resource, action, {
+          courseId,
+          instanceId: CURRENT_TERM,
+        });
+        if (hasAccess) {
+          accessibleTabs.push(tabName);
+        }
+      }
+
+      setTabs(accessibleTabs);
+      if (tab && accessibleTabs.includes(tab)) {
+        setCurrentTab(accessibleTabs.indexOf(tab));
+      } else {
+        setCurrentTab(0);
+        router.replace(
+          {
+            pathname: router.pathname,
+            query: { ...router.query, tab: accessibleTabs[0] },
+          },
+          undefined,
+          { shallow: true }
+        );
+      }
+      let minTab = 10;
+      for (const tabName of accessibleTabs) {
+        minTab = Math.min(minTab, tabs.indexOf(tabName) + 1);
+      }
+      setCurrentTab(minTab);
+    }
+    checkTabAccess();
+  }, [courseId, tab]);
 
   const courseInfo = courses?.[courseId];
 
@@ -113,7 +144,7 @@ const InstructorDash: NextPage = () => {
       />
       <Box sx={{ width: '100%', margin: 'auto', maxWidth: '900px' }}>
         <Tabs
-          value={chosenTabValue}
+          value={currentTab}
           onChange={handleChange}
           aria-label="Instructor Dashboard Tabs"
           sx={{
@@ -127,13 +158,13 @@ const InstructorDash: NextPage = () => {
             },
           }}
         >
-          {Object.keys(TAB_MAPPING).map((tabName) => (
+          {tabs.map((tabName, index) => (
             <Tab key={tabName} label={toUserFriendlyName(tabName)} />
           ))}
         </Tabs>
-        {Object.entries(TAB_MAPPING).map(([tabName, value]) => (
-          <TabPanel key={tabName} value={chosenTabValue} index={value}>
-            <ChosenTab tabName={tabName as TabName} courseId={courseId} />
+        {tabs.map((tabName, index) => (
+          <TabPanel key={tabName} value={currentTab} index={index}>
+            <ChosenTab tabName={tabName} courseId={courseId} />
           </TabPanel>
         ))}
       </Box>
