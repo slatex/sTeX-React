@@ -1,3 +1,4 @@
+import { Label } from '@mui/icons-material';
 import CheckIcon from '@mui/icons-material/Check';
 import EditIcon from '@mui/icons-material/Edit';
 import {
@@ -28,6 +29,7 @@ interface AclData {
   homework: string;
   comments: string;
   'study-buddy': string;
+  'problem-review': string;
 }
 
 const FIELDS = [
@@ -36,6 +38,7 @@ const FIELDS = [
   { key: 'homework', label: 'Homework Management' },
   { key: 'comments', label: 'Comments Moderation' },
   { key: 'study-buddy', label: 'Study Buddy Management' },
+  {key: 'problem-review', label:'Problem Review'}
 ] as const;
 
 const getResourseActionPairs = (courseId: string) => [
@@ -57,6 +60,10 @@ const getResourseActionPairs = (courseId: string) => [
   },
   {
     resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/study-buddy`,
+    actionId: Action.MODERATE,
+  },
+  {
+    resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/problem-review`,
     actionId: Action.MODERATE,
   },
 ];
@@ -99,12 +106,14 @@ const CourseAccessControlDashboard = ({ courseId }) => {
     homework: false,
     comments: false,
     'study-buddy': false,
+    'problem-review': false,
   });
   const [editingValues, setEditingValues] = useState({
     notes: '',
     quiz: '',
     comments: '',
-    "study-buddy": '',
+    'study-buddy': '',
+    'problem-review': '',
   });
   const [aclData, setAclData] = useState<AclData>({
     notes: '',
@@ -112,6 +121,7 @@ const CourseAccessControlDashboard = ({ courseId }) => {
     homework: '',
     comments: '',
     'study-buddy': '',
+    'problem-review': '',
   });
   const [acls, setAcls] = useState<string[]>([]);
   const [newAclId, setNewAclId] = useState('');
@@ -158,6 +168,7 @@ const CourseAccessControlDashboard = ({ courseId }) => {
         homework: aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/homework`],
         comments: aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/comments`],
         'study-buddy': aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/study-buddy`],
+        'problem-review': aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/problem-review`],
       });
 
       setEditingValues({
@@ -165,6 +176,7 @@ const CourseAccessControlDashboard = ({ courseId }) => {
         quiz: aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/quiz`],
         comments: aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/comments`],
         'study-buddy': aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/study-buddy`],
+        'problem-review': aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/problem-review`],
       });
     }
     getAclData();

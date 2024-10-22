@@ -1,4 +1,4 @@
-import { Box, Button } from '@mui/material';
+import { Box, Button, Paper } from '@mui/material';
 import {
   AnswerResponse,
   CreateAnswerClassRequest,
@@ -45,8 +45,8 @@ const PeerGradingPage: NextPage = () => {
 
   return (
     <MainLayout>
-      <Box>
-        <Box>
+      <Box sx={{ width: '100%', margin: 'auto', maxWidth: '900px' }}>
+        <Box sx={{ gap: '3' }}>
           {problem && (
             <ProblemDisplay
               r={{} as ProblemResponse}
@@ -62,20 +62,22 @@ const PeerGradingPage: NextPage = () => {
               }}
             />
           )}
-          <div>
-            <span>Sub Problem: </span>
-            <span>{+answer?.subProblemId+1}</span>
-          </div>
-          <span>Answer:</span>
-          <p style={{ whiteSpace: 'pre-line' }}>{answer?.answer}</p>
+          <Paper sx={{ gap: 2,bgcolor:'#99F8FD', marginTop:'3px' }} elevation={3}>
+           
+            <div>
+              <span>Sub Problem: </span>
+              <span>{+answer?.subProblemId + 1}</span>
+            </div>
+            <span>Answer:</span>
+            <p style={{ whiteSpace: 'pre-line' }}>{answer?.answer}</p>
+          </Paper>
           {problem && (
             <>
-            <GradingSubProblems
-            showBackButton={true}
-              rawAnswerClasses={problem?.subProblemDatas[answer.subProblemId].answerclasses}
-              onGraded={onSaveGrading}
-            ></GradingSubProblems>
-            
+              <GradingSubProblems
+                showBackButton={true}
+                rawAnswerClasses={problem?.subProblemDatas[answer.subProblemId].answerclasses}
+                onGraded={onSaveGrading}
+              ></GradingSubProblems>
             </>
           )}
         </Box>
