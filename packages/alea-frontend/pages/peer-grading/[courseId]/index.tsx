@@ -3,24 +3,15 @@ import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
 
 import { CourseHeader } from '../../course-home/[courseId]';
 import { useContext, useEffect, useState } from 'react';
-import {  ServerLinksContext } from '@stex-react/stex-react-renderer';
+import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { getCourseInfo, getReviewRequests, ReviewType } from '@stex-react/api';
 import { CourseInfo } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
   Box,
-  Divider,
-  List,
-  ListItemButton,
-  ListItemText,
 } from '@mui/material';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import Link from 'next/link';
 import { ShowReviewRequests } from 'packages/stex-react-renderer/src/lib/nap/ShowReviewRequests';
 const PeerGradingListPage: NextPage = () => {
   dayjs.extend(relativeTime);
@@ -39,7 +30,7 @@ const PeerGradingListPage: NextPage = () => {
     if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
   }, [mmtUrl]);
   useEffect(() => {
-    getReviewRequests(ReviewType.PEER,courseId).then(setReviewRequests);
+    getReviewRequests(ReviewType.PEER, courseId).then(setReviewRequests);
   }, [courseId]);
   const courseInfo = courses?.[courseId];
 
@@ -51,7 +42,12 @@ const PeerGradingListPage: NextPage = () => {
           imageLink={courseInfo?.imageLink}
           courseId={courseId}
         />
-        <ShowReviewRequests courseId={courseId} reviewRequests={reviewRequests}></ShowReviewRequests>
+        <Box sx={{ width: '100%', margin: 'auto', maxWidth: '900px' }}>
+          <ShowReviewRequests 
+            courseId={courseId}
+            reviewRequests={reviewRequests}
+          ></ShowReviewRequests>
+        </Box>
       </MainLayout>
     </>
   );
