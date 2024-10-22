@@ -1,0 +1,91 @@
+.title {
+    font-size: 2rem;
+    animation: fadeIn 1s ease-in-out;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.welcomeText {
+    color: #3498db;
+}
+
+.dynamicTitle {
+    color: #cf3ebb;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+.shimmer {
+    display: inline-block;
+    height: 20px;
+    width: 300px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 1000px 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 5px;
+    margin: 0 auto;
+}
+
+
+.messageBox {
+    position: relative;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    margin: 10px 0;
+}
+
+.systemMessage {
+    background-color: #e0f7fa;
+}
+
+.userMessage {
+    background-color: #fce4ec;
+}
+
+// arrow box 
+.messageBox::after {
+    content: '';
+    position: absolute;
+    bottom: 0%;
+
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid #12a3b6;
+    transform: translateX(-50%) rotate(0deg);
+}
+
+.userMessage::after {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    right: 20px;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid #ee2367;
+    transform: translateX(50%) rotate(0deg);
+}
