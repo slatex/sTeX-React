@@ -57,9 +57,6 @@ const ExperimentsHome: NextPage = () => {
         <main style={{ margin: '10px' }}>
           <Box m="10px auto" maxWidth="600px" textAlign="center">
             <Box>
-              <InternalButtonLink href="/quiz">
-                Quiz Dashboard
-              </InternalButtonLink>
               <InternalButtonLink href="/sys-admin">
               System Administrator
               </InternalButtonLink>

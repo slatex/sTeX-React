@@ -4,6 +4,8 @@ import {
   executeAndEndSet500OnError,
   getUserIdOrSetError,
 } from '../../comment-utils';
+import { getSbCourseId } from '../study-buddy-utils';
+import { CURRENT_TERM } from '@stex-react/utils';
 
 export default async function handler(
   req: NextApiRequest,
@@ -13,6 +15,9 @@ export default async function handler(
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
   const courseId = req.query.courseId as string;
+  let instanceId = req.query.instanceId as string;
+  if (!instanceId) instanceId = CURRENT_TERM;
+  const sbCourseId = getSbCourseId(courseId, instanceId);
   const receiverId = req.body?.receiverId;
 
   if (!receiverId) {
@@ -21,8 +26,8 @@ export default async function handler(
   }
 
   const results = await executeAndEndSet500OnError(
-    'DELETE FROM StudyBuddyConnections WHERE senderId=? AND receiverId=? AND courseId=?',
-    [userId, receiverId, courseId],
+    'DELETE FROM StudyBuddyConnections WHERE senderId=? AND receiverId=? AND sbCourseId=?',
+    [userId, receiverId, sbCourseId],
     res
   );
 

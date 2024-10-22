@@ -2,13 +2,13 @@ import { AllCoursesStats } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { executeAndEndSet500OnError } from '../comment-utils';
 import { getUserIdIfCanModerateStudyBuddyOrSetError } from '../access-control/resource-utils';
+import { CURRENT_TERM } from '@stex-react/utils';
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  const userId = await getUserIdIfCanModerateStudyBuddyOrSetError(req, res)
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const userId = await getUserIdIfCanModerateStudyBuddyOrSetError(req, res);
   if (!userId) return;
+  let instanceId = req.query.instanceId as string;
+  if (!instanceId) instanceId = CURRENT_TERM;
 
   /*
     This query counts a user multiple times if the user registered in multiple courses.
@@ -23,7 +23,8 @@ export default async function handler(
       COUNT(userId) as TotalUsers, 
       SUM(CASE WHEN active = 1 THEN 1 ELSE 0 END) as ActiveUsers,
       SUM(CASE WHEN active = 0 THEN 1 ELSE 0 END) as InactiveUsers 
-    FROM StudyBuddyUsers`,
+    FROM StudyBuddyUsers
+    WHERE sbCourseId LIKE '%${instanceId}'`,
     [],
     res
   );
@@ -34,13 +35,13 @@ export default async function handler(
     WHERE EXISTS (
       SELECT 1 FROM StudyBuddyConnections as t2 WHERE t1.senderId = t2.receiverId
       AND t1.receiverId = t2.senderId
-    )`,
+    ) AND sbCourseId LIKE '%${instanceId}'`,
     [],
     res
   );
   const result3: any[] = await executeAndEndSet500OnError(
-    `SELECT COUNT(*) as TotalRequests FROM StudyBuddyConnections`,
-    [],
+    `SELECT COUNT(*) as TotalRequests FROM StudyBuddyConnections WHERE sbCourseId LIKE '%${instanceId}'`,
+    [instanceId],
     res
   );
 
@@ -51,8 +52,7 @@ export default async function handler(
     activeUsers: result1[0].ActiveUsers,
     inactiveUsers: result1[0].InactiveUsers,
     numberOfConnections: result2[0].NumberOfConnections,
-    unacceptedRequests:
-      result3[0].TotalRequests - result2[0].NumberOfConnections * 2,
+    unacceptedRequests: result3[0].TotalRequests - result2[0].NumberOfConnections * 2,
   };
   res.status(200).json(combinedResults);
 }
