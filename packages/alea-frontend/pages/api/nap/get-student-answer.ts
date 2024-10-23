@@ -13,8 +13,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       res
     )
   )[0];
+  const reviewRequests = await executeAndEndSet500OnError(
+    'select id,reviewType,createdAt from ReviewRequest where answerId=?',
+    [answer.id],
+    res
+  );
   const grades = await executeAndEndSet500OnError<GradeResponse[]>(
-    `select id,checkerId,answerId,customFeedback,totalPoints,createdAt,updatedAt from Grading where answerId=?`,
+    `select id,checkerId,customFeedback,totalPoints,createdAt,updatedAt from Grading where answerId=?`,
     [id],
     res
   );
@@ -28,5 +33,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       grade.answerClasses = gradesAnswerClasses.filter((c) => c.gradingId == grade.id);
     }
   }
-  res.send({ answer, grades });
+  res.send({ answer, reviewRequests, grades });
 }

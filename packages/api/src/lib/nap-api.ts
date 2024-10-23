@@ -47,7 +47,7 @@ export async function getReviewRequests(reviewType: ReviewType, couserId?: strin
 export async function getAnswer(id: number) {
   return axios
     .get('/api/nap/get-student-answer', { headers: getAuthHeaders(), params: { id: id } })
-    .then((c) => c.data.answer);
+    .then((c) => c.data);
 }
 export async function getAnswerWithReviewRequestId(id: number) {
   return axios
@@ -56,4 +56,10 @@ export async function getAnswerWithReviewRequestId(id: number) {
       params: { id: id },
     })
     .then((c) => c.data);
+}
+export async function deleteAnswer(id: number) {
+  return axios.post('/api/nap/delete-answer', { id }, { headers: getAuthHeaders() });
+}
+export async function deleteReviewRequest(id: number) {
+  return axios.post('/api/nap/delete-review-request',{id},{headers:getAuthHeaders()})
 }
