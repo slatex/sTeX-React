@@ -227,3 +227,5 @@ CREATE TABLE homework (
 );
 ALTER TABLE Answer ADD COLUMN courseId varchar(255) NULL;
 ALTER TABLE Answer ADD COLUMN courseInstance varchar(255) NULL;
+ALTER TABLE Answer Add COLUMN homeworkId varchar(255) NULL;
+ALTER TABLE Grading Add COLUMN homeworkId varchar(255) NULL;
