@@ -72,6 +72,10 @@ export const en = {
     saveAndGrade: 'Save and Grade',
     perSectionQuizButton: 'Practice Problems ($1)',
     hideProblems: 'Hide Problems',
+    showOlderAnswers: 'Show older answers',
+    history: 'History',
+    saveAndSubmitAPeerReview:'Save & Submit a peer review request',
+    saveAndSubmitAInstructorReview:'Save & Submit a instructor review request'
   },
   practiceProblems: {
     clickSection: 'Click on a section in the TOC to see problems associated with it.',

@@ -73,6 +73,10 @@ export const de = {
     submit: 'Senden',
     reset: 'Zurücksetzen',
     feedback: 'Feedback',
+    showOlderAnswers: 'Ältere Antworten anzeigen',
+    history: 'Geschichte',
+    saveAndSubmitAPeerReview: 'Speichern & Einreichen einer Peer-Review-Anfrage',
+    saveAndSubmitAInstructorReview: 'Speichern & Einreichen einer Beurteilungsanfrage für einen Kursleiter',
   },
   practiceProblems: {
     clickSection:

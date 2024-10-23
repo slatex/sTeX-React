@@ -12,6 +12,7 @@ import {
   Typography,
   Menu,
   MenuItem,
+  Box,
 } from '@mui/material';
 
 import {
@@ -33,6 +34,12 @@ import CloseIcon from '@mui/icons-material/Close';
 import { mmtHTMLToReact } from './mmtParser';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { GradingSubProblems } from './nap/GradingProblem';
+import MarkChatReadIcon from '@mui/icons-material/MarkChatRead';
+import GradingIcon from '@mui/icons-material/Grading';
+import FeedbackIcon from '@mui/icons-material/Feedback';
+import Diversity3Icon from '@mui/icons-material/Diversity3';
+import Diversity1Icon from '@mui/icons-material/Diversity1';
+import GroupsIcon from '@mui/icons-material/Groups';
 export function SubProblemAnswer({
   subProblem,
   problemHeader,
@@ -69,7 +76,7 @@ export function SubProblemAnswer({
       return;
     }
 
-    const created= await SaveAnswers();
+    const created = await SaveAnswers();
     if (created.status !== 201) return;
     setAnswerId(created.answerId.id);
     setShowGrading(true);
@@ -108,10 +115,14 @@ export function SubProblemAnswer({
   }
 
   async function OnSaveAndReviewRequest(reviewType: ReviewType): Promise<void> {
-    const answerCreated = await SaveAnswers();
-    if (answerCreated.status !== 201) return;
+    let anid = answerId;
+    if (anid === 0) {
+      const answerCreated = await SaveAnswers();
+      if (answerCreated.status !== 201) return;
+      anid = answerCreated.answerId.id;
+    }
 
-    await createReviewRequest({ answerId: answerCreated.answerId.id, reviewType: reviewType });
+    await createReviewRequest({ answerId: anid, reviewType: reviewType });
     setAnswer('');
     handleClose();
   }
@@ -146,7 +157,7 @@ export function SubProblemAnswer({
             </IconButton>
           </div>
           <Button disabled={showGrading} onClick={() => setIsHistoryOpen(true)} type="button">
-            Show older answers
+            {t.showOlderAnswers}
           </Button>
         </div>
       </form>
@@ -174,27 +185,46 @@ export function SubProblemAnswer({
               <CloseIcon />
             </IconButton>
             <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-              History
+              {t.history}
             </Typography>
           </Toolbar>
         </AppBar>
         <List>
           {answers.map((c) => (
             <>
-              <ListItemButton
-                onClick={() => {
-                  setAnswer(c.answer);
-                  setAnswerId(c.id);
-                  setShowGrading(true);
-                  setShowSolution(true);
-                  setIsHistoryOpen(false);
-                }}
-              >
+              <ListItemButton>
                 <ListItemText
+                  onClick={() => {
+                    setAnswer(c.answer);
+                    setAnswerId(c.id);
+                    setShowGrading(true);
+                    setShowSolution(true);
+                    setIsHistoryOpen(false);
+                  }}
                   primary={c.answer}
                   style={{ whiteSpace: 'pre-line' }}
                   secondary={dayjs(c.updatedAt.toString()).toNow(true)}
                 />
+                <Box sx={{ flexDirection: 'column', display: 'flex' }}>
+                  {c.reviewRequests.map((d) =>
+                    d === ReviewType.INSTRUCTOR ? (
+                      <GroupsIcon></GroupsIcon>
+                    ) : (
+                      <Diversity3Icon></Diversity3Icon>
+                    )
+                  )}
+                  {c.graded && (
+                    <IconButton
+                      onClick={(e) => {
+                        router.push(`/answers/${courseId}/${c.id}`)
+                        e.preventDefault();
+                      }}
+                      aria-label="delete"
+                    >
+                      <GradingIcon></GradingIcon>
+                    </IconButton>
+                  )}
+                </Box>
               </ListItemButton>
               <Divider />
             </>
@@ -219,9 +249,8 @@ export function SubProblemAnswer({
           Save & Submit a peer review request
         </MenuItem>
         <MenuItem onClick={() => OnSaveAndReviewRequest(ReviewType.INSTRUCTOR)}>
-          Save & Submit a instructor review request
+          {t.saveAndSubmitAInstructorReview}
         </MenuItem>
-        {/* <MenuItem onClick={handleClose}> </MenuItem> */}
       </Menu>
     </>
   );

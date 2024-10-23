@@ -38,6 +38,8 @@ export enum ReviewType {
   INSTRUCTOR = 'INSTRUCTOR',
 }
 export interface AnswerResponse {
+  graded: boolean;
+  reviewRequests: ReviewType[];
   id: number;
   questionId: string;
   subProblemId: string;
