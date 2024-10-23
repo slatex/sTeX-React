@@ -225,7 +225,10 @@ const CourseHomePage: NextPage = () => {
               <PersonIcon fontSize="large" />
             </CourseComponentLink>
           )}
-          <CourseComponentLink href={`/peer-grading/${courseId}`}>Peer-Grading</CourseComponentLink>
+          <CourseComponentLink href={`/peer-grading/${courseId}`}>
+            {<p>{t.peerReview}</p>}&nbsp;
+            <Diversity3Icon fontSize="large" />
+          </CourseComponentLink>
         </Box>
         {showSearchBar && (
           <Box

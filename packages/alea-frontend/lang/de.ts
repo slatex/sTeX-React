@@ -24,6 +24,7 @@ export const de = {
       studyBuddy: 'Study Buddy',
       practiceProblems: 'Übungsaufgaben',
       instructorDashBoard: 'Lehrer-Dashboard',
+      peerReview:'Peer-Review'
     },
     newHome: {
       alea: 'ALᴇA: Adaptiver Lernassistent',
@@ -115,6 +116,7 @@ export const de = {
     demoQuizText:
       'ist ein Demo-Quiz - damit Sie Ihre Hard-/Software testen (Sie benötigen einen aktuellen Chrome- oder Firefox-Browser) und die Formatierung sehen können. Insbesondere sollten Sie in der Lage sein, die mathematische Notation im Problem des Handlungsreisenden zu lesen.',
     practiceProblems: 'Übungsprobleme',
+
   },
   homework: {
     homeworkDashboard: 'Hausaufgaben-Dashboard',
