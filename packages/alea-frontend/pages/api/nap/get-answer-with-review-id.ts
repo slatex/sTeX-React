@@ -4,7 +4,6 @@ import {
   checkIfQueryParameterExistOrSetError,
   executeAndEndSet500OnError,
 } from '../comment-utils';
-import { AnswerResponse } from '@stex-react/api';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfGetOrSetError(req, res) || !checkIfQueryParameterExistOrSetError(req, res, 'id'))
