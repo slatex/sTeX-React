@@ -3,33 +3,46 @@ import {
   checkIfGetOrSetError,
   checkIfQueryParameterExistOrSetError,
   executeAndEndSet500OnError,
+  getUserIdOrSetError,
 } from '../comment-utils';
 import { ReviewType } from '@stex-react/api';
+import { isUserIdAuthorizedForAny } from '../access-control/resource-utils';
+import { Action, ResourceName } from '@stex-react/utils';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (
     !checkIfGetOrSetError(req, res) ||
-    !checkIfQueryParameterExistOrSetError(req, res, 'reviewType')
+    !checkIfQueryParameterExistOrSetError(req, res, 'courseId') ||
+    !checkIfQueryParameterExistOrSetError(req, res, 'courseInstance')
   )
     return;
-  const reviewType: ReviewType = ReviewType[req.query.reviewType.toString()];
-  const queryPrams: any[] = [reviewType];
-  let query = `SELECT Answer.questionId FROM ReviewRequest INNER JOIN Answer ON ReviewRequest.answerId = Answer.id where ReviewRequest.reviewType=? `;
-  if (Object.keys(req.query).length > 0) {
-    if (req.query.couserId != null) {
-      query += 'And Answer.courseId=? ';
-      queryPrams.push(req.query.couserId);
-    }
-  }
-  query += 'GROUP BY Answer.questionId';
+  const courseId = req.query.courseId.toString();
+  const courseInstance = req.query.courseInstance.toString();
+  const reviewType = (await isUserIdAuthorizedForAny(await getUserIdOrSetError(req, res), [
+    {
+      action: Action.MUTATE,
+      name: ResourceName.COURSE_PROBLEM_REVIEW,
+      variables: { courseId, instanceId: courseInstance },
+    },
+  ]))
+    ? ReviewType.INSTRUCTOR
+    : ReviewType.PEER;
   const questonsid = (
-    await executeAndEndSet500OnError<{ questionId: string }[]>(query, queryPrams, res)
+    await executeAndEndSet500OnError<{ questionId: string }[]>(
+      `SELECT Answer.questionId FROM ReviewRequest INNER JOIN Answer ON ReviewRequest.answerId = Answer.id where ReviewRequest.reviewType=? And Answer.courseId=? GROUP BY Answer.questionId`,
+      [reviewType, courseId],
+      res
+    )
   ).map((c) => c.questionId);
+  if (questonsid.length === 0) {
+    res.send([]);
+    return;
+  }
   const reviewRequests = await executeAndEndSet500OnError<
     { questionId: string; questionTitle: string; answerId: number }[]
   >(
     'SELECT ReviewRequest.id,Answer.questionId,Answer.subProblemId,Answer.answer,Answer.questionTitle,Answer.createdAt,Answer.updatedAt FROM ReviewRequest INNER JOIN Answer ON ReviewRequest.answerId = Answer.id where Answer.questionId in (?) and ReviewRequest.reviewType=?',
-    [questonsid,reviewType],
+    [questonsid, reviewType],
     res
   );
   const resultx: { answers: any[]; questionTitle: string }[] = [];

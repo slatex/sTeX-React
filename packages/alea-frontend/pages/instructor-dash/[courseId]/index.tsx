@@ -11,9 +11,8 @@ import { StudyBuddyModeratorStats } from 'packages/alea-frontend/components/Stud
 import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
 import { useContext, useEffect, useState } from 'react';
 import { CourseHeader } from '../../course-home/[courseId]';
-import { ProblemReviewModeratorStats } from 'packages/alea-frontend/components/ProblemReviewModeratorStats';
 
-interface TabPanelProps {
+export interface TabPanelProps {
   children?: React.ReactNode;
   value: number;
   index: number;
@@ -23,17 +22,20 @@ type TabName =
   | 'access-control'
   | 'homework-manager'
   | 'quiz-dashboard'
-  | 'study-buddy'
-  | 'problem-review';
+  | 'study-buddy';
 
 const TAB_MAPPING: Record<TabName, number> = {
   'access-control': 0,
   'homework-manager': 1,
   'quiz-dashboard': 2,
   'study-buddy': 3,
-  'problem-review': 4,
 };
 
+export const toUserFriendlyName = (tabName: string) => {
+  return tabName
+    .replace(/-/g, ' ') // Replace hyphens with spaces
+    .replace(/\b\w/g, (str) => str.toUpperCase()); // Capitalize the first letter of each word
+};
 function ChosenTab({ tabName, courseId }: { tabName: TabName; courseId: string }) {
   switch (tabName) {
     case 'access-control':
@@ -44,18 +46,11 @@ function ChosenTab({ tabName, courseId }: { tabName: TabName; courseId: string }
       return <QuizDashboard courseId={courseId} />;
     case 'study-buddy':
       return <StudyBuddyModeratorStats courseId={courseId} />;
-    case 'problem-review':
-      return <ProblemReviewModeratorStats courseId={courseId}></ProblemReviewModeratorStats>
     default:
       return null;
   }
 }
 
-const toUserFriendlyName = (tabName: string) => {
-  return tabName
-    .replace(/-/g, ' ') // Replace hyphens with spaces
-    .replace(/\b\w/g, (str) => str.toUpperCase()); // Capitalize the first letter of each word
-};
 
 const TabPanel = (props: TabPanelProps) => {
   const { children, value, index, ...other } = props;

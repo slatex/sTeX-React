@@ -8,6 +8,7 @@ import {
   ReviewType,
 } from './nap';
 import { getAuthHeaders } from './lms';
+import { CURRENT_TERM } from '@stex-react/utils';
 
 export async function createAnswer(answer: CreateAnswerRequest) {
   return axios
@@ -36,11 +37,11 @@ export async function createReviewRequest(request: CreateReviewRequest) {
     .post('/api/nap/create-review-request', request, { headers: getAuthHeaders() })
     .then((c) => ({ status: c.status }));
 }
-export async function getReviewRequests(reviewType: ReviewType, couserId?: string) {
+export async function getReviewRequests(courseId: string) {
   return axios
     .get('/api/nap/get-review-requests', {
       headers: getAuthHeaders(),
-      params: { couserId: couserId, reviewType: ReviewType[reviewType] },
+      params: { courseId, courseInstance: CURRENT_TERM },
     })
     .then((c) => c.data);
 }
@@ -61,5 +62,5 @@ export async function deleteAnswer(id: number) {
   return axios.post('/api/nap/delete-answer', { id }, { headers: getAuthHeaders() });
 }
 export async function deleteReviewRequest(id: number) {
-  return axios.post('/api/nap/delete-review-request',{id},{headers:getAuthHeaders()})
+  return axios.post('/api/nap/delete-review-request', { id }, { headers: getAuthHeaders() });
 }

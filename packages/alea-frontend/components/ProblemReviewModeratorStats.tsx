@@ -12,7 +12,7 @@ export function ProblemReviewModeratorStats({ courseId }: { courseId: string }) 
   >([]);
   const router = useRouter();
   useEffect(() => {
-    getReviewRequests(ReviewType.INSTRUCTOR, courseId).then(setReviewRequests);
+    getReviewRequests(courseId).then(setReviewRequests);
   }, [courseId]);
   function onAnswerSelected(reviewId: number) {
     router.push(`./${courseId}/${reviewId}`);

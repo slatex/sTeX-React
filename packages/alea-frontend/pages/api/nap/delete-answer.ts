@@ -11,6 +11,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
   const { id } = req.body;
-  await executeAndEndSet500OnError(`Delete From Answer Where userId=? and id=?`, [userId, id], res);
+  await executeAndEndSet500OnError(`Delete From Answer Where userId=? and id=? and homeworkId is null`, [userId, id], res);
   res.status(200).end()
 }

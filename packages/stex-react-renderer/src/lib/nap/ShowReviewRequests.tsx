@@ -45,6 +45,7 @@ export function ShowReviewRequests({
           </AccordionDetails>
         </Accordion>
       ))}
+      {reviewRequests.length === 0 && <span>No problem found!</span>}
     </Box>
   );
 }
