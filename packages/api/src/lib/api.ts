@@ -5,6 +5,8 @@ export * from './comments-api';
 export * from './course-grade-info';
 export * from './gpt-problems';
 export * from './gpt-problems-api';
+export * from './guided-tour2';
+export * from './guided-tour2-api';
 export * from './homework';
 export * from './homework-api';
 export * from './lms';
