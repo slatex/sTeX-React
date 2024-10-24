@@ -1,13 +1,14 @@
 import FeedIcon from '@mui/icons-material/Feed';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import { Box, Button, IconButton, Tooltip, Typography, useMediaQuery } from '@mui/material';
-import { getCourseInfo } from '@stex-react/api';
+import { checkUserExist, getCourseInfo } from '@stex-react/api';
 import { CourseInfo, PRIMARY_COL } from '@stex-react/utils';
 import { NextPage } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
-import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 
 function getInstructor(courseData: CourseInfo, currentSemester: string) {
   for (const instance of courseData.instances) {
@@ -267,6 +268,9 @@ function AleaFeatures({ img_url, title, description }) {
 
 const StudentHomePage: NextPage = ({ filteredCourses }: { filteredCourses: CourseInfo[] }) => {
   const router = useRouter();
+  useEffect(() => {
+    checkUserExist();
+  }, []);
   const {
     home: { newHome: n },
   } = getLocaleObject(router);
