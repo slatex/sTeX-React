@@ -65,8 +65,8 @@ export async function recorrectQuizzes() {
     console.log('Points need to be updated: ');
     console.log(wrong_points_problem_ids);
 
-    console.log('\nProblem not found for:');
-    console.log(missing_ids);
+    // console.log('\nProblem not found for:');
+    // console.log(missing_ids);
 
     console.log('\nFix points for:');
     console.log(gradingId_to_updated_points);
