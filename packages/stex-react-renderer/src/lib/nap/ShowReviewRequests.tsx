@@ -14,9 +14,11 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 export function ShowReviewRequests({
   reviewRequests,
   courseId,
+  onAnswerSelected,
 }: {
   reviewRequests: any[];
   courseId: string;
+  onAnswerSelected: (answerId: number) => void;
 }) {
   return (
     <Box maxWidth={'md'}>
@@ -28,13 +30,8 @@ export function ShowReviewRequests({
           <AccordionDetails>
             <List>
               {c.answers.map((d) => (
-                <Link
-                  href={{
-                    pathname: './[courseId]/[reviewId]',
-                    query: { reviewId: d.id, courseId: courseId },
-                  }}
-                >
-                  <ListItemButton>
+                <>
+                  <ListItemButton onClick={() => onAnswerSelected(d.id)}>
                     <ListItemText
                       primary={d.answer}
                       secondary={`Sub Problem: ${+d.subProblemId + 1}`}
@@ -42,7 +39,7 @@ export function ShowReviewRequests({
                     />
                   </ListItemButton>
                   <Divider></Divider>
-                </Link>
+                </>
               ))}
             </List>
           </AccordionDetails>
