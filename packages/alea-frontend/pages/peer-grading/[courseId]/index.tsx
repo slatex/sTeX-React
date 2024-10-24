@@ -77,56 +77,56 @@ const PeerGradingListPage: NextPage = () => {
           imageLink={courseInfo?.imageLink}
           courseId={courseId}
         />
-        <Box sx={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: 4 }}>
           <ShowReviewRequests
             onAnswerSelected={onAnswerSelected}
             courseId={courseId}
             reviewRequests={reviewRequests}
           ></ShowReviewRequests>
           {/* <Divider  /> */}
-          {selectedAnswer && (
-            <Box>
-              {problem && (
-                <ProblemDisplay
-                  r={{} as ProblemResponse}
-                  uri={selectedAnswer?.questionId}
-                  showPoints={false}
-                  problem={problem}
-                  isFrozen={true}
-                  onResponseUpdate={(response) => {
-                    return;
-                  }}
-                  onFreezeResponse={() => {
-                    return;
-                  }}
-                />
-              )}
-              <Paper sx={{ gap: 2, bgcolor: '#99F8FD', marginTop: '3px' }} elevation={3}>
-                <div>
-                  <span>Sub Problem: </span>
-                  <span>{+selectedAnswer?.subProblemId + 1}</span>
-                </div>
-                <span>Answer:</span>
-                <p style={{ whiteSpace: 'pre-line' }}>{selectedAnswer?.answer}</p>
-              </Paper>
-              {problem && (
-                <>
-                  <GradingSubProblems
-                    showBackButton={true}
-                    rawAnswerClasses={
-                      problem?.subProblemDatas[selectedAnswer.subProblemId].answerclasses
-                    }
-                    onGraded={onSaveGrading}
-                  ></GradingSubProblems>
-                </>
-              )}
-            </Box>
-          )}
-          {!selectedAnswer && (
-            <Box>
-              <span style={{margin:'auto'}}>NO Review Request has been Selected</span>
-            </Box>
-          )}
+          <Box sx={{ width: '900px' }}>
+            {selectedAnswer && (
+              <>
+                {problem && (
+                  <ProblemDisplay
+                    r={{} as ProblemResponse}
+                    uri={selectedAnswer?.questionId}
+                    showPoints={false}
+                    problem={problem}
+                    isFrozen={true}
+                    onResponseUpdate={(response) => {
+                      return;
+                    }}
+                    onFreezeResponse={() => {
+                      return;
+                    }}
+                  />
+                )}
+                <Paper sx={{ gap: 2, bgcolor: '#99F8FD', marginTop: '3px' }} elevation={3}>
+                  <div>
+                    <span>Sub Problem: </span>
+                    <span>{+selectedAnswer?.subProblemId + 1}</span>
+                  </div>
+                  <span>Answer:</span>
+                  <p style={{ whiteSpace: 'pre-line' }}>{selectedAnswer?.answer}</p>
+                </Paper>
+                {problem && (
+                  <>
+                    <GradingSubProblems
+                      showBackButton={true}
+                      rawAnswerClasses={
+                        problem?.subProblemDatas[selectedAnswer.subProblemId]?.answerclasses
+                      }
+                      onGraded={onSaveGrading}
+                    ></GradingSubProblems>
+                  </>
+                )}
+              </>
+            )}
+            {!selectedAnswer && (
+              <span style={{ margin: 'auto' }}>NO Review Request has been Selected</span>
+            )}
+          </Box>
         </Box>
       </MainLayout>
     </>
