@@ -6,6 +6,7 @@ import axios from 'axios';
 import { useRouter } from 'next/router';
 import { FC, useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
+import Link from 'next/link';
 
 interface TitleMetadata {
   title: string;
@@ -13,6 +14,20 @@ interface TitleMetadata {
   filepath?: string;
   id: string;
   level: number;
+}
+
+function useScrollPosition() {
+  const [scrollPosition, setScrollPosition] = useState(0);
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollPosition(window.pageYOffset);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+  return scrollPosition;
 }
 
 const extractTitlesAndMetadata = (
@@ -56,6 +71,7 @@ const ProblemList: FC<ProblemListProps> = ({ courseSections, courseId }) => {
   const [problemCounts, setProblemCounts] = useState<Record<string, number>>({});
   const router = useRouter();
   const { practiceProblems: t } = getLocaleObject(router);
+  const scrollPosition = useScrollPosition();
 
   useEffect(() => {
     if (!courseId) return;
@@ -76,11 +92,23 @@ const ProblemList: FC<ProblemListProps> = ({ courseSections, courseId }) => {
     title?: string,
     courseId?: string
   ) => {
+    sessionStorage.setItem('scrollPosition', scrollPosition.toString());
     router.push({
       pathname: '/per-section-quiz',
       query: { archive, filepath, title, courseId },
     });
   };
+
+  const handleLinkClick = () => {
+    sessionStorage.setItem('scrollPosition', scrollPosition.toString());
+  };
+  useEffect(() => {
+    const savedScrollPosition = sessionStorage.getItem('scrollPosition');
+    if (savedScrollPosition) {
+      window.scrollTo(0, parseInt(savedScrollPosition, 10));
+      sessionStorage.removeItem('scrollPosition');
+    }
+  }, [router.asPath]);
 
   const titlesAndMetadata = courseSections ? extractTitlesAndMetadata(courseSections) : [];
 
@@ -92,7 +120,7 @@ const ProblemList: FC<ProblemListProps> = ({ courseSections, courseId }) => {
       <Typography variant="body1" my={3}>
         {t.practiceProblemsDescription}
       </Typography>
-      
+
       <Paper
         sx={{
           p: { xs: 1, sm: 3 },
@@ -106,7 +134,7 @@ const ProblemList: FC<ProblemListProps> = ({ courseSections, courseId }) => {
       >
         <List>
           {titlesAndMetadata.map((item, index) => {
-            if (item.level !== 2 && item.level !== 4) return null;
+            if (item.level !== 2 && item.level !== 4 && item.level !== 6) return null;
             const isChapter = item.level === 2;
             const problemCount = problemCounts[item.id] || 0;
             const isEnabled = problemCount > 0;
@@ -140,10 +168,6 @@ const ProblemList: FC<ProblemListProps> = ({ courseSections, courseId }) => {
                     },
                   },
                 }}
-                onClick={() => {
-                  if (!isEnabled) return;
-                  handleButtonClick(item.archive, item.filepath, item.title, courseId);
-                }}
               >
                 <ListItemText
                   primary={
@@ -154,7 +178,20 @@ const ProblemList: FC<ProblemListProps> = ({ courseSections, courseId }) => {
                         color="primary"
                         sx={{ fontWeight, fontSize, '& > *': { textAlign: 'left !important' } }}
                       >
-                        {item.title ? mmtHTMLToReact(item.title) : 'Untitled'}
+                        {item.title ? (
+                          <>
+                            {' '}
+                            <Link
+                              href={`/course-notes/${courseId}?inDocPath=~${item.id}`}
+                              rel="noopener noreferrer"
+                              onClick={() => handleLinkClick()}
+                            >
+                              {mmtHTMLToReact(item.title)}
+                            </Link>
+                          </>
+                        ) : (
+                          'Untitled'
+                        )}{' '}
                       </Typography>
                       {problemCount >= 0 && (
                         <Typography
@@ -183,6 +220,10 @@ const ProblemList: FC<ProblemListProps> = ({ courseSections, courseId }) => {
                       boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
                       transition: 'background-color 0.3s ease, transform 0.2s ease',
                       '&:hover': { transform: 'scale(1.05)' },
+                    }}
+                    onClick={() => {
+                      if (!isEnabled) return;
+                      handleButtonClick(item.archive, item.filepath, item.title, courseId);
                     }}
                   >
                     {t.practice}&nbsp;
