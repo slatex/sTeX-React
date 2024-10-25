@@ -73,12 +73,12 @@ const InstructorDash: NextPage = () => {
   const { mmtUrl } = useContext(ServerLinksContext);
   const [courses, setCourses] = useState<Record<string, CourseInfo> | undefined>(undefined);
 
-  const [tabs, setTabs] = useState<TabName[]>([]);
-  const [currentTab, setCurrentTab] = useState<number>(0);
+  const [accessibleTabs, setAccessibleTabs] = useState<TabName[]>([]);
+  const [currentTabIdx, setCurrentTabIdx] = useState<number>(0);
   
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setCurrentTab(newValue);
-    const selectedTab = tabs[newValue];
+    setCurrentTabIdx(newValue);
+    const selectedTab = accessibleTabs[newValue];
     router.push(
       {
         pathname: router.pathname,
@@ -96,39 +96,31 @@ const InstructorDash: NextPage = () => {
     if (!courseId) return;
 
     async function checkTabAccess() {
-      const accessibleTabs: TabName[] = [];
-      for (const [tabName, { resource, action }] of Object.entries(TAB_ACCESS_REQUIREMENTS) as [
-        TabName,
-        { resource: ResourceName; action: Action }
-      ][]) {
+      const tabs: TabName[] = [];
+      for (const [tabName, { resource, action }] of Object.entries(TAB_ACCESS_REQUIREMENTS)) {
         const hasAccess = await canAccessResource(resource, action, {
           courseId,
           instanceId: CURRENT_TERM,
         });
         if (hasAccess) {
-          accessibleTabs.push(tabName);
+          tabs.push(tabName as TabName);
         }
       }
 
-      setTabs(accessibleTabs);
-      if (tab && accessibleTabs.includes(tab)) {
-        setCurrentTab(accessibleTabs.indexOf(tab));
+      setAccessibleTabs(tabs);
+      if (tab && tabs.includes(tab)) {
+        setCurrentTabIdx(tabs.indexOf(tab));
       } else {
-        setCurrentTab(0);
+        setCurrentTabIdx(0);
         router.replace(
           {
             pathname: router.pathname,
-            query: { ...router.query, tab: accessibleTabs[0] },
+            query: { ...router.query, tab: tabs[0] },
           },
           undefined,
           { shallow: true }
         );
       }
-      let minTab = 10;
-      for (const tabName of accessibleTabs) {
-        minTab = Math.min(minTab, tabs.indexOf(tabName) + 1);
-      }
-      setCurrentTab(minTab);
     }
     checkTabAccess();
   }, [courseId, tab]);
@@ -144,7 +136,7 @@ const InstructorDash: NextPage = () => {
       />
       <Box sx={{ width: '100%', margin: 'auto', maxWidth: '900px' }}>
         <Tabs
-          value={currentTab}
+          value={currentTabIdx}
           onChange={handleChange}
           aria-label="Instructor Dashboard Tabs"
           sx={{
@@ -158,12 +150,12 @@ const InstructorDash: NextPage = () => {
             },
           }}
         >
-          {tabs.map((tabName, index) => (
+          {accessibleTabs.map((tabName, index) => (
             <Tab key={tabName} label={toUserFriendlyName(tabName)} />
           ))}
         </Tabs>
-        {tabs.map((tabName, index) => (
-          <TabPanel key={tabName} value={currentTab} index={index}>
+        {accessibleTabs.map((tabName, index) => (
+          <TabPanel key={tabName} value={currentTabIdx} index={index}>
             <ChosenTab tabName={tabName} courseId={courseId} />
           </TabPanel>
         ))}

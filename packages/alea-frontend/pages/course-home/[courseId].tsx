@@ -133,7 +133,7 @@ const CourseHomePage: NextPage = () => {
 
   useEffect(() => {
     if (!courseId) return;
-    const resourcesWithActions = [
+    const instructorActions = [
       { resource: ResourceName.COURSE_NOTES, action: Action.MUTATE },
       { resource: ResourceName.COURSE_QUIZ, action: Action.MUTATE },
       { resource: ResourceName.COURSE_STUDY_BUDDY, action: Action.MODERATE },
@@ -141,7 +141,7 @@ const CourseHomePage: NextPage = () => {
       { resource: ResourceName.COURSE_ACCESS, action: Action.ACCESS_CONTROL },
     ];
     async function checkAccess() {
-      for(const { resource, action } of resourcesWithActions) {
+      for(const { resource, action } of instructorActions) {
         const hasAccess = await canAccessResource(resource, action, {
           courseId,
           instanceId: CURRENT_TERM,
@@ -151,7 +151,6 @@ const CourseHomePage: NextPage = () => {
           return;
         }
       }
-      return;
     }
     checkAccess();
   }, [courseId]);
