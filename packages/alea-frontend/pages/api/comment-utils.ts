@@ -60,6 +60,7 @@ export async function executeDontEndSet500OnError<T>(
   const results = await executeQuery<T>(query, values);
   if (results['error']) {
     if (res) res.status(500).send(results);
+    console.error(results['error']);
     return undefined;
   }
   return results as T;
