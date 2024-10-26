@@ -215,12 +215,34 @@ CREATE TABLE ReviewRequest   (
 );
 
 CREATE TABLE homework (
-    homeworkId INT PRIMARY KEY AUTO_INCREMENT,    
-    homeworkName VARCHAR(255),          
-    homeworkGivenDate DATE,                  
-    answerReleaseDate DATE,                  
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    versionNo INT,
+    title VARCHAR(255),          
+    givenTs TIMESTAMP,
+    dueTs TIMESTAMP,                  
+    feedbackReleaseTs TIMESTAMP,                  
     courseId VARCHAR(255),                
-    courseInstance VARCHAR(255),                   
-    archive VARCHAR(255),                          
-    filepath VARCHAR(255)                        
+    courseInstance VARCHAR(255),
+    problems JSON,
+    updaterId VARCHAR(255),
+
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE homeworkHistory (
+    id INT,
+    versionNo INT,
+    title VARCHAR(255),          
+    givenTs TIMESTAMP,
+    dueTs TIMESTAMP,                  
+    feedbackReleaseTs TIMESTAMP,                  
+    courseId VARCHAR(255),                
+    courseInstance VARCHAR(255),
+    problems JSON,
+    updaterId VARCHAR(255),
+    
+    createdAt TIMESTAMP,
+    
+    PRIMARY KEY (id, versionNo)   
 );

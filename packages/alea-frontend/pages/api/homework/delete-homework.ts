@@ -1,28 +1,31 @@
+import { Action, ResourceName } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { checkIfPostOrSetError, executeAndEndSet500OnError } from '../comment-utils';
 import { getUserIdIfAuthorizedOrSetError } from '../access-control/resource-utils';
-import { Action, CURRENT_TERM, ResourceName } from '@stex-react/utils';
+import { checkIfPostOrSetError, executeAndEndSet500OnError } from '../comment-utils';
+import { getHomeworkUsingIdOrSetError, updateHomeworkHistoryOrSetError } from './update-homework';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
-  const { courseId, homeworkId } = req.body;
+  const { id } = req.body;
+  if (!id) return res.status(400).send('homework id is missing');
+
+  const currentHomework = await getHomeworkUsingIdOrSetError(id, res);
+  if (!currentHomework) return;
+  const { courseId, courseInstance } = currentHomework;
+
   const userId = await getUserIdIfAuthorizedOrSetError(
     req,
     res,
     ResourceName.COURSE_HOMEWORK,
     Action.MUTATE,
-    { courseId, instanceId: CURRENT_TERM }
+    { courseId, instanceId: courseInstance }
   );
   if (!userId) return;
-  if (!homeworkId) {
-    return res.status(400).json({ message: 'homeworkId is required' });
-  }
 
-  const result = await executeAndEndSet500OnError(
-    'DELETE FROM homework WHERE homeworkId = ?',
-    [homeworkId],
-    res
-  );
+  const insertHistoryResult = updateHomeworkHistoryOrSetError(currentHomework, res);
+  if (!insertHistoryResult) return;
+
+  const result = await executeAndEndSet500OnError('DELETE FROM homework WHERE id = ?', [id], res);
   if (!result) return;
-  res.status(200).json({ message: 'Homework deleted successfully!' });
+  res.status(200).end();
 }

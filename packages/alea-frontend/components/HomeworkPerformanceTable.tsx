@@ -24,14 +24,14 @@ function HomeworkPerformanceTable({ courseId }: { courseId: string }) {
       try {
         const data = await getHomeworkList(courseId);
         const mappedData: LearnerHomeworkInfo[] = data.map((homework: HomeworkInfo) => ({
-          name: homework.homeworkName,
-          homeworkGivenDate: new Date(homework.homeworkGivenDate).toLocaleDateString('en-GB'),
-          answerReleaseDate: new Date(homework.answerReleaseDate).toLocaleDateString('en-GB'),
+          title: homework.title,
+          givenTs: new Date(homework.givenTs).toLocaleDateString('en-GB'),
+          dueTs: new Date(homework.dueTs).toLocaleDateString('en-GB'),
           maxPoints: 100,
           myScore: 0,
           avgScore: 0,
-          archive: homework.archive,
-          filepath: homework.filepath,
+          id: homework.id,
+          problems: homework.problems,
         }));
         setHomeworkData(mappedData);
       } catch (error) {
@@ -52,13 +52,13 @@ function HomeworkPerformanceTable({ courseId }: { courseId: string }) {
           <TableHead>
             <TableRow>
               <TableCell>
-                <b>{t.homeworkName}</b>
+                <b>{t.homeworkTitle}</b>
               </TableCell>
               <TableCell>
-                <b>{t.homeworkGivenDate}</b>
+                <b>{t.givenTs}</b>
               </TableCell>
               <TableCell>
-                <b>{t.answerReleaseDate}</b>
+                <b>{t.dueTs}</b>
               </TableCell>
               <TableCell>
                 <b>{t.maxPoints}</b>
@@ -78,11 +78,7 @@ function HomeworkPerformanceTable({ courseId }: { courseId: string }) {
                   <Link
                     href={{
                       pathname: '/homework-doc',
-                      query: {
-                        archive: homework.archive,
-                        filepath: homework.filepath,
-                        courseId: courseId,
-                      },
+                      query: { id: homework.id },
                     }}
                     style={{
                       textDecoration: 'none',
@@ -91,18 +87,14 @@ function HomeworkPerformanceTable({ courseId }: { courseId: string }) {
                     onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
                     onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
                   >
-                    {homework.name}
+                    {homework.title}
                   </Link>
                 </TableCell>
                 <TableCell sx={{ color: PRIMARY_COL, wordBreak: 'break-word', minWidth: '100px' }}>
                   <Link
                     href={{
                       pathname: '/homework-doc',
-                      query: {
-                        archive: homework.archive,
-                        filepath: homework.filepath,
-                        courseId: courseId,
-                      },
+                      query: { id: homework.id },
                     }}
                     style={{
                       textDecoration: 'none',
@@ -111,11 +103,11 @@ function HomeworkPerformanceTable({ courseId }: { courseId: string }) {
                     onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
                     onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
                   >
-                    {homework.homeworkGivenDate}
+                    {homework.givenTs}
                   </Link>
                 </TableCell>
                 <TableCell sx={{ color: PRIMARY_COL, wordBreak: 'break-word', minWidth: '100px' }}>
-                  {homework.answerReleaseDate}
+                  {homework.dueTs}
                 </TableCell>
                 <TableCell sx={{ color: PRIMARY_COL, wordBreak: 'break-word', minWidth: '100px' }}>
                   {homework.maxPoints}
