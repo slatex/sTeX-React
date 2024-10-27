@@ -246,7 +246,6 @@ export function SubProblemAnswer({
                         router.push(`/answers/${courseId}/${c.id}`);
                         e.preventDefault();
                       }}
-                      aria-label="delete"
                     >
                       <GradingIcon></GradingIcon>
                     </IconButton>
@@ -259,21 +258,17 @@ export function SubProblemAnswer({
         </List>
       </Dialog>
       <Menu
-        id="demo-customized-menu"
-        MenuListProps={{
-          'aria-labelledby': 'demo-customized-button',
-        }}
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={handleClose}
       >
-        <MenuItem onClick={OnOnlySaveAnswer}>Save</MenuItem>
+        <MenuItem onClick={OnOnlySaveAnswer}>{t.save}</MenuItem>
         <MenuItem onClick={OnOnlySeeSolution}>
           {showSolution ? t.hideSolution : t.showSolution}
         </MenuItem>
         <Divider sx={{ my: 0.5 }} />
         <MenuItem onClick={() => OnSaveAndReviewRequest(ReviewType.PEER)}>
-          Save & Submit a peer review request
+          {t.saveAndSubmitAPeerReview}
         </MenuItem>
         <MenuItem onClick={() => OnSaveAndReviewRequest(ReviewType.INSTRUCTOR)}>
           {t.saveAndSubmitAInstructorReview}
