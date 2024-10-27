@@ -1,7 +1,8 @@
-import React from 'react';
+import { Delete, Edit, OpenInNew } from '@mui/icons-material';
 import {
   Box,
   Button,
+  IconButton,
   Paper,
   Table,
   TableBody,
@@ -10,12 +11,25 @@ import {
   TableHead,
   TableRow,
   Typography,
-  IconButton,
 } from '@mui/material';
-import { Edit, Delete } from '@mui/icons-material';
+import { HomeworkInfo } from '@stex-react/api';
+import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import dayjs from 'dayjs';
+import { useRouter } from 'next/router';
+import { getLocaleObject } from '../lang/utils';
 
-const HomeworkList = ({ homeworks, t, setView, handleEdit, confirmDelete }) => {
+const HomeworkList = ({
+  homeworks,
+  onCreate,
+  handleEdit,
+  confirmDelete,
+}: {
+  homeworks: HomeworkInfo[];
+  onCreate: () => void;
+  handleEdit: (homework: any) => void;
+  confirmDelete: (homeworkId: number) => void;
+}) => {
+  const { homeworkManager: t } = getLocaleObject(useRouter());
   return (
     <>
       <Box
@@ -32,7 +46,7 @@ const HomeworkList = ({ homeworks, t, setView, handleEdit, confirmDelete }) => {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => setView('create')}
+          onClick={() => onCreate()}
           sx={{
             borderRadius: '25px',
             marginLeft: '5px',
@@ -46,11 +60,10 @@ const HomeworkList = ({ homeworks, t, setView, handleEdit, confirmDelete }) => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell style={{ fontWeight: 'bold' }}>{t.homeworkName}</TableCell>
-              <TableCell style={{ fontWeight: 'bold' }}>{t.homeworkGivenDate}</TableCell>
-              <TableCell style={{ fontWeight: 'bold' }}>{t.answerReleaseDate}</TableCell>
-              <TableCell style={{ fontWeight: 'bold' }}>{t.archive}</TableCell>
-              <TableCell style={{ fontWeight: 'bold' }}>{t.filePath}</TableCell>
+              <TableCell style={{ fontWeight: 'bold' }}>{t.title}</TableCell>
+              <TableCell style={{ fontWeight: 'bold' }}>{t.givenTs}</TableCell>
+              <TableCell style={{ fontWeight: 'bold' }}>{t.dueTs}</TableCell>
+              <TableCell style={{ fontWeight: 'bold' }}>{t.feedbackReleaseTs}</TableCell>
               <TableCell style={{ fontWeight: 'bold' }}>{t.actions}</TableCell>
             </TableRow>
           </TableHead>
@@ -59,36 +72,37 @@ const HomeworkList = ({ homeworks, t, setView, handleEdit, confirmDelete }) => {
               <TableRow>
                 <TableCell colSpan={6}>
                   <Typography variant="h6" sx={{ textAlign: 'center' }}>
-                    {t.noHomeworkAvailable}{' '}
+                    {t.noHomeworksAvailable}
                   </Typography>
                 </TableCell>
               </TableRow>
             )}
 
             {homeworks.map((homework) => {
-              const formattedGivenDate = dayjs(homework.homeworkGivenDate).format('YYYY-MM-DD');
-              const formattedReleaseDate = dayjs(homework.answerReleaseDate).format('YYYY-MM-DD');
+              const formattedGivenTs = dayjs(homework.givenTs).format('YYYY-MM-DD HH:mm');
+              const formattedDueTs = dayjs(homework.dueTs).format('YYYY-MM-DD HH:mm');
+              const formattedReleaseDate = dayjs(homework.feedbackReleaseTs).format(
+                'YYYY-MM-DD HH:mm'
+              );
 
               return (
-                <TableRow key={homework.homeworkId}>
-                  <TableCell>{homework.homeworkName}</TableCell>
-                  <TableCell>{formattedGivenDate}</TableCell>
-                  <TableCell>{formattedReleaseDate}</TableCell>
-                  <TableCell>{homework.archive}</TableCell>
-                  <TableCell
-                    style={{
-                      wordBreak: 'break-word',
-                      whiteSpace: 'normal',
-                      maxWidth: '300px',
-                    }}
-                  >
-                    {homework.filepath}
+                <TableRow key={homework.id}>
+                  <TableCell>
+                    {mmtHTMLToReact(homework.title)}
+                    <a href={`/homework-doc?id=${homework.id}`} target="_blank" rel="noreferrer">
+                      <IconButton>
+                        <OpenInNew />
+                      </IconButton>
+                    </a>
                   </TableCell>
+                  <TableCell>{formattedGivenTs}</TableCell>
+                  <TableCell>{formattedDueTs}</TableCell>
+                  <TableCell>{formattedReleaseDate}</TableCell>
                   <TableCell>
                     <IconButton color="primary" onClick={() => handleEdit(homework)}>
                       <Edit />
                     </IconButton>
-                    <IconButton color="error" onClick={() => confirmDelete(homework.homeworkId)}>
+                    <IconButton color="error" onClick={() => confirmDelete(homework.id)}>
                       <Delete />
                     </IconButton>
                   </TableCell>

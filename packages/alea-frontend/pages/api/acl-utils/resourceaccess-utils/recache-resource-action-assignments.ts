@@ -5,5 +5,4 @@ import { checkIfPostOrSetError } from '../../comment-utils';
 export async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
   initializeResourceCache();
-  return;
 }

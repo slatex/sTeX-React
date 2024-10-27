@@ -1,7 +1,6 @@
 import {
   COURSES_INFO,
   CURRENT_TERM,
-  CURRENT_TERM_URI_UNSAFE,
   CourseInfo,
   FileLocation,
   convertHtmlStringToPlain,
@@ -274,9 +273,7 @@ export async function getDocIdx(mmtUrl: string, institution?: string) {
     const resp = await axios.get(`${mmtUrl}/:sTeX/docidx`);
     CACHED_DOCIDX = resp.data as DocIdx[];
     CACHED_DOCIDX.forEach((doc) => {
-      doc.instances = doc.instances?.map((i) =>
-        i.semester === CURRENT_TERM_URI_UNSAFE ? { ...i, semester: CURRENT_TERM } : i
-      );
+      doc.instances = doc.instances?.map((i) => ({ ...i, semester: i.semester.replace('/', '-') }));
     });
   }
   if (!institution) {
@@ -311,7 +308,7 @@ export async function getCourseInfo(mmtUrl: string, institution?: string) {
         doc.notes,
         doc.landing,
         isCurrent,
-        doc.quizzes ?? false,
+        ['lbs', 'ai-1', 'iwgs-1'].includes(doc.acronym) ? true : doc.quizzes ?? false,
         doc.institution,
         doc.instances,
         doc.instructors

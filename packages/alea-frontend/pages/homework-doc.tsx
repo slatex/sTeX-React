@@ -1,27 +1,53 @@
 import { Box } from '@mui/material';
-import React from 'react';
+import { getHomeworkInfo, getHomeworkPhase, HomeworkInfo, Problem } from '@stex-react/api';
+import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
+import { QuizDisplay } from '@stex-react/stex-react-renderer';
 import { useRouter } from 'next/router';
+import React, { useEffect, useState } from 'react';
 import MainLayout from '../layouts/MainLayout';
-import { StexReactRenderer } from '@stex-react/stex-react-renderer';
 
 const HomeworkDocPage: React.FC = () => {
   const router = useRouter();
-  const { archive, filepath, courseId } = router.query as {
-    archive: string;
-    filepath: string;
-    courseId: string;
-  };
+  const [hwInfo, setHwInfo] = useState<HomeworkInfo | null>(null);
+  const [problems, setProblems] = useState<{ [problemId: string]: Problem }>({});
 
-  if (!archive || !filepath || !courseId) {
-    return <div>No data found</div>;
-  }
+  const id = router.query.id as string;
 
-  const contentUrl = `:sTeX/document?archive=${archive}&filepath=${filepath}`;
+  useEffect(() => {
+    if (!id) return;
+    getHomeworkInfo(+id).then((hwInfo) => {
+      setHwInfo(hwInfo);
+
+      const problemObj: { [problemId: string]: Problem } = {};
+      Object.keys(hwInfo.problems).map((problemId) => {
+        const html = hackAwayProblemId(hwInfo.problems[problemId]);
+        problemObj[problemId] = getProblem(html, undefined);
+      });
+      setProblems(problemObj);
+      console.log(problemObj)
+    });
+  }, [id]);
+
+  const phase = hwInfo && getHomeworkPhase(hwInfo);
+
   return (
-    <MainLayout title={`Homework | ${courseId}`}>
-      <Box px="10px" bgcolor="white" maxWidth="800px" m="0 auto">
-        <StexReactRenderer contentUrl={contentUrl} noFrills={true} topOffset={64} />
-        <br />
+    <MainLayout title={`${hwInfo?.courseId ?? ''} Homework | VoLL-KI`}>
+      <Box>
+        Phase: {phase}
+        {hwInfo && (
+          <>
+            {phase === 'NOT_GIVEN' ? (
+              <Box>Homework not yet given</Box>
+            ) : (
+              <QuizDisplay
+                isFrozen={phase !== 'GIVEN'}
+                showPerProblemTime={false}
+                problems={problems}
+                existingResponses={{}}
+              />
+            )}
+          </>
+        )}
       </Box>
     </MainLayout>
   );
