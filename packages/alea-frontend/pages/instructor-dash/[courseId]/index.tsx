@@ -11,12 +11,9 @@ import { StudyBuddyModeratorStats } from 'packages/alea-frontend/components/Stud
 import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
 import { useContext, useEffect, useState } from 'react';
 import { CourseHeader } from '../../course-home/[courseId]';
+import { TabPanelProps, toUserFriendlyName } from 'packages/stex-react-renderer/src/lib/lang/utils';
 
-export interface TabPanelProps {
-  children?: React.ReactNode;
-  value: number;
-  index: number;
-}
+
 
 type TabName =
   | 'access-control'
@@ -31,11 +28,7 @@ const TAB_ACCESS_REQUIREMENTS: Record<TabName, { resource: ResourceName; action:
   'study-buddy': { resource: ResourceName.COURSE_STUDY_BUDDY, action: Action.MODERATE },
 };
 
-export const toUserFriendlyName = (tabName: string) => {
-  return tabName
-    .replace(/-/g, ' ') // Replace hyphens with spaces
-    .replace(/\b\w/g, (str) => str.toUpperCase()); // Capitalize the first letter of each word
-};
+
 function ChosenTab({ tabName, courseId }: { tabName: TabName; courseId: string }) {
   switch (tabName) {
     case 'access-control':

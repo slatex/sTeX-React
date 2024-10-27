@@ -33,7 +33,6 @@ const HomeworkDocPage: React.FC = () => {
   return (
     <MainLayout title={`${hwInfo?.courseId ?? ''} Homework | VoLL-KI`}>
       <Box>
-        Phase: {phase}
         {hwInfo && (
           <>
             {phase === 'NOT_GIVEN' ? (

@@ -89,7 +89,7 @@ const HomeworkList = ({
                 <TableRow key={homework.id}>
                   <TableCell>
                     {mmtHTMLToReact(homework.title)}
-                    <a href={`/homework-doc?id=${homework.id}`} target="_blank" rel="noreferrer">
+                    <a href={`/homework-doc?courseId=${homework.courseId}&id=${homework.id}`} target="_blank" rel="noreferrer">
                       <IconButton>
                         <OpenInNew />
                       </IconButton>

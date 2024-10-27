@@ -76,7 +76,9 @@ export const de = {
     showOlderAnswers: 'Ältere Antworten anzeigen',
     history: 'Geschichte',
     saveAndSubmitAPeerReview: 'Speichern & Einreichen einer Peer-Review-Anfrage',
-    saveAndSubmitAInstructorReview: 'Speichern & Einreichen einer Beurteilungsanfrage für einen Kursleiter',
+    saveAndSubmitAInstructorReview:
+      'Speichern & Einreichen einer Beurteilungsanfrage für einen Kursleiter',
+    save: 'retten',
   },
   practiceProblems: {
     clickSection:

@@ -23,6 +23,7 @@ import {
   ProblemAnswerEvent,
   ProblemResponse,
   QuadState,
+  SubProblemData,
   Tristate,
   UserInfo,
   getUserInfo,
@@ -40,19 +41,12 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { getMMTHtml } from './CompetencyTable';
 import { DocumentWidthSetter } from './DocumentWidthSetter';
-import {
-  AnswerClassesTable,
-  DebugMCQandSCQ,
-  InlineScqTable,
-} from './QuizDebug';
+import { AnswerClassesTable, DebugMCQandSCQ, InlineScqTable } from './QuizDebug';
 import { DimIcon } from './SelfAssessmentDialog';
 import { getLocaleObject } from './lang/utils';
-import {
-  CustomItemsContext,
-  NoMaxWidthTooltip,
-  mmtHTMLToReact,
-} from './mmtParser';
+import { CustomItemsContext, NoMaxWidthTooltip, mmtHTMLToReact } from './mmtParser';
 import styles from './quiz.module.scss';
+import { SubProblemAnswer } from './SubProblemAnswer';
 
 function BpRadio(props: RadioProps) {
   return <Radio disableRipple color="default" {...props} />;
@@ -62,11 +56,7 @@ function removeInfoIfNeeded(sHtml: string, isFrozen: boolean) {
   return isFrozen ? sHtml : removeAnswerInfo(sHtml);
 }
 
-function getClassNames(
-  isSelected: boolean,
-  isFrozen: boolean,
-  correctness: QuadState
-) {
+function getClassNames(isSelected: boolean, isFrozen: boolean, correctness: QuadState) {
   const shouldSelect = correctness === QuadState.TRUE;
   const shouldNotSelect = correctness === QuadState.FALSE;
   const toBeIgnored = correctness === QuadState.ANY;
@@ -95,18 +85,11 @@ function getClassNames(
   return styleList.map((s) => styles[s]).join(' ');
 }
 
-function getDropdownClassNames(
-  isSelected: boolean,
-  isFrozen: boolean,
-  correctness: QuadState
-) {
+function getDropdownClassNames(isSelected: boolean, isFrozen: boolean, correctness: QuadState) {
   if (!isFrozen || correctness === QuadState.UNKNOWN) return '';
 
   if (correctness === QuadState.TRUE) {
-    const style =
-      styles['correct'] +
-      ' ' +
-      (isSelected ? styles['got_right'] : styles['missed']);
+    const style = styles['correct'] + ' ' + (isSelected ? styles['got_right'] : styles['missed']);
     return style;
   } else if (isSelected) {
     return styles['incorrect'];
@@ -152,9 +135,7 @@ function scbFeedback(input: Input, response: InputResponse) {
       feedbackHtml: 'Your response to this input will not be graded.',
     };
   }
-  const chosen = (input.options || []).find(
-    (o) => o.optionId === singleOptionIdx
-  );
+  const chosen = (input.options || []).find((o) => o.optionId === singleOptionIdx);
   if (!chosen) return { isCorrect: Tristate.FALSE, feedbackHtml: 'Wrong!' };
   const isCorrect: Tristate = quadStateToTristate(chosen.shouldSelect);
   if (isCorrect === Tristate.UNKNOWN) return { isCorrect, feedbackHtml: '' };
@@ -164,11 +145,7 @@ function scbFeedback(input: Input, response: InputResponse) {
   return { isCorrect, feedbackHtml };
 }
 
-function feedbackInfo(
-  isFrozen: boolean,
-  input: Input,
-  response: InputResponse
-) {
+function feedbackInfo(isFrozen: boolean, input: Input, response: InputResponse) {
   if (!isFrozen) return undefined;
   switch (input.type) {
     case InputType.FILL_IN:
@@ -183,10 +160,7 @@ function feedbackInfo(
 
 export function PointsInfo({ points }: { points: number }) {
   return (
-    <Typography
-      variant="h6"
-      sx={{ display: 'flex', justifyContent: 'flex-end' }}
-    >
+    <Typography variant="h6" sx={{ display: 'flex', justifyContent: 'flex-end' }}>
       <b>{points} pt</b>
     </Typography>
   );
@@ -208,9 +182,7 @@ function DirectFeedback({
       bgcolor={isCorrect === Tristate.TRUE ? '#a3e9a0' : '#f39797'}
       borderRadius="10px"
     >
-      <span
-        style={{ display: 'inline', textAlign: 'center', fontSize: '20px' }}
-      >
+      <span style={{ display: 'inline', textAlign: 'center', fontSize: '20px' }}>
         {mmtHTMLToReact(feedbackHtml)}
       </span>
     </Box>
@@ -228,11 +200,7 @@ function FeedbackDisplay({
   const { isCorrect, feedbackHtml } = info;
   if (isCorrect === Tristate.UNKNOWN) return null;
   return inline ? (
-    <NoMaxWidthTooltip
-      title={
-        <DirectFeedback isCorrect={isCorrect} feedbackHtml={feedbackHtml} />
-      }
-    >
+    <NoMaxWidthTooltip title={<DirectFeedback isCorrect={isCorrect} feedbackHtml={feedbackHtml} />}>
       {isCorrect === Tristate.TRUE ? (
         <CheckCircleIcon htmlColor="green" />
       ) : (
@@ -289,9 +257,7 @@ function inputDisplay({
                   )}
                 >
                   {value.outerHTML
-                    ? mmtHTMLToReact(
-                        removeInfoIfNeeded(value.outerHTML, isFrozen)
-                      )
+                    ? mmtHTMLToReact(removeInfoIfNeeded(value.outerHTML, isFrozen))
                     : value.textContent}
                 </Box>
               </MenuItem>
@@ -314,37 +280,30 @@ function inputDisplay({
               } as InputResponse);
             }}
           >
-            {(input.options || []).map(
-              ({ optionId, shouldSelect, value, feedbackHtml }) => (
-                <>
-                  <FormControlLabel
-                    key={optionId}
-                    value={optionId}
-                    control={<BpRadio />}
-                    className={getClassNames(
-                      response.singleOptionIdx === optionId,
-                      isFrozen,
-                      shouldSelect
-                    )}
-                    label={
-                      <Box display="inline">
-                        {value.outerHTML
-                          ? mmtHTMLToReact(
-                              removeInfoIfNeeded(value.outerHTML, isFrozen)
-                            )
-                          : value.textContent}
-                      </Box>
-                    }
-                  />
-                  {debug && (
-                    <DebugMCQandSCQ
-                      feedbackHtml={feedbackHtml}
-                      shouldSelect={shouldSelect}
-                    />
+            {(input.options || []).map(({ optionId, shouldSelect, value, feedbackHtml }) => (
+              <>
+                <FormControlLabel
+                  key={optionId}
+                  value={optionId}
+                  control={<BpRadio />}
+                  className={getClassNames(
+                    response.singleOptionIdx === optionId,
+                    isFrozen,
+                    shouldSelect
                   )}
-                </>
-              )
-            )}
+                  label={
+                    <Box display="inline">
+                      {value.outerHTML
+                        ? mmtHTMLToReact(removeInfoIfNeeded(value.outerHTML, isFrozen))
+                        : value.textContent}
+                    </Box>
+                  }
+                />
+                {debug && (
+                  <DebugMCQandSCQ feedbackHtml={feedbackHtml} shouldSelect={shouldSelect} />
+                )}
+              </>
+            ))}
           </RadioGroup>
           <FeedbackDisplay inline={inline} info={info} />
         </>
@@ -374,51 +333,42 @@ function inputDisplay({
   } else if (type === InputType.MCQ) {
     return (
       <Box display="inline-flex" flexDirection="column" width="100%">
-        {input.options?.map(
-          ({ optionId, value, shouldSelect, feedbackHtml }) => (
-            <>
-              <FormControlLabel
-                key={optionId}
-                className={getClassNames(
-                  response.multipleOptionIdxs?.[optionId] ?? false,
-                  isFrozen,
-                  shouldSelect
-                )}
-                control={
-                  <Checkbox
-                    checked={response.multipleOptionIdxs?.[optionId] ?? false}
-                    onChange={(e) => {
-                      if (!response.multipleOptionIdxs) {
-                        console.error('Error: multipleOptionIdxs is undefined');
-                        response.multipleOptionIdxs = {};
-                      }
-                      response.multipleOptionIdxs[optionId] = e.target.checked;
-                      onUpdate({
-                        type: InputType.MCQ,
-                        multipleOptionIdxs: response.multipleOptionIdxs,
-                      } as InputResponse);
-                    }}
-                  />
-                }
-                label={
-                  <Box display="inline">
-                    {value.outerHTML
-                      ? mmtHTMLToReact(
-                          removeInfoIfNeeded(value.outerHTML, isFrozen)
-                        )
-                      : value.textContent}
-                  </Box>
-                }
-              />
-              {debug && (
-                <DebugMCQandSCQ
-                  feedbackHtml={feedbackHtml}
-                  shouldSelect={shouldSelect}
-                />
+        {input.options?.map(({ optionId, value, shouldSelect, feedbackHtml }) => (
+          <>
+            <FormControlLabel
+              key={optionId}
+              className={getClassNames(
+                response.multipleOptionIdxs?.[optionId] ?? false,
+                isFrozen,
+                shouldSelect
               )}
-            </>
-          )
-        )}
+              control={
+                <Checkbox
+                  checked={response.multipleOptionIdxs?.[optionId] ?? false}
+                  onChange={(e) => {
+                    if (!response.multipleOptionIdxs) {
+                      console.error('Error: multipleOptionIdxs is undefined');
+                      response.multipleOptionIdxs = {};
+                    }
+                    response.multipleOptionIdxs[optionId] = e.target.checked;
+                    onUpdate({
+                      type: InputType.MCQ,
+                      multipleOptionIdxs: response.multipleOptionIdxs,
+                    } as InputResponse);
+                  }}
+                />
+              }
+              label={
+                <Box display="inline">
+                  {value.outerHTML
+                    ? mmtHTMLToReact(removeInfoIfNeeded(value.outerHTML, isFrozen))
+                    : value.textContent}
+                </Box>
+              }
+            />
+            {debug && <DebugMCQandSCQ feedbackHtml={feedbackHtml} shouldSelect={shouldSelect} />}
+          </>
+        ))}
         <FeedbackDisplay inline={inline} info={info} />
       </Box>
     );
@@ -456,13 +406,7 @@ function groupingByBloomDimension(data?: string) {
   return groupedData;
 }
 
-function DimAndURIListDisplay({
-  title,
-  data,
-}: {
-  title: string;
-  data?: string;
-}) {
+function DimAndURIListDisplay({ title, data }: { title: string; data?: string }) {
   const groupedData = groupingByBloomDimension(data);
   return (
     <Box border="1px solid black" mb="10px" bgcolor="white">
@@ -471,13 +415,7 @@ function DimAndURIListDisplay({
       </Typography>
       {Object.values(BloomDimension).map((dim) =>
         groupedData[dim].length ? (
-          <Box
-            key={dim}
-            borderTop="1px solid #AAA"
-            p="5px"
-            display="flex"
-            flexWrap="wrap"
-          >
+          <Box key={dim} borderTop="1px solid #AAA" p="5px" display="flex" flexWrap="wrap">
             <DimIcon dim={dim} />
             &nbsp;
             {groupedData[dim]?.map((uri, index) => (
@@ -493,10 +431,7 @@ function DimAndURIListDisplay({
   );
 }
 
-function transformData(
-  dimensionAndURI: string[],
-  quotient: number
-): AnswerUpdateEntry[] {
+function transformData(dimensionAndURI: string[], quotient: number): AnswerUpdateEntry[] {
   const conceptUpdate: { [url: string]: AnswerUpdateEntry } = {};
 
   dimensionAndURI.forEach((item) => {
@@ -521,12 +456,7 @@ function getUpdates(objectives: string, quotient: number) {
   return transformData(dimensionAndURI, quotient);
 }
 
-function handleSubmit(
-  problem: Problem,
-  uri: string,
-  response: ProblemResponse,
-  userId: string
-) {
+function handleSubmit(problem: Problem, uri: string, response: ProblemResponse, userId: string) {
   const maxPoint = problem.points;
   const points = getPoints(problem, response);
   const quotient = points ? points / maxPoint : 0;
@@ -555,6 +485,9 @@ export function ProblemDisplay({
   onResponseUpdate,
   onFreezeResponse,
   debug,
+  isQuiz = false,
+  problemId = '',
+  quizId = '',
 }: {
   uri?: string;
   problem: Problem | undefined;
@@ -564,6 +497,9 @@ export function ProblemDisplay({
   onResponseUpdate: (r: ProblemResponse) => void;
   onFreezeResponse?: () => void;
   debug?: boolean;
+  isQuiz?: boolean;
+  problemId?: string;
+  quizId?: string;
 }) {
   const [userId, setUserId] = useState<string>('');
   const t = getLocaleObject(useRouter()).quiz;
@@ -576,13 +512,10 @@ export function ProblemDisplay({
   }, []);
   if (!problem) return <CircularProgress />;
   const isEffectivelyFrozen = isFrozen || !problem.inputs?.length;
-  const fillInInputs =
-    problem.inputs?.filter((input) => input.type === InputType.FILL_IN) || [];
+  const fillInInputs = problem.inputs?.filter((input) => input.type === InputType.FILL_IN) || [];
   const inlineSCQInputs =
-    problem.inputs?.filter(
-      (input) => input.type === InputType.SCQ && input.inline
-    ) || [];
-  const inputWidgets = problem.inputs.map((input, optIdx) => {
+    problem.inputs?.filter((input) => input.type === InputType.SCQ && input.inline) || [];
+  const inputWidgets = problem.inputs?.map((input, optIdx) => {
     return inputDisplay({
       input,
       response: r.responses[optIdx],
@@ -595,11 +528,8 @@ export function ProblemDisplay({
       debug: debug ?? false,
     });
   });
-  const customItems = Object.assign(inputWidgets);
-  const statement = removeInfoIfNeeded(
-    problem.statement.outerHTML ?? '',
-    isEffectivelyFrozen
-  );
+  const customItems = Object?.assign(inputWidgets ?? {});
+  const statement = removeInfoIfNeeded(problem?.statement?.outerHTML ?? '', isEffectivelyFrozen);
   return (
     <Card
       sx={{
@@ -614,26 +544,33 @@ export function ProblemDisplay({
         <CustomItemsContext.Provider value={{ items: customItems }}>
           <DocumentWidthSetter>{mmtHTMLToReact(statement)}</DocumentWidthSetter>
         </CustomItemsContext.Provider>
+        {!isFrozen &&
+          problem.subProblemDatas.map((c, i) => (
+            <>
+              <span> Answer {i + 1}</span>
+              <SubProblemAnswer
+                isQuiz={isQuiz}
+                homeworkId={quizId}
+                problemHeader={problem.header}
+                questionId={uri ? uri : problemId}
+                subProblemId={i.toString()}
+                subProblem={c}
+              ></SubProblemAnswer>
+            </>
+          ))}
         {debug && (
           <>
             {inlineSCQInputs.map((inlineInput) => (
               <InlineScqTable options={inlineInput?.options || []} />
             ))}
             {(fillInInputs || []).map((fillInInput) => (
-              <AnswerClassesTable
-                fillInAnswerClass={fillInInput?.fillInAnswerClasses || []}
-              />
+              <AnswerClassesTable fillInAnswerClass={fillInInput?.fillInAnswerClasses || []} />
             ))}
-            <DimAndURIListDisplay
-              title="Objectives"
-              data={problem.objectives}
-            />
-            <DimAndURIListDisplay
-              title="Preconditions"
-              data={problem.preconditions}
-            />
+            <DimAndURIListDisplay title="Objectives" data={problem.objectives} />
+            <DimAndURIListDisplay title="Preconditions" data={problem.preconditions} />
           </>
         )}
+
         {onFreezeResponse && !isEffectivelyFrozen && (
           <Button
             onClick={() => {

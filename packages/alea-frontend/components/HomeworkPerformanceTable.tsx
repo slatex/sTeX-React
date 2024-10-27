@@ -78,7 +78,7 @@ function HomeworkPerformanceTable({ courseId }: { courseId: string }) {
                   <Link
                     href={{
                       pathname: '/homework-doc',
-                      query: { id: homework.id },
+                      query: { id: homework.id, courseId },
                     }}
                     style={{
                       textDecoration: 'none',
@@ -94,7 +94,7 @@ function HomeworkPerformanceTable({ courseId }: { courseId: string }) {
                   <Link
                     href={{
                       pathname: '/homework-doc',
-                      query: { id: homework.id },
+                      query: { id: homework.id, courseId },
                     }}
                     style={{
                       textDecoration: 'none',

@@ -16,8 +16,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     !checkIfQueryParameterExistOrSetError(req, res, 'courseInstance')
   )
     return;
-  const courseId = req.query.courseId.toString();
-  const courseInstance = req.query.courseInstance.toString();
+  const courseId = req.query.courseId as string;
+  const courseInstance = req.query.courseInstance as string;
   const reviewType = (await isUserIdAuthorizedForAny(await getUserIdOrSetError(req, res), [
     {
       action: Action.MUTATE,

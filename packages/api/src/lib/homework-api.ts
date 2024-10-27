@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { getAuthHeaders } from './lms';
 import { HomeworkInfo, HomeworkPhase } from './homework';
+import { CURRENT_TERM } from '@stex-react/utils';
 
 export async function getHomeworkList(courseId: string) {
   const resp = await axios.get(`/api/homework/get-homework-list?courseId=${courseId}`, {
@@ -45,4 +46,12 @@ export async function deleteHomework(id: number, courseId: string) {
     { headers: getAuthHeaders() }
   );
   return response.data;
+}
+export async function getHomeworkTree(courseId: string) {
+  return axios
+    .get('/api/homework/get-homework-tree', {
+      params: { courseId, courseInstance: CURRENT_TERM },
+      headers: getAuthHeaders(),
+    })
+    .then((c) => c.data);
 }

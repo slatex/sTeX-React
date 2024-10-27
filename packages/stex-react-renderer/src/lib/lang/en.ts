@@ -75,7 +75,8 @@ export const en = {
     showOlderAnswers: 'Show older answers',
     history: 'History',
     saveAndSubmitAPeerReview:'Save & Submit a peer review request',
-    saveAndSubmitAInstructorReview:'Save & Submit a instructor review request'
+    saveAndSubmitAInstructorReview:'Save & Submit a instructor review request',
+    save:'Save'
   },
   practiceProblems: {
     clickSection: 'Click on a section in the TOC to see problems associated with it.',

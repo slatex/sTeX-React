@@ -4,13 +4,30 @@ import {
   checkIfGetOrSetError,
   getUserIdOrSetError,
   executeAndEndSet500OnError,
+  checkIfQueryParameterExistOrSetError,
 } from '../comment-utils';
+import { Action, ResourceName } from '@stex-react/utils';
+import { isUserIdAuthorizedForAny } from '../access-control/resource-utils';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (!checkIfGetOrSetError(req, res)) return;
-
-  let query = 'where homeworkId is not null ';
-  const queryPrams: any[] = [];
+  if (
+    !checkIfGetOrSetError(req, res) ||
+    !checkIfQueryParameterExistOrSetError(req, res, 'courseId') ||
+    !checkIfQueryParameterExistOrSetError(req, res, 'courseInstance')
+  )
+    return;
+  const courseId = req.query.courseId as string;
+  const courseInstance = req.query.courseInstance as string;
+  const userId = await getUserIdOrSetError(req, res);
+  await isUserIdAuthorizedForAny(userId, [
+    {
+      action: Action.MUTATE,
+      name: ResourceName.COURSE_HOMEWORK,
+      variables: { courseId, instanceId: courseInstance },
+    },
+  ]);
+  let query = 'where homeworkId is not null AND userId <> ?';
+  const queryPrams: any[] = [userId];
   if (Object.keys(req.query).length > 0) {
     if (req.query.couserId) {
       query += 'And courseId=? ';
@@ -27,7 +44,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const answers = await executeAndEndSet500OnError<AnswerResponse[]>(
-    `select id,questionId,subProblemId,userId,answer,createdAt,updatedAt,questionTitle from Answer ${query} order by id desc`,
+    `select id,questionId,subProblemId,userId,answer,createdAt,updatedAt from Answer ${query} order by id desc`,
     queryPrams,
     res
   );

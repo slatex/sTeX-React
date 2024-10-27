@@ -146,24 +146,6 @@ export function PerSectionQuiz({
         mb={2}
         sx={{ display: 'flex', gap: '10px', flexDirection: 'column', alignItems: 'flex-start' }}
       >
-        {
-          <Box>
-            {subProblems.map((c, i) => (
-              <Box >
-                <span>
-                  {t.answer} {i + 1}:{' '}
-                </span>
-                <SubProblemAnswer
-                  showPoints={false}
-                  problemHeader={problem.header}
-                  questionId={problemIds[problemIdx]}
-                  subProblem={c}
-                  subProblemId={i.toString()}
-                ></SubProblemAnswer>
-              </Box>
-            ))}
-          </Box>
-        }
 
         {showHideButton && (
           <Button onClick={() => setShow(false)} variant="contained">

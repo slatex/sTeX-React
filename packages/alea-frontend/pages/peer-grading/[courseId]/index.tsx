@@ -12,15 +12,15 @@ import { useRouter } from 'next/router';
 import { Box, Tab, Tabs } from '@mui/material';
 
 
-import { TabPanelProps, toUserFriendlyName } from '../../instructor-dash/[courseId]';
 import { ShowPeerReviewRequestsAndProblem } from '../../../components/nap/ShowPeerReviewRequestsAndProblem';
 import { ShowPeerReviewHomeworkProblems } from '../../../components/nap/ShowPeerReviewHomeworkProblems';
+import { TabPanelProps, toUserFriendlyName } from 'packages/stex-react-renderer/src/lib/lang/utils';
 
 type TabName = 'practice-problem' | 'homework';
 
 const TAB_MAPPING: Record<TabName, number> = {
   'practice-problem': 0,
-  homework: 1,
+  'homework': 1,
 };
 
 function ChosenTab({ tabName, courseId }: { tabName: TabName; courseId: string }) {

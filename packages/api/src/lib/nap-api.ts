@@ -64,3 +64,20 @@ export async function deleteAnswer(id: number) {
 export async function deleteReviewRequest(id: number) {
   return axios.post('/api/nap/delete-review-request', { id }, { headers: getAuthHeaders() });
 }
+export async function getHomeworkAnswers(
+  questionId: string,
+  courseId: string,
+  courseInstance: string = CURRENT_TERM
+) {
+  return axios
+    .get('/api/nap/get-homework-answers', {
+      params: { questionId, courseId, courseInstance },
+      headers: getAuthHeaders(),
+    })
+    .then((c) => c.data);
+}
+export async function getHomeworkAnswer(id: number) {
+  return axios
+    .get('/api/nap/get-homework-answer', { params: { id }, headers: getAuthHeaders() })
+    .then((c) => c.data);
+}

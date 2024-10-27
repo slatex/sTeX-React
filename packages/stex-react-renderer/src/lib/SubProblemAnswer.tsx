@@ -46,12 +46,16 @@ export function SubProblemAnswer({
   questionId,
   subProblemId,
   showPoints,
+  homeworkId,
+  isQuiz,
 }: {
   subProblem: SubProblemData;
   questionId: string;
   subProblemId: string;
   problemHeader: string;
-  showPoints: boolean;
+  isQuiz: boolean;
+  homeworkId?: string;
+  showPoints?: boolean;
 }) {
   dayjs.extend(relativeTime);
   const router = useRouter();
@@ -67,6 +71,9 @@ export function SubProblemAnswer({
   useEffect(() => {
     if (courseId) getAnswers(courseId, questionId, subProblemId).then(setAnswers);
   }, [answerId, courseId, questionId, subProblemId]);
+  useEffect(() => {
+    setAnswer('');
+  }, [questionId]);
   async function onSubmitAnswer(event: SyntheticEvent) {
     event.preventDefault();
     if (showGrading) {
@@ -134,6 +141,7 @@ export function SubProblemAnswer({
       questionTitle: problemHeader,
       subProblemId: subProblemId,
       courseId: courseId,
+      homeworkId,
     });
   }
   return (
@@ -149,24 +157,43 @@ export function SubProblemAnswer({
           value={answer}
           onChange={(e) => setAnswer(e.target.value)}
         />
-        <div style={{ display: 'flex', gap: '3px' }}>
-          <div>
-            <Button type="submit">{showGrading ? t.hideSolution : t.saveAndGrade}</Button>
-            <IconButton onClick={handleClick} type="button">
-              <KeyboardArrowDownIcon />
-            </IconButton>
+        {!isQuiz && (
+          <div style={{ display: 'flex', gap: '3px' }}>
+            <div>
+              <Button type="submit">{showGrading ? t.hideSolution : t.saveAndGrade}</Button>
+              <IconButton onClick={handleClick} type="button">
+                <KeyboardArrowDownIcon />
+              </IconButton>
+            </div>
+            <Button disabled={showGrading} onClick={() => setIsHistoryOpen(true)} type="button">
+              {t.showOlderAnswers}
+            </Button>
           </div>
-          <Button disabled={showGrading} onClick={() => setIsHistoryOpen(true)} type="button">
-            {t.showOlderAnswers}
+        )}
+        {isQuiz && (
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              SaveAnswers();
+            }}
+            variant="contained"
+          >
+            {t.save}
           </Button>
-        </div>
+        )}
       </form>
-      {showSolution && <div style={{ color: '#555' }}>{mmtHTMLToReact(subProblem.solution)}</div>}
-      {showGrading && (
-        <GradingSubProblems
-          rawAnswerClasses={subProblem.answerclasses}
-          onGraded={onSaveGrading}
-        ></GradingSubProblems>
+      {isQuiz && (
+        <>
+          {showSolution && (
+            <div style={{ color: '#555' }}>{mmtHTMLToReact(subProblem.solution)}</div>
+          )}
+          {showGrading && (
+            <GradingSubProblems
+              rawAnswerClasses={subProblem.answerclasses}
+              onGraded={onSaveGrading}
+            ></GradingSubProblems>
+          )}
+        </>
       )}
       <Dialog
         maxWidth="lg"
@@ -216,7 +243,7 @@ export function SubProblemAnswer({
                   {c.graded && (
                     <IconButton
                       onClick={(e) => {
-                        router.push(`/answers/${courseId}/${c.id}`)
+                        router.push(`/answers/${courseId}/${c.id}`);
                         e.preventDefault();
                       }}
                       aria-label="delete"
