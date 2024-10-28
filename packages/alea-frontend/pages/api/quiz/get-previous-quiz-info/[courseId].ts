@@ -1,9 +1,9 @@
 import { GetPreviousQuizInfoResponse, Phase, PreviousQuizInfo, Problem } from '@stex-react/api';
 import { getProblem, getQuizPhase } from '@stex-react/quiz-utils';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getAllQuizzes } from '../quiz-utils';
-import { queryGradingDbAndEndSet500OnError } from '../../grading-db-utils';
 import { getUserIdOrSetError } from '../../comment-utils';
+import { queryGradingDbAndEndSet500OnError } from '../../grading-db-utils';
+import { getAllQuizzes } from '../quiz-utils';
 
 const USER_TO_QUIZ_SCORES_CACHE = new Map<string, { [quizId: string]: number }>();
 const QUIZ_AVG_SCORES_CACHE = new Map<string, number>();
@@ -66,6 +66,10 @@ async function getQuizAveragesOrSet500Error(
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if ('hack'.length === 4) {
+    // Avoid perf issues
+    res.status(200).send({ quizInfo: {} } as GetPreviousQuizInfoResponse);
+  }
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
   const courseId = req.query.courseId as string;
