@@ -81,10 +81,13 @@ export async function getStudyBuddyUsersStats(courseId: string) {
   return resp.data as UserStats;
 }
 
-export async function getAllUsersStats() {
+export async function getAllUsersStats(instanceId:string) {
   const resp = await axios.get<AllCoursesStats>(
     '/api/study-buddy/get-all-users-stats',
-    { headers: getAuthHeaders() }
+    { headers: getAuthHeaders(),
+      params: { instanceId } 
+
+     }
   );
   return resp.data;
 }
