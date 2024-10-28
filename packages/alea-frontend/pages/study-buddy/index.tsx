@@ -48,7 +48,6 @@ import { useEffect, useReducer, useState } from 'react';
 import StudyBuddyModeratorOverview from '../../components/StudyBuddyModeratorOverview';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
-import { flatGroup } from 'packages/alea-frontend/public/course_lm_exp/d3.v7';
 const StudyBuddyConnectionsGraph = dynamic(
   () => import('../../components/StudyBuddyConnectionsGraph'),
   { ssr: false }
@@ -139,11 +138,9 @@ function StatsForModerator() {
     };
     fetchData();
   }, [semester]);
-  
   return (
     <>
       <Typography variant="h4">{t.insightHeading}</Typography>
-  
       <Box display="flex" flexDirection="column" alignItems="center">
         <Card sx={{ mt: '20px', mb: '20px', width: '80%' }}>
           <CardContent>
@@ -163,7 +160,6 @@ function StatsForModerator() {
                 </Select>
               </FormControl>
             </Box>
-            
             <StudyBuddyModeratorOverview overviewData={overviewData} />
             <hr />
             <StudyBuddyOverviewGraph />
