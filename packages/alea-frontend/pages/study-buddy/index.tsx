@@ -139,36 +139,37 @@ function StatsForModerator() {
     };
     fetchData();
   }, [semester]);
-
+  
   return (
     <>
       <Typography variant="h4">{t.insightHeading}</Typography>
-
-<Box display="flex" flexDirection="column" alignItems="center">
-  <Box display="flex" width="100%" justifyContent="flex-start">
-    <FormControl fullWidth>
-      <InputLabel id="semester-select-label">Select Semester</InputLabel>
-      <Select
-        labelId="semester-select-label"
-        id="semester-select"
-        value={semester}
-        label="Select Semester"
-        onChange={handleChange}
-      >
-        <MenuItem value="WS23-24">WS23-24</MenuItem>
-        <MenuItem value="SS24">SS24</MenuItem>
-        <MenuItem value="WS24-25">WS24-25</MenuItem>
-      </Select>
-    </FormControl>
-  </Box>
-  <Card sx={{ mt: '20px', mb: '20px', width: '80%' }}>
-    <CardContent>
-      <StudyBuddyModeratorOverview overviewData={overviewData} />
-      <hr />
-      <StudyBuddyOverviewGraph />
-    </CardContent>
-  </Card>
-</Box>
+  
+      <Box display="flex" flexDirection="column" alignItems="center">
+        <Card sx={{ mt: '20px', mb: '20px', width: '80%' }}>
+          <CardContent>
+            <Box display="flex" width="100%" justifyContent="flex-start" mb={2}>
+              <FormControl fullWidth>
+                <InputLabel id="semester-select-label">Select Semester</InputLabel>
+                <Select
+                  labelId="semester-select-label"
+                  id="semester-select"
+                  value={semester}
+                  label="Select Semester"
+                  onChange={handleChange}
+                >
+                  <MenuItem value="WS23-24">WS23-24</MenuItem>
+                  <MenuItem value="SS24">SS24</MenuItem>
+                  <MenuItem value="WS24-25">WS24-25</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+            
+            <StudyBuddyModeratorOverview overviewData={overviewData} />
+            <hr />
+            <StudyBuddyOverviewGraph />
+          </CardContent>
+        </Card>
+      </Box>
     </>
   );
 }
