@@ -24,21 +24,21 @@ export async function insertAnswer(
   try {
     await axios.post('/api/quiz/insert-quiz-response', req, {
       headers: getAuthHeaders(),
-      timeout: 30000 // 30 seconds 
+      timeout: 30000, // 30 seconds
     });
     return true;
   } catch (err) {
     const error = err as Error | AxiosError;
     if (axios.isAxiosError(error)) {
-      if (error.code === 'ECONNABORTED') {
-        console.error('Request timed out');
-        alert('Your responses are not being recorded. Check your internet connection and press okay to refresh.');
-        location.reload();
-      }
       if (error.response?.status === 410) {
         // Quiz has ended
         return false;
       }
+      console.error('Error recording answer: ', error);
+      alert(
+        'Your responses are not being recorded. Check your internet connection and press okay to refresh.'
+      );
+      location.reload();
     }
     throw err;
   }
