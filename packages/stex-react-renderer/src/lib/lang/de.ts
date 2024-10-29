@@ -79,6 +79,7 @@ export const de = {
     saveAndSubmitAInstructorReview:
       'Speichern & Einreichen einer Beurteilungsanfrage für einen Kursleiter',
     save: 'retten',
+    discard: 'abwerfen',
   },
   practiceProblems: {
     clickSection:

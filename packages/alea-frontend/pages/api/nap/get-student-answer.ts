@@ -1,9 +1,14 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { checkIfGetOrSetError, executeAndEndSet500OnError } from '../comment-utils';
+import {
+  checkIfGetOrSetError,
+  checkIfQueryParameterExistOrSetError,
+  executeAndEndSet500OnError,
+} from '../comment-utils';
 import { AnswerResponse, AnswerClassResponse, GradeResponse } from '@stex-react/api';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (!checkIfGetOrSetError(req, res)) return;
+  if (!checkIfGetOrSetError(req, res) || !checkIfQueryParameterExistOrSetError(req, res, 'id'))
+    return;
   const id = req.query.id as string;
   //TODO: Adding acl. this api should return the answer only for the student him/herself or instructors.
   const answer = (

@@ -14,6 +14,7 @@ import { getLocaleObject } from '../lang/utils';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 
 function HomeworkPerformanceTable({ courseId }: { courseId: string }) {
   const { homeworkPerformanceTable: t, homework: tHW } = getLocaleObject(useRouter());
@@ -87,7 +88,7 @@ function HomeworkPerformanceTable({ courseId }: { courseId: string }) {
                     onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
                     onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
                   >
-                    {homework.title}
+                    {mmtHTMLToReact(homework.title)}
                   </Link>
                 </TableCell>
                 <TableCell sx={{ color: PRIMARY_COL, wordBreak: 'break-word', minWidth: '100px' }}>

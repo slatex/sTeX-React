@@ -1,31 +1,21 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import {
-  checkIfGetOrSetError,
   checkIfQueryParameterExistOrSetError,
   executeAndEndSet500OnError,
   getUserIdOrSetError,
 } from '../comment-utils';
+import { AnswerResponse } from '@stex-react/api';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (!checkIfGetOrSetError(req, res) || !checkIfQueryParameterExistOrSetError(req, res, 'id'))
-    return;
-  const { id } = req.query;
+  if (!checkIfQueryParameterExistOrSetError(req, res, ['questionId', 'subProblemId'])) return;
+  const { questionId, subProblemId } = req.query;
   const userId = await getUserIdOrSetError(req, res);
   const answer = (
-    await executeAndEndSet500OnError(
-      `select id,answer,questionId,subProblemId,homeworkId from Answer where id=? and homeworkId is not null and userId <> ?`,
-      [id, userId],
+    await executeAndEndSet500OnError<AnswerResponse[]>(
+      `select id,answer,createdAt,updatedAt from Answer where questionId=? and subProblemId=? and userId=? and homeworkId is not null`,
+      [questionId, subProblemId, userId],
       res
     )
   )[0];
-  const homeworkProblems = (await executeAndEndSet500OnError(
-    'select problems from homework where id=?',
-    [answer.homeworkId],
-    res
-  ))[0].problems;
-  const problem = JSON.parse(homeworkProblems)[answer.questionId];
-  res.send({
-    answer,
-    problem,
-  });
+  res.send(answer);
 }

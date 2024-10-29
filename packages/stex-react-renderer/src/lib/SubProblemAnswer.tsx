@@ -22,13 +22,14 @@ import {
   createGradring,
   createReviewRequest,
   getAnswers,
+  getHomeWorkAnswer,
   ReviewType,
   SubProblemData,
 } from '@stex-react/api';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useRouter } from 'next/router';
-import { SyntheticEvent, useEffect, useState } from 'react';
+import { ChangeEvent, SyntheticEvent, useEffect, useRef, useState } from 'react';
 import { getLocaleObject } from './lang/utils';
 import CloseIcon from '@mui/icons-material/Close';
 import { mmtHTMLToReact } from './mmtParser';
@@ -68,12 +69,26 @@ export function SubProblemAnswer({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [showSolution, setShowSolution] = useState(false);
   const [answers, setAnswers] = useState<AnswerResponse[]>([]);
+  const [canSaveAnswer, setCanSaveAnswer] = useState<boolean>(false);
+  const [isAnswerChanged, setCanDiscardChanged] = useState(false);
+  const serverAnswer = useRef<AnswerResponse>();
   useEffect(() => {
     if (courseId) getAnswers(courseId, questionId, subProblemId).then(setAnswers);
   }, [answerId, courseId, questionId, subProblemId]);
   useEffect(() => {
     setAnswer('');
-  }, [questionId]);
+    if (isQuiz) {
+      const localAnswer = localStorage.getItem(`answer-${questionId}-${subProblemId}`) ?? '';
+      setAnswer(localAnswer);
+      (async () => {
+        serverAnswer.current = await getHomeWorkAnswer(questionId, subProblemId);
+        if (serverAnswer.current && localAnswer === serverAnswer.current.answer) {
+          setCanSaveAnswer(false);
+          setAnswer(serverAnswer.current.answer);
+        }
+      })();
+    }
+  }, [questionId, subProblemId, isQuiz]);
   async function onSubmitAnswer(event: SyntheticEvent) {
     event.preventDefault();
     if (showGrading) {
@@ -139,11 +154,30 @@ export function SubProblemAnswer({
       answer: answer,
       questionId: questionId,
       questionTitle: problemHeader,
-      subProblemId: subProblemId,
-      courseId: courseId,
+      subProblemId,
+      courseId,
       homeworkId,
     });
   }
+  function onAnswerChanged(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void {
+    if (isQuiz) localStorage.setItem(`answer-${questionId}-${subProblemId}`, event.target.value);
+    setAnswer(event.target.value);
+    setCanSaveAnswer(event.target.value !== serverAnswer.current?.answer);
+    setCanDiscardChanged((serverAnswer.current?.answer ?? '') !== event.target.value);
+  }
+
+  function onDiscardClicked(): void {
+    setAnswer(serverAnswer.current?.answer ?? '');
+    setCanSaveAnswer(false);
+    setCanDiscardChanged(false);
+  }
+
+  async function onQuizeSaveClicked(event) {
+    event.stopPropagation();
+    await SaveAnswers();
+    serverAnswer.current = await getHomeWorkAnswer(questionId, subProblemId);
+  }
+
   return (
     <>
       <form onSubmit={onSubmitAnswer}>
@@ -155,7 +189,7 @@ export function SubProblemAnswer({
           minRows={5}
           style={{ display: 'block' }}
           value={answer}
-          onChange={(e) => setAnswer(e.target.value)}
+          onChange={onAnswerChanged}
         />
         {!isQuiz && (
           <div style={{ display: 'flex', gap: '3px' }}>
@@ -171,15 +205,14 @@ export function SubProblemAnswer({
           </div>
         )}
         {isQuiz && (
-          <Button
-            onClick={(e) => {
-              e.stopPropagation();
-              SaveAnswers();
-            }}
-            variant="contained"
-          >
-            {t.save}
-          </Button>
+          <Box sx={{ gap: '3px' }}>
+            <Button disabled={!canSaveAnswer} onClick={onQuizeSaveClicked} variant="contained">
+              {t.save}
+            </Button>
+            <Button disabled={!isAnswerChanged} onClick={onDiscardClicked}>
+              {t.discard}
+            </Button>
+          </Box>
         )}
       </form>
       {isQuiz && (
@@ -257,11 +290,7 @@ export function SubProblemAnswer({
           ))}
         </List>
       </Dialog>
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleClose}
-      >
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
         <MenuItem onClick={OnOnlySaveAnswer}>{t.save}</MenuItem>
         <MenuItem onClick={OnOnlySeeSolution}>
           {showSolution ? t.hideSolution : t.showSolution}

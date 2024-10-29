@@ -76,8 +76,16 @@ export async function getHomeworkAnswers(
     })
     .then((c) => c.data);
 }
-export async function getHomeworkAnswer(id: number) {
+export async function getReviewHomeworkAnswer(id: number) {
   return axios
-    .get('/api/nap/get-homework-answer', { params: { id }, headers: getAuthHeaders() })
+    .get('/api/nap/get-review-homework-answer', { params: { id }, headers: getAuthHeaders() })
     .then((c) => c.data);
+}
+export async function getHomeWorkAnswer(questionId: string, subProblemId: string) {
+  return axios
+    .get('/api/nap/get-homework-answer', {
+      params: { questionId, subProblemId },
+      headers: getAuthHeaders(),
+    })
+    .then((c) => c.data as AnswerResponse);
 }

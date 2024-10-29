@@ -12,8 +12,7 @@ import { isUserIdAuthorizedForAny } from '../access-control/resource-utils';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (
     !checkIfGetOrSetError(req, res) ||
-    !checkIfQueryParameterExistOrSetError(req, res, 'courseId') ||
-    !checkIfQueryParameterExistOrSetError(req, res, 'courseInstance')
+    !checkIfQueryParameterExistOrSetError(req, res, ['courseInstance', 'courseId'])
   )
     return;
   const courseId = req.query.courseId as string;

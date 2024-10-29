@@ -3,7 +3,7 @@ import { TreeItem } from '@mui/x-tree-view/TreeItem';
 import {
   CreateAnswerClassRequest,
   createGradring,
-  getHomeworkAnswer,
+  getReviewHomeworkAnswer,
   getHomeworkAnswers,
   getHomeworkTree,
   ProblemResponse,
@@ -27,14 +27,15 @@ export function ShowPeerReviewHomeworkProblems({ courseId }: { courseId: string 
   }, [courseId]);
   async function onQuestionSelected(questionId: string, homeworkId: string) {
     setAnswers(await getHomeworkAnswers(questionId, courseId));
+    setSelectedAnswer(null);
   }
   async function onAnAnswerSelected(id: number) {
-    const answer = await getHomeworkAnswer(id);
+    if (id === null) return;
+    const answer = await getReviewHomeworkAnswer(id);
     answer.problem = getProblem(answer.problem);
-    console.log(answer.problem);
     setSelectedAnswer(answer);
   }
-  async function onGraded(answerClass: CreateAnswerClassRequest[], feedback: string): void {
+  async function onGraded(answerClass: CreateAnswerClassRequest[], feedback: string) {
     await createGradring({
       answerClasses: answerClass,
       answerId: selectedAnswer.answer.id,
@@ -44,7 +45,7 @@ export function ShowPeerReviewHomeworkProblems({ courseId }: { courseId: string 
 
   return (
     <Box sx={{ display: 'flex', direction: 'row' }}>
-      <TreeView 
+      <TreeView
         defaultCollapseIcon={<ExpandMoreIcon />}
         defaultExpandIcon={<ChevronRightIcon />}
         sx={{ minWidth: '300px', maxWidth: 400 }}
@@ -55,7 +56,9 @@ export function ShowPeerReviewHomeworkProblems({ courseId }: { courseId: string 
               <List>
                 {c.problems.map((d) => (
                   <>
-                    <ListItemButton onClick={() => onQuestionSelected(d, c.id)}>{d}</ListItemButton>
+                    <ListItemButton onClick={() => onQuestionSelected(d.id, c.id)}>
+                      {mmtHTMLToReact(d.header)}
+                    </ListItemButton>
                   </>
                 ))}
               </List>

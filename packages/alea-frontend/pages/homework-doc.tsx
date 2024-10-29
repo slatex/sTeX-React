@@ -24,7 +24,6 @@ const HomeworkDocPage: React.FC = () => {
         problemObj[problemId] = getProblem(html, undefined);
       });
       setProblems(problemObj);
-      console.log(problemObj)
     });
   }, [id]);
 
