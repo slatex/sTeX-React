@@ -14,6 +14,7 @@ const HomeworkForm = ({
   feedbackReleaseTs,
   setFeedbackReleaseTs,
   setTitle,
+  problems,
   setProblems,
   id,
   handleSave,
@@ -27,6 +28,7 @@ const HomeworkForm = ({
   feedbackReleaseTs: Date;
   setFeedbackReleaseTs: (value: Date) => void;
   setTitle: (title: string) => void;
+  problems: { [problemId: string]: string };
   setProblems: (problems: { [problemId: string]: string }) => void;
   id: number | null;
   handleSave: () => void;
@@ -100,7 +102,7 @@ const HomeworkForm = ({
       />
 
       <QuizFileReader setTitle={setTitle} setProblems={setProblems} />
-
+      {<i>{Object.keys(problems ?? {}).length} problems found.</i>}
       <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
         <Button variant="contained" color="primary" onClick={handleSave}>
           {isCreate ? t.saveHomework : t.updateHomework}

@@ -17,6 +17,7 @@ import {
   deleteHomework,
   getHomeworkList,
   HomeworkInfo,
+  HomeworkStub,
   updateHomework,
   UpdateHomeworkRequest,
 } from '@stex-react/api';
@@ -26,6 +27,7 @@ import { getLocaleObject } from '../lang/utils';
 import HomeworkForm from './HomeworkForm';
 import HomeworkList from './HomeworkList';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 
 function timestampNow() {
   return new Date();
@@ -38,7 +40,7 @@ function timestampEOD() {
 }
 
 const HomeworkManager = ({ courseId }) => {
-  const [homeworks, setHomeworks] = useState<HomeworkInfo[]>([]);
+  const [homeworks, setHomeworks] = useState<HomeworkStub[]>([]);
   const [id, setId] = useState<number | null>(null);
   const [title, setTitle] = useState('');
   const [problems, setProblems] = useState<Record<string, string>>({});
@@ -50,7 +52,6 @@ const HomeworkManager = ({ courseId }) => {
   const [view, setView] = useState<'list' | 'create' | 'edit'>('list');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedHomeworkId, setSelectedHomeworkId] = useState<number | null>(null);
-  const { homeworkManager: t } = getLocaleObject(useRouter());
 
   const getHomeworks = async () => {
     try {
@@ -71,9 +72,9 @@ const HomeworkManager = ({ courseId }) => {
 
   const handleSave = async () => {
     let body = {
-      givenTs: dayjs(givenTs).format('YYYY-MM-DDTHH:mm:ss'),
-      dueTs: dayjs(dueTs).format('YYYY-MM-DDTHH:mm:ss'),
-      feedbackReleaseTs: dayjs(feedbackReleaseTs).format('YYYY-MM-DDTHH:mm:ss'),
+      givenTs: dayjs(givenTs).format('YYYY-MM-DDTHH:mm:ssZ'),
+      dueTs: dayjs(dueTs).format('YYYY-MM-DDTHH:mm:ssZ'),
+      feedbackReleaseTs: dayjs(feedbackReleaseTs).format('YYYY-MM-DDTHH:mm:ssZ'),
       title,
       problems,
       ...(id ? { id } : {}),
@@ -109,6 +110,7 @@ const HomeworkManager = ({ courseId }) => {
     setDueTs(new Date(homework.dueTs));
     setFeedbackReleaseTs(new Date(homework.feedbackReleaseTs));
     setTitle(homework.title);
+    setProblems(homework.problems);
     setView('edit');
   };
 
@@ -169,7 +171,7 @@ const HomeworkManager = ({ courseId }) => {
       >
         {view === 'list' && (
           <HomeworkList
-            homeworks={homeworks}
+            homeworkStubs={homeworks}
             handleEdit={handleEdit}
             confirmDelete={confirmDelete}
             onCreate={()=>setView('create')}
@@ -198,6 +200,7 @@ const HomeworkManager = ({ courseId }) => {
               setFeedbackReleaseTs(feedbackReleaseTs);
             }}
             setTitle={setTitle}
+            problems={problems}
             setProblems={setProblems}
             handleSave={handleSave}
             resetForm={resetForm}
