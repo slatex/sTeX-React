@@ -47,8 +47,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!results.length) return res.status(404).send('No homework found');
 
   const hwork = results[0];
-  hwork.problems = JSON.parse(hwork.problems);
-  console.log("hwork.problems", hwork.problems);  
+  hwork.problems = JSON.parse(hwork.problems);  
   const phase = getHomeworkPhase(hwork);
 
   const { courseId, courseInstance } = hwork;

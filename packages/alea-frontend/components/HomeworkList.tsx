@@ -12,21 +12,21 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
-import { HomeworkInfo } from '@stex-react/api';
+import { getHomeworkInfo, HomeworkInfo, HomeworkStub } from '@stex-react/api';
 import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
 import { getLocaleObject } from '../lang/utils';
 
 const HomeworkList = ({
-  homeworks,
+  homeworkStubs,
   onCreate,
   handleEdit,
   confirmDelete,
 }: {
-  homeworks: HomeworkInfo[];
+  homeworkStubs: HomeworkStub[];
   onCreate: () => void;
-  handleEdit: (homework: any) => void;
+  handleEdit: (homework: HomeworkInfo) => void;
   confirmDelete: (homeworkId: number) => void;
 }) => {
   const { homeworkManager: t } = getLocaleObject(useRouter());
@@ -68,7 +68,7 @@ const HomeworkList = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {homeworks.length === 0 && (
+            {homeworkStubs.length === 0 && (
               <TableRow>
                 <TableCell colSpan={6}>
                   <Typography variant="h6" sx={{ textAlign: 'center' }}>
@@ -78,7 +78,7 @@ const HomeworkList = ({
               </TableRow>
             )}
 
-            {homeworks.map((homework) => {
+            {homeworkStubs.map((homework) => {
               const formattedGivenTs = dayjs(homework.givenTs).format('YYYY-MM-DD HH:mm');
               const formattedDueTs = dayjs(homework.dueTs).format('YYYY-MM-DD HH:mm');
               const formattedReleaseDate = dayjs(homework.feedbackReleaseTs).format(
@@ -89,7 +89,11 @@ const HomeworkList = ({
                 <TableRow key={homework.id}>
                   <TableCell>
                     {mmtHTMLToReact(homework.title)}
-                    <a href={`/homework-doc?id=${homework.id}&courseId=${homework.courseId}`} target="_blank" rel="noreferrer">
+                    <a
+                      href={`/homework-doc?id=${homework.id}&courseId=${homework.courseId}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
                       <IconButton>
                         <OpenInNew />
                       </IconButton>
@@ -99,7 +103,12 @@ const HomeworkList = ({
                   <TableCell>{formattedDueTs}</TableCell>
                   <TableCell>{formattedReleaseDate}</TableCell>
                   <TableCell>
-                    <IconButton color="primary" onClick={() => handleEdit(homework)}>
+                    <IconButton
+                      color="primary"
+                      onClick={async () => {
+                        handleEdit(await getHomeworkInfo(homework.id));
+                      }}
+                    >
                       <Edit />
                     </IconButton>
                     <IconButton color="error" onClick={() => confirmDelete(homework.id)}>
