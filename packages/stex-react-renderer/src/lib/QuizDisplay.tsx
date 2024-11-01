@@ -250,7 +250,6 @@ export function QuizDisplay({
   homeworkId?: number;
 }) {
   const { quiz: t } = getLocaleObject(useRouter());
-  const quizId = useRouter().query.id as string;
   const [points, setPoints] = useState<{
     [problemId: string]: number | undefined;
   }>({});
