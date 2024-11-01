@@ -1,4 +1,5 @@
 import {
+  AnswerClass,
   FillInAnswerClass,
   FillInAnswerClassType,
   Input,
@@ -9,6 +10,7 @@ import {
   ProblemResponse,
   QuadState,
   Quiz,
+  SubProblemData,
   Tristate,
 } from '@stex-react/api';
 import { getMMTCustomId, truncateString } from '@stex-react/utils';
@@ -171,7 +173,7 @@ function recursivelyFindNodes(
   if (node instanceof Element) {
     for (const attrName of attrNames) {
       const attrVal = node.attribs[attrName];
-      if (attrVal) return [{ node, attrName, attrVal }];
+      if (attrVal || attrVal === '') return [{ node, attrName, attrVal }];
     }
   }
   const foundList: { node: Element; attrName: string; attrVal: any }[] = [];
@@ -309,6 +311,41 @@ function getAnswerClass(node: Element): FillInAnswerClass | undefined {
   }
 }
 
+function getSubProblems(rootNode: Element): SubProblemData[] {
+  const rawAnswerclasses = recursivelyFindNodes(rootNode, ['data-problem-answerclass']);
+  const subproblems: SubProblemData[] = [];
+  for (const rawAnswerClass of rawAnswerclasses) {
+    if (rawAnswerClass.attrVal === '') {
+      subproblems.push({ answerclasses: [], solution: getProblemSolution(rawAnswerClass.node) });
+      continue;
+    }
+
+    subproblems.at(-1)?.answerclasses.push({
+      className: getAnswerClassId(rawAnswerClass.attrVal),
+      description: '',
+      title: DomUtils.textContent(rawAnswerClass.node),
+      points: getPointsFromAnswerClass(rawAnswerClass.node),
+      closed: false,
+      isTrait: true,
+    });
+  }
+  return subproblems;
+}
+
+function getAnswerClassId(attribute: string): string {
+  const startIndex = attribute.indexOf('{');
+  const endIndex = attribute.indexOf('}');
+  if (startIndex == -1 || endIndex == -1) {
+    return attribute;
+  }
+  return attribute.substring(startIndex, endIndex);
+}
+
+function getPointsFromAnswerClass(rawClass: Element): number {
+  const pointElemnt = recursivelyFindNodes(rawClass, ['data-problem-answerclass-pts'])[0];
+  return Number(pointElemnt?.attrVal ?? '0');
+}
+
 function getFillInAnswerClasses(fillInSolNode: Element): FillInAnswerClass[] {
   const answerClassNodes = recursivelyFindNodes(fillInSolNode, ['data-fillin-type']);
   if (!answerClassNodes?.length) {
@@ -354,7 +391,7 @@ function getProblemHeader(rootNode: Element) {
   return header ? DomUtils.getOuterHTML(header) : '';
 }
 
-function getProblemSolutions(rootNode?: Element): string {
+function getProblemSolution(rootNode?: Element): string {
   if (!rootNode) return '';
   const solutionNodes = findSolutionRootNodes(rootNode);
   return solutionNodes.map((node) => DomUtils.getOuterHTML(node)).join('\n');
@@ -364,19 +401,17 @@ export function getProblem(htmlStr: string, problemUrl = '') {
   const htmlDoc = parseDocument(htmlStr);
   const problemRootNode = findProblemRootNode(htmlDoc);
   problemRootNode.attribs[PROBLEM_PARSED_MARKER] = 'true';
-  const solutionRootNode = findSolutionRootNodes(htmlDoc);
   const points = getProblemPoints(problemRootNode);
   const header = getProblemHeader(problemRootNode);
-  const solutions = solutionRootNode.map((solutionRootNode) =>
-    getProblemSolutions(solutionRootNode)
-  );
+  const subProblemData = getSubProblems(problemRootNode);
+
   if (!problemRootNode) {
     return {
       header: '',
       objectives: '',
       preconditions: '',
       inputs: [],
-      solutions: [],
+      subProblemData: [],
       points: 0,
       statement: { outerHTML: `<span>Not found: ${problemUrl}</span>` },
     } as Problem;
@@ -395,7 +430,7 @@ export function getProblem(htmlStr: string, problemUrl = '') {
     preconditions: problemRootNode?.attribs?.['data-problem-preconditions'] ?? '',
     statement: { outerHTML: DomUtils.getOuterHTML(problemRootNode) }, // The mcb block is already marked display:none.
     inputs,
-    solutions: solutions,
+    subProblemData,
     points,
   } as Problem;
   return problem;
@@ -471,3 +506,105 @@ export function removeAnswerInfo(problem: string) {
   // Convert the modified DOM back to HTML
   return DomUtils.getOuterHTML(modifiedDom);
 }
+
+export const DEFAULT_ANSWER_CLASSES: Readonly<AnswerClass[]> = [
+  {
+    className: 'ac-default-01',
+    title: 'Entirely correct',
+    description: "Student's answer is correct and complete regarding all aspects.",
+    points: 1000,
+    closed: true,
+    isTrait: false,
+  },
+  {
+    className: 'ac-default-02',
+    title: 'Entirely wrong',
+    description: "Student's answer is completely unrelated to expected answers.",
+    points: 0,
+    closed: true,
+    isTrait: false,
+  },
+  {
+    className: 'ac-default-03',
+    title: 'Empty',
+    description: 'Student has left this question entirely or mostly blank.',
+    points: 0,
+    closed: true,
+    isTrait: false,
+  },
+  {
+    className: 'ac-default-04',
+    title: 'Crossed out',
+    description: 'Student has crossed out all answers.',
+
+    points: 0,
+    closed: true,
+    isTrait: false,
+  },
+  {
+    className: 'ac-default-05',
+    title: 'Illegible',
+    description:
+      "Student's answer to this question cannot be incomprehensible despite honest effort.",
+
+    points: 0,
+    closed: true,
+    isTrait: false,
+  },
+  {
+    className: 'ac-default-06',
+    title: 'Correct, but...',
+    description: "Student's answer is mostly correct.",
+    isTrait: false,
+    points: 1000,
+    closed: false,
+  },
+  {
+    className: 'ac-default-07',
+    title: 'Wrong, but...',
+    description: "Student's answer is mostly wrong.",
+    isTrait: false,
+    points: 0,
+    closed: false,
+  },
+  {
+    className: 'ac-default-08',
+    title: 'Abandoned',
+    description: 'Abandoned',
+    isTrait: false,
+    points: 0,
+    closed: false,
+  },
+  {
+    className: 'ac-default-09',
+    title: 'Minor errors',
+    description: "Student's answer contains minor errors.",
+    closed: false,
+    isTrait: true,
+    points: -0.5,
+  },
+  {
+    className: 'ac-default-10',
+    title: 'Argumentation flawed',
+    description: "Student's argumentation is unsound/imprecise.",
+    closed: false,
+    isTrait: true,
+    points: -0.5,
+  },
+  {
+    className: 'ac-default-11',
+    title: 'Syntax errors',
+    description: 'Student uses syntax incorrectly.',
+    closed: false,
+    isTrait: true,
+    points: -0.5,
+  },
+  {
+    className: 'ac-default-12',
+    title: 'Formal errors',
+    description: "Student's answer misses formal requirements.",
+    closed: false,
+    isTrait: true,
+    points: -0.5,
+  },
+] as const;
