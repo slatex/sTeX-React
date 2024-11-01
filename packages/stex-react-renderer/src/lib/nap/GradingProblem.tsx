@@ -1,6 +1,6 @@
 import { Box, Button, FormControlLabel, Radio, RadioGroup, TextField } from '@mui/material';
 import { AnswerClass, CreateAnswerClassRequest } from '@stex-react/api';
-import { defaultAnswerClasses } from '@stex-react/quiz-utils';
+import { DEFAULT_ANSWER_CLASSES } from '@stex-react/quiz-utils';
 import { useRouter } from 'next/router';
 import { ChangeEvent, SyntheticEvent, useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
@@ -21,7 +21,7 @@ export function GradingSubProblems({
   const router = useRouter();
   const t = getLocaleObject(router).quiz;
   const [answerClasses, setAnswerClasses] = useState(
-    [...defaultAnswerClasses, ...rawAnswerClasses].map((c) => ({
+    [...DEFAULT_ANSWER_CLASSES, ...rawAnswerClasses].map((c) => ({
       count: 0,
       ...c,
     }))
@@ -29,11 +29,11 @@ export function GradingSubProblems({
 
   const [feedback, setFeedBack] = useState('');
   const [selectedAnswerClass, setSelectAnswerClass] = useState<AnswerClass>(
-    defaultAnswerClasses[0]
+    DEFAULT_ANSWER_CLASSES[0]
   );
   useEffect(() => {
     setAnswerClasses(
-      [...defaultAnswerClasses, ...rawAnswerClasses].map((c) => ({
+      [...DEFAULT_ANSWER_CLASSES, ...rawAnswerClasses].map((c) => ({
         count: 0,
         ...c,
       }))
@@ -96,7 +96,7 @@ export function GradingSubProblems({
             />
           ))}
       </RadioGroup>
-      {(!selectedAnswerClass?.closed ?? true) &&
+      {(!selectedAnswerClass?.closed) &&
         answerClasses
           .filter((c) => c.isTrait)
           .map((d) => (

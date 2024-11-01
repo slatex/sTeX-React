@@ -98,7 +98,7 @@ export function ShowPeerReviewRequestsAndProblem({ courseId }: { courseId: strin
                   <GradingSubProblems
                     showBackButton={true}
                     rawAnswerClasses={
-                      problem?.subProblemDatas[selectedAnswer.subProblemId]?.answerclasses
+                      problem?.subProblemData[selectedAnswer.subProblemId]?.answerclasses
                     }
                     onGraded={onSaveGrading}
                   ></GradingSubProblems>
