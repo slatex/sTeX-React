@@ -8,13 +8,13 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
-import { HomeworkInfo, HomeworkStub, LearnerHomeworkInfo, getHomeworkList } from '@stex-react/api';
-import { PRIMARY_COL } from '@stex-react/utils';
-import { getLocaleObject } from '../lang/utils';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import Link from 'next/link';
+import { HomeworkStub, LearnerHomeworkInfo, getHomeworkList } from '@stex-react/api';
 import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
+import { PRIMARY_COL } from '@stex-react/utils';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import { getLocaleObject } from '../lang/utils';
 
 function HomeworkPerformanceTable({ courseId }: { courseId: string }) {
   const { homeworkPerformanceTable: t, homework: tHW } = getLocaleObject(useRouter());
@@ -33,7 +33,7 @@ function HomeworkPerformanceTable({ courseId }: { courseId: string }) {
           maxPoints: 100,
           myScore: 0,
           avgScore: 0,
-          id: homework.id
+          id: homework.id,
         }));
         setHomeworkData(mappedData);
       } catch (error) {
@@ -96,7 +96,7 @@ function HomeworkPerformanceTable({ courseId }: { courseId: string }) {
                   <Link
                     href={{
                       pathname: '/homework-doc',
-                      query: { id: homework.id },
+                      query: { id: homework.id, courseId },
                     }}
                     style={{
                       textDecoration: 'none',
