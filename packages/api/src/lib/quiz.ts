@@ -92,6 +92,7 @@ export interface Input {
   inline: boolean;
   ignoreForScoring?: boolean;
 }
+
 export interface SubProblemData {
   solution: string;
   answerclasses: AnswerClass[];
@@ -104,6 +105,7 @@ export interface AnswerClass {
   isTrait: boolean;
   description: string;
 }
+
 export interface Problem {
   header: string;
   objectives: string;

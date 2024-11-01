@@ -187,6 +187,7 @@ export async function sendNotification(
     console.error(postNotification['error']);
   }
 }
+
 export function checkIfQueryParameterExistOrSetError(
   req: NextApiRequest,
   res: NextApiResponse,
