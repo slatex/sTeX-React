@@ -23,6 +23,7 @@ import {
   ProblemAnswerEvent,
   ProblemResponse,
   QuadState,
+  SubProblemData,
   Tristate,
   UserInfo,
   getUserInfo,
@@ -45,6 +46,7 @@ import { DimIcon } from './SelfAssessmentDialog';
 import { getLocaleObject } from './lang/utils';
 import { CustomItemsContext, NoMaxWidthTooltip, mmtHTMLToReact } from './mmtParser';
 import styles from './quiz.module.scss';
+import { SubProblemAnswer } from './SubProblemAnswer';
 
 function BpRadio(props: RadioProps) {
   return <Radio disableRipple color="default" {...props} />;
@@ -483,6 +485,8 @@ export function ProblemDisplay({
   onResponseUpdate,
   onFreezeResponse,
   debug,
+  problemId = '',
+  homeworkId,
 }: {
   uri?: string;
   problem: Problem | undefined;
@@ -492,9 +496,10 @@ export function ProblemDisplay({
   onResponseUpdate: (r: ProblemResponse) => void;
   onFreezeResponse?: () => void;
   debug?: boolean;
+  problemId?: string;
+  homeworkId?: number;
 }) {
-  const [userId, setUserId] = useState<string>('');
-  const t = getLocaleObject(useRouter()).quiz;
+  const [userId, setUserId] = useState('');
   useEffect(() => {
     getUserInfo().then((u: UserInfo | undefined) => {
       if (u) {
@@ -536,6 +541,19 @@ export function ProblemDisplay({
         <CustomItemsContext.Provider value={{ items: customItems }}>
           <DocumentWidthSetter>{mmtHTMLToReact(statement)}</DocumentWidthSetter>
         </CustomItemsContext.Provider>
+        {!isFrozen &&
+          problem.subProblemData.map((c, i) => (
+            <>
+              <span> Answer {i + 1}</span>
+              <SubProblemAnswer
+                homeworkId={homeworkId}
+                problemHeader={problem.header}
+                questionId={uri ? uri : problemId}
+                subProblemId={i.toString()}
+                subProblem={c}
+              ></SubProblemAnswer>
+            </>
+          ))}
         {debug && (
           <>
             {inlineSCQInputs.map((inlineInput) => (

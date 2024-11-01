@@ -24,7 +24,6 @@ const HomeworkDocPage: React.FC = () => {
         problemObj[problemId] = getProblem(html, undefined);
       });
       setProblems(problemObj);
-      console.log(problemObj)
     });
   }, [id]);
 
@@ -33,7 +32,6 @@ const HomeworkDocPage: React.FC = () => {
   return (
     <MainLayout title={`${hwInfo?.courseId ?? ''} Homework | VoLL-KI`}>
       <Box>
-        Phase: {phase}
         {hwInfo && (
           <>
             {phase === 'NOT_GIVEN' ? (
@@ -44,6 +42,7 @@ const HomeworkDocPage: React.FC = () => {
                 showPerProblemTime={false}
                 problems={problems}
                 existingResponses={{}}
+                homeworkId={hwInfo.id}
               />
             )}
           </>

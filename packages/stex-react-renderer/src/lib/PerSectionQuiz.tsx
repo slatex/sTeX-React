@@ -91,7 +91,7 @@ export function PerSectionQuiz({
 
   const problem = problems[problemIdx];
   const response = responses[problemIdx];
-  const solutions = problems[problemIdx]?.solutions;
+  const solutions = problems[problemIdx]?.subProblemData?.map((p) => p.solution);
 
   if (!problem || !response) return <>error</>;
 
@@ -156,7 +156,7 @@ export function PerSectionQuiz({
       >
         {solutions?.length > 0 && (
           <Button variant="contained" onClick={() => setShowSolution(!showSolution)}>
-            {showSolution ? t.hideSolution : t.checkSolution}
+            {showSolution ? t.hideSolution : t.showSolution}
           </Button>
         )}
         {showSolution && (

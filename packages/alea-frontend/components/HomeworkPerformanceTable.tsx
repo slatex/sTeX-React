@@ -28,6 +28,8 @@ function HomeworkPerformanceTable({ courseId }: { courseId: string }) {
           title: homework.title,
           givenTs: new Date(homework.givenTs).toLocaleDateString('en-GB'),
           dueTs: new Date(homework.dueTs).toLocaleDateString('en-GB'),
+          courseId: homework.courseId,
+          courseInstance: homework.courseInstance,
           maxPoints: 100,
           myScore: 0,
           avgScore: 0,
@@ -78,7 +80,7 @@ function HomeworkPerformanceTable({ courseId }: { courseId: string }) {
                   <Link
                     href={{
                       pathname: '/homework-doc',
-                      query: { id: homework.id },
+                      query: { id: homework.id, courseId: homework.courseId },
                     }}
                     style={{
                       textDecoration: 'none',

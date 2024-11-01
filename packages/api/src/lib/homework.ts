@@ -23,6 +23,8 @@ export interface LearnerHomeworkInfo {
   title: string;
   givenTs: string;
   dueTs: string;
+  courseId: string;
+  courseInstance: string;
   maxPoints: number;
   myScore: number;
   avgScore: number;
