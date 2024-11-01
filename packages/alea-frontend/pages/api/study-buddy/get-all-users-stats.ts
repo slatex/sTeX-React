@@ -9,7 +9,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!userId) return;
   let instanceId = req.query.instanceId as string;
   if (!instanceId) instanceId = CURRENT_TERM;
-
   /*
     This query counts a user multiple times if the user registered in multiple courses.
     The reasons of this action 

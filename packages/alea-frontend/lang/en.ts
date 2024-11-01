@@ -1,5 +1,3 @@
-import { updateHomework } from '@stex-react/api';
-
 export const en = {
   home: {
     header: 'VoLL-KI based Courses at FAU',

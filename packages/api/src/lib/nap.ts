@@ -24,7 +24,7 @@ export interface CreateAnswerRequest {
   courseInstance?: string;
   questionTitle: string;
   courseId: string;
-  homeworkId?:string;
+  homeworkId?: number;
 }
 export interface UpdateAnswerRequest {
   answer: string;

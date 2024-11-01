@@ -38,6 +38,8 @@ export function PerSectionQuiz({
   const [, forceRerender] = useReducer((x) => x + 1, 0);
   const [startQuiz, setStartQuiz] = useState(!showButtonFirst);
   const [show, setShow] = useState(true);
+  const [showSolution, setShowSolution] = useState(false);
+
   useEffect(() => {
     if (!archive || !filepath) return;
     setIsLoadingProblemIds(true);
@@ -86,7 +88,8 @@ export function PerSectionQuiz({
 
   const problem = problems[problemIdx];
   const response = responses[problemIdx];
-  const subProblems = problems[problemIdx]?.subProblemDatas;
+  const solutions = problems[problemIdx]?.subProblemData?.map((p) => p.solution);
+
   if (!problem || !response) return <>error</>;
   return (
     <Box
@@ -146,7 +149,18 @@ export function PerSectionQuiz({
         mb={2}
         sx={{ display: 'flex', gap: '10px', flexDirection: 'column', alignItems: 'flex-start' }}
       >
-
+        {solutions?.length > 0 && (
+          <Button variant="contained" onClick={() => setShowSolution(!showSolution)}>
+            {showSolution ? t.hideSolution : t.showSolution}
+          </Button>
+        )}
+        {showSolution && (
+          <Box mb="10px">
+            {solutions.map((solution) => (
+              <div style={{ color: '#555' }}>{mmtHTMLToReact(solution)}</div>
+            ))}
+          </Box>
+        )}
         {showHideButton && (
           <Button onClick={() => setShow(false)} variant="contained">
             {t.hideProblems}

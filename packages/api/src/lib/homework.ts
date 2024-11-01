@@ -16,13 +16,16 @@ export interface HomeworkInfo {
   problems: Record<string, string>;
 }
 
+export type HomeworkStub = Omit<HomeworkInfo, 'problems'>;
+
 export interface LearnerHomeworkInfo {
   id: number;
   title: string;
   givenTs: string;
   dueTs: string;
+  courseId: string;
+  courseInstance: string;
   maxPoints: number;
   myScore: number;
   avgScore: number;
-  problems: Record<string, string>;
 }

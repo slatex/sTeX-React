@@ -1,20 +1,24 @@
 import {
+  AppBar,
+  Box,
   Button,
-  TextField,
   Dialog,
+  Divider,
+  IconButton,
   List,
   ListItemButton,
   ListItemText,
-  Divider,
-  AppBar,
-  IconButton,
-  Toolbar,
-  Typography,
   Menu,
   MenuItem,
-  Box,
+  Toolbar,
+  Typography,
 } from '@mui/material';
 
+import CloseIcon from '@mui/icons-material/Close';
+import Diversity3Icon from '@mui/icons-material/Diversity3';
+import GradingIcon from '@mui/icons-material/Grading';
+import GroupsIcon from '@mui/icons-material/Groups';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import {
   AnswerResponse,
   createAnswer,
@@ -26,21 +30,16 @@ import {
   ReviewType,
   SubProblemData,
 } from '@stex-react/api';
+import { MystEditor, MystViewer } from '@stex-react/myst';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useRouter } from 'next/router';
-import { ChangeEvent, SyntheticEvent, useEffect, useRef, useState } from 'react';
+import { SyntheticEvent, useEffect, useRef, useState } from 'react';
 import { getLocaleObject } from './lang/utils';
-import CloseIcon from '@mui/icons-material/Close';
 import { mmtHTMLToReact } from './mmtParser';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import { GradingSubProblems } from './nap/GradingProblem';
-import MarkChatReadIcon from '@mui/icons-material/MarkChatRead';
-import GradingIcon from '@mui/icons-material/Grading';
-import FeedbackIcon from '@mui/icons-material/Feedback';
-import Diversity3Icon from '@mui/icons-material/Diversity3';
-import Diversity1Icon from '@mui/icons-material/Diversity1';
-import GroupsIcon from '@mui/icons-material/Groups';
+
+dayjs.extend(relativeTime);
+
 export function SubProblemAnswer({
   subProblem,
   problemHeader,
@@ -48,17 +47,14 @@ export function SubProblemAnswer({
   subProblemId,
   showPoints,
   homeworkId,
-  isQuiz,
 }: {
   subProblem: SubProblemData;
   questionId: string;
   subProblemId: string;
   problemHeader: string;
-  isQuiz: boolean;
-  homeworkId?: string;
+  homeworkId?: number;
   showPoints?: boolean;
 }) {
-  dayjs.extend(relativeTime);
   const router = useRouter();
   const courseId = router.query.courseId?.toString() ?? '';
   const t = getLocaleObject(router).quiz;
@@ -72,23 +68,28 @@ export function SubProblemAnswer({
   const [canSaveAnswer, setCanSaveAnswer] = useState<boolean>(false);
   const [isAnswerChanged, setCanDiscardChanged] = useState(false);
   const serverAnswer = useRef<AnswerResponse>();
+  const isHomework = !!homeworkId;
+
   useEffect(() => {
     if (courseId) getAnswers(courseId, questionId, subProblemId).then(setAnswers);
   }, [answerId, courseId, questionId, subProblemId]);
+
   useEffect(() => {
     setAnswer('');
-    if (isQuiz) {
-      const localAnswer = localStorage.getItem(`answer-${questionId}-${subProblemId}`) ?? '';
-      setAnswer(localAnswer);
-      (async () => {
-        serverAnswer.current = await getHomeWorkAnswer(questionId, subProblemId);
-        if (serverAnswer.current && localAnswer === serverAnswer.current.answer) {
-          setCanSaveAnswer(false);
-          setAnswer(serverAnswer.current.answer);
-        }
-      })();
-    }
-  }, [questionId, subProblemId, isQuiz]);
+    if (!isHomework) return;
+    const localAnswer = localStorage.getItem(`answer-${questionId}-${subProblemId}`) ?? '';
+    setAnswer(localAnswer);
+    (async () => {
+      serverAnswer.current = await getHomeWorkAnswer(questionId, subProblemId);
+      if (serverAnswer.current && localAnswer === serverAnswer.current.answer) {
+        setCanSaveAnswer(false);
+        setAnswer(serverAnswer.current.answer);
+      } else {
+        setCanSaveAnswer(localAnswer.trim() !== '');
+      }
+    })();
+  }, [questionId, subProblemId, isHomework]);
+
   async function onSubmitAnswer(event: SyntheticEvent) {
     event.preventDefault();
     if (showGrading) {
@@ -159,11 +160,11 @@ export function SubProblemAnswer({
       homeworkId,
     });
   }
-  function onAnswerChanged(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void {
-    if (isQuiz) localStorage.setItem(`answer-${questionId}-${subProblemId}`, event.target.value);
-    setAnswer(event.target.value);
-    setCanSaveAnswer(event.target.value !== serverAnswer.current?.answer);
-    setCanDiscardChanged((serverAnswer.current?.answer ?? '') !== event.target.value);
+  function onAnswerChanged(value: string): void {
+    if (isHomework) localStorage.setItem(`answer-${questionId}-${subProblemId}`, value);
+    setAnswer(value);
+    setCanSaveAnswer(!!value.trim() && value !== serverAnswer.current?.answer);
+    setCanDiscardChanged((serverAnswer.current?.answer ?? '') !== value);
   }
 
   function onDiscardClicked(): void {
@@ -172,7 +173,7 @@ export function SubProblemAnswer({
     setCanDiscardChanged(false);
   }
 
-  async function onQuizeSaveClicked(event) {
+  async function onQuizeSaveClicked(event: any) {
     event.stopPropagation();
     await SaveAnswers();
     serverAnswer.current = await getHomeWorkAnswer(questionId, subProblemId);
@@ -181,17 +182,17 @@ export function SubProblemAnswer({
   return (
     <>
       <form onSubmit={onSubmitAnswer}>
-        <TextField
-          disabled={showGrading}
-          multiline
-          fullWidth
-          placeholder={t.answer + '...'}
-          minRows={5}
-          style={{ display: 'block' }}
-          value={answer}
-          onChange={onAnswerChanged}
-        />
-        {!isQuiz && (
+        {showGrading ? (
+          <MystViewer content={answer} />
+        ) : (
+          <MystEditor
+            name={`answer-${questionId}-${subProblemId}`}
+            placeholder={t.answer + '...'}
+            value={answer}
+            onValueChange={onAnswerChanged}
+          />
+        )}
+        {!isHomework && (
           <div style={{ display: 'flex', gap: '3px' }}>
             <div>
               <Button type="submit">{showGrading ? t.hideSolution : t.saveAndGrade}</Button>
@@ -204,7 +205,7 @@ export function SubProblemAnswer({
             </Button>
           </div>
         )}
-        {isQuiz && (
+        {isHomework && (
           <Box sx={{ gap: '3px' }}>
             <Button disabled={!canSaveAnswer} onClick={onQuizeSaveClicked} variant="contained">
               {t.save}
@@ -215,17 +216,12 @@ export function SubProblemAnswer({
           </Box>
         )}
       </form>
-      {isQuiz && (
+      {isHomework && (
         <>
           {showSolution && (
             <div style={{ color: '#555' }}>{mmtHTMLToReact(subProblem.solution)}</div>
           )}
-          {showGrading && (
-            <GradingSubProblems
-              rawAnswerClasses={subProblem.answerclasses}
-              onGraded={onSaveGrading}
-            ></GradingSubProblems>
-          )}
+          {showGrading && <>NOT IMPLEMENTED YET</>}
         </>
       )}
       <Dialog
@@ -266,7 +262,7 @@ export function SubProblemAnswer({
                   secondary={dayjs(c.updatedAt.toString()).toNow(true)}
                 />
                 <Box sx={{ flexDirection: 'column', display: 'flex' }}>
-                  {c.reviewRequests.map((d) =>
+                  {c.reviewRequests?.map((d) =>
                     d === ReviewType.INSTRUCTOR ? (
                       <GroupsIcon></GroupsIcon>
                     ) : (

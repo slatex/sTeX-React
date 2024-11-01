@@ -6,11 +6,16 @@ import {
   Button,
   Card,
   CardContent,
+  FormControl,
   IconButton,
+  InputLabel,
   List,
   ListItemButton,
   ListItemText,
+  MenuItem,
   Paper,
+  Select,
+  SelectChangeEvent,
   Table,
   TableBody,
   TableCell,
@@ -121,24 +126,46 @@ function StudyBuddyOverviewGraph() {
 
 function StatsForModerator() {
   const [overviewData, setOverviewData] = useState<AllCoursesStats>();
+  const [semester, setSemester] = useState('WS24-25');
   const { studyBuddy: t } = getLocaleObject(useRouter());
+
+  const handleChange = (event: SelectChangeEvent) => {
+    setSemester(event.target.value);
+  };
   useEffect(() => {
     const fetchData = async () => {
-      getAllUsersStats().then(setOverviewData);
+      getAllUsersStats(semester).then(setOverviewData);
     };
     fetchData();
-  }, []);
-
+  }, [semester]);
   return (
     <>
       <Typography variant="h4">{t.insightHeading}</Typography>
-      <Card sx={{ mt: '20px', mb: '20px' }}>
-        <CardContent>
-          <StudyBuddyModeratorOverview overviewData={overviewData} />
-          <hr />
-          <StudyBuddyOverviewGraph />
-        </CardContent>
-      </Card>
+      <Box display="flex" flexDirection="column" alignItems="center">
+        <Card sx={{ mt: '20px', mb: '20px', width: '80%' }}>
+          <CardContent>
+            <Box display="flex" width="100%" justifyContent="flex-start" mb={2}>
+              <FormControl fullWidth>
+                <InputLabel id="semester-select-label">Select Semester</InputLabel>
+                <Select
+                  labelId="semester-select-label"
+                  id="semester-select"
+                  value={semester}
+                  label="Select Semester"
+                  onChange={handleChange}
+                >
+                  <MenuItem value="WS23-24">WS23-24</MenuItem>
+                  <MenuItem value="SS24">SS24</MenuItem>
+                  <MenuItem value="WS24-25">WS24-25</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+            <StudyBuddyModeratorOverview overviewData={overviewData} />
+            <hr />
+            <StudyBuddyOverviewGraph />
+          </CardContent>
+        </Card>
+      </Box>
     </>
   );
 }

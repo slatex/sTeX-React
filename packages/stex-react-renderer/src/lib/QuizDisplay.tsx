@@ -231,6 +231,7 @@ export function QuizDisplay({
   isFrozen,
   debug = false,
   showRecordOption = false,
+  homeworkId,
 }: {
   quizEndTs?: number;
   showPerProblemTime: boolean;
@@ -246,9 +247,11 @@ export function QuizDisplay({
     result: { [problemId: string]: number | undefined }
   ) => void;
   showRecordOption?: boolean;
+  homeworkId?: number;
 }) {
   const quizId = useRouter().query.id as string;
   const { quiz: t } = getLocaleObject(useRouter());
+  const quizId = useRouter().query.id as string;
   const [points, setPoints] = useState<{
     [problemId: string]: number | undefined;
   }>({});
@@ -355,9 +358,8 @@ export function QuizDisplay({
             r={response}
             //problemUrl={problemUrl}
             debug={debug}
-            quizId={quizId}
+            homeworkId={homeworkId}
             problemId={problemIds[problemIdx]}
-            isQuiz={true}
             problem={problem}
             isFrozen={isFrozen}
             onResponseUpdate={(response) => {

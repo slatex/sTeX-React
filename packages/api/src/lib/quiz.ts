@@ -111,7 +111,7 @@ export interface Problem {
   statement: { outerHTML: string };
   inputs: Input[];
   points: number;
-  subProblemDatas: SubProblemData[];
+  subProblemData: SubProblemData[];
 }
 
 export interface InputResponse {

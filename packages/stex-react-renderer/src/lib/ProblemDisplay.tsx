@@ -485,9 +485,8 @@ export function ProblemDisplay({
   onResponseUpdate,
   onFreezeResponse,
   debug,
-  isQuiz = false,
   problemId = '',
-  quizId = '',
+  homeworkId,
 }: {
   uri?: string;
   problem: Problem | undefined;
@@ -497,12 +496,10 @@ export function ProblemDisplay({
   onResponseUpdate: (r: ProblemResponse) => void;
   onFreezeResponse?: () => void;
   debug?: boolean;
-  isQuiz?: boolean;
   problemId?: string;
-  quizId?: string;
+  homeworkId?: number;
 }) {
-  const [userId, setUserId] = useState<string>('');
-  const t = getLocaleObject(useRouter()).quiz;
+  const [userId, setUserId] = useState('');
   useEffect(() => {
     getUserInfo().then((u: UserInfo | undefined) => {
       if (u) {
@@ -545,12 +542,11 @@ export function ProblemDisplay({
           <DocumentWidthSetter>{mmtHTMLToReact(statement)}</DocumentWidthSetter>
         </CustomItemsContext.Provider>
         {!isFrozen &&
-          problem.subProblemDatas.map((c, i) => (
+          problem.subProblemData?.map((c, i) => (
             <>
               <span> Answer {i + 1}</span>
               <SubProblemAnswer
-                isQuiz={isQuiz}
-                homeworkId={quizId}
+                homeworkId={homeworkId}
                 problemHeader={problem.header}
                 questionId={uri ? uri : problemId}
                 subProblemId={i.toString()}

@@ -42,6 +42,7 @@ const HomeworkDocPage: React.FC = () => {
                 showPerProblemTime={false}
                 problems={problems}
                 existingResponses={{}}
+                homeworkId={hwInfo.id}
               />
             )}
           </>

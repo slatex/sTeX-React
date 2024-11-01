@@ -14,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const { questionId, questionTitle, subProblemId, courseId, homeworkId } =
     req.body as CreateAnswerRequest;
   let { courseInstance, answer } = req.body as CreateAnswerRequest;
-  if (!answer || !questionId || !questionTitle) res.status(422).end();
+  if (!answer || !questionId || !questionTitle) return res.status(422).end();
   if (!courseInstance) courseInstance = CURRENT_TERM;
   answer = answer.trim();
   const result = await executeAndEndSet500OnError(
@@ -22,5 +22,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     [questionId, userId, answer, questionTitle, subProblemId, courseId, courseInstance, homeworkId],
     res
   );
+  if(!result) return;
   res.status(201).send({ id: result.insertId });
 }

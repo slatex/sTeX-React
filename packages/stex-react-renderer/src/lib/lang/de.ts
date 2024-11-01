@@ -62,10 +62,8 @@ export const de = {
     next: 'Nächste',
     didntAnswer: 'Sie haben $1 Aufgaben nicht beantwortet. ',
     sureFinish: 'Sind Sie sicher, dass Sie den Vorgang abschließen möchten?',
-    checkSolution: 'Speichern Sie die Antwort und zeigen Sie die Lösung.',
-    hideSolution: 'Speichern Sie die Antwort und zeigen Sie die Lösung an',
-    showSolution: '',
-    saveAndGrade: '',
+    showSolution: 'Lösung anzeigen',
+    hideSolution: 'Lösung ausblenden',
     perSectionQuizButton: 'Übungsprobleme ($1)',
     hideProblems: 'Probleme ausblenden',
     answer: 'Antwort',
@@ -80,6 +78,7 @@ export const de = {
       'Speichern & Einreichen einer Beurteilungsanfrage für einen Kursleiter',
     save: 'retten',
     discard: 'abwerfen',
+    saveAndGrade: 'Speichern und bewerten',
   },
   practiceProblems: {
     clickSection:
