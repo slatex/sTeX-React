@@ -7,6 +7,7 @@ import {
   ListItem,
   ListItemText,
   TextField,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import { getAcl, getAllAclMembers, isMember, isUserMember } from '@stex-react/api';
@@ -24,6 +25,7 @@ const AclId: NextPage = () => {
   const [acls, setAcls] = useState<string[]>([]);
   const [allMemberUserIds, setAllMemberUserIds] = useState<string[]>([]);
   const [desc, setDesc] = useState<string>(null);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
   const [updaterACLId, setUpdaterACLId] = useState<string>(null);
   const [userIsMember, setUserIsMember] = useState<boolean>(false);
   const [userIdInput, setUserIdInput] = useState<string>('');
@@ -37,6 +39,7 @@ const AclId: NextPage = () => {
       const acl = await getAcl(aclId as string);
       setDesc(acl?.description);
       setUpdaterACLId(acl?.updaterACLId);
+      setIsOpen(acl?.isOpen);
       const aclIds = new Set<string>();
       const userMembers = new Set<string>();
 
@@ -109,15 +112,21 @@ const AclId: NextPage = () => {
             </Typography>
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: '30px' }}>
-              <Box
-                sx={{
-                  width: 20,
-                  height: 20,
-                  borderRadius: '50%',
-                  backgroundColor: userIsMember ? 'green' : 'red',
-                  ml: 1, // shorthand for marginLeft: '10px'
-                }}
-              ></Box>
+              <Tooltip
+                title={
+                  userIsMember ? 'You are a member of this ACL' : 'You are not a member of this ACL'
+                }
+              >
+                <Box
+                  sx={{
+                    width: 20,
+                    height: 20,
+                    borderRadius: '50%',
+                    backgroundColor: userIsMember ? 'green' : 'red',
+                    ml: 1, // shorthand for marginLeft: '10px'
+                  }}
+                ></Box>
+              </Tooltip>
               {isUpdaterMember && (
                 <Button
                   sx={{
@@ -139,6 +148,11 @@ const AclId: NextPage = () => {
               Description: {desc}
             </Typography>
           )}
+          {
+            <Typography variant="subtitle1" color="textSecondary">
+              Open: {isOpen ? 'Yes' : 'No'}
+            </Typography>
+          }
           {updaterACLId && (
             <Typography variant="subtitle1" color="textSecondary">
               Updater:{' '}

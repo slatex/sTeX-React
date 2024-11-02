@@ -8,6 +8,7 @@ import {
   Typography,
   InputAdornment,
   IconButton,
+  Alert,
 } from '@mui/material';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import GroupIcon from '@mui/icons-material/Group';
@@ -27,6 +28,7 @@ const CreateACl: NextPage = () => {
   const [tempMemberUserId, setTempMemberUserId] = useState<string>('');
   const [tempMemberACL, setTempMemberACL] = useState<string>('');
   const [isInvalid, setIsInvalid] = useState<string>('');
+  const [error, setError] = useState<string>('');
   const [isUpdaterACLValid, setIsUpdaterACLValid] = useState<boolean>(true);
   const router = useRouter();
 
@@ -61,6 +63,7 @@ const CreateACl: NextPage = () => {
   };
 
   const handleSubmit = async () => {
+    setError('');
     const newAcl: CreateACLRequest = {
       id: aclId,
       description,
@@ -74,6 +77,7 @@ const CreateACl: NextPage = () => {
       router.replace(`/acl/${aclId}`);
     } catch (e) {
       console.log(e);
+      setError(e.message);
     }
   };
 
@@ -215,6 +219,7 @@ const CreateACl: NextPage = () => {
         >
           Create
         </Button>
+        {error && <Alert severity="error">{"Something went wrong"}</Alert>}
       </Box>
     </MainLayout>
   );
