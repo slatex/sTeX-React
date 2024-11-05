@@ -66,9 +66,10 @@ export async function purgeStudyBuddyData() {
   return resp.data as StudyBuddy;
 }
 
-export async function getStudyBuddyUsersStats(courseId: string) {
+export async function getStudyBuddyUsersStats(courseId: string, instanceId: string) {
   const resp = await axios.get(`/api/study-buddy/get-users-stats/${courseId}`, {
     headers: getAuthHeaders(),
+    params: { instanceId },
   });
   return resp.data as UserStats;
 }
@@ -81,10 +82,10 @@ export async function getAllUsersStats(instanceId: string) {
   return resp.data;
 }
 
-export async function getStudyBuddyCoursesSortedbyConnections() {
+export async function getStudyBuddyCoursesSortedbyConnections(instanceId: string) {
   const resp = await axios.get<GetSortedCoursesByConnectionsResponse[]>(
     '/api/study-buddy/get-courses-sortedby-connections',
-    { headers: getAuthHeaders() }
+    { headers: getAuthHeaders(), params: { instanceId } }
   );
   return resp.data;
 }
