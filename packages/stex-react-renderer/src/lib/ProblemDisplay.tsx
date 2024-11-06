@@ -47,6 +47,7 @@ import { getLocaleObject } from './lang/utils';
 import { CustomItemsContext, NoMaxWidthTooltip, mmtHTMLToReact } from './mmtParser';
 import styles from './quiz.module.scss';
 import { SubProblemAnswer } from './SubProblemAnswer';
+import { PRIMARY_COL } from '@stex-react/utils';
 
 function BpRadio(props: RadioProps) {
   return <Radio disableRipple color="default" {...props} />;
@@ -541,19 +542,23 @@ export function ProblemDisplay({
         <CustomItemsContext.Provider value={{ items: customItems }}>
           <DocumentWidthSetter>{mmtHTMLToReact(statement)}</DocumentWidthSetter>
         </CustomItemsContext.Provider>
-        {!isFrozen &&
-          problem.subProblemData.map((c, i) => (
-            <>
+        {problem.subProblemData.map((c, i) => (
+          <>
+            {isFrozen ? (
+              <span style={{ color: PRIMARY_COL, fontWeight: 'bold' }}> You Answered </span>
+            ) : (
               <span> Answer {i + 1}</span>
-              <SubProblemAnswer
-                homeworkId={homeworkId}
-                problemHeader={problem.header}
-                questionId={uri ? uri : problemId}
-                subProblemId={i.toString()}
-                subProblem={c}
-              ></SubProblemAnswer>
-            </>
-          ))}
+            )}
+            <SubProblemAnswer
+              homeworkId={homeworkId}
+              problemHeader={problem.header}
+              questionId={uri ? uri : problemId}
+              subProblemId={i.toString()}
+              subProblem={c}
+              isFrozen={isFrozen}
+            ></SubProblemAnswer>
+          </>
+        ))}
         {debug && (
           <>
             {inlineSCQInputs.map((inlineInput) => (
