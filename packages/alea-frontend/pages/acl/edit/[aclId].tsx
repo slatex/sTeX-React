@@ -15,7 +15,7 @@ import GroupIcon from '@mui/icons-material/Group';
 import { NextPage } from 'next';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
+import MainLayout from '../../../layouts/MainLayout';
 import { UpdateACLRequest, getAcl, isValid, updateAcl } from '@stex-react/api';
 
 const UpdateAcl: NextPage = () => {
@@ -105,7 +105,8 @@ const UpdateAcl: NextPage = () => {
       await updateAcl(updatedAcl);
       router.replace(`/acl/${aclId}`);
     } catch (e) {
-      console.log(e);
+      console.error(e);
+      setError(e.message);
     }
   };
 
