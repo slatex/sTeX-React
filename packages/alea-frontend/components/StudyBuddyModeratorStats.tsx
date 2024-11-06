@@ -1,9 +1,7 @@
-import { Card, CardContent, Typography } from '@mui/material';
+import { Card, CardContent } from '@mui/material';
 import { AllCoursesStats, UserStats, getStudyBuddyUsersStats } from '@stex-react/api';
 import dynamic from 'next/dynamic';
-import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { getLocaleObject } from '../lang/utils';
 import StudyBuddyModeratorOverview from './StudyBuddyModeratorOverview';
 
 const StudyBuddyConnectionsGraph = dynamic(() => import('./StudyBuddyConnectionsGraph'), {
@@ -11,8 +9,6 @@ const StudyBuddyConnectionsGraph = dynamic(() => import('./StudyBuddyConnections
 });
 
 export function StudyBuddyModeratorStats({ courseId }: { courseId: string }) {
-  const router = useRouter();
-  const { studyBuddy: t } = getLocaleObject(router);
   const [overviewData, setOverviewData] = useState<AllCoursesStats>();
   const [connections, setConnections] = useState<UserStats['connections']>([]);
   const [userIdsAndActiveStatus, setUserIdsAndActiveStatus] = useState([]);
