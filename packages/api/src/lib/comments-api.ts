@@ -284,3 +284,8 @@ export async function generateApfelToken(userId: string, time: number) {
   const response = await axios.post('/api/generate-apfel-token', { userId, time });
   return response.data;
 }
+
+export async function checkUserExist() {
+  const response = await axios.post('/api/check-user-exist',{}, { headers: getAuthHeaders() });
+  return response.data;
+}

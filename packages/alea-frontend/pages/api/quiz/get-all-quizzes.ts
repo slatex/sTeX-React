@@ -16,5 +16,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   );
   if (!userId) return;
 
-  res.status(200).json(getAllQuizzes());
+  const relevantQuizzes = getAllQuizzes().filter(
+    (quiz) => quiz.courseId === courseId && quiz.courseTerm === instanceId
+  );
+  res.status(200).json(relevantQuizzes);
 }

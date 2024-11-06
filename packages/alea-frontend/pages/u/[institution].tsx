@@ -130,7 +130,7 @@ export function CourseThumb({ course }: { course: CourseInfo }) {
             </Link>
           </Tooltip>
 
-          {hasQuiz && (
+          {(
             <Tooltip title={t.quizzes}>
               <Link href={quizzesLink} passHref>
                 <ColoredIconButton>

@@ -1,47 +1,57 @@
-import { useState, useEffect } from 'react';
 import {
+  Alert,
   Box,
   Button,
-  Typography,
-  Snackbar,
   Dialog,
-  DialogTitle,
   DialogActions,
   DialogContent,
   DialogContentText,
-  Alert,
+  DialogTitle,
+  Snackbar,
 } from '@mui/material';
+import { useEffect, useState } from 'react';
 
-import dayjs from 'dayjs';
-import { CURRENT_TERM } from '@stex-react/utils';
 import {
-  HomeworkInfo,
-  getHomeworkList,
   createHomework,
-  updateHomework,
-  deleteHomework,
-  UpdateHomeworkRequest,
   CreateHomeworkRequest,
+  deleteHomework,
+  getHomeworkList,
+  HomeworkInfo,
+  HomeworkStub,
+  updateHomework,
+  UpdateHomeworkRequest,
 } from '@stex-react/api';
-import { getLocaleObject } from '../lang/utils';
+import { CURRENT_TERM } from '@stex-react/utils';
 import { useRouter } from 'next/router';
+import { getLocaleObject } from '../lang/utils';
 import HomeworkForm from './HomeworkForm';
 import HomeworkList from './HomeworkList';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+
+function timestampNow() {
+  return new Date();
+}
+
+function timestampEOD() {
+  let date = new Date();
+  date.setHours(23, 59, 59);
+  return date;
+}
 
 const HomeworkManager = ({ courseId }) => {
-  const [homeworks, setHomeworks] = useState<HomeworkInfo[]>([]);
-  const [homeworkId, setHomeworkId] = useState<number | null>(null);
-  const [homeworkName, setHomeworkName] = useState('');
-  const [homeworkGivenDate, setHomeworkGivenDate] = useState('');
-  const [answerReleaseDate, setAnswerReleaseDate] = useState('');
-  const [archive, setArchive] = useState('');
-  const [filepath, setFilepath] = useState('');
+  const [homeworks, setHomeworks] = useState<HomeworkStub[]>([]);
+  const [id, setId] = useState<number | null>(null);
+  const [title, setTitle] = useState('');
+  const [problems, setProblems] = useState<Record<string, string>>({});
+  const [givenTs, setGivenTs] = useState(timestampNow());
+  const [dueTs, setDueTs] = useState(timestampEOD());
+  const [feedbackReleaseTs, setFeedbackReleaseTs] = useState(timestampEOD());
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [message, setMessage] = useState('');
   const [view, setView] = useState<'list' | 'create' | 'edit'>('list');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedHomeworkId, setSelectedHomeworkId] = useState<number | null>(null);
-  const { homeworkManager: t } = getLocaleObject(useRouter());
 
   const getHomeworks = async () => {
     try {
@@ -61,23 +71,27 @@ const HomeworkManager = ({ courseId }) => {
   }, [view, courseId]);
 
   const handleSave = async () => {
-    const body = {
-      homeworkName,
-      homeworkGivenDate,
-      answerReleaseDate,
-      archive,
-      filepath,
-      ...(homeworkId ? { homeworkId } : {}),
-      courseId,
-      courseInstance: CURRENT_TERM,
+    let body = {
+      givenTs: dayjs(givenTs).format('YYYY-MM-DDTHH:mm:ssZ'),
+      dueTs: dayjs(dueTs).format('YYYY-MM-DDTHH:mm:ssZ'),
+      feedbackReleaseTs: dayjs(feedbackReleaseTs).format('YYYY-MM-DDTHH:mm:ssZ'),
+      title,
+      problems,
+      ...(id ? { id } : {}),
     };
 
     try {
       let response;
-      if (homeworkId) {
-        response = await updateHomework(body as UpdateHomeworkRequest);
+      if (id) {
+        const updateRequest: UpdateHomeworkRequest = { ...body, id };
+        response = await updateHomework(updateRequest);
       } else {
-        response = await createHomework(body as CreateHomeworkRequest);
+        const createRequest: CreateHomeworkRequest = {
+          ...body,
+          courseId,
+          courseInstance: CURRENT_TERM,
+        };
+        response = await createHomework(createRequest);
       }
       setMessage(response.data.message);
       setOpenSnackbar(true);
@@ -91,16 +105,15 @@ const HomeworkManager = ({ courseId }) => {
   };
 
   const handleEdit = (homework: HomeworkInfo) => {
-    setHomeworkId(homework.homeworkId);
-    setHomeworkName(homework.homeworkName);
-    const formattedGivenDate = dayjs(homework.homeworkGivenDate).format('YYYY-MM-DD');
-    setHomeworkGivenDate(formattedGivenDate);
-    const formattedReleaseDate = dayjs(homework.answerReleaseDate).format('YYYY-MM-DD');
-    setAnswerReleaseDate(formattedReleaseDate);
-    setArchive(homework.archive);
-    setFilepath(homework.filepath);
+    setId(homework.id);
+    setGivenTs(new Date(homework.givenTs));
+    setDueTs(new Date(homework.dueTs));
+    setFeedbackReleaseTs(new Date(homework.feedbackReleaseTs));
+    setTitle(homework.title);
+    setProblems(homework.problems);
     setView('edit');
   };
+
   const handleDelete = async () => {
     if (selectedHomeworkId) {
       try {
@@ -122,15 +135,15 @@ const HomeworkManager = ({ courseId }) => {
   };
 
   const resetForm = (isCancelled = true) => {
-    setHomeworkId(null);
-    setHomeworkName('');
-    setHomeworkGivenDate('');
-    setAnswerReleaseDate('');
-    setArchive('');
-    setFilepath('');
+    setId(null);
+    setTitle('');
+    setProblems({});
+    setGivenTs(timestampNow());
+    setDueTs(timestampEOD());
+    setFeedbackReleaseTs(timestampEOD());
     setView('list');
     if (isCancelled) {
-      if (homeworkId) {
+      if (id) {
         setMessage('Homework updation cancelled');
       } else {
         setMessage('Homework creation cancelled');
@@ -144,51 +157,53 @@ const HomeworkManager = ({ courseId }) => {
   };
 
   return (
-    <Box
-      maxWidth="900px"
-      sx={{
-        margin: '0 auto',
-        padding: '0 16px',
-      }}
-    >
+    <Box maxWidth="lg" sx={{ m: '0 auto', p: '0 16px' }}>
       <Box
         sx={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          mt: 3,
-          px: 3,
-          py: 3,
+          mt: 2,
+          p: 3,
           border: '1px solid #ccc',
           borderRadius: 2,
         }}
       >
         {view === 'list' && (
           <HomeworkList
-            homeworks={homeworks}
-            t={t}
+            homeworkStubs={homeworks}
             handleEdit={handleEdit}
             confirmDelete={confirmDelete}
-            setView={setView}
+            onCreate={()=>setView('create')}
           />
         )}
         {view === 'create' || view === 'edit' ? (
           <HomeworkForm
-            homeworkName={homeworkName}
-            homeworkId={homeworkId}
-            setHomeworkName={setHomeworkName}
-            homeworkGivenDate={homeworkGivenDate}
-            setHomeworkGivenDate={setHomeworkGivenDate}
-            answerReleaseDate={answerReleaseDate}
-            setAnswerReleaseDate={setAnswerReleaseDate}
-            archive={archive}
-            setArchive={setArchive}
-            filepath={filepath}
-            setFilepath={setFilepath}
+            id={id}
+            title={title}
+            givenTs={givenTs}
+            dueTs={dueTs}
+            feedbackReleaseTs={feedbackReleaseTs}
+            setGivenTs={(givenTs) => {
+              setGivenTs(givenTs);
+              if (dueTs < givenTs) setDueTs(givenTs);
+              if (feedbackReleaseTs < givenTs) setFeedbackReleaseTs(givenTs);
+            }}
+            setDueTs={(dueTs) => {
+              if (dueTs < givenTs) setGivenTs(dueTs);
+              setDueTs(dueTs);
+              if (feedbackReleaseTs < dueTs) setFeedbackReleaseTs(dueTs);
+            }}
+            setFeedbackReleaseTs={(feedbackReleaseTs) => {
+              if (feedbackReleaseTs < givenTs) setGivenTs(feedbackReleaseTs);
+              if (feedbackReleaseTs < dueTs) setDueTs(feedbackReleaseTs);
+              setFeedbackReleaseTs(feedbackReleaseTs);
+            }}
+            setTitle={setTitle}
+            problems={problems}
+            setProblems={setProblems}
             handleSave={handleSave}
             resetForm={resetForm}
-            view={view}
-            t={t}
           />
         ) : null}
 

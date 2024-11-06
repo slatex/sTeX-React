@@ -168,22 +168,31 @@ SELECT DISTINCT t1.senderId, t1.receiverId FROM StudyBuddyConnections t1 JOIN St
 
 /* Query to get 1-way connection requests */
 SELECT t1.senderId, t1.receiverId FROM StudyBuddyConnections t1 LEFT JOIN StudyBuddyConnections t2 ON t1.senderId = t2.receiverId AND t1.receiverId = t2.senderId WHERE t2.senderId IS NULL AND t2.receiverId IS NULL AND t1.senderId < t1.receiverId;
+
 CREATE TABLE Answer  (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   questionId varchar(255) NOT NULL,
+  subProblemId varchar(255) NULL,
   userId varchar(255) NOT NULL,
   answer TEXT NULL,
-  questionTitle varchar(510) NOT NULL,
+  questionTitle TEXT NULL,
+  courseId varchar(255) NULL,
+  courseInstance varchar(255) NULL,
+  homeworkId INT NULL,
+
   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
 CREATE TABLE Grading  (
   id int UNSIGNED NOT NULL AUTO_INCREMENT,
   checkerId varchar(255) NOT NULL,
   answerId int UNSIGNED NOT NULL,
   customFeedback TEXT NULL,
   totalPoints float NOT NULL,
-    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  homeworkId INT NULL,
+
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   FOREIGN KEY (answerId) REFERENCES Answer (id) ON DELETE CASCADE
@@ -215,12 +224,34 @@ CREATE TABLE ReviewRequest   (
 );
 
 CREATE TABLE homework (
-    homeworkId INT PRIMARY KEY AUTO_INCREMENT,    
-    homeworkName VARCHAR(255),          
-    homeworkGivenDate DATE,                  
-    answerReleaseDate DATE,                  
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    versionNo INT,
+    title VARCHAR(255),          
+    givenTs TIMESTAMP,
+    dueTs TIMESTAMP,                  
+    feedbackReleaseTs TIMESTAMP,                  
     courseId VARCHAR(255),                
-    courseInstance VARCHAR(255),                   
-    archive VARCHAR(255),                          
-    filepath VARCHAR(255)                        
+    courseInstance VARCHAR(255),
+    problems JSON,
+    updaterId VARCHAR(255),
+
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE homeworkHistory (
+    id INT,
+    versionNo INT,
+    title VARCHAR(255),          
+    givenTs TIMESTAMP,
+    dueTs TIMESTAMP,                  
+    feedbackReleaseTs TIMESTAMP,                  
+    courseId VARCHAR(255),                
+    courseInstance VARCHAR(255),
+    problems JSON,
+    updaterId VARCHAR(255),
+    
+    createdAt TIMESTAMP,
+    
+    PRIMARY KEY (id, versionNo)   
 );
