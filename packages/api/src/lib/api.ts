@@ -11,6 +11,7 @@ export * from './lms';
 export * from './misc';
 export * from './mmt';
 export * from './nap';
+export * from './nap-api';
 export * from './next-api';
 export * from './notifications';
 export * from './notifications-api';

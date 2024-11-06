@@ -6,13 +6,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import IndeterminateCheckBoxIcon from '@mui/icons-material/IndeterminateCheckBox';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Dialog,
-  IconButton,
-} from '@mui/material';
+import { Box, Button, CircularProgress, Dialog, IconButton } from '@mui/material';
 import {
   InputResponse,
   InputType,
@@ -40,18 +34,13 @@ function isNonEmptyResponse(resp: InputResponse) {
     case InputType.SCQ:
       return !!resp.singleOptionIdx?.length;
     case InputType.MCQ:
-      return Object.values(resp.multipleOptionIdxs ?? {}).some(
-        (v) => v === true
-      );
+      return Object.values(resp.multipleOptionIdxs ?? {}).some((v) => v === true);
   }
   return false;
 }
 
 function numInputsResponded(r: ProblemResponse) {
-  return r.responses.reduce(
-    (prev, resp) => prev + (isNonEmptyResponse(resp) ? 1 : 0),
-    0
-  );
+  return r.responses.reduce((prev, resp) => prev + (isNonEmptyResponse(resp) ? 1 : 0), 0);
 }
 
 function roundedScore(points: { [problemId: string]: number | undefined }) {
@@ -122,8 +111,7 @@ function IndexEntry({
         <span>
           &nbsp;{t.problem} {idx + 1}&nbsp;
         </span>
-        {isCorrectnessKnown &&
-          (isCorrect ? <CheckCircleIcon /> : <CancelIcon />)}
+        {isCorrectnessKnown && (isCorrect ? <CheckCircleIcon /> : <CancelIcon />)}
       </Box>
       {showClock && (
         <Box fontSize="12px">
@@ -243,6 +231,7 @@ export function QuizDisplay({
   isFrozen,
   debug = false,
   showRecordOption = false,
+  homeworkId,
 }: {
   quizEndTs?: number;
   showPerProblemTime: boolean;
@@ -258,6 +247,7 @@ export function QuizDisplay({
     result: { [problemId: string]: number | undefined }
   ) => void;
   showRecordOption?: boolean;
+  homeworkId?: number;
 }) {
   const { quiz: t } = getLocaleObject(useRouter());
   const [points, setPoints] = useState<{
@@ -320,8 +310,7 @@ export function QuizDisplay({
   }
 
   if (problemIds.length === 0) return <CircularProgress />;
-  if (Object.keys(responses).length !== problemIds.length)
-    return <CircularProgress size="2em" />;
+  if (Object.keys(responses).length !== problemIds.length) return <CircularProgress size="2em" />;
   const response = responses[currentProblemId];
   const problem = problems[currentProblemId];
 
@@ -367,6 +356,8 @@ export function QuizDisplay({
             r={response}
             //problemUrl={problemUrl}
             debug={debug}
+            homeworkId={homeworkId}
+            problemId={problemIds[problemIdx]}
             problem={problem}
             isFrozen={isFrozen}
             onResponseUpdate={(response) => {
@@ -406,22 +397,14 @@ export function QuizDisplay({
             )}
           </i>
         ) : (
-          <i style={{ margin: '20px 0', color: '#333', fontSize: '26px' }}>
-            {t.feedbackAwaited}
-          </i>
+          <i style={{ margin: '20px 0', color: '#333', fontSize: '26px' }}>{t.feedbackAwaited}</i>
         )}
       </Box>
 
       {!!onSubmit && (
-        <Dialog
-          open={showSubmitDialog}
-          onClose={() => setShowSubmitDialog(false)}
-        >
+        <Dialog open={showSubmitDialog} onClose={() => setShowSubmitDialog(false)}>
           <QuizSubmitConfirm
-            left={
-              Object.values(responses).filter((r) => !numInputsResponded(r))
-                .length
-            }
+            left={Object.values(responses).filter((r) => !numInputsResponded(r)).length}
             onClose={(submit, name) => {
               setShowSubmitDialog(false);
               if (!submit) return;
@@ -429,9 +412,7 @@ export function QuizDisplay({
               onSubmit(name, events, responses, points);
               setEvents((prev) => [...prev, timerEvent(TimerEventType.SUBMIT)]);
             }}
-            showRecordOption={
-              false
-            } /*showRecordOption removed because of 'demo quiz'*/
+            showRecordOption={false} /*showRecordOption removed because of 'demo quiz'*/
           />
         </Dialog>
       )}

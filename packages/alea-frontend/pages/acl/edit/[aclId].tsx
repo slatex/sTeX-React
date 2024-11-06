@@ -8,13 +8,14 @@ import {
   Typography,
   InputAdornment,
   IconButton,
+  Alert,
 } from '@mui/material';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import GroupIcon from '@mui/icons-material/Group';
 import { NextPage } from 'next';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
+import MainLayout from '../../../layouts/MainLayout';
 import { UpdateACLRequest, getAcl, isValid, updateAcl } from '@stex-react/api';
 
 const UpdateAcl: NextPage = () => {
@@ -30,6 +31,7 @@ const UpdateAcl: NextPage = () => {
   const [tempMemberUserId, setTempMemberUserId] = useState<string>('');
   const [tempMemberACL, setTempMemberACL] = useState<string>('');
   const [isInvalid, setIsInvalid] = useState<string>('');
+  const [error, setError] = useState<string>('');
   const [isUpdaterACLValid, setIsUpdaterACLValid] = useState<boolean>(true);
   useEffect(() => {
     const fetchAclDetails = async () => {
@@ -90,6 +92,7 @@ const UpdateAcl: NextPage = () => {
   };
 
   const handleSubmit = async () => {
+    setError('');
     const updatedAcl: UpdateACLRequest = {
       id: aclId,
       description,
@@ -102,7 +105,8 @@ const UpdateAcl: NextPage = () => {
       await updateAcl(updatedAcl);
       router.replace(`/acl/${aclId}`);
     } catch (e) {
-      console.log(e);
+      console.error(e);
+      setError(e.message);
     }
   };
 
@@ -225,6 +229,7 @@ const UpdateAcl: NextPage = () => {
         >
           Update
         </Button>
+        {error && <Alert severity="error">{'Some thing went wrong'}</Alert>}
       </Box>
     </MainLayout>
   );

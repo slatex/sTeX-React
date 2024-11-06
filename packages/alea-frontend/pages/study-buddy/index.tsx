@@ -6,11 +6,17 @@ import {
   Button,
   Card,
   CardContent,
+  CircularProgress,
+  FormControl,
   IconButton,
+  InputLabel,
   List,
   ListItemButton,
   ListItemText,
+  MenuItem,
   Paper,
+  Select,
+  SelectChangeEvent,
   Table,
   TableBody,
   TableCell,
@@ -26,7 +32,6 @@ import {
   GetSortedCoursesByConnectionsResponse,
   UserInfo,
   UserStats,
-  canModerateComment,
   canModerateStudyBuddy,
   getAllUsersStats,
   getEnrolledCourseIds,
@@ -70,22 +75,26 @@ function removeRecentCourse(courseCode: string) {
     localStore?.setItem(RECENT_COURSE_KEY, chosenCourses.filter((c) => c !== courseCode).join(','));
   }
 }
-function StudyBuddyOverviewGraph() {
+function StudyBuddyOverviewGraph({ instanceId }: { instanceId: string }) {
   const [sortedCourses, setSortedCourses] = useState<GetSortedCoursesByConnectionsResponse[]>();
   const [selectedCourseIndex, setSelectedCourseIndex] = useState<string>(null);
   const [connections, setConnections] = useState<UserStats['connections']>([]);
   const [userIdsAndActiveStatus, setUserIdsAndActiveStatus] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const fetchData = () => {
-      getStudyBuddyCoursesSortedbyConnections().then(setSortedCourses);
+    const fetchData = async () => {
+      setIsLoading(true);
+      const data = await getStudyBuddyCoursesSortedbyConnections(instanceId);
+      setSortedCourses(data);
+      setIsLoading(false);
     };
     fetchData();
-  }, []);
+  }, [instanceId]);
 
   const handleListItemClick = async (courseId: string) => {
     setSelectedCourseIndex(courseId);
-    const data = await getStudyBuddyUsersStats(courseId);
+    const data = await getStudyBuddyUsersStats(courseId, instanceId);
     setConnections(data.connections);
     setUserIdsAndActiveStatus(data.userIdsAndActiveStatus);
   };
@@ -104,16 +113,22 @@ function StudyBuddyOverviewGraph() {
 
   return (
     <Box display="flex" flexWrap="wrap" gap="2px">
-      <Box sx={{ maxHeight: '400px', overflow: 'auto', flex: '240px 1 1' }}>
-        <List>{courseList}</List>
-      </Box>
-      {selectedCourseIndex === null ? null : (
-        <Box flex="400px 1 1">
-          <StudyBuddyConnectionsGraph
-            connections={connections}
-            userIdsAndActiveStatus={userIdsAndActiveStatus}
-          />
-        </Box>
+      {isLoading ? (
+        <CircularProgress />
+      ) : (
+        <>
+          <Box sx={{ maxHeight: '400px', overflow: 'auto', flex: '240px 1 1' }}>
+            <List>{courseList}</List>
+          </Box>
+          {selectedCourseIndex === null ? null : (
+            <Box flex="400px 1 1">
+              <StudyBuddyConnectionsGraph
+                connections={connections}
+                userIdsAndActiveStatus={userIdsAndActiveStatus}
+              />
+            </Box>
+          )}
+        </>
       )}
     </Box>
   );
@@ -121,24 +136,46 @@ function StudyBuddyOverviewGraph() {
 
 function StatsForModerator() {
   const [overviewData, setOverviewData] = useState<AllCoursesStats>();
+  const [semester, setSemester] = useState('WS24-25');
   const { studyBuddy: t } = getLocaleObject(useRouter());
+
+  const handleChange = (event: SelectChangeEvent) => {
+    setSemester(event.target.value);
+  };
   useEffect(() => {
     const fetchData = async () => {
-      getAllUsersStats().then(setOverviewData);
+      getAllUsersStats(semester).then(setOverviewData);
     };
     fetchData();
-  }, []);
-
+  }, [semester]);
   return (
     <>
       <Typography variant="h4">{t.insightHeading}</Typography>
-      <Card sx={{ mt: '20px', mb: '20px' }}>
-        <CardContent>
-          <StudyBuddyModeratorOverview overviewData={overviewData} />
-          <hr />
-          <StudyBuddyOverviewGraph />
-        </CardContent>
-      </Card>
+      <Box display="flex" flexDirection="column" alignItems="center">
+        <Card sx={{ mt: '20px', mb: '20px', width: '80%' }}>
+          <CardContent>
+            <Box display="flex" width="100%" justifyContent="flex-start" mb={2}>
+              <FormControl fullWidth>
+                <InputLabel id="semester-select-label">Select Semester</InputLabel>
+                <Select
+                  labelId="semester-select-label"
+                  id="semester-select"
+                  value={semester}
+                  label="Select Semester"
+                  onChange={handleChange}
+                >
+                  <MenuItem value="WS23-24">WS23-24</MenuItem>
+                  <MenuItem value="SS24">SS24</MenuItem>
+                  <MenuItem value="WS24-25">WS24-25</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+            <StudyBuddyModeratorOverview overviewData={overviewData} />
+            <hr />
+            <StudyBuddyOverviewGraph instanceId={semester} />
+          </CardContent>
+        </Card>
+      </Box>
     </>
   );
 }

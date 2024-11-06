@@ -1,6 +1,7 @@
 import CheckIcon from '@mui/icons-material/Check';
 import EditIcon from '@mui/icons-material/Edit';
 import {
+  Alert,
   Box,
   Button,
   Grid,
@@ -104,7 +105,7 @@ const CourseAccessControlDashboard = ({ courseId }) => {
     notes: '',
     quiz: '',
     comments: '',
-    "study-buddy": '',
+    'study-buddy': '',
   });
   const [aclData, setAclData] = useState<AclData>({
     notes: '',
@@ -115,6 +116,7 @@ const CourseAccessControlDashboard = ({ courseId }) => {
   });
   const [acls, setAcls] = useState<string[]>([]);
   const [newAclId, setNewAclId] = useState('');
+  const [error, setError] = useState('');
   const handleAclClick = (aclId: string) => {
     router.push(`/acl/${aclId}`);
   };
@@ -189,14 +191,20 @@ const CourseAccessControlDashboard = ({ courseId }) => {
       setNewAclId('');
       return;
     }
-    await createAcl({
-      id: aclId,
-      description: `${newAclId} for ${courseId} (${CURRENT_TERM})`,
-      memberUserIds: [],
-      memberACLIds: [],
-      updaterACLId,
-      isOpen: false,
-    });
+    setError('');
+    try {
+      await createAcl({
+        id: aclId,
+        description: `${newAclId} for ${courseId} (${CURRENT_TERM})`,
+        memberUserIds: [],
+        memberACLIds: [],
+        updaterACLId,
+        isOpen: false,
+      });
+    } catch (e) {
+      console.error(e);
+      setError(e.message);
+    }
     setNewAclId('');
     getAcls();
   }
@@ -281,6 +289,7 @@ const CourseAccessControlDashboard = ({ courseId }) => {
           Create
         </Button>
       </Box>
+      {error && <Alert severity="error">{'Something went wrong'}</Alert>}
     </Box>
   );
 };

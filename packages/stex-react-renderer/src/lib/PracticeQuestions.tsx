@@ -54,7 +54,7 @@ export function PracticeQuestions({
 
   const problem = problems[problemIdx];
   const response = responses[problemIdx];
-  const solutions = problems[problemIdx]?.solutions;
+  const subProblems = problems[problemIdx]?.subProblemData;
 
   if (!problem || !response) return <>error</>;
 
@@ -113,15 +113,15 @@ export function PracticeQuestions({
         mb={2}
         sx={{ display: 'flex', gap: '10px', flexDirection: 'column', alignItems: 'flex-start' }}
       >
-        {solutions?.length > 0 && (
+        {subProblems?.length > 0 && (
           <Button variant="contained" onClick={() => setShowSolution(!showSolution)}>
-            {showSolution ? t.hideSolution : t.checkSolution}
+            {showSolution ? t.hideSolution : t.showSolution}
           </Button>
         )}
         {showSolution && (
           <Box mb="10px">
-            {solutions.map((solution) => (
-              <div style={{ color: '#555' }}>{mmtHTMLToReact(solution)}</div>
+            {subProblems.map((p) => (
+              <div style={{ color: '#555' }}>{mmtHTMLToReact(p.solution)}</div>
             ))}
           </Box>
         )}

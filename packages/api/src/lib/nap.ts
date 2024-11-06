@@ -19,8 +19,12 @@ export interface UpdateGradingRequest {
 }
 export interface CreateAnswerRequest {
   answer: string;
+  subProblemId: string;
   questionId: string;
+  courseInstance?: string;
   questionTitle: string;
+  courseId: string;
+  homeworkId?: number;
 }
 export interface UpdateAnswerRequest {
   answer: string;
@@ -31,14 +35,18 @@ export interface CreateReviewRequest {
   reviewType: ReviewType;
 }
 export enum ReviewType {
-  PEER = 'Peer',
+  PEER = 'PEER',
   INSTRUCTOR = 'INSTRUCTOR',
 }
 export interface AnswerResponse {
+  graded: boolean;
+  reviewRequests: ReviewType[];
   id: number;
   questionId: string;
+  subProblemId: string;
   userId: string;
   answer: string;
+  courseInstance: string;
   questionTitle: string;
   createdAt: Date;
   updatedAt: Date;
@@ -63,4 +71,8 @@ export interface AnswerClassResponse {
   title: string;
   description: string; //from API
   count: number;
+}
+export interface ReviewRequest {
+  answer: { id: number; answerId: number; questionTitle: string; updatedAt: Date }[];
+  questionTitle: string;
 }

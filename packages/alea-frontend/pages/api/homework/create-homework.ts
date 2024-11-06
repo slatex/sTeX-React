@@ -2,18 +2,12 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { checkIfPostOrSetError, executeAndEndSet500OnError } from '../comment-utils';
 import { getUserIdIfAuthorizedOrSetError } from '../access-control/resource-utils';
 import { Action, ResourceName } from '@stex-react/utils';
+import { CreateHomeworkRequest } from '@stex-react/api';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
-  const {
-    homeworkName,
-    homeworkGivenDate,
-    answerReleaseDate,
-    courseId,
-    courseInstance,
-    archive,
-    filepath,
-  } = req.body;
+  const { title, givenTs, dueTs, feedbackReleaseTs, courseId, courseInstance, problems } =
+    req.body as CreateHomeworkRequest;
   const userId = await getUserIdIfAuthorizedOrSetError(
     req,
     res,
@@ -23,18 +17,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   );
   if (!userId) return;
   const result = await executeAndEndSet500OnError(
-    'INSERT INTO homework (homeworkName, homeworkGivenDate,answerReleaseDate, courseId, courseInstance, archive, filepath) VALUES (?, ?, ?,?, ?, ?, ?)',
-    [
-      homeworkName,
-      homeworkGivenDate,
-      answerReleaseDate,
-      courseId,
-      courseInstance,
-      archive,
-      filepath,
-    ],
+    'INSERT INTO homework (versionNo, title, givenTs, dueTs, feedbackReleaseTs, courseId, courseInstance, problems, updaterId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    [0, title, givenTs, dueTs, feedbackReleaseTs, courseId, courseInstance, JSON.stringify(problems), userId],
     res
   );
   if (!result) return;
-  res.status(200).json({ result, message: 'Homework added successfully!' });
+  res.status(200).end();
 }
