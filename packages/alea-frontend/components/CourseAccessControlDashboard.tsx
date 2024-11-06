@@ -105,7 +105,7 @@ const CourseAccessControlDashboard = ({ courseId }) => {
     notes: '',
     quiz: '',
     comments: '',
-    "study-buddy": '',
+    'study-buddy': '',
   });
   const [aclData, setAclData] = useState<AclData>({
     notes: '',
@@ -192,7 +192,7 @@ const CourseAccessControlDashboard = ({ courseId }) => {
       return;
     }
     setError('');
-    try{
+    try {
       await createAcl({
         id: aclId,
         description: `${newAclId} for ${courseId} (${CURRENT_TERM})`,
@@ -201,7 +201,8 @@ const CourseAccessControlDashboard = ({ courseId }) => {
         updaterACLId,
         isOpen: false,
       });
-    }catch(e){
+    } catch (e) {
+      console.error(e);
       setError(e.message);
     }
     setNewAclId('');
@@ -288,7 +289,7 @@ const CourseAccessControlDashboard = ({ courseId }) => {
           Create
         </Button>
       </Box>
-      {error && <Alert severity="error">{"Something went wrong"}</Alert>}
+      {error && <Alert severity="error">{'Something went wrong'}</Alert>}
     </Box>
   );
 };

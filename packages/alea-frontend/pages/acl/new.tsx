@@ -76,7 +76,7 @@ const CreateACl: NextPage = () => {
       await createAcl(newAcl);
       router.replace(`/acl/${aclId}`);
     } catch (e) {
-      console.log(e);
+      console.error(e);
       setError(e.message);
     }
   };
