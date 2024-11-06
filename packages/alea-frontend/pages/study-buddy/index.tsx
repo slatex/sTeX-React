@@ -6,6 +6,7 @@ import {
   Button,
   Card,
   CardContent,
+  CircularProgress,
   FormControl,
   IconButton,
   InputLabel,
@@ -31,7 +32,6 @@ import {
   GetSortedCoursesByConnectionsResponse,
   UserInfo,
   UserStats,
-  canModerateComment,
   canModerateStudyBuddy,
   getAllUsersStats,
   getEnrolledCourseIds,
@@ -75,22 +75,26 @@ function removeRecentCourse(courseCode: string) {
     localStore?.setItem(RECENT_COURSE_KEY, chosenCourses.filter((c) => c !== courseCode).join(','));
   }
 }
-function StudyBuddyOverviewGraph() {
+function StudyBuddyOverviewGraph({ instanceId }: { instanceId: string }) {
   const [sortedCourses, setSortedCourses] = useState<GetSortedCoursesByConnectionsResponse[]>();
   const [selectedCourseIndex, setSelectedCourseIndex] = useState<string>(null);
   const [connections, setConnections] = useState<UserStats['connections']>([]);
   const [userIdsAndActiveStatus, setUserIdsAndActiveStatus] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const fetchData = () => {
-      getStudyBuddyCoursesSortedbyConnections().then(setSortedCourses);
+    const fetchData = async () => {
+      setIsLoading(true);
+      const data = await getStudyBuddyCoursesSortedbyConnections(instanceId);
+      setSortedCourses(data);
+      setIsLoading(false);
     };
     fetchData();
-  }, []);
+  }, [instanceId]);
 
   const handleListItemClick = async (courseId: string) => {
     setSelectedCourseIndex(courseId);
-    const data = await getStudyBuddyUsersStats(courseId);
+    const data = await getStudyBuddyUsersStats(courseId, instanceId);
     setConnections(data.connections);
     setUserIdsAndActiveStatus(data.userIdsAndActiveStatus);
   };
@@ -109,16 +113,22 @@ function StudyBuddyOverviewGraph() {
 
   return (
     <Box display="flex" flexWrap="wrap" gap="2px">
-      <Box sx={{ maxHeight: '400px', overflow: 'auto', flex: '240px 1 1' }}>
-        <List>{courseList}</List>
-      </Box>
-      {selectedCourseIndex === null ? null : (
-        <Box flex="400px 1 1">
-          <StudyBuddyConnectionsGraph
-            connections={connections}
-            userIdsAndActiveStatus={userIdsAndActiveStatus}
-          />
-        </Box>
+      {isLoading ? (
+        <CircularProgress />
+      ) : (
+        <>
+          <Box sx={{ maxHeight: '400px', overflow: 'auto', flex: '240px 1 1' }}>
+            <List>{courseList}</List>
+          </Box>
+          {selectedCourseIndex === null ? null : (
+            <Box flex="400px 1 1">
+              <StudyBuddyConnectionsGraph
+                connections={connections}
+                userIdsAndActiveStatus={userIdsAndActiveStatus}
+              />
+            </Box>
+          )}
+        </>
       )}
     </Box>
   );
@@ -162,7 +172,7 @@ function StatsForModerator() {
             </Box>
             <StudyBuddyModeratorOverview overviewData={overviewData} />
             <hr />
-            <StudyBuddyOverviewGraph />
+            <StudyBuddyOverviewGraph instanceId={semester} />
           </CardContent>
         </Card>
       </Box>
