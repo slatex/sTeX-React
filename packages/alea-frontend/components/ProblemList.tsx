@@ -1,12 +1,22 @@
-import { Box, Button, List, ListItem, ListItemText, Paper, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  List,
+  ListItem,
+  ListItemText,
+  Paper,
+  Typography,
+} from '@mui/material';
 import { SectionsAPIData } from '@stex-react/api';
 import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import { PRIMARY_COL } from '@stex-react/utils';
 import axios from 'axios';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { FC, useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
-import Link from 'next/link';
 
 interface TitleMetadata {
   title: string;
@@ -72,6 +82,7 @@ const ProblemList: FC<ProblemListProps> = ({ courseSections, courseId }) => {
   const router = useRouter();
   const { practiceProblems: t } = getLocaleObject(router);
   const scrollPosition = useScrollPosition();
+  const [showSubsections, setShowSubsections] = useState(false);
 
   useEffect(() => {
     if (!courseId) return;
@@ -121,6 +132,16 @@ const ProblemList: FC<ProblemListProps> = ({ courseSections, courseId }) => {
         {t.practiceProblemsDescription}
       </Typography>
 
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={showSubsections}
+            onChange={() => setShowSubsections(!showSubsections)}
+          />
+        }
+        label="Show subsections"
+      />
+
       <Paper
         sx={{
           p: { xs: 1, sm: 3 },
@@ -134,15 +155,19 @@ const ProblemList: FC<ProblemListProps> = ({ courseSections, courseId }) => {
       >
         <List>
           {titlesAndMetadata.map((item, index) => {
-            if (item.level !== 2 && item.level !== 4 && item.level !== 6) return null;
+            if (item.level !== 2 && item.level !== 4 && !(item.level === 6 && showSubsections))
+              return null;
             const isChapter = item.level === 2;
+            const isSubSection = item.level === 6;
             const problemCount = problemCounts[item.id] || 0;
             const isEnabled = problemCount > 0;
             const isBold = isChapter;
             const fontWeight = isBold ? 'bold' : 'normal';
             const backgroundColor = '#f0f4f8';
             const borderRadius = '8px';
-            const fontSize = isChapter ? '1.125rem' : '1rem';
+            const fontStyle = isSubSection ? 'italic' : 'normal';
+            const fontSize = isChapter ? '1.125rem' : isSubSection ? '0.875rem' : '1rem';
+            const compress = isSubSection && problemCount === 0;
 
             return (
               <ListItem
@@ -154,7 +179,8 @@ const ProblemList: FC<ProblemListProps> = ({ courseSections, courseId }) => {
                   justifyContent: 'space-between',
                   backgroundColor,
                   borderRadius,
-                  marginBottom: 1,
+                  my: compress ? 0 : 0.5,
+                  py: compress ? 0 : 1,
                   cursor: isEnabled ? 'pointer' : undefined,
                   transition: 'background-color 0.3s ease, transform 0.2s ease',
                   '&:hover': isEnabled && {
@@ -176,11 +202,15 @@ const ProblemList: FC<ProblemListProps> = ({ courseSections, courseId }) => {
                         variant="h6"
                         component="div"
                         color="primary"
-                        sx={{ fontWeight, fontSize, '& > *': { textAlign: 'left !important' } }}
+                        sx={{
+                          fontWeight,
+                          fontStyle,
+                          fontSize,
+                          '& > *': { textAlign: 'left !important' },
+                        }}
                       >
                         {item.title ? (
                           <>
-                            {' '}
                             <Link
                               href={`/course-notes/${courseId}?inDocPath=~${item.id}`}
                               rel="noopener noreferrer"
@@ -191,15 +221,16 @@ const ProblemList: FC<ProblemListProps> = ({ courseSections, courseId }) => {
                           </>
                         ) : (
                           'Untitled'
-                        )}{' '}
+                        )}
+                        {compress && ' (None)'}
                       </Typography>
-                      {problemCount >= 0 && (
+                      {!compress && (
                         <Typography
                           component="div"
                           variant="body2"
                           sx={{
                             color: 'grey',
-                            fontSize: '0.9rem',
+                            fontSize,
                             marginTop: '4px',
                             fontWeight: 300,
                           }}
