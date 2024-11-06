@@ -75,7 +75,9 @@ function IndexEntry({
   const isCorrectnessKnown = isFrozen && points !== undefined;
   const isPartiallyCorrect = points && points > 0;
   const isCorrect = points === problem.points;
-  const color = isCorrectnessKnown
+  const color = isHomeWork
+    ? '#333'
+    : isCorrectnessKnown
     ? isCorrect
       ? 'green'
       : isPartiallyCorrect
@@ -394,15 +396,17 @@ export function QuizDisplay({
               {t.finish}
             </Button>
           )
-        ) : !Object.values(points).some((s) => s === undefined) ? ( isHomeWork &&
-          <i style={{ margin: '20px 0', color: '#333', fontSize: '26px' }}>
-            {t.youScored.replace('$1', roundedScore(points)).replace(
-              '$2',
-              Object.values(problems)
-                .reduce((a, b) => a + b.points, 0)
-                .toString()
-            )}
-          </i>
+        ) : !Object.values(points).some((s) => s === undefined) ? (
+          !isHomeWork && (
+            <i style={{ margin: '20px 0', color: '#333', fontSize: '26px' }}>
+              {t.youScored.replace('$1', roundedScore(points)).replace(
+                '$2',
+                Object.values(problems)
+                  .reduce((a, b) => a + b.points, 0)
+                  .toString()
+              )}
+            </i>
+          )
         ) : (
           <i style={{ margin: '20px 0', color: '#333', fontSize: '26px' }}>{t.feedbackAwaited}</i>
         )}
