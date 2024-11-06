@@ -14,6 +14,20 @@ const db = mysql({
   },
 });
 
+const TO_BE_EXCUSED = {
+  'ai-1': {
+    'quiz-e02ee9f5': [
+      'li24qeku', // Xinyue Zhang
+      'ki61hevu', // Jingxuan Yang
+    ],
+  },
+  'lbs': {
+    'quiz-0bc0d1ca': [
+      'er86inin', // Mahmoud Mohamed
+    ],
+  }
+}
+
 export interface QuizData {
   score: number;
   percentage: number;

@@ -1,93 +1,113 @@
 import { Box, Button, TextField, Typography } from '@mui/material';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { PRIMARY_COL } from '@stex-react/utils';
-import Link from 'next/link';
+import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
+import dayjs from 'dayjs';
+import { useRouter } from 'next/router';
+import { getLocaleObject } from '../lang/utils';
+import { QuizFileReader } from './QuizFileReader';
 
 const HomeworkForm = ({
-  homeworkName,
-  setHomeworkName,
-  homeworkGivenDate,
-  setHomeworkGivenDate,
-  answerReleaseDate,
-  setAnswerReleaseDate,
-  homeworkId,
-  archive,
-  setArchive,
-  filepath,
-  setFilepath,
+  title,
+  givenTs,
+  setGivenTs,
+  dueTs,
+  setDueTs,
+  feedbackReleaseTs,
+  setFeedbackReleaseTs,
+  setTitle,
+  problems,
+  setProblems,
+  id,
   handleSave,
   resetForm,
-  view,
-  t,
+}: {
+  title?: string;
+  givenTs: Date;
+  setGivenTs: (value: Date) => void;
+  dueTs: Date;
+  setDueTs: (value: Date) => void;
+  feedbackReleaseTs: Date;
+  setFeedbackReleaseTs: (value: Date) => void;
+  setTitle: (title: string) => void;
+  problems: { [problemId: string]: string };
+  setProblems: (problems: { [problemId: string]: string }) => void;
+  id: number | null;
+  handleSave: () => void;
+  resetForm: () => void;
 }) => {
-  const sourcePath = filepath.replace('xhtml', 'tex');
+  const { homeworkManager: t } = getLocaleObject(useRouter());
+  const isCreate = !id;
   return (
-    <Box
-      sx={{
-        width: '100%',
-        mt: 3,
-      }}
-    >
+    <Box sx={{ width: '100%', mt: 3 }}>
       <Typography variant="h6" gutterBottom>
-        {view === 'create' ? t.createHomework : t.updateHomework}
+        {isCreate ? t.createHomework : t.updateHomework}
       </Typography>
-      <TextField
-        label={t.homeworkName}
-        value={homeworkName}
-        onChange={(e) => setHomeworkName(e.target.value)}
-        fullWidth
-        sx={{ mb: 2 }}
-      />
-      <TextField
-        label={t.homeworkGivenDate}
-        type="date"
-        value={homeworkGivenDate}
-        onChange={(e) => setHomeworkGivenDate(e.target.value)}
-        fullWidth
-        sx={{ mb: 2 }}
-        InputLabelProps={{
-          shrink: true,
-        }}
-      />
-      <TextField
-        label={t.answerReleaseDate}
-        type="date"
-        value={answerReleaseDate}
-        onChange={(e) => setAnswerReleaseDate(e.target.value)}
-        fullWidth
-        sx={{ mb: 2 }}
-        InputLabelProps={{
-          shrink: true,
-        }}
-      />
-      <Box sx={{ display: 'flex', gap: 2 }}>
-        <TextField
-          label={t.archive}
-          variant="outlined"
-          fullWidth
-          value={archive}
-          onChange={(e) => setArchive(e.target.value)}
-        />
-        <TextField
-          label={t.filePath}
-          variant="outlined"
-          fullWidth
-          value={filepath}
-          onChange={(e) => setFilepath(e.target.value)}
-        />
-        <Link
-          href={`https://gl.mathhub.info/${archive}/-/blob/main/source/${sourcePath}`}
-          target="_blank"
+      {title && (
+        <Box
+          sx={{
+            px: 1,
+            color: '#888',
+            border: '1px solid #AAA',
+            borderRadius: '5px',
+            fontWeight: 'bold',
+            ':before': {
+              content: '"Title"',
+              display: 'block',
+              fontSize: 'small',
+              fontWeight: 'normal',
+            },
+          }}
         >
-          <OpenInNewIcon style={{ color: PRIMARY_COL }} />
-        </Link>
-      </Box>
+          {mmtHTMLToReact(title)}
+        </Box>
+      )}
+      <TextField
+        label="Given Date"
+        variant="outlined"
+        fullWidth
+        type="datetime-local"
+        value={dayjs(givenTs).format('YYYY-MM-DDTHH:mm')}
+        onChange={(e) => {
+          const ts = dayjs(e.target.value).valueOf();
+          setGivenTs(new Date(ts));
+        }}
+        sx={{ my: 1 }}
+        InputLabelProps={{ shrink: true }}
+      />
 
+      <TextField
+        label="Due Date"
+        variant="outlined"
+        fullWidth
+        type="datetime-local"
+        value={dayjs(dueTs).format('YYYY-MM-DDTHH:mm')}
+        onChange={(e) => {
+          const ts = dayjs(e.target.value).valueOf();
+          setDueTs(new Date(ts));
+        }}
+        sx={{ my: 1 }}
+        InputLabelProps={{ shrink: true }}
+      />
+      <TextField
+        label="Feedback Release Date"
+        variant="outlined"
+        fullWidth
+        type="datetime-local"
+        value={dayjs(feedbackReleaseTs).format('YYYY-MM-DDTHH:mm')}
+        onChange={(e) => {
+          const ts = dayjs(e.target.value).valueOf();
+          setFeedbackReleaseTs(new Date(ts));
+        }}
+        sx={{ my: 1 }}
+        InputLabelProps={{ shrink: true }}
+      />
+
+      <QuizFileReader setTitle={setTitle} setProblems={setProblems} />
+      {<i>{Object.keys(problems ?? {}).length} problems found.</i>}
       <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
         <Button variant="contained" color="primary" onClick={handleSave}>
-          {homeworkId ? t.updateHomework : t.saveHomework}
+          {isCreate ? t.saveHomework : t.updateHomework}
         </Button>
-        <Button variant="outlined" color="secondary" onClick={resetForm}>
+        <Button variant="outlined" onClick={resetForm}>
           {t.cancel}
         </Button>
       </Box>

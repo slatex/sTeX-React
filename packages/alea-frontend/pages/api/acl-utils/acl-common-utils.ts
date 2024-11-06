@@ -1,7 +1,7 @@
 import { AccessControlList } from '@stex-react/api';
+import { NextApiResponse } from 'next';
 import { executeAndEndSet500OnError, getUserIdOrSetError } from '../comment-utils';
 import { CACHE_STORE } from './cache-store';
-import { NextApiResponse } from 'next';
 
 export function getCacheKey(aclId: string) {
   return `acl-membership:${aclId}`;
@@ -13,7 +13,7 @@ export async function isMemberOfAcl(acl: string, userId: string) {
 
 export async function isCurrentUserMemberOfAClupdater(aclId: string, res, req): Promise<boolean> {
   const userId = await getUserIdOrSetError(req, res);
-  if(!userId) return false;
+  if (!userId) return false;
   const acl: AccessControlList = (
     await executeAndEndSet500OnError(
       'select updaterACLId from AccessControlList where id=?',
@@ -24,28 +24,28 @@ export async function isCurrentUserMemberOfAClupdater(aclId: string, res, req): 
   return await isMemberOfAcl(acl.updaterACLId, userId);
 }
 
-export async function validateMemberAndAclIds(
-  res : NextApiResponse,
-  memberUserIds, 
-  memberACLIds
-){
-  const memberCount = memberUserIds.length ? (
-    await executeAndEndSet500OnError<[]>(
-      'select userId from userInfo where userId in (?)',
-      [memberUserIds],
-      res
-    )
-  ).length :
-  0;
-  const aclCount = memberACLIds.length ? (
-    await executeAndEndSet500OnError<[]>(
-      'select id from AccessControlList where id in (?)',
-      [memberACLIds],
-      res
-    )
-  ).length : 
-  0;
-  if (memberCount !== memberUserIds.length || aclCount !== memberACLIds.length)
-    return false;
+export async function validateMemberAndAclIds(res: NextApiResponse, memberUserIds, memberACLIds) {
+  /* Disable memberUserIds check for now. We may not have their info in the database.
+  const memberCount = memberUserIds.length
+    ? (
+        await executeAndEndSet500OnError<[]>(
+          'select userId from userInfo where userId in (?)',
+          [memberUserIds],
+          res
+        )
+      ).length
+    : 0;
+  if (memberCount !== memberUserIds.length) return false;*/
+
+  const aclCount = memberACLIds.length
+    ? (
+        await executeAndEndSet500OnError<[]>(
+          'select id from AccessControlList where id in (?)',
+          [memberACLIds],
+          res
+        )
+      ).length
+    : 0;
+  if (aclCount !== memberACLIds.length) return false;
   return true;
 }

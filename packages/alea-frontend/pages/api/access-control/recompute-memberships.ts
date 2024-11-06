@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { CACHE_STORE } from '../acl-utils/cache-store';
 import { ACLMembership, Flattening } from '../acl-utils/flattening';
 import { checkIfPostOrSetError, executeAndEndSet500OnError } from '../comment-utils';
+import { initializeResourceCache } from '../acl-utils/resourceaccess-utils/resource-store';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
@@ -19,5 +20,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   for (const acl of acls) {
     await flattening.cacheAndGetFlattenedMembers(acl.id);
   }
+  await initializeResourceCache();
   res.status(200).end();
 }
