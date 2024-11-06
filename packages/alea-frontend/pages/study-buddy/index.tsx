@@ -32,7 +32,6 @@ import {
   GetSortedCoursesByConnectionsResponse,
   UserInfo,
   UserStats,
-  canModerateComment,
   canModerateStudyBuddy,
   getAllUsersStats,
   getEnrolledCourseIds,
@@ -76,19 +75,19 @@ function removeRecentCourse(courseCode: string) {
     localStore?.setItem(RECENT_COURSE_KEY, chosenCourses.filter((c) => c !== courseCode).join(','));
   }
 }
-function StudyBuddyOverviewGraph({ instanceId }) {
+function StudyBuddyOverviewGraph({ instanceId }: { instanceId: string }) {
   const [sortedCourses, setSortedCourses] = useState<GetSortedCoursesByConnectionsResponse[]>();
   const [selectedCourseIndex, setSelectedCourseIndex] = useState<string>(null);
   const [connections, setConnections] = useState<UserStats['connections']>([]);
   const [userIdsAndActiveStatus, setUserIdsAndActiveStatus] = useState([]);
-  const [isLoading, setIsLoading] = useState(false); 
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       const data = await getStudyBuddyCoursesSortedbyConnections(instanceId);
       setSortedCourses(data);
-      setIsLoading(false); 
+      setIsLoading(false);
     };
     fetchData();
   }, [instanceId]);

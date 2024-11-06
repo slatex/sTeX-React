@@ -66,7 +66,7 @@ export async function purgeStudyBuddyData() {
   return resp.data as StudyBuddy;
 }
 
-export async function getStudyBuddyUsersStats(courseId: string, instanceId: string) {
+export async function getStudyBuddyUsersStats(courseId: string, instanceId?: string) {
   const resp = await axios.get(`/api/study-buddy/get-users-stats/${courseId}`, {
     headers: getAuthHeaders(),
     params: { instanceId },
