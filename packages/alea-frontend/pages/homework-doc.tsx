@@ -38,6 +38,7 @@ const HomeworkDocPage: React.FC = () => {
               <Box>Homework not yet given</Box>
             ) : (
               <QuizDisplay
+                phase={"NOT_GIVEN"}
                 isFrozen={phase !== 'GIVEN'}
                 showPerProblemTime={false}
                 problems={problems}

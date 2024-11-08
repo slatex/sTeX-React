@@ -239,6 +239,7 @@ export function QuizDisplay({
   debug = false,
   showRecordOption = false,
   homeworkId,
+  phase,
 }: {
   quizEndTs?: number;
   showPerProblemTime: boolean;
@@ -255,6 +256,7 @@ export function QuizDisplay({
   ) => void;
   showRecordOption?: boolean;
   homeworkId?: number;
+  phase?: string;
 }) {
   const isHomeWork = homeworkId ? true : false;
   const { quiz: t } = getLocaleObject(useRouter());
@@ -378,6 +380,7 @@ export function QuizDisplay({
               });
               if (onResponse) onResponse(problemId, response);
             }}
+            phase={phase}
           />
         </Box>
 
