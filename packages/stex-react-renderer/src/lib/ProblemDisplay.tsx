@@ -488,6 +488,7 @@ export function ProblemDisplay({
   debug,
   problemId = '',
   homeworkId,
+  phase,
 }: {
   uri?: string;
   problem: Problem | undefined;
@@ -499,6 +500,7 @@ export function ProblemDisplay({
   debug?: boolean;
   problemId?: string;
   homeworkId?: number;
+  phase?:string;
 }) {
   const [userId, setUserId] = useState('');
   useEffect(() => {
@@ -556,6 +558,7 @@ export function ProblemDisplay({
               subProblemId={i.toString()}
               subProblem={c}
               isFrozen={isFrozen}
+              phase={phase}
             ></SubProblemAnswer>
           </>
         ))}
