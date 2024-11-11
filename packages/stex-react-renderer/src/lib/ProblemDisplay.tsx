@@ -488,7 +488,6 @@ export function ProblemDisplay({
   debug,
   problemId = '',
   homeworkId,
-  phase,
 }: {
   uri?: string;
   problem: Problem | undefined;
@@ -500,7 +499,6 @@ export function ProblemDisplay({
   debug?: boolean;
   problemId?: string;
   homeworkId?: number;
-  phase?: string;
 }) {
   const router = useRouter();
   const { quiz: t } = getLocaleObject(router);
@@ -564,7 +562,6 @@ export function ProblemDisplay({
               subProblemId={i.toString()}
               subProblem={c}
               isFrozen={isFrozen}
-              phase={phase}
             ></SubProblemAnswer>
           </>
         ))}
