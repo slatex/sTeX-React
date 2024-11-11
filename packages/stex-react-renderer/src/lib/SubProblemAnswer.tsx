@@ -49,7 +49,6 @@ export function SubProblemAnswer({
   showPoints,
   homeworkId,
   isFrozen,
-  phase,
 }: {
   subProblem: SubProblemData;
   questionId: string;
@@ -58,7 +57,6 @@ export function SubProblemAnswer({
   homeworkId?: number;
   showPoints?: boolean;
   isFrozen?: boolean;
-  phase?: string;
 }) {
   const router = useRouter();
   const courseId = router.query.courseId?.toString() ?? '';
@@ -184,10 +182,10 @@ export function SubProblemAnswer({
     serverAnswer.current = await getHomeWorkAnswer(questionId, subProblemId);
   }
   useEffect(() => {
-    if (phase === 'SUBMISSION_CLOSED' || phase === 'FEEDBACK_RELEASED') {
+    if (isFrozen && homeworkId) {
       setShowSolution(true);
     }
-  }, [phase]);
+  }, [isFrozen, homeworkId]);
 
   return (
     <>
