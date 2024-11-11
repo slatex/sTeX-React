@@ -16,6 +16,7 @@ const db = mysql({
     database: process.env.MYSQL_COMMENTS_DATABASE,
     user: process.env.MYSQL_USER,
     password: process.env.MYSQL_PASSWORD,
+    charset: 'utf8mb4',
   },
 });
 

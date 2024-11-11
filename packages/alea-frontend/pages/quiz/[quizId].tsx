@@ -118,7 +118,7 @@ const QuizPage: NextPage = () => {
       if (!uid) return;
       setForceFauLogin(uid.length !== 8 || uid.includes('@'));
     });
-  });
+  }, []);
 
   useEffect(() => {
     if (!quizId) return;
