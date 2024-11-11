@@ -79,6 +79,8 @@ export const de = {
     save: 'retten',
     discard: 'abwerfen',
     saveAndGrade: 'Speichern und bewerten',
+    yourAnswer: 'Ihre Antwort',
+    answerTemplate: 'Antwort $1 von $2',
   },
   practiceProblems: {
     clickSection:

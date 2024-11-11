@@ -37,6 +37,7 @@ import { useRouter } from 'next/router';
 import { SyntheticEvent, useEffect, useRef, useState } from 'react';
 import { getLocaleObject } from './lang/utils';
 import { mmtHTMLToReact } from './mmtParser';
+import { PRIMARY_COL } from '@stex-react/utils';
 
 dayjs.extend(relativeTime);
 
@@ -47,6 +48,7 @@ export function SubProblemAnswer({
   subProblemId,
   showPoints,
   homeworkId,
+  isFrozen,
 }: {
   subProblem: SubProblemData;
   questionId: string;
@@ -54,6 +56,7 @@ export function SubProblemAnswer({
   problemHeader: string;
   homeworkId?: number;
   showPoints?: boolean;
+  isFrozen?: boolean;
 }) {
   const router = useRouter();
   const courseId = router.query.courseId?.toString() ?? '';
@@ -178,12 +181,29 @@ export function SubProblemAnswer({
     await SaveAnswers();
     serverAnswer.current = await getHomeWorkAnswer(questionId, subProblemId);
   }
+  useEffect(() => {
+    if (isFrozen && homeworkId) {
+      setShowSolution(true);
+    }
+  }, [isFrozen, homeworkId]);
 
   return (
     <>
       <form onSubmit={onSubmitAnswer}>
         {showGrading ? (
           <MystViewer content={answer} />
+        ) : isFrozen ? (
+          <Box
+            sx={{
+              border: `1px solid ${PRIMARY_COL}`,
+              paddingLeft: '10px',
+              margin: '10px 0px',
+              backgroundColor: 'white',
+              borderRadius: '5px',
+            }}
+          >
+            <MystViewer content={answer} />
+          </Box>
         ) : (
           <MystEditor
             name={`answer-${questionId}-${subProblemId}`}
@@ -219,7 +239,18 @@ export function SubProblemAnswer({
       {isHomework && (
         <>
           {showSolution && (
-            <div style={{ color: '#555' }}>{mmtHTMLToReact(subProblem.solution)}</div>
+            <Box
+              style={{
+                color: '#555',
+                backgroundColor: 'white',
+                padding: '5px',
+                borderRadius: '5px',
+                margin: '10px 0px',
+                border: `1px solid ${PRIMARY_COL}`,
+              }}
+            >
+              {mmtHTMLToReact(subProblem.solution)}
+            </Box>
           )}
           {showGrading && <>NOT IMPLEMENTED YET</>}
         </>

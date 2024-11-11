@@ -58,6 +58,7 @@ function IndexEntry({
   events,
   showClock,
   onSelect,
+  isHomeWork,
 }: {
   problem: Problem;
   response: ProblemResponse;
@@ -68,12 +69,15 @@ function IndexEntry({
   events: TimerEvent[];
   showClock: boolean;
   onSelect: (idx: number) => void;
+  isHomeWork: boolean;
 }) {
   const { quiz: t } = getLocaleObject(useRouter());
   const isCorrectnessKnown = isFrozen && points !== undefined;
   const isPartiallyCorrect = points && points > 0;
   const isCorrect = points === problem.points;
-  const color = isCorrectnessKnown
+  const color = isHomeWork
+    ? '#333'
+    : isCorrectnessKnown
     ? isCorrect
       ? 'green'
       : isPartiallyCorrect
@@ -107,11 +111,11 @@ function IndexEntry({
       onClick={() => onSelect(idx)}
     >
       <Box display="flex" alignItems="center">
-        {respondedIcon}
+        {!isHomeWork && respondedIcon}
         <span>
           &nbsp;{t.problem} {idx + 1}&nbsp;
         </span>
-        {isCorrectnessKnown && (isCorrect ? <CheckCircleIcon /> : <CancelIcon />)}
+        {!isHomeWork && isCorrectnessKnown && (isCorrect ? <CheckCircleIcon /> : <CancelIcon />)}
       </Box>
       {showClock && (
         <Box fontSize="12px">
@@ -132,6 +136,7 @@ function ProblemNavigation({
   events,
   onClose,
   onSelect,
+  isHomeWork,
 }: {
   problems: { [problemId: string]: Problem };
   responses: { [problemId: string]: ProblemResponse };
@@ -142,6 +147,7 @@ function ProblemNavigation({
   events: TimerEvent[];
   onClose: () => void;
   onSelect: (idx: number) => void;
+  isHomeWork: boolean;
 }) {
   return (
     <FixedPositionMenu
@@ -165,6 +171,7 @@ function ProblemNavigation({
           selectedIdx={problemIdx}
           isFrozen={isFrozen}
           onSelect={onSelect}
+          isHomeWork={isHomeWork}
         />
       ))}
     </FixedPositionMenu>
@@ -249,6 +256,7 @@ export function QuizDisplay({
   showRecordOption?: boolean;
   homeworkId?: number;
 }) {
+  const isHomeWork = homeworkId ? true : false;
   const { quiz: t } = getLocaleObject(useRouter());
   const [points, setPoints] = useState<{
     [problemId: string]: number | undefined;
@@ -327,6 +335,7 @@ export function QuizDisplay({
           events={events}
           onClose={() => setShowDashboard(false)}
           onSelect={(i) => setProblemIdx2(i)}
+          isHomeWork={isHomeWork}
         />
       }
       topOffset={64}
@@ -388,14 +397,16 @@ export function QuizDisplay({
             </Button>
           )
         ) : !Object.values(points).some((s) => s === undefined) ? (
-          <i style={{ margin: '20px 0', color: '#333', fontSize: '26px' }}>
-            {t.youScored.replace('$1', roundedScore(points)).replace(
-              '$2',
-              Object.values(problems)
-                .reduce((a, b) => a + b.points, 0)
-                .toString()
-            )}
-          </i>
+          !isHomeWork && (
+            <i style={{ margin: '20px 0', color: '#333', fontSize: '26px' }}>
+              {t.youScored.replace('$1', roundedScore(points)).replace(
+                '$2',
+                Object.values(problems)
+                  .reduce((a, b) => a + b.points, 0)
+                  .toString()
+              )}
+            </i>
+          )
         ) : (
           <i style={{ margin: '20px 0', color: '#333', fontSize: '26px' }}>{t.feedbackAwaited}</i>
         )}

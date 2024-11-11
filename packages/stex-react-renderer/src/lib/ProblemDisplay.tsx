@@ -47,6 +47,7 @@ import { getLocaleObject } from './lang/utils';
 import { CustomItemsContext, NoMaxWidthTooltip, mmtHTMLToReact } from './mmtParser';
 import styles from './quiz.module.scss';
 import { SubProblemAnswer } from './SubProblemAnswer';
+import { PRIMARY_COL } from '@stex-react/utils';
 
 function BpRadio(props: RadioProps) {
   return <Radio disableRipple color="default" {...props} />;
@@ -499,6 +500,8 @@ export function ProblemDisplay({
   problemId?: string;
   homeworkId?: number;
 }) {
+  const router = useRouter();
+  const { quiz: t } = getLocaleObject(router);
   const [userId, setUserId] = useState('');
   useEffect(() => {
     getUserInfo().then((u: UserInfo | undefined) => {
@@ -541,19 +544,27 @@ export function ProblemDisplay({
         <CustomItemsContext.Provider value={{ items: customItems }}>
           <DocumentWidthSetter>{mmtHTMLToReact(statement)}</DocumentWidthSetter>
         </CustomItemsContext.Provider>
-        {!isFrozen &&
-          problem.subProblemData?.map((c, i) => (
-            <>
-              <span> Answer {i + 1}</span>
-              <SubProblemAnswer
-                homeworkId={homeworkId}
-                problemHeader={problem.header}
-                questionId={uri ? uri : problemId}
-                subProblemId={i.toString()}
-                subProblem={c}
-              ></SubProblemAnswer>
-            </>
-          ))}
+        {problem.subProblemData.map((c, i) => (
+          <>
+            {isFrozen ? (
+              <span style={{ color: PRIMARY_COL, fontWeight: 'bold' }}> {t.yourAnswer} </span>
+            ) : (
+              <span>
+                {t.answerTemplate
+                  .replace('$1', (i + 1).toString())
+                  .replace('$2', problem.subProblemData.length.toString())}
+              </span>
+            )}
+            <SubProblemAnswer
+              homeworkId={homeworkId}
+              problemHeader={problem.header}
+              questionId={uri ? uri : problemId}
+              subProblemId={i.toString()}
+              subProblem={c}
+              isFrozen={isFrozen}
+            ></SubProblemAnswer>
+          </>
+        ))}
         {debug && (
           <>
             {inlineSCQInputs.map((inlineInput) => (
