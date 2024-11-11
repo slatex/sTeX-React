@@ -181,6 +181,11 @@ export function SubProblemAnswer({
     await SaveAnswers();
     serverAnswer.current = await getHomeWorkAnswer(questionId, subProblemId);
   }
+  useEffect(() => {
+    if (isFrozen && homeworkId) {
+      setShowSolution(true);
+    }
+  }, [isFrozen, homeworkId]);
 
   return (
     <>
@@ -234,7 +239,18 @@ export function SubProblemAnswer({
       {isHomework && (
         <>
           {showSolution && (
-            <div style={{ color: '#555' }}>{mmtHTMLToReact(subProblem.solution)}</div>
+            <Box
+              style={{
+                color: '#555',
+                backgroundColor: 'white',
+                padding: '5px',
+                borderRadius: '5px',
+                margin: '10px 0px',
+                border: `1px solid ${PRIMARY_COL}`,
+              }}
+            >
+              {mmtHTMLToReact(subProblem.solution)}
+            </Box>
           )}
           {showGrading && <>NOT IMPLEMENTED YET</>}
         </>

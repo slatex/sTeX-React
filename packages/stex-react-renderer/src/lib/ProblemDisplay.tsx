@@ -500,6 +500,8 @@ export function ProblemDisplay({
   problemId?: string;
   homeworkId?: number;
 }) {
+  const router = useRouter();
+  const { quiz: t } = getLocaleObject(router);
   const [userId, setUserId] = useState('');
   useEffect(() => {
     getUserInfo().then((u: UserInfo | undefined) => {
@@ -545,9 +547,13 @@ export function ProblemDisplay({
         {problem.subProblemData.map((c, i) => (
           <>
             {isFrozen ? (
-              <span style={{ color: PRIMARY_COL, fontWeight: 'bold' }}> You Answered </span>
+              <span style={{ color: PRIMARY_COL, fontWeight: 'bold' }}> {t.yourAnswer} </span>
             ) : (
-              <span> Answer {i + 1}</span>
+              <span>
+                {t.answerTemplate
+                  .replace('$1', (i + 1).toString())
+                  .replace('$2', problem.subProblemData.length.toString())}
+              </span>
             )}
             <SubProblemAnswer
               homeworkId={homeworkId}
