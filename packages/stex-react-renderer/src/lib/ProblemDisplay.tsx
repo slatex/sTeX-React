@@ -546,15 +546,11 @@ export function ProblemDisplay({
         </CustomItemsContext.Provider>
         {problem.subProblemData.map((c, i) => (
           <>
-            {isFrozen ? (
-              <span style={{ color: PRIMARY_COL, fontWeight: 'bold' }}> {t.yourAnswer} </span>
-            ) : (
-              <span>
-                {t.answerTemplate
-                  .replace('$1', (i + 1).toString())
-                  .replace('$2', problem.subProblemData.length.toString())}
-              </span>
-            )}
+            <span style={isFrozen ? { color: PRIMARY_COL, fontWeight: 'bold' } : {}}>
+              {t.answerTemplate
+                .replace('$1', (i + 1).toString())
+                .replace('$2', problem.subProblemData.length.toString())}
+            </span>
             <SubProblemAnswer
               homeworkId={homeworkId}
               problemHeader={problem.header}
