@@ -195,10 +195,10 @@ export function SubProblemAnswer({
         ) : isFrozen ? (
           <Box
             sx={{
-              border: `1px solid ${PRIMARY_COL}`,
+              border: `2px solid gray`,
               paddingLeft: '10px',
-              margin: '10px 0px',
-              backgroundColor: 'white',
+              margin: '5px 0px',
+              backgroundColor: '#d3d3d3',
               borderRadius: '5px',
             }}
           >
@@ -225,7 +225,7 @@ export function SubProblemAnswer({
             </Button>
           </div>
         )}
-        {isHomework && (
+        {isHomework && !isFrozen && (
           <Box sx={{ gap: '3px' }}>
             <Button disabled={!canSaveAnswer} onClick={onQuizeSaveClicked} variant="contained">
               {t.save}
