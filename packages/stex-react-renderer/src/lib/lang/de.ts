@@ -80,6 +80,7 @@ export const de = {
     discard: 'abwerfen',
     saveAndGrade: 'Speichern und bewerten',
     yourAnswer: 'Ihre Antwort',
+    answerFrozenTemplate: 'Ihre Antwort $1 von $2',
     answerTemplate: 'Antwort $1 von $2',
   },
   practiceProblems: {
