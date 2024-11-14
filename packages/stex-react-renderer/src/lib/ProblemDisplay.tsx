@@ -547,9 +547,17 @@ export function ProblemDisplay({
         {problem.subProblemData.map((c, i) => (
           <>
             <span style={isFrozen ? { color: PRIMARY_COL, fontWeight: 'bold' } : {}}>
-              {t.answerTemplate
-                .replace('$1', (i + 1).toString())
-                .replace('$2', problem.subProblemData.length.toString())}
+              {isFrozen
+                ? problem.subProblemData.length === 1
+                  ? t.yourAnswer
+                  : t.answerFrozenTemplate
+                      .replace('$1', (i + 1).toString())
+                      .replace('$2', problem.subProblemData.length.toString())
+                : problem.subProblemData.length === 1
+                ? t.answer
+                : t.answerTemplate
+                    .replace('$1', (i + 1).toString())
+                    .replace('$2', problem.subProblemData.length.toString())}
             </span>
             <SubProblemAnswer
               homeworkId={homeworkId}
