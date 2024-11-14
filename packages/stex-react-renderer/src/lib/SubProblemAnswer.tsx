@@ -31,13 +31,13 @@ import {
   SubProblemData,
 } from '@stex-react/api';
 import { MystEditor, MystViewer } from '@stex-react/myst';
+import { PRIMARY_COL } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useRouter } from 'next/router';
 import { SyntheticEvent, useEffect, useRef, useState } from 'react';
 import { getLocaleObject } from './lang/utils';
 import { mmtHTMLToReact } from './mmtParser';
-import { PRIMARY_COL } from '@stex-react/utils';
 
 dayjs.extend(relativeTime);
 
@@ -190,9 +190,7 @@ export function SubProblemAnswer({
   return (
     <>
       <form onSubmit={onSubmitAnswer}>
-        {showGrading ? (
-          <MystViewer content={answer} />
-        ) : isFrozen ? (
+        {showGrading || isFrozen ? (
           <Box
             sx={{
               border: `2px solid gray`,
@@ -202,7 +200,7 @@ export function SubProblemAnswer({
               borderRadius: '5px',
             }}
           >
-            <MystViewer content={answer} />
+            <MystViewer content={answer || '*Unanswered*'} />
           </Box>
         ) : (
           <MystEditor

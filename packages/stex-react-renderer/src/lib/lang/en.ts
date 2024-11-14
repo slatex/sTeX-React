@@ -79,8 +79,7 @@ export const en = {
     discard: 'discard',
     saveAndGrade: 'Save and Grade',
     yourAnswer: 'Your Answer',
-    answerFrozenTemplate: 'Your Answer ($1 of $2)',
-    answerTemplate: 'Answer ($1 of $2)',
+    yourAnswerWithIdx: 'Your Answer ($1 of $2)',
   },
   practiceProblems: {
     clickSection: 'Click on a section in the TOC to see problems associated with it.',
