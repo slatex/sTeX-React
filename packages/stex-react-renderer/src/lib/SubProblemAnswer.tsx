@@ -31,13 +31,13 @@ import {
   SubProblemData,
 } from '@stex-react/api';
 import { MystEditor, MystViewer } from '@stex-react/myst';
+import { PRIMARY_COL } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useRouter } from 'next/router';
 import { SyntheticEvent, useEffect, useRef, useState } from 'react';
 import { getLocaleObject } from './lang/utils';
 import { mmtHTMLToReact } from './mmtParser';
-import { PRIMARY_COL } from '@stex-react/utils';
 
 dayjs.extend(relativeTime);
 
@@ -190,19 +190,17 @@ export function SubProblemAnswer({
   return (
     <>
       <form onSubmit={onSubmitAnswer}>
-        {showGrading ? (
-          <MystViewer content={answer} />
-        ) : isFrozen ? (
+        {showGrading || isFrozen ? (
           <Box
             sx={{
-              border: `1px solid ${PRIMARY_COL}`,
+              border: `2px solid gray`,
               paddingLeft: '10px',
-              margin: '10px 0px',
-              backgroundColor: 'white',
+              margin: '5px 0px',
+              backgroundColor: '#d3d3d3',
               borderRadius: '5px',
             }}
           >
-            <MystViewer content={answer} />
+            <MystViewer content={answer || '*Unanswered*'} />
           </Box>
         ) : (
           <MystEditor
@@ -225,7 +223,7 @@ export function SubProblemAnswer({
             </Button>
           </div>
         )}
-        {isHomework && (
+        {isHomework && !isFrozen && (
           <Box sx={{ gap: '3px' }}>
             <Button disabled={!canSaveAnswer} onClick={onQuizeSaveClicked} variant="contained">
               {t.save}

@@ -23,7 +23,6 @@ import {
   ProblemAnswerEvent,
   ProblemResponse,
   QuadState,
-  SubProblemData,
   Tristate,
   UserInfo,
   getUserInfo,
@@ -37,17 +36,17 @@ import {
 } from '@stex-react/quiz-utils';
 
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { PRIMARY_COL } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { getMMTHtml } from './CompetencyTable';
 import { DocumentWidthSetter } from './DocumentWidthSetter';
-import { AnswerClassesTable, DebugMCQandSCQ, InlineScqTable } from './QuizDebug';
-import { DimIcon } from './SelfAssessmentDialog';
 import { getLocaleObject } from './lang/utils';
 import { CustomItemsContext, NoMaxWidthTooltip, mmtHTMLToReact } from './mmtParser';
 import styles from './quiz.module.scss';
+import { AnswerClassesTable, DebugMCQandSCQ, InlineScqTable } from './QuizDebug';
+import { DimIcon } from './SelfAssessmentDialog';
 import { SubProblemAnswer } from './SubProblemAnswer';
-import { PRIMARY_COL } from '@stex-react/utils';
 
 function BpRadio(props: RadioProps) {
   return <Radio disableRipple color="default" {...props} />;
@@ -546,15 +545,13 @@ export function ProblemDisplay({
         </CustomItemsContext.Provider>
         {problem.subProblemData.map((c, i) => (
           <>
-            {isFrozen ? (
-              <span style={{ color: PRIMARY_COL, fontWeight: 'bold' }}> {t.yourAnswer} </span>
-            ) : (
-              <span>
-                {t.answerTemplate
-                  .replace('$1', (i + 1).toString())
-                  .replace('$2', problem.subProblemData.length.toString())}
-              </span>
-            )}
+            <span style={{ color: PRIMARY_COL, fontWeight: 'bold' }}>
+              {problem.subProblemData.length === 1
+                ? t.yourAnswer
+                : t.yourAnswerWithIdx
+                    .replace('$1', (i + 1).toString())
+                    .replace('$2', problem.subProblemData.length.toString())}
+            </span>
             <SubProblemAnswer
               homeworkId={homeworkId}
               problemHeader={problem.header}
