@@ -17,8 +17,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const results = await executeAndEndSet500OnError(query, queryParams, res);
   const aclIds = {};
   if (!results) return;
-  results.forEach(({ resourceId, aclId }) => {
-    aclIds[resourceId] = aclId;
+  results.forEach(({ resourceId, actionId, aclId }) => {
+    aclIds[resourceId + actionId] = aclId;
   });
-  return res.status(200).send(aclIds);
+
+  const returnedAcls = [];
+  for(const resourceAction of resourceActions) {
+    const { resourceId, actionId } = resourceAction;
+    const acl = aclIds[resourceId + actionId];
+    returnedAcls.push(acl || '');
+  }
+  return res.status(200).send(returnedAcls);
 }

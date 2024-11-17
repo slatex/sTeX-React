@@ -23,52 +23,72 @@ import { Action, CURRENT_TERM, ResourceActionPair } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
-interface AclData {
-  notes: string;
-  quiz: string;
-  homework: string;
-  comments: string;
-  'study-buddy': string;
-}
-
-const FIELDS = [
-  { key: 'notes', label: 'Notes Management' },
-  { key: 'quiz', label: 'Quiz Management' },
-  { key: 'homework', label: 'Homework Management' },
-  { key: 'comments', label: 'Comments Moderation' },
-  { key: 'study-buddy', label: 'Study Buddy Management' },
-] as const;
-
-const getResourseActionPairs = (courseId: string) => [
-  {
-    resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/notes`,
-    actionId: Action.MUTATE,
-  },
-  {
-    resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/quiz`,
-    actionId: Action.MUTATE,
-  },
-  {
-    resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/homework`,
-    actionId: Action.MUTATE,
-  },
-  {
-    resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/comments`,
-    actionId: Action.MODERATE,
-  },
-  {
-    resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/study-buddy`,
-    actionId: Action.MODERATE,
-  },
+const ALL_SHORT_IDS = [
+  'notes',
+  'quiz',
+  'homework-crud',
+  'homework-grading',
+  'comments',
+  'study-buddy',
 ];
+
+export type ShortId = (typeof ALL_SHORT_IDS)[number];
+
+const INITIAL_EDITING_STATE = ALL_SHORT_IDS.reduce(
+  (acc, shortId) => ({ ...acc, [shortId]: false }),
+  {} as Record<ShortId, boolean>
+);
+
+type AclMappings = Record<ShortId, string>;
+const EMPTY_ASSIGMENT = ALL_SHORT_IDS.reduce(
+  (acc, shortId) => ({ ...acc, [shortId]: '' }),
+  {} as AclMappings
+);
+
+const ACL_DISPLAY_NAMES: Record<ShortId, string> = {
+  notes: 'Notes Management',
+  quiz: 'Quiz Management',
+  'homework-crud': 'Homework Create/Update',
+  'homework-grading': 'Homework Grading',
+  comments: 'Comments Moderation',
+  'study-buddy': 'Study Buddy Management',
+} as const;
+
+const getAclShortIdToResourceActionPair = (courseId: string) =>
+  ({
+    notes: {
+      resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/notes`,
+      actionId: Action.MUTATE,
+    },
+    quiz: {
+      resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/quiz`,
+      actionId: Action.MUTATE,
+    },
+    'homework-crud': {
+      resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/homework`,
+      actionId: Action.MUTATE,
+    },
+    'homework-grading': {
+      resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/homework`,
+      actionId: Action.INSTRUCTOR_GRADING,
+    },
+    comments: {
+      resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/comments`,
+      actionId: Action.MODERATE,
+    },
+    'study-buddy': {
+      resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/study-buddy`,
+      actionId: Action.MODERATE,
+    },
+  } as Record<ShortId, ResourceActionPair>);
 
 const CourseAccessControlDashboard = ({ courseId }) => {
   const router = useRouter();
-  const renderEditableField = (field: keyof AclData) => {
-    return isAnyDataEditing[field] ? (
+  const renderEditableField = (shortId: ShortId) => {
+    return isAnyDataEditing[shortId] ? (
       <TextField
-        value={editingValues[field]}
-        onChange={(e) => handleChange(field, e.target.value)}
+        value={editingValues[shortId]}
+        onChange={(e) => handleChange(shortId, e.target.value)}
         size="small"
         variant="outlined"
         sx={{
@@ -81,7 +101,7 @@ const CourseAccessControlDashboard = ({ courseId }) => {
       />
     ) : (
       <Typography
-        onClick={() => handleAclClick(aclData[field])}
+        onClick={() => handleAclClick(aclData[shortId])}
         sx={{
           cursor: 'pointer',
           color: 'blue',
@@ -89,31 +109,14 @@ const CourseAccessControlDashboard = ({ courseId }) => {
           fontSize: '12px',
         }}
       >
-        {aclData[field] || '-'}
+        {aclData[shortId] || '-'}
       </Typography>
     );
   };
 
-  const [isAnyDataEditing, setIsAnyDataEditing] = useState({
-    notes: false,
-    quiz: false,
-    homework: false,
-    comments: false,
-    'study-buddy': false,
-  });
-  const [editingValues, setEditingValues] = useState({
-    notes: '',
-    quiz: '',
-    comments: '',
-    'study-buddy': '',
-  });
-  const [aclData, setAclData] = useState<AclData>({
-    notes: '',
-    quiz: '',
-    homework: '',
-    comments: '',
-    'study-buddy': '',
-  });
+  const [isAnyDataEditing, setIsAnyDataEditing] = useState(INITIAL_EDITING_STATE);
+  const [editingValues, setEditingValues] = useState(EMPTY_ASSIGMENT);
+  const [aclData, setAclData] = useState(EMPTY_ASSIGMENT);
   const [acls, setAcls] = useState<string[]>([]);
   const [newAclId, setNewAclId] = useState('');
   const [error, setError] = useState('');
@@ -121,25 +124,26 @@ const CourseAccessControlDashboard = ({ courseId }) => {
     router.push(`/acl/${aclId}`);
   };
 
-  const handleChange = (field: keyof AclData, value: string) => {
+  const handleChange = (field: ShortId, value: string) => {
     setEditingValues({ ...editingValues, [field]: value });
   };
 
-  const handleEditClick = async (field: keyof AclData) => {
+  const handleEditClick = async (field: ShortId) => {
     if (isAnyDataEditing[field]) {
       await updateAclId(field, editingValues[field]);
     }
     setIsAnyDataEditing({ ...isAnyDataEditing, [field]: !isAnyDataEditing[field] });
   };
-  const resourceActionPairs: ResourceActionPair[] = getResourseActionPairs(courseId);
 
-  const updateAclId = async (field: keyof AclData, aclId: string) => {
-    const resourceId = `/course/${courseId}/instance/${CURRENT_TERM}/${field}`;
-    const actionId = resourceActionPairs.find((r) => r.resourceId === resourceId)?.actionId || '';
+  const updateAclId = async (shortId: ShortId, aclId: string) => {
+    const aclShortIdToResourceActionPair = getAclShortIdToResourceActionPair(courseId);
+    const resourceActionPair = aclShortIdToResourceActionPair[shortId];
+    const resourceId = resourceActionPair.resourceId;
+    const actionId = resourceActionPair.actionId;
     const res = await isValid(aclId);
     if (!res) {
       console.error('invalid aclId');
-      setEditingValues({ ...editingValues, [field]: aclData[field] });
+      setEditingValues({ ...editingValues, [shortId]: aclData[shortId] });
       return;
     }
     await updateResourceAction({
@@ -147,27 +151,22 @@ const CourseAccessControlDashboard = ({ courseId }) => {
       actionId,
       aclId,
     });
-    setAclData({ ...aclData, [field]: aclId });
-    setEditingValues({ ...editingValues, [field]: aclId });
+    setAclData({ ...aclData, [shortId]: aclId });
+    setEditingValues({ ...editingValues, [shortId]: aclId });
   };
 
   useEffect(() => {
     async function getAclData() {
+      const aclShortIdToResourceActionPair = getAclShortIdToResourceActionPair(courseId);
+      const resourceActionPairs = ALL_SHORT_IDS.map((sId) => aclShortIdToResourceActionPair[sId]);
       const aclIds = await getSpecificAclIds(resourceActionPairs);
-      setAclData({
-        notes: aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/notes`],
-        quiz: aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/quiz`],
-        homework: aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/homework`],
-        comments: aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/comments`],
-        'study-buddy': aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/study-buddy`],
-      });
 
-      setEditingValues({
-        notes: aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/notes`],
-        quiz: aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/quiz`],
-        comments: aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/comments`],
-        'study-buddy': aclIds[`/course/${courseId}/instance/${CURRENT_TERM}/study-buddy`],
-      });
+      const aclData: Record<ShortId, string> = {};
+      for (let idx = 0; idx < ALL_SHORT_IDS.length; idx++) {
+        aclData[ALL_SHORT_IDS[idx]] = aclIds[idx];
+      }
+      setAclData(aclData);
+      setEditingValues({ ...aclData });
     }
     getAclData();
   }, [courseId]);
@@ -212,8 +211,8 @@ const CourseAccessControlDashboard = ({ courseId }) => {
   return (
     <Box display="flex" flexDirection="column" maxWidth="900px" m="auto" p="20px" gap="20px">
       <Grid container spacing={1}>
-        {FIELDS.map((field) => (
-          <Grid item xs={6} key={field.key}>
+        {Object.entries(ACL_DISPLAY_NAMES).map(([shortId, displayName]) => (
+          <Grid item xs={6} key={shortId}>
             <Box
               display="flex"
               justifyContent="space-between"
@@ -224,17 +223,17 @@ const CourseAccessControlDashboard = ({ courseId }) => {
               bgcolor="background.default"
             >
               <Typography variant="h6" fontSize="14px">
-                {field.label}
+                {displayName}
               </Typography>
-              {renderEditableField(field.key as keyof AclData)}
+              {renderEditableField(shortId as ShortId)}
               <IconButton
                 size="small"
-                onClick={() => handleEditClick(field.key as keyof AclData)}
+                onClick={() => handleEditClick(shortId as ShortId)}
                 disabled={Object.keys(isAnyDataEditing).some(
-                  (key) => isAnyDataEditing[key] && key !== field.key
+                  (key) => isAnyDataEditing[key] && key !== shortId
                 )}
               >
-                {isAnyDataEditing[field.key] ? (
+                {isAnyDataEditing[shortId] ? (
                   <CheckIcon fontSize="small" />
                 ) : (
                   <EditIcon fontSize="small" />
