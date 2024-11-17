@@ -25,6 +25,7 @@ export const en = {
       studyBuddy: 'Study Buddy',
       practiceProblems: 'Practice Problems',
       instructorDashBoard: 'Instructor Dashboard',
+      peerReview:'Peer Review'
     },
     newHome: {
       alea: 'ALᴇA: Adaptive Learning Assistant',

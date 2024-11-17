@@ -10,15 +10,16 @@ import QuizDashboard from 'packages/alea-frontend/components/QuizDashboard';
 import { StudyBuddyModeratorStats } from 'packages/alea-frontend/components/StudyBuddyModeratorStats';
 import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
 import { useContext, useEffect, useState } from 'react';
-import { CourseHeader } from '../course-home/[courseId]';
+import { CourseHeader } from '../../course-home/[courseId]';
+import { TabPanelProps, toUserFriendlyName } from 'packages/stex-react-renderer/src/lib/lang/utils';
 
-interface TabPanelProps {
-  children?: React.ReactNode;
-  value: number;
-  index: number;
-}
 
-type TabName = 'access-control' | 'homework-manager' | 'quiz-dashboard' | 'study-buddy';
+
+type TabName =
+  | 'access-control'
+  | 'homework-manager'
+  | 'quiz-dashboard'
+  | 'study-buddy';
 
 const TAB_ACCESS_REQUIREMENTS: Record<TabName, { resource: ResourceName; action: Action }> = {
   'access-control': { resource: ResourceName.COURSE_ACCESS, action: Action.ACCESS_CONTROL },
@@ -26,6 +27,7 @@ const TAB_ACCESS_REQUIREMENTS: Record<TabName, { resource: ResourceName; action:
   'quiz-dashboard': { resource: ResourceName.COURSE_QUIZ, action: Action.MUTATE },
   'study-buddy': { resource: ResourceName.COURSE_STUDY_BUDDY, action: Action.MODERATE },
 };
+
 
 function ChosenTab({ tabName, courseId }: { tabName: TabName; courseId: string }) {
   switch (tabName) {
@@ -42,11 +44,6 @@ function ChosenTab({ tabName, courseId }: { tabName: TabName; courseId: string }
   }
 }
 
-const toUserFriendlyName = (tabName: string) => {
-  return tabName
-    .replace(/-/g, ' ') // Replace hyphens with spaces
-    .replace(/\b\w/g, (str) => str.toUpperCase()); // Capitalize the first letter of each word
-};
 
 const TabPanel = (props: TabPanelProps) => {
   const { children, value, index, ...other } = props;

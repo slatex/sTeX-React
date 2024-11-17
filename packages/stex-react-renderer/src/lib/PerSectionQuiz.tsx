@@ -1,5 +1,6 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { Box, Button, IconButton, Tooltip, Typography } from '@mui/material';
+import { Box, Button, IconButton, Tooltip, Typography, TextField } from '@mui/material';
+
 import LinearProgress from '@mui/material/LinearProgress';
 import { Problem, ProblemResponse, getProblemIdsForFile, getProblemShtml } from '@stex-react/api';
 import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
@@ -9,6 +10,7 @@ import { useContext, useEffect, useReducer, useState } from 'react';
 import { defaultProblemResponse } from './InlineProblemDisplay';
 import { ProblemDisplay } from './ProblemDisplay';
 import { ListStepper } from './QuizDisplay';
+import { SubProblemAnswer } from './SubProblemAnswer';
 import { getLocaleObject } from './lang/utils';
 import { ServerLinksContext, mmtHTMLToReact } from './stex-react-renderer';
 import { extractProjectIdAndFilepath } from './utils';
@@ -89,7 +91,6 @@ export function PerSectionQuiz({
   const solutions = problems[problemIdx]?.subProblemData?.map((p) => p.solution);
 
   if (!problem || !response) return <>error</>;
-
   return (
     <Box
       px={1}
@@ -108,7 +109,6 @@ export function PerSectionQuiz({
           listSize={problems.length}
           onChange={(idx) => {
             setProblemIdx(idx);
-            setShowSolution(false);
           }}
         />
         <IconButton
@@ -167,7 +167,6 @@ export function PerSectionQuiz({
           </Button>
         )}
       </Box>
-      
     </Box>
   );
 }

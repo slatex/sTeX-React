@@ -514,7 +514,7 @@ export function ProblemDisplay({
   const fillInInputs = problem.inputs?.filter((input) => input.type === InputType.FILL_IN) || [];
   const inlineSCQInputs =
     problem.inputs?.filter((input) => input.type === InputType.SCQ && input.inline) || [];
-  const inputWidgets = problem.inputs.map((input, optIdx) => {
+  const inputWidgets = problem.inputs?.map((input, optIdx) => {
     return inputDisplay({
       input,
       response: r.responses[optIdx],
@@ -527,8 +527,8 @@ export function ProblemDisplay({
       debug: debug ?? false,
     });
   });
-  const customItems = Object.assign(inputWidgets);
-  const statement = removeInfoIfNeeded(problem.statement.outerHTML ?? '', isEffectivelyFrozen);
+  const customItems = Object?.assign(inputWidgets ?? {});
+  const statement = removeInfoIfNeeded(problem?.statement?.outerHTML ?? '', isEffectivelyFrozen);
   return (
     <Card
       sx={{
@@ -574,6 +574,7 @@ export function ProblemDisplay({
             <DimAndURIListDisplay title="Preconditions" data={problem.preconditions} />
           </>
         )}
+
         {onFreezeResponse && !isEffectivelyFrozen && (
           <Button
             onClick={() => {
