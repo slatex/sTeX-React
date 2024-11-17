@@ -7,6 +7,7 @@ export enum Action {
   DELETE = 'DELETE',
 
   MUTATE = 'MUTATE',
+  INSTRUCTOR_GRADING = 'INSTRUCTOR_GRADING',
   MODERATE = 'MODERATE',
 
   ACCESS_CONTROL = 'ACCESS_CONTROL',
@@ -55,10 +56,6 @@ export interface ResourceType {
 export interface ResourceActionPair {
   resourceId: string;
   actionId: string;
-}
-
-export interface GetSpecificAclIdsResponse {
-  [key: string]: string;
 }
 
 export const ALL_RESOURCE_TYPES: ResourceType[] = [
@@ -118,7 +115,7 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
   },
   {
     name: ResourceName.COURSE_HOMEWORK,
-    possibleActions: [Action.MUTATE],
+    possibleActions: [Action.MUTATE, Action.INSTRUCTOR_GRADING],
     components: [
       { type: ComponentType.FIXED, value: 'course' },
       { name: 'courseId', type: ComponentType.VARIABLE },

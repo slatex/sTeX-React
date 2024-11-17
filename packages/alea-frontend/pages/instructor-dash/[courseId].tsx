@@ -4,11 +4,11 @@ import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { Action, CourseInfo, CURRENT_TERM, ResourceName } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import CourseAccessControlDashboard from 'packages/alea-frontend/components/CourseAccessControlDashboard';
-import HomeworkManager from 'packages/alea-frontend/components/HomeworkManager';
-import QuizDashboard from 'packages/alea-frontend/components/QuizDashboard';
-import { StudyBuddyModeratorStats } from 'packages/alea-frontend/components/StudyBuddyModeratorStats';
-import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
+import CourseAccessControlDashboard from '../../components/CourseAccessControlDashboard';
+import HomeworkManager from '../../components/HomeworkManager';
+import QuizDashboard from '../../components/QuizDashboard';
+import { StudyBuddyModeratorStats } from '../../components/StudyBuddyModeratorStats';
+import MainLayout from '../../layouts/MainLayout';
 import { useContext, useEffect, useState } from 'react';
 import { CourseHeader } from '../course-home/[courseId]';
 
