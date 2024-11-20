@@ -7,15 +7,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const id = req.query.id as string;
   if (!id) return res.status(422).send(`Missing param id.`);
   const acls: any[] = await executeAndEndSet500OnError(
-    `SELECT * FROM AccessControlList where id = ?`,
+    `SELECT id FROM AccessControlList where id = ?`,
     [id],
     res
   );
-  const dbAcl = acls?.[0];
-  if (!dbAcl) return res.status(404).send(`No ACL with id [${id}].`);
+  if (!acls?.[0]) return res.status(404).send(`No ACL with id [${id}].`);
 
   const members: ACLMembership[] = await executeAndEndSet500OnError(
-    'SELECT * FROM ACLMembership WHERE parentACLId = ?',
+    'SELECT memberUserId FROM ACLMembership WHERE parentACLId = ? AND memberUserId IS NOT NULL',
     [id],
     res
   );
@@ -23,13 +22,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (directMembers.length === 0) {
     return res.status(200).send([]);
   }
-  const result: { firstname: string; lastname: string; userId: string }[] =
+  const userInfoResults: { firstname: string; lastname: string; userId: string }[] =
     await executeDontEndSet500OnError(
       `select firstname, lastname, userId from userInfo where userId IN (?)`,
       [directMembers],
       res
     );
-  res
-    .status(200)
-    .send(result.map((c) => ({ fullName: `${c.firstname} ${c.lastname}`, userId: `${c.userId}` })));
+  const result = directMembers.map((userId) => {
+    const userInfo = userInfoResults.find((record) => record.userId === userId);
+    if (userInfo) {
+      return { fullName: `${userInfo.firstname} ${userInfo.lastname}`, userId };
+    } else {
+      return { fullName: '', userId };
+    }
+  });
+  res.status(200).send(result);
 }

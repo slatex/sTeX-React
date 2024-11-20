@@ -236,7 +236,13 @@ const AclId: NextPage = () => {
                         },
                       }}
                     >
-                      <ListItemText primary={`${user.fullName} (${user.userId})`} />
+                      <ListItemText
+                        primary={
+                          <>
+                            {user.fullName == '' ? <i>unknown</i> : user.fullName} ({user.userId})
+                          </>
+                        }
+                      />
                     </ListItem>
                     {index < directMembersNamesAndIds.length - 1 && <Divider />}
                   </React.Fragment>
