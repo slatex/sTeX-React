@@ -1,4 +1,7 @@
+import ClearIcon from '@mui/icons-material/Clear';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import {
   Box,
   Button,
@@ -9,11 +12,9 @@ import {
   Select,
   TextField,
 } from '@mui/material';
-import { CoverageSnap } from '@stex-react/utils';
+import { CoverageSnap, PRIMARY_COL } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-
 interface FormWithListProps {
   snaps: CoverageSnap[];
   setSnaps: React.Dispatch<React.SetStateAction<CoverageSnap[]>>;
@@ -36,25 +37,22 @@ function findDuplicates(arr: string[]): string[] {
   return duplicates;
 }
 
-export function CoverageUpdater({
-  snaps,
-  setSnaps,
-  sectionNames,
-}: FormWithListProps) {
+export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListProps) {
   const [sectionName, setSectionName] = useState('');
   const [clipId, setClipId] = useState('');
   const [selectedTimestamp, setSelectedTimestamp] = useState(Date.now());
+  const [editIndex, setEditIndex] = useState<number | null>(null); // New state for edit index
+
   useEffect(() => {
     setSectionName(snaps[snaps.length - 1]?.sectionName);
   }, [snaps]);
 
-  const duplicateNames: string[] = findDuplicates(
-    sectionNames.map((option) => option.trim())
-  );
+  const duplicateNames: string[] = findDuplicates(sectionNames.map((option) => option.trim()));
 
   function setNoonDefaultTime(timestamp: number) {
     return new Date(timestamp).setHours(12, 0, 0, 0);
   }
+
   const handleAddItem = () => {
     if (!sectionName?.length) return;
     const newItem = {
@@ -62,10 +60,36 @@ export function CoverageUpdater({
       sectionName,
       clipId,
     };
-    setSnaps([...snaps, newItem]);
+    if (editIndex !== null) {
+      // Update existing entry
+      const updatedSnaps = [...snaps];
+      updatedSnaps[editIndex] = newItem;
+      setSnaps(updatedSnaps);
+      setEditIndex(null); // Reset edit index after updating
+    } else {
+      // Add new entry
+      setSnaps([...snaps, newItem]);
+    }
     setSectionName('');
+    setClipId('');
     setSelectedTimestamp(Date.now());
   };
+
+  const handleEditItem = (index: number) => {
+    const itemToEdit = snaps[index];
+    setSectionName(itemToEdit.sectionName);
+    setClipId(itemToEdit.clipId || '');
+    setSelectedTimestamp(itemToEdit.timestamp_ms);
+    setEditIndex(index);
+  };
+
+  const handleCancelEdit = () => {
+    setSectionName('');
+    setClipId('');
+    setSelectedTimestamp(Date.now());
+    setEditIndex(null);
+  };
+
   return (
     <Box mt="10px">
       <table>
@@ -100,14 +124,19 @@ export function CoverageUpdater({
               )}
             </td>
             <td>
-              <IconButton
-                onClick={() => {
-                  snaps.splice(idx);
-                  setSnaps(snaps.slice());
-                }}
-              >
-                <DeleteIcon />
-              </IconButton>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <IconButton onClick={() => handleEditItem(idx)}>
+                  <EditIcon sx={{ color: PRIMARY_COL }} />
+                </IconButton>
+                <IconButton
+                  onClick={() => {
+                    const updatedSnaps = snaps.filter((_, i) => i !== idx);
+                    setSnaps(updatedSnaps);
+                  }}
+                >
+                  <DeleteIcon sx={{ color: 'red' }} />
+                </IconButton>
+              </Box>
             </td>
           </tr>
         ))}
@@ -163,14 +192,20 @@ export function CoverageUpdater({
             />
           </td>
           <td>
-            <Button
-              variant="contained"
-              disabled={!sectionName?.length}
-              onClick={handleAddItem}
-              sx={{ mt: '20px' }}
-            >
-              Add
-            </Button>
+            {editIndex !== null ? (
+              <Box sx={{ display: 'flex', mt: '20px', mr: '10px' }}>
+                <Button variant="contained" color="primary" onClick={handleAddItem}>
+                  Update
+                </Button>
+                <IconButton onClick={() => handleCancelEdit()}>
+                  <ClearIcon sx={{ color: PRIMARY_COL, fontSize: 'large', variant: 'contained' }} />
+                </IconButton>
+              </Box>
+            ) : (
+              <Button variant="contained" onClick={handleAddItem} sx={{ mt: '20px' }}>
+                Add
+              </Button>
+            )}
           </td>
         </tr>
       </table>
