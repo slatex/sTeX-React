@@ -10,7 +10,13 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { getAcl, getAllAclMembers, isMember, isUserMember } from '@stex-react/api';
+import {
+  getAcl,
+  getAclUserDetails,
+  getAllAclMembers,
+  isMember,
+  isUserMember,
+} from '@stex-react/api';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -23,7 +29,7 @@ const AclId: NextPage = () => {
   const aclId = router.query.aclId as string;
 
   const [acls, setAcls] = useState<string[]>([]);
-  const [allMemberUserIds, setAllMemberUserIds] = useState<string[]>([]);
+  const [directMembersNamesAndIds, setDirectMembersNamesAndIds] = useState([]);
   const [desc, setDesc] = useState<string>(null);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [updaterACLId, setUpdaterACLId] = useState<string>(null);
@@ -41,11 +47,9 @@ const AclId: NextPage = () => {
       setUpdaterACLId(acl?.updaterACLId);
       setIsOpen(acl?.isOpen);
       const aclIds = new Set<string>();
-      const userMembers = new Set<string>();
-
+      const aclUserDetails = await getAclUserDetails(aclId);
       acl.memberACLIds.forEach((m) => aclIds.add(m));
-      acl.memberUserIds.forEach((m) => userMembers.add(m));
-      setAllMemberUserIds(Array.from(userMembers));
+      setDirectMembersNamesAndIds(aclUserDetails);
       setAcls(Array.from(aclIds));
     } catch (e) {
       console.log(e);
@@ -215,13 +219,13 @@ const AclId: NextPage = () => {
             </Box>
           )}
 
-          {allMemberUserIds.length !== 0 && (
+          {directMembersNamesAndIds.length !== 0 && (
             <Box sx={{ marginTop: '32px' }}>
               <Typography variant="h6" color="secondary">
                 Direct Members
               </Typography>
               <List>
-                {allMemberUserIds.map((user, index) => (
+                {directMembersNamesAndIds.map((user, index) => (
                   <React.Fragment key={user}>
                     <ListItem
                       button
@@ -232,9 +236,15 @@ const AclId: NextPage = () => {
                         },
                       }}
                     >
-                      <ListItemText primary={user} />
+                      <ListItemText
+                        primary={
+                          <>
+                            {user.fullName == '' ? <i>unknown</i> : user.fullName} ({user.userId})
+                          </>
+                        }
+                      />
                     </ListItem>
-                    {index < allMemberUserIds.length - 1 && <Divider />}
+                    {index < directMembersNamesAndIds.length - 1 && <Divider />}
                   </React.Fragment>
                 ))}
               </List>
