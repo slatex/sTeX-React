@@ -1,4 +1,3 @@
-import { AccessControlList } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { executeAndEndSet500OnError, executeDontEndSet500OnError } from '../comment-utils';
 import { ACLMembership } from './acl-membership';
@@ -30,11 +29,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     );
   const result = directMembers.map((userId) => {
     const userInfo = userInfoResults.find((record) => record.userId === userId);
-    if (userInfo) {
-      return { fullName: `${userInfo.firstname} ${userInfo.lastname}`, userId };
-    } else {
-      return { fullName: '', userId };
-    }
+    const fullName = userInfo ? `${userInfo.firstname} ${userInfo.lastname}` : '';
+    return { fullName, userId };
   });
   res.status(200).send(result);
 }
