@@ -80,7 +80,7 @@ export const de = {
     discard: 'abwerfen',
     saveAndGrade: 'Speichern und bewerten',
     yourAnswer: 'Ihre Antwort',
-    answerTemplate: 'Antwort $1 von $2',
+    yourAnswerWithIdx: 'Ihre Antwort ($1 von $2)',
   },
   practiceProblems: {
     clickSection:
