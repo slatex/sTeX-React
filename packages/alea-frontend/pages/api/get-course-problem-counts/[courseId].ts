@@ -1,9 +1,9 @@
 import {
-    SectionsAPIData,
-    getCourseInfo,
-    getDocumentSections,
-    getProblemIdsForFile,
-    lastFileNode
+  SectionsAPIData,
+  getCourseInfo,
+  getDocumentSections,
+  getProblemIdsForFile,
+  lastFileNode,
 } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
 export const EXCLUDED_CHAPTERS = ['Preface', 'Administrativa', 'Resources'];
@@ -27,13 +27,10 @@ function getCachedCourseProblemCounts(courseId: string) {
   }
 }
 
-function getAllSectionInfo(
-  node: SectionsAPIData,
-  ancestors: SectionsAPIData[]
-) {
+function getAllSectionInfo(node: SectionsAPIData, ancestors: SectionsAPIData[]) {
   if (!node) return [];
   const sections: { sectionId: string; parent?: SectionsAPIData }[] = [];
-  for (const c of node.children) {
+  for (const c of node.children || []) {
     sections.push(...getAllSectionInfo(c, [...ancestors, node]));
   }
   const sectionParentFile = lastFileNode(ancestors);
@@ -59,17 +56,12 @@ async function fetchProblemCounts(archive: string, filepath: string) {
   return problemCounts;
 }
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const courseId = req.query.courseId as string;
   let counts = getCachedCourseProblemCounts(courseId);
 
   if (!counts) {
-    const courseInfo = (await getCourseInfo(process.env.NEXT_PUBLIC_MMT_URL))[
-      courseId
-    ];
+    const courseInfo = (await getCourseInfo(process.env.NEXT_PUBLIC_MMT_URL))[courseId];
     if (!courseInfo) {
       res.status(404).json({ error: `Course not found: [${courseId}]` });
       return;
