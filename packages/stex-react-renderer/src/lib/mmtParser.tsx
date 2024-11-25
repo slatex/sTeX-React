@@ -1,5 +1,5 @@
 import PlayCircleFilledWhiteIcon from '@mui/icons-material/PlayCircleFilledWhite';
-import { Box, IconButton, Link } from '@mui/material';
+import { Box, IconButton } from '@mui/material';
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
 import {
@@ -41,6 +41,7 @@ import TrafficLightIndicator from './TrafficLightIndicator';
 import { langSelector } from './helper/langSelector';
 import { ServerLinksContext } from './stex-react-renderer';
 import { useOnScreen } from './useOnScreen';
+import Link from 'next/link';
 
 const APFEL_TOKEN = 'apfel-token';
 export const CustomItemsContext = createContext<{
@@ -511,11 +512,13 @@ export function searchTitle(children) {
 const state = {
   title: null,
 };
-
+function isElement(node: DOMNode): node is Element {
+  return (node as Element).name !== undefined && (node as Element).attribs !== undefined;
+}
 export const replace = (d: DOMNode): any => {
   if (
+    isElement(d) &&
     !state.title &&
-    d.type === 'tag' &&
     d.name === 'div' &&
     d.attribs.class === 'omdoc-fake-collapsible-small'
   ) {
@@ -713,7 +716,7 @@ export const replace = (d: DOMNode): any => {
     return (
       <>
         <MMTHrefReplaced d={domNode} />
-        <AnotherImageComponent d={domNode} title={state.title} />
+        <AnotherImageComponent d={domNode} title={state.title || ''} />
       </>
     );
   }
