@@ -255,3 +255,32 @@ CREATE TABLE homeworkHistory (
     
     PRIMARY KEY (id, versionNo)   
 );
+
+CREATE TABLE StudentProfile (
+    userId VARCHAR(50) PRIMARY KEY, 
+    name VARCHAR(255) NOT NULL, 
+    resumeURL VARCHAR(2083), 
+    email VARCHAR(255) NOT NULL, 
+    contactNo VARCHAR(15), 
+    programme VARCHAR(255) NOT NULL, 
+    yearOfAdmission YEAR NOT NULL, 
+    yearOfGraduation YEAR, 
+    courses TEXT, 
+    grades TEXT, 
+    about TEXT, 
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP, 
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
+    CONSTRAINT fk_user FOREIGN KEY (userId) REFERENCES userInfo(userId) 
+);
+
+CREATE TABLE RecruiterProfile (
+     userId VARCHAR(50) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    organisationName VARCHAR(255) NOT NULL,
+    position VARCHAR(255) NOT NULL
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP, 
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
+    CONSTRAINT fk_user FOREIGN KEY (userId) REFERENCES userInfo(userId) 
+);
+

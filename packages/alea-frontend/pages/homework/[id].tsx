@@ -45,7 +45,7 @@ const HomeworkPage: NextPage = () => {
       <MainLayout
         title={(courseId || '').toUpperCase() + ` ${tHome.courseThumb.homeworks} | VoLL-KI`}
       >
-        <ForceFauLogin />
+        <ForceFauLogin content={"homework"} />
       </MainLayout>
     );
   }
