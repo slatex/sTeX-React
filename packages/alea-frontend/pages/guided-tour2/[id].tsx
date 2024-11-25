@@ -1,197 +1,365 @@
-import { getLeafConcepts, getLearningObjects, getProblemShtml } from '@stex-react/api';
-import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
 import React, { useState, useEffect, useRef, useContext } from 'react';
+import { Box, Typography } from '@mui/material';
+import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
 import { useRouter } from 'next/router';
-import styles from './guided-tour.module.scss'; // Import CSS module for styling
-import { Box, Button, Typography } from '@mui/material';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
+import { getLeafConcepts, getLearningObjects } from '@stex-react/api';
+import styles from './guided-tour.module.scss';
+import DiagnosticTool from 'packages/alea-frontend/components/DiagnosticTool';
+import {
+  positiveResponses,
+  negativeResponses,
+  unsureResponses,
+  initializeMessages,
+  comfortPrompts,
+  definitionMessages,
+  definitionComfortPrompts,
+  problemMessages,
+  exampleMessages,
+  nextConceptsPrompts,
+  feedbackMessages,
+  responseOptions,
+  exampleComfortPrompts,
+  problemComfortPrompts,
+} from './messages';
+import ProblemFetcher from 'packages/alea-frontend/components/ProblemFetcher';
+import DefinitionFetcher from 'packages/alea-frontend/components/DefinitionFetcher';
+import ExampleFetcher from 'packages/alea-frontend/components/ExampleFetcher';
 
-function GuidedTours() {
-  const router = useRouter();
-  //   const title = router.query.id?.split('&title=')[1];
-  const title = router.query.id?.match(/&title=([^&]*)/)?.[1] || '';
+const STATES = {
+  COMFORT: 'comfort',
+  DEFINITION: 'definition',
+  PROBLEM: 'problem',
+  EXAMPLE: 'example',
+  NEXT_CONCEPT: 'next_concept',
+};
+const categorizeResponse = (response: string): 'yes' | 'no' | 'notSure' => {
+  const normalizedResponse = response.toLowerCase().trim();
+  if (positiveResponses.some((word) => normalizedResponse === word)) {
+    return 'yes';
+  }
 
-  const leafConceptUri = router.query.id?.split('&title=')[0];
+  if (negativeResponses.some((word) => normalizedResponse === word)) {
+    return 'no';
+  }
 
+  if (unsureResponses.some((word) => normalizedResponse === word)) {
+    return 'notSure';
+  }
+
+  if (positiveResponses.some((word) => normalizedResponse.includes(word))) {
+    return 'yes';
+  }
+
+  if (negativeResponses.some((word) => normalizedResponse.includes(word))) {
+    return 'no';
+  }
+
+  if (unsureResponses.some((word) => normalizedResponse.includes(word))) {
+    return 'notSure';
+  }
+
+  return 'notSure';
+};
+
+export const getRandomMessage = (messagesArray, context) => {
+  const template = messagesArray[Math.floor(Math.random() * messagesArray.length)];
+  return template.replace('{{concept}}', context);
+};
+
+const getRandomMessage2 = (messagesArray, title, currentConcept) => {
+  const template = messagesArray[Math.floor(Math.random() * messagesArray.length)];
+  return template.replace(/{{title}}/g, title).replace(/{{currentConcept}}/g, currentConcept);
+};
+const structureLearningObjects = (learningObject) => {
+  const structured = {};
+
+  learningObject.forEach((item) => {
+    const { type } = item;
+    const learningObject = item['learning-object'];
+    if (!structured[type]) {
+      structured[type] = {
+        uris: [],
+        currentIndex: 0,
+      };
+    }
+
+    structured[type].uris.push(learningObject);
+  });
+
+  return structured;
+};
+const GuidedTours = () => {
+  const [tourState, setTourState] = useState();
   const [currentConceptIndex, setCurrentConceptIndex] = useState(0);
   const [messages, setMessages] = useState([]);
+  const [shouldShowDiagnosticTool, setShouldShowDiagnosticTool] = useState(false);
+  const [diagnosticType, setDiagnosticType] = useState('comforts');
+
+  const [leafConceptData, setLeafConceptData] = useState([]);
+  const [currentConcept, setCurrentConcept] = useState({});
+
+  const [refreshKey, setRefreshKey] = useState(0);
+
   const messagesEndRef = useRef(null);
-  const [userResponse, setUserResponse] = useState(null);
-  const [shownDefinitions, setShownDefinitions] = useState({});
-  const { mmtUrl } = useContext(ServerLinksContext);
+  const router = useRouter();
+  const id = Array.isArray(router.query.id) ? router.query.id[0] : router.query.id;
 
-  const [conceptData, setConceptData] = useState([]);
-
-  const fetchLeafConcepts = async () => {
-    try {
-      const leafConceptLinks = await getLeafConcepts(leafConceptUri);
-
-      const conceptPromises = leafConceptLinks.leafConcepts.map(async (link) => {
-        const segments = link.split('?');
-        const conceptName = segments[segments.length - 1];
-
-        const [definitionResponse, learningObjectsResponse] = await Promise.all([
-          fetch(`https://stexmmt.mathhub.info/:sTeX/fragment?${link}`).then((res) => res.text()),
-          getLearningObjects([link]),
-        ]);
-        const problems = [];
-
-        const learningObjects = await Promise.all(
-          learningObjectsResponse.map(async (obj) => {
-            if (obj['type'] === 'problem') {
-              const problemHtml = await getProblemShtml(mmtUrl, obj['learning-object']);
-              problems.push(problemHtml);
-            }
-
-            return {
-              type: obj['type'],
-              url: obj['learning-object'],
-            };
-          })
-        );
-
-        return {
-          [conceptName]: {
-            title: conceptName,
-            concept_uri: link,
-            definition: definitionResponse,
-            learningObjects: learningObjects,
-            problems: problems,
-          },
-        };
-      });
-      const conceptDataArray = await Promise.all(conceptPromises);
-      setConceptData(conceptDataArray);
-    } catch (error) {
-      console.error('Error fetching leaf concepts:', error);
-    }
-  };
+  // (For title anyone approach can be used from below, not sure left for review)
+  // const title = router.query.id?.split('&title=')[1];
+  const title = id?.match(/&title=([^&]*)/)?.[1] || '';
+  const leafConceptUri = id?.split('&title=')[0] || '';
 
   useEffect(() => {
+    const fetchLeafConcepts = async () => {
+      try {
+        const leafConceptLinks = await getLeafConcepts(leafConceptUri);
+        const conceptArray = [];
+        leafConceptLinks.leafConcepts.map((link) => {
+          const segments = link.split('?');
+          const conceptName = segments[segments.length - 1];
+          const obj = {};
+          obj[conceptName] = link;
+          conceptArray.push(obj);
+        });
+        setLeafConceptData(conceptArray);
+      } catch (error) {
+        console.error('Error fetching leaf concepts:', error);
+      }
+    };
     fetchLeafConcepts();
   }, [leafConceptUri]);
+  useEffect(() => {
+    if (leafConceptData.length > 0 && currentConceptIndex >= 0) {
+      const conceptObj = leafConceptData[currentConceptIndex];
+      setCurrentConcept(conceptObj);
+    }
+  }, [currentConceptIndex, leafConceptData]);
+  const [learningObjectsData, setLearningObjectsData] = useState({});
 
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [messages]);
+    const fetchLearningObjects = async () => {
+      try {
+        if (currentConcept) {
+          const conceptName = Object.keys(currentConcept)[0];
+          const conceptUri = currentConcept[conceptName];
 
-  const handleUserResponse = async (response) => {
-    const currentConcept = Object.values(conceptData[currentConceptIndex])[0];
-    const currentConceptName = currentConcept.title;
-
-    setMessages((prevMessages) => [...prevMessages, { text: response, type: 'user' }]);
-    setUserResponse(response);
-
-    if (response === 'no') {
-      if (shownDefinitions[currentConceptName]) {
-        const nextConcept = Object.values(conceptData[currentConceptIndex + 1] || {})[0]?.title;
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          {
-            text: `Oops! We currently don't have more resources to help you. Moving to the next concept: <span style="color: #ed4b11;">${nextConcept}</span>.<br/>Do you feel comfortable with <span style="color: #1d9633;">${nextConcept}</span>?`,
-            type: 'system',
-          },
-        ]);
-        setCurrentConceptIndex((prevIndex) => prevIndex + 1);
-        setUserResponse(null);
-      } else {
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          {
-            text: `NO issue, we can do a small learning .Here is the definition of <span style="color: #c73730; font-size: 1.2rem; font-weight: bold;">${currentConceptName}</span>:<br/> ${currentConcept.definition}<br/>Do you understand it?`,
-            type: 'system',
-          },
-        ]);
-        setShownDefinitions((prevShown) => ({ ...prevShown, [currentConceptName]: true }));
-        setUserResponse(null);
-      }
-    } else if (response === 'yes') {
-      if (currentConceptIndex + 1 < conceptData.length) {
-        const nextConcept = Object.values(conceptData[currentConceptIndex + 1])[0].title;
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          {
-            text: `Okay, as you know the topic  <span style="color: #d629ce; font-size: 1.2rem; font-weight: bold;">${currentConceptName}</span>. We will move to the next concept: <span style="color: #1d9633;">${nextConcept}</span>.<br/>Do you feel comfortable with <span style="color: #ed4b11; font-size: 1.2rem; font-weight: bold;">${nextConcept}</span>?`,
-            type: 'system',
-          },
-        ]);
-        setCurrentConceptIndex((prevIndex) => prevIndex + 1);
-        setUserResponse(null);
-      } else {
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          {
-            text: `You've gone through all available concepts! Thank you for participating!`,
-            type: 'system',
-          },
-        ]);
-      }
-    } else if (response === 'not sure') {
-      // RECHECK THIS ONE
-      const learningObjects = currentConcept.learningObjects;
-      if (learningObjects.length > 0) {
-        const problemList = learningObjects.filter((obj) => obj.type === 'problem');
-        if (problemList.length > 0) {
-          const prob = await getProblemShtml(mmtUrl, problemList[0].url);
-          console.log('prNew', prob);
-
-          setMessages((prevMessages) => [
-            ...prevMessages,
-            {
-              text: `That's alright. Let's do a quick exercise to find out. Please try to answer the following problem(s):<br/>${prob}.</br> Do you get what the correct answer is?`,
-              type: 'system',
-            },
-          ]);
-        } else {
-          setMessages((prevMessages) => [
-            ...prevMessages,
-            {
-              text: `At the moment, we don't have any problems to assess your understanding. Instead, take a look at the definition below:<br/><span style='color: #d629ce; font-size: 1.2rem; font-weight: bold;'>${currentConcept.definition}</span>. Do you understand it?`,
-              type: 'system',
-            },
-          ]);
+          try {
+            const response = await getLearningObjects([conceptUri]);
+            const result = structureLearningObjects(response);
+            const learningObjects = {};
+            learningObjects[Object.keys(currentConcept)[0]] = result;
+            setLearningObjectsData(learningObjects);
+          } catch (error) {
+            console.error(`Error fetching learning object for ${conceptName}:`, error);
+          }
         }
-      } else {
+      } catch (error) {
+        console.error('Error in fetchLearningObjects:', error);
+      }
+    };
+
+    if (leafConceptData.length > 0) {
+      fetchLearningObjects();
+    }
+  }, [currentConcept]);
+
+  const transition = (newState) => {
+    setTourState(newState);
+  };
+
+  const [textArray, setTextArray] = useState(comfortPrompts);
+
+  useEffect(() => {
+    const initializeTour = () => {
+      if (leafConceptData.length > 1 && messages.length === 0) {
+        const currentConcept = Object.keys(leafConceptData[0])[0];
         setMessages((prevMessages) => [
           ...prevMessages,
           {
-            text: `Currently, we do not have any problems to check your understanding level. Therefore, have a look at its definition and move to the new concept:<br/><span style="color: #d629ce; font-size: 1.2rem; font-weight: bold;">${currentConcept.definition}</span>. Do you understand it?`,
+            text: getRandomMessage2(initializeMessages, title, currentConcept),
             type: 'system',
           },
         ]);
+        transition(STATES.COMFORT);
       }
-      setUserResponse(null);
+    };
+    initializeTour();
+  }, [leafConceptData]);
+  const showFeedbackMessage = (responseCategory: string) => {
+    const messages = feedbackMessages[responseCategory];
+    if (messages) {
+      const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+      setMessages((prevMessages) => [...prevMessages, { type: 'system', text: randomMessage }]);
+    } else {
+      console.warn(`No feedback messages available for response category: ${responseCategory}`);
     }
   };
 
-  useEffect(() => {
-    if (conceptData.length > 1 && messages.length === 0) {
-      const currentConcept = Object.keys(conceptData[0])[0];
-      console.log('conceptData', conceptData);
+  const handleResponseSelect = (response: string, diagnosticType: string) => {
+    const res = categorizeResponse(response);
+
+    showFeedbackMessage(res);
+
+    const transitionMap = {
+      comfort: {
+        yes: STATES.NEXT_CONCEPT,
+        no: STATES.DEFINITION,
+        notSure: STATES.PROBLEM,
+      },
+      definition: {
+        yes: STATES.PROBLEM,
+        no: STATES.DEFINITION,
+        notSure: STATES.EXAMPLE,
+      },
+      problem: {
+        yes: STATES.NEXT_CONCEPT,
+        no: STATES.DEFINITION,
+      },
+      next_concept: {
+        yes: STATES.COMFORT,
+        no: STATES.DEFINITION,
+      },
+      example: {
+        yes: STATES.PROBLEM,
+        no: STATES.DEFINITION,
+        notSure: STATES.DEFINITION,
+      },
+    };
+
+    if ((diagnosticType === 'comfort' || diagnosticType === 'problem') && res === 'yes') {
+      if (currentConceptIndex + 1 == leafConceptData.length) {
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { type: 'system', text: 'All leaf Concept finished' },
+        ]);
+        return;
+      }
+      setCurrentConceptIndex((prevIndex) => prevIndex + 1);
+    }
+    if (diagnosticType === 'next_concept' && res === 'no') {
+      setCurrentConceptIndex((prevIndex) => prevIndex - 1);
+    }
+    const nextState = transitionMap[diagnosticType]?.[res];
+
+    if (nextState) {
+      if (tourState === 'definition' && nextState === 'definition') {
+        setRefreshKey((prevKey) => prevKey + 1);
+      }
+      transition(nextState);
+    }
+  };
+
+  const [responseButtons, setResponseButtons] = useState(responseOptions['comfort']);
+  const getNextItem = (currentConcept, type) => {
+    const obj = learningObjectsData[currentConcept]?.[type];
+    if (!obj || !obj.uris || obj.uris.length === 0) {
+      return null;
+    }
+    const uri = obj.uris[obj.currentIndex];
+    obj.currentIndex = (obj.currentIndex + 1) % obj.uris.length;
+
+    return uri;
+  };
+  const handleSubmitResult = (result) => {
+    console.log('User submission result:', result);
+  };
+  const showLearningObject = (
+    setMessages,
+    leafConceptData,
+    state,
+    textArray,
+    learningObjectUri
+  ) => {
+    let componentToRender;
+
+    switch (state) {
+      case 'definition':
+        componentToRender = <DefinitionFetcher link={learningObjectUri} />;
+        break;
+      case 'problem':
+        componentToRender = (
+          <ProblemFetcher link={learningObjectUri} onSubmit={handleSubmitResult} />
+        );
+        break;
+      case 'example':
+        componentToRender = <ExampleFetcher link={learningObjectUri} />;
+        break;
+      default:
+        componentToRender = null;
+    }
+
+    /////////////////////////////
+    ///Intro message
+    ///for learningObject
+    //////////////////////
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      {
+        text: getRandomMessage(textArray, Object.keys(leafConceptData[currentConceptIndex])[0]),
+        type: 'system',
+      },
+    ]);
+    setTimeout(() => {
       setMessages((prevMessages) => [
         ...prevMessages,
         {
-          text: `
-            Happy to help you learn about <strong>${title}</strong>.<br/>
-            To understand <strong>${title}</strong>, it would be good to understand its prerequisites.<br/>
-            Based on your learner model, I think it will be a good idea to learn about <span style="color: #d629ce; font-size: 1.2rem; font-weight: bold;">${currentConcept}</span> first.<br/>
-            Do you feel comfortable with <span style="color: #d629ce; font-size: 1.2rem; font-weight: bold;">${currentConcept}</span>?`,
+          component: componentToRender,
           type: 'system',
         },
       ]);
+    }, 500);
+  };
+
+  useEffect(() => {
+    if (leafConceptData.length > 0 && tourState === STATES.COMFORT) {
+      setDiagnosticType('comfort');
+      setTextArray(comfortPrompts);
+      setResponseButtons(responseOptions['comfort']);
+      setShouldShowDiagnosticTool(true);
+    } else if (tourState === STATES.DEFINITION) {
+      const uriToFetch = getNextItem(Object.keys(currentConcept)[0], STATES.DEFINITION);
+
+      showLearningObject(
+        setMessages,
+        leafConceptData,
+        STATES.DEFINITION,
+        definitionMessages,
+        uriToFetch
+      );
+      setDiagnosticType('definition');
+      setTextArray(definitionComfortPrompts);
+      setResponseButtons(responseOptions['definition']);
+      setShouldShowDiagnosticTool(true);
+    } else if (tourState === STATES.PROBLEM) {
+      const uriToFetch = getNextItem(Object.keys(currentConcept)[0], STATES.PROBLEM);
+      showLearningObject(setMessages, leafConceptData, STATES.PROBLEM, problemMessages, uriToFetch);
+      setDiagnosticType('problem');
+      setTextArray(problemComfortPrompts);
+      setResponseButtons(responseOptions['problem']);
+      setShouldShowDiagnosticTool(true);
+    } else if (tourState === STATES.NEXT_CONCEPT) {
+      setDiagnosticType('next_concept');
+      setTextArray(nextConceptsPrompts);
+      setResponseButtons(responseOptions['next_concept']);
+
+      setShouldShowDiagnosticTool(true);
+    } else if (tourState === STATES.EXAMPLE) {
+      const uriToFetch = getNextItem(Object.keys(currentConcept)[0], STATES.EXAMPLE);
+      showLearningObject(setMessages, leafConceptData, STATES.EXAMPLE, exampleMessages, uriToFetch);
+      setDiagnosticType('example');
+      setTextArray(exampleComfortPrompts);
+      setResponseButtons(responseOptions['example']);
+      setShouldShowDiagnosticTool(true);
     }
-  }, [conceptData, messages]);
+  }, [tourState, leafConceptData, refreshKey]);
 
   return (
     <MainLayout title="Guided Tour">
       <div>
         <h1 className={styles.title}>
           <span className={styles.welcomeText}>Welcome to the Guided Tour of </span>
-          <span className={styles.dynamicTitle}>{title}</span>
+          <span className={styles.dynamicTitle}>{title || 'Loading...'}</span>
         </h1>
-
         <Box
           display="flex"
           flexDirection="column"
@@ -221,36 +389,33 @@ function GuidedTours() {
                 }}
                 className={`${styles.messageBox} ${styles.systemMessage}`}
               >
-                <Typography variant="body1" dangerouslySetInnerHTML={{ __html: msg.text }} />
+                {msg.text && (
+                  <Typography variant="body1" dangerouslySetInnerHTML={{ __html: msg.text }} />
+                )}
+                {msg.component && msg.text && <Box sx={{ mt: 2 }} />}
+                {msg.component && msg.component}
               </Box>
             </Box>
           ))}
-          <div ref={messagesEndRef} />
-        </Box>
 
-        {currentConceptIndex < conceptData.length && userResponse === null && (
-          <Box
-            display="flex"
-            justifyContent="flex-end"
-            mt={3}
-            className={`${styles.messageBox} ${styles.userMessage}`}
-          >
-            {['yes', 'no', 'not sure'].map((response) => (
-              <Button
-                key={response}
-                variant="contained"
-                color={userResponse === response ? 'secondary' : 'primary'}
-                onClick={() => handleUserResponse(response)}
-                style={{ margin: '0 5px' }}
-              >
-                {response.charAt(0).toUpperCase() + response.slice(1)}
-              </Button>
-            ))}
-          </Box>
-        )}
+          <div ref={messagesEndRef} />
+          {shouldShowDiagnosticTool && (
+            <DiagnosticTool
+              key={refreshKey}
+              diagnosticType={diagnosticType}
+              textArray={textArray}
+              responseButtons={responseButtons}
+              messages={messages}
+              setMessages={setMessages}
+              onResponseSelect={handleResponseSelect}
+              leafConceptData={leafConceptData}
+              currentConceptIndex={currentConceptIndex}
+            />
+          )}
+        </Box>
       </div>
     </MainLayout>
   );
-}
+};
 
 export default GuidedTours;
