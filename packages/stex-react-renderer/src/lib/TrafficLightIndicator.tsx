@@ -63,16 +63,17 @@ const TrafficLightIndicator = ({ contentUrl }: { contentUrl: string }) => {
   const { mmtUrl } = useContext(ServerLinksContext);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [competencyData, setCompetencyData] = useState<NumericCognitiveValues[] | null>(null);
+  const [showTrafficLightWhenUris, setShowTrafficLightWhenUris] = useState<boolean>(false);
   const [URIs, setURIs] = useState<string[]>([]);
   useEffect(() => {
     if (!isLoggedIn()) return;
-    getSectionDependencies(mmtUrl, archive, filepath).then(uris=>{
+    getSectionDependencies(mmtUrl, archive, filepath).then((uris) => {
       setURIs(uris);
-
+      setShowTrafficLightWhenUris(uris.length > 0);
       getUriWeights(uris).then((data) => setCompetencyData(data));
     });
   }, [archive, filepath, mmtUrl]);
-  
+
   const handleBoxClick = () => {
     setDialogOpen(true);
   };
@@ -89,6 +90,8 @@ const TrafficLightIndicator = ({ contentUrl }: { contentUrl: string }) => {
     ? competencyData.reduce((sum, item) => sum + (item[BloomDimension.Understand] ?? 0), 0) /
       competencyData.length
     : 0;
+
+  if (!showTrafficLightWhenUris) return null;
 
   return (
     <>
