@@ -9,8 +9,10 @@ import {
   TextField,
   Tooltip,
   Typography,
+  CircularProgress,
+  tooltipClasses
 } from '@mui/material';
-import {
+import { 
   getAcl,
   getAclUserDetails,
   getAllAclMembers,
@@ -22,6 +24,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
+import AclDisplay from 'packages/alea-frontend/components/AclDisplay';
 
 const AclId: NextPage = () => {
   const router = useRouter();
@@ -170,7 +173,7 @@ const AclId: NextPage = () => {
                     cursor: 'pointer',
                   }}
                 >
-                  {updaterACLId}
+                  <AclDisplay aclId={updaterACLId}/>
                 </Typography>
               </Link>
             </Typography>
@@ -210,7 +213,7 @@ const AclId: NextPage = () => {
                         },
                       }}
                     >
-                      <ListItemText primary={aclId} />
+                      <AclDisplay aclId={aclId} />
                     </ListItem>
                     {index < acls.length - 1 && <Divider />}
                   </React.Fragment>

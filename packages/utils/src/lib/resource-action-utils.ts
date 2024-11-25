@@ -5,7 +5,7 @@ export enum Action {
   READ = 'READ',
   UPDATE = 'UPDATE',
   DELETE = 'DELETE',
-
+  PREVIEW = 'PREVIEW',
   MUTATE = 'MUTATE',
   MODERATE = 'MODERATE',
 
@@ -85,7 +85,7 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
   },
   {
     name: ResourceName.COURSE_QUIZ,
-    possibleActions: [Action.MUTATE],
+    possibleActions: [Action.MUTATE, Action.PREVIEW],
     components: [
       { type: ComponentType.FIXED, value: 'course' },
       { name: 'courseId', type: ComponentType.VARIABLE },

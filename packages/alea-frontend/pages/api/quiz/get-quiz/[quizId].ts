@@ -103,13 +103,19 @@ export default async function handler(
     res.status(400).json({ message: `Quiz not found: [${quizId}]` });
     return;
   }
-
-  const moderatorAction: ResourceActionParams = {
-    name: ResourceName.COURSE_QUIZ,
-    action: Action.MUTATE,
-    variables: { courseId, instanceId: courseTerm },
-  };
-  const isModerator = await isUserIdAuthorizedForAny(userId, [moderatorAction]);
+  const moderatorActions : ResourceActionParams[] = [
+    {
+      name : ResourceName.COURSE_QUIZ,
+      action: Action.MUTATE,
+      variables: { courseId, instanceId: courseTerm },
+    },
+    {
+      name : ResourceName.COURSE_QUIZ,
+      action : Action.PREVIEW,
+      variables : { courseId, instanceId : courseTerm }
+    }
+  ]
+  const isModerator = await isUserIdAuthorizedForAny(userId, moderatorActions);
 
   const phase = getQuizPhase(quizInfo);
   const quizTimes = getQuizTimes(quizInfo);
