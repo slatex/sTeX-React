@@ -389,7 +389,6 @@ function getSparlQueryForDependencies(archive: string, filepath: string) {
 export async function getSectionDependencies(mmtUrl: string, archive: string, filepath: string) {
   const query = getSparlQueryForDependencies(archive, filepath);
   const sparqlResponse = await sparqlQuery(mmtUrl, query);
-
   const dependencies: string[] = [];
   for (const binding of sparqlResponse.results?.bindings || []) {
     dependencies.push(binding['x'].value);
