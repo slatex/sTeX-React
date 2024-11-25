@@ -6,6 +6,7 @@ import {
   ViewEvent,
   generateApfelToken,
   getAncestors,
+  getSectionDependencies,
   getUserInfo,
   getUserInformation,
   isLoggedIn,
@@ -276,11 +277,18 @@ function MMTImage({ d }: { d: Element }) {
 }
 
 function SectionTitleDisplay({ d }: { d: Element }) {
-  const [showLight, setShowLight] = useState<boolean>(false);
+  const [showLight, setShowLight] = useState<boolean>(false);// true if user is logged in and wants to show traffic light
+  const { mmtUrl } = useContext(ServerLinksContext);
+  const [showTrafficLightWhenUris, setShowTrafficLightWhenUris] = useState<boolean>(false);
   useEffect(() => {
     if (!isLoggedIn()) return;
     getUserInformation().then((res) => {
       setShowLight(res?.showTrafficLight ?? false);
+    });
+  }, []);
+  useEffect(() => {
+    getSectionDependencies(mmtUrl, archive, filepath).then((uris) => {
+      setShowTrafficLightWhenUris(uris.length > 0);
     });
   }, []);
   const { docFragManager } = useContext(DocSectionContext);
@@ -294,7 +302,11 @@ function SectionTitleDisplay({ d }: { d: Element }) {
   return (
     <>
       {actualSectionTitle}
-      {showLight ? <TrafficLightIndicator contentUrl={XhtmlContentUrl(archive, filepath)} /> : null}
+      {showLight
+        ? showTrafficLightWhenUris && (
+            <TrafficLightIndicator contentUrl={XhtmlContentUrl(archive, filepath)} />
+          )
+        : null}
     </>
   );
 }
