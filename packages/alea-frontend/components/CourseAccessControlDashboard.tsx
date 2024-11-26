@@ -22,6 +22,7 @@ import {
 import { Action, CURRENT_TERM, ResourceActionPair } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import AclDisplay from './AclDisplay';
 
 const ALL_SHORT_IDS = [
   'notes',
@@ -100,17 +101,7 @@ const CourseAccessControlDashboard = ({ courseId }) => {
         }}
       />
     ) : (
-      <Typography
-        onClick={() => handleAclClick(aclData[shortId])}
-        sx={{
-          cursor: 'pointer',
-          color: 'blue',
-          textDecoration: 'underline',
-          fontSize: '12px',
-        }}
-      >
-        {aclData[shortId] || '-'}
-      </Typography>
+      aclData[shortId] ? <AclDisplay aclId={aclData[shortId]} /> : '-'
     );
   };
 
@@ -253,21 +244,10 @@ const CourseAccessControlDashboard = ({ courseId }) => {
       >
         {acls.map((acl, index) => {
           return (
-            <Box key={acl} sx={{ flex: '1 0 200px' }}>
-              <ListItem
-                sx={{
-                  cursor: 'pointer',
-                  '&:hover': { backgroundColor: '#f0f0f0' },
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                  padding: '8px',
-                  textAlign: 'center',
-                }}
-                onClick={() => router.push(`/acl/${acl}`)}
-                disableGutters
-              >
-                <ListItemText primary={acl || '-'} sx={{ fontSize: '14px' }} />
-              </ListItem>
+            <Box key={acl} sx={{ flex: '20px 20px 20px' }}>
+              <Typography onClick={() => router.push(`/acl/${acl}`)}>
+                <AclDisplay aclId={acl} />
+              </Typography>
             </Box>
           );
         })}

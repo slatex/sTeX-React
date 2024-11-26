@@ -47,6 +47,7 @@ import {
 import { DateView } from '@stex-react/react-utils';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import AclDisplay from '../components/AclDisplay';
 
 const SysAdmin: NextPage = () => {
   const router = useRouter();
@@ -397,7 +398,7 @@ const SysAdmin: NextPage = () => {
                         size="small"
                       />
                     ) : (
-                      entry.aclId
+                      <AclDisplay aclId={entry.aclId} />
                     )}
                   </TableCell>
                   <TableCell>
