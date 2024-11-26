@@ -10,7 +10,7 @@ import {
   getUserInformation,
   isLoggedIn,
   lastFileNode,
-  reportEvent,
+  reportEvent
 } from '@stex-react/api';
 import { PROBLEM_PARSED_MARKER, getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
 import {
