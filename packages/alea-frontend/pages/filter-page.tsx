@@ -43,6 +43,8 @@ const FilterPage = () => {
   };
 
   const [uris, setUris] = useState([]);
+  const [filteredUris, setFilteredUris] = useState([]);
+  console.log({ filteredUris });
   console.log({ uris });
   const fetchLearningObjects = async (concept) => {
     if (!concept.trim()) {
@@ -84,7 +86,13 @@ WHERE {
       alert('Failed to fetch learning objects. Please try again.');
     }
   };
-
+  useEffect(() => {
+    if (clickedButton === 'Problem' && uris?.problem?.length > 0) setFilteredUris(uris.problem);
+    else if (clickedButton === 'Example' && uris?.example?.length > 0)
+      setFilteredUris(uris.example);
+    else if (clickedButton === 'Definition' && uris?.definition?.length > 0)
+      setFilteredUris(uris.definition);
+  }, [clickedButton]);
   const handleClick = () => {
     fetchLearningObjects(concept);
   };
@@ -290,8 +298,7 @@ WHERE {
             ))}
           </Box>
 
-          <Box>
-            {/* For Problems */}
+          {/* <Box>
             {clickedButton === 'Problem' && uris?.problem?.length > 0 ? (
               <Box sx={{ margin: '40px' }}>
                 <PracticeQuestions problemIds={uris.problem} />
@@ -300,7 +307,6 @@ WHERE {
               clickedButton === 'Problem' && <Typography>No Problems Available</Typography>
             )}
 
-            {/* For Definitions */}
             {clickedButton === 'Definition' && uris?.definition?.length > 0 ? (
               <Box sx={{ margin: '40px' }}>
                 <DefinitionsViewer uris={uris.definition} />
@@ -309,7 +315,6 @@ WHERE {
               clickedButton === 'Definition' && <Typography>No Definitions Available</Typography>
             )}
 
-            {/* For Examples */}
             {clickedButton === 'Example' && uris?.example?.length > 0 ? (
               <Box sx={{ margin: '40px' }}>
                 <ExamplesViewer uris={uris.example} />
@@ -317,9 +322,10 @@ WHERE {
             ) : (
               clickedButton === 'Example' && <Typography>No Examples Available</Typography>
             )}
-          </Box>
+          </Box> */}
+
           {/* URI Boxes */}
-          {/* <Box sx={{ display: 'flex', gap: '16px', marginTop: '20px' }}>
+          <Box sx={{ display: 'flex', gap: '16px', marginTop: '20px' }}>
             <Box
               sx={{
                 flex: 1,
@@ -332,7 +338,7 @@ WHERE {
               }}
             >
               <Typography variant="h6">Filtered URIs</Typography>
-              {uris.map((uri, index) => (
+              {filteredUris.map((uri, index) => (
                 <Typography
                   key={index}
                   onClick={() => setSelectedUri(uri)}
@@ -359,7 +365,16 @@ WHERE {
               }}
             >
               <Typography variant="h6">Details</Typography>
-              {selectedUri ===
+              {clickedButton === 'Problem' && selectedUri && (
+                <PracticeQuestions problemIds={[selectedUri]} />
+              )}
+              {clickedButton === 'Definition' && selectedUri && (
+                <DefinitionsViewer uris={[selectedUri]} />
+              )}
+              {clickedButton === 'Example' && selectedUri && (
+                <ExamplesViewer uris={[selectedUri]} />
+              )}
+              {/* {selectedUri ===
               'http://mathhub.info/courses/FAU/AI/problems/planning/quiz/planning8.en.omdoc?en?341bd3d5' ? (
                 <PracticeQuestions problemIds={[selectedUri]} />
               ) : (
@@ -369,9 +384,9 @@ WHERE {
                 //   <Typography>{`Details for ${selectedUri}`}</Typography>
                 // </Card>
                 // <Typography>Select a URI to view details</Typography>
-              )}
+              )} */}
             </Box>
-          </Box> */}
+          </Box>
 
           {/* Filter Button */}
           {/* <Box sx={{ textAlign: 'right', marginTop: '20px' }}>

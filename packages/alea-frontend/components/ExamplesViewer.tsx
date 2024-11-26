@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { mmtHTMLToReact, ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { getLearningObjectShtml } from '@stex-react/api';
 import { Box, Button, Typography } from '@mui/material';
+import { getLearningObjectShtml } from '@stex-react/api';
 
 const ExamplesViewer = ({ uris }) => {
   const [exampleIdx, setExampleIdx] = useState(0);
