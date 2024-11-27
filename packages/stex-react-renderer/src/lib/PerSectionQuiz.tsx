@@ -1,7 +1,12 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Button, IconButton, Tooltip, Typography } from '@mui/material';
 import LinearProgress from '@mui/material/LinearProgress';
-import { Problem, ProblemResponse, getProblemIdsForFile, getProblemShtml } from '@stex-react/api';
+import {
+  Problem,
+  ProblemResponse,
+  getProblemIdsForFile,
+  getLearningObjectShtml,
+} from '@stex-react/api';
 import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
 import { sourceFileUrl } from '@stex-react/utils';
 import { useRouter } from 'next/router';
@@ -49,7 +54,7 @@ export function PerSectionQuiz({
 
   useEffect(() => {
     if (!startQuiz) return;
-    const problems$ = problemIds.map((p) => getProblemShtml(mmtUrl, p));
+    const problems$ = problemIds.map((p) => getLearningObjectShtml(mmtUrl, p));
     setIsLoadingProblems(true);
     Promise.all(problems$).then((problemStrs) => {
       const problems = problemStrs.map((p) => getProblem(hackAwayProblemId(p), ''));
@@ -167,7 +172,6 @@ export function PerSectionQuiz({
           </Button>
         )}
       </Box>
-      
     </Box>
   );
 }

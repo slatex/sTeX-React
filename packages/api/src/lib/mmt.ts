@@ -7,7 +7,6 @@ import {
   createCourseInfo,
 } from '@stex-react/utils';
 import axios from 'axios';
-
 ///////////////////
 // :sTeX/query/problems
 ///////////////////
@@ -53,8 +52,8 @@ export async function getProblemIdsForFile(mmtUrl: string, archive: string, file
 ///////////////////
 // :sTeX/loraw
 ///////////////////
-export async function getProblemShtml(mmtUrl: string, problemId: string) {
-  const url = `${mmtUrl}/:sTeX/loraw?${problemId}`;
+export async function getLearningObjectShtml(mmtUrl: string, objectId: string) {
+  const url = `${mmtUrl}/:sTeX/loraw?${objectId}`;
   const resp = await axios.get(url);
   return resp.data as string;
 }
