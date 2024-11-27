@@ -1,3 +1,4 @@
+import { addUserIdToAccessControlList } from './addUserIdToAccessControlList';
 import { endSemSummary } from './endSemSummary';
 import { populateResponseColumn } from './populateResponseColumn';
 import { quizLmsInfoWriter } from './quizLmsInfoWriter';
@@ -15,6 +16,9 @@ switch (process.env.SCRIPT_NAME) {
     break;
   case 'recorrectQuizzes':
     recorrectQuizzes();
+    break;
+  case 'addUserIdToAccessControlList':
+    addUserIdToAccessControlList();
     break;
   default:
     console.log('Invalid script name');
