@@ -1,7 +1,8 @@
 import { Box, CircularProgress, Tooltip, tooltipClasses, Typography } from '@mui/material';
 import { getAcl, getAclUserDetails } from '@stex-react/api';
 import { useEffect, useState } from 'react';
-
+import LockIcon from '@mui/icons-material/Lock';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
 interface AclDetails {
   isOpen: boolean;
   description: string;
@@ -47,17 +48,18 @@ function AclHoverPopup({ aclId }: { aclId: string }) {
       borderRadius="5px"
       boxShadow="1px 4px 10px 4px rgba(0,0,0,0.33)"
     >
-      <Typography variant="subtitle1" color="primary">
-        ACL: {aclId}
-      </Typography>
-      <Typography variant="body2" color="textSecondary">
-        Description: {aclDetails.description || ''}
-      </Typography>
-      <Typography variant="body2" color="textSecondary">
-        Open: {aclDetails.isOpen ? 'Yes' : 'No'}
-      </Typography>
+      <Box display={'flex'}>
+        <Typography variant="subtitle1" color="primary">
+          {aclId}
+        </Typography>
+        {aclDetails.isOpen ? (
+          <LockOpenIcon sx={{ ml: 1, color: 'green' }} />
+        ) : (
+          <LockIcon sx={{ ml: 1, color: 'red' }} />
+        )}
+      </Box>
       {aclDetails.updaterACLId && (
-        <Box sx={{ mt: 2 }}>
+        <Box>
           <Typography variant="body2" color="secondary">
             Updater ACL:
             <AclDisplay aclId={aclDetails.updaterACLId} />
@@ -65,7 +67,7 @@ function AclHoverPopup({ aclId }: { aclId: string }) {
         </Box>
       )}
       {directMembersNamesAndIds.length > 0 && (
-        <Box sx={{ mt: 2 }}>
+        <Box>
           <Typography color="secondary">Direct Members:</Typography>
           {directMembersNamesAndIds.map((member) => (
             <Typography fontSize={14}>
@@ -93,7 +95,16 @@ function AclDisplay({ aclId }: { aclId: string }) {
     <Tooltip
       title={<AclHoverPopup aclId={aclId} />}
       placement="right"
+      leaveDelay={300}
       PopperProps={{
+        modifiers: [
+          {
+            name: 'offset',
+            options: {
+              offset: [0, -10],
+            },
+          },
+        ],
         sx: {
           [`& .${tooltipClasses.tooltip}`]: {
             maxWidth: 'none',

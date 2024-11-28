@@ -1,8 +1,9 @@
 import { OpenInNew } from '@mui/icons-material';
-import { Box, Button, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { Box, Button, FormControl, InputLabel, MenuItem, Select, Typography } from '@mui/material';
 import {
   canAccessResource,
   createQuiz,
+  deleteQuiz,
   getAuthHeaders,
   getCourseInfo,
   getQuizStats,
@@ -88,6 +89,7 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
     perProblemStats: {},
     totalStudents: 0,
   });
+  const [accessType, setAccessType] = useState<'PREVIEW' | 'MUTATE'>();
   const [isUpdating, setIsUpdating] = useState(false);
   const [canAccess, setCanAccess] = useState(false);
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
@@ -163,18 +165,52 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
   if (!selectedQuiz && !isNew) return <>Error</>;
 
   useEffect(() => {
-    canAccessResource(ResourceName.COURSE_QUIZ, Action.MUTATE, {
-      courseId,
-      instanceId: courseTerm,
-    }).then(setCanAccess);
+    async function checkHasAccessAndGetTypeOfAccess() {
+      if (
+        await canAccessResource(ResourceName.COURSE_QUIZ, Action.MUTATE, {
+          courseId,
+          instanceId: CURRENT_TERM,
+        })
+      ) {
+        setAccessType('MUTATE');
+        setCanAccess(true);
+      } else if (
+        await canAccessResource(ResourceName.COURSE_QUIZ, Action.PREVIEW, {
+          courseId,
+          instanceId: courseTerm,
+        })
+      ) {
+        setAccessType('PREVIEW');
+        setCanAccess(true);
+      } else {
+        setCanAccess(false);
+      }
+    }
+    checkHasAccessAndGetTypeOfAccess();
   }, []);
+
+  async function handleDelete(quizId: string) {
+    if (await deleteQuiz(quizId, courseId, courseTerm)) {
+      setQuizzes(quizzes.filter((quiz) => quiz.id !== quizId));
+      setSelectedQuizId(NEW_QUIZ_ID);
+    }
+  }
 
   if (!canAccess) return <>Unauthorized</>;
 
   return (
     <Box m="auto" maxWidth="800px" p="10px">
+      {accessType == 'PREVIEW' && (
+        <Typography fontSize={16} color="red">
+          You don't have access to mutate this course Quizzes
+        </Typography>
+      )}
       <Select value={selectedQuizId} onChange={(e) => setSelectedQuizId(e.target.value)}>
-        <MenuItem value="New">New</MenuItem>
+        {accessType == 'MUTATE' ? (
+          <MenuItem value="New">New</MenuItem>
+        ) : (
+          <MenuItem value="New">Select Quiz</MenuItem>
+        )}
         {quizzes.map((quiz) => (
           <MenuItem key={quiz.id} value={quiz.id}>
             {mmtHTMLToReact(quiz.title)}&nbsp;({quiz.id})
@@ -182,7 +218,13 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
         ))}
       </Select>
 
-      <h2>{isNew ? 'New Quiz' : selectedQuizId}</h2>
+      <h2>
+        {isNew && accessType == 'MUTATE'
+          ? 'New Quiz'
+          : selectedQuizId === 'New'
+          ? ''
+          : selectedQuizId}
+      </h2>
       <b>{mmtHTMLToReact(title)}</b>
       {selectedQuiz && (
         <b>
@@ -225,45 +267,58 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
           ))}
         </Select>
       </FormControl>
-      <QuizFileReader setTitle={setTitle} setProblems={setProblems} />
+      {accessType == 'MUTATE' && <QuizFileReader setTitle={setTitle} setProblems={setProblems} />}
+      <br />
       <i>{Object.keys(problems).length} problems found.</i>
       <br />
 
-      <b style={{ color: 'red' }}>{formErrorReason}</b>
+      {selectedQuiz && <b style={{ color: 'red' }}>{formErrorReason}</b>}
       <br />
-      <Button
-        disabled={!!formErrorReason || isUpdating}
-        variant="contained"
-        onClick={async (e) => {
-          setIsUpdating(true);
-          const quiz = {
-            id: selectedQuizId,
-            title,
-            courseId,
-            courseTerm,
-            quizStartTs,
-            quizEndTs,
-            feedbackReleaseTs,
-            manuallySetPhase,
-            problems,
-          } as Quiz;
-          let resp: AxiosResponse;
-          try {
-            resp = await (isNew ? createQuiz(quiz) : updateQuiz(quiz));
-          } catch (e) {
-            alert(e);
+      {accessType == 'MUTATE' && (
+        <Button
+          disabled={!!formErrorReason || isUpdating}
+          variant="contained"
+          onClick={async (e) => {
+            setIsUpdating(true);
+            const quiz = {
+              id: selectedQuizId,
+              title,
+              courseId,
+              courseTerm,
+              quizStartTs,
+              quizEndTs,
+              feedbackReleaseTs,
+              manuallySetPhase,
+              problems,
+            } as Quiz;
+            let resp: AxiosResponse;
+            try {
+              resp = await (isNew ? createQuiz(quiz) : updateQuiz(quiz));
+            } catch (e) {
+              alert(e);
+              location.reload();
+            }
+            if (![200, 204].includes(resp.status)) {
+              alert(`Error: ${resp.status} ${resp.statusText}`);
+            } else {
+              alert(`Quiz ${isNew ? 'created' : 'updated'} successfully.`);
+            }
             location.reload();
-          }
-          if (![200, 204].includes(resp.status)) {
-            alert(`Error: ${resp.status} ${resp.statusText}`);
-          } else {
-            alert(`Quiz ${isNew ? 'created' : 'updated'} successfully.`);
-          }
-          location.reload();
-        }}
-      >
-        {isNew ? 'Create New Quiz' : 'Update Quiz'}
-      </Button>
+          }}
+        >
+          {isNew ? 'Create New Quiz' : 'Update Quiz'}
+        </Button>
+      )}
+      <br />
+      {accessType == 'MUTATE' && !isNew && (
+        <Button
+          onClick={() => handleDelete(selectedQuizId)}
+          variant="contained"
+          sx={{ mt: '10px' }}
+        >
+          DELETE QUIZ
+        </Button>
+      )}
       <br />
       <br />
       {!isNew && (

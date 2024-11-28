@@ -38,6 +38,15 @@ export function writeQuizFile(quiz: Quiz) {
   invalidateQuizCache();
 }
 
+export function deleteQuizFile(quizId:string){
+  const filePath = getQuizFilePath(quizId);
+  if (filePath && fs.existsSync(filePath)) {
+    const deletedFilePath = `${filePath}_deleted`;
+    fs.renameSync(filePath, deletedFilePath);
+    invalidateQuizCache();
+  }
+}
+
 export function invalidateQuizCache() {
   QUIZ_CACHE = undefined;
   QUIZ_CACHE_TS = undefined;
