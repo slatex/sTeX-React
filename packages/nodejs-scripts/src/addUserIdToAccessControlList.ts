@@ -46,20 +46,19 @@ export async function addUserIdToAccessControlList(): Promise<void> {
     );
 
     const quizIds = quizzes.map((q) => q.id);
-    const placeholders = quizIds.map(() => '?').join(', ');
-
+    
     // Fetch user IDs from grading table
     const userIdsFromGradingTable = await gradingdb.query<GradingEntry[]>(
       `SELECT userId
-        FROM grading
-        WHERE (quizId, userId, problemId, browserTimestamp_ms) IN (
-            SELECT quizId, userId, problemId, MAX(browserTimestamp_ms) AS browserTimestamp_ms
-            FROM grading
-            WHERE quizId IN (${placeholders})
-            GROUP BY quizId, userId, problemId
-        )
-        GROUP BY userId`,
-      quizIds
+         FROM grading
+         WHERE (quizId, userId, problemId, browserTimestamp_ms) IN (
+             SELECT quizId, userId, problemId, MAX(browserTimestamp_ms) AS browserTimestamp_ms
+             FROM grading
+             WHERE quizId IN (?)
+             GROUP BY quizId, userId, problemId
+         )
+         GROUP BY userId`,
+      [quizIds] 
     );
     const gradingTableUserIds = userIdsFromGradingTable.map((row) => row.userId);
     console.log('gradingTableUserIds---', gradingTableUserIds);
