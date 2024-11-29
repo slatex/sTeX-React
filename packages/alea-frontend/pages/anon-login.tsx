@@ -15,16 +15,13 @@ import {
   logInUser,
   ANON_USER_ID_PREFIX,
 } from '@stex-react/api';
-import { BG_COLOR, PRIMARY_COL, setCookie } from '@stex-react/utils';
+import { BG_COLOR, capitalizeFirstLetter, PRIMARY_COL, setCookie } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { ADJECTIVES, ANIMALS } from '../constants/avatar';
 import MainLayout from '../layouts/MainLayout';
 
-function capitalizeFirstLetter(str: string): string {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
 
 function modifyUserId(personality: string, animalName: string): string {
   return `${ANON_USER_ID_PREFIX}${personality}_${animalName}`;
