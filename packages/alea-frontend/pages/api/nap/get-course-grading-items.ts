@@ -3,7 +3,7 @@ import { Action, CURRENT_TERM, ResourceName } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getUserIdIfAuthorizedOrSetError } from '../access-control/resource-utils';
 import { checkIfGetOrSetError, executeDontEndSet500OnError } from '../comment-utils';
-import { getAllHomeworksOrSetError } from './get-homework-list';
+import { getAllHomeworksOrSetError } from '../homework/get-homework-list';
 
 interface PerSubProblemGradingType {
   homeworkId: number;

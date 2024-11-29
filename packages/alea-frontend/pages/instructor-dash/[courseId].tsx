@@ -4,12 +4,13 @@ import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { Action, CourseInfo, CURRENT_TERM, ResourceName } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
+import { useContext, useEffect, useState } from 'react';
 import CourseAccessControlDashboard from '../../components/CourseAccessControlDashboard';
 import HomeworkManager from '../../components/HomeworkManager';
+import { GradingInterface } from '../../components/nap/GradingInterface';
 import QuizDashboard from '../../components/QuizDashboard';
 import { StudyBuddyModeratorStats } from '../../components/StudyBuddyModeratorStats';
 import MainLayout from '../../layouts/MainLayout';
-import { useContext, useEffect, useState } from 'react';
 import { CourseHeader } from '../course-home/[courseId]';
 
 interface TabPanelProps {
@@ -18,11 +19,17 @@ interface TabPanelProps {
   index: number;
 }
 
-type TabName = 'access-control' | 'homework-manager' | 'quiz-dashboard' | 'study-buddy';
+type TabName =
+  | 'access-control'
+  | 'homework-manager'
+  | 'homework-grading'
+  | 'quiz-dashboard'
+  | 'study-buddy';
 
 const TAB_ACCESS_REQUIREMENTS: Record<TabName, { resource: ResourceName; action: Action }> = {
   'access-control': { resource: ResourceName.COURSE_ACCESS, action: Action.ACCESS_CONTROL },
   'homework-manager': { resource: ResourceName.COURSE_HOMEWORK, action: Action.MUTATE },
+  'homework-grading': { resource: ResourceName.COURSE_HOMEWORK, action: Action.INSTRUCTOR_GRADING },
   'quiz-dashboard': { resource: ResourceName.COURSE_QUIZ, action: Action.MUTATE },
   'study-buddy': { resource: ResourceName.COURSE_STUDY_BUDDY, action: Action.MODERATE },
 };
@@ -33,6 +40,8 @@ function ChosenTab({ tabName, courseId }: { tabName: TabName; courseId: string }
       return <CourseAccessControlDashboard courseId={courseId} />;
     case 'homework-manager':
       return <HomeworkManager courseId={courseId} />;
+    case 'homework-grading':
+      return <GradingInterface courseId={courseId} />;
     case 'quiz-dashboard':
       return <QuizDashboard courseId={courseId} />;
     case 'study-buddy':
@@ -75,7 +84,7 @@ const InstructorDash: NextPage = () => {
 
   const [accessibleTabs, setAccessibleTabs] = useState<TabName[]>([]);
   const [currentTabIdx, setCurrentTabIdx] = useState<number>(0);
-  
+
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setCurrentTabIdx(newValue);
     const selectedTab = accessibleTabs[newValue];
@@ -134,7 +143,13 @@ const InstructorDash: NextPage = () => {
         imageLink={courseInfo?.imageLink}
         courseId={courseId}
       />
-      <Box sx={{ width: '100%', margin: 'auto', maxWidth: '900px' }}>
+      <Box
+        sx={{
+          width: '100%',
+          margin: 'auto',
+          maxWidth: tab === 'homework-grading' ? undefined : '900px',
+        }}
+      >
         <Tabs
           value={currentTabIdx}
           onChange={handleChange}
