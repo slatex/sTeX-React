@@ -29,7 +29,7 @@ type TabName =
 const TAB_ACCESS_REQUIREMENTS: Record<TabName, { resource: ResourceName; actions: Action[] }> = {
   'access-control': { resource: ResourceName.COURSE_ACCESS, actions: [Action.ACCESS_CONTROL] },
   'homework-manager': { resource: ResourceName.COURSE_HOMEWORK, actions: [Action.MUTATE] },
-  'homework-grading': { resource: ResourceName.COURSE_HOMEWORK, action: [Action.INSTRUCTOR_GRADING] },
+  'homework-grading': { resource: ResourceName.COURSE_HOMEWORK, actions: [Action.INSTRUCTOR_GRADING] },
   'quiz-dashboard': { resource: ResourceName.COURSE_QUIZ, actions: [Action.MUTATE, Action.PREVIEW] },
   'study-buddy': { resource: ResourceName.COURSE_STUDY_BUDDY, actions: [Action.MODERATE] }
 };
