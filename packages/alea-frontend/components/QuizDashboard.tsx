@@ -89,7 +89,7 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
     perProblemStats: {},
     totalStudents: 0,
   });
-  const [accessType, setAccessType] = useState<'PREVIEW' | 'MUTATE'>();
+  const [accessType, setAccessType] = useState<'PREVIEW_ONLY' | 'MUTATE'>();
   const [isUpdating, setIsUpdating] = useState(false);
   const [canAccess, setCanAccess] = useState(false);
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
@@ -166,21 +166,21 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
 
   useEffect(() => {
     async function checkHasAccessAndGetTypeOfAccess() {
-      if (
-        await canAccessResource(ResourceName.COURSE_QUIZ, Action.MUTATE, {
-          courseId,
-          instanceId: CURRENT_TERM,
-        })
-      ) {
+      const canMutate = await canAccessResource(ResourceName.COURSE_QUIZ, Action.MUTATE, {
+        courseId,
+        instanceId: CURRENT_TERM,
+      });
+      if (canMutate) {
         setAccessType('MUTATE');
         setCanAccess(true);
-      } else if (
-        await canAccessResource(ResourceName.COURSE_QUIZ, Action.PREVIEW, {
-          courseId,
-          instanceId: courseTerm,
-        })
-      ) {
-        setAccessType('PREVIEW');
+        return;
+      }
+      const canPreview = await canAccessResource(ResourceName.COURSE_QUIZ, Action.PREVIEW, {
+        courseId,
+        instanceId: courseTerm,
+      });
+      if (canPreview) {
+        setAccessType('PREVIEW_ONLY');
         setCanAccess(true);
       } else {
         setCanAccess(false);
@@ -190,17 +190,16 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
   }, []);
 
   async function handleDelete(quizId: string) {
-    if (await deleteQuiz(quizId, courseId, courseTerm)) {
-      setQuizzes(quizzes.filter((quiz) => quiz.id !== quizId));
-      setSelectedQuizId(NEW_QUIZ_ID);
-    }
+    await deleteQuiz(quizId, courseId, courseTerm);
+    setQuizzes(quizzes.filter((quiz) => quiz.id !== quizId));
+    setSelectedQuizId(NEW_QUIZ_ID);
   }
 
   if (!canAccess) return <>Unauthorized</>;
 
   return (
     <Box m="auto" maxWidth="800px" p="10px">
-      {accessType == 'PREVIEW' && (
+      {accessType == 'PREVIEW_ONLY' && (
         <Typography fontSize={16} color="red">
           You don't have access to mutate this course Quizzes
         </Typography>

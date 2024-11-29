@@ -2,10 +2,7 @@ import { PerProblemStats, QuizStatsResponse } from '@stex-react/api';
 import { getProblem } from '@stex-react/quiz-utils';
 import { Action, ResourceName } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
-import {
-  getUserIdIfAnyAuthorizedOrSetError,
-  ResourceActionParams,
-} from '../../access-control/resource-utils';
+import { getUserIdIfAuthorizedOrSetError } from '../../access-control/resource-utils';
 import {
   queryGradingDbAndEndSet500OnError,
   queryGradingDbDontEndSet500OnError,
@@ -33,19 +30,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const quizId = req.query.quizId as string;
   const courseId = req.query.courseId as string;
   const instanceId = req.query.courseTerm as string;
-  const ResourceActions: ResourceActionParams[] = [
-    {
-      name: ResourceName.COURSE_QUIZ,
-      action: Action.MUTATE,
-      variables: { courseId, instanceId },
-    },
-    {
-      name: ResourceName.COURSE_QUIZ,
-      action: Action.PREVIEW,
-      variables: { courseId, instanceId },
-    },
-  ];
-  const userId = await getUserIdIfAnyAuthorizedOrSetError(req, res, ResourceActions);
+  const userId = await getUserIdIfAuthorizedOrSetError(
+    req,
+    res,
+    ResourceName.COURSE_QUIZ,
+    Action.PREVIEW,
+    { courseId, instanceId }
+  );
   if (!userId) return;
 
   const quiz = getQuiz(quizId);
