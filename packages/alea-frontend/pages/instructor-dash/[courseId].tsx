@@ -26,12 +26,12 @@ type TabName =
   | 'quiz-dashboard'
   | 'study-buddy';
 
-const TAB_ACCESS_REQUIREMENTS: Record<TabName, { resource: ResourceName; action: Action }> = {
-  'access-control': { resource: ResourceName.COURSE_ACCESS, action: Action.ACCESS_CONTROL },
-  'homework-manager': { resource: ResourceName.COURSE_HOMEWORK, action: Action.MUTATE },
-  'homework-grading': { resource: ResourceName.COURSE_HOMEWORK, action: Action.INSTRUCTOR_GRADING },
-  'quiz-dashboard': { resource: ResourceName.COURSE_QUIZ, action: Action.MUTATE },
-  'study-buddy': { resource: ResourceName.COURSE_STUDY_BUDDY, action: Action.MODERATE },
+const TAB_ACCESS_REQUIREMENTS: Record<TabName, { resource: ResourceName; actions: Action[] }> = {
+  'access-control': { resource: ResourceName.COURSE_ACCESS, actions: [Action.ACCESS_CONTROL] },
+  'homework-manager': { resource: ResourceName.COURSE_HOMEWORK, actions: [Action.MUTATE] },
+  'homework-grading': { resource: ResourceName.COURSE_HOMEWORK, action: [Action.INSTRUCTOR_GRADING] },
+  'quiz-dashboard': { resource: ResourceName.COURSE_QUIZ, actions: [Action.MUTATE, Action.PREVIEW] },
+  'study-buddy': { resource: ResourceName.COURSE_STUDY_BUDDY, actions: [Action.MODERATE] }
 };
 
 function ChosenTab({ tabName, courseId }: { tabName: TabName; courseId: string }) {
@@ -103,19 +103,16 @@ const InstructorDash: NextPage = () => {
 
   useEffect(() => {
     if (!courseId) return;
-
     async function checkTabAccess() {
       const tabs: TabName[] = [];
-      for (const [tabName, { resource, action }] of Object.entries(TAB_ACCESS_REQUIREMENTS)) {
-        const hasAccess = await canAccessResource(resource, action, {
-          courseId,
-          instanceId: CURRENT_TERM,
-        });
-        if (hasAccess) {
-          tabs.push(tabName as TabName);
+      for (const [tabName, { resource, actions }] of Object.entries(TAB_ACCESS_REQUIREMENTS)) {
+        for (const action of actions) {
+          if (await canAccessResource(resource, action, { courseId, instanceId: CURRENT_TERM })) {
+            tabs.push(tabName as TabName);
+            break;
+          }
         }
-      }
-
+      }      
       setAccessibleTabs(tabs);
       if (tab && tabs.includes(tab)) {
         setCurrentTabIdx(tabs.indexOf(tab));

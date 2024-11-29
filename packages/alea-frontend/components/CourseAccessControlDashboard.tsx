@@ -22,6 +22,7 @@ import {
 import { Action, CURRENT_TERM, ResourceActionPair } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import AclDisplay from './AclDisplay';
 
 const ALL_SHORT_IDS = [
   'notes',
@@ -30,6 +31,7 @@ const ALL_SHORT_IDS = [
   'homework-grading',
   'comments',
   'study-buddy',
+  'quiz-preview',
 ];
 
 export type ShortId = (typeof ALL_SHORT_IDS)[number];
@@ -48,6 +50,7 @@ const EMPTY_ASSIGMENT = ALL_SHORT_IDS.reduce(
 const ACL_DISPLAY_NAMES: Record<ShortId, string> = {
   notes: 'Notes Management',
   quiz: 'Quiz Management',
+  'quiz-preview': 'Quiz Preview',
   'homework-crud': 'Homework Create/Update',
   'homework-grading': 'Homework Grading',
   comments: 'Comments Moderation',
@@ -80,6 +83,10 @@ const getAclShortIdToResourceActionPair = (courseId: string) =>
       resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/study-buddy`,
       actionId: Action.MODERATE,
     },
+    'quiz-preview': {
+      resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/quiz`,
+      actionId: Action.PREVIEW,
+    },
   } as Record<ShortId, ResourceActionPair>);
 
 const CourseAccessControlDashboard = ({ courseId }) => {
@@ -99,18 +106,10 @@ const CourseAccessControlDashboard = ({ courseId }) => {
           },
         }}
       />
+    ) : aclData[shortId] ? (
+      <AclDisplay aclId={aclData[shortId]} />
     ) : (
-      <Typography
-        onClick={() => handleAclClick(aclData[shortId])}
-        sx={{
-          cursor: 'pointer',
-          color: 'blue',
-          textDecoration: 'underline',
-          fontSize: '12px',
-        }}
-      >
-        {aclData[shortId] || '-'}
-      </Typography>
+      '-'
     );
   };
 
@@ -253,21 +252,10 @@ const CourseAccessControlDashboard = ({ courseId }) => {
       >
         {acls.map((acl, index) => {
           return (
-            <Box key={acl} sx={{ flex: '1 0 200px' }}>
-              <ListItem
-                sx={{
-                  cursor: 'pointer',
-                  '&:hover': { backgroundColor: '#f0f0f0' },
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                  padding: '8px',
-                  textAlign: 'center',
-                }}
-                onClick={() => router.push(`/acl/${acl}`)}
-                disableGutters
-              >
-                <ListItemText primary={acl || '-'} sx={{ fontSize: '14px' }} />
-              </ListItem>
+            <Box key={acl} sx={{ flex: '20px 20px 20px' }}>
+              <Typography onClick={() => router.push(`/acl/${acl}`)}>
+                <AclDisplay aclId={acl} />
+              </Typography>
             </Box>
           );
         })}

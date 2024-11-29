@@ -71,6 +71,12 @@ export async function updateQuiz(quiz: Quiz) {
   });
 }
 
+export async function deleteQuiz(quizId: string, courseId: string, courseTerm: string) {
+  return await axios.post('/api/quiz/delete-quiz', { quizId, courseId, courseTerm}, {
+    headers: getAuthHeaders(),
+  });
+}
+
 export async function getCourseQuizList(courseId: string): Promise<QuizStubInfo[]> {
   return (await axios.get(`/api/quiz/get-course-quiz-list/${courseId}`)).data;
 }
