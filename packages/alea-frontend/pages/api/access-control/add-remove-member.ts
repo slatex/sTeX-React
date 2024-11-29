@@ -1,11 +1,12 @@
+import { AccessControlList } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { isCurrentUserMemberOfAClupdater } from '../acl-utils/acl-common-utils';
 import {
   checkIfPostOrSetError,
   executeAndEndSet500OnError,
   getUserIdOrSetError,
 } from '../comment-utils';
-import { AccessControlList } from '@stex-react/api';
-import { isCurrentUserMemberOfAClupdater } from '../acl-utils/acl-common-utils';
+import { recomputeMembership } from './recompute-memberships';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
@@ -44,5 +45,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     params = [aclId, memberId];
   }
   await executeAndEndSet500OnError(query, params, res);
+  recomputeMembership();
   res.status(200).end();
 }

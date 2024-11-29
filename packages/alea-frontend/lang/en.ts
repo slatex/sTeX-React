@@ -145,6 +145,8 @@ export const en = {
     demoQuizText:
       'is a demo quiz - so that you can test your hard/software (you will need a recent chrome or firefox browser) and see the format. In particular, you should be able to read the Math in the travelling salesperson problem.',
     practiceProblems: 'Practice Problems',
+    enrollmentMessage: 'Please enroll in the course to access quizzes and homework.',
+    getEnrolled: 'Get Enrolled',
   },
   homework: {
     homeworkDashboard: 'Homework Dashboard',
