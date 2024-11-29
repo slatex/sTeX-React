@@ -2,11 +2,11 @@ import { Box, Button } from '@mui/material';
 import { logout } from '@stex-react/api';
 import Image from 'next/image';
 
-export function ForceFauLogin() {
+export function ForceFauLogin({content}) {
   return (
     <Box m="0 auto" p="10px" maxWidth="800px">
-      You are currently logged in using your personal email. To access the
-      quizzes, please{' '}
+      You are currently logged in using your personal email. To access the {' '}
+       {content}, please{' '}
       <Button onClick={logout} sx={{ textTransform: 'none', px: '0' }}>
         <b>log out</b>
       </Button>{' '}

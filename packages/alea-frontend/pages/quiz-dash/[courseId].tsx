@@ -195,7 +195,7 @@ const QuizDashPage: NextPage = () => {
           ` ${tHome.courseThumb.quizzes} | VoLL-KI`
         }
       >
-        <ForceFauLogin />
+        <ForceFauLogin content={"quizzes"}/>
       </MainLayout>
     );
   }

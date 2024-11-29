@@ -182,7 +182,7 @@ const QuizPage: NextPage = () => {
   if (forceFauLogin) {
     return (
       <MainLayout title="Quizzes | VoLL-KI">
-        <ForceFauLogin />
+        <ForceFauLogin  content={"quizzes"}/>
       </MainLayout>
     );
   }
