@@ -250,3 +250,7 @@ export function roundToMinutes(timestamp_ms: number) {
 export function truncateString(str: string, maxLength: number) {
   return str.length > maxLength ? str.slice(0, maxLength) + '...' : str;
 }
+
+export function capitalizeFirstLetter(str: string): string {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
