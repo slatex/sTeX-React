@@ -1,22 +1,16 @@
-import {
-  GetQuizResponse,
-  InputResponse,
-  Phase,
-  ProblemResponse
-} from '@stex-react/api';
+import { AutogradableResponse, GetQuizResponse, Phase, ProblemResponse } from '@stex-react/api';
 import { getQuiz, getQuizTimes } from '@stex-react/node-utils';
 import { getQuizPhase, removeAnswerInfo } from '@stex-react/quiz-utils';
 import { Action, ResourceName, simpleNumberHash } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { isUserIdAuthorizedForAny, ResourceActionParams } from '../../access-control/resource-utils';
+import {
+  isUserIdAuthorizedForAny,
+  ResourceActionParams,
+} from '../../access-control/resource-utils';
 import { getUserIdOrSetError } from '../../comment-utils';
 import { queryGradingDbAndEndSet500OnError } from '../../grading-db-utils';
 
-async function getUserQuizResponseOrSetError(
-  quizId: string,
-  userId: string,
-  res: NextApiResponse
-) {
+async function getUserQuizResponseOrSetError(quizId: string, userId: string, res: NextApiResponse) {
   const results: any[] = await queryGradingDbAndEndSet500OnError(
     `SELECT problemId, response
     FROM grading
@@ -34,8 +28,8 @@ async function getUserQuizResponseOrSetError(
 
   for (const r of results) {
     const { problemId, response } = r;
-    const responses: InputResponse[] = JSON.parse(response);
-    resp[problemId] = { responses };
+    const responses: AutogradableResponse[] = JSON.parse(response);
+    resp[problemId] = { autogradableResponses: responses, freeTextResponses: {} };
   }
   return resp;
 }
@@ -60,9 +54,7 @@ function reorderBasedOnUserId(
   const problemIds = Object.keys(problems);
   shuffleArray(problemIds, simpleNumberHash(userId));
   const shuffled: { [problemId: string]: string } = {};
-  problemIds.forEach(
-    (problemId) => (shuffled[problemId] = problems[problemId])
-  );
+  problemIds.forEach((problemId) => (shuffled[problemId] = problems[problemId]));
   return shuffled;
 }
 
@@ -89,16 +81,13 @@ function getPhaseAppropriateProblems(
   }
 }
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
 
   const quizId = req.query.quizId as string;
   const quizInfo = getQuiz(quizId);
-  const {courseTerm, courseId} = quizInfo;
+  const { courseTerm, courseId } = quizInfo;
   if (!quizInfo) {
     res.status(400).json({ message: `Quiz not found: [${quizId}]` });
     return;

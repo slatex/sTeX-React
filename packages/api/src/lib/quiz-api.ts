@@ -10,7 +10,7 @@ import {
   QuizStubInfo,
 } from './quiz';
 
-export async function insertAnswer(
+export async function insertQuizResponse(
   quizId: string,
   problemId: string,
   r: ProblemResponse
@@ -18,7 +18,7 @@ export async function insertAnswer(
   const req: InsertAnswerRequest = {
     quizId,
     problemId,
-    responses: r.responses,
+    responses: r.autogradableResponses,
     browserTimestamp_ms: Date.now(),
   };
   try {
