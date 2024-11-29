@@ -1,39 +1,85 @@
-import React, { useEffect, useState } from "react";
-import { Card, CardContent, Typography, Grid, Button, Link, CircularProgress } from "@mui/material";
-import { getStudentProfile } from "@stex-react/api";
+import React, {useEffect, useState } from "react";
+import {
+  Card,
+  CardContent,
+  Typography,
+  Grid,
+  Button,
+  Link,
+  CircularProgress,
+  Box,
+  Avatar,
+} from "@mui/material";
+import { Email, Phone, School, Description } from "@mui/icons-material";
+import { canAccessResource, getStudentProfile, StudentData } from "@stex-react/api";
+import { Action, CURRENT_TERM, ResourceName } from "@stex-react/utils";
+import { useRouter } from "next/router";
+import MainLayout from "packages/alea-frontend/layouts/MainLayout";
 
 const StudentDashboard = () => {
-  const [student, setStudent] = useState(null);
+  const [student, setStudent] = useState<StudentData>(null);
   const [loading, setLoading] = useState(true);
+  const [accessCheckLoading, setAccessCheckLoading] = useState(true);
 
+  const router=useRouter();
   useEffect(() => {
-    const fetchStudentData= async()=>{
-       const res=await getStudentProfile();
-       console.log({res});
-       setStudent(res.data[0]);
-
-    }
-    fetchStudentData();
-    setLoading(false);
+    const checkAccess = async () => {
+      setAccessCheckLoading(true); 
+      const hasAccess = await canAccessResource(ResourceName.JOB_PORTAL, Action.APPLY,{
+        instanceId: CURRENT_TERM,
+      });
+      if (!hasAccess) {
+        alert("You donot have access to this page.")
+        router.push("/job-portal");
+        return; 
+      }
+      setAccessCheckLoading(false); 
+    };
+ 
+    checkAccess();
   }, []);
+  useEffect(() => {
+    if(accessCheckLoading)return;
+    const fetchStudentData = async () => {
+      try {
+        setLoading(true);
 
-  if (loading) {
-    return <CircularProgress size={50} color="primary" sx={{ display: 'block', margin: 'auto', marginTop: 5 }} />;
-  }
-  if (!student) {
+        const res = await getStudentProfile();
+        setStudent(res[0]);
+      } catch (error) {
+        console.error("Error fetching student data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStudentData();
+  }, [accessCheckLoading]);
+
+  if (accessCheckLoading||loading) {
     return (
-      <Typography variant="h6" color="error" align="center" sx={{ marginTop: 5 }}>
-        Failed to load profile
-      </Typography>
+        <CircularProgress color="primary" />
+    );
+  }
+
+  if (!student  ) {
+    return (
+      <MainLayout title="Job-Portal">
+      <Box
+      textAlign="center"
+      mt={10}
+    >        <Typography variant="h6" color="error">
+          You are currently not registered on job portal, Register first to access student dashboard
+        </Typography>
+      </Box>
+      </MainLayout>
     );
   }
 
   const {
     name,
-    userId,
     resumeURL,
-    contactEmail,
-    contactPhone,
+    email,
+    contactNo,
     programme,
     yearOfAdmission,
     yearOfGraduation,
@@ -41,69 +87,128 @@ const StudentDashboard = () => {
     grades,
     about,
   } = student;
-  console.log({student});
-  console.log({about});
-
 
   return (
-    <div style={{ padding: "20px" }}>
-      <Typography variant="h4" component="h1" gutterBottom align="center">
-        Student Profile
-      </Typography>
+    <MainLayout title="Student Dashboard | Job Portal">
 
-      <Grid container spacing={3}>
-        {/* Personal Info */}
-        <Grid item xs={12} sm={6}>
-          <Card variant="outlined">
-            <CardContent>
-              <Typography variant="h6" gutterBottom>Personal Information</Typography>
-              <Typography variant="body1"><strong>Name:</strong> {name}</Typography>
-              <Typography variant="body1"><strong>Email:</strong> {contactEmail}</Typography>
-              <Typography variant="body1"><strong>Phone:</strong> {contactPhone}</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
+    <Box>
+      <Box
+        sx={{
+          py: 3,
+          backgroundColor: "primary.main",
+          color: "white",
+          textAlign: "center",
+          mb: 4,
+        }}
+      >
+        <Typography variant="h4" fontWeight="bold">
+          Student Dashboard
+        </Typography>
+        <Typography variant="subtitle1">Your academic profile at a glance</Typography>
+      </Box>
+      <Box sx={{ px: { xs: 2, md: 4 }, py: 2 }}>
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={6}>
+            <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+              <CardContent>
+                <Box display="flex" alignItems="center" mb={2}>
+                  <Avatar sx={{ bgcolor: "primary.main", mr: 2 }}>
+                    <School />
+                  </Avatar>
+                  <Typography variant="h6">Personal Information</Typography>
+                </Box>
+                <Typography>
+                  <strong>Name:</strong> {name}
+                </Typography>
+                <Typography>
+                  <Email sx={{ verticalAlign: "middle", mr: 1 }} />
+                  <strong>Email:</strong> {email}
+                </Typography>
+                <Typography>
+                  <Phone sx={{ verticalAlign: "middle", mr: 1 }} />
+                  <strong>Phone:</strong> {contactNo}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
 
-        <Grid item xs={12} sm={6}>
-          <Card variant="outlined">
-            <CardContent>
-              <Typography variant="h6" gutterBottom>Academic Information</Typography>
-              <Typography variant="body1"><strong>Programme:</strong> {programme}</Typography>
-              <Typography variant="body1"><strong>Year of Admission:</strong> {yearOfAdmission}</Typography>
-              <Typography variant="body1"><strong>Year of Graduation:</strong> {yearOfGraduation}</Typography>
-              <Typography variant="body1"><strong>About:</strong> {about}</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
+          <Grid item xs={12} md={6}>
+            <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+              <CardContent>
+                <Box display="flex" alignItems="center" mb={2}>
+                  <Avatar sx={{ bgcolor: "secondary.main", mr: 2 }}>
+                    <Description />
+                  </Avatar>
+                  <Typography variant="h6">Academic Information</Typography>
+                </Box>
+                <Typography>
+                  <strong>Programme:</strong> {programme}
+                </Typography>
+                <Typography>
+                  <strong>Year of Admission:</strong> {yearOfAdmission}
+                </Typography>
+                <Typography>
+                  <strong>Year of Graduation:</strong> {yearOfGraduation}
+                </Typography>
+                <Typography>
+                  <strong>About:</strong> {about || "No details provided"}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12}>
+            <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Course & Grade
+                </Typography>
+                {courses && grades ? (
+                  <Box>
+                    <Typography>
+                      <strong>Course:</strong> {courses}
+                    </Typography>
+                    <Typography>
+                      <strong>Grade:</strong> {grades}
+                    </Typography>
+                  </Box>
+                ) : (
+                  <Typography>No course or grade information available</Typography>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
 
-        <Grid item xs={12}>
-          <Card variant="outlined">
-            <CardContent>
-              <Typography variant="h6" gutterBottom>Courses & Grades</Typography>
-              <Typography variant="subtitle1" gutterBottom>
-      {`Course: ${courses} | Grades: ${grades}`}
-    </Typography>
-             
-            </CardContent>
-          </Card>
+          <Grid item xs={12}>
+            <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Resume
+                </Typography>
+                {resumeURL ? (
+                  <Link
+                    href={resumeURL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    underline="none"
+                  >
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      sx={{ textTransform: "none" }}
+                    >
+                      View Resume
+                    </Button>
+                  </Link>
+                ) : (
+                  <Typography>No resume uploaded</Typography>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
         </Grid>
-
-        <Grid item xs={12}>
-          <Card variant="outlined">
-            <CardContent>
-              <Typography variant="h6" gutterBottom>Resume</Typography>
-              {resumeURL ? (
-                <Link href={resumeURL} target="_blank" rel="noopener noreferrer" underline="hover">
-                  <Button variant="contained" color="primary">View Resume</Button>
-                </Link>
-              ) : (
-                <Typography variant="body1">No resume uploaded</Typography>
-              )}
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-    </div>
+      </Box>
+    </Box>
+    </MainLayout>
   );
 };
 

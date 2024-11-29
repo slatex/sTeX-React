@@ -6,7 +6,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
     const results = await executeDontEndSet500OnError(
-    `SELECT name,userId, resumeURL, email, contactNo, programme, yearOfAdmission, yearOfGraduation, 
+    `SELECT name, resumeURL, email, contactNo, programme, yearOfAdmission, yearOfGraduation, 
         courses, grades, about
     FROM studentprofile 
     WHERE userId = ? 
@@ -14,7 +14,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     [userId],
     res
   );
-  console.log("asdf",results);
   if (!results) return;
   
   res.status(200).json(results);

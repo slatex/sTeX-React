@@ -37,5 +37,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res
   );
   if (!result) return;
-  res.status(200).json({ success: true, message: 'Student profile created successfully!' });
+  res.status(200).json({  message: 'Student profile created successfully!' });
 }

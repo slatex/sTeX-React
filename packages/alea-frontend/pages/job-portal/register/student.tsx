@@ -1,43 +1,131 @@
-import { Container, Box, TextField, Button, Typography } from "@mui/material";
-import { createStudentProfile, getUserInfo,StudentData } from "@stex-react/api";
-import {  useRouter } from "next/router";
-import MainLayout from "packages/alea-frontend/layouts/MainLayout";
-import { useEffect, useState } from "react";
+import {
+  Container,
+  Box,
+  TextField,
+  Button,
+  Typography,
+  CircularProgress,
+  Alert,
+} from '@mui/material';
+import {
+  canAccessResource,
+  createStudentProfile,
+  getStudentProfile,
+  getUserInfo,
+  StudentData,
+} from '@stex-react/api';
+import { Action, CURRENT_TERM, ResourceName } from '@stex-react/utils';
+import { useRouter } from 'next/router';
+import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
+import { useEffect, useState } from 'react';
 
 export default function StudentRegistration() {
-  const router=useRouter();
+  const router = useRouter();
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [userId, setUserId] = useState('');
   const [formData, setFormData] = useState<StudentData>({
-    name: "",
-    resumeURL: "",
-    email: "",
-    contactNo: "",
-    programme: "",
-    yearOfAdmission: "",
-    yearOfGraduation: "",
-    courses: "",
-    grades: "",
-    about: "",
+    name: '',
+    resumeURL: '',
+    email: '',
+    contactNo: '',
+    programme: '',
+    yearOfAdmission: '',
+    yearOfGraduation: '',
+    courses: '',
+    grades: '',
+    about: '',
   });
-  const [userId,setUserId]=useState('');
+  const [errors, setErrors] = useState({
+    email: '',
+    contactNo: '',
+  });
+  const [loading, setLoading] = useState(false);
+  const [accessCheckLoading, setAccessCheckLoading] = useState(true);
+
   useEffect(() => {
     getUserInfo().then((userInfo) => {
       if (!userInfo) return;
       setUserId(userInfo.userId);
     });
   }, []);
+
+  useEffect(() => {
+    const checkAccess = async () => {
+      setAccessCheckLoading(true);
+      const hasAccess = await canAccessResource(ResourceName.JOB_PORTAL, Action.APPLY, {
+        instanceId: CURRENT_TERM,
+      });
+      if (!hasAccess) {
+        alert('You donot have access to this page.');
+        router.push('/job-portal');
+        return;
+      }
+      setAccessCheckLoading(false);
+    };
+
+    checkAccess();
+  }, []);
+
+  useEffect(() => {
+    setLoading(true);
+    if (accessCheckLoading) return;
+    const fetchRecruiterData = async () => {
+      try {
+        const res = await getStudentProfile();
+        setIsRegistered(!!res[0]);
+      } catch (error) {
+        console.error('Error fetching recruiter data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRecruiterData();
+  }, [accessCheckLoading]);
+
+  if (accessCheckLoading || loading) {
+    return <CircularProgress color="primary" />;
+  }
+  if (isRegistered) {
+    return <Alert severity="info">You are already registered.</Alert>;
+  }
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: '',
+    }));
+
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
   };
-  const handleSubmit = async() => {
+
+  const validateFields = () => {
+    const newErrors = { email: '', contactNo: '' };
+
+    if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address.';
+    }
+
+    if (!formData.contactNo || !/^\d{10,15}$/.test(formData.contactNo)) {
+      newErrors.contactNo = 'Please enter a valid contact number (10-15 digits).';
+    }
+
+    setErrors(newErrors);
+    return !newErrors.email && !newErrors.contactNo;
+  };
+
+  const handleSubmit = async () => {
+    if (!validateFields()) return;
+
     const payload = {
-      ...formData,userId:userId
+      ...formData,
+      userId,
     };
-    const result= await createStudentProfile(payload);
-    if(result.success)router.push("/job-portal/student-dashboard") ;
+    await createStudentProfile(payload);
+    router.push('/job-portal/student-dashboard');
   };
 
   return (
@@ -45,8 +133,8 @@ export default function StudentRegistration() {
       <Container maxWidth="sm" sx={{ mt: 5 }}>
         <Box
           sx={{
-            textAlign: "center",
-            border: "1px solid #ccc",
+            textAlign: 'center',
+            border: '1px solid #ccc',
             borderRadius: 2,
             boxShadow: 3,
             p: 4,
@@ -72,6 +160,8 @@ export default function StudentRegistration() {
             type="email"
             fullWidth
             margin="normal"
+            error={!!errors.email}
+            helperText={errors.email}
           />
           <TextField
             label="Contact Number"
@@ -81,6 +171,8 @@ export default function StudentRegistration() {
             type="tel"
             fullWidth
             margin="normal"
+            error={!!errors.contactNo}
+            helperText={errors.contactNo}
           />
           <TextField
             label="Programme"

@@ -12,13 +12,13 @@ const JobPortal: NextPage = () => {
   const [isStudent, setIsStudent] = useState(false);
   const [isRecruiter, setIsRecruiter] = useState(false);
   const [forceFauLogin, setForceFauLogin] = useState(false);
-  const [userId,setUserId]=useState("");
+  const [userId, setUserId] = useState('');
 
   const showStudentButton = !isLogIn || isStudent;
   const showRecruiterButton = !isLogIn || isRecruiter;
   const showAdminButton = !isLogIn;
 
-  useEffect(()  => {
+  useEffect(() => {
     const loggedIn = isLoggedIn();
     setIsLogIn(loggedIn);
     if (loggedIn) {
@@ -54,69 +54,47 @@ const JobPortal: NextPage = () => {
             Welcome to Job Portal
           </Typography>
           {showStudentButton && (
-  <Button
-    variant="contained"
-    color="primary"
-    fullWidth
-    sx={{ mb: 2 }}
-    onClick={async () => {
-      if (!isLogIn) {
-        if (window.location.pathname === '/login') return;
-        router.push('/login?target=' + encodeURIComponent(window.location.href));
-      } else {
-        
-          const result = await checkIfUserRegisteredOnJP(userId); 
-          if (result.exists) {
-            router.push('job-portal/student-dashboard');
-          } else {
-            router.push('job-portal/register/student');
-          }
-        } 
-      }
-    }
-  >
-    Student
-  </Button>
-)}
-
-          {/* {showStudentButton && (
             <Button
               variant="contained"
               color="primary"
               fullWidth
               sx={{ mb: 2 }}
-              onClick={() => {
+              onClick={async () => {
                 if (!isLogIn) {
                   if (window.location.pathname === '/login') return;
                   router.push('/login?target=' + encodeURIComponent(window.location.href));
-                } else {if( checkIfUserRegisteredOnJP(userId).exists){
-                  router.push('job-portal/student-dashboard');
-              }else {router.push('job-portal/register/student');}
-            }
-                
+                } else {
+                  const result = await checkIfUserRegisteredOnJP(userId);
+                  if (result.exists) {
+                    router.push('job-portal/student-dashboard');
+                  } else {
+                    router.push('job-portal/register/student');
+                  }
+                }
               }}
             >
               Student
             </Button>
-          )} */}
+          )}
+
           {showRecruiterButton && (
             <Button
               variant="contained"
               fullWidth
               sx={{ mb: 2 }}
-              onClick={async() => {
+              onClick={async () => {
                 if (!isLogIn) {
                   if (window.location.pathname === '/login') return;
                   router.push('/login?target=' + encodeURIComponent(window.location.href));
-                }{
-        
-                  const result = await checkIfUserRegisteredOnJP(userId); 
+                }
+                {
+                  const result = await checkIfUserRegisteredOnJP(userId);
                   if (result.exists) {
                     router.push('job-portal/recruiter-dashboard');
                   } else {
                     router.push('job-portal/register/recruiter');
                   }
-                } 
+                }
               }}
             >
               Recruiter

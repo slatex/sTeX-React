@@ -4,30 +4,30 @@ import { RecruiterData, StudentData } from './job-portal';
 
 export type CreateStudentProfileRequest = StudentData & { userId: string };
 export async function createStudentProfile(data: CreateStudentProfileRequest) {
-  const resp = await axios.post('/api/job-portal/create-student-profile', data, {
+  await axios.post('/api/job-portal/create-student-profile', data, {
     headers: getAuthHeaders(),
   });
-  return resp.data;
 }
 
-export type createRecruiterProfileRequest = RecruiterData & { userId: string };
-export async function createRecruiterProfile(data: createRecruiterProfileRequest) {
-  const resp = await axios.post('/api/job-portal/create-recruiter-profile', data, {
+export type CreateRecruiterProfileRequest = RecruiterData & { userId: string };
+export async function createRecruiterProfile(data: CreateRecruiterProfileRequest) {
+  await axios.post('/api/job-portal/create-recruiter-profile', data, {
     headers: getAuthHeaders(),
   });
-  return resp.data;
 }
 
 export async function getStudentProfile() {
-  return axios.get('/api/job-portal/get-student-profile', {
+  const resp = await axios.get('/api/job-portal/get-student-profile', {
     headers: getAuthHeaders(),
   });
+  return resp.data as StudentData;
 }
 
 export async function getRecruiterProfile() {
-  return axios.get('/api/job-portal/get-recruiter-profile', {
+  const resp = await axios.get('/api/job-portal/get-recruiter-profile', {
     headers: getAuthHeaders(),
   });
+  return resp.data as RecruiterData;
 }
 
 export async function checkIfUserRegisteredOnJP(userId: string) {

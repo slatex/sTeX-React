@@ -13,5 +13,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res
   );
   if (!result) return;
-  res.status(200).json({ success: true, message: 'recruiter profile created successfully!' });
+  res.status(200).json({  message: 'recruiter profile created successfully!' });
 }

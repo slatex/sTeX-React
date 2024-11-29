@@ -6,7 +6,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
     const results = await executeDontEndSet500OnError(
-    `SELECT name,userId,email,position,organization
+    `SELECT name,email,position,organization
     FROM recruiterprofile 
     WHERE userId = ? 
     `,
