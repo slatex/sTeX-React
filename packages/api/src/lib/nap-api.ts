@@ -1,12 +1,13 @@
 import { CURRENT_TERM } from '@stex-react/utils';
 import axios, { AxiosError } from 'axios';
+import { HomeworkInfo } from './homework';
 import { getAuthHeaders } from './lms';
 import {
-  AnswerResponse,
   CreateAnswerRequest,
   CreateGradingRequest,
   CreateReviewRequest,
   GradingInfo,
+  GradingItem,
 } from './nap';
 import { ProblemResponse } from './quiz';
 
@@ -86,4 +87,17 @@ export async function getAnswersWithGrading(
       headers: getAuthHeaders(),
     })
     .then((c) => c.data as GetAnswersWithGradingResponse);
+}
+
+export interface GetCourseGradingItemsResponse {
+  gradingItems: GradingItem[];
+  homeworks: HomeworkInfo[];
+}
+
+export async function getCourseGradingItems(courseId: string) {
+  const resp = await axios.get('/api/nap/get-course-grading-items', {
+    params: { courseId },
+    headers: getAuthHeaders(),
+  });
+  return resp.data as GetCourseGradingItemsResponse;
 }

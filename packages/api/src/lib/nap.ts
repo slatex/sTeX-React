@@ -88,3 +88,14 @@ export interface ReviewRequest {
   answer: { id: number; answerId: number; questionTitle: string; updatedAt: Date }[];
   questionTitle: string;
 }
+
+export interface GradingItem {
+  homeworkId?: number;
+  questionId: string;
+  studentId: string;
+  updatedAt: string;
+
+  numSubProblemsAnswered: number;
+  numSubProblemsGraded: number;
+  numSubProblemsInstructorGraded: number;
+}

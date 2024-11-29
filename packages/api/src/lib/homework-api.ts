@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { GetHomeworkResponse, HomeworkInfo, HomeworkPhase, HomeworkStub } from './homework';
+import { HomeworkInfo, HomeworkPhase, HomeworkStub } from './homework';
 import { getAuthHeaders } from './lms';
 import { GradingInfo } from './nap';
 import { ProblemResponse } from './quiz';
@@ -53,28 +53,4 @@ export async function deleteHomework(id: number, courseId: string) {
     { headers: getAuthHeaders() }
   );
   return response.data;
-}
-
-export interface GradingItem {
-  homeworkId?: number;
-  questionId: string;
-  studentId: string;
-  updatedAt: string;
-
-  numSubProblemsAnswered: number;
-  numSubProblemsGraded: number;
-  numSubProblemsInstructorGraded: number;
-}
-
-export interface GetHomeworkGradingItemsResponse {
-  gradingItems: GradingItem[];
-  homeworks: HomeworkInfo[];
-}
-
-export async function getHomeworkGradingItems(courseId: string) {
-  const resp = await axios.get('/api/homework/get-homework-grading-items', {
-    params: { courseId },
-    headers: getAuthHeaders(),
-  });
-  return resp.data as GetHomeworkGradingItemsResponse;
 }
