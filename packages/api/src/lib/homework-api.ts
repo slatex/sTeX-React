@@ -1,6 +1,8 @@
 import axios from 'axios';
+import { GetHomeworkResponse, HomeworkInfo, HomeworkPhase, HomeworkStub } from './homework';
 import { getAuthHeaders } from './lms';
-import { HomeworkInfo, HomeworkPhase, HomeworkStub } from './homework';
+import { GradingInfo } from './nap';
+import { ProblemResponse } from './quiz';
 
 export async function getHomeworkList(courseId: string) {
   const resp = await axios.get(`/api/homework/get-homework-list?courseId=${courseId}`, {
@@ -17,11 +19,17 @@ export function getHomeworkPhase(homework: HomeworkInfo): HomeworkPhase {
   return 'FEEDBACK_RELEASED';
 }
 
-export async function getHomeworkInfo(id: number) {
+export interface GetHomeworkResponse {
+  homework: HomeworkInfo;
+  responses: Record<string, ProblemResponse>;
+  gradingInfo: Record<string, Record<string, GradingInfo[]>>;
+}
+
+export async function getHomework(id: number) {
   const resp = await axios.get(`/api/homework/get-homework?id=${id}`, {
     headers: getAuthHeaders(),
   });
-  return resp.data as HomeworkInfo;
+  return resp.data as GetHomeworkResponse;
 }
 
 export type CreateHomeworkRequest = Omit<HomeworkInfo, 'id' | 'updaterId'>;
@@ -45,4 +53,28 @@ export async function deleteHomework(id: number, courseId: string) {
     { headers: getAuthHeaders() }
   );
   return response.data;
+}
+
+export interface GradingItem {
+  homeworkId?: number;
+  questionId: string;
+  studentId: string;
+  updatedAt: string;
+
+  numSubProblemsAnswered: number;
+  numSubProblemsGraded: number;
+  numSubProblemsInstructorGraded: number;
+}
+
+export interface GetHomeworkGradingItemsResponse {
+  gradingItems: GradingItem[];
+  homeworks: HomeworkInfo[];
+}
+
+export async function getHomeworkGradingItems(courseId: string) {
+  const resp = await axios.get('/api/homework/get-homework-grading-items', {
+    params: { courseId },
+    headers: getAuthHeaders(),
+  });
+  return resp.data as GetHomeworkGradingItemsResponse;
 }
