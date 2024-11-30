@@ -22,7 +22,7 @@ const AllCommentsPage: NextPage = () => {
     getLatestUpdatedSections().then(setSections);
   }, []);
   return (
-    <MainLayout title="All Comments | VoLL-KI">
+    <MainLayout title="All Comments | ALeA">
       <Box p="15px" m="0 auto" maxWidth="800px">
         {sections.map((section) => (
           <Box

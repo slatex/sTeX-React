@@ -166,7 +166,7 @@ const StudentHomePage: NextPage = ({
   const institution = query.institution as string;
   if (!courses) return null;
   return (
-    <MainLayout title="Courses | VoLL-KI">
+    <MainLayout title="Courses | ALeA">
       <Box m="0 auto" maxWidth="800px">
         <Box mx="10px">
           <br />

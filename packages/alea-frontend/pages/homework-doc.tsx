@@ -30,7 +30,7 @@ const HomeworkDocPage: React.FC = () => {
   const phase = hwInfo && getHomeworkPhase(hwInfo);
 
   return (
-    <MainLayout title={`${hwInfo?.courseId ?? ''} Homework | VoLL-KI`}>
+    <MainLayout title={`${hwInfo?.courseId ?? ''} Homework | ALeA`}>
       <Box>
         {hwInfo && (
           <>

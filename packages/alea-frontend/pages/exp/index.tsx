@@ -38,7 +38,7 @@ function InternalButtonLink({ href, children }: any) {
 const ExperimentsHome: NextPage = () => {
   const [value, setValue] = useState('# This is a Myst Test\n\n**Math** works: $E=mc^2$.');
   return (
-    <MainLayout title="Experiments | VoLL-KI">
+    <MainLayout title="Experiments | ALeA">
       <IconButton sx={{ float: 'right' }}>
         <Link href="/settings">
           <SettingsIcon />
