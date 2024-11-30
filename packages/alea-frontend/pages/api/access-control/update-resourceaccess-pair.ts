@@ -22,6 +22,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   `;
   const result = await executeAndEndSet500OnError(query, [aclId, resourceId, actionId], res);
   if (!result) return;
-  recomputeMembership();
+  await recomputeMembership();
   res.status(204).end();
 }

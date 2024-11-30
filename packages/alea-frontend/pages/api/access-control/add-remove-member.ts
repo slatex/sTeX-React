@@ -45,6 +45,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     params = [aclId, memberId];
   }
   await executeAndEndSet500OnError(query, params, res);
-  recomputeMembership();
+  await recomputeMembership();
   res.status(200).end();
 }

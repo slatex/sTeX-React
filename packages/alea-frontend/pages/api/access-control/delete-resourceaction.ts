@@ -18,6 +18,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const query = `DELETE FROM ResourceAccess WHERE resourceId = ? and actionId = ?`;
   const result = await executeAndEndSet500OnError(query, [resourceId, actionId], res);
   if (!result) return;
-  recomputeMembership();
+  await recomputeMembership();
   return res.status(200).send({ message: 'deleted' });
 }

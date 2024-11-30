@@ -40,6 +40,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const resp = await executeAndEndSet500OnError(memberQuery, memberQueryParams, res);
     if (!resp) return;
   }
-  recomputeMembership();
+  await recomputeMembership();
   return res.status(204).end();
 }

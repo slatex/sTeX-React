@@ -28,6 +28,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res
   );
   if (!result) return;
-  recomputeMembership();
+  await recomputeMembership();
   res.status(200).send('created');
 }
