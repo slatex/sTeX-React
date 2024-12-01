@@ -6,7 +6,7 @@ import DiagnosticTool from 'packages/alea-frontend/components/DiagnosticTool';
 import ExampleFetcher from 'packages/alea-frontend/components/ExampleFetcher';
 import ProblemFetcher from 'packages/alea-frontend/components/ProblemFetcher';
 import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './guided-tour.module.scss';
 import {
   comfortPrompts,
@@ -25,13 +25,9 @@ import {
   unsureResponses,
 } from './messages';
 
-const STATES = {
-  COMFORT: 'comfort',
-  DEFINITION: 'definition',
-  PROBLEM: 'problem',
-  EXAMPLE: 'example',
-  NEXT_CONCEPT: 'next_concept',
-};
+const ALL_MESSAGE_TYPES = ['comfort', 'definition', 'problem', 'next_concept', 'example'] as const;
+type MessageType = (typeof ALL_MESSAGE_TYPES)[number];
+
 const categorizeResponse = (response: string): 'yes' | 'no' | 'notSure' => {
   const normalizedResponse = response.toLowerCase().trim();
   if (positiveResponses.some((word) => normalizedResponse === word)) {
@@ -61,13 +57,13 @@ const categorizeResponse = (response: string): 'yes' | 'no' | 'notSure' => {
   return 'notSure';
 };
 
-export const getRandomMessage = (messagesArray, context) => {
-  const template = messagesArray[Math.floor(Math.random() * messagesArray.length)];
+export const getRandomMessage = (messageList: string[], context: string) => {
+  const template = messageList[Math.floor(Math.random() * messageList.length)];
   return template.replace('{{concept}}', context);
 };
 
-const getRandomMessage2 = (messagesArray, title, currentConcept) => {
-  const template = messagesArray[Math.floor(Math.random() * messagesArray.length)];
+const getRandomMessage2 = (messageList: string[], title: string, currentConcept: string) => {
+  const template = messageList[Math.floor(Math.random() * messageList.length)];
   return template.replace(/{{title}}/g, title).replace(/{{currentConcept}}/g, currentConcept);
 };
 const structureLearningObjects = (
@@ -90,17 +86,25 @@ const structureLearningObjects = (
 
   return structured;
 };
+
 const GuidedTours = () => {
-  const [tourState, setTourState] = useState();
+  const [tourState, setTourState] = useState<MessageType | undefined>(undefined);
   const [currentConceptIndex, setCurrentConceptIndex] = useState(0);
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<
+    { text: string; type: 'system' | 'user'; component?: any }[]
+  >([]);
   const [shouldShowDiagnosticTool, setShouldShowDiagnosticTool] = useState(false);
-  const [diagnosticType, setDiagnosticType] = useState('comforts');
-
-  const [leafConceptData, setLeafConceptData] = useState([]);
-  const [currentConcept, setCurrentConcept] = useState({});
-
+  const [diagnosticType, setDiagnosticType] = useState<MessageType>('comfort');
+  const [conceptNameToUri, setConceptNameToUri] = useState<Record<string, string>>({});
   const [refreshKey, setRefreshKey] = useState(0);
+
+  const allLeafConceptNames = Object.keys(conceptNameToUri || {});
+  const currentConcept = useMemo(() => {
+    const existingKeys = Object.keys(conceptNameToUri || {});
+    if (!existingKeys.length) return undefined;
+    if (currentConceptIndex < 0 || currentConceptIndex >= existingKeys.length) return undefined;
+    return conceptNameToUri[existingKeys[currentConceptIndex]];
+  }, [conceptNameToUri, currentConceptIndex]);
 
   const messagesEndRef = useRef(null);
   const router = useRouter();
@@ -115,27 +119,20 @@ const GuidedTours = () => {
     const fetchLeafConcepts = async () => {
       try {
         const leafConceptLinks = await getLeafConcepts(leafConceptUri);
-        const conceptArray = [];
+        const conceptNameToUri = {};
         (leafConceptLinks['leaf-concepts'] ?? []).map((link) => {
           const segments = link.split('?');
           const conceptName = segments[segments.length - 1];
-          const obj = {};
-          obj[conceptName] = link;
-          conceptArray.push(obj);
+          conceptNameToUri[conceptName] = link;
         });
-        setLeafConceptData(conceptArray);
+        setConceptNameToUri(conceptNameToUri);
       } catch (error) {
         console.error('Error fetching leaf concepts:', error);
       }
     };
     fetchLeafConcepts();
   }, [leafConceptUri]);
-  useEffect(() => {
-    if (leafConceptData.length > 0 && currentConceptIndex >= 0) {
-      const conceptObj = leafConceptData[currentConceptIndex];
-      setCurrentConcept(conceptObj);
-    }
-  }, [currentConceptIndex, leafConceptData]);
+
   const [learningObjectsData, setLearningObjectsData] = useState({});
 
   useEffect(() => {
@@ -155,12 +152,12 @@ const GuidedTours = () => {
       }
     };
 
-    if (leafConceptData.length > 0) {
+    if (allLeafConceptNames.length > 0) {
       fetchLearningObjects();
     }
   }, [currentConcept]);
 
-  const transition = (newState) => {
+  const transition = (newState: MessageType) => {
     setTourState(newState);
   };
 
@@ -168,8 +165,8 @@ const GuidedTours = () => {
 
   useEffect(() => {
     const initializeTour = () => {
-      if (leafConceptData.length > 1 && messages.length === 0) {
-        const currentConcept = Object.keys(leafConceptData[0])[0];
+      if (allLeafConceptNames.length > 1 && messages.length === 0) {
+        const currentConcept = Object.keys(conceptNameToUri[0])[0];
         setMessages((prevMessages) => [
           ...prevMessages,
           {
@@ -177,11 +174,11 @@ const GuidedTours = () => {
             type: 'system',
           },
         ]);
-        transition(STATES.COMFORT);
+        transition('comfort');
       }
     };
     initializeTour();
-  }, [leafConceptData]);
+  }, [conceptNameToUri]);
   const showFeedbackMessage = (responseCategory: string) => {
     const messages = feedbackMessages[responseCategory];
     if (messages) {
@@ -199,32 +196,32 @@ const GuidedTours = () => {
 
     const transitionMap = {
       comfort: {
-        yes: STATES.NEXT_CONCEPT,
-        no: STATES.DEFINITION,
-        notSure: STATES.PROBLEM,
+        yes: 'next_concept',
+        no: 'definition',
+        notSure: 'problem',
       },
       definition: {
-        yes: STATES.PROBLEM,
-        no: STATES.DEFINITION,
-        notSure: STATES.EXAMPLE,
+        yes: 'problem',
+        no: 'definition',
+        notSure: 'example',
       },
       problem: {
-        yes: STATES.NEXT_CONCEPT,
-        no: STATES.DEFINITION,
+        yes: 'next_concept',
+        no: 'definition',
       },
       next_concept: {
-        yes: STATES.COMFORT,
-        no: STATES.DEFINITION,
+        yes: 'comfort',
+        no: 'definition',
       },
       example: {
-        yes: STATES.PROBLEM,
-        no: STATES.DEFINITION,
-        notSure: STATES.DEFINITION,
+        yes: 'problem',
+        no: 'definition',
+        notSure: 'definition',
       },
     };
 
     if ((diagnosticType === 'comfort' || diagnosticType === 'problem') && res === 'yes') {
-      if (currentConceptIndex + 1 == leafConceptData.length) {
+      if (currentConceptIndex + 1 == allLeafConceptNames.length) {
         setMessages((prevMessages) => [
           ...prevMessages,
           { type: 'system', text: 'All leaf Concept finished' },
@@ -260,6 +257,7 @@ const GuidedTours = () => {
   const handleSubmitResult = (result) => {
     console.log('User submission result:', result);
   };
+
   const showLearningObject = (
     setMessages,
     leafConceptData,
@@ -286,8 +284,8 @@ const GuidedTours = () => {
     }
 
     /////////////////////////////
-    ///Intro message
-    ///for learningObject
+    // Intro message
+    // for learningObject
     //////////////////////
     setMessages((prevMessages) => [
       ...prevMessages,
@@ -308,18 +306,18 @@ const GuidedTours = () => {
   };
 
   useEffect(() => {
-    if (leafConceptData.length > 0 && tourState === STATES.COMFORT) {
+    if (allLeafConceptNames.length > 0 && tourState === 'comfort') {
       setDiagnosticType('comfort');
       setTextArray(comfortPrompts);
       setResponseButtons(responseOptions['comfort']);
       setShouldShowDiagnosticTool(true);
-    } else if (tourState === STATES.DEFINITION) {
-      const uriToFetch = getNextItem(Object.keys(currentConcept)[0], STATES.DEFINITION);
+    } else if (tourState === 'definition') {
+      const uriToFetch = getNextItem(Object.keys(currentConcept)[0], 'definition');
 
       showLearningObject(
         setMessages,
-        leafConceptData,
-        STATES.DEFINITION,
+        conceptNameToUri,
+        'definition',
         definitionMessages,
         uriToFetch
       );
@@ -327,28 +325,28 @@ const GuidedTours = () => {
       setTextArray(definitionComfortPrompts);
       setResponseButtons(responseOptions['definition']);
       setShouldShowDiagnosticTool(true);
-    } else if (tourState === STATES.PROBLEM) {
-      const uriToFetch = getNextItem(Object.keys(currentConcept)[0], STATES.PROBLEM);
-      showLearningObject(setMessages, leafConceptData, STATES.PROBLEM, problemMessages, uriToFetch);
+    } else if (tourState === 'problem') {
+      const uriToFetch = getNextItem(Object.keys(currentConcept)[0], 'problem');
+      showLearningObject(setMessages, conceptNameToUri, 'problem', problemMessages, uriToFetch);
       setDiagnosticType('problem');
       setTextArray(problemComfortPrompts);
       setResponseButtons(responseOptions['problem']);
       setShouldShowDiagnosticTool(true);
-    } else if (tourState === STATES.NEXT_CONCEPT) {
+    } else if (tourState === 'next_concept') {
       setDiagnosticType('next_concept');
       setTextArray(nextConceptsPrompts);
       setResponseButtons(responseOptions['next_concept']);
 
       setShouldShowDiagnosticTool(true);
-    } else if (tourState === STATES.EXAMPLE) {
-      const uriToFetch = getNextItem(Object.keys(currentConcept)[0], STATES.EXAMPLE);
-      showLearningObject(setMessages, leafConceptData, STATES.EXAMPLE, exampleMessages, uriToFetch);
+    } else if (tourState === 'example') {
+      const uriToFetch = getNextItem(Object.keys(currentConcept)[0], 'example');
+      showLearningObject(setMessages, conceptNameToUri, 'example', exampleMessages, uriToFetch);
       setDiagnosticType('example');
       setTextArray(exampleComfortPrompts);
       setResponseButtons(responseOptions['example']);
       setShouldShowDiagnosticTool(true);
     }
-  }, [tourState, leafConceptData, refreshKey]);
+  }, [tourState, conceptNameToUri, refreshKey]);
 
   return (
     <MainLayout title="Guided Tour">
@@ -390,7 +388,7 @@ const GuidedTours = () => {
                   <Typography variant="body1" dangerouslySetInnerHTML={{ __html: msg.text }} />
                 )}
                 {msg.component && msg.text && <Box sx={{ mt: 2 }} />}
-                {msg.component && msg.component}
+                {msg.component}
               </Box>
             </Box>
           ))}
@@ -405,7 +403,7 @@ const GuidedTours = () => {
               messages={messages}
               setMessages={setMessages}
               onResponseSelect={handleResponseSelect}
-              leafConceptData={leafConceptData}
+              leafConceptData={conceptNameToUri}
               currentConceptIndex={currentConceptIndex}
             />
           )}
