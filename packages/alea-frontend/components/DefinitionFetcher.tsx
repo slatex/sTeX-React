@@ -1,10 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { mmtHTMLToReact, ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { getLearningObjectShtml } from '@stex-react/api';
+import { mmtHTMLToReact, ServerLinksContext } from '@stex-react/stex-react-renderer';
+import { useContext, useEffect, useState } from 'react';
 import { getRandomMessage } from '../pages/guided-tour2/[id]';
 import { noTypeMessages } from '../pages/guided-tour2/messages';
 
-const DefinitionFetcher = ({ link }) => {
+const DefinitionFetcher = ({ definitionUri }: { definitionUri: string }) => {
   const [definition, setDefinition] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -12,7 +12,7 @@ const DefinitionFetcher = ({ link }) => {
 
   useEffect(() => {
     const fetchDefinitionResponse = async () => {
-      if (!link) {
+      if (!definitionUri) {
         setError('No link provided to fetch the definition.');
         setLoading(false);
         return;
@@ -21,7 +21,7 @@ const DefinitionFetcher = ({ link }) => {
       try {
         setLoading(true);
         setError(null);
-        const response = await getLearningObjectShtml(mmtUrl, link);
+        const response = await getLearningObjectShtml(mmtUrl, definitionUri);
         setDefinition(response);
       } catch (error) {
         setError(error.message || 'Failed to fetch the definition.');
@@ -31,9 +31,9 @@ const DefinitionFetcher = ({ link }) => {
     };
 
     fetchDefinitionResponse();
-  }, [link, mmtUrl]);
+  }, [definitionUri, mmtUrl]);
 
-  if (!link) {
+  if (!definitionUri) {
     return (
       <div>
         <p> {getRandomMessage(noTypeMessages, 'definition')}</p>

@@ -6,7 +6,7 @@ import DiagnosticTool from 'packages/alea-frontend/components/DiagnosticTool';
 import ExampleFetcher from 'packages/alea-frontend/components/ExampleFetcher';
 import ProblemFetcher from 'packages/alea-frontend/components/ProblemFetcher';
 import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Dispatch, ReactNode, SetStateAction, useEffect, useMemo, useRef, useState } from 'react';
 import styles from './guided-tour.module.scss';
 import {
   comfortPrompts,
@@ -69,7 +69,7 @@ const getRandomMessage2 = (messageList: string[], title: string, currentConcept:
 const structureLearningObjects = (
   learningObjects: { 'learning-object': string; type: LoType }[]
 ) => {
-  const structured = {};
+  const structured: Partial<Record<LoType, { uris: string[]; currentIndex: number }>> = {};
 
   learningObjects.forEach((item) => {
     const { type } = item;
@@ -88,15 +88,19 @@ const structureLearningObjects = (
 };
 
 const GuidedTours = () => {
-  const [tourState, setTourState] = useState<MessageType | undefined>(undefined);
-  const [currentConceptIndex, setCurrentConceptIndex] = useState(0);
   const [messages, setMessages] = useState<
     { text: string; type: 'system' | 'user'; component?: any }[]
   >([]);
+
+  const [tourState, setTourState] = useState<MessageType | undefined>(undefined);
+  const [currentConceptIndex, setCurrentConceptIndex] = useState(0);
   const [shouldShowDiagnosticTool, setShouldShowDiagnosticTool] = useState(false);
   const [diagnosticType, setDiagnosticType] = useState<MessageType>('comfort');
   const [conceptNameToUri, setConceptNameToUri] = useState<Record<string, string>>({});
   const [refreshKey, setRefreshKey] = useState(0);
+  const [learningObjectsData, setLearningObjectsData] = useState<
+    Partial<Record<LoType, { uris: string[]; currentIndex: number }>>
+  >({});
 
   const allLeafConceptNames = Object.keys(conceptNameToUri || {});
   const currentConcept = useMemo(() => {
@@ -116,6 +120,7 @@ const GuidedTours = () => {
   const leafConceptUri = id?.split('&title=')[0] || '';
 
   useEffect(() => {
+    if(!leafConceptUri) return;
     const fetchLeafConcepts = async () => {
       try {
         const leafConceptLinks = await getLeafConcepts(leafConceptUri);
@@ -133,20 +138,13 @@ const GuidedTours = () => {
     fetchLeafConcepts();
   }, [leafConceptUri]);
 
-  const [learningObjectsData, setLearningObjectsData] = useState({});
-
   useEffect(() => {
     const fetchLearningObjects = async () => {
       if (!currentConcept) return;
       try {
-        const conceptName = Object.keys(currentConcept)[0];
-        const conceptUri = currentConcept[conceptName];
-
-        const response = await getLearningObjects([conceptUri]);
+        const response = await getLearningObjects([currentConcept]);
         const result = structureLearningObjects(response.learningObjects);
-        const learningObjects = {};
-        learningObjects[Object.keys(currentConcept)[0]] = result;
-        setLearningObjectsData(learningObjects);
+        setLearningObjectsData(result);
       } catch (error) {
         console.error('Error in fetchLearningObjects:', error);
       }
@@ -166,7 +164,7 @@ const GuidedTours = () => {
   useEffect(() => {
     const initializeTour = () => {
       if (allLeafConceptNames.length > 1 && messages.length === 0) {
-        const currentConcept = Object.keys(conceptNameToUri[0])[0];
+        const currentConcept = Object.keys(conceptNameToUri)[0];
         setMessages((prevMessages) => [
           ...prevMessages,
           {
@@ -189,7 +187,7 @@ const GuidedTours = () => {
     }
   };
 
-  const handleResponseSelect = (response: string, diagnosticType: string) => {
+  const handleResponseSelect = (response: string, diagnosticType: MessageType) => {
     const res = categorizeResponse(response);
 
     showFeedbackMessage(res);
@@ -244,7 +242,7 @@ const GuidedTours = () => {
   };
 
   const [responseButtons, setResponseButtons] = useState(responseOptions['comfort']);
-  const getNextItem = (currentConcept, type) => {
+  const getNextItem = (currentConcept: string, type: MessageType) => {
     const obj = learningObjectsData[currentConcept]?.[type];
     if (!obj || !obj.uris || obj.uris.length === 0) {
       return null;
@@ -259,17 +257,19 @@ const GuidedTours = () => {
   };
 
   const showLearningObject = (
-    setMessages,
-    leafConceptData,
-    state,
-    textArray,
-    learningObjectUri
+    setMessages: Dispatch<
+      SetStateAction<{ text: string; type: 'system' | 'user'; component?: any }[]>
+    >,
+    leafConceptData: Record<string, string>,
+    state: MessageType,
+    textArray: string[],
+    learningObjectUri: string
   ) => {
-    let componentToRender;
+    let componentToRender: ReactNode = null;
 
     switch (state) {
       case 'definition':
-        componentToRender = <DefinitionFetcher link={learningObjectUri} />;
+        componentToRender = <DefinitionFetcher definitionUri={learningObjectUri} />;
         break;
       case 'problem':
         componentToRender = (
@@ -300,6 +300,7 @@ const GuidedTours = () => {
         {
           component: componentToRender,
           type: 'system',
+          text: '',
         },
       ]);
     }, 500);
