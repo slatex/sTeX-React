@@ -11,7 +11,7 @@ const StudentHomePage: NextPage = () => {
           <p>
             To ensure that you feel safe and comfortable visiting this website,
             we would like to inform you about how we handle your personal data
-            in the context of the ALeA. This Privacy Policy describes
+            in the context of the VoLL-KI project. This Privacy Policy describes
             how we collect, use, process and disclose your data, including
             personal data, in connection with your access to and use of this
             system.
@@ -82,7 +82,7 @@ const StudentHomePage: NextPage = () => {
             will be transmitted outside the system without your consent.
             <br />
             <br />
-            The VoLL-KI project will use this data in aggregated,
+            The VoLL-KI research project will use this data in aggregated,
             anonymized, and/or pseudonymized form to evaluate the system and the
             underlying methods. We will use best professional effort to make
             sure that personalized data cannot be re-engineered from aggregated
