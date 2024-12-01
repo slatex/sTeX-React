@@ -473,7 +473,7 @@ export interface GetLearningObjectsResponse {
   learner: string;
 }
 
-export async function getLearningObjects2(
+export async function getLearningObjects(
   concepts: string[],
   limit?: number,
   types?: string[],
@@ -492,7 +492,7 @@ export interface GetLeafConceptsResponse {
   learner: string;
 }
 
-export async function getLeafConcepts2(target: string) {
+export async function getLeafConcepts(target: string) {
   return (await lmsRequest('lms', 'guided-tours/leaf-concepts', 'POST', null, {
     target,
   })) as GetLeafConceptsResponse;
