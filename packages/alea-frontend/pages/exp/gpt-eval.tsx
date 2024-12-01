@@ -177,7 +177,7 @@ const GptEval: NextPage = () => {
   });
 
   return (
-    <MainLayout title="GPT Problems | VoLL-KI">
+    <MainLayout title="GPT Problems | ALeA">
       <LayoutWithFixedMenu
         menu={
           <RunsDash

@@ -120,7 +120,7 @@ const StudyBuddyPage: NextPage = () => {
 
   return (
     <MainLayout
-      title={(courseId || '').toUpperCase() + ` Study Buddy | VoLL-KI`}
+      title={(courseId || '').toUpperCase() + ` Study Buddy | ALeA`}
       bgColor={BG_COLOR}
     >
       <CourseHeader courseName={courseName} imageLink={courseInfo?.imageLink} courseId={courseId} />

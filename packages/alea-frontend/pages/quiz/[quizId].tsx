@@ -182,14 +182,14 @@ const QuizPage: NextPage = () => {
   if (!quizId) return null;
   if (forceFauLogin) {
     return (
-      <MainLayout title="Quizzes | VoLL-KI">
+      <MainLayout title="Quizzes | ALeA">
         <ForceFauLogin />
       </MainLayout>
     );
   }
 
   return (
-    <MainLayout title="Quizzes | VoLL-KI">
+    <MainLayout title="Quizzes | ALeA">
       <Box>
         {userInfo === undefined ? (
           <Box p="20px">You must be logged in to see quizzes.</Box>
