@@ -2,7 +2,7 @@ import { getLearningObjectShtml } from '@stex-react/api';
 import { mmtHTMLToReact, ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { useContext, useEffect, useState } from 'react';
 import { getRandomMessage } from '../pages/guided-tour2/[id]';
-import { noTypeMessages } from '../pages/guided-tour2/messages';
+import { NO_TYPE_MESSAGES } from '../pages/guided-tour2/messages';
 
 const DefinitionFetcher = ({ definitionUri }: { definitionUri: string }) => {
   const [definition, setDefinition] = useState(null);
@@ -36,7 +36,7 @@ const DefinitionFetcher = ({ definitionUri }: { definitionUri: string }) => {
   if (!definitionUri) {
     return (
       <div>
-        <p> {getRandomMessage(noTypeMessages, 'definition')}</p>
+        <p> {getRandomMessage(NO_TYPE_MESSAGES, 'definition')}</p>
       </div>
     );
   }

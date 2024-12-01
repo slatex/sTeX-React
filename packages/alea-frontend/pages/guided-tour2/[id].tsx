@@ -1,28 +1,36 @@
 import { Box, Typography } from '@mui/material';
-import { getLeafConcepts, getLearningObjects, LoType } from '@stex-react/api';
+import {
+  conceptUriToName,
+  getLeafConcepts,
+  getLearningObjects,
+  LoType,
+  ProblemResponse,
+} from '@stex-react/api';
+import { chooseRandomlyFromList } from '@stex-react/utils';
+import assert from 'assert';
 import { useRouter } from 'next/router';
 import DefinitionFetcher from 'packages/alea-frontend/components/DefinitionFetcher';
 import DiagnosticTool from 'packages/alea-frontend/components/DiagnosticTool';
 import ExampleFetcher from 'packages/alea-frontend/components/ExampleFetcher';
 import ProblemFetcher from 'packages/alea-frontend/components/ProblemFetcher';
 import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
-import { Dispatch, ReactNode, SetStateAction, useEffect, useMemo, useRef, useState } from 'react';
+import { Dispatch, ReactNode, SetStateAction, useEffect, useRef, useState } from 'react';
 import styles from './guided-tour.module.scss';
 import {
-  comfortPrompts,
-  definitionComfortPrompts,
+  ACTION_VERBALIZATION_OPTIONS,
+  ActionName,
+  COMFORT_PROMPTS,
+  DEFINITION_COMFORT_PROMPTS,
   definitionMessages,
-  exampleComfortPrompts,
-  exampleMessages,
-  feedbackMessages,
-  initializeMessages,
-  negativeResponses,
-  nextConceptsPrompts,
-  positiveResponses,
-  problemComfortPrompts,
-  problemMessages,
-  responseOptions,
-  unsureResponses,
+  EXAMPLE_COMFORT_PROMPTS,
+  FEEDBACK_MESSAGES,
+  INITIALIZE_MESSAGES,
+  NEGATIVE_RESPONSES,
+  NEXT_CONCEPT_PROMPTS,
+  POSITIVE_RESPONSES,
+  PROBLEM_COMFORT_PROMPTS,
+  RESPONSE_OPTIONS,
+  UNSURE_RESPONSES,
 } from './messages';
 
 const ALL_MESSAGE_TYPES = ['comfort', 'definition', 'problem', 'next_concept', 'example'] as const;
@@ -30,27 +38,27 @@ type MessageType = (typeof ALL_MESSAGE_TYPES)[number];
 
 const categorizeResponse = (response: string): 'yes' | 'no' | 'notSure' => {
   const normalizedResponse = response.toLowerCase().trim();
-  if (positiveResponses.some((word) => normalizedResponse === word)) {
+  if (POSITIVE_RESPONSES.some((word) => normalizedResponse === word)) {
     return 'yes';
   }
 
-  if (negativeResponses.some((word) => normalizedResponse === word)) {
+  if (NEGATIVE_RESPONSES.some((word) => normalizedResponse === word)) {
     return 'no';
   }
 
-  if (unsureResponses.some((word) => normalizedResponse === word)) {
+  if (UNSURE_RESPONSES.some((word) => normalizedResponse === word)) {
     return 'notSure';
   }
 
-  if (positiveResponses.some((word) => normalizedResponse.includes(word))) {
+  if (POSITIVE_RESPONSES.some((word) => normalizedResponse.includes(word))) {
     return 'yes';
   }
 
-  if (negativeResponses.some((word) => normalizedResponse.includes(word))) {
+  if (NEGATIVE_RESPONSES.some((word) => normalizedResponse.includes(word))) {
     return 'no';
   }
 
-  if (unsureResponses.some((word) => normalizedResponse.includes(word))) {
+  if (UNSURE_RESPONSES.some((word) => normalizedResponse.includes(word))) {
     return 'notSure';
   }
 
@@ -58,18 +66,23 @@ const categorizeResponse = (response: string): 'yes' | 'no' | 'notSure' => {
 };
 
 export const getRandomMessage = (messageList: string[], context: string) => {
+  console.log('context:', context);
   const template = messageList[Math.floor(Math.random() * messageList.length)];
   return template.replace('{{concept}}', context);
 };
 
-const getRandomMessage2 = (messageList: string[], title: string, currentConcept: string) => {
+const getRandomMessage2 = (
+  messageList: readonly string[],
+  title: string,
+  currentConcept: string
+) => {
   const template = messageList[Math.floor(Math.random() * messageList.length)];
   return template.replace(/{{title}}/g, title).replace(/{{currentConcept}}/g, currentConcept);
 };
 const structureLearningObjects = (
   learningObjects: { 'learning-object': string; type: LoType }[]
 ) => {
-  const structured: Partial<Record<LoType, { uris: string[]; currentIndex: number }>> = {};
+  const structured: Partial<Record<LoType, { uris: string[]; currentIdx: number }>> = {};
 
   learningObjects.forEach((item) => {
     const { type } = item;
@@ -77,7 +90,7 @@ const structureLearningObjects = (
     if (!structured[type]) {
       structured[type] = {
         uris: [],
-        currentIndex: 0,
+        currentIdx: 0,
       };
     }
 
@@ -87,28 +100,277 @@ const structureLearningObjects = (
   return structured;
 };
 
+const TRANSITION_MESSAGE_OPTIONS: Record<MessageType, readonly string[]> = {
+  comfort: COMFORT_PROMPTS,
+  definition: DEFINITION_COMFORT_PROMPTS,
+  problem: PROBLEM_COMFORT_PROMPTS,
+  example: EXAMPLE_COMFORT_PROMPTS,
+  next_concept: NEXT_CONCEPT_PROMPTS,
+};
+
+const MOVE_ON_CHOICES: ActionName[] = ['MOVE_ON', 'DONT_MOVE_ON'];
+
+interface UserAction {
+  actionType: 'problem' | 'choose-option';
+  options?: ActionName[];
+  optionVerbalization?: Partial<Record<ActionName, string>>;
+  chosenOption?: ActionName;
+  response?: ProblemResponse;
+  quotient?: number;
+}
+
+interface GuidedTourState {
+  targetConceptUri: string;
+  leafConceptUris: string[];
+  focusConceptIdx: number;
+
+  focusConceptInitialized: boolean;
+
+  focusConceptLo: Partial<Record<LoType, { uris: string[]; currentIdx: number }>>;
+  focusConceptLoUserAction: Record<string, UserAction>;
+  focusConceptCurrentLo?: { type: LoType; uri: string };
+}
+
+interface ChatMessage {
+  from: 'system' | 'user';
+  type: 'text' | LoType;
+  loUri?: string;
+  text?: string;
+  userAction?: UserAction;
+}
+
+function chooseOptionAction(options: ActionName[]): UserAction {
+  const optionVerbalization: Partial<Record<ActionName, string>> = {};
+  options.forEach((option) => {
+    const verbalization = chooseRandomlyFromList(ACTION_VERBALIZATION_OPTIONS[option]);
+    optionVerbalization[option] = verbalization;
+  });
+
+  return { actionType: 'choose-option', options, optionVerbalization };
+}
+
+function systemTextMessage(text: string): ChatMessage {
+  return { from: 'system', type: 'text', text };
+}
+
+function getNextLoType(
+  focusConceptLo: Partial<Record<LoType, { uris: string[]; currentIdx: number }>>,
+  userAction: UserAction,
+  focusConceptCurrentLo?: { type: LoType; uri: string }
+) {
+  const loOrder: LoType[] = ['definition', 'example', 'para', 'statement', 'problem'];
+  const currentLoIdx = focusConceptCurrentLo ? loOrder.indexOf(focusConceptCurrentLo.type) : 0;
+  let loTypePreferredIdxOrder: number[];
+  if (userAction.chosenOption === 'LO_UNDERSTOOD') {
+    loTypePreferredIdxOrder = [4, 3, 2, 1, 0]; // 'problem';
+  } else if (userAction.chosenOption === 'LO_NOT_UNDERSTOOD') {
+    loTypePreferredIdxOrder = [
+      currentLoIdx,
+      ...[0, 1, 2, 3, 4].filter((idx) => idx !== currentLoIdx),
+    ];
+  } else if (userAction.quotient === 1) {
+    loTypePreferredIdxOrder = [4, 3, 2, 1, 0]; // 'problem';
+  } else {
+    loTypePreferredIdxOrder = [0, 1, 2, 3, 4]; // 'definition';
+  }
+  for (const typeIdx of loTypePreferredIdxOrder) {
+    const type = loOrder[typeIdx];
+    const currentIdx = focusConceptLo[type]?.currentIdx;
+    const numEntries = focusConceptLo[type]?.uris?.length ?? 0;
+    if (numEntries > 0 && currentIdx < numEntries) return type;
+  }
+  return undefined;
+}
+
+async function stateTransition(
+  state: GuidedTourState,
+  action: UserAction
+): Promise<{ newState: GuidedTourState; newMessages: ChatMessage[]; nextAction: UserAction }> {
+  const newState = { ...state };
+  const newMessages: ChatMessage[] = [];
+  let nextAction: UserAction = undefined;
+  const currentConceptUri = state.leafConceptUris[state.focusConceptIdx];
+  const nextConceptUri = state.leafConceptUris[state.focusConceptIdx + 1];
+  const currentConceptName = conceptUriToName(currentConceptUri);
+  const nextConceptName = conceptUriToName(nextConceptUri);
+
+  if (action.chosenOption === 'MOVE_ON') {
+    newState.focusConceptIdx++;
+    const response = await getLearningObjects([currentConceptUri]);
+    const result = structureLearningObjects(response['learning-objects']);
+    newState.focusConceptLo = result;
+    // TODO: handle end of leaf concepts.
+    newMessages.push(
+      systemTextMessage(`Alright, let's move on and talk about ${nextConceptName}.`)
+    );
+    newMessages.push(systemTextMessage(`Let's see how well you understand ${nextConceptName}.`));
+    const options: ActionName[] = ['KNOW', 'DONT_KNOW'];
+    if (newState.focusConceptLo['problem']?.uris?.length > 0) options.push('NOT_SURE_IF_KNOW');
+    nextAction = chooseOptionAction(options);
+  } else if (action.chosenOption === 'DONT_MOVE_ON') {
+    newMessages.push(systemTextMessage(`Alright, let's study more about ${currentConceptName}.`));
+  
+    const newLoType = getNextLoType(
+      newState.focusConceptLo,
+      action,
+      newState.focusConceptCurrentLo
+    );
+    if (newLoType) {
+      newState.focusConceptCurrentLo = {
+        type: newLoType,
+        uri: newState.focusConceptLo[newLoType][newState.focusConceptLo[newLoType].currentIdx],
+      };
+    } else {
+      newMessages.push(systemTextMessage('No more learning objects available for this concept.'));
+      nextAction = chooseOptionAction(['MOVE_ON']);
+    }
+  }
+
+  if (!state.focusConceptInitialized) {
+    if (action.chosenOption === 'KNOW') {
+      newMessages.push(systemTextMessage('Great!'));
+      newMessages.push(
+        systemTextMessage(`Let's move on to the next concept - ${nextConceptName}.`)
+      );
+      newState.focusConceptIdx++;
+
+      nextAction = chooseOptionAction(['MOVE_ON', 'DONT_MOVE_ON']);
+    } else if (action.chosenOption === 'DONT_KNOW') {
+      newMessages.push(systemTextMessage(`Alright! Let's study more about ${currentConceptName}.`));
+
+    } else if (action.chosenOption === 'NOT_SURE_IF_KNOW') {
+      newMessages.push(
+        systemTextMessage(
+          `No worries, let's check your understanding of ${currentConceptName} with a problem.`
+        )
+      );
+      newState.focusConceptLo.problem.currentIdx++;
+      newMessages.push({
+        from: 'system',
+        type: 'problem',
+        loUri: newState.focusConceptLo.problem.uris[newState.focusConceptLo.problem.currentIdx],
+      });
+      nextAction = { actionType: 'problem' };
+    } else if (action.chosenOption === 'ANOTHER_PROBLEM') {
+      newState.focusConceptLo.problem.currentIdx++;
+      newMessages.push({
+        from: 'system',
+        type: 'problem',
+        loUri: newState.focusConceptLo.problem.uris[newState.focusConceptLo.problem.currentIdx],
+      });
+      nextAction = { actionType: 'problem' };
+    } else {
+      assert(action.actionType === 'problem');
+      assert(action.quotient !== undefined);
+      if (action.quotient === 1) {
+        newMessages.push(systemTextMessage('Correct!'));
+        newMessages.push(
+          systemTextMessage('Do you feel confident in your understanding to move on?')
+        );
+        const numProblems = newState.focusConceptLo.problem?.uris?.length ?? 0;
+        const idx = newState.focusConceptLo.problem?.currentIdx ?? -1;
+        const options: ActionName[] = ['MOVE_ON'];
+        if (numProblems > 0 && idx < numProblems - 1) {
+          newState.focusConceptLo.problem.currentIdx++;
+          options.push('ANOTHER_PROBLEM');
+        } else {
+          options.push('DONT_MOVE_ON');
+        }
+        nextAction = chooseOptionAction(options);
+      } else if (action.quotient === 0) {
+        newMessages.push(systemTextMessage('Oops! That was incorrect.'));
+        newMessages.push(systemTextMessage('Do you want to try another problem?'));
+        nextAction = chooseOptionAction(['ANOTHER_PROBLEM', 'MOVE_ON']);
+      } else {
+        newMessages.push(systemTextMessage("Hmm, that's partially correct."));
+        newMessages.push(systemTextMessage('Do you want to try another problem?'));
+        nextAction = chooseOptionAction(['ANOTHER_PROBLEM', 'MOVE_ON']);
+      }
+      const currentConcept = conceptUriToName(state.leafConceptUris[state.focusConceptIdx]);
+      newMessages.push(systemTextMessage(`Let's see how well you understand ${currentConcept}.`));
+    }
+  } else {
+    newState.focusConceptLo[state.focusConceptCurrentLo.type].currentIdx++;
+    const nextLoType = getNextLoType(
+      newState.focusConceptLo,
+      action,
+      newState.focusConceptCurrentLo
+    );
+    if (nextLoType) {
+      newState.focusConceptCurrentLo = {
+        type: nextLoType,
+        uri: newState.focusConceptLo[nextLoType][newState.focusConceptLo[nextLoType].currentIdx],
+      };
+    }
+
+    if (action.chosenOption === 'LO_UNDERSTOOD') {
+      newMessages.push(systemTextMessage('Great!'));
+    } else if (action.chosenOption === 'LO_NOT_UNDERSTOOD') {
+      const article =
+        state.focusConceptCurrentLo.type === nextLoType
+          ? 'another'
+          : nextLoType === 'example'
+          ? 'an'
+          : 'a';
+      if (nextLoType) {
+        newMessages.push(
+          systemTextMessage(`No worries! Let's learn more with ${article} ${nextLoType}`)
+        );
+      } else {
+        newMessages.push(systemTextMessage('Sorry to hear that!'));
+      }
+    }
+    if (!nextLoType) {
+      newMessages.push(
+        systemTextMessage(
+          "No more learning objects available for this concept. Let's move on to the next concept."
+        )
+      );
+      nextAction = chooseOptionAction(['MOVE_ON']);
+    } else {
+      if (action.quotient === 1) {
+        newMessages.push(systemTextMessage('Correct!'));
+        newMessages.push(
+          systemTextMessage('Do you feel confident in your understanding to move on?')
+        );
+        nextAction = chooseOptionAction(['MOVE_ON', 'DONT_MOVE_ON']);
+      } else {
+        newMessages.push({
+          from: 'system',
+          type: nextLoType,
+          loUri: newState.focusConceptCurrentLo.uri,
+        });
+        if (nextLoType === 'problem') {
+          nextAction = { actionType: 'problem' };
+        } else {
+          newMessages.push(
+            systemTextMessage(`Where you able to understand the above ${nextLoType}?`)
+          );
+          nextAction = chooseOptionAction(['LO_UNDERSTOOD', 'LO_NOT_UNDERSTOOD']);
+        }
+      }
+    }
+  }
+  assert(!!nextAction);
+  return { newState, nextAction, newMessages };
+}
+
 const GuidedTours = () => {
   const [messages, setMessages] = useState<
     { text: string; type: 'system' | 'user'; component?: any }[]
   >([]);
-
   const [tourState, setTourState] = useState<MessageType | undefined>(undefined);
   const [currentConceptIndex, setCurrentConceptIndex] = useState(0);
   const [shouldShowDiagnosticTool, setShouldShowDiagnosticTool] = useState(false);
   const [diagnosticType, setDiagnosticType] = useState<MessageType>('comfort');
-  const [conceptNameToUri, setConceptNameToUri] = useState<Record<string, string>>({});
+  const [leafConcepts, setLeafConcepts] = useState<string[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
   const [learningObjectsData, setLearningObjectsData] = useState<
-    Partial<Record<LoType, { uris: string[]; currentIndex: number }>>
+    Partial<Record<LoType, { uris: string[]; currentIdx: number }>>
   >({});
-
-  const allLeafConceptNames = Object.keys(conceptNameToUri || {});
-  const currentConcept = useMemo(() => {
-    const existingKeys = Object.keys(conceptNameToUri || {});
-    if (!existingKeys.length) return undefined;
-    if (currentConceptIndex < 0 || currentConceptIndex >= existingKeys.length) return undefined;
-    return conceptNameToUri[existingKeys[currentConceptIndex]];
-  }, [conceptNameToUri, currentConceptIndex]);
+  const [textArray, setTextArray] = useState<readonly string[]>(COMFORT_PROMPTS);
+  const allLeafConceptNames = Object.keys(leafConcepts || {});
+  const currentConcept = leafConcepts[currentConceptIndex];
 
   const messagesEndRef = useRef(null);
   const router = useRouter();
@@ -120,17 +382,11 @@ const GuidedTours = () => {
   const leafConceptUri = id?.split('&title=')[0] || '';
 
   useEffect(() => {
-    if(!leafConceptUri) return;
+    if (!leafConceptUri) return;
     const fetchLeafConcepts = async () => {
       try {
-        const leafConceptLinks = await getLeafConcepts(leafConceptUri);
-        const conceptNameToUri = {};
-        (leafConceptLinks['leaf-concepts'] ?? []).map((link) => {
-          const segments = link.split('?');
-          const conceptName = segments[segments.length - 1];
-          conceptNameToUri[conceptName] = link;
-        });
-        setConceptNameToUri(conceptNameToUri);
+        const resp = await getLeafConcepts(leafConceptUri);
+        setLeafConcepts(resp['leaf-concepts'] ?? []);
       } catch (error) {
         console.error('Error fetching leaf concepts:', error);
       }
@@ -143,7 +399,7 @@ const GuidedTours = () => {
       if (!currentConcept) return;
       try {
         const response = await getLearningObjects([currentConcept]);
-        const result = structureLearningObjects(response.learningObjects);
+        const result = structureLearningObjects(response['learning-objects']);
         setLearningObjectsData(result);
       } catch (error) {
         console.error('Error in fetchLearningObjects:', error);
@@ -159,16 +415,14 @@ const GuidedTours = () => {
     setTourState(newState);
   };
 
-  const [textArray, setTextArray] = useState(comfortPrompts);
-
   useEffect(() => {
     const initializeTour = () => {
       if (allLeafConceptNames.length > 1 && messages.length === 0) {
-        const currentConcept = Object.keys(conceptNameToUri)[0];
+        const currentConcept = leafConcepts[0];
         setMessages((prevMessages) => [
           ...prevMessages,
           {
-            text: getRandomMessage2(initializeMessages, title, currentConcept),
+            text: getRandomMessage2(INITIALIZE_MESSAGES, title, conceptUriToName(currentConcept)),
             type: 'system',
           },
         ]);
@@ -176,9 +430,10 @@ const GuidedTours = () => {
       }
     };
     initializeTour();
-  }, [conceptNameToUri]);
+  }, [leafConcepts]);
+
   const showFeedbackMessage = (responseCategory: string) => {
-    const messages = feedbackMessages[responseCategory];
+    const messages = FEEDBACK_MESSAGES[responseCategory];
     if (messages) {
       const randomMessage = messages[Math.floor(Math.random() * messages.length)];
       setMessages((prevMessages) => [...prevMessages, { type: 'system', text: randomMessage }]);
@@ -219,7 +474,7 @@ const GuidedTours = () => {
     };
 
     if ((diagnosticType === 'comfort' || diagnosticType === 'problem') && res === 'yes') {
-      if (currentConceptIndex + 1 == allLeafConceptNames.length) {
+      if (currentConceptIndex + 1 === allLeafConceptNames.length) {
         setMessages((prevMessages) => [
           ...prevMessages,
           { type: 'system', text: 'All leaf Concept finished' },
@@ -241,7 +496,7 @@ const GuidedTours = () => {
     }
   };
 
-  const [responseButtons, setResponseButtons] = useState(responseOptions['comfort']);
+  const [responseButtons, setResponseButtons] = useState(RESPONSE_OPTIONS['comfort']);
   const getNextItem = (currentConcept: string, type: MessageType) => {
     const obj = learningObjectsData[currentConcept]?.[type];
     if (!obj || !obj.uris || obj.uris.length === 0) {
@@ -260,7 +515,7 @@ const GuidedTours = () => {
     setMessages: Dispatch<
       SetStateAction<{ text: string; type: 'system' | 'user'; component?: any }[]>
     >,
-    leafConceptData: Record<string, string>,
+    leafConceptData: string[],
     state: MessageType,
     textArray: string[],
     learningObjectUri: string
@@ -287,10 +542,11 @@ const GuidedTours = () => {
     // Intro message
     // for learningObject
     //////////////////////
+    console.log('leafConceptData:', leafConceptData);
     setMessages((prevMessages) => [
       ...prevMessages,
       {
-        text: getRandomMessage(textArray, Object.keys(leafConceptData[currentConceptIndex])[0]),
+        text: getRandomMessage(textArray, conceptUriToName(leafConceptData[currentConceptIndex])),
         type: 'system',
       },
     ]);
@@ -307,50 +563,20 @@ const GuidedTours = () => {
   };
 
   useEffect(() => {
-    if (allLeafConceptNames.length > 0 && tourState === 'comfort') {
-      setDiagnosticType('comfort');
-      setTextArray(comfortPrompts);
-      setResponseButtons(responseOptions['comfort']);
-      setShouldShowDiagnosticTool(true);
-    } else if (tourState === 'definition') {
-      const uriToFetch = getNextItem(Object.keys(currentConcept)[0], 'definition');
-
-      showLearningObject(
-        setMessages,
-        conceptNameToUri,
-        'definition',
-        definitionMessages,
-        uriToFetch
-      );
-      setDiagnosticType('definition');
-      setTextArray(definitionComfortPrompts);
-      setResponseButtons(responseOptions['definition']);
-      setShouldShowDiagnosticTool(true);
-    } else if (tourState === 'problem') {
-      const uriToFetch = getNextItem(Object.keys(currentConcept)[0], 'problem');
-      showLearningObject(setMessages, conceptNameToUri, 'problem', problemMessages, uriToFetch);
-      setDiagnosticType('problem');
-      setTextArray(problemComfortPrompts);
-      setResponseButtons(responseOptions['problem']);
-      setShouldShowDiagnosticTool(true);
-    } else if (tourState === 'next_concept') {
-      setDiagnosticType('next_concept');
-      setTextArray(nextConceptsPrompts);
-      setResponseButtons(responseOptions['next_concept']);
-
-      setShouldShowDiagnosticTool(true);
-    } else if (tourState === 'example') {
-      const uriToFetch = getNextItem(Object.keys(currentConcept)[0], 'example');
-      showLearningObject(setMessages, conceptNameToUri, 'example', exampleMessages, uriToFetch);
-      setDiagnosticType('example');
-      setTextArray(exampleComfortPrompts);
-      setResponseButtons(responseOptions['example']);
+    if (['definition', 'problem', 'example'].includes(tourState)) {
+      const uriToFetch = getNextItem(currentConcept, tourState);
+      showLearningObject(setMessages, leafConcepts, tourState, definitionMessages, uriToFetch);
+    }
+    if (allLeafConceptNames.length > 0 || tourState !== 'comfort') {
+      setDiagnosticType(tourState);
+      setTextArray(TRANSITION_MESSAGE_OPTIONS[tourState]);
+      setResponseButtons(RESPONSE_OPTIONS[tourState]);
       setShouldShowDiagnosticTool(true);
     }
-  }, [tourState, conceptNameToUri, refreshKey]);
+  }, [tourState, leafConcepts, refreshKey]);
 
   return (
-    <MainLayout title="Guided Tour">
+    <MainLayout title="Guided Tour | ALeA">
       <div>
         <h1 className={styles.title}>
           <span className={styles.welcomeText}>Welcome to the Guided Tour of </span>
@@ -404,7 +630,7 @@ const GuidedTours = () => {
               messages={messages}
               setMessages={setMessages}
               onResponseSelect={handleResponseSelect}
-              leafConceptData={conceptNameToUri}
+              leafConceptData={leafConcepts}
               currentConceptIndex={currentConceptIndex}
             />
           )}

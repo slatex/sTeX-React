@@ -469,7 +469,7 @@ export async function postAnswer(answer: ProblemAnswerEvent) {
 }
 
 export interface GetLearningObjectsResponse {
-  learningObjects: { 'learning-object': string; type: LoType }[];
+  'learning-objects': { 'learning-object': string; type: LoType }[];
   learner: string;
 }
 

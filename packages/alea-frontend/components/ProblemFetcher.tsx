@@ -5,7 +5,7 @@ import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { defaultProblemResponse } from 'packages/stex-react-renderer/src/lib/InlineProblemDisplay';
 import { ProblemDisplay } from 'packages/stex-react-renderer/src/lib/ProblemDisplay';
 import { getRandomMessage } from '../pages/guided-tour2/[id]';
-import { noTypeMessages } from '../pages/guided-tour2/messages';
+import { NO_TYPE_MESSAGES } from '../pages/guided-tour2/messages';
 
 const ProblemFetcher = ({ link, onSubmit }) => {
   const { mmtUrl } = useContext(ServerLinksContext); // Context for server URL
@@ -52,7 +52,7 @@ const ProblemFetcher = ({ link, onSubmit }) => {
   if (!link) {
     return (
       <div>
-        <p> {getRandomMessage(noTypeMessages, 'problem')}</p>
+        <p> {getRandomMessage(NO_TYPE_MESSAGES, 'problem')}</p>
       </div>
     );
   }

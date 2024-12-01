@@ -1,5 +1,6 @@
+import { Box, Button } from '@mui/material';
+import { conceptUriToName } from '@stex-react/api';
 import React, { useState } from 'react';
-import { Box, Typography, Button } from '@mui/material';
 
 type DiagnosticToolProps = {
   diagnosticType: string;
@@ -10,7 +11,7 @@ type DiagnosticToolProps = {
     React.SetStateAction<Array<{ type: 'system' | 'user'; text: string }>>
   >;
   onResponseSelect: (response: string, diagnosticType: string) => void;
-  leafConceptData: any;
+  leafConceptData: string[];
   currentConceptIndex: number;
 };
 const getRandomMessage = (messagesArray, context) => {
@@ -30,11 +31,11 @@ const DiagnosticTool: React.FC<DiagnosticToolProps> = ({
 }) => {
   const [showButtons, setShowButtons] = useState(false);
   React.useEffect(() => {
-    if (textArray && textArray.length > 0) {
+    if (textArray?.length > 0) {
       if (leafConceptData.length > currentConceptIndex) {
         const updatedMessages: { type: 'system' | 'user'; text: string } = {
           type: 'system',
-          text: getRandomMessage(textArray, Object.keys(leafConceptData[currentConceptIndex])[0]),
+          text: getRandomMessage(textArray, conceptUriToName(leafConceptData[currentConceptIndex])),
         };
 
         setTimeout(() => {

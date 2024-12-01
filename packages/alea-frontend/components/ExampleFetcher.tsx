@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { mmtHTMLToReact, ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { getLearningObjectShtml } from '@stex-react/api';
 import { getRandomMessage } from '../pages/guided-tour2/[id]';
-import { noTypeMessages } from '../pages/guided-tour2/messages';
+import { NO_TYPE_MESSAGES } from '../pages/guided-tour2/messages';
 
 const ExampleFetcher = ({ link }) => {
   const [example, setExample] = useState(null);
@@ -35,7 +35,7 @@ const ExampleFetcher = ({ link }) => {
   if (!link) {
     return (
       <div>
-        <p> {getRandomMessage(noTypeMessages, 'example')}</p>
+        <p> {getRandomMessage(NO_TYPE_MESSAGES, 'example')}</p>
       </div>
     );
   }
