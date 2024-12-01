@@ -70,14 +70,14 @@ const HomeworkDocPage: React.FC = () => {
 
   if (forceFauLogin) {
     return (
-      <MainLayout title={`${courseId ?? ''} Homework | VoLL-KI`}>
+      <MainLayout title={`${courseId ?? ''} Homework | ALeA`}>
         <ForceFauLogin />
       </MainLayout>
     );
   }
 
   return (
-    <MainLayout title={`${courseId ?? ''} Homework | VoLL-KI`}>
+    <MainLayout title={`${courseId ?? ''} Homework | ALeA`}>
       <Box>
         {!userInfo ? (
           <Box p="20px">You must be logged in to see homeworks.</Box>

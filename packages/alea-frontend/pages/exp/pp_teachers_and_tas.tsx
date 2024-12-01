@@ -42,7 +42,7 @@ const PPTeachersAndTas: NextPage = () => {
     });
   }, []);
   return (
-    <MainLayout title="Experiments | VoLL-KI">
+    <MainLayout title="Experiments | ALeA">
       <Box px="10px" m="auto" maxWidth="600px">
         {renderedHtml}
       </Box>

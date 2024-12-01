@@ -47,7 +47,7 @@ const MyLearnerModelPage: NextPage = () => {
   const concepts = competenceInfo.map((v) => v.concept);
 
   return (
-    <MainLayout title="My Learner Model | VoLL-KI">
+    <MainLayout title="My Learner Model | ALeA">
       <Box p="10px" m="0 auto" maxWidth="800px">
         {isLoading ? (
           <CircularProgress />

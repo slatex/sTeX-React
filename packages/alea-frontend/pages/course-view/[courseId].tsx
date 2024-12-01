@@ -231,7 +231,7 @@ const CourseViewPage: NextPage = () => {
   const { archive, filepath } = sectionParentInfo ?? {};
 
   return (
-    <MainLayout title={(courseId || '').toUpperCase() + ` ${tHome.courseThumb.slides} | VoLL-KI`}>
+    <MainLayout title={(courseId || '').toUpperCase() + ` ${tHome.courseThumb.slides} | ALeA`}>
       <LayoutWithFixedMenu
         menu={
           contentUrl?.length ? (

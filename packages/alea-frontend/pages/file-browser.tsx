@@ -17,7 +17,7 @@ const Browser: NextPage = () => {
   }, [mmtUrl]);
 
   return (
-    <MainLayout title="sTeX File Browser | VoLL-KI">
+    <MainLayout title="sTeX File Browser | ALeA">
       <FileBrowser
         defaultRootNodes={rootNodes}
         topOffset={64}

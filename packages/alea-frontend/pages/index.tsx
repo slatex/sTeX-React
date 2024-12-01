@@ -275,7 +275,7 @@ const StudentHomePage: NextPage = ({ filteredCourses }: { filteredCourses: Cours
     home: { newHome: n },
   } = getLocaleObject(router);
   return (
-    <MainLayout title="Courses | VoLL-KI">
+    <MainLayout title="Courses | ALeA">
       <Box m="0 auto">
         <BannerSection />
         <Box sx={{ backgroundColor: '#F5F5F5', padding: '80px' }}>
