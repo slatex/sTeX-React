@@ -359,6 +359,14 @@ export async function getUriFragment(URI: string) {
 // :query/sparql
 //////////////////
 
+export const ALL_LO_TYPES = [
+  'para', // synomym: symdoc
+  'definition',
+  'problem',
+  'example',
+  'statement', // synomym: assertion
+] as const;
+export type LoType = (typeof ALL_LO_TYPES)[number];
 export interface SparqlResponse {
   head?: {
     vars: string[];

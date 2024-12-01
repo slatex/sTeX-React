@@ -1,19 +1,15 @@
 import { InsertAnswerRequest, Phase } from '@stex-react/api';
 import { getPoints, getProblem, getQuizPhase } from '@stex-react/quiz-utils';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getQuiz } from './quiz-utils';
 import { checkIfPostOrSetError, getUserIdOrSetError } from '../comment-utils';
 import { queryGradingDbAndEndSet500OnError } from '../grading-db-utils';
+import { getQuiz } from './quiz-utils';
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
-  const { quizId, problemId, responses, browserTimestamp_ms } =
-    req.body as InsertAnswerRequest;
+  const { quizId, problemId, responses, browserTimestamp_ms } = req.body as InsertAnswerRequest;
 
   const quiz = getQuiz(quizId);
   if (!quiz) {
@@ -33,19 +29,14 @@ export default async function handler(
     return;
   }
 
-  const points =
-    getPoints(getProblem(problem, undefined), { responses });
+  const points = getPoints(getProblem(problem, undefined), {
+    autogradableResponses: responses,
+    freeTextResponses: {},
+  });
 
   const results = await queryGradingDbAndEndSet500OnError(
     'INSERT INTO grading(userId, quizId, problemId, response, points, browserTimestamp_ms) VALUES (?, ?, ?, ?, ?, ?)',
-    [
-      userId,
-      quizId,
-      problemId,
-      JSON.stringify(responses),
-      points,
-      browserTimestamp_ms,
-    ],
+    [userId, quizId, problemId, JSON.stringify(responses), points, browserTimestamp_ms],
     res
   );
   if (!results) return;

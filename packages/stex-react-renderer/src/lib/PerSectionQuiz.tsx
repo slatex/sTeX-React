@@ -4,8 +4,8 @@ import LinearProgress from '@mui/material/LinearProgress';
 import {
   Problem,
   ProblemResponse,
-  getProblemIdsForFile,
   getLearningObjectShtml,
+  getProblemIdsForFile,
 } from '@stex-react/api';
 import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
 import { sourceFileUrl } from '@stex-react/utils';

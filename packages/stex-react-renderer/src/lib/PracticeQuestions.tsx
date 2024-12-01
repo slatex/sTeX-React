@@ -20,6 +20,15 @@ function handleViewSource(problemId: string) {
   window.open(sourceLink, '_blank');
 }
 
+function SourceIcon({ problemId }: { problemId: string }) {
+  return (
+    <IconButton onClick={() => handleViewSource(problemId)}>
+      <Tooltip title="view source">
+        <OpenInNewIcon />
+      </Tooltip>
+    </IconButton>
+  );
+}
 export function PracticeQuestions({
   problemIds,
   showButtonFirst = true,
@@ -69,26 +78,34 @@ export function PracticeQuestions({
     >
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <h2>
-          {t.problem} {problemIdx + 1} {t.of} {problems.length}&nbsp;
+          {problems.length > 1 ? (
+            <>
+              {t.problem} {problemIdx + 1} {t.of} {problems.length}&nbsp;
+            </>
+          ) : (
+            <SourceIcon problemId={problemIds[problemIdx]} />
+          )}
           {problem.header && <>({mmtHTMLToReact(problem.header)})</>}
         </h2>
       </Box>
-      <Box display="flex" justifyContent="space-between">
-        <ListStepper
-          idx={problemIdx}
-          listSize={problems.length}
-          onChange={(idx) => {
-            setProblemIdx(idx);
-            setShowSolution(false);
-          }}
-        />
-        <IconButton onClick={() => handleViewSource(problemIds[problemIdx])}>
-          <Tooltip title="view source">
-            <OpenInNewIcon />
-          </Tooltip>
-        </IconButton>
-      </Box>
-      <Box my="10px">
+      {problems.length > 1 && (
+        <Box display="flex" justifyContent="space-between">
+          <ListStepper
+            idx={problemIdx}
+            listSize={problems.length}
+            onChange={(idx) => {
+              setProblemIdx(idx);
+              setShowSolution(false);
+            }}
+          />
+          <IconButton onClick={() => handleViewSource(problemIds[problemIdx])}>
+            <Tooltip title="view source">
+              <OpenInNewIcon />
+            </Tooltip>
+          </IconButton>
+        </Box>
+      )}
+      <Box mb="10px">
         <ProblemDisplay
           r={response}
           showPoints={false}

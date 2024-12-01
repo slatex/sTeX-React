@@ -1,4 +1,4 @@
-import { InputResponse, InputType, Problem } from '@stex-react/api';
+import { AutogradableResponse, InputType, Problem } from '@stex-react/api';
 import { getAllQuizzes } from '@stex-react/node-utils';
 import { getProblem } from '@stex-react/quiz-utils';
 import { exit } from 'process';
@@ -64,7 +64,7 @@ export async function populateResponseColumn() {
           .forEach((idx) => (multiIdxs[idx] = true));
       }
 
-      const responses: InputResponse[] = [];
+      const responses: AutogradableResponse[] = [];
       problem.inputs.forEach((input, idx) => {
         const type = input.type;
         if (type === InputType.FILL_IN) {

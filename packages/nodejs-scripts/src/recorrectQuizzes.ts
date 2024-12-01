@@ -1,4 +1,4 @@
-import { InputResponse, Problem } from '@stex-react/api';
+import { AutogradableResponse, Problem } from '@stex-react/api';
 import { getAllQuizzes } from '@stex-react/node-utils';
 import { getPoints, getProblem } from '@stex-react/quiz-utils';
 import { exit } from 'process';
@@ -48,9 +48,9 @@ export async function recorrectQuizzes() {
         missing_ids[pId]++;
         continue;
       }
-      const responses: InputResponse[] = JSON.parse(response);
+      const responses: AutogradableResponse[] = JSON.parse(response);
 
-      const expectedPts = getPoints(problem, { responses });
+      const expectedPts = getPoints(problem, { autogradableResponses: responses });
       if (Math.abs(expectedPts - points) > 0.01) {
         console.log(
           `gradingId: ${gradingId} problem: ${quizId} ${problemId} expectedPts: ${expectedPts} assignedPts: ${points} response: ${response}`
