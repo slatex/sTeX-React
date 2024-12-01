@@ -1,5 +1,6 @@
 import { deleteCookie, getCookie, setCookie } from '@stex-react/utils';
 import axios, { AxiosError } from 'axios';
+import { LoType } from './mmt';
 
 export type CognitiveValueConfidence = NumericCognitiveValues;
 
@@ -94,9 +95,7 @@ export interface LmsOutputMultipleResponse {
   model: ConceptCompetenceInfo[];
 }
 
-export async function getUriWeights(
-  concepts: string[]
-): Promise<NumericCognitiveValues[]> {
+export async function getUriWeights(concepts: string[]): Promise<NumericCognitiveValues[]> {
   if (!concepts?.length) return [];
   const data: LmsOutputMultipleResponse = await lmsRequest(
     'lms',
@@ -112,14 +111,9 @@ export async function getUriWeights(
 
   const compMap = new Map<string, NumericCognitiveValues>();
   data.model.forEach((c) => {
-    compMap.set(
-      c.concept,
-      cleanupNumericCognitiveValues(c.competences as NumericCognitiveValues)
-    );
+    compMap.set(c.concept, cleanupNumericCognitiveValues(c.competences as NumericCognitiveValues));
   });
-  return concepts.map(
-    (concept) => compMap.get(concept) || cleanupNumericCognitiveValues({})
-  );
+  return concepts.map((concept) => compMap.get(concept) || cleanupNumericCognitiveValues({}));
 }
 
 export async function getUriSmileys(
@@ -142,15 +136,11 @@ export async function getUriSmileys(
   const compMap = new Map<string, SmileyCognitiveValues>();
   if (!data?.model) return compMap;
   data.model.forEach((c) => {
-    compMap.set(
-      c.concept,
-      cleanupSmileyCognitiveValues(c.competences as SmileyCognitiveValues)
-    );
+    compMap.set(c.concept, cleanupSmileyCognitiveValues(c.competences as SmileyCognitiveValues));
   });
 
   concepts.map((concept) => {
-    if (!compMap.has(concept))
-      compMap.set(concept, cleanupSmileyCognitiveValues({}));
+    if (!compMap.has(concept)) compMap.set(concept, cleanupSmileyCognitiveValues({}));
   });
   return compMap;
 }
@@ -197,12 +187,7 @@ const SERVER_TO_ADDRESS = {
   auth: process.env['NEXT_PUBLIC_AUTH_SERVER_URL'],
 };
 
-export type SmileyType =
-  | 'smiley-2'
-  | 'smiley-1'
-  | 'smiley0'
-  | 'smiley1'
-  | 'smiley2';
+export type SmileyType = 'smiley-2' | 'smiley-1' | 'smiley0' | 'smiley1' | 'smiley2';
 
 export type SmileyLevel = -2 | -1 | 0 | 1 | 2;
 export const ALL_SMILEY_LEVELS: SmileyLevel[] = [-2, -1, 0, 1, 2];
@@ -289,9 +274,7 @@ const FAKE_USER_DEFAULT_COMPETENCIES: { [id: string]: string[] } = {
     'http://mathhub.info/smglom/sets/mod?formal-language',
     'http://mathhub.info/smglom/mv/mod?structure?mathematical-structure',
   ],
-  anushka: [
-    'http://mathhub.info/smglom/mv/mod?structure?mathematical-structure',
-  ],
+  anushka: ['http://mathhub.info/smglom/mv/mod?structure?mathematical-structure'],
 };
 
 export function isLoggedIn() {
@@ -305,9 +288,7 @@ export function logout() {
 
 export function logoutAndGetToLoginPage() {
   deleteCookie('access_token');
-  const redirectUrl = `/login?target=${encodeURIComponent(
-    window.location.href
-  )}`;
+  const redirectUrl = `/login?target=${encodeURIComponent(window.location.href)}`;
   window.location.replace(redirectUrl);
 }
 
@@ -325,9 +306,7 @@ export function getAuthHeaders() {
 export function loginUsingRedirect(returnBackUrl?: string) {
   if (!returnBackUrl) returnBackUrl = window.location.href;
 
-  const redirectUrl = `${
-    SERVER_TO_ADDRESS.auth
-  }/login?target=${encodeURIComponent(returnBackUrl)}`;
+  const redirectUrl = `${SERVER_TO_ADDRESS.auth}/login?target=${encodeURIComponent(returnBackUrl)}`;
 
   window.location.replace(redirectUrl);
 }
@@ -395,9 +374,7 @@ export async function lmsRequest(
   }
 }
 
-export function cleanupNumericCognitiveValues(
-  dim: NumericCognitiveValues
-): NumericCognitiveValues {
+export function cleanupNumericCognitiveValues(dim: NumericCognitiveValues): NumericCognitiveValues {
   return {
     Remember: +(dim.Remember || 0),
     Understand: +(dim.Understand || 0),
@@ -408,9 +385,7 @@ export function cleanupNumericCognitiveValues(
   };
 }
 
-export function cleanupSmileyCognitiveValues(
-  dim: SmileyCognitiveValues
-): SmileyCognitiveValues {
+export function cleanupSmileyCognitiveValues(dim: SmileyCognitiveValues): SmileyCognitiveValues {
   const defaultSmiley = 'smiley-2';
   return {
     Remember: dim.Remember || defaultSmiley,
@@ -483,9 +458,7 @@ export interface ConceptHistory {
   history: HistoryItem[];
 }
 
-export async function getConceptHistory(
-  concept: string
-): Promise<ConceptHistory> {
+export async function getConceptHistory(concept: string): Promise<ConceptHistory> {
   return await lmsRequest('lms', 'lms/output/history', 'POST', null, {
     concept,
   });
@@ -493,4 +466,34 @@ export async function getConceptHistory(
 
 export async function postAnswer(answer: ProblemAnswerEvent) {
   return await lmsRequest('lms', '/lms/input/events', 'POST', null, answer);
+}
+
+export interface GetLearningObjectsResponse {
+  learningObjects: { 'learning-object': string; type: LoType }[];
+  learner: string;
+}
+
+export async function getLearningObjects2(
+  concepts: string[],
+  limit?: number,
+  types?: string[],
+  exclude?: string[]
+) {
+  return (await lmsRequest('lms', 'guided-tours/learning-objects', 'POST', null, {
+    concepts,
+    limit,
+    types,
+    exclude,
+  })) as GetLearningObjectsResponse;
+}
+
+export interface GetLeafConceptsResponse {
+  'leaf-concepts': string[];
+  learner: string;
+}
+
+export async function getLeafConcepts2(target: string) {
+  return (await lmsRequest('lms', 'guided-tours/leaf-concepts', 'POST', null, {
+    target,
+  })) as GetLeafConceptsResponse;
 }

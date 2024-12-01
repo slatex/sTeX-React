@@ -1,29 +1,29 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
 import { Box, Typography } from '@mui/material';
-import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
+import { getLeafConcepts, getLearningObjects, LoType } from '@stex-react/api';
 import { useRouter } from 'next/router';
-import { getLeafConcepts, getLearningObjects } from '@stex-react/api';
-import styles from './guided-tour.module.scss';
-import DiagnosticTool from 'packages/alea-frontend/components/DiagnosticTool';
-import {
-  positiveResponses,
-  negativeResponses,
-  unsureResponses,
-  initializeMessages,
-  comfortPrompts,
-  definitionMessages,
-  definitionComfortPrompts,
-  problemMessages,
-  exampleMessages,
-  nextConceptsPrompts,
-  feedbackMessages,
-  responseOptions,
-  exampleComfortPrompts,
-  problemComfortPrompts,
-} from './messages';
-import ProblemFetcher from 'packages/alea-frontend/components/ProblemFetcher';
 import DefinitionFetcher from 'packages/alea-frontend/components/DefinitionFetcher';
+import DiagnosticTool from 'packages/alea-frontend/components/DiagnosticTool';
 import ExampleFetcher from 'packages/alea-frontend/components/ExampleFetcher';
+import ProblemFetcher from 'packages/alea-frontend/components/ProblemFetcher';
+import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
+import { useEffect, useRef, useState } from 'react';
+import styles from './guided-tour.module.scss';
+import {
+  comfortPrompts,
+  definitionComfortPrompts,
+  definitionMessages,
+  exampleComfortPrompts,
+  exampleMessages,
+  feedbackMessages,
+  initializeMessages,
+  negativeResponses,
+  nextConceptsPrompts,
+  positiveResponses,
+  problemComfortPrompts,
+  problemMessages,
+  responseOptions,
+  unsureResponses,
+} from './messages';
 
 const STATES = {
   COMFORT: 'comfort',
@@ -70,10 +70,12 @@ const getRandomMessage2 = (messagesArray, title, currentConcept) => {
   const template = messagesArray[Math.floor(Math.random() * messagesArray.length)];
   return template.replace(/{{title}}/g, title).replace(/{{currentConcept}}/g, currentConcept);
 };
-const structureLearningObjects = (learningObject) => {
+const structureLearningObjects = (
+  learningObjects: { 'learning-object': string; type: LoType }[]
+) => {
   const structured = {};
 
-  learningObject.forEach((item) => {
+  learningObjects.forEach((item) => {
     const { type } = item;
     const learningObject = item['learning-object'];
     if (!structured[type]) {
@@ -114,7 +116,7 @@ const GuidedTours = () => {
       try {
         const leafConceptLinks = await getLeafConcepts(leafConceptUri);
         const conceptArray = [];
-        leafConceptLinks.leafConcepts.map((link) => {
+        (leafConceptLinks['leaf-concepts'] ?? []).map((link) => {
           const segments = link.split('?');
           const conceptName = segments[segments.length - 1];
           const obj = {};
@@ -138,21 +140,16 @@ const GuidedTours = () => {
 
   useEffect(() => {
     const fetchLearningObjects = async () => {
+      if (!currentConcept) return;
       try {
-        if (currentConcept) {
-          const conceptName = Object.keys(currentConcept)[0];
-          const conceptUri = currentConcept[conceptName];
+        const conceptName = Object.keys(currentConcept)[0];
+        const conceptUri = currentConcept[conceptName];
 
-          try {
-            const response = await getLearningObjects([conceptUri]);
-            const result = structureLearningObjects(response);
-            const learningObjects = {};
-            learningObjects[Object.keys(currentConcept)[0]] = result;
-            setLearningObjectsData(learningObjects);
-          } catch (error) {
-            console.error(`Error fetching learning object for ${conceptName}:`, error);
-          }
-        }
+        const response = await getLearningObjects([conceptUri]);
+        const result = structureLearningObjects(response.learningObjects);
+        const learningObjects = {};
+        learningObjects[Object.keys(currentConcept)[0]] = result;
+        setLearningObjectsData(learningObjects);
       } catch (error) {
         console.error('Error in fetchLearningObjects:', error);
       }

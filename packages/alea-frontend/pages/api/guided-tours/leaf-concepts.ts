@@ -7,11 +7,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const { target, headers } = req.body;
   if (!target) return;
   const response = await axios.post(
-    'https://lms.voll-ki.fau.de/guided-tours/leaf-concepts  ',
+    'https://lms.voll-ki.fau.de/guided-tours/leaf-concepts',
     { target },
     { headers }
   );
-  const leafConcepts = response.data['leaf-concepts'];
-  if (!leafConcepts) return;
-  return res.status(200).json({ leafConcepts });
+  return res.status(200).json(response.data);
 }

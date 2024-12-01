@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getAuthHeaders } from './lms';
+import { getAuthHeaders, GetLeafConceptsResponse, GetLearningObjectsResponse } from './lms';
 const headers = getAuthHeaders();
 
 export async function getLeafConcepts(target: string) {
@@ -7,7 +7,7 @@ export async function getLeafConcepts(target: string) {
     target,
     headers,
   });
-  return resp.data;
+  return resp.data as GetLeafConceptsResponse;
 }
 
 export async function getLearningObjects(
@@ -23,5 +23,5 @@ export async function getLearningObjects(
     exclude,
     headers,
   });
-  return resp.data.learningObjects;
+  return resp.data.learningObjects as GetLearningObjectsResponse;
 }
