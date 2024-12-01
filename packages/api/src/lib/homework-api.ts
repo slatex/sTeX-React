@@ -1,6 +1,8 @@
 import axios from 'axios';
-import { getAuthHeaders } from './lms';
 import { HomeworkInfo, HomeworkPhase, HomeworkStub } from './homework';
+import { getAuthHeaders } from './lms';
+import { GradingInfo } from './nap';
+import { ProblemResponse } from './quiz';
 
 export async function getHomeworkList(courseId: string) {
   const resp = await axios.get(`/api/homework/get-homework-list?courseId=${courseId}`, {
@@ -17,11 +19,17 @@ export function getHomeworkPhase(homework: HomeworkInfo): HomeworkPhase {
   return 'FEEDBACK_RELEASED';
 }
 
-export async function getHomeworkInfo(id: number) {
+export interface GetHomeworkResponse {
+  homework: HomeworkInfo;
+  responses: Record<string, ProblemResponse>;
+  gradingInfo: Record<string, Record<string, GradingInfo[]>>;
+}
+
+export async function getHomework(id: number) {
   const resp = await axios.get(`/api/homework/get-homework?id=${id}`, {
     headers: getAuthHeaders(),
   });
-  return resp.data as HomeworkInfo;
+  return resp.data as GetHomeworkResponse;
 }
 
 export type CreateHomeworkRequest = Omit<HomeworkInfo, 'id' | 'updaterId'>;

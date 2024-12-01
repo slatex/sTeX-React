@@ -31,7 +31,7 @@ import { ExpandableContextMenu } from './ExpandableContextMenu';
 import { FileBrowser } from './FileBrowser';
 import { DocSectionContext, InfoSidebar } from './InfoSidebar';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
-import { QuizDisplay } from './QuizDisplay';
+import { ListStepper, QuizDisplay } from './QuizDisplay';
 import { RenderOptions } from './RendererDisplayOptions';
 import {
   ConfigureLevelSlider,
@@ -47,6 +47,8 @@ import {
   NoMaxWidthTooltip,
   mmtHTMLToReact,
 } from './mmtParser';
+import { ProblemDisplay } from './ProblemDisplay';
+import { GradingCreator } from './GradingCreator';
 //import { RenderStatusTree } from './RenderStatusTree';
 
 export const ServerLinksContext = createContext({ mmtUrl: '', gptUrl: '' });
@@ -226,9 +228,12 @@ export {
   ExpandableContextMenu,
   FileBrowser,
   FixedPositionMenu,
+  GradingCreator,
   LayoutWithFixedMenu,
   LevelIcon,
+  ListStepper,
   NoMaxWidthTooltip,
+  ProblemDisplay,
   QuizDisplay,
   SelfAssessment2,
   SelfAssessmentDialog,
