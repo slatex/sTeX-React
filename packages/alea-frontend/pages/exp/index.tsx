@@ -45,7 +45,7 @@ const ExperimentsHome: NextPage = () => {
         </Link>
       </IconButton>
       <Box textAlign="center" m="20px">
-        <h1>VoLL-KI Experiments</h1>
+        <h1>ALeA Experiments</h1>
         <i>
           Enter at your own risk!
           <WarningIcon sx={{ mt: '-10px', color: '#e20', transform: 'translateY(5px)' }} />

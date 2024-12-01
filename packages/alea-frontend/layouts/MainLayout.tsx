@@ -35,7 +35,7 @@ export default function MainLayout({
   return (
     <Box minHeight="100vh" display="flex" flexDirection="column" bgcolor={bgColor}>
       <Head>
-        <title>{title || 'VoLL-KI'}</title>
+        <title>{title || 'ALeA'}</title>
         <meta name="description" content="VoLL-KI" />
         <link
           rel="icon"
