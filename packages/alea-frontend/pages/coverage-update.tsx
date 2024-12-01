@@ -84,7 +84,7 @@ const CoverageUpdatePage: NextPage = () => {
   }, [allSectionNames, courseId, router.isReady]);
 
   return (
-    <MainLayout title="Coverage Update | VoLL-KI">
+    <MainLayout title="Coverage Update | ALeA">
       <Box px="10px" m="auto" maxWidth="800px">
         <FormControl sx={{ my: '10px' }}>
           <InputLabel id="course-select-label">Course</InputLabel>

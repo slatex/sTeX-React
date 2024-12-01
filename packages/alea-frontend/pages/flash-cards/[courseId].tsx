@@ -13,7 +13,7 @@ const FlashCardCoursePage: NextPage = () => {
 
   return (
     <MainLayout
-      title={(courseId || '').toUpperCase() + ` ${t.cards} | VoLL-KI`}
+      title={(courseId || '').toUpperCase() + ` ${t.cards} | ALeA`}
     >
       <Box m="0 auto">
         <DrillConfigurator courseId={courseId} />

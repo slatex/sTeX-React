@@ -219,7 +219,7 @@ const QuizResultsPage: NextPage = () => {
     });
   }, []);
   return (
-    <MainLayout title="Quizzes | VoLL-KI">
+    <MainLayout title="Quizzes | ALeA">
       <Box m="auto" maxWidth="800px" p="10px">
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs

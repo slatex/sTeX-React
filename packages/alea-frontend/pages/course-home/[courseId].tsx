@@ -180,7 +180,7 @@ const CourseHomePage: NextPage = () => {
   };
   return (
     <MainLayout
-      title={(courseId || '').toUpperCase() + ` ${tCourseHome.title} | VoLL-KI`}
+      title={(courseId || '').toUpperCase() + ` ${tCourseHome.title} | ALeA`}
       bgColor={BG_COLOR}
     >
       <CourseHeader

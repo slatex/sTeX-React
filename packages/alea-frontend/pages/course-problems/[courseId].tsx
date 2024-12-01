@@ -31,7 +31,7 @@ const CourseProblemsPage: NextPage = () => {
   const url = XhtmlContentUrl(courseInfo.notesArchive, courseInfo.notesFilepath);
 
   return (
-    <MainLayout title={(courseId || '').toUpperCase() + ` ${t.notes} | VoLL-KI`}>
+    <MainLayout title={(courseId || '').toUpperCase() + ` ${t.notes} | ALeA`}>
       {startSecNameExcl && endSecNameIncl && (
         <Button
           variant="contained"

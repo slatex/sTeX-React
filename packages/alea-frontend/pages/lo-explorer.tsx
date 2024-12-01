@@ -667,7 +667,7 @@ const LoExplorerPage = () => {
   };
 
   return (
-    <MainLayout title="Learning Objects | VoLL-KI">
+    <MainLayout title="Learning Objects | ALeA">
       <Paper elevation={3} sx={{ m: '16px' }}>
         <Box
           sx={{
