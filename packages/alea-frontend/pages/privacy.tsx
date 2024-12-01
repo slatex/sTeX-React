@@ -11,7 +11,7 @@ const StudentHomePage: NextPage = () => {
           <p>
             To ensure that you feel safe and comfortable visiting this website,
             we would like to inform you about how we handle your personal data
-            in the context of the VoLL-KI project. This Privacy Policy describes
+            in the context of the ALeA. This Privacy Policy describes
             how we collect, use, process and disclose your data, including
             personal data, in connection with your access to and use of this
             system.
@@ -19,7 +19,7 @@ const StudentHomePage: NextPage = () => {
           <h2>Data Controller and Contact Person</h2>
           <p>
             When this policy mentions “we”, “us”, or “our” it refers to
-            researchers within the VoLL-KI project at FAU Erlangen. <br />
+            researchers within the ALeA at FAU Erlangen. <br />
             For questions concerning the content of any of our websites, please
             contact: <br />
             <br />
@@ -36,7 +36,7 @@ const StudentHomePage: NextPage = () => {
           </p>
           <h2>Data Protection Officer</h2>
           <p>
-            As part of the VoLL-KI project, we are in close contact with the FAU
+            As part of the ALeA, we are in close contact with the FAU
             data protection officer. He will be happy to provide you with
             information and suggestions on the subject of data protection:
             <br />
@@ -82,7 +82,7 @@ const StudentHomePage: NextPage = () => {
             will be transmitted outside the system without your consent.
             <br />
             <br />
-            The VoLL-KI research project will use this data in aggregated,
+            The ALeA will use this data in aggregated,
             anonymized, and/or pseudonymized form to evaluate the system and the
             underlying methods. We will use best professional effort to make
             sure that personalized data cannot be re-engineered from aggregated
