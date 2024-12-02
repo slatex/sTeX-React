@@ -123,7 +123,7 @@ function getGuidedTourPath(href?: string) {
   // TODO: This is a lousy hack to check if guided tour and if not in MMT viewer.
   if (!IS_MMT_VIEWER && href?.startsWith('/:vollki?path=')) {
     const uri = href.substring('/:vollki?path='.length);
-    return `/guided-tour/${encodeURIComponent(uri)}`;
+    return `/guided-tour2/${encodeURIComponent(uri)}`;
   }
   return undefined;
 }

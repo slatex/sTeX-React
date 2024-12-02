@@ -5,9 +5,7 @@ export const BG_COLOR = 'hsl(210, 20%, 98%)';
 export const IS_SERVER = typeof window === 'undefined';
 export const localStore = IS_SERVER ? undefined : localStorage;
 export const Window = IS_SERVER ? undefined : window;
-export const IS_MMT_VIEWER = IS_SERVER
-  ? false
-  : (window as any).SHOW_FILE_BROWSER !== undefined;
+export const IS_MMT_VIEWER = IS_SERVER ? false : (window as any).SHOW_FILE_BROWSER !== undefined;
 export const PRIMARY_COL = '#203360';
 export const PRIMARY_COL_DARK_HOVER = '#162343';
 export const SECONDARY_COL = '#8c9fb1';
@@ -63,11 +61,7 @@ export function getSectionInfo(url: string): FileInfo {
   };
 }
 
-export function urlWithContextParams(
-  url: string,
-  locale: string,
-  topLevelUrl?: string
-) {
+export function urlWithContextParams(url: string, locale: string, topLevelUrl?: string) {
   const sectionInfo = getSectionInfo(topLevelUrl ?? '');
   if (!sectionInfo) return '';
   const { archive, filepath } = sectionInfo;
@@ -108,10 +102,7 @@ export function fullDocumentUrl({ archive, filepath }: FileLocation) {
   return `/:sTeX/fulldocument?archive=${archive}&filepath=${filepath}`;
 }
 
-export function XhtmlTopDocumentContentUrl({
-  archive,
-  filepath,
-}: FileLocation) {
+export function XhtmlTopDocumentContentUrl({ archive, filepath }: FileLocation) {
   return `/:sTeX/documentTop?archive=${archive}&filepath=${filepath}`;
 }
 
@@ -233,10 +224,7 @@ export function stableShuffle(array: any[]) {
     currentIndex--;
 
     // And swap it with the current element.
-    [array[currentIndex], array[randomIndex]] = [
-      array[randomIndex],
-      array[currentIndex],
-    ];
+    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
   }
 
   return array;
@@ -253,4 +241,8 @@ export function truncateString(str: string, maxLength: number) {
 
 export function capitalizeFirstLetter(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+export function chooseRandomlyFromList(list: any[]) {
+  return list[Math.floor(Math.random() * list.length)];
 }
