@@ -356,8 +356,8 @@ export async function getUriFragment(URI: string) {
   return resp.data as string;
 }
 
-
 export function conceptUriToName(uri: string) {
+  if (!uri) return uri;
   const lastIndex = uri.lastIndexOf('?');
   return uri.substring(lastIndex + 1);
 }

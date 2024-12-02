@@ -21,7 +21,7 @@ export const POSITIVE_RESPONSES = [
 ] as const;
 
 export const NEGATIVE_RESPONSES = [
-  'No, not clear',
+  'No, not really',
   'Not yet, need more time',
   'no',
   'nah',
@@ -69,7 +69,7 @@ export const INITIALIZE_MESSAGES = [
 ] as const;
 
 export const COMFORT_PROMPTS = [
-  'Do you feel comfortable with {{concept}}?',
+  'Do you feel comfortable with <b style="color: #d629ce">{{concept}}</b>?',
   'Would you say you’re confident in understanding {{concept}}?',
   'Are you ready to move forward with {{concept}}?',
   'Do you feel like you have a good grasp of {{concept}}?',
@@ -219,9 +219,9 @@ export const ACTION_VERBALIZATION_OPTIONS: Record<ActionName, string[]> = {
   KNOW: ['Yes', 'I know', 'I understand', 'Got it', 'Understood', 'Yes, I know'],
   DONT_KNOW: ['No', 'I do not know', 'I do not understand', 'No, I do not know'],
   NOT_SURE_IF_KNOW: ['Not sure', 'I am not sure if I know', 'I am not sure if I understand'],
-  MOVE_ON: ['Yes, move on', 'Yes, let’s move on', 'Yes, continue', 'Yes, proceed'],
-  DONT_MOVE_ON: ['No, do not move on', 'No, do not continue', 'No, do not proceed'],
+  MOVE_ON: ['Move on', 'Yes, let’s move on', 'Yes, continue', 'Yes, proceed'],
+  DONT_MOVE_ON: ["Don't move on", 'No, do not continue', 'No, do not proceed'],
   ANOTHER_PROBLEM: ['Try another problem', 'Give me another problem'],
   LO_UNDERSTOOD: ['Yes, I understood'],
-  LO_NOT_UNDERSTOOD: ['No, not clear'],
-} as const;
+  LO_NOT_UNDERSTOOD: ['No, not really'],
+};

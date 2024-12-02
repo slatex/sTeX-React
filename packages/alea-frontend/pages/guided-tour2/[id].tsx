@@ -1,114 +1,63 @@
-import { Box, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import {
   conceptUriToName,
   getLeafConcepts,
   getLearningObjects,
+  getLearningObjectShtml,
   LoType,
   ProblemResponse,
 } from '@stex-react/api';
-import { chooseRandomlyFromList } from '@stex-react/utils';
+import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import assert from 'assert';
 import { useRouter } from 'next/router';
-import DefinitionFetcher from 'packages/alea-frontend/components/DefinitionFetcher';
-import DiagnosticTool from 'packages/alea-frontend/components/DiagnosticTool';
-import ExampleFetcher from 'packages/alea-frontend/components/ExampleFetcher';
 import ProblemFetcher from 'packages/alea-frontend/components/ProblemFetcher';
 import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
-import { Dispatch, ReactNode, SetStateAction, useEffect, useRef, useState } from 'react';
-import styles from './guided-tour.module.scss';
+import { useContext, useEffect, useState } from 'react';
+import { LoViewer } from '../lo-explorer';
+import styles from '../../styles/guided-tour.module.scss';
 import {
   ACTION_VERBALIZATION_OPTIONS,
   ActionName,
   COMFORT_PROMPTS,
-  DEFINITION_COMFORT_PROMPTS,
-  definitionMessages,
-  EXAMPLE_COMFORT_PROMPTS,
-  FEEDBACK_MESSAGES,
   INITIALIZE_MESSAGES,
-  NEGATIVE_RESPONSES,
-  NEXT_CONCEPT_PROMPTS,
-  POSITIVE_RESPONSES,
-  PROBLEM_COMFORT_PROMPTS,
-  RESPONSE_OPTIONS,
-  UNSURE_RESPONSES,
-} from './messages';
+} from '../../constants/messages';
 
-const ALL_MESSAGE_TYPES = ['comfort', 'definition', 'problem', 'next_concept', 'example'] as const;
-type MessageType = (typeof ALL_MESSAGE_TYPES)[number];
-
-const categorizeResponse = (response: string): 'yes' | 'no' | 'notSure' => {
-  const normalizedResponse = response.toLowerCase().trim();
-  if (POSITIVE_RESPONSES.some((word) => normalizedResponse === word)) {
-    return 'yes';
-  }
-
-  if (NEGATIVE_RESPONSES.some((word) => normalizedResponse === word)) {
-    return 'no';
-  }
-
-  if (UNSURE_RESPONSES.some((word) => normalizedResponse === word)) {
-    return 'notSure';
-  }
-
-  if (POSITIVE_RESPONSES.some((word) => normalizedResponse.includes(word))) {
-    return 'yes';
-  }
-
-  if (NEGATIVE_RESPONSES.some((word) => normalizedResponse.includes(word))) {
-    return 'no';
-  }
-
-  if (UNSURE_RESPONSES.some((word) => normalizedResponse.includes(word))) {
-    return 'notSure';
-  }
-
-  return 'notSure';
-};
-
-export const getRandomMessage = (messageList: string[], context: string) => {
-  console.log('context:', context);
-  const template = messageList[Math.floor(Math.random() * messageList.length)];
-  return template.replace('{{concept}}', context);
-};
-
-const getRandomMessage2 = (
-  messageList: readonly string[],
-  title: string,
-  currentConcept: string
-) => {
-  const template = messageList[Math.floor(Math.random() * messageList.length)];
-  return template.replace(/{{title}}/g, title).replace(/{{currentConcept}}/g, currentConcept);
-};
-const structureLearningObjects = (
+const structureLearningObjects = async (
+  mmtUrl: string,
   learningObjects: { 'learning-object': string; type: LoType }[]
 ) => {
   const structured: Partial<Record<LoType, { uris: string[]; currentIdx: number }>> = {};
+  const problemUrls = learningObjects
+    .filter((o) => o.type === 'problem')
+    .map((o) => o['learning-object']);
+  console.log('problemUrls:', problemUrls);
+  const problemStrs$ = problemUrls.map((uri) => getLearningObjectShtml(mmtUrl, uri));
+  const isAutogradable: Record<string, boolean> = {};
+  const problemStrs = await Promise.all(problemStrs$);
+  for (let i = 0; i < problemUrls.length; i++) {
+    const url = problemUrls[i];
+    const problemStr = problemStrs[i];
+    isAutogradable[url] =
+      problemStr.includes('data-problem-mcb') ||
+      problemStr.includes('data-problem-scb') ||
+      problemStr.includes('data-problem-fillinsol');
+  }
+
+  console.log('isAutogradable:', isAutogradable);
 
   learningObjects.forEach((item) => {
     const { type } = item;
     const learningObject = item['learning-object'];
     if (!structured[type]) {
-      structured[type] = {
-        uris: [],
-        currentIdx: 0,
-      };
+      structured[type] = { uris: [], currentIdx: -1 };
     }
-
-    structured[type].uris.push(learningObject);
+    if (type !== 'problem' || isAutogradable[learningObject]) {
+      structured[type].uris.push(learningObject);
+    }
   });
 
   return structured;
 };
-
-const TRANSITION_MESSAGE_OPTIONS: Record<MessageType, readonly string[]> = {
-  comfort: COMFORT_PROMPTS,
-  definition: DEFINITION_COMFORT_PROMPTS,
-  problem: PROBLEM_COMFORT_PROMPTS,
-  example: EXAMPLE_COMFORT_PROMPTS,
-  next_concept: NEXT_CONCEPT_PROMPTS,
-};
-
-const MOVE_ON_CHOICES: ActionName[] = ['MOVE_ON', 'DONT_MOVE_ON'];
 
 interface UserAction {
   actionType: 'problem' | 'choose-option';
@@ -139,10 +88,37 @@ interface ChatMessage {
   userAction?: UserAction;
 }
 
+function ChatMessageDisplay({
+  message,
+  problemResponse,
+  isFrozen,
+  setProblemResponse,
+}: {
+  message: ChatMessage;
+  problemResponse?: ProblemResponse;
+  isFrozen?: boolean;
+  setProblemResponse?: (response: ProblemResponse, quotient: number) => void;
+}) {
+  if (message.type === 'text') {
+    return <Typography variant="body1" dangerouslySetInnerHTML={{ __html: message.text }} />;
+  } else if (message.type === 'problem') {
+    return (
+      <ProblemFetcher
+        isFrozen={isFrozen}
+        problemUri={message.loUri}
+        response={problemResponse}
+        onResponseUpdate={(r, q) => setProblemResponse(r, q)}
+      />
+    );
+  } else {
+    return <LoViewer uri={message.loUri} uriType={message.type} />;
+  }
+}
+
 function chooseOptionAction(options: ActionName[]): UserAction {
   const optionVerbalization: Partial<Record<ActionName, string>> = {};
   options.forEach((option) => {
-    const verbalization = chooseRandomlyFromList(ACTION_VERBALIZATION_OPTIONS[option]);
+    const verbalization = ACTION_VERBALIZATION_OPTIONS[option][0]; // chooseRandomlyFromList();
     optionVerbalization[option] = verbalization;
   });
 
@@ -177,12 +153,84 @@ function getNextLoType(
     const type = loOrder[typeIdx];
     const currentIdx = focusConceptLo[type]?.currentIdx;
     const numEntries = focusConceptLo[type]?.uris?.length ?? 0;
-    if (numEntries > 0 && currentIdx < numEntries) return type;
+    if (numEntries > 0 && currentIdx < numEntries - 1) return type;
   }
   return undefined;
 }
 
+function updateNewStateWithNextLo(
+  newState: GuidedTourState,
+  action: UserAction,
+  currentLo?: { type: LoType; uri: string }
+): {
+  messagesAdded: ChatMessage[];
+  actionForNextLo: UserAction;
+} {
+  const newLoType = getNextLoType(newState.focusConceptLo, action, newState.focusConceptCurrentLo);
+  if (!newLoType) {
+    const messagesAdded: ChatMessage[] = [];
+    if (action.chosenOption === 'LO_NOT_UNDERSTOOD') {
+      messagesAdded.push(systemTextMessage('Sorry to hear that!'));
+    } else if (action.chosenOption === 'LO_UNDERSTOOD') {
+      messagesAdded.push(systemTextMessage('Great!'));
+    }
+    messagesAdded.push(
+      systemTextMessage(
+        "No more learning objects available for this concept. Let's move on to the next concept."
+      )
+    );
+    return { messagesAdded, actionForNextLo: chooseOptionAction(['MOVE_ON']) };
+  }
+
+  const messagesAdded: ChatMessage[] = [];
+  if (currentLo) {
+    const article = currentLo.type === newLoType ? 'another' : newLoType === 'example' ? 'an' : 'a';
+    if (action.chosenOption === 'LO_UNDERSTOOD') {
+      messagesAdded.push(systemTextMessage('Great!'));
+      messagesAdded.push(systemTextMessage(`Let's keep learning with ${article} ${newLoType}`));
+    } else if (action.chosenOption === 'LO_NOT_UNDERSTOOD') {
+      const article =
+        currentLo.type === newLoType ? 'another' : newLoType === 'example' ? 'an' : 'a';
+      messagesAdded.push(
+        systemTextMessage(`No worries! Let's learn more with ${article} ${newLoType}.`)
+      );
+    } else if (action.quotient !== undefined) {
+      const topMessage =
+        action.quotient === 1
+          ? 'Great!'
+          : action.quotient === 0
+          ? 'Oops! That was incorrect.'
+          : "Hmm, that's only partially correct.";
+      messagesAdded.push(systemTextMessage(topMessage));
+      messagesAdded.push(systemTextMessage(`Let's keep learning with ${article} ${newLoType}`));
+    }
+  } else {
+    messagesAdded.push(
+      systemTextMessage(`Let's start with ${newLoType === 'example' ? 'an' : 'a'} ${newLoType}`)
+    );
+  }
+  newState.focusConceptLo[newLoType].currentIdx++;
+  newState.focusConceptCurrentLo = {
+    type: newLoType,
+    uri: newState.focusConceptLo[newLoType].uris[newState.focusConceptLo[newLoType].currentIdx],
+  };
+  messagesAdded.push({
+    from: 'system',
+    type: newLoType,
+    loUri: newState.focusConceptCurrentLo.uri,
+  });
+  let actionForNextLo: UserAction;
+  if (newLoType === 'problem') {
+    actionForNextLo = { actionType: 'problem' };
+  } else {
+    messagesAdded.push(systemTextMessage(`Were you able to understand the above ${newLoType}?`));
+    actionForNextLo = chooseOptionAction(['LO_UNDERSTOOD', 'LO_NOT_UNDERSTOOD']);
+  }
+  return { messagesAdded, actionForNextLo };
+}
+
 async function stateTransition(
+  mmtUrl: string,
   state: GuidedTourState,
   action: UserAction
 ): Promise<{ newState: GuidedTourState; newMessages: ChatMessage[]; nextAction: UserAction }> {
@@ -196,20 +244,30 @@ async function stateTransition(
 
   if (action.chosenOption === 'MOVE_ON') {
     newState.focusConceptIdx++;
-    const response = await getLearningObjects([currentConceptUri]);
-    const result = structureLearningObjects(response['learning-objects']);
+    const response = await getLearningObjects([nextConceptUri]);
+    const result = await structureLearningObjects(mmtUrl, response['learning-objects']);
     newState.focusConceptLo = result;
     // TODO: handle end of leaf concepts.
     newMessages.push(
-      systemTextMessage(`Alright, let's move on and talk about ${nextConceptName}.`)
+      systemTextMessage(
+        `Alright, let's move on and talk about <b style="color: #d629ce">${nextConceptName}</b>.`
+      )
     );
-    newMessages.push(systemTextMessage(`Let's see how well you understand ${nextConceptName}.`));
+    newMessages.push(
+      systemTextMessage(
+        `Do you feel confident about your understanding of <b style="color: #d629ce">${nextConceptName}</b>.`
+      )
+    );
     const options: ActionName[] = ['KNOW', 'DONT_KNOW'];
     if (newState.focusConceptLo['problem']?.uris?.length > 0) options.push('NOT_SURE_IF_KNOW');
+    newState.focusConceptInitialized = false;
     nextAction = chooseOptionAction(options);
   } else if (action.chosenOption === 'DONT_MOVE_ON') {
-    newMessages.push(systemTextMessage(`Alright, let's study more about ${currentConceptName}.`));
-  
+    newMessages.push(
+      systemTextMessage(
+        `Alright, let's study more about <b style="color: #d629ce">${currentConceptName}</b>.`
+      )
+    );
     const newLoType = getNextLoType(
       newState.focusConceptLo,
       action,
@@ -220,28 +278,42 @@ async function stateTransition(
         type: newLoType,
         uri: newState.focusConceptLo[newLoType][newState.focusConceptLo[newLoType].currentIdx],
       };
+      newState.focusConceptInitialized = true;
+      const { messagesAdded, actionForNextLo } = updateNewStateWithNextLo(
+        newState,
+        action,
+        state.focusConceptCurrentLo
+      );
+      newMessages.push(...messagesAdded);
+      nextAction = actionForNextLo;
     } else {
       newMessages.push(systemTextMessage('No more learning objects available for this concept.'));
       nextAction = chooseOptionAction(['MOVE_ON']);
     }
-  }
-
-  if (!state.focusConceptInitialized) {
+  } else if (!state.focusConceptInitialized) {
     if (action.chosenOption === 'KNOW') {
       newMessages.push(systemTextMessage('Great!'));
       newMessages.push(
-        systemTextMessage(`Let's move on to the next concept - ${nextConceptName}.`)
+        systemTextMessage(
+          `Let's move on to the next concept -  <b style="color: #d629ce">${nextConceptName}</b>.`
+        )
       );
-      newState.focusConceptIdx++;
 
       nextAction = chooseOptionAction(['MOVE_ON', 'DONT_MOVE_ON']);
     } else if (action.chosenOption === 'DONT_KNOW') {
-      newMessages.push(systemTextMessage(`Alright! Let's study more about ${currentConceptName}.`));
-
+      newMessages.push(
+        systemTextMessage(
+          `Alright! Let's study <b style="color: #d629ce">${currentConceptName}</b>.`
+        )
+      );
+      newState.focusConceptInitialized = true;
+      const { messagesAdded, actionForNextLo } = updateNewStateWithNextLo(newState, action);
+      newMessages.push(...messagesAdded);
+      nextAction = actionForNextLo;
     } else if (action.chosenOption === 'NOT_SURE_IF_KNOW') {
       newMessages.push(
         systemTextMessage(
-          `No worries, let's check your understanding of ${currentConceptName} with a problem.`
+          `No worries, let's check your understanding of  <b style="color: #d629ce">${currentConceptName}</b> with a problem.`
         )
       );
       newState.focusConceptLo.problem.currentIdx++;
@@ -260,7 +332,7 @@ async function stateTransition(
       });
       nextAction = { actionType: 'problem' };
     } else {
-      assert(action.actionType === 'problem');
+      assert(action.actionType === 'problem', JSON.stringify(action));
       assert(action.quotient !== undefined);
       if (action.quotient === 1) {
         newMessages.push(systemTextMessage('Correct!'));
@@ -277,310 +349,146 @@ async function stateTransition(
           options.push('DONT_MOVE_ON');
         }
         nextAction = chooseOptionAction(options);
-      } else if (action.quotient === 0) {
-        newMessages.push(systemTextMessage('Oops! That was incorrect.'));
-        newMessages.push(systemTextMessage('Do you want to try another problem?'));
-        nextAction = chooseOptionAction(['ANOTHER_PROBLEM', 'MOVE_ON']);
       } else {
-        newMessages.push(systemTextMessage("Hmm, that's partially correct."));
+        const topMessage =
+          action.quotient === 0
+            ? 'Oops! That was incorrect.'
+            : "Hmm, that's only partially correct.";
+        newMessages.push(systemTextMessage(topMessage));
         newMessages.push(systemTextMessage('Do you want to try another problem?'));
-        nextAction = chooseOptionAction(['ANOTHER_PROBLEM', 'MOVE_ON']);
+        nextAction = chooseOptionAction(['ANOTHER_PROBLEM', 'DONT_KNOW', 'MOVE_ON']);
       }
       const currentConcept = conceptUriToName(state.leafConceptUris[state.focusConceptIdx]);
-      newMessages.push(systemTextMessage(`Let's see how well you understand ${currentConcept}.`));
-    }
-  } else {
-    newState.focusConceptLo[state.focusConceptCurrentLo.type].currentIdx++;
-    const nextLoType = getNextLoType(
-      newState.focusConceptLo,
-      action,
-      newState.focusConceptCurrentLo
-    );
-    if (nextLoType) {
-      newState.focusConceptCurrentLo = {
-        type: nextLoType,
-        uri: newState.focusConceptLo[nextLoType][newState.focusConceptLo[nextLoType].currentIdx],
-      };
-    }
-
-    if (action.chosenOption === 'LO_UNDERSTOOD') {
-      newMessages.push(systemTextMessage('Great!'));
-    } else if (action.chosenOption === 'LO_NOT_UNDERSTOOD') {
-      const article =
-        state.focusConceptCurrentLo.type === nextLoType
-          ? 'another'
-          : nextLoType === 'example'
-          ? 'an'
-          : 'a';
-      if (nextLoType) {
-        newMessages.push(
-          systemTextMessage(`No worries! Let's learn more with ${article} ${nextLoType}`)
-        );
-      } else {
-        newMessages.push(systemTextMessage('Sorry to hear that!'));
-      }
-    }
-    if (!nextLoType) {
       newMessages.push(
         systemTextMessage(
-          "No more learning objects available for this concept. Let's move on to the next concept."
+          `Let's see how well you understand  <b style="color: #d629ce">${currentConcept}</b>.`
         )
       );
-      nextAction = chooseOptionAction(['MOVE_ON']);
+    }
+  } else {
+    /* focusConceptInitialized */
+    if (action.quotient === 1) {
+      newMessages.push(systemTextMessage('Correct!'));
+      newMessages.push(
+        systemTextMessage('Do you feel confident in your understanding to move on?')
+      );
+      nextAction = chooseOptionAction(['MOVE_ON', 'DONT_MOVE_ON']);
     } else {
-      if (action.quotient === 1) {
-        newMessages.push(systemTextMessage('Correct!'));
-        newMessages.push(
-          systemTextMessage('Do you feel confident in your understanding to move on?')
-        );
-        nextAction = chooseOptionAction(['MOVE_ON', 'DONT_MOVE_ON']);
-      } else {
-        newMessages.push({
-          from: 'system',
-          type: nextLoType,
-          loUri: newState.focusConceptCurrentLo.uri,
-        });
-        if (nextLoType === 'problem') {
-          nextAction = { actionType: 'problem' };
-        } else {
-          newMessages.push(
-            systemTextMessage(`Where you able to understand the above ${nextLoType}?`)
-          );
-          nextAction = chooseOptionAction(['LO_UNDERSTOOD', 'LO_NOT_UNDERSTOOD']);
-        }
-      }
+      newState.focusConceptInitialized = true;
+      const { messagesAdded, actionForNextLo } = updateNewStateWithNextLo(
+        newState,
+        action,
+        state.focusConceptCurrentLo
+      );
+      newMessages.push(...messagesAdded);
+      nextAction = actionForNextLo;
     }
   }
   assert(!!nextAction);
   return { newState, nextAction, newMessages };
 }
 
+function UserActionDisplay({
+  action,
+  problemResponse,
+  quotient,
+  onResponse,
+}: {
+  action: UserAction;
+  problemResponse?: ProblemResponse;
+  quotient?: number;
+  onResponse: (responded: UserAction) => void;
+}) {
+  if (action.actionType === 'choose-option') {
+    return (
+      <Box display="flex" flexWrap="wrap" gap={1}>
+        {action.options.map((option) => (
+          <Button
+            key={option}
+            variant="contained"
+            onClick={() => {
+              onResponse({ ...action, chosenOption: option });
+            }}
+          >
+            <Typography variant="body1">{action.optionVerbalization[option]}</Typography>
+          </Button>
+        ))}
+      </Box>
+    );
+  }
+  if (action.actionType === 'problem') {
+    return (
+      <Button
+        onClick={() => {
+          onResponse({ ...action, response: problemResponse, quotient });
+        }}
+        variant="contained"
+      >
+        Submit
+      </Button>
+    );
+  }
+  return <Box>Unhandled: [{action?.actionType}]</Box>;
+}
+
 const GuidedTours = () => {
-  const [messages, setMessages] = useState<
-    { text: string; type: 'system' | 'user'; component?: any }[]
-  >([]);
-  const [tourState, setTourState] = useState<MessageType | undefined>(undefined);
-  const [currentConceptIndex, setCurrentConceptIndex] = useState(0);
-  const [shouldShowDiagnosticTool, setShouldShowDiagnosticTool] = useState(false);
-  const [diagnosticType, setDiagnosticType] = useState<MessageType>('comfort');
-  const [leafConcepts, setLeafConcepts] = useState<string[]>([]);
-  const [refreshKey, setRefreshKey] = useState(0);
-  const [learningObjectsData, setLearningObjectsData] = useState<
-    Partial<Record<LoType, { uris: string[]; currentIdx: number }>>
-  >({});
-  const [textArray, setTextArray] = useState<readonly string[]>(COMFORT_PROMPTS);
-  const allLeafConceptNames = Object.keys(leafConcepts || {});
-  const currentConcept = leafConcepts[currentConceptIndex];
-
-  const messagesEndRef = useRef(null);
   const router = useRouter();
-  const id = Array.isArray(router.query.id) ? router.query.id[0] : router.query.id;
+  const id = router.query.id as string;
 
-  // (For title anyone approach can be used from below, not sure left for review)
-  // const title = router.query.id?.split('&title=')[1];
-  const title = id?.match(/&title=([^&]*)/)?.[1] || '';
-  const leafConceptUri = id?.split('&title=')[0] || '';
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [tourState, setTourState] = useState<GuidedTourState | undefined>(undefined);
+  const [userAction, setUserAction] = useState<UserAction | undefined>(undefined);
+  const [problemResponse, setProblemResponse] = useState<ProblemResponse | undefined>(undefined);
+  const [quotient, setQuotient] = useState<number>(0);
+  const { mmtUrl } = useContext(ServerLinksContext);
 
   useEffect(() => {
-    if (!leafConceptUri) return;
+    if (!router.isReady) return;
+
     const fetchLeafConcepts = async () => {
       try {
-        const resp = await getLeafConcepts(leafConceptUri);
-        setLeafConcepts(resp['leaf-concepts'] ?? []);
+        const targetConceptUri = id?.split('&language')[0] || '';
+        const resp = await getLeafConcepts(targetConceptUri);
+        const targetConceptName = conceptUriToName(targetConceptUri);
+        const leafConceptUris = resp['leaf-concepts'] ?? [];
+        const focusConceptIdx = 0;
+        const firstLeafConceptName = conceptUriToName(leafConceptUris[focusConceptIdx]);
+        const response = await getLearningObjects([leafConceptUris[focusConceptIdx]]);
+        const focusConceptLo = await structureLearningObjects(mmtUrl, response['learning-objects']);
+        setTourState({
+          targetConceptUri,
+          leafConceptUris,
+          focusConceptIdx: 0,
+          focusConceptInitialized: false,
+          focusConceptLo,
+          focusConceptLoUserAction: {},
+        });
+        setMessages([
+          systemTextMessage(
+            INITIALIZE_MESSAGES[0]
+              .replace('{{title}}', targetConceptName)
+              .replace('{{currentConcept}}', firstLeafConceptName)
+          ),
+          systemTextMessage(COMFORT_PROMPTS[0].replace('{{concept}}', firstLeafConceptName)),
+        ]);
+        setUserAction(chooseOptionAction(['KNOW', 'DONT_KNOW', 'NOT_SURE_IF_KNOW']));
       } catch (error) {
         console.error('Error fetching leaf concepts:', error);
       }
     };
     fetchLeafConcepts();
-  }, [leafConceptUri]);
+  }, [router.isReady]);
 
-  useEffect(() => {
-    const fetchLearningObjects = async () => {
-      if (!currentConcept) return;
-      try {
-        const response = await getLearningObjects([currentConcept]);
-        const result = structureLearningObjects(response['learning-objects']);
-        setLearningObjectsData(result);
-      } catch (error) {
-        console.error('Error in fetchLearningObjects:', error);
-      }
-    };
-
-    if (allLeafConceptNames.length > 0) {
-      fetchLearningObjects();
-    }
-  }, [currentConcept]);
-
-  const transition = (newState: MessageType) => {
-    setTourState(newState);
-  };
-
-  useEffect(() => {
-    const initializeTour = () => {
-      if (allLeafConceptNames.length > 1 && messages.length === 0) {
-        const currentConcept = leafConcepts[0];
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          {
-            text: getRandomMessage2(INITIALIZE_MESSAGES, title, conceptUriToName(currentConcept)),
-            type: 'system',
-          },
-        ]);
-        transition('comfort');
-      }
-    };
-    initializeTour();
-  }, [leafConcepts]);
-
-  const showFeedbackMessage = (responseCategory: string) => {
-    const messages = FEEDBACK_MESSAGES[responseCategory];
-    if (messages) {
-      const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-      setMessages((prevMessages) => [...prevMessages, { type: 'system', text: randomMessage }]);
-    } else {
-      console.warn(`No feedback messages available for response category: ${responseCategory}`);
-    }
-  };
-
-  const handleResponseSelect = (response: string, diagnosticType: MessageType) => {
-    const res = categorizeResponse(response);
-
-    showFeedbackMessage(res);
-
-    const transitionMap = {
-      comfort: {
-        yes: 'next_concept',
-        no: 'definition',
-        notSure: 'problem',
-      },
-      definition: {
-        yes: 'problem',
-        no: 'definition',
-        notSure: 'example',
-      },
-      problem: {
-        yes: 'next_concept',
-        no: 'definition',
-      },
-      next_concept: {
-        yes: 'comfort',
-        no: 'definition',
-      },
-      example: {
-        yes: 'problem',
-        no: 'definition',
-        notSure: 'definition',
-      },
-    };
-
-    if ((diagnosticType === 'comfort' || diagnosticType === 'problem') && res === 'yes') {
-      if (currentConceptIndex + 1 === allLeafConceptNames.length) {
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { type: 'system', text: 'All leaf Concept finished' },
-        ]);
-        return;
-      }
-      setCurrentConceptIndex((prevIndex) => prevIndex + 1);
-    }
-    if (diagnosticType === 'next_concept' && res === 'no') {
-      setCurrentConceptIndex((prevIndex) => prevIndex - 1);
-    }
-    const nextState = transitionMap[diagnosticType]?.[res];
-
-    if (nextState) {
-      if (tourState === 'definition' && nextState === 'definition') {
-        setRefreshKey((prevKey) => prevKey + 1);
-      }
-      transition(nextState);
-    }
-  };
-
-  const [responseButtons, setResponseButtons] = useState(RESPONSE_OPTIONS['comfort']);
-  const getNextItem = (currentConcept: string, type: MessageType) => {
-    const obj = learningObjectsData[currentConcept]?.[type];
-    if (!obj || !obj.uris || obj.uris.length === 0) {
-      return null;
-    }
-    const uri = obj.uris[obj.currentIndex];
-    obj.currentIndex = (obj.currentIndex + 1) % obj.uris.length;
-
-    return uri;
-  };
-  const handleSubmitResult = (result) => {
-    console.log('User submission result:', result);
-  };
-
-  const showLearningObject = (
-    setMessages: Dispatch<
-      SetStateAction<{ text: string; type: 'system' | 'user'; component?: any }[]>
-    >,
-    leafConceptData: string[],
-    state: MessageType,
-    textArray: string[],
-    learningObjectUri: string
-  ) => {
-    let componentToRender: ReactNode = null;
-
-    switch (state) {
-      case 'definition':
-        componentToRender = <DefinitionFetcher definitionUri={learningObjectUri} />;
-        break;
-      case 'problem':
-        componentToRender = (
-          <ProblemFetcher link={learningObjectUri} onSubmit={handleSubmitResult} />
-        );
-        break;
-      case 'example':
-        componentToRender = <ExampleFetcher link={learningObjectUri} />;
-        break;
-      default:
-        componentToRender = null;
-    }
-
-    /////////////////////////////
-    // Intro message
-    // for learningObject
-    //////////////////////
-    console.log('leafConceptData:', leafConceptData);
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      {
-        text: getRandomMessage(textArray, conceptUriToName(leafConceptData[currentConceptIndex])),
-        type: 'system',
-      },
-    ]);
-    setTimeout(() => {
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        {
-          component: componentToRender,
-          type: 'system',
-          text: '',
-        },
-      ]);
-    }, 500);
-  };
-
-  useEffect(() => {
-    if (['definition', 'problem', 'example'].includes(tourState)) {
-      const uriToFetch = getNextItem(currentConcept, tourState);
-      showLearningObject(setMessages, leafConcepts, tourState, definitionMessages, uriToFetch);
-    }
-    if (allLeafConceptNames.length > 0 || tourState !== 'comfort') {
-      setDiagnosticType(tourState);
-      setTextArray(TRANSITION_MESSAGE_OPTIONS[tourState]);
-      setResponseButtons(RESPONSE_OPTIONS[tourState]);
-      setShouldShowDiagnosticTool(true);
-    }
-  }, [tourState, leafConcepts, refreshKey]);
+  if (!tourState) return <CircularProgress />;
 
   return (
     <MainLayout title="Guided Tour | ALeA">
       <div>
         <h1 className={styles.title}>
           <span className={styles.welcomeText}>Welcome to the Guided Tour of </span>
-          <span className={styles.dynamicTitle}>{title || 'Loading...'}</span>
+          <span className={styles.dynamicTitle}>
+            {conceptUriToName(tourState.targetConceptUri)}
+          </span>
         </h1>
         <Box
           display="flex"
@@ -590,13 +498,13 @@ const GuidedTours = () => {
           p={3}
           borderRadius={5}
           boxShadow={3}
-          style={{ backgroundColor: '#f9f9f9', maxHeight: '60vh', overflowY: 'auto' }}
+          style={{ backgroundColor: '#f9f9f9' }}
         >
           {messages.map((msg, index) => (
             <Box
               key={index}
               display="flex"
-              justifyContent={msg.type === 'system' ? 'flex-start' : 'flex-end'}
+              justifyContent={msg.from === 'system' ? 'flex-start' : 'flex-end'}
               mt={2}
               width="100%"
             >
@@ -605,34 +513,59 @@ const GuidedTours = () => {
                 borderRadius={5}
                 boxShadow={2}
                 style={{
-                  backgroundColor: msg.type === 'system' ? '#e0f7fa' : '#cce5ff',
+                  backgroundColor: msg.from === 'system' ? '#e0f7fa' : '#cce5ff',
                   maxWidth: '80%',
-                  textAlign: msg.type === 'system' ? 'left' : 'right',
+                  textAlign: msg.from === 'system' ? 'left' : 'right',
                 }}
                 className={`${styles.messageBox} ${styles.systemMessage}`}
               >
-                {msg.text && (
-                  <Typography variant="body1" dangerouslySetInnerHTML={{ __html: msg.text }} />
-                )}
-                {msg.component && msg.text && <Box sx={{ mt: 2 }} />}
-                {msg.component}
+                <ChatMessageDisplay
+                  message={msg}
+                  isFrozen={index !== messages.length - 1}
+                  problemResponse={
+                    index === messages.length - 1
+                      ? problemResponse
+                      : messages[index + 1]?.userAction?.response
+                  }
+                  setProblemResponse={(r, q) => {
+                    setProblemResponse(r);
+                    setQuotient(q);
+                  }}
+                />
               </Box>
             </Box>
           ))}
-
-          <div ref={messagesEndRef} />
-          {shouldShowDiagnosticTool && (
-            <DiagnosticTool
-              key={refreshKey}
-              diagnosticType={diagnosticType}
-              textArray={textArray}
-              responseButtons={responseButtons}
-              messages={messages}
-              setMessages={setMessages}
-              onResponseSelect={handleResponseSelect}
-              leafConceptData={leafConcepts}
-              currentConceptIndex={currentConceptIndex}
-            />
+          {userAction ? (
+            <Box display="flex" justifyContent="flex-end" width="100%">
+              <UserActionDisplay
+                action={userAction}
+                problemResponse={problemResponse}
+                quotient={quotient}
+                onResponse={async (action) => {
+                  const { newState, newMessages, nextAction } = await stateTransition(
+                    mmtUrl,
+                    tourState,
+                    action
+                  );
+                  setTourState(newState);
+                  setMessages([
+                    ...messages,
+                    {
+                      from: 'user',
+                      type: 'text',
+                      text: action.chosenOption
+                        ? action.optionVerbalization[action.chosenOption]
+                        : 'Submit',
+                      userAction: action,
+                    },
+                    ...newMessages,
+                  ]);
+                  setUserAction(nextAction);
+                }}
+              />
+            </Box>
+          ) : (
+            <i>No Action!</i>
           )}
         </Box>
       </div>
