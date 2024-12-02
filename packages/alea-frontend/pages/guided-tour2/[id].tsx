@@ -457,7 +457,7 @@ const GuidedTours = () => {
 
     const fetchLeafConcepts = async () => {
       try {
-        const targetConceptUri = id?.split('&language')[0] || '';
+        const targetConceptUri = id?.split('&lang')[0] || '';
         const resp = await getLeafConcepts(targetConceptUri);
         const targetConceptName = conceptUriToName(targetConceptUri);
         const leafConceptUris = resp['leaf-concepts'] ?? [];

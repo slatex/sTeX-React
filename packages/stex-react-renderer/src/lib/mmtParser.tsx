@@ -41,7 +41,6 @@ import TrafficLightIndicator from './TrafficLightIndicator';
 import { langSelector } from './helper/langSelector';
 import { ServerLinksContext } from './stex-react-renderer';
 import { useOnScreen } from './useOnScreen';
-import Link from 'next/link';
 
 const APFEL_TOKEN = 'apfel-token';
 export const CustomItemsContext = createContext<{
@@ -124,17 +123,6 @@ function getGuidedTourPath(href?: string) {
   // TODO: This is a lousy hack to check if guided tour and if not in MMT viewer.
   if (!IS_MMT_VIEWER && href?.startsWith('/:vollki?path=')) {
     const uri = href.substring('/:vollki?path='.length);
-    return `/guided-tour/${encodeURIComponent(uri)}`;
-  }
-  return undefined;
-}
-
-function getGuidedTour2Path(href?: string) {
-  const { mmtUrl } = useContext(ServerLinksContext);
-
-  // TODO: This is a lousy hack to check if guided tour and if not in MMT viewer.
-  if (!IS_MMT_VIEWER && href && href.startsWith(`${mmtUrl}/:sTeX/omdoc?`)) {
-    const uri = href.substring(`${mmtUrl}/:sTeX/omdoc?`.length);
     return `/guided-tour2/${encodeURIComponent(uri)}`;
   }
   return undefined;
@@ -286,25 +274,6 @@ function MMTImage({ d }: { d: Element }) {
   if (isMMTSrc(d)) d.attribs['src'] = mmtUrl + d.attribs['src'];
   return <>{domToReact([d], { replace })}</>;
 }
-
-const AnotherImageComponent = ({ d, title }: { d: Element; title: string }) => {
-  return (
-    <Link href={`${getGuidedTour2Path(d.attribs['href'])}&title=${title}`} passHref>
-      <img
-        src={'https://cdn-icons-png.flaticon.com/512/10062/10062639.png'}
-        alt="Another Image"
-        style={{
-          cursor: 'pointer',
-          height: '40px',
-          width: '40px',
-          margin: '0 0 0 20px',
-          filter:
-            'invert(30%) sepia(80%) saturate(100000%) hue-rotate(250deg) brightness(95%) contrast(100%)',
-        }}
-      />
-    </Link>
-  );
-};
 
 function SectionTitleDisplay({ d }: { d: Element }) {
   const [showLight, setShowLight] = useState<boolean>(false);
@@ -488,45 +457,8 @@ const ApfelHrefWithToken = ({ href, children }: { href: string; children: React.
 
   return <a href={updatedHref}>{children}</a>;
 };
-export function searchTitle(children) {
-  for (let i = 0; i < children.length; i++) {
-    const child = children[i];
 
-    if (child.type === 'tag' && child.name === 'pre') {
-      const link = child.children.find((c) => c.type === 'tag' && c.name === 'a');
-      if (link && link.children.length > 0) {
-        return link.children[0].children[0].data;
-      }
-    }
-
-    if (child.children && child.children.length > 0) {
-      const title = searchTitle(child.children);
-      if (title) {
-        return title;
-      }
-    }
-  }
-
-  return null;
-}
-const state = {
-  title: null,
-};
-function isElement(node: DOMNode): node is Element {
-  return (node as Element).name !== undefined && (node as Element).attribs !== undefined;
-}
 export const replace = (d: DOMNode): any => {
-  if (
-    isElement(d) &&
-    !state.title &&
-    d.name === 'div' &&
-    d.attribs.class === 'omdoc-fake-collapsible-small'
-  ) {
-    const foundTitle = searchTitle(d.children);
-    if (foundTitle) {
-      state.title = foundTitle;
-    }
-  }
   const domNode = getElement(d);
 
   if (!domNode) return;
@@ -711,15 +643,8 @@ export const replace = (d: DOMNode): any => {
     domNode.attribs['href'] = guidedTourPath;
     return;
   }
-  if (isMMTHref(domNode) && !IS_MMT_VIEWER) {
-    const guidedTourPath = getGuidedTourPath(domNode.attribs?.['href']);
-    return (
-      <>
-        <MMTHrefReplaced d={domNode} />
-        <AnotherImageComponent d={domNode} title={state.title || ''} />
-      </>
-    );
-  }
+  if (isMMTHref(domNode) && !IS_MMT_VIEWER) return <MMTHrefReplaced d={domNode} />;
+
   if (domNode.attribs?.['class'] === 'inputref') {
     const inputRef = domNode.attribs['data-inputref-url'];
     return (
