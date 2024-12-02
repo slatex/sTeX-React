@@ -1,5 +1,6 @@
 import { Container, Box, Typography, Button } from '@mui/material';
 import { checkIfUserRegisteredOnJP, getUserInfo, isLoggedIn } from '@stex-react/api';
+import { isFauId } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { ForceFauLogin } from 'packages/alea-frontend/components/ForceFAULogin';
@@ -26,7 +27,7 @@ const JobPortal: NextPage = () => {
         const uid = userInfo?.userId;
         if (!uid) return;
         setUserId(uid);
-        uid.length === 8 && !uid.includes('@') ? setIsStudent(true) : setIsRecruiter(true);
+        isFauId(uid)?setIsStudent(true):setIsRecruiter(true);
       });
     }
   }, []);
@@ -86,8 +87,7 @@ const JobPortal: NextPage = () => {
                 if (!isLogIn) {
                   if (window.location.pathname === '/login') return;
                   router.push('/login?target=' + encodeURIComponent(window.location.href));
-                }
-                {
+                } else  {
                   const result = await checkIfUserRegisteredOnJP(userId);
                   if (result.exists) {
                     router.push('job-portal/recruiter-dashboard');

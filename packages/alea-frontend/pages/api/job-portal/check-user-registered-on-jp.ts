@@ -1,11 +1,12 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { executeDontEndSet500OnError } from '../comment-utils';
+import { isFauId } from '@stex-react/utils';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { userId } = req.body;
   if (!userId) return;
   let tableToCheck;
-  if (userId.length === 8 && !userId.includes('@')) {
+  if(isFauId(userId)){
     tableToCheck = 'studentProfile';
   } else tableToCheck = 'recruiterProfile';
 

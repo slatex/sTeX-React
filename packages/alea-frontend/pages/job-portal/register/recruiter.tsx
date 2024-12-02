@@ -1,9 +1,8 @@
-import { Container, Box, TextField, Button, Typography, CircularProgress } from '@mui/material';
+import { Container, Box, TextField, Button, Typography, CircularProgress, Alert } from '@mui/material';
 import {
   canAccessResource,
   createRecruiterProfile,
   getRecruiterProfile,
-  getUserInfo,
   RecruiterData,
 } from '@stex-react/api';
 import { Action, CURRENT_TERM, ResourceName } from '@stex-react/utils';
@@ -20,17 +19,9 @@ export default function RecruiterRegistration() {
   });
   const [errors, setErrors] = useState({ email: '' });
   const router = useRouter();
-  const [userId, setUserId] = useState('');
   const [accessCheckLoading, setAccessCheckLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
-
-  useEffect(() => {
-    getUserInfo().then((userInfo) => {
-      if (!userInfo) return;
-      setUserId(userInfo.userId);
-    });
-  }, []);
 
   useEffect(() => {
     const checkAccess = async () => {
@@ -68,7 +59,9 @@ export default function RecruiterRegistration() {
   if (accessCheckLoading || loading) {
     return <CircularProgress color="primary" />;
   }
-  if (isRegistered) return <>You are already registerd.</>;
+  if (isRegistered)   return <Alert severity="info">You are already registered.</Alert>;
+
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -100,12 +93,7 @@ export default function RecruiterRegistration() {
 
   const handleSubmit = async () => {
     if (!validateEmail(formData.email)) return;
-
-    const payload = {
-      ...formData,
-      userId: userId,
-    };
-    await createRecruiterProfile(payload);
+    await createRecruiterProfile(formData);
     router.push('/job-portal/recruiter-dashboard');
   };
   return (

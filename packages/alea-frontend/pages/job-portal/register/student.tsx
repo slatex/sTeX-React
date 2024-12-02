@@ -11,7 +11,6 @@ import {
   canAccessResource,
   createStudentProfile,
   getStudentProfile,
-  getUserInfo,
   StudentData,
 } from '@stex-react/api';
 import { Action, CURRENT_TERM, ResourceName } from '@stex-react/utils';
@@ -22,7 +21,6 @@ import { useEffect, useState } from 'react';
 export default function StudentRegistration() {
   const router = useRouter();
   const [isRegistered, setIsRegistered] = useState(false);
-  const [userId, setUserId] = useState('');
   const [formData, setFormData] = useState<StudentData>({
     name: '',
     resumeURL: '',
@@ -41,14 +39,7 @@ export default function StudentRegistration() {
   });
   const [loading, setLoading] = useState(false);
   const [accessCheckLoading, setAccessCheckLoading] = useState(true);
-
-  useEffect(() => {
-    getUserInfo().then((userInfo) => {
-      if (!userInfo) return;
-      setUserId(userInfo.userId);
-    });
-  }, []);
-
+  
   useEffect(() => {
     const checkAccess = async () => {
       setAccessCheckLoading(true);
@@ -119,12 +110,7 @@ export default function StudentRegistration() {
 
   const handleSubmit = async () => {
     if (!validateFields()) return;
-
-    const payload = {
-      ...formData,
-      userId,
-    };
-    await createStudentProfile(payload);
+    await createStudentProfile(formData);
     router.push('/job-portal/student-dashboard');
   };
 

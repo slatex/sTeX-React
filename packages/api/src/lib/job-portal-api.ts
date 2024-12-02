@@ -2,15 +2,13 @@ import axios from 'axios';
 import { getAuthHeaders } from './lms';
 import { RecruiterData, StudentData } from './job-portal';
 
-export type CreateStudentProfileRequest = StudentData & { userId: string };
-export async function createStudentProfile(data: CreateStudentProfileRequest) {
+export async function createStudentProfile(data: StudentData) {
   await axios.post('/api/job-portal/create-student-profile', data, {
     headers: getAuthHeaders(),
   });
 }
 
-export type CreateRecruiterProfileRequest = RecruiterData & { userId: string };
-export async function createRecruiterProfile(data: CreateRecruiterProfileRequest) {
+export async function createRecruiterProfile(data: RecruiterData) {
   await axios.post('/api/job-portal/create-recruiter-profile', data, {
     headers: getAuthHeaders(),
   });
