@@ -13,14 +13,14 @@ import { useRouter } from 'next/router';
 import ProblemFetcher from 'packages/alea-frontend/components/ProblemFetcher';
 import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
 import { useContext, useEffect, useState } from 'react';
-import { LoViewer } from '../lo-explorer';
-import styles from '../../styles/guided-tour.module.scss';
 import {
   ACTION_VERBALIZATION_OPTIONS,
   ActionName,
   COMFORT_PROMPTS,
   INITIALIZE_MESSAGES,
 } from '../../constants/messages';
+import styles from '../../styles/guided-tour.module.scss';
+import { LoViewer } from '../lo-explorer';
 
 const structureLearningObjects = async (
   mmtUrl: string,
@@ -441,6 +441,16 @@ const GuidedTours = () => {
   const [problemResponse, setProblemResponse] = useState<ProblemResponse | undefined>(undefined);
   const [quotient, setQuotient] = useState<number>(0);
   const { mmtUrl } = useContext(ServerLinksContext);
+  const [pendingMessages, setPendingMessages] = useState<ChatMessage[]>([]);
+
+  useEffect(() => {
+    if (pendingMessages.length === 0) return;
+    const topMessage = pendingMessages[0];
+    setTimeout(() => {
+      setMessages([...messages, topMessage]);
+      setPendingMessages(pendingMessages.slice(1));
+    }, 1000);
+  }, [pendingMessages]);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -535,7 +545,7 @@ const GuidedTours = () => {
               </Box>
             </Box>
           ))}
-          {userAction ? (
+          {userAction && !pendingMessages.length && (
             <Box display="flex" justifyContent="flex-end" width="100%">
               <UserActionDisplay
                 action={userAction}
@@ -548,6 +558,7 @@ const GuidedTours = () => {
                     action
                   );
                   setTourState(newState);
+                  const topMessage = newMessages[0];
                   setMessages([
                     ...messages,
                     {
@@ -558,14 +569,13 @@ const GuidedTours = () => {
                         : 'Submit',
                       userAction: action,
                     },
-                    ...newMessages,
+                    topMessage,
                   ]);
+                  setPendingMessages(newMessages.slice(1));
                   setUserAction(nextAction);
                 }}
               />
             </Box>
-          ) : (
-            <i>No Action!</i>
           )}
         </Box>
       </div>
