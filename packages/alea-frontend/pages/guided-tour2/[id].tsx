@@ -484,7 +484,9 @@ const GuidedTours = () => {
           ),
           systemTextMessage(COMFORT_PROMPTS[0].replace('{{concept}}', firstLeafConceptName)),
         ]);
-        setUserAction(chooseOptionAction(['KNOW', 'DONT_KNOW', 'NOT_SURE_IF_KNOW']));
+        const options: ActionName[] = ['KNOW', 'DONT_KNOW'];
+        if (focusConceptLo.problem?.uris?.length > 0) options.push('NOT_SURE_IF_KNOW');
+        setUserAction(chooseOptionAction(options));
       } catch (error) {
         console.error('Error fetching leaf concepts:', error);
       }
