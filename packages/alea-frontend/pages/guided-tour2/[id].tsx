@@ -52,7 +52,7 @@ const structureLearningObjects = async (
       structured[type] = { uris: [], currentIdx: -1 };
     }
     if (type !== 'problem' || isAutogradable[learningObject]) {
-      structured[type].uris.push(learningObject);
+      if (!learningObject.includes('.de.')) structured[type].uris.push(learningObject);
     }
   });
 
