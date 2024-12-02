@@ -138,7 +138,10 @@ function getNextLoType(
   const currentLoIdx = focusConceptCurrentLo ? loOrder.indexOf(focusConceptCurrentLo.type) : 0;
   let loTypePreferredIdxOrder: number[];
   if (userAction.chosenOption === 'LO_UNDERSTOOD') {
-    loTypePreferredIdxOrder = [4, 3, 2, 1, 0]; // 'problem';
+    loTypePreferredIdxOrder = [];
+    for (let i = 1; i <= loOrder.length; i++) {
+      loTypePreferredIdxOrder.push((i + currentLoIdx) % loOrder.length);
+    }
   } else if (userAction.chosenOption === 'LO_NOT_UNDERSTOOD') {
     loTypePreferredIdxOrder = [
       currentLoIdx,
