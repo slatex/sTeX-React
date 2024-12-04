@@ -60,7 +60,7 @@ const structureLearningObjects = async (
 };
 
 interface UserAction {
-  actionType: 'problem' | 'choose-option';
+  actionType: 'problem' | 'choose-option' | 'end';
   options?: ActionName[];
   optionVerbalization?: Partial<Record<ActionName, string>>;
   chosenOption?: ActionName;
@@ -71,6 +71,7 @@ interface UserAction {
 interface GuidedTourState {
   targetConceptUri: string;
   leafConceptUris: string[];
+  completedConceptUris: string[];
   focusConceptIdx: number;
 
   focusConceptInitialized: boolean;
@@ -231,6 +232,15 @@ function updateNewStateWithNextLo(
   }
   return { messagesAdded, actionForNextLo };
 }
+async function addLeafConceptsAndMarkCompleted(
+  currentConceptUri: string,
+  newState: GuidedTourState
+): Promise<void> {
+  const resp = await getLeafConcepts(currentConceptUri);
+  const lCUris = resp['leaf-concepts'] ?? [];
+  newState.leafConceptUris.push(...lCUris);
+  newState.completedConceptUris.push(currentConceptUri);
+}
 
 async function stateTransition(
   mmtUrl: string,
@@ -251,6 +261,12 @@ async function stateTransition(
     const result = await structureLearningObjects(mmtUrl, response['learning-objects']);
     newState.focusConceptLo = result;
     // TODO: handle end of leaf concepts.
+    await addLeafConceptsAndMarkCompleted(currentConceptUri, newState);
+    if (newState.focusConceptIdx === newState.leafConceptUris.length) {
+      newMessages.push(systemTextMessage(`Well Done! You have reached the end of Guided Tour.`));
+      nextAction = { actionType: 'end' };
+      return { newState, nextAction, newMessages };
+    }
     newMessages.push(
       systemTextMessage(
         `Alright, let's move on and talk about <b style="color: #d629ce">${nextConceptName}</b>.`
@@ -431,6 +447,7 @@ function UserActionDisplay({
       </Button>
     );
   }
+  if (action.actionType === 'end') return;
   return <Box>Unhandled: [{action?.actionType}]</Box>;
 }
 
@@ -471,6 +488,7 @@ const GuidedTours = () => {
         setTourState({
           targetConceptUri,
           leafConceptUris,
+          completedConceptUris: [],
           focusConceptIdx: 0,
           focusConceptInitialized: false,
           focusConceptLo,
