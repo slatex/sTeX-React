@@ -497,3 +497,18 @@ export async function getLeafConcepts(target: string) {
     target,
   })) as GetLeafConceptsResponse;
 }
+
+export interface LearnerModelUpdateEvent extends LMS2Event {
+  type: 'self-assessment';
+  concept: string;
+  competences: { Remember: number; Understand: number; Apply: number };
+}
+export async function updateLearnerModel(updatePayload: LearnerModelUpdateEvent) {
+  const userInfo = await getUserInfo();
+  const userId = userInfo?.userId;
+
+  return await lmsRequest('lms', 'lms/input/events', 'POST', null, {
+    ...updatePayload,
+    learner: userId,
+  });
+}

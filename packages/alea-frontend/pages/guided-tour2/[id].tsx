@@ -4,8 +4,10 @@ import {
   getLeafConcepts,
   getLearningObjects,
   getLearningObjectShtml,
+  LearnerModelUpdateEvent,
   LoType,
   ProblemResponse,
+  updateLearnerModel,
 } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import assert from 'assert';
@@ -21,6 +23,7 @@ import {
 } from '../../constants/messages';
 import styles from '../../styles/guided-tour.module.scss';
 import { LoViewer } from '../lo-explorer';
+import dayjs from 'dayjs';
 
 const structureLearningObjects = async (
   mmtUrl: string,
@@ -232,16 +235,15 @@ function updateNewStateWithNextLo(
   }
   return { messagesAdded, actionForNextLo };
 }
-async function addLeafConceptsAndMarkCompleted(
-  currentConceptUri: string,
+async function resetLeafConcepts(
+  targetConceptUri: string,
   newState: GuidedTourState
 ): Promise<void> {
-  const resp = await getLeafConcepts(currentConceptUri);
+  const resp = await getLeafConcepts(targetConceptUri);
   const lCUris = resp['leaf-concepts'] ?? [];
-  newState.leafConceptUris.push(...lCUris);
-  newState.completedConceptUris.push(currentConceptUri);
+  newState.leafConceptUris = lCUris;
+  newState.focusConceptIdx = 0;
 }
-
 async function stateTransition(
   mmtUrl: string,
   state: GuidedTourState,
@@ -250,23 +252,43 @@ async function stateTransition(
   const newState = { ...state };
   const newMessages: ChatMessage[] = [];
   let nextAction: UserAction = undefined;
+  let nextConceptUri;
   const currentConceptUri = state.leafConceptUris[state.focusConceptIdx];
-  const nextConceptUri = state.leafConceptUris[state.focusConceptIdx + 1];
+  if (state.focusConceptIdx + 1 === state.leafConceptUris.length) {
+    const resp = await getLeafConcepts(state.targetConceptUri);
+    const lCUris = resp['leaf-concepts'] ?? [];
+    nextConceptUri = lCUris[0];
+  } else nextConceptUri = state.leafConceptUris[state.focusConceptIdx + 1];
   const currentConceptName = conceptUriToName(currentConceptUri);
   const nextConceptName = conceptUriToName(nextConceptUri);
 
   if (action.chosenOption === 'MOVE_ON') {
     newState.focusConceptIdx++;
-    const response = await getLearningObjects([nextConceptUri]);
-    const result = await structureLearningObjects(mmtUrl, response['learning-objects']);
-    newState.focusConceptLo = result;
-    // TODO: handle end of leaf concepts.
-    await addLeafConceptsAndMarkCompleted(currentConceptUri, newState);
-    if (newState.focusConceptIdx === newState.leafConceptUris.length) {
+    newState.completedConceptUris.push(currentConceptUri);
+    const updatePayload: LearnerModelUpdateEvent = {
+      type: 'self-assessment',
+      concept: currentConceptUri,
+      competences: { Remember: 1.0, Understand: 1.0, Apply: 1.0 },
+      time: new Date().toISOString(),
+      payload: '',
+      comment: 'Self assessment through guided tour',
+    };
+    await updateLearnerModel(updatePayload);
+    if (
+      newState.completedConceptUris[newState.completedConceptUris.length - 1] ===
+      newState.targetConceptUri
+    ) {
       newMessages.push(systemTextMessage(`Well Done! You have reached the end of Guided Tour.`));
       nextAction = { actionType: 'end' };
       return { newState, nextAction, newMessages };
     }
+    if (newState.focusConceptIdx === newState.leafConceptUris.length) {
+      await resetLeafConcepts(newState.targetConceptUri, newState);
+    }
+    const response = await getLearningObjects([nextConceptUri]);
+    const result = await structureLearningObjects(mmtUrl, response['learning-objects']);
+    newState.focusConceptLo = result;
+    // TODO: handle end of leaf concepts.
     newMessages.push(
       systemTextMessage(
         `Alright, let's move on and talk about <b style="color: #d629ce">${nextConceptName}</b>.`
@@ -311,6 +333,11 @@ async function stateTransition(
     }
   } else if (!state.focusConceptInitialized) {
     if (action.chosenOption === 'KNOW') {
+      if (!nextConceptName) {
+        newMessages.push(systemTextMessage(`Well Done! You have reached the end of Guided Tour.`));
+        nextAction = { actionType: 'end' };
+        return { newState, nextAction, newMessages };
+      }
       newMessages.push(systemTextMessage('Great!'));
       newMessages.push(
         systemTextMessage(
