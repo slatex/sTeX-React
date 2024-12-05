@@ -13,15 +13,41 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     { instanceId: CURRENT_TERM }
   );
   if (!userId) return;
-  const { name, email, position } = req.body;
-
+  const { data, id } = req.body;
+  const {
+    companyName,
+    incorporationYear,
+    isStartup,
+    website,
+    about,
+    companyType,
+    officeAddress,
+    officePincode,
+  } = data;
   const result = await executeAndEndSet500OnError(
-    `INSERT INTO recruiterProfile 
-      (name,userId,email,position) 
-     VALUES (?, ?, ?, ?)`,
-    [name, userId, email, position],
+    `UPDATE organizationprofile 
+SET companyName = ?, 
+    incorporationYear = ?, 
+    isStartup = ?, 
+    website = ?, 
+    about = ?, 
+    companyType = ?, 
+    officeAddress = ?, 
+    officePincode = ?
+WHERE id = ?`,
+    [
+      companyName,
+      incorporationYear,
+      isStartup,
+      website,
+      about,
+      companyType,
+      officeAddress,
+      officePincode,
+      id,
+    ],
     res
   );
   if (!result) return;
-  res.status(201).end();
+  res.status(200).end();
 }

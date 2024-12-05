@@ -274,13 +274,25 @@ CREATE TABLE StudentProfile (
 );
 
 CREATE TABLE RecruiterProfile (
-     userId VARCHAR(50) PRIMARY KEY,
+    userId VARCHAR(50) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
-    organisationName VARCHAR(255) NOT NULL,
-    position VARCHAR(255) NOT NULL
+    position VARCHAR(255) NOT NULL, 
+    organizationId INT ,
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP, 
     updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
     CONSTRAINT fk_user FOREIGN KEY (userId) REFERENCES userInfo(userId) 
+    CONSTRAINT fk_organization FOREIGN KEY (organizationId) REFERENCES organizationprofile(id)
+
 );
 
+CREATE TABLE organizationprofile (
+    id INT AUTO_INCREMENT PRIMARY KEY, 
+    companyName VARCHAR(255) , 
+    incorporationYear YEAR ,
+    isStartup  ENUM('Yes', 'No') ;
+    about TEXT, 
+    companyType VARCHAR(255),
+    officeAddress VARCHAR(255), 
+    officePincode VARCHAR(255) 
+);

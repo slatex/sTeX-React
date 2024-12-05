@@ -39,7 +39,7 @@ export default function StudentRegistration() {
   });
   const [loading, setLoading] = useState(false);
   const [accessCheckLoading, setAccessCheckLoading] = useState(true);
-  
+
   useEffect(() => {
     const checkAccess = async () => {
       setAccessCheckLoading(true);
@@ -60,7 +60,7 @@ export default function StudentRegistration() {
   useEffect(() => {
     setLoading(true);
     if (accessCheckLoading) return;
-    const fetchRecruiterData = async () => {
+    const fetchStudentData = async () => {
       try {
         const res = await getStudentProfile();
         setIsRegistered(!!res[0]);
@@ -70,7 +70,7 @@ export default function StudentRegistration() {
         setLoading(false);
       }
     };
-    fetchRecruiterData();
+    fetchStudentData();
   }, [accessCheckLoading]);
 
   if (accessCheckLoading || loading) {

@@ -13,13 +13,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     { instanceId: CURRENT_TERM }
   );
   if (!userId) return;
-  const { name, email, position } = req.body;
+  const {
+    companyName,
+    incorporationYear,
+    isStartup,
+    website,
+    about,
+    companyType,
+    officeAddress,
+    officePincode,
+  } = req.body;
 
   const result = await executeAndEndSet500OnError(
-    `INSERT INTO recruiterProfile 
-      (name,userId,email,position) 
-     VALUES (?, ?, ?, ?)`,
-    [name, userId, email, position],
+    `INSERT INTO organizationprofile 
+      (companyName,incorporationYear, isStartup,website, about, companyType, officeAddress, officePincode) 
+     VALUES (?, ?, ?, ?, ?, ?, ?,?)`,
+    [
+      companyName,
+      incorporationYear,
+      isStartup,
+      website,
+      about,
+      companyType,
+      officeAddress,
+      officePincode,
+    ],
     res
   );
   if (!result) return;

@@ -1,38 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
-  Card,
-  CardContent,
-  Typography,
-  Grid,
-  Box,
-  CircularProgress,
-  Avatar,
-  Button,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
+  Button,
   TextField,
   Stepper,
   Step,
   StepLabel,
   MenuItem,
 } from '@mui/material';
-import { Work, Email, Business } from '@mui/icons-material';
 import {
-  canAccessResource,
   getOrganizationId,
-  getOrganizationProfile,
-  getRecruiterProfile,
   OrganizationData,
   RecruiterAndOrgData,
   RecruiterData,
   updateOrganizationProfile,
   upDateRecruiterProfile,
 } from '@stex-react/api';
-import { useRouter } from 'next/router';
-import { Action, CURRENT_TERM, ResourceName } from '@stex-react/utils';
-import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
 
 const RecruiterProfileDialog = ({
   isOpen,
@@ -313,203 +299,4 @@ const RecruiterProfileDialog = ({
   );
 };
 
-const RecruiterDashboard = () => {
-  const [recruiter, setRecruiter] = useState<RecruiterData>(null);
-  const [organizationData, setOrganizationData] = useState<OrganizationData>({
-    companyName: '',
-    incorporationYear: '',
-    isStartup: '',
-    about: '',
-    website: '',
-    companyType: '',
-    officeAddress: '',
-    officePincode: '',
-  });
-  const [loading, setLoading] = useState(true);
-  const [accessCheckLoading, setAccessCheckLoading] = useState(true);
-  const router = useRouter();
-  const [isOpen, setIsOpen] = useState(false);
-
-  useEffect(() => {
-    const checkAccess = async () => {
-      setAccessCheckLoading(true);
-      const hasAccess = await canAccessResource(ResourceName.JOB_PORTAL, Action.CREATE_JOB_POST, {
-        instanceId: CURRENT_TERM,
-      });
-      if (!hasAccess) {
-        alert('You donot have access to this page.');
-        router.push('/job-portal');
-        return;
-      }
-      setAccessCheckLoading(false);
-    };
-
-    checkAccess();
-  }, []);
-
-  const fetchRecruiterAndOrgData = async () => {
-    try {
-      setLoading(true);
-      const res = await getRecruiterProfile();
-      const recruiterData = res[0];
-      setRecruiter(res[0]);
-      if (recruiterData.hasDefinedOrg === 0) {
-        setIsOpen(true);
-        await upDateRecruiterProfile({ ...recruiterData, hasDefinedOrg: 1 });
-      }
-
-      if (recruiterData?.organizationId) {
-        const res = await getOrganizationProfile(recruiterData.organizationId);
-        const orgData = res[0];
-        setOrganizationData(orgData);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (accessCheckLoading) return;
-    fetchRecruiterAndOrgData();
-  }, [accessCheckLoading, isOpen]);
-
-  if (accessCheckLoading || loading) {
-    return <CircularProgress color="primary" />;
-  }
-
-  if (!recruiter) {
-    return (
-      <Box textAlign="center" mt={5}>
-        <Typography variant="h6" color="error">
-          You are currently not registered on job portal, Register first to access recruiter
-          dashboard
-        </Typography>
-      </Box>
-    );
-  }
-  const { name, email, position, hasDefinedOrg } = recruiter;
-
-  const {
-    companyName,
-    incorporationYear,
-    isStartup,
-    about,
-    website,
-    companyType,
-    officeAddress,
-    officePincode,
-  } = organizationData;
-  const formData: RecruiterAndOrgData = { ...recruiter, ...organizationData };
-
-  return (
-    <MainLayout title="Recruiter Dashboard | Job Portal">
-      {(!hasDefinedOrg || isOpen) && (
-        <RecruiterProfileDialog
-          isOpen={isOpen}
-          setIsOpen={setIsOpen}
-          recruiterAndOrgData={formData}
-        />
-      )}
-
-      <Box>
-        <Box
-          sx={{
-            py: 3,
-            backgroundColor: 'primary.main',
-            color: 'white',
-            textAlign: 'center',
-            mb: 4,
-          }}
-        >
-          <Typography variant="h4" fontWeight="bold">
-            Recruiter Dashboard
-          </Typography>
-          <Typography variant="subtitle1">Your professional profile at a glance</Typography>
-        </Box>
-        <Box>
-          <Button
-            variant="contained"
-            onClick={() => {
-              setIsOpen(true);
-            }}
-          >
-            Edit Profile
-          </Button>
-        </Box>
-
-        <Box sx={{ px: { xs: 2, md: 4 }, py: 2 }}>
-          <Grid container spacing={4}>
-            <Grid item xs={12} md={6}>
-              <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
-                <CardContent>
-                  <Box display="flex" alignItems="center" mb={2}>
-                    <Avatar sx={{ bgcolor: 'primary.main', mr: 2 }}>
-                      <Work />
-                    </Avatar>
-                    <Typography variant="h6">Recruiter Information</Typography>
-                  </Box>
-                  <Typography>
-                    <strong>Name:</strong> {name}
-                  </Typography>
-                  <Typography>
-                    <strong>Position:</strong> {position}
-                  </Typography>
-                  <Typography>
-                    <Email sx={{ verticalAlign: 'middle', mr: 1 }} />
-                    <strong>Email:</strong> {email}
-                  </Typography>
-                  <Typography>
-                    <strong>Mobile:</strong> {recruiter.mobile || 'N/A'}
-                  </Typography>
-                  <Typography>
-                    <strong>Alternate Mobile:</strong> {recruiter.altMobile || 'N/A'}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
-                <CardContent>
-                  <Box display="flex" alignItems="center" mb={2}>
-                    <Avatar sx={{ bgcolor: 'primary.main', mr: 2 }}>
-                      <Business />
-                    </Avatar>
-                    <Typography variant="h6">Organization Details</Typography>
-                  </Box>
-                  <Typography>
-                    <strong>Organization:</strong> {companyName}
-                  </Typography>
-
-                  <Typography>
-                    <strong>Startup:</strong> {isStartup}
-                  </Typography>
-                  <Typography>
-                    <strong>companyType:</strong> {companyType || 'N/A'}
-                  </Typography>
-                  <Typography>
-                    <strong>Incorporation Year:</strong> {incorporationYear || 'N/A'}
-                  </Typography>
-                  <Typography>
-                    <strong>Website</strong> {website || 'N/A'}
-                  </Typography>
-                  <Typography>
-                    <strong>About</strong> {about || 'N/A'}
-                  </Typography>
-                  <Typography>
-                    <strong>Office Address:</strong> {officeAddress || 'N/A'}
-                  </Typography>
-                  <Typography>
-                    <strong>Office Pincode:</strong> {officePincode || 'N/A'}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
-        </Box>
-      </Box>
-    </MainLayout>
-  );
-};
-
-export default RecruiterDashboard;
+export default RecruiterProfileDialog;

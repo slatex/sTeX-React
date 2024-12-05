@@ -1,21 +1,42 @@
-import { Container, Box, TextField, Button, Typography, CircularProgress, Alert } from '@mui/material';
+import {
+  Container,
+  Box,
+  TextField,
+  Button,
+  Typography,
+  CircularProgress,
+  Alert,
+} from '@mui/material';
 import {
   canAccessResource,
+  createOrganizationProfile,
   createRecruiterProfile,
+  getOrganizationId,
   getRecruiterProfile,
+  OrganizationData,
   RecruiterData,
+  upDateRecruiterProfile,
 } from '@stex-react/api';
 import { Action, CURRENT_TERM, ResourceName } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
 import { useEffect, useState } from 'react';
 
+export interface RecruiterRegistrationData {
+  name: string;
+  email: string;
+  companyName: string;
+  position: string;
+  hasDefinedOrg: number;
+}
+
 export default function RecruiterRegistration() {
-  const [formData, setFormData] = useState<RecruiterData>({
+  const [formData, setFormData] = useState<RecruiterRegistrationData>({
     name: '',
     email: '',
-    organization: '',
+    companyName: '',
     position: '',
+    hasDefinedOrg: 0,
   });
   const [errors, setErrors] = useState({ email: '' });
   const router = useRouter();
@@ -59,9 +80,7 @@ export default function RecruiterRegistration() {
   if (accessCheckLoading || loading) {
     return <CircularProgress color="primary" />;
   }
-  if (isRegistered)   return <Alert severity="info">You are already registered.</Alert>;
-
-
+  if (isRegistered) return <Alert severity="info">You are already registered.</Alert>;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -80,7 +99,7 @@ export default function RecruiterRegistration() {
   };
 
   const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+    const emailRegex = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
     if (!email) {
       setErrors((prevErrors) => ({ ...prevErrors, email: 'Email is required.' }));
       return false;
@@ -93,7 +112,13 @@ export default function RecruiterRegistration() {
 
   const handleSubmit = async () => {
     if (!validateEmail(formData.email)) return;
-    await createRecruiterProfile(formData);
+    const { name, email, position, companyName } = formData;
+    const recruiterData: RecruiterData = { name, email, position };
+    await createRecruiterProfile(recruiterData);
+    const organizationData: OrganizationData = { companyName };
+    await createOrganizationProfile(organizationData);
+    const id = await getOrganizationId(companyName);
+    await upDateRecruiterProfile({ ...recruiterData, organizationId: id, hasDefinedOrg: 0 });
     router.push('/job-portal/recruiter-dashboard');
   };
   return (
@@ -133,8 +158,8 @@ export default function RecruiterRegistration() {
           />
           <TextField
             label="Organization Name"
-            name="organization"
-            value={formData.organization}
+            name="companyName"
+            value={formData.companyName}
             onChange={handleChange}
             fullWidth
             margin="normal"
