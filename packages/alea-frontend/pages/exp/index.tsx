@@ -56,7 +56,7 @@ const ExperimentsHome: NextPage = () => {
           <Box m="10px auto" maxWidth="600px" textAlign="center">
             <Box>
               <InternalButtonLink href="/sys-admin">System Administrator</InternalButtonLink>
-              <InternalButtonLink href="/lo-explorer">Learning Object</InternalButtonLink>
+              <InternalButtonLink href="/lo-explorer">Learning Objects Explorer</InternalButtonLink>
             </Box>
             <Box>
               <h2>Paper Prototypes (What we are working towards)</h2>

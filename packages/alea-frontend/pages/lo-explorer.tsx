@@ -272,13 +272,13 @@ interface DetailsPanelProps {
   selectedUri: string | null;
 }
 
-const LoViewer: React.FC<{ uri: string; uriType: LoType }> = ({ uri, uriType }) => {
+export const LoViewer: React.FC<{ uri: string; uriType: LoType }> = ({ uri, uriType }) => {
   const [learningObject, setLearningObject] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { mmtUrl } = useContext(ServerLinksContext);
 
-  const fetchLo = async (uri) => {
+  const fetchLo = async (uri: string) => {
     try {
       setLoading(true);
       setError(null);
@@ -290,9 +290,7 @@ const LoViewer: React.FC<{ uri: string; uriType: LoType }> = ({ uri, uriType }) 
     }
   };
   useEffect(() => {
-    if (uri) {
-      fetchLo(uri);
-    }
+    if (uri) fetchLo(uri);
   }, [uri]);
 
   return (
@@ -304,7 +302,7 @@ const LoViewer: React.FC<{ uri: string; uriType: LoType }> = ({ uri, uriType }) 
       ) : learningObject ? (
         mmtHTMLToReact(learningObject)
       ) : (
-        <Typography>No example found.</Typography>
+        <Typography>No {uriType} found.</Typography>
       )}
     </Box>
   );
@@ -743,7 +741,7 @@ const LoExplorerPage = () => {
   };
 
   return (
-    <MainLayout title="Learning Objects | VoLL-KI">
+    <MainLayout title="Learning Objects | ALeA">
       <Paper elevation={3} sx={{ m: '16px' }}>
         <Box
           sx={{
