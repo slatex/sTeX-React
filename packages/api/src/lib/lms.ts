@@ -41,13 +41,13 @@ export interface IKnowEvent extends LMS2Event {
 export interface SelfAssessmentEvent extends LMS2Event {
   type: 'self-assessment';
   concept: string;
-  competencies: NumericCognitiveValues;
+  competences: NumericCognitiveValues;
 }
 
 export interface SelfAssessmentSmileysEvent extends LMS2Event {
   type: 'self-assessment-5StepLikertSmileys';
   concept: string;
-  competencies: SmileyCognitiveValues;
+  competences: SmileyCognitiveValues;
 }
 
 export interface PurgeEvent extends LMS2Event {
@@ -430,7 +430,7 @@ export async function resetFakeUserData(persona: string) {
     await reportEvent({
       type: 'self-assessment-5StepLikertSmileys',
       concept: URI,
-      competencies: {
+      competences: {
         Remember: 'smiley2',
         Understand: 'smiley2',
         Apply: 'smiley2',
@@ -498,12 +498,7 @@ export async function getLeafConcepts(target: string) {
   })) as GetLeafConceptsResponse;
 }
 
-export interface LearnerModelUpdateEvent extends LMS2Event {
-  type: 'self-assessment';
-  concept: string;
-  competences: { Remember: number; Understand: number; Apply: number };
-}
-export async function updateLearnerModel(updatePayload: LearnerModelUpdateEvent) {
+export async function updateLearnerModel(updatePayload: SelfAssessmentEvent) {
   const userInfo = await getUserInfo();
   const userId = userInfo?.userId;
 

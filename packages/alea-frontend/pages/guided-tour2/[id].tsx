@@ -4,7 +4,7 @@ import {
   getLeafConcepts,
   getLearningObjects,
   getLearningObjectShtml,
-  LearnerModelUpdateEvent,
+  SelfAssessmentEvent,
   LoType,
   ProblemResponse,
   updateLearnerModel,
@@ -265,7 +265,7 @@ async function stateTransition(
   if (action.chosenOption === 'MOVE_ON') {
     newState.focusConceptIdx++;
     newState.completedConceptUris.push(currentConceptUri);
-    const updatePayload: LearnerModelUpdateEvent = {
+    const updatePayload: SelfAssessmentEvent = {
       type: 'self-assessment',
       concept: currentConceptUri,
       competences: { Remember: 1.0, Understand: 1.0, Apply: 1.0 },
@@ -274,10 +274,7 @@ async function stateTransition(
       comment: 'Self assessment through guided tour',
     };
     await updateLearnerModel(updatePayload);
-    if (
-      newState.completedConceptUris[newState.completedConceptUris.length - 1] ===
-      newState.targetConceptUri
-    ) {
+    if (currentConceptUri === newState.targetConceptUri) {
       newMessages.push(systemTextMessage(`Well Done! You have reached the end of Guided Tour.`));
       nextAction = { actionType: 'end' };
       return { newState, nextAction, newMessages };
