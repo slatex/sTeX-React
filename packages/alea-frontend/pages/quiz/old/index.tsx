@@ -22,7 +22,7 @@ const LOCATIONS = [
 const QuizPage: NextPage = () => {
   const router = useRouter();
   return (
-    <MainLayout title="Quizzes | VoLL-KI">
+    <MainLayout title="Quizzes | ALeA">
       <Box m="auto" maxWidth="800px" p="10px">
         <Select
           labelId="demo-simple-select-label"

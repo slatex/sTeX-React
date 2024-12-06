@@ -79,7 +79,7 @@ const CourseNotesPage: NextPage = () => {
   const url = XhtmlContentUrl(courseInfo.notesArchive, courseInfo.notesFilepath);
 
   return (
-    <MainLayout title={(courseId || '').toUpperCase() + ` ${t.notes} | VoLL-KI`}>
+    <MainLayout title={(courseId || '').toUpperCase() + ` ${t.notes} | ALeA`}>
       <IconButton
         onClick={handleSearchClick}
         style={{

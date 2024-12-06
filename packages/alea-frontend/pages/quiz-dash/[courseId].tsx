@@ -192,7 +192,7 @@ const QuizDashPage: NextPage = () => {
       <MainLayout
         title={
           (courseId || '').toUpperCase() +
-          ` ${tHome.courseThumb.quizzes} | VoLL-KI`
+          ` ${tHome.courseThumb.quizzes} | ALeA`
         }
       >
         <ForceFauLogin />
@@ -204,7 +204,7 @@ const QuizDashPage: NextPage = () => {
     <MainLayout
       title={
         (courseId || '').toUpperCase() +
-        ` ${tHome.courseThumb.quizzes} | VoLL-KI`
+        ` ${tHome.courseThumb.quizzes} | ALeA`
       }
     >
       <CourseHeader

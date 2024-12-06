@@ -36,7 +36,7 @@ const CourseProblemsPage: NextPage = () => {
   if (!sectionsData) return <CircularProgress />;
 
   return (
-    <MainLayout title={`${(courseId || '').toUpperCase()} Problems | VoLL-KI`}>
+    <MainLayout title={`${(courseId || '').toUpperCase()} Problems | ALeA`}>
       <ProblemList courseSections={sectionsData} courseId={courseId} />
     </MainLayout>
   );

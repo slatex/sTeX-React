@@ -8,7 +8,7 @@ import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { Box, Button, CircularProgress, Dialog, IconButton } from '@mui/material';
 import {
-  InputResponse,
+  AutogradableResponse,
   InputType,
   Problem,
   ProblemResponse,
@@ -19,15 +19,15 @@ import { getPoints } from '@stex-react/quiz-utils';
 import { shouldUseDrawer } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useEffect, useReducer, useState } from 'react';
+import { defaultAutogradableResponse } from './InlineProblemDisplay';
 import { getLocaleObject } from './lang/utils';
+import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
+import { mmtHTMLToReact } from './mmtParser';
 import { ProblemDisplay } from './ProblemDisplay';
 import { QuizSubmitConfirm } from './QuizSubmitConfirm';
 import { QuizTimer, Timer, timerEvent } from './QuizTimer';
-import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
-import { mmtHTMLToReact } from './mmtParser';
-import { defaultInputResponse } from './InlineProblemDisplay';
 
-function isNonEmptyResponse(resp: InputResponse) {
+function isNonEmptyResponse(resp: AutogradableResponse) {
   switch (resp.type) {
     case InputType.FILL_IN:
       return !!resp.filledInAnswer;
@@ -40,7 +40,10 @@ function isNonEmptyResponse(resp: InputResponse) {
 }
 
 function numInputsResponded(r: ProblemResponse) {
-  return r.responses.reduce((prev, resp) => prev + (isNonEmptyResponse(resp) ? 1 : 0), 0);
+  return r.autogradableResponses.reduce(
+    (prev, resp) => prev + (isNonEmptyResponse(resp) ? 1 : 0),
+    0
+  );
 }
 
 function roundedScore(points: { [problemId: string]: number | undefined }) {
@@ -285,12 +288,18 @@ export function QuizDisplay({
     for (const problemId of Object.keys(problems ?? {})) {
       const e = existingResponses[problemId];
       const problem = problems[problemId];
-      const { inputs } = problem;
+      const { inputs, subProblemData } = problem;
       rs[problemId] = {
-        responses: inputs.map((input, idx) => {
-          if (e?.responses[idx]) return e.responses[idx];
-          return defaultInputResponse(input);
+        autogradableResponses: inputs.map((input, idx) => {
+          if (e?.autogradableResponses[idx]) return e.autogradableResponses[idx];
+          return defaultAutogradableResponse(input);
         }),
+        freeTextResponses: (subProblemData || []).reduce((acc, v, idx) => {
+          const key = idx.toString();
+          const existing = e?.freeTextResponses[key];
+          acc[key] = existing || '';
+          return acc;
+        }, {} as Record<string, string>),
       };
     }
     setResponses(rs);
@@ -365,7 +374,6 @@ export function QuizDisplay({
             r={response}
             //problemUrl={problemUrl}
             debug={debug}
-            homeworkId={homeworkId}
             problemId={problemIds[problemIdx]}
             problem={problem}
             isFrozen={isFrozen}

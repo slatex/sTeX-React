@@ -8,6 +8,7 @@ import DeviceHubIcon from '@mui/icons-material/DeviceHub';
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SchoolIcon from '@mui/icons-material/School';
+
 import {
   Alert,
   alpha,
@@ -141,6 +142,7 @@ function UrlNameExtractor({ url }: { url: string }) {
 
   return <Box>{url}</Box>;
 }
+
 interface QuizModalProps {
   open: boolean;
   selectedItems: CartItem[];
@@ -429,9 +431,7 @@ const CartModal: React.FC<CartModalProps> = ({
                       fontWeight: 'normal',
                       fontSize: '0.75rem',
                       flex: 1,
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
+                      wordBreak:'break-word',
                       cursor: 'pointer',
                       '&:hover': {
                         color: '#1976d2',
@@ -441,6 +441,7 @@ const CartModal: React.FC<CartModalProps> = ({
                   >
                     <UrlNameExtractor url={item.uri} />
                   </Typography>
+
                   <Tooltip title="Copy as STeX" arrow>
                     <IconButton
                       color="primary"
@@ -651,6 +652,7 @@ const LoListDisplay = ({
                 onClick={() => setSelectedUri(uri)}
               >
                 <UrlNameExtractor url={uri} />
+
               </Typography>
 
               <Tooltip title="Copy as STeX" arrow>
