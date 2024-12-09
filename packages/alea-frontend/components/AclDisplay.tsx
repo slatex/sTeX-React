@@ -1,8 +1,9 @@
-import { Box, CircularProgress, Tooltip, tooltipClasses, Typography } from '@mui/material';
-import { getAcl, getAclUserDetails } from '@stex-react/api';
-import { useEffect, useState } from 'react';
 import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
+import { Box, CircularProgress, Tooltip, tooltipClasses, Typography } from '@mui/material';
+import { getAcl, getAclUserDetails } from '@stex-react/api';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 interface AclDetails {
   isOpen: boolean;
   description: string;
@@ -13,7 +14,9 @@ interface AclDetails {
 function AclHoverPopup({ aclId }: { aclId: string }) {
   const [aclDetails, setAclDetails] = useState<AclDetails | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [directMembersNamesAndIds, setDirectMembersNamesAndIds] = useState([]);
+  const [directMembersNamesAndIds, setDirectMembersNamesAndIds] = useState<
+    { fullName: string; userId: string }[]
+  >([]);
 
   useEffect(() => {
     async function fetchAclDetails() {
@@ -70,7 +73,7 @@ function AclHoverPopup({ aclId }: { aclId: string }) {
         <Box>
           <Typography color="secondary">Direct Members:</Typography>
           {directMembersNamesAndIds.map((member) => (
-            <Typography fontSize={14}>
+            <Typography fontSize={14} key={member.userId}>
               {member.fullName == '' ? <i>unknown</i> : member.fullName} ({member.userId})
             </Typography>
           ))}
@@ -91,6 +94,7 @@ function AclHoverPopup({ aclId }: { aclId: string }) {
 }
 
 function AclDisplay({ aclId }: { aclId: string }) {
+  const router = useRouter();
   return (
     <Tooltip
       title={<AclHoverPopup aclId={aclId} />}
@@ -130,6 +134,7 @@ function AclDisplay({ aclId }: { aclId: string }) {
             backgroundColor: '#f5f5f5',
           },
         }}
+        onClick={(e) => router.push(`/acl/${aclId}`)}
       >
         {aclId}
       </Typography>

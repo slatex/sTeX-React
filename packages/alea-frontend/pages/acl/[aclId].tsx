@@ -10,7 +10,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { 
+import {
   getAcl,
   getAclUserDetails,
   getAllAclMembers,
@@ -21,8 +21,8 @@ import { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
+import AclDisplay from '../../components/AclDisplay';
 import MainLayout from '../../layouts/MainLayout';
-import AclDisplay from 'packages/alea-frontend/components/AclDisplay';
 
 const AclId: NextPage = () => {
   const router = useRouter();
@@ -171,7 +171,7 @@ const AclId: NextPage = () => {
                     cursor: 'pointer',
                   }}
                 >
-                  <AclDisplay aclId={updaterACLId}/>
+                  <AclDisplay aclId={updaterACLId} />
                 </Typography>
               </Link>
             </Typography>
@@ -202,14 +202,9 @@ const AclId: NextPage = () => {
                 {acls.map((aclId, index) => (
                   <React.Fragment key={aclId}>
                     <ListItem
-                      button
                       component="a"
                       href={`/acl/${aclId}`}
-                      sx={{
-                        '&:hover': {
-                          backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                        },
-                      }}
+                      sx={{ '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' } }}
                     >
                       <AclDisplay aclId={aclId} />
                     </ListItem>
@@ -229,13 +224,8 @@ const AclId: NextPage = () => {
                 {directMembersNamesAndIds.map((user, index) => (
                   <React.Fragment key={user}>
                     <ListItem
-                      button
                       component="a"
-                      sx={{
-                        '&:hover': {
-                          backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                        },
-                      }}
+                      sx={{ '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' } }}
                     >
                       <ListItemText
                         primary={
@@ -271,13 +261,8 @@ const AclId: NextPage = () => {
                 {allMemberNamesAndIds.map((user, index) => (
                   <React.Fragment key={user}>
                     <ListItem
-                      button
                       component="a"
-                      sx={{
-                        '&:hover': {
-                          backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                        },
-                      }}
+                      sx={{ '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' } }}
                     >
                       <ListItemText primary={`${user.fullName} (${user.userId})`} />
                     </ListItem>

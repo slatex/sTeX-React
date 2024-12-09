@@ -1,4 +1,4 @@
-import { HelpOutline } from '@mui/icons-material';
+import { Book, HelpOutline, MicExternalOn, Quiz, SupervisedUserCircle } from '@mui/icons-material';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import ArticleIcon from '@mui/icons-material/Article';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -7,6 +7,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import DeviceHubIcon from '@mui/icons-material/DeviceHub';
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import SchoolIcon from '@mui/icons-material/School';
+
 import {
   Alert,
   alpha,
@@ -57,6 +59,90 @@ const handleStexCopy = (uri: string, uriType: LoType) => {
 
   if (stexSource) navigator.clipboard.writeText(stexSource);
 };
+
+function UrlNameExtractor({ url }: { url: string }) {
+  const [archive, filePath] = extractProjectIdAndFilepath(url);
+  const fileParts = filePath.split('/');
+  const fileName = fileParts[fileParts.length - 1].split('.')[0];
+
+  if (archive.startsWith('courses/')) {
+    const projectParts = archive.split('/');
+    const projectName = projectParts[2];
+    const topic = fileParts[0];
+    return (
+      <Box display="flex" flexWrap="wrap" sx={{ gap: '5px' }}>
+        {projectName}
+        <SchoolIcon sx={{ color: 'primary.main', fontSize: '18px' }} />
+        {topic}
+        <Box sx={{ wordBreak: 'break-word' }}>{fileName}</Box>
+      </Box>
+    );
+  }
+
+  if (archive.startsWith('problems/')) {
+    const projectParts = archive.split('/');
+    const projectName = projectParts[1];
+    const topic = fileParts[0];
+
+    return (
+      <Box display="flex" flexWrap="wrap" sx={{ gap: '5px' }}>
+        {projectName}
+        <Quiz sx={{ color: 'primary.main', fontSize: '18px' }} />
+        {topic}
+        <Box sx={{ wordBreak: 'break-word' }}>{fileName}</Box>
+      </Box>
+    );
+  }
+
+  if (archive.startsWith('KwarcMH/')) {
+    const projectName = archive.split('/')[0];
+    const topic = fileParts[0];
+    return (
+      <Box display="flex" flexWrap="wrap" sx={{ gap: '5px' }}>
+        {projectName} <SchoolIcon sx={{ color: 'primary.main', fontSize: '18px' }} />
+        {topic} {fileName}
+      </Box>
+    );
+  }
+
+  if (archive.startsWith('smglom/')) {
+    const projectParts = archive.split('/');
+    const projectName = projectParts[0];
+    const topic = projectParts[1];
+    return (
+      <Box display="flex" flexWrap="wrap" sx={{ gap: '5px' }}>
+        {projectName} <Book sx={{ color: 'primary.main', fontSize: '18px' }} />
+        {topic} {fileName}
+      </Box>
+    );
+  }
+
+  if (archive.startsWith('mkohlhase/')) {
+    const projectName = archive.split('/')[0];
+    const topic = fileParts[0];
+    return (
+      <Box display="flex" flexWrap="wrap" sx={{ gap: '5px' }}>
+        {projectName} <SupervisedUserCircle sx={{ color: 'primary.main', fontSize: '18px' }} />
+        {topic} {fileName}
+      </Box>
+    );
+  }
+
+  if (archive.startsWith('talks/')) {
+    const projectParts = archive.split('/');
+    const projectName = projectParts[0];
+    const topic = projectParts[1];
+    return (
+      <Box display="flex" flexWrap="wrap" sx={{ gap: '5px' }}>
+        {projectName} <MicExternalOn sx={{ color: 'primary.main', fontSize: '18px' }} />
+        {topic} {fileName}
+      </Box>
+    );
+  }
+
+  return <Box>{url}</Box>;
+}
+
 interface QuizModalProps {
   open: boolean;
   selectedItems: CartItem[];
@@ -345,9 +431,7 @@ const CartModal: React.FC<CartModalProps> = ({
                       fontWeight: 'normal',
                       fontSize: '0.75rem',
                       flex: 1,
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
+                      wordBreak:'break-word',
                       cursor: 'pointer',
                       '&:hover': {
                         color: '#1976d2',
@@ -355,9 +439,7 @@ const CartModal: React.FC<CartModalProps> = ({
                     }}
                     onClick={() => setDisplayedItem(item)}
                   >
-                    <Tooltip title={item.uri} placement="bottom">
-                      <>{item.uri}</>
-                    </Tooltip>
+                    <UrlNameExtractor url={item.uri} />
                   </Typography>
 
                   <Tooltip title="Copy as STeX" arrow>
@@ -566,15 +648,11 @@ const LoListDisplay = ({
                   '&:hover': {
                     color: alpha('#096dd9', 0.7),
                   },
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
                 }}
                 onClick={() => setSelectedUri(uri)}
               >
-                <Tooltip title={uri} placement="bottom">
-                  <>{uri}</>
-                </Tooltip>
+                <UrlNameExtractor url={uri} />
+
               </Typography>
 
               <Tooltip title="Copy as STeX" arrow>
