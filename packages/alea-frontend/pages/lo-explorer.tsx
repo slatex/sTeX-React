@@ -8,14 +8,20 @@ import DeviceHubIcon from '@mui/icons-material/DeviceHub';
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SchoolIcon from '@mui/icons-material/School';
+<<<<<<< HEAD
 import SearchIcon from '@mui/icons-material/Search';
+=======
+>>>>>>> origin/main
 
 import {
   Alert,
   alpha,
+<<<<<<< HEAD
   Autocomplete,
   Avatar,
   Badge,
+=======
+>>>>>>> origin/main
   Box,
   Button,
   Checkbox,
@@ -63,6 +69,7 @@ const handleStexCopy = (uri: string, uriType: LoType) => {
 
   if (stexSource) navigator.clipboard.writeText(stexSource);
 };
+<<<<<<< HEAD
 interface UrlData {
   projectName: string;
   topic: string;
@@ -120,6 +127,92 @@ function UrlNameExtractor({ url }: { url: string }) {
     </Box>
   );
 }
+=======
+
+function UrlNameExtractor({ url }: { url: string }) {
+  const [archive, filePath] = extractProjectIdAndFilepath(url);
+  const fileParts = filePath.split('/');
+  const fileName = fileParts[fileParts.length - 1].split('.')[0];
+
+  if (archive.startsWith('courses/')) {
+    const projectParts = archive.split('/');
+    const projectName = projectParts[2];
+    const topic = fileParts[0];
+    return (
+      <Box display="flex" flexWrap="wrap" sx={{ gap: '5px' }}>
+        {projectName}
+        <SchoolIcon sx={{ color: 'primary.main', fontSize: '18px' }} />
+        {topic}
+        <Box sx={{ wordBreak: 'break-word' }}>{fileName}</Box>
+      </Box>
+    );
+  }
+
+  if (archive.startsWith('problems/')) {
+    const projectParts = archive.split('/');
+    const projectName = projectParts[1];
+    const topic = fileParts[0];
+
+    return (
+      <Box display="flex" flexWrap="wrap" sx={{ gap: '5px' }}>
+        {projectName}
+        <Quiz sx={{ color: 'primary.main', fontSize: '18px' }} />
+        {topic}
+        <Box sx={{ wordBreak: 'break-word' }}>{fileName}</Box>
+      </Box>
+    );
+  }
+
+  if (archive.startsWith('KwarcMH/')) {
+    const projectName = archive.split('/')[0];
+    const topic = fileParts[0];
+    return (
+      <Box display="flex" flexWrap="wrap" sx={{ gap: '5px' }}>
+        {projectName} <SchoolIcon sx={{ color: 'primary.main', fontSize: '18px' }} />
+        {topic} {fileName}
+      </Box>
+    );
+  }
+
+  if (archive.startsWith('smglom/')) {
+    const projectParts = archive.split('/');
+    const projectName = projectParts[0];
+    const topic = projectParts[1];
+    return (
+      <Box display="flex" flexWrap="wrap" sx={{ gap: '5px' }}>
+        {projectName} <Book sx={{ color: 'primary.main', fontSize: '18px' }} />
+        {topic} {fileName}
+      </Box>
+    );
+  }
+
+  if (archive.startsWith('mkohlhase/')) {
+    const projectName = archive.split('/')[0];
+    const topic = fileParts[0];
+    return (
+      <Box display="flex" flexWrap="wrap" sx={{ gap: '5px' }}>
+        {projectName} <SupervisedUserCircle sx={{ color: 'primary.main', fontSize: '18px' }} />
+        {topic} {fileName}
+      </Box>
+    );
+  }
+
+  if (archive.startsWith('talks/')) {
+    const projectParts = archive.split('/');
+    const projectName = projectParts[0];
+    const topic = projectParts[1];
+    return (
+      <Box display="flex" flexWrap="wrap" sx={{ gap: '5px' }}>
+        {projectName} <MicExternalOn sx={{ color: 'primary.main', fontSize: '18px' }} />
+        {topic} {fileName}
+      </Box>
+    );
+  }
+
+  return <Box>{url}</Box>;
+}
+
+>>>>>>> origin/main
 interface QuizModalProps {
   open: boolean;
   selectedItems: CartItem[];
@@ -408,9 +501,13 @@ const CartModal: React.FC<CartModalProps> = ({
                       fontWeight: 'normal',
                       fontSize: '0.75rem',
                       flex: 1,
+<<<<<<< HEAD
                       whiteSpace: 'nowrap',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
+=======
+                      wordBreak:'break-word',
+>>>>>>> origin/main
                       cursor: 'pointer',
                       '&:hover': {
                         color: '#1976d2',
@@ -420,6 +517,10 @@ const CartModal: React.FC<CartModalProps> = ({
                   >
                     <UrlNameExtractor url={item.uri} />
                   </Typography>
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
                   <Tooltip title="Copy as STeX" arrow>
                     <IconButton
                       color="primary"
@@ -498,7 +599,11 @@ const ALL_CONCEPT_MODES = [
 ] as const;
 
 export type ConceptMode = (typeof ALL_CONCEPT_MODES)[number];
+<<<<<<< HEAD
 const COURSES = ['AI', 'EiDA', 'GDP', 'IWGS', 'KRMT', 'LBS', 'RIP', 'TheoCS', 'meta-inf'];
+=======
+const COURSES = ['AI1', 'AI2'];
+>>>>>>> origin/main
 
 const FilterChipList = ({
   label,
@@ -514,12 +619,17 @@ const FilterChipList = ({
       ? '#b3e5fc'
       : label === 'LO'
       ? '#fbe9e7'
+<<<<<<< HEAD
       : label === 'Archive'
+=======
+      : label === 'Course'
+>>>>>>> origin/main
       ? '#c8e6c9'
       : 'rgba(224, 224, 224, 0.4)';
   return items.map((item) => (
     <Chip
       key={item}
+<<<<<<< HEAD
       label={
         label === 'Archive' ? (
           <Box display="flex" gap="5px">
@@ -531,6 +641,9 @@ const FilterChipList = ({
           `${label}: ${item}`
         )
       }
+=======
+      label={`${label}: ${item}`}
+>>>>>>> origin/main
       onDelete={() => setItems((prev) => prev.filter((v) => v !== item))}
       sx={{ m: 0.5, bgcolor }}
     />
@@ -570,6 +683,10 @@ async function fetchLearningObjects(mmtUrl: string, concept: string) {
   });
   return learningObjectsByType;
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
 const LoListDisplay = ({
   uris,
   selectedUri,
@@ -587,6 +704,7 @@ const LoListDisplay = ({
   handleAddToCart: (uri: string, uriType: string) => void;
   handleRemoveFromCart: (uri: string, uriType: string) => void;
 }) => {
+<<<<<<< HEAD
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   const filteredUris = uris.filter((uri) => {
@@ -600,6 +718,8 @@ const LoListDisplay = ({
     );
   });
 
+=======
+>>>>>>> origin/main
   return (
     <Box sx={{ display: 'flex', gap: '16px', marginTop: '20px' }}>
       <Box
@@ -613,6 +733,7 @@ const LoListDisplay = ({
           boxShadow: 'inset 0 4px 8px rgba(0, 0, 0, 0.1)',
         }}
       >
+<<<<<<< HEAD
         <Box
           sx={{
             display: 'flex',
@@ -658,6 +779,16 @@ const LoListDisplay = ({
         </Box>
 
         {filteredUris.map((uri, index) => {
+=======
+        <Typography
+          variant="h6"
+          color={PRIMARY_COL}
+          sx={{ marginBottom: '16px', fontWeight: 'bold' }}
+        >
+          {uris.length} {capitalizeFirstLetter(loType)}s
+        </Typography>
+        {uris.map((uri, index) => {
+>>>>>>> origin/main
           const isInCart = cart.some((item) => item.uri === uri && item.uriType === loType);
           return (
             <Paper
@@ -689,6 +820,10 @@ const LoListDisplay = ({
                 onClick={() => setSelectedUri(uri)}
               >
                 <UrlNameExtractor url={uri} />
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
               </Typography>
 
               <Tooltip title="Copy as STeX" arrow>
@@ -725,7 +860,11 @@ const LoExplorerPage = () => {
   const [concept, setConcept] = useState('');
   const [chosenModes, setChosenModes] = useState<ConceptMode[]>([]);
   const [chosenLoTypes, setChosenLoTypes] = useState<LoType[]>([]);
+<<<<<<< HEAD
   const [chosenArchives, setChosenArchives] = useState<string[]>([]);
+=======
+  const [chosenCourses, setChosenCourses] = useState<string[]>([]);
+>>>>>>> origin/main
   const [loUris, setLoUris] = useState<Record<LoType, string[]>>({
     definition: [],
     problem: [],
@@ -739,6 +878,7 @@ const LoExplorerPage = () => {
   const [showCart, setShowCart] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const { mmtUrl } = useContext(ServerLinksContext);
+<<<<<<< HEAD
   const [filteredUris, setFilteredUris] = useState<string[]>(loUris[selectedLo] || []);
   useEffect(() => {
     setFilteredUris(loUris[selectedLo] || []);
@@ -755,6 +895,10 @@ const LoExplorerPage = () => {
       setFilteredUris(filtered);
     } else setFilteredUris(loUris[selectedLo] || []);
   }, [chosenArchives, selectedLo, loUris]);
+=======
+
+  const filteredUris = loUris[selectedLo] || [];
+>>>>>>> origin/main
 
   useEffect(() => {
     const storedCart = JSON.parse(localStore?.getItem('lo-cart')) || [];
@@ -791,9 +935,13 @@ const LoExplorerPage = () => {
   const handleRemoveFromCart = (uri: string, uriType: string) => {
     setCart((prev) => prev.filter((item) => !(item.uri === uri && item.uriType === uriType)));
   };
+<<<<<<< HEAD
   const handleSelectionChange = (event: React.SyntheticEvent, newValue: string[]) => {
     setChosenArchives(newValue);
   };
+=======
+
+>>>>>>> origin/main
   return (
     <MainLayout title="Learning Objects | ALeA">
       <Paper elevation={3} sx={{ m: '16px' }}>
@@ -910,6 +1058,7 @@ const LoExplorerPage = () => {
                 </Select>
               </FormControl>
 
+<<<<<<< HEAD
               <Autocomplete
                 multiple
                 options={COURSES}
@@ -940,6 +1089,29 @@ const LoExplorerPage = () => {
             </Box>
           </Box>
           {(!!chosenModes.length || !!chosenLoTypes.length || !!chosenArchives.length) && (
+=======
+              <FormControl fullWidth>
+                <InputLabel id="courses-label">Courses</InputLabel>
+                <Select
+                  labelId="courses-label"
+                  label="Courses"
+                  multiple
+                  value={chosenCourses}
+                  onChange={(e) => setChosenCourses(e.target.value as string[])}
+                  renderValue={() => renderDropdownLabel(chosenCourses)}
+                >
+                  {COURSES.map((item) => (
+                    <MenuItem key={item} value={item}>
+                      <Checkbox checked={chosenCourses.includes(item)} />
+                      <ListItemText primary={item} />
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+          </Box>
+          {(!!chosenModes.length || !!chosenLoTypes.length || !!chosenCourses.length) && (
+>>>>>>> origin/main
             <Box
               sx={{
                 mb: '20px',
@@ -953,7 +1125,11 @@ const LoExplorerPage = () => {
             >
               <FilterChipList label="Mode" items={chosenModes} setItems={setChosenModes} />
               <FilterChipList label="LO" items={chosenLoTypes} setItems={setChosenLoTypes} />
+<<<<<<< HEAD
               <FilterChipList label="Archive" items={chosenArchives} setItems={setChosenArchives} />
+=======
+              <FilterChipList label="Course" items={chosenCourses} setItems={setChosenCourses} />
+>>>>>>> origin/main
             </Box>
           )}
 

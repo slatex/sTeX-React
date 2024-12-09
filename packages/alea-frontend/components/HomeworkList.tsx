@@ -12,7 +12,7 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
-import { getHomeworkInfo, HomeworkInfo, HomeworkStub } from '@stex-react/api';
+import { getHomework, HomeworkInfo, HomeworkStub } from '@stex-react/api';
 import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
@@ -106,7 +106,7 @@ const HomeworkList = ({
                     <IconButton
                       color="primary"
                       onClick={async () => {
-                        handleEdit(await getHomeworkInfo(homework.id));
+                        handleEdit((await getHomework(homework.id)).homework);
                       }}
                     >
                       <Edit />

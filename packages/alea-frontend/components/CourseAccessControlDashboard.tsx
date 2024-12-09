@@ -31,6 +31,7 @@ const ALL_SHORT_IDS = [
   'homework-grading',
   'comments',
   'study-buddy',
+  'quiz-preview',
 ];
 
 export type ShortId = (typeof ALL_SHORT_IDS)[number];
@@ -49,6 +50,7 @@ const EMPTY_ASSIGMENT = ALL_SHORT_IDS.reduce(
 const ACL_DISPLAY_NAMES: Record<ShortId, string> = {
   notes: 'Notes Management',
   quiz: 'Quiz Management',
+  'quiz-preview': 'Quiz Preview',
   'homework-crud': 'Homework Create/Update',
   'homework-grading': 'Homework Grading',
   comments: 'Comments Moderation',
@@ -81,6 +83,10 @@ const getAclShortIdToResourceActionPair = (courseId: string) =>
       resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/study-buddy`,
       actionId: Action.MODERATE,
     },
+    'quiz-preview': {
+      resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/quiz`,
+      actionId: Action.PREVIEW,
+    },
   } as Record<ShortId, ResourceActionPair>);
 
 const CourseAccessControlDashboard = ({ courseId }) => {
@@ -100,8 +106,10 @@ const CourseAccessControlDashboard = ({ courseId }) => {
           },
         }}
       />
+    ) : aclData[shortId] ? (
+      <AclDisplay aclId={aclData[shortId]} />
     ) : (
-      aclData[shortId] ? <AclDisplay aclId={aclData[shortId]} /> : '-'
+      '-'
     );
   };
 

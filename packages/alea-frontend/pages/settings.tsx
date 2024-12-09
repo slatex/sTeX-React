@@ -9,7 +9,7 @@ const FORCE_MATHJAX = 'forceMathJax';
 const Home: NextPage = () => {
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
   return (
-    <MainLayout title="Settings | VoLL-KI">
+    <MainLayout title="Settings | ALeA">
       <div>
         <main>
           <br />

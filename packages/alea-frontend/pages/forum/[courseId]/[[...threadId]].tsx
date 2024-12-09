@@ -34,7 +34,7 @@ const ForumPage: NextPage = () => {
   }
   return (
     <MainLayout
-      title={(courseId || '').toUpperCase() + ` ${t.forum} | VoLL-KI`}
+      title={(courseId || '').toUpperCase() + ` ${t.forum} | ALeA`}
     >
       <CourseHeader
         courseName={courseInfo.courseName}

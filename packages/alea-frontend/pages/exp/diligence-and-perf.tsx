@@ -28,7 +28,7 @@ const DiligenceAndPerformance: NextPage = () => {
   }, []);
   if (!userAnonData) return <CircularProgress />;
   return (
-    <MainLayout title="Experiments | VoLL-KI">
+    <MainLayout title="Experiments | ALeA">
       <Box maxWidth="700px" px="10px" m="0 auto">
         <FormControlLabel
           control={

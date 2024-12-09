@@ -138,7 +138,7 @@ export function getPoints(problem: Problem, response?: ProblemResponse) {
   if (!response) return 0;
   const perInputCorrectnessQuotient: number[] = problem.inputs
     .map((input, idx) => {
-      const resp = response?.responses?.[idx];
+      const resp = response?.autogradableResponses?.[idx];
       const { type, fillInAnswerClasses, options } = input;
       if (type !== input.type) {
         console.error(`Input [${idx}] (${type}) has unexpected response: ${resp.type}`);

@@ -4,7 +4,7 @@ import MainLayout from '../layouts/MainLayout';
 
 const HelpPage: NextPage = () => {
   return (
-    <MainLayout title="Help | VoLL-KI">
+    <MainLayout title="Help | ALeA">
       <StexReactRenderer
         contentUrl={
           ':sTeX/document?archive=voll-ki/ALeA&filepath=doc/help.en.xhtml'

@@ -28,7 +28,7 @@ const PerSectionQuizPage: React.FC = () => {
   }
 
   return (
-    <MainLayout title="PerSection Problems | VoLL-KI">
+    <MainLayout title="PerSection Problems | ALeA">
       <Box px="10px" bgcolor="white" maxWidth="800px" m="0 auto">
         <Box display="flex" mt="10px" gap="10px" alignItems="center" my={2}>
           <Tooltip title={t.backToAllCourseProblems}>

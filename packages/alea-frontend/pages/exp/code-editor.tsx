@@ -30,7 +30,7 @@ function CodeEditor() {
   };
 
   return (
-    <MainLayout title="CodeEditor | VoLL-KI">
+    <MainLayout title="CodeEditor | ALeA">
       <CodeMirror
         value={value}
         height="300px"

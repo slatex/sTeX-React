@@ -15,9 +15,9 @@ import Radio, { RadioProps } from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import {
   AnswerUpdateEntry,
+  AutogradableResponse,
   BloomDimension,
   Input,
-  InputResponse,
   InputType,
   Problem,
   ProblemAnswerEvent,
@@ -46,7 +46,7 @@ import { CustomItemsContext, NoMaxWidthTooltip, mmtHTMLToReact } from './mmtPars
 import styles from './quiz.module.scss';
 import { AnswerClassesTable, DebugMCQandSCQ, InlineScqTable } from './QuizDebug';
 import { DimIcon } from './SelfAssessmentDialog';
-import { SubProblemAnswer } from './SubProblemAnswer';
+import { SubProblemAnswer, getAnswerFromLocalStorage } from './SubProblemAnswer';
 
 function BpRadio(props: RadioProps) {
   return <Radio disableRipple color="default" {...props} />;
@@ -97,7 +97,7 @@ function getDropdownClassNames(isSelected: boolean, isFrozen: boolean, correctne
   return '';
 }
 
-function fillInFeedback(input: Input, response: InputResponse) {
+function fillInFeedback(input: Input, response?: AutogradableResponse) {
   if (input.ignoreForScoring) {
     return {
       isCorrect: Tristate.TRUE,
@@ -106,7 +106,7 @@ function fillInFeedback(input: Input, response: InputResponse) {
   }
   const expected = input.fillInAnswerClasses;
   if (!expected) return { isCorrect: Tristate.UNKNOWN, feedbackHtml: '' };
-  const actual = response.filledInAnswer;
+  const actual = response?.filledInAnswer;
   const isCorrect = isFillInInputCorrect(expected, actual) === Tristate.TRUE;
   const feedbackHtml = getFillInFeedbackHtml(input, actual);
   return {
@@ -127,15 +127,14 @@ function quadStateToTristate(qs: QuadState) {
   }
 }
 
-function scbFeedback(input: Input, response: InputResponse) {
-  const { singleOptionIdx } = response;
+function scbFeedback(input: Input, response?: AutogradableResponse) {
   if (input.ignoreForScoring) {
     return {
       isCorrect: Tristate.TRUE,
       feedbackHtml: 'Your response to this input will not be graded.',
     };
   }
-  const chosen = (input.options || []).find((o) => o.optionId === singleOptionIdx);
+  const chosen = (input.options || []).find((o) => o.optionId === response?.singleOptionIdx);
   if (!chosen) return { isCorrect: Tristate.FALSE, feedbackHtml: 'Wrong!' };
   const isCorrect: Tristate = quadStateToTristate(chosen.shouldSelect);
   if (isCorrect === Tristate.UNKNOWN) return { isCorrect, feedbackHtml: '' };
@@ -145,7 +144,7 @@ function scbFeedback(input: Input, response: InputResponse) {
   return { isCorrect, feedbackHtml };
 }
 
-function feedbackInfo(isFrozen: boolean, input: Input, response: InputResponse) {
+function feedbackInfo(isFrozen: boolean, input: Input, response?: AutogradableResponse) {
   if (!isFrozen) return undefined;
   switch (input.type) {
     case InputType.FILL_IN:
@@ -222,9 +221,9 @@ function inputDisplay({
   debug,
 }: {
   input: Input;
-  response: InputResponse;
+  response?: AutogradableResponse;
   isFrozen: boolean;
-  onUpdate: (value: InputResponse) => void;
+  onUpdate: (value: AutogradableResponse) => void;
   debug: boolean;
 }) {
   const { type, inline } = input;
@@ -235,12 +234,12 @@ function inputDisplay({
         <>
           <Select
             name="customized-select"
-            value={response.singleOptionIdx || '-1'}
+            value={response?.singleOptionIdx || '-1'}
             onChange={(e) => {
               onUpdate({
                 type: InputType.SCQ,
                 singleOptionIdx: e.target.value,
-              } as InputResponse);
+              } as AutogradableResponse);
             }}
           >
             <MenuItem key="-1" value="-1" disabled={true}>
@@ -251,7 +250,7 @@ function inputDisplay({
                 <Box
                   display="inline"
                   className={getDropdownClassNames(
-                    response.singleOptionIdx === optionId,
+                    response?.singleOptionIdx === optionId,
                     isFrozen,
                     shouldSelect
                   )}
@@ -271,13 +270,13 @@ function inputDisplay({
         <>
           <RadioGroup
             name="customized-radios"
-            value={response.singleOptionIdx ?? ''}
+            value={response?.singleOptionIdx ?? ''}
             onChange={(e) => {
               if (isFrozen) return;
               onUpdate({
                 type: InputType.SCQ,
                 singleOptionIdx: e.target.value,
-              } as InputResponse);
+              } as AutogradableResponse);
             }}
           >
             {(input.options || []).map(({ optionId, shouldSelect, value, feedbackHtml }) => (
@@ -287,7 +286,7 @@ function inputDisplay({
                   value={optionId}
                   control={<BpRadio />}
                   className={getClassNames(
-                    response.singleOptionIdx === optionId,
+                    response?.singleOptionIdx === optionId,
                     isFrozen,
                     shouldSelect
                   )}
@@ -316,12 +315,12 @@ function inputDisplay({
       <Box display="inline-flex" alignItems="center">
         <TextField
           label="Answer"
-          value={response.filledInAnswer}
+          value={response?.filledInAnswer}
           onChange={(e) =>
             onUpdate({
               type: InputType.FILL_IN,
               filledInAnswer: e.target.value,
-            } as InputResponse)
+            } as AutogradableResponse)
           }
           disabled={isFrozen}
           sx={{ color, minWidth: '250px' }}
@@ -338,14 +337,15 @@ function inputDisplay({
             <FormControlLabel
               key={optionId}
               className={getClassNames(
-                response.multipleOptionIdxs?.[optionId] ?? false,
+                response?.multipleOptionIdxs?.[optionId] ?? false,
                 isFrozen,
                 shouldSelect
               )}
               control={
                 <Checkbox
-                  checked={response.multipleOptionIdxs?.[optionId] ?? false}
+                  checked={response?.multipleOptionIdxs?.[optionId] ?? false}
                   onChange={(e) => {
+                    if (!response) return;
                     if (!response.multipleOptionIdxs) {
                       console.error('Error: multipleOptionIdxs is undefined');
                       response.multipleOptionIdxs = {};
@@ -354,7 +354,7 @@ function inputDisplay({
                     onUpdate({
                       type: InputType.MCQ,
                       multipleOptionIdxs: response.multipleOptionIdxs,
-                    } as InputResponse);
+                    } as AutogradableResponse);
                   }}
                 />
               }
@@ -486,18 +486,16 @@ export function ProblemDisplay({
   onFreezeResponse,
   debug,
   problemId = '',
-  homeworkId,
 }: {
   uri?: string;
   problem: Problem | undefined;
   isFrozen: boolean;
-  r: ProblemResponse;
+  r?: ProblemResponse;
   showPoints?: boolean;
   onResponseUpdate: (r: ProblemResponse) => void;
   onFreezeResponse?: () => void;
   debug?: boolean;
   problemId?: string;
-  homeworkId?: number;
 }) {
   const router = useRouter();
   const { quiz: t } = getLocaleObject(router);
@@ -517,11 +515,11 @@ export function ProblemDisplay({
   const inputWidgets = problem.inputs.map((input, optIdx) => {
     return inputDisplay({
       input,
-      response: r.responses[optIdx],
+      response: r?.autogradableResponses[optIdx],
       isFrozen,
       onUpdate: (resp) => {
-        if (isFrozen) return;
-        r.responses[optIdx] = resp;
+        if (isFrozen || !r) return;
+        r.autogradableResponses[optIdx] = resp;
         onResponseUpdate({ ...r });
       },
       debug: debug ?? false,
@@ -553,12 +551,20 @@ export function ProblemDisplay({
                     .replace('$2', problem.subProblemData.length.toString())}
             </span>
             <SubProblemAnswer
-              homeworkId={homeworkId}
-              problemHeader={problem.header}
               questionId={uri ? uri : problemId}
               subProblemId={i.toString()}
               subProblem={c}
               isFrozen={isFrozen}
+              existingResponse={r?.freeTextResponses?.[i]}
+              onSaveClick={() => {
+                if (!r) return;
+                const freeTextResponses: Record<string, string> = {};
+                for (let i = 0; i < problem.subProblemData.length; i++) {
+                  freeTextResponses[i.toString()] =
+                    getAnswerFromLocalStorage(uri ? uri : problemId, i.toString()) ?? '';
+                }
+                onResponseUpdate({ ...r, freeTextResponses });
+              }}
             ></SubProblemAnswer>
           </>
         ))}
@@ -574,17 +580,15 @@ export function ProblemDisplay({
             <DimAndURIListDisplay title="Preconditions" data={problem.preconditions} />
           </>
         )}
-        {onFreezeResponse && !isEffectivelyFrozen && (
+        {onFreezeResponse && !isEffectivelyFrozen && r && (
           <Button
             onClick={() => {
               onFreezeResponse();
-              if (uri) {
-                handleSubmit(problem, uri, r, userId);
-              }
+              if (uri) handleSubmit(problem, uri, r, userId);
             }}
             variant="contained"
           >
-            submit
+            Submit
           </Button>
         )}
       </Box>

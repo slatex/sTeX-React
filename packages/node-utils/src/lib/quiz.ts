@@ -17,9 +17,7 @@ function refreshCacheIfNeeded() {
 }
 
 function refreshQuizCache() {
-  console.log(
-    '\n\n\nRefreshing Cache: ' + dayjs(Date.now()).format('YYYY-MM-DD HH:mm:ss')
-  );
+  console.log('\n\n\nRefreshing Cache: ' + dayjs(Date.now()).format('YYYY-MM-DD HH:mm:ss'));
   QUIZ_CACHE = new Map<string, Quiz>();
   QUIZ_CACHE_TS = Date.now();
   const quizFiles = fs.readdirSync(process.env.QUIZ_INFO_DIR);
@@ -36,6 +34,15 @@ export function writeQuizFile(quiz: Quiz) {
   const filePath = getQuizFilePath(quiz.id);
   fs.writeFileSync(filePath, JSON.stringify(quiz, null, 2));
   invalidateQuizCache();
+}
+
+export function deleteQuizFile(quizId: string) {
+  const filePath = getQuizFilePath(quizId);
+  if (filePath && fs.existsSync(filePath)) {
+    const deletedFilePath = `${filePath}_deleted`;
+    fs.renameSync(filePath, deletedFilePath);
+    invalidateQuizCache();
+  }
 }
 
 export function invalidateQuizCache() {

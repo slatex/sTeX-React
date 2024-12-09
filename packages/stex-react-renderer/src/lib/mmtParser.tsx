@@ -123,7 +123,7 @@ function getGuidedTourPath(href?: string) {
   // TODO: This is a lousy hack to check if guided tour and if not in MMT viewer.
   if (!IS_MMT_VIEWER && href?.startsWith('/:vollki?path=')) {
     const uri = href.substring('/:vollki?path='.length);
-    return `/guided-tour/${encodeURIComponent(uri)}`;
+    return `/guided-tour2/${encodeURIComponent(uri)}`;
   }
   return undefined;
 }
@@ -222,7 +222,7 @@ function fixMtextNodes(d: DOMNode, indexInParent = 0) {
     }
   } else {
     for (const [idx, child] of domNode.children.entries()) {
-      fixMtextNodes(child, idx);
+      fixMtextNodes(child as any, idx);
     }
   }
 }
@@ -347,7 +347,7 @@ function SlideShowComponent({ domNode }: { domNode: Element }) {
         autoplay={!isManualUpdate}
       >
         {domNode.childNodes.map((childNode, idx) => (
-          <Box key={idx}>{domToReact([childNode], { replace })}</Box>
+          <Box key={idx}>{domToReact([childNode as any], { replace })}</Box>
         ))}
       </Slide>
     </Box>
@@ -532,7 +532,7 @@ export const replace = (d: DOMNode): any => {
     ) {
       return (
         <ApfelHrefWithToken href={href}>
-          {domToReact(domNode.children, { replace })}
+          {domToReact(domNode.children as any[], { replace })}
         </ApfelHrefWithToken>
       );
     }
@@ -684,9 +684,9 @@ export const replace = (d: DOMNode): any => {
     );
     return (
       <ExpandableStaticContent
-        title={domToReact(titleNodes, { replace }) as any}
+        title={domToReact(titleNodes as any[], { replace }) as any}
         defaultOpen={defaultOpen}
-        staticContent={domToReact(bodyNodes, { replace }) as any}
+        staticContent={domToReact(bodyNodes as any[], { replace }) as any}
       />
     );
   }
