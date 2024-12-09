@@ -115,6 +115,9 @@ export const de = {
     demoQuizText:
       'ist ein Demo-Quiz - damit Sie Ihre Hard-/Software testen (Sie benötigen einen aktuellen Chrome- oder Firefox-Browser) und die Formatierung sehen können. Insbesondere sollten Sie in der Lage sein, die mathematische Notation im Problem des Handlungsreisenden zu lesen.',
     practiceProblems: 'Übungsprobleme',
+    enrollmentMessage:
+      'Bitte melden Sie sich für den Kurs an, um auf Quiz und Hausaufgaben zuzugreifen.',
+    getEnrolled: 'sich einschreiben',
   },
   homework: {
     homeworkDashboard: 'Hausaufgaben-Dashboard',

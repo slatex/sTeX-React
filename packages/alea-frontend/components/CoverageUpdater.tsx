@@ -134,7 +134,7 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
                     setSnaps(updatedSnaps);
                   }}
                 >
-                  <DeleteIcon sx={{ color: 'red' }} />
+                  <DeleteIcon />
                 </IconButton>
               </Box>
             </td>

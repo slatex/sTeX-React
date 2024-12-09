@@ -1,4 +1,4 @@
-import { CURRENT_TERM } from "./courseInfo";
+import { CURRENT_TERM } from './courseInfo';
 
 export enum Action {
   CREATE = 'CREATE',
@@ -11,6 +11,7 @@ export enum Action {
   MODERATE = 'MODERATE',
 
   ACCESS_CONTROL = 'ACCESS_CONTROL',
+  TAKE = 'TAKE',
 }
 
 export enum ResourceName {
@@ -82,7 +83,7 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
   },
   {
     name: ResourceName.COURSE_QUIZ,
-    possibleActions: [Action.MUTATE, Action.PREVIEW],
+    possibleActions: [Action.MUTATE, Action.TAKE],
     components: [
       { type: ComponentType.FIXED, value: 'course' },
       { name: 'courseId', type: ComponentType.VARIABLE },
@@ -115,7 +116,7 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
   },
   {
     name: ResourceName.COURSE_HOMEWORK,
-    possibleActions: [Action.MUTATE, Action.INSTRUCTOR_GRADING],
+    possibleActions: [Action.MUTATE, Action.INSTRUCTOR_GRADING, Action.TAKE],
     components: [
       { type: ComponentType.FIXED, value: 'course' },
       { name: 'courseId', type: ComponentType.VARIABLE },
