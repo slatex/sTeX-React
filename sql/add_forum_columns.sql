@@ -7,3 +7,5 @@ ALTER TABLE comments ADD questionStatus ENUM('UNANSWERED', 'ANSWERED', 'ACCEPTED
 ALTER TABLE comments ADD courseId varchar(255);
 ALTER TABLE comments ADD courseTerm varchar(255);
 ALTER TABLE updateHistory ADD previousQuestionStatus ENUM('UNANSWERED', 'ANSWERED', 'ACCEPTED', 'OTHER');
+
+
