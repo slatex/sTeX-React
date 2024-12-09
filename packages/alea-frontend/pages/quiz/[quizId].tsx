@@ -20,7 +20,7 @@ import { useEffect, useState } from 'react';
 import { ForceFauLogin } from '../../components/ForceFAULogin';
 import MainLayout from '../../layouts/MainLayout';
 import { handleEnrollment } from '../course-home/[courseId]';
-import { getLocaleObject } from 'packages/alea-frontend/lang/utils';
+import { getLocaleObject } from '../../lang/utils';
 
 function ToBeStarted({ quizStartTs }: { quizStartTs?: number }) {
   const [showReload, setShowReload] = useState(false);
@@ -214,31 +214,31 @@ const QuizPage: NextPage = () => {
     );
   }
 
-  if (!enrolled) {
-    return (
-      <MainLayout title="Quizzes | VoLL-KI">
-        <Box
-          p="20px"
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            justifyContent: 'center',
-            flexDirection: 'column',
-          }}
-        >
-          <Typography variant="h6">
-            You are not enrolled in this course. Please click the &quot;Enroll&quot; button to
-            access the quiz.
-          </Typography>
-          <Button onClick={enrollInCourse} variant="contained" sx={{ backgroundColor: 'green' }}>
-            {q.getEnrolled}
-            <SchoolIcon />
-          </Button>
-        </Box>
-      </MainLayout>
-    );
-  }
+  // if (!enrolled) {
+  //   return (
+  //     <MainLayout title="Quizzes | VoLL-KI">
+  //       <Box
+  //         p="20px"
+  //         sx={{
+  //           display: 'flex',
+  //           alignItems: 'center',
+  //           gap: '10px',
+  //           justifyContent: 'center',
+  //           flexDirection: 'column',
+  //         }}
+  //       >
+  //         <Typography variant="h6">
+  //           You are not enrolled in this course. Please click the &quot;Enroll&quot; button to
+  //           access the quiz.
+  //         </Typography>
+  //         <Button onClick={enrollInCourse} variant="contained" sx={{ backgroundColor: 'green' }}>
+  //           {q.getEnrolled}
+  //           <SchoolIcon />
+  //         </Button>
+  //       </Box>
+  //     </MainLayout>
+  //   );
+  // }
 
   return (
     <MainLayout title="Quizzes | VoLL-KI">

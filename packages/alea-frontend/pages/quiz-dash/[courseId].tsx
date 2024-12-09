@@ -7,7 +7,6 @@ import {
   getCourseInfo,
   getCourseQuizList,
   getUserInfo,
-  recomputeMemberships,
 } from '@stex-react/api';
 import { ServerLinksContext, mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import { Action, CURRENT_TERM, CourseInfo, ResourceName } from '@stex-react/utils';
@@ -217,7 +216,7 @@ const QuizDashPage: NextPage = () => {
         courseId={courseId}
       />
       <Box maxWidth="900px" m="auto" px="10px">
-        {!enrolled && <Alert severity="info">{t.enrollmentMessage}</Alert>}
+        {/* {!enrolled && <Alert severity="info">{t.enrollmentMessage}</Alert>} */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', m: '30px 0 15px' }}>
           <Typography variant="h4">{t.quizDashboard}</Typography>
           {!enrolled && (
@@ -249,7 +248,8 @@ const QuizDashPage: NextPage = () => {
           &nbsp;{t.demoQuizText}
         </Typography>
 
-        {enrolled && (
+        {
+          // enrolled &&
           <>
             {' '}
             <QuizList header={t.ongoingQuizzes} quizList={ongoingQuizzes} />
@@ -265,7 +265,7 @@ const QuizDashPage: NextPage = () => {
               header={t.previousQuizzes}
             />
           </>
-        )}
+        }
       </Box>
     </MainLayout>
   );
