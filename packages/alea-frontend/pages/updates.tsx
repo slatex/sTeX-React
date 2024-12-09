@@ -15,7 +15,7 @@ const UpdatesPage: NextPage = () => {
   const { notification: t } = getLocaleObject({ locale });
 
   return (
-    <MainLayout title="System Updates | VoLL-KI">
+    <MainLayout title="System Updates | ALeA">
       <Box p="10px" m="0 auto" maxWidth="650px">
         <Typography
           fontWeight="bold"

@@ -5,7 +5,7 @@ import {
   getQuiz,
   GetQuizResponse,
   getUserInfo,
-  insertAnswer,
+  insertQuizResponse,
   Phase,
   Problem,
   UserInfo,
@@ -106,8 +106,6 @@ const QuizPage: NextPage = () => {
   const [finished, setFinished] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo | undefined | null>(null);
   const [quizInfo, setQuizInfo] = useState<GetQuizResponse | undefined>(undefined);
-  const [courseId, setCourseId] = useState<string>('');
-  const [instanceId, setInstanceId] = useState<string>('');
   const [moderatorPhase, setModeratorPhase] = useState<Phase>(undefined);
   const [debuggerMode, setDebuggerMode] = useState<boolean>(false);
   const [enrolled, setIsEnrolled] = useState<boolean>(false);
@@ -115,6 +113,8 @@ const QuizPage: NextPage = () => {
   const clientQuizStartTimeMs = getClientStartTimeMs(quizInfo);
 
   const phase = moderatorPhase ?? quizInfo?.phase;
+  const courseId = quizInfo?.courseId;
+  const instanceId = quizInfo?.courseTerm;
 
   const [forceFauLogin, setForceFauLogin] = useState(false);
 
@@ -123,6 +123,7 @@ const QuizPage: NextPage = () => {
     const enrollmentSuccess = await handleEnrollment(userInfo.userId, courseId, CURRENT_TERM);
     if (enrollmentSuccess) setIsEnrolled(true);
   };
+
 
   useEffect(() => {
     getUserInfo().then((i) => {
@@ -136,8 +137,6 @@ const QuizPage: NextPage = () => {
     if (!quizId) return;
     getQuiz(quizId).then((quizInfo) => {
       setQuizInfo(quizInfo);
-      setCourseId(quizInfo.courseId);
-      setInstanceId(quizInfo.courseTerm);
       const problemObj: { [problemId: string]: Problem } = {};
       Object.keys(quizInfo.problems).map((problemId) => {
         const html = hackAwayProblemId(quizInfo.problems[problemId]);
@@ -208,7 +207,7 @@ const QuizPage: NextPage = () => {
   if (!quizId) return null;
   if (forceFauLogin) {
     return (
-      <MainLayout title="Quizzes | VoLL-KI">
+      <MainLayout title="Quizzes | ALeA">
         <ForceFauLogin />
       </MainLayout>
     );
@@ -241,9 +240,9 @@ const QuizPage: NextPage = () => {
   // }
 
   return (
-    <MainLayout title="Quizzes | VoLL-KI">
+    <MainLayout title="Quizzes | ALeA">
       <Box>
-        {userInfo === undefined ? (
+        {!userInfo ? (
           <Box p="20px">You must be logged in to see quizzes.</Box>
         ) : phase === undefined ? (
           <CircularProgress />
@@ -271,7 +270,7 @@ const QuizPage: NextPage = () => {
             existingResponses={quizInfo?.responses}
             onResponse={async (problemId, response) => {
               if (!quizId?.length) return;
-              const answerAccepted = await insertAnswer(quizId, problemId, response);
+              const answerAccepted = await insertQuizResponse(quizId, problemId, response);
               if (!answerAccepted) {
                 alert('Answers are no longer being accepted');
                 location.reload();

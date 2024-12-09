@@ -66,13 +66,12 @@ const TrafficLightIndicator = ({ contentUrl }: { contentUrl: string }) => {
   const [URIs, setURIs] = useState<string[]>([]);
   useEffect(() => {
     if (!isLoggedIn()) return;
-    getSectionDependencies(mmtUrl, archive, filepath).then(uris=>{
+    getSectionDependencies(mmtUrl, archive, filepath).then((uris) => {
       setURIs(uris);
-
       getUriWeights(uris).then((data) => setCompetencyData(data));
     });
   }, [archive, filepath, mmtUrl]);
-  
+
   const handleBoxClick = () => {
     setDialogOpen(true);
   };
@@ -89,6 +88,8 @@ const TrafficLightIndicator = ({ contentUrl }: { contentUrl: string }) => {
     ? competencyData.reduce((sum, item) => sum + (item[BloomDimension.Understand] ?? 0), 0) /
       competencyData.length
     : 0;
+
+  if (!URIs?.length) return null;
 
   return (
     <>

@@ -135,7 +135,7 @@ const MyProfilePage: NextPage = () => {
   }
   if (!userInfo) return <></>;
   return (
-    <MainLayout title={`${userInfo.fullName} | VoLL-KI`}>
+    <MainLayout title={`${userInfo.fullName} | ALeA`}>
       <Box p="10px" m="0 auto" maxWidth="800px" fontSize="1.2em">
         <h2>{userInfo.fullName}</h2>
         <h3 style={{ marginTop: '-15px' }}>

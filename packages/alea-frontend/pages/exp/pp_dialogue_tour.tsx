@@ -155,7 +155,7 @@ const PPDialogueTour: NextPage = () => {
 
   // const responseMap = idxToResponse(state, responses);
   return (
-    <MainLayout title="Guided Tour Dialog | Experiments | VoLL-KI">
+    <MainLayout title="Guided Tour Dialog | Experiments | ALeA">
       <Box px="10px" m="auto" maxWidth="850px">
         <div className="center">
           <h1>Guided Tour: Pythagorean Theorem</h1>

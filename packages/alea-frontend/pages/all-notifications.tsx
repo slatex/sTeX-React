@@ -19,7 +19,7 @@ import MainLayout from '../layouts/MainLayout';
 const AllNotificationsPage: NextPage = () => {
   const sortedItems = useNotificationData();
   return (
-    <MainLayout title="All Notifications | VoLL-KI">
+    <MainLayout title="All Notifications | ALeA">
       <Box maxWidth="700px" margin="auto">
         <Timeline>
           {sortedItems.map((item) => (

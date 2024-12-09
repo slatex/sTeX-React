@@ -1,8 +1,8 @@
-import { Input, InputResponse, InputType, Problem } from '@stex-react/api';
+import { AutogradableResponse, Input, InputType, Problem, ProblemResponse } from '@stex-react/api';
 import { useEffect, useState } from 'react';
 import { ProblemDisplay } from './ProblemDisplay';
 
-export function defaultInputResponse(input: Input): InputResponse {
+export function defaultAutogradableResponse(input: Input): AutogradableResponse {
   const { type } = input;
   switch (type) {
     case InputType.FILL_IN:
@@ -16,13 +16,15 @@ export function defaultInputResponse(input: Input): InputResponse {
 }
 
 export function defaultProblemResponse(problem: Problem) {
-  if (!problem?.inputs?.length) return { responses: [] };
-  const responses: InputResponse[] = [];
+  if (!problem?.inputs?.length) {
+    return { autogradableResponses: [], freeTextResponses: {} } as ProblemResponse;
+  }
+  const autogradableResponses: AutogradableResponse[] = [];
 
   for (const i of problem.inputs) {
-    responses.push(defaultInputResponse(i));
+    autogradableResponses.push(defaultAutogradableResponse(i));
   }
-  return { responses };
+  return { autogradableResponses, freeTextResponses: {} } as ProblemResponse;
 }
 
 export function InlineProblemDisplay({ problem }: { problem: Problem }) {

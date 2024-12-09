@@ -116,7 +116,7 @@ export interface Problem {
   subProblemData: SubProblemData[];
 }
 
-export interface InputResponse {
+export interface AutogradableResponse {
   type: InputType;
   filledInAnswer?: string;
   singleOptionIdx?: string;
@@ -124,7 +124,8 @@ export interface InputResponse {
 }
 
 export interface ProblemResponse {
-  responses: InputResponse[];
+  autogradableResponses: AutogradableResponse[];
+  freeTextResponses: Record<string, string>; // subProblemId -> response
 }
 
 export interface PerProblemStats {
@@ -192,7 +193,7 @@ export interface GetQuizResponse {
 export interface InsertAnswerRequest {
   quizId: string;
   problemId: string;
-  responses: InputResponse[];
+  responses: AutogradableResponse[];
 
   browserTimestamp_ms: number;
 }

@@ -158,7 +158,7 @@ const QuizPage: NextPage = () => {
 
   if (!quizId) return <>No Quiz Id</>;
   return (
-    <MainLayout title="Quizzes | VoLL-KI">
+    <MainLayout title="Quizzes | ALeA">
       <Box>
         <QuizDisplay
           isFrozen={isSubmitted}

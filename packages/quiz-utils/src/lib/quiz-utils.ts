@@ -138,7 +138,7 @@ export function getPoints(problem: Problem, response?: ProblemResponse) {
   if (!response) return 0;
   const perInputCorrectnessQuotient: number[] = problem.inputs
     .map((input, idx) => {
-      const resp = response?.responses?.[idx];
+      const resp = response?.autogradableResponses?.[idx];
       const { type, fillInAnswerClasses, options } = input;
       if (type !== input.type) {
         console.error(`Input [${idx}] (${type}) has unexpected response: ${resp.type}`);
@@ -349,9 +349,13 @@ function getPointsFromAnswerClass(rawClass: Element): number {
 function getFillInAnswerClasses(fillInSolNode: Element): FillInAnswerClass[] {
   const answerClassNodes = recursivelyFindNodes(fillInSolNode, ['data-fillin-type']);
   if (!answerClassNodes?.length) {
-    const exactMatch = DomUtils.textContent(fillInSolNode);
-    if (!exactMatch) return [];
-    return [{ type: FillInAnswerClassType.exact, verdict: true, exactMatch }];
+    const value = DomUtils.textContent(fillInSolNode);
+    if (!value) return [];
+    if (value.startsWith('^') && value.endsWith('$')) {
+      return [{ type: FillInAnswerClassType.regex, verdict: true, regex: value }];
+    } else {
+      return [{ type: FillInAnswerClassType.exact, verdict: true, exactMatch: value }];
+    }
   }
   return answerClassNodes
     .map(({ node }) => getAnswerClass(node))

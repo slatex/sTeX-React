@@ -1,11 +1,4 @@
-import {
-  Box,
-  Button,
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
-} from '@mui/material';
+import { Box, Button, Divider, List, ListItem, ListItemText } from '@mui/material';
 import { getAllAclIds } from '@stex-react/api';
 import { NextPage } from 'next';
 import Link from 'next/link';
@@ -34,11 +27,7 @@ const AclPage: NextPage = () => {
       >
         <h1>All ACL&apos;s</h1>
         <Box>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => router.push('acl/new')}
-          >
+          <Button variant="contained" color="primary" onClick={() => router.push('acl/new')}>
             Create new ACL
           </Button>
         </Box>
@@ -47,20 +36,8 @@ const AclPage: NextPage = () => {
           {aclIds.map((acl, index) => (
             <Link href={`acl/${acl}`} key={index}>
               <Box>
-                <ListItem
-                  button
-                  sx={{
-                    '&:hover': {
-                      backgroundColor: 'rgba(0, 0, 0, 0.08)',
-                    },
-                  }}
-                >
-                  <ListItemText
-                    primary={acl}
-                    primaryTypographyProps={{
-                      fontWeight: 'bold',
-                    }}
-                  />
+                <ListItem sx={{ '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.08)' } }}>
+                  <ListItemText primary={acl} primaryTypographyProps={{ fontWeight: 'bold' }} />
                 </ListItem>
                 {index < aclIds.length - 1 && <Divider />}
               </Box>

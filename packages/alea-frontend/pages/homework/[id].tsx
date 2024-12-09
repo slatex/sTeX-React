@@ -62,7 +62,7 @@ const HomeworkPage: NextPage = () => {
   if (forceFauLogin) {
     return (
       <MainLayout
-        title={(courseId || '').toUpperCase() + ` ${tHome.courseThumb.homeworks} | VoLL-KI`}
+        title={(courseId || '').toUpperCase() + ` ${tHome.courseThumb.homeworks} | ALeA`}
       >
         <ForceFauLogin />
       </MainLayout>
@@ -76,7 +76,7 @@ const HomeworkPage: NextPage = () => {
 
   return (
     <MainLayout
-      title={(courseId || '').toUpperCase() + ` ${tHome.courseThumb.homeworks} | VoLL-KI`}
+      title={(courseId || '').toUpperCase() + ` ${tHome.courseThumb.homeworks} | ALeA`}
     >
       <CourseHeader
         courseName={courseInfo.courseName}
