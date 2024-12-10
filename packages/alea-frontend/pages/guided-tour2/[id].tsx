@@ -180,6 +180,15 @@ function updateNewStateWithNextLo(
       messagesAdded.push(systemTextMessage('Sorry to hear that!'));
     } else if (action.chosenOption === 'LO_UNDERSTOOD') {
       messagesAdded.push(systemTextMessage('Great!'));
+    } else if (action.quotient !== undefined) {
+      console.log({ action });
+      const topMessage =
+        action.quotient === 1
+          ? 'Great!'
+          : action.quotient === 0
+          ? 'Oops! That was incorrect.'
+          : "Hmm, that's only partially correct.";
+      messagesAdded.push(systemTextMessage(topMessage));
     }
     messagesAdded.push(
       systemTextMessage(
