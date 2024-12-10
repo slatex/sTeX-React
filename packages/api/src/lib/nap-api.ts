@@ -1,36 +1,41 @@
 import { CURRENT_TERM } from '@stex-react/utils';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
+import { HomeworkInfo } from './homework';
 import { getAuthHeaders } from './lms';
 import {
-  AnswerResponse,
   CreateAnswerRequest,
   CreateGradingRequest,
   CreateReviewRequest,
+  GradingInfo,
+  GradingItem,
 } from './nap';
+import { ProblemResponse } from './quiz';
 
 export async function createAnswer(answer: CreateAnswerRequest) {
-  return axios
-    .post('/api/nap/create-answer', answer, { headers: getAuthHeaders() })
-    .then((c) => ({ status: c.status, answerId: c.data }));
+  try {
+    await axios.post('/api/nap/create-answer', answer, { headers: getAuthHeaders() });
+    return true;
+  } catch (err) {
+    const error = err as Error | AxiosError;
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 410) {
+        // Quiz has ended
+        return false;
+      }
+      console.error('Error recording answer: ', error);
+      alert(
+        'Your responses are not being recorded. Check your internet connection and press okay to refresh.'
+      );
+      location.reload();
+    }
+    throw err;
+  }
 }
 
-export async function createGradring(gradeing: CreateGradingRequest) {
-  return axios
-    .post('/api/nap/create-grading', gradeing, { headers: getAuthHeaders() })
+export async function createGrading(grading: CreateGradingRequest) {
+  return await axios
+    .post('/api/nap/create-grading', grading, { headers: getAuthHeaders() })
     .then((c) => ({ status: c.status, data: c.data as number }));
-}
-
-export async function getAnswers(couserId: string, questionId: string, subProblemId: string) {
-  return axios
-    .get<AnswerResponse[]>('/api/nap/get-student-answers', {
-      headers: getAuthHeaders(),
-      params: {
-        couserId: couserId,
-        questionId: questionId,
-        subProblemId: subProblemId,
-      },
-    })
-    .then((c) => c.data);
 }
 
 export async function createReviewRequest(request: CreateReviewRequest) {
@@ -45,12 +50,6 @@ export async function getReviewRequests(courseId: string) {
       headers: getAuthHeaders(),
       params: { courseId, courseInstance: CURRENT_TERM },
     })
-    .then((c) => c.data);
-}
-
-export async function getAnswer(id: number) {
-  return axios
-    .get('/api/nap/get-student-answer', { headers: getAuthHeaders(), params: { id: id } })
     .then((c) => c.data);
 }
 
@@ -71,30 +70,34 @@ export async function deleteReviewRequest(id: number) {
   return axios.post('/api/nap/delete-review-request', { id }, { headers: getAuthHeaders() });
 }
 
-export async function getHomeworkAnswers(
+export interface GetAnswersWithGradingResponse {
+  answers: ProblemResponse;
+  subProblemIdToAnswerId: Record<string, number>;
+  subProblemIdToGrades: Record<string, GradingInfo[]>; // subProblemId -> gradingInfo[]
+}
+
+export async function getAnswersWithGrading(
+  homeworkId: number,
   questionId: string,
-  courseId: string,
-  courseInstance: string = CURRENT_TERM
+  studentId: string
 ) {
   return axios
-    .get('/api/nap/get-homework-answers', {
-      params: { questionId, courseId, courseInstance },
+    .get('/api/nap/get-answers-with-grading', {
+      params: { homeworkId, questionId, studentId },
       headers: getAuthHeaders(),
     })
-    .then((c) => c.data);
+    .then((c) => c.data as GetAnswersWithGradingResponse);
 }
 
-export async function getReviewHomeworkAnswer(id: number) {
-  return axios
-    .get('/api/nap/get-review-homework-answer', { params: { id }, headers: getAuthHeaders() })
-    .then((c) => c.data);
+export interface GetCourseGradingItemsResponse {
+  gradingItems: GradingItem[];
+  homeworks: HomeworkInfo[];
 }
 
-export async function getHomeWorkAnswer(questionId: string, subProblemId: string) {
-  return axios
-    .get('/api/nap/get-homework-answer', {
-      params: { questionId, subProblemId },
-      headers: getAuthHeaders(),
-    })
-    .then((c) => c.data as AnswerResponse);
+export async function getCourseGradingItems(courseId: string) {
+  const resp = await axios.get('/api/nap/get-course-grading-items', {
+    params: { courseId },
+    headers: getAuthHeaders(),
+  });
+  return resp.data as GetCourseGradingItemsResponse;
 }

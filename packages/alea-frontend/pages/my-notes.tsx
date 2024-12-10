@@ -23,7 +23,7 @@ const MyNotesPage: NextPage = () => {
   }, []);
 
   return (
-    <MainLayout title="My Notes | VoLL-KI">
+    <MainLayout title="My Notes | ALeA">
       <Box p="10px" m="0 auto" maxWidth="800px">
         {sections.map((section) => (
           <Box

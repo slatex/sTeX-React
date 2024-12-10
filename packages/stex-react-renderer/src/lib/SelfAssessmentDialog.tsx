@@ -52,20 +52,9 @@ export function DimIcon({
   );
 }
 
-export function LevelIcon({
-  level,
-  highlighted,
-}: {
-  level?: SmileyLevel;
-  highlighted: boolean;
-}) {
+export function LevelIcon({ level, highlighted }: { level?: SmileyLevel; highlighted: boolean }) {
   if (level === undefined) {
-    return (
-      <PendingOutlinedIcon
-        sx={{ fontSize: `${ICON_SIZE}px` }}
-        color="disabled"
-      />
-    );
+    return <PendingOutlinedIcon sx={{ fontSize: `${ICON_SIZE}px` }} color="disabled" />;
   }
   return (
     <img
@@ -124,14 +113,11 @@ function getMarks(
   rememberValue: SmileyLevel | undefined,
   understandValue: SmileyLevel | undefined
 ) {
-  const value =
-    dim === BloomDimension.Remember ? rememberValue : understandValue;
+  const value = dim === BloomDimension.Remember ? rememberValue : understandValue;
   return ALL_SMILEY_LEVELS.map((l) => {
     return {
       value: l,
-      label: (
-        <LevelIcon level={l} highlighted={value === undefined || l <= value} />
-      ),
+      label: <LevelIcon level={l} highlighted={value === undefined || l <= value} />,
     };
   });
 }
@@ -222,17 +208,14 @@ export function SelfAssessmentDialogRow({
           </span>
         )}
         {ALL_SMILEY_LEVELS.map((l) => (
-          <Tooltip
-            key={l}
-            title={(t.smileyTooltips as any)[dim]?.[l] || `Level ${l}`}
-          >
+          <Tooltip key={l} title={(t.smileyTooltips as any)[dim]?.[l] || `Level ${l}`}>
             <IconButton
               sx={{ p: '0' }}
               onClick={async () => {
                 await reportEvent({
                   type: 'self-assessment-5StepLikertSmileys',
                   concept: uri,
-                  competencies: {
+                  competences: {
                     [dim]: `smiley${l}`,
                   },
                 } as SelfAssessmentSmileysEvent);
@@ -257,9 +240,7 @@ export function SelfAssessment2({
   uri: string;
   needUpdateMarker?: any;
 }) {
-  const [smileys, setSmileys] = useState<SmileyCognitiveValues | undefined>(
-    undefined
-  );
+  const [smileys, setSmileys] = useState<SmileyCognitiveValues | undefined>(undefined);
   function onValueUpdate() {
     getUriSmileys([uri]).then((v) => setSmileys(v.get(uri)));
   }
@@ -291,9 +272,7 @@ export function SelfAssessmentDialog({
   onUpdate?: (level: SmileyCognitiveValues) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const [smileys, setSmileys] = useState<SmileyCognitiveValues | undefined>(
-    undefined
-  );
+  const [smileys, setSmileys] = useState<SmileyCognitiveValues | undefined>(undefined);
   function onValueUpdate() {
     getUriSmileys([uri]).then((v) => {
       setSmileys(v.get(uri));
@@ -332,17 +311,9 @@ export function SelfAssessmentDialog({
           onClick={() => setOpen(true)}
         >
           {dims.map((dim) => (
-            <Box
-              key={dim}
-              display="flex"
-              flexDirection="column"
-              alignItems="center"
-            >
+            <Box key={dim} display="flex" flexDirection="column" alignItems="center">
               <DimIcon dim={dim} white={false} />
-              <LevelIcon
-                level={smileyToLevel(smileys?.[dim])}
-                highlighted={true}
-              />
+              <LevelIcon level={smileyToLevel(smileys?.[dim])} highlighted={true} />
             </Box>
           ))}
         </Box>

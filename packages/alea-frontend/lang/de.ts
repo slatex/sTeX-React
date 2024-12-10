@@ -1,6 +1,6 @@
 export const de = {
   home: {
-    header: 'VoLl-KI-basierte Kurse an der FAU',
+    header: 'ALeA basierte Kurse an der FAU',
     courseSection: 'Aktuelles Semester',
     otherCourses: 'Weitere Kurse',
     guidedTourHeader: 'Themenbezogen, Freestyle-Lernen',

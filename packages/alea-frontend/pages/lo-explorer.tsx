@@ -9,12 +9,10 @@ import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SchoolIcon from '@mui/icons-material/School';
 import SearchIcon from '@mui/icons-material/Search';
-
 import {
   Alert,
   alpha,
   Autocomplete,
-  Avatar,
   Badge,
   Box,
   Button,
@@ -63,6 +61,7 @@ const handleStexCopy = (uri: string, uriType: LoType) => {
 
   if (stexSource) navigator.clipboard.writeText(stexSource);
 };
+
 interface UrlData {
   projectName: string;
   topic: string;
@@ -120,6 +119,7 @@ function UrlNameExtractor({ url }: { url: string }) {
     </Box>
   );
 }
+
 interface QuizModalProps {
   open: boolean;
   selectedItems: CartItem[];
@@ -408,9 +408,7 @@ const CartModal: React.FC<CartModalProps> = ({
                       fontWeight: 'normal',
                       fontSize: '0.75rem',
                       flex: 1,
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
+                      wordBreak:'break-word',
                       cursor: 'pointer',
                       '&:hover': {
                         color: '#1976d2',
@@ -499,7 +497,7 @@ const ALL_CONCEPT_MODES = [
 
 export type ConceptMode = (typeof ALL_CONCEPT_MODES)[number];
 const COURSES = ['AI', 'EiDA', 'GDP', 'IWGS', 'KRMT', 'LBS', 'RIP', 'TheoCS', 'meta-inf'];
-
+  
 const FilterChipList = ({
   label,
   items,
@@ -570,6 +568,7 @@ async function fetchLearningObjects(mmtUrl: string, concept: string) {
   });
   return learningObjectsByType;
 }
+
 const LoListDisplay = ({
   uris,
   selectedUri,
@@ -587,6 +586,7 @@ const LoListDisplay = ({
   handleAddToCart: (uri: string, uriType: string) => void;
   handleRemoveFromCart: (uri: string, uriType: string) => void;
 }) => {
+
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   const filteredUris = uris.filter((uri) => {
@@ -599,7 +599,7 @@ const LoListDisplay = ({
         fileName.toLowerCase().includes(term)
     );
   });
-
+    
   return (
     <Box sx={{ display: 'flex', gap: '16px', marginTop: '20px' }}>
       <Box
@@ -740,9 +740,11 @@ const LoExplorerPage = () => {
   const [isSearching, setIsSearching] = useState(false);
   const { mmtUrl } = useContext(ServerLinksContext);
   const [filteredUris, setFilteredUris] = useState<string[]>(loUris[selectedLo] || []);
+  
   useEffect(() => {
     setFilteredUris(loUris[selectedLo] || []);
   }, [selectedLo, loUris]);
+  
   useEffect(() => {
     if (chosenArchives.length > 0) {
       const filtered = (loUris[selectedLo] || []).filter((uri) => {
@@ -794,6 +796,7 @@ const LoExplorerPage = () => {
   const handleSelectionChange = (event: React.SyntheticEvent, newValue: string[]) => {
     setChosenArchives(newValue);
   };
+    
   return (
     <MainLayout title="Learning Objects | ALeA">
       <Paper elevation={3} sx={{ m: '16px' }}>
@@ -909,7 +912,6 @@ const LoExplorerPage = () => {
                   ))}
                 </Select>
               </FormControl>
-
               <Autocomplete
                 multiple
                 options={COURSES}

@@ -34,7 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     req,
     res,
     ResourceName.COURSE_QUIZ,
-    Action.MUTATE,
+    Action.PREVIEW,
     { courseId, instanceId }
   );
   if (!userId) return;
