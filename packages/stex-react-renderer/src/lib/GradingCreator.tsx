@@ -18,7 +18,7 @@ export function GradingCreator({
   const router = useRouter();
   const t = getLocaleObject(router).quiz;
   const { onNewGrading } = useContext(GradingContext);
-
+  const [isAnswerClassSelected, setIsAnswerClassSelected] = useState(false);
   const [answerClasses, setAnswerClasses] = useState(
     [...DEFAULT_ANSWER_CLASSES, ...rawAnswerClasses].map((c) => ({
       count: 0,
@@ -57,6 +57,7 @@ export function GradingCreator({
     const newAnswerClasses = answerClasses.map((answerclass) => {
       if (answerclass.className === id) {
         setSelectAnswerClass(answerclass);
+        setIsAnswerClassSelected(true);
         return { ...answerclass, count: 1 };
       }
       return { ...answerclass, count: 0 };
@@ -121,7 +122,8 @@ export function GradingCreator({
         style={{ display: 'block' }}
         onChange={(e) => setFeedBack(e.target.value)}
       />
-      <Button type="submit" variant="contained">
+
+      <Button type="submit" variant="contained" disabled={!isAnswerClassSelected}>
         {t.submit}
       </Button>
     </form>

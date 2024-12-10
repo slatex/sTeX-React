@@ -24,7 +24,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       element.isTrait === null ||
       !element.description ||
       !element.title ||
-      !element.points
+      !element.points === null
     )
       return res.status(422).end();
   }
