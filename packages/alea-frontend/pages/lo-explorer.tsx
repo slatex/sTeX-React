@@ -517,9 +517,10 @@ const FilterChipList = ({
         key={item}
         label={
           label === 'Archive' ? (
-            <Box display="flex" gap="5px">
+            <Box display="flex" alignItems="center" gap="5px">
+              <Typography variant="body2">{`${label}:`}</Typography>
               {icon}
-              {`${label}: ${projectName}`}
+              <Typography variant="body2">{projectName}</Typography>
             </Box>
           ) : (
             `${label}: ${item}`
@@ -621,26 +622,14 @@ const LoListDisplay = ({
           <Typography variant="h6" color="primary">
             {filteredUris.length} {capitalizeFirstLetter(loType)}s
           </Typography>
-          <Autocomplete
-            options={filteredUris.map((uri) => {
-              const { projectName, topic, fileName } = getUrlInfo(uri);
-              return `${projectName} ${topic} ${fileName}`;
-            })}
-            value={searchQuery}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Search"
-                variant="outlined"
-                size="small"
-                sx={{
-                  minWidth: '150px',
-                }}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            )}
-            inputValue={searchQuery}
-            onInputChange={(_, value) => setSearchQuery(value)}
+          <TextField
+            label="Search"
+            variant="outlined"
+            size="small"
+            sx={{
+              minWidth: '150px',
+            }}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </Box>
 
@@ -752,9 +741,13 @@ const LoExplorerPage = () => {
         )
       );
       uniqueProjectNames.forEach((projectName) => {
-        const projectUris = currentUris.find((uri) => getUrlInfo(uri)?.projectName === projectName);
-        uniqueProjects.push(projectName);
-        uniqueProjectUris.push(projectUris);
+        if (!uniqueProjects.includes(projectName)) {
+          const projectUris = currentUris.find(
+            (uri) => getUrlInfo(uri)?.projectName === projectName
+          );
+          uniqueProjects.push(projectName);
+          uniqueProjectUris.push(projectUris);
+        }
       });
     });
     setUniqueArchives(uniqueProjects);
@@ -841,7 +834,13 @@ const LoExplorerPage = () => {
     return uris;
   };
   useEffect(() => {
-    const counts: Record<LoType, number> = {} as any;
+    const counts: Record<LoType, number> = {
+      definition: 0,
+      problem: 0,
+      example: 0,
+      para: 0,
+      statement: 0,
+    };
     ALL_LO_TYPES.forEach((loType) => {
       counts[loType] = calculateFilteredUris(loType).length;
     });
@@ -966,6 +965,7 @@ const LoExplorerPage = () => {
                 multiple
                 options={uniqueArchives}
                 value={chosenArchives}
+                limitTags={1}
                 onChange={handleSelectionChange}
                 renderInput={(params) => <TextField {...params} label="Archives" />}
                 renderOption={(props, option, { selected }) => {
@@ -980,45 +980,29 @@ const LoExplorerPage = () => {
                     </li>
                   );
                 }}
-                renderTags={(value, getTagProps) => {
-                  return (
-                    <Box
-                      display="flex"
-                      sx={{
-                        overflowY: 'auto',
-                        flexWrap: 'wrap',
-                        width: '100%',
-                      }}
-                    >
-                      {value.map((selectedOption, index) => {
-                        const { icon } = getUrlInfo(
-                          uniqueArchiveUris.find(
-                            (uri) => getUrlInfo(uri).projectName === selectedOption
-                          )
-                        );
-
-                        return (
-                          <Box
-                            key={selectedOption}
-                            sx={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 1,
-                            }}
-                          >
+                renderTags={(value, getTagProps) =>
+                  value.map((selectedOption, index) => {
+                    const uri = uniqueArchiveUris.find(
+                      (uri) => getUrlInfo(uri)?.projectName === selectedOption
+                    );
+                    const { icon } = getUrlInfo(uri) || {};
+                    return (
+                      <Chip
+                        key={selectedOption}
+                        label={
+                          <Box display="flex" alignItems="center" gap={1}>
                             {icon}
-                            <Typography variant="body2" {...getTagProps({ index })}>
-                              {selectedOption}
-                            </Typography>
+                            <Typography variant="body2">{selectedOption}</Typography>
                           </Box>
-                        );
-                      })}
-                    </Box>
-                  );
-                }}
+                        }
+                        {...getTagProps({ index })}
+                      />
+                    );
+                  })
+                }
+                sx={{ flex: '1 ' }}
                 disableCloseOnSelect
                 fullWidth
-                sx={{ flex: 1, maxWidth: '33.33%' }}
               />
             </Box>
           </Box>
