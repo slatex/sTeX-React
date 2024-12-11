@@ -529,33 +529,6 @@ export const DEFAULT_ANSWER_CLASSES: Readonly<AnswerClass[]> = [
     isTrait: false,
   },
   {
-    className: 'ac-default-03',
-    title: 'Empty',
-    description: 'Student has left this question entirely or mostly blank.',
-    points: 0,
-    closed: true,
-    isTrait: false,
-  },
-  {
-    className: 'ac-default-04',
-    title: 'Crossed out',
-    description: 'Student has crossed out all answers.',
-
-    points: 0,
-    closed: true,
-    isTrait: false,
-  },
-  {
-    className: 'ac-default-05',
-    title: 'Illegible',
-    description:
-      "Student's answer to this question cannot be incomprehensible despite honest effort.",
-
-    points: 0,
-    closed: true,
-    isTrait: false,
-  },
-  {
     className: 'ac-default-06',
     title: 'Correct, but...',
     description: "Student's answer is mostly correct.",
@@ -567,14 +540,6 @@ export const DEFAULT_ANSWER_CLASSES: Readonly<AnswerClass[]> = [
     className: 'ac-default-07',
     title: 'Wrong, but...',
     description: "Student's answer is mostly wrong.",
-    isTrait: false,
-    points: 0,
-    closed: false,
-  },
-  {
-    className: 'ac-default-08',
-    title: 'Abandoned',
-    description: 'Abandoned',
     isTrait: false,
     points: 0,
     closed: false,
