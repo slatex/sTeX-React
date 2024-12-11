@@ -6,8 +6,8 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DeviceHubIcon from '@mui/icons-material/DeviceHub';
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SchoolIcon from '@mui/icons-material/School';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import {
   Alert,
   alpha,
@@ -841,7 +841,7 @@ const LoExplorerPage = () => {
     return uris;
   };
   useEffect(() => {
-    const counts = {};
+    const counts: Record<LoType, number> = {} as any;
     ALL_LO_TYPES.forEach((loType) => {
       counts[loType] = calculateFilteredUris(loType).length;
     });
