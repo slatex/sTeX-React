@@ -6,12 +6,12 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DeviceHubIcon from '@mui/icons-material/DeviceHub';
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SchoolIcon from '@mui/icons-material/School';
-
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import {
   Alert,
   alpha,
+  Autocomplete,
   Box,
   Button,
   Checkbox,
@@ -59,90 +59,63 @@ const handleStexCopy = (uri: string, uriType: LoType) => {
 
   if (stexSource) navigator.clipboard.writeText(stexSource);
 };
+interface UrlData {
+  projectName: string;
+  topic: string;
+  fileName: string;
+  icon?: JSX.Element;
+}
 
-function UrlNameExtractor({ url }: { url: string }) {
+function getUrlInfo(url: string): UrlData {
   const [archive, filePath] = extractProjectIdAndFilepath(url);
   const fileParts = filePath.split('/');
   const fileName = fileParts[fileParts.length - 1].split('.')[0];
-
+  let projectName = '';
+  let topic = '';
+  let icon = null;
+  const projectParts = archive.split('/');
   if (archive.startsWith('courses/')) {
-    const projectParts = archive.split('/');
-    const projectName = projectParts[2];
-    const topic = fileParts[0];
-    return (
-      <Box display="flex" flexWrap="wrap" sx={{ gap: '5px' }}>
-        {projectName}
-        <SchoolIcon sx={{ color: 'primary.main', fontSize: '18px' }} />
-        {topic}
-        <Box sx={{ wordBreak: 'break-word' }}>{fileName}</Box>
-      </Box>
-    );
+    projectName = projectParts[2];
+    topic = fileParts[0];
+    icon = <SchoolIcon sx={{ color: 'primary.main', fontSize: '18px' }} />;
+  } else if (archive.startsWith('problems/')) {
+    projectName = projectParts[1];
+    topic = fileParts[0];
+    icon = <Quiz sx={{ color: 'primary.main', fontSize: '18px' }} />;
+  } else if (archive.startsWith('KwarcMH/')) {
+    projectName = projectParts[0];
+    topic = fileParts[0];
+    icon = <SchoolIcon sx={{ color: 'primary.main', fontSize: '18px' }} />;
+  } else if (archive.startsWith('smglom/')) {
+    projectName = projectParts[0];
+    topic = projectParts[1];
+    icon = <Book sx={{ color: 'primary.main', fontSize: '18px' }} />;
+  } else if (archive.startsWith('mkohlhase/')) {
+    projectName = projectParts[0];
+    topic = fileParts[0];
+    icon = <SupervisedUserCircle sx={{ color: 'primary.main', fontSize: '18px' }} />;
+  } else if (archive.startsWith('talks/')) {
+    projectName = projectParts[0];
+    topic = projectParts[1];
+    icon = <MicExternalOn sx={{ color: 'primary.main', fontSize: '18px' }} />;
   }
 
-  if (archive.startsWith('problems/')) {
-    const projectParts = archive.split('/');
-    const projectName = projectParts[1];
-    const topic = fileParts[0];
-
-    return (
-      <Box display="flex" flexWrap="wrap" sx={{ gap: '5px' }}>
-        {projectName}
-        <Quiz sx={{ color: 'primary.main', fontSize: '18px' }} />
-        {topic}
-        <Box sx={{ wordBreak: 'break-word' }}>{fileName}</Box>
-      </Box>
-    );
-  }
-
-  if (archive.startsWith('KwarcMH/')) {
-    const projectName = archive.split('/')[0];
-    const topic = fileParts[0];
-    return (
-      <Box display="flex" flexWrap="wrap" sx={{ gap: '5px' }}>
-        {projectName} <SchoolIcon sx={{ color: 'primary.main', fontSize: '18px' }} />
-        {topic} {fileName}
-      </Box>
-    );
-  }
-
-  if (archive.startsWith('smglom/')) {
-    const projectParts = archive.split('/');
-    const projectName = projectParts[0];
-    const topic = projectParts[1];
-    return (
-      <Box display="flex" flexWrap="wrap" sx={{ gap: '5px' }}>
-        {projectName} <Book sx={{ color: 'primary.main', fontSize: '18px' }} />
-        {topic} {fileName}
-      </Box>
-    );
-  }
-
-  if (archive.startsWith('mkohlhase/')) {
-    const projectName = archive.split('/')[0];
-    const topic = fileParts[0];
-    return (
-      <Box display="flex" flexWrap="wrap" sx={{ gap: '5px' }}>
-        {projectName} <SupervisedUserCircle sx={{ color: 'primary.main', fontSize: '18px' }} />
-        {topic} {fileName}
-      </Box>
-    );
-  }
-
-  if (archive.startsWith('talks/')) {
-    const projectParts = archive.split('/');
-    const projectName = projectParts[0];
-    const topic = projectParts[1];
-    return (
-      <Box display="flex" flexWrap="wrap" sx={{ gap: '5px' }}>
-        {projectName} <MicExternalOn sx={{ color: 'primary.main', fontSize: '18px' }} />
-        {topic} {fileName}
-      </Box>
-    );
-  }
-
-  return <Box>{url}</Box>;
+  return { projectName, topic, fileName, icon };
 }
-
+function UrlNameExtractor({ url }: { url: string }) {
+  const { projectName, topic, fileName, icon } = getUrlInfo(url);
+  if (!projectName) {
+    return <Box>{url}</Box>;
+  }
+  return (
+    <Box display="flex" flexWrap="wrap" sx={{ gap: '5px' }}>
+      {projectName}
+      {icon && icon}
+      {topic}
+      <Box sx={{ wordBreak: 'break-word' }}>{fileName}</Box>
+    </Box>
+  );
+}
 interface QuizModalProps {
   open: boolean;
   selectedItems: CartItem[];
@@ -431,7 +404,7 @@ const CartModal: React.FC<CartModalProps> = ({
                       fontWeight: 'normal',
                       fontSize: '0.75rem',
                       flex: 1,
-                      wordBreak:'break-word',
+                      wordBreak: 'break-word',
                       cursor: 'pointer',
                       '&:hover': {
                         color: '#1976d2',
@@ -441,7 +414,6 @@ const CartModal: React.FC<CartModalProps> = ({
                   >
                     <UrlNameExtractor url={item.uri} />
                   </Typography>
-
                   <Tooltip title="Copy as STeX" arrow>
                     <IconButton
                       color="primary"
@@ -460,7 +432,6 @@ const CartModal: React.FC<CartModalProps> = ({
                       e.stopPropagation();
                       if (displayedItem?.uri === item.uri) {
                         setDisplayedItem(undefined);
-                        console.log('deleteing');
                       }
                       handleRemoveFromCart(item.uri, item.uriType);
                     }}
@@ -520,8 +491,6 @@ const ALL_CONCEPT_MODES = [
 ] as const;
 
 export type ConceptMode = (typeof ALL_CONCEPT_MODES)[number];
-const COURSES = ['AI1', 'AI2'];
-
 const FilterChipList = ({
   label,
   items,
@@ -536,17 +505,31 @@ const FilterChipList = ({
       ? '#b3e5fc'
       : label === 'LO'
       ? '#fbe9e7'
-      : label === 'Course'
+      : label === 'Archive'
       ? '#c8e6c9'
       : 'rgba(224, 224, 224, 0.4)';
-  return items.map((item) => (
-    <Chip
-      key={item}
-      label={`${label}: ${item}`}
-      onDelete={() => setItems((prev) => prev.filter((v) => v !== item))}
-      sx={{ m: 0.5, bgcolor }}
-    />
-  ));
+
+  return items.map((item) => {
+    const { icon, projectName } =
+      label === 'Archive' ? getUrlInfo(item) : { icon: null, projectName: null };
+    return (
+      <Chip
+        key={item}
+        label={
+          label === 'Archive' ? (
+            <Box display="flex" gap="5px">
+              {icon}
+              {`${label}: ${projectName}`}
+            </Box>
+          ) : (
+            `${label}: ${item}`
+          )
+        }
+        onDelete={() => setItems((prev) => prev.filter((v) => v !== item))}
+        sx={{ m: 0.5, bgcolor }}
+      />
+    );
+  });
 };
 
 async function fetchLearningObjects(mmtUrl: string, concept: string) {
@@ -582,7 +565,6 @@ async function fetchLearningObjects(mmtUrl: string, concept: string) {
   });
   return learningObjectsByType;
 }
-
 const LoListDisplay = ({
   uris,
   selectedUri,
@@ -600,6 +582,18 @@ const LoListDisplay = ({
   handleAddToCart: (uri: string, uriType: string) => void;
   handleRemoveFromCart: (uri: string, uriType: string) => void;
 }) => {
+  const [searchQuery, setSearchQuery] = useState<string>('');
+
+  const filteredUris = uris.filter((uri) => {
+    const { projectName, topic, fileName } = getUrlInfo(uri);
+    const searchTerms = searchQuery.toLowerCase().split(/\s+/);
+    return searchTerms.every(
+      (term) =>
+        projectName.toLowerCase().includes(term) ||
+        topic.toLowerCase().includes(term) ||
+        fileName.toLowerCase().includes(term)
+    );
+  });
   return (
     <Box sx={{ display: 'flex', gap: '16px', marginTop: '20px' }}>
       <Box
@@ -613,14 +607,44 @@ const LoListDisplay = ({
           boxShadow: 'inset 0 4px 8px rgba(0, 0, 0, 0.1)',
         }}
       >
-        <Typography
-          variant="h6"
-          color={PRIMARY_COL}
-          sx={{ marginBottom: '16px', fontWeight: 'bold' }}
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '8px',
+            marginBottom: '16px',
+            width: '100%',
+          }}
         >
-          {uris.length} {capitalizeFirstLetter(loType)}s
-        </Typography>
-        {uris.map((uri, index) => {
+          <Typography variant="h6" color="primary">
+            {filteredUris.length} {capitalizeFirstLetter(loType)}s
+          </Typography>
+          <Autocomplete
+            options={filteredUris.map((uri) => {
+              const { projectName, topic, fileName } = getUrlInfo(uri);
+              return `${projectName} ${topic} ${fileName}`;
+            })}
+            value={searchQuery}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Search"
+                variant="outlined"
+                size="small"
+                sx={{
+                  minWidth: '150px',
+                }}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            )}
+            inputValue={searchQuery}
+            onInputChange={(_, value) => setSearchQuery(value)}
+          />
+        </Box>
+
+        {filteredUris.map((uri, index) => {
           const isInCart = cart.some((item) => item.uri === uri && item.uriType === loType);
           return (
             <Paper
@@ -652,7 +676,6 @@ const LoListDisplay = ({
                 onClick={() => setSelectedUri(uri)}
               >
                 <UrlNameExtractor url={uri} />
-
               </Typography>
 
               <Tooltip title="Copy as STeX" arrow>
@@ -689,7 +712,8 @@ const LoExplorerPage = () => {
   const [concept, setConcept] = useState('');
   const [chosenModes, setChosenModes] = useState<ConceptMode[]>([]);
   const [chosenLoTypes, setChosenLoTypes] = useState<LoType[]>([]);
-  const [chosenCourses, setChosenCourses] = useState<string[]>([]);
+  const [chosenArchives, setChosenArchives] = useState<string[]>([]);
+  const [chosenArchivesUris, setChosenArchivesUris] = useState<string[]>([]);
   const [loUris, setLoUris] = useState<Record<LoType, string[]>>({
     definition: [],
     problem: [],
@@ -703,8 +727,66 @@ const LoExplorerPage = () => {
   const [showCart, setShowCart] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const { mmtUrl } = useContext(ServerLinksContext);
+  const [filteredUris, setFilteredUris] = useState<string[]>(loUris[selectedLo] || []);
+  const [uniqueArchives, setUniqueArchives] = useState<string[]>([]);
+  const [uniqueArchiveUris, setUniqueArchiveUris] = useState<string[]>([]);
+  const [filteredCounts, setFilteredCounts] = useState<Record<LoType, number>>({
+    definition: 0,
+    problem: 0,
+    example: 0,
+    para: 0,
+    statement: 0,
+  });
+  useEffect(() => {
+    setFilteredUris(loUris[selectedLo] || []);
+  }, [selectedLo, loUris]);
 
-  const filteredUris = loUris[selectedLo] || [];
+  useEffect(() => {
+    const uniqueProjects: string[] = [];
+    const uniqueProjectUris: string[] = [];
+    Object.keys(loUris).forEach((loType) => {
+      const currentUris = loUris[loType as LoType] || [];
+      const uniqueProjectNames = Array.from(
+        new Set(
+          currentUris.filter((uri) => uri !== undefined).map((uri) => getUrlInfo(uri)?.projectName)
+        )
+      );
+      uniqueProjectNames.forEach((projectName) => {
+        const projectUris = currentUris.find((uri) => getUrlInfo(uri)?.projectName === projectName);
+        uniqueProjects.push(projectName);
+        uniqueProjectUris.push(projectUris);
+      });
+    });
+    setUniqueArchives(uniqueProjects);
+    setUniqueArchiveUris(uniqueProjectUris);
+  }, [loUris]);
+  useEffect(() => {
+    const uris = chosenArchives.map((projectName) => {
+      return uniqueArchiveUris.find((uri) => getUrlInfo(uri)?.projectName === projectName);
+    });
+    if (JSON.stringify(uris) !== JSON.stringify(chosenArchivesUris)) {
+      setChosenArchivesUris(uris);
+    }
+  }, [chosenArchives]);
+
+  useEffect(() => {
+    const archives = chosenArchivesUris.map((uri) => getUrlInfo(uri)?.projectName);
+    if (JSON.stringify(archives) !== JSON.stringify(chosenArchives)) {
+      setChosenArchives(archives);
+    }
+  }, [chosenArchivesUris]);
+
+  useEffect(() => {
+    if (chosenArchives.length > 0) {
+      const filtered = (loUris[selectedLo] || []).filter((uri) => {
+        const { projectName } = getUrlInfo(uri);
+        return chosenArchives.some(
+          (archive) => archive.toLowerCase() === projectName.toLowerCase()
+        );
+      });
+      setFilteredUris(filtered);
+    } else setFilteredUris(loUris[selectedLo] || []);
+  }, [chosenArchives, selectedLo, loUris]);
 
   useEffect(() => {
     const storedCart = JSON.parse(localStore?.getItem('lo-cart')) || [];
@@ -742,6 +824,29 @@ const LoExplorerPage = () => {
     setCart((prev) => prev.filter((item) => !(item.uri === uri && item.uriType === uriType)));
   };
 
+  const handleSelectionChange = (event: any, newValue: string[]) => {
+    setChosenArchives(newValue);
+  };
+
+  const calculateFilteredUris = (loType) => {
+    const uris = loUris[loType] || [];
+    if (chosenArchives.length > 0) {
+      return uris.filter((uri) => {
+        const { projectName } = getUrlInfo(uri);
+        return chosenArchives.some(
+          (archive) => archive.toLowerCase() === projectName?.toLowerCase()
+        );
+      });
+    }
+    return uris;
+  };
+  useEffect(() => {
+    const counts: Record<LoType, number> = {} as any;
+    ALL_LO_TYPES.forEach((loType) => {
+      counts[loType] = calculateFilteredUris(loType).length;
+    });
+    setFilteredCounts(counts);
+  }, [loUris, chosenArchives]);
   return (
     <MainLayout title="Learning Objects | ALeA">
       <Paper elevation={3} sx={{ m: '16px' }}>
@@ -810,7 +915,6 @@ const LoExplorerPage = () => {
                 {isSearching && <CircularProgress size={20} sx={{ mr: 1 }} />}Search
               </Button>
             </Box>
-
             <Box
               sx={{
                 display: 'flex',
@@ -819,7 +923,7 @@ const LoExplorerPage = () => {
                 width: '100%',
               }}
             >
-              <FormControl fullWidth>
+              <FormControl fullWidth sx={{ flex: 1 }}>
                 <InputLabel id="concept-mode-label">Concept Modes</InputLabel>
                 <Select
                   labelId="concept-mode-label"
@@ -839,7 +943,7 @@ const LoExplorerPage = () => {
                 </Select>
               </FormControl>
 
-              <FormControl fullWidth>
+              <FormControl fullWidth sx={{ flex: 1 }}>
                 <InputLabel id="learning-object-type-label">Learning Object Types</InputLabel>
                 <Select
                   labelId="learning-object-type-label"
@@ -858,27 +962,67 @@ const LoExplorerPage = () => {
                 </Select>
               </FormControl>
 
-              <FormControl fullWidth>
-                <InputLabel id="courses-label">Courses</InputLabel>
-                <Select
-                  labelId="courses-label"
-                  label="Courses"
-                  multiple
-                  value={chosenCourses}
-                  onChange={(e) => setChosenCourses(e.target.value as string[])}
-                  renderValue={() => renderDropdownLabel(chosenCourses)}
-                >
-                  {COURSES.map((item) => (
-                    <MenuItem key={item} value={item}>
-                      <Checkbox checked={chosenCourses.includes(item)} />
-                      <ListItemText primary={item} />
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <Autocomplete
+                multiple
+                options={uniqueArchives}
+                value={chosenArchives}
+                onChange={handleSelectionChange}
+                renderInput={(params) => <TextField {...params} label="Archives" />}
+                renderOption={(props, option, { selected }) => {
+                  const { icon } = getUrlInfo(
+                    uniqueArchiveUris.find((uri) => getUrlInfo(uri).projectName === option)
+                  );
+                  return (
+                    <li {...props}>
+                      <Checkbox checked={selected} />
+                      <ListItemText primary={option} />
+                      {icon}
+                    </li>
+                  );
+                }}
+                renderTags={(value, getTagProps) => {
+                  return (
+                    <Box
+                      display="flex"
+                      sx={{
+                        overflowY: 'auto',
+                        flexWrap: 'wrap',
+                        width: '100%',
+                      }}
+                    >
+                      {value.map((selectedOption, index) => {
+                        const { icon } = getUrlInfo(
+                          uniqueArchiveUris.find(
+                            (uri) => getUrlInfo(uri).projectName === selectedOption
+                          )
+                        );
+
+                        return (
+                          <Box
+                            key={selectedOption}
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 1,
+                            }}
+                          >
+                            {icon}
+                            <Typography variant="body2" {...getTagProps({ index })}>
+                              {selectedOption}
+                            </Typography>
+                          </Box>
+                        );
+                      })}
+                    </Box>
+                  );
+                }}
+                disableCloseOnSelect
+                fullWidth
+                sx={{ flex: 1, maxWidth: '33.33%' }}
+              />
             </Box>
           </Box>
-          {(!!chosenModes.length || !!chosenLoTypes.length || !!chosenCourses.length) && (
+          {(!!chosenModes.length || !!chosenLoTypes.length || !!chosenArchives.length) && (
             <Box
               sx={{
                 mb: '20px',
@@ -892,7 +1036,11 @@ const LoExplorerPage = () => {
             >
               <FilterChipList label="Mode" items={chosenModes} setItems={setChosenModes} />
               <FilterChipList label="LO" items={chosenLoTypes} setItems={setChosenLoTypes} />
-              <FilterChipList label="Course" items={chosenCourses} setItems={setChosenCourses} />
+              <FilterChipList
+                label="Archive"
+                items={chosenArchivesUris}
+                setItems={setChosenArchivesUris}
+              />
             </Box>
           )}
 
@@ -904,7 +1052,7 @@ const LoExplorerPage = () => {
                 sx={{ '&:hover': { backgroundColor: 'primary.light', color: 'white' } }}
                 onClick={() => setSelectedLo(lo)}
               >
-                {lo} ({loUris[lo]?.length || 0})
+                ({lo} {filteredCounts[lo] || 0})
               </Button>
             ))}
           </Box>

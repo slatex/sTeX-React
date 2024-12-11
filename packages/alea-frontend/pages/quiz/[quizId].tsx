@@ -11,13 +11,15 @@ import {
 } from '@stex-react/api';
 import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
 import { QuizDisplay } from '@stex-react/stex-react-renderer';
-import { Action, localStore, ResourceName } from '@stex-react/utils';
+import { Action, CURRENT_TERM, localStore, ResourceName } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { ForceFauLogin } from '../../components/ForceFAULogin';
+import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
+import { handleEnrollment } from '../course-home/[courseId]';
 
 function ToBeStarted({ quizStartTs }: { quizStartTs?: number }) {
   const [showReload, setShowReload] = useState(false);
@@ -97,6 +99,7 @@ function isFinishedFromLocalStore(quizId: string) {
 const QuizPage: NextPage = () => {
   const router = useRouter();
   const quizId = router.query.quizId as string;
+  const { quiz: q } = getLocaleObject(router);
 
   const [problems, setProblems] = useState<{ [problemId: string]: Problem }>({});
   const [finished, setFinished] = useState(false);
@@ -104,14 +107,21 @@ const QuizPage: NextPage = () => {
   const [quizInfo, setQuizInfo] = useState<GetQuizResponse | undefined>(undefined);
   const [moderatorPhase, setModeratorPhase] = useState<Phase>(undefined);
   const [debuggerMode, setDebuggerMode] = useState<boolean>(false);
-  const [forceFauLogin, setForceFauLogin] = useState(false);
-
+  const [enrolled, setIsEnrolled] = useState<boolean>(false);
   const clientQuizEndTimeMs = getClientEndTimeMs(quizInfo);
   const clientQuizStartTimeMs = getClientStartTimeMs(quizInfo);
 
   const phase = moderatorPhase ?? quizInfo?.phase;
   const courseId = quizInfo?.courseId;
   const instanceId = quizInfo?.courseTerm;
+
+  const [forceFauLogin, setForceFauLogin] = useState(false);
+
+  const enrollInCourse = async () => {
+    if (!userInfo.userId || !courseId) return;
+    const enrollmentSuccess = await handleEnrollment(userInfo.userId, courseId, CURRENT_TERM);
+    setIsEnrolled(enrollmentSuccess);
+  };
 
   useEffect(() => {
     getUserInfo().then((i) => {
@@ -178,6 +188,18 @@ const QuizPage: NextPage = () => {
     });
   }, [courseId, instanceId]);
 
+  useEffect(() => {
+    if (!courseId) return;
+    const checkAccess = async () => {
+      const hasAccess = await canAccessResource(ResourceName.COURSE_QUIZ, Action.TAKE, {
+        courseId,
+        instanceId: CURRENT_TERM,
+      });
+      setIsEnrolled(hasAccess);
+    };
+    checkAccess();
+  }, [courseId]);
+
   if (!quizId) return null;
   if (forceFauLogin) {
     return (
@@ -186,6 +208,32 @@ const QuizPage: NextPage = () => {
       </MainLayout>
     );
   }
+
+  // if (!enrolled) {
+  //   return (
+  //     <MainLayout title="Quizzes | VoLL-KI">
+  //       <Box
+  //         p="20px"
+  //         sx={{
+  //           display: 'flex',
+  //           alignItems: 'center',
+  //           gap: '10px',
+  //           justifyContent: 'center',
+  //           flexDirection: 'column',
+  //         }}
+  //       >
+  //         <Typography variant="h6">
+  //           You are not enrolled in this course. Please click the &quot;Enroll&quot; button to
+  //           access the quiz.
+  //         </Typography>
+  //         <Button onClick={enrollInCourse} variant="contained" sx={{ backgroundColor: 'green' }}>
+  //           {q.getEnrolled}
+  //           <SchoolIcon />
+  //         </Button>
+  //       </Box>
+  //     </MainLayout>
+  //   );
+  // }
 
   return (
     <MainLayout title="Quizzes | ALeA">

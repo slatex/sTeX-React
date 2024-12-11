@@ -4,9 +4,16 @@ import Diversity3Icon from '@mui/icons-material/Diversity3';
 import PersonIcon from '@mui/icons-material/Person';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import QuizIcon from '@mui/icons-material/Quiz';
+import SchoolIcon from '@mui/icons-material/School';
 import SearchIcon from '@mui/icons-material/Search';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
-import { canAccessResource, getCourseInfo } from '@stex-react/api';
+import {
+  addRemoveMember,
+  canAccessResource,
+  getCourseInfo,
+  getUserInfo,
+  UserInfo,
+} from '@stex-react/api';
 
 import {
   Box,
@@ -38,6 +45,28 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import { RecordedSyllabus } from '../../components/RecordedSyllabus';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
+
+export async function handleEnrollment(userId: string, courseId: string, currentTerm: string) {
+  if (!userId || userId.length !== 8 || userId.includes('@')) {
+    alert('Please Login Using FAU Id.');
+    return false;
+  }
+
+  try {
+    await addRemoveMember({
+      memberId: userId,
+      aclId: `${courseId}-${currentTerm}-enrollments`,
+      isAclMember: false,
+      toBeAdded: true,
+    });
+    alert('Enrollment successful!');
+    return true;
+  } catch (error) {
+    console.error('Error during enrollment:', error);
+    alert('Enrollment failed. Please try again.');
+    return false;
+  }
+}
 
 function CourseComponentLink({ href, children }: { href: string; children: any }) {
   return (
@@ -125,11 +154,31 @@ const CourseHomePage: NextPage = () => {
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState('');
   const { mmtUrl } = useContext(ServerLinksContext);
-  const [isInstructor, setIsInstructor] = useState<boolean>(false);
+  const [isInstructor, setIsInstructor] = useState(false);
+  const [userId, setUserId] = useState<string | undefined>(undefined);
+  const [enrolled, setIsEnrolled] = useState(false);
+
+  useEffect(() => {
+    getUserInfo().then((userInfo: UserInfo) => {
+      setUserId(userInfo?.userId);
+    });
+  }, []);
 
   useEffect(() => {
     if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
   }, [mmtUrl]);
+
+  useEffect(() => {
+    if (!courseId) return;
+    const checkAccess = async () => {
+      const hasAccess = await canAccessResource(ResourceName.COURSE_QUIZ, Action.TAKE, {
+        courseId,
+        instanceId: CURRENT_TERM,
+      });
+      setIsEnrolled(hasAccess);
+    };
+    checkAccess();
+  }, [courseId]);
 
   useEffect(() => {
     if (!courseId) return;
@@ -141,12 +190,12 @@ const CourseHomePage: NextPage = () => {
       { resource: ResourceName.COURSE_ACCESS, action: Action.ACCESS_CONTROL },
     ];
     async function checkAccess() {
-      for(const { resource, action } of instructorActions) {
+      for (const { resource, action } of instructorActions) {
         const hasAccess = await canAccessResource(resource, action, {
           courseId,
           instanceId: CURRENT_TERM,
         });
-        if(hasAccess){
+        if (hasAccess) {
           setIsInstructor(true);
           return;
         }
@@ -165,7 +214,7 @@ const CourseHomePage: NextPage = () => {
   const { notesLink, slidesLink, cardsLink, forumLink, quizzesLink, hasQuiz } = courseInfo;
 
   const locale = router.locale || 'en';
-  const { home, courseHome: tCourseHome } = getLocaleObject(router);
+  const { home, courseHome: tCourseHome, quiz: q } = getLocaleObject(router);
   const t = home.courseThumb;
 
   const showSearchBar = ['ai-1', 'ai-2', 'iwgs-1', 'iwgs-2'].includes(courseId);
@@ -178,6 +227,13 @@ const CourseHomePage: NextPage = () => {
       handleSearch();
     }
   };
+
+  const enrollInCourse = async () => {
+    if (!userId || !courseId) return;
+    const enrollmentSuccess = await handleEnrollment(userId, courseId, CURRENT_TERM);
+    setIsEnrolled(enrollmentSuccess);
+  };
+
   return (
     <MainLayout
       title={(courseId || '').toUpperCase() + ` ${tCourseHome.title} | ALeA`}
@@ -239,6 +295,33 @@ const CourseHomePage: NextPage = () => {
             </CourseComponentLink>
           )}
         </Box>
+        {!enrolled && (
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              flexDirection: 'column',
+              marginTop: '10px',
+            }}
+          >
+            <Button
+              onClick={enrollInCourse}
+              variant="contained"
+              sx={{
+                backgroundColor: 'green',
+                width: 'max-content',
+                alignSelf: 'center',
+                marginBottom: '10px',
+              }}
+            >
+              {q.getEnrolled}
+              <SchoolIcon />
+            </Button>
+            {/* <Alert severity="info" sx={{ display: 'flex', justifyContent: 'center' }}>
+              {q.enrollmentMessage}
+            </Alert> */}
+          </Box>
+        )}
         {showSearchBar && (
           <Box
             sx={{
