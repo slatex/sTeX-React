@@ -25,7 +25,6 @@ export function GradingCreator({
   const router = useRouter();
   const t = getLocaleObject(router).quiz;
   const { onNewGrading } = useContext(GradingContext);
-
   const [answerClasses, setAnswerClasses] = useState(
     [...DEFAULT_ANSWER_CLASSES, ...rawAnswerClasses].map((c) => ({
       count: 0,
@@ -34,9 +33,9 @@ export function GradingCreator({
   );
 
   const [feedback, setFeedBack] = useState('');
-  const [selectedAnswerClass, setSelectAnswerClass] = useState<AnswerClass>(
-    DEFAULT_ANSWER_CLASSES[0]
-  );
+  const [selectedAnswerClass, setSelectAnswerClass] = useState<AnswerClass | undefined>(undefined);
+  const isAnswerClassSelected = !!selectedAnswerClass;
+
   useEffect(() => {
     setAnswerClasses(
       [...DEFAULT_ANSWER_CLASSES, ...rawAnswerClasses].map((c) => ({
@@ -84,7 +83,7 @@ export function GradingCreator({
         count: c.count,
       }))
       .filter((c) => c.count > 0);
-    onNewGrading(subProblemId, acs, feedback);
+    onNewGrading?.(subProblemId, acs, feedback);
     setFeedBack('');
     setSelectAnswerClass(answerClasses[0]);
   }
@@ -134,7 +133,8 @@ export function GradingCreator({
         style={{ display: 'block' }}
         onChange={(e) => setFeedBack(e.target.value)}
       />
-      <Button type="submit" variant="contained">
+
+      <Button type="submit" variant="contained" disabled={!isAnswerClassSelected}>
         {t.submit}
       </Button>
     </form>
