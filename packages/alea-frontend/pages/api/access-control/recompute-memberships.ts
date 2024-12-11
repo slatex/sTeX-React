@@ -1,32 +1,29 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { CACHE_STORE } from '../acl-utils/cache-store';
 import { ACLMembership, Flattening } from '../acl-utils/flattening';
-import { executeAndEndSet500OnError } from '../comment-utils';
 import { initializeResourceCache } from '../acl-utils/resourceaccess-utils/resource-store';
+import { executeQueryAndEnd } from '../comment-utils';
 
-export async function recomputeMembership(): Promise<void> {
-  const aclMemberships = await executeAndEndSet500OnError<ACLMembership[]>(
+export async function recomputeMemberships(): Promise<boolean> {
+  const aclMemberships = await executeQueryAndEnd<ACLMembership[]>(
     'SELECT * FROM ACLMembership',
-    [],
-    null
+    []
   );
+  if (!aclMemberships || !Array.isArray(aclMemberships)) return false;
   const flattening = new Flattening(aclMemberships, CACHE_STORE);
-  const acls = await executeAndEndSet500OnError<{ id: string }[]>(
-    `SELECT id FROM AccessControlList`,
-    [],
-    null
-  );
+
+  const acls = await executeQueryAndEnd<{ id: string }[]>(`SELECT id FROM AccessControlList`, []);
+  if (!acls || !Array.isArray(acls)) return false;
   for (const acl of acls) {
     await flattening.cacheAndGetFlattenedMembers(acl.id);
   }
+
   await initializeResourceCache();
+  return true;
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  try {
-    await recomputeMembership();
-    res.status(200).end();
-  } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error', details: error.message });
-  }
+  const success = await recomputeMemberships();
+  if (success) res.status(200).end();
+  else return res.status(500).send('Failed to recompute memberships');
 }

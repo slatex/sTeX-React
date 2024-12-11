@@ -8,7 +8,7 @@ import {
   isCurrentUserMemberOfAClupdater,
   validateMemberAndAclIds,
 } from '../acl-utils/acl-common-utils';
-import { recomputeMembership } from './recompute-memberships';
+import { recomputeMemberships } from './recompute-memberships';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
@@ -40,6 +40,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const resp = await executeAndEndSet500OnError(memberQuery, memberQueryParams, res);
     if (!resp) return;
   }
-  await recomputeMembership();
+  await recomputeMemberships();
   return res.status(204).end();
 }

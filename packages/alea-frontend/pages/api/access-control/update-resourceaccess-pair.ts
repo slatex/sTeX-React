@@ -5,7 +5,7 @@ import {
   getUserIdOrSetError,
 } from '../comment-utils';
 import { canUpdateAccessControlEntries } from './resource-utils';
-import { recomputeMembership } from './recompute-memberships';
+import { recomputeMemberships } from './recompute-memberships';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
@@ -22,6 +22,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   `;
   const result = await executeAndEndSet500OnError(query, [aclId, resourceId, actionId], res);
   if (!result) return;
-  await recomputeMembership();
+  await recomputeMemberships();
   res.status(204).end();
 }

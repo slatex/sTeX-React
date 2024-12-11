@@ -6,7 +6,7 @@ import {
   executeAndEndSet500OnError,
   getUserIdOrSetError,
 } from '../comment-utils';
-import { recomputeMembership } from './recompute-memberships';
+import { recomputeMemberships } from './recompute-memberships';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
@@ -45,6 +45,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     params = [aclId, memberId];
   }
   await executeAndEndSet500OnError(query, params, res);
-  await recomputeMembership();
+  await recomputeMemberships();
   res.status(200).end();
 }

@@ -1,5 +1,4 @@
-import SchoolIcon from '@mui/icons-material/School';
-import { Box, Button, CircularProgress, Typography } from '@mui/material';
+import { Box, Button, CircularProgress } from '@mui/material';
 import {
   canAccessResource,
   getQuiz,
@@ -18,9 +17,9 @@ import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { ForceFauLogin } from '../../components/ForceFAULogin';
+import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
 import { handleEnrollment } from '../course-home/[courseId]';
-import { getLocaleObject } from '../../lang/utils';
 
 function ToBeStarted({ quizStartTs }: { quizStartTs?: number }) {
   const [showReload, setShowReload] = useState(false);
@@ -121,9 +120,8 @@ const QuizPage: NextPage = () => {
   const enrollInCourse = async () => {
     if (!userInfo.userId || !courseId) return;
     const enrollmentSuccess = await handleEnrollment(userInfo.userId, courseId, CURRENT_TERM);
-    if (enrollmentSuccess) setIsEnrolled(true);
+    setIsEnrolled(enrollmentSuccess);
   };
-
 
   useEffect(() => {
     getUserInfo().then((i) => {
@@ -197,9 +195,7 @@ const QuizPage: NextPage = () => {
         courseId,
         instanceId: CURRENT_TERM,
       });
-      if (hasAccess) {
-        setIsEnrolled(true);
-      }
+      setIsEnrolled(hasAccess);
     };
     checkAccess();
   }, [courseId]);

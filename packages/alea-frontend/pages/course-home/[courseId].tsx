@@ -23,7 +23,6 @@ import {
   InputAdornment,
   TextField,
 } from '@mui/material';
-import Alert from '@mui/material/Alert';
 import {
   ContentFromUrl,
   DisplayReason,
@@ -155,9 +154,9 @@ const CourseHomePage: NextPage = () => {
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState('');
   const { mmtUrl } = useContext(ServerLinksContext);
-  const [isInstructor, setIsInstructor] = useState<boolean>(false);
+  const [isInstructor, setIsInstructor] = useState(false);
   const [userId, setUserId] = useState<string | undefined>(undefined);
-  const [enrolled, setIsEnrolled] = useState<boolean>(false);
+  const [enrolled, setIsEnrolled] = useState(false);
 
   useEffect(() => {
     getUserInfo().then((userInfo: UserInfo) => {
@@ -176,13 +175,10 @@ const CourseHomePage: NextPage = () => {
         courseId,
         instanceId: CURRENT_TERM,
       });
-      if (hasAccess) {
-        setIsEnrolled(true);
-      }
+      setIsEnrolled(hasAccess);
     };
     checkAccess();
   }, [courseId]);
-  
 
   useEffect(() => {
     if (!courseId) return;
@@ -235,7 +231,7 @@ const CourseHomePage: NextPage = () => {
   const enrollInCourse = async () => {
     if (!userId || !courseId) return;
     const enrollmentSuccess = await handleEnrollment(userId, courseId, CURRENT_TERM);
-    if (enrollmentSuccess) setIsEnrolled(true);
+    setIsEnrolled(enrollmentSuccess);
   };
 
   return (

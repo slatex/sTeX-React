@@ -195,7 +195,7 @@ const QuizDashPage: NextPage = () => {
   const enrollInCourse = async () => {
     if (!userId || !courseId) return;
     const enrollmentSuccess = await handleEnrollment(userId, courseId, CURRENT_TERM);
-    if (enrollmentSuccess) setIsEnrolled(true);
+    setIsEnrolled(enrollmentSuccess);
   };
 
   if (forceFauLogin) {
