@@ -199,31 +199,31 @@ function GradingListSortFields({
   );
 }
 
-// function TriStateCheckbox({
-//   value,
-//   onChange,
-// }: {
-//   value: Tristate;
-//   onChange: (newValue: Tristate) => void;
-// }) {
-//   return (
-//     <Checkbox
-//       checked={value === Tristate.TRUE}
-//       indeterminate={value === Tristate.UNKNOWN}
-//       icon={<CloseIcon />}
-//       indeterminateIcon={<CheckBoxOutlineBlankIcon />}
-//       onChange={(e) => {
-//         const newVal =
-//           value === Tristate.UNKNOWN
-//             ? Tristate.TRUE
-//             : value === Tristate.TRUE
-//             ? Tristate.FALSE
-//             : Tristate.UNKNOWN;
-//         onChange(newVal);
-//       }}
-//     />
-//   );
-// }
+function TriStateCheckbox({
+  value,
+  onChange,
+}: {
+  value: Tristate;
+  onChange: (newValue: Tristate) => void;
+}) {
+  return (
+    <Checkbox
+      checked={value === Tristate.TRUE}
+      indeterminate={value === Tristate.UNKNOWN}
+      icon={<CloseIcon />}
+      indeterminateIcon={<CheckBoxOutlineBlankIcon />}
+      onChange={(e) => {
+        const newVal =
+          value === Tristate.UNKNOWN
+            ? Tristate.TRUE
+            : value === Tristate.TRUE
+            ? Tristate.FALSE
+            : Tristate.UNKNOWN;
+        onChange(newVal);
+      }}
+    />
+  );
+}
 
 function GradingItemOrganizer({
   gradingItems,

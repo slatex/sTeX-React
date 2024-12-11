@@ -18,7 +18,6 @@ export function GradingCreator({
   const router = useRouter();
   const t = getLocaleObject(router).quiz;
   const { onNewGrading } = useContext(GradingContext);
-  const [isAnswerClassSelected, setIsAnswerClassSelected] = useState(false);
   const [answerClasses, setAnswerClasses] = useState(
     [...DEFAULT_ANSWER_CLASSES, ...rawAnswerClasses].map((c) => ({
       count: 0,
@@ -27,9 +26,9 @@ export function GradingCreator({
   );
 
   const [feedback, setFeedBack] = useState('');
-  const [selectedAnswerClass, setSelectAnswerClass] = useState<AnswerClass>(
-    DEFAULT_ANSWER_CLASSES[0]
-  );
+  const [selectedAnswerClass, setSelectAnswerClass] = useState<AnswerClass | undefined>(undefined);
+  const isAnswerClassSelected = !!selectedAnswerClass;
+
   useEffect(() => {
     setAnswerClasses(
       [...DEFAULT_ANSWER_CLASSES, ...rawAnswerClasses].map((c) => ({
@@ -57,7 +56,6 @@ export function GradingCreator({
     const newAnswerClasses = answerClasses.map((answerclass) => {
       if (answerclass.className === id) {
         setSelectAnswerClass(answerclass);
-        setIsAnswerClassSelected(true);
         return { ...answerclass, count: 1 };
       }
       return { ...answerclass, count: 0 };
@@ -78,7 +76,7 @@ export function GradingCreator({
         count: c.count,
       }))
       .filter((c) => c.count > 0);
-    onNewGrading(subProblemId, acs, feedback);
+    onNewGrading?.(subProblemId, acs, feedback);
     setFeedBack('');
     setSelectAnswerClass(answerClasses[0]);
   }
