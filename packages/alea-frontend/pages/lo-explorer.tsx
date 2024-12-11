@@ -8,12 +8,10 @@ import DeviceHubIcon from '@mui/icons-material/DeviceHub';
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SchoolIcon from '@mui/icons-material/School';
-import SearchIcon from '@mui/icons-material/Search';
 import {
   Alert,
   alpha,
   Autocomplete,
-  Badge,
   Box,
   Button,
   Checkbox,
@@ -61,7 +59,6 @@ const handleStexCopy = (uri: string, uriType: LoType) => {
 
   if (stexSource) navigator.clipboard.writeText(stexSource);
 };
-
 interface UrlData {
   projectName: string;
   topic: string;
@@ -119,7 +116,6 @@ function UrlNameExtractor({ url }: { url: string }) {
     </Box>
   );
 }
-
 interface QuizModalProps {
   open: boolean;
   selectedItems: CartItem[];
@@ -408,7 +404,7 @@ const CartModal: React.FC<CartModalProps> = ({
                       fontWeight: 'normal',
                       fontSize: '0.75rem',
                       flex: 1,
-                      wordBreak:'break-word',
+                      wordBreak: 'break-word',
                       cursor: 'pointer',
                       '&:hover': {
                         color: '#1976d2',
@@ -436,7 +432,6 @@ const CartModal: React.FC<CartModalProps> = ({
                       e.stopPropagation();
                       if (displayedItem?.uri === item.uri) {
                         setDisplayedItem(undefined);
-                        console.log('deleteing');
                       }
                       handleRemoveFromCart(item.uri, item.uriType);
                     }}
@@ -496,8 +491,6 @@ const ALL_CONCEPT_MODES = [
 ] as const;
 
 export type ConceptMode = (typeof ALL_CONCEPT_MODES)[number];
-const COURSES = ['AI', 'EiDA', 'GDP', 'IWGS', 'KRMT', 'LBS', 'RIP', 'TheoCS', 'meta-inf'];
-  
 const FilterChipList = ({
   label,
   items,
@@ -515,24 +508,28 @@ const FilterChipList = ({
       : label === 'Archive'
       ? '#c8e6c9'
       : 'rgba(224, 224, 224, 0.4)';
-  return items.map((item) => (
-    <Chip
-      key={item}
-      label={
-        label === 'Archive' ? (
-          <Box display="flex" gap="5px">
-            {`${label}: `}
-            <SchoolIcon sx={{ color: 'primary.main', fontSize: '18px' }} />
-            {item}
-          </Box>
-        ) : (
-          `${label}: ${item}`
-        )
-      }
-      onDelete={() => setItems((prev) => prev.filter((v) => v !== item))}
-      sx={{ m: 0.5, bgcolor }}
-    />
-  ));
+
+  return items.map((item) => {
+    const { icon, projectName } =
+      label === 'Archive' ? getUrlInfo(item) : { icon: null, projectName: null };
+    return (
+      <Chip
+        key={item}
+        label={
+          label === 'Archive' ? (
+            <Box display="flex" gap="5px">
+              {icon}
+              {`${label}: ${projectName}`}
+            </Box>
+          ) : (
+            `${label}: ${item}`
+          )
+        }
+        onDelete={() => setItems((prev) => prev.filter((v) => v !== item))}
+        sx={{ m: 0.5, bgcolor }}
+      />
+    );
+  });
 };
 
 async function fetchLearningObjects(mmtUrl: string, concept: string) {
@@ -568,7 +565,6 @@ async function fetchLearningObjects(mmtUrl: string, concept: string) {
   });
   return learningObjectsByType;
 }
-
 const LoListDisplay = ({
   uris,
   selectedUri,
@@ -586,7 +582,6 @@ const LoListDisplay = ({
   handleAddToCart: (uri: string, uriType: string) => void;
   handleRemoveFromCart: (uri: string, uriType: string) => void;
 }) => {
-
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   const filteredUris = uris.filter((uri) => {
@@ -599,7 +594,6 @@ const LoListDisplay = ({
         fileName.toLowerCase().includes(term)
     );
   });
-    
   return (
     <Box sx={{ display: 'flex', gap: '16px', marginTop: '20px' }}>
       <Box
@@ -627,13 +621,12 @@ const LoListDisplay = ({
           <Typography variant="h6" color="primary">
             {filteredUris.length} {capitalizeFirstLetter(loType)}s
           </Typography>
-
           <Autocomplete
-            freeSolo
             options={filteredUris.map((uri) => {
               const { projectName, topic, fileName } = getUrlInfo(uri);
               return `${projectName} ${topic} ${fileName}`;
             })}
+            value={searchQuery}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -644,16 +637,10 @@ const LoListDisplay = ({
                   minWidth: '150px',
                 }}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                value={searchQuery}
               />
             )}
-            onInputChange={(_, value) => setSearchQuery(value)}
             inputValue={searchQuery}
-            renderOption={(props, option) => (
-              <li {...props} key={option} style={{ fontSize: '0.75rem' }}>
-                {option}
-              </li>
-            )}
+            onInputChange={(_, value) => setSearchQuery(value)}
           />
         </Box>
 
@@ -726,6 +713,7 @@ const LoExplorerPage = () => {
   const [chosenModes, setChosenModes] = useState<ConceptMode[]>([]);
   const [chosenLoTypes, setChosenLoTypes] = useState<LoType[]>([]);
   const [chosenArchives, setChosenArchives] = useState<string[]>([]);
+  const [chosenArchivesUris, setChosenArchivesUris] = useState<string[]>([]);
   const [loUris, setLoUris] = useState<Record<LoType, string[]>>({
     definition: [],
     problem: [],
@@ -740,16 +728,58 @@ const LoExplorerPage = () => {
   const [isSearching, setIsSearching] = useState(false);
   const { mmtUrl } = useContext(ServerLinksContext);
   const [filteredUris, setFilteredUris] = useState<string[]>(loUris[selectedLo] || []);
-  
+  const [uniqueArchives, setUniqueArchives] = useState<string[]>([]);
+  const [uniqueArchiveUris, setUniqueArchiveUris] = useState<string[]>([]);
+  const [filteredCounts, setFilteredCounts] = useState<Record<LoType, number>>({
+    definition: 0,
+    problem: 0,
+    example: 0,
+    para: 0,
+    statement: 0,
+  });
   useEffect(() => {
     setFilteredUris(loUris[selectedLo] || []);
   }, [selectedLo, loUris]);
-  
+
+  useEffect(() => {
+    const uniqueProjects: string[] = [];
+    const uniqueProjectUris: string[] = [];
+    Object.keys(loUris).forEach((loType) => {
+      const currentUris = loUris[loType as LoType] || [];
+      const uniqueProjectNames = Array.from(
+        new Set(
+          currentUris.filter((uri) => uri !== undefined).map((uri) => getUrlInfo(uri)?.projectName)
+        )
+      );
+      uniqueProjectNames.forEach((projectName) => {
+        const projectUris = currentUris.find((uri) => getUrlInfo(uri)?.projectName === projectName);
+        uniqueProjects.push(projectName);
+        uniqueProjectUris.push(projectUris);
+      });
+    });
+    setUniqueArchives(uniqueProjects);
+    setUniqueArchiveUris(uniqueProjectUris);
+  }, [loUris]);
+  useEffect(() => {
+    const uris = chosenArchives.map((projectName) => {
+      return uniqueArchiveUris.find((uri) => getUrlInfo(uri)?.projectName === projectName);
+    });
+    if (JSON.stringify(uris) !== JSON.stringify(chosenArchivesUris)) {
+      setChosenArchivesUris(uris);
+    }
+  }, [chosenArchives]);
+
+  useEffect(() => {
+    const archives = chosenArchivesUris.map((uri) => getUrlInfo(uri)?.projectName);
+    if (JSON.stringify(archives) !== JSON.stringify(chosenArchives)) {
+      setChosenArchives(archives);
+    }
+  }, [chosenArchivesUris]);
+
   useEffect(() => {
     if (chosenArchives.length > 0) {
       const filtered = (loUris[selectedLo] || []).filter((uri) => {
         const { projectName } = getUrlInfo(uri);
-        console.log({ projectName });
         return chosenArchives.some(
           (archive) => archive.toLowerCase() === projectName.toLowerCase()
         );
@@ -793,10 +823,30 @@ const LoExplorerPage = () => {
   const handleRemoveFromCart = (uri: string, uriType: string) => {
     setCart((prev) => prev.filter((item) => !(item.uri === uri && item.uriType === uriType)));
   };
-  const handleSelectionChange = (event: React.SyntheticEvent, newValue: string[]) => {
+
+  const handleSelectionChange = (event: any, newValue: string[]) => {
     setChosenArchives(newValue);
   };
-    
+
+  const calculateFilteredUris = (loType) => {
+    const uris = loUris[loType] || [];
+    if (chosenArchives.length > 0) {
+      return uris.filter((uri) => {
+        const { projectName } = getUrlInfo(uri);
+        return chosenArchives.some(
+          (archive) => archive.toLowerCase() === projectName?.toLowerCase()
+        );
+      });
+    }
+    return uris;
+  };
+  useEffect(() => {
+    const counts = {};
+    ALL_LO_TYPES.forEach((loType) => {
+      counts[loType] = calculateFilteredUris(loType).length;
+    });
+    setFilteredCounts(counts);
+  }, [loUris, chosenArchives]);
   return (
     <MainLayout title="Learning Objects | ALeA">
       <Paper elevation={3} sx={{ m: '16px' }}>
@@ -865,7 +915,6 @@ const LoExplorerPage = () => {
                 {isSearching && <CircularProgress size={20} sx={{ mr: 1 }} />}Search
               </Button>
             </Box>
-
             <Box
               sx={{
                 display: 'flex',
@@ -874,7 +923,7 @@ const LoExplorerPage = () => {
                 width: '100%',
               }}
             >
-              <FormControl fullWidth>
+              <FormControl fullWidth sx={{ flex: 1 }}>
                 <InputLabel id="concept-mode-label">Concept Modes</InputLabel>
                 <Select
                   labelId="concept-mode-label"
@@ -894,7 +943,7 @@ const LoExplorerPage = () => {
                 </Select>
               </FormControl>
 
-              <FormControl fullWidth>
+              <FormControl fullWidth sx={{ flex: 1 }}>
                 <InputLabel id="learning-object-type-label">Learning Object Types</InputLabel>
                 <Select
                   labelId="learning-object-type-label"
@@ -912,32 +961,64 @@ const LoExplorerPage = () => {
                   ))}
                 </Select>
               </FormControl>
+
               <Autocomplete
                 multiple
-                options={COURSES}
+                options={uniqueArchives}
                 value={chosenArchives}
                 onChange={handleSelectionChange}
                 renderInput={(params) => <TextField {...params} label="Archives" />}
-                renderOption={(props, option, { selected }) => (
-                  <li {...props}>
-                    <Checkbox checked={selected} />
-                    <ListItemText primary={option} />
-                  </li>
-                )}
-                renderTags={() => (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Badge
-                      badgeContent={chosenArchives.length}
-                      color="primary"
-                      sx={{ '.MuiBadge-badge': { fontSize: '0.8rem' } }}
+                renderOption={(props, option, { selected }) => {
+                  const { icon } = getUrlInfo(
+                    uniqueArchiveUris.find((uri) => getUrlInfo(uri).projectName === option)
+                  );
+                  return (
+                    <li {...props}>
+                      <Checkbox checked={selected} />
+                      <ListItemText primary={option} />
+                      {icon}
+                    </li>
+                  );
+                }}
+                renderTags={(value, getTagProps) => {
+                  return (
+                    <Box
+                      display="flex"
+                      sx={{
+                        overflowY: 'auto',
+                        flexWrap: 'wrap',
+                        width: '100%',
+                      }}
                     >
-                      <SchoolIcon sx={{ color: 'primary.main' }} />
-                    </Badge>
-                    <Typography variant="body2">{renderDropdownLabel(chosenArchives)}</Typography>
-                  </Box>
-                )}
+                      {value.map((selectedOption, index) => {
+                        const { icon } = getUrlInfo(
+                          uniqueArchiveUris.find(
+                            (uri) => getUrlInfo(uri).projectName === selectedOption
+                          )
+                        );
+
+                        return (
+                          <Box
+                            key={selectedOption}
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 1,
+                            }}
+                          >
+                            {icon}
+                            <Typography variant="body2" {...getTagProps({ index })}>
+                              {selectedOption}
+                            </Typography>
+                          </Box>
+                        );
+                      })}
+                    </Box>
+                  );
+                }}
                 disableCloseOnSelect
                 fullWidth
+                sx={{ flex: 1, maxWidth: '33.33%' }}
               />
             </Box>
           </Box>
@@ -955,7 +1036,11 @@ const LoExplorerPage = () => {
             >
               <FilterChipList label="Mode" items={chosenModes} setItems={setChosenModes} />
               <FilterChipList label="LO" items={chosenLoTypes} setItems={setChosenLoTypes} />
-              <FilterChipList label="Archive" items={chosenArchives} setItems={setChosenArchives} />
+              <FilterChipList
+                label="Archive"
+                items={chosenArchivesUris}
+                setItems={setChosenArchivesUris}
+              />
             </Box>
           )}
 
@@ -967,7 +1052,7 @@ const LoExplorerPage = () => {
                 sx={{ '&:hover': { backgroundColor: 'primary.light', color: 'white' } }}
                 onClick={() => setSelectedLo(lo)}
               >
-                {lo} ({loUris[lo]?.length || 0})
+                ({lo} {filteredCounts[lo] || 0})
               </Button>
             ))}
           </Box>
