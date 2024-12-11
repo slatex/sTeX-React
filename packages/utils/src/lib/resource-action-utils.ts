@@ -83,7 +83,7 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
   },
   {
     name: ResourceName.COURSE_QUIZ,
-    possibleActions: [Action.MUTATE, Action.TAKE],
+    possibleActions: [Action.MUTATE, Action.PREVIEW, Action.TAKE],
     components: [
       { type: ComponentType.FIXED, value: 'course' },
       { name: 'courseId', type: ComponentType.VARIABLE },
