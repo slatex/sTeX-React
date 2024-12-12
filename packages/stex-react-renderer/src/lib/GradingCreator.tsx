@@ -1,11 +1,18 @@
-import { Box, Button, FormControlLabel, Radio, RadioGroup, TextField } from '@mui/material';
+import {
+  Box,
+  Button,
+  FormControlLabel,
+  Radio,
+  RadioGroup,
+  TextField,
+  Tooltip,
+} from '@mui/material';
 import { AnswerClass, CreateAnswerClassRequest } from '@stex-react/api';
 import { DEFAULT_ANSWER_CLASSES } from '@stex-react/quiz-utils';
 import { useRouter } from 'next/router';
 import { ChangeEvent, SyntheticEvent, useContext, useEffect, useState } from 'react';
 import { getLocaleObject } from './lang/utils';
 import { GradingContext } from './SubProblemAnswer';
-
 export function GradingCreator({
   subProblemId,
   rawAnswerClasses = [],
@@ -18,7 +25,6 @@ export function GradingCreator({
   const router = useRouter();
   const t = getLocaleObject(router).quiz;
   const { onNewGrading } = useContext(GradingContext);
-  const [isAnswerClassSelected, setIsAnswerClassSelected] = useState(false);
   const [answerClasses, setAnswerClasses] = useState(
     [...DEFAULT_ANSWER_CLASSES, ...rawAnswerClasses].map((c) => ({
       count: 0,
@@ -27,9 +33,9 @@ export function GradingCreator({
   );
 
   const [feedback, setFeedBack] = useState('');
-  const [selectedAnswerClass, setSelectAnswerClass] = useState<AnswerClass>(
-    DEFAULT_ANSWER_CLASSES[0]
-  );
+  const [selectedAnswerClass, setSelectAnswerClass] = useState<AnswerClass | undefined>(undefined);
+  const isAnswerClassSelected = !!selectedAnswerClass;
+
   useEffect(() => {
     setAnswerClasses(
       [...DEFAULT_ANSWER_CLASSES, ...rawAnswerClasses].map((c) => ({
@@ -57,7 +63,6 @@ export function GradingCreator({
     const newAnswerClasses = answerClasses.map((answerclass) => {
       if (answerclass.className === id) {
         setSelectAnswerClass(answerclass);
-        setIsAnswerClassSelected(true);
         return { ...answerclass, count: 1 };
       }
       return { ...answerclass, count: 0 };
@@ -78,7 +83,7 @@ export function GradingCreator({
         count: c.count,
       }))
       .filter((c) => c.count > 0);
-    onNewGrading(subProblemId, acs, feedback);
+    onNewGrading?.(subProblemId, acs, feedback);
     setFeedBack('');
     setSelectAnswerClass(answerClasses[0]);
   }
@@ -88,28 +93,34 @@ export function GradingCreator({
         {answerClasses
           .filter((c) => !c.isTrait)
           .map((d) => (
-            <FormControlLabel
-              onChange={(e) => handleDefaultAnswerClassesChange(d.className)}
-              value={d.className}
-              control={<Radio />}
-              label={`${d.title}, ${d.description}`}
-            />
+            <Tooltip title={d.description} placement="top-start">
+              <FormControlLabel
+                onChange={(e) => handleDefaultAnswerClassesChange(d.className)}
+                value={d.className}
+                control={<Radio />}
+                label={d.title}
+              />
+            </Tooltip>
           ))}
       </RadioGroup>
       {!selectedAnswerClass?.closed &&
         answerClasses
           .filter((c) => c.isTrait)
           .map((d) => (
-            <Box my="5px">
+            <Box>
               <TextField
                 size="small"
                 onChange={(e) => handleAnswerClassesChange(d.className, e)}
-                style={{ marginLeft: '10px', width: '3vw' }}
+                style={{ marginLeft: '10px', width: '70px' }}
                 type="number"
                 defaultValue="0"
               ></TextField>
-              {`${d.title}, ${d.description}`}
-              {showPoints && ` (${t.point}:${d.points})`}
+              <Tooltip title={d.description} placement="top-start">
+                <span>
+                  {d.title}
+                  {showPoints && ` (${t.point}:${d.points})`}
+                </span>
+              </Tooltip>
             </Box>
           ))}
       <span>{t.feedback}</span>

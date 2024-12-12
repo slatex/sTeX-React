@@ -5,6 +5,7 @@ import {
   getUserIdOrSetError,
 } from '../comment-utils';
 import { canUpdateAccessControlEntries } from './resource-utils';
+import { recomputeMemberships } from './recompute-memberships';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
@@ -27,5 +28,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res
   );
   if (!result) return;
+  await recomputeMemberships();
   res.status(200).send('created');
 }
