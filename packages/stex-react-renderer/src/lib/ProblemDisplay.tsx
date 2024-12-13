@@ -38,7 +38,7 @@ import {
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { PRIMARY_COL } from '@stex-react/utils';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getMMTHtml } from './CompetencyTable';
 import { DocumentWidthSetter } from './DocumentWidthSetter';
 import { getLocaleObject } from './lang/utils';
@@ -406,27 +406,46 @@ function groupingByBloomDimension(data?: string) {
   return groupedData;
 }
 
-function DimAndURIListDisplay({ title, data }: { title: string; data?: string }) {
-  const groupedData = groupingByBloomDimension(data);
+function isBloomDimensionFormat(data: string) {
+  const [dimension, _] = data.split(':');
+  return Object.values(BloomDimension)
+    .map((value) => value.toLowerCase())
+    .includes(dimension.toLowerCase());
+}
+
+function structureData(data?: string): Record<string, string[]> {
+  if (!data) return {};
+  if (isBloomDimensionFormat(data)) {
+    return groupingByBloomDimension(data);
+  }
+  return {
+    NON_BLOOM_URIS: data.split(',').map((uri) => decodeURIComponent(uri.trim())),
+  };
+}
+
+export function DimAndURIListDisplay({ title, data }: { title: string; data?: string }) {
+  if (!data) {
+    return;
+  }
+  const transformedData = structureData(data);
   return (
     <Box border="1px solid black" mb="10px" bgcolor="white">
       <Typography fontWeight="bold" sx={{ p: '10px' }}>
         {title}&nbsp;
       </Typography>
-      {Object.values(BloomDimension).map((dim) =>
-        groupedData[dim].length ? (
-          <Box key={dim} borderTop="1px solid #AAA" p="5px" display="flex" flexWrap="wrap">
-            <DimIcon dim={dim} />
-            &nbsp;
-            {groupedData[dim]?.map((uri, index) => (
-              <span key={index}>
-                {mmtHTMLToReact(getMMTHtml(uri))}
-                {index < groupedData[dim].length - 1 ? ',\xa0' : ''}
-              </span>
+      {Object.entries(transformedData)
+        .filter(([_, uris]) => uris.length > 0)
+        .map(([group, uris]) => (
+          <Box key={group} borderTop="1px solid #AAA" p="5px" display="flex" flexWrap="wrap">
+            {group !== 'NON_BLOOM_URIS' && <DimIcon dim={group as BloomDimension} />} &nbsp;
+            {uris.map((uri, index, array) => (
+              <React.Fragment key={index}>
+                <span>{mmtHTMLToReact(getMMTHtml(uri))}</span>
+                {index < array.length - 1 ? ',\xa0' : ''}
+              </React.Fragment>
             ))}
           </Box>
-        ) : null
-      )}
+        ))}
     </Box>
   );
 }

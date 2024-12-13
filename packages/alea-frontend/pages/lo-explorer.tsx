@@ -8,7 +8,11 @@ import DeviceHubIcon from '@mui/icons-material/DeviceHub';
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
 import SchoolIcon from '@mui/icons-material/School';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Alert,
   alpha,
   Autocomplete,
@@ -34,7 +38,14 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { ALL_LO_TYPES, getLearningObjectShtml, LoType, sparqlQuery } from '@stex-react/api';
+import {
+  ALL_LO_TYPES,
+  getLearningObjectShtml,
+  InsightType1,
+  InsightType2,
+  LoType,
+  sparqlQuery,
+} from '@stex-react/api';
 import { mmtHTMLToReact, ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { capitalizeFirstLetter, localStore, PRIMARY_COL } from '@stex-react/utils';
 import Image from 'next/image';
@@ -42,6 +53,7 @@ import { PracticeQuestions } from 'packages/stex-react-renderer/src/lib/Practice
 import { extractProjectIdAndFilepath } from 'packages/stex-react-renderer/src/lib/utils';
 import React, { memo, useContext, useEffect, useMemo, useState } from 'react';
 import MainLayout from '../layouts/MainLayout';
+import { DimAndURIListDisplay } from 'packages/stex-react-renderer/src/lib/ProblemDisplay';
 
 const handleStexCopy = (uri: string, uriType: LoType) => {
   const [archive, filePath] = extractProjectIdAndFilepath(uri, '');
@@ -65,6 +77,186 @@ interface UrlData {
   fileName: string;
   icon?: JSX.Element;
 }
+interface InsightData {
+  objective: string;
+  precondition: string;
+  crossrefs: string;
+  'example-for': string;
+  defines: string;
+  specifies: string;
+}
+const getSparqlQueryForInsights = (uri: string, relationType: string) => {
+  if (!uri) {
+    console.error('URI is absent');
+    return;
+  }
+  const isInsightType1 = Object.values(InsightType1)
+    .map((value) => value.toLowerCase())
+    .includes(relationType.toLowerCase());
+
+  const isInsightType2 = Object.values(InsightType2)
+    .map((value) => value.toLowerCase())
+    .includes(relationType.toLowerCase());
+
+  let query = '';
+  if (isInsightType1) {
+    query = `
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX ulo: <http://mathhub.info/ulo#>
+
+        SELECT ?learningObject ?obj1 (GROUP_CONCAT(CONCAT(STR(?relType), "=", STR(?obj2)); SEPARATOR="; ") AS ?relatedData)
+        WHERE {
+            ?learningObject ulo:${relationType} ?obj1 .
+            ?obj1 ?relType ?obj2 .
+            FILTER(CONTAINS(STR(?learningObject), "${uri}")).
+        }
+        GROUP BY ?learningObject ?obj1
+      `;
+  } else if (isInsightType2) {
+    query = `
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX ulo: <http://mathhub.info/ulo#>
+
+        SELECT ?learningObject ?obj1
+        WHERE {
+            ?learningObject ulo:${relationType} ?obj1 .
+            FILTER(CONTAINS(STR(?learningObject), "${uri}")).
+        }
+      `;
+  }
+  return query;
+};
+const processInsight1Data = (result) => {
+  try {
+    const transformedData = result.results.bindings.map((binding: any) => {
+      const relatedData = binding.relatedData.value.split('; ');
+      const cognitiveDimensions = relatedData
+        .filter((data: string) => data.startsWith('http://mathhub.info/ulo#cognitive-dimension='))
+        .map((data: string) => {
+          const encodedValue = data.split('=')[1];
+          return decodeURIComponent(encodedValue);
+        });
+      const crossRefs = relatedData
+        .filter((data: string) => data.startsWith('http://mathhub.info/ulo#crossrefs='))
+        .map((data: string) => {
+          const encodedValue = data.split('=')[1];
+          const decodedValue = decodeURIComponent(encodedValue);
+          return decodedValue.endsWith('#') ? decodedValue.slice(0, -1) : decodedValue;
+        });
+      return {
+        learningObject: binding.learningObject.value,
+        obj1: binding.obj1.value,
+        cognitiveDimensions,
+        crossRefs,
+      };
+    });
+    const finalString = transformedData
+      .flatMap(({ cognitiveDimensions, crossRefs }) =>
+        cognitiveDimensions.flatMap((dim) =>
+          crossRefs.map((ref) => `${dim}:${encodeURIComponent(ref)}`)
+        )
+      )
+      .join(',');
+    return finalString;
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+};
+const processInsight2Data = (result) => {
+  try {
+    const groupedData = result.results.bindings.reduce((acc, { learningObject, obj1 }) => {
+      const learningObjectValue = learningObject.value;
+      const obj1Value = obj1.value;
+      if (!acc[learningObjectValue]) {
+        acc[learningObjectValue] = [];
+      }
+      acc[learningObjectValue].push(obj1Value);
+      return acc;
+    }, {});
+    const finalString = Object.values(groupedData).flat().join(',');
+    return finalString;
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+};
+
+const LoInsights = ({ uri }: { uri: string }) => {
+  const { mmtUrl } = useContext(ServerLinksContext);
+  const [data, setData] = useState<InsightData>({
+    objective: '',
+    precondition: '',
+    crossrefs: '',
+    'example-for': '',
+    defines: '',
+    specifies: '',
+  });
+  useEffect(() => {
+    const processData = async () => {
+      try {
+        if (!uri?.length) return;
+        const updatedData = { ...data };
+        await Promise.all(
+          [...Object.values(InsightType1), ...Object.values(InsightType2)].map(async (value) => {
+            const query = getSparqlQueryForInsights(uri, value);
+            const result = await sparqlQuery(mmtUrl, query);
+            const transformedData = Object.values(InsightType1).includes(value as InsightType1)
+              ? processInsight1Data(result)
+              : processInsight2Data(result);
+            updatedData[value.toLowerCase()] = transformedData;
+          })
+        );
+        setData(updatedData);
+      } catch (error) {
+        console.error('Error processing data:', error);
+      }
+    };
+    processData();
+  }, [uri]);
+
+  const displayData = [
+    { title: 'Objectives', data: data.objective },
+    { title: 'Crossrefs', data: data.crossrefs },
+    { title: 'Specifies', data: data.specifies },
+    { title: 'Example-for', data: data['example-for'] },
+    { title: 'Defines', data: data.defines },
+    { title: 'Precondition', data: data.precondition },
+  ];
+  if (!uri) return;
+  return (
+    <Box mb={2}>
+      <Accordion>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          sx={{
+            borderBottom: '1px solid #BDBDBD',
+            '&:hover': {
+              backgroundColor: '#F0F0F0',
+            },
+          }}
+        >
+          <Typography
+            sx={{
+              fontWeight: 'bold',
+              color: PRIMARY_COL,
+            }}
+          >
+            Show Insights
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails
+          sx={{
+            backgroundColor: '#F0F2F5',
+            padding: '16px',
+          }}
+        >
+          {displayData.map(({ title, data }) => (
+            <DimAndURIListDisplay key={title} title={title} data={data} />
+          ))}
+        </AccordionDetails>
+      </Accordion>
+    </Box>
+  );
+};
 
 function getUrlInfo(url: string): UrlData {
   const [archive, filePath] = extractProjectIdAndFilepath(url);
@@ -303,7 +495,7 @@ const DetailsPanel: React.FC<DetailsPanelProps> = memo(({ uriType, selectedUri }
           }`}</span>
         </Tooltip>
       </Typography>
-
+      <LoInsights uri={selectedUri} />
       {!!selectedUri &&
         (uriType === 'problem' ? (
           <PracticeQuestions problemIds={[selectedUri]} />
