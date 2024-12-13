@@ -1,289 +1,46 @@
-import { Book, HelpOutline, MicExternalOn, Quiz, SupervisedUserCircle } from '@mui/icons-material';
-import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
-import ArticleIcon from '@mui/icons-material/Article';
-import CancelIcon from '@mui/icons-material/Cancel';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import DeleteIcon from '@mui/icons-material/Delete';
-import DeviceHubIcon from '@mui/icons-material/DeviceHub';
-import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
+import { Book, MicExternalOn, Quiz, SupervisedUserCircle } from '@mui/icons-material';
 import SchoolIcon from '@mui/icons-material/School';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Alert,
-  alpha,
   Autocomplete,
   Box,
   Button,
   Checkbox,
   Chip,
   CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   FormControl,
-  IconButton,
   InputLabel,
   ListItemText,
   MenuItem,
-  Modal,
   Paper,
   Select,
-  Snackbar,
   TextField,
-  Tooltip,
   Typography,
 } from '@mui/material';
-import {
-  ALL_DIM_CONCEPT_PAIR,
-  ALL_LO_RELATION_TYPES,
-  ALL_LO_TYPES,
-  ALL_ONLY_CONCEPT,
-  AllLoRelationTypes,
-  getLearningObjectShtml,
-  LoRelationToConcept,
-  LoRelationToDimAndConceptPair,
-  LoType,
-  sparqlQuery,
-} from '@stex-react/api';
-import { mmtHTMLToReact, ServerLinksContext } from '@stex-react/stex-react-renderer';
+import { ALL_LO_TYPES, LoType, sparqlQuery } from '@stex-react/api';
+import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { capitalizeFirstLetter, localStore, PRIMARY_COL } from '@stex-react/utils';
-import Image from 'next/image';
-import { PracticeQuestions } from 'packages/stex-react-renderer/src/lib/PracticeQuestions';
 import { extractProjectIdAndFilepath } from 'packages/stex-react-renderer/src/lib/utils';
-import React, { memo, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import LoListDisplay from '../components/LoListDisplay';
+import LoCartModal, { CartItem } from '../components/LoCartModal';
 import MainLayout from '../layouts/MainLayout';
-import {
-  DimAndURIListDisplay,
-  URIListDisplay,
-} from 'packages/stex-react-renderer/src/lib/ProblemDisplay';
 
-const handleStexCopy = (uri: string, uriType: LoType) => {
-  const [archive, filePath] = extractProjectIdAndFilepath(uri, '');
-  let stexSource = '';
-  switch (uriType) {
-    case 'problem':
-      stexSource = `\\includeproblem[pts=TODO,archive=${archive}]{${filePath}}`;
-    case 'definition':
-    case 'example':
-    case 'para':
-    case 'statement':
-      stexSource = `\\include${uriType}[archive=${archive}]{${filePath}}`;
-    default:
-  }
+const ALL_CONCEPT_MODES = [
+  'Appears Anywhere',
+  'Annotated as Prerequisite',
+  'Annotated as Objective',
+] as const;
 
-  if (stexSource) navigator.clipboard.writeText(stexSource);
-};
+export type ConceptMode = (typeof ALL_CONCEPT_MODES)[number];
 interface UrlData {
   projectName: string;
   topic: string;
   fileName: string;
   icon?: JSX.Element;
 }
-interface InsightData {
-  objective: string;
-  precondition: string;
-  crossrefs: string;
-  'example-for': string;
-  defines: string;
-  specifies: string;
-}
-const getSparqlQueryForLoRelation = (uri: string, relationType: AllLoRelationTypes) => {
-  if (!uri) {
-    console.error('URI is absent');
-    return;
-  }
-  const isDimConceptType = ALL_DIM_CONCEPT_PAIR.includes(
-    relationType as LoRelationToDimAndConceptPair
-  );
-  const isOnlyConceptType = ALL_ONLY_CONCEPT.includes(relationType as LoRelationToConcept);
 
-  let query = '';
-  if (isDimConceptType) {
-    query = `
-        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX ulo: <http://mathhub.info/ulo#>
-
-        SELECT ?learningObject ?obj1 (GROUP_CONCAT(CONCAT(STR(?relType), "=", STR(?obj2)); SEPARATOR="; ") AS ?relatedData)
-        WHERE {
-            ?learningObject ulo:${relationType} ?obj1 .
-            ?obj1 ?relType ?obj2 .
-            FILTER(CONTAINS(STR(?learningObject), "${uri}")).
-        }
-        GROUP BY ?learningObject ?obj1
-      `;
-  } else if (isOnlyConceptType) {
-    query = `
-        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX ulo: <http://mathhub.info/ulo#>
-
-        SELECT ?learningObject ?obj1
-        WHERE {
-            ?learningObject ulo:${relationType} ?obj1 .
-            FILTER(CONTAINS(STR(?learningObject), "${uri}")).
-        }
-      `;
-  }
-  return query;
-};
-const processDimAndConceptData = (result) => {
-  try {
-    const transformedData = result.results.bindings.map((binding: any) => {
-      const relatedData = binding.relatedData.value.split('; ');
-      const cognitiveDimensions = relatedData
-        .filter((data: string) => data.startsWith('http://mathhub.info/ulo#cognitive-dimension='))
-        .map((data: string) => {
-          const encodedValue = data.split('=')[1];
-          return decodeURIComponent(encodedValue);
-        });
-      const crossRefs = relatedData
-        .filter((data: string) => data.startsWith('http://mathhub.info/ulo#crossrefs='))
-        .map((data: string) => {
-          const encodedValue = data.split('=')[1];
-          const decodedValue = decodeURIComponent(encodedValue);
-          return decodedValue.endsWith('#') ? decodedValue.slice(0, -1) : decodedValue;
-        });
-      return {
-        learningObject: binding.learningObject.value,
-        obj1: binding.obj1.value,
-        cognitiveDimensions,
-        crossRefs,
-      };
-    });
-    const finalString = transformedData
-      .flatMap(({ cognitiveDimensions, crossRefs }) =>
-        cognitiveDimensions.flatMap((dim) =>
-          crossRefs.map((ref) => `${dim}:${encodeURIComponent(ref)}`)
-        )
-      )
-      .join(',');
-    return finalString;
-  } catch (error) {
-    console.error('Error processing data:', error);
-  }
-};
-const processConceptOnlyData = (result) => {
-  try {
-    const groupedData = result.results.bindings.reduce((acc, { learningObject, obj1 }) => {
-      const learningObjectValue = learningObject.value;
-      const obj1Value = obj1.value;
-      if (!acc[learningObjectValue]) {
-        acc[learningObjectValue] = [];
-      }
-      acc[learningObjectValue].push(obj1Value);
-      return acc;
-    }, {});
-    const finalString = Object.values(groupedData).flat().join(',');
-    return finalString;
-  } catch (error) {
-    console.error('Error processing data:', error);
-  }
-};
-
-const LoInsights = ({ uri }: { uri: string }) => {
-  const { mmtUrl } = useContext(ServerLinksContext);
-  const [data, setData] = useState<InsightData>({
-    objective: '',
-    precondition: '',
-    crossrefs: '',
-    'example-for': '',
-    defines: '',
-    specifies: '',
-  });
-  useEffect(() => {
-    const processData = async () => {
-      try {
-        if (!uri?.length) return;
-        const updatedData = { ...data };
-        await Promise.all(
-          ALL_LO_RELATION_TYPES.map(async (value: AllLoRelationTypes) => {
-            const query = getSparqlQueryForLoRelation(uri, value);
-            const result = await sparqlQuery(mmtUrl, query);
-            const transformedData = ALL_DIM_CONCEPT_PAIR.includes(
-              value as LoRelationToDimAndConceptPair
-            )
-              ? processDimAndConceptData(result)
-              : processConceptOnlyData(result);
-            updatedData[value] = transformedData;
-          })
-        );
-        setData(updatedData);
-      } catch (error) {
-        console.error('Error processing data:', error);
-      }
-    };
-    processData();
-  }, [uri]);
-
-  const displayData = [
-    { title: 'Objectives', data: data.objective },
-    { title: 'Crossrefs', data: data.crossrefs },
-    { title: 'Specifies', data: data.specifies },
-    { title: 'Example-for', data: data['example-for'] },
-    { title: 'Defines', data: data.defines },
-    { title: 'Precondition', data: data.precondition },
-  ];
-  if (!uri) return;
-  return (
-    <Box mb={2}>
-      <Accordion>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          sx={{
-            borderBottom: '1px solid #BDBDBD',
-            '&:hover': {
-              backgroundColor: '#F0F0F0',
-            },
-          }}
-        >
-          <Typography
-            sx={{
-              fontWeight: 'bold',
-              color: PRIMARY_COL,
-            }}
-          >
-            Show Insights
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails
-          sx={{
-            backgroundColor: '#F0F2F5',
-            padding: '16px',
-          }}
-        >
-          {displayData.some(({ data }) => data) ? (
-            displayData
-              .filter(({ data }) => data)
-              .map(({ title, data }) =>
-                title === 'Objectives' || title === 'Precondition' ? (
-                  <DimAndURIListDisplay key={title} title={title} data={data} />
-                ) : (
-                  <Box border="1px solid black" mb="10px" bgcolor="white" key={title}>
-                    <Typography fontWeight="bold" sx={{ p: '10px' }}>
-                      {title}&nbsp;
-                    </Typography>
-                    <Box borderTop="1px solid #AAA" p="5px" display="flex" flexWrap="wrap">
-                      <URIListDisplay uris={data.split(',')} />
-                    </Box>
-                  </Box>
-                )
-              )
-          ) : (
-            <Typography textAlign="center" color="gray" fontStyle="italic" mt="10px">
-              No data available to display.
-            </Typography>
-          )}
-        </AccordionDetails>
-      </Accordion>
-    </Box>
-  );
-};
-
-function getUrlInfo(url: string): UrlData {
+export function getUrlInfo(url: string): UrlData {
   const [archive, filePath] = extractProjectIdAndFilepath(url);
   const fileParts = filePath.split('/');
   const fileName = fileParts[fileParts.length - 1].split('.')[0];
@@ -319,395 +76,11 @@ function getUrlInfo(url: string): UrlData {
 
   return { projectName, topic, fileName, icon };
 }
-function UrlNameExtractor({ url }: { url: string }) {
-  const { projectName, topic, fileName, icon } = getUrlInfo(url);
-  if (!projectName) {
-    return <Box>{url}</Box>;
-  }
-  return (
-    <Box display="flex" flexWrap="wrap" sx={{ gap: '5px' }}>
-      {projectName}
-      {icon && icon}
-      {topic}
-      <Box sx={{ wordBreak: 'break-word' }}>{fileName}</Box>
-    </Box>
-  );
-}
-interface QuizModalProps {
-  open: boolean;
-  selectedItems: CartItem[];
-  onClose: () => void;
-}
-
-const QuizModal: React.FC<QuizModalProps> = ({ open, onClose, selectedItems }) => {
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
-  };
-
-  const generatedQuizContent = useMemo(() => {
-    const staticLines = [
-      '\\documentclass{article}',
-      '\\usepackage[notes,hints]{hwexam} % ,',
-      '\\libinput{hwexam-preamble}',
-      '\\title{TODO}',
-      '\\begin{document}',
-      '\\begin{assignment}[title={TODO},number=TODO,given=TODO,due=TODO]',
-    ];
-    const dynamicLines = selectedItems
-      .filter((i) => i.uriType === 'problem')
-      .map((item) => {
-        const [archive, filePath] = extractProjectIdAndFilepath(item.uri, '');
-        return `       \\includeproblem[pts=TODO,archive=${archive}]{${filePath}}`;
-      })
-      .join('\n');
-    const closingLines = ['\\end{assignment}', '\\end{document}'];
-
-    return `${staticLines.join('\n')}\n${dynamicLines}\n${closingLines.join('\n')}`;
-  }, [selectedItems]);
-
-  const handleCopyQuiz = () => {
-    navigator.clipboard.writeText(generatedQuizContent);
-    setSnackbarOpen(true);
-  };
-
-  return (
-    <>
-      <Modal
-        open={open}
-        onClose={onClose}
-        sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-      >
-        <Box
-          sx={{
-            background: 'white',
-            borderRadius: '8px',
-            padding: '16px',
-            overflowX: 'auto',
-            overflowY: 'auto',
-            boxShadow: 24,
-          }}
-        >
-          <Typography variant="h6" sx={{ marginBottom: '16px' }}>
-            Quiz Content
-          </Typography>
-          <Box
-            sx={{
-              background: '#f9f9f9',
-              border: '1px solid #ccc',
-              borderRadius: '8px',
-              padding: '8px',
-              marginBottom: '16px',
-              overflowY: 'auto',
-              whiteSpace: 'pre-wrap',
-            }}
-          >
-            {generatedQuizContent}
-          </Box>
-          <Box display="flex" gap={2}>
-            <Button variant="contained" onClick={handleCopyQuiz} disabled={!selectedItems?.length}>
-              Copy Quiz Content
-            </Button>
-            <Button variant="contained" onClick={onClose}>
-              Close
-            </Button>
-          </Box>
-        </Box>
-      </Modal>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={3000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert onClose={handleSnackbarClose} severity="success" sx={{ width: '100%' }}>
-          Quiz content copied to clipboard!
-        </Alert>
-      </Snackbar>
-    </>
-  );
-};
-
-const IconDisplayComponent: React.FC<{ uriType: LoType }> = ({ uriType }) => {
-  switch (uriType) {
-    case 'problem':
-      return (
-        <Image
-          src="/practice_problems.svg"
-          width={34}
-          height={34}
-          alt=""
-          style={{
-            filter:
-              'invert(16%) sepia(17%) saturate(3640%) hue-rotate(193deg) brightness(94%) contrast(90%)',
-          }}
-        />
-      );
-    case 'definition':
-      return <ArticleIcon sx={{ fontSize: '2rem', color: '#00bcd4' }} />;
-
-    case 'example':
-      return <DeviceHubIcon sx={{ fontSize: '2rem', color: 'success.light' }} />;
-
-    default:
-      return <HelpOutline sx={{ fontSize: '2rem', color: 'error.main' }} />;
-  }
-};
-
-interface CartItem {
-  uri: string;
-  uriType: LoType;
-}
-
-interface DetailsPanelProps {
-  uriType: LoType;
-  selectedUri: string | null;
-}
-
-export const LoViewer: React.FC<{ uri: string; uriType: LoType }> = ({ uri, uriType }) => {
-  const [learningObject, setLearningObject] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const { mmtUrl } = useContext(ServerLinksContext);
-
-  const fetchLo = async (uri: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-      setLearningObject(await getLearningObjectShtml(mmtUrl, uri));
-    } catch (err) {
-      setError(err.message || 'Failed to fetch example.');
-    } finally {
-      setLoading(false);
-    }
-  };
-  useEffect(() => {
-    if (uri) fetchLo(uri);
-  }, [uri]);
-
-  return (
-    <Box sx={{ padding: 2, border: '1px solid #ccc', borderRadius: 4, backgroundColor: '#f9f9f9' }}>
-      {loading ? (
-        <Typography>Loading...</Typography>
-      ) : error ? (
-        <Typography color="error">Error: {error}</Typography>
-      ) : learningObject ? (
-        mmtHTMLToReact(learningObject)
-      ) : (
-        <Typography>No {uriType} found.</Typography>
-      )}
-    </Box>
-  );
-};
-
-const DetailsPanel: React.FC<DetailsPanelProps> = memo(({ uriType, selectedUri }) => {
-  return (
-    <Box
-      sx={{
-        flex: 2,
-        background: 'rgba(240, 255, 240, 0.9)',
-        borderRadius: '8px',
-        padding: '16px',
-        height: '90vh',
-        overflowY: 'auto',
-        boxShadow: 'inset 0 4px 8px rgba(0, 0, 0, 0.1)',
-      }}
-    >
-      <Typography color="secondary" variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-        <Tooltip title={selectedUri} arrow placement="top">
-          <span style={{ wordBreak: 'break-word' }}>{`${(uriType || '').toUpperCase()}: ${
-            selectedUri || 'None'
-          }`}</span>
-        </Tooltip>
-      </Typography>
-      <LoInsights uri={selectedUri} />
-      {!!selectedUri &&
-        (uriType === 'problem' ? (
-          <PracticeQuestions problemIds={[selectedUri]} />
-        ) : (
-          <LoViewer uri={selectedUri} uriType={uriType} />
-        ))}
-    </Box>
-  );
-});
-
-interface CartModalProps {
-  showCart: boolean;
-  setShowCart: React.Dispatch<React.SetStateAction<boolean>>;
-  cart: CartItem[];
-  handleRemoveFromCart: (uri: string, uriType: string) => void;
-}
-
 const renderDropdownLabel = (selected: string[]) => {
   if (!selected.length) return '';
   const firstTwo = selected.slice(0, 2).map(capitalizeFirstLetter).join(', ');
   return selected.length > 2 ? firstTwo + '...' : firstTwo;
 };
-
-const CartModal: React.FC<CartModalProps> = ({
-  showCart,
-  setShowCart,
-  cart,
-  handleRemoveFromCart,
-}) => {
-  const [showQuizModal, setShowQuizModal] = useState(false);
-  const [selectedItems, setSelectedItems] = useState<CartItem[]>([]);
-  const [displayedItem, setDisplayedItem] = useState<CartItem | undefined>(undefined);
-
-  const toggleItemsSelection = (uri: string, uriType: LoType) => {
-    setSelectedItems((prevSelected) => {
-      const isItemSelected = prevSelected.some(
-        (item) => item.uri === uri && item.uriType === uriType
-      );
-
-      if (isItemSelected) {
-        return prevSelected.filter((item) => !(item.uri === uri && item.uriType === uriType));
-      } else {
-        return [...prevSelected, { uri, uriType }];
-      }
-    });
-  };
-
-  return (
-    <>
-      <Dialog open={showCart} onClose={() => setShowCart(false)} maxWidth="xl">
-        <DialogTitle>
-          <Box display="flex" justifyContent="space-between" gap={5} alignItems="center">
-            <Typography variant="h6" color="primary" fontWeight="bold">
-              Cart Items
-            </Typography>
-
-            <Box sx={{ display: 'flex' }}>
-              <IconButton onClick={() => setShowCart(false)}>
-                <CancelIcon sx={{ color: 'error.main' }} />
-              </IconButton>
-            </Box>
-          </Box>
-        </DialogTitle>
-        <DialogContent>
-          <Box display="flex" gap={1}>
-            <Box flex="1 1 200px" maxWidth="400px">
-              {!cart?.length && <Typography>No items in the cart.</Typography>}
-              {(cart || []).map((item, idx) => (
-                <Paper
-                  key={idx}
-                  elevation={2}
-                  sx={{
-                    padding: '8px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    marginBottom: '8px',
-                    cursor: 'pointer',
-
-                    ...(displayedItem?.uri === item.uri && {
-                      backgroundColor: 'rgba(200, 225, 255, 0.9)',
-                    }),
-                  }}
-                >
-                  <Checkbox
-                    checked={selectedItems.some(
-                      (selectedItem) =>
-                        selectedItem.uri === item.uri && selectedItem.uriType === item.uriType
-                    )}
-                    disabled={!(item.uriType === 'problem')}
-                    onChange={() => toggleItemsSelection(item.uri, item.uriType)}
-                    color="primary"
-                  />
-                  <IconDisplayComponent uriType={item.uriType} />
-                  <Typography
-                    sx={{
-                      ml: '4px',
-                      fontWeight: 'normal',
-                      fontSize: '0.75rem',
-                      flex: 1,
-                      wordBreak: 'break-word',
-                      cursor: 'pointer',
-                      '&:hover': {
-                        color: '#1976d2',
-                      },
-                    }}
-                    onClick={() => setDisplayedItem(item)}
-                  >
-                    <UrlNameExtractor url={item.uri} />
-                  </Typography>
-                  <Tooltip title="Copy as STeX" arrow>
-                    <IconButton
-                      color="primary"
-                      size="small"
-                      onClick={() => handleStexCopy(item.uri, item.uriType)}
-                      sx={{ mr: '8px' }}
-                    >
-                      <ContentCopyIcon />
-                    </IconButton>
-                  </Tooltip>
-
-                  <IconButton
-                    color="secondary"
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (displayedItem?.uri === item.uri) {
-                        setDisplayedItem(undefined);
-                      }
-                      handleRemoveFromCart(item.uri, item.uriType);
-                    }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </Paper>
-              ))}
-            </Box>
-
-            {displayedItem && (
-              <Box
-                sx={{
-                  flex: '1 1 200px',
-                  p: 2,
-                  backgroundColor: '#f5f5f5',
-                  borderRadius: '8px',
-                  boxShadow: 2,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  overflowY: 'auto',
-                }}
-              >
-                <DetailsPanel uriType={displayedItem.uriType} selectedUri={displayedItem.uri} />
-              </Box>
-            )}
-          </Box>
-        </DialogContent>
-        {selectedItems.some((i) => i.uriType === 'problem') && (
-          <DialogActions>
-            <Box display="flex" gap={2}>
-              <Button
-                variant="contained"
-                sx={{ mt: '16px' }}
-                onClick={() => setShowQuizModal(true)}
-              >
-                Create Quiz
-              </Button>
-            </Box>
-          </DialogActions>
-        )}
-      </Dialog>
-
-      <QuizModal
-        open={showQuizModal}
-        onClose={() => setShowQuizModal(false)}
-        selectedItems={selectedItems}
-      />
-    </>
-  );
-};
-
-const ALL_CONCEPT_MODES = [
-  'Appears Anywhere',
-  'Annotated as Prerequisite',
-  'Annotated as Objective',
-] as const;
-
-export type ConceptMode = (typeof ALL_CONCEPT_MODES)[number];
 const FilterChipList = ({
   label,
   items,
@@ -783,136 +156,6 @@ async function fetchLearningObjects(mmtUrl: string, concept: string) {
   });
   return learningObjectsByType;
 }
-const LoListDisplay = ({
-  uris,
-  selectedUri,
-  cart,
-  loType,
-  setSelectedUri,
-  handleAddToCart,
-  handleRemoveFromCart,
-}: {
-  uris: string[];
-  selectedUri: string;
-  cart: CartItem[];
-  loType: LoType;
-  setSelectedUri: React.Dispatch<React.SetStateAction<string>>;
-  handleAddToCart: (uri: string, uriType: string) => void;
-  handleRemoveFromCart: (uri: string, uriType: string) => void;
-}) => {
-  const [searchQuery, setSearchQuery] = useState<string>('');
-
-  const filteredUris = uris.filter((uri) => {
-    const { projectName, topic, fileName } = getUrlInfo(uri);
-    const searchTerms = searchQuery.toLowerCase().split(/\s+/);
-    return searchTerms.every(
-      (term) =>
-        projectName.toLowerCase().includes(term) ||
-        topic.toLowerCase().includes(term) ||
-        fileName.toLowerCase().includes(term)
-    );
-  });
-  return (
-    <Box sx={{ display: 'flex', gap: '16px', marginTop: '20px' }}>
-      <Box
-        sx={{
-          flex: 1,
-          background: 'rgba(240, 240, 255, 0.9)',
-          borderRadius: '8px',
-          padding: '16px',
-          overflowY: 'auto',
-          maxHeight: '90vh',
-          boxShadow: 'inset 0 4px 8px rgba(0, 0, 0, 0.1)',
-        }}
-      >
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '8px',
-            marginBottom: '16px',
-            width: '100%',
-          }}
-        >
-          <Typography variant="h6" color="primary">
-            {filteredUris.length} {capitalizeFirstLetter(loType)}s
-          </Typography>
-          <TextField
-            label="Search"
-            variant="outlined"
-            size="small"
-            sx={{
-              minWidth: '150px',
-            }}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </Box>
-
-        {filteredUris.map((uri, index) => {
-          const isInCart = cart.some((item) => item.uri === uri && item.uriType === loType);
-          return (
-            <Paper
-              key={index}
-              elevation={3}
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '12px',
-                marginBottom: '8px',
-                borderRadius: '8px',
-                background: isInCart ? 'rgba(220, 255, 220, 0.9)' : 'white',
-                '&:hover': { boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)' },
-              }}
-            >
-              <Typography
-                sx={{
-                  cursor: 'pointer',
-                  flex: 1,
-                  wordBreak: 'break-word',
-                  color: selectedUri === uri ? '#096dd9' : '#333',
-                  fontWeight: selectedUri === uri ? 'bold' : 'normal',
-                  fontSize: '0.875rem',
-                  '&:hover': {
-                    color: alpha('#096dd9', 0.7),
-                  },
-                }}
-                onClick={() => setSelectedUri(uri)}
-              >
-                <UrlNameExtractor url={uri} />
-              </Typography>
-
-              <Tooltip title="Copy as STeX" arrow>
-                <IconButton
-                  color="primary"
-                  size="small"
-                  onClick={() => handleStexCopy(uri, loType)}
-                  sx={{
-                    marginRight: '8px',
-                  }}
-                  disabled={!(loType === 'problem')}
-                >
-                  <ContentCopyIcon />
-                </IconButton>
-              </Tooltip>
-              <IconButton
-                color={isInCart ? 'secondary' : 'primary'}
-                onClick={() =>
-                  isInCart ? handleRemoveFromCart(uri, loType) : handleAddToCart(uri, loType)
-                }
-              >
-                {isInCart ? <RemoveShoppingCartIcon /> : <AddShoppingCartIcon />}
-              </IconButton>
-            </Paper>
-          );
-        })}
-      </Box>
-      <DetailsPanel uriType={loType} selectedUri={selectedUri} />
-    </Box>
-  );
-};
 
 const LoExplorerPage = () => {
   const [concept, setConcept] = useState('');
@@ -956,7 +199,10 @@ const LoExplorerPage = () => {
       const currentUris = loUris[loType as LoType] || [];
       const uniqueProjectNames = Array.from(
         new Set(
-          currentUris.filter((uri) => uri !== undefined).map((uri) => getUrlInfo(uri)?.projectName)
+          currentUris
+            .filter((uri) => uri !== undefined)
+            .map((uri) => getUrlInfo(uri)?.projectName)
+            .filter((projectName) => projectName)
         )
       );
       uniqueProjectNames.forEach((projectName) => {
@@ -1008,7 +254,19 @@ const LoExplorerPage = () => {
   useEffect(() => {
     localStore?.setItem('lo-cart', JSON.stringify(cart));
   }, [cart]);
-
+  useEffect(() => {
+    const counts: Record<LoType, number> = {
+      definition: 0,
+      problem: 0,
+      example: 0,
+      para: 0,
+      statement: 0,
+    };
+    ALL_LO_TYPES.forEach((loType) => {
+      counts[loType] = getFilteredUris(loType).length;
+    });
+    setFilteredCounts(counts);
+  }, [loUris, chosenArchives]);
   const handleSubmit = async () => {
     if (!concept.trim()) {
       alert('Please enter a concept!');
@@ -1040,7 +298,7 @@ const LoExplorerPage = () => {
     setChosenArchives(newValue);
   };
 
-  const calculateFilteredUris = (loType) => {
+  const getFilteredUris = (loType) => {
     const uris = loUris[loType] || [];
     if (chosenArchives.length > 0) {
       return uris.filter((uri) => {
@@ -1052,19 +310,7 @@ const LoExplorerPage = () => {
     }
     return uris;
   };
-  useEffect(() => {
-    const counts: Record<LoType, number> = {
-      definition: 0,
-      problem: 0,
-      example: 0,
-      para: 0,
-      statement: 0,
-    };
-    ALL_LO_TYPES.forEach((loType) => {
-      counts[loType] = calculateFilteredUris(loType).length;
-    });
-    setFilteredCounts(counts);
-  }, [loUris, chosenArchives]);
+
   return (
     <MainLayout title="Learning Objects | ALeA">
       <Paper elevation={3} sx={{ m: '16px' }}>
@@ -1270,7 +516,7 @@ const LoExplorerPage = () => {
           />
         </Box>
 
-        <CartModal
+        <LoCartModal
           showCart={showCart}
           setShowCart={setShowCart}
           cart={cart}

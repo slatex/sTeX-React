@@ -410,6 +410,44 @@ export async function getSectionDependencies(mmtUrl: string, archive: string, fi
   }
   return dependencies;
 }
+export const getSparqlQueryForLoRelation = (uri: string, relationType: AllLoRelationTypes) => {
+  if (!uri) {
+    console.error('URI is absent');
+    return;
+  }
+  const isDimConceptType = ALL_DIM_CONCEPT_PAIR.includes(
+    relationType as LoRelationToDimAndConceptPair
+  );
+  const isOnlyConceptType = ALL_ONLY_CONCEPT.includes(relationType as LoRelationToConcept);
+
+  let query = '';
+  if (isDimConceptType) {
+    query = `
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX ulo: <http://mathhub.info/ulo#>
+
+        SELECT ?learningObject ?obj1 (GROUP_CONCAT(CONCAT(STR(?relType), "=", STR(?obj2)); SEPARATOR="; ") AS ?relatedData)
+        WHERE {
+            ?learningObject ulo:${relationType} ?obj1 .
+            ?obj1 ?relType ?obj2 .
+            FILTER(CONTAINS(STR(?learningObject), "${uri}")).
+        }
+        GROUP BY ?learningObject ?obj1
+      `;
+  } else if (isOnlyConceptType) {
+    query = `
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX ulo: <http://mathhub.info/ulo#>
+
+        SELECT ?learningObject ?obj1
+        WHERE {
+            ?learningObject ulo:${relationType} ?obj1 .
+            FILTER(CONTAINS(STR(?learningObject), "${uri}")).
+        }
+      `;
+  }
+  return query;
+};
 export const ALL_DIM_CONCEPT_PAIR = ['objective', 'precondition'] as const;
 export const ALL_ONLY_CONCEPT = ['crossrefs', 'specifies', 'defines', 'example-for'] as const;
 export const ALL_LO_RELATION_TYPES = [...ALL_DIM_CONCEPT_PAIR, ...ALL_ONLY_CONCEPT] as const;
