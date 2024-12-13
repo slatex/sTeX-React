@@ -188,6 +188,23 @@ export function SubProblemAnswer({
     setAnswer(value);
   }
 
+  const solutionBox =
+    isFrozen && subProblem.solution ? (
+      <Box
+        style={{
+          color: '#555',
+          backgroundColor: 'white',
+          padding: '5px',
+          borderRadius: '5px',
+          margin: '10px 0px',
+          border: `1px solid ${PRIMARY_COL}`,
+        }}
+      >
+        {mmtHTMLToReact(subProblem.solution)}
+      </Box>
+    ) : (
+      <></>
+    );
   return (
     <>
       <Box>
@@ -237,20 +254,7 @@ export function SubProblemAnswer({
           </Box>
         )}
       </Box>
-      {isGrading && isFrozen && subProblem.solution && (
-        <Box
-          style={{
-            color: '#555',
-            backgroundColor: 'white',
-            padding: '5px',
-            borderRadius: '5px',
-            margin: '10px 0px',
-            border: `1px solid ${PRIMARY_COL}`,
-          }}
-        >
-          {mmtHTMLToReact(subProblem.solution)}
-        </Box>
-      )}
+      {isGrading && solutionBox}
       {(isGrading || showGrading) && (
         <Box p={1} bgcolor="white" border="1px solid gray" borderRadius={1}>
           <Typography display="block">
@@ -273,20 +277,7 @@ export function SubProblemAnswer({
           <GradingManager problemId={questionId} subProblemId={subProblemId} />
         </Box>
       )}
-      {!isGrading && isFrozen && subProblem.solution && (
-        <Box
-          style={{
-            color: '#555',
-            backgroundColor: 'white',
-            padding: '5px',
-            borderRadius: '5px',
-            margin: '10px 0px',
-            border: `1px solid ${PRIMARY_COL}`,
-          }}
-        >
-          {mmtHTMLToReact(subProblem.solution)}
-        </Box>
-      )}
+      {!isGrading && solutionBox}
     </>
   );
 }
