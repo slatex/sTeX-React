@@ -255,20 +255,28 @@ const LoInsights = ({ uri }: { uri: string }) => {
             padding: '16px',
           }}
         >
-          {displayData
-            .filter(({ data }) => data)
-            .map(({ title, data }) =>
-              title === 'Objectives' || title === 'Precondition' ? (
-                <DimAndURIListDisplay key={title} title={title} data={data} />
-              ) : (
-                <Box border="1px solid black" mb="10px" bgcolor="white" key={title}>
-                  <Typography fontWeight="bold" sx={{ p: '10px' }}>
-                    {title}&nbsp;
-                  </Typography>
-                  <URIListDisplay uris={data.split(',')} />
-                </Box>
+          {displayData.some(({ data }) => data) ? (
+            displayData
+              .filter(({ data }) => data)
+              .map(({ title, data }) =>
+                title === 'Objectives' || title === 'Precondition' ? (
+                  <DimAndURIListDisplay key={title} title={title} data={data} />
+                ) : (
+                  <Box border="1px solid black" mb="10px" bgcolor="white" key={title}>
+                    <Typography fontWeight="bold" sx={{ p: '10px' }}>
+                      {title}&nbsp;
+                    </Typography>
+                    <Box borderTop="1px solid #AAA" p="5px" display="flex" flexWrap="wrap">
+                      <URIListDisplay uris={data.split(',')} />
+                    </Box>
+                  </Box>
+                )
               )
-            )}
+          ) : (
+            <Typography textAlign="center" color="gray" fontStyle="italic" mt="10px">
+              No data available to display.
+            </Typography>
+          )}
         </AccordionDetails>
       </Accordion>
     </Box>
@@ -938,7 +946,9 @@ const LoExplorerPage = () => {
   useEffect(() => {
     setFilteredUris(loUris[selectedLo] || []);
   }, [selectedLo, loUris]);
-
+  useEffect(() => {
+    setSelectedUri(filteredUris.length > 0 ? filteredUris[0] : '');
+  }, [filteredUris]);
   useEffect(() => {
     const uniqueProjects: string[] = [];
     const uniqueProjectUris: string[] = [];
