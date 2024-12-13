@@ -243,16 +243,7 @@ export enum BloomDimension {
   Evaluate = 'Evaluate',
   Create = 'Create',
 }
-export enum InsightType1 {
-  Objective = 'objective',
-  Precondition = 'precondition',
-}
-export enum InsightType2 {
-  Crossrefs = 'crossrefs',
-  Specifies = 'specifies',
-  Defines = 'defines',
-  'Example-for' = 'example-for',
-}
+
 export const ALL_DIMENSIONS = [
   BloomDimension.Remember,
   BloomDimension.Understand,

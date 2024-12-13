@@ -39,10 +39,14 @@ import {
   Typography,
 } from '@mui/material';
 import {
+  ALL_DIM_CONCEPT_PAIR,
+  ALL_LO_RELATION_TYPES,
   ALL_LO_TYPES,
+  ALL_ONLY_CONCEPT,
+  AllLoRelationTypes,
   getLearningObjectShtml,
-  InsightType1,
-  InsightType2,
+  LoRelationToConcept,
+  LoRelationToDimAndConceptPair,
   LoType,
   sparqlQuery,
 } from '@stex-react/api';
@@ -53,7 +57,10 @@ import { PracticeQuestions } from 'packages/stex-react-renderer/src/lib/Practice
 import { extractProjectIdAndFilepath } from 'packages/stex-react-renderer/src/lib/utils';
 import React, { memo, useContext, useEffect, useMemo, useState } from 'react';
 import MainLayout from '../layouts/MainLayout';
-import { DimAndURIListDisplay } from 'packages/stex-react-renderer/src/lib/ProblemDisplay';
+import {
+  DimAndURIListDisplay,
+  URIListDisplay,
+} from 'packages/stex-react-renderer/src/lib/ProblemDisplay';
 
 const handleStexCopy = (uri: string, uriType: LoType) => {
   const [archive, filePath] = extractProjectIdAndFilepath(uri, '');
@@ -85,21 +92,18 @@ interface InsightData {
   defines: string;
   specifies: string;
 }
-const getSparqlQueryForInsights = (uri: string, relationType: string) => {
+const getSparqlQueryForLoRelation = (uri: string, relationType: AllLoRelationTypes) => {
   if (!uri) {
     console.error('URI is absent');
     return;
   }
-  const isInsightType1 = Object.values(InsightType1)
-    .map((value) => value.toLowerCase())
-    .includes(relationType.toLowerCase());
-
-  const isInsightType2 = Object.values(InsightType2)
-    .map((value) => value.toLowerCase())
-    .includes(relationType.toLowerCase());
+  const isDimConceptType = ALL_DIM_CONCEPT_PAIR.includes(
+    relationType as LoRelationToDimAndConceptPair
+  );
+  const isOnlyConceptType = ALL_ONLY_CONCEPT.includes(relationType as LoRelationToConcept);
 
   let query = '';
-  if (isInsightType1) {
+  if (isDimConceptType) {
     query = `
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX ulo: <http://mathhub.info/ulo#>
@@ -112,7 +116,7 @@ const getSparqlQueryForInsights = (uri: string, relationType: string) => {
         }
         GROUP BY ?learningObject ?obj1
       `;
-  } else if (isInsightType2) {
+  } else if (isOnlyConceptType) {
     query = `
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX ulo: <http://mathhub.info/ulo#>
@@ -126,7 +130,7 @@ const getSparqlQueryForInsights = (uri: string, relationType: string) => {
   }
   return query;
 };
-const processInsight1Data = (result) => {
+const processDimAndConceptData = (result) => {
   try {
     const transformedData = result.results.bindings.map((binding: any) => {
       const relatedData = binding.relatedData.value.split('; ');
@@ -162,7 +166,7 @@ const processInsight1Data = (result) => {
     console.error('Error processing data:', error);
   }
 };
-const processInsight2Data = (result) => {
+const processConceptOnlyData = (result) => {
   try {
     const groupedData = result.results.bindings.reduce((acc, { learningObject, obj1 }) => {
       const learningObjectValue = learningObject.value;
@@ -196,13 +200,15 @@ const LoInsights = ({ uri }: { uri: string }) => {
         if (!uri?.length) return;
         const updatedData = { ...data };
         await Promise.all(
-          [...Object.values(InsightType1), ...Object.values(InsightType2)].map(async (value) => {
-            const query = getSparqlQueryForInsights(uri, value);
+          ALL_LO_RELATION_TYPES.map(async (value: AllLoRelationTypes) => {
+            const query = getSparqlQueryForLoRelation(uri, value);
             const result = await sparqlQuery(mmtUrl, query);
-            const transformedData = Object.values(InsightType1).includes(value as InsightType1)
-              ? processInsight1Data(result)
-              : processInsight2Data(result);
-            updatedData[value.toLowerCase()] = transformedData;
+            const transformedData = ALL_DIM_CONCEPT_PAIR.includes(
+              value as LoRelationToDimAndConceptPair
+            )
+              ? processDimAndConceptData(result)
+              : processConceptOnlyData(result);
+            updatedData[value] = transformedData;
           })
         );
         setData(updatedData);
@@ -249,9 +255,20 @@ const LoInsights = ({ uri }: { uri: string }) => {
             padding: '16px',
           }}
         >
-          {displayData.map(({ title, data }) => (
-            <DimAndURIListDisplay key={title} title={title} data={data} />
-          ))}
+          {displayData
+            .filter(({ data }) => data)
+            .map(({ title, data }) =>
+              title === 'Objectives' || title === 'Precondition' ? (
+                <DimAndURIListDisplay key={title} title={title} data={data} />
+              ) : (
+                <Box border="1px solid black" mb="10px" bgcolor="white" key={title}>
+                  <Typography fontWeight="bold" sx={{ p: '10px' }}>
+                    {title}&nbsp;
+                  </Typography>
+                  <URIListDisplay uris={data.split(',')} />
+                </Box>
+              )
+            )}
         </AccordionDetails>
       </Accordion>
     </Box>

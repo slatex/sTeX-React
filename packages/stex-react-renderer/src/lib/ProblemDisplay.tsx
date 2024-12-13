@@ -406,28 +406,17 @@ function groupingByBloomDimension(data?: string) {
   return groupedData;
 }
 
-function isBloomDimensionFormat(data: string) {
-  const [dimension, _] = data.split(':');
-  return Object.values(BloomDimension)
-    .map((value) => value.toLowerCase())
-    .includes(dimension.toLowerCase());
-}
-
-function structureData(data?: string): Record<string, string[]> {
-  if (!data) return {};
-  if (isBloomDimensionFormat(data)) {
-    return groupingByBloomDimension(data);
-  }
-  return {
-    NON_BLOOM_URIS: data.split(',').map((uri) => decodeURIComponent(uri.trim())),
-  };
+export function URIListDisplay({ uris }: { uris?: string[] }) {
+  return uris.map((uri, index, array) => (
+    <React.Fragment key={index}>
+      <span>{mmtHTMLToReact(getMMTHtml(uri))}</span>
+      {index < array.length - 1 ? ',\xa0' : ''}
+    </React.Fragment>
+  ));
 }
 
 export function DimAndURIListDisplay({ title, data }: { title: string; data?: string }) {
-  if (!data) {
-    return;
-  }
-  const transformedData = structureData(data);
+  const transformedData = groupingByBloomDimension(data);
   return (
     <Box border="1px solid black" mb="10px" bgcolor="white">
       <Typography fontWeight="bold" sx={{ p: '10px' }}>
@@ -437,13 +426,8 @@ export function DimAndURIListDisplay({ title, data }: { title: string; data?: st
         .filter(([_, uris]) => uris.length > 0)
         .map(([group, uris]) => (
           <Box key={group} borderTop="1px solid #AAA" p="5px" display="flex" flexWrap="wrap">
-            {group !== 'NON_BLOOM_URIS' && <DimIcon dim={group as BloomDimension} />} &nbsp;
-            {uris.map((uri, index, array) => (
-              <React.Fragment key={index}>
-                <span>{mmtHTMLToReact(getMMTHtml(uri))}</span>
-                {index < array.length - 1 ? ',\xa0' : ''}
-              </React.Fragment>
-            ))}
+            <DimIcon dim={group as BloomDimension} /> &nbsp;
+            <URIListDisplay uris={uris} />
           </Box>
         ))}
     </Box>
