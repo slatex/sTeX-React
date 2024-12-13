@@ -6,7 +6,13 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import FiberNewIcon from '@mui/icons-material/FiberNew';
 import SaveIcon from '@mui/icons-material/Save';
-import { CreateAnswerClassRequest, GradingInfo, ReviewType, SubProblemData } from '@stex-react/api';
+import {
+  CreateAnswerClassRequest,
+  getUserInfo,
+  GradingInfo,
+  ReviewType,
+  SubProblemData,
+} from '@stex-react/api';
 import { MystEditor, MystViewer } from '@stex-react/myst';
 import { localStore, PRIMARY_COL } from '@stex-react/utils';
 import dayjs from 'dayjs';
@@ -182,6 +188,23 @@ export function SubProblemAnswer({
     setAnswer(value);
   }
 
+  const solutionBox =
+    isFrozen && subProblem.solution ? (
+      <Box
+        style={{
+          color: '#555',
+          backgroundColor: 'white',
+          padding: '5px',
+          borderRadius: '5px',
+          margin: '10px 0px',
+          border: `1px solid ${PRIMARY_COL}`,
+        }}
+      >
+        {mmtHTMLToReact(subProblem.solution)}
+      </Box>
+    ) : (
+      <></>
+    );
   return (
     <>
       <Box>
@@ -231,6 +254,7 @@ export function SubProblemAnswer({
           </Box>
         )}
       </Box>
+      {isGrading && solutionBox}
       {(isGrading || showGrading) && (
         <Box p={1} bgcolor="white" border="1px solid gray" borderRadius={1}>
           <Typography display="block">
@@ -253,20 +277,7 @@ export function SubProblemAnswer({
           <GradingManager problemId={questionId} subProblemId={subProblemId} />
         </Box>
       )}
-      {isFrozen && subProblem.solution && (
-        <Box
-          style={{
-            color: '#555',
-            backgroundColor: 'white',
-            padding: '5px',
-            borderRadius: '5px',
-            margin: '10px 0px',
-            border: `1px solid ${PRIMARY_COL}`,
-          }}
-        >
-          {mmtHTMLToReact(subProblem.solution)}
-        </Box>
-      )}
+      {!isGrading && solutionBox}
     </>
   );
 }
