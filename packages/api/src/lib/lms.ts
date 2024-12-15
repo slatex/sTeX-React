@@ -243,6 +243,7 @@ export enum BloomDimension {
   Evaluate = 'Evaluate',
   Create = 'Create',
 }
+
 export const ALL_DIMENSIONS = [
   BloomDimension.Remember,
   BloomDimension.Understand,
