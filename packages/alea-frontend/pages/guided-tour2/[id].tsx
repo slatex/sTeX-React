@@ -4,26 +4,25 @@ import {
   getLeafConcepts,
   getLearningObjects,
   getLearningObjectShtml,
-  SelfAssessmentEvent,
   LoType,
   ProblemResponse,
+  SelfAssessmentEvent,
   updateLearnerModel,
 } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import assert from 'assert';
 import { useRouter } from 'next/router';
-import ProblemFetcher from 'packages/alea-frontend/components/ProblemFetcher';
-import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
 import { useContext, useEffect, useState } from 'react';
+import { LoViewer } from '../../components/LoListDisplay';
+import ProblemFetcher from '../../components/ProblemFetcher';
 import {
   ACTION_VERBALIZATION_OPTIONS,
   ActionName,
   COMFORT_PROMPTS,
   INITIALIZE_MESSAGES,
 } from '../../constants/messages';
+import MainLayout from '../../layouts/MainLayout';
 import styles from '../../styles/guided-tour.module.scss';
-import { LoViewer } from '../lo-explorer';
-import dayjs from 'dayjs';
 
 const structureLearningObjects = async (
   mmtUrl: string,

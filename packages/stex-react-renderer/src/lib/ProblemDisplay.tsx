@@ -25,6 +25,7 @@ import {
   QuadState,
   Tristate,
   UserInfo,
+  createAnswer,
   getUserInfo,
   postAnswer,
 } from '@stex-react/api';
@@ -530,6 +531,33 @@ export function ProblemDisplay({
   });
   const customItems = Object.assign(inputWidgets);
   const statement = removeInfoIfNeeded(problem.statement.outerHTML ?? '', isEffectivelyFrozen);
+  async function saveAnswers({
+    problemId,
+    uri,
+    freeTextResponses,
+  }: {
+    problemId: string;
+    uri?: string;
+    freeTextResponses: Record<string, string>;
+  }) {
+    try {
+      const promises = Object.keys(freeTextResponses).map((idx) =>
+        createAnswer({
+          answer: freeTextResponses[idx],
+          questionId: uri ? uri : problemId,
+          questionTitle: router.query?.title as string,
+          subProblemId: idx,
+          courseId: router.query.courseId as string,
+        })
+      );
+      await Promise.all(promises);
+      console.log('All answers saved successfully!');
+    } catch (error) {
+      console.error('Error saving answers:', error);
+      alert('Failed to save answers. Please try again.');
+    }
+  }
+
   return (
     <Card
       sx={{
@@ -566,6 +594,11 @@ export function ProblemDisplay({
                   freeTextResponses[i.toString()] =
                     getAnswerFromLocalStorage(uri ? uri : problemId, i.toString()) ?? '';
                 }
+                saveAnswers({
+                  problemId,
+                  uri,
+                  freeTextResponses,
+                });
                 onResponseUpdate({ ...r, freeTextResponses });
               }}
             ></SubProblemAnswer>
