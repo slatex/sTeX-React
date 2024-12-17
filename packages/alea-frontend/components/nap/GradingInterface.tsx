@@ -31,8 +31,7 @@ import {
   Tristate,
 } from '@stex-react/api';
 import { getProblem } from '@stex-react/quiz-utils';
-import { mmtHTMLToReact, ProblemDisplay } from '@stex-react/stex-react-renderer';
-import { GradingContext } from 'packages/stex-react-renderer/src/lib/SubProblemAnswer';
+import { mmtHTMLToReact, GradingContext, ProblemDisplay } from '@stex-react/stex-react-renderer';
 import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const MULTI_SELECT_FIELDS = ['homeworkId', 'questionId', 'studentId'] as const;
@@ -435,9 +434,8 @@ function GradingItemDisplay({
             await createGrading({ answerId, answerClasses, customFeedback });
             refreshGradingInfo();
           },
-
-          onNextGradingItem: onNextGradingItem,
-          onPrevGradingItem: onPrevGradingItem,
+          onNextGradingItem,
+          onPrevGradingItem,
         }}
       >
         <ProblemDisplay
