@@ -419,46 +419,47 @@ export type LoRelationToDimAndConceptPair = (typeof ALL_DIM_CONCEPT_PAIR)[number
 export type LoRelationToNonDimConcept = (typeof ALL_NON_DIM_CONCEPT)[number];
 export type AllLoRelationTypes = (typeof ALL_LO_RELATION_TYPES)[number];
 
-export const getSparqlQueryForLoRelationToDimAndConceptPair = (
-  uri: string,
-  relationType: LoRelationToDimAndConceptPair
-) => {
+export const getSparqlQueryForLoRelationToDimAndConceptPair = (uri: string) => {
   if (!uri) {
     console.error('URI is absent');
     return;
   }
-  const query = `
-        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX ulo: <http://mathhub.info/ulo#>
+  const query = `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                PREFIX ulo: <http://mathhub.info/ulo#>
 
-        SELECT ?learningObject ?obj1 (GROUP_CONCAT(CONCAT(STR(?relType), "=", STR(?obj2)); SEPARATOR="; ") AS ?relatedData)
-        WHERE {
-            ?learningObject ulo:${relationType} ?obj1 .
-            ?obj1 ?relType ?obj2 .
-            FILTER(CONTAINS(STR(?learningObject), "${uri}")).
-        }
-        GROUP BY ?learningObject ?obj1
-      `;
+                SELECT ?learningObject ?relation ?obj1 (GROUP_CONCAT(CONCAT(STR(?relType), "=", STR(?obj2)); SEPARATOR="; ") AS ?relatedData)
+                WHERE {
+                        ?learningObject ?relation ?obj1 .
+                        ?obj1 ?relType ?obj2 .
+    
+                        FILTER(CONTAINS(STR(?learningObject), "${uri}")).
+                        VALUES ?relation {
+                                ulo:precondition
+                                ulo:objective 
+                                }
+                      }
+                GROUP BY ?learningObject ?relation ?obj1 `;
   return query;
 };
 
-export const getSparqlQueryForLoRelationToNonDimConcept = (
-  uri: string,
-  relationType: LoRelationToNonDimConcept
-) => {
+export const getSparqlQueryForLoRelationToNonDimConcept = (uri: string) => {
   if (!uri) {
     console.error('URI is absent');
     return;
   }
-  const query = `
-        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX ulo: <http://mathhub.info/ulo#>
+  const query = `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                PREFIX ulo: <http://mathhub.info/ulo#>
 
-        SELECT ?learningObject ?obj1
-        WHERE {
-            ?learningObject ulo:${relationType} ?obj1 .
-            FILTER(CONTAINS(STR(?learningObject), "${uri}")).
-        }
-      `;
+                SELECT ?learningObject ?relation ?obj1
+                WHERE {
+                        ?learningObject ?relation ?obj1 .
+                         FILTER(CONTAINS(STR(?learningObject), "${uri}")).
+                         VALUES ?relation {
+                                   ulo:crossrefs
+                                   ulo:specifies
+                                   ulo:defines
+                                   ulo:example-for
+                                   } 
+                              }`;
   return query;
 };
