@@ -296,12 +296,7 @@ async function stateTransition(
     // TODO: handle end of leaf concepts.
     newMessages.push(
       systemTextMessage(
-        `Alright, let's move on and talk about <b style="color: #d629ce">${nextConceptName}</b>.`
-      )
-    );
-    newMessages.push(
-      systemTextMessage(
-        `Do you feel confident about your understanding of <b style="color: #d629ce">${nextConceptName}</b>.`
+        `Alright, let's proceed!</br>Do you feel confident about your understanding of <b style="color: #d629ce">${nextConceptName}</b>.`
       )
     );
     const options: ActionName[] = ['KNOW', 'DONT_KNOW'];
@@ -343,10 +338,9 @@ async function stateTransition(
         nextAction = { actionType: 'end' };
         return { newState, nextAction, newMessages };
       }
-      newMessages.push(systemTextMessage('Great!'));
       newMessages.push(
         systemTextMessage(
-          `Let's move on to the next concept -  <b style="color: #d629ce">${nextConceptName}</b>.`
+          `Great!</br>Let's move on to the next concept -  <b style="color: #d629ce">${nextConceptName}</b>.`
         )
       );
 
@@ -409,12 +403,6 @@ async function stateTransition(
         newMessages.push(systemTextMessage('Do you want to try another problem?'));
         nextAction = chooseOptionAction(['ANOTHER_PROBLEM', 'DONT_KNOW', 'MOVE_ON']);
       }
-      const currentConcept = conceptUriToName(state.leafConceptUris[state.focusConceptIdx]);
-      newMessages.push(
-        systemTextMessage(
-          `Let's see how well you understand  <b style="color: #d629ce">${currentConcept}</b>.`
-        )
-      );
     }
   } else {
     /* focusConceptInitialized */
