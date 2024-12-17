@@ -52,7 +52,7 @@ export function MystViewer({ content }: { content: string }) {
   const astNodes = mystParse(content);
   const MYST_THEME = Theme.light;
   return (
-    <ThemeProvider renderers={MY_RENDERERS} theme={MYST_THEME}>
+    <ThemeProvider renderers={MY_RENDERERS} theme={MYST_THEME} setTheme={console.log}>
       <MyST ast={astNodes} />
     </ThemeProvider>
   );

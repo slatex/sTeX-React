@@ -1,4 +1,4 @@
-import { Check, SettingsBackupRestore } from '@mui/icons-material';
+import { SettingsBackupRestore } from '@mui/icons-material';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
@@ -9,7 +9,6 @@ import {
   Button,
   Checkbox,
   Chip,
-  FormControlLabel,
   IconButton,
   List,
   ListItemButton,
@@ -251,7 +250,6 @@ function GradingItemOrganizer({
     const uniqueIds = [...new Set(gradingItems.map((gi) => gi.studentId))];
     return uniqueIds.map((id) => ({ value: id, title: id }));
   }, [gradingItems]);
-  const { isGraded, isInstructorGraded } = sortAndFilterParams;
   //const [selectedQuestions, setSelectedQuestions] = useState<any[]>([]);
   return (
     <Box>
@@ -291,36 +289,22 @@ function GradingItemOrganizer({
         />
       </Box>
       <Box my={1}>
-        <FormControlLabel
-          sx={{ mr: 2 }}
-          control={
-            <TriStateCheckbox
-              value={isGraded}
-              onChange={(v) => setSortAndFilterParams({ ...sortAndFilterParams, isGraded: v })}
-            />
+        <Button
+          variant="contained"
+          onClick={() =>
+            setSortAndFilterParams({
+              ...sortAndFilterParams,
+              isInstructorGraded:
+                sortAndFilterParams.isInstructorGraded === Tristate.FALSE
+                  ? Tristate.UNKNOWN
+                  : Tristate.FALSE,
+            })
           }
-          label={
-            <Box display="flex">
-              Is Graded
-              <Check htmlColor="green" />
-            </Box>
-          }
-        />
-        <FormControlLabel
-          control={
-            <TriStateCheckbox
-              value={isInstructorGraded}
-              onChange={(v) =>
-                setSortAndFilterParams({ ...sortAndFilterParams, isInstructorGraded: v })
-              }
-            />
-          }
-          label={
-            <Box display="flex">
-              Is Instructor <ShieldIcon htmlColor="green" />
-            </Box>
-          }
-        />
+        >
+          {sortAndFilterParams.isInstructorGraded === Tristate.FALSE
+            ? 'Show all problems'
+            : 'Show ungraded problems only'}
+        </Button>
       </Box>
       <GradingListSortFields
         sortAndFilterParams={sortAndFilterParams}
@@ -364,11 +348,6 @@ function GradingItemsList({
               <ListItemIcon>
                 {numSubProblemsInstructorGraded === numSubProblemsAnswered ? (
                   <ShieldIcon htmlColor="green" />
-                ) : (
-                  <CheckBoxOutlineBlankIcon />
-                )}
-                {numSubProblemsAnswered === numSubProblemsGraded ? (
-                  <Check htmlColor="green" />
                 ) : (
                   <CheckBoxOutlineBlankIcon />
                 )}
@@ -441,7 +420,7 @@ function GradingItemDisplay({
         value={{
           isGrading: true,
           showGrading: true,
-          gradingInfo: {[questionId]: subProblemInfoToGradingInfo} ,
+          gradingInfo: { [questionId]: subProblemInfoToGradingInfo },
           studentId,
           onNewGrading: async (
             subProblemId: string,
@@ -479,7 +458,7 @@ function GradingItemDisplay({
 interface SortAndFilterParams {
   multiSelectField: Record<MultSelectField, (string | number)[]>;
   isGraded: Tristate;
-  isInstructorGraded: Tristate;
+  isInstructorGraded: Tristate; //only switches between false and unknown
   sortingFields: SortField[];
   sortOrders: Record<SortField, 'ASC' | 'DESC'>;
 }

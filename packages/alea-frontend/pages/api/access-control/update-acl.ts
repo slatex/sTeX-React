@@ -8,6 +8,7 @@ import {
   isCurrentUserMemberOfAClupdater,
   validateMemberAndAclIds,
 } from '../acl-utils/acl-common-utils';
+import { recomputeMemberships } from './recompute-memberships';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
@@ -27,7 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     'DELETE FROM ACLMembership WHERE parentACLId=?',
     [id]
   );
-  if(!result) return;
+  if (!result) return;
   const numMembershipRows = memberUserIds.length + memberACLIds.length;
   if (numMembershipRows > 0) {
     const values = new Array(numMembershipRows).fill('(?, ?, ?)');
@@ -37,7 +38,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const memberQuery = `INSERT INTO ACLMembership (parentACLId, memberACLId, memberUserId) VALUES 
     ${values.join(', ')}`;
     const resp = await executeAndEndSet500OnError(memberQuery, memberQueryParams, res);
-    if(!resp) return;
+    if (!resp) return;
   }
+  await recomputeMemberships();
   return res.status(204).end();
 }

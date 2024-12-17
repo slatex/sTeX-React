@@ -22,9 +22,11 @@ export async function getAcl(aclId: string): Promise<AccessControlList> {
   return resp.data as AccessControlList;
 }
 
-export async function getAclUserDetails(aclId : string):Promise<{fullName: string, userid:string}[]>{
+export async function getAclUserDetails(
+  aclId: string
+) {
   const resp = await axios.get(`/api/access-control/get-acl-userdetails?id=${aclId}`);
-  return resp.data as {fullName: string,userid:string}[]
+  return resp.data as { fullName: string; userId: string }[];
 }
 
 export async function getCourseAcls(courseId: string, instanceId: string) {
@@ -136,6 +138,24 @@ export async function canModerateStudyBuddy(courseId?: string, courseTerm?: stri
     params: { courseId, courseTerm },
   });
   return data as boolean;
+}
+
+export async function addRemoveMember({
+  memberId,
+  aclId,
+  isAclMember,
+  toBeAdded,
+}: {
+  memberId: string;
+  aclId: string;
+  isAclMember: boolean;
+  toBeAdded: boolean;
+}): Promise<void> {
+  await axios.post(
+    '/api/access-control/add-remove-member',
+    { memberId, aclId, isAclMember, toBeAdded },
+    { headers: getAuthHeaders() }
+  );
 }
 
 export type UpdateACLRequest = Omit<AccessControlList, 'updatedAt' | 'createdAt'>;

@@ -25,6 +25,7 @@ import {
   QuadState,
   Tristate,
   UserInfo,
+  createAnswer,
   getUserInfo,
   postAnswer,
 } from '@stex-react/api';
@@ -38,7 +39,7 @@ import {
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { PRIMARY_COL } from '@stex-react/utils';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getMMTHtml } from './CompetencyTable';
 import { DocumentWidthSetter } from './DocumentWidthSetter';
 import { getLocaleObject } from './lang/utils';
@@ -406,27 +407,30 @@ function groupingByBloomDimension(data?: string) {
   return groupedData;
 }
 
-function DimAndURIListDisplay({ title, data }: { title: string; data?: string }) {
-  const groupedData = groupingByBloomDimension(data);
+export function URIListDisplay({ uris }: { uris?: string[] }) {
+  return uris.map((uri, index, array) => (
+    <React.Fragment key={index}>
+      <span>{mmtHTMLToReact(getMMTHtml(uri))}</span>
+      {index < array.length - 1 ? ',\xa0' : ''}
+    </React.Fragment>
+  ));
+}
+
+export function DimAndURIListDisplay({ title, data }: { title: string; data?: string }) {
+  const transformedData = groupingByBloomDimension(data);
   return (
     <Box border="1px solid black" mb="10px" bgcolor="white">
       <Typography fontWeight="bold" sx={{ p: '10px' }}>
         {title}&nbsp;
       </Typography>
-      {Object.values(BloomDimension).map((dim) =>
-        groupedData[dim].length ? (
-          <Box key={dim} borderTop="1px solid #AAA" p="5px" display="flex" flexWrap="wrap">
-            <DimIcon dim={dim} />
-            &nbsp;
-            {groupedData[dim]?.map((uri, index) => (
-              <span key={index}>
-                {mmtHTMLToReact(getMMTHtml(uri))}
-                {index < groupedData[dim].length - 1 ? ',\xa0' : ''}
-              </span>
-            ))}
+      {Object.entries(transformedData)
+        .filter(([_, uris]) => uris.length > 0)
+        .map(([group, uris]) => (
+          <Box key={group} borderTop="1px solid #AAA" p="5px" display="flex" flexWrap="wrap">
+            <DimIcon dim={group as BloomDimension} /> &nbsp;
+            <URIListDisplay uris={uris} />
           </Box>
-        ) : null
-      )}
+        ))}
     </Box>
   );
 }
@@ -527,6 +531,33 @@ export function ProblemDisplay({
   });
   const customItems = Object.assign(inputWidgets);
   const statement = removeInfoIfNeeded(problem.statement.outerHTML ?? '', isEffectivelyFrozen);
+  async function saveAnswers({
+    problemId,
+    uri,
+    freeTextResponses,
+  }: {
+    problemId: string;
+    uri?: string;
+    freeTextResponses: Record<string, string>;
+  }) {
+    try {
+      const promises = Object.keys(freeTextResponses).map((idx) =>
+        createAnswer({
+          answer: freeTextResponses[idx],
+          questionId: uri ? uri : problemId,
+          questionTitle: router.query?.title as string,
+          subProblemId: idx,
+          courseId: router.query.courseId as string,
+        })
+      );
+      await Promise.all(promises);
+      console.log('All answers saved successfully!');
+    } catch (error) {
+      console.error('Error saving answers:', error);
+      alert('Failed to save answers. Please try again.');
+    }
+  }
+
   return (
     <Card
       sx={{
@@ -563,6 +594,11 @@ export function ProblemDisplay({
                   freeTextResponses[i.toString()] =
                     getAnswerFromLocalStorage(uri ? uri : problemId, i.toString()) ?? '';
                 }
+                saveAnswers({
+                  problemId,
+                  uri,
+                  freeTextResponses,
+                });
                 onResponseUpdate({ ...r, freeTextResponses });
               }}
             ></SubProblemAnswer>
