@@ -462,3 +462,28 @@ export const getSparqlQueryForLoRelationToNonDimConcept = (
       `;
   return query;
 };
+
+export const getProblemObject = async (mmtUrl: string, concept: string) => {
+  if (!concept) {
+    console.error('Concept is required');
+    return null;
+  }
+  const query = `
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    PREFIX ulo: <http://mathhub.info/ulo#>
+
+    SELECT DISTINCT ?learningObject
+    WHERE {
+      ?learningObject rdf:type ulo:problem .
+      FILTER(CONTAINS(STR(?learningObject), "${concept}"))
+    }
+  `;
+
+  try {
+    const res = await sparqlQuery(mmtUrl, query);
+    return res.results?.bindings[0]?.['learningObject']?.value ?? null;
+  } catch (error) {
+    console.error('Error executing SPARQL query:', error);
+    throw error;
+  }
+};

@@ -11,6 +11,7 @@ import { getUserIdIfAuthorizedOrSetError } from '../access-control/resource-util
 import { checkIfQueryParameterExistOrSetError, executeAndEndSet500OnError } from '../comment-utils';
 import {
   getAllAnswersForHomeworkOrSetError,
+  getAllAnswersForQuestion,
   getHomeworkOrSetError,
 } from '../homework/get-homework';
 
@@ -79,7 +80,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const questionId = req.query.questionId as string;
   const studentId = req.query.studentId as string;
   const homeworkId = +(req.query.homeworkId as string);
-  if (!homeworkId || isNaN(homeworkId)) return res.status(422).send('Missing params.');
+
+  if (!homeworkId || isNaN(homeworkId)) {
+    const answers = await getAllAnswersForQuestion(studentId, questionId, res);
+    if (!answers) return;
+    const problemAnswers = answers[questionId];
+    const response: ProblemResponse = {
+      autogradableResponses: [],
+      freeTextResponses: {},
+    };
+
+    Object.entries(problemAnswers || {}).forEach(([subProblemId, answerEntry]) => {
+      response.freeTextResponses[subProblemId] = answerEntry.answer;
+    });
+    res.send({
+      answers: response,
+      subProblemIdToAnswerId: {}, 
+      subProblemIdToGrades: {},
+    } as GetAnswersWithGradingResponse);
+
+    return;
+  }
+
   const homework = await getHomeworkOrSetError(homeworkId, false, res);
   if (!homework) return;
   const checkerId = await getUserIdIfAuthorizedOrSetError(

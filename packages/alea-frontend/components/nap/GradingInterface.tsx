@@ -23,6 +23,8 @@ import {
   createGrading,
   getAnswersWithGrading,
   getCourseGradingItems,
+  getLearningObjectShtml,
+  getProblemObject,
   GradingInfo,
   GradingItem,
   HomeworkInfo,
@@ -30,10 +32,23 @@ import {
   ProblemResponse,
   Tristate,
 } from '@stex-react/api';
-import { getProblem } from '@stex-react/quiz-utils';
-import { mmtHTMLToReact, ProblemDisplay } from '@stex-react/stex-react-renderer';
+import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
+import {
+  mmtHTMLToReact,
+  ProblemDisplay,
+  ServerLinksContext,
+} from '@stex-react/stex-react-renderer';
 import { GradingContext } from 'packages/stex-react-renderer/src/lib/SubProblemAnswer';
-import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 const MULTI_SELECT_FIELDS = ['homeworkId', 'questionId', 'studentId'] as const;
 const ALL_SORT_FIELDS = ['homeworkDate', 'questionTitle', 'updatedAt', 'studentId'] as const;
@@ -392,7 +407,9 @@ function GradingItemDisplay({
   onNextGradingItem: () => void;
   onPrevGradingItem: () => void;
 }) {
+  const { mmtUrl } = useContext(ServerLinksContext);
   const [studentResponse, setStudentResponse] = useState<ProblemResponse>(undefined);
+  const [problem, setProblem] = useState<Problem | null>(questionMap[questionId] || null);
   const [subProblemIdToAnswerId, setSubProblemIdToAnswerId] = useState<Record<string, number>>({});
   const [subProblemInfoToGradingInfo, setSubProblemInfoToGradingInfo] = useState<
     Record<string, GradingInfo[]>
@@ -413,6 +430,26 @@ function GradingItemDisplay({
   useEffect(() => {
     refreshGradingInfo();
   }, [homeworkId, questionId, studentId]);
+
+  useEffect(() => {
+    const fetchProblem = async () => {
+      if (!questionMap[questionId]) {
+        try {
+          const uriWithoutId = questionId.replace(/en\?.*$/, 'en');
+          const learningObject = await getProblemObject(mmtUrl,uriWithoutId);
+          const problemHtml = await getLearningObjectShtml(mmtUrl, learningObject);
+          const problemId = hackAwayProblemId(problemHtml);
+          const fetchedProblem = getProblem(problemId, '');
+          setProblem(fetchedProblem);
+        } catch (error) {
+          console.error('Error fetching problem:', error);
+        }
+      } else {
+        setProblem(questionMap[questionId]);
+      }
+    };
+    fetchProblem();
+  }, [questionId, questionMap]);
 
   return (
     <Box maxWidth={900}>
@@ -445,7 +482,7 @@ function GradingItemDisplay({
           r={studentResponse}
           debug={true}
           problemId={questionId}
-          problem={questionMap[questionId]}
+          problem={problem}
           onResponseUpdate={() => {
             console.log('onResponseUpdate');
           }}
