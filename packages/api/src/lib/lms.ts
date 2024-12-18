@@ -99,7 +99,7 @@ export async function getUriWeights(concepts: string[]): Promise<NumericCognitiv
   if (!concepts?.length) return [];
   const data: LmsOutputMultipleResponse = await lmsRequest(
     'lms',
-    'lms/output/multiple',
+    'lmp/output/multiple',
     'POST',
     null,
     {
@@ -123,7 +123,7 @@ export async function getUriSmileys(
   if (!concepts?.length) return new Map();
   const data: LmsOutputMultipleResponse = await lmsRequest(
     'lms',
-    'lms/output/multiple',
+    'lmp/output/multiple',
     'POST',
     null,
     {
