@@ -158,14 +158,14 @@ export async function getAllMyData(): Promise<{
     views: any[];
   };
 }> {
-  return await lmsRequest('lms', 'lms/output/all_my_data', 'POST', {}, {});
+  return await lmsRequest('lms', 'lmp/output/all_my_data', 'POST', {}, {});
 }
 
 export async function getMyModel(): Promise<{
   learner: string;
   model: ConceptCompetenceInfo[];
 }> {
-  return await lmsRequest('lms', 'lms/output/my_model', 'POST', {}, {});
+  return await lmsRequest('lms', 'lmp/output/my_model', 'POST', {}, {});
 }
 
 export async function getMyCompleteModel(): Promise<ConceptCompetenceInfo[]> {
@@ -173,13 +173,13 @@ export async function getMyCompleteModel(): Promise<ConceptCompetenceInfo[]> {
 }
 
 export async function purgeAllMyData() {
-  await lmsRequest('lms', 'lms/input/events', 'POST', {}, {
+  await lmsRequest('lms', 'lmp/input/events', 'POST', {}, {
     type: 'purge',
   } as PurgeEvent);
 }
 
 export async function reportEvent(event: LMS2Event) {
-  return await lmsRequest('lms', 'lms/input/events', 'POST', {}, event);
+  return await lmsRequest('lms', 'lmp/input/events', 'POST', {}, event);
 }
 
 const SERVER_TO_ADDRESS = {
@@ -460,13 +460,13 @@ export interface ConceptHistory {
 }
 
 export async function getConceptHistory(concept: string): Promise<ConceptHistory> {
-  return await lmsRequest('lms', 'lms/output/history', 'POST', null, {
+  return await lmsRequest('lms', 'lmp/output/history', 'POST', null, {
     concept,
   });
 }
 
 export async function postAnswer(answer: ProblemAnswerEvent) {
-  return await lmsRequest('lms', '/lms/input/events', 'POST', null, answer);
+  return await lmsRequest('lms', '/lmp/input/events', 'POST', null, answer);
 }
 
 export interface GetLearningObjectsResponse {
@@ -503,7 +503,7 @@ export async function updateLearnerModel(updatePayload: SelfAssessmentEvent) {
   const userInfo = await getUserInfo();
   const userId = userInfo?.userId;
 
-  return await lmsRequest('lms', 'lms/input/events', 'POST', null, {
+  return await lmsRequest('lms', 'lmp/input/events', 'POST', null, {
     ...updatePayload,
     learner: userId,
   });
