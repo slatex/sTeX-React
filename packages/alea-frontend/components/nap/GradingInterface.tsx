@@ -23,6 +23,8 @@ import {
   createGrading,
   getAnswersWithGrading,
   getCourseGradingItems,
+  getLearningObjectShtml,
+  getProblemObject,
   GradingInfo,
   GradingItem,
   HomeworkInfo,
@@ -30,9 +32,23 @@ import {
   ProblemResponse,
   Tristate,
 } from '@stex-react/api';
-import { getProblem } from '@stex-react/quiz-utils';
-import { mmtHTMLToReact, GradingContext, ProblemDisplay } from '@stex-react/stex-react-renderer';
-import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
+import {
+  mmtHTMLToReact,
+  ProblemDisplay,
+  ServerLinksContext,
+} from '@stex-react/stex-react-renderer';
+import { GradingContext } from 'packages/stex-react-renderer/src/lib/SubProblemAnswer';
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 const MULTI_SELECT_FIELDS = ['homeworkId', 'questionId', 'studentId'] as const;
 const ALL_SORT_FIELDS = ['homeworkDate', 'questionTitle', 'updatedAt', 'studentId'] as const;
@@ -45,6 +61,13 @@ const DEFAULT_SORT_ORDER: Record<SortField, 'ASC' | 'DESC'> = {
 type MultSelectField = (typeof MULTI_SELECT_FIELDS)[number];
 type SortField = (typeof ALL_SORT_FIELDS)[number];
 
+async function fetchAndProcessProblem(questionId: string, mmtUrl: string) {
+  const problemIdPrefix = questionId.replace(/\?[^?]*$/, '');
+  const problemObject = await getProblemObject(mmtUrl, problemIdPrefix);
+  const problemHtml = await getLearningObjectShtml(mmtUrl, problemObject);
+  const problemId = hackAwayProblemId(problemHtml);
+  return getProblem(problemId, '');
+}
 function MultiItemSelector<T>({
   selectedValues,
   allValues,
@@ -391,7 +414,9 @@ function GradingItemDisplay({
   onNextGradingItem: () => void;
   onPrevGradingItem: () => void;
 }) {
+  const { mmtUrl } = useContext(ServerLinksContext);
   const [studentResponse, setStudentResponse] = useState<ProblemResponse>(undefined);
+  const [problem, setProblem] = useState<Problem | null>(questionMap[questionId] || null);
   const [subProblemIdToAnswerId, setSubProblemIdToAnswerId] = useState<Record<string, number>>({});
   const [subProblemInfoToGradingInfo, setSubProblemInfoToGradingInfo] = useState<
     Record<string, GradingInfo[]>
@@ -412,6 +437,22 @@ function GradingItemDisplay({
   useEffect(() => {
     refreshGradingInfo();
   }, [homeworkId, questionId, studentId]);
+
+  useEffect(() => {
+    if (questionMap[questionId]) {
+      setProblem(questionMap[questionId]);
+      return;
+    }
+    const fetchProblem = async () => {
+      try {
+        const fetchedProblem = await fetchAndProcessProblem(questionId, mmtUrl);
+        setProblem(fetchedProblem);
+      } catch (error) {
+        console.error('Error fetching problem:', error);
+      }
+    };
+    fetchProblem();
+  }, [questionId, questionMap]);
 
   return (
     <Box maxWidth={900}>
@@ -443,7 +484,7 @@ function GradingItemDisplay({
           r={studentResponse}
           debug={true}
           problemId={questionId}
-          problem={questionMap[questionId]}
+          problem={problem}
           onResponseUpdate={() => {
             console.log('onResponseUpdate');
           }}
