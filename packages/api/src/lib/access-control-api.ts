@@ -1,7 +1,7 @@
 import { Action, ResourceActionPair, ResourceName } from '@stex-react/utils';
 import axios from 'axios';
 import { AccessControlList, ResourceAction } from './access-control';
-import { getAuthHeaders } from './lms';
+import { getAuthHeaders } from './lmp';
 
 export async function getAllAclIds(): Promise<string[]> {
   const resp = await axios.get('/api/access-control/get-all-acl-ids');

@@ -1,7 +1,7 @@
 import { CURRENT_TERM } from '@stex-react/utils';
 import axios, { AxiosError } from 'axios';
 import { HomeworkInfo } from './homework';
-import { getAuthHeaders } from './lms';
+import { getAuthHeaders } from './lmp';
 import {
   CreateAnswerRequest,
   CreateGradingRequest,
