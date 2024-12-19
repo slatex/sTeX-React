@@ -463,9 +463,9 @@ export const getSparqlQueryForLoRelationToNonDimConcept = (
   return query;
 };
 
-export const getProblemObject = async (mmtUrl: string, concept: string) => {
-  if (!concept) {
-    console.error('Concept is required');
+export const getProblemObject = async (mmtUrl: string, problemIdPrefix: string) => {
+  if (!problemIdPrefix) {
+    console.error('Problem ID prefix is required');
     return null;
   }
   const query = `
@@ -475,7 +475,7 @@ export const getProblemObject = async (mmtUrl: string, concept: string) => {
     SELECT DISTINCT ?learningObject
     WHERE {
       ?learningObject rdf:type ulo:problem .
-      FILTER(CONTAINS(STR(?learningObject), "${concept}"))
+      FILTER(CONTAINS(STR(?learningObject), "${problemIdPrefix}"))
     }
   `;
 

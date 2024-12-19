@@ -61,6 +61,13 @@ const DEFAULT_SORT_ORDER: Record<SortField, 'ASC' | 'DESC'> = {
 type MultSelectField = (typeof MULTI_SELECT_FIELDS)[number];
 type SortField = (typeof ALL_SORT_FIELDS)[number];
 
+async function fetchAndProcessProblem(questionId: string, mmtUrl: string) {
+  const problemIdPrefix = questionId.replace(/\?[^?]*$/, '');
+  const problemObject = await getProblemObject(mmtUrl, problemIdPrefix);
+  const problemHtml = await getLearningObjectShtml(mmtUrl, problemObject);
+  const problemId = hackAwayProblemId(problemHtml);
+  return getProblem(problemId, '');
+}
 function MultiItemSelector<T>({
   selectedValues,
   allValues,
@@ -432,20 +439,16 @@ function GradingItemDisplay({
   }, [homeworkId, questionId, studentId]);
 
   useEffect(() => {
+    if (questionMap[questionId]) {
+      setProblem(questionMap[questionId]);
+      return;
+    }
     const fetchProblem = async () => {
-      if (!questionMap[questionId]) {
-        try {
-          const uriWithoutId = questionId.replace(/en\?.*$/, 'en');
-          const learningObject = await getProblemObject(mmtUrl,uriWithoutId);
-          const problemHtml = await getLearningObjectShtml(mmtUrl, learningObject);
-          const problemId = hackAwayProblemId(problemHtml);
-          const fetchedProblem = getProblem(problemId, '');
-          setProblem(fetchedProblem);
-        } catch (error) {
-          console.error('Error fetching problem:', error);
-        }
-      } else {
-        setProblem(questionMap[questionId]);
+      try {
+        const fetchedProblem = await fetchAndProcessProblem(questionId, mmtUrl);
+        setProblem(fetchedProblem);
+      } catch (error) {
+        console.error('Error fetching problem:', error);
       }
     };
     fetchProblem();

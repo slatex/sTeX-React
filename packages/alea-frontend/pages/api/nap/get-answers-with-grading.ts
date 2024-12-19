@@ -85,6 +85,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const answers = await getAllAnswersForQuestion(studentId, questionId, res);
     if (!answers) return;
     const problemAnswers = answers[questionId];
+    const subProblemIdToAnswerId = convertToSubProblemIdToAnswerId(problemAnswers);
+    const grades = await getAllGradingsOrSetError(subProblemIdToAnswerId, res);
     const response: ProblemResponse = {
       autogradableResponses: [],
       freeTextResponses: {},
@@ -95,8 +97,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
     res.send({
       answers: response,
-      subProblemIdToAnswerId: {}, 
-      subProblemIdToGrades: {},
+      subProblemIdToAnswerId,
+      subProblemIdToGrades: grades,
     } as GetAnswersWithGradingResponse);
 
     return;
