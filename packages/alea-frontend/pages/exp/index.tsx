@@ -110,7 +110,7 @@ const ExperimentsHome: NextPage = () => {
               <h2>System Info</h2>
               MMT server: {process.env.NEXT_PUBLIC_MMT_URL}
               <br />
-              LMS server: {process.env.NEXT_PUBLIC_LMS_URL}
+              LMP server: {process.env.NEXT_PUBLIC_LMP_URL}
               <br />
               Auth server: {process.env.NEXT_PUBLIC_AUTH_SERVER_URL}
             </Box>

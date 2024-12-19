@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { HomeworkInfo, HomeworkPhase, HomeworkStub } from './homework';
-import { getAuthHeaders } from './lms';
+import { getAuthHeaders } from './lmp';
 import { GradingInfo } from './nap';
 import { ProblemResponse } from './quiz';
 

@@ -4,7 +4,7 @@ import { LoType } from './mmt';
 
 export type CognitiveValueConfidence = NumericCognitiveValues;
 
-export interface LMS2Event {
+export interface LMPEvent {
   learner?: string; // The user id.
   time?: string; // Format: '2022-11-24 19:19:18'
   payload?: string; // Any string with arbitrary extra information to be used internally.
@@ -17,7 +17,7 @@ export interface AnswerUpdateEntry {
   quotient: number;
 }
 
-export interface ProblemAnswerEvent extends LMS2Event {
+export interface ProblemAnswerEvent extends LMPEvent {
   type: 'problem-answer';
   uri: string; // The problem uri (eg. http://mathhub.info/iwgs/quizzes/creative_commons_21.tex)
   score?: number; // The score of the learner.
@@ -25,60 +25,60 @@ export interface ProblemAnswerEvent extends LMS2Event {
   updates?: AnswerUpdateEntry[];
 }
 
-export interface CourseInitEvent extends LMS2Event {
+export interface CourseInitEvent extends LMPEvent {
   type: 'course-init';
   course: string; // The course id.
   grade?: string; // "1" to "5"
   percentage?: string; // "0" to "100"
 }
 
-export interface IKnowEvent extends LMS2Event {
+export interface IKnowEvent extends LMPEvent {
   type: 'i-know';
   // For i-know (a.k.a I understand)
   concept?: string;
 }
 
-export interface SelfAssessmentEvent extends LMS2Event {
+export interface SelfAssessmentEvent extends LMPEvent {
   type: 'self-assessment';
   concept: string;
   competences: NumericCognitiveValues;
 }
 
-export interface SelfAssessmentSmileysEvent extends LMS2Event {
+export interface SelfAssessmentSmileysEvent extends LMPEvent {
   type: 'self-assessment-5StepLikertSmileys';
   concept: string;
   competences: SmileyCognitiveValues;
 }
 
-export interface PurgeEvent extends LMS2Event {
+export interface PurgeEvent extends LMPEvent {
   type: 'purge';
 }
 
-export interface ConceptClickedEvent extends LMS2Event {
+export interface ConceptClickedEvent extends LMPEvent {
   type: 'concept-clicked';
   concept: string;
 }
 
-export interface ConceptHoveredEvent extends LMS2Event {
+export interface ConceptHoveredEvent extends LMPEvent {
   type: 'concept-hovered';
   concept: string;
 }
 
-export interface DefiniendumReadEvent extends LMS2Event {
+export interface DefiniendumReadEvent extends LMPEvent {
   type: 'definiendum-read';
   concept: string;
 }
 
-export interface ViewEvent extends LMS2Event {
+export interface ViewEvent extends LMPEvent {
   type: 'view';
   concept: string;
 }
 
-export interface LoginEvent extends LMS2Event {
+export interface LoginEvent extends LMPEvent {
   type: 'login';
 }
 
-export interface LmsOutputMultipleRequest {
+export interface LmpOutputMultipleRequest {
   concepts: string[];
   'special-output'?: string;
   'include-confidence'?: boolean;
@@ -90,22 +90,22 @@ export interface ConceptCompetenceInfo {
   confidences?: CognitiveValueConfidence;
 }
 
-export interface LmsOutputMultipleResponse {
+export interface LmpOutputMultipleResponse {
   learner: string;
   model: ConceptCompetenceInfo[];
 }
 
 export async function getUriWeights(concepts: string[]): Promise<NumericCognitiveValues[]> {
   if (!concepts?.length) return [];
-  const data: LmsOutputMultipleResponse = await lmsRequest(
-    'lms',
+  const data: LmpOutputMultipleResponse = await lmpRequest(
+    'lmp',
     'lmp/output/multiple',
     'POST',
     null,
     {
       concepts,
       'include-confidence': false,
-    } as LmsOutputMultipleRequest
+    } as LmpOutputMultipleRequest
   );
   if (!data?.model) return new Array(concepts.length).fill({});
 
@@ -121,8 +121,8 @@ export async function getUriSmileys(
   inputHeaders?: any
 ): Promise<Map<string, SmileyCognitiveValues>> {
   if (!concepts?.length) return new Map();
-  const data: LmsOutputMultipleResponse = await lmsRequest(
-    'lms',
+  const data: LmpOutputMultipleResponse = await lmpRequest(
+    'lmp',
     'lmp/output/multiple',
     'POST',
     null,
@@ -158,14 +158,14 @@ export async function getAllMyData(): Promise<{
     views: any[];
   };
 }> {
-  return await lmsRequest('lms', 'lmp/output/all_my_data', 'POST', {}, {});
+  return await lmpRequest('lmp', 'lmp/output/all_my_data', 'POST', {}, {});
 }
 
 export async function getMyModel(): Promise<{
   learner: string;
   model: ConceptCompetenceInfo[];
 }> {
-  return await lmsRequest('lms', 'lmp/output/my_model', 'POST', {}, {});
+  return await lmpRequest('lmp', 'lmp/output/my_model', 'POST', {}, {});
 }
 
 export async function getMyCompleteModel(): Promise<ConceptCompetenceInfo[]> {
@@ -173,17 +173,17 @@ export async function getMyCompleteModel(): Promise<ConceptCompetenceInfo[]> {
 }
 
 export async function purgeAllMyData() {
-  await lmsRequest('lms', 'lmp/input/events', 'POST', {}, {
+  await lmpRequest('lmp', 'lmp/input/events', 'POST', {}, {
     type: 'purge',
   } as PurgeEvent);
 }
 
-export async function reportEvent(event: LMS2Event) {
-  return await lmsRequest('lms', 'lmp/input/events', 'POST', {}, event);
+export async function reportEvent(event: LMPEvent) {
+  return await lmpRequest('lmp', 'lmp/input/events', 'POST', {}, event);
 }
 
-const SERVER_TO_ADDRESS = {
-  lms: process.env['NEXT_PUBLIC_LMS_URL'],
+const SERVER_TO_ADDRESS = { 
+  lmp: process.env['NEXT_PUBLIC_LMP_URL'],
   auth: process.env['NEXT_PUBLIC_AUTH_SERVER_URL'],
 };
 
@@ -345,8 +345,8 @@ export function fakeLoginUsingRedirect(
   window.location.replace(redirectUrl);
 }
 
-export async function lmsRequest(
-  server: 'lms' | 'auth',
+export async function lmpRequest(
+  server: 'lmp' | 'auth',
   apiUrl: string,
   requestType: string,
   defaultVal: any,
@@ -397,22 +397,22 @@ export function cleanupSmileyCognitiveValues(dim: SmileyCognitiveValues): Smiley
     Create: dim.Create || defaultSmiley,
   };
 }
-export function lmsResponseToUserInfo(lmsRespData: any): UserInfo | undefined {
-  if (!lmsRespData) return undefined;
+export function lmpResponseToUserInfo(lmpRespData: any): UserInfo | undefined {
+  if (!lmpRespData) return undefined;
   return {
-    userId: lmsRespData['user_id'],
-    givenName: lmsRespData['given_name'],
-    sn: lmsRespData['sn'],
-    fullName: `${lmsRespData['given_name'] ?? ''} ${lmsRespData['sn'] ?? ''}`,
+    userId: lmpRespData['user_id'],
+    givenName: lmpRespData['given_name'],
+    sn: lmpRespData['sn'],
+    fullName: `${lmpRespData['given_name'] ?? ''} ${lmpRespData['sn'] ?? ''}`,
   };
 }
 
 let cachedUserInfo: UserInfo | undefined = undefined;
 export async function getUserInfo() {
   if (!cachedUserInfo) {
-    const v = await lmsRequest('auth', 'getuserinfo', 'GET', undefined);
+    const v = await lmpRequest('auth', 'getuserinfo', 'GET', undefined);
     if (!v) return undefined;
-    cachedUserInfo = lmsResponseToUserInfo(v);
+    cachedUserInfo = lmpResponseToUserInfo(v);
   }
   return cachedUserInfo;
 }
@@ -460,13 +460,13 @@ export interface ConceptHistory {
 }
 
 export async function getConceptHistory(concept: string): Promise<ConceptHistory> {
-  return await lmsRequest('lms', 'lmp/output/history', 'POST', null, {
+  return await lmpRequest('lmp', 'lmp/output/history', 'POST', null, {
     concept,
   });
 }
 
 export async function postAnswer(answer: ProblemAnswerEvent) {
-  return await lmsRequest('lms', '/lmp/input/events', 'POST', null, answer);
+  return await lmpRequest('lmp', '/lmp/input/events', 'POST', null, answer);
 }
 
 export interface GetLearningObjectsResponse {
@@ -480,7 +480,7 @@ export async function getLearningObjects(
   types?: string[],
   exclude?: string[]
 ) {
-  return (await lmsRequest('lms', 'guided-tours/learning-objects', 'POST', null, {
+  return (await lmpRequest('lmp', 'guided-tours/learning-objects', 'POST', null, {
     concepts,
     limit,
     types,
@@ -494,7 +494,7 @@ export interface GetLeafConceptsResponse {
 }
 
 export async function getLeafConcepts(target: string) {
-  return (await lmsRequest('lms', 'guided-tours/leaf-concepts', 'POST', null, {
+  return (await lmpRequest('lmp', 'guided-tours/leaf-concepts', 'POST', null, {
     target,
   })) as GetLeafConceptsResponse;
 }
@@ -503,7 +503,7 @@ export async function updateLearnerModel(updatePayload: SelfAssessmentEvent) {
   const userInfo = await getUserInfo();
   const userId = userInfo?.userId;
 
-  return await lmsRequest('lms', 'lmp/input/events', 'POST', null, {
+  return await lmpRequest('lmp', 'lmp/input/events', 'POST', null, {
     ...updatePayload,
     learner: userId,
   });
