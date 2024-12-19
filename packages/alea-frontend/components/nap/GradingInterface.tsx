@@ -475,9 +475,8 @@ function GradingItemDisplay({
             await createGrading({ answerId, answerClasses, customFeedback });
             refreshGradingInfo();
           },
-
-          onNextGradingItem: onNextGradingItem,
-          onPrevGradingItem: onPrevGradingItem,
+          onNextGradingItem,
+          onPrevGradingItem,
         }}
       >
         <ProblemDisplay

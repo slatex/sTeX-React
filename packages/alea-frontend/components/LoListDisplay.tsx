@@ -4,13 +4,13 @@ import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
 import { alpha, Box, IconButton, Paper, TextField, Tooltip, Typography } from '@mui/material';
 import { getLearningObjectShtml, LoType } from '@stex-react/api';
 import { mmtHTMLToReact, ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { extractProjectIdAndFilepath } from 'packages/stex-react-renderer/src/lib/utils';
-import { PracticeQuestions } from 'packages/stex-react-renderer/src/lib/PracticeQuestions';
 import { capitalizeFirstLetter } from '@stex-react/utils';
+import { PracticeQuestions } from 'packages/stex-react-renderer/src/lib/PracticeQuestions';
+import { extractProjectIdAndFilepath } from 'packages/stex-react-renderer/src/lib/utils';
 import { memo, useContext, useEffect, useState } from 'react';
 import { getUrlInfo } from '../pages/lo-explorer';
-import LoRelations from './LoRelations';
 import { CartItem } from './LoCartModal';
+import LoRelations from './LoRelations';
 
 export const handleStexCopy = (uri: string, uriType: LoType) => {
   const [archive, filePath] = extractProjectIdAndFilepath(uri, '');
@@ -18,12 +18,15 @@ export const handleStexCopy = (uri: string, uriType: LoType) => {
   switch (uriType) {
     case 'problem':
       stexSource = `\\includeproblem[pts=TODO,archive=${archive}]{${filePath}}`;
+      break;
     case 'definition':
     case 'example':
     case 'para':
     case 'statement':
       stexSource = `\\include${uriType}[archive=${archive}]{${filePath}}`;
+      break;
     default:
+      break;
   }
 
   if (stexSource) navigator.clipboard.writeText(stexSource);
@@ -50,20 +53,23 @@ export const LoViewer: React.FC<{ uri: string; uriType: LoType }> = ({ uri, uriT
   const [error, setError] = useState(null);
   const { mmtUrl } = useContext(ServerLinksContext);
 
-  const fetchLo = async (uri: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-      setLearningObject(await getLearningObjectShtml(mmtUrl, uri));
-    } catch (err) {
-      setError(err.message || 'Failed to fetch example.');
-    } finally {
-      setLoading(false);
-    }
-  };
   useEffect(() => {
-    if (uri) fetchLo(uri);
-  }, [uri]);
+    if (!uri?.length) return;
+    async function fetchLo() {
+      try {
+        setLoading(true);
+        setError(null);
+        const learningObject = await getLearningObjectShtml(mmtUrl, uri);
+
+        setLearningObject(learningObject.replace(/body/g, 'div').replace(/html/g, 'div'));
+        setLoading(false);
+      } catch (err) {
+        setError(err.message || 'Failed to fetch example.');
+        setLoading(false);
+      }
+    }
+    fetchLo();
+  }, [uri, mmtUrl]);
 
   return (
     <Box sx={{ padding: 2, border: '1px solid #ccc', borderRadius: 4, backgroundColor: '#f9f9f9' }}>

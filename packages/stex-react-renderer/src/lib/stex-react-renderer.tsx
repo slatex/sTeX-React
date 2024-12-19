@@ -49,6 +49,7 @@ import {
 } from './mmtParser';
 import { ProblemDisplay } from './ProblemDisplay';
 import { GradingCreator } from './GradingCreator';
+import { GradingContext } from './SubProblemAnswer';
 //import { RenderStatusTree } from './RenderStatusTree';
 
 export const ServerLinksContext = createContext({ mmtUrl: '', gptUrl: '' });
@@ -228,6 +229,7 @@ export {
   ExpandableContextMenu,
   FileBrowser,
   FixedPositionMenu,
+  GradingContext,
   GradingCreator,
   LayoutWithFixedMenu,
   LevelIcon,
