@@ -10,11 +10,12 @@ import {
   CreateAnswerClassRequest,
   getUserInfo,
   GradingInfo,
+  Problem,
   ReviewType,
   SubProblemData,
 } from '@stex-react/api';
 import { MystEditor, MystViewer } from '@stex-react/myst';
-import { localStore, PRIMARY_COL } from '@stex-react/utils';
+import { localStore, MMT_CUSTOM_ID_PREFIX, PRIMARY_COL } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useRouter } from 'next/router';
@@ -149,6 +150,7 @@ export function GradingManager({
 }
 
 export function SubProblemAnswer({
+  problem,
   subProblem,
   questionId,
   subProblemId,
@@ -156,6 +158,7 @@ export function SubProblemAnswer({
   existingResponse,
   onSaveClick,
 }: {
+  problem: Problem;
   subProblem: SubProblemData;
   questionId: string;
   subProblemId: string;
@@ -200,13 +203,20 @@ export function SubProblemAnswer({
           border: `1px solid ${PRIMARY_COL}`,
         }}
       >
-        {mmtHTMLToReact(subProblem.solution.replace(/__mmt/g,''))}
+        {mmtHTMLToReact(subProblem.solution.replace(MMT_CUSTOM_ID_PREFIX, ''))}
       </Box>
     ) : (
       <></>
     );
   return (
     <>
+      <span style={{ color: PRIMARY_COL, fontWeight: 'bold' }}>
+        {problem?.subProblemData?.length === 1
+          ? t.yourAnswer
+          : t.yourAnswerWithIdx
+              .replace('$1', (Number(subProblemId) + 1).toString())
+              .replace('$2', problem?.subProblemData?.length.toString())}
+      </span>
       <Box>
         {isGrading && solutionBox}
         {isFrozen ? (

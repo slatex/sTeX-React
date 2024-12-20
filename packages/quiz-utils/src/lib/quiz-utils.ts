@@ -314,11 +314,11 @@ function getAnswerClass(node: Element): FillInAnswerClass | undefined {
 function getSubProblems(rootNode: Element): SubProblemData[] {
   const rawAnswerclasses = recursivelyFindNodes(rootNode, ['data-problem-answerclass']);
   const subproblems: SubProblemData[] = [];
-  let idx = 0;
   for (const rawAnswerClass of rawAnswerclasses) {
     if (rawAnswerClass.attrVal === '') {
-      rawAnswerClass.node.attribs['id'] = getMMTCustomId(`nap_${idx}`);
-      idx++;
+      if (rawAnswerClass.node?.attribs) {
+        rawAnswerClass.node.attribs['id'] = getMMTCustomId(`nap_${subproblems.length}`);
+      }
       subproblems.push({ answerclasses: [], solution: getProblemSolution(rawAnswerClass.node) });
       continue;
     }

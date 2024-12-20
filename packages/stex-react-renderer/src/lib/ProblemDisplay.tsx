@@ -502,7 +502,6 @@ export function ProblemDisplay({
   problemId?: string;
 }) {
   const router = useRouter();
-  const { quiz: t } = getLocaleObject(router);
   const [userId, setUserId] = useState('');
   useEffect(() => {
     getUserInfo().then((u: UserInfo | undefined) => {
@@ -534,36 +533,28 @@ export function ProblemDisplay({
 
   //Non-Autogradable problem widgets
   const napWidgets = problem.subProblemData.map((c, i) => (
-    <>
-      <span style={{ color: PRIMARY_COL, fontWeight: 'bold' }}>
-        {problem.subProblemData.length === 1
-          ? t.yourAnswer
-          : t.yourAnswerWithIdx
-              .replace('$1', (i + 1).toString())
-              .replace('$2', problem.subProblemData.length.toString())}
-      </span>
-      <SubProblemAnswer
-        questionId={uri ? uri : problemId}
-        subProblemId={i.toString()}
-        subProblem={c}
-        isFrozen={isFrozen}
-        existingResponse={r?.freeTextResponses?.[i]}
-        onSaveClick={() => {
-          if (!r) return;
-          const freeTextResponses: Record<string, string> = {};
-          for (let i = 0; i < problem.subProblemData.length; i++) {
-            freeTextResponses[i.toString()] =
-              getAnswerFromLocalStorage(uri ? uri : problemId, i.toString()) ?? '';
-          }
-          saveAnswers({
-            problemId,
-            uri,
-            freeTextResponses,
-          });
-          onResponseUpdate({ ...r, freeTextResponses });
-        }}
-      ></SubProblemAnswer>
-    </>
+    <SubProblemAnswer
+      problem={problem}
+      questionId={uri ? uri : problemId}
+      subProblemId={i.toString()}
+      subProblem={c}
+      isFrozen={isFrozen}
+      existingResponse={r?.freeTextResponses?.[i]}
+      onSaveClick={() => {
+        if (!r) return;
+        const freeTextResponses: Record<string, string> = {};
+        for (let i = 0; i < problem.subProblemData.length; i++) {
+          freeTextResponses[i.toString()] =
+            getAnswerFromLocalStorage(uri ? uri : problemId, i.toString()) ?? '';
+        }
+        saveAnswers({
+          problemId,
+          uri,
+          freeTextResponses,
+        });
+        onResponseUpdate({ ...r, freeTextResponses });
+      }}
+    ></SubProblemAnswer>
   ));
 
   const customItems: Record<string, any> = {};
