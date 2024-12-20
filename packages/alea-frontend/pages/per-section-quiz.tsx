@@ -1,14 +1,15 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, IconButton, Tooltip } from '@mui/material';
-import { getLocaleObject, mmtHTMLToReact, PerSectionQuiz } from '@stex-react/stex-react-renderer';
+import { mmtHTMLToReact, PerSectionQuiz } from '@stex-react/stex-react-renderer';
 import { PRIMARY_COL } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import React from 'react';
 import MainLayout from '../layouts/MainLayout';
+import { getLocaleObject } from '../lang/utils';
 
 const PerSectionQuizPage: React.FC = () => {
   const router = useRouter();
-  const { practiceProblems: t } = getLocaleObject(router);
+  const { perSectionQuiz: t } = getLocaleObject(router);
 
   const { archive, filepath, title, courseId } = router.query as {
     archive: string;
