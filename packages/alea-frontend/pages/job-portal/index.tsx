@@ -1,6 +1,11 @@
 import { Container, Box, Typography, Button } from '@mui/material';
-import { checkIfUserRegisteredOnJP, getUserInfo, isLoggedIn } from '@stex-react/api';
-import { isFauId } from '@stex-react/utils';
+import {
+  canAccessResource,
+  checkIfUserRegisteredOnJP,
+  getUserInfo,
+  isLoggedIn,
+} from '@stex-react/api';
+import { Action, CURRENT_TERM, isFauId, ResourceName } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { ForceFauLogin } from 'packages/alea-frontend/components/ForceFAULogin';
@@ -14,23 +19,63 @@ const JobPortal: NextPage = () => {
   const [isRecruiter, setIsRecruiter] = useState(false);
   const [forceFauLogin, setForceFauLogin] = useState(false);
   const [userId, setUserId] = useState('');
-
+  const [accessCheckLoading, setAccessCheckLoading] = useState(true);
   const showStudentButton = !isLogIn || isStudent;
   const showRecruiterButton = !isLogIn || isRecruiter;
-  const showAdminButton = !isLogIn;
+  const [showAdminButton, setShowAdminButton] = useState(!isLogIn);
+  const checkAccess = async () => {
+    const hasAccess = await canAccessResource(ResourceName.JOB_PORTAL, Action.CREATE_JOB_TYPE, {
+      instanceId: CURRENT_TERM,
+    });
+    console.log({ hasAccess });
 
+    if (hasAccess) {
+      setShowAdminButton(true);
+    } else {
+      setShowAdminButton(false);
+    }
+  };
   useEffect(() => {
     const loggedIn = isLoggedIn();
     setIsLogIn(loggedIn);
     if (loggedIn) {
+      checkAccess();
       getUserInfo().then((userInfo) => {
         const uid = userInfo?.userId;
         if (!uid) return;
         setUserId(uid);
-        isFauId(uid)?setIsStudent(true):setIsRecruiter(true);
+        isFauId(uid) ? setIsStudent(true) : setIsRecruiter(true);
       });
     }
   }, []);
+  useEffect(() => {
+    // const checkAccess = async () => {
+    //   const hasAccess = await canAccessResource(ResourceName.JOB_PORTAL, Action.CREATE_JOB_TYPE, {
+    //     instanceId: CURRENT_TERM,
+    //   });
+    //   console.log({ hasAccess });
+    //   if (hasAccess) {
+    //     setShowAdminButton(true);
+    //   } else {
+    //     setShowAdminButton(false);
+    //   }
+    // };
+    // checkAccess();
+  }, []);
+
+  //   useEffect(() => {
+  //     const checkAccess = async () => {
+  //       // setAccessCheckLoading(true);
+  //       const hasAccess = await canAccessResource(ResourceName.JOB_PORTAL, Action.CREATE_JOB_TYPE, {
+  //         instanceId: CURRENT_TERM,
+  //       });
+  //       console.log({hasAccess});
+  //       if (hasAccess) {
+  // setShowAdminButton(true);      // setAccessCheckLoading(false);
+  //     };
+  //     checkAccess();
+  //   }}, []);
+  console.log({ showAdminButton });
 
   if (forceFauLogin) {
     return (
@@ -87,7 +132,7 @@ const JobPortal: NextPage = () => {
                 if (!isLogIn) {
                   if (window.location.pathname === '/login') return;
                   router.push('/login?target=' + encodeURIComponent(window.location.href));
-                } else  {
+                } else {
                   const result = await checkIfUserRegisteredOnJP(userId);
                   if (result.exists) {
                     router.push('job-portal/recruiter-dashboard');
@@ -100,26 +145,27 @@ const JobPortal: NextPage = () => {
               Recruiter
             </Button>
           )}
-          {isRecruiter && (
-            <Button variant="contained" color="secondary" onClick={() => setForceFauLogin(true)}>
-              Are You a Student?
-            </Button>
-          )}
           {showAdminButton && (
             <Button
               variant="contained"
               color="warning"
               fullWidth
+              sx={{ mb: 2 }}
               onClick={() => {
                 if (!isLogIn) {
                   if (window.location.pathname === '/login') return;
                   router.push('/login?target=' + encodeURIComponent(window.location.href));
                 } else {
-                  router.push('job-portal/register/admin');
+                  router.push('job-portal/admin-dashboard/');
                 }
               }}
             >
               Admin
+            </Button>
+          )}
+          {isRecruiter && (
+            <Button variant="contained" color="secondary" onClick={() => setForceFauLogin(true)}>
+              Are You a Student?
             </Button>
           )}
         </Box>

@@ -1,13 +1,17 @@
 import axios from 'axios';
 import { getAuthHeaders } from './lms';
-import { OrganizationData, RecruiterData, StudentData } from './job-portal';
+import { JobPostInfo, JobTypeInfo, OrganizationData, RecruiterData, StudentData } from './job-portal';
 
 export async function createStudentProfile(data: StudentData) {
   await axios.post('/api/job-portal/create-student-profile', data, {
     headers: getAuthHeaders(),
   });
 }
-
+export async function upDateStudentProfile(data: StudentData) {
+  await axios.post('/api/job-portal/update-student-profile', data, {
+    headers: getAuthHeaders(),
+  });
+}
 export async function createRecruiterProfile(data: RecruiterData) {
   await axios.post('/api/job-portal/create-recruiter-profile', data, {
     headers: getAuthHeaders(),
@@ -65,4 +69,44 @@ export async function getOrganizationId(organizationName: string) {
     params: { organizationName },
   });
   return resp.data as number;
+}
+
+export async function createJobType(data: any) {
+  await axios.post('/api/job-portal/create-job-type', data, {
+    headers: getAuthHeaders(),
+  });
+}
+
+export async function updateJobType(data: JobTypeInfo) {
+  await axios.post('/api/job-portal/update-job-type', data, {
+    headers: getAuthHeaders(),
+  });
+}
+
+export async function deleteJobType(id: number) {
+  await axios.post('/api/job-portal/delete-job-type', { id }, { headers: getAuthHeaders() });
+}
+
+export async function getJobType(instanceId: string) {
+  const resp = await axios.get('/api/job-portal/get-job-type', {
+    headers: getAuthHeaders(),
+    params: { instanceId },
+  });
+  return resp.data as JobTypeInfo[];
+}
+
+
+export async function createJobPost(data: any) {
+  await axios.post('/api/job-portal/create-job-post', data, {
+    headers: getAuthHeaders(),
+  });
+}
+
+
+export async function getJobPost(organizationId: number) {
+  const resp = await axios.get('/api/job-portal/get-job-post', {
+    headers: getAuthHeaders(),
+    params: { organizationId },
+  });
+  return resp.data as JobPostInfo[] ;
 }

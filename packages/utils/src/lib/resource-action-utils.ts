@@ -13,6 +13,7 @@ export enum Action {
 
   APPLY = 'APPLY',
   CREATE_JOB_POST = 'CREATE_JOB_POST',
+  CREATE_JOB_TYPE = 'CREATE_JOB_TYPE' ,
 }
 
 export enum ResourceName {
@@ -159,7 +160,7 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
   },
   {
     name: ResourceName.JOB_PORTAL,
-    possibleActions: [Action.APPLY, Action.CREATE_JOB_POST],
+    possibleActions: [Action.APPLY, Action.CREATE_JOB_POST ,Action.CREATE_JOB_TYPE],
     components: [
       { type: ComponentType.FIXED, value: 'instance' },
       { name: 'instanceId', type: ComponentType.VARIABLE, value: CURRENT_TERM },

@@ -296,3 +296,50 @@ CREATE TABLE organizationprofile (
     officeAddress VARCHAR(255), 
     officePincode VARCHAR(255) 
 );
+
+
+
+
+CREATE TABLE JobType (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    jobTypeName ENUM('internship', 'full-time') NOT NULL,
+    internshipPeriod VARCHAR(255),
+    startDate DATE,
+    endDate DATE,
+    instanceId VARCHAR(255),c
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Admin (
+    id SERIAL PRIMARY KEY,                  
+    name VARCHAR(255) NOT NULL,            
+    email VARCHAR(255) UNIQUE NOT NULL,    
+    universityName VARCHAR(255) NOT NULL,  
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP 
+);
+
+
+
+
+CREATE TABLE JobPost (
+    id INT AUTO_INCREMENT PRIMARY KEY,                          
+    organizationId INT,                                          
+    jobTypeId INT,                                               
+    session VARCHAR(255),                                         
+    jobTitle VARCHAR(255),                                        
+    jobDescription TEXT,                                          
+    trainingLocation VARCHAR(255),                                
+    qualification VARCHAR(255),                                   
+    targetYears VARCHAR(255),                                     
+    openPositions INT,                                            
+    currency VARCHAR(50),                                         
+    stipend DECIMAL(10, 2),                                       
+    facilities TEXT,                                              
+    applicationDeadline DATETIME,                                 
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  
+    FOREIGN KEY (organizationId) REFERENCES organizationprofile(id),  
+    FOREIGN KEY (jobTypeId) REFERENCES JobType(id)                
+);

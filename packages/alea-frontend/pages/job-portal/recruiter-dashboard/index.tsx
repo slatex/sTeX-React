@@ -17,10 +17,19 @@ import {
   Step,
   StepLabel,
   MenuItem,
+  Tooltip,
+  TableContainer,
+  Paper,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
 } from '@mui/material';
-import { Work, Email, Business } from '@mui/icons-material';
+import { Work, Email, Business, Save } from '@mui/icons-material';
 import {
   canAccessResource,
+  getJobPost,
   getOrganizationId,
   getOrganizationProfile,
   getRecruiterProfile,
@@ -33,6 +42,8 @@ import {
 import { useRouter } from 'next/router';
 import { Action, CURRENT_TERM, ResourceName } from '@stex-react/utils';
 import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
+import RecruiterJobDialog from 'packages/alea-frontend/components/RecruiterJobDialog';
+import { CreatedJobs } from 'packages/alea-frontend/components/CreatedJobs';
 
 const RecruiterProfileDialog = ({
   isOpen,
@@ -300,11 +311,23 @@ const RecruiterProfileDialog = ({
         </DialogContent>
         <DialogActions>
           {activeStep > 0 && (
-            <Button onClick={handleBack} color="secondary">
+            <Button
+              onClick={handleBack}
+              variant="outlined"
+              color="secondary"
+              sx={{
+                borderColor: 'secondary.main',
+                color: 'secondary.main',
+                '&:hover': {
+                  borderColor: 'primary.main',
+                  color: 'primary.main',
+                },
+              }}
+            >
               Back
             </Button>
           )}
-          <Button onClick={handleNext} color="primary">
+          <Button onClick={handleNext} variant="contained" color="primary">
             {activeStep === steps.length - 1 ? 'Submit' : 'Save and Next'}
           </Button>
         </DialogActions>
@@ -329,6 +352,7 @@ const RecruiterDashboard = () => {
   const [accessCheckLoading, setAccessCheckLoading] = useState(true);
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [isJobDialogOpen, setIsJobDialogOpen] = useState(false);
 
   useEffect(() => {
     const checkAccess = async () => {
@@ -368,9 +392,25 @@ const RecruiterDashboard = () => {
     }
   };
 
+
+    // const fetchJobPostData = async () => {
+    //   try {
+    //     setLoading(true);
+        
+    //     const recruiterProfileData = await getRecruiterProfile();
+    //     const organizationId = recruiterProfileData[0]?.organizationId;
+    //     const jobPostData = await getJobPost(organizationId);
+    //     console.log("jobpost data" , jobPostData)
+    //   } catch (error) {
+    //     console.error('Error fetching admin data:', error);
+    //   } finally {
+    //     setLoading(false);
+    //   }
+    // };
   useEffect(() => {
     if (accessCheckLoading) return;
     fetchRecruiterAndOrgData();
+    // fetchJobPostData();
   }, [accessCheckLoading, isOpen]);
 
   if (accessCheckLoading || loading) {
@@ -426,7 +466,14 @@ const RecruiterDashboard = () => {
           </Typography>
           <Typography variant="subtitle1">Your professional profile at a glance</Typography>
         </Box>
-        <Box>
+        <Box
+          sx={{
+            display: 'flex',
+            gap: '16px',
+            ml: '30px', 
+          }}
+        
+        >
           <Button
             variant="contained"
             onClick={() => {
@@ -435,12 +482,22 @@ const RecruiterDashboard = () => {
           >
             Edit Profile
           </Button>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setIsJobDialogOpen(true);
+            }}
+          >
+Create JobPost          </Button>
+          <RecruiterJobDialog open={isJobDialogOpen} onClose={() => setIsJobDialogOpen(false)} />
         </Box>
 
-        <Box sx={{ px: { xs: 2, md: 4 }, py: 2 }}>
-          <Grid container spacing={4}>
+        <Box sx={{ px: { xs: 2, md: 4 }, py: 4 }}>
+                      <Card sx={{ boxShadow: 6, mb: 4 ,px: { xs: 2, md: 4 }, py: 2 }}>
+          
+          <Grid container spacing={4} >
             <Grid item xs={12} md={6}>
-              <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+              {/* <Card sx={{ borderRadius: 3, boxShadow: 3 }}> */}
                 <CardContent>
                   <Box display="flex" alignItems="center" mb={2}>
                     <Avatar sx={{ bgcolor: 'primary.main', mr: 2 }}>
@@ -465,11 +522,11 @@ const RecruiterDashboard = () => {
                     <strong>Alternate Mobile:</strong> {recruiter.altMobile || 'N/A'}
                   </Typography>
                 </CardContent>
-              </Card>
+              {/* </Card> */}
             </Grid>
 
             <Grid item xs={12} md={6}>
-              <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+              {/* <Card sx={{ borderRadius: 3, boxShadow: 3 }}> */}
                 <CardContent>
                   <Box display="flex" alignItems="center" mb={2}>
                     <Avatar sx={{ bgcolor: 'primary.main', mr: 2 }}>
@@ -503,9 +560,21 @@ const RecruiterDashboard = () => {
                     <strong>Office Pincode:</strong> {officePincode || 'N/A'}
                   </Typography>
                 </CardContent>
-              </Card>
+              {/* </Card> */}
             </Grid>
           </Grid>
+
+          </Card>
+          <Card sx={{ boxShadow: 6, mb: 4 ,px: { xs: 2, md: 4 }, py: 2 }}>
+
+<CardContent>
+  <Typography variant="h5" gutterBottom>
+    Created Jobs
+  </Typography>
+
+</CardContent>
+<CreatedJobs/>
+</Card>
         </Box>
       </Box>
     </MainLayout>

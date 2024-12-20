@@ -33,3 +33,38 @@ export interface OrganizationData {
 }
 
 export type RecruiterAndOrgData = RecruiterData & OrganizationData;
+
+
+
+// export enum JobType {
+//   Internship = 'internship',
+//   FullTime = 'fulltime',
+// }
+export interface JobTypeInfo {
+  id:number;
+  jobTypeName:string;
+  startDate:string;
+  endDate?:string;
+  internshipPeriod?:string;
+}
+
+
+export interface JobPostInfo {
+  id:number;
+  organizationId:number;
+  jobTypeId: number;
+  session:string;
+  jobTitle:string;
+  jobDescription:string;                                         
+  trainingLocation: string;                              
+  qualification:string;                                 
+  targetYears:string;                                  
+  openPositions:number;                                           
+  currency:string;                                         
+  stipend:number;                                       
+  facilities:string;                                              
+  applicationDeadline:Date;
+}
+
+
+
