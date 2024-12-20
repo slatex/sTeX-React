@@ -1,5 +1,4 @@
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
-
 import {
   conceptUriToName,
   getLeafConcepts,
@@ -28,7 +27,7 @@ import { shouldUseDrawer } from '@stex-react/utils';
 import {
   findNextAvailableIndex,
   GuidedTour2Navigation,
-} from 'packages/alea-frontend/components/GuidedTour2Navigation';
+} from '../../components/GuidedTour2Navigation';
 
 const structureLearningObjects = async (
   mmtUrl: string,

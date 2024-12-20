@@ -8,7 +8,7 @@ import {
   getProblemIdsForFile,
 } from '@stex-react/api';
 import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
-import { sourceFileUrl } from '@stex-react/utils';
+import { extractProjectIdAndFilepath, sourceFileUrl } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useReducer, useState } from 'react';
 import { defaultProblemResponse } from './InlineProblemDisplay';
@@ -16,7 +16,6 @@ import { ProblemDisplay } from './ProblemDisplay';
 import { ListStepper } from './QuizDisplay';
 import { getLocaleObject } from './lang/utils';
 import { ServerLinksContext, mmtHTMLToReact } from './stex-react-renderer';
-import { extractProjectIdAndFilepath } from './utils';
 
 export function PerSectionQuiz({
   archive,

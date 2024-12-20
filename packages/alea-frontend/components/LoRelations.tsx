@@ -13,11 +13,11 @@ import {
 } from '@stex-react/api';
 import { Accordion, AccordionDetails, AccordionSummary, Box, Typography } from '@mui/material';
 import { capitalizeFirstLetter, PRIMARY_COL } from '@stex-react/utils';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import {
   DimAndURIListDisplay,
+  ServerLinksContext,
   URIListDisplay,
-} from 'packages/stex-react-renderer/src/lib/ProblemDisplay';
+} from '@stex-react/stex-react-renderer';
 import { useContext, useEffect, useState } from 'react';
 
 function processDimAndConceptData(result: SparqlResponse) {
