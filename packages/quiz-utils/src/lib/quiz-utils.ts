@@ -314,8 +314,11 @@ function getAnswerClass(node: Element): FillInAnswerClass | undefined {
 function getSubProblems(rootNode: Element): SubProblemData[] {
   const rawAnswerclasses = recursivelyFindNodes(rootNode, ['data-problem-answerclass']);
   const subproblems: SubProblemData[] = [];
+  let idx = 0;
   for (const rawAnswerClass of rawAnswerclasses) {
     if (rawAnswerClass.attrVal === '') {
+      rawAnswerClass.node.attribs['id'] = getMMTCustomId(`nap_${idx}`);
+      idx++;
       subproblems.push({ answerclasses: [], solution: getProblemSolution(rawAnswerClass.node) });
       continue;
     }
@@ -370,7 +373,7 @@ function findInputs(problemRootNode: (ChildNode & Element) | Document): Input[] 
     const type = NODE_ATTRS_TO_TYPE[attrName] ?? InputType.FILL_IN;
     const inline = isInlineBlock(node);
     const ignoreForScoring = isIgnoredForScoring(node);
-    node.attribs['id'] = getMMTCustomId(`${idx}`);
+    node.attribs['id'] = getMMTCustomId(`ap_${idx}`);
     if ([InputType.MCQ, InputType.SCQ].includes(type)) {
       const options = getOptionSet(node, type);
       return { type, options, inline } as Input;

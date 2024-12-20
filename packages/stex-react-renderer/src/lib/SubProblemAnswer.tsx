@@ -200,7 +200,7 @@ export function SubProblemAnswer({
           border: `1px solid ${PRIMARY_COL}`,
         }}
       >
-        {mmtHTMLToReact(subProblem.solution)}
+        {mmtHTMLToReact(subProblem.solution.replace(/__mmt/g,''))}
       </Box>
     ) : (
       <></>
@@ -208,6 +208,7 @@ export function SubProblemAnswer({
   return (
     <>
       <Box>
+        {isGrading && solutionBox}
         {isFrozen ? (
           <Box
             sx={{
@@ -254,7 +255,6 @@ export function SubProblemAnswer({
           </Box>
         )}
       </Box>
-      {isGrading && solutionBox}
       {(isGrading || showGrading) && (
         <Box p={1} bgcolor="white" border="1px solid gray" borderRadius={1}>
           <Typography display="block">
