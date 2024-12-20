@@ -213,15 +213,17 @@ export type ActionName =
   | 'DONT_MOVE_ON'
   | 'ANOTHER_PROBLEM'
   | 'LO_UNDERSTOOD'
-  | 'LO_NOT_UNDERSTOOD';
+  | 'LO_NOT_UNDERSTOOD'
+  | 'NAVIGATE';
 
 export const ACTION_VERBALIZATION_OPTIONS: Record<ActionName, string[]> = {
   KNOW: ['Yes', 'I know', 'I understand', 'Got it', 'Understood', 'Yes, I know'],
-  DONT_KNOW: ["I need to learn", 'I do not know', 'I do not understand', 'No, I do not know'],
+  DONT_KNOW: ['I need to learn', 'I do not know', 'I do not understand', 'No, I do not know'],
   NOT_SURE_IF_KNOW: ['Not sure', 'I am not sure if I know', 'I am not sure if I understand'],
   MOVE_ON: ['Move on', 'Yes, let’s move on', 'Yes, continue', 'Yes, proceed'],
   DONT_MOVE_ON: ["Don't move on", 'No, do not continue', 'No, do not proceed'],
   ANOTHER_PROBLEM: ['Try another problem', 'Give me another problem'],
   LO_UNDERSTOOD: ['Yes, I understood'],
   LO_NOT_UNDERSTOOD: ['No, not really'],
+  NAVIGATE: ['Yes, navigate'],
 };

@@ -1,4 +1,5 @@
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
+
 import {
   conceptUriToName,
   getLeafConcepts,
@@ -9,7 +10,7 @@ import {
   SelfAssessmentEvent,
   updateLearnerModel,
 } from '@stex-react/api';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
+import { LayoutWithFixedMenu, ServerLinksContext } from '@stex-react/stex-react-renderer';
 import assert from 'assert';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
@@ -23,6 +24,11 @@ import {
 } from '../../constants/messages';
 import MainLayout from '../../layouts/MainLayout';
 import styles from '../../styles/guided-tour.module.scss';
+import { shouldUseDrawer } from '@stex-react/utils';
+import {
+  findNextAvailableIndex,
+  GuidedTour2Navigation,
+} from 'packages/alea-frontend/components/GuidedTour2Navigation';
 
 const structureLearningObjects = async (
   mmtUrl: string,
@@ -32,7 +38,6 @@ const structureLearningObjects = async (
   const problemUrls = learningObjects
     .filter((o) => o.type === 'problem')
     .map((o) => o['learning-object']);
-  console.log('problemUrls:', problemUrls);
   const problemStrs$ = problemUrls.map((uri) => getLearningObjectShtml(mmtUrl, uri));
   const isAutogradable: Record<string, boolean> = {};
   const problemStrs = await Promise.all(problemStrs$);
@@ -44,8 +49,6 @@ const structureLearningObjects = async (
       problemStr.includes('data-problem-scb') ||
       problemStr.includes('data-problem-fillinsol');
   }
-
-  console.log('isAutogradable:', isAutogradable);
 
   learningObjects.forEach((item) => {
     const { type } = item;
@@ -62,7 +65,7 @@ const structureLearningObjects = async (
 };
 
 interface UserAction {
-  actionType: 'problem' | 'choose-option' | 'end';
+  actionType: 'problem' | 'choose-option' | 'end' | 'navigate-to-concept';
   options?: ActionName[];
   optionVerbalization?: Partial<Record<ActionName, string>>;
   chosenOption?: ActionName;
@@ -70,7 +73,7 @@ interface UserAction {
   quotient?: number;
 }
 
-interface GuidedTourState {
+export interface GuidedTourState {
   targetConceptUri: string;
   leafConceptUris: string[];
   completedConceptUris: string[];
@@ -83,7 +86,7 @@ interface GuidedTourState {
   focusConceptCurrentLo?: { type: LoType; uri: string };
 }
 
-interface ChatMessage {
+export interface ChatMessage {
   from: 'system' | 'user';
   type: 'text' | LoType;
   loUri?: string;
@@ -128,7 +131,7 @@ function chooseOptionAction(options: ActionName[]): UserAction {
   return { actionType: 'choose-option', options, optionVerbalization };
 }
 
-function systemTextMessage(text: string): ChatMessage {
+export function systemTextMessage(text: string): ChatMessage {
   return { from: 'system', type: 'text', text };
 }
 
@@ -180,7 +183,6 @@ function updateNewStateWithNextLo(
     } else if (action.chosenOption === 'LO_UNDERSTOOD') {
       messagesAdded.push(systemTextMessage('Great!'));
     } else if (action.quotient !== undefined) {
-      console.log({ action });
       const topMessage =
         action.quotient === 1
           ? 'Great!'
@@ -260,19 +262,30 @@ async function stateTransition(
   const newState = { ...state };
   const newMessages: ChatMessage[] = [];
   let nextAction: UserAction = undefined;
-  let nextConceptUri;
   const currentConceptUri = state.leafConceptUris[state.focusConceptIdx];
-  if (state.focusConceptIdx + 1 === state.leafConceptUris.length) {
-    const resp = await getLeafConcepts(state.targetConceptUri);
-    const lCUris = resp['leaf-concepts'] ?? [];
-    nextConceptUri = lCUris[0];
-  } else nextConceptUri = state.leafConceptUris[state.focusConceptIdx + 1];
+  const nextIndex = findNextAvailableIndex(
+    newState.focusConceptIdx,
+    newState.leafConceptUris,
+    newState.completedConceptUris
+  );
+  const nextConceptUri = newState.leafConceptUris[nextIndex];
   const currentConceptName = conceptUriToName(currentConceptUri);
   const nextConceptName = conceptUriToName(nextConceptUri);
 
   if (action.chosenOption === 'MOVE_ON') {
-    newState.focusConceptIdx++;
+    const currentConceptUri = newState.leafConceptUris[newState.focusConceptIdx];
+    if (nextIndex === -1) {
+      newMessages.push(
+        systemTextMessage(
+          '<b style="color:#8e24aa"> Well Done! You have reached the end of Guided Tour.</b>'
+        )
+      );
+      nextAction = { actionType: 'end' };
+      return { newState, nextAction, newMessages };
+    }
+
     newState.completedConceptUris.push(currentConceptUri);
+    newState.focusConceptIdx = nextIndex;
     const updatePayload: SelfAssessmentEvent = {
       type: 'self-assessment',
       concept: currentConceptUri,
@@ -283,24 +296,29 @@ async function stateTransition(
     };
     await updateLearnerModel(updatePayload);
     if (currentConceptUri === newState.targetConceptUri) {
-      newMessages.push(systemTextMessage(`Well Done! You have reached the end of Guided Tour.`));
+      newMessages.push(
+        systemTextMessage(
+          '<b style="color:#8e24aa"> Well Done! You have reached the end of Guided Tour.</b>'
+        )
+      );
       nextAction = { actionType: 'end' };
       return { newState, nextAction, newMessages };
     }
-    if (newState.focusConceptIdx === newState.leafConceptUris.length) {
-      await resetLeafConcepts(newState.targetConceptUri, newState);
-    }
+
     const response = await getLearningObjects([nextConceptUri]);
     const result = await structureLearningObjects(mmtUrl, response['learning-objects']);
     newState.focusConceptLo = result;
-    // TODO: handle end of leaf concepts.
+
     newMessages.push(
       systemTextMessage(
         `Alright, let's proceed!</br>Do you feel confident about your understanding of <b style="color: #d629ce">${nextConceptName}</b>.`
       )
     );
     const options: ActionName[] = ['KNOW', 'DONT_KNOW'];
-    if (newState.focusConceptLo['problem']?.uris?.length > 0) options.push('NOT_SURE_IF_KNOW');
+    if (newState.focusConceptLo['problem']?.uris?.length > 0) {
+      options.push('NOT_SURE_IF_KNOW');
+    }
+
     newState.focusConceptInitialized = false;
     nextAction = chooseOptionAction(options);
   } else if (action.chosenOption === 'DONT_MOVE_ON') {
@@ -333,8 +351,21 @@ async function stateTransition(
     }
   } else if (!state.focusConceptInitialized) {
     if (action.chosenOption === 'KNOW') {
-      if (!nextConceptName) {
-        newMessages.push(systemTextMessage(`Well Done! You have reached the end of Guided Tour.`));
+      const nextIndex = findNextAvailableIndex(
+        newState.focusConceptIdx,
+        newState.leafConceptUris,
+        newState.completedConceptUris
+      );
+      if (
+        nextIndex === -1 ||
+        newState.leafConceptUris.length - newState.completedConceptUris.length === 1
+      ) {
+        newState.completedConceptUris.push(currentConceptUri);
+        newMessages.push(
+          systemTextMessage(
+            '<b style="color:#8e24aa"> Well Done! You have reached the end of Guided Tour.</b>'
+          )
+        );
         nextAction = { actionType: 'end' };
         return { newState, nextAction, newMessages };
       }
@@ -345,7 +376,7 @@ async function stateTransition(
       );
 
       nextAction = chooseOptionAction(['MOVE_ON', 'DONT_MOVE_ON']);
-    } else if (action.chosenOption === 'DONT_KNOW') {
+    } else if (action.chosenOption === 'DONT_KNOW' || action.chosenOption === 'NAVIGATE') {
       newMessages.push(
         systemTextMessage(
           `Alright! Let's study <b style="color: #d629ce">${currentConceptName}</b>.`
@@ -482,6 +513,8 @@ const GuidedTours = () => {
   const [quotient, setQuotient] = useState<number>(0);
   const { mmtUrl } = useContext(ServerLinksContext);
   const [pendingMessages, setPendingMessages] = useState<ChatMessage[]>([]);
+  const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (pendingMessages.length === 0) return;
@@ -534,94 +567,157 @@ const GuidedTours = () => {
 
   if (!tourState) return <CircularProgress />;
 
+  const handleNavigation = async (conceptIndex: number, tourState: GuidedTourState) => {
+    if (loading) return;
+    setLoading(true);
+    try {
+      if (conceptIndex === -1) {
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          systemTextMessage(
+            '<b  style="color:#8e24aa">Well done on completing this journey!.You have reached the end.</b>'
+          ),
+        ]);
+        setTourState(tourState);
+        setUserAction(null);
+        return;
+      }
+      const targetConceptUri = tourState.leafConceptUris[conceptIndex];
+      const response = await getLearningObjects([targetConceptUri]);
+      const focusConceptLo = await structureLearningObjects(mmtUrl, response['learning-objects']);
+
+      const updatedTourState = {
+        ...tourState,
+        focusConceptIdx: conceptIndex,
+        focusConceptLo,
+        focusConceptInitialized: false,
+        focusConceptLoUserAction: {},
+      };
+
+      const { newState, newMessages, nextAction } = await stateTransition(
+        mmtUrl,
+        updatedTourState,
+        {
+          actionType: 'navigate-to-concept',
+          chosenOption: 'NAVIGATE',
+        }
+      );
+      setTourState(newState);
+      setPendingMessages(newMessages);
+      setUserAction(nextAction);
+    } catch (error) {
+      console.error('Error navigating to concept:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <MainLayout title="Guided Tour | ALeA">
-      <div>
-        <h1 className={styles.title}>
-          <span className={styles.welcomeText}>Welcome to the Guided Tour of </span>
-          <span className={styles.dynamicTitle}>
-            {conceptUriToName(tourState.targetConceptUri)}
-          </span>
-        </h1>
-        <Box
-          display="flex"
-          flexDirection="column"
-          alignItems="flex-start"
-          mt={4}
-          p={3}
-          borderRadius={5}
-          boxShadow={3}
-          style={{ backgroundColor: '#f9f9f9' }}
-        >
-          {messages.map((msg, index) => (
-            <Box
-              key={index}
-              display="flex"
-              justifyContent={msg.from === 'system' ? 'flex-start' : 'flex-end'}
-              mt={2}
-              width="100%"
-            >
+    <MainLayout title={` ALeA`}>
+      <LayoutWithFixedMenu
+        menu={
+          <GuidedTour2Navigation
+            isButtonDisabled={loading || pendingMessages.length > 0}
+            tourState={tourState}
+            setTourState={setTourState}
+            onClose={() => setShowDashboard(false)}
+            onSelect={handleNavigation}
+            setMessages={setMessages}
+          />
+        }
+        topOffset={64}
+        showDashboard={showDashboard}
+        setShowDashboard={setShowDashboard}
+        drawerAnchor="left"
+      >
+        <div>
+          <h1 className={styles.title}>
+            <span className={styles.welcomeText}>Welcome to the Guided Tour of </span>
+            <span className={styles.dynamicTitle}>
+              {conceptUriToName(tourState.targetConceptUri)}
+            </span>
+          </h1>
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="flex-start"
+            mt={4}
+            p={3}
+            borderRadius={5}
+            boxShadow={3}
+            style={{ backgroundColor: '#f9f9f9' }}
+          >
+            {messages.map((msg, index) => (
               <Box
-                p={2}
-                borderRadius={5}
-                boxShadow={2}
-                style={{
-                  backgroundColor: msg.from === 'system' ? '#e0f7fa' : '#cce5ff',
-                  maxWidth: '80%',
-                  textAlign: msg.from === 'system' ? 'left' : 'right',
-                }}
-                className={`${styles.messageBox} ${styles.systemMessage}`}
+                key={index}
+                display="flex"
+                justifyContent={msg.from === 'system' ? 'flex-start' : 'flex-end'}
+                my={{ xs: 2, sm: 1 }}
+                width="100%"
               >
-                <ChatMessageDisplay
-                  message={msg}
-                  isFrozen={index !== messages.length - 1}
-                  problemResponse={
-                    index === messages.length - 1
-                      ? problemResponse
-                      : messages[index + 1]?.userAction?.response
-                  }
-                  setProblemResponse={(r, q) => {
-                    setProblemResponse(r);
-                    setQuotient(q);
+                <Box
+                  p={2}
+                  borderRadius={5}
+                  boxShadow={2}
+                  style={{
+                    backgroundColor: msg.from === 'system' ? '#e0f7fa' : '#cce5ff',
+                    maxWidth: '80%',
+                    textAlign: msg.from === 'system' ? 'left' : 'right',
+                  }}
+                  className={`${styles.messageBox} ${styles.systemMessage}`}
+                >
+                  <ChatMessageDisplay
+                    message={msg}
+                    isFrozen={index !== messages.length - 1}
+                    problemResponse={
+                      index === messages.length - 1
+                        ? problemResponse
+                        : messages[index + 1]?.userAction?.response
+                    }
+                    setProblemResponse={(r, q) => {
+                      setProblemResponse(r);
+                      setQuotient(q);
+                    }}
+                  />
+                </Box>
+              </Box>
+            ))}
+            {userAction && !pendingMessages.length && (
+              <Box display="flex" justifyContent="flex-end" width="100%" my={{ xs: 1.5, sm: 1 }}>
+                <UserActionDisplay
+                  action={userAction}
+                  problemResponse={problemResponse}
+                  quotient={quotient}
+                  onResponse={async (action) => {
+                    const { newState, newMessages, nextAction } = await stateTransition(
+                      mmtUrl,
+                      tourState,
+                      action
+                    );
+
+                    setTourState(newState);
+                    const topMessage = newMessages[0];
+                    setMessages([
+                      ...messages,
+                      {
+                        from: 'user',
+                        type: 'text',
+                        text: action.chosenOption
+                          ? action.optionVerbalization[action.chosenOption]
+                          : 'Submit',
+                        userAction: action,
+                      },
+                      topMessage,
+                    ]);
+                    setPendingMessages(newMessages.slice(1));
+                    setUserAction(nextAction);
                   }}
                 />
               </Box>
-            </Box>
-          ))}
-          {userAction && !pendingMessages.length && (
-            <Box display="flex" justifyContent="flex-end" width="100%">
-              <UserActionDisplay
-                action={userAction}
-                problemResponse={problemResponse}
-                quotient={quotient}
-                onResponse={async (action) => {
-                  const { newState, newMessages, nextAction } = await stateTransition(
-                    mmtUrl,
-                    tourState,
-                    action
-                  );
-                  setTourState(newState);
-                  const topMessage = newMessages[0];
-                  setMessages([
-                    ...messages,
-                    {
-                      from: 'user',
-                      type: 'text',
-                      text: action.chosenOption
-                        ? action.optionVerbalization[action.chosenOption]
-                        : 'Submit',
-                      userAction: action,
-                    },
-                    topMessage,
-                  ]);
-                  setPendingMessages(newMessages.slice(1));
-                  setUserAction(nextAction);
-                }}
-              />
-            </Box>
-          )}
-        </Box>
-      </div>
+            )}
+          </Box>
+        </div>
+      </LayoutWithFixedMenu>
     </MainLayout>
   );
 };
