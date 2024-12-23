@@ -6,11 +6,8 @@ import {
   getLearningObjectShtml,
   LoType,
   ProblemResponse,
-  SelfAssessmentEvent,
-  updateLearnerModel,
 } from '@stex-react/api';
 import { LayoutWithFixedMenu, ServerLinksContext } from '@stex-react/stex-react-renderer';
-import assert from 'assert';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import { LoViewer } from '../../components/LoListDisplay';
@@ -24,12 +21,10 @@ import {
 import MainLayout from '../../layouts/MainLayout';
 import styles from '../../styles/guided-tour.module.scss';
 import { shouldUseDrawer } from '@stex-react/utils';
-import {
-  findNextAvailableIndex,
-  GuidedTour2Navigation,
-} from '../../components/GuidedTour2Navigation';
+import { GuidedTour2Navigation } from '../../components/guided-tour2/GuidedTour2Navigation';
+import { stateTransition } from 'packages/alea-frontend/components/guided-tour2/stateTransition';
 
-const structureLearningObjects = async (
+export const structureLearningObjects = async (
   mmtUrl: string,
   learningObjects: { 'learning-object': string; type: LoType }[]
 ) => {
@@ -63,7 +58,7 @@ const structureLearningObjects = async (
   return structured;
 };
 
-interface UserAction {
+export interface UserAction {
   actionType: 'problem' | 'choose-option' | 'end' | 'navigate-to-concept';
   options?: ActionName[];
   optionVerbalization?: Partial<Record<ActionName, string>>;
@@ -120,7 +115,7 @@ function ChatMessageDisplay({
   }
 }
 
-function chooseOptionAction(options: ActionName[]): UserAction {
+export function chooseOptionAction(options: ActionName[]): UserAction {
   const optionVerbalization: Partial<Record<ActionName, string>> = {};
   options.forEach((option) => {
     const verbalization = ACTION_VERBALIZATION_OPTIONS[option][0]; // chooseRandomlyFromList();
@@ -134,116 +129,6 @@ export function systemTextMessage(text: string): ChatMessage {
   return { from: 'system', type: 'text', text };
 }
 
-function getNextLoType(
-  focusConceptLo: Partial<Record<LoType, { uris: string[]; currentIdx: number }>>,
-  userAction: UserAction,
-  focusConceptCurrentLo?: { type: LoType; uri: string }
-) {
-  const loOrder: LoType[] = ['definition', 'example', 'para', 'statement', 'problem'];
-  const currentLoIdx = focusConceptCurrentLo ? loOrder.indexOf(focusConceptCurrentLo.type) : 0;
-  let loTypePreferredIdxOrder: number[];
-  if (userAction.chosenOption === 'LO_UNDERSTOOD') {
-    loTypePreferredIdxOrder = [];
-    for (let i = 1; i <= loOrder.length; i++) {
-      loTypePreferredIdxOrder.push((i + currentLoIdx) % loOrder.length);
-    }
-  } else if (userAction.chosenOption === 'LO_NOT_UNDERSTOOD') {
-    loTypePreferredIdxOrder = [
-      currentLoIdx,
-      ...[0, 1, 2, 3, 4].filter((idx) => idx !== currentLoIdx),
-    ];
-  } else if (userAction.quotient === 1) {
-    loTypePreferredIdxOrder = [4, 3, 2, 1, 0]; // 'problem';
-  } else {
-    loTypePreferredIdxOrder = [0, 1, 2, 3, 4]; // 'definition';
-  }
-  for (const typeIdx of loTypePreferredIdxOrder) {
-    const type = loOrder[typeIdx];
-    const currentIdx = focusConceptLo[type]?.currentIdx;
-    const numEntries = focusConceptLo[type]?.uris?.length ?? 0;
-    if (numEntries > 0 && currentIdx < numEntries - 1) return type;
-  }
-  return undefined;
-}
-
-function updateNewStateWithNextLo(
-  newState: GuidedTourState,
-  action: UserAction,
-  currentLo?: { type: LoType; uri: string }
-): {
-  messagesAdded: ChatMessage[];
-  actionForNextLo: UserAction;
-} {
-  const newLoType = getNextLoType(newState.focusConceptLo, action, newState.focusConceptCurrentLo);
-  if (!newLoType) {
-    const messagesAdded: ChatMessage[] = [];
-    if (action.chosenOption === 'LO_NOT_UNDERSTOOD') {
-      messagesAdded.push(systemTextMessage('Sorry to hear that!'));
-    } else if (action.chosenOption === 'LO_UNDERSTOOD') {
-      messagesAdded.push(systemTextMessage('Great!'));
-    } else if (action.quotient !== undefined) {
-      const topMessage =
-        action.quotient === 1
-          ? 'Great!'
-          : action.quotient === 0
-          ? 'Oops! That was incorrect.'
-          : "Hmm, that's only partially correct.";
-      messagesAdded.push(systemTextMessage(topMessage));
-    }
-    messagesAdded.push(
-      systemTextMessage(
-        "No more learning objects available for this concept. Let's move on to the next concept."
-      )
-    );
-    return { messagesAdded, actionForNextLo: chooseOptionAction(['MOVE_ON']) };
-  }
-
-  const messagesAdded: ChatMessage[] = [];
-  if (currentLo) {
-    const article = currentLo.type === newLoType ? 'another' : newLoType === 'example' ? 'an' : 'a';
-    if (action.chosenOption === 'LO_UNDERSTOOD') {
-      messagesAdded.push(systemTextMessage('Great!'));
-      messagesAdded.push(systemTextMessage(`Let's keep learning with ${article} ${newLoType}`));
-    } else if (action.chosenOption === 'LO_NOT_UNDERSTOOD') {
-      const article =
-        currentLo.type === newLoType ? 'another' : newLoType === 'example' ? 'an' : 'a';
-      messagesAdded.push(
-        systemTextMessage(`No worries! Let's learn more with ${article} ${newLoType}.`)
-      );
-    } else if (action.quotient !== undefined) {
-      const topMessage =
-        action.quotient === 1
-          ? 'Great!'
-          : action.quotient === 0
-          ? 'Oops! That was incorrect.'
-          : "Hmm, that's only partially correct.";
-      messagesAdded.push(systemTextMessage(topMessage));
-      messagesAdded.push(systemTextMessage(`Let's keep learning with ${article} ${newLoType}`));
-    }
-  } else {
-    messagesAdded.push(
-      systemTextMessage(`Let's start with ${newLoType === 'example' ? 'an' : 'a'} ${newLoType}`)
-    );
-  }
-  newState.focusConceptLo[newLoType].currentIdx++;
-  newState.focusConceptCurrentLo = {
-    type: newLoType,
-    uri: newState.focusConceptLo[newLoType].uris[newState.focusConceptLo[newLoType].currentIdx],
-  };
-  messagesAdded.push({
-    from: 'system',
-    type: newLoType,
-    loUri: newState.focusConceptCurrentLo.uri,
-  });
-  let actionForNextLo: UserAction;
-  if (newLoType === 'problem') {
-    actionForNextLo = { actionType: 'problem' };
-  } else {
-    messagesAdded.push(systemTextMessage(`Were you able to understand the above ${newLoType}?`));
-    actionForNextLo = chooseOptionAction(['LO_UNDERSTOOD', 'LO_NOT_UNDERSTOOD']);
-  }
-  return { messagesAdded, actionForNextLo };
-}
 async function resetLeafConcepts(
   targetConceptUri: string,
   newState: GuidedTourState
@@ -252,209 +137,6 @@ async function resetLeafConcepts(
   const lCUris = resp['leaf-concepts'] ?? [];
   newState.leafConceptUris = lCUris;
   newState.focusConceptIdx = 0;
-}
-async function stateTransition(
-  mmtUrl: string,
-  state: GuidedTourState,
-  action: UserAction
-): Promise<{ newState: GuidedTourState; newMessages: ChatMessage[]; nextAction: UserAction }> {
-  const newState = { ...state };
-  const newMessages: ChatMessage[] = [];
-  let nextAction: UserAction = undefined;
-  const currentConceptUri = state.leafConceptUris[state.focusConceptIdx];
-  const nextIndex = findNextAvailableIndex(
-    newState.focusConceptIdx,
-    newState.leafConceptUris,
-    newState.completedConceptUris
-  );
-  const nextConceptUri = newState.leafConceptUris[nextIndex];
-  const currentConceptName = conceptUriToName(currentConceptUri);
-  const nextConceptName = conceptUriToName(nextConceptUri);
-
-  if (action.chosenOption === 'MOVE_ON') {
-    const currentConceptUri = newState.leafConceptUris[newState.focusConceptIdx];
-    if (nextIndex === -1) {
-      newMessages.push(
-        systemTextMessage(
-          '<b style="color:#8e24aa"> Well Done! You have reached the end of Guided Tour.</b>'
-        )
-      );
-      nextAction = { actionType: 'end' };
-      return { newState, nextAction, newMessages };
-    }
-
-    newState.completedConceptUris.push(currentConceptUri);
-    newState.focusConceptIdx = nextIndex;
-    const updatePayload: SelfAssessmentEvent = {
-      type: 'self-assessment',
-      concept: currentConceptUri,
-      competences: { Remember: 1.0, Understand: 1.0, Apply: 1.0 },
-      time: new Date().toISOString(),
-      payload: '',
-      comment: 'Self assessment through guided tour',
-    };
-    await updateLearnerModel(updatePayload);
-    if (currentConceptUri === newState.targetConceptUri) {
-      newMessages.push(
-        systemTextMessage(
-          '<b style="color:#8e24aa"> Well Done! You have reached the end of Guided Tour.</b>'
-        )
-      );
-      nextAction = { actionType: 'end' };
-      return { newState, nextAction, newMessages };
-    }
-
-    const response = await getLearningObjects([nextConceptUri]);
-    const result = await structureLearningObjects(mmtUrl, response['learning-objects']);
-    newState.focusConceptLo = result;
-
-    newMessages.push(
-      systemTextMessage(
-        `Alright, let's proceed!</br>Do you feel confident about your understanding of <b style="color: #d629ce">${nextConceptName}</b>.`
-      )
-    );
-    const options: ActionName[] = ['KNOW', 'DONT_KNOW'];
-    if (newState.focusConceptLo['problem']?.uris?.length > 0) {
-      options.push('NOT_SURE_IF_KNOW');
-    }
-
-    newState.focusConceptInitialized = false;
-    nextAction = chooseOptionAction(options);
-  } else if (action.chosenOption === 'DONT_MOVE_ON') {
-    newMessages.push(
-      systemTextMessage(
-        `Alright, let's study more about <b style="color: #d629ce">${currentConceptName}</b>.`
-      )
-    );
-    const newLoType = getNextLoType(
-      newState.focusConceptLo,
-      action,
-      newState.focusConceptCurrentLo
-    );
-    if (newLoType) {
-      newState.focusConceptCurrentLo = {
-        type: newLoType,
-        uri: newState.focusConceptLo[newLoType][newState.focusConceptLo[newLoType].currentIdx],
-      };
-      newState.focusConceptInitialized = true;
-      const { messagesAdded, actionForNextLo } = updateNewStateWithNextLo(
-        newState,
-        action,
-        state.focusConceptCurrentLo
-      );
-      newMessages.push(...messagesAdded);
-      nextAction = actionForNextLo;
-    } else {
-      newMessages.push(systemTextMessage('No more learning objects available for this concept.'));
-      nextAction = chooseOptionAction(['MOVE_ON']);
-    }
-  } else if (!state.focusConceptInitialized) {
-    if (action.chosenOption === 'KNOW') {
-      const nextIndex = findNextAvailableIndex(
-        newState.focusConceptIdx,
-        newState.leafConceptUris,
-        newState.completedConceptUris
-      );
-      if (
-        nextIndex === -1 ||
-        newState.leafConceptUris.length - newState.completedConceptUris.length === 1
-      ) {
-        newState.completedConceptUris.push(currentConceptUri);
-        newMessages.push(
-          systemTextMessage(
-            '<b style="color:#8e24aa"> Well Done! You have reached the end of Guided Tour.</b>'
-          )
-        );
-        nextAction = { actionType: 'end' };
-        return { newState, nextAction, newMessages };
-      }
-      newMessages.push(
-        systemTextMessage(
-          `Great!</br>Let's move on to the next concept -  <b style="color: #d629ce">${nextConceptName}</b>.`
-        )
-      );
-
-      nextAction = chooseOptionAction(['MOVE_ON', 'DONT_MOVE_ON']);
-    } else if (action.chosenOption === 'DONT_KNOW' || action.chosenOption === 'NAVIGATE') {
-      newMessages.push(
-        systemTextMessage(
-          `Alright! Let's study <b style="color: #d629ce">${currentConceptName}</b>.`
-        )
-      );
-      newState.focusConceptInitialized = true;
-      const { messagesAdded, actionForNextLo } = updateNewStateWithNextLo(newState, action);
-      newMessages.push(...messagesAdded);
-      nextAction = actionForNextLo;
-    } else if (action.chosenOption === 'NOT_SURE_IF_KNOW') {
-      newMessages.push(
-        systemTextMessage(
-          `No worries, let's check your understanding of  <b style="color: #d629ce">${currentConceptName}</b> with a problem.`
-        )
-      );
-      newState.focusConceptLo.problem.currentIdx++;
-      newMessages.push({
-        from: 'system',
-        type: 'problem',
-        loUri: newState.focusConceptLo.problem.uris[newState.focusConceptLo.problem.currentIdx],
-      });
-      nextAction = { actionType: 'problem' };
-    } else if (action.chosenOption === 'ANOTHER_PROBLEM') {
-      newState.focusConceptLo.problem.currentIdx++;
-      newMessages.push({
-        from: 'system',
-        type: 'problem',
-        loUri: newState.focusConceptLo.problem.uris[newState.focusConceptLo.problem.currentIdx],
-      });
-      nextAction = { actionType: 'problem' };
-    } else {
-      assert(action.actionType === 'problem', JSON.stringify(action));
-      assert(action.quotient !== undefined);
-      if (action.quotient === 1) {
-        newMessages.push(systemTextMessage('Correct!'));
-        newMessages.push(
-          systemTextMessage('Do you feel confident in your understanding to move on?')
-        );
-        const numProblems = newState.focusConceptLo.problem?.uris?.length ?? 0;
-        const idx = newState.focusConceptLo.problem?.currentIdx ?? -1;
-        const options: ActionName[] = ['MOVE_ON'];
-        if (numProblems > 0 && idx < numProblems - 1) {
-          newState.focusConceptLo.problem.currentIdx++;
-          options.push('ANOTHER_PROBLEM');
-        } else {
-          options.push('DONT_MOVE_ON');
-        }
-        nextAction = chooseOptionAction(options);
-      } else {
-        const topMessage =
-          action.quotient === 0
-            ? 'Oops! That was incorrect.'
-            : "Hmm, that's only partially correct.";
-        newMessages.push(systemTextMessage(topMessage));
-        newMessages.push(systemTextMessage('Do you want to try another problem?'));
-        nextAction = chooseOptionAction(['ANOTHER_PROBLEM', 'DONT_KNOW', 'MOVE_ON']);
-      }
-    }
-  } else {
-    /* focusConceptInitialized */
-    if (action.quotient === 1) {
-      newMessages.push(systemTextMessage('Correct!'));
-      newMessages.push(
-        systemTextMessage('Do you feel confident in your understanding to move on?')
-      );
-      nextAction = chooseOptionAction(['MOVE_ON', 'DONT_MOVE_ON']);
-    } else {
-      newState.focusConceptInitialized = true;
-      const { messagesAdded, actionForNextLo } = updateNewStateWithNextLo(
-        newState,
-        action,
-        state.focusConceptCurrentLo
-      );
-      newMessages.push(...messagesAdded);
-      nextAction = actionForNextLo;
-    }
-  }
-  assert(!!nextAction);
-  return { newState, nextAction, newMessages };
 }
 
 function UserActionDisplay({
