@@ -22,7 +22,7 @@ import MainLayout from '../../layouts/MainLayout';
 import styles from '../../styles/guided-tour.module.scss';
 import { shouldUseDrawer } from '@stex-react/utils';
 import { GuidedTour2Navigation } from '../../components/guided-tour2/GuidedTour2Navigation';
-import { stateTransition } from 'packages/alea-frontend/components/guided-tour2/stateTransition';
+import { stateTransition } from '../../components/guided-tour2/stateTransition';
 
 export const structureLearningObjects = async (
   mmtUrl: string,
@@ -59,10 +59,14 @@ export const structureLearningObjects = async (
 };
 
 export interface UserAction {
-  actionType: 'problem' | 'choose-option' | 'end' | 'navigate-to-concept';
+  actionType: 'problem' | 'choose-option' | 'end' | 'out-of-conversation';
   options?: ActionName[];
   optionVerbalization?: Partial<Record<ActionName, string>>;
+
+  // If waiting for user response, then chosenOption will be undefined.
   chosenOption?: ActionName;
+
+  // Only for problems:
   response?: ProblemResponse;
   quotient?: number;
 }
@@ -256,7 +260,7 @@ const GuidedTours = () => {
         setMessages((prevMessages) => [
           ...prevMessages,
           systemTextMessage(
-            '<b  style="color:#8e24aa">Well done on completing this journey!.You have reached the end.</b>'
+            '<b style="color:#8e24aa">Well done on completing this journey! You have reached the end.</b>'
           ),
         ]);
         setTourState(tourState);
@@ -279,7 +283,7 @@ const GuidedTours = () => {
         mmtUrl,
         updatedTourState,
         {
-          actionType: 'navigate-to-concept',
+          actionType: 'out-of-conversation',
           chosenOption: 'NAVIGATE',
         }
       );
@@ -294,13 +298,12 @@ const GuidedTours = () => {
   };
 
   return (
-    <MainLayout title={` ALeA`}>
+    <MainLayout title={`Guided Tour of ${conceptUriToName(tourState.targetConceptUri)} | ALeA`}>
       <LayoutWithFixedMenu
         menu={
           <GuidedTour2Navigation
             isButtonDisabled={loading || pendingMessages.length > 0}
             tourState={tourState}
-            setTourState={setTourState}
             onClose={() => setShowDashboard(false)}
             onSelect={handleNavigation}
             setMessages={setMessages}

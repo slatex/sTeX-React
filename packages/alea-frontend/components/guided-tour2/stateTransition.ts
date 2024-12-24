@@ -1,21 +1,21 @@
 import {
-  ChatMessage,
-  chooseOptionAction,
-  GuidedTourState,
-  structureLearningObjects,
-  systemTextMessage,
-  UserAction,
-} from 'packages/alea-frontend/pages/guided-tour2/[id]';
-import { findNextAvailableIndex } from './GuidedTour2Navigation';
-import {
   conceptUriToName,
   getLearningObjects,
   LoType,
   SelfAssessmentEvent,
   updateLearnerModel,
 } from '@stex-react/api';
-import { ActionName } from 'packages/alea-frontend/constants/messages';
 import assert from 'assert';
+import { ActionName } from '../../constants/messages';
+import {
+  ChatMessage,
+  chooseOptionAction,
+  GuidedTourState,
+  structureLearningObjects,
+  systemTextMessage,
+  UserAction,
+} from '../../pages/guided-tour2/[id]';
+import { findNextAvailableIndex } from './GuidedTour2Navigation';
 
 function getNextLoType(
   focusConceptLo: Partial<Record<LoType, { uris: string[]; currentIdx: number }>>,
