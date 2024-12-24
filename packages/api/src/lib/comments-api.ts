@@ -296,5 +296,5 @@ export async function getResourcesForUserId(mmtUrl: string) {
     { mmtUrl },
     { headers: getAuthHeaders() }
   );
-  return response.data as CourseResourceAction;
+  return response.data as CourseResourceAction[];
 }
