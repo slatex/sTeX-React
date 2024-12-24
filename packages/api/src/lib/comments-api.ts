@@ -1,4 +1,4 @@
-import { FileLocation } from '@stex-react/utils';
+import { CourseResourceAction, FileLocation } from '@stex-react/utils';
 import axios, { AxiosError } from 'axios';
 import {
   BlogPost,
@@ -286,6 +286,15 @@ export async function generateApfelToken(userId: string, time: number) {
 }
 
 export async function checkUserExist() {
-  const response = await axios.post('/api/check-user-exist',{}, { headers: getAuthHeaders() });
+  const response = await axios.post('/api/check-user-exist', {}, { headers: getAuthHeaders() });
   return response.data;
+}
+
+export async function getResourcesForUserId(mmtUrl: string) {
+  const response = await axios.post(
+    '/api/get-resources-for-userid',
+    { mmtUrl },
+    { headers: getAuthHeaders() }
+  );
+  return response.data as CourseResourceAction;
 }
