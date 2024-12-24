@@ -42,6 +42,19 @@ export enum ComponentType {
   WILDCARD2 = 'WILDCARD2',
 }
 
+export const COURSE_SPECIFIC_RESOURCENAMES = [
+  ResourceName.COURSE_NOTES,
+  ResourceName.COURSE_QUIZ,
+  ResourceName.COURSE_COMMENTS,
+  ResourceName.COURSE_STUDY_BUDDY,
+  ResourceName.COURSE_HOMEWORK,
+  ResourceName.COURSE_ACCESS,
+];
+export interface CourseResourceAction {
+  courseId: string;
+  name: ResourceName;
+  action: Action;
+}
 export interface ResourceIdComponent {
   name?: string;
   type: ComponentType;
