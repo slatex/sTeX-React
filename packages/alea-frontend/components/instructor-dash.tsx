@@ -59,37 +59,37 @@ const getResourceIcon = (name: ResourceName) => {
 
 async function getLastUpdatedQuiz(
   courseId: string
-): Promise<{ description: string | null; timeAgo: string | null }> {
+): Promise<{ description: string | null; timeAgo: string | null; timeStamp: string | null }> {
   try {
     const quizList = await getCourseQuizList(courseId);
     const timeStamp = quizList[quizList.length - 1].quizStartTs;
     const description = `Last Quiz: ${dayjs(timeStamp).format('YYYY-MM-DD')}`;
     const timeAgo = calculateTimeAgo(timeStamp);
-    return { description, timeAgo };
+    return { description, timeAgo, timeStamp };
   } catch (error) {
     console.error('Error fetching course data:', error);
-    return { description: null, timeAgo: null };
+    return { description: null, timeAgo: null, timeStamp: null };
   }
 }
 
 async function getLastUpdatedHomework(
   courseId: string
-): Promise<{ description: string | null; timeAgo: string | null }> {
+): Promise<{ description: string | null; timeAgo: string | null; timeStamp: string | null }> {
   try {
     const homeworkList = await getHomeworkList(courseId);
     const timeStamp = homeworkList[homeworkList.length - 1].givenTs;
     const description = `Last Homework: ${dayjs(timeStamp).format('YYYY-MM-DD')}`;
     const timeAgo = calculateTimeAgo(timeStamp);
-    return { description, timeAgo };
+    return { description, timeAgo, timeStamp };
   } catch (error) {
     console.error('Error fetching course data:', error);
-    return { description: null, timeAgo: null };
+    return { description: null, timeAgo: null, timeStamp: null };
   }
 }
 
 async function getLastUpdatedNotes(
   courseId: string
-): Promise<{ description: string | null; timeAgo: string | null }> {
+): Promise<{ description: string | null; timeAgo: string | null; timeStamp: string | null }> {
   try {
     const response = await axios.get('/api/get-coverage-timeline');
     const courseData = response?.data[courseId];
@@ -97,28 +97,28 @@ async function getLastUpdatedNotes(
       const timeStamp = courseData[courseData.length - 1].timestamp_ms;
       const description = `Last Updated: ${dayjs(timeStamp).format('YYYY-MM-DD')}`;
       const timeAgo = calculateTimeAgo(timeStamp);
-      return { description, timeAgo };
+      return { description, timeAgo, timeStamp };
     }
-    return { description: null, timeAgo: null };
+    return { description: null, timeAgo: null, timeStamp: null };
   } catch (error) {
     console.error('Error fetching course data:', error);
-    return { description: null, timeAgo: null };
+    return { description: null, timeAgo: null, timeStamp: null };
   }
 }
 
 async function getUngradedProblems(
   courseId: string
-): Promise<{ description: string | null; timeAgo: string | null }> {
+): Promise<{ description: string | null; timeAgo: string | null; timeStamp: string | null }> {
   try {
     const response = (await getCourseGradingItems(courseId)).gradingItems;
     const ungradedProblems = response.filter(
       (problem) => problem.numSubProblemsGraded !== problem.numSubProblemsAnswered
     );
     const description = `Ungraded Problems - ${ungradedProblems.length}`;
-    return { description, timeAgo: null };
+    return { description, timeAgo: null, timeStamp: null };
   } catch (error) {
     console.error('Error fetching course data:', error);
-    return { description: null, timeAgo: null };
+    return { description: null, timeAgo: null, timeStamp: null };
   }
 }
 
@@ -130,29 +130,30 @@ async function getLastUpdatedDescriptions({
   courseId: string;
   name: ResourceName;
   action: Action;
-}): Promise<{ description: string | null; timeAgo: string | null }> {
+}): Promise<{ description: string | null; timeAgo: string | null; timeStamp: string | null }> {
   let description = null;
   let timeAgo = null;
+  let timeStamp = null;
 
   switch (name) {
     case ResourceName.COURSE_NOTES:
-      ({ description, timeAgo } = await getLastUpdatedNotes(courseId));
+      ({ description, timeAgo, timeStamp } = await getLastUpdatedNotes(courseId));
       break;
     case ResourceName.COURSE_HOMEWORK:
       if (action === Action.MUTATE) {
-        ({ description, timeAgo } = await getLastUpdatedHomework(courseId));
+        ({ description, timeAgo, timeStamp } = await getLastUpdatedHomework(courseId));
       } else if (action === Action.INSTRUCTOR_GRADING) {
-        ({ description, timeAgo } = await getUngradedProblems(courseId));
+        ({ description, timeAgo, timeStamp } = await getUngradedProblems(courseId));
       }
       break;
     case ResourceName.COURSE_QUIZ:
-      ({ description, timeAgo } = await getLastUpdatedQuiz(courseId));
+      ({ description, timeAgo, timeStamp } = await getLastUpdatedQuiz(courseId));
       break;
     default:
       break;
   }
 
-  return { description, timeAgo };
+  return { description, timeAgo, timeStamp };
 }
 
 const groupByCourseId = (resources: CourseResourceAction[]) => {
@@ -196,7 +197,7 @@ function InstructorDashBoard({
   );
   const [userInfo, setUserInfo] = useState(null);
   const [descriptions, setDescriptions] = useState<
-    Record<string, { description: string | null; timeAgo: string | null }>
+    Record<string, { description: string | null; timeAgo: string | null; timeStamp: string | null }>
   >({});
   const router = useRouter();
   const groupedResources = useMemo(
@@ -211,14 +212,15 @@ function InstructorDashBoard({
     const fetchDescriptions = async () => {
       const newDescriptions: Record<
         string,
-        { description: string | null; timeAgo: string | null }
+        { description: string | null; timeAgo: string | null; timeStamp: string | null }
       > = {};
       for (const courseId of Object.keys(groupedResources)) {
         for (const resource of groupedResources[courseId]) {
-          const { description, timeAgo } = await getLastUpdatedDescriptions(resource);
+          const { description, timeAgo, timeStamp } = await getLastUpdatedDescriptions(resource);
           newDescriptions[`${courseId}-${resource.name}-${resource.action}`] = {
             description,
             timeAgo,
+            timeStamp,
           };
         }
       }
@@ -297,7 +299,7 @@ function InstructorDashBoard({
                               fontWeight: 'bold',
                               color: getTimeAgoColor(
                                 descriptions[`${courseId}-${resource.name}-${resource.action}`]
-                                  ?.description
+                                  ?.timeStamp
                               ),
                             }}
                           >
