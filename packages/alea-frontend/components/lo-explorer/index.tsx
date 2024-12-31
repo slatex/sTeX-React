@@ -148,7 +148,7 @@ async function fetchLoFromConceptsAsLoRelations(
   if (concepts?.length === 0) {
     const query = getSparqlQueryForLoString(mmtUrl, loString);
     const response = await sparqlQuery(mmtUrl, query);
-    bindings = response.results.bindings;
+    bindings = response.results?.bindings;
     return constructLearningObjects(bindings);
   }
   if (relations.length === 0) {
@@ -297,6 +297,21 @@ function ArchivesAutocomplete({
   );
 }
 
+const getFilteredUris = (
+  loType: LoType,
+  loUris: Record<LoType, string[]>,
+  chosenArchives: string[]
+): string[] => {
+  const uris = loUris[loType] || [];
+  if (chosenArchives.length > 0) {
+    return uris.filter((uri) => {
+      const { projectName } = getUrlInfo(uri);
+      return chosenArchives.some((archive) => archive.toLowerCase() === projectName?.toLowerCase());
+    });
+  }
+  return uris;
+};
+
 export function LoExplorer() {
   const [searchString, setSearchString] = useState('');
   const [chosenRelations, setChosenRelations] = useState<AllLoRelationTypes[]>([]);
@@ -329,12 +344,8 @@ export function LoExplorer() {
     statement: 0,
   });
   const filteredUris = useMemo(() => {
-    if (!chosenArchives.length) return loUris[selectedLo] || [];
-    return (loUris[selectedLo] || []).filter((uri) => {
-      const { projectName } = getUrlInfo(uri);
-      return chosenArchives.some((archive) => archive.toLowerCase() === projectName.toLowerCase());
-    });
-  }, [chosenArchives, selectedLo, loUris]);
+    return getFilteredUris(selectedLo, loUris, chosenArchives);
+  }, [selectedLo, loUris, chosenArchives]);
 
   useEffect(() => {
     async function fetchAndSetConceptList() {
@@ -413,7 +424,7 @@ export function LoExplorer() {
       statement: 0,
     };
     ALL_LO_TYPES.forEach((loType) => {
-      counts[loType] = getFilteredUris(loType).length;
+      counts[loType] = getFilteredUris(loType, loUris, chosenArchives).length;
     });
     setFilteredCounts(counts);
   }, [loUris, chosenArchives]);
@@ -448,19 +459,6 @@ export function LoExplorer() {
 
   const handleRemoveFromCart = (uri: string, uriType: LoType) => {
     setCart((prev) => prev.filter((item) => !(item.uri === uri && item.uriType === uriType)));
-  };
-
-  const getFilteredUris = (loType) => {
-    const uris = loUris[loType] || [];
-    if (chosenArchives.length > 0) {
-      return uris.filter((uri) => {
-        const { projectName } = getUrlInfo(uri);
-        return chosenArchives.some(
-          (archive) => archive.toLowerCase() === projectName?.toLowerCase()
-        );
-      });
-    }
-    return uris;
   };
 
   return (

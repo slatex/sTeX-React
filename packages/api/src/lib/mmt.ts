@@ -529,13 +529,15 @@ export function getSparqlQueryForLoString(mmtUrl: string, loString: string) {
   const query = `
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX ulo: <http://mathhub.info/ulo#>
-
-    SELECT DISTINCT ?lo ?type
+    PREFIX fn: <http://www.w3.org/2005/xpath-functions#>
+    SELECT DISTINCT ?lo ?type (SHA256(STR(?lo)) AS ?hash)
     WHERE {
       ?lo rdf:type ?type .
       FILTER(?type IN (ulo:definition, ulo:problem, ulo:example, ulo:para, ulo:statement)).
       FILTER(CONTAINS(LCASE(STR(?lo)), "${loString}")).
-    }limit 300`;
+    }
+    ORDER BY ?hash
+    LIMIT 300`;
   return query;
 }
 export function getSparqlQueryForNonDimConceptsAsLoRelation(
