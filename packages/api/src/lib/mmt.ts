@@ -463,6 +463,30 @@ export const getSparqlQueryForLoRelationToNonDimConcept = (uri: string) => {
                               }`;
   return query;
 };
+export const getProblemObject = async (mmtUrl: string, problemIdPrefix: string) => {
+  if (!problemIdPrefix) {
+    console.error('Problem ID prefix is required');
+    return null;
+  }
+  const query = `
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    PREFIX ulo: <http://mathhub.info/ulo#>
+
+    SELECT DISTINCT ?learningObject
+    WHERE {
+      ?learningObject rdf:type ulo:problem .
+      FILTER(CONTAINS(STR(?learningObject), "${problemIdPrefix}"))
+    }
+  `;
+
+  try {
+    const res = await sparqlQuery(mmtUrl, query);
+    return res.results?.bindings[0]?.['learningObject']?.value ?? null;
+  } catch (error) {
+    console.error('Error executing SPARQL query:', error);
+    throw error;
+  }
+};
 
 export function getSparlQueryForNonDimConcepts() {
   return `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>

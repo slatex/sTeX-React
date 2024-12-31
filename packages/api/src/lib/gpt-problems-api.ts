@@ -6,7 +6,7 @@ import {
   GptRun,
   Template,
 } from './gpt-problems';
-import { getAuthHeaders } from './lms';
+import { getAuthHeaders } from './lmp';
 
 export async function createGptQuestions(request: CreateGptProblemsRequest) {
   const resp = await axios.post(`/api/gpt-redirect?apiname=create-problems`, request, {

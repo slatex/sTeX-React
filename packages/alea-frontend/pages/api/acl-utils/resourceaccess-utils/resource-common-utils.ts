@@ -8,7 +8,7 @@ export async function returnAclIdForResourceIdAndActionId(resourceId: string, ac
     const aclId = await RESOURCE_CACHE.getAclId(resourceId, actionId);
     return aclId;
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     return null;
   }
 }

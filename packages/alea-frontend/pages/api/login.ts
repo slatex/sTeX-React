@@ -7,7 +7,7 @@ async function getAccessToken(userId: string, firstName: string, lastName: strin
   try {
     return (
       await axios.get(
-        process.env.NEXT_PUBLIC_LMS_URL +
+        process.env.NEXT_PUBLIC_LMP_URL +
           `/get-email-access-token?email=${userId}&givenName=${firstName}&sn=${lastName}`,
         { headers: { Authorization: process.env.SERVER_SECRET } }
       )
