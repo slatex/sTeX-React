@@ -1,15 +1,17 @@
 import FeedIcon from '@mui/icons-material/Feed';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import { Box, Button, IconButton, Tooltip, Typography, useMediaQuery } from '@mui/material';
-import { checkUserExist, getCourseInfo } from '@stex-react/api';
-import { CourseInfo, PRIMARY_COL } from '@stex-react/utils';
+import { checkUserExist, getCourseInfo, getResourcesForUserId } from '@stex-react/api';
+import { ServerLinksContext } from '@stex-react/stex-react-renderer';
+import { Action, CourseInfo, CourseResourceAction, PRIMARY_COL } from '@stex-react/utils';
 import { NextPage } from 'next';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import InstructorDashBoard from '../components/InstructorDashboard';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
-import Link from 'next/link';
 
 function getInstructor(courseData: CourseInfo, currentSemester: string) {
   for (const instance of courseData.instances) {
@@ -282,12 +284,27 @@ function AleaFeatures({ img_url, title, description }) {
 
 const StudentHomePage: NextPage = ({ filteredCourses }: { filteredCourses: CourseInfo[] }) => {
   const router = useRouter();
+  const [resourcesForInstructor, setResourcesForInstructor] = useState<CourseResourceAction[]>([]);
   useEffect(() => {
     checkUserExist();
   }, []);
   const {
     home: { newHome: n },
   } = getLocaleObject(router);
+
+  const { mmtUrl } = useContext(ServerLinksContext);
+  useEffect(() => {
+    async function resourcesAccessToUser() {
+      const resourceAccessToInstructor = (await getResourcesForUserId(mmtUrl)).filter(
+        (item) => item.action !== Action.TAKE
+      );
+      setResourcesForInstructor(resourceAccessToInstructor);
+    }
+    resourcesAccessToUser();
+  }, [mmtUrl]);
+  if (resourcesForInstructor.length > 0) {
+    return <InstructorDashBoard resourcesForInstructor={resourcesForInstructor} />;
+  }
   return (
     <MainLayout title="Courses | ALeA">
       <Box m="0 auto">
