@@ -68,9 +68,10 @@ async function getLastUpdatedQuiz(courseId: string): Promise<ResourceDisplayInfo
   try {
     const quizList = await getCourseQuizList(courseId);
     const timestamp = quizList[quizList.length - 1].quizStartTs;
+    const dayjsTimestamp = dayjs(timestamp).format('YYYY-MM-DD');
     const description = `Last Quiz: ${dayjs(timestamp).format('YYYY-MM-DD')}`;
-    const timeAgo = calculateTimeAgo(timestamp);
-    return { description, timeAgo, timestamp };
+    const timeAgo = calculateTimeAgo(dayjsTimestamp);
+    return { description, timeAgo, timestamp: dayjsTimestamp };
   } catch (error) {
     console.error('Error fetching course data:', error);
     return { description: null, timeAgo: null, timestamp: null };
