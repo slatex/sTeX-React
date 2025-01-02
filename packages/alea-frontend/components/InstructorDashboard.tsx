@@ -19,7 +19,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
 import MainLayout from '../layouts/MainLayout';
 
-interface Description {
+interface ResourceDisplayInfo {
   description: string | null;
   timeAgo: string | null;
   timestamp: string | null;
@@ -64,41 +64,41 @@ const getResourceIcon = (name: ResourceName) => {
   }
 };
 
-async function getLastUpdatedQuiz(courseId: string): Promise<Description> {
+async function getLastUpdatedQuiz(courseId: string): Promise<ResourceDisplayInfo> {
   try {
     const quizList = await getCourseQuizList(courseId);
-    const timeStamp = quizList[quizList.length - 1].quizStartTs;
-    const description = `Last Quiz: ${dayjs(timeStamp).format('YYYY-MM-DD')}`;
-    const timeAgo = calculateTimeAgo(timeStamp);
-    return { description, timeAgo, timestamp: timeStamp };
+    const timestamp = quizList[quizList.length - 1].quizStartTs;
+    const description = `Last Quiz: ${dayjs(timestamp).format('YYYY-MM-DD')}`;
+    const timeAgo = calculateTimeAgo(timestamp);
+    return { description, timeAgo, timestamp };
   } catch (error) {
     console.error('Error fetching course data:', error);
     return { description: null, timeAgo: null, timestamp: null };
   }
 }
 
-async function getLastUpdatedHomework(courseId: string): Promise<Description> {
+async function getLastUpdatedHomework(courseId: string): Promise<ResourceDisplayInfo> {
   try {
     const homeworkList = await getHomeworkList(courseId);
-    const timeStamp = homeworkList[homeworkList.length - 1].givenTs;
-    const description = `Last Homework: ${dayjs(timeStamp).format('YYYY-MM-DD')}`;
-    const timeAgo = calculateTimeAgo(timeStamp);
-    return { description, timeAgo, timestamp: timeStamp };
+    const timestamp = homeworkList[homeworkList.length - 1].givenTs;
+    const description = `Last Homework: ${dayjs(timestamp).format('YYYY-MM-DD')}`;
+    const timeAgo = calculateTimeAgo(timestamp);
+    return { description, timeAgo, timestamp };
   } catch (error) {
     console.error('Error fetching course data:', error);
     return { description: null, timeAgo: null, timestamp: null };
   }
 }
 
-async function getLastUpdatedNotes(courseId: string): Promise<Description> {
+async function getLastUpdatedNotes(courseId: string): Promise<ResourceDisplayInfo> {
   try {
     const coverageData = await getCoverageTimeline();
     const courseData = coverageData[courseId];
     if (courseData && courseData.length > 0) {
-      const timeStamp = courseData[courseData.length - 1].timestamp_ms;
-      const description = `Last Updated: ${dayjs(timeStamp).format('YYYY-MM-DD')}`;
-      const timeAgo = calculateTimeAgo(timeStamp);
-      return { description, timeAgo, timestamp: timeStamp };
+      const timestamp = courseData[courseData.length - 1].timestamp_ms;
+      const description = `Last Updated: ${dayjs(timestamp).format('YYYY-MM-DD')}`;
+      const timeAgo = calculateTimeAgo(timestamp);
+      return { description, timeAgo, timestamp };
     }
     return { description: null, timeAgo: null, timestamp: null };
   } catch (error) {
@@ -107,7 +107,7 @@ async function getLastUpdatedNotes(courseId: string): Promise<Description> {
   }
 }
 
-async function getUngradedProblems(courseId: string): Promise<Description> {
+async function getUngradedProblems(courseId: string): Promise<ResourceDisplayInfo> {
   try {
     const response = (await getCourseGradingItems(courseId)).gradingItems;
     const ungradedProblems = response.filter(
@@ -129,30 +129,30 @@ async function getLastUpdatedDescriptions({
   courseId: string;
   name: ResourceName;
   action: Action;
-}): Promise<Description> {
+}): Promise<ResourceDisplayInfo> {
   let description = null;
   let timeAgo = null;
-  let timeStamp = null;
+  let timestamp = null;
 
   switch (name) {
     case ResourceName.COURSE_NOTES:
-      ({ description, timeAgo, timestamp: timeStamp } = await getLastUpdatedNotes(courseId));
+      ({ description, timeAgo, timestamp: timestamp } = await getLastUpdatedNotes(courseId));
       break;
     case ResourceName.COURSE_HOMEWORK:
       if (action === Action.MUTATE) {
-        ({ description, timeAgo, timestamp: timeStamp } = await getLastUpdatedHomework(courseId));
+        ({ description, timeAgo, timestamp: timestamp } = await getLastUpdatedHomework(courseId));
       } else if (action === Action.INSTRUCTOR_GRADING) {
-        ({ description, timeAgo, timestamp: timeStamp } = await getUngradedProblems(courseId));
+        ({ description, timeAgo, timestamp: timestamp } = await getUngradedProblems(courseId));
       }
       break;
     case ResourceName.COURSE_QUIZ:
-      ({ description, timeAgo, timestamp: timeStamp } = await getLastUpdatedQuiz(courseId));
+      ({ description, timeAgo, timestamp: timestamp } = await getLastUpdatedQuiz(courseId));
       break;
     default:
       break;
   }
 
-  return { description, timeAgo, timestamp: timeStamp };
+  return { description, timeAgo, timestamp: timestamp };
 }
 
 const groupByCourseId = (resources: CourseResourceAction[]) => {
@@ -194,7 +194,7 @@ function ResourceCard({
 }: {
   resource: CourseResourceAction;
   key: number;
-  descriptions: Record<string, Description>;
+  descriptions: Record<string, ResourceDisplayInfo>;
   courseId: string;
 }) {
   const router = useRouter();
@@ -255,7 +255,7 @@ function InstructorDashBoard({
     (resource) => !excludedResources.includes(resource.name)
   );
   const [userInfo, setUserInfo] = useState(null);
-  const [descriptions, setDescriptions] = useState<Record<string, Description>>({});
+  const [descriptions, setDescriptions] = useState<Record<string, ResourceDisplayInfo>>({});
   const groupedResources = useMemo(
     () => groupByCourseId(filteredResourcesForInstructor),
     [resourcesForInstructor]
@@ -266,18 +266,18 @@ function InstructorDashBoard({
 
   useEffect(() => {
     const fetchDescriptions = async () => {
-      const newDescriptions: Record<string, Description> = {};
+      const newDescriptions: Record<string, ResourceDisplayInfo> = {};
       for (const courseId of Object.keys(groupedResources)) {
         for (const resource of groupedResources[courseId]) {
           const {
             description,
             timeAgo,
-            timestamp: timeStamp,
+            timestamp: timestamp,
           } = await getLastUpdatedDescriptions(resource);
           newDescriptions[`${courseId}-${resource.name}-${resource.action}`] = {
             description,
             timeAgo,
-            timestamp: timeStamp,
+            timestamp: timestamp,
           };
         }
       }
