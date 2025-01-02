@@ -9,7 +9,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
-import InstructorDashBoard from '../components/instructor-dash';
+import InstructorDashBoard from '../components/InstructorDashboard';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 
@@ -284,7 +284,6 @@ function AleaFeatures({ img_url, title, description }) {
 
 const StudentHomePage: NextPage = ({ filteredCourses }: { filteredCourses: CourseInfo[] }) => {
   const router = useRouter();
-  const [isInstructor, setIsInstructor] = useState(false);
   const [resourcesForInstructor, setResourcesForInstructor] = useState<CourseResourceAction[]>([]);
   useEffect(() => {
     checkUserExist();
@@ -299,12 +298,11 @@ const StudentHomePage: NextPage = ({ filteredCourses }: { filteredCourses: Cours
       const resourceAccessToInstructor = (await getResourcesForUserId(mmtUrl)).filter(
         (item) => item.action !== Action.TAKE
       );
-      setIsInstructor(resourceAccessToInstructor.length > 0);
       setResourcesForInstructor(resourceAccessToInstructor);
     }
     resourcesAccessToUser();
   }, [mmtUrl]);
-  if (isInstructor) {
+  if (resourcesForInstructor.length > 0) {
     return <InstructorDashBoard resourcesForInstructor={resourcesForInstructor} />;
   }
   return (

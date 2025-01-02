@@ -8,6 +8,7 @@ import { Avatar, Box, Card, CardActionArea, CardContent, Typography } from '@mui
 import {
   getCourseGradingItems,
   getCourseQuizList,
+  getCoverageTimeline,
   getHomeworkList,
   getUserInfo,
 } from '@stex-react/api';
@@ -17,6 +18,12 @@ import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
 import MainLayout from '../layouts/MainLayout';
+
+interface Description {
+  description: string | null;
+  timeAgo: string | null;
+  timestamp: string | null;
+}
 
 const excludedResources = [
   ResourceName.COURSE_STUDY_BUDDY,
@@ -57,68 +64,60 @@ const getResourceIcon = (name: ResourceName) => {
   }
 };
 
-async function getLastUpdatedQuiz(
-  courseId: string
-): Promise<{ description: string | null; timeAgo: string | null; timeStamp: string | null }> {
+async function getLastUpdatedQuiz(courseId: string): Promise<Description> {
   try {
     const quizList = await getCourseQuizList(courseId);
     const timeStamp = quizList[quizList.length - 1].quizStartTs;
     const description = `Last Quiz: ${dayjs(timeStamp).format('YYYY-MM-DD')}`;
     const timeAgo = calculateTimeAgo(timeStamp);
-    return { description, timeAgo, timeStamp };
+    return { description, timeAgo, timestamp: timeStamp };
   } catch (error) {
     console.error('Error fetching course data:', error);
-    return { description: null, timeAgo: null, timeStamp: null };
+    return { description: null, timeAgo: null, timestamp: null };
   }
 }
 
-async function getLastUpdatedHomework(
-  courseId: string
-): Promise<{ description: string | null; timeAgo: string | null; timeStamp: string | null }> {
+async function getLastUpdatedHomework(courseId: string): Promise<Description> {
   try {
     const homeworkList = await getHomeworkList(courseId);
     const timeStamp = homeworkList[homeworkList.length - 1].givenTs;
     const description = `Last Homework: ${dayjs(timeStamp).format('YYYY-MM-DD')}`;
     const timeAgo = calculateTimeAgo(timeStamp);
-    return { description, timeAgo, timeStamp };
+    return { description, timeAgo, timestamp: timeStamp };
   } catch (error) {
     console.error('Error fetching course data:', error);
-    return { description: null, timeAgo: null, timeStamp: null };
+    return { description: null, timeAgo: null, timestamp: null };
   }
 }
 
-async function getLastUpdatedNotes(
-  courseId: string
-): Promise<{ description: string | null; timeAgo: string | null; timeStamp: string | null }> {
+async function getLastUpdatedNotes(courseId: string): Promise<Description> {
   try {
-    const response = await axios.get('/api/get-coverage-timeline');
-    const courseData = response?.data[courseId];
+    const coverageData = await getCoverageTimeline();
+    const courseData = coverageData[courseId];
     if (courseData && courseData.length > 0) {
       const timeStamp = courseData[courseData.length - 1].timestamp_ms;
       const description = `Last Updated: ${dayjs(timeStamp).format('YYYY-MM-DD')}`;
       const timeAgo = calculateTimeAgo(timeStamp);
-      return { description, timeAgo, timeStamp };
+      return { description, timeAgo, timestamp: timeStamp };
     }
-    return { description: null, timeAgo: null, timeStamp: null };
+    return { description: null, timeAgo: null, timestamp: null };
   } catch (error) {
     console.error('Error fetching course data:', error);
-    return { description: null, timeAgo: null, timeStamp: null };
+    return { description: null, timeAgo: null, timestamp: null };
   }
 }
 
-async function getUngradedProblems(
-  courseId: string
-): Promise<{ description: string | null; timeAgo: string | null; timeStamp: string | null }> {
+async function getUngradedProblems(courseId: string): Promise<Description> {
   try {
     const response = (await getCourseGradingItems(courseId)).gradingItems;
     const ungradedProblems = response.filter(
       (problem) => problem.numSubProblemsGraded !== problem.numSubProblemsAnswered
     );
     const description = `Ungraded Problems - ${ungradedProblems.length}`;
-    return { description, timeAgo: null, timeStamp: null };
+    return { description, timeAgo: null, timestamp: null };
   } catch (error) {
     console.error('Error fetching course data:', error);
-    return { description: null, timeAgo: null, timeStamp: null };
+    return { description: null, timeAgo: null, timestamp: null };
   }
 }
 
@@ -130,30 +129,30 @@ async function getLastUpdatedDescriptions({
   courseId: string;
   name: ResourceName;
   action: Action;
-}): Promise<{ description: string | null; timeAgo: string | null; timeStamp: string | null }> {
+}): Promise<Description> {
   let description = null;
   let timeAgo = null;
   let timeStamp = null;
 
   switch (name) {
     case ResourceName.COURSE_NOTES:
-      ({ description, timeAgo, timeStamp } = await getLastUpdatedNotes(courseId));
+      ({ description, timeAgo, timestamp: timeStamp } = await getLastUpdatedNotes(courseId));
       break;
     case ResourceName.COURSE_HOMEWORK:
       if (action === Action.MUTATE) {
-        ({ description, timeAgo, timeStamp } = await getLastUpdatedHomework(courseId));
+        ({ description, timeAgo, timestamp: timeStamp } = await getLastUpdatedHomework(courseId));
       } else if (action === Action.INSTRUCTOR_GRADING) {
-        ({ description, timeAgo, timeStamp } = await getUngradedProblems(courseId));
+        ({ description, timeAgo, timestamp: timeStamp } = await getUngradedProblems(courseId));
       }
       break;
     case ResourceName.COURSE_QUIZ:
-      ({ description, timeAgo, timeStamp } = await getLastUpdatedQuiz(courseId));
+      ({ description, timeAgo, timestamp: timeStamp } = await getLastUpdatedQuiz(courseId));
       break;
     default:
       break;
   }
 
-  return { description, timeAgo, timeStamp };
+  return { description, timeAgo, timestamp: timeStamp };
 }
 
 const groupByCourseId = (resources: CourseResourceAction[]) => {
@@ -187,21 +186,78 @@ const handleResourceClick = (router, resource: CourseResourceAction) => {
   }
 };
 
+function ResourceCard({
+  resource,
+  key,
+  descriptions,
+  courseId,
+}: {
+  resource: CourseResourceAction;
+  key: number;
+  descriptions: Record<string, Description>;
+  courseId: string;
+}) {
+  const router = useRouter();
+  return (
+    <Box key={key}>
+      <Card
+        sx={{
+          border: '1px solid lightgray',
+          boxShadow: '0px 4px 6px gray',
+          borderRadius: '8px',
+          minHeight: '100px',
+          minWidth: '300px',
+          transition: 'transform 0.2s, box-shadow 0.2s',
+          '&:hover': {
+            transform: 'scale(1.02)',
+            boxShadow: '0px 8px 12px gray',
+          },
+        }}
+      >
+        <CardActionArea onClick={() => handleResourceClick(router, resource)}>
+          <CardContent sx={{ display: 'flex', alignItems: 'center' }}>
+            <Avatar sx={{ marginRight: 2, bgcolor: 'primary.main' }}>
+              {getResourceIcon(resource.name)}
+            </Avatar>
+            <Box>
+              <Typography sx={{ fontSize: '18px', fontWeight: 'medium' }}>
+                {resource.name.replace('COURSE_', ' ').replace('_', ' ')}
+                {resource.action === Action.INSTRUCTOR_GRADING ? ' GRADING' : ' '}
+              </Typography>
+              <Typography sx={{ fontSize: '14px', color: 'text.secondary' }}>
+                {descriptions[`${courseId}-${resource.name}-${resource.action}`]?.description}
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  color: getTimeAgoColor(
+                    descriptions[`${courseId}-${resource.name}-${resource.action}`]?.timestamp
+                  ),
+                }}
+              >
+                {descriptions[`${courseId}-${resource.name}-${resource.action}`]?.timeAgo}
+              </Typography>
+            </Box>
+          </CardContent>
+        </CardActionArea>
+      </Card>
+    </Box>
+  );
+}
+
 function InstructorDashBoard({
   resourcesForInstructor,
 }: {
   resourcesForInstructor: CourseResourceAction[];
 }) {
-  const FilteredResourcesForInstructor = resourcesForInstructor.filter(
+  const filteredResourcesForInstructor = resourcesForInstructor.filter(
     (resource) => !excludedResources.includes(resource.name)
   );
   const [userInfo, setUserInfo] = useState(null);
-  const [descriptions, setDescriptions] = useState<
-    Record<string, { description: string | null; timeAgo: string | null; timeStamp: string | null }>
-  >({});
-  const router = useRouter();
+  const [descriptions, setDescriptions] = useState<Record<string, Description>>({});
   const groupedResources = useMemo(
-    () => groupByCourseId(FilteredResourcesForInstructor),
+    () => groupByCourseId(filteredResourcesForInstructor),
     [resourcesForInstructor]
   );
   useEffect(() => {
@@ -210,17 +266,18 @@ function InstructorDashBoard({
 
   useEffect(() => {
     const fetchDescriptions = async () => {
-      const newDescriptions: Record<
-        string,
-        { description: string | null; timeAgo: string | null; timeStamp: string | null }
-      > = {};
+      const newDescriptions: Record<string, Description> = {};
       for (const courseId of Object.keys(groupedResources)) {
         for (const resource of groupedResources[courseId]) {
-          const { description, timeAgo, timeStamp } = await getLastUpdatedDescriptions(resource);
+          const {
+            description,
+            timeAgo,
+            timestamp: timeStamp,
+          } = await getLastUpdatedDescriptions(resource);
           newDescriptions[`${courseId}-${resource.name}-${resource.action}`] = {
             description,
             timeAgo,
-            timeStamp,
+            timestamp: timeStamp,
           };
         }
       }
@@ -262,57 +319,12 @@ function InstructorDashBoard({
               }}
             >
               {resources.map((resource, index) => (
-                <Box key={index}>
-                  <Card
-                    sx={{
-                      border: '1px solid lightgray',
-                      boxShadow: '0px 4px 6px gray',
-                      borderRadius: '8px',
-                      minHeight: '100px',
-                      minWidth: '300px',
-                      transition: 'transform 0.2s, box-shadow 0.2s',
-                      '&:hover': {
-                        transform: 'scale(1.02)',
-                        boxShadow: '0px 8px 12px gray',
-                      },
-                    }}
-                  >
-                    <CardActionArea onClick={() => handleResourceClick(router, resource)}>
-                      <CardContent sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Avatar sx={{ marginRight: 2, bgcolor: 'primary.main' }}>
-                          {getResourceIcon(resource.name)}
-                        </Avatar>
-                        <Box>
-                          <Typography sx={{ fontSize: '18px', fontWeight: 'medium' }}>
-                            {resource.name.replace('COURSE_', ' ').replace('_', ' ')}
-                            {resource.action === Action.INSTRUCTOR_GRADING ? ' GRADING' : ' '}
-                          </Typography>
-                          <Typography sx={{ fontSize: '14px', color: 'text.secondary' }}>
-                            {
-                              descriptions[`${courseId}-${resource.name}-${resource.action}`]
-                                ?.description
-                            }
-                          </Typography>
-                          <Typography
-                            sx={{
-                              fontSize: '14px',
-                              fontWeight: 'bold',
-                              color: getTimeAgoColor(
-                                descriptions[`${courseId}-${resource.name}-${resource.action}`]
-                                  ?.timeStamp
-                              ),
-                            }}
-                          >
-                            {
-                              descriptions[`${courseId}-${resource.name}-${resource.action}`]
-                                ?.timeAgo
-                            }
-                          </Typography>
-                        </Box>
-                      </CardContent>
-                    </CardActionArea>
-                  </Card>
-                </Box>
+                <ResourceCard
+                  resource={resource}
+                  key={index}
+                  descriptions={descriptions}
+                  courseId={courseId}
+                />
               ))}
             </Box>
           </Box>
