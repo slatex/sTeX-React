@@ -88,6 +88,5 @@ export const en = {
       'Note: These problems are only to aid your learning. They do not cover the course material exhaustively and there are no guarantees that the problems are correct or that they are representative of the kinds of problems that will be on the quizzes or the exam.',
     closeAllPracticeProblems: 'close all practice problems',
     showAllPracticeProblems: 'show all practice problems',
-    backToAllCourseProblems: 'Back to all course problems',
   },
 };

@@ -375,4 +375,10 @@ export const de = {
     problems: 'Probleme',
     practice: 'Üben',
   },
+  perSectionQuiz: {
+    problemsFor: 'Aufgaben für',
+    warning:
+      'Hinweis: Diese Probleme dienen nur dazu, Ihnen beim Lernen zu helfen. Sie decken das Kursmaterial nicht vollständig ab und es gibt keine Garantie dafür, dass die Probleme korrekt sind oder dass sie repräsentativ für die Art von Problemen sind, die in den Tests oder der Prüfung behandelt werden.',
+    backToAllCourseProblems: 'Zurück zu allen Kursproblemen',
+  },
 };

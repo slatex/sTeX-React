@@ -19,8 +19,12 @@ import {
 } from '@mui/material';
 import { ALL_LO_TYPES, LoType, sparqlQuery } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { capitalizeFirstLetter, localStore, PRIMARY_COL } from '@stex-react/utils';
-import { extractProjectIdAndFilepath } from 'packages/stex-react-renderer/src/lib/utils';
+import {
+  capitalizeFirstLetter,
+  extractProjectIdAndFilepath,
+  localStore,
+  PRIMARY_COL,
+} from '@stex-react/utils';
 import React, { useContext, useEffect, useState } from 'react';
 import LoListDisplay from '../components/LoListDisplay';
 import LoCartModal, { CartItem } from '../components/LoCartModal';

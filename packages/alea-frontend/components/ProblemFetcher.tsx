@@ -1,8 +1,10 @@
 import { getLearningObjectShtml, Problem, ProblemResponse } from '@stex-react/api';
 import { getPoints, getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { defaultProblemResponse } from 'packages/stex-react-renderer/src/lib/InlineProblemDisplay';
-import { ProblemDisplay } from 'packages/stex-react-renderer/src/lib/ProblemDisplay';
+import {
+  defaultProblemResponse,
+  ProblemDisplay,
+  ServerLinksContext,
+} from '@stex-react/stex-react-renderer';
 import { useContext, useEffect, useState } from 'react';
 
 const ProblemFetcher = ({

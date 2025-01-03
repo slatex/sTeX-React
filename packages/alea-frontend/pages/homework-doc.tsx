@@ -11,9 +11,8 @@ import {
   UserInfo,
 } from '@stex-react/api';
 import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
-import { QuizDisplay } from '@stex-react/stex-react-renderer';
+import { GradingContext, QuizDisplay } from '@stex-react/stex-react-renderer';
 import { useRouter } from 'next/router';
-import { GradingContext } from 'packages/stex-react-renderer/src/lib/SubProblemAnswer';
 import React, { useEffect, useState } from 'react';
 import { ForceFauLogin } from '../components/ForceFAULogin';
 import MainLayout from '../layouts/MainLayout';

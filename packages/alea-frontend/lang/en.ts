@@ -1,3 +1,5 @@
+import { PerSectionQuiz } from 'packages/stex-react-renderer/src/lib/PerSectionQuiz';
+
 export const en = {
   home: {
     header: 'ALeA based Courses at FAU',
@@ -398,5 +400,11 @@ export const en = {
       'The following problems are meant to aid your learning. They do not cover the course material exhaustively and there are no guarantees that the problems are correct or that they are representative of the kinds of problems that will be on the quizzes or the exam.',
     problems: 'problems',
     practice: 'Practice',
+  },
+  perSectionQuiz: {
+    problemsFor: 'Problems for',
+    warning:
+      'Note: These problems are only to aid your learning. They do not cover the course material exhaustively and there are no guarantees that the problems are correct or that they are representative of the kinds of problems that will be on the quizzes or the exam.',
+    backToAllCourseProblems: 'Back to all course problems',
   },
 };
