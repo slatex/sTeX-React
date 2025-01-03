@@ -80,6 +80,9 @@ async function getLastUpdatedQuiz(courseId: string): Promise<ResourceDisplayInfo
 async function getLastUpdatedHomework(courseId: string): Promise<ResourceDisplayInfo> {
   try {
     const homeworkList = await getHomeworkList(courseId);
+    if (homeworkList.length === 0) {
+      return { description: 'No homework available', timeAgo: null, timestamp: null };
+    }
     const timestamp = homeworkList.reduce((acc, curr) => {
       return acc > dayjs(curr.givenTs).valueOf() ? acc : dayjs(curr.givenTs).valueOf();
     }, dayjs(homeworkList[0].givenTs).valueOf());
