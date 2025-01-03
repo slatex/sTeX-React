@@ -13,7 +13,6 @@ import {
   getUserInfo,
 } from '@stex-react/api';
 import { Action, CourseResourceAction, PRIMARY_COL, ResourceName } from '@stex-react/utils';
-import axios from 'axios';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
@@ -23,13 +22,10 @@ interface ResourceDisplayInfo {
   description: string | null;
   timeAgo: string | null;
   timestamp: string | null;
+  quizId?: string | null;
 }
 
-const excludedResources = [
-  ResourceName.COURSE_STUDY_BUDDY,
-  ResourceName.COURSE_ACCESS,
-  ResourceName.COURSE_COMMENTS,
-];
+const EXCLUDED_RESOURCES = [ResourceName.COURSE_STUDY_BUDDY, ResourceName.COURSE_ACCESS];
 
 function calculateTimeAgo(timestamp: string): string | null {
   if (!timestamp) return null;
@@ -67,11 +63,14 @@ const getResourceIcon = (name: ResourceName) => {
 async function getLastUpdatedQuiz(courseId: string): Promise<ResourceDisplayInfo> {
   try {
     const quizList = await getCourseQuizList(courseId);
-    const timestamp = quizList[quizList.length - 1].quizStartTs;
+    const latestQuiz = quizList.reduce((acc, curr) => {
+      return acc.quizStartTs > curr.quizStartTs ? acc : curr;
+    }, quizList[0]);
+    const timestamp = latestQuiz.quizStartTs;
     const dayjsTimestamp = dayjs(timestamp).format('YYYY-MM-DD');
     const description = `Last Quiz: ${dayjs(timestamp).format('YYYY-MM-DD')}`;
     const timeAgo = calculateTimeAgo(dayjsTimestamp);
-    return { description, timeAgo, timestamp: dayjsTimestamp };
+    return { description, timeAgo, timestamp: dayjsTimestamp, quizId: latestQuiz.quizId };
   } catch (error) {
     console.error('Error fetching course data:', error);
     return { description: null, timeAgo: null, timestamp: null };
@@ -81,10 +80,13 @@ async function getLastUpdatedQuiz(courseId: string): Promise<ResourceDisplayInfo
 async function getLastUpdatedHomework(courseId: string): Promise<ResourceDisplayInfo> {
   try {
     const homeworkList = await getHomeworkList(courseId);
-    const timestamp = homeworkList[homeworkList.length - 1].givenTs;
+    const timestamp = homeworkList.reduce((acc, curr) => {
+      return acc > dayjs(curr.givenTs).valueOf() ? acc : dayjs(curr.givenTs).valueOf();
+    }, dayjs(homeworkList[0].givenTs).valueOf());
     const description = `Last Homework: ${dayjs(timestamp).format('YYYY-MM-DD')}`;
-    const timeAgo = calculateTimeAgo(timestamp);
-    return { description, timeAgo, timestamp };
+    const dayjsTimestamp = dayjs(timestamp).format('YYYY-MM-DD');
+    const timeAgo = calculateTimeAgo(dayjsTimestamp);
+    return { description, timeAgo, timestamp: dayjsTimestamp };
   } catch (error) {
     console.error('Error fetching course data:', error);
     return { description: null, timeAgo: null, timestamp: null };
@@ -96,7 +98,9 @@ async function getLastUpdatedNotes(courseId: string): Promise<ResourceDisplayInf
     const coverageData = await getCoverageTimeline();
     const courseData = coverageData[courseId];
     if (courseData && courseData.length > 0) {
-      const timestamp = courseData[courseData.length - 1].timestamp_ms;
+      const timestamp = coverageData[courseId].reduce((acc, curr) => {
+        return acc > curr.timestamp_ms ? acc : curr.timestamp_ms;
+      }, coverageData[courseId][0].timestamp);
       const description = `Last Updated: ${dayjs(timestamp).format('YYYY-MM-DD')}`;
       const timeAgo = calculateTimeAgo(timestamp);
       return { description, timeAgo, timestamp };
@@ -114,7 +118,7 @@ async function getUngradedProblems(courseId: string): Promise<ResourceDisplayInf
     const ungradedProblems = response.filter(
       (problem) => problem.numSubProblemsGraded !== problem.numSubProblemsAnswered
     );
-    const description = `Ungraded Problems - ${ungradedProblems.length}`;
+    const description = `Ungraded Problems - ${ungradedProblems.length}/${response.length}`;
     return { description, timeAgo: null, timestamp: null };
   } catch (error) {
     console.error('Error fetching course data:', error);
@@ -157,6 +161,7 @@ async function getLastUpdatedDescriptions({
 }
 
 const groupByCourseId = (resources: CourseResourceAction[]) => {
+  resources = resources.filter((resource) => !EXCLUDED_RESOURCES.includes(resource.name));
   return resources.reduce((acc, resource) => {
     const { courseId } = resource;
     if (!acc[courseId]) {
@@ -179,6 +184,10 @@ const handleResourceClick = (router, resource: CourseResourceAction) => {
     url = `instructor-dash/${courseId}?tab=homework-manager`;
   } else if (name === ResourceName.COURSE_QUIZ && action === Action.MUTATE) {
     url = `instructor-dash/${courseId}?tab=quiz-dashboard`;
+  } else if (name === ResourceName.COURSE_QUIZ && action === Action.PREVIEW) {
+    url = `quiz-dash/${courseId}`;
+  } else if (name === ResourceName.COURSE_COMMENTS && action === Action.MODERATE) {
+    url = `forum/${courseId}`;
   }
   if (url) {
     router.push(url);
@@ -222,7 +231,9 @@ function ResourceCard({
             </Avatar>
             <Box>
               <Typography sx={{ fontSize: '18px', fontWeight: 'medium' }}>
-                {resource.name.replace('COURSE_', ' ').replace('_', ' ')}
+                {resource.name === ResourceName.COURSE_COMMENTS
+                  ? 'FORUM'
+                  : resource.name.replace('COURSE_', ' ').replace('_', ' ')}
                 {resource.action === Action.INSTRUCTOR_GRADING ? ' GRADING' : ' '}
               </Typography>
               <Typography sx={{ fontSize: '14px', color: 'text.secondary' }}>
@@ -252,13 +263,10 @@ function InstructorDashBoard({
 }: {
   resourcesForInstructor: CourseResourceAction[];
 }) {
-  const filteredResourcesForInstructor = resourcesForInstructor.filter(
-    (resource) => !excludedResources.includes(resource.name)
-  );
   const [userInfo, setUserInfo] = useState(null);
   const [descriptions, setDescriptions] = useState<Record<string, ResourceDisplayInfo>>({});
   const groupedResources = useMemo(
-    () => groupByCourseId(filteredResourcesForInstructor),
+    () => groupByCourseId(resourcesForInstructor),
     [resourcesForInstructor]
   );
   useEffect(() => {
