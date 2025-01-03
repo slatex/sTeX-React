@@ -524,8 +524,9 @@ WHERE {
 `;
 }
 
-export function getSparqlQueryForLoString(mmtUrl: string, loString: string) {
+export function getSparqlQueryForLoString(loString: string, loTypes: LoType[]) {
   if (!loString.trim()) return;
+  const loTypesConditions = loTypes.map((loType) => `ulo:${loType}`).join(', ');
   const query = `
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX ulo: <http://mathhub.info/ulo#>
@@ -533,7 +534,7 @@ export function getSparqlQueryForLoString(mmtUrl: string, loString: string) {
     SELECT DISTINCT ?lo ?type (SHA256(STR(?lo)) AS ?hash)
     WHERE {
       ?lo rdf:type ?type .
-      FILTER(?type IN (ulo:definition, ulo:problem, ulo:example, ulo:para, ulo:statement)).
+      FILTER(?type IN (${loTypesConditions})).
       FILTER(CONTAINS(LCASE(STR(?lo)), "${loString}")).
     }
     ORDER BY ?hash
@@ -543,13 +544,15 @@ export function getSparqlQueryForLoString(mmtUrl: string, loString: string) {
 export function getSparqlQueryForNonDimConceptsAsLoRelation(
   conceptUris: string[],
   relations: LoRelationToNonDimConcept[],
-  loString: string
+  loString: string,
+  loTypes: LoType[]
 ) {
   if (!conceptUris.length) return;
   const uriConditions = conceptUris?.length
     ? conceptUris.map((uri) => `CONTAINS(STR(?obj1), "${uri}")`).join(' || ')
     : 'false';
   const relationConditions = relations.map((relation) => `ulo:${relation}`).join(' ');
+  const loTypesConditions = loTypes.map((loType) => `ulo:${loType}`).join(', ');
   const loStringFilter = loString
     ? `FILTER(CONTAINS(LCASE(STR(?lo)), "${encodeURI(loString)}")).`
     : '';
@@ -571,10 +574,10 @@ export function getSparqlQueryForNonDimConceptsAsLoRelation(
       }
 
       ?lo rdf:type ?type .
-      FILTER(?type IN (ulo:definition, ulo:problem, ulo:example, ulo:para, ulo:statement)).
+      FILTER(?type IN (${loTypesConditions})).
       ${loStringFilter}
 
-    }
+    }LIMIT 300
   `;
 
   return query;
@@ -583,13 +586,15 @@ export function getSparqlQueryForNonDimConceptsAsLoRelation(
 export function getSparqlQueryForDimConceptsAsLoRelation(
   conceptUris: string[],
   relations: LoRelationToDimAndConceptPair[],
-  loString: string
+  loString: string,
+  loTypes: LoType[]
 ) {
   if (conceptUris?.length === 0 && !loString.trim()) return;
   const uriConditions = conceptUris?.length
     ? conceptUris.map((uri) => `CONTAINS(STR(?obj1), "${uri}")`).join(' || ')
     : 'false';
   const relationConditions = relations.map((relation) => `ulo:${relation}`).join(' ');
+  const loTypesConditions = loTypes.map((loType) => `ulo:${loType}`).join(', ');
   const loStringFilter = loString
     ? `FILTER(CONTAINS(LCASE(STR(?lo)), "${encodeURI(loString)}")).`
     : '';
@@ -606,9 +611,9 @@ WHERE {
           ${relationConditions}
         } 
     ?lo rdf:type ?type .
-      FILTER(?type IN (ulo:definition, ulo:problem, ulo:example, ulo:para, ulo:statement)).
+      FILTER(?type IN (${loTypesConditions})).
       ${loStringFilter}
-}
+}LIMIT 300
 `;
 
   return query;
