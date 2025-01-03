@@ -138,26 +138,27 @@ async function getLastUpdatedDescriptions({
   let description = null;
   let timeAgo = null;
   let timestamp = null;
+  let quizId = null;
 
   switch (name) {
     case ResourceName.COURSE_NOTES:
-      ({ description, timeAgo, timestamp: timestamp } = await getLastUpdatedNotes(courseId));
+      ({ description, timeAgo, timestamp } = await getLastUpdatedNotes(courseId));
       break;
     case ResourceName.COURSE_HOMEWORK:
       if (action === Action.MUTATE) {
-        ({ description, timeAgo, timestamp: timestamp } = await getLastUpdatedHomework(courseId));
+        ({ description, timeAgo, timestamp } = await getLastUpdatedHomework(courseId));
       } else if (action === Action.INSTRUCTOR_GRADING) {
         ({ description, timeAgo, timestamp: timestamp } = await getUngradedProblems(courseId));
       }
       break;
     case ResourceName.COURSE_QUIZ:
-      ({ description, timeAgo, timestamp: timestamp } = await getLastUpdatedQuiz(courseId));
+      ({ description, timeAgo, timestamp, quizId } = await getLastUpdatedQuiz(courseId));
       break;
     default:
       break;
   }
 
-  return { description, timeAgo, timestamp: timestamp };
+  return { description, timeAgo, timestamp, quizId };
 }
 
 const groupByCourseId = (resources: CourseResourceAction[]) => {
@@ -172,7 +173,7 @@ const groupByCourseId = (resources: CourseResourceAction[]) => {
   }, {} as Record<string, CourseResourceAction[]>);
 };
 
-const handleResourceClick = (router, resource: CourseResourceAction) => {
+const handleResourceClick = (router, resource: CourseResourceAction, quizId: string) => {
   const { courseId, name, action } = resource;
 
   let url = '';
@@ -185,7 +186,7 @@ const handleResourceClick = (router, resource: CourseResourceAction) => {
   } else if (name === ResourceName.COURSE_QUIZ && action === Action.MUTATE) {
     url = `instructor-dash/${courseId}?tab=quiz-dashboard`;
   } else if (name === ResourceName.COURSE_QUIZ && action === Action.PREVIEW) {
-    url = `quiz-dash/${courseId}`;
+    url = `quiz/${quizId}`;
   } else if (name === ResourceName.COURSE_COMMENTS && action === Action.MODERATE) {
     url = `forum/${courseId}`;
   }
@@ -208,6 +209,7 @@ function ResourceCard({
   courseId: string;
 }) {
   const router = useRouter();
+  const quizId = descriptions[`${courseId}-${resource.name}-${resource.action}`]?.quizId;
   return (
     <Box key={key}>
       <Card
@@ -224,7 +226,7 @@ function ResourceCard({
           },
         }}
       >
-        <CardActionArea onClick={() => handleResourceClick(router, resource)}>
+        <CardActionArea onClick={() => handleResourceClick(router, resource, quizId)}>
           <CardContent sx={{ display: 'flex', alignItems: 'center' }}>
             <Avatar sx={{ marginRight: 2, bgcolor: 'primary.main' }}>
               {getResourceIcon(resource.name)}
@@ -278,15 +280,14 @@ function InstructorDashBoard({
       const newDescriptions: Record<string, ResourceDisplayInfo> = {};
       for (const courseId of Object.keys(groupedResources)) {
         for (const resource of groupedResources[courseId]) {
-          const {
-            description,
-            timeAgo,
-            timestamp: timestamp,
-          } = await getLastUpdatedDescriptions(resource);
+          const { description, timeAgo, timestamp, quizId } = await getLastUpdatedDescriptions(
+            resource
+          );
           newDescriptions[`${courseId}-${resource.name}-${resource.action}`] = {
             description,
             timeAgo,
-            timestamp: timestamp,
+            timestamp,
+            quizId,
           };
         }
       }
