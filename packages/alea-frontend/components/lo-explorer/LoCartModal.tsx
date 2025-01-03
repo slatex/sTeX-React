@@ -20,10 +20,10 @@ import {
 import { LoType } from '@stex-react/api';
 import Image from 'next/image';
 import React, { useState } from 'react';
-import { DetailsPanel, handleStexCopy, UrlNameExtractor } from './LoListDisplay';
+import { DetailsPanel, handleStexCopy, UrlNameExtractor } from '../LoListDisplay';
 import LoQuizModal from './LoQuizModal';
 
-export const IconDisplayComponent: React.FC<{ uriType: LoType }> = ({ uriType }) => {
+const IconDisplayComponent: React.FC<{ uriType: LoType }> = ({ uriType }) => {
   switch (uriType) {
     case 'problem':
       return (
