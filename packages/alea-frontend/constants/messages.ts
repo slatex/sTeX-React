@@ -214,7 +214,9 @@ export type ActionName =
   | 'ANOTHER_PROBLEM'
   | 'LO_UNDERSTOOD'
   | 'LO_NOT_UNDERSTOOD'
-  | 'NAVIGATE';
+  | 'NAVIGATE'
+  | 'REVISIT'
+  | 'MARK_AS_KNOWN';
 
 export const ACTION_VERBALIZATION_OPTIONS: Record<ActionName, string[]> = {
   KNOW: ['Yes', 'I know', 'I understand', 'Got it', 'Understood', 'Yes, I know'],
@@ -226,4 +228,6 @@ export const ACTION_VERBALIZATION_OPTIONS: Record<ActionName, string[]> = {
   LO_UNDERSTOOD: ['Yes, I understood'],
   LO_NOT_UNDERSTOOD: ['No, not really'],
   NAVIGATE: ['Yes, navigate'],
+  REVISIT: ['Revisit', 'Take another look'],
+  MARK_AS_KNOWN: ['I know this', 'Mark as known'],
 };

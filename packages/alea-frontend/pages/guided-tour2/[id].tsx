@@ -8,8 +8,11 @@ import {
   ProblemResponse,
 } from '@stex-react/api';
 import { LayoutWithFixedMenu, ServerLinksContext } from '@stex-react/stex-react-renderer';
+import { shouldUseDrawer } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
+import { GuidedTour2Navigation } from '../../components/guided-tour2/GuidedTour2Navigation';
+import { stateTransition } from '../../components/guided-tour2/stateTransition';
 import { LoViewer } from '../../components/LoListDisplay';
 import ProblemFetcher from '../../components/ProblemFetcher';
 import {
@@ -20,9 +23,6 @@ import {
 } from '../../constants/messages';
 import MainLayout from '../../layouts/MainLayout';
 import styles from '../../styles/guided-tour.module.scss';
-import { shouldUseDrawer } from '@stex-react/utils';
-import { GuidedTour2Navigation } from '../../components/guided-tour2/GuidedTour2Navigation';
-import { stateTransition } from '../../components/guided-tour2/stateTransition';
 
 export const structureLearningObjects = async (
   mmtUrl: string,
@@ -65,6 +65,10 @@ export interface UserAction {
 
   // If waiting for user response, then chosenOption will be undefined.
   chosenOption?: ActionName;
+
+  // If chosenOption is 'NAVIGATE', 'MARK_AS_KNOWN' or 'REVISIT',
+  // then navigationConceptIdx will be set. A value of -1 indicates end of tour.
+  targetConceptUri?: string;
 
   // Only for problems:
   response?: ProblemResponse;
@@ -199,7 +203,6 @@ const GuidedTours = () => {
   const { mmtUrl } = useContext(ServerLinksContext);
   const [pendingMessages, setPendingMessages] = useState<ChatMessage[]>([]);
   const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (pendingMessages.length === 0) return;
@@ -252,60 +255,46 @@ const GuidedTours = () => {
 
   if (!tourState) return <CircularProgress />;
 
-  const handleNavigation = async (conceptIndex: number, tourState: GuidedTourState) => {
-    if (loading) return;
-    setLoading(true);
-    try {
-      if (conceptIndex === -1) {
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          systemTextMessage(
-            '<b style="color:#8e24aa">Well done on completing this journey! You have reached the end.</b>'
-          ),
-        ]);
-        setTourState(tourState);
-        setUserAction(null);
-        return;
-      }
-      const targetConceptUri = tourState.leafConceptUris[conceptIndex];
-      const response = await getLearningObjects([targetConceptUri]);
-      const focusConceptLo = await structureLearningObjects(mmtUrl, response['learning-objects']);
-
-      const updatedTourState = {
-        ...tourState,
-        focusConceptIdx: conceptIndex,
-        focusConceptLo,
-        focusConceptInitialized: false,
-        focusConceptLoUserAction: {},
-      };
-
-      const { newState, newMessages, nextAction } = await stateTransition(
-        mmtUrl,
-        updatedTourState,
-        {
-          actionType: 'out-of-conversation',
-          chosenOption: 'NAVIGATE',
-        }
-      );
-      setTourState(newState);
-      setPendingMessages(newMessages);
-      setUserAction(nextAction);
-    } catch (error) {
-      console.error('Error navigating to concept:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <MainLayout title={`Guided Tour of ${conceptUriToName(tourState.targetConceptUri)} | ALeA`}>
       <LayoutWithFixedMenu
         menu={
           <GuidedTour2Navigation
-            isButtonDisabled={loading || pendingMessages.length > 0}
+            isButtonDisabled={pendingMessages.length > 0}
             tourState={tourState}
             onClose={() => setShowDashboard(false)}
-            onSelect={handleNavigation}
+            onAction={async (action: UserAction) => {
+              console.log('action', action);
+              const { newState, newMessages, nextAction } = await stateTransition(
+                mmtUrl,
+                tourState,
+                action
+              );
+
+              console.log('newState', newState);
+              console.log('newMessages', newMessages);
+              console.log('nextAction', nextAction);
+
+              setTourState(newState);
+              const skipConvUpdate = action.chosenOption === 'MARK_AS_KNOWN' && !nextAction;
+              if (!skipConvUpdate) {
+                const topMessage = newMessages[0];
+                setMessages([
+                  ...messages,
+                  {
+                    from: 'user',
+                    type: 'text',
+                    text: action.chosenOption
+                      ? action.optionVerbalization[action.chosenOption]
+                      : 'Submit',
+                    userAction: action,
+                  },
+                  topMessage,
+                ]);
+                setPendingMessages(newMessages.slice(1));
+                setUserAction(nextAction);
+              }
+            }}
             setMessages={setMessages}
           />
         }

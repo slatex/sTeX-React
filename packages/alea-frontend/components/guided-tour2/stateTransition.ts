@@ -15,7 +15,6 @@ import {
   systemTextMessage,
   UserAction,
 } from '../../pages/guided-tour2/[id]';
-import { findNextAvailableIndex } from './GuidedTour2Navigation';
 
 function getNextLoType(
   focusConceptLo: Partial<Record<LoType, { uris: string[]; currentIdx: number }>>,
@@ -48,6 +47,7 @@ function getNextLoType(
   }
   return undefined;
 }
+
 function updateNewStateWithNextLo(
   newState: GuidedTourState,
   action: UserAction,
@@ -131,31 +131,24 @@ async function moveOnAction(
   mmtUrl: string,
   state: GuidedTourState,
   nextIndex: number,
-  currentConceptUri: string,
-  nextConceptUri: string
+  currentConceptUri: string
 ): Promise<{
   newState: GuidedTourState;
   newMessages: ChatMessage[];
   nextAction: UserAction;
 }> {
   const newState = { ...state };
-  const newMessages: ChatMessage[] = [];
-  let nextAction: UserAction = undefined;
-  const nextConceptName = conceptUriToName(nextConceptUri);
-
   if (nextIndex === -1) {
-    newMessages.push(
+    const newMessages = [
       systemTextMessage(
         '<b style="color:#8e24aa"> Well Done! You have reached the end of Guided Tour.</b>'
-      )
-    );
-    nextAction = { actionType: 'end' };
+      ),
+    ];
+    const nextAction = { actionType: 'end' } as UserAction;
     return { newState, nextAction, newMessages };
   }
 
   newState.completedConceptUris.push(currentConceptUri);
-  newState.focusConceptIdx = nextIndex;
-
   const updatePayload: SelfAssessmentEvent = {
     type: 'self-assessment',
     concept: currentConceptUri,
@@ -167,35 +160,55 @@ async function moveOnAction(
   await updateLearnerModel(updatePayload);
 
   if (currentConceptUri === newState.targetConceptUri) {
-    newMessages.push(
+    const newMessages = [
       systemTextMessage(
         '<b style="color:#8e24aa"> Well Done! You have reached the end of Guided Tour.</b>'
-      )
-    );
-    nextAction = { actionType: 'end' };
+      ),
+    ];
+    const nextAction = { actionType: 'end' } as UserAction;
     return { newState, nextAction, newMessages };
   }
+  return await startNewConcept(newState, mmtUrl, nextIndex, true);
+}
 
+async function startNewConcept(
+  newState: GuidedTourState,
+  mmtUrl: string,
+  nextIndex: number,
+  needsInitialization: boolean
+) {
+  newState.focusConceptIdx = nextIndex;
+  const nextConceptUri = newState.leafConceptUris[nextIndex];
+  const nextConceptName = conceptUriToName(nextConceptUri);
   const response = await getLearningObjects([nextConceptUri]);
   const result = await structureLearningObjects(mmtUrl, response['learning-objects']);
   newState.focusConceptLo = result;
 
-  newMessages.push(
-    systemTextMessage(
-      `Alright, let's proceed!</br>Do you feel confident about your understanding of <b style="color: #d629ce">${nextConceptName}</b>.`
-    )
-  );
+  newState.focusConceptInitialized = !needsInitialization;
+  if (needsInitialization) {
+    const newMessages = [
+      systemTextMessage(
+        `Alright, let's proceed!</br>Do you feel confident about your understanding of <b style="color: #d629ce">${nextConceptName}</b>.`
+      ),
+    ];
 
-  const options: ActionName[] = ['KNOW', 'DONT_KNOW'];
-  if (newState.focusConceptLo['problem']?.uris?.length > 0) {
-    options.push('NOT_SURE_IF_KNOW');
+    const options: ActionName[] = ['KNOW', 'DONT_KNOW'];
+    if (newState.focusConceptLo['problem']?.uris?.length > 0) {
+      options.push('NOT_SURE_IF_KNOW');
+    }
+    return { newState, newMessages, nextAction: chooseOptionAction(options) };
+  } else {
+    const newMessages = [
+      systemTextMessage(`Let's study <b style="color: #d629ce">${nextConceptName}</b>.`),
+    ];
+    const { messagesAdded, actionForNextLo } = updateNewStateWithNextLo(newState, {
+      actionType: 'out-of-conversation',
+    });
+    newMessages.push(...messagesAdded);
+    return { newState, newMessages, nextAction: actionForNextLo };
   }
-
-  newState.focusConceptInitialized = false;
-  nextAction = chooseOptionAction(options);
-
-  return { newState, newMessages, nextAction };
 }
+
 async function dontMoveOnAction(
   state: GuidedTourState,
   action: UserAction,
@@ -236,6 +249,7 @@ async function dontMoveOnAction(
 
   return { newState, newMessages, nextAction };
 }
+
 function handleKnownConceptAction(
   state: GuidedTourState,
   currentConceptUri: string,
@@ -278,7 +292,7 @@ function handleKnownConceptAction(
 
   return { newState, newMessages, nextAction };
 }
-async function handleDontKnowOrNavigate(
+async function handleDontKnow(
   newState: GuidedTourState,
   currentConceptUri: string,
   currentConceptName: string,
@@ -356,6 +370,18 @@ async function handleProblemAction(
     };
   }
 }
+const findNextAvailableIndex = (
+  currentIndex: number,
+  leafConceptUris: string[],
+  completedConceptUris: string[]
+): number => {
+  const completedSet = new Set(completedConceptUris);
+  for (let i = 0; i < leafConceptUris.length; i++) {
+    const idx = (currentIndex + i) % leafConceptUris.length;
+    if (!completedSet.has(leafConceptUris[idx])) return idx;
+  }
+  return -1;
+};
 
 export async function stateTransition(
   mmtUrl: string,
@@ -375,21 +401,36 @@ export async function stateTransition(
   const currentConceptName = conceptUriToName(currentConceptUri);
   const nextConceptName = conceptUriToName(nextConceptUri);
 
-  if (action.chosenOption === 'MOVE_ON') {
-    return moveOnAction(mmtUrl, newState, nextIndex, currentConceptUri, nextConceptUri);
+  if (action.chosenOption === 'MARK_AS_KNOWN') {
+    assert(action.targetConceptUri);
+
+    if (action.targetConceptUri === currentConceptUri) {
+      return await moveOnAction(mmtUrl, newState, nextIndex, currentConceptUri);
+    } else {
+      if (!newState.completedConceptUris.includes(action.targetConceptUri))
+        newState.completedConceptUris.push(action.targetConceptUri);
+      return { newState, newMessages: [], nextAction /*bug*/ };
+    }
+  } else if (action.chosenOption === 'REVISIT') {
+    assert(action.targetConceptUri);
+    const index = newState.leafConceptUris.indexOf(action.targetConceptUri);
+    newState.completedConceptUris = newState.completedConceptUris.filter(
+      (completedUri) => completedUri !== action.targetConceptUri
+    );
+    return startNewConcept(newState, mmtUrl, index, false);
+  } else if (action.chosenOption === 'NAVIGATE') {
+    assert(action.targetConceptUri);
+    const index = newState.leafConceptUris.indexOf(action.targetConceptUri);
+    return startNewConcept(newState, mmtUrl, index, false);
+  } else if (action.chosenOption === 'MOVE_ON') {
+    return moveOnAction(mmtUrl, newState, nextIndex, currentConceptUri);
   } else if (action.chosenOption === 'DONT_MOVE_ON') {
     return dontMoveOnAction(newState, action, currentConceptName);
   } else if (!state.focusConceptInitialized) {
     if (action.chosenOption === 'KNOW') {
       return handleKnownConceptAction(newState, currentConceptUri, nextConceptName);
-    } else if (action.chosenOption === 'DONT_KNOW' || action.chosenOption === 'NAVIGATE') {
-      return handleDontKnowOrNavigate(
-        newState,
-        currentConceptUri,
-        currentConceptName,
-        action,
-        newMessages
-      );
+    } else if (action.chosenOption === 'DONT_KNOW') {
+      return handleDontKnow(newState, currentConceptUri, currentConceptName, action, newMessages);
     } else if (action.chosenOption === 'NOT_SURE_IF_KNOW') {
       return handleNotSureIfKnowOption(newState, currentConceptName, newMessages);
     } else if (action.chosenOption === 'ANOTHER_PROBLEM') {
