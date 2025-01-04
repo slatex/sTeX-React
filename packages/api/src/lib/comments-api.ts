@@ -298,3 +298,8 @@ export async function getResourcesForUserId(mmtUrl: string) {
   );
   return response.data as CourseResourceAction[];
 }
+
+export async function getCoverageTimeline() {
+  const response = await axios.get('/api/get-coverage-timeline');
+  return response.data;
+}

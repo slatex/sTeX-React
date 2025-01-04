@@ -5,10 +5,12 @@ import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
 import SchoolIcon from '@mui/icons-material/School';
 import { alpha, Box, IconButton, Paper, TextField, Tooltip, Typography } from '@mui/material';
 import { getLearningObjectShtml, LoType } from '@stex-react/api';
-import { mmtHTMLToReact, ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { capitalizeFirstLetter } from '@stex-react/utils';
-import { PracticeQuestions } from 'packages/stex-react-renderer/src/lib/PracticeQuestions';
-import { extractProjectIdAndFilepath } from 'packages/stex-react-renderer/src/lib/utils';
+import {
+  mmtHTMLToReact,
+  PracticeQuestions,
+  ServerLinksContext,
+} from '@stex-react/stex-react-renderer';
+import { capitalizeFirstLetter, extractProjectIdAndFilepath } from '@stex-react/utils';
 import { memo, useContext, useEffect, useState } from 'react';
 import { CartItem } from './lo-explorer/LoCartModal';
 import LoRelations from './lo-explorer/LoRelations';

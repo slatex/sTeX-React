@@ -6,13 +6,13 @@ import {
   getLearningObjectShtml,
   LoType,
   ProblemResponse,
-  SelfAssessmentEvent,
-  updateLearnerModel,
 } from '@stex-react/api';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
-import assert from 'assert';
+import { LayoutWithFixedMenu, ServerLinksContext } from '@stex-react/stex-react-renderer';
+import { shouldUseDrawer } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
+import { GuidedTour2Navigation } from '../../components/guided-tour2/GuidedTour2Navigation';
+import { stateTransition } from '../../components/guided-tour2/stateTransition';
 import { LoViewer } from '../../components/LoListDisplay';
 import ProblemFetcher from '../../components/ProblemFetcher';
 import {
@@ -24,7 +24,7 @@ import {
 import MainLayout from '../../layouts/MainLayout';
 import styles from '../../styles/guided-tour.module.scss';
 
-const structureLearningObjects = async (
+export const structureLearningObjects = async (
   mmtUrl: string,
   learningObjects: { 'learning-object': string; type: LoType }[]
 ) => {
@@ -32,7 +32,6 @@ const structureLearningObjects = async (
   const problemUrls = learningObjects
     .filter((o) => o.type === 'problem')
     .map((o) => o['learning-object']);
-  console.log('problemUrls:', problemUrls);
   const problemStrs$ = problemUrls.map((uri) => getLearningObjectShtml(mmtUrl, uri));
   const isAutogradable: Record<string, boolean> = {};
   const problemStrs = await Promise.all(problemStrs$);
@@ -44,8 +43,6 @@ const structureLearningObjects = async (
       problemStr.includes('data-problem-scb') ||
       problemStr.includes('data-problem-fillinsol');
   }
-
-  console.log('isAutogradable:', isAutogradable);
 
   learningObjects.forEach((item) => {
     const { type } = item;
@@ -61,16 +58,29 @@ const structureLearningObjects = async (
   return structured;
 };
 
-interface UserAction {
-  actionType: 'problem' | 'choose-option' | 'end';
+// TODO: Split this into UserConvOptions and UserAction.
+// UserConvOptions (actionType, options, optionVerbalization ) are used to display options to the user.
+// UserAction is the actual action taken by user (chosenOption, targetConceptUri, repsonse, quotient).
+// UserAction can be outside the UserConvOptions 
+// stateTransition should take UserAction as input and return UserConvOptions as output.
+export interface UserAction {
+  actionType: 'problem' | 'choose-option' | 'end' | 'out-of-conversation';
   options?: ActionName[];
   optionVerbalization?: Partial<Record<ActionName, string>>;
+
+  // If waiting for user response, then chosenOption will be undefined.
   chosenOption?: ActionName;
+
+  // If chosenOption is 'NAVIGATE', 'MARK_AS_KNOWN' or 'REVISIT',
+  // then navigationConceptIdx will be set. A value of -1 indicates end of tour.
+  targetConceptUri?: string;
+
+  // Only for problems:
   response?: ProblemResponse;
   quotient?: number;
 }
 
-interface GuidedTourState {
+export interface GuidedTourState {
   targetConceptUri: string;
   leafConceptUris: string[];
   completedConceptUris: string[];
@@ -83,7 +93,7 @@ interface GuidedTourState {
   focusConceptCurrentLo?: { type: LoType; uri: string };
 }
 
-interface ChatMessage {
+export interface ChatMessage {
   from: 'system' | 'user';
   type: 'text' | LoType;
   loUri?: string;
@@ -118,7 +128,7 @@ function ChatMessageDisplay({
   }
 }
 
-function chooseOptionAction(options: ActionName[]): UserAction {
+export function chooseOptionAction(options: ActionName[]): UserAction {
   const optionVerbalization: Partial<Record<ActionName, string>> = {};
   options.forEach((option) => {
     const verbalization = ACTION_VERBALIZATION_OPTIONS[option][0]; // chooseRandomlyFromList();
@@ -128,121 +138,10 @@ function chooseOptionAction(options: ActionName[]): UserAction {
   return { actionType: 'choose-option', options, optionVerbalization };
 }
 
-function systemTextMessage(text: string): ChatMessage {
+export function systemTextMessage(text: string): ChatMessage {
   return { from: 'system', type: 'text', text };
 }
 
-function getNextLoType(
-  focusConceptLo: Partial<Record<LoType, { uris: string[]; currentIdx: number }>>,
-  userAction: UserAction,
-  focusConceptCurrentLo?: { type: LoType; uri: string }
-) {
-  const loOrder: LoType[] = ['definition', 'example', 'para', 'statement', 'problem'];
-  const currentLoIdx = focusConceptCurrentLo ? loOrder.indexOf(focusConceptCurrentLo.type) : 0;
-  let loTypePreferredIdxOrder: number[];
-  if (userAction.chosenOption === 'LO_UNDERSTOOD') {
-    loTypePreferredIdxOrder = [];
-    for (let i = 1; i <= loOrder.length; i++) {
-      loTypePreferredIdxOrder.push((i + currentLoIdx) % loOrder.length);
-    }
-  } else if (userAction.chosenOption === 'LO_NOT_UNDERSTOOD') {
-    loTypePreferredIdxOrder = [
-      currentLoIdx,
-      ...[0, 1, 2, 3, 4].filter((idx) => idx !== currentLoIdx),
-    ];
-  } else if (userAction.quotient === 1) {
-    loTypePreferredIdxOrder = [4, 3, 2, 1, 0]; // 'problem';
-  } else {
-    loTypePreferredIdxOrder = [0, 1, 2, 3, 4]; // 'definition';
-  }
-  for (const typeIdx of loTypePreferredIdxOrder) {
-    const type = loOrder[typeIdx];
-    const currentIdx = focusConceptLo[type]?.currentIdx;
-    const numEntries = focusConceptLo[type]?.uris?.length ?? 0;
-    if (numEntries > 0 && currentIdx < numEntries - 1) return type;
-  }
-  return undefined;
-}
-
-function updateNewStateWithNextLo(
-  newState: GuidedTourState,
-  action: UserAction,
-  currentLo?: { type: LoType; uri: string }
-): {
-  messagesAdded: ChatMessage[];
-  actionForNextLo: UserAction;
-} {
-  const newLoType = getNextLoType(newState.focusConceptLo, action, newState.focusConceptCurrentLo);
-  if (!newLoType) {
-    const messagesAdded: ChatMessage[] = [];
-    if (action.chosenOption === 'LO_NOT_UNDERSTOOD') {
-      messagesAdded.push(systemTextMessage('Sorry to hear that!'));
-    } else if (action.chosenOption === 'LO_UNDERSTOOD') {
-      messagesAdded.push(systemTextMessage('Great!'));
-    } else if (action.quotient !== undefined) {
-      console.log({ action });
-      const topMessage =
-        action.quotient === 1
-          ? 'Great!'
-          : action.quotient === 0
-          ? 'Oops! That was incorrect.'
-          : "Hmm, that's only partially correct.";
-      messagesAdded.push(systemTextMessage(topMessage));
-    }
-    messagesAdded.push(
-      systemTextMessage(
-        "No more learning objects available for this concept. Let's move on to the next concept."
-      )
-    );
-    return { messagesAdded, actionForNextLo: chooseOptionAction(['MOVE_ON']) };
-  }
-
-  const messagesAdded: ChatMessage[] = [];
-  if (currentLo) {
-    const article = currentLo.type === newLoType ? 'another' : newLoType === 'example' ? 'an' : 'a';
-    if (action.chosenOption === 'LO_UNDERSTOOD') {
-      messagesAdded.push(systemTextMessage('Great!'));
-      messagesAdded.push(systemTextMessage(`Let's keep learning with ${article} ${newLoType}`));
-    } else if (action.chosenOption === 'LO_NOT_UNDERSTOOD') {
-      const article =
-        currentLo.type === newLoType ? 'another' : newLoType === 'example' ? 'an' : 'a';
-      messagesAdded.push(
-        systemTextMessage(`No worries! Let's learn more with ${article} ${newLoType}.`)
-      );
-    } else if (action.quotient !== undefined) {
-      const topMessage =
-        action.quotient === 1
-          ? 'Great!'
-          : action.quotient === 0
-          ? 'Oops! That was incorrect.'
-          : "Hmm, that's only partially correct.";
-      messagesAdded.push(systemTextMessage(topMessage));
-      messagesAdded.push(systemTextMessage(`Let's keep learning with ${article} ${newLoType}`));
-    }
-  } else {
-    messagesAdded.push(
-      systemTextMessage(`Let's start with ${newLoType === 'example' ? 'an' : 'a'} ${newLoType}`)
-    );
-  }
-  newState.focusConceptLo[newLoType].currentIdx++;
-  newState.focusConceptCurrentLo = {
-    type: newLoType,
-    uri: newState.focusConceptLo[newLoType].uris[newState.focusConceptLo[newLoType].currentIdx],
-  };
-  messagesAdded.push({
-    from: 'system',
-    type: newLoType,
-    loUri: newState.focusConceptCurrentLo.uri,
-  });
-  let actionForNextLo: UserAction;
-  if (newLoType === 'problem') {
-    actionForNextLo = { actionType: 'problem' };
-  } else {
-    messagesAdded.push(systemTextMessage(`Were you able to understand the above ${newLoType}?`));
-    actionForNextLo = chooseOptionAction(['LO_UNDERSTOOD', 'LO_NOT_UNDERSTOOD']);
-  }
-  return { messagesAdded, actionForNextLo };
-}
 async function resetLeafConcepts(
   targetConceptUri: string,
   newState: GuidedTourState
@@ -251,192 +150,6 @@ async function resetLeafConcepts(
   const lCUris = resp['leaf-concepts'] ?? [];
   newState.leafConceptUris = lCUris;
   newState.focusConceptIdx = 0;
-}
-async function stateTransition(
-  mmtUrl: string,
-  state: GuidedTourState,
-  action: UserAction
-): Promise<{ newState: GuidedTourState; newMessages: ChatMessage[]; nextAction: UserAction }> {
-  const newState = { ...state };
-  const newMessages: ChatMessage[] = [];
-  let nextAction: UserAction = undefined;
-  let nextConceptUri;
-  const currentConceptUri = state.leafConceptUris[state.focusConceptIdx];
-  if (state.focusConceptIdx + 1 === state.leafConceptUris.length) {
-    const resp = await getLeafConcepts(state.targetConceptUri);
-    const lCUris = resp['leaf-concepts'] ?? [];
-    nextConceptUri = lCUris[0];
-  } else nextConceptUri = state.leafConceptUris[state.focusConceptIdx + 1];
-  const currentConceptName = conceptUriToName(currentConceptUri);
-  const nextConceptName = conceptUriToName(nextConceptUri);
-
-  if (action.chosenOption === 'MOVE_ON') {
-    newState.focusConceptIdx++;
-    newState.completedConceptUris.push(currentConceptUri);
-    const updatePayload: SelfAssessmentEvent = {
-      type: 'self-assessment',
-      concept: currentConceptUri,
-      competences: { Remember: 1.0, Understand: 1.0, Apply: 1.0 },
-      time: new Date().toISOString(),
-      payload: '',
-      comment: 'Self assessment through guided tour',
-    };
-    await updateLearnerModel(updatePayload);
-    if (currentConceptUri === newState.targetConceptUri) {
-      newMessages.push(systemTextMessage(`Well Done! You have reached the end of Guided Tour.`));
-      nextAction = { actionType: 'end' };
-      return { newState, nextAction, newMessages };
-    }
-    if (newState.focusConceptIdx === newState.leafConceptUris.length) {
-      await resetLeafConcepts(newState.targetConceptUri, newState);
-    }
-    const response = await getLearningObjects([nextConceptUri]);
-    const result = await structureLearningObjects(mmtUrl, response['learning-objects']);
-    newState.focusConceptLo = result;
-    // TODO: handle end of leaf concepts.
-    newMessages.push(
-      systemTextMessage(
-        `Alright, let's move on and talk about <b style="color: #d629ce">${nextConceptName}</b>.`
-      )
-    );
-    newMessages.push(
-      systemTextMessage(
-        `Do you feel confident about your understanding of <b style="color: #d629ce">${nextConceptName}</b>.`
-      )
-    );
-    const options: ActionName[] = ['KNOW', 'DONT_KNOW'];
-    if (newState.focusConceptLo['problem']?.uris?.length > 0) options.push('NOT_SURE_IF_KNOW');
-    newState.focusConceptInitialized = false;
-    nextAction = chooseOptionAction(options);
-  } else if (action.chosenOption === 'DONT_MOVE_ON') {
-    newMessages.push(
-      systemTextMessage(
-        `Alright, let's study more about <b style="color: #d629ce">${currentConceptName}</b>.`
-      )
-    );
-    const newLoType = getNextLoType(
-      newState.focusConceptLo,
-      action,
-      newState.focusConceptCurrentLo
-    );
-    if (newLoType) {
-      newState.focusConceptCurrentLo = {
-        type: newLoType,
-        uri: newState.focusConceptLo[newLoType][newState.focusConceptLo[newLoType].currentIdx],
-      };
-      newState.focusConceptInitialized = true;
-      const { messagesAdded, actionForNextLo } = updateNewStateWithNextLo(
-        newState,
-        action,
-        state.focusConceptCurrentLo
-      );
-      newMessages.push(...messagesAdded);
-      nextAction = actionForNextLo;
-    } else {
-      newMessages.push(systemTextMessage('No more learning objects available for this concept.'));
-      nextAction = chooseOptionAction(['MOVE_ON']);
-    }
-  } else if (!state.focusConceptInitialized) {
-    if (action.chosenOption === 'KNOW') {
-      if (!nextConceptName) {
-        newMessages.push(systemTextMessage(`Well Done! You have reached the end of Guided Tour.`));
-        nextAction = { actionType: 'end' };
-        return { newState, nextAction, newMessages };
-      }
-      newMessages.push(systemTextMessage('Great!'));
-      newMessages.push(
-        systemTextMessage(
-          `Let's move on to the next concept -  <b style="color: #d629ce">${nextConceptName}</b>.`
-        )
-      );
-
-      nextAction = chooseOptionAction(['MOVE_ON', 'DONT_MOVE_ON']);
-    } else if (action.chosenOption === 'DONT_KNOW') {
-      newMessages.push(
-        systemTextMessage(
-          `Alright! Let's study <b style="color: #d629ce">${currentConceptName}</b>.`
-        )
-      );
-      newState.focusConceptInitialized = true;
-      const { messagesAdded, actionForNextLo } = updateNewStateWithNextLo(newState, action);
-      newMessages.push(...messagesAdded);
-      nextAction = actionForNextLo;
-    } else if (action.chosenOption === 'NOT_SURE_IF_KNOW') {
-      newMessages.push(
-        systemTextMessage(
-          `No worries, let's check your understanding of  <b style="color: #d629ce">${currentConceptName}</b> with a problem.`
-        )
-      );
-      newState.focusConceptLo.problem.currentIdx++;
-      newMessages.push({
-        from: 'system',
-        type: 'problem',
-        loUri: newState.focusConceptLo.problem.uris[newState.focusConceptLo.problem.currentIdx],
-      });
-      nextAction = { actionType: 'problem' };
-    } else if (action.chosenOption === 'ANOTHER_PROBLEM') {
-      newState.focusConceptLo.problem.currentIdx++;
-      newMessages.push({
-        from: 'system',
-        type: 'problem',
-        loUri: newState.focusConceptLo.problem.uris[newState.focusConceptLo.problem.currentIdx],
-      });
-      nextAction = { actionType: 'problem' };
-    } else {
-      assert(action.actionType === 'problem', JSON.stringify(action));
-      assert(action.quotient !== undefined);
-      if (action.quotient === 1) {
-        newMessages.push(systemTextMessage('Correct!'));
-        newMessages.push(
-          systemTextMessage('Do you feel confident in your understanding to move on?')
-        );
-        const numProblems = newState.focusConceptLo.problem?.uris?.length ?? 0;
-        const idx = newState.focusConceptLo.problem?.currentIdx ?? -1;
-        const options: ActionName[] = ['MOVE_ON'];
-        if (numProblems > 0 && idx < numProblems - 1) {
-          newState.focusConceptLo.problem.currentIdx++;
-          options.push('ANOTHER_PROBLEM');
-        } else {
-          options.push('DONT_MOVE_ON');
-        }
-        nextAction = chooseOptionAction(options);
-      } else {
-        const topMessage =
-          action.quotient === 0
-            ? 'Oops! That was incorrect.'
-            : "Hmm, that's only partially correct.";
-        newMessages.push(systemTextMessage(topMessage));
-        newMessages.push(systemTextMessage('Do you want to try another problem?'));
-        nextAction = chooseOptionAction(['ANOTHER_PROBLEM', 'DONT_KNOW', 'MOVE_ON']);
-      }
-      const currentConcept = conceptUriToName(state.leafConceptUris[state.focusConceptIdx]);
-      newMessages.push(
-        systemTextMessage(
-          `Let's see how well you understand  <b style="color: #d629ce">${currentConcept}</b>.`
-        )
-      );
-    }
-  } else {
-    /* focusConceptInitialized */
-    if (action.quotient === 1) {
-      newMessages.push(systemTextMessage('Correct!'));
-      newMessages.push(
-        systemTextMessage('Do you feel confident in your understanding to move on?')
-      );
-      nextAction = chooseOptionAction(['MOVE_ON', 'DONT_MOVE_ON']);
-    } else {
-      newState.focusConceptInitialized = true;
-      const { messagesAdded, actionForNextLo } = updateNewStateWithNextLo(
-        newState,
-        action,
-        state.focusConceptCurrentLo
-      );
-      newMessages.push(...messagesAdded);
-      nextAction = actionForNextLo;
-    }
-  }
-  assert(!!nextAction);
-  return { newState, nextAction, newMessages };
 }
 
 function UserActionDisplay({
@@ -494,6 +207,7 @@ const GuidedTours = () => {
   const [quotient, setQuotient] = useState<number>(0);
   const { mmtUrl } = useContext(ServerLinksContext);
   const [pendingMessages, setPendingMessages] = useState<ChatMessage[]>([]);
+  const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
 
   useEffect(() => {
     if (pendingMessages.length === 0) return;
@@ -544,96 +258,110 @@ const GuidedTours = () => {
     fetchLeafConcepts();
   }, [router.isReady]);
 
+  const onAction = async (action: UserAction) => {
+    const { newState, newMessages, nextAction } = await stateTransition(mmtUrl, tourState, action);
+    setTourState(newState);
+    // TODO: Remove this 'skipConvUpdate' hack once we have separated out UserAction and UserConvOptions.
+    const skipConvUpdate = action.chosenOption === 'MARK_AS_KNOWN' && !nextAction;
+    if (skipConvUpdate) return;
+    const topMessage = newMessages[0];
+    setMessages([
+      ...messages,
+      {
+        from: 'user',
+        type: 'text',
+        text: action.chosenOption ? action.optionVerbalization[action.chosenOption] : 'Submit',
+        userAction: action,
+      },
+      topMessage,
+    ]);
+    setPendingMessages(newMessages.slice(1));
+    setUserAction(nextAction);
+  };
+
   if (!tourState) return <CircularProgress />;
 
   return (
-    <MainLayout title="Guided Tour | ALeA">
-      <div>
-        <h1 className={styles.title}>
-          <span className={styles.welcomeText}>Welcome to the Guided Tour of </span>
-          <span className={styles.dynamicTitle}>
-            {conceptUriToName(tourState.targetConceptUri)}
-          </span>
-        </h1>
-        <Box
-          display="flex"
-          flexDirection="column"
-          alignItems="flex-start"
-          mt={4}
-          p={3}
-          borderRadius={5}
-          boxShadow={3}
-          style={{ backgroundColor: '#f9f9f9' }}
-        >
-          {messages.map((msg, index) => (
-            <Box
-              key={index}
-              display="flex"
-              justifyContent={msg.from === 'system' ? 'flex-start' : 'flex-end'}
-              mt={2}
-              width="100%"
-            >
+    <MainLayout title={`Guided Tour of ${conceptUriToName(tourState.targetConceptUri)} | ALeA`}>
+      <LayoutWithFixedMenu
+        menu={
+          <GuidedTour2Navigation
+            isButtonDisabled={pendingMessages.length > 0}
+            tourState={tourState}
+            onClose={() => setShowDashboard(false)}
+            onAction={onAction}
+          />
+        }
+        topOffset={64}
+        showDashboard={showDashboard}
+        setShowDashboard={setShowDashboard}
+        drawerAnchor="left"
+      >
+        <div>
+          <h1 className={styles.title}>
+            <span className={styles.welcomeText}>Welcome to the Guided Tour of </span>
+            <span className={styles.dynamicTitle}>
+              {conceptUriToName(tourState.targetConceptUri)}
+            </span>
+          </h1>
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="flex-start"
+            mt={4}
+            p={3}
+            borderRadius={5}
+            boxShadow={3}
+            style={{ backgroundColor: '#f9f9f9' }}
+          >
+            {messages.map((msg, index) => (
               <Box
-                p={2}
-                borderRadius={5}
-                boxShadow={2}
-                style={{
-                  backgroundColor: msg.from === 'system' ? '#e0f7fa' : '#cce5ff',
-                  maxWidth: '80%',
-                  textAlign: msg.from === 'system' ? 'left' : 'right',
-                }}
-                className={`${styles.messageBox} ${styles.systemMessage}`}
+                key={index}
+                display="flex"
+                justifyContent={msg.from === 'system' ? 'flex-start' : 'flex-end'}
+                my={{ xs: 2, sm: 1 }}
+                width="100%"
               >
-                <ChatMessageDisplay
-                  message={msg}
-                  isFrozen={index !== messages.length - 1}
-                  problemResponse={
-                    index === messages.length - 1
-                      ? problemResponse
-                      : messages[index + 1]?.userAction?.response
-                  }
-                  setProblemResponse={(r, q) => {
-                    setProblemResponse(r);
-                    setQuotient(q);
+                <Box
+                  p={2}
+                  borderRadius={5}
+                  boxShadow={2}
+                  style={{
+                    backgroundColor: msg.from === 'system' ? '#e0f7fa' : '#cce5ff',
+                    maxWidth: '80%',
+                    textAlign: msg.from === 'system' ? 'left' : 'right',
                   }}
+                  className={`${styles.messageBox} ${styles.systemMessage}`}
+                >
+                  <ChatMessageDisplay
+                    message={msg}
+                    isFrozen={index !== messages.length - 1}
+                    problemResponse={
+                      index === messages.length - 1
+                        ? problemResponse
+                        : messages[index + 1]?.userAction?.response
+                    }
+                    setProblemResponse={(r, q) => {
+                      setProblemResponse(r);
+                      setQuotient(q);
+                    }}
+                  />
+                </Box>
+              </Box>
+            ))}
+            {userAction && !pendingMessages.length && (
+              <Box display="flex" justifyContent="flex-end" width="100%" my={{ xs: 1.5, sm: 1 }}>
+                <UserActionDisplay
+                  action={userAction}
+                  problemResponse={problemResponse}
+                  quotient={quotient}
+                  onResponse={onAction}
                 />
               </Box>
-            </Box>
-          ))}
-          {userAction && !pendingMessages.length && (
-            <Box display="flex" justifyContent="flex-end" width="100%">
-              <UserActionDisplay
-                action={userAction}
-                problemResponse={problemResponse}
-                quotient={quotient}
-                onResponse={async (action) => {
-                  const { newState, newMessages, nextAction } = await stateTransition(
-                    mmtUrl,
-                    tourState,
-                    action
-                  );
-                  setTourState(newState);
-                  const topMessage = newMessages[0];
-                  setMessages([
-                    ...messages,
-                    {
-                      from: 'user',
-                      type: 'text',
-                      text: action.chosenOption
-                        ? action.optionVerbalization[action.chosenOption]
-                        : 'Submit',
-                      userAction: action,
-                    },
-                    topMessage,
-                  ]);
-                  setPendingMessages(newMessages.slice(1));
-                  setUserAction(nextAction);
-                }}
-              />
-            </Box>
-          )}
-        </Box>
-      </div>
+            )}
+          </Box>
+        </div>
+      </LayoutWithFixedMenu>
     </MainLayout>
   );
 };
