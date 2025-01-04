@@ -403,7 +403,6 @@ export async function stateTransition(
 
   if (action.chosenOption === 'MARK_AS_KNOWN') {
     assert(action.targetConceptUri);
-
     if (action.targetConceptUri === currentConceptUri) {
       return await moveOnAction(mmtUrl, newState, nextIndex, currentConceptUri);
     } else {

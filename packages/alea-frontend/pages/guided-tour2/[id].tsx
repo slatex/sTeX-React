@@ -253,6 +253,26 @@ const GuidedTours = () => {
     fetchLeafConcepts();
   }, [router.isReady]);
 
+  const onAction = async (action: UserAction) => {
+    const { newState, newMessages, nextAction } = await stateTransition(mmtUrl, tourState, action);
+    setTourState(newState);
+    const skipConvUpdate = action.chosenOption === 'MARK_AS_KNOWN' && !nextAction;
+    if (skipConvUpdate) return;
+    const topMessage = newMessages[0];
+    setMessages([
+      ...messages,
+      {
+        from: 'user',
+        type: 'text',
+        text: action.chosenOption ? action.optionVerbalization[action.chosenOption] : 'Submit',
+        userAction: action,
+      },
+      topMessage,
+    ]);
+    setPendingMessages(newMessages.slice(1));
+    setUserAction(nextAction);
+  };
+
   if (!tourState) return <CircularProgress />;
 
   return (
@@ -263,39 +283,7 @@ const GuidedTours = () => {
             isButtonDisabled={pendingMessages.length > 0}
             tourState={tourState}
             onClose={() => setShowDashboard(false)}
-            onAction={async (action: UserAction) => {
-              console.log('action', action);
-              const { newState, newMessages, nextAction } = await stateTransition(
-                mmtUrl,
-                tourState,
-                action
-              );
-
-              console.log('newState', newState);
-              console.log('newMessages', newMessages);
-              console.log('nextAction', nextAction);
-
-              setTourState(newState);
-              const skipConvUpdate = action.chosenOption === 'MARK_AS_KNOWN' && !nextAction;
-              if (!skipConvUpdate) {
-                const topMessage = newMessages[0];
-                setMessages([
-                  ...messages,
-                  {
-                    from: 'user',
-                    type: 'text',
-                    text: action.chosenOption
-                      ? action.optionVerbalization[action.chosenOption]
-                      : 'Submit',
-                    userAction: action,
-                  },
-                  topMessage,
-                ]);
-                setPendingMessages(newMessages.slice(1));
-                setUserAction(nextAction);
-              }
-            }}
-            setMessages={setMessages}
+            onAction={onAction}
           />
         }
         topOffset={64}
@@ -361,30 +349,7 @@ const GuidedTours = () => {
                   action={userAction}
                   problemResponse={problemResponse}
                   quotient={quotient}
-                  onResponse={async (action) => {
-                    const { newState, newMessages, nextAction } = await stateTransition(
-                      mmtUrl,
-                      tourState,
-                      action
-                    );
-
-                    setTourState(newState);
-                    const topMessage = newMessages[0];
-                    setMessages([
-                      ...messages,
-                      {
-                        from: 'user',
-                        type: 'text',
-                        text: action.chosenOption
-                          ? action.optionVerbalization[action.chosenOption]
-                          : 'Submit',
-                        userAction: action,
-                      },
-                      topMessage,
-                    ]);
-                    setPendingMessages(newMessages.slice(1));
-                    setUserAction(nextAction);
-                  }}
+                  onResponse={onAction}
                 />
               </Box>
             )}

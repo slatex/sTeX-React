@@ -5,12 +5,7 @@ import { Box, IconButton, Tooltip, Typography } from '@mui/material';
 import { conceptUriToName } from '@stex-react/api';
 import { FixedPositionMenu } from '@stex-react/stex-react-renderer';
 import { PRIMARY_COL } from '@stex-react/utils';
-import {
-  ChatMessage,
-  GuidedTourState,
-  systemTextMessage,
-  UserAction,
-} from '../../pages/guided-tour2/[id]';
+import { GuidedTourState, UserAction } from '../../pages/guided-tour2/[id]';
 
 export const findNextAvailableIndex = (
   currentIndex: number,
@@ -31,14 +26,12 @@ function LeafConceptDisplay({
   isButtonDisabled,
   tourState,
   onAction,
-  setMessages,
 }: {
   conceptUri: string;
   index: number;
   isButtonDisabled: boolean;
   tourState: GuidedTourState;
   onAction?: (action: UserAction) => Promise<void>;
-  setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
 }) {
   const isCompleted = tourState.completedConceptUris.includes(conceptUri);
   const isSelected = tourState.leafConceptUris[tourState.focusConceptIdx] === conceptUri;
@@ -144,13 +137,11 @@ export function GuidedTour2Navigation({
   tourState,
   onClose,
   onAction,
-  setMessages,
 }: {
   isButtonDisabled: boolean;
   tourState: GuidedTourState;
   onClose: () => void;
   onAction?: (action: UserAction) => Promise<void>;
-  setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
 }) {
   return (
     <FixedPositionMenu
@@ -174,7 +165,6 @@ export function GuidedTour2Navigation({
           isButtonDisabled={isButtonDisabled}
           tourState={tourState}
           onAction={onAction}
-          setMessages={setMessages}
         />
       ))}
       ;
