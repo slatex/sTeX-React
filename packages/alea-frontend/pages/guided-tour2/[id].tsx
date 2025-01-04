@@ -58,6 +58,11 @@ export const structureLearningObjects = async (
   return structured;
 };
 
+// TODO: Split this into UserConvOptions and UserAction.
+// UserConvOptions (actionType, options, optionVerbalization ) are used to display options to the user.
+// UserAction is the actual action taken by user (chosenOption, targetConceptUri, repsonse, quotient).
+// UserAction can be outside the UserConvOptions 
+// stateTransition should take UserAction as input and return UserConvOptions as output.
 export interface UserAction {
   actionType: 'problem' | 'choose-option' | 'end' | 'out-of-conversation';
   options?: ActionName[];
@@ -256,6 +261,7 @@ const GuidedTours = () => {
   const onAction = async (action: UserAction) => {
     const { newState, newMessages, nextAction } = await stateTransition(mmtUrl, tourState, action);
     setTourState(newState);
+    // TODO: Remove this 'skipConvUpdate' hack once we have separated out UserAction and UserConvOptions.
     const skipConvUpdate = action.chosenOption === 'MARK_AS_KNOWN' && !nextAction;
     if (skipConvUpdate) return;
     const topMessage = newMessages[0];
