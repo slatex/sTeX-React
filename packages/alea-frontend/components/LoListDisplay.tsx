@@ -1,6 +1,8 @@
+import { Book, MicExternalOn, Quiz, SupervisedUserCircle } from '@mui/icons-material';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
+import SchoolIcon from '@mui/icons-material/School';
 import { alpha, Box, IconButton, Paper, TextField, Tooltip, Typography } from '@mui/material';
 import { getLearningObjectShtml, LoType } from '@stex-react/api';
 import {
@@ -10,9 +12,51 @@ import {
 } from '@stex-react/stex-react-renderer';
 import { capitalizeFirstLetter, extractProjectIdAndFilepath } from '@stex-react/utils';
 import { memo, useContext, useEffect, useState } from 'react';
-import { getUrlInfo } from '../pages/lo-explorer';
-import { CartItem } from './LoCartModal';
-import LoRelations from './LoRelations';
+import { CartItem } from './lo-explorer/LoCartModal';
+import LoRelations from './lo-explorer/LoRelations';
+
+interface UrlData {
+  projectName: string;
+  topic: string;
+  fileName: string;
+  icon?: JSX.Element;
+}
+export function getUrlInfo(url: string): UrlData {
+  const [archive, filePath] = extractProjectIdAndFilepath(url);
+  const fileParts = filePath.split('/');
+  const fileName = fileParts[fileParts.length - 1].split('.')[0];
+  let projectName = '';
+  let topic = '';
+  let icon = null;
+  const projectParts = archive.split('/');
+  if (archive.startsWith('courses/')) {
+    projectName = projectParts[2];
+    topic = fileParts[0];
+    icon = <SchoolIcon sx={{ color: 'primary.main', fontSize: '18px' }} />;
+  } else if (archive.startsWith('problems/')) {
+    projectName = projectParts[1];
+    topic = fileParts[0];
+    icon = <Quiz sx={{ color: 'primary.main', fontSize: '18px' }} />;
+  } else if (archive.startsWith('KwarcMH/')) {
+    projectName = projectParts[0];
+    topic = fileParts[0];
+    icon = <SchoolIcon sx={{ color: 'primary.main', fontSize: '18px' }} />;
+  } else if (archive.startsWith('smglom/')) {
+    projectName = projectParts[0];
+    topic = projectParts[1];
+    icon = <Book sx={{ color: 'primary.main', fontSize: '18px' }} />;
+  } else if (archive.startsWith('mkohlhase/')) {
+    projectName = projectParts[0];
+    topic = fileParts[0];
+    icon = <SupervisedUserCircle sx={{ color: 'primary.main', fontSize: '18px' }} />;
+  } else if (archive.startsWith('talks/')) {
+    projectName = projectParts[0];
+    topic = projectParts[1];
+    icon = <MicExternalOn sx={{ color: 'primary.main', fontSize: '18px' }} />;
+  }
+
+  return { projectName, topic, fileName, icon };
+}
 
 export const handleStexCopy = (uri: string, uriType: LoType) => {
   const [archive, filePath] = extractProjectIdAndFilepath(uri, '');
@@ -92,6 +136,7 @@ interface DetailsPanelProps {
   uriType: LoType;
   selectedUri: string | null;
 }
+
 export const DetailsPanel: React.FC<DetailsPanelProps> = memo(({ uriType, selectedUri }) => {
   return (
     <Box

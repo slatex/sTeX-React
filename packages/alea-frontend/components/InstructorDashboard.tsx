@@ -17,6 +17,7 @@ import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
 import MainLayout from '../layouts/MainLayout';
+import { BannerSection, VollKiInfoSection } from '../pages';
 
 interface ResourceDisplayInfo {
   description: string | null;
@@ -302,7 +303,8 @@ function InstructorDashBoard({
 
   return (
     <MainLayout title="Instructor Dashboard | ALeA">
-      <Box sx={{ padding: 4 }}>
+      <BannerSection tight={true} />
+      <Box sx={{ px: 4, pt: 4, pb: 8, bgcolor: '#F5F5F5' }}>
         <Typography
           sx={{ fontSize: '28px', fontWeight: 'bold', textAlign: 'center', marginBottom: 4 }}
         >
@@ -343,6 +345,7 @@ function InstructorDashBoard({
           </Box>
         ))}
       </Box>
+      <VollKiInfoSection bgcolor="white" />
     </MainLayout>
   );
 }
