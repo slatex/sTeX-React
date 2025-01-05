@@ -22,61 +22,57 @@ import { useContext, useEffect, useState } from 'react';
 
 function processDimAndConceptData(result: SparqlResponse) {
   try {
-    const transformedData = result.results.bindings.map(
-      (binding: Record<string, { type: string; value: string }>) => {
-        const relatedData = binding.relatedData.value.split('; ');
-        const cognitiveDimensions = relatedData
-          .filter((data: string) => data.startsWith('http://mathhub.info/ulo#cognitive-dimension='))
-          .map((data: string) => {
-            const encodedValue = data.split('=')[1];
-            return decodeURIComponent(encodedValue);
-          });
-        const crossRefs = relatedData
-          .filter((data: string) => data.startsWith('http://mathhub.info/ulo#crossrefs='))
-          .map((data: string) => {
-            const encodedValue = data.split('=')[1];
-            const decodedValue = decodeURIComponent(encodedValue);
-            return decodedValue.endsWith('#') ? decodedValue.slice(0, -1) : decodedValue;
-          });
-        return {
-          learningObject: binding.learningObject.value,
-          obj1: binding.obj1.value,
-          cognitiveDimensions,
-          crossRefs,
-        };
+    const groupedData: Partial<Record<LoRelationToDimAndConceptPair, string[]>> = {};
+    result.results.bindings.map((binding: Record<string, { type: string; value: string }>) => {
+      const relationValue = binding.relation.value.split('#').pop() || binding.relation.value;
+      const relatedData = binding.relatedData.value.split('; ');
+      const cognitiveDimensions = relatedData
+        .filter((data: string) => data.startsWith('http://mathhub.info/ulo#cognitive-dimension='))
+        .map((data: string) => {
+          const encodedValue = data.split('=')[1];
+          return decodeURIComponent(encodedValue);
+        });
+      const crossRefs = relatedData
+        .filter((data: string) => data.startsWith('http://mathhub.info/ulo#crossrefs='))
+        .map((data: string) => {
+          const encodedValue = data.split('=')[1];
+          const decodedValue = decodeURIComponent(encodedValue);
+          return decodedValue.endsWith('#') ? decodedValue.slice(0, -1) : decodedValue;
+        });
+      const combinedData = cognitiveDimensions.flatMap((dim) =>
+        crossRefs.map((ref) => `${dim}:${encodeURIComponent(ref)}`)
+      );
+
+      if (!groupedData[relationValue]) {
+        groupedData[relationValue] = [];
       }
-    );
-    const finalString = transformedData
-      .flatMap(({ cognitiveDimensions, crossRefs }) =>
-        cognitiveDimensions.flatMap((dim) =>
-          crossRefs.map((ref) => `${dim}:${encodeURIComponent(ref)}`)
-        )
-      )
-      .join(',');
-    return finalString;
+      groupedData[relationValue]?.push(...combinedData);
+    });
+    return groupedData;
   } catch (error) {
     console.error('Error processing data:', error);
+    return null;
   }
 }
 
 function processNonDimConceptData(result: SparqlResponse) {
   try {
     const groupedData = result.results.bindings.reduce(
-      (acc: Record<string, string[]>, { learningObject, obj1 }) => {
-        const learningObjectValue = learningObject.value;
+      (acc: Partial<Record<LoRelationToNonDimConcept, string[]>>, { relation, obj1 }) => {
+        const relationValue = relation.value.split('#').pop() || relation.value;
         const obj1Value = obj1.value;
-        if (!acc[learningObjectValue]) {
-          acc[learningObjectValue] = [];
+        if (!acc[relationValue]) {
+          acc[relationValue] = [];
         }
-        acc[learningObjectValue].push(obj1Value);
+        acc[relationValue].push(obj1Value);
         return acc;
       },
       {}
     );
-    const finalString = Object.values(groupedData).flat().join(',');
-    return finalString;
+    return groupedData;
   } catch (error) {
     console.error('Error processing data:', error);
+    return null;
   }
 }
 
@@ -107,30 +103,26 @@ const LoRelations = ({ uri }: { uri: string }) => {
     const processData = async () => {
       try {
         if (!uri?.length) return;
+
         const updatedData = { ...data };
-        await Promise.all(
-          ALL_LO_RELATION_TYPES.map(async (loRelation: AllLoRelationTypes) => {
-            let query;
-            if (ALL_DIM_CONCEPT_PAIR.includes(loRelation as LoRelationToDimAndConceptPair)) {
-              query = getSparqlQueryForLoRelationToDimAndConceptPair(
-                uri,
-                loRelation as LoRelationToDimAndConceptPair
-              );
-            } else if (ALL_NON_DIM_CONCEPT.includes(loRelation as LoRelationToNonDimConcept)) {
-              query = getSparqlQueryForLoRelationToNonDimConcept(
-                uri,
-                loRelation as LoRelationToNonDimConcept
-              );
-            }
-            const result = await sparqlQuery(mmtUrl, query);
-            const transformedData = ALL_DIM_CONCEPT_PAIR.includes(
-              loRelation as LoRelationToDimAndConceptPair
-            )
-              ? processDimAndConceptData(result)
-              : processNonDimConceptData(result);
-            updatedData[loRelation] = transformedData;
-          })
-        );
+        const dimConceptQuery = getSparqlQueryForLoRelationToDimAndConceptPair(uri);
+        const nonDimConceptQuery = getSparqlQueryForLoRelationToNonDimConcept(uri);
+
+        const [dimConceptResult, nonDimConceptResult] = await Promise.all([
+          sparqlQuery(mmtUrl, dimConceptQuery),
+          sparqlQuery(mmtUrl, nonDimConceptQuery),
+        ]);
+
+        const dimConceptData = processDimAndConceptData(dimConceptResult);
+        ALL_DIM_CONCEPT_PAIR.forEach((relation) => {
+          updatedData[relation] = dimConceptData[relation]?.join(',') || '';
+        });
+
+        const nonDimConceptData = processNonDimConceptData(nonDimConceptResult);
+        ALL_NON_DIM_CONCEPT.forEach((relation) => {
+          updatedData[relation] = nonDimConceptData[relation]?.join(',') || '';
+        });
+
         setData(updatedData);
       } catch (error) {
         console.error('Error processing data:', error);

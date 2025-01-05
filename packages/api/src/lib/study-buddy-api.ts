@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { getAuthHeaders } from './lms';
+import { getAuthHeaders } from './lmp';
 import {
   AllCoursesStats,
   EnrolledCourseIds,

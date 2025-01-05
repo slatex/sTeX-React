@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getAuthHeaders, isLoggedIn } from './lms';
+import { getAuthHeaders, isLoggedIn } from './lmp';
 import { Notification } from './notifications';
 
 export async function getUserNotifications(locale: string) {

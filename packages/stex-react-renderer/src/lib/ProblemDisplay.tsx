@@ -502,7 +502,6 @@ export function ProblemDisplay({
   problemId?: string;
 }) {
   const router = useRouter();
-  const { quiz: t } = getLocaleObject(router);
   const [userId, setUserId] = useState('');
   useEffect(() => {
     getUserInfo().then((u: UserInfo | undefined) => {
@@ -516,7 +515,9 @@ export function ProblemDisplay({
   const fillInInputs = problem.inputs?.filter((input) => input.type === InputType.FILL_IN) || [];
   const inlineSCQInputs =
     problem.inputs?.filter((input) => input.type === InputType.SCQ && input.inline) || [];
-  const inputWidgets = problem.inputs.map((input, optIdx) => {
+
+  //Autogradable problem widgets
+  const apWidgets = problem.inputs.map((input, optIdx) => {
     return inputDisplay({
       input,
       response: r?.autogradableResponses[optIdx],
@@ -529,7 +530,43 @@ export function ProblemDisplay({
       debug: debug ?? false,
     });
   });
-  const customItems = Object.assign(inputWidgets);
+
+  //Non-Autogradable problem widgets
+  const napWidgets = problem.subProblemData.map((c, i) => (
+    <SubProblemAnswer
+      problem={problem}
+      questionId={uri ? uri : problemId}
+      subProblemId={i.toString()}
+      subProblem={c}
+      isFrozen={isFrozen}
+      existingResponse={r?.freeTextResponses?.[i]}
+      onSaveClick={() => {
+        if (!r) return;
+        const freeTextResponses: Record<string, string> = {};
+        for (let i = 0; i < problem.subProblemData.length; i++) {
+          freeTextResponses[i.toString()] =
+            getAnswerFromLocalStorage(uri ? uri : problemId, i.toString()) ?? '';
+        }
+        saveAnswers({
+          problemId,
+          uri,
+          freeTextResponses,
+        });
+        onResponseUpdate({ ...r, freeTextResponses });
+      }}
+    ></SubProblemAnswer>
+  ));
+
+  const customItems: Record<string, any> = {};
+
+  napWidgets.forEach((widget, index) => {
+    customItems[`nap_${index}`] = widget;
+  });
+
+  apWidgets.forEach((widget, index) => {
+    customItems[`ap_${index}`] = widget;
+  });
+
   const statement = removeInfoIfNeeded(problem.statement.outerHTML ?? '', isEffectivelyFrozen);
   async function saveAnswers({
     problemId,
@@ -572,38 +609,6 @@ export function ProblemDisplay({
         <CustomItemsContext.Provider value={{ items: customItems }}>
           <DocumentWidthSetter>{mmtHTMLToReact(statement)}</DocumentWidthSetter>
         </CustomItemsContext.Provider>
-        {problem.subProblemData.map((c, i) => (
-          <>
-            <span style={{ color: PRIMARY_COL, fontWeight: 'bold' }}>
-              {problem.subProblemData.length === 1
-                ? t.yourAnswer
-                : t.yourAnswerWithIdx
-                    .replace('$1', (i + 1).toString())
-                    .replace('$2', problem.subProblemData.length.toString())}
-            </span>
-            <SubProblemAnswer
-              questionId={uri ? uri : problemId}
-              subProblemId={i.toString()}
-              subProblem={c}
-              isFrozen={isFrozen}
-              existingResponse={r?.freeTextResponses?.[i]}
-              onSaveClick={() => {
-                if (!r) return;
-                const freeTextResponses: Record<string, string> = {};
-                for (let i = 0; i < problem.subProblemData.length; i++) {
-                  freeTextResponses[i.toString()] =
-                    getAnswerFromLocalStorage(uri ? uri : problemId, i.toString()) ?? '';
-                }
-                saveAnswers({
-                  problemId,
-                  uri,
-                  freeTextResponses,
-                });
-                onResponseUpdate({ ...r, freeTextResponses });
-              }}
-            ></SubProblemAnswer>
-          </>
-        ))}
         {debug && (
           <>
             {inlineSCQInputs.map((inlineInput) => (

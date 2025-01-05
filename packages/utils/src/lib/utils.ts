@@ -10,7 +10,7 @@ export const PRIMARY_COL = '#203360';
 export const PRIMARY_COL_DARK_HOVER = '#162343';
 export const SECONDARY_COL = '#8c9fb1';
 
-const MMT_CUSTOM_ID_PREFIX = '__mmt-custom-';
+export const MMT_CUSTOM_ID_PREFIX = '__mmt-custom-';
 
 export function getMMTCustomId(tag: string) {
   return MMT_CUSTOM_ID_PREFIX + tag;

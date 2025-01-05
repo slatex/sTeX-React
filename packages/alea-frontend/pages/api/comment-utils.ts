@@ -3,7 +3,7 @@ import {
   NotificationType,
   PointsGrant,
   UserInfo,
-  lmsResponseToUserInfo,
+  lmpResponseToUserInfo,
 } from '@stex-react/api';
 import axios from 'axios';
 import { NextApiRequest, NextApiResponse } from 'next';
@@ -106,9 +106,9 @@ export async function executeTxnAndEndSet500OnError(
 export async function getUserInfo(req: NextApiRequest) {
   if (!req.headers.authorization) return undefined;
   const headers = { Authorization: req.headers.authorization };
-  const lmsServerAddress = process.env.NEXT_PUBLIC_AUTH_SERVER_URL;
-  const resp = await axios.get(`${lmsServerAddress}/getuserinfo`, { headers });
-  return lmsResponseToUserInfo(resp.data);
+  const lmpServerAddress = process.env.NEXT_PUBLIC_AUTH_SERVER_URL;
+  const resp = await axios.get(`${lmpServerAddress}/getuserinfo`, { headers });
+  return lmpResponseToUserInfo(resp.data);
 }
 
 export async function getUserId(req: NextApiRequest) {

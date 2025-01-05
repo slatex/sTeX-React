@@ -31,7 +31,7 @@ export const en = {
     newHome: {
       alea: 'ALᴇA: Adaptive Learning Assistant',
       aleaDesc:
-        'Courses that adapt to the users preferences and competencies focused on the knowledge conveyed in a particular knowledge unit.',
+        'Courses that adapt to user\'s preferences and competencies focused on the knowledge conveyed in a particular knowledge unit.',
       signUpNow: 'Sign up now',
       exploreOurCourse: 'Explore our Courses',
       publications: 'Publications',
