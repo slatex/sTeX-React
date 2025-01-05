@@ -1,24 +1,20 @@
-import React, { useContext, useEffect, useState } from 'react';
 import {
+  Autocomplete,
   Box,
   Button,
-  Typography,
-  TextField,
+  Checkbox,
+  Chip,
   CircularProgress,
+  createFilterOptions,
   FormControl,
   InputLabel,
-  Select,
-  MenuItem,
-  Checkbox,
   ListItemText,
-  createFilterOptions,
-  Autocomplete,
-  Chip,
+  MenuItem,
+  Select,
+  TextField,
   Tooltip,
+  Typography,
 } from '@mui/material';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import { CourseConceptsDialog } from './CourseConceptDialog';
-import { capitalizeFirstLetter } from '@stex-react/utils';
 import {
   ALL_DIM_CONCEPT_PAIR,
   ALL_LO_RELATION_TYPES,
@@ -35,10 +31,13 @@ import {
   LoType,
   sparqlQuery,
 } from '@stex-react/api';
+import { ServerLinksContext } from '@stex-react/stex-react-renderer';
+import { capitalizeFirstLetter } from '@stex-react/utils';
+import React, { useContext, useEffect, useState } from 'react';
+import { ArchiveMap } from '.';
 import styles from '../../styles/lo-explorer.module.scss';
 import { getUrlInfo } from '../LoListDisplay';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { ArchiveMap } from '.';
+import { CourseConceptsDialog } from './CourseConceptDialog';
 
 let cachedConceptsList: Record<string, string> | null = null;
 
@@ -319,7 +318,6 @@ const LoFilterAndSearch = ({
   setChosenRelations,
   chosenLoTypes,
   setChosenLoTypes,
-  setShowCart,
   setLoUris,
 }: {
   uniqueArchivesMap: Record<string, string>;
@@ -329,7 +327,6 @@ const LoFilterAndSearch = ({
   setChosenRelations: React.Dispatch<React.SetStateAction<AllLoRelationTypes[]>>;
   chosenLoTypes: LoType[];
   setChosenLoTypes: React.Dispatch<React.SetStateAction<LoType[]>>;
-  setShowCart: React.Dispatch<React.SetStateAction<boolean>>;
   setLoUris: React.Dispatch<React.SetStateAction<Record<LoType, string[]>>>;
 }) => {
   const [searchString, setSearchString] = useState('');
@@ -375,80 +372,60 @@ const LoFilterAndSearch = ({
   };
 
   return (
-    <>
-      <Box className={styles.titleBox}>
-        <Typography variant="h4" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
-          Learning Objects Explorer
-        </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<ShoppingCartIcon />}
-          onClick={() => setShowCart(true)}
-          sx={{
-            backgroundColor: 'brown',
-            '&:hover': { bgcolor: '#f1f1f1', color: 'primary.main' },
-          }}
-        >
-          Show Cart
-        </Button>
-      </Box>
-
-      <Box className={styles.filterOuterBox}>
-        <Box className={styles.filterInnerBox}>
-          <Box className={styles.filterFieldsBox}>
-            <TextField
-              fullWidth
-              label="Search Learning Object String"
-              variant="outlined"
-              value={searchString}
-              onChange={(e) => setSearchString(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+    <Box className={styles.filterOuterBox}>
+      <Box className={styles.filterInnerBox}>
+        <Box className={styles.filterFieldsBox}>
+          <TextField
+            fullWidth
+            label="Search Learning Object String"
+            variant="outlined"
+            value={searchString}
+            onChange={(e) => setSearchString(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+          />
+          <Box sx={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <ConceptAutocomplete
+              chosenConcepts={chosenConcepts}
+              conceptsList={conceptsList}
+              setChosenConcepts={setChosenConcepts}
             />
-            <Box sx={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-              <ConceptAutocomplete
-                chosenConcepts={chosenConcepts}
-                conceptsList={conceptsList}
-                setChosenConcepts={setChosenConcepts}
-              />
-              <Button
-                variant="outlined"
-                onClick={() => setOpen(true)}
-                sx={{ flex: 1, minWidth: '180px', minHeight: '50px' }}
-              >
-                Choose Course Concepts
-              </Button>
-              <RelationWithLOSelect
-                chosenConcepts={chosenConcepts}
-                chosenRelations={chosenRelations}
-                setChosenRelations={setChosenRelations}
-              />
-              <LoTypeSelect chosenLoTypes={chosenLoTypes} setChosenLoTypes={setChosenLoTypes} />
-            </Box>
-          </Box>
-          <Box className={styles.searchButtonBox}>
             <Button
-              variant="contained"
-              sx={{ width: '100%', height: '60%', minHeight: '48px' }}
-              disabled={isSearching || (chosenConcepts?.length === 0 && !searchString.trim())}
-              onClick={handleSubmit}
+              variant="outlined"
+              onClick={() => setOpen(true)}
+              sx={{ flex: 1, minWidth: '180px', minHeight: '50px' }}
             >
-              {isSearching && <CircularProgress size={20} sx={{ mr: 1 }} />}Search
+              Choose Course Concepts
             </Button>
+            <RelationWithLOSelect
+              chosenConcepts={chosenConcepts}
+              chosenRelations={chosenRelations}
+              setChosenRelations={setChosenRelations}
+            />
+            <LoTypeSelect chosenLoTypes={chosenLoTypes} setChosenLoTypes={setChosenLoTypes} />
           </Box>
         </Box>
-        <CourseConceptsDialog
-          open={open}
-          onClose={() => setOpen(false)}
-          setChosenConcepts={setChosenConcepts}
-        />
-        <ArchivesAutocomplete
-          uniqueArchivesMap={uniqueArchivesMap}
-          chosenArchivesMap={chosenArchivesMap}
-          setChosenArchivesMap={setChosenArchivesMap}
-        />
+        <Box className={styles.searchButtonBox}>
+          <Button
+            variant="contained"
+            sx={{ width: '100%', height: '60%', minHeight: '48px' }}
+            disabled={isSearching || (chosenConcepts?.length === 0 && !searchString.trim())}
+            onClick={handleSubmit}
+          >
+            {isSearching && <CircularProgress size={20} sx={{ mr: 1 }} />}Search
+          </Button>
+        </Box>
       </Box>
-    </>
+      <CourseConceptsDialog
+        open={open}
+        onClose={() => setOpen(false)}
+        setChosenConcepts={setChosenConcepts}
+      />
+      <ArchivesAutocomplete
+        uniqueArchivesMap={uniqueArchivesMap}
+        chosenArchivesMap={chosenArchivesMap}
+        setChosenArchivesMap={setChosenArchivesMap}
+      />
+    </Box>
   );
 };
 
