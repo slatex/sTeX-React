@@ -316,7 +316,11 @@ function getSubProblems(rootNode: Element): SubProblemData[] {
   const subproblems: SubProblemData[] = [];
   for (const rawAnswerClass of rawAnswerclasses) {
     if (rawAnswerClass.attrVal === '') {
-      subproblems.push({ answerclasses: [], solution: getProblemSolution(rawAnswerClass.node) });
+      subproblems.push({
+        answerclasses: [],
+        id: subproblems.length.toString(),
+        solution: getProblemSolution(rawAnswerClass.node),
+      });
       continue;
     }
 
