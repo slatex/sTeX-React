@@ -381,4 +381,12 @@ export const de = {
       'Hinweis: Diese Probleme dienen nur dazu, Ihnen beim Lernen zu helfen. Sie decken das Kursmaterial nicht vollständig ab und es gibt keine Garantie dafür, dass die Probleme korrekt sind oder dass sie repräsentativ für die Art von Problemen sind, die in den Tests oder der Prüfung behandelt werden.',
     backToAllCourseProblems: 'Zurück zu allen Kursproblemen',
   },
+  resource: {
+    updateGoTo: 'aktualisieren Go-Tos',
+    createUpdateQuiz: 'Quiz erstellen/aktualisieren',
+    gradeHomework: 'Hausaufgaben bewerten',
+    createUpdateHomework: 'Hausaufgabe erstellen/aktualisieren',
+    reviewLatestQuiz: 'Letzten Quiz prüfen',
+    forum: 'Forum',
+  },
 };
