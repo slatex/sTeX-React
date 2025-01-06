@@ -203,6 +203,9 @@ async function getLastUpdatedDescriptions({
       break;
     case ResourceName.COURSE_QUIZ:
       ({ description, timeAgo, timestamp, quizId } = await getLastUpdatedQuiz(courseId));
+      if (action === Action.PREVIEW) {
+        description = `Start Date: ${dayjs(timestamp).format('YYYY-MM-DD HH:mm:ss')}`;
+      }
       break;
     case ResourceName.COURSE_COMMENTS:
       ({ description, timeAgo, timestamp } = await getCommentsInfo(courseId));
