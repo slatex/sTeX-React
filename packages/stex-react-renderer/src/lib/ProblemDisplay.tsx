@@ -1,6 +1,6 @@
 import CancelIcon from '@mui/icons-material/Cancel';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import MirrorIcon from '@mui/icons-material/FlipCameraAndroid';
+import { Visibility } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -51,7 +51,6 @@ import styles from './quiz.module.scss';
 import { AnswerClassesTable, DebugMCQandSCQ, InlineScqTable } from './QuizDebug';
 import { DimIcon } from './SelfAssessmentDialog';
 import { SubProblemAnswer, getAnswerFromLocalStorage } from './SubProblemAnswer';
-import { Visibility } from '@mui/icons-material';
 
 function BpRadio(props: RadioProps) {
   return <Radio disableRipple color="default" {...props} />;
