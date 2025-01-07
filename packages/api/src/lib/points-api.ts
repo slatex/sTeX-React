@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getAuthHeaders } from './lms';
+import { getAuthHeaders } from './lmp';
 import { GrantReason } from './points';
 
 export async function grantPoints(

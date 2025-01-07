@@ -10,7 +10,7 @@ export const PRIMARY_COL = '#203360';
 export const PRIMARY_COL_DARK_HOVER = '#162343';
 export const SECONDARY_COL = '#8c9fb1';
 
-const MMT_CUSTOM_ID_PREFIX = '__mmt-custom-';
+export const MMT_CUSTOM_ID_PREFIX = '__mmt-custom-';
 
 export function getMMTCustomId(tag: string) {
   return MMT_CUSTOM_ID_PREFIX + tag;
@@ -59,6 +59,21 @@ export function getSectionInfo(url: string): FileInfo {
     filepath,
     source,
   };
+}
+
+export function extractProjectIdAndFilepath(problemId: string, fileExtension = '.tex') {
+  const url = problemId.replace('http://mathhub.info/', '').replace(/\?en.*/, '');
+  const parts = url.split('/');
+  const defaultProjectParts = 2;
+  let projectParts;
+  if (parts[0] === 'courses' || parts[0] === 'sTeX') {
+    projectParts = 4;
+  } else {
+    projectParts = Math.min(defaultProjectParts, parts.length - 2);
+  }
+  const archive = parts.slice(0, projectParts).join('/');
+  const filePath = parts.slice(projectParts).join('/').replace('.omdoc', fileExtension);
+  return [archive, filePath];
 }
 
 export function urlWithContextParams(url: string, locale: string, topLevelUrl?: string) {

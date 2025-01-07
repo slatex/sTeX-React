@@ -1,10 +1,13 @@
 import CancelIcon from '@mui/icons-material/Cancel';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import MirrorIcon from '@mui/icons-material/FlipCameraAndroid';
 import {
   Box,
   Button,
   Card,
   Checkbox,
   CircularProgress,
+  IconButton,
   MenuItem,
   Select,
   TextField,
@@ -48,6 +51,7 @@ import styles from './quiz.module.scss';
 import { AnswerClassesTable, DebugMCQandSCQ, InlineScqTable } from './QuizDebug';
 import { DimIcon } from './SelfAssessmentDialog';
 import { SubProblemAnswer, getAnswerFromLocalStorage } from './SubProblemAnswer';
+import { Visibility } from '@mui/icons-material';
 
 function BpRadio(props: RadioProps) {
   return <Radio disableRipple color="default" {...props} />;
@@ -406,17 +410,58 @@ function groupingByBloomDimension(data?: string) {
   }
   return groupedData;
 }
+interface URIListDisplayProps {
+  uris?: string[];
+  displayReverseRelation?: (conceptUri: string) => void;
+}
+export function URIListDisplay({ uris, displayReverseRelation }: URIListDisplayProps) {
+  const handleCopy = (uri: string) => {
+    navigator.clipboard.writeText(uri).then(
+      () => alert(`Copied: ${uri}`),
+      (err) => console.error('Failed to copy:', err)
+    );
+  };
 
-export function URIListDisplay({ uris }: { uris?: string[] }) {
-  return uris.map((uri, index, array) => (
-    <React.Fragment key={index}>
-      <span>{mmtHTMLToReact(getMMTHtml(uri))}</span>
-      {index < array.length - 1 ? ',\xa0' : ''}
-    </React.Fragment>
-  ));
+  return (
+    <Box>
+      {uris?.map((uri, index, array) => (
+        <span key={index}>
+          {mmtHTMLToReact(getMMTHtml(uri))}
+          <IconButton
+            size="small"
+            onClick={() => handleCopy(uri)}
+            aria-label="copy"
+            style={{ marginLeft: '5px' }}
+          >
+            <ContentCopyIcon fontSize="small" />
+          </IconButton>
+          {displayReverseRelation && (
+            <IconButton
+              size="small"
+              onClick={() => displayReverseRelation(uri)}
+              aria-label="mirror"
+              style={{ marginLeft: '5px' }}
+            >
+              <Visibility fontSize="small" />
+            </IconButton>
+          )}
+
+          {index < array.length - 1 ? ',\xa0' : ''}
+        </span>
+      ))}
+    </Box>
+  );
 }
 
-export function DimAndURIListDisplay({ title, data }: { title: string; data?: string }) {
+export function DimAndURIListDisplay({
+  title,
+  data,
+  displayReverseRelation,
+}: {
+  title: string;
+  data?: string;
+  displayReverseRelation?: (conceptUri: string) => void;
+}) {
   const transformedData = groupingByBloomDimension(data);
   return (
     <Box border="1px solid black" mb="10px" bgcolor="white">
@@ -428,7 +473,7 @@ export function DimAndURIListDisplay({ title, data }: { title: string; data?: st
         .map(([group, uris]) => (
           <Box key={group} borderTop="1px solid #AAA" p="5px" display="flex" flexWrap="wrap">
             <DimIcon dim={group as BloomDimension} /> &nbsp;
-            <URIListDisplay uris={uris} />
+            <URIListDisplay uris={uris} displayReverseRelation={displayReverseRelation} />
           </Box>
         ))}
     </Box>
@@ -502,7 +547,6 @@ export function ProblemDisplay({
   problemId?: string;
 }) {
   const router = useRouter();
-  const { quiz: t } = getLocaleObject(router);
   const [userId, setUserId] = useState('');
   useEffect(() => {
     getUserInfo().then((u: UserInfo | undefined) => {
@@ -516,7 +560,9 @@ export function ProblemDisplay({
   const fillInInputs = problem.inputs?.filter((input) => input.type === InputType.FILL_IN) || [];
   const inlineSCQInputs =
     problem.inputs?.filter((input) => input.type === InputType.SCQ && input.inline) || [];
-  const inputWidgets = problem.inputs.map((input, optIdx) => {
+
+  //Autogradable problem widgets
+  const apWidgets = problem.inputs.map((input, optIdx) => {
     return inputDisplay({
       input,
       response: r?.autogradableResponses[optIdx],
@@ -529,7 +575,43 @@ export function ProblemDisplay({
       debug: debug ?? false,
     });
   });
-  const customItems = Object.assign(inputWidgets);
+
+  //Non-Autogradable problem widgets
+  const napWidgets = problem.subProblemData.map((c, i) => (
+    <SubProblemAnswer
+      problem={problem}
+      questionId={uri ? uri : problemId}
+      subProblemId={i.toString()}
+      subProblem={c}
+      isFrozen={isFrozen}
+      existingResponse={r?.freeTextResponses?.[i]}
+      onSaveClick={() => {
+        if (!r) return;
+        const freeTextResponses: Record<string, string> = {};
+        for (let i = 0; i < problem.subProblemData.length; i++) {
+          freeTextResponses[i.toString()] =
+            getAnswerFromLocalStorage(uri ? uri : problemId, i.toString()) ?? '';
+        }
+        saveAnswers({
+          problemId,
+          uri,
+          freeTextResponses,
+        });
+        onResponseUpdate({ ...r, freeTextResponses });
+      }}
+    ></SubProblemAnswer>
+  ));
+
+  const customItems: Record<string, any> = {};
+
+  napWidgets.forEach((widget, index) => {
+    customItems[`nap_${index}`] = widget;
+  });
+
+  apWidgets.forEach((widget, index) => {
+    customItems[`ap_${index}`] = widget;
+  });
+
   const statement = removeInfoIfNeeded(problem.statement.outerHTML ?? '', isEffectivelyFrozen);
   async function saveAnswers({
     problemId,
@@ -572,38 +654,6 @@ export function ProblemDisplay({
         <CustomItemsContext.Provider value={{ items: customItems }}>
           <DocumentWidthSetter>{mmtHTMLToReact(statement)}</DocumentWidthSetter>
         </CustomItemsContext.Provider>
-        {problem.subProblemData.map((c, i) => (
-          <>
-            <span style={{ color: PRIMARY_COL, fontWeight: 'bold' }}>
-              {problem.subProblemData.length === 1
-                ? t.yourAnswer
-                : t.yourAnswerWithIdx
-                    .replace('$1', (i + 1).toString())
-                    .replace('$2', problem.subProblemData.length.toString())}
-            </span>
-            <SubProblemAnswer
-              questionId={uri ? uri : problemId}
-              subProblemId={i.toString()}
-              subProblem={c}
-              isFrozen={isFrozen}
-              existingResponse={r?.freeTextResponses?.[i]}
-              onSaveClick={() => {
-                if (!r) return;
-                const freeTextResponses: Record<string, string> = {};
-                for (let i = 0; i < problem.subProblemData.length; i++) {
-                  freeTextResponses[i.toString()] =
-                    getAnswerFromLocalStorage(uri ? uri : problemId, i.toString()) ?? '';
-                }
-                saveAnswers({
-                  problemId,
-                  uri,
-                  freeTextResponses,
-                });
-                onResponseUpdate({ ...r, freeTextResponses });
-              }}
-            ></SubProblemAnswer>
-          </>
-        ))}
         {debug && (
           <>
             {inlineSCQInputs.map((inlineInput) => (

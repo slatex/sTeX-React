@@ -1,16 +1,63 @@
+import { Book, MicExternalOn, Quiz, SupervisedUserCircle } from '@mui/icons-material';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
+import SchoolIcon from '@mui/icons-material/School';
 import { alpha, Box, IconButton, Paper, TextField, Tooltip, Typography } from '@mui/material';
 import { getLearningObjectShtml, LoType } from '@stex-react/api';
-import { mmtHTMLToReact, ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { extractProjectIdAndFilepath } from 'packages/stex-react-renderer/src/lib/utils';
-import { PracticeQuestions } from 'packages/stex-react-renderer/src/lib/PracticeQuestions';
-import { capitalizeFirstLetter } from '@stex-react/utils';
+import {
+  mmtHTMLToReact,
+  PracticeQuestions,
+  ServerLinksContext,
+} from '@stex-react/stex-react-renderer';
+import { capitalizeFirstLetter, extractProjectIdAndFilepath } from '@stex-react/utils';
 import { memo, useContext, useEffect, useState } from 'react';
-import { getUrlInfo } from '../pages/lo-explorer';
-import LoRelations from './LoRelations';
-import { CartItem } from './LoCartModal';
+import { CartItem } from './lo-explorer/LoCartModal';
+import LoRelations from './lo-explorer/LoRelations';
+import { LoReverseRelations } from './lo-explorer/LoReverseRelation';
+
+interface UrlData {
+  projectName: string;
+  topic: string;
+  fileName: string;
+  icon?: JSX.Element;
+}
+export function getUrlInfo(url: string): UrlData {
+  const [archive, filePath] = extractProjectIdAndFilepath(url);
+  const fileParts = filePath.split('/');
+  const fileName = fileParts[fileParts.length - 1].split('.')[0];
+  let projectName = '';
+  let topic = '';
+  let icon = null;
+  const projectParts = archive.split('/');
+  if (archive.startsWith('courses/')) {
+    projectName = projectParts[2];
+    topic = fileParts[0];
+    icon = <SchoolIcon sx={{ color: 'primary.main', fontSize: '18px' }} />;
+  } else if (archive.startsWith('problems/')) {
+    projectName = projectParts[1];
+    topic = fileParts[0];
+    icon = <Quiz sx={{ color: 'primary.main', fontSize: '18px' }} />;
+  } else if (archive.startsWith('KwarcMH/')) {
+    projectName = projectParts[0];
+    topic = fileParts[0];
+    icon = <SchoolIcon sx={{ color: 'primary.main', fontSize: '18px' }} />;
+  } else if (archive.startsWith('smglom/')) {
+    projectName = projectParts[0];
+    topic = projectParts[1];
+    icon = <Book sx={{ color: 'primary.main', fontSize: '18px' }} />;
+  } else if (archive.startsWith('mkohlhase/')) {
+    projectName = projectParts[0];
+    topic = fileParts[0];
+    icon = <SupervisedUserCircle sx={{ color: 'primary.main', fontSize: '18px' }} />;
+  } else if (archive.startsWith('talks/')) {
+    projectName = projectParts[0];
+    topic = projectParts[1];
+    icon = <MicExternalOn sx={{ color: 'primary.main', fontSize: '18px' }} />;
+  }
+
+  return { projectName, topic, fileName, icon };
+}
 
 export const handleStexCopy = (uri: string, uriType: LoType) => {
   const [archive, filePath] = extractProjectIdAndFilepath(uri, '');
@@ -18,12 +65,15 @@ export const handleStexCopy = (uri: string, uriType: LoType) => {
   switch (uriType) {
     case 'problem':
       stexSource = `\\includeproblem[pts=TODO,archive=${archive}]{${filePath}}`;
+      break;
     case 'definition':
     case 'example':
     case 'para':
     case 'statement':
       stexSource = `\\include${uriType}[archive=${archive}]{${filePath}}`;
+      break;
     default:
+      break;
   }
 
   if (stexSource) navigator.clipboard.writeText(stexSource);
@@ -50,20 +100,23 @@ export const LoViewer: React.FC<{ uri: string; uriType: LoType }> = ({ uri, uriT
   const [error, setError] = useState(null);
   const { mmtUrl } = useContext(ServerLinksContext);
 
-  const fetchLo = async (uri: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-      setLearningObject(await getLearningObjectShtml(mmtUrl, uri));
-    } catch (err) {
-      setError(err.message || 'Failed to fetch example.');
-    } finally {
-      setLoading(false);
-    }
-  };
   useEffect(() => {
-    if (uri) fetchLo(uri);
-  }, [uri]);
+    if (!uri?.length) return;
+    async function fetchLo() {
+      try {
+        setLoading(true);
+        setError(null);
+        const learningObject = await getLearningObjectShtml(mmtUrl, uri);
+
+        setLearningObject(learningObject.replace(/body/g, 'div').replace(/html/g, 'div'));
+        setLoading(false);
+      } catch (err) {
+        setError(err.message || 'Failed to fetch example.');
+        setLoading(false);
+      }
+    }
+    fetchLo();
+  }, [uri, mmtUrl]);
 
   return (
     <Box sx={{ padding: 2, border: '1px solid #ccc', borderRadius: 4, backgroundColor: '#f9f9f9' }}>
@@ -83,37 +136,41 @@ export const LoViewer: React.FC<{ uri: string; uriType: LoType }> = ({ uri, uriT
 interface DetailsPanelProps {
   uriType: LoType;
   selectedUri: string | null;
+  displayReverseRelation?: (conceptUri: string) => void;
 }
-export const DetailsPanel: React.FC<DetailsPanelProps> = memo(({ uriType, selectedUri }) => {
-  return (
-    <Box
-      sx={{
-        flex: 2,
-        background: 'rgba(240, 255, 240, 0.9)',
-        borderRadius: '8px',
-        padding: '16px',
-        height: '90vh',
-        overflowY: 'auto',
-        boxShadow: 'inset 0 4px 8px rgba(0, 0, 0, 0.1)',
-      }}
-    >
-      <Typography color="secondary" variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-        <Tooltip title={selectedUri} arrow placement="top">
-          <span style={{ wordBreak: 'break-word' }}>{`${(uriType || '').toUpperCase()}: ${
-            selectedUri || 'None'
-          }`}</span>
-        </Tooltip>
-      </Typography>
-      <LoRelations uri={selectedUri} />
-      {!!selectedUri &&
-        (uriType === 'problem' ? (
-          <PracticeQuestions problemIds={[selectedUri]} />
-        ) : (
-          <LoViewer uri={selectedUri} uriType={uriType} />
-        ))}
-    </Box>
-  );
-});
+
+export const DetailsPanel: React.FC<DetailsPanelProps> = memo(
+  ({ uriType, selectedUri, displayReverseRelation }) => {
+    return (
+      <Box
+        sx={{
+          flex: 2,
+          background: 'rgba(240, 255, 240, 0.9)',
+          borderRadius: '8px',
+          padding: '16px',
+          height: '90vh',
+          overflowY: 'auto',
+          boxShadow: 'inset 0 4px 8px rgba(0, 0, 0, 0.1)',
+        }}
+      >
+        <Typography color="secondary" variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+          <Tooltip title={selectedUri} arrow placement="top">
+            <span style={{ wordBreak: 'break-word' }}>{`${(uriType || '').toUpperCase()}: ${
+              selectedUri || 'None'
+            }`}</span>
+          </Tooltip>
+        </Typography>
+        <LoRelations uri={selectedUri} displayReverseRelation={displayReverseRelation} />
+        {!!selectedUri &&
+          (uriType === 'problem' ? (
+            <PracticeQuestions problemIds={[selectedUri]} />
+          ) : (
+            <LoViewer uri={selectedUri} uriType={uriType} />
+          ))}
+      </Box>
+    );
+  }
+);
 DetailsPanel.displayName = 'DetailsPanel';
 
 const LoListDisplay = ({
@@ -133,7 +190,14 @@ const LoListDisplay = ({
   handleAddToCart: (uri: string, uriType: string) => void;
   handleRemoveFromCart: (uri: string, uriType: string) => void;
 }) => {
+  const { mmtUrl } = useContext(ServerLinksContext);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [showReverseRelation, setShowReverseRelation] = useState(false);
+  const [reverseRelationConcept, setReverseRelationConcept] = useState<string>('');
+  const displayReverseRelation = (conceptUri: string) => {
+    setShowReverseRelation((prevState) => !prevState);
+    setReverseRelationConcept(conceptUri);
+  };
 
   const filteredUris = uris.filter((uri) => {
     const { projectName, topic, fileName } = getUrlInfo(uri);
@@ -147,6 +211,17 @@ const LoListDisplay = ({
   });
   return (
     <Box sx={{ display: 'flex', gap: '16px', marginTop: '20px' }}>
+      {showReverseRelation && (
+        <LoReverseRelations
+          mmtUrl={mmtUrl}
+          concept={reverseRelationConcept}
+          cart={cart}
+          handleAddToCart={handleAddToCart}
+          handleRemoveFromCart={handleRemoveFromCart}
+          openDialog={showReverseRelation}
+          handleCloseDialog={() => setShowReverseRelation(false)}
+        />
+      )}
       <Box
         sx={{
           flex: 1,
@@ -244,7 +319,11 @@ const LoListDisplay = ({
           );
         })}
       </Box>
-      <DetailsPanel uriType={loType} selectedUri={selectedUri} />
+      <DetailsPanel
+        uriType={loType}
+        selectedUri={selectedUri}
+        displayReverseRelation={displayReverseRelation}
+      />
     </Box>
   );
 };

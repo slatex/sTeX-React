@@ -316,6 +316,9 @@ function getSubProblems(rootNode: Element): SubProblemData[] {
   const subproblems: SubProblemData[] = [];
   for (const rawAnswerClass of rawAnswerclasses) {
     if (rawAnswerClass.attrVal === '') {
+      if (rawAnswerClass.node?.attribs) {
+        rawAnswerClass.node.attribs['id'] = getMMTCustomId(`nap_${subproblems.length}`);
+      }
       subproblems.push({
         answerclasses: [],
         id: subproblems.length.toString(),
@@ -374,7 +377,7 @@ function findInputs(problemRootNode: (ChildNode & Element) | Document): Input[] 
     const type = NODE_ATTRS_TO_TYPE[attrName] ?? InputType.FILL_IN;
     const inline = isInlineBlock(node);
     const ignoreForScoring = isIgnoredForScoring(node);
-    node.attribs['id'] = getMMTCustomId(`${idx}`);
+    node.attribs['id'] = getMMTCustomId(`ap_${idx}`);
     if ([InputType.MCQ, InputType.SCQ].includes(type)) {
       const options = getOptionSet(node, type);
       return { type, options, inline } as Input;

@@ -29,7 +29,7 @@ export const en = {
     newHome: {
       alea: 'ALᴇA: Adaptive Learning Assistant',
       aleaDesc:
-        'Courses that adapt to the users preferences and competencies focused on the knowledge conveyed in a particular knowledge unit.',
+        "Courses that adapt to user's preferences and competencies focused on the knowledge conveyed in a particular knowledge unit.",
       signUpNow: 'Sign up now',
       exploreOurCourse: 'Explore our Courses',
       publications: 'Publications',
@@ -398,5 +398,20 @@ export const en = {
       'The following problems are meant to aid your learning. They do not cover the course material exhaustively and there are no guarantees that the problems are correct or that they are representative of the kinds of problems that will be on the quizzes or the exam.',
     problems: 'problems',
     practice: 'Practice',
+  },
+  perSectionQuiz: {
+    problemsFor: 'Problems for',
+    warning:
+      'Note: These problems are only to aid your learning. They do not cover the course material exhaustively and there are no guarantees that the problems are correct or that they are representative of the kinds of problems that will be on the quizzes or the exam.',
+    backToAllCourseProblems: 'Back to all course problems',
+  },
+  resource: {
+    updateGoTo: 'Update Got-tos',
+    createUpdateQuiz: 'Create/Update Quiz',
+    gradeHomework: 'Grade Homework',
+    createUpdateHomework: 'Create/Update Homework',
+    reviewLatestQuiz: 'Review Latest Quiz',
+    forum: 'Forum',
+    welcome: 'Welcome',
   },
 };

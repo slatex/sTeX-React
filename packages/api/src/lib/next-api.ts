@@ -1,5 +1,5 @@
 import { FileLocation } from '@stex-react/utils';
-import { SmileyCognitiveValues } from './lms';
+import { SmileyCognitiveValues } from './lmp';
 
 export interface CardsWithSmileys {
   uri: string;

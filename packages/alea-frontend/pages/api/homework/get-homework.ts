@@ -73,6 +73,28 @@ export async function getAllAnswersForHomeworkOrSetError(
   }
   return responses;
 }
+export async function getAllAnswersForQuestion(
+  userId: string,
+  questionId: string,
+  res: NextApiResponse
+) {
+  const answerEntries = await executeAndEndSet500OnError<AnswerResponse[]>(`
+    SELECT questionId, subProblemId, answer, id
+    FROM Answer
+    WHERE questionId = ? AND userId = ?
+    ORDER BY questionId, subProblemId
+  `, [questionId, userId], res);
+
+  if (!answerEntries) return;
+
+  const responses: Record<string, Record<string, { answer: string; id: number }>> = {};
+  for (const answerEntry of answerEntries) {
+    const { id, answer, questionId, subProblemId } = answerEntry;
+    if (!responses[questionId]) responses[questionId] = {};
+    responses[questionId][subProblemId] = { answer, id };
+  }
+  return responses;
+}
 
 export async function getHomeworkOrSetError(
   homeworkId: number,

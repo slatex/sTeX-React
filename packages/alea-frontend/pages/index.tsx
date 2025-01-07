@@ -1,15 +1,17 @@
 import FeedIcon from '@mui/icons-material/Feed';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import { Box, Button, IconButton, Tooltip, Typography, useMediaQuery } from '@mui/material';
-import { checkUserExist, getCourseInfo } from '@stex-react/api';
-import { CourseInfo, PRIMARY_COL } from '@stex-react/utils';
+import { checkUserExist, getCourseInfo, getResourcesForUserId, isLoggedIn } from '@stex-react/api';
+import { ServerLinksContext } from '@stex-react/stex-react-renderer';
+import { Action, CourseInfo, CourseResourceAction, PRIMARY_COL } from '@stex-react/utils';
 import { NextPage } from 'next';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import InstructorDashBoard from '../components/InstructorDashboard';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
-import Link from 'next/link';
 
 function getInstructor(courseData: CourseInfo, currentSemester: string) {
   for (const instance of courseData.instances) {
@@ -91,13 +93,14 @@ export const PARTNERED_UNIVERSITIES = [
 
 const FEATURED_COURSES = ['ai-1', 'ai-2', 'gdp', 'iwgs-2', 'lbs'];
 
-const BannerSection = () => {
+export const BannerSection = ({ tight = false }: { tight?: boolean }) => {
   const router = useRouter();
   const {
     home: t,
     home: { newHome: n },
   } = getLocaleObject(router);
   const isSmallScreen = useMediaQuery('(max-width:800px)');
+  const loggedIn = isLoggedIn();
 
   return (
     <>
@@ -124,7 +127,7 @@ const BannerSection = () => {
           maxWidth: '1200px',
           display: 'flex',
           alignItems: 'center',
-          padding: '50px 20px 100px',
+          padding: tight ? '20px' : '50px 20px 100px',
           justifyContent: 'space-around',
         }}
       >
@@ -141,7 +144,7 @@ const BannerSection = () => {
           </Typography>
           <Typography
             variant="body1"
-            maxWidth="400px"
+            maxWidth="600px"
             mb="16px"
             fontFamily={'sans-serif,roboto'}
             display="flex"
@@ -149,14 +152,16 @@ const BannerSection = () => {
             {n.aleaDesc}
           </Typography>
 
-          <Button
-            variant="contained"
-            color="primary"
-            sx={{ margin: '5px 5px 5px 0px' }}
-            onClick={() => router.push('/signup')}
-          >
-            {n.signUpNow}
-          </Button>
+          {!loggedIn && (
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{ margin: '5px 5px 5px 0px' }}
+              onClick={() => router.push('/signup')}
+            >
+              {n.signUpNow}
+            </Button>
+          )}
           <Button
             sx={{ margin: '5px 5px 5px 0px' }}
             variant="outlined"
@@ -187,7 +192,7 @@ const BannerSection = () => {
             {n.publications}
           </Button>
         </Box>
-        {!isSmallScreen && (
+        {!isSmallScreen && !tight && (
           <Image
             style={{ borderRadius: '50%' }}
             src={'/student.jpg'}
@@ -200,6 +205,41 @@ const BannerSection = () => {
     </>
   );
 };
+
+export function VollKiInfoSection({ bgcolor = '#F5F5F5' }: { bgcolor?: string }) {
+  const {
+    home: { newHome: n },
+  } = getLocaleObject(useRouter());
+
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        bgcolor,
+        padding: '20px',
+        mb: '-10px',
+      }}
+    >
+      <Typography
+        style={{
+          textAlign: 'center',
+          marginTop: '20px',
+          fontWeight: '400',
+          fontSize: '20px',
+        }}
+      >
+        {n.vollKiProjectInfo}
+      </Typography>
+      <img
+        src="/fau_kwarc.png"
+        alt="Explore courses"
+        style={{ padding: '20px', maxWidth: '100%' }}
+      />
+    </Box>
+  );
+}
 
 function CourseCard({ key, course }) {
   const { imageLink: courseImage, courseName, courseId, institution, instructors } = course;
@@ -282,12 +322,27 @@ function AleaFeatures({ img_url, title, description }) {
 
 const StudentHomePage: NextPage = ({ filteredCourses }: { filteredCourses: CourseInfo[] }) => {
   const router = useRouter();
+  const [resourcesForInstructor, setResourcesForInstructor] = useState<CourseResourceAction[]>([]);
   useEffect(() => {
     checkUserExist();
   }, []);
   const {
     home: { newHome: n },
   } = getLocaleObject(router);
+
+  const { mmtUrl } = useContext(ServerLinksContext);
+  useEffect(() => {
+    async function resourcesAccessToUser() {
+      const resourceAccessToInstructor = (await getResourcesForUserId(mmtUrl)).filter(
+        (item) => item.action !== Action.TAKE
+      );
+      setResourcesForInstructor(resourceAccessToInstructor);
+    }
+    resourcesAccessToUser();
+  }, [mmtUrl]);
+  if (resourcesForInstructor.length > 0) {
+    return <InstructorDashBoard resourcesForInstructor={resourcesForInstructor} />;
+  }
   return (
     <MainLayout title="Courses | ALeA">
       <Box m="0 auto">
@@ -429,32 +484,8 @@ const StudentHomePage: NextPage = ({ filteredCourses }: { filteredCourses: Cours
             ))}
           </Box>
         </Box>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            backgroundColor: '#F5F5F5',
-            padding: '20px',
-            mb: '-10px',
-          }}
-        >
-          <Typography
-            style={{
-              textAlign: 'center',
-              marginTop: '20px',
-              fontWeight: '400',
-              fontSize: '20px',
-            }}
-          >
-            {n.vollKiProjectInfo}
-          </Typography>
-          <img
-            src="/fau_kwarc.png"
-            alt="Explore courses"
-            style={{ padding: '20px', maxWidth: '100%' }}
-          />
-        </Box>
+
+        <VollKiInfoSection />
       </Box>
     </MainLayout>
   );
