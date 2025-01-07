@@ -431,8 +431,9 @@ export const getSparqlQueryForLoRelationToDimAndConceptPair = (uri: string) => {
                 WHERE {
                         ?learningObject ?relation ?obj1 .
                         ?obj1 ?relType ?obj2 .
-    
-                        FILTER(CONTAINS(STR(?learningObject), "${uri}")).
+                        FILTER(!CONTAINS(STR(?obj2), "?term")).
+                        FILTER(!CONTAINS(STR(?obj2), "?REF")).
+                        FILTER(CONTAINS(STR(?learningObject), "${encodeURI(uri)}")).
                         VALUES ?relation {
                                 ulo:precondition
                                 ulo:objective 
@@ -453,7 +454,9 @@ export const getSparqlQueryForLoRelationToNonDimConcept = (uri: string) => {
                 SELECT ?learningObject ?relation ?obj1
                 WHERE {
                         ?learningObject ?relation ?obj1 .
-                         FILTER(CONTAINS(STR(?learningObject), "${uri}")).
+                        FILTER(!CONTAINS(STR(?obj1), "?term")).
+                        FILTER(!CONTAINS(STR(?obj1), "?REF")).
+                         FILTER(CONTAINS(STR(?learningObject), "${encodeURI(uri)}")).
                          VALUES ?relation {
                                    ulo:crossrefs
                                    ulo:specifies
@@ -475,7 +478,7 @@ export const getProblemObject = async (mmtUrl: string, problemIdPrefix: string) 
     SELECT DISTINCT ?learningObject
     WHERE {
       ?learningObject rdf:type ulo:problem .
-      FILTER(CONTAINS(STR(?learningObject), "${problemIdPrefix}"))
+      FILTER(CONTAINS(STR(?learningObject), "${encodeURI(problemIdPrefix)}"))
     }
   `;
 
@@ -535,7 +538,9 @@ export function getSparqlQueryForLoString(loString: string, loTypes: LoType[]) {
     WHERE {
       ?lo rdf:type ?type .
       FILTER(?type IN (${loTypesConditions})).
-      FILTER(CONTAINS(LCASE(STR(?lo)), "${loString}")).
+      FILTER(CONTAINS(LCASE(STR(?lo)), "${encodeURI(loString)}")).
+      FILTER(!CONTAINS(STR(?lo), "?term")).
+      FILTER(!CONTAINS(STR(?lo), "?REF")).
     }
     ORDER BY ?hash
     LIMIT 300`;
@@ -549,7 +554,7 @@ export function getSparqlQueryForNonDimConceptsAsLoRelation(
 ) {
   if (!conceptUris.length) return;
   const uriConditions = conceptUris?.length
-    ? conceptUris.map((uri) => `CONTAINS(STR(?obj1), "${uri}")`).join(' || ')
+    ? conceptUris.map((uri) => `CONTAINS(STR(?obj1), "${encodeURI(uri)}")`).join(' || ')
     : 'false';
   const relationConditions = relations.map((relation) => `ulo:${relation}`).join(' ');
   const loTypesConditions = loTypes.map((loType) => `ulo:${loType}`).join(', ');
@@ -576,6 +581,8 @@ export function getSparqlQueryForNonDimConceptsAsLoRelation(
       ?lo rdf:type ?type .
       FILTER(?type IN (${loTypesConditions})).
       ${loStringFilter}
+      FILTER(!CONTAINS(STR(?lo), "?term")).
+      FILTER(!CONTAINS(STR(?lo), "?REF")).
 
     }LIMIT 300
   `;
@@ -591,7 +598,7 @@ export function getSparqlQueryForDimConceptsAsLoRelation(
 ) {
   if (conceptUris?.length === 0 && !loString.trim()) return;
   const uriConditions = conceptUris?.length
-    ? conceptUris.map((uri) => `CONTAINS(STR(?obj1), "${uri}")`).join(' || ')
+    ? conceptUris.map((uri) => `CONTAINS(STR(?obj1),"${encodeURI(uri)}")`).join(' || ')
     : 'false';
   const relationConditions = relations.map((relation) => `ulo:${relation}`).join(' ');
   const loTypesConditions = loTypes.map((loType) => `ulo:${loType}`).join(', ');
@@ -613,6 +620,8 @@ WHERE {
     ?lo rdf:type ?type .
       FILTER(?type IN (${loTypesConditions})).
       ${loStringFilter}
+  FILTER(!CONTAINS(STR(?lo), "?term")).
+  FILTER(!CONTAINS(STR(?lo), "?REF")).
 }LIMIT 300
 `;
 
