@@ -1,8 +1,7 @@
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { Box, Button, Typography } from '@mui/material';
 import { ALL_LO_RELATION_TYPES, ALL_LO_TYPES, AllLoRelationTypes, LoType } from '@stex-react/api';
 import { localStore } from '@stex-react/utils';
-import { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import styles from '../../styles/lo-explorer.module.scss';
 import LoListDisplay, { getUrlInfo } from '../LoListDisplay';
 import LoCartModal, { CartItem } from './LoCartModal';
@@ -26,32 +25,6 @@ const getFilteredUris = (
   }
   return uris;
 };
-
-function LoExplorerHeader({
-  setShowCart,
-}: {
-  setShowCart: React.Dispatch<React.SetStateAction<boolean>>;
-}) {
-  return (
-    <Box className={styles.titleBox}>
-      <Typography variant="h4" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
-        Learning Objects Explorer
-      </Typography>
-      <Button
-        variant="contained"
-        color="primary"
-        startIcon={<ShoppingCartIcon />}
-        onClick={() => setShowCart(true)}
-        sx={{
-          backgroundColor: 'brown',
-          '&:hover': { bgcolor: '#f1f1f1', color: 'primary.main' },
-        }}
-      >
-        Show Cart
-      </Button>
-    </Box>
-  );
-}
 
 export function LoExplorer() {
   const [chosenRelations, setChosenRelations] = useState<AllLoRelationTypes[]>([
@@ -136,7 +109,6 @@ export function LoExplorer() {
 
   return (
     <Box className={styles.outerBox}>
-      <LoExplorerHeader setShowCart={setShowCart} />
       <LoFilterAndSearch
         uniqueArchivesMap={uniqueArchivesMap}
         chosenArchivesMap={chosenArchivesMap}
@@ -145,6 +117,7 @@ export function LoExplorer() {
         setChosenRelations={setChosenRelations}
         chosenLoTypes={chosenLoTypes}
         setChosenLoTypes={setChosenLoTypes}
+        setShowCart={setShowCart}
         setLoUris={setLoUris}
       />
 
