@@ -1,4 +1,3 @@
-
 export const en = {
   home: {
     header: 'ALeA based Courses at FAU',
@@ -407,11 +406,12 @@ export const en = {
     backToAllCourseProblems: 'Back to all course problems',
   },
   resource: {
-    updateGoTo: 'Update Go-Tos',
+    updateGoTo: 'Update Got-tos',
     createUpdateQuiz: 'Create/Update Quiz',
     gradeHomework: 'Grade Homework',
     createUpdateHomework: 'Create/Update Homework',
     reviewLatestQuiz: 'Review Latest Quiz',
     forum: 'Forum',
+    welcome: 'Welcome',
   },
 };

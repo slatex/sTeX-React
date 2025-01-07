@@ -6,6 +6,7 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import QuizIcon from '@mui/icons-material/Quiz';
 import { Avatar, Box, Card, CardActionArea, CardContent, Typography } from '@mui/material';
 import {
+  CommentType,
   getCourseGradingItems,
   getCourseInstanceThreads,
   getCourseQuizList,
@@ -63,7 +64,7 @@ const getResourceDisplayText = (name: ResourceName, action: Action, router) => {
 
 function calculateTimeAgo(timestamp: string): string | null {
   if (!timestamp) return null;
-  const dateTime = dayjs(timestamp);
+  const dateTime = dayjs(parseInt(timestamp));
   return dateTime.isValid() ? dateTime.fromNow() : null;
 }
 
@@ -96,12 +97,12 @@ const getResourceIcon = (name: ResourceName) => {
 
 async function getCommentsInfo(courseId: string) {
   const comments = await getCourseInstanceThreads(courseId, CURRENT_TERM);
-  const totalQuestions = comments.length;
-  const unanswered = comments.filter(
+  const questions = comments.filter((comment) => comment.commentType === CommentType.QUESTION);
+  const unanswered = questions.filter(
     (comment) => comment.questionStatus === QuestionStatus.UNANSWERED
   ).length;
   return {
-    description: `Unanswered Questions - ${unanswered}/${totalQuestions}  `,
+    description: `Unanswered Questions - ${unanswered}/${questions.length}  `,
     timeAgo: null,
     timestamp: null,
   };
@@ -114,10 +115,9 @@ async function getLastUpdatedQuiz(courseId: string): Promise<ResourceDisplayInfo
       return acc.quizStartTs > curr.quizStartTs ? acc : curr;
     }, quizList[0]);
     const timestamp = latestQuiz.quizStartTs;
-    const dayjsTimestamp = dayjs(timestamp).format('YYYY-MM-DD');
     const description = `Latest Quiz: ${dayjs(timestamp).format('YYYY-MM-DD')}`;
-    const timeAgo = calculateTimeAgo(dayjsTimestamp);
-    return { description, timeAgo, timestamp: dayjsTimestamp, quizId: latestQuiz.quizId };
+    const timeAgo = calculateTimeAgo(timestamp.toString());
+    return { description, timeAgo, timestamp: timestamp.toString(), quizId: latestQuiz.quizId };
   } catch (error) {
     console.error('Error fetching course data:', error);
     return { description: null, timeAgo: null, timestamp: null };
@@ -204,7 +204,7 @@ async function getLastUpdatedDescriptions({
     case ResourceName.COURSE_QUIZ:
       ({ description, timeAgo, timestamp, quizId } = await getLastUpdatedQuiz(courseId));
       if (action === Action.PREVIEW) {
-        description = `Start Date: ${dayjs(timestamp).format('YYYY-MM-DD HH:mm:ss')}`;
+        description = `Start Date: ${dayjs(parseInt(timestamp)).format('YYYY-MM-DD HH:mm:ss')}`;
       }
       break;
     case ResourceName.COURSE_COMMENTS:
@@ -320,6 +320,8 @@ function InstructorDashBoard({
 }) {
   const [userInfo, setUserInfo] = useState(null);
   const [descriptions, setDescriptions] = useState<Record<string, ResourceDisplayInfo>>({});
+  const router = useRouter();
+  const { resource: r } = getLocaleObject(router);
   const groupedResources = useMemo(
     () => groupByCourseId(resourcesForInstructor),
     [resourcesForInstructor]
@@ -357,7 +359,7 @@ function InstructorDashBoard({
         <Typography
           sx={{ fontSize: '28px', fontWeight: 'bold', textAlign: 'center', marginBottom: 4 }}
         >
-          Welcome, {userInfo?.fullName}
+          {r.welcome}, {userInfo?.fullName}
         </Typography>
 
         {Object.entries(groupedResources).map(([courseId, resources]) => (
@@ -382,6 +384,8 @@ function InstructorDashBoard({
                 display: 'flex',
                 flexWrap: 'wrap',
                 gap: 5,
+                maxWidth: '1400px',
+                margin: '0 auto',
               }}
             >
               {resources.map((resource, index) => (
