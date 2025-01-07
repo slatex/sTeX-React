@@ -1,6 +1,6 @@
 import { Paper } from '@mui/material';
-import MainLayout from '../layouts/MainLayout';
 import { LoExplorer } from '../components/lo-explorer';
+import MainLayout from '../layouts/MainLayout';
 
 const LoExplorerPage = () => {
   return (
