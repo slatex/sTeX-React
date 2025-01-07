@@ -64,7 +64,7 @@ const getResourceDisplayText = (name: ResourceName, action: Action, router) => {
 
 function calculateTimeAgo(timestamp: string): string | null {
   if (!timestamp) return null;
-  const dateTime = dayjs(timestamp);
+  const dateTime = dayjs(parseInt(timestamp));
   return dateTime.isValid() ? dateTime.fromNow() : null;
 }
 
@@ -115,10 +115,9 @@ async function getLastUpdatedQuiz(courseId: string): Promise<ResourceDisplayInfo
       return acc.quizStartTs > curr.quizStartTs ? acc : curr;
     }, quizList[0]);
     const timestamp = latestQuiz.quizStartTs;
-    const dayjsTimestamp = dayjs(timestamp).format('YYYY-MM-DD');
     const description = `Latest Quiz: ${dayjs(timestamp).format('YYYY-MM-DD')}`;
-    const timeAgo = calculateTimeAgo(dayjsTimestamp);
-    return { description, timeAgo, timestamp: dayjsTimestamp, quizId: latestQuiz.quizId };
+    const timeAgo = calculateTimeAgo(timestamp.toString());
+    return { description, timeAgo, timestamp: timestamp.toString(), quizId: latestQuiz.quizId };
   } catch (error) {
     console.error('Error fetching course data:', error);
     return { description: null, timeAgo: null, timestamp: null };
@@ -205,7 +204,7 @@ async function getLastUpdatedDescriptions({
     case ResourceName.COURSE_QUIZ:
       ({ description, timeAgo, timestamp, quizId } = await getLastUpdatedQuiz(courseId));
       if (action === Action.PREVIEW) {
-        description = `Start Date: ${dayjs(timestamp).format('YYYY-MM-DD HH:mm:ss')}`;
+        description = `Start Date: ${dayjs(parseInt(timestamp)).format('YYYY-MM-DD HH:mm:ss')}`;
       }
       break;
     case ResourceName.COURSE_COMMENTS:
