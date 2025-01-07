@@ -14,6 +14,7 @@ import { capitalizeFirstLetter, extractProjectIdAndFilepath } from '@stex-react/
 import { memo, useContext, useEffect, useState } from 'react';
 import { CartItem } from './lo-explorer/LoCartModal';
 import LoRelations from './lo-explorer/LoRelations';
+import { LoReverseRelations } from './lo-explorer/LoReverseRelation';
 
 interface UrlData {
   projectName: string;
@@ -135,38 +136,41 @@ export const LoViewer: React.FC<{ uri: string; uriType: LoType }> = ({ uri, uriT
 interface DetailsPanelProps {
   uriType: LoType;
   selectedUri: string | null;
+  displayReverseRelation?: (conceptUri: string) => void;
 }
 
-export const DetailsPanel: React.FC<DetailsPanelProps> = memo(({ uriType, selectedUri }) => {
-  return (
-    <Box
-      sx={{
-        flex: 2,
-        background: 'rgba(240, 255, 240, 0.9)',
-        borderRadius: '8px',
-        padding: '16px',
-        height: '90vh',
-        overflowY: 'auto',
-        boxShadow: 'inset 0 4px 8px rgba(0, 0, 0, 0.1)',
-      }}
-    >
-      <Typography color="secondary" variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-        <Tooltip title={selectedUri} arrow placement="top">
-          <span style={{ wordBreak: 'break-word' }}>{`${(uriType || '').toUpperCase()}: ${
-            selectedUri || 'None'
-          }`}</span>
-        </Tooltip>
-      </Typography>
-      <LoRelations uri={selectedUri} />
-      {!!selectedUri &&
-        (uriType === 'problem' ? (
-          <PracticeQuestions problemIds={[selectedUri]} />
-        ) : (
-          <LoViewer uri={selectedUri} uriType={uriType} />
-        ))}
-    </Box>
-  );
-});
+export const DetailsPanel: React.FC<DetailsPanelProps> = memo(
+  ({ uriType, selectedUri, displayReverseRelation }) => {
+    return (
+      <Box
+        sx={{
+          flex: 2,
+          background: 'rgba(240, 255, 240, 0.9)',
+          borderRadius: '8px',
+          padding: '16px',
+          height: '90vh',
+          overflowY: 'auto',
+          boxShadow: 'inset 0 4px 8px rgba(0, 0, 0, 0.1)',
+        }}
+      >
+        <Typography color="secondary" variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+          <Tooltip title={selectedUri} arrow placement="top">
+            <span style={{ wordBreak: 'break-word' }}>{`${(uriType || '').toUpperCase()}: ${
+              selectedUri || 'None'
+            }`}</span>
+          </Tooltip>
+        </Typography>
+        <LoRelations uri={selectedUri} displayReverseRelation={displayReverseRelation} />
+        {!!selectedUri &&
+          (uriType === 'problem' ? (
+            <PracticeQuestions problemIds={[selectedUri]} />
+          ) : (
+            <LoViewer uri={selectedUri} uriType={uriType} />
+          ))}
+      </Box>
+    );
+  }
+);
 DetailsPanel.displayName = 'DetailsPanel';
 
 const LoListDisplay = ({
@@ -186,7 +190,14 @@ const LoListDisplay = ({
   handleAddToCart: (uri: string, uriType: string) => void;
   handleRemoveFromCart: (uri: string, uriType: string) => void;
 }) => {
+  const { mmtUrl } = useContext(ServerLinksContext);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [showReverseRelation, setShowReverseRelation] = useState(false);
+  const [reverseRelationConcept, setReverseRelationConcept] = useState<string>('');
+  const displayReverseRelation = (conceptUri: string) => {
+    setShowReverseRelation((prevState) => !prevState);
+    setReverseRelationConcept(conceptUri);
+  };
 
   const filteredUris = uris.filter((uri) => {
     const { projectName, topic, fileName } = getUrlInfo(uri);
@@ -200,6 +211,17 @@ const LoListDisplay = ({
   });
   return (
     <Box sx={{ display: 'flex', gap: '16px', marginTop: '20px' }}>
+      {showReverseRelation && (
+        <LoReverseRelations
+          mmtUrl={mmtUrl}
+          concept={reverseRelationConcept}
+          cart={cart}
+          handleAddToCart={handleAddToCart}
+          handleRemoveFromCart={handleRemoveFromCart}
+          openDialog={showReverseRelation}
+          handleCloseDialog={() => setShowReverseRelation(false)}
+        />
+      )}
       <Box
         sx={{
           flex: 1,
@@ -297,7 +319,11 @@ const LoListDisplay = ({
           );
         })}
       </Box>
-      <DetailsPanel uriType={loType} selectedUri={selectedUri} />
+      <DetailsPanel
+        uriType={loType}
+        selectedUri={selectedUri}
+        displayReverseRelation={displayReverseRelation}
+      />
     </Box>
   );
 };

@@ -1,6 +1,6 @@
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import { Box, Button, Chip, Typography } from '@mui/material';
-import { ALL_LO_TYPES, AllLoRelationTypes, LoType } from '@stex-react/api';
+import { Box, Button, Typography } from '@mui/material';
+import { ALL_LO_RELATION_TYPES, ALL_LO_TYPES, AllLoRelationTypes, LoType } from '@stex-react/api';
 import { localStore } from '@stex-react/utils';
 import { useEffect, useMemo, useState } from 'react';
 import styles from '../../styles/lo-explorer.module.scss';
@@ -12,55 +12,6 @@ export interface ArchiveMap {
   archive: string;
   archiveUrl: string;
 }
-
-type FilterName = 'Mode' | 'LO' | 'Archive' | 'Relations';
-const FilterChipList = ({
-  label,
-  items,
-  setItems,
-}: {
-  label: FilterName;
-  items: string[];
-  setItems: any;
-}) => {
-  const bgcolor =
-    label === 'Mode'
-      ? '#b3e5fc'
-      : label === 'LO'
-      ? '#fbe9e7'
-      : label === 'Archive'
-      ? '#c8e6c9'
-      : 'rgba(224, 224, 224, 0.4)';
-
-  return items.map((item) => {
-    const { icon, projectName } =
-      label === 'Archive' ? getUrlInfo(item) : { icon: null, projectName: null };
-    return (
-      <Chip
-        key={item}
-        label={
-          label === 'Archive' ? (
-            <Box display="flex" alignItems="center" gap="5px">
-              <Typography variant="body2">{`${label}:`}</Typography>
-              {icon}
-              <Typography variant="body2">{projectName}</Typography>
-            </Box>
-          ) : (
-            `${label}: ${item}`
-          )
-        }
-        onDelete={() => {
-          console.log('Items before update:', items);
-          const updatedItems = items.filter((v) => v !== item);
-          console.log('Updated Items:', updatedItems);
-          setItems(updatedItems);
-        }}
-        // onDelete={() => setItems((prev) => prev.filter((v) => v !== item))}
-        sx={{ m: 0.5, bgcolor }}
-      />
-    );
-  });
-};
 
 const getFilteredUris = (
   loType: LoType,
@@ -103,8 +54,10 @@ function LoExplorerHeader({
 }
 
 export function LoExplorer() {
-  const [chosenRelations, setChosenRelations] = useState<AllLoRelationTypes[]>([]);
-  const [chosenLoTypes, setChosenLoTypes] = useState<LoType[]>([]);
+  const [chosenRelations, setChosenRelations] = useState<AllLoRelationTypes[]>([
+    ...ALL_LO_RELATION_TYPES,
+  ]);
+  const [chosenLoTypes, setChosenLoTypes] = useState<LoType[]>([...ALL_LO_TYPES]);
   const [chosenArchivesMap, setChosenArchivesMap] = useState<ArchiveMap[]>([]);
   const [loUris, setLoUris] = useState<Record<LoType, string[]>>({
     definition: [],
@@ -194,24 +147,6 @@ export function LoExplorer() {
         setChosenLoTypes={setChosenLoTypes}
         setLoUris={setLoUris}
       />
-
-      {(!!chosenRelations.length || !!chosenLoTypes.length || !!chosenArchivesMap.length) && (
-        <Box className={styles.filterChipListBox}>
-          <FilterChipList label="Relations" items={chosenRelations} setItems={setChosenRelations} />
-          <FilterChipList label="LO" items={chosenLoTypes} setItems={setChosenLoTypes} />
-          <FilterChipList
-            label="Archive"
-            items={chosenArchivesMap.map((item) => item.archiveUrl)}
-            setItems={(updatedItems) => {
-              console.log({ updatedItems });
-              setChosenArchivesMap((prev) => {
-                console.log({ prev });
-                return prev.filter((item) => updatedItems.includes(item.archiveUrl));
-              });
-            }}
-          />
-        </Box>
-      )}
 
       {totalFilteredCount >= 300 && (
         <Typography variant="caption" color="warning.main" sx={{ mt: 2 }}>

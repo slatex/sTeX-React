@@ -76,20 +76,34 @@ function processNonDimConceptData(result: SparqlResponse) {
   }
 }
 
-function NonDimensionalUriListDisplay({ title, data }: { title: string; data: string }) {
+function NonDimensionalUriListDisplay({
+  title,
+  data,
+  displayReverseRelation,
+}: {
+  title: string;
+  data: string;
+  displayReverseRelation?: (conceptUri: string) => void;
+}) {
   return (
     <Box border="1px solid black" mb="10px" bgcolor="white">
       <Typography fontWeight="bold" sx={{ p: '10px' }}>
         {title}&nbsp;
       </Typography>
       <Box borderTop="1px solid #AAA" p="5px" display="flex" flexWrap="wrap">
-        <URIListDisplay uris={data.split(',')} />
+        <URIListDisplay uris={data.split(',')} displayReverseRelation={displayReverseRelation} />
       </Box>
     </Box>
   );
 }
 
-const LoRelations = ({ uri }: { uri: string }) => {
+const LoRelations = ({
+  uri,
+  displayReverseRelation,
+}: {
+  uri: string;
+  displayReverseRelation?: (conceptUri: string) => void;
+}) => {
   const { mmtUrl } = useContext(ServerLinksContext);
   const [data, setData] = useState<Record<AllLoRelationTypes, string>>({
     objective: '',
@@ -166,12 +180,14 @@ const LoRelations = ({ uri }: { uri: string }) => {
                   key={loRelation}
                   title={capitalizeFirstLetter(loRelation)}
                   data={data[loRelation]}
+                  displayReverseRelation={displayReverseRelation}
                 />
               ) : (
                 <NonDimensionalUriListDisplay
                   key={loRelation}
                   title={capitalizeFirstLetter(loRelation)}
                   data={data[loRelation]}
+                  displayReverseRelation={displayReverseRelation}
                 />
               )
             )
