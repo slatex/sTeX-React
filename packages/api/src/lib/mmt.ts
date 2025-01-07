@@ -527,9 +527,12 @@ WHERE {
 `;
 }
 
-export function getSparqlQueryForLoString(loString: string, loTypes: LoType[]) {
-  if (!loString.trim()) return;
-  const loTypesConditions = loTypes.map((loType) => `ulo:${loType}`).join(', ');
+export function getSparqlQueryForLoString(loString: string, loTypes?: LoType[]) {
+  if (!loString || !loString.trim()) return;
+  const loTypesConditions =
+    loTypes && loTypes.length > 0
+      ? loTypes.map((loType) => `ulo:${loType}`).join(', ')
+      : 'ulo:definition, ulo:problem, ulo:example, ulo:para, ulo:statement';
   const query = `
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX ulo: <http://mathhub.info/ulo#>
@@ -549,15 +552,18 @@ export function getSparqlQueryForLoString(loString: string, loTypes: LoType[]) {
 export function getSparqlQueryForNonDimConceptsAsLoRelation(
   conceptUris: string[],
   relations: LoRelationToNonDimConcept[],
-  loString: string,
-  loTypes: LoType[]
+  loTypes?: LoType[],
+  loString?: string
 ) {
-  if (!conceptUris.length) return;
+  if (!conceptUris?.length && (!loString || !loString.trim())) return;
   const uriConditions = conceptUris?.length
     ? conceptUris.map((uri) => `CONTAINS(STR(?obj1), "${encodeURI(uri)}")`).join(' || ')
     : 'false';
   const relationConditions = relations.map((relation) => `ulo:${relation}`).join(' ');
-  const loTypesConditions = loTypes.map((loType) => `ulo:${loType}`).join(', ');
+  const loTypesConditions =
+    loTypes && loTypes.length > 0
+      ? loTypes.map((loType) => `ulo:${loType}`).join(', ')
+      : 'ulo:definition, ulo:problem, ulo:example, ulo:para, ulo:statement';
   const loStringFilter = loString
     ? `FILTER(CONTAINS(LCASE(STR(?lo)), "${encodeURI(loString)}")).`
     : '';
@@ -593,15 +599,18 @@ export function getSparqlQueryForNonDimConceptsAsLoRelation(
 export function getSparqlQueryForDimConceptsAsLoRelation(
   conceptUris: string[],
   relations: LoRelationToDimAndConceptPair[],
-  loString: string,
-  loTypes: LoType[]
+  loTypes?: LoType[],
+  loString?: string
 ) {
-  if (conceptUris?.length === 0 && !loString.trim()) return;
+  if (!conceptUris?.length && (!loString || !loString.trim())) return;
   const uriConditions = conceptUris?.length
     ? conceptUris.map((uri) => `CONTAINS(STR(?obj1),"${encodeURI(uri)}")`).join(' || ')
     : 'false';
   const relationConditions = relations.map((relation) => `ulo:${relation}`).join(' ');
-  const loTypesConditions = loTypes.map((loType) => `ulo:${loType}`).join(', ');
+  const loTypesConditions =
+    loTypes && loTypes.length > 0
+      ? loTypes.map((loType) => `ulo:${loType}`).join(', ')
+      : 'ulo:definition, ulo:problem, ulo:example, ulo:para, ulo:statement';
   const loStringFilter = loString
     ? `FILTER(CONTAINS(LCASE(STR(?lo)), "${encodeURI(loString)}")).`
     : '';

@@ -337,14 +337,14 @@ function constructLearningObjects(bindings: any[]): Record<LoType, string[]> {
   return learningObjectsByType;
 }
 
-async function fetchLoFromConceptsAsLoRelations(
+export async function fetchLoFromConceptsAsLoRelations(
   mmtUrl: string,
   concepts: string[],
   relations: AllLoRelationTypes[],
-  loString: string,
-  loTypes: LoType[]
+  loString?: string,
+  loTypes?: LoType[]
 ): Promise<Record<LoType, string[]>> {
-  if (concepts?.length === 0 && !loString.trim()) return;
+  if (!concepts?.length && (!loString || !loString.trim())) return;
   if (loTypes?.length === 0) {
     loTypes = [...ALL_LO_TYPES];
   }
@@ -368,8 +368,8 @@ async function fetchLoFromConceptsAsLoRelations(
     const query = getSparqlQueryForDimConceptsAsLoRelation(
       concepts,
       dimRelations as LoRelationToDimAndConceptPair[],
-      loString,
-      loTypes
+      loTypes,
+      loString
     );
     const response = await sparqlQuery(mmtUrl, query);
     if (response?.results?.bindings) {
@@ -381,8 +381,8 @@ async function fetchLoFromConceptsAsLoRelations(
     const query = getSparqlQueryForNonDimConceptsAsLoRelation(
       concepts,
       nonDimRelations as LoRelationToNonDimConcept[],
-      loString,
-      loTypes
+      loTypes,
+      loString
     );
     const response = await sparqlQuery(mmtUrl, query);
     if (response?.results?.bindings) {

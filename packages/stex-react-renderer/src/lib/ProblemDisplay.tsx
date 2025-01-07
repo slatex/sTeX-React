@@ -1,5 +1,6 @@
 import CancelIcon from '@mui/icons-material/Cancel';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import MirrorIcon from '@mui/icons-material/FlipCameraAndroid';
 import {
   Box,
   Button,
@@ -50,6 +51,7 @@ import styles from './quiz.module.scss';
 import { AnswerClassesTable, DebugMCQandSCQ, InlineScqTable } from './QuizDebug';
 import { DimIcon } from './SelfAssessmentDialog';
 import { SubProblemAnswer, getAnswerFromLocalStorage } from './SubProblemAnswer';
+import { Visibility } from '@mui/icons-material';
 
 function BpRadio(props: RadioProps) {
   return <Radio disableRipple color="default" {...props} />;
@@ -408,8 +410,11 @@ function groupingByBloomDimension(data?: string) {
   }
   return groupedData;
 }
-
-export function URIListDisplay({ uris }: { uris?: string[] }) {
+interface URIListDisplayProps {
+  uris?: string[];
+  displayReverseRelation?: (conceptUri: string) => void;
+}
+export function URIListDisplay({ uris, displayReverseRelation }: URIListDisplayProps) {
   const handleCopy = (uri: string) => {
     navigator.clipboard.writeText(uri).then(
       () => alert(`Copied: ${uri}`),
@@ -430,6 +435,17 @@ export function URIListDisplay({ uris }: { uris?: string[] }) {
           >
             <ContentCopyIcon fontSize="small" />
           </IconButton>
+          {displayReverseRelation && (
+            <IconButton
+              size="small"
+              onClick={() => displayReverseRelation(uri)}
+              aria-label="mirror"
+              style={{ marginLeft: '5px' }}
+            >
+              <Visibility fontSize="small" />
+            </IconButton>
+          )}
+
           {index < array.length - 1 ? ',\xa0' : ''}
         </span>
       ))}
@@ -437,7 +453,15 @@ export function URIListDisplay({ uris }: { uris?: string[] }) {
   );
 }
 
-export function DimAndURIListDisplay({ title, data }: { title: string; data?: string }) {
+export function DimAndURIListDisplay({
+  title,
+  data,
+  displayReverseRelation,
+}: {
+  title: string;
+  data?: string;
+  displayReverseRelation?: (conceptUri: string) => void;
+}) {
   const transformedData = groupingByBloomDimension(data);
   return (
     <Box border="1px solid black" mb="10px" bgcolor="white">
@@ -449,7 +473,7 @@ export function DimAndURIListDisplay({ title, data }: { title: string; data?: st
         .map(([group, uris]) => (
           <Box key={group} borderTop="1px solid #AAA" p="5px" display="flex" flexWrap="wrap">
             <DimIcon dim={group as BloomDimension} /> &nbsp;
-            <URIListDisplay uris={uris} />
+            <URIListDisplay uris={uris} displayReverseRelation={displayReverseRelation} />
           </Box>
         ))}
     </Box>
