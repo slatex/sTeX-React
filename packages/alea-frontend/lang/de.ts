@@ -382,11 +382,12 @@ export const de = {
     backToAllCourseProblems: 'Zurück zu allen Kursproblemen',
   },
   resource: {
-    updateGoTo: 'aktualisieren Go-Tos',
+    updateGoTo: 'aktualisieren Got-tos',
     createUpdateQuiz: 'Quiz erstellen/aktualisieren',
     gradeHomework: 'Hausaufgaben bewerten',
     createUpdateHomework: 'Hausaufgabe erstellen/aktualisieren',
     reviewLatestQuiz: 'Letzten Quiz prüfen',
     forum: 'Forum',
+    welcome: 'Willkommen',
   },
 };

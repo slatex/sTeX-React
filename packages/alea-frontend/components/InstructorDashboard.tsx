@@ -6,6 +6,7 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import QuizIcon from '@mui/icons-material/Quiz';
 import { Avatar, Box, Card, CardActionArea, CardContent, Typography } from '@mui/material';
 import {
+  CommentType,
   getCourseGradingItems,
   getCourseInstanceThreads,
   getCourseQuizList,
@@ -96,12 +97,12 @@ const getResourceIcon = (name: ResourceName) => {
 
 async function getCommentsInfo(courseId: string) {
   const comments = await getCourseInstanceThreads(courseId, CURRENT_TERM);
-  const totalQuestions = comments.length;
-  const unanswered = comments.filter(
+  const questions = comments.filter((comment) => comment.commentType === CommentType.QUESTION);
+  const unanswered = questions.filter(
     (comment) => comment.questionStatus === QuestionStatus.UNANSWERED
   ).length;
   return {
-    description: `Unanswered Questions - ${unanswered}/${totalQuestions}  `,
+    description: `Unanswered Questions - ${unanswered}/${questions.length}  `,
     timeAgo: null,
     timestamp: null,
   };
@@ -320,6 +321,8 @@ function InstructorDashBoard({
 }) {
   const [userInfo, setUserInfo] = useState(null);
   const [descriptions, setDescriptions] = useState<Record<string, ResourceDisplayInfo>>({});
+  const router = useRouter();
+  const { resource: r } = getLocaleObject(router);
   const groupedResources = useMemo(
     () => groupByCourseId(resourcesForInstructor),
     [resourcesForInstructor]
@@ -357,7 +360,7 @@ function InstructorDashBoard({
         <Typography
           sx={{ fontSize: '28px', fontWeight: 'bold', textAlign: 'center', marginBottom: 4 }}
         >
-          Welcome, {userInfo?.fullName}
+          {r.welcome}, {userInfo?.fullName}
         </Typography>
 
         {Object.entries(groupedResources).map(([courseId, resources]) => (
@@ -382,6 +385,8 @@ function InstructorDashBoard({
                 display: 'flex',
                 flexWrap: 'wrap',
                 gap: 5,
+                maxWidth: '1400px',
+                margin: '0 auto',
               }}
             >
               {resources.map((resource, index) => (
