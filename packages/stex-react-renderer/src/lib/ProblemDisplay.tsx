@@ -1,10 +1,12 @@
 import CancelIcon from '@mui/icons-material/Cancel';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import {
   Box,
   Button,
   Card,
   Checkbox,
   CircularProgress,
+  IconButton,
   MenuItem,
   Select,
   TextField,
@@ -408,12 +410,31 @@ function groupingByBloomDimension(data?: string) {
 }
 
 export function URIListDisplay({ uris }: { uris?: string[] }) {
-  return uris.map((uri, index, array) => (
-    <React.Fragment key={index}>
-      <span>{mmtHTMLToReact(getMMTHtml(uri))}</span>
-      {index < array.length - 1 ? ',\xa0' : ''}
-    </React.Fragment>
-  ));
+  const handleCopy = (uri: string) => {
+    navigator.clipboard.writeText(uri).then(
+      () => alert(`Copied: ${uri}`),
+      (err) => console.error('Failed to copy:', err)
+    );
+  };
+
+  return (
+    <Box>
+      {uris?.map((uri, index, array) => (
+        <span key={index}>
+          {mmtHTMLToReact(getMMTHtml(uri))}
+          <IconButton
+            size="small"
+            onClick={() => handleCopy(uri)}
+            aria-label="copy"
+            style={{ marginLeft: '5px' }}
+          >
+            <ContentCopyIcon fontSize="small" />
+          </IconButton>
+          {index < array.length - 1 ? ',\xa0' : ''}
+        </span>
+      ))}
+    </Box>
+  );
 }
 
 export function DimAndURIListDisplay({ title, data }: { title: string; data?: string }) {

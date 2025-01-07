@@ -7,13 +7,10 @@ import {
   CircularProgress,
   createFilterOptions,
   FormControl,
-  InputLabel,
   ListItemText,
-  MenuItem,
-  Select,
-  TextField,
   Tooltip,
   Typography,
+  TextField,
 } from '@mui/material';
 import {
   ALL_DIM_CONCEPT_PAIR,
@@ -40,12 +37,6 @@ import { getUrlInfo } from '../LoListDisplay';
 import { CourseConceptsDialog } from './CourseConceptDialog';
 
 let cachedConceptsList: Record<string, string> | null = null;
-
-const renderDropdownLabel = (selected: string[]) => {
-  if (!selected.length) return '';
-  const firstTwo = selected.slice(0, 2).map(capitalizeFirstLetter).join(', ');
-  return selected.length > 2 ? firstTwo + '...' : firstTwo;
-};
 
 async function fetchConceptList(mmtUrl: string): Promise<Record<string, string>> {
   const nonDimConceptQuery = getSparlQueryForNonDimConcepts();
@@ -109,6 +100,7 @@ function ConceptAutocomplete({
   );
 }
 
+type LoTypeWithSelectAll = 'Select All' | LoType;
 const LoTypeSelect = ({
   chosenLoTypes,
   setChosenLoTypes,
@@ -116,24 +108,58 @@ const LoTypeSelect = ({
   chosenLoTypes: LoType[];
   setChosenLoTypes: React.Dispatch<React.SetStateAction<LoType[]>>;
 }) => {
+  const selectAllKey = 'Select All';
+  const isAllSelected = chosenLoTypes.length === ALL_LO_TYPES.length;
+
+  const handleLoTypesChange = (_e: any, newValue: LoTypeWithSelectAll[]) => {
+    if (newValue.includes(selectAllKey)) {
+      setChosenLoTypes(isAllSelected ? [] : [...ALL_LO_TYPES]);
+    } else {
+      setChosenLoTypes(newValue as LoType[]);
+    }
+  };
+
   return (
-    <FormControl fullWidth sx={{ flex: 1, minWidth: '250px' }}>
-      <InputLabel id="learning-object-type-label">Learning Object Types</InputLabel>
-      <Select
-        labelId="learning-object-type-label"
-        label="Learning Object Types"
+    <FormControl fullWidth sx={{ flex: 1, minWidth: '200px' }}>
+      <Autocomplete
         multiple
+        limitTags={2}
         value={chosenLoTypes}
-        onChange={(e) => setChosenLoTypes(e.target.value as LoType[])}
-        renderValue={() => renderDropdownLabel(chosenLoTypes)}
-      >
-        {ALL_LO_TYPES.map((lo) => (
-          <MenuItem key={lo} value={lo}>
-            <Checkbox checked={chosenLoTypes.includes(lo)} />
-            <ListItemText primary={capitalizeFirstLetter(lo)} />
-          </MenuItem>
-        ))}
-      </Select>
+        onChange={handleLoTypesChange}
+        options={[selectAllKey, ...ALL_LO_TYPES]} // Add "Select All" as the first option
+        disableCloseOnSelect
+        getOptionLabel={(option) =>
+          option === selectAllKey
+            ? `${selectAllKey} (${ALL_LO_TYPES.length})`
+            : capitalizeFirstLetter(option)
+        }
+        renderOption={(props, option, { selected }) => (
+          <li {...props}>
+            <Checkbox
+              checked={option === selectAllKey ? isAllSelected : selected}
+              style={{ marginRight: 8 }}
+            />
+            <ListItemText
+              primary={
+                option === selectAllKey
+                  ? `${selectAllKey} (${ALL_LO_TYPES.length})`
+                  : capitalizeFirstLetter(option)
+              }
+            />
+          </li>
+        )}
+        renderInput={(params) => <TextField {...params} label="Learning Object Types" />}
+        renderTags={(value: LoType[], getTagProps) =>
+          value.map((lo, index) => (
+            <Chip
+              label={capitalizeFirstLetter(lo)}
+              {...getTagProps({ index })}
+              key={index}
+              sx={{ bgcolor: '#fbe9e7' }}
+            />
+          ))
+        }
+      />
     </FormControl>
   );
 };
@@ -147,36 +173,65 @@ function ArchivesAutocomplete({
   chosenArchivesMap: ArchiveMap[];
   setChosenArchivesMap: React.Dispatch<React.SetStateAction<ArchiveMap[]>>;
 }) {
-  const handleArchiveChange = (event: React.ChangeEvent<HTMLInputElement>, newValue: string[]) => {
-    const updatedChosenArchivesMap = newValue.map((archive) => ({
-      archive,
-      archiveUrl: uniqueArchivesMap[archive],
-    }));
-    setChosenArchivesMap(updatedChosenArchivesMap);
+  const selectAllKey = 'Select All';
+  const archiveKeys = Object.keys(uniqueArchivesMap);
+
+  const handleArchiveChange = (_e: any, newValue: string[]) => {
+    if (newValue.includes(selectAllKey)) {
+      if (newValue.length === archiveKeys.length + 1) {
+        setChosenArchivesMap([]);
+      } else {
+        setChosenArchivesMap(
+          archiveKeys.map((archive) => ({
+            archive,
+            archiveUrl: uniqueArchivesMap[archive],
+          }))
+        );
+      }
+    } else {
+      setChosenArchivesMap(
+        newValue.map((archive) => ({
+          archive,
+          archiveUrl: uniqueArchivesMap[archive],
+        }))
+      );
+    }
   };
+
   return (
     <FormControl fullWidth sx={{ flex: 1, minWidth: '250px' }}>
       <Autocomplete
         multiple
-        options={Object.keys(uniqueArchivesMap)}
+        limitTags={5}
         value={chosenArchivesMap.map((item) => item.archive)}
-        limitTags={1}
+        options={archiveKeys.length > 0 ? [selectAllKey, ...archiveKeys] : archiveKeys}
         onChange={handleArchiveChange}
-        renderInput={(params) => <TextField {...params} label="Archives" />}
+        getOptionLabel={(option) =>
+          option === selectAllKey ? `${selectAllKey} (${archiveKeys.length})` : option
+        }
         renderOption={(props, option, { selected }) => {
-          const uri = uniqueArchivesMap[option];
+          const isAllSelected =
+            chosenArchivesMap.length === archiveKeys.length && archiveKeys.length > 0;
+          const uri = uniqueArchivesMap[option] || '';
           const { icon } = getUrlInfo(uri) || {};
           return (
             <li {...props}>
-              <Checkbox checked={selected} />
-              <ListItemText primary={option} />
+              <Checkbox
+                checked={option === selectAllKey ? isAllSelected : selected}
+                style={{ marginRight: 8 }}
+              />
+              <ListItemText
+                primary={
+                  option === selectAllKey ? `${selectAllKey} (${archiveKeys.length})` : option
+                }
+              />
               {icon}
             </li>
           );
         }}
         renderTags={(value, getTagProps) =>
           value.map((selectedOption, index) => {
-            const uri = uniqueArchivesMap[selectedOption];
+            const uri = uniqueArchivesMap[selectedOption] || '';
             const { icon } = getUrlInfo(uri) || {};
             return (
               <Chip
@@ -188,11 +243,12 @@ function ArchivesAutocomplete({
                   </Box>
                 }
                 {...getTagProps({ index })}
+                sx={{ backgroundColor: '#b3e5fc' }}
               />
             );
           })
         }
-        sx={{ flex: '1 ' }}
+        renderInput={(params) => <TextField {...params} label="Archives" />}
         disableCloseOnSelect
         fullWidth
       />
@@ -200,6 +256,7 @@ function ArchivesAutocomplete({
   );
 }
 
+type AllLoRelationTypesWithSelectAll = 'Select All' | AllLoRelationTypes;
 const RelationWithLOSelect = ({
   chosenConcepts,
   chosenRelations,
@@ -209,27 +266,52 @@ const RelationWithLOSelect = ({
   chosenRelations: AllLoRelationTypes[];
   setChosenRelations: React.Dispatch<React.SetStateAction<AllLoRelationTypes[]>>;
 }) => {
+  const selectAllKey = 'Select All';
+  const isAllSelected = chosenRelations.length === ALL_LO_RELATION_TYPES.length;
+
+  const handleRelationChange = (_e: any, newValue: AllLoRelationTypesWithSelectAll[]) => {
+    if (newValue.includes(selectAllKey)) {
+      setChosenRelations(isAllSelected ? [] : [...ALL_LO_RELATION_TYPES]);
+    } else {
+      setChosenRelations(newValue as AllLoRelationTypes[]);
+    }
+  };
+
+  const selectAllLabel = `${selectAllKey} (${ALL_LO_RELATION_TYPES.length})`;
+
   return (
     <Tooltip title={chosenConcepts.length === 0 ? 'Please choose a concept first' : ''}>
       <FormControl fullWidth sx={{ flex: 1, minWidth: '200px' }}>
-        <InputLabel id="Select-relations-label">Relation with Learning Object</InputLabel>
-        <Select
-          labelId="Select-relations-label"
-          label="Relation with Learning Object"
+        <Autocomplete
           multiple
-          variant="outlined"
+          limitTags={1}
           value={chosenRelations}
-          onChange={(e) => setChosenRelations(e.target.value as AllLoRelationTypes[])}
-          renderValue={() => renderDropdownLabel(chosenRelations)}
+          onChange={handleRelationChange}
+          disableCloseOnSelect
+          options={[selectAllKey, ...ALL_LO_RELATION_TYPES]}
+          renderInput={(params) => <TextField {...params} label="Relation with Learning Object" />}
+          renderOption={(props, option, { selected }) => {
+            return (
+              <li {...props}>
+                <Checkbox checked={option === selectAllKey ? isAllSelected : selected} />
+                <ListItemText
+                  primary={option === selectAllKey ? selectAllLabel : capitalizeFirstLetter(option)}
+                />
+              </li>
+            );
+          }}
+          renderTags={(value: AllLoRelationTypes[], getTagProps) =>
+            value.map((relation, index) => (
+              <Chip
+                label={capitalizeFirstLetter(relation)}
+                {...getTagProps({ index })}
+                key={index}
+                sx={{ backgroundColor: '#E6E6FA' }}
+              />
+            ))
+          }
           disabled={chosenConcepts.length === 0}
-        >
-          {ALL_LO_RELATION_TYPES.map((relation) => (
-            <MenuItem key={relation} value={relation}>
-              <Checkbox checked={chosenRelations.includes(relation)} />
-              <ListItemText primary={relation} />
-            </MenuItem>
-          ))}
-        </Select>
+        />
       </FormControl>
     </Tooltip>
   );
