@@ -70,9 +70,12 @@ function calculateTimeAgo(timestamp: string): string | null {
 
 const getTimeAgoColor = (timestamp: string | null): string => {
   if (!timestamp) return 'text.secondary';
-  const daysDifference = dayjs().diff(dayjs(timestamp), 'day');
-  if (daysDifference < 3) return 'green';
-  if (daysDifference <= 5) return 'orange';
+  const targetDate = dayjs(parseInt(timestamp));
+  if (!targetDate.isValid()) return 'text.secondary';
+  const daysDifference = targetDate.diff(dayjs(), 'day');
+  if (daysDifference >= 0) return 'darkgreen';
+  if (daysDifference >= -2) return 'lightgreen';
+  if (daysDifference >= -5) return 'orange';
   return 'red';
 };
 
@@ -134,9 +137,8 @@ async function getLastUpdatedHomework(courseId: string): Promise<ResourceDisplay
       return acc > dayjs(curr.givenTs).valueOf() ? acc : dayjs(curr.givenTs).valueOf();
     }, dayjs(homeworkList[0].givenTs).valueOf());
     const description = `Latest Homework: ${dayjs(timestamp).format('YYYY-MM-DD')}`;
-    const dayjsTimestamp = dayjs(timestamp).format('YYYY-MM-DD');
-    const timeAgo = calculateTimeAgo(dayjsTimestamp);
-    return { description, timeAgo, timestamp: dayjsTimestamp };
+    const timeAgo = calculateTimeAgo(timestamp.toString());
+    return { description, timeAgo, timestamp: timestamp.toString() };
   } catch (error) {
     console.error('Error fetching course data:', error);
     return { description: null, timeAgo: null, timestamp: null };
