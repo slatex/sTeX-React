@@ -6,18 +6,29 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import QuizIcon from '@mui/icons-material/Quiz';
 import { Avatar, Box, Card, CardActionArea, CardContent, Typography } from '@mui/material';
 import {
+  CommentType,
   getCourseGradingItems,
+  getCourseInstanceThreads,
   getCourseQuizList,
   getCoverageTimeline,
   getHomeworkList,
   getUserInfo,
+  QuestionStatus,
 } from '@stex-react/api';
-import { Action, CourseResourceAction, PRIMARY_COL, ResourceName } from '@stex-react/utils';
+import {
+  Action,
+  CourseResourceAction,
+  CURRENT_TERM,
+  PRIMARY_COL,
+  ResourceName,
+} from '@stex-react/utils';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
 import MainLayout from '../layouts/MainLayout';
 import { BannerSection, VollKiInfoSection } from '../pages';
+import Link from 'next/link';
+import { getLocaleObject } from '../lang/utils';
 
 interface ResourceDisplayInfo {
   description: string | null;
@@ -28,9 +39,32 @@ interface ResourceDisplayInfo {
 
 const EXCLUDED_RESOURCES = [ResourceName.COURSE_STUDY_BUDDY, ResourceName.COURSE_ACCESS];
 
+const getResourceDisplayText = (name: ResourceName, action: Action, router) => {
+  const { resource: r } = getLocaleObject(router);
+  if (name === ResourceName.COURSE_COMMENTS && action === Action.MODERATE) {
+    return r.forum;
+  }
+  if (name === ResourceName.COURSE_QUIZ && action === Action.PREVIEW) {
+    return r.reviewLatestQuiz;
+  }
+  if (name === ResourceName.COURSE_QUIZ && action === Action.MUTATE) {
+    return r.createUpdateQuiz;
+  }
+  if (name === ResourceName.COURSE_HOMEWORK && action === Action.INSTRUCTOR_GRADING) {
+    return r.gradeHomework;
+  }
+  if (name === ResourceName.COURSE_HOMEWORK && action === Action.MUTATE) {
+    return r.createUpdateHomework;
+  }
+  if (name === ResourceName.COURSE_NOTES && action === Action.MUTATE) {
+    return r.updateGoTo;
+  }
+  return name.replace('COURSE_', ' ').replace('_', ' ');
+};
+
 function calculateTimeAgo(timestamp: string): string | null {
   if (!timestamp) return null;
-  const dateTime = dayjs(timestamp);
+  const dateTime = dayjs(parseInt(timestamp));
   return dateTime.isValid() ? dateTime.fromNow() : null;
 }
 
@@ -61,6 +95,19 @@ const getResourceIcon = (name: ResourceName) => {
   }
 };
 
+async function getCommentsInfo(courseId: string) {
+  const comments = await getCourseInstanceThreads(courseId, CURRENT_TERM);
+  const questions = comments.filter((comment) => comment.commentType === CommentType.QUESTION);
+  const unanswered = questions.filter(
+    (comment) => comment.questionStatus === QuestionStatus.UNANSWERED
+  ).length;
+  return {
+    description: `Unanswered Questions - ${unanswered}/${questions.length}  `,
+    timeAgo: null,
+    timestamp: null,
+  };
+}
+
 async function getLastUpdatedQuiz(courseId: string): Promise<ResourceDisplayInfo> {
   try {
     const quizList = await getCourseQuizList(courseId);
@@ -68,10 +115,9 @@ async function getLastUpdatedQuiz(courseId: string): Promise<ResourceDisplayInfo
       return acc.quizStartTs > curr.quizStartTs ? acc : curr;
     }, quizList[0]);
     const timestamp = latestQuiz.quizStartTs;
-    const dayjsTimestamp = dayjs(timestamp).format('YYYY-MM-DD');
-    const description = `Last Quiz: ${dayjs(timestamp).format('YYYY-MM-DD')}`;
-    const timeAgo = calculateTimeAgo(dayjsTimestamp);
-    return { description, timeAgo, timestamp: dayjsTimestamp, quizId: latestQuiz.quizId };
+    const description = `Latest Quiz: ${dayjs(timestamp).format('YYYY-MM-DD')}`;
+    const timeAgo = calculateTimeAgo(timestamp.toString());
+    return { description, timeAgo, timestamp: timestamp.toString(), quizId: latestQuiz.quizId };
   } catch (error) {
     console.error('Error fetching course data:', error);
     return { description: null, timeAgo: null, timestamp: null };
@@ -87,7 +133,7 @@ async function getLastUpdatedHomework(courseId: string): Promise<ResourceDisplay
     const timestamp = homeworkList.reduce((acc, curr) => {
       return acc > dayjs(curr.givenTs).valueOf() ? acc : dayjs(curr.givenTs).valueOf();
     }, dayjs(homeworkList[0].givenTs).valueOf());
-    const description = `Last Homework: ${dayjs(timestamp).format('YYYY-MM-DD')}`;
+    const description = `Latest Homework: ${dayjs(timestamp).format('YYYY-MM-DD')}`;
     const dayjsTimestamp = dayjs(timestamp).format('YYYY-MM-DD');
     const timeAgo = calculateTimeAgo(dayjsTimestamp);
     return { description, timeAgo, timestamp: dayjsTimestamp };
@@ -157,6 +203,12 @@ async function getLastUpdatedDescriptions({
       break;
     case ResourceName.COURSE_QUIZ:
       ({ description, timeAgo, timestamp, quizId } = await getLastUpdatedQuiz(courseId));
+      if (action === Action.PREVIEW) {
+        description = `Start Date: ${dayjs(parseInt(timestamp)).format('YYYY-MM-DD HH:mm:ss')}`;
+      }
+      break;
+    case ResourceName.COURSE_COMMENTS:
+      ({ description, timeAgo, timestamp } = await getCommentsInfo(courseId));
       break;
     default:
       break;
@@ -237,10 +289,7 @@ function ResourceCard({
             </Avatar>
             <Box>
               <Typography sx={{ fontSize: '18px', fontWeight: 'medium' }}>
-                {resource.name === ResourceName.COURSE_COMMENTS
-                  ? 'FORUM'
-                  : resource.name.replace('COURSE_', ' ').replace('_', ' ')}
-                {resource.action === Action.INSTRUCTOR_GRADING ? ' GRADING' : ' '}
+                {getResourceDisplayText(resource.name, resource.action, router)}
               </Typography>
               <Typography sx={{ fontSize: '14px', color: 'text.secondary' }}>
                 {descriptions[`${courseId}-${resource.name}-${resource.action}`]?.description}
@@ -271,6 +320,8 @@ function InstructorDashBoard({
 }) {
   const [userInfo, setUserInfo] = useState(null);
   const [descriptions, setDescriptions] = useState<Record<string, ResourceDisplayInfo>>({});
+  const router = useRouter();
+  const { resource: r } = getLocaleObject(router);
   const groupedResources = useMemo(
     () => groupByCourseId(resourcesForInstructor),
     [resourcesForInstructor]
@@ -308,29 +359,33 @@ function InstructorDashBoard({
         <Typography
           sx={{ fontSize: '28px', fontWeight: 'bold', textAlign: 'center', marginBottom: 4 }}
         >
-          Welcome, {userInfo?.fullName}
+          {r.welcome}, {userInfo?.fullName}
         </Typography>
 
         {Object.entries(groupedResources).map(([courseId, resources]) => (
           <Box key={courseId} sx={{ marginBottom: 4 }}>
-            <Typography
-              sx={{
-                fontSize: '22px',
-                fontWeight: 'bold',
-                marginBottom: 2,
-                backgroundColor: PRIMARY_COL,
-                color: 'white',
-                padding: '10px',
-                textAlign: 'center',
-              }}
-            >
-              {courseId.toUpperCase()}
-            </Typography>
+            <Link href={`/course-home/${courseId}`}>
+              <Typography
+                sx={{
+                  fontSize: '22px',
+                  fontWeight: 'bold',
+                  marginBottom: 2,
+                  backgroundColor: PRIMARY_COL,
+                  color: 'white',
+                  padding: '10px',
+                  textAlign: 'center',
+                }}
+              >
+                {courseId.toUpperCase()}
+              </Typography>
+            </Link>
             <Box
               sx={{
                 display: 'flex',
                 flexWrap: 'wrap',
                 gap: 5,
+                maxWidth: '1400px',
+                margin: '0 auto',
               }}
             >
               {resources.map((resource, index) => (

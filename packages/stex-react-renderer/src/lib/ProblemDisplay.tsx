@@ -51,6 +51,7 @@ import styles from './quiz.module.scss';
 import { AnswerClassesTable, DebugMCQandSCQ, InlineScqTable } from './QuizDebug';
 import { DimIcon } from './SelfAssessmentDialog';
 import { SubProblemAnswer, getAnswerFromLocalStorage } from './SubProblemAnswer';
+import { Visibility } from '@mui/icons-material';
 
 function BpRadio(props: RadioProps) {
   return <Radio disableRipple color="default" {...props} />;

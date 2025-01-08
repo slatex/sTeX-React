@@ -110,6 +110,7 @@ const LoTypeSelect = ({
   chosenLoTypes: LoType[];
   setChosenLoTypes: React.Dispatch<React.SetStateAction<LoType[]>>;
 }) => {
+
   const handleLoTypesChange = (_e: any, newValue: LoType[]) => {
     setChosenLoTypes(newValue);
   };
@@ -121,7 +122,7 @@ const LoTypeSelect = ({
         limitTags={2}
         value={chosenLoTypes}
         onChange={handleLoTypesChange}
-        options={ALL_LO_TYPES} // No "Select All" option
+        options={ALL_LO_TYPES} 
         disableCloseOnSelect
         getOptionLabel={(option) => capitalizeFirstLetter(option)}
         renderOption={(props, option, { selected }) => (
@@ -247,6 +248,7 @@ const RelationWithLOSelect = ({
   chosenRelations: AllLoRelationTypes[];
   setChosenRelations: React.Dispatch<React.SetStateAction<AllLoRelationTypes[]>>;
 }) => {
+
   const handleRelationChange = (_e: any, newValue: AllLoRelationTypes[]) => {
     setChosenRelations(newValue);
   };
@@ -260,6 +262,7 @@ const RelationWithLOSelect = ({
           value={chosenRelations}
           onChange={handleRelationChange}
           disableCloseOnSelect
+
           options={ALL_LO_RELATION_TYPES}
           renderInput={(params) => <TextField {...params} label="Relation with Learning Object" />}
           renderOption={(props, option, { selected }) => (
@@ -268,6 +271,7 @@ const RelationWithLOSelect = ({
               <ListItemText primary={capitalizeFirstLetter(option)} />
             </li>
           )}
+
           renderTags={(value: AllLoRelationTypes[], getTagProps) =>
             value.map((relation, index) => (
               <Chip

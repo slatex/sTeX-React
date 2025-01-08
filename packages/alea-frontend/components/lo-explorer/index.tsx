@@ -54,8 +54,10 @@ function LoExplorerHeader({
 }
 
 export function LoExplorer() {
-  const [chosenRelations, setChosenRelations] = useState<AllLoRelationTypes[]>([]);
-  const [chosenLoTypes, setChosenLoTypes] = useState<LoType[]>([]);
+  const [chosenRelations, setChosenRelations] = useState<AllLoRelationTypes[]>([
+    ...ALL_LO_RELATION_TYPES,
+  ]);
+  const [chosenLoTypes, setChosenLoTypes] = useState<LoType[]>([...ALL_LO_TYPES]);
   const [chosenArchivesMap, setChosenArchivesMap] = useState<ArchiveMap[]>([]);
   const [loUris, setLoUris] = useState<Record<LoType, string[]>>({
     definition: [],
