@@ -86,7 +86,10 @@ function ConceptAutocomplete({
       renderOption={(props, option: string, { selected }) => (
         <li {...props}>
           <Checkbox checked={selected} />
-          <ListItemText primary={`${option} (${conceptsList[option]})`} />{' '}
+          <ListItemText
+            style={{ overflowWrap: 'anywhere' }}
+            primary={`${option} (${conceptsList[option]})`}
+          />{' '}
         </li>
       )}
       filterOptions={filterOptions}
@@ -100,7 +103,6 @@ function ConceptAutocomplete({
   );
 }
 
-type LoTypeWithSelectAll = 'Select All' | LoType;
 const LoTypeSelect = ({
   chosenLoTypes,
   setChosenLoTypes,
@@ -108,15 +110,9 @@ const LoTypeSelect = ({
   chosenLoTypes: LoType[];
   setChosenLoTypes: React.Dispatch<React.SetStateAction<LoType[]>>;
 }) => {
-  const selectAllKey = 'Select All';
-  const isAllSelected = chosenLoTypes.length === ALL_LO_TYPES.length;
 
-  const handleLoTypesChange = (_e: any, newValue: LoTypeWithSelectAll[]) => {
-    if (newValue.includes(selectAllKey)) {
-      setChosenLoTypes(isAllSelected ? [] : [...ALL_LO_TYPES]);
-    } else {
-      setChosenLoTypes(newValue as LoType[]);
-    }
+  const handleLoTypesChange = (_e: any, newValue: LoType[]) => {
+    setChosenLoTypes(newValue);
   };
 
   return (
@@ -126,26 +122,13 @@ const LoTypeSelect = ({
         limitTags={2}
         value={chosenLoTypes}
         onChange={handleLoTypesChange}
-        options={[selectAllKey, ...ALL_LO_TYPES]} // Add "Select All" as the first option
+        options={ALL_LO_TYPES} 
         disableCloseOnSelect
-        getOptionLabel={(option) =>
-          option === selectAllKey
-            ? `${selectAllKey} (${ALL_LO_TYPES.length})`
-            : capitalizeFirstLetter(option)
-        }
+        getOptionLabel={(option) => capitalizeFirstLetter(option)}
         renderOption={(props, option, { selected }) => (
           <li {...props}>
-            <Checkbox
-              checked={option === selectAllKey ? isAllSelected : selected}
-              style={{ marginRight: 8 }}
-            />
-            <ListItemText
-              primary={
-                option === selectAllKey
-                  ? `${selectAllKey} (${ALL_LO_TYPES.length})`
-                  : capitalizeFirstLetter(option)
-              }
-            />
+            <Checkbox checked={selected} style={{ marginRight: 8 }} />
+            <ListItemText primary={capitalizeFirstLetter(option)} />
           </li>
         )}
         renderInput={(params) => <TextField {...params} label="Learning Object Types" />}
@@ -256,7 +239,6 @@ function ArchivesAutocomplete({
   );
 }
 
-type AllLoRelationTypesWithSelectAll = 'Select All' | AllLoRelationTypes;
 const RelationWithLOSelect = ({
   chosenConcepts,
   chosenRelations,
@@ -266,18 +248,10 @@ const RelationWithLOSelect = ({
   chosenRelations: AllLoRelationTypes[];
   setChosenRelations: React.Dispatch<React.SetStateAction<AllLoRelationTypes[]>>;
 }) => {
-  const selectAllKey = 'Select All';
-  const isAllSelected = chosenRelations.length === ALL_LO_RELATION_TYPES.length;
 
-  const handleRelationChange = (_e: any, newValue: AllLoRelationTypesWithSelectAll[]) => {
-    if (newValue.includes(selectAllKey)) {
-      setChosenRelations(isAllSelected ? [] : [...ALL_LO_RELATION_TYPES]);
-    } else {
-      setChosenRelations(newValue as AllLoRelationTypes[]);
-    }
+  const handleRelationChange = (_e: any, newValue: AllLoRelationTypes[]) => {
+    setChosenRelations(newValue);
   };
-
-  const selectAllLabel = `${selectAllKey} (${ALL_LO_RELATION_TYPES.length})`;
 
   return (
     <Tooltip title={chosenConcepts.length === 0 ? 'Please choose a concept first' : ''}>
@@ -288,18 +262,16 @@ const RelationWithLOSelect = ({
           value={chosenRelations}
           onChange={handleRelationChange}
           disableCloseOnSelect
-          options={[selectAllKey, ...ALL_LO_RELATION_TYPES]}
+
+          options={ALL_LO_RELATION_TYPES}
           renderInput={(params) => <TextField {...params} label="Relation with Learning Object" />}
-          renderOption={(props, option, { selected }) => {
-            return (
-              <li {...props}>
-                <Checkbox checked={option === selectAllKey ? isAllSelected : selected} />
-                <ListItemText
-                  primary={option === selectAllKey ? selectAllLabel : capitalizeFirstLetter(option)}
-                />
-              </li>
-            );
-          }}
+          renderOption={(props, option, { selected }) => (
+            <li {...props}>
+              <Checkbox checked={selected} />
+              <ListItemText primary={capitalizeFirstLetter(option)} />
+            </li>
+          )}
+
           renderTags={(value: AllLoRelationTypes[], getTagProps) =>
             value.map((relation, index) => (
               <Chip

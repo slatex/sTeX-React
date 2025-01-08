@@ -1,6 +1,6 @@
 import CancelIcon from '@mui/icons-material/Cancel';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import MirrorIcon from '@mui/icons-material/FlipCameraAndroid';
+import { Visibility } from '@mui/icons-material';
 import {
   Box,
   Button,
