@@ -48,7 +48,7 @@ export function LoReverseRelations({
       setLoading(true);
       try {
         const chosenConcept = concept ? [concept] : [];
-        const loUris = await fetchLoFromConceptsAsLoRelations(mmtUrl, chosenConcept, [
+        const fetchedLoUris = await fetchLoFromConceptsAsLoRelations(mmtUrl, chosenConcept, [
           'crossrefs',
           'defines',
           'example-for',
@@ -56,8 +56,16 @@ export function LoReverseRelations({
           'precondition',
           'specifies',
         ]);
-        setLoUris(loUris);
-        setFilteredUris(loUris[selectedLo] || []);
+        const uniqueLoUris = Object.fromEntries(
+          Object.keys(loUris).map((key) => [
+            key,
+            Array.from(new Set(fetchedLoUris[key as LoType] || [])),
+          ])
+        ) as Record<LoType, string[]>;
+        setLoUris(uniqueLoUris);
+        console.log({ uniqueLoUris });
+
+        setFilteredUris(uniqueLoUris[selectedLo] || []);
       } catch (error) {
         console.error('Error fetching LO relations:', error);
       } finally {
