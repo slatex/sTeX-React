@@ -63,8 +63,6 @@ export function LoReverseRelations({
           ])
         ) as Record<LoType, string[]>;
         setLoUris(uniqueLoUris);
-        console.log({ uniqueLoUris });
-
         setFilteredUris(uniqueLoUris[selectedLo] || []);
       } catch (error) {
         console.error('Error fetching LO relations:', error);
