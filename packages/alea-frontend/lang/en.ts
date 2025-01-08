@@ -358,6 +358,7 @@ export const en = {
     homeworks: 'Homeworks',
     createHomework: 'Create Homework',
     homeworkName: 'Homework Name',
+    homeworkStats: 'Homework Stats',
     givenTs: 'Given Date',
     dueTs: 'Due Date',
     feedbackReleaseTs: 'Feedback Release Date',

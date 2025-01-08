@@ -12,14 +12,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const instanceId = (req.query.courseInstance as string) ?? CURRENT_TERM;
   const homework = await getHomeworkOrSetError(homeworkId, true, res);
   homework.problems = JSON.parse(homework.problems.toString());
-  const totalstudentAttend = await executeAndEndSet500OnError(
-    `SELECT SUM(answer_count) AS total_answers From (SELECT count( DISTINCT userId) as answer_count FROM Answer WHERE questionId in (?) GROUP BY userId) AS user_answers`,
-    [Object.keys(homework.problems)],
-    res
-  );
+  const totalStudentAttend =
+    (
+      await executeAndEndSet500OnError(
+        `SELECT SUM(answer_count) AS total_answers From (SELECT count( DISTINCT userId) as answer_count FROM Answer WHERE questionId in (?) GROUP BY userId) AS user_answers`,
+        [Object.keys(homework.problems)],
+        res
+      )
+    )[0]?.total_answers ?? 0;
+  const responseRate: { [attemptedProblems: number]: number } = {};
   const answerhistogram = [];
   const gradingStates = [];
   const gradingItems = await getGradingItems(courseId, instanceId, res);
+  const responseRateResult = await executeAndEndSet500OnError(
+    `select count( userId) as answer_count,UNIX_TIMESTAMP(Date(createdAt)) createdDate From Answer where homeworkId=? group by createdDate`,
+    [homeworkId],
+    res
+  );
+  for (const rr of responseRateResult) {
+    responseRate[rr.createdDate] = rr.answer_count;
+  }
   for (const questionId of Object.keys(homework.problems)) {
     answerhistogram.push({
       questionId,
@@ -31,6 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         )
       )[0].answer_count,
     });
+
     gradingStates.push({ questionId, graded: 0, ungraded: 0, partially_graded: 0 });
     for (const gradingItem of gradingItems.filter(
       (item) => item.questionId === questionId && item.homeworkId == homeworkId
@@ -52,5 +65,11 @@ GROUP BY questionId`,
     [homeworkId],
     res
   );
-  res.send({ totalstudentAttend, answerhistogram, gradingStates, averageStudentScore });
+  res.send({
+    totalStudentAttend: totalStudentAttend,
+    responseRate,
+    answerhistogram,
+    gradingStates,
+    averageStudentScore,
+  });
 }

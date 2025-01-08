@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { HomeworkInfo, HomeworkPhase, HomeworkStub } from './homework';
+import { HomeweorkStatsInfo, HomeworkInfo, HomeworkPhase, HomeworkStub } from './homework';
 import { getAuthHeaders } from './lmp';
 import { GradingInfo } from './nap';
 import { ProblemResponse } from './quiz';
@@ -9,6 +9,13 @@ export async function getHomeworkList(courseId: string) {
     headers: getAuthHeaders(),
   });
   return resp.data as HomeworkStub[];
+}
+export async function getHomeworkStats(courseId: string, homeworkId: string) {
+  const resp = await axios.get(`/api/homework/get-homework-stats`, {
+    headers: getAuthHeaders(),
+    params: { courseId, homeworkId },
+  });
+  return resp.data as HomeweorkStatsInfo;
 }
 
 export function getHomeworkPhase(homework: HomeworkInfo): HomeworkPhase {
