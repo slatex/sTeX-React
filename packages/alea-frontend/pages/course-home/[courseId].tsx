@@ -16,6 +16,7 @@ import {
 } from '@stex-react/api';
 
 import {
+  Alert,
   Box,
   Button,
   CircularProgress,
@@ -317,9 +318,9 @@ const CourseHomePage: NextPage = () => {
               {q.getEnrolled}
               <SchoolIcon />
             </Button>
-            {/* <Alert severity="info" sx={{ display: 'flex', justifyContent: 'center' }}>
+            <Alert severity="info" sx={{ display: 'flex', justifyContent: 'center' }}>
               {q.enrollmentMessage}
-            </Alert> */}
+            </Alert>
           </Box>
         )}
         {showSearchBar && (
