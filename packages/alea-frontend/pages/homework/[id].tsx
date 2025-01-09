@@ -61,23 +61,21 @@ const HomeworkPage: NextPage = () => {
 
   if (forceFauLogin) {
     return (
-      <MainLayout
-        title={(courseId || '').toUpperCase() + ` ${tHome.courseThumb.homeworks} | ALeA`}
-      >
+      <MainLayout title={(courseId || '').toUpperCase() + ` ${tHome.courseThumb.homeworks} | ALeA`}>
         <ForceFauLogin />
       </MainLayout>
     );
   }
   const enrollInCourse = async () => {
-    if (!userId || !courseId) return;
+    if (!userId || !courseId) {
+      return router.push('/login');
+    }
     const enrollmentSuccess = await handleEnrollment(userId, courseId, CURRENT_TERM);
     if (enrollmentSuccess) setIsEnrolled(true);
   };
 
   return (
-    <MainLayout
-      title={(courseId || '').toUpperCase() + ` ${tHome.courseThumb.homeworks} | ALeA`}
-    >
+    <MainLayout title={(courseId || '').toUpperCase() + ` ${tHome.courseThumb.homeworks} | ALeA`}>
       <CourseHeader
         courseName={courseInfo.courseName}
         imageLink={courseInfo.imageLink}
