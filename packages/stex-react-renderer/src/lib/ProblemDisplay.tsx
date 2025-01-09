@@ -1,6 +1,5 @@
 import CancelIcon from '@mui/icons-material/Cancel';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import MirrorIcon from '@mui/icons-material/FlipCameraAndroid';
 import {
   Box,
   Button,
@@ -39,19 +38,17 @@ import {
   removeAnswerInfo,
 } from '@stex-react/quiz-utils';
 
+import { Visibility } from '@mui/icons-material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { PRIMARY_COL } from '@stex-react/utils';
 import { useRouter } from 'next/router';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getMMTHtml } from './CompetencyTable';
 import { DocumentWidthSetter } from './DocumentWidthSetter';
-import { getLocaleObject } from './lang/utils';
 import { CustomItemsContext, NoMaxWidthTooltip, mmtHTMLToReact } from './mmtParser';
 import styles from './quiz.module.scss';
 import { AnswerClassesTable, DebugMCQandSCQ, InlineScqTable } from './QuizDebug';
 import { DimIcon } from './SelfAssessmentDialog';
 import { SubProblemAnswer, getAnswerFromLocalStorage } from './SubProblemAnswer';
-import { Visibility } from '@mui/icons-material';
 
 function BpRadio(props: RadioProps) {
   return <Radio disableRipple color="default" {...props} />;

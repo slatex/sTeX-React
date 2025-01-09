@@ -16,6 +16,7 @@ import {
   Select,
   SelectChangeEvent,
   TextField,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import {
@@ -80,6 +81,7 @@ export const CourseConceptsDialog = ({
   const [loading, setLoading] = useState<boolean>(false);
 
   const { mmtUrl } = useContext(ServerLinksContext);
+  const selectAllKey = 'Select All';
 
   useEffect(() => {
     if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
@@ -103,6 +105,7 @@ export const CourseConceptsDialog = ({
     setSelectedCourse(courseId);
     setSelectedCourseSections(allSectionDetails[courseId]);
   };
+
   const handleSectionChange = async (event: SelectChangeEvent) => {
     const sectionName = event.target.value;
     const selectedSection = selectedCourseSections.find((section) => section.name === sectionName);
@@ -130,18 +133,30 @@ export const CourseConceptsDialog = ({
     }
   };
 
+  const handleOptionChange = (_e: any, newValue: { label: string; value: string }[]) => {
+    if (newValue.some((item) => item.value === selectAllKey)) {
+      const allConcepts = processedOptions.filter((item) => item.value !== selectAllKey);
+      setSectionConcepts(newValue.length === processedOptions.length + 1 ? [] : allConcepts);
+    } else {
+      setSectionConcepts(newValue);
+    }
+  };
+
   const handleSelectButtonClick = () => {
     const selectedUris = sectionConcepts.map((item) => item.value);
     setChosenConcepts((prevSelected: string[]) => [...new Set([...prevSelected, ...selectedUris])]);
     setSectionConcepts([]);
   };
-
+  const getLabel = (option) =>
+    option.value === selectAllKey
+      ? `${selectAllKey} (${processedOptions.length - 1})`
+      : option.label;
   return (
     <Box sx={{ display: 'flex' }}>
       <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
         <DialogTitle>Choose Course Concepts</DialogTitle>
         <DialogContent>
-          <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+          <Box sx={{ display: 'flex', gap: 2, mt: 2, flexWrap: 'wrap' }}>
             <FormControl sx={{ minWidth: '100px' }}>
               <InputLabel id="select-course-label">Course</InputLabel>
               <Select
@@ -158,14 +173,13 @@ export const CourseConceptsDialog = ({
               </Select>
             </FormControl>
 
-            <FormControl>
+            <FormControl sx={{ minWidth: '300px', flex: '1 1 auto' }}>
               <InputLabel id="section-select-label">Choose Section</InputLabel>
               <Select
                 labelId="section-select-label"
                 value={selectedSection?.name}
                 onChange={handleSectionChange}
                 label="Choose Section"
-                sx={{ width: '300px' }}
               >
                 {selectedCourseSections.map((section, idx) => (
                   <MenuItem key={idx} value={section.name}>
@@ -181,39 +195,55 @@ export const CourseConceptsDialog = ({
                 <Typography variant="body1">Loading Concepts...</Typography>
               </Box>
             ) : (
-              <Autocomplete
-                sx={{
-                  flex: 1,
-                }}
-                ListboxProps={{
-                  style: { marginRight: '20px' },
-                }}
-                multiple
-                limitTags={2}
-                fullWidth
-                disableCloseOnSelect
-                options={processedOptions}
-                getOptionLabel={(option) => option.label}
-                value={sectionConcepts}
-                onChange={(event, newValue) => setSectionConcepts(newValue)}
-                renderOption={(props, option, { selected }) => (
-                  <li {...props}>
-                    <Checkbox checked={selected} />
-                    <ListItemText primary={option.label} />
-                  </li>
-                )}
-                renderInput={(params) => <TextField {...params} label="Choose Concept" />}
-                renderTags={(value, getTagProps) =>
-                  value.map((option, index) => (
-                    <Chip
-                      label={option.value.split('?').pop()}
-                      {...getTagProps({ index })}
-                      key={index}
-                      color="primary"
-                    />
-                  ))
-                }
-              />
+              <FormControl sx={{ minWidth: '300px', flex: '1 1 auto' }}>
+                <Autocomplete
+                  multiple
+                  limitTags={2}
+                  fullWidth
+                  disableCloseOnSelect
+                  options={
+                    processedOptions.length > 0
+                      ? [{ label: selectAllKey, value: selectAllKey }, ...processedOptions]
+                      : processedOptions
+                  }
+                  getOptionLabel={getLabel}
+                  value={sectionConcepts}
+                  onChange={handleOptionChange}
+                  renderOption={(props, option, { selected }) => (
+                    <li
+                      {...props}
+                      style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}
+                    >
+                      <Checkbox
+                        checked={
+                          option.value === selectAllKey
+                            ? sectionConcepts.length === processedOptions.length
+                            : selected
+                        }
+                        style={{ marginRight: 8 }}
+                      />
+                      <ListItemText
+                        primary={
+                          <Tooltip title={option.label}>
+                            <span style={{ overflowWrap: 'anywhere' }}>{option.label}</span>
+                          </Tooltip>
+                        }
+                      />
+                    </li>
+                  )}
+                  renderInput={(params) => <TextField {...params} label="Choose Concept" />}
+                  renderTags={(value, getTagProps) =>
+                    value.map((option, index) => (
+                      <Chip
+                        label={option.value.split('?').pop()}
+                        {...getTagProps({ index })}
+                        key={index}
+                        color="primary"
+                      />
+                    ))
+                  }
+                />
+              </FormControl>
             )}
           </Box>
         </DialogContent>
