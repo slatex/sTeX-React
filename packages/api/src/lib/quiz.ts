@@ -125,7 +125,7 @@ export interface AutogradableResponse {
 
 export interface ProblemResponse {
   autogradableResponses: AutogradableResponse[];
-  freeTextResponses: Record<string, string>; // subProblemId -> response
+  freeTextResponses?: Record<string, string>; // subProblemId -> response
 }
 
 export interface PerProblemStats {
