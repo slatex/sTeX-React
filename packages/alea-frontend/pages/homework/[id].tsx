@@ -22,7 +22,7 @@ const HomeworkPage: NextPage = () => {
   const [forceFauLogin, setForceFauLogin] = useState(false);
   const { mmtUrl } = useContext(ServerLinksContext);
   const [userId, setUserId] = useState(null);
-  const [enrolled, setIsEnrolled] = useState<boolean>(false);
+  const [enrolled, setIsEnrolled] = useState<boolean | undefined>(undefined);
 
   useEffect(() => {
     getUserInfo().then((i) => {
@@ -82,10 +82,10 @@ const HomeworkPage: NextPage = () => {
         courseId={courseId}
       />
       <Box maxWidth="900px" m="auto" px="10px">
-        {!enrolled && <Alert severity="info">{q.enrollmentMessage}</Alert>}
+        {enrolled === false && <Alert severity="info">{q.enrollmentMessage}</Alert>}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', m: '30px 0 15px' }}>
           <Typography variant="h4">{t.homeworkDashboard}</Typography>
-          {!enrolled && (
+          {enrolled === false && (
             <Button onClick={enrollInCourse} variant="contained" sx={{ backgroundColor: 'green' }}>
               {q.getEnrolled}
               <SchoolIcon />

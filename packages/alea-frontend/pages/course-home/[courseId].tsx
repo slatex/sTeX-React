@@ -157,7 +157,7 @@ const CourseHomePage: NextPage = () => {
   const { mmtUrl } = useContext(ServerLinksContext);
   const [isInstructor, setIsInstructor] = useState(false);
   const [userId, setUserId] = useState<string | undefined>(undefined);
-  const [enrolled, setIsEnrolled] = useState(false);
+  const [enrolled, setIsEnrolled] = useState<boolean | undefined>(undefined);
 
   useEffect(() => {
     getUserInfo().then((userInfo: UserInfo) => {
@@ -298,7 +298,7 @@ const CourseHomePage: NextPage = () => {
             </CourseComponentLink>
           )}
         </Box>
-        {!enrolled && (
+        {enrolled === false && (
           <Box
             sx={{
               display: 'flex',
