@@ -34,7 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (isAclMember) query = 'select id from AccessControlList where id=?';
     else query = 'select userId from userInfo where userId=?';
     const itemsExist = (await executeAndEndSet500OnError(query, [memberId], res))[0];
-    if (itemsExist?.length == 0) return res.status(422).send('Invalid input');
+    if (itemsExist?.length) return res.status(422).send('Invalid input');
     query = 'INSERT INTO ACLMembership (parentACLId, memberACLId, memberUserId) VALUES (?, ?, ?)';
     params = isAclMember ? [aclId, memberId, null] : [aclId, null, memberId];
   } else {
