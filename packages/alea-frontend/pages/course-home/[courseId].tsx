@@ -230,7 +230,9 @@ const CourseHomePage: NextPage = () => {
   };
 
   const enrollInCourse = async () => {
-    if (!userId || !courseId) return;
+    if (!userId || !courseId) {
+      return router.push('/login');
+    }
     const enrollmentSuccess = await handleEnrollment(userId, courseId, CURRENT_TERM);
     setIsEnrolled(enrollmentSuccess);
   };
