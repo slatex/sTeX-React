@@ -334,20 +334,25 @@ function InstructorDashBoard({
 
   useEffect(() => {
     const fetchDescriptions = async () => {
+      const fetchPromises: Promise<void>[] = [];
       const newDescriptions: Record<string, ResourceDisplayInfo> = {};
       for (const courseId of Object.keys(groupedResources)) {
         for (const resource of groupedResources[courseId]) {
-          const { description, timeAgo, timestamp, quizId } = await getLastUpdatedDescriptions(
-            resource
+          const promise = getLastUpdatedDescriptions(resource).then(
+            ({ description, timeAgo, timestamp, quizId }) => {
+              newDescriptions[`${courseId}-${resource.name}-${resource.action}`] = {
+                description,
+                timeAgo,
+                timestamp,
+                quizId,
+              };
+            }
           );
-          newDescriptions[`${courseId}-${resource.name}-${resource.action}`] = {
-            description,
-            timeAgo,
-            timestamp,
-            quizId,
-          };
+          fetchPromises.push(promise);
         }
       }
+
+      await Promise.all(fetchPromises);
       setDescriptions(newDescriptions);
     };
 
