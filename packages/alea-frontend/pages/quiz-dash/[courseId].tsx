@@ -176,10 +176,7 @@ const QuizDashPage: NextPage = () => {
           courseId,
           instanceId: CURRENT_TERM,
         });
-        if (hasAccess) {
-          setIsEnrolled(true);
-          return;
-        }
+        setIsEnrolled(hasAccess);
       }
     }
     checkAccess();
