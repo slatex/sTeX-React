@@ -40,9 +40,7 @@ const HomeworkPage: NextPage = () => {
         courseId,
         instanceId: CURRENT_TERM,
       });
-      if (hasAccess) {
-        setIsEnrolled(true);
-      }
+      setIsEnrolled(hasAccess);
     };
     checkAccess();
   }, [courseId]);
@@ -95,7 +93,7 @@ const HomeworkPage: NextPage = () => {
         <Typography variant="body1" sx={{ color: '#333' }}>
           {t.homeworkDashboardDescription.replace('{courseId}', courseId.toUpperCase())}
         </Typography>
-        <HomeworkPerformanceTable courseId={courseId} />
+        {enrolled && <HomeworkPerformanceTable courseId={courseId} />}
       </Box>
     </MainLayout>
   );
