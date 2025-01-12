@@ -95,6 +95,7 @@ export interface Input {
 
 export interface SubProblemData {
   solution: string;
+  id: string;
   answerclasses: AnswerClass[];
 }
 export interface AnswerClass {

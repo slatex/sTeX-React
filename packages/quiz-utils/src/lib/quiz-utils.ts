@@ -319,7 +319,11 @@ function getSubProblems(rootNode: Element): SubProblemData[] {
       if (rawAnswerClass.node?.attribs) {
         rawAnswerClass.node.attribs['id'] = getMMTCustomId(`nap_${subproblems.length}`);
       }
-      subproblems.push({ answerclasses: [], solution: getProblemSolution(rawAnswerClass.node) });
+      subproblems.push({
+        answerclasses: [],
+        id: subproblems.length.toString(),
+        solution: getProblemSolution(rawAnswerClass.node),
+      });
       continue;
     }
 
