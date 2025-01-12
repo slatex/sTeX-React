@@ -29,3 +29,23 @@ export interface LearnerHomeworkInfo {
   myScore: number;
   avgScore: number;
 }
+
+export interface HomeworkStatsInfo {
+  totalStudentAttend: number;
+  responseRate: { [attemptedProblems: number]: number };
+  gradingStates: GradingState[];
+  answerHistogram: { questionId: string; answerCount: number }[];
+  averageStudentScore: AverageStudentScore[];
+}
+
+export interface GradingState {
+  questionId: string;
+  graded: number;
+  ungraded: number;
+  partiallyGraded: number;
+}
+
+export interface AverageStudentScore {
+  questionId: string;
+  averageScore: number;
+}

@@ -16,18 +16,18 @@ import {
   CreateHomeworkRequest,
   deleteHomework,
   getHomeworkList,
+  getHomeworkStats,
   HomeworkInfo,
+  HomeworkStatsInfo,
   HomeworkStub,
   updateHomework,
   UpdateHomeworkRequest,
 } from '@stex-react/api';
 import { CURRENT_TERM } from '@stex-react/utils';
-import { useRouter } from 'next/router';
-import { getLocaleObject } from '../lang/utils';
+import dayjs from 'dayjs';
 import HomeworkForm from './HomeworkForm';
 import HomeworkList from './HomeworkList';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
+import HomeworkStats from './HomeworkState';
 
 function timestampNow() {
   return new Date();
@@ -41,6 +41,7 @@ function timestampEOD() {
 
 const HomeworkManager = ({ courseId }) => {
   const [homeworks, setHomeworks] = useState<HomeworkStub[]>([]);
+  const [stats, setStats] = useState<HomeworkStatsInfo | null>(null);
   const [id, setId] = useState<number | null>(null);
   const [title, setTitle] = useState('');
   const [problems, setProblems] = useState<Record<string, string>>({});
@@ -57,11 +58,21 @@ const HomeworkManager = ({ courseId }) => {
     try {
       const homeworkList = await getHomeworkList(courseId);
       setHomeworks(homeworkList);
+      setSelectedHomeworkId(homeworkList[0]?.id);
     } catch (error) {
       console.error('An unexpected error occurred', error);
       setMessage('An error occured');
     }
     setOpenSnackbar(true);
+  };
+  const getStats = async (homeworkId: string) => {
+    try {
+      const homeworkList = await getHomeworkStats(courseId, homeworkId);
+      setStats(homeworkList);
+    } catch (error) {
+      console.error('An unexpected error occurred', error);
+      setMessage('An error occured');
+    }
   };
 
   useEffect(() => {
@@ -112,6 +123,12 @@ const HomeworkManager = ({ courseId }) => {
     setTitle(homework.title);
     setProblems(homework.problems);
     setView('edit');
+  };
+  const handleShow = (homework: HomeworkInfo) => {
+    setId(homework.id);
+    getStats(homework.id.toString());
+    setTitle(homework.title);
+    setSelectedHomeworkId(homework.id);
   };
 
   const handleDelete = async () => {
@@ -170,12 +187,17 @@ const HomeworkManager = ({ courseId }) => {
         }}
       >
         {view === 'list' && (
-          <HomeworkList
-            homeworkStubs={homeworks}
-            handleEdit={handleEdit}
-            confirmDelete={confirmDelete}
-            onCreate={()=>setView('create')}
-          />
+          <>
+            <HomeworkList
+              homeworkStubs={homeworks}
+              selectedHomeworkId={selectedHomeworkId}
+              handleEdit={handleEdit}
+              handleShow={handleShow}
+              confirmDelete={confirmDelete}
+              onCreate={() => setView('create')}
+            />
+            <HomeworkStats title={title} stats={stats} />
+          </>
         )}
         {view === 'create' || view === 'edit' ? (
           <HomeworkForm
@@ -206,7 +228,6 @@ const HomeworkManager = ({ courseId }) => {
             resetForm={resetForm}
           />
         ) : null}
-
         <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleCloseSnackbar}>
           <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
             {message}
