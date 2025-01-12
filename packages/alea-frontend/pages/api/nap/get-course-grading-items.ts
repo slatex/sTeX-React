@@ -4,7 +4,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { getUserIdIfAuthorizedOrSetError } from '../access-control/resource-utils';
 import { checkIfGetOrSetError } from '../comment-utils';
 import { getAllHomeworksOrSetError } from '../homework/get-homework-list';
-import { getGradingItems } from '../commen-homework-utils';
+import { getGradingItems } from '../common-homework-utils';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfGetOrSetError(req, res)) return;

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { HomeweorkStatsInfo, HomeworkInfo, HomeworkPhase, HomeworkStub } from './homework';
+import { HomeworkStatsInfo, HomeworkInfo, HomeworkPhase, HomeworkStub } from './homework';
 import { getAuthHeaders } from './lmp';
 import { GradingInfo } from './nap';
 import { ProblemResponse } from './quiz';
@@ -15,7 +15,7 @@ export async function getHomeworkStats(courseId: string, homeworkId: string) {
     headers: getAuthHeaders(),
     params: { courseId, homeworkId },
   });
-  return resp.data as HomeweorkStatsInfo;
+  return resp.data as HomeworkStatsInfo;
 }
 
 export function getHomeworkPhase(homework: HomeworkInfo): HomeworkPhase {

@@ -1,14 +1,12 @@
 import { Box, Typography } from '@mui/material';
-import { useRouter } from 'next/router';
-import { getLocaleObject } from '../lang/utils';
-import { HomeweorkStatsInfo } from '@stex-react/api';
+import { HomeworkStatsInfo } from '@stex-react/api';
 import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
-
-import { convertHtmlStringToPlain } from '@stex-react/utils';
+import { useRouter } from 'next/router';
 import Chart from 'react-google-charts';
-import { BarChart, TimedLineChart } from '../pages/quiz/results';
+import { getLocaleObject } from '../lang/utils';
+import { BarChart } from '../pages/quiz/results';
 
-const HomeworkStats = ({ title, stats }: { title: string; stats: HomeweorkStatsInfo }) => {
+const HomeworkStats = ({ title, stats }: { title: string; stats: HomeworkStatsInfo }) => {
   const { homeworkManager: t } = getLocaleObject(useRouter());
   return (
     <Box
@@ -17,10 +15,9 @@ const HomeworkStats = ({ title, stats }: { title: string; stats: HomeweorkStatsI
         mb: 3,
       }}
     >
-      <Typography variant="h6" gutterBottom>
-        {t.homeworkStats}
+      <Typography variant="h6" my={3}>
+        {t.homeworkStats} for <b>{mmtHTMLToReact(title)}</b>
       </Typography>
-      <h2>{mmtHTMLToReact(title)}</h2>
       <h3>
         Homework attempted by <b style={{ color: 'red' }}>{stats?.totalStudentAttend}</b> students
       </h3>
@@ -41,9 +38,9 @@ const HomeworkStats = ({ title, stats }: { title: string; stats: HomeweorkStatsI
       <br />
       <h2>Scores</h2>
       <BarChart
-        data={stats?.answerhistogram.map((bucket) => ({
+        data={stats?.answerHistogram.map((bucket) => ({
           key: bucket.questionId,
-          value: bucket.answer_count,
+          value: bucket.answerCount,
         }))}
         column1="Score"
         column2="Number of students"
@@ -54,7 +51,7 @@ const HomeworkStats = ({ title, stats }: { title: string; stats: HomeweorkStatsI
           data={[
             ['Question', 'Graded', 'Partially graded', 'Ungraded'],
             ...stats.gradingStates.map((question) => {
-              const { questionId, graded, partially_graded, ungraded } = question;
+              const { questionId, graded, partiallyGraded: partially_graded, ungraded } = question;
 
               console.log(stats.gradingStates);
               return [questionId, graded, ungraded, partially_graded];
@@ -75,19 +72,19 @@ const HomeworkStats = ({ title, stats }: { title: string; stats: HomeweorkStatsI
         />
       )}
       {stats?.averageStudentScore != null && (
-      <Chart
-        chartType="ColumnChart"
-        data={[
-          ['Quotient', 'AvgQuotient'],
-          ...stats.averageStudentScore.map((problem) => {
-            const { questionId, average_score } = problem;
+        <Chart
+          chartType="ColumnChart"
+          data={[
+            ['Quotient', 'AvgQuotient'],
+            ...stats.averageStudentScore.map((problem) => {
+              const { questionId, averageScore: average_score } = problem;
 
-            return [questionId, average_score];
-          }),
-        ]}
-        width="100%"
-        height="400px"
-      />
+              return [questionId, average_score];
+            }),
+          ]}
+          width="100%"
+          height="400px"
+        />
       )}
     </Box>
   );

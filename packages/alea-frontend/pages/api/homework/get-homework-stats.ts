@@ -1,8 +1,9 @@
+import { HomeworkStatsInfo } from '@stex-react/api';
+import { CURRENT_TERM } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { checkIfGetOrSetError, executeAndEndSet500OnError } from '../comment-utils';
-import { CURRENT_TERM } from '@stex-react/utils';
+import { getGradingItems } from '../common-homework-utils';
 import { getHomeworkOrSetError } from './get-homework';
-import { getGradingItems } from '../commen-homework-utils';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfGetOrSetError(req, res)) return;
@@ -21,7 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       )
     )[0]?.total_answers ?? 0;
   const responseRate: { [attemptedProblems: number]: number } = {};
-  const answerhistogram = [];
+  const answerHistogram = [];
   const gradingStates = [];
   const gradingItems = await getGradingItems(courseId, instanceId, res);
   const responseRateResult = await executeAndEndSet500OnError(
@@ -33,15 +34,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     responseRate[rr.createdDate] = rr.answer_count;
   }
   for (const questionId of Object.keys(homework.problems)) {
-    answerhistogram.push({
+    answerHistogram.push({
       questionId,
-      answer_count: (
+      answerCount: (
         await executeAndEndSet500OnError(
-          `select count(DISTINCT userId) as answer_count From Answer where questionId=?`,
+          `select count(DISTINCT userId) as answerCount From Answer where questionId=?`,
           [questionId],
           res
         )
-      )[0].answer_count,
+      )[0].answerCount,
     });
 
     gradingStates.push({ questionId, graded: 0, ungraded: 0, partially_graded: 0 });
@@ -66,10 +67,10 @@ GROUP BY questionId`,
     res
   );
   res.send({
-    totalStudentAttend: totalStudentAttend,
+    totalStudentAttend,
     responseRate,
-    answerhistogram,
+    answerHistogram,
     gradingStates,
     averageStudentScore,
-  });
+  } as HomeworkStatsInfo);
 }

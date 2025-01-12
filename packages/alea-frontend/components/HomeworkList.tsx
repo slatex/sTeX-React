@@ -21,12 +21,14 @@ import { getLocaleObject } from '../lang/utils';
 
 const HomeworkList = ({
   homeworkStubs,
+  selectedHomeworkId,
   onCreate,
   handleEdit,
   handleShow,
   confirmDelete,
 }: {
   homeworkStubs: HomeworkStub[];
+  selectedHomeworkId: number | null;
   onCreate: () => void;
   handleEdit: (homework: HomeworkInfo) => void;
   handleShow: (homework: HomeworkInfo) => void;
@@ -109,18 +111,19 @@ const HomeworkList = ({
                     <IconButton
                       color="primary"
                       onClick={async () => {
-                        handleEdit((await getHomework(homework.id)).homework);
+                        handleShow((await getHomework(homework.id)).homework);
                       }}
+                      disabled={selectedHomeworkId === homework.id}
                     >
-                      <Edit />
+                      <ShowChartIcon />
                     </IconButton>
                     <IconButton
                       color="primary"
                       onClick={async () => {
-                        handleShow((await getHomework(homework.id)).homework);
+                        handleEdit((await getHomework(homework.id)).homework);
                       }}
                     >
-                      <ShowChartIcon />
+                      <Edit />
                     </IconButton>
                     <IconButton color="error" onClick={() => confirmDelete(homework.id)}>
                       <Delete />
