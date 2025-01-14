@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getAuthHeaders } from './lms';
+import { getAuthHeaders } from './lmp';
 import { JobPostInfo, JobCategoryInfo, OrganizationData, RecruiterData, StudentData ,JobApplicationInfo } from './job-portal';
 
 export async function createStudentProfile(data: StudentData) {

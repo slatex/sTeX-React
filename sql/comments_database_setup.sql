@@ -258,6 +258,7 @@ CREATE TABLE homeworkHistory (
     PRIMARY KEY (id, versionNo)   
 );
 
+-- Job Portal Tables
 CREATE TABLE StudentProfile (
     userId VARCHAR(50) PRIMARY KEY, 
     name VARCHAR(255) NOT NULL, 
@@ -304,10 +305,6 @@ CREATE TABLE RecruiterProfile (
 
 );
 
-
-
-
-
 CREATE TABLE jobCategories (
     id INT AUTO_INCREMENT PRIMARY KEY,
     jobCategory ENUM('internship', 'full-time') NOT NULL,
@@ -327,9 +324,6 @@ CREATE TABLE Admin (
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP 
 );
-
-
-
 
 CREATE TABLE JobPost (
     id INT AUTO_INCREMENT PRIMARY KEY,                          
@@ -357,7 +351,9 @@ CREATE TABLE JobApplication (
     id INT AUTO_INCREMENT PRIMARY KEY, 
     jobPostId INT, 
     applicantId VARCHAR(50), 
-    applicationStatus ENUM('APPLIED', 'ACCEPTED', 'REJECTED', 'PROCESSING') NOT NULL,
+    applicationStatus ENUM('APPLIED', 'ACCEPTED', 'REJECTED', 'OFFERED', 'PROCESSING') NOT NULL,
+    applicantAction ENUM('ACCEPT_OFFER', 'REJECT_OFFER') DEFAULT NULL,
+    recruiterAction ENUM('ACCEPT', 'REJECT', 'SEND_OFFER') DEFAULT NULL,
     studentMessage VARCHAR(255), 
     recruiterMessage VARCHAR(255), 
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
@@ -365,7 +361,3 @@ CREATE TABLE JobApplication (
     CONSTRAINT fk_jobPost FOREIGN KEY (jobPostId) REFERENCES JobPost(id) ,
     CONSTRAINT fk_applicant FOREIGN KEY (applicantId) REFERENCES StudentProfile(id) 
 );
-
-ALTER TABLE comments_test.jobapplication
-ADD COLUMN applicantAction ENUM('ACCEPT_OFFER', 'REJECT_OFFER') DEFAULT NULL AFTER applicationStatus,
-ADD COLUMN recruiterAction ENUM('ACCEPT', 'REJECT', 'SEND_OFFER') DEFAULT NULL AFTER applicantAction

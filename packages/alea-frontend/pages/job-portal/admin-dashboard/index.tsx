@@ -27,6 +27,7 @@ import {
   Paper,
   IconButton,
   SelectChangeEvent,
+  Modal,
 } from '@mui/material';
 import { Delete, Edit, Save } from '@mui/icons-material';
 import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
@@ -40,7 +41,6 @@ import {
   updateJobCategory,
 } from '@stex-react/api';
 import { useRouter } from 'next/router';
-import { Modal } from '@mui/base';
 import dayjs from 'dayjs';
 
 export function JobCategoryDetails({
