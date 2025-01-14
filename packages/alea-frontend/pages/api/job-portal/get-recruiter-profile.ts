@@ -21,5 +21,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!results) return;
   if (!results.length) return res.status(404).send('No recruiter profile found');
 
-  res.status(200).json(results);
+  res.status(200).json(results[0]);
 }

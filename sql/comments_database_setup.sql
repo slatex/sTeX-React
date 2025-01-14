@@ -300,9 +300,9 @@ CREATE TABLE organizationprofile (
 
 
 
-CREATE TABLE JobType (
+CREATE TABLE jobCategories (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    jobTypeName ENUM('internship', 'full-time') NOT NULL,
+    jobCategory ENUM('internship', 'full-time') NOT NULL,
     internshipPeriod VARCHAR(255),
     startDate DATE,
     endDate DATE,
@@ -326,7 +326,7 @@ CREATE TABLE Admin (
 CREATE TABLE JobPost (
     id INT AUTO_INCREMENT PRIMARY KEY,                          
     organizationId INT,                                          
-    jobTypeId INT,                                               
+    JobCategoryId INT,                                               
     session VARCHAR(255),                                         
     jobTitle VARCHAR(255),                                        
     jobDescription TEXT,                                          
@@ -341,5 +341,23 @@ CREATE TABLE JobPost (
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  
     FOREIGN KEY (organizationId) REFERENCES organizationprofile(id),  
-    FOREIGN KEY (jobTypeId) REFERENCES JobType(id)                
+    FOREIGN KEY (JobCategoryId) REFERENCES jobCategories(id)                
 );
+
+
+CREATE TABLE JobApplication (
+    id INT AUTO_INCREMENT PRIMARY KEY, 
+    jobPostId INT, 
+    applicantId INT, 
+    applicationStatus ENUM('APPLIED', 'ACCEPTED', 'REJECTED', 'PROCESSING') NOT NULL,
+    studentMessage VARCHAR(255), 
+    recruiterMessage VARCHAR(255), 
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_jobPost FOREIGN KEY (jobPostId) REFERENCES JobPost(id) ,
+    CONSTRAINT fk_applicant FOREIGN KEY (applicantId) REFERENCES StudentProfile(id) 
+);
+
+ALTER TABLE comments_test.jobapplication
+ADD COLUMN applicantAction ENUM('ACCEPT_OFFER', 'REJECT_OFFER') DEFAULT NULL AFTER applicationStatus,
+ADD COLUMN recruiterAction ENUM('ACCEPT', 'REJECT', 'SEND_OFFER') DEFAULT NULL AFTER applicantAction

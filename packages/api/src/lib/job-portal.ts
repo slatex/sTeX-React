@@ -22,6 +22,7 @@ export interface RecruiterData {
 }
 
 export interface OrganizationData {
+  id:number,
   companyName: string;
   incorporationYear?: string;
   isStartup?: string;
@@ -36,13 +37,13 @@ export type RecruiterAndOrgData = RecruiterData & OrganizationData;
 
 
 
-// export enum JobType {
+// export enum jobCategories {
 //   Internship = 'internship',
 //   FullTime = 'fulltime',
 // }
-export interface JobTypeInfo {
+export interface JobCategoryInfo {
   id:number;
-  jobTypeName:string;
+  jobCategory:string;
   startDate:string;
   endDate?:string;
   internshipPeriod?:string;
@@ -52,7 +53,7 @@ export interface JobTypeInfo {
 export interface JobPostInfo {
   id:number;
   organizationId:number;
-  jobTypeId: number;
+  JobCategoryId: number;
   session:string;
   jobTitle:string;
   jobDescription:string;                                         
@@ -66,5 +67,20 @@ export interface JobPostInfo {
   applicationDeadline:Date;
 }
 
+export type InitialJobData = JobPostInfo | Pick<JobPostInfo, 'session'>;
 
+export interface JobApplicationInfo{
+  id:number;
+  jobPostId:number;
+  applicantId:string;
+  applicationStatus:string;
+  applicantAction:string;
+  recruiterAction:string;
+  studentMessage?:string;
+  recruiterMessage?:string;                                         
+}
+
+export interface ApplicantProfile extends JobApplicationInfo {
+  studentProfile: StudentData[];
+}
 

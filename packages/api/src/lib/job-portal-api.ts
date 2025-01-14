@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { getAuthHeaders } from './lms';
-import { JobPostInfo, JobTypeInfo, OrganizationData, RecruiterData, StudentData } from './job-portal';
+import { JobPostInfo, JobCategoryInfo, OrganizationData, RecruiterData, StudentData ,JobApplicationInfo } from './job-portal';
 
 export async function createStudentProfile(data: StudentData) {
   await axios.post('/api/job-portal/create-student-profile', data, {
@@ -34,7 +34,7 @@ export async function getRecruiterProfile() {
   const resp = await axios.get('/api/job-portal/get-recruiter-profile', {
     headers: getAuthHeaders(),
   });
-  return resp.data as RecruiterData[];
+  return resp.data as RecruiterData;
 }
 
 export async function checkIfUserRegisteredOnJP(userId: string) {
@@ -60,7 +60,7 @@ export async function getOrganizationProfile(id: number) {
     headers: getAuthHeaders(),
     params: { id },
   });
-  return resp.data as OrganizationData[];
+  return resp.data as OrganizationData;
 }
 
 export async function getOrganizationId(organizationName: string) {
@@ -70,43 +70,114 @@ export async function getOrganizationId(organizationName: string) {
   });
   return resp.data as number;
 }
-
-export async function createJobType(data: any) {
+export type CreateJobCategoryRequest = Omit<JobCategoryInfo, 'id' >;
+export async function createJobCategory(data: CreateJobCategoryRequest) {
   await axios.post('/api/job-portal/create-job-type', data, {
     headers: getAuthHeaders(),
   });
 }
 
-export async function updateJobType(data: JobTypeInfo) {
+export async function updateJobCategory(data: JobCategoryInfo) {
   await axios.post('/api/job-portal/update-job-type', data, {
     headers: getAuthHeaders(),
   });
 }
 
-export async function deleteJobType(id: number) {
+export async function deleteJobCategory(id: number) {
   await axios.post('/api/job-portal/delete-job-type', { id }, { headers: getAuthHeaders() });
 }
 
-export async function getJobType(instanceId: string) {
-  const resp = await axios.get('/api/job-portal/get-job-type', {
+export async function getJobCategories(instanceId: string) {
+  const resp = await axios.get('/api/job-portal/get-job-categories', {
     headers: getAuthHeaders(),
     params: { instanceId },
   });
-  return resp.data as JobTypeInfo[];
+  return resp.data as JobCategoryInfo[];
 }
 
-
-export async function createJobPost(data: any) {
+export type CreateJobPostRequest = Omit<JobPostInfo, 'id' >;
+export async function createJobPost(data: CreateJobPostRequest) {
   await axios.post('/api/job-portal/create-job-post', data, {
     headers: getAuthHeaders(),
   });
 }
 
 
-export async function getJobPost(organizationId: number) {
+export async function getJobPosts(organizationId: number) {
   const resp = await axios.get('/api/job-portal/get-job-post', {
     headers: getAuthHeaders(),
     params: { organizationId },
   });
   return resp.data as JobPostInfo[] ;
+}
+
+
+export async function getJobPostById(jobPostId: number) {
+  const resp = await axios.get('/api/job-portal/get-job-post-by-id', {
+    headers: getAuthHeaders(),
+    params: { jobPostId },
+  });
+  return resp.data as JobPostInfo ;
+}
+
+
+export async function getAllJobPosts() {
+  const resp = await axios.get('/api/job-portal/get-all-job-posts', {
+    headers: getAuthHeaders(),
+  });
+  return resp.data as JobPostInfo[] ;
+}
+
+export async function updateJobPost(data: JobPostInfo) {
+  await axios.post('/api/job-portal/update-job-post', data, {
+    headers: getAuthHeaders(),
+  });
+}
+
+
+export async function deleteJobPost(id: number) {
+  await axios.post('/api/job-portal/delete-job-post', { id }, { headers: getAuthHeaders() });
+}
+
+export type CreateJobApplicationRequest = Omit<JobApplicationInfo, 'id' >;
+export async function createJobApplication(data: CreateJobApplicationRequest) {
+  await axios.post('/api/job-portal/create-job-application', data, {
+    headers: getAuthHeaders(),
+  });
+}
+
+
+export async function getJobApplicationsByJobPost(jobPostId: number) {
+  const resp = await axios.get('/api/job-portal/get-job-applications-by-jobpost', {
+    headers: getAuthHeaders(),
+    params: { jobPostId },
+  });
+  return resp.data as JobApplicationInfo[] ;
+}
+export async function getJobApplicationsByUserId() {
+  const resp = await axios.get('/api/job-portal/get-job-applications-by-userid', {
+    headers: getAuthHeaders(),
+  });
+  return resp.data as JobApplicationInfo[] ;
+}
+export async function getJobApplicationsByUserIdAndJobPostId(userId:string,jobPostId:number) {
+  const resp = await axios.get('/api/job-portal/get-job-applications-by-userid-and-jobpostid', {
+    headers: getAuthHeaders(),
+    params: { userId,jobPostId },
+
+  });
+  return resp.data as JobApplicationInfo[] ;
+}
+
+export async function updateJobApplication(data:JobApplicationInfo){
+  await axios.post('/api/job-portal/update-job-application', data, {
+    headers: getAuthHeaders(),
+  });
+}
+export async function getStudentProfileUsingUserId(userId : string) {
+  const resp = await axios.get('/api/job-portal/get-student-profile-using-userid', {
+    headers: getAuthHeaders(),
+    params:{userId}
+  });
+  return resp.data as StudentData[];
 }

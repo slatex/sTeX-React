@@ -4,39 +4,39 @@ import {
   executeAndEndSet500OnError,
   executeDontEndSet500OnError,
 } from '../comment-utils';
-import { JobTypeInfo } from '@stex-react/api';
+import { JobCategoryInfo } from '@stex-react/api';
 import { getUserIdIfAuthorizedOrSetError } from '../access-control/resource-utils';
 import { Action, ResourceName } from '@stex-react/utils';
 
-export type DbJobTypeInfo = JobTypeInfo & {
+export type DbJobCategoryInfo = JobCategoryInfo & {
   updatedAt: Date;
   createdAt: Date;
   instanceId: string;
 };
 
-export async function getJobTypeUsingIdOrSetError(
+export async function getJobCategoryUsingIdOrSetError(
   id: number,
   res: NextApiResponse
-): Promise<DbJobTypeInfo | undefined> {
+): Promise<DbJobCategoryInfo | undefined> {
   const results = await executeDontEndSet500OnError(
-    'SELECT * FROM jobtype WHERE id = ?',
+    'SELECT * FROM jobCategories WHERE id = ?',
     [id],
     res
   );
   if (!results) return;
-  const currentJobtype = results[0];
-  if (!currentJobtype) res.status(404).send('JobType not found');
-  return currentJobtype;
+  const currentJobCategory = results[0];
+  if (!currentJobCategory) res.status(404).send('jobCategories not found');
+  return currentJobCategory;
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
-  const { id, jobTypeName, startDate, endDate, internshipPeriod } = req.body as JobTypeInfo;
-  if (!id) return res.status(400).send('JobType id is missing');
+  const { id, jobCategory, startDate, endDate, internshipPeriod } = req.body as JobCategoryInfo;
+  if (!id) return res.status(400).send('jobCategories id is missing');
 
-  const currentJobtype = await getJobTypeUsingIdOrSetError(id, res);
-  if (!currentJobtype) return res.status(404).send('JobType not found');
-  const { instanceId, updatedAt } = currentJobtype;
+  const currentJobCategory = await getJobCategoryUsingIdOrSetError(id, res);
+  if (!currentJobCategory) return res.status(404).send('jobCategories not found');
+  const { instanceId, updatedAt } = currentJobCategory;
 
   const userId = await getUserIdIfAuthorizedOrSetError(
     req,
@@ -48,8 +48,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!userId) return;
 
   const result = await executeAndEndSet500OnError(
-    'UPDATE jobtype SET jobTypeName = ?, internshipPeriod = ?, startDate = ?, endDate = ?, updatedAt=? WHERE id = ?',
-    [jobTypeName, internshipPeriod, startDate, endDate, updatedAt, id],
+    'UPDATE jobCategories SET jobCategory = ?, internshipPeriod = ?, startDate = ?, endDate = ?, updatedAt=? WHERE id = ?',
+    [jobCategory, internshipPeriod, startDate, endDate, updatedAt, id],
     res
   );
   if (!result) return;

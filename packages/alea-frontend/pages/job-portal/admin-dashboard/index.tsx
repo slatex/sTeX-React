@@ -26,31 +26,36 @@ import {
   TableRow,
   Paper,
   IconButton,
+  SelectChangeEvent,
 } from '@mui/material';
 import { Delete, Edit, Save } from '@mui/icons-material';
 import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
 import { Action, CURRENT_TERM, ResourceName } from '@stex-react/utils';
 import {
   canAccessResource,
-  createJobType,
-  deleteJobType,
-  getJobType,
-  JobTypeInfo,
-  updateJobType,
+  createJobCategory,
+  deleteJobCategory,
+  getJobCategories,
+  JobCategoryInfo,
+  updateJobCategory,
 } from '@stex-react/api';
 import { useRouter } from 'next/router';
 import { Modal } from '@mui/base';
 import dayjs from 'dayjs';
 
-export function JobTypeDetails({ jobs, renderActions }) {
-  console.log('jl', jobs);
-  console.log({ renderActions });
+export function JobCategoryDetails({
+  jobCategories,
+  renderActions,
+}: {
+  jobCategories: JobCategoryInfo[];
+  renderActions: (jobCategory: JobCategoryInfo) => React.JSX.Element;
+}) {
   return (
     <TableContainer component={Paper}>
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>Job Type</TableCell>
+            <TableCell>Job Category</TableCell>
             <TableCell>Start Date</TableCell>
             <TableCell>End Date</TableCell>
             <TableCell>Internship Period</TableCell>
@@ -58,24 +63,30 @@ export function JobTypeDetails({ jobs, renderActions }) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {jobs.length > 0 ? (
-            jobs.map((job, index) => (
+          {jobCategories?.length > 0 ? (
+            jobCategories.map((jobCategoryItem, index) => (
               <TableRow key={index}>
-                <TableCell>{job.jobTypeName}</TableCell>
+                <TableCell>{jobCategoryItem.jobCategory}</TableCell>
                 <TableCell>
-                  {job.startDate ? new Date(job.startDate).toLocaleDateString('en-GB') : 'N/A'}
+                  {jobCategoryItem.startDate
+                    ? new Date(jobCategoryItem.startDate).toLocaleDateString('en-GB')
+                    : 'N/A'}
                 </TableCell>
                 <TableCell>
-                  {job.endDate ? new Date(job.endDate).toLocaleDateString('en-GB') : 'N/A'}
+                  {jobCategoryItem.endDate
+                    ? new Date(jobCategoryItem.endDate).toLocaleDateString('en-GB')
+                    : 'N/A'}
                 </TableCell>
-                <TableCell>{job.internshipPeriod || 'N/A'}</TableCell>
-                {renderActions && <TableCell align="center">{renderActions(job)}</TableCell>}
+                <TableCell>{jobCategoryItem.internshipPeriod || 'N/A'}</TableCell>
+                {renderActions && (
+                  <TableCell align="center">{renderActions(jobCategoryItem)}</TableCell>
+                )}
               </TableRow>
             ))
           ) : (
             <TableRow>
               <TableCell colSpan={5} align="center">
-                No jobs created yet.
+                No jobCategories created yet.
               </TableCell>
             </TableRow>
           )}
@@ -88,15 +99,15 @@ export function JobTypeDetails({ jobs, renderActions }) {
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [jobType, setJobType] = useState<'Full-Time' | 'Internship'>(null);
+  const [jobCategory, setJobCategory] = useState<'Full-Time' | 'Internship'>(null);
   const [startDate, setStartDate] = useState<Date | null>(new Date());
   const [endDate, setEndDate] = useState<Date | null>(null);
 
   const [internshipPeriod, setInternshipPeriod] = useState<string>(null);
-  const [jobs, setJobs] = useState<JobTypeInfo[]>([]);
+  const [jobCategories, setJobs] = useState<JobCategoryInfo[]>([]);
   const [accessCheckLoading, setAccessCheckLoading] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [editJob, setEditJob] = useState<JobTypeInfo>(null);
+  const [editJob, setEditJob] = useState<JobCategoryInfo>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const instanceId = CURRENT_TERM;
 
@@ -117,11 +128,10 @@ const AdminDashboard = () => {
 
     checkAccess();
   }, []);
-  const fetchJobTypeData = async () => {
+  const fetchJobCategoryData: () => Promise<void> = async () => {
     try {
       setLoading(true);
-      const res = await getJobType(instanceId);
-      console.log('response ', res);
+      const res = await getJobCategories(instanceId);
       setJobs(res);
     } catch (error) {
       console.error('Error fetching admin data:', error);
@@ -132,7 +142,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (accessCheckLoading) return;
 
-    fetchJobTypeData();
+    fetchJobCategoryData();
   }, [accessCheckLoading]);
 
   const renderActions = (job) => (
@@ -147,16 +157,16 @@ const AdminDashboard = () => {
   );
 
   const handleTabChange = (event, newValue) => setActiveTab(newValue);
-  const handleJobTypeChange = (event) => {
-    setJobType(event.target.value);
+  const handleJobCategoryChange = (event) => {
+    setJobCategory(event.target.value);
   };
-
-  const handleUpdationoJobTypeChange = (event) => {
+  const handleUpdationoJobCategoryChange = (event: SelectChangeEvent<"Full-Time" | "Internship">) => {
     setEditJob((prev) => ({
       ...prev,
-      jobTypeName: event.target.value,
+      jobCategory: event.target.value, 
     }));
   };
+  
 
   const handleDateChange = (type, value) => {
     let updatedStartDate = startDate;
@@ -185,7 +195,7 @@ const AdminDashboard = () => {
       }
     }
   };
-  const handleUpdationDateChange = (type, value) => {
+  const handleUpdationDateChange = (type:string, value:string) => {
     setEditJob((prev) => {
       const updatedStartDate = type === 'start' ? value : prev.startDate;
       const updatedEndDate = type === 'end' ? value : prev.endDate;
@@ -213,29 +223,9 @@ const AdminDashboard = () => {
       return updatedJob;
     });
   };
-  const handleSubmit = async () => {
-    const newJob = {
-      jobType,
-      startDate,
-      endDate,
-      internshipPeriod,
-      instanceId,
-    };
 
-    try {
-      await createJobType(newJob);
-      fetchJobTypeData();
-      setJobType(null);
-      setStartDate(null);
-      setEndDate(null);
-      setInternshipPeriod(null);
-      setSnackbarOpen(true);
-    } catch (error) {
-      console.error('Error saving job type:', error);
-    }
-  };
 
-  const handleEdit = (job: JobTypeInfo) => {
+  const handleEdit = (job: JobCategoryInfo) => {
     const formattedEditJob = {
       ...job,
       startDate: job.startDate ? dayjs(job.startDate).format('YYYY-MM-DD') : null,
@@ -255,13 +245,13 @@ const AdminDashboard = () => {
       };
       console.log({ formattedEditJob });
       if (
-        formattedEditJob.jobTypeName === 'Full-Time' ||
-        formattedEditJob.jobTypeName === 'full-name'
+        formattedEditJob.jobCategory === 'Full-Time' ||
+        formattedEditJob.jobCategory === 'full-name'
       ) {
         formattedEditJob.endDate = null;
         formattedEditJob.internshipPeriod = null;
       }
-      const response = await updateJobType(formattedEditJob);
+      // const response = await updateJobCategory(formattedEditJob);   dont delete it
       setSnackbarOpen(true);
       setJobs((prevJobs) =>
         prevJobs.map((job) => (job.id === editJob.id ? { ...job, ...formattedEditJob } : job))
@@ -272,10 +262,11 @@ const AdminDashboard = () => {
       console.error('Error details:', error);
     }
   };
+
   const deleteJob = async (id: number) => {
     if (id) {
       try {
-        const response = await deleteJobType(id);
+        // const response = await deleteJobCategory(id);    dont deletee it
         setJobs((prevJobs) => prevJobs.filter((job) => job.id !== id));
 
         setSnackbarOpen(true);
@@ -288,7 +279,7 @@ const AdminDashboard = () => {
   if (accessCheckLoading || loading) {
     return <CircularProgress color="primary" />;
   }
-  console.log({ jobs });
+  console.log({ jobCategories });
   return (
     <MainLayout title="Admin Dashboard | Job Portal">
       <Box
@@ -314,7 +305,7 @@ const AdminDashboard = () => {
           textColor="primary"
           indicatorColor="primary"
         >
-          <Tab label="Job Types" />
+          <Tab label="Job Categorys" />
           <Tab label="Programmes & Courses" />
           <Tab label="Recruiter Org" />
         </Tabs>
@@ -323,96 +314,19 @@ const AdminDashboard = () => {
 
         {activeTab === 0 && (
           <>
-            <Card sx={{ boxShadow: 3, mb: 4 }}>
-              <CardContent>
-                <Typography variant="h5" gutterBottom>
-                  Create Job Types
-                </Typography>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  Fill in the details to create a new job type.
-                </Typography>
-
-                <Grid container spacing={3} mt={2}>
-                  <Grid item xs={12} sm={6}>
-                    <FormControl fullWidth>
-                      <InputLabel>Job Type</InputLabel>
-                      <Select
-                        value={jobType}
-                        onChange={handleJobTypeChange}
-                        variant="outlined"
-                        label="Job Type"
-                      >
-                        <MenuItem value="Internship">Internship</MenuItem>
-                        <MenuItem value="Full-Time">Full-Time</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Start Date"
-                      type="date"
-                      InputLabelProps={{ shrink: true }}
-                      variant="outlined"
-                      value={startDate || ''}
-                      onChange={(e) => handleDateChange('start', e.target.value)}
-                    />
-                  </Grid>
-                  {jobType === 'Internship' && (
-                    <>
-                      <Grid item xs={12} sm={6}>
-                        <TextField
-                          fullWidth
-                          label="End Date"
-                          type="date"
-                          InputLabelProps={{ shrink: true }}
-                          variant="outlined"
-                          value={endDate || ''}
-                          onChange={(e) => handleDateChange('end', e.target.value)}
-                        />
-                      </Grid>
-                      <Grid item xs={12} sm={6}>
-                        <TextField
-                          fullWidth
-                          label="Internship Period"
-                          value={internshipPeriod || ''}
-                          InputProps={{
-                            readOnly: true,
-                          }}
-                          variant="outlined"
-                        />
-                      </Grid>
-                    </>
-                  )}
-                </Grid>
-
-                <Box mt={3} textAlign="center">
-                  <Tooltip title="Save job details" arrow>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      startIcon={<Save />}
-                      onClick={handleSubmit}
-                      size="large"
-                    >
-                      Create Job Type
-                    </Button>
-                  </Tooltip>
-                </Box>
-              </CardContent>
-            </Card>
-
+ 
+            <JobCategoryForm onSave={fetchJobCategoryData} />
             <Box>
               <Typography variant="h6" gutterBottom>
-                Created Job Types
+                Created Job Categorys
               </Typography>
-              <JobTypeDetails jobs={jobs} renderActions={renderActions} />
+              <JobCategoryDetails jobCategories={jobCategories} renderActions={renderActions} />
             </Box>
           </>
         )}
       </Box>
 
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
+      {/* <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
         <Box
           sx={{
             position: 'fixed',
@@ -430,16 +344,16 @@ const AdminDashboard = () => {
             Edit Job
           </Typography>
           <FormControl fullWidth>
-            <InputLabel>Job Type</InputLabel>
+            <InputLabel>Job Category</InputLabel>
             <Select
               value={
-                editJob?.jobTypeName === 'full-time' || editJob?.jobTypeName === 'Full-Time'
+                editJob?.jobCategory === 'full-time' || editJob?.jobCategory === 'Full-Time'
                   ? 'Full-Time'
                   : 'Internship'
               }
-              onChange={handleUpdationoJobTypeChange}
+              onChange={handleUpdationoJobCategoryChange}
               variant="outlined"
-              label="Job Type"
+              label="Job Category"
             >
               <MenuItem value="Internship">Internship</MenuItem>
               <MenuItem value="Full-Time">Full-Time</MenuItem>
@@ -457,7 +371,7 @@ const AdminDashboard = () => {
               shrink: true,
             }}
           />
-          {!(editJob?.jobTypeName === 'full-time' || editJob?.jobTypeName === 'Full-Time') && (
+          {!(editJob?.jobCategory === 'full-time' || editJob?.jobCategory === 'Full-Time') && (
             <TextField
               label="End Date"
               name="endDate"
@@ -471,7 +385,7 @@ const AdminDashboard = () => {
               }}
             />
           )}
-          {!(editJob?.jobTypeName === 'full-time' || editJob?.jobTypeName === 'Full-Time') && (
+          {!(editJob?.jobCategory === 'full-time' || editJob?.jobCategory === 'Full-Time') && (
             <TextField
               fullWidth
               label="Internship Period"
@@ -498,8 +412,15 @@ const AdminDashboard = () => {
             </Button>
           </Box>
         </Box>
-      </Modal>
-
+      </Modal> */}
+      <JobEditModal
+        modalOpen={modalOpen}
+        setModalOpen={setModalOpen}
+        editJob={editJob}
+        handleUpdationoJobCategoryChange={handleUpdationoJobCategoryChange}
+        handleUpdationDateChange={handleUpdationDateChange}
+        updateJob={updateJob}
+      />
       <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={() => setSnackbarOpen(false)}>
         <Alert severity="success" onClose={() => setSnackbarOpen(false)}>
           Operation Successful!
@@ -510,3 +431,263 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+
+const JobCategoryForm = ({ onSave }: { onSave: () => Promise<void> }) => {
+  const [jobCategory, setJobCategory] = useState<'Full-Time' | 'Internship'>(null);
+  const [startDate, setStartDate] = useState<string | null>(null);
+  const [endDate, setEndDate] = useState<string | null>(null);
+
+  const [internshipPeriod, setInternshipPeriod] = useState<string>(null);
+
+  const handleJobCategoryChange = (event) => {
+    setJobCategory(event.target.value);
+  };
+
+  // const handleDateChange = (type, value) => {
+  //   if (type === 'start') {
+  //     setStartDate(value);
+  //   } else if (type === 'end') {
+  //     setEndDate(value);
+  //   }
+
+  //   if (startDate && endDate) {
+  //     const start = new Date(startDate);
+  //     const end = new Date(endDate);
+  //     if (start <= end) {
+  //       const diffMonths =
+  //         (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+  //       setInternshipPeriod(`${diffMonths + 1} month${diffMonths + 1 > 1 ? 's' : ''}`);
+  //     } else {
+  //       setInternshipPeriod('');
+  //     }
+  //   }
+  // };
+  const handleDateChange = (type, value) => {
+    let updatedStartDate = startDate;
+    let updatedEndDate = endDate;
+    console.log({ updatedStartDate });
+    console.log({ value });
+    if (type === 'start') {
+      updatedStartDate = value;
+      console.log({ updatedStartDate });
+      setStartDate(value);
+    } else if (type === 'end') {
+      updatedEndDate = value;
+      setEndDate(value);
+    }
+
+    if (updatedStartDate && updatedEndDate) {
+      const start = new Date(updatedStartDate);
+      const end = new Date(updatedEndDate);
+      console.log({ end });
+      if (start <= end) {
+        const diffMonths =
+          (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+        setInternshipPeriod(`${diffMonths + 1} month${diffMonths + 1 > 1 ? 's' : ''}`);
+      } else {
+        setInternshipPeriod('');
+      }
+    }
+  };
+  const handleSubmit = async () => {
+    const newJobCategory = {
+      jobCategory,
+      startDate,
+      endDate,
+      internshipPeriod,
+      instanceId: CURRENT_TERM,
+    };
+
+    try {
+      await createJobCategory(newJobCategory);
+      onSave();
+      setJobCategory(null);
+      setStartDate(null);
+      setEndDate(null);
+      setInternshipPeriod(null);
+    } catch (error) {
+      console.error('Error creating job category:', error);
+    }
+  };
+
+  return (
+    <Card sx={{ boxShadow: 3, mb: 4 }}>
+      <CardContent>
+        <Typography variant="h5" gutterBottom>
+          Create Job Category
+        </Typography>
+        <Typography variant="body2" color="text.secondary" gutterBottom>
+          Fill in the details to create a new job category.
+        </Typography>
+
+        <Grid container spacing={3} mt={2}>
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth>
+              <InputLabel>Job Category</InputLabel>
+              <Select value={jobCategory} onChange={handleJobCategoryChange} label="Job Category">
+                <MenuItem value="Internship">Internship</MenuItem>
+                <MenuItem value="Full-Time">Full-Time</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Start Date"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              value={startDate || ''}
+              onChange={(e) => handleDateChange('start', e.target.value)}
+            />
+          </Grid>
+          {jobCategory === 'Internship' && (
+            <>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="End Date"
+                  type="date"
+                  InputLabelProps={{ shrink: true }}
+                  value={endDate || ''}
+                  onChange={(e) => handleDateChange('end', e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Internship Period"
+                  value={internshipPeriod || ''}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                  variant="outlined"
+                />
+              </Grid>
+            </>
+          )}
+        </Grid>
+
+        <Box mt={3} textAlign="center">
+          <Tooltip title="Save job details" arrow>
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<Save />}
+              onClick={handleSubmit}
+              size="large"
+            >
+              Create Job Category
+            </Button>
+          </Tooltip>
+        </Box>
+      </CardContent>
+    </Card>
+  );
+};
+
+
+
+
+const JobEditModal= ({
+  modalOpen,
+  setModalOpen,
+  editJob,
+  handleUpdationoJobCategoryChange,
+  handleUpdationDateChange,
+  updateJob,
+}:{
+  modalOpen: boolean;
+  setModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  editJob: JobCategoryInfo; 
+  handleUpdationoJobCategoryChange: (event: SelectChangeEvent<"Full-Time" | "Internship">) => void;
+  handleUpdationDateChange: (type: string, value: string) => void;
+  updateJob: () => void;
+
+}) => {
+  return (
+    <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
+      <Box
+        sx={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 400,
+          bgcolor: 'background.paper',
+          boxShadow: 24,
+          p: 4,
+          zIndex: 2,
+        }}
+      >
+        <Typography variant="h6" gutterBottom>
+          Edit Job
+        </Typography>
+        <FormControl fullWidth>
+          <InputLabel>Job Category</InputLabel>
+          <Select
+            value={
+              editJob?.jobCategory === 'full-time' || editJob?.jobCategory === 'Full-Time'
+                ? 'Full-Time'
+                : 'Internship'
+            }
+            onChange={handleUpdationoJobCategoryChange}
+            variant="outlined"
+            label="Job Category"
+          >
+            <MenuItem value="Internship">Internship</MenuItem>
+            <MenuItem value="Full-Time">Full-Time</MenuItem>
+          </Select>
+        </FormControl>
+        <TextField
+          label="Start Date"
+          name="startDate"
+          type="date"
+          value={editJob?.startDate}
+          onChange={(e) => handleUpdationDateChange('start', e.target.value)}
+          fullWidth
+          margin="normal"
+          InputLabelProps={{
+            shrink: true,
+          }}
+        />
+        {!(editJob?.jobCategory === 'full-time' || editJob?.jobCategory === 'Full-Time') && (
+          <>
+            <TextField
+              label="End Date"
+              name="endDate"
+              type="date"
+              value={editJob?.endDate}
+              onChange={(e) => handleUpdationDateChange('end', e.target.value)}
+              fullWidth
+              margin="normal"
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+            <TextField
+              fullWidth
+              label="Internship Period"
+              name="internshipPeriod"
+              value={editJob?.internshipPeriod || ''}
+              InputProps={{
+                readOnly: true,
+              }}
+              variant="outlined"
+              margin="normal"
+            />
+          </>
+        )}
+        <Box sx={{ display: 'flex', gap: 3, mt: 3 }}>
+          <Button variant="outlined" color="secondary" onClick={() => setModalOpen(false)} fullWidth>
+            Cancel
+          </Button>
+          <Button onClick={updateJob} variant="contained" color="primary" fullWidth>
+            Save Changes
+          </Button>
+        </Box>
+      </Box>
+    </Modal>
+  );
+};
+
+

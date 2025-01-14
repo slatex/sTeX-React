@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     { instanceId: CURRENT_TERM }
   );
   if (!userId) return;
-  const {organizationId, jobTypeId,session,jobTitle,jobDescription,trainingLocation,qualification, targetYears, openPositions,currency,stipend,facilities,applicationDeadline
+  const {organizationId, JobCategoryId,session,jobTitle,jobDescription,trainingLocation,qualification, targetYears, openPositions,currency,stipend,facilities,applicationDeadline
   } = req.body;
   console.log({organizationId})
 console.log("of",req.body);
@@ -22,9 +22,9 @@ console.log("of",req.body);
 
   const result = await executeAndEndSet500OnError(
     `INSERT INTO jobpost 
-      (jobTypeId,organizationId ,session,jobTitle,JobDescription,trainingLocation,qualification,targetYears,openPositions,currency,stipend,facilities,applicationDeadline) 
+      (JobCategoryId,organizationId ,session,jobTitle,jobDescription,trainingLocation,qualification,targetYears,openPositions,currency,stipend,facilities,applicationDeadline) 
      VALUES (?,?,?, ?, ?, ?,?,?,?,?,?,?,?)`,
-    [jobTypeId ,organizationId,session,jobTitle,jobDescription,trainingLocation,qualification,targetYears,openPositions,currency,stipend,facilities,applicationDeadline
+    [JobCategoryId ,organizationId,session,jobTitle,jobDescription,trainingLocation,qualification,targetYears,openPositions,currency,stipend,facilities,applicationDeadline
     ],
     res
   );

@@ -14,16 +14,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     { instanceId: CURRENT_TERM }
   );
   if (!userId) return;
-  const { jobType, internshipPeriod, startDate,endDate } = req.body;
-  console.log({jobType});
+  const { jobCategory, internshipPeriod, startDate,endDate } = req.body;
+  console.log({jobCategory});
   let instanceId = req.body.instanceId as string;
   if (!instanceId) instanceId = CURRENT_TERM;
 
   const result = await executeAndEndSet500OnError(
-    `INSERT INTO jobtype 
-      (jobTypeName,internshipPeriod,startDate,endDate,instanceId) 
+    `INSERT INTO jobCategories 
+      (jobCategory,internshipPeriod,startDate,endDate,instanceId) 
      VALUES (?, ?, ?, ?,?)`,
-    [jobType, internshipPeriod, startDate, endDate,instanceId],
+    [jobCategory, internshipPeriod, startDate, endDate,instanceId],
     res
   );
   if (!result) return;
