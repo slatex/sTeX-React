@@ -80,7 +80,7 @@ export const de = {
     discard: 'abwerfen',
     saveAndGrade: 'Speichern und bewerten',
     yourAnswer: 'Ihre Antwort',
-    answerTemplate: 'Antwort $1 von $2',
+    yourAnswerWithIdx: 'Ihre Antwort ($1 von $2)',
   },
   practiceProblems: {
     clickSection:
@@ -90,6 +90,5 @@ export const de = {
       'Hinweis: Diese Probleme dienen nur dazu, Ihnen beim Lernen zu helfen. Sie decken das Kursmaterial nicht vollständig ab und es gibt keine Garantie dafür, dass die Probleme korrekt sind oder dass sie repräsentativ für die Art von Problemen sind, die in den Tests oder der Prüfung behandelt werden.',
     closeAllPracticeProblems: 'Alle Übungsaufgaben schließen',
     showAllPracticeProblems: 'Alle Übungsaufgaben anzeigen',
-    backToAllCourseProblems: 'Zurück zu allen Kursproblemen',
   },
 };

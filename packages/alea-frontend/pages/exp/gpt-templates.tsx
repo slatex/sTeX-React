@@ -135,7 +135,7 @@ const GptEval: NextPage = () => {
   };
 
   return (
-    <MainLayout title="GPT Templates | VoLL-KI">
+    <MainLayout title="GPT Templates | ALeA">
       <LayoutWithFixedMenu
         menu={
           <TemplateMenu

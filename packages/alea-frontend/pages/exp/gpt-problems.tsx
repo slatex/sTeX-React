@@ -239,7 +239,7 @@ const GptQuestions: NextPage = () => {
   }, []);
 
   return (
-    <MainLayout title="GPT Problems | VoLL-KI">
+    <MainLayout title="GPT Problems | ALeA">
       <Box px="10px" m="auto" maxWidth="850px">
         <Box textAlign="center" m="20px">
           <h1>GPT Problems</h1>

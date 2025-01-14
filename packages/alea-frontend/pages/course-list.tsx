@@ -35,7 +35,7 @@ const CourseList: NextPage = () => {
 
   const universities = docIdx.filter((doc) => doc.type === DocIdxType.university);
   return (
-    <MainLayout title="Course-List | VoLL-KI">
+    <MainLayout title="Course-List | ALeA">
       <Box m="0 auto" maxWidth="800px">
         {Object.entries(groupedCourses).map(([institution, institutionCourses]) => (
           <Box key={institution}>

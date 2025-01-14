@@ -1,9 +1,14 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Button, IconButton, Tooltip, Typography } from '@mui/material';
 import LinearProgress from '@mui/material/LinearProgress';
-import { Problem, ProblemResponse, getProblemIdsForFile, getProblemShtml } from '@stex-react/api';
+import {
+  Problem,
+  ProblemResponse,
+  getLearningObjectShtml,
+  getProblemIdsForFile,
+} from '@stex-react/api';
 import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
-import { sourceFileUrl } from '@stex-react/utils';
+import { extractProjectIdAndFilepath, sourceFileUrl } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useReducer, useState } from 'react';
 import { defaultProblemResponse } from './InlineProblemDisplay';
@@ -11,7 +16,6 @@ import { ProblemDisplay } from './ProblemDisplay';
 import { ListStepper } from './QuizDisplay';
 import { getLocaleObject } from './lang/utils';
 import { ServerLinksContext, mmtHTMLToReact } from './stex-react-renderer';
-import { extractProjectIdAndFilepath } from './utils';
 
 export function PerSectionQuiz({
   archive,
@@ -49,7 +53,7 @@ export function PerSectionQuiz({
 
   useEffect(() => {
     if (!startQuiz) return;
-    const problems$ = problemIds.map((p) => getProblemShtml(mmtUrl, p));
+    const problems$ = problemIds.map((p) => getLearningObjectShtml(mmtUrl, p));
     setIsLoadingProblems(true);
     Promise.all(problems$).then((problemStrs) => {
       const problems = problemStrs.map((p) => getProblem(hackAwayProblemId(p), ''));
@@ -167,7 +171,6 @@ export function PerSectionQuiz({
           </Button>
         )}
       </Box>
-      
     </Box>
   );
 }

@@ -1,16 +1,15 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, IconButton, Tooltip } from '@mui/material';
-import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
+import { mmtHTMLToReact, PerSectionQuiz } from '@stex-react/stex-react-renderer';
 import { PRIMARY_COL } from '@stex-react/utils';
 import { useRouter } from 'next/router';
-import { getLocaleObject } from 'packages/stex-react-renderer/src/lib/lang/utils';
-import { PerSectionQuiz } from 'packages/stex-react-renderer/src/lib/PerSectionQuiz';
 import React from 'react';
 import MainLayout from '../layouts/MainLayout';
+import { getLocaleObject } from '../lang/utils';
 
 const PerSectionQuizPage: React.FC = () => {
   const router = useRouter();
-  const { practiceProblems: t } = getLocaleObject(router);
+  const { perSectionQuiz: t } = getLocaleObject(router);
 
   const { archive, filepath, title, courseId } = router.query as {
     archive: string;
@@ -28,7 +27,7 @@ const PerSectionQuizPage: React.FC = () => {
   }
 
   return (
-    <MainLayout title="PerSection Problems | VoLL-KI">
+    <MainLayout title="PerSection Problems | ALeA">
       <Box px="10px" bgcolor="white" maxWidth="800px" m="0 auto">
         <Box display="flex" mt="10px" gap="10px" alignItems="center" my={2}>
           <Tooltip title={t.backToAllCourseProblems}>

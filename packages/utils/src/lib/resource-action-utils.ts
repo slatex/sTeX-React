@@ -1,19 +1,21 @@
-import { CURRENT_TERM } from "./courseInfo";
+import { CURRENT_TERM } from './courseInfo';
 
 export enum Action {
   CREATE = 'CREATE',
   READ = 'READ',
   UPDATE = 'UPDATE',
   DELETE = 'DELETE',
-
+  PREVIEW = 'PREVIEW',
   MUTATE = 'MUTATE',
+  INSTRUCTOR_GRADING = 'INSTRUCTOR_GRADING',
   MODERATE = 'MODERATE',
 
   ACCESS_CONTROL = 'ACCESS_CONTROL',
 
   APPLY = 'APPLY',
   CREATE_JOB_POST = 'CREATE_JOB_POST',
-  CREATE_JOB_TYPE = 'CREATE_JOB_TYPE' ,
+  CREATE_JOB_TYPE = 'CREATE_JOB_TYPE',
+  TAKE = 'TAKE',
 }
 
 export enum ResourceName {
@@ -45,6 +47,19 @@ export enum ComponentType {
   WILDCARD2 = 'WILDCARD2',
 }
 
+export const COURSE_SPECIFIC_RESOURCENAMES = [
+  ResourceName.COURSE_NOTES,
+  ResourceName.COURSE_QUIZ,
+  ResourceName.COURSE_COMMENTS,
+  ResourceName.COURSE_STUDY_BUDDY,
+  ResourceName.COURSE_HOMEWORK,
+  ResourceName.COURSE_ACCESS,
+];
+export interface CourseResourceAction {
+  courseId: string;
+  name: ResourceName;
+  action: Action;
+}
 export interface ResourceIdComponent {
   name?: string;
   type: ComponentType;
@@ -60,10 +75,6 @@ export interface ResourceType {
 export interface ResourceActionPair {
   resourceId: string;
   actionId: string;
-}
-
-export interface GetSpecificAclIdsResponse {
-  [key: string]: string;
 }
 
 export const ALL_RESOURCE_TYPES: ResourceType[] = [
@@ -90,7 +101,7 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
   },
   {
     name: ResourceName.COURSE_QUIZ,
-    possibleActions: [Action.MUTATE],
+    possibleActions: [Action.MUTATE, Action.PREVIEW, Action.TAKE],
     components: [
       { type: ComponentType.FIXED, value: 'course' },
       { name: 'courseId', type: ComponentType.VARIABLE },
@@ -123,7 +134,7 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
   },
   {
     name: ResourceName.COURSE_HOMEWORK,
-    possibleActions: [Action.MUTATE],
+    possibleActions: [Action.MUTATE, Action.INSTRUCTOR_GRADING, Action.TAKE],
     components: [
       { type: ComponentType.FIXED, value: 'course' },
       { name: 'courseId', type: ComponentType.VARIABLE },
@@ -160,14 +171,13 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
   },
   {
     name: ResourceName.JOB_PORTAL,
-    possibleActions: [Action.APPLY, Action.CREATE_JOB_POST ,Action.CREATE_JOB_TYPE],
+    possibleActions: [Action.APPLY, Action.CREATE_JOB_POST, Action.CREATE_JOB_TYPE],
     components: [
       { type: ComponentType.FIXED, value: 'instance' },
       { name: 'instanceId', type: ComponentType.VARIABLE, value: CURRENT_TERM },
       { type: ComponentType.FIXED, value: 'job-portal' },
     ],
   },
-
 ];
 
 export const RESOURCE_TYPE_MAP = new Map<ResourceName, ResourceType>(

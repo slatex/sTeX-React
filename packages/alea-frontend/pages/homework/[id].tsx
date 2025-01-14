@@ -1,32 +1,51 @@
-import { Box, CircularProgress, Typography } from '@mui/material';
-import { getCourseInfo, getUserInfo } from '@stex-react/api';
+import SchoolIcon from '@mui/icons-material/School';
+import { Box, Button, CircularProgress, Typography } from '@mui/material';
+import Alert from '@mui/material/Alert';
+import { canAccessResource, getCourseInfo, getUserInfo } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
+import { Action, CourseInfo, CURRENT_TERM, ResourceName } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
-import HomeworkPerformanceTable from '../../components/HomeworkPerformanceTable';
-import MainLayout from '../../layouts/MainLayout';
-import { getLocaleObject } from '../../lang/utils';
-import { CourseInfo } from '@stex-react/utils';
-import { CourseHeader } from '../course-home/[courseId]';
 import { ForceFauLogin } from '../../components/ForceFAULogin';
+import HomeworkPerformanceTable from '../../components/HomeworkPerformanceTable';
+import { getLocaleObject } from '../../lang/utils';
+import MainLayout from '../../layouts/MainLayout';
+import { CourseHeader, handleEnrollment } from '../course-home/[courseId]';
 
 const HomeworkPage: NextPage = () => {
   const router = useRouter();
   const courseId = router.query.id as string;
-  const { homework: t, home: tHome } = getLocaleObject(router);
+  const { homework: t, home: tHome, quiz: q } = getLocaleObject(router);
 
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
   const [forceFauLogin, setForceFauLogin] = useState(false);
   const { mmtUrl } = useContext(ServerLinksContext);
+  const [userId, setUserId] = useState(null);
+  const [enrolled, setIsEnrolled] = useState<boolean>(false);
 
   useEffect(() => {
     getUserInfo().then((i) => {
       const uid = i?.userId;
       if (!uid) return;
+      setUserId(uid);
       setForceFauLogin(uid.length !== 8 || uid.includes('@'));
     });
   });
+
+  useEffect(() => {
+    if (!courseId) return;
+    const checkAccess = async () => {
+      const hasAccess = await canAccessResource(ResourceName.COURSE_HOMEWORK, Action.TAKE, {
+        courseId,
+        instanceId: CURRENT_TERM,
+      });
+      if (hasAccess) {
+        setIsEnrolled(true);
+      }
+    };
+    checkAccess();
+  }, [courseId]);
 
   useEffect(() => {
     if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
@@ -43,16 +62,21 @@ const HomeworkPage: NextPage = () => {
   if (forceFauLogin) {
     return (
       <MainLayout
-        title={(courseId || '').toUpperCase() + ` ${tHome.courseThumb.homeworks} | VoLL-KI`}
+        title={(courseId || '').toUpperCase() + ` ${tHome.courseThumb.homeworks} | ALeA`}
       >
         <ForceFauLogin content={"homework"} />
       </MainLayout>
     );
   }
+  const enrollInCourse = async () => {
+    if (!userId || !courseId) return;
+    const enrollmentSuccess = await handleEnrollment(userId, courseId, CURRENT_TERM);
+    if (enrollmentSuccess) setIsEnrolled(true);
+  };
 
   return (
     <MainLayout
-      title={(courseId || '').toUpperCase() + ` ${tHome.courseThumb.homeworks} | VoLL-KI`}
+      title={(courseId || '').toUpperCase() + ` ${tHome.courseThumb.homeworks} | ALeA`}
     >
       <CourseHeader
         courseName={courseInfo.courseName}
@@ -60,9 +84,16 @@ const HomeworkPage: NextPage = () => {
         courseId={courseId}
       />
       <Box maxWidth="900px" m="auto" px="10px">
-        <Typography variant="h4" sx={{ m: '30px 0 15px' }}>
-          {t.homeworkDashboard}
-        </Typography>
+        {!enrolled && <Alert severity="info">{q.enrollmentMessage}</Alert>}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', m: '30px 0 15px' }}>
+          <Typography variant="h4">{t.homeworkDashboard}</Typography>
+          {!enrolled && (
+            <Button onClick={enrollInCourse} variant="contained" sx={{ backgroundColor: 'green' }}>
+              {q.getEnrolled}
+              <SchoolIcon />
+            </Button>
+          )}
+        </Box>
         <Typography variant="body1" sx={{ color: '#333' }}>
           {t.homeworkDashboardDescription.replace('{courseId}', courseId.toUpperCase())}
         </Typography>

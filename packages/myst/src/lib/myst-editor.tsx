@@ -2,8 +2,8 @@ import { Box, TextareaAutosize } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { getLocaleObject } from './lang/utils';
-import styles from './myst.module.scss';
 import { MystViewer } from './myst-viewer';
+import styles from './myst.module.scss';
 
 interface MystEditorProps {
   name: string;
@@ -19,6 +19,8 @@ interface MystEditorProps {
   defaultPreview?: boolean;
 
   onValueChange: (v: string) => void;
+
+  editorProps?: any;
 }
 
 const PREVIEW_TRIGGER_SET = /[#$()_+[\]{}|~*<>=]/;
@@ -31,20 +33,18 @@ export function MystEditor({
   value,
   onValueChange,
   defaultPreview = false,
+  editorProps,
 }: MystEditorProps) {
   const t = getLocaleObject(useRouter());
   const [autoPreview, setAutoPreview] = useState(defaultPreview);
-  const [manualAction, setManualAction] = useState<boolean | undefined>(
-    undefined
-  );
+  const [manualAction, setManualAction] = useState<boolean | undefined>(undefined);
 
   function checkAutoPreview(content: string) {
     if (autoPreview) return;
     setAutoPreview(PREVIEW_TRIGGER_SET.test(content));
   }
 
-  const showPreview =
-    manualAction || (manualAction === undefined && autoPreview);
+  const showPreview = manualAction || (manualAction === undefined && autoPreview);
   return (
     <Box
       sx={{
@@ -62,6 +62,7 @@ export function MystEditor({
             name={name}
             className={styles['textarea']}
             value={value}
+            style={editorProps ?? {}}
             onChange={(e) => {
               const v = e.target.value;
               checkAutoPreview(v);

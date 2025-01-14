@@ -138,7 +138,7 @@ export function getPoints(problem: Problem, response?: ProblemResponse) {
   if (!response) return 0;
   const perInputCorrectnessQuotient: number[] = problem.inputs
     .map((input, idx) => {
-      const resp = response?.responses?.[idx];
+      const resp = response?.autogradableResponses?.[idx];
       const { type, fillInAnswerClasses, options } = input;
       if (type !== input.type) {
         console.error(`Input [${idx}] (${type}) has unexpected response: ${resp.type}`);
@@ -316,6 +316,9 @@ function getSubProblems(rootNode: Element): SubProblemData[] {
   const subproblems: SubProblemData[] = [];
   for (const rawAnswerClass of rawAnswerclasses) {
     if (rawAnswerClass.attrVal === '') {
+      if (rawAnswerClass.node?.attribs) {
+        rawAnswerClass.node.attribs['id'] = getMMTCustomId(`nap_${subproblems.length}`);
+      }
       subproblems.push({ answerclasses: [], solution: getProblemSolution(rawAnswerClass.node) });
       continue;
     }
@@ -349,9 +352,13 @@ function getPointsFromAnswerClass(rawClass: Element): number {
 function getFillInAnswerClasses(fillInSolNode: Element): FillInAnswerClass[] {
   const answerClassNodes = recursivelyFindNodes(fillInSolNode, ['data-fillin-type']);
   if (!answerClassNodes?.length) {
-    const exactMatch = DomUtils.textContent(fillInSolNode);
-    if (!exactMatch) return [];
-    return [{ type: FillInAnswerClassType.exact, verdict: true, exactMatch }];
+    const value = DomUtils.textContent(fillInSolNode);
+    if (!value) return [];
+    if (value.startsWith('^') && value.endsWith('$')) {
+      return [{ type: FillInAnswerClassType.regex, verdict: true, regex: value }];
+    } else {
+      return [{ type: FillInAnswerClassType.exact, verdict: true, exactMatch: value }];
+    }
   }
   return answerClassNodes
     .map(({ node }) => getAnswerClass(node))
@@ -366,7 +373,7 @@ function findInputs(problemRootNode: (ChildNode & Element) | Document): Input[] 
     const type = NODE_ATTRS_TO_TYPE[attrName] ?? InputType.FILL_IN;
     const inline = isInlineBlock(node);
     const ignoreForScoring = isIgnoredForScoring(node);
-    node.attribs['id'] = getMMTCustomId(`${idx}`);
+    node.attribs['id'] = getMMTCustomId(`ap_${idx}`);
     if ([InputType.MCQ, InputType.SCQ].includes(type)) {
       const options = getOptionSet(node, type);
       return { type, options, inline } as Input;
@@ -525,33 +532,6 @@ export const DEFAULT_ANSWER_CLASSES: Readonly<AnswerClass[]> = [
     isTrait: false,
   },
   {
-    className: 'ac-default-03',
-    title: 'Empty',
-    description: 'Student has left this question entirely or mostly blank.',
-    points: 0,
-    closed: true,
-    isTrait: false,
-  },
-  {
-    className: 'ac-default-04',
-    title: 'Crossed out',
-    description: 'Student has crossed out all answers.',
-
-    points: 0,
-    closed: true,
-    isTrait: false,
-  },
-  {
-    className: 'ac-default-05',
-    title: 'Illegible',
-    description:
-      "Student's answer to this question cannot be incomprehensible despite honest effort.",
-
-    points: 0,
-    closed: true,
-    isTrait: false,
-  },
-  {
     className: 'ac-default-06',
     title: 'Correct, but...',
     description: "Student's answer is mostly correct.",
@@ -563,14 +543,6 @@ export const DEFAULT_ANSWER_CLASSES: Readonly<AnswerClass[]> = [
     className: 'ac-default-07',
     title: 'Wrong, but...',
     description: "Student's answer is mostly wrong.",
-    isTrait: false,
-    points: 0,
-    closed: false,
-  },
-  {
-    className: 'ac-default-08',
-    title: 'Abandoned',
-    description: 'Abandoned',
     isTrait: false,
     points: 0,
     closed: false,

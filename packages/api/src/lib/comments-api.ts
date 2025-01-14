@@ -1,4 +1,4 @@
-import { FileLocation } from '@stex-react/utils';
+import { CourseResourceAction, FileLocation } from '@stex-react/utils';
 import axios, { AxiosError } from 'axios';
 import {
   BlogPost,
@@ -15,7 +15,7 @@ import {
   UserInformation,
   UserSignUpDetail,
 } from './comment';
-import { getAuthHeaders, logoutAndGetToLoginPage } from './lms';
+import { getAuthHeaders, logoutAndGetToLoginPage } from './lmp';
 
 async function commentRequest(apiUrl: string, requestType: string, data?: any) {
   const headers = getAuthHeaders();
@@ -286,6 +286,20 @@ export async function generateApfelToken(userId: string, time: number) {
 }
 
 export async function checkUserExist() {
-  const response = await axios.post('/api/check-user-exist',{}, { headers: getAuthHeaders() });
+  const response = await axios.post('/api/check-user-exist', {}, { headers: getAuthHeaders() });
+  return response.data;
+}
+
+export async function getResourcesForUserId(mmtUrl: string) {
+  const response = await axios.post(
+    '/api/get-resources-for-userid',
+    { mmtUrl },
+    { headers: getAuthHeaders() }
+  );
+  return response.data as CourseResourceAction[];
+}
+
+export async function getCoverageTimeline() {
+  const response = await axios.get('/api/get-coverage-timeline');
   return response.data;
 }

@@ -1,9 +1,9 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Button, IconButton, Tooltip } from '@mui/material';
 import LinearProgress from '@mui/material/LinearProgress';
-import { Problem, ProblemResponse, getProblemShtml } from '@stex-react/api';
+import { Problem, ProblemResponse, getLearningObjectShtml } from '@stex-react/api';
 import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
-import { sourceFileUrl } from '@stex-react/utils';
+import { extractProjectIdAndFilepath, sourceFileUrl } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useReducer, useState } from 'react';
 import { defaultProblemResponse } from './InlineProblemDisplay';
@@ -11,7 +11,6 @@ import { ProblemDisplay } from './ProblemDisplay';
 import { ListStepper } from './QuizDisplay';
 import { getLocaleObject } from './lang/utils';
 import { ServerLinksContext, mmtHTMLToReact } from './stex-react-renderer';
-import { extractProjectIdAndFilepath } from './utils';
 
 function handleViewSource(problemId: string) {
   const [projectId, filePath] = extractProjectIdAndFilepath(problemId);
@@ -20,6 +19,15 @@ function handleViewSource(problemId: string) {
   window.open(sourceLink, '_blank');
 }
 
+function SourceIcon({ problemId }: { problemId: string }) {
+  return (
+    <IconButton onClick={() => handleViewSource(problemId)}>
+      <Tooltip title="view source">
+        <OpenInNewIcon />
+      </Tooltip>
+    </IconButton>
+  );
+}
 export function PracticeQuestions({
   problemIds,
   showButtonFirst = true,
@@ -38,7 +46,7 @@ export function PracticeQuestions({
   const [showSolution, setShowSolution] = useState(false);
 
   useEffect(() => {
-    const problems$ = problemIds.map((p) => getProblemShtml(mmtUrl, p));
+    const problems$ = problemIds.map((p) => getLearningObjectShtml(mmtUrl, p));
     setIsLoadingProblems(true);
     Promise.all(problems$).then((problemStrs) => {
       const problems = problemStrs.map((p) => getProblem(hackAwayProblemId(p), ''));
@@ -69,26 +77,34 @@ export function PracticeQuestions({
     >
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <h2>
-          {t.problem} {problemIdx + 1} {t.of} {problems.length}&nbsp;
+          {problems.length > 1 ? (
+            <>
+              {t.problem} {problemIdx + 1} {t.of} {problems.length}&nbsp;
+            </>
+          ) : (
+            <SourceIcon problemId={problemIds[problemIdx]} />
+          )}
           {problem.header && <>({mmtHTMLToReact(problem.header)})</>}
         </h2>
       </Box>
-      <Box display="flex" justifyContent="space-between">
-        <ListStepper
-          idx={problemIdx}
-          listSize={problems.length}
-          onChange={(idx) => {
-            setProblemIdx(idx);
-            setShowSolution(false);
-          }}
-        />
-        <IconButton onClick={() => handleViewSource(problemIds[problemIdx])}>
-          <Tooltip title="view source">
-            <OpenInNewIcon />
-          </Tooltip>
-        </IconButton>
-      </Box>
-      <Box my="10px">
+      {problems.length > 1 && (
+        <Box display="flex" justifyContent="space-between">
+          <ListStepper
+            idx={problemIdx}
+            listSize={problems.length}
+            onChange={(idx) => {
+              setProblemIdx(idx);
+              setShowSolution(false);
+            }}
+          />
+          <IconButton onClick={() => handleViewSource(problemIds[problemIdx])}>
+            <Tooltip title="view source">
+              <OpenInNewIcon />
+            </Tooltip>
+          </IconButton>
+        </Box>
+      )}
+      <Box mb="10px">
         <ProblemDisplay
           r={response}
           showPoints={false}

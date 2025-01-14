@@ -10,14 +10,7 @@ import {
   shouldUseDrawer,
 } from '@stex-react/utils';
 import { useRouter } from 'next/router';
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useReducer,
-  useRef,
-  useState,
-} from 'react';
+import { createContext, useContext, useEffect, useReducer, useRef, useState } from 'react';
 import SectionReview from './SectionReview';
 import CompetencyTable from './CompetencyTable';
 import { ContentDashboard } from './ContentDashboard';
@@ -31,7 +24,7 @@ import { ExpandableContextMenu } from './ExpandableContextMenu';
 import { FileBrowser } from './FileBrowser';
 import { DocSectionContext, InfoSidebar } from './InfoSidebar';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
-import { QuizDisplay } from './QuizDisplay';
+import { ListStepper, QuizDisplay } from './QuizDisplay';
 import { RenderOptions } from './RendererDisplayOptions';
 import {
   ConfigureLevelSlider,
@@ -42,11 +35,13 @@ import {
 } from './SelfAssessmentDialog';
 import { TourAPIEntry, TourDisplay } from './TourDisplay';
 import { TOCFileNode, getScrollInfo } from './collectIndexInfo';
-import {
-  CustomItemsContext,
-  NoMaxWidthTooltip,
-  mmtHTMLToReact,
-} from './mmtParser';
+import { CustomItemsContext, NoMaxWidthTooltip, mmtHTMLToReact } from './mmtParser';
+import { DimAndURIListDisplay, ProblemDisplay, URIListDisplay } from './ProblemDisplay';
+import { GradingCreator } from './GradingCreator';
+import { GradingContext } from './SubProblemAnswer';
+import { PracticeQuestions } from './PracticeQuestions';
+import { defaultProblemResponse } from './InlineProblemDisplay';
+import { PerSectionQuiz } from './PerSectionQuiz';
 //import { RenderStatusTree } from './RenderStatusTree';
 
 export const ServerLinksContext = createContext({ mmtUrl: '', gptUrl: '' });
@@ -63,9 +58,7 @@ export function StexReactRenderer({
   displayReason?: DisplayReason;
 }) {
   const router = useRouter();
-  const [showDashboard, setShowDashboard] = useState(
-    !shouldUseDrawer() && !IS_MMT_VIEWER
-  );
+  const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer() && !IS_MMT_VIEWER);
   const [renderOptions, setRenderOptions] = useState({
     noFrills,
   });
@@ -99,8 +92,7 @@ export function StexReactRenderer({
     const inDocPath = router?.query?.['inDocPath'] as string;
     if (!inDocPath && router) {
       const fileId = router.query['id'] || router.query['courseId'];
-      router.query['inDocPath'] =
-        localStore?.getItem(`inDocPath-${fileId}`) || '0';
+      router.query['inDocPath'] = localStore?.getItem(`inDocPath-${fileId}`) || '0';
       router.replace({ pathname: router.pathname, query: router.query });
       return;
     }
@@ -182,11 +174,7 @@ export function StexReactRenderer({
                   <ExpandableContextMenu contentUrl={contentUrl} />
                 </Box>
               )}
-              <Box
-                display="flex"
-                justifyContent="space-around"
-                textAlign="left"
-              >
+              <Box display="flex" justifyContent="space-around" textAlign="left">
                 <Box width={`${contentWidth}px`}>
                   <ContentFromUrl
                     displayReason={displayReason}
@@ -218,6 +206,7 @@ export {
   ContentFromUrl,
   ContentWithHighlight,
   CustomItemsContext,
+  DimAndURIListDisplay,
   DimIcon,
   DisplayReason,
   DocProblemBrowser,
@@ -226,13 +215,21 @@ export {
   ExpandableContextMenu,
   FileBrowser,
   FixedPositionMenu,
+  GradingContext,
+  GradingCreator,
   LayoutWithFixedMenu,
   LevelIcon,
+  ListStepper,
   NoMaxWidthTooltip,
+  PerSectionQuiz,
+  PracticeQuestions,
+  ProblemDisplay,
   QuizDisplay,
   SelfAssessment2,
   SelfAssessmentDialog,
   TourDisplay,
+  URIListDisplay,
+  defaultProblemResponse,
   mmtHTMLToReact,
 };
 export type { TOCFileNode, TourAPIEntry };

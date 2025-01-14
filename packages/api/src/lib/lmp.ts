@@ -1,9 +1,10 @@
 import { deleteCookie, getCookie, setCookie } from '@stex-react/utils';
 import axios, { AxiosError } from 'axios';
+import { LoType } from './mmt';
 
 export type CognitiveValueConfidence = NumericCognitiveValues;
 
-export interface LMS2Event {
+export interface LMPEvent {
   learner?: string; // The user id.
   time?: string; // Format: '2022-11-24 19:19:18'
   payload?: string; // Any string with arbitrary extra information to be used internally.
@@ -16,7 +17,7 @@ export interface AnswerUpdateEntry {
   quotient: number;
 }
 
-export interface ProblemAnswerEvent extends LMS2Event {
+export interface ProblemAnswerEvent extends LMPEvent {
   type: 'problem-answer';
   uri: string; // The problem uri (eg. http://mathhub.info/iwgs/quizzes/creative_commons_21.tex)
   score?: number; // The score of the learner.
@@ -24,60 +25,60 @@ export interface ProblemAnswerEvent extends LMS2Event {
   updates?: AnswerUpdateEntry[];
 }
 
-export interface CourseInitEvent extends LMS2Event {
+export interface CourseInitEvent extends LMPEvent {
   type: 'course-init';
   course: string; // The course id.
   grade?: string; // "1" to "5"
   percentage?: string; // "0" to "100"
 }
 
-export interface IKnowEvent extends LMS2Event {
+export interface IKnowEvent extends LMPEvent {
   type: 'i-know';
   // For i-know (a.k.a I understand)
   concept?: string;
 }
 
-export interface SelfAssessmentEvent extends LMS2Event {
+export interface SelfAssessmentEvent extends LMPEvent {
   type: 'self-assessment';
   concept: string;
-  competencies: NumericCognitiveValues;
+  competences: NumericCognitiveValues;
 }
 
-export interface SelfAssessmentSmileysEvent extends LMS2Event {
+export interface SelfAssessmentSmileysEvent extends LMPEvent {
   type: 'self-assessment-5StepLikertSmileys';
   concept: string;
-  competencies: SmileyCognitiveValues;
+  competences: SmileyCognitiveValues;
 }
 
-export interface PurgeEvent extends LMS2Event {
+export interface PurgeEvent extends LMPEvent {
   type: 'purge';
 }
 
-export interface ConceptClickedEvent extends LMS2Event {
+export interface ConceptClickedEvent extends LMPEvent {
   type: 'concept-clicked';
   concept: string;
 }
 
-export interface ConceptHoveredEvent extends LMS2Event {
+export interface ConceptHoveredEvent extends LMPEvent {
   type: 'concept-hovered';
   concept: string;
 }
 
-export interface DefiniendumReadEvent extends LMS2Event {
+export interface DefiniendumReadEvent extends LMPEvent {
   type: 'definiendum-read';
   concept: string;
 }
 
-export interface ViewEvent extends LMS2Event {
+export interface ViewEvent extends LMPEvent {
   type: 'view';
   concept: string;
 }
 
-export interface LoginEvent extends LMS2Event {
+export interface LoginEvent extends LMPEvent {
   type: 'login';
 }
 
-export interface LmsOutputMultipleRequest {
+export interface LmpOutputMultipleRequest {
   concepts: string[];
   'special-output'?: string;
   'include-confidence'?: boolean;
@@ -89,37 +90,30 @@ export interface ConceptCompetenceInfo {
   confidences?: CognitiveValueConfidence;
 }
 
-export interface LmsOutputMultipleResponse {
+export interface LmpOutputMultipleResponse {
   learner: string;
   model: ConceptCompetenceInfo[];
 }
 
-export async function getUriWeights(
-  concepts: string[]
-): Promise<NumericCognitiveValues[]> {
+export async function getUriWeights(concepts: string[]): Promise<NumericCognitiveValues[]> {
   if (!concepts?.length) return [];
-  const data: LmsOutputMultipleResponse = await lmsRequest(
-    'lms',
-    'lms/output/multiple',
+  const data: LmpOutputMultipleResponse = await lmpRequest(
+    'lmp',
+    'lmp/output/multiple',
     'POST',
     null,
     {
       concepts,
       'include-confidence': false,
-    } as LmsOutputMultipleRequest
+    } as LmpOutputMultipleRequest
   );
   if (!data?.model) return new Array(concepts.length).fill({});
 
   const compMap = new Map<string, NumericCognitiveValues>();
   data.model.forEach((c) => {
-    compMap.set(
-      c.concept,
-      cleanupNumericCognitiveValues(c.competences as NumericCognitiveValues)
-    );
+    compMap.set(c.concept, cleanupNumericCognitiveValues(c.competences as NumericCognitiveValues));
   });
-  return concepts.map(
-    (concept) => compMap.get(concept) || cleanupNumericCognitiveValues({})
-  );
+  return concepts.map((concept) => compMap.get(concept) || cleanupNumericCognitiveValues({}));
 }
 
 export async function getUriSmileys(
@@ -127,9 +121,9 @@ export async function getUriSmileys(
   inputHeaders?: any
 ): Promise<Map<string, SmileyCognitiveValues>> {
   if (!concepts?.length) return new Map();
-  const data: LmsOutputMultipleResponse = await lmsRequest(
-    'lms',
-    'lms/output/multiple',
+  const data: LmpOutputMultipleResponse = await lmpRequest(
+    'lmp',
+    'lmp/output/multiple',
     'POST',
     null,
     {
@@ -142,15 +136,11 @@ export async function getUriSmileys(
   const compMap = new Map<string, SmileyCognitiveValues>();
   if (!data?.model) return compMap;
   data.model.forEach((c) => {
-    compMap.set(
-      c.concept,
-      cleanupSmileyCognitiveValues(c.competences as SmileyCognitiveValues)
-    );
+    compMap.set(c.concept, cleanupSmileyCognitiveValues(c.competences as SmileyCognitiveValues));
   });
 
   concepts.map((concept) => {
-    if (!compMap.has(concept))
-      compMap.set(concept, cleanupSmileyCognitiveValues({}));
+    if (!compMap.has(concept)) compMap.set(concept, cleanupSmileyCognitiveValues({}));
   });
   return compMap;
 }
@@ -168,14 +158,14 @@ export async function getAllMyData(): Promise<{
     views: any[];
   };
 }> {
-  return await lmsRequest('lms', 'lms/output/all_my_data', 'POST', {}, {});
+  return await lmpRequest('lmp', 'lmp/output/all_my_data', 'POST', {}, {});
 }
 
 export async function getMyModel(): Promise<{
   learner: string;
   model: ConceptCompetenceInfo[];
 }> {
-  return await lmsRequest('lms', 'lms/output/my_model', 'POST', {}, {});
+  return await lmpRequest('lmp', 'lmp/output/my_model', 'POST', {}, {});
 }
 
 export async function getMyCompleteModel(): Promise<ConceptCompetenceInfo[]> {
@@ -183,26 +173,21 @@ export async function getMyCompleteModel(): Promise<ConceptCompetenceInfo[]> {
 }
 
 export async function purgeAllMyData() {
-  await lmsRequest('lms', 'lms/input/events', 'POST', {}, {
+  await lmpRequest('lmp', 'lmp/input/events', 'POST', {}, {
     type: 'purge',
   } as PurgeEvent);
 }
 
-export async function reportEvent(event: LMS2Event) {
-  return await lmsRequest('lms', 'lms/input/events', 'POST', {}, event);
+export async function reportEvent(event: LMPEvent) {
+  return await lmpRequest('lmp', 'lmp/input/events', 'POST', {}, event);
 }
 
-const SERVER_TO_ADDRESS = {
-  lms: process.env['NEXT_PUBLIC_LMS_URL'],
+const SERVER_TO_ADDRESS = { 
+  lmp: process.env['NEXT_PUBLIC_LMP_URL'],
   auth: process.env['NEXT_PUBLIC_AUTH_SERVER_URL'],
 };
 
-export type SmileyType =
-  | 'smiley-2'
-  | 'smiley-1'
-  | 'smiley0'
-  | 'smiley1'
-  | 'smiley2';
+export type SmileyType = 'smiley-2' | 'smiley-1' | 'smiley0' | 'smiley1' | 'smiley2';
 
 export type SmileyLevel = -2 | -1 | 0 | 1 | 2;
 export const ALL_SMILEY_LEVELS: SmileyLevel[] = [-2, -1, 0, 1, 2];
@@ -258,6 +243,7 @@ export enum BloomDimension {
   Evaluate = 'Evaluate',
   Create = 'Create',
 }
+
 export const ALL_DIMENSIONS = [
   BloomDimension.Remember,
   BloomDimension.Understand,
@@ -289,9 +275,7 @@ const FAKE_USER_DEFAULT_COMPETENCIES: { [id: string]: string[] } = {
     'http://mathhub.info/smglom/sets/mod?formal-language',
     'http://mathhub.info/smglom/mv/mod?structure?mathematical-structure',
   ],
-  anushka: [
-    'http://mathhub.info/smglom/mv/mod?structure?mathematical-structure',
-  ],
+  anushka: ['http://mathhub.info/smglom/mv/mod?structure?mathematical-structure'],
 };
 
 export function isLoggedIn() {
@@ -305,9 +289,7 @@ export function logout() {
 
 export function logoutAndGetToLoginPage() {
   deleteCookie('access_token');
-  const redirectUrl = `/login?target=${encodeURIComponent(
-    window.location.href
-  )}`;
+  const redirectUrl = `/login?target=${encodeURIComponent(window.location.href)}`;
   window.location.replace(redirectUrl);
 }
 
@@ -325,9 +307,7 @@ export function getAuthHeaders() {
 export function loginUsingRedirect(returnBackUrl?: string) {
   if (!returnBackUrl) returnBackUrl = window.location.href;
 
-  const redirectUrl = `${
-    SERVER_TO_ADDRESS.auth
-  }/login?target=${encodeURIComponent(returnBackUrl)}`;
+  const redirectUrl = `${SERVER_TO_ADDRESS.auth}/login?target=${encodeURIComponent(returnBackUrl)}`;
 
   window.location.replace(redirectUrl);
 }
@@ -365,8 +345,8 @@ export function fakeLoginUsingRedirect(
   window.location.replace(redirectUrl);
 }
 
-export async function lmsRequest(
-  server: 'lms' | 'auth',
+export async function lmpRequest(
+  server: 'lmp' | 'auth',
   apiUrl: string,
   requestType: string,
   defaultVal: any,
@@ -395,9 +375,7 @@ export async function lmsRequest(
   }
 }
 
-export function cleanupNumericCognitiveValues(
-  dim: NumericCognitiveValues
-): NumericCognitiveValues {
+export function cleanupNumericCognitiveValues(dim: NumericCognitiveValues): NumericCognitiveValues {
   return {
     Remember: +(dim.Remember || 0),
     Understand: +(dim.Understand || 0),
@@ -408,9 +386,7 @@ export function cleanupNumericCognitiveValues(
   };
 }
 
-export function cleanupSmileyCognitiveValues(
-  dim: SmileyCognitiveValues
-): SmileyCognitiveValues {
+export function cleanupSmileyCognitiveValues(dim: SmileyCognitiveValues): SmileyCognitiveValues {
   const defaultSmiley = 'smiley-2';
   return {
     Remember: dim.Remember || defaultSmiley,
@@ -421,22 +397,22 @@ export function cleanupSmileyCognitiveValues(
     Create: dim.Create || defaultSmiley,
   };
 }
-export function lmsResponseToUserInfo(lmsRespData: any): UserInfo | undefined {
-  if (!lmsRespData) return undefined;
+export function lmpResponseToUserInfo(lmpRespData: any): UserInfo | undefined {
+  if (!lmpRespData) return undefined;
   return {
-    userId: lmsRespData['user_id'],
-    givenName: lmsRespData['given_name'],
-    sn: lmsRespData['sn'],
-    fullName: `${lmsRespData['given_name'] ?? ''} ${lmsRespData['sn'] ?? ''}`,
+    userId: lmpRespData['user_id'],
+    givenName: lmpRespData['given_name'],
+    sn: lmpRespData['sn'],
+    fullName: `${lmpRespData['given_name'] ?? ''} ${lmpRespData['sn'] ?? ''}`,
   };
 }
 
 let cachedUserInfo: UserInfo | undefined = undefined;
 export async function getUserInfo() {
   if (!cachedUserInfo) {
-    const v = await lmsRequest('auth', 'getuserinfo', 'GET', undefined);
+    const v = await lmpRequest('auth', 'getuserinfo', 'GET', undefined);
     if (!v) return undefined;
-    cachedUserInfo = lmsResponseToUserInfo(v);
+    cachedUserInfo = lmpResponseToUserInfo(v);
   }
   return cachedUserInfo;
 }
@@ -455,7 +431,7 @@ export async function resetFakeUserData(persona: string) {
     await reportEvent({
       type: 'self-assessment-5StepLikertSmileys',
       concept: URI,
-      competencies: {
+      competences: {
         Remember: 'smiley2',
         Understand: 'smiley2',
         Apply: 'smiley2',
@@ -483,14 +459,52 @@ export interface ConceptHistory {
   history: HistoryItem[];
 }
 
-export async function getConceptHistory(
-  concept: string
-): Promise<ConceptHistory> {
-  return await lmsRequest('lms', 'lms/output/history', 'POST', null, {
+export async function getConceptHistory(concept: string): Promise<ConceptHistory> {
+  return await lmpRequest('lmp', 'lmp/output/history', 'POST', null, {
     concept,
   });
 }
 
 export async function postAnswer(answer: ProblemAnswerEvent) {
-  return await lmsRequest('lms', '/lms/input/events', 'POST', null, answer);
+  return await lmpRequest('lmp', '/lmp/input/events', 'POST', null, answer);
+}
+
+export interface GetLearningObjectsResponse {
+  'learning-objects': { 'learning-object': string; type: LoType }[];
+  learner: string;
+}
+
+export async function getLearningObjects(
+  concepts: string[],
+  limit?: number,
+  types?: string[],
+  exclude?: string[]
+) {
+  return (await lmpRequest('lmp', 'guided-tours/learning-objects', 'POST', null, {
+    concepts,
+    limit,
+    types,
+    exclude,
+  })) as GetLearningObjectsResponse;
+}
+
+export interface GetLeafConceptsResponse {
+  'leaf-concepts': string[];
+  learner: string;
+}
+
+export async function getLeafConcepts(target: string) {
+  return (await lmpRequest('lmp', 'guided-tours/leaf-concepts', 'POST', null, {
+    target,
+  })) as GetLeafConceptsResponse;
+}
+
+export async function updateLearnerModel(updatePayload: SelfAssessmentEvent) {
+  const userInfo = await getUserInfo();
+  const userId = userInfo?.userId;
+
+  return await lmpRequest('lmp', 'lmp/input/events', 'POST', null, {
+    ...updatePayload,
+    learner: userId,
+  });
 }

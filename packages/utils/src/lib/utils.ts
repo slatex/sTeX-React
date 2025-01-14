@@ -5,14 +5,12 @@ export const BG_COLOR = 'hsl(210, 20%, 98%)';
 export const IS_SERVER = typeof window === 'undefined';
 export const localStore = IS_SERVER ? undefined : localStorage;
 export const Window = IS_SERVER ? undefined : window;
-export const IS_MMT_VIEWER = IS_SERVER
-  ? false
-  : (window as any).SHOW_FILE_BROWSER !== undefined;
+export const IS_MMT_VIEWER = IS_SERVER ? false : (window as any).SHOW_FILE_BROWSER !== undefined;
 export const PRIMARY_COL = '#203360';
 export const PRIMARY_COL_DARK_HOVER = '#162343';
 export const SECONDARY_COL = '#8c9fb1';
 
-const MMT_CUSTOM_ID_PREFIX = '__mmt-custom-';
+export const MMT_CUSTOM_ID_PREFIX = '__mmt-custom-';
 
 export function getMMTCustomId(tag: string) {
   return MMT_CUSTOM_ID_PREFIX + tag;
@@ -63,11 +61,22 @@ export function getSectionInfo(url: string): FileInfo {
   };
 }
 
-export function urlWithContextParams(
-  url: string,
-  locale: string,
-  topLevelUrl?: string
-) {
+export function extractProjectIdAndFilepath(problemId: string, fileExtension = '.tex') {
+  const url = problemId.replace('http://mathhub.info/', '').replace(/\?en.*/, '');
+  const parts = url.split('/');
+  const defaultProjectParts = 2;
+  let projectParts;
+  if (parts[0] === 'courses' || parts[0] === 'sTeX') {
+    projectParts = 4;
+  } else {
+    projectParts = Math.min(defaultProjectParts, parts.length - 2);
+  }
+  const archive = parts.slice(0, projectParts).join('/');
+  const filePath = parts.slice(projectParts).join('/').replace('.omdoc', fileExtension);
+  return [archive, filePath];
+}
+
+export function urlWithContextParams(url: string, locale: string, topLevelUrl?: string) {
   const sectionInfo = getSectionInfo(topLevelUrl ?? '');
   if (!sectionInfo) return '';
   const { archive, filepath } = sectionInfo;
@@ -108,10 +117,7 @@ export function fullDocumentUrl({ archive, filepath }: FileLocation) {
   return `/:sTeX/fulldocument?archive=${archive}&filepath=${filepath}`;
 }
 
-export function XhtmlTopDocumentContentUrl({
-  archive,
-  filepath,
-}: FileLocation) {
+export function XhtmlTopDocumentContentUrl({ archive, filepath }: FileLocation) {
   return `/:sTeX/documentTop?archive=${archive}&filepath=${filepath}`;
 }
 
@@ -237,10 +243,7 @@ export function stableShuffle(array: any[]) {
     currentIndex--;
 
     // And swap it with the current element.
-    [array[currentIndex], array[randomIndex]] = [
-      array[randomIndex],
-      array[currentIndex],
-    ];
+    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
   }
 
   return array;
@@ -253,4 +256,12 @@ export function roundToMinutes(timestamp_ms: number) {
 
 export function truncateString(str: string, maxLength: number) {
   return str.length > maxLength ? str.slice(0, maxLength) + '...' : str;
+}
+
+export function capitalizeFirstLetter(str: string): string {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+export function chooseRandomlyFromList(list: any[]) {
+  return list[Math.floor(Math.random() * list.length)];
 }

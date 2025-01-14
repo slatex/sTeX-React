@@ -1,6 +1,6 @@
 export const de = {
   home: {
-    header: 'VoLl-KI-basierte Kurse an der FAU',
+    header: 'ALeA basierte Kurse an der FAU',
     courseSection: 'Aktuelles Semester',
     otherCourses: 'Weitere Kurse',
     guidedTourHeader: 'Themenbezogen, Freestyle-Lernen',
@@ -115,6 +115,9 @@ export const de = {
     demoQuizText:
       'ist ein Demo-Quiz - damit Sie Ihre Hard-/Software testen (Sie benötigen einen aktuellen Chrome- oder Firefox-Browser) und die Formatierung sehen können. Insbesondere sollten Sie in der Lage sein, die mathematische Notation im Problem des Handlungsreisenden zu lesen.',
     practiceProblems: 'Übungsprobleme',
+    enrollmentMessage:
+      'Bitte melden Sie sich für den Kurs an, um auf Quiz und Hausaufgaben zuzugreifen.',
+    getEnrolled: 'sich einschreiben',
   },
   homework: {
     homeworkDashboard: 'Hausaufgaben-Dashboard',
@@ -371,5 +374,20 @@ export const de = {
       'Die folgenden Aufgaben sollen Ihnen beim Lernen helfen. Sie decken den Kursstoff nicht erschöpfend ab und es gibt keine Garantie dafür, dass die Aufgaben richtig sind oder dass sie repräsentativ für die Aufgabentypen sind, die in den Tests oder der Prüfung vorkommen werden.',
     problems: 'Probleme',
     practice: 'Üben',
+  },
+  perSectionQuiz: {
+    problemsFor: 'Aufgaben für',
+    warning:
+      'Hinweis: Diese Probleme dienen nur dazu, Ihnen beim Lernen zu helfen. Sie decken das Kursmaterial nicht vollständig ab und es gibt keine Garantie dafür, dass die Probleme korrekt sind oder dass sie repräsentativ für die Art von Problemen sind, die in den Tests oder der Prüfung behandelt werden.',
+    backToAllCourseProblems: 'Zurück zu allen Kursproblemen',
+  },
+  resource: {
+    updateGoTo: 'aktualisieren Got-tos',
+    createUpdateQuiz: 'Quiz erstellen/aktualisieren',
+    gradeHomework: 'Hausaufgaben bewerten',
+    createUpdateHomework: 'Hausaufgabe erstellen/aktualisieren',
+    reviewLatestQuiz: 'Letzten Quiz prüfen',
+    forum: 'Forum',
+    welcome: 'Willkommen',
   },
 };

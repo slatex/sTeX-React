@@ -1,25 +1,25 @@
-import { Box, Card, CircularProgress, Typography } from '@mui/material';
+import SchoolIcon from '@mui/icons-material/School';
+import { Box, Button, Card, CircularProgress, Typography } from '@mui/material';
+import Alert from '@mui/material/Alert';
 import {
   QuizStubInfo,
+  canAccessResource,
   getCourseInfo,
   getCourseQuizList,
   getUserInfo,
 } from '@stex-react/api';
-import {
-  ServerLinksContext,
-  mmtHTMLToReact,
-} from '@stex-react/stex-react-renderer';
-import { CourseInfo } from '@stex-react/utils';
+import { ServerLinksContext, mmtHTMLToReact } from '@stex-react/stex-react-renderer';
+import { Action, CURRENT_TERM, CourseInfo, ResourceName } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Fragment, useContext, useEffect, useState } from 'react';
+import { ForceFauLogin } from '../../components/ForceFAULogin';
 import QuizPerformanceTable from '../../components/QuizPerformanceTable';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
-import { CourseHeader } from '../course-home/[courseId]';
-import { ForceFauLogin } from '../../components/ForceFAULogin';
+import { CourseHeader, handleEnrollment } from '../course-home/[courseId]';
 
 function QuizThumbnail({ quiz }: { quiz: QuizStubInfo }) {
   const { quizId, quizStartTs, quizEndTs, title } = quiz;
@@ -38,8 +38,7 @@ function QuizThumbnail({ quiz }: { quiz: QuizStubInfo }) {
           <Box>{mmtHTMLToReact(title)}</Box>
           <Box>
             <b>
-              {dayjs(quizStartTs).format('MMM-DD HH:mm')} to{' '}
-              {dayjs(quizEndTs).format('HH:mm')}
+              {dayjs(quizStartTs).format('MMM-DD HH:mm')} to {dayjs(quizEndTs).format('HH:mm')}
             </b>
           </Box>
         </Card>
@@ -78,13 +77,7 @@ function PraticeQuizThumbnail({
   );
 }
 
-function QuizList({
-  header,
-  quizList,
-}: {
-  header: string;
-  quizList: QuizStubInfo[];
-}) {
+function QuizList({ header, quizList }: { header: string; quizList: QuizStubInfo[] }) {
   if (!quizList?.length) return <></>;
   return (
     <>
@@ -126,9 +119,7 @@ function UpcomingQuizList({
             <QuizThumbnail quiz={quiz} />
           </Fragment>
         ))}
-      {practiceInfo && (
-        <PraticeQuizThumbnail courseId={courseId} practiceInfo={practiceInfo} />
-      )}
+      {practiceInfo && <PraticeQuizThumbnail courseId={courseId} practiceInfo={practiceInfo} />}
     </>
   );
 }
@@ -144,26 +135,24 @@ const QuizDashPage: NextPage = () => {
   const router = useRouter();
   const courseId = router.query.courseId as string;
   const { quiz: t, home: tHome } = getLocaleObject(router);
+  const [userId, setUserId] = useState<string | null>(null);
 
   const [quizList, setQuizList] = useState<QuizStubInfo[]>([]);
-  const [courses, setCourses] = useState<
-    { [id: string]: CourseInfo } | undefined
-  >(undefined);
+  const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
   const { mmtUrl } = useContext(ServerLinksContext);
 
   const now = Date.now();
-  const upcomingQuizzes = quizList.filter(
-    ({ quizStartTs }) => quizStartTs > now
-  );
+  const upcomingQuizzes = quizList.filter(({ quizStartTs }) => quizStartTs > now);
   const previousQuizzes = quizList.filter((q) => q.quizEndTs < now);
-  const ongoingQuizzes = quizList.filter(
-    (q) => q.quizStartTs < now && q.quizEndTs >= now
-  );
+  const ongoingQuizzes = quizList.filter((q) => q.quizStartTs < now && q.quizEndTs >= now);
 
   const [forceFauLogin, setForceFauLogin] = useState(false);
+  const [enrolled, setIsEnrolled] = useState<boolean>(false);
+
   useEffect(() => {
     getUserInfo().then((i) => {
       const uid = i?.userId;
+      setUserId(i?.userId);
       if (!uid) return;
       setForceFauLogin(uid.length !== 8 || uid.includes('@'));
     });
@@ -178,6 +167,23 @@ const QuizDashPage: NextPage = () => {
     console.log('courseId', courseId);
     getCourseQuizList(courseId).then(setQuizList);
   }, [courseId]);
+  useEffect(() => {
+    if (!courseId) return;
+    const enrolledStudentActions = [{ resource: ResourceName.COURSE_QUIZ, action: Action.TAKE }];
+    async function checkAccess() {
+      for (const { resource, action } of enrolledStudentActions) {
+        const hasAccess = await canAccessResource(resource, action, {
+          courseId,
+          instanceId: CURRENT_TERM,
+        });
+        if (hasAccess) {
+          setIsEnrolled(true);
+          return;
+        }
+      }
+    }
+    checkAccess();
+  }, [courseId]);
 
   if (!router.isReady || !courses) return <CircularProgress />;
   const courseInfo = courses[courseId];
@@ -186,14 +192,16 @@ const QuizDashPage: NextPage = () => {
     router.replace('/');
     return <>Course Not Found!</>;
   }
+  const enrollInCourse = async () => {
+    if (!userId || !courseId) return;
+    const enrollmentSuccess = await handleEnrollment(userId, courseId, CURRENT_TERM);
+    setIsEnrolled(enrollmentSuccess);
+  };
 
   if (forceFauLogin) {
     return (
       <MainLayout
-        title={
-          (courseId || '').toUpperCase() +
-          ` ${tHome.courseThumb.quizzes} | VoLL-KI`
-        }
+        title={(courseId || '').toUpperCase() + ` ${tHome.courseThumb.quizzes} | VoLL-KI`}
       >
         <ForceFauLogin content={"quizzes"}/>
       </MainLayout>
@@ -201,21 +209,23 @@ const QuizDashPage: NextPage = () => {
   }
 
   return (
-    <MainLayout
-      title={
-        (courseId || '').toUpperCase() +
-        ` ${tHome.courseThumb.quizzes} | VoLL-KI`
-      }
-    >
+    <MainLayout title={(courseId || '').toUpperCase() + ` ${tHome.courseThumb.quizzes} | VoLL-KI`}>
       <CourseHeader
         courseName={courseInfo.courseName}
         imageLink={courseInfo.imageLink}
         courseId={courseId}
       />
       <Box maxWidth="900px" m="auto" px="10px">
-        <Typography variant="h4" sx={{ m: '30px 0 15px' }}>
-          {t.quizDashboard}
-        </Typography>
+        {/* {!enrolled && <Alert severity="info">{t.enrollmentMessage}</Alert>} */}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', m: '30px 0 15px' }}>
+          <Typography variant="h4">{t.quizDashboard}</Typography>
+          {!enrolled && (
+            <Button onClick={enrollInCourse} variant="contained" sx={{ backgroundColor: 'green' }}>
+              {t.getEnrolled}
+              <SchoolIcon />
+            </Button>
+          )}
+        </Box>
         <Typography variant="body1" sx={{ color: '#333' }}>
           {t.onTimeWarning.replace('{courseId}', courseId.toUpperCase())}
         </Typography>
@@ -227,9 +237,7 @@ const QuizDashPage: NextPage = () => {
         <Typography variant="body1" sx={{ color: '#333' }}>
           <a
             href={
-              courseId === 'gdp'
-                ? '/quiz/old/problems%2Fgdp'
-                : '/quiz/old/MAAI%20(may)%20-%20small'
+              courseId === 'gdp' ? '/quiz/old/problems%2Fgdp' : '/quiz/old/MAAI%20(may)%20-%20small'
             }
             target="_blank"
             rel="noreferrer"
@@ -240,18 +248,24 @@ const QuizDashPage: NextPage = () => {
           &nbsp;{t.demoQuizText}
         </Typography>
 
-        <QuizList header={t.ongoingQuizzes} quizList={ongoingQuizzes} />
-        <UpcomingQuizList
-          header={t.upcomingQuizzes}
-          courseId={courseId}
-          quizList={upcomingQuizzes}
-          practiceInfo={PRACTICE_QUIZ_INFO[courseId]}
-        />
-        <QuizPerformanceTable
-          courseId={courseId}
-          quizList={previousQuizzes}
-          header={t.previousQuizzes}
-        />
+        {
+          // enrolled &&
+          <>
+            {' '}
+            <QuizList header={t.ongoingQuizzes} quizList={ongoingQuizzes} />
+            <UpcomingQuizList
+              header={t.upcomingQuizzes}
+              courseId={courseId}
+              quizList={upcomingQuizzes}
+              practiceInfo={PRACTICE_QUIZ_INFO[courseId]}
+            />
+            <QuizPerformanceTable
+              courseId={courseId}
+              quizList={previousQuizzes}
+              header={t.previousQuizzes}
+            />
+          </>
+        }
       </Box>
     </MainLayout>
   );

@@ -4,7 +4,7 @@ import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { CourseInfo } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import ProblemList from 'packages/alea-frontend/components/ProblemList';
+import ProblemList from '../../components/ProblemList';
 import { useContext, useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
 
@@ -36,7 +36,7 @@ const CourseProblemsPage: NextPage = () => {
   if (!sectionsData) return <CircularProgress />;
 
   return (
-    <MainLayout title={`${(courseId || '').toUpperCase()} Problems | VoLL-KI`}>
+    <MainLayout title={`${(courseId || '').toUpperCase()} Problems | ALeA`}>
       <ProblemList courseSections={sectionsData} courseId={courseId} />
     </MainLayout>
   );

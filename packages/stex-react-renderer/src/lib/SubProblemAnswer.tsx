@@ -1,335 +1,293 @@
-import {
-  AppBar,
-  Box,
-  Button,
-  Dialog,
-  Divider,
-  IconButton,
-  List,
-  ListItemButton,
-  ListItemText,
-  Menu,
-  MenuItem,
-  Toolbar,
-  Typography,
-} from '@mui/material';
+import { Box, IconButton, Typography } from '@mui/material';
 
-import CloseIcon from '@mui/icons-material/Close';
-import Diversity3Icon from '@mui/icons-material/Diversity3';
-import GradingIcon from '@mui/icons-material/Grading';
-import GroupsIcon from '@mui/icons-material/Groups';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import { Cancel } from '@mui/icons-material';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import FiberNewIcon from '@mui/icons-material/FiberNew';
+import SaveIcon from '@mui/icons-material/Save';
 import {
-  AnswerResponse,
-  createAnswer,
   CreateAnswerClassRequest,
-  createGradring,
-  createReviewRequest,
-  getAnswers,
-  getHomeWorkAnswer,
+  getUserInfo,
+  GradingInfo,
+  Problem,
   ReviewType,
   SubProblemData,
 } from '@stex-react/api';
 import { MystEditor, MystViewer } from '@stex-react/myst';
+import { localStore, MMT_CUSTOM_ID_PREFIX, PRIMARY_COL } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useRouter } from 'next/router';
-import { SyntheticEvent, useEffect, useRef, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { GradingCreator } from './GradingCreator';
 import { getLocaleObject } from './lang/utils';
 import { mmtHTMLToReact } from './mmtParser';
-import { PRIMARY_COL } from '@stex-react/utils';
+import { ListStepper } from './QuizDisplay';
 
 dayjs.extend(relativeTime);
 
+interface GradingContextType {
+  isGrading: boolean;
+  showGrading: boolean;
+  studentId: string;
+  gradingInfo: Record<string, Record<string, GradingInfo[]>>; // problemId -> (subProblemId -> gradingInfo)
+  onNewGrading?: (
+    subProblemId: string,
+    acs: CreateAnswerClassRequest[],
+    feedback: string
+  ) => Promise<void>;
+  onNextGradingItem?: () => void; // Marked as optional
+  onPrevGradingItem?: () => void;
+}
+
+export const GradingContext = createContext<GradingContextType>({
+  isGrading: false,
+  showGrading: false,
+  studentId: '',
+  gradingInfo: {},
+});
+
+export function getAnswerFromLocalStorage(questionId: string, subProblemId: string) {
+  return localStore?.getItem(`answer-${questionId}-${subProblemId}`);
+}
+
+export function saveAnswerToLocalStorage(questionId: string, subProblemId: string, answer: string) {
+  localStore?.setItem(`answer-${questionId}-${subProblemId}`, answer);
+}
+
+export function GradingDisplay({ gradingInfo }: { gradingInfo: GradingInfo }) {
+  return (
+    <Box mt={1}>
+      <i>Score: </i> {gradingInfo.totalPoints}
+      {/* /gradingInfo.maxPoints*/}
+      {gradingInfo.customFeedback && (
+        <Box sx={{ bgcolor: '#CCC', px: '3px', borderRadius: '3px', fontSize: 'medium' }}>
+          <MystViewer content={'**Feedback:**\n\n ' + gradingInfo.customFeedback} />
+        </Box>
+      )}
+      <Box sx={{ border: '1px solid #333', borderRadius: 1, p: 1 }}>
+        <Typography sx={{ fontStyle: 'medium', fontWeight: 'bold' }}>
+          <b>Details:</b>
+        </Typography>
+        {gradingInfo.answerClasses.map((c) => {
+          const effectNum = c.points * (c.isTrait && c.count > 1 ? c.count : 1);
+          const effectStr = effectNum > 0 ? `+${effectNum}` : effectNum;
+          return (
+            <Box my={0.5} fontSize="small">
+              {c.description ?? c.title}: <b>({effectStr})</b>
+            </Box>
+          );
+        })}
+      </Box>
+      <i>
+        {gradingInfo.reviewType === 'SELF'
+          ? 'Self Graded'
+          : `Graded by: ${gradingInfo.checkerId} (${gradingInfo.reviewType})`}
+      </i>
+    </Box>
+  );
+}
+
+export function GradingManager({
+  problemId,
+  subProblemId,
+}: {
+  problemId: string;
+  subProblemId: string;
+}) {
+  const { isGrading, showGrading, gradingInfo: g } = useContext(GradingContext);
+  const gradingInfo = useMemo(() => {
+    const allGradings = g?.[problemId]?.[subProblemId] ?? [];
+    return isGrading
+      ? allGradings
+      : allGradings.filter((c) => c.reviewType === ReviewType.INSTRUCTOR);
+  }, [g, problemId, subProblemId]);
+  const [isCreatingNew, setIsCreatingNew] = useState(false);
+  const [selectedGradingIdx, setSelectedGradingIdx] = useState(0);
+
+  useEffect(() => {
+    if (!gradingInfo?.length) {
+      setIsCreatingNew(isGrading);
+    } else {
+      setIsCreatingNew(false);
+    }
+
+    setSelectedGradingIdx(0);
+  }, [gradingInfo, subProblemId, isGrading]);
+
+  if (!isGrading && !showGrading) return null;
+  if (isCreatingNew) {
+    return (
+      <>
+        <IconButton onClick={() => setIsCreatingNew(false)}>
+          <Cancel />
+        </IconButton>
+        <GradingCreator subProblemId={subProblemId} rawAnswerClasses={[]} />
+      </>
+    );
+  }
+
+  return (
+    <Box>
+      {isGrading && (
+        <IconButton onClick={() => setIsCreatingNew(true)}>
+          <FiberNewIcon />
+        </IconButton>
+      )}
+      {showGrading && !!gradingInfo?.length && (
+        <Box>
+          <ListStepper
+            idx={selectedGradingIdx}
+            listSize={gradingInfo.length}
+            onChange={setSelectedGradingIdx}
+          />
+          <GradingDisplay gradingInfo={gradingInfo[selectedGradingIdx]} />
+        </Box>
+      )}
+    </Box>
+  );
+}
+
 export function SubProblemAnswer({
+  problem,
   subProblem,
-  problemHeader,
   questionId,
   subProblemId,
-  showPoints,
-  homeworkId,
   isFrozen,
+  existingResponse,
+  onSaveClick,
 }: {
+  problem: Problem;
   subProblem: SubProblemData;
   questionId: string;
   subProblemId: string;
-  problemHeader: string;
-  homeworkId?: number;
-  showPoints?: boolean;
   isFrozen?: boolean;
+  existingResponse?: string;
+  onSaveClick: () => void;
 }) {
   const router = useRouter();
-  const courseId = router.query.courseId?.toString() ?? '';
   const t = getLocaleObject(router).quiz;
-  const [showGrading, setShowGrading] = useState(false);
   const [answer, setAnswer] = useState('');
-  const [answerId, setAnswerId] = useState(0);
-  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [showSolution, setShowSolution] = useState(false);
-  const [answers, setAnswers] = useState<AnswerResponse[]>([]);
-  const [canSaveAnswer, setCanSaveAnswer] = useState<boolean>(false);
-  const [isAnswerChanged, setCanDiscardChanged] = useState(false);
-  const serverAnswer = useRef<AnswerResponse>();
-  const isHomework = !!homeworkId;
+  const canSaveAnswer = !!answer?.trim() && answer !== existingResponse;
+  const canDiscardAnswer = answer !== existingResponse;
+  const { isGrading, showGrading, studentId, onPrevGradingItem, onNextGradingItem } =
+    useContext(GradingContext);
 
   useEffect(() => {
-    if (courseId) getAnswers(courseId, questionId, subProblemId).then(setAnswers);
-  }, [answerId, courseId, questionId, subProblemId]);
-
-  useEffect(() => {
-    setAnswer('');
-    if (!isHomework) return;
-    const localAnswer = localStorage.getItem(`answer-${questionId}-${subProblemId}`) ?? '';
-    setAnswer(localAnswer);
-    (async () => {
-      serverAnswer.current = await getHomeWorkAnswer(questionId, subProblemId);
-      if (serverAnswer.current && localAnswer === serverAnswer.current.answer) {
-        setCanSaveAnswer(false);
-        setAnswer(serverAnswer.current.answer);
-      } else {
-        setCanSaveAnswer(localAnswer.trim() !== '');
-      }
-    })();
-  }, [questionId, subProblemId, isHomework]);
-
-  async function onSubmitAnswer(event: SyntheticEvent) {
-    event.preventDefault();
-    if (showGrading) {
-      setShowGrading(false);
-      setShowSolution(false);
-      setAnswer('');
+    if (isFrozen || isGrading) {
+      setAnswer(existingResponse ?? '');
       return;
     }
-
-    const created = await SaveAnswers();
-    if (created.status !== 201) return;
-    setAnswerId(created.answerId.id);
-    setShowGrading(true);
-    setShowSolution(true);
-  }
-
-  async function onSaveGrading(acs: CreateAnswerClassRequest[], feedback: string) {
-    setShowGrading(false);
-    setShowSolution(false);
-    if (answer === '') return;
-    if (acs.length > 0)
-      await createGradring({
-        answerClasses: acs,
-        answerId: answerId,
-        customFeedback: feedback,
-      });
-    setAnswer('');
-    setAnswerId(0);
-  }
-
-  function handleClose(): void {
-    setAnchorEl(null);
-  }
-
-  function handleClick(event: React.MouseEvent<HTMLButtonElement>): void {
-    setAnchorEl(event.currentTarget);
-  }
-
-  async function OnOnlySaveAnswer(): Promise<void> {
-    SaveAnswers();
-    handleClose();
-  }
-
-  function OnOnlySeeSolution(): void {
-    setShowSolution(!showSolution);
-  }
-
-  async function OnSaveAndReviewRequest(reviewType: ReviewType): Promise<void> {
-    let anid = answerId;
-    if (anid === 0) {
-      const answerCreated = await SaveAnswers();
-      if (answerCreated.status !== 201) return;
-      anid = answerCreated.answerId.id;
+    const fromLocalStore = getAnswerFromLocalStorage(questionId, subProblemId);
+    if (!fromLocalStore && existingResponse) {
+      saveAnswerToLocalStorage(questionId, subProblemId, existingResponse);
     }
+    setAnswer(fromLocalStore ?? existingResponse ?? '');
+  }, [questionId, subProblemId, existingResponse]);
 
-    await createReviewRequest({ answerId: anid, reviewType: reviewType });
-    setAnswer('');
-    handleClose();
-  }
-  async function SaveAnswers() {
-    if (answer === '') return { status: 423, answerId: null };
-    return createAnswer({
-      answer: answer,
-      questionId: questionId,
-      questionTitle: problemHeader,
-      subProblemId,
-      courseId,
-      homeworkId,
-    });
-  }
   function onAnswerChanged(value: string): void {
-    if (isHomework) localStorage.setItem(`answer-${questionId}-${subProblemId}`, value);
+    saveAnswerToLocalStorage(questionId, subProblemId, value);
     setAnswer(value);
-    setCanSaveAnswer(!!value.trim() && value !== serverAnswer.current?.answer);
-    setCanDiscardChanged((serverAnswer.current?.answer ?? '') !== value);
   }
 
-  function onDiscardClicked(): void {
-    setAnswer(serverAnswer.current?.answer ?? '');
-    setCanSaveAnswer(false);
-    setCanDiscardChanged(false);
-  }
-
-  async function onQuizeSaveClicked(event: any) {
-    event.stopPropagation();
-    await SaveAnswers();
-    serverAnswer.current = await getHomeWorkAnswer(questionId, subProblemId);
-  }
-  useEffect(() => {
-    if (isFrozen && homeworkId) {
-      setShowSolution(true);
-    }
-  }, [isFrozen, homeworkId]);
-
+  const solutionBox =
+    isFrozen && subProblem.solution ? (
+      <Box
+        style={{
+          color: '#555',
+          backgroundColor: 'white',
+          padding: '5px',
+          borderRadius: '5px',
+          margin: '10px 0px',
+          border: `1px solid ${PRIMARY_COL}`,
+        }}
+      >
+        {mmtHTMLToReact(subProblem.solution.replace(MMT_CUSTOM_ID_PREFIX, ''))}
+      </Box>
+    ) : (
+      <></>
+    );
   return (
     <>
-      <form onSubmit={onSubmitAnswer}>
-        {showGrading ? (
-          <MystViewer content={answer} />
-        ) : isFrozen ? (
+      <span style={{ color: PRIMARY_COL, fontWeight: 'bold' }}>
+        {problem?.subProblemData?.length === 1
+          ? t.yourAnswer
+          : t.yourAnswerWithIdx
+              .replace('$1', (Number(subProblemId) + 1).toString())
+              .replace('$2', problem?.subProblemData?.length.toString())}
+      </span>
+      <Box>
+        {isGrading && solutionBox}
+        {isFrozen ? (
           <Box
             sx={{
-              border: `1px solid ${PRIMARY_COL}`,
+              border: `2px solid gray`,
               paddingLeft: '10px',
-              margin: '10px 0px',
-              backgroundColor: 'white',
+              margin: '5px 0px',
+              backgroundColor: '#d3d3d3',
               borderRadius: '5px',
             }}
           >
-            <MystViewer content={answer} />
+            <MystViewer content={answer || '*Unanswered*'} />
           </Box>
         ) : (
-          <MystEditor
-            name={`answer-${questionId}-${subProblemId}`}
-            placeholder={t.answer + '...'}
-            value={answer}
-            onValueChange={onAnswerChanged}
-          />
-        )}
-        {!isHomework && (
-          <div style={{ display: 'flex', gap: '3px' }}>
-            <div>
-              <Button type="submit">{showGrading ? t.hideSolution : t.saveAndGrade}</Button>
-              <IconButton onClick={handleClick} type="button">
-                <KeyboardArrowDownIcon />
-              </IconButton>
-            </div>
-            <Button disabled={showGrading} onClick={() => setIsHistoryOpen(true)} type="button">
-              {t.showOlderAnswers}
-            </Button>
-          </div>
-        )}
-        {isHomework && (
-          <Box sx={{ gap: '3px' }}>
-            <Button disabled={!canSaveAnswer} onClick={onQuizeSaveClicked} variant="contained">
-              {t.save}
-            </Button>
-            <Button disabled={!isAnswerChanged} onClick={onDiscardClicked}>
-              {t.discard}
-            </Button>
+          <Box display="flex" alignItems="flex-start">
+            <Box flexGrow={1}>
+              <MystEditor
+                editorProps={{ border: canSaveAnswer ? '2px solid red' : undefined }}
+                name={`answer-${questionId}-${subProblemId}`}
+                placeholder={t.answer + '...'}
+                value={answer}
+                onValueChange={onAnswerChanged}
+              />
+            </Box>
+            <IconButton
+              disabled={!canSaveAnswer}
+              onClick={onSaveClick}
+              sx={{ color: PRIMARY_COL, ml: 2 }}
+            >
+              <SaveIcon />
+            </IconButton>
+            <IconButton
+              disabled={!canDiscardAnswer}
+              onClick={() => {
+                const prompt = existingResponse
+                  ? 'Are you sure you want to discard unsaved changes to your answer?'
+                  : 'Are you sure you want to discard your answer?';
+                if (!confirm(prompt)) return;
+                onAnswerChanged(existingResponse ?? '');
+              }}
+              sx={{ color: 'red' }}
+            >
+              <DeleteForeverIcon />
+            </IconButton>
           </Box>
         )}
-      </form>
-      {isHomework && (
-        <>
-          {showSolution && (
-            <Box
-              style={{
-                color: '#555',
-                backgroundColor: 'white',
-                padding: '5px',
-                borderRadius: '5px',
-                margin: '10px 0px',
-                border: `1px solid ${PRIMARY_COL}`,
-              }}
-            >
-              {mmtHTMLToReact(subProblem.solution)}
-            </Box>
-          )}
-          {showGrading && <>NOT IMPLEMENTED YET</>}
-        </>
+      </Box>
+      {(isGrading || showGrading) && (
+        <Box p={1} bgcolor="white" border="1px solid gray" borderRadius={1}>
+          <Typography display="block">
+            {isGrading && (
+              <>
+                Grading for <b>{studentId}</b>
+              </>
+            )}
+            {onPrevGradingItem && (
+              <IconButton onClick={() => onPrevGradingItem()}>
+                <ArrowBackIosIcon />
+              </IconButton>
+            )}
+            {onNextGradingItem && (
+              <IconButton onClick={() => onNextGradingItem()}>
+                <ArrowForwardIosIcon />
+              </IconButton>
+            )}
+          </Typography>
+          <GradingManager problemId={questionId} subProblemId={subProblemId} />
+        </Box>
       )}
-      <Dialog
-        maxWidth="lg"
-        fullWidth={true}
-        open={isHistoryOpen}
-        onClose={() => setIsHistoryOpen(false)}
-      >
-        <AppBar sx={{ position: 'relative' }}>
-          <Toolbar>
-            <IconButton
-              edge="start"
-              color="inherit"
-              onClick={() => setIsHistoryOpen(false)}
-              aria-label="close"
-            >
-              <CloseIcon />
-            </IconButton>
-            <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-              {t.history}
-            </Typography>
-          </Toolbar>
-        </AppBar>
-        <List>
-          {answers.map((c) => (
-            <>
-              <ListItemButton>
-                <ListItemText
-                  onClick={() => {
-                    setAnswer(c.answer);
-                    setAnswerId(c.id);
-                    setShowGrading(true);
-                    setShowSolution(true);
-                    setIsHistoryOpen(false);
-                  }}
-                  primary={c.answer}
-                  style={{ whiteSpace: 'pre-line' }}
-                  secondary={dayjs(c.updatedAt.toString()).toNow(true)}
-                />
-                <Box sx={{ flexDirection: 'column', display: 'flex' }}>
-                  {c.reviewRequests?.map((d) =>
-                    d === ReviewType.INSTRUCTOR ? (
-                      <GroupsIcon></GroupsIcon>
-                    ) : (
-                      <Diversity3Icon></Diversity3Icon>
-                    )
-                  )}
-                  {c.graded && (
-                    <IconButton
-                      onClick={(e) => {
-                        router.push(`/answers/${courseId}/${c.id}`);
-                        e.preventDefault();
-                      }}
-                    >
-                      <GradingIcon></GradingIcon>
-                    </IconButton>
-                  )}
-                </Box>
-              </ListItemButton>
-              <Divider />
-            </>
-          ))}
-        </List>
-      </Dialog>
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-        <MenuItem onClick={OnOnlySaveAnswer}>{t.save}</MenuItem>
-        <MenuItem onClick={OnOnlySeeSolution}>
-          {showSolution ? t.hideSolution : t.showSolution}
-        </MenuItem>
-        <Divider sx={{ my: 0.5 }} />
-        <MenuItem onClick={() => OnSaveAndReviewRequest(ReviewType.PEER)}>
-          {t.saveAndSubmitAPeerReview}
-        </MenuItem>
-        <MenuItem onClick={() => OnSaveAndReviewRequest(ReviewType.INSTRUCTOR)}>
-          {t.saveAndSubmitAInstructorReview}
-        </MenuItem>
-      </Menu>
+      {!isGrading && solutionBox}
     </>
   );
 }

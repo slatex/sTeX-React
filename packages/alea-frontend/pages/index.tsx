@@ -1,12 +1,15 @@
 import FeedIcon from '@mui/icons-material/Feed';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import { Box, Button, IconButton, Tooltip, Typography, useMediaQuery } from '@mui/material';
-import { checkUserExist, getCourseInfo } from '@stex-react/api';
-import { CourseInfo, PRIMARY_COL } from '@stex-react/utils';
+import { checkUserExist, getCourseInfo, getResourcesForUserId, isLoggedIn } from '@stex-react/api';
+import { ServerLinksContext } from '@stex-react/stex-react-renderer';
+import { Action, CourseInfo, CourseResourceAction, PRIMARY_COL } from '@stex-react/utils';
 import { NextPage } from 'next';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import InstructorDashBoard from '../components/InstructorDashboard';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 
@@ -24,26 +27,38 @@ const aleaFeatures = [
   {
     img_url: '/selfpaced.png',
     title: 'Self paced learning',
+    title_de: 'Selbstverwaltungsfaehig',
     description:
       'Empowering students to learn at their own speed, fostering independence and personalized progress.',
+    description_de:
+      'Studenten selbst verwalten lassen, Selbstverwaltung und persönliches Fortschritt fördern.',
   },
   {
     img_url: '/University_Credits.png',
     title: 'Adaptive learning',
+    title_de: 'Anpassungsfaehig',
     description:
       'Tailoring content and difficulty based on individual student performance, maximizing engagement and comprehension.',
+    description_de:
+      'Inhalte und Schwierigkeit anpassen, basierend auf der individuellen Leistung des Studenten, um Engagement und Verstaendnis zu maximieren.',
   },
   {
     img_url: '/up.png',
     title: 'See student progress',
+    title_de: 'Schuelerfortschritt sehen',
     description:
       'Providing real-time insights into student advancement, facilitating targeted support and encouragement.',
+    description_de:
+      'Schuelerfortschritt sehen, real-time Informationen über die Fortschritt der Studenten ermöglichen, Zielorientierte Unterstützung und Unterstützung ermöglichen.',
   },
   {
     img_url: '/quiz.png',
     title: 'Live Quizzes',
+    title_de: 'Live-Quizzes',
     description:
       'Offering interactive assessments in real-time, promoting active participation and immediate feedback for enhanced learning outcomes.',
+    description_de:
+      'Interaktive Tests in Echtzeit bieten, aktive Teilnahme und sofortige Feedback fördern, um die Lernergebnisse zu verbessern.',
   },
 ];
 
@@ -71,19 +86,21 @@ export const PARTNERED_UNIVERSITIES = [
   {
     code: 'others',
     name: 'Other Institutions',
+    name_de: 'Andere Institutionen',
     logoSrc: '/others.png',
   },
 ];
 
 const FEATURED_COURSES = ['ai-1', 'ai-2', 'gdp', 'iwgs-2', 'lbs'];
 
-const BannerSection = () => {
+export const BannerSection = ({ tight = false }: { tight?: boolean }) => {
   const router = useRouter();
   const {
     home: t,
     home: { newHome: n },
   } = getLocaleObject(router);
   const isSmallScreen = useMediaQuery('(max-width:800px)');
+  const loggedIn = isLoggedIn();
 
   return (
     <>
@@ -110,7 +127,7 @@ const BannerSection = () => {
           maxWidth: '1200px',
           display: 'flex',
           alignItems: 'center',
-          padding: '50px 20px 100px',
+          padding: tight ? '20px' : '50px 20px 100px',
           justifyContent: 'space-around',
         }}
       >
@@ -127,7 +144,7 @@ const BannerSection = () => {
           </Typography>
           <Typography
             variant="body1"
-            maxWidth="400px"
+            maxWidth="600px"
             mb="16px"
             fontFamily={'sans-serif,roboto'}
             display="flex"
@@ -135,14 +152,16 @@ const BannerSection = () => {
             {n.aleaDesc}
           </Typography>
 
-          <Button
-            variant="contained"
-            color="primary"
-            sx={{ margin: '5px 5px 5px 0px' }}
-            onClick={() => router.push('/signup')}
-          >
-            {n.signUpNow}
-          </Button>
+          {!loggedIn && (
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{ margin: '5px 5px 5px 0px' }}
+              onClick={() => router.push('/signup')}
+            >
+              {n.signUpNow}
+            </Button>
+          )}
           <Button
             sx={{ margin: '5px 5px 5px 0px' }}
             variant="outlined"
@@ -173,7 +192,7 @@ const BannerSection = () => {
             {n.publications}
           </Button>
         </Box>
-        {!isSmallScreen && (
+        {!isSmallScreen && !tight && (
           <Image
             style={{ borderRadius: '50%' }}
             src={'/student.jpg'}
@@ -187,52 +206,87 @@ const BannerSection = () => {
   );
 };
 
+export function VollKiInfoSection({ bgcolor = '#F5F5F5' }: { bgcolor?: string }) {
+  const {
+    home: { newHome: n },
+  } = getLocaleObject(useRouter());
+
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        bgcolor,
+        padding: '20px',
+        mb: '-10px',
+      }}
+    >
+      <Typography
+        style={{
+          textAlign: 'center',
+          marginTop: '20px',
+          fontWeight: '400',
+          fontSize: '20px',
+        }}
+      >
+        {n.vollKiProjectInfo}
+      </Typography>
+      <img
+        src="/fau_kwarc.png"
+        alt="Explore courses"
+        style={{ padding: '20px', maxWidth: '100%' }}
+      />
+    </Box>
+  );
+}
+
 function CourseCard({ key, course }) {
   const { imageLink: courseImage, courseName, courseId, institution, instructors } = course;
   const instructor = getInstructor(course, 'SS24') ?? instructors[0].name;
-  const router = useRouter();
   return (
-    <Box
-      key={key}
-      sx={{
-        cursor: 'pointer',
-        boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2)',
-        width: '220px',
-        margin: '15px',
-        textAlign: 'center',
-        height: '260px',
-        backgroundColor: 'rgb(237, 237, 237)',
-        borderRadius: '2rem',
-        padding: '1rem',
-        transition: 'transform 0.3s',
-        '&:hover': {
-          transform: 'scale(1.1)',
-        },
-      }}
-      onClick={() => router.push(`/course-home/${courseId}`)}
-    >
-      <Image
-        height={120}
-        width={courseId === 'iwgs-1' ? 100 : 200}
-        src={courseImage}
-        alt="couse-image"
-        style={{ borderRadius: '10px' }}
-      />
-      <Box sx={{ display: 'flex', flexDirection: 'column', marginTop: '10px' }}>
-        <Typography
-          sx={{
-            fontSize: '18px',
-            fontWeight: 'bold',
-            padding: '10px',
-            color: '#003786',
-          }}
-        >
-          {courseName.length > 50 ? courseId.toUpperCase() : courseName}
-        </Typography>
-        <Typography sx={{ fontSize: '14px', padding: '5px' }}>{institution}</Typography>
-        <Typography sx={{ fontSize: '14px', padding: '5px' }}>{instructor}</Typography>
+    <Link href={`/course-home/${courseId}`}>
+      <Box
+        key={key}
+        sx={{
+          cursor: 'pointer',
+          boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2)',
+          width: '220px',
+          margin: '15px',
+          textAlign: 'center',
+          height: '260px',
+          backgroundColor: 'rgb(237, 237, 237)',
+          borderRadius: '2rem',
+          padding: '1rem',
+          transition: 'transform 0.3s',
+          '&:hover': {
+            transform: 'scale(1.1)',
+          },
+        }}
+      >
+        <Image
+          height={120}
+          width={courseId === 'iwgs-1' ? 100 : 200}
+          src={courseImage}
+          alt="couse-image"
+          style={{ borderRadius: '10px' }}
+        />
+        <Box sx={{ display: 'flex', flexDirection: 'column', marginTop: '10px' }}>
+          <Typography
+            sx={{
+              fontSize: '18px',
+              fontWeight: 'bold',
+              padding: '10px',
+              color: '#003786',
+            }}
+          >
+            {courseName.length > 50 ? courseId.toUpperCase() : courseName}
+          </Typography>
+          <Typography sx={{ fontSize: '14px', padding: '5px' }}>{institution}</Typography>
+          <Typography sx={{ fontSize: '14px', padding: '5px' }}>{instructor}</Typography>
+        </Box>
       </Box>
-    </Box>
+    </Link>
   );
 }
 
@@ -268,14 +322,29 @@ function AleaFeatures({ img_url, title, description }) {
 
 const StudentHomePage: NextPage = ({ filteredCourses }: { filteredCourses: CourseInfo[] }) => {
   const router = useRouter();
+  const [resourcesForInstructor, setResourcesForInstructor] = useState<CourseResourceAction[]>([]);
   useEffect(() => {
     checkUserExist();
   }, []);
   const {
     home: { newHome: n },
   } = getLocaleObject(router);
+
+  const { mmtUrl } = useContext(ServerLinksContext);
+  useEffect(() => {
+    async function resourcesAccessToUser() {
+      const resourceAccessToInstructor = (await getResourcesForUserId(mmtUrl)).filter(
+        (item) => item.action !== Action.TAKE
+      );
+      setResourcesForInstructor(resourceAccessToInstructor);
+    }
+    resourcesAccessToUser();
+  }, [mmtUrl]);
+  if (resourcesForInstructor.length > 0) {
+    return <InstructorDashBoard resourcesForInstructor={resourcesForInstructor} />;
+  }
   return (
-    <MainLayout title="Courses | VoLL-KI">
+    <MainLayout title="Courses | ALeA">
       <Box m="0 auto">
         <BannerSection />
         <Box sx={{ backgroundColor: '#F5F5F5', padding: '80px' }}>
@@ -325,7 +394,11 @@ const StudentHomePage: NextPage = ({ filteredCourses }: { filteredCourses: Cours
                     width={university.code === 'others' ? 160 : 140}
                     height={140}
                   />
-                  <Typography sx={{ fontWeight: '500' }}>{university.name}</Typography>
+                  <Typography sx={{ fontWeight: '500' }}>
+                    {router.locale === 'de'
+                      ? university.name_de ?? university.name
+                      : university.name}
+                  </Typography>
                 </Box>
               ))}
             </Box>
@@ -367,8 +440,8 @@ const StudentHomePage: NextPage = ({ filteredCourses }: { filteredCourses: Cours
               <AleaFeatures
                 key={index}
                 img_url={feature.img_url}
-                title={feature.title}
-                description={feature.description}
+                title={router.locale === 'en' ? feature.title : feature.title_de}
+                description={router.locale === 'en' ? feature.description : feature.description_de}
               />
             ))}
           </Box>
@@ -411,32 +484,8 @@ const StudentHomePage: NextPage = ({ filteredCourses }: { filteredCourses: Cours
             ))}
           </Box>
         </Box>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            backgroundColor: '#F5F5F5',
-            padding: '20px',
-            mb: '-10px',
-          }}
-        >
-          <Typography
-            style={{
-              textAlign: 'center',
-              marginTop: '20px',
-              fontWeight: '400',
-              fontSize: '20px',
-            }}
-          >
-            {n.vollKiProjectInfo}
-          </Typography>
-          <img
-            src="/fau_kwarc.png"
-            alt="Explore courses"
-            style={{ padding: '20px', maxWidth: '100%' }}
-          />
-        </Box>
+
+        <VollKiInfoSection />
       </Box>
     </MainLayout>
   );

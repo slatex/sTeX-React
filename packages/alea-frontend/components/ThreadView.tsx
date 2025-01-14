@@ -38,7 +38,7 @@ export function ThreadView({ courseId, threadId }: { courseId: string; threadId:
   useEffect(() => {
     canAccessResource(ResourceName.COURSE_COMMENTS, Action.MODERATE, {
       courseId,
-      CURRENT_TERM,
+      instanceId: CURRENT_TERM,
     }).then(setIsUserAuthorized);
   }, [courseId]);
 

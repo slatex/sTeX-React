@@ -1,12 +1,7 @@
-import {
-  Action,
-  GetSpecificAclIdsResponse,
-  ResourceActionPair,
-  ResourceName,
-} from '@stex-react/utils';
+import { Action, ResourceActionPair, ResourceName } from '@stex-react/utils';
 import axios from 'axios';
 import { AccessControlList, ResourceAction } from './access-control';
-import { getAuthHeaders } from './lms';
+import { getAuthHeaders } from './lmp';
 
 export async function getAllAclIds(): Promise<string[]> {
   const resp = await axios.get('/api/access-control/get-all-acl-ids');
@@ -15,7 +10,7 @@ export async function getAllAclIds(): Promise<string[]> {
 
 export async function getSpecificAclIds(resourceActionPairs: ResourceActionPair[]) {
   const resp = await axios.post('/api/access-control/get-specific-aclids', { resourceActionPairs });
-  return resp.data as GetSpecificAclIdsResponse;
+  return resp.data as string[];
 }
 
 export async function createAcl(newAcl: CreateACLRequest): Promise<void> {
@@ -25,6 +20,13 @@ export async function createAcl(newAcl: CreateACLRequest): Promise<void> {
 export async function getAcl(aclId: string): Promise<AccessControlList> {
   const resp = await axios.get(`/api/access-control/get-acl?id=${aclId}`);
   return resp.data as AccessControlList;
+}
+
+export async function getAclUserDetails(
+  aclId: string
+) {
+  const resp = await axios.get(`/api/access-control/get-acl-userdetails?id=${aclId}`);
+  return resp.data as { fullName: string; userId: string }[];
 }
 
 export async function getCourseAcls(courseId: string, instanceId: string) {
@@ -136,6 +138,24 @@ export async function canModerateStudyBuddy(courseId?: string, courseTerm?: stri
     params: { courseId, courseTerm },
   });
   return data as boolean;
+}
+
+export async function addRemoveMember({
+  memberId,
+  aclId,
+  isAclMember,
+  toBeAdded,
+}: {
+  memberId: string;
+  aclId: string;
+  isAclMember: boolean;
+  toBeAdded: boolean;
+}): Promise<void> {
+  await axios.post(
+    '/api/access-control/add-remove-member',
+    { memberId, aclId, isAclMember, toBeAdded },
+    { headers: getAuthHeaders() }
+  );
 }
 
 export type UpdateACLRequest = Omit<AccessControlList, 'updatedAt' | 'createdAt'>;

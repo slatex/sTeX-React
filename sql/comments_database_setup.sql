@@ -187,6 +187,8 @@ CREATE TABLE Answer  (
 CREATE TABLE Grading  (
   id int UNSIGNED NOT NULL AUTO_INCREMENT,
   checkerId varchar(255) NOT NULL,
+  reviewType enum('SELF', 'INSTRUCTOR', 'PEER') NOT NULL,
+  
   answerId int UNSIGNED NOT NULL,
   customFeedback TEXT NULL,
   totalPoints float NOT NULL,

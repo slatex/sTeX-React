@@ -69,10 +69,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
   const courseId = req.query.courseId as string;
-  const userScores = await getUserScoresOrSet500Error(userId, res);
+  const userScores = {}; // await getUserScoresOrSet500Error(userId, res); Disable to avoid performance issues
   if (!userScores) return;
 
-  const quizAverages = new Map(); // Skip to avoid performance issues: await getQuizAveragesOrSet500Error(res);
+  const quizAverages = await getQuizAveragesOrSet500Error(res);
   if (!quizAverages) return;
 
   const allQuizzes = getAllQuizzes();

@@ -6,7 +6,37 @@ export const SYSTEM_UPDATES = [
     header_de: '',
     content_de: '',
     postedTimestamp: '2023-02-11T00:20:00+05:30',
-  }*/
+    }*/
+  {
+    id: 'learning-object-explorer',
+    header: 'Learning Object Explorer',
+    content:
+      'Learning Object Explorer allows you to seamlessly explore and navigate through various learning objects organized by topics and categories, while also displaying their relationships to other learning objects.',
+    header_de: 'Lernobjekt-Explorer',
+    content_de:
+      'Der Learning Object Explorer ermöglicht Ihnen die zusammenhängende Erkundung und Navigation durch verschiedene Lernobjekte, geordnet nach Themen und Kategorien, und zeigt gleichzeitig deren Beziehungen zu anderen Lernobjekten an.',
+    postedTimestamp: '2024-12-17T00:20:00+05:30',
+  },
+  {
+    id: 'guided-tour-v2',
+    header: 'Guided Tour V2',
+    content:
+      'Experience our updated Guided Tour (V2), a dynamic chat-based interface between you and the system! This innovative feature evaluates your understanding, iterates on different concepts based on your progress, teaches you effectively, and continuously assesses your learning to guide you toward mastering the goal concept.',
+    header_de: 'Geführte Tour V2',
+    content_de:
+      'Erleben Sie unsere aktualisierte Guided Tour (V2), eine dynamische Chat-basierte Schnittstelle zwischen Ihnen und dem System! Diese innovative Funktion bewertet Ihr Verständnis, wiederholt verschiedene Konzepte basierend auf Ihrem Fortschritt, unterrichtet Sie effektiv und bewertet kontinuierlich Ihr Lernen, um Sie bei der Beherrschung des Zielkonzepts zu unterstützen.',
+    postedTimestamp: '2024-12-09T00:20:00+05:30',
+  },
+  {
+    id: 'instructor-review',
+    header: 'Instructor Review for Non-Autogradable Problems',
+    content:
+      'Instructors can now review and grade non-autogradable problems submitted by students, ensuring a personalized evaluation process and more comprehensive feedback.',
+    header_de: 'Überprüfung durch den Kursleiter für nicht autogradierbare Probleme',
+    content_de:
+      'Lehrkräfte können jetzt von Studierenden eingereichte, nicht autogradierbare Probleme überprüfen und bewerten und so einen personalisierten Bewertungsprozess und ein umfassenderes Feedback gewährleisten.',
+    postedTimestamp: '2024-12-02T00:20:00+05:30',
+  },
   {
     id: 'search',
     header: 'Search in Notes',

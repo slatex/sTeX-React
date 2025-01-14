@@ -1,10 +1,12 @@
 import CancelIcon from '@mui/icons-material/Cancel';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import {
   Box,
   Button,
   Card,
   Checkbox,
   CircularProgress,
+  IconButton,
   MenuItem,
   Select,
   TextField,
@@ -15,17 +17,17 @@ import Radio, { RadioProps } from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import {
   AnswerUpdateEntry,
+  AutogradableResponse,
   BloomDimension,
   Input,
-  InputResponse,
   InputType,
   Problem,
   ProblemAnswerEvent,
   ProblemResponse,
   QuadState,
-  SubProblemData,
   Tristate,
   UserInfo,
+  createAnswer,
   getUserInfo,
   postAnswer,
 } from '@stex-react/api';
@@ -36,18 +38,17 @@ import {
   removeAnswerInfo,
 } from '@stex-react/quiz-utils';
 
+import { Visibility } from '@mui/icons-material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { getMMTHtml } from './CompetencyTable';
 import { DocumentWidthSetter } from './DocumentWidthSetter';
-import { AnswerClassesTable, DebugMCQandSCQ, InlineScqTable } from './QuizDebug';
-import { DimIcon } from './SelfAssessmentDialog';
-import { getLocaleObject } from './lang/utils';
 import { CustomItemsContext, NoMaxWidthTooltip, mmtHTMLToReact } from './mmtParser';
 import styles from './quiz.module.scss';
-import { SubProblemAnswer } from './SubProblemAnswer';
-import { PRIMARY_COL } from '@stex-react/utils';
+import { AnswerClassesTable, DebugMCQandSCQ, InlineScqTable } from './QuizDebug';
+import { DimIcon } from './SelfAssessmentDialog';
+import { SubProblemAnswer, getAnswerFromLocalStorage } from './SubProblemAnswer';
 
 function BpRadio(props: RadioProps) {
   return <Radio disableRipple color="default" {...props} />;
@@ -98,7 +99,7 @@ function getDropdownClassNames(isSelected: boolean, isFrozen: boolean, correctne
   return '';
 }
 
-function fillInFeedback(input: Input, response: InputResponse) {
+function fillInFeedback(input: Input, response?: AutogradableResponse) {
   if (input.ignoreForScoring) {
     return {
       isCorrect: Tristate.TRUE,
@@ -107,7 +108,7 @@ function fillInFeedback(input: Input, response: InputResponse) {
   }
   const expected = input.fillInAnswerClasses;
   if (!expected) return { isCorrect: Tristate.UNKNOWN, feedbackHtml: '' };
-  const actual = response.filledInAnswer;
+  const actual = response?.filledInAnswer;
   const isCorrect = isFillInInputCorrect(expected, actual) === Tristate.TRUE;
   const feedbackHtml = getFillInFeedbackHtml(input, actual);
   return {
@@ -128,15 +129,14 @@ function quadStateToTristate(qs: QuadState) {
   }
 }
 
-function scbFeedback(input: Input, response: InputResponse) {
-  const { singleOptionIdx } = response;
+function scbFeedback(input: Input, response?: AutogradableResponse) {
   if (input.ignoreForScoring) {
     return {
       isCorrect: Tristate.TRUE,
       feedbackHtml: 'Your response to this input will not be graded.',
     };
   }
-  const chosen = (input.options || []).find((o) => o.optionId === singleOptionIdx);
+  const chosen = (input.options || []).find((o) => o.optionId === response?.singleOptionIdx);
   if (!chosen) return { isCorrect: Tristate.FALSE, feedbackHtml: 'Wrong!' };
   const isCorrect: Tristate = quadStateToTristate(chosen.shouldSelect);
   if (isCorrect === Tristate.UNKNOWN) return { isCorrect, feedbackHtml: '' };
@@ -146,7 +146,7 @@ function scbFeedback(input: Input, response: InputResponse) {
   return { isCorrect, feedbackHtml };
 }
 
-function feedbackInfo(isFrozen: boolean, input: Input, response: InputResponse) {
+function feedbackInfo(isFrozen: boolean, input: Input, response?: AutogradableResponse) {
   if (!isFrozen) return undefined;
   switch (input.type) {
     case InputType.FILL_IN:
@@ -223,9 +223,9 @@ function inputDisplay({
   debug,
 }: {
   input: Input;
-  response: InputResponse;
+  response?: AutogradableResponse;
   isFrozen: boolean;
-  onUpdate: (value: InputResponse) => void;
+  onUpdate: (value: AutogradableResponse) => void;
   debug: boolean;
 }) {
   const { type, inline } = input;
@@ -236,12 +236,12 @@ function inputDisplay({
         <>
           <Select
             name="customized-select"
-            value={response.singleOptionIdx || '-1'}
+            value={response?.singleOptionIdx || '-1'}
             onChange={(e) => {
               onUpdate({
                 type: InputType.SCQ,
                 singleOptionIdx: e.target.value,
-              } as InputResponse);
+              } as AutogradableResponse);
             }}
           >
             <MenuItem key="-1" value="-1" disabled={true}>
@@ -252,7 +252,7 @@ function inputDisplay({
                 <Box
                   display="inline"
                   className={getDropdownClassNames(
-                    response.singleOptionIdx === optionId,
+                    response?.singleOptionIdx === optionId,
                     isFrozen,
                     shouldSelect
                   )}
@@ -272,13 +272,13 @@ function inputDisplay({
         <>
           <RadioGroup
             name="customized-radios"
-            value={response.singleOptionIdx ?? ''}
+            value={response?.singleOptionIdx ?? ''}
             onChange={(e) => {
               if (isFrozen) return;
               onUpdate({
                 type: InputType.SCQ,
                 singleOptionIdx: e.target.value,
-              } as InputResponse);
+              } as AutogradableResponse);
             }}
           >
             {(input.options || []).map(({ optionId, shouldSelect, value, feedbackHtml }) => (
@@ -288,7 +288,7 @@ function inputDisplay({
                   value={optionId}
                   control={<BpRadio />}
                   className={getClassNames(
-                    response.singleOptionIdx === optionId,
+                    response?.singleOptionIdx === optionId,
                     isFrozen,
                     shouldSelect
                   )}
@@ -317,12 +317,12 @@ function inputDisplay({
       <Box display="inline-flex" alignItems="center">
         <TextField
           label="Answer"
-          value={response.filledInAnswer}
+          value={response?.filledInAnswer}
           onChange={(e) =>
             onUpdate({
               type: InputType.FILL_IN,
               filledInAnswer: e.target.value,
-            } as InputResponse)
+            } as AutogradableResponse)
           }
           disabled={isFrozen}
           sx={{ color, minWidth: '250px' }}
@@ -339,14 +339,15 @@ function inputDisplay({
             <FormControlLabel
               key={optionId}
               className={getClassNames(
-                response.multipleOptionIdxs?.[optionId] ?? false,
+                response?.multipleOptionIdxs?.[optionId] ?? false,
                 isFrozen,
                 shouldSelect
               )}
               control={
                 <Checkbox
-                  checked={response.multipleOptionIdxs?.[optionId] ?? false}
+                  checked={response?.multipleOptionIdxs?.[optionId] ?? false}
                   onChange={(e) => {
+                    if (!response) return;
                     if (!response.multipleOptionIdxs) {
                       console.error('Error: multipleOptionIdxs is undefined');
                       response.multipleOptionIdxs = {};
@@ -355,7 +356,7 @@ function inputDisplay({
                     onUpdate({
                       type: InputType.MCQ,
                       multipleOptionIdxs: response.multipleOptionIdxs,
-                    } as InputResponse);
+                    } as AutogradableResponse);
                   }}
                 />
               }
@@ -406,28 +407,72 @@ function groupingByBloomDimension(data?: string) {
   }
   return groupedData;
 }
+interface URIListDisplayProps {
+  uris?: string[];
+  displayReverseRelation?: (conceptUri: string) => void;
+}
+export function URIListDisplay({ uris, displayReverseRelation }: URIListDisplayProps) {
+  const handleCopy = (uri: string) => {
+    navigator.clipboard.writeText(uri).then(
+      () => alert(`Copied: ${uri}`),
+      (err) => console.error('Failed to copy:', err)
+    );
+  };
 
-function DimAndURIListDisplay({ title, data }: { title: string; data?: string }) {
-  const groupedData = groupingByBloomDimension(data);
+  return (
+    <Box>
+      {uris?.map((uri, index, array) => (
+        <span key={index}>
+          {mmtHTMLToReact(getMMTHtml(uri))}
+          <IconButton
+            size="small"
+            onClick={() => handleCopy(uri)}
+            aria-label="copy"
+            style={{ marginLeft: '5px' }}
+          >
+            <ContentCopyIcon fontSize="small" />
+          </IconButton>
+          {displayReverseRelation && (
+            <IconButton
+              size="small"
+              onClick={() => displayReverseRelation(uri)}
+              aria-label="mirror"
+              style={{ marginLeft: '5px' }}
+            >
+              <Visibility fontSize="small" />
+            </IconButton>
+          )}
+
+          {index < array.length - 1 ? ',\xa0' : ''}
+        </span>
+      ))}
+    </Box>
+  );
+}
+
+export function DimAndURIListDisplay({
+  title,
+  data,
+  displayReverseRelation,
+}: {
+  title: string;
+  data?: string;
+  displayReverseRelation?: (conceptUri: string) => void;
+}) {
+  const transformedData = groupingByBloomDimension(data);
   return (
     <Box border="1px solid black" mb="10px" bgcolor="white">
       <Typography fontWeight="bold" sx={{ p: '10px' }}>
         {title}&nbsp;
       </Typography>
-      {Object.values(BloomDimension).map((dim) =>
-        groupedData[dim].length ? (
-          <Box key={dim} borderTop="1px solid #AAA" p="5px" display="flex" flexWrap="wrap">
-            <DimIcon dim={dim} />
-            &nbsp;
-            {groupedData[dim]?.map((uri, index) => (
-              <span key={index}>
-                {mmtHTMLToReact(getMMTHtml(uri))}
-                {index < groupedData[dim].length - 1 ? ',\xa0' : ''}
-              </span>
-            ))}
+      {Object.entries(transformedData)
+        .filter(([_, uris]) => uris.length > 0)
+        .map(([group, uris]) => (
+          <Box key={group} borderTop="1px solid #AAA" p="5px" display="flex" flexWrap="wrap">
+            <DimIcon dim={group as BloomDimension} /> &nbsp;
+            <URIListDisplay uris={uris} displayReverseRelation={displayReverseRelation} />
           </Box>
-        ) : null
-      )}
+        ))}
     </Box>
   );
 }
@@ -487,21 +532,18 @@ export function ProblemDisplay({
   onFreezeResponse,
   debug,
   problemId = '',
-  homeworkId,
 }: {
   uri?: string;
   problem: Problem | undefined;
   isFrozen: boolean;
-  r: ProblemResponse;
+  r?: ProblemResponse;
   showPoints?: boolean;
   onResponseUpdate: (r: ProblemResponse) => void;
   onFreezeResponse?: () => void;
   debug?: boolean;
   problemId?: string;
-  homeworkId?: number;
 }) {
   const router = useRouter();
-  const { quiz: t } = getLocaleObject(router);
   const [userId, setUserId] = useState('');
   useEffect(() => {
     getUserInfo().then((u: UserInfo | undefined) => {
@@ -515,21 +557,86 @@ export function ProblemDisplay({
   const fillInInputs = problem.inputs?.filter((input) => input.type === InputType.FILL_IN) || [];
   const inlineSCQInputs =
     problem.inputs?.filter((input) => input.type === InputType.SCQ && input.inline) || [];
-  const inputWidgets = problem.inputs.map((input, optIdx) => {
+
+  //Autogradable problem widgets
+  const apWidgets = problem.inputs.map((input, optIdx) => {
     return inputDisplay({
       input,
-      response: r.responses[optIdx],
+      response: r?.autogradableResponses[optIdx],
       isFrozen,
       onUpdate: (resp) => {
-        if (isFrozen) return;
-        r.responses[optIdx] = resp;
+        if (isFrozen || !r) return;
+        r.autogradableResponses[optIdx] = resp;
         onResponseUpdate({ ...r });
       },
       debug: debug ?? false,
     });
   });
-  const customItems = Object.assign(inputWidgets);
+
+  //Non-Autogradable problem widgets
+  const napWidgets = problem.subProblemData.map((c, i) => (
+    <SubProblemAnswer
+      problem={problem}
+      questionId={uri ? uri : problemId}
+      subProblemId={i.toString()}
+      subProblem={c}
+      isFrozen={isFrozen}
+      existingResponse={r?.freeTextResponses?.[i]}
+      onSaveClick={() => {
+        if (!r) return;
+        const freeTextResponses: Record<string, string> = {};
+        for (let i = 0; i < problem.subProblemData.length; i++) {
+          freeTextResponses[i.toString()] =
+            getAnswerFromLocalStorage(uri ? uri : problemId, i.toString()) ?? '';
+        }
+        saveAnswers({
+          problemId,
+          uri,
+          freeTextResponses,
+        });
+        onResponseUpdate({ ...r, freeTextResponses });
+      }}
+    ></SubProblemAnswer>
+  ));
+
+  const customItems: Record<string, any> = {};
+
+  napWidgets.forEach((widget, index) => {
+    customItems[`nap_${index}`] = widget;
+  });
+
+  apWidgets.forEach((widget, index) => {
+    customItems[`ap_${index}`] = widget;
+  });
+
   const statement = removeInfoIfNeeded(problem.statement.outerHTML ?? '', isEffectivelyFrozen);
+  async function saveAnswers({
+    problemId,
+    uri,
+    freeTextResponses,
+  }: {
+    problemId: string;
+    uri?: string;
+    freeTextResponses: Record<string, string>;
+  }) {
+    try {
+      const promises = Object.keys(freeTextResponses).map((idx) =>
+        createAnswer({
+          answer: freeTextResponses[idx],
+          questionId: uri ? uri : problemId,
+          questionTitle: router.query?.title as string,
+          subProblemId: idx,
+          courseId: router.query.courseId as string,
+        })
+      );
+      await Promise.all(promises);
+      console.log('All answers saved successfully!');
+    } catch (error) {
+      console.error('Error saving answers:', error);
+      alert('Failed to save answers. Please try again.');
+    }
+  }
+
   return (
     <Card
       sx={{
@@ -544,27 +651,6 @@ export function ProblemDisplay({
         <CustomItemsContext.Provider value={{ items: customItems }}>
           <DocumentWidthSetter>{mmtHTMLToReact(statement)}</DocumentWidthSetter>
         </CustomItemsContext.Provider>
-        {problem.subProblemData.map((c, i) => (
-          <>
-            {isFrozen ? (
-              <span style={{ color: PRIMARY_COL, fontWeight: 'bold' }}> {t.yourAnswer} </span>
-            ) : (
-              <span>
-                {t.answerTemplate
-                  .replace('$1', (i + 1).toString())
-                  .replace('$2', problem.subProblemData.length.toString())}
-              </span>
-            )}
-            <SubProblemAnswer
-              homeworkId={homeworkId}
-              problemHeader={problem.header}
-              questionId={uri ? uri : problemId}
-              subProblemId={i.toString()}
-              subProblem={c}
-              isFrozen={isFrozen}
-            ></SubProblemAnswer>
-          </>
-        ))}
         {debug && (
           <>
             {inlineSCQInputs.map((inlineInput) => (
@@ -577,17 +663,15 @@ export function ProblemDisplay({
             <DimAndURIListDisplay title="Preconditions" data={problem.preconditions} />
           </>
         )}
-        {onFreezeResponse && !isEffectivelyFrozen && (
+        {onFreezeResponse && !isEffectivelyFrozen && r && (
           <Button
             onClick={() => {
               onFreezeResponse();
-              if (uri) {
-                handleSubmit(problem, uri, r, userId);
-              }
+              if (uri) handleSubmit(problem, uri, r, userId);
             }}
             variant="contained"
           >
-            submit
+            Submit
           </Button>
         )}
       </Box>

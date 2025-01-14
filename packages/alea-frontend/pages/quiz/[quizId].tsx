@@ -4,20 +4,22 @@ import {
   getQuiz,
   GetQuizResponse,
   getUserInfo,
-  insertAnswer,
+  insertQuizResponse,
   Phase,
   Problem,
   UserInfo,
 } from '@stex-react/api';
 import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
 import { QuizDisplay } from '@stex-react/stex-react-renderer';
-import { Action, localStore, ResourceName } from '@stex-react/utils';
+import { Action, CURRENT_TERM, localStore, ResourceName } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { ForceFauLogin } from '../../components/ForceFAULogin';
+import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
+import { handleEnrollment } from '../course-home/[courseId]';
 
 function ToBeStarted({ quizStartTs }: { quizStartTs?: number }) {
   const [showReload, setShowReload] = useState(false);
@@ -97,21 +99,30 @@ function isFinishedFromLocalStore(quizId: string) {
 const QuizPage: NextPage = () => {
   const router = useRouter();
   const quizId = router.query.quizId as string;
+  const { quiz: q } = getLocaleObject(router);
 
   const [problems, setProblems] = useState<{ [problemId: string]: Problem }>({});
   const [finished, setFinished] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo | undefined | null>(null);
   const [quizInfo, setQuizInfo] = useState<GetQuizResponse | undefined>(undefined);
-  const [courseId, setCourseId] = useState<string>('');
-  const [instanceId, setInstanceId] = useState<string>('');
   const [moderatorPhase, setModeratorPhase] = useState<Phase>(undefined);
   const [debuggerMode, setDebuggerMode] = useState<boolean>(false);
+  const [enrolled, setIsEnrolled] = useState<boolean>(false);
   const clientQuizEndTimeMs = getClientEndTimeMs(quizInfo);
   const clientQuizStartTimeMs = getClientStartTimeMs(quizInfo);
 
   const phase = moderatorPhase ?? quizInfo?.phase;
+  const courseId = quizInfo?.courseId;
+  const instanceId = quizInfo?.courseTerm;
 
   const [forceFauLogin, setForceFauLogin] = useState(false);
+
+  const enrollInCourse = async () => {
+    if (!userInfo.userId || !courseId) return;
+    const enrollmentSuccess = await handleEnrollment(userInfo.userId, courseId, CURRENT_TERM);
+    setIsEnrolled(enrollmentSuccess);
+  };
+
   useEffect(() => {
     getUserInfo().then((i) => {
       const uid = i?.userId;
@@ -124,8 +135,6 @@ const QuizPage: NextPage = () => {
     if (!quizId) return;
     getQuiz(quizId).then((quizInfo) => {
       setQuizInfo(quizInfo);
-      setCourseId(quizInfo.courseId);
-      setInstanceId(quizInfo.courseTerm);
       const problemObj: { [problemId: string]: Problem } = {};
       Object.keys(quizInfo.problems).map((problemId) => {
         const html = hackAwayProblemId(quizInfo.problems[problemId]);
@@ -179,19 +188,57 @@ const QuizPage: NextPage = () => {
     });
   }, [courseId, instanceId]);
 
+  useEffect(() => {
+    if (!courseId) return;
+    const checkAccess = async () => {
+      const hasAccess = await canAccessResource(ResourceName.COURSE_QUIZ, Action.TAKE, {
+        courseId,
+        instanceId: CURRENT_TERM,
+      });
+      setIsEnrolled(hasAccess);
+    };
+    checkAccess();
+  }, [courseId]);
+
   if (!quizId) return null;
   if (forceFauLogin) {
     return (
       <MainLayout title="Quizzes | VoLL-KI">
-        <ForceFauLogin  content={"quizzes"}/>
+        <ForceFauLogin content={'quizzes'} />
       </MainLayout>
     );
   }
 
+  // if (!enrolled) {
+  //   return (
+  //     <MainLayout title="Quizzes | VoLL-KI">
+  //       <Box
+  //         p="20px"
+  //         sx={{
+  //           display: 'flex',
+  //           alignItems: 'center',
+  //           gap: '10px',
+  //           justifyContent: 'center',
+  //           flexDirection: 'column',
+  //         }}
+  //       >
+  //         <Typography variant="h6">
+  //           You are not enrolled in this course. Please click the &quot;Enroll&quot; button to
+  //           access the quiz.
+  //         </Typography>
+  //         <Button onClick={enrollInCourse} variant="contained" sx={{ backgroundColor: 'green' }}>
+  //           {q.getEnrolled}
+  //           <SchoolIcon />
+  //         </Button>
+  //       </Box>
+  //     </MainLayout>
+  //   );
+  // }
+
   return (
-    <MainLayout title="Quizzes | VoLL-KI">
+    <MainLayout title="Quizzes | ALeA">
       <Box>
-        {userInfo === undefined ? (
+        {!userInfo ? (
           <Box p="20px">You must be logged in to see quizzes.</Box>
         ) : phase === undefined ? (
           <CircularProgress />
@@ -219,7 +266,7 @@ const QuizPage: NextPage = () => {
             existingResponses={quizInfo?.responses}
             onResponse={async (problemId, response) => {
               if (!quizId?.length) return;
-              const answerAccepted = await insertAnswer(quizId, problemId, response);
+              const answerAccepted = await insertQuizResponse(quizId, problemId, response);
               if (!answerAccepted) {
                 alert('Answers are no longer being accepted');
                 location.reload();
