@@ -1,10 +1,30 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Card, CardContent, FormControl, IconButton, InputLabel, MenuItem, Select, Step, StepLabel, Stepper, TextField, Tooltip, Typography } from '@mui/material';
-import { createJobPost, getRecruiterProfile, InitialJobData, JobPostInfo, updateJobPost } from '@stex-react/api';
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  FormControl,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  Step,
+  StepLabel,
+  Stepper,
+  TextField,
+  Tooltip,
+  Typography,
+} from '@mui/material';
+import {
+  createJobPost,
+  getRecruiterProfile,
+  InitialJobData,
+  JobPostInfo,
+  updateJobPost,
+} from '@stex-react/api';
 import { PRIMARY_COL } from '@stex-react/utils';
 import { ArrowBack, ArrowForward } from '@mui/icons-material';
-
-
 
 const HeaderWithStepper = ({ activeStep }) => {
   const steps = ['Training Details', 'Offer Details', 'Eligibility'];
@@ -25,7 +45,6 @@ const HeaderWithStepper = ({ activeStep }) => {
     </Box>
   );
 };
-
 
 const FormActions = ({ activeStep, handleNext, handleBack, isLastStep }) => (
   <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
@@ -181,7 +200,6 @@ const OfferDetailsForm = ({ formData, handleChange }) => {
   );
 };
 
-
 const TrainingDetailsForm = ({ formData, handleChange }) => {
   return (
     <Box>
@@ -228,9 +246,16 @@ const TrainingDetailsForm = ({ formData, handleChange }) => {
   );
 };
 
-
-const JobPostInfoForm = ({ JobCategoryId, onClose, jobData, onUpdate }:{
-  JobCategoryId:number;onClose:()=>void;jobData:InitialJobData;onUpdate:()=>Promise<void>;
+const JobPostInfoForm = ({
+  JobCategoryId,
+  onClose,
+  jobData,
+  onUpdate,
+}: {
+  JobCategoryId: number;
+  onClose: () => void;
+  jobData: InitialJobData;
+  onUpdate: () => Promise<void>;
 }) => {
   const [activeStep, setActiveStep] = useState(0);
   const [jobPostFormData, setJobPostFormData] = useState({
@@ -250,7 +275,20 @@ const JobPostInfoForm = ({ JobCategoryId, onClose, jobData, onUpdate }:{
   const isUpdateMode = !!jobData?.id;
 
   useEffect(() => {
-    setJobPostFormData(jobData);
+    const completedJobData = {
+      session: jobData.session ?? '',
+      jobTitle: jobData.jobTitle ?? '',
+      trainingLocation: jobData.trainingLocation ?? '',
+      applicationDeadline: jobData.applicationDeadline ?? null,
+      currency: jobData.currency ?? '',
+      stipend: jobData.stipend ?? 0,
+      facilities: jobData.facilities ?? '',
+      targetYears: jobData.targetYears ?? '',
+      openPositions: jobData.openPositions ?? 0,
+      qualification: jobData.qualification ?? '',
+      jobDescription: jobData.jobDescription ?? '',
+    };
+    setJobPostFormData(completedJobData);
   }, [jobData]);
 
   const handleNext = async () => {
@@ -260,7 +298,12 @@ const JobPostInfoForm = ({ JobCategoryId, onClose, jobData, onUpdate }:{
       const recruiterProfileData = await getRecruiterProfile();
       const organizationId = recruiterProfileData?.organizationId;
       const createJobPostData = { ...jobPostFormData, JobCategoryId, organizationId };
-      const updateJobPostData = { ...jobPostFormData, id: jobData?.id, JobCategoryId, organizationId };
+      const updateJobPostData = {
+        ...jobPostFormData,
+        id: jobData?.id,
+        JobCategoryId,
+        organizationId,
+      };
 
       if (!isUpdateMode) {
         await createJobPost(createJobPostData);
@@ -282,15 +325,28 @@ const JobPostInfoForm = ({ JobCategoryId, onClose, jobData, onUpdate }:{
   const isLastStep = activeStep === 2;
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f4f6f9' }}>
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#f4f6f9',
+      }}
+    >
       <Card sx={{ width: '100%', boxShadow: 4, borderRadius: 3, backgroundColor: '#ffffff' }}>
         <CardContent>
           <HeaderWithStepper activeStep={activeStep} />
 
           <Box sx={{ mt: 4 }}>
-            {activeStep === 0 && <TrainingDetailsForm formData={jobPostFormData} handleChange={handleChange} />}
-            {activeStep === 1 && <OfferDetailsForm formData={jobPostFormData} handleChange={handleChange} />}
-            {activeStep === 2 && <EligibilityForm formData={jobPostFormData} handleChange={handleChange} />}
+            {activeStep === 0 && (
+              <TrainingDetailsForm formData={jobPostFormData} handleChange={handleChange} />
+            )}
+            {activeStep === 1 && (
+              <OfferDetailsForm formData={jobPostFormData} handleChange={handleChange} />
+            )}
+            {activeStep === 2 && (
+              <EligibilityForm formData={jobPostFormData} handleChange={handleChange} />
+            )}
           </Box>
 
           <FormActions

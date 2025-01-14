@@ -57,12 +57,43 @@ export default function StudentRegistration() {
     checkAccess();
   }, []);
 
+  // useEffect(() => {
+  //   const fetchStudentData = async () => {
+  //     try {
+  //       setLoading(true);
+
+  //       if (accessCheckLoading) {
+  //         return;
+  //       }
+
+  //       const res = await getStudentProfile();
+
+  //       if (!res) {
+  //         setIsRegistered(false);
+  //         return;
+  //       }
+
+  //       setIsRegistered(!!res[0]);
+  //     } catch (error) {
+  //       console.error('Error fetching student data:', error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchStudentData();
+  // }, [accessCheckLoading]);
+
   useEffect(() => {
     setLoading(true);
     if (accessCheckLoading) return;
     const fetchStudentData = async () => {
       try {
         const res = await getStudentProfile();
+        if (!res) {
+          setIsRegistered(false);
+          return;
+        }
         setIsRegistered(!!res[0]);
       } catch (error) {
         console.error('Error fetching recruiter data:', error);

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Dialog, DialogActions, DialogContent, Typography } from '@mui/material';
 import { JobCategoryDetails } from '../../pages/job-portal/admin-dashboard';
-import { getJobCategories, JobCategoryInfo } from '@stex-react/api';
+import { getJobCategories, InitialJobData, JobCategoryInfo } from '@stex-react/api';
 import { CURRENT_TERM } from '@stex-react/utils';
 import JobPostInfoForm from './JobPostInfoForm';
 
@@ -12,16 +12,16 @@ const RecruiterJobDialog = ({
   onUpdate,
 }: {
   open: boolean;
-  onClose:()=>void;
+  onClose: () => void;
   onUpdate: () => Promise<void>;
 }) => {
   const [jobCategories, setJobCategories] = useState<JobCategoryInfo[]>(null);
   const [loading, setLoading] = useState(false);
   const [currentView, setCurrentView] = useState<CurrentView>('jobList');
   const [selectedJobCategoryId, setSelectedJobCategoryId] = useState<number>(null);
-  const [jobData, setJobData] = useState<JobData>(null);
+  const [jobData, setJobData] = useState<InitialJobData>(null);
 
-  const handleJobSelect = (job:JobCategoryInfo) => {
+  const handleJobSelect = (job: JobCategoryInfo) => {
     setJobData({ session: `${job.jobCategory}(${CURRENT_TERM})` });
     setSelectedJobCategoryId(job.id);
     setCurrentView('jobDetails');
@@ -43,7 +43,7 @@ const RecruiterJobDialog = ({
     fetchJobCategoryData();
   }, []);
 
-  const renderActions = (job:JobCategoryInfo) => (
+  const renderActions = (job: JobCategoryInfo) => (
     <Button variant="contained" color="primary" onClick={() => handleJobSelect(job)}>
       Post Job
     </Button>

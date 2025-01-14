@@ -22,7 +22,7 @@ export interface RecruiterData {
 }
 
 export interface OrganizationData {
-  id:number,
+  id?: number;
   companyName: string;
   incorporationYear?: string;
   isStartup?: string;
@@ -35,52 +35,48 @@ export interface OrganizationData {
 
 export type RecruiterAndOrgData = RecruiterData & OrganizationData;
 
-
-
 // export enum jobCategories {
 //   Internship = 'internship',
 //   FullTime = 'fulltime',
 // }
 export interface JobCategoryInfo {
-  id:number;
-  jobCategory:string;
-  startDate:string;
-  endDate?:string;
-  internshipPeriod?:string;
+  id: number;
+  jobCategory: string;
+  startDate: string;
+  endDate?: string;
+  internshipPeriod?: string;
 }
-
 
 export interface JobPostInfo {
-  id:number;
-  organizationId:number;
+  id: number;
+  organizationId: number;
   JobCategoryId: number;
-  session:string;
-  jobTitle:string;
-  jobDescription:string;                                         
-  trainingLocation: string;                              
-  qualification:string;                                 
-  targetYears:string;                                  
-  openPositions:number;                                           
-  currency:string;                                         
-  stipend:number;                                       
-  facilities:string;                                              
-  applicationDeadline:Date;
+  session: string;
+  jobTitle: string;
+  jobDescription: string;
+  trainingLocation: string;
+  qualification: string;
+  targetYears: string;
+  openPositions: number;
+  currency: string;
+  stipend: number;
+  facilities: string;
+  applicationDeadline: Date;
 }
 
-export type InitialJobData = JobPostInfo | Pick<JobPostInfo, 'session'>;
-
-export interface JobApplicationInfo{
-  id:number;
-  jobPostId:number;
-  applicantId:string;
-  applicationStatus:string;
-  applicantAction:string;
-  recruiterAction:string;
-  studentMessage?:string;
-  recruiterMessage?:string;                                         
+// export type InitialJobData = JobPostInfo | Pick<JobPostInfo, 'session'>;
+export type InitialJobData = Partial<JobPostInfo>;
+export interface JobApplicationInfo {
+  id: number;
+  jobPostId: number;
+  applicantId: string;
+  applicationStatus: string;
+  applicantAction?: string;
+  recruiterAction?: string;
+  studentMessage?: string;
+  recruiterMessage?: string;
 }
 
 export interface ApplicantProfile extends JobApplicationInfo {
   studentProfile: StudentData[];
 }
-

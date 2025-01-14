@@ -273,29 +273,35 @@ CREATE TABLE StudentProfile (
     CONSTRAINT fk_user FOREIGN KEY (userId) REFERENCES userInfo(userId) 
 );
 
+CREATE TABLE organizationprofile (
+    id INT AUTO_INCREMENT PRIMARY KEY, 
+    companyName VARCHAR(255) , 
+    incorporationYear YEAR ,
+    isStartup  ENUM('Yes', 'No'),
+    website VARCHAR(255),
+    about TEXT, 
+    companyType VARCHAR(255),
+    officeAddress VARCHAR(255), 
+    officePincode VARCHAR(255) 
+);
+
+
 CREATE TABLE RecruiterProfile (
     userId VARCHAR(50) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
     position VARCHAR(255) NOT NULL, 
     organizationId INT ,
+    mobile VARCHAR(15) ,
+    altMobile VARCHAR (15),
+    hasDefinedOrg tinyint,
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP, 
     updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
-    CONSTRAINT fk_user FOREIGN KEY (userId) REFERENCES userInfo(userId) 
+    CONSTRAINT fk_recruiter FOREIGN KEY (userId) REFERENCES userInfo(userId) ,
     CONSTRAINT fk_organization FOREIGN KEY (organizationId) REFERENCES organizationprofile(id)
 
 );
 
-CREATE TABLE organizationprofile (
-    id INT AUTO_INCREMENT PRIMARY KEY, 
-    companyName VARCHAR(255) , 
-    incorporationYear YEAR ,
-    isStartup  ENUM('Yes', 'No') ;
-    about TEXT, 
-    companyType VARCHAR(255),
-    officeAddress VARCHAR(255), 
-    officePincode VARCHAR(255) 
-);
 
 
 
@@ -306,7 +312,7 @@ CREATE TABLE jobCategories (
     internshipPeriod VARCHAR(255),
     startDate DATE,
     endDate DATE,
-    instanceId VARCHAR(255),c
+    instanceId VARCHAR(255),
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -348,7 +354,7 @@ CREATE TABLE JobPost (
 CREATE TABLE JobApplication (
     id INT AUTO_INCREMENT PRIMARY KEY, 
     jobPostId INT, 
-    applicantId INT, 
+    applicantId VARCHAR(50), 
     applicationStatus ENUM('APPLIED', 'ACCEPTED', 'REJECTED', 'PROCESSING') NOT NULL,
     studentMessage VARCHAR(255), 
     recruiterMessage VARCHAR(255), 

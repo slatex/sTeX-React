@@ -21,23 +21,40 @@ import {
   TableCell,
   TableBody,
 } from '@mui/material';
-import { LocationOn, Paid, CalendarToday, InfoOutlined, WorkOutline, Business, PendingActions, Cancel, CheckCircle } from '@mui/icons-material';
+import {
+  LocationOn,
+  Paid,
+  CalendarToday,
+  InfoOutlined,
+  WorkOutline,
+  Business,
+  PendingActions,
+  Cancel,
+  CheckCircle,
+} from '@mui/icons-material';
 import { useRouter } from 'next/router';
-import { canAccessResource, createJobApplication, getAllJobPosts, getJobApplicationsByJobPost, getOrganizationProfile, getStudentProfile, getUserInfo } from '@stex-react/api';
+import {
+  canAccessResource,
+  createJobApplication,
+  getAllJobPosts,
+  getJobApplicationsByJobPost,
+  getOrganizationProfile,
+  getStudentProfile,
+  getUserInfo,
+} from '@stex-react/api';
 import { CURRENT_TERM, ResourceName, Action } from '@stex-react/utils';
 
 const Jobs = () => {
   const [accessCheckLoading, setAccessCheckLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [totalJobPosts, setTotalJobPosts] = useState([]);
-  const [selectedJob, setSelectedJob] = useState(null); 
+  const [selectedJob, setSelectedJob] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [ selectedOrganization,setSelectedOrganization] = useState(null);
+  const [selectedOrganization, setSelectedOrganization] = useState(null);
 
-    const [appliedJobs, setAppliedJobs] = useState([]);
+  const [appliedJobs, setAppliedJobs] = useState([]);
 
   const [isOrganizationModalOpen, setIsOrganizationModalOpen] = useState(false); // Modal open/close state
-
 
   const router = useRouter();
 
@@ -58,36 +75,40 @@ const Jobs = () => {
     checkAccess();
   }, []);
 
-
   const fetchJobPostData = async () => {
     try {
       setLoading(true);
-  
+
       const res = await getAllJobPosts();
-      const appliedJobsList = []; 
+      const appliedJobsList = [];
       const enrichedJobPosts = await Promise.all(
         res.map(async (job) => {
           let organizationProfile = null;
           let alreadyApplied = false;
-  
+
           try {
             const res = await getOrganizationProfile(job.organizationId);
             organizationProfile = res || null;
-            console.log({organizationProfile});
+            console.log({ organizationProfile });
           } catch (error) {
             console.error(`Failed to fetch organization profile for job ID ${job.id}:`, error);
           }
-  
+
           try {
             const application = await getJobApplicationsByJobPost(job.id);
             alreadyApplied = !!application;
             if (alreadyApplied) {
-              appliedJobsList.push({ ...job, organizationProfile, alreadyApplied, applicationStatus: application.status || 'pending' });
+              appliedJobsList.push({
+                ...job,
+                organizationProfile,
+                alreadyApplied,
+                applicationStatus: application[0].applicationStatus || 'pending',
+              });
             }
           } catch (error) {
             console.error(`Failed to fetch application data for job ID ${job.id}:`, error);
           }
-  
+
           return {
             ...job,
             organizationProfile,
@@ -95,16 +116,16 @@ const Jobs = () => {
           };
         })
       );
-  
+
       setTotalJobPosts(enrichedJobPosts);
-      setAppliedJobs(appliedJobsList); 
+      setAppliedJobs(appliedJobsList);
     } catch (error) {
       console.error('Error fetching job post data:', error);
     } finally {
       setLoading(false);
     }
   };
-  
+
   useEffect(() => {
     if (!accessCheckLoading) fetchJobPostData();
   }, [accessCheckLoading]);
@@ -113,10 +134,10 @@ const Jobs = () => {
     setSelectedJob(job);
     setIsModalOpen(true);
   };
-   const handleOpenOrganizationModal =(organization) => {
+  const handleOpenOrganizationModal = (organization) => {
     setSelectedOrganization(organization);
-setIsOrganizationModalOpen(true);
-   };
+    setIsOrganizationModalOpen(true);
+  };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -126,29 +147,25 @@ setIsOrganizationModalOpen(true);
     setSelectedOrganization(null);
     setIsOrganizationModalOpen(false);
   };
- 
 
-  const handleApply = async(jobPostId:number) => {
-  
+  const handleApply = async (jobPostId: number) => {
     try {
       const userInfo = await getUserInfo();
-      if(!userInfo) return ;
-      const applicantId = userInfo.userId ; 
-      console.log("applicant id is " ,applicantId)
+      if (!userInfo) return;
+      const applicantId = userInfo.userId;
+      console.log('applicant id is ', applicantId);
       const JobApplicationInfo = {
         jobPostId,
         applicantId,
-        applicationStatus:"applied"
-      } ;
+        applicationStatus: 'applied',
+      };
       await createJobApplication(JobApplicationInfo);
       // const application = await getJobApplicationsByJobPost(jobPostId);
       // console.log(" application is " , application)
       setTotalJobPosts((prevJobs) =>
-        prevJobs.map((job) =>
-          job.id === jobPostId ? { ...job, alreadyApplied: true } : job
-        )
+        prevJobs.map((job) => (job.id === jobPostId ? { ...job, alreadyApplied: true } : job))
       );
-            const appliedJob = totalJobPosts.find((job) => job.id === jobPostId);
+      const appliedJob = totalJobPosts.find((job) => job.id === jobPostId);
       if (appliedJob) {
         setAppliedJobs((prev) => [...prev, { ...appliedJob, alreadyApplied: true }]);
       }
@@ -156,14 +173,14 @@ setIsOrganizationModalOpen(true);
       console.error('Error applying for this job:', error);
     }
   };
-        
+
   return (
     <MainLayout title="Jobs">
-
       <Box
         sx={{
           height: '300px',
-          background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.2)), url(/jobs-bg.jpg)',
+          background:
+            'linear-gradient(to bottom, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.2)), url(/jobs-bg.jpg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           color: 'white',
@@ -198,7 +215,6 @@ setIsOrganizationModalOpen(true);
                   }}
                 >
                   <CardContent>
-
                     <Typography variant="h6" fontWeight="bold" gutterBottom>
                       {job.jobTitle}
                     </Typography>
@@ -221,22 +237,21 @@ setIsOrganizationModalOpen(true);
                         Deadline: {new Date(job.applicationDeadline).toLocaleDateString()}
                       </Typography>
                     </Box>
-                    <Box display="flex" alignItems="center" >
-                    <Business sx={{ fontSize: '20px' }} color="secondary" />
+                    <Box display="flex" alignItems="center">
+                      <Business sx={{ fontSize: '20px' }} color="secondary" />
 
-            <Typography variant="body2" ml= {1} >
-              Company: {job.organizationProfile?.companyName || 'Unknown'} 
+                      <Typography variant="body2" ml={1}>
+                        Company: {job.organizationProfile?.companyName || 'Unknown'}
+                      </Typography>
 
-            </Typography>
-
-
-            {job.organizationProfile && (
-    <IconButton onClick={() => handleOpenOrganizationModal(job.organizationProfile)}>
-      <InfoOutlined />
-    </IconButton>
-  )}
-           
-          </Box>
+                      {job.organizationProfile && (
+                        <IconButton
+                          onClick={() => handleOpenOrganizationModal(job.organizationProfile)}
+                        >
+                          <InfoOutlined />
+                        </IconButton>
+                      )}
+                    </Box>
                   </CardContent>
 
                   <CardActions sx={{ justifyContent: 'space-between' }}>
@@ -244,18 +259,14 @@ setIsOrganizationModalOpen(true);
                       variant="contained"
                       color="primary"
                       size="small"
-
-                      disabled={job.alreadyApplied} 
+                      disabled={job.alreadyApplied}
                       onClick={() => handleApply(job.id)}
-                  
                     >
-                      {job.alreadyApplied ? "Already Applied" : "Apply"} 
-
+                      {job.alreadyApplied ? 'Already Applied' : 'Apply'}
                     </Button>
                     <IconButton onClick={() => handleOpenModal(job)}>
                       <InfoOutlined />
                     </IconButton>
-        
                   </CardActions>
                 </Card>
               </Grid>
@@ -309,72 +320,77 @@ setIsOrganizationModalOpen(true);
             </Box>
           </Fade>
         </Modal>
-        
       )}
 
+      <Modal
+        open={isOrganizationModalOpen}
+        onClose={handleCloseOrganizationModal}
+        closeAfterTransition
+        BackdropComponent={Backdrop}
+        BackdropProps={{
+          timeout: 500,
+        }}
+      >
+        <Fade in={isOrganizationModalOpen}>
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: 500,
+              bgcolor: 'background.paper',
+              boxShadow: 24,
+              borderRadius: 2,
+              p: 3,
+            }}
+          >
+            {selectedOrganization ? (
+              <>
+                <Typography variant="h5" fontWeight="bold" gutterBottom>
+                  {selectedOrganization.companyName}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  Incorporation Year: {selectedOrganization.incorporationYear || 'N/A'}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  Startup: {selectedOrganization.isStartup ? 'Yes' : 'No'}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  About: {selectedOrganization.about || 'N/A'}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  Website:{' '}
+                  <a href={selectedOrganization.website} target="_blank" rel="noopener noreferrer">
+                    {selectedOrganization.website || 'N/A'}
+                  </a>
+                </Typography>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  Company Type: {selectedOrganization.companyType || 'N/A'}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  Address: {selectedOrganization.officeAddress || 'N/A'}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  Pincode: {selectedOrganization.officePincode || 'N/A'}
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  sx={{ mt: 2 }}
+                  onClick={handleCloseOrganizationModal}
+                >
+                  Close
+                </Button>
+              </>
+            ) : (
+              <Typography>No organization data available.</Typography>
+            )}
+          </Box>
+        </Fade>
+      </Modal>
 
-<Modal
-  open={isOrganizationModalOpen}
-  onClose={handleCloseOrganizationModal}
-  closeAfterTransition
-  BackdropComponent={Backdrop}
-  BackdropProps={{
-    timeout: 500,
-  }}
->
-  <Fade in={isOrganizationModalOpen}>
-    <Box
-      sx={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: 500,
-        bgcolor: 'background.paper',
-        boxShadow: 24,
-        borderRadius: 2,
-        p: 3,
-      }}
-    >
-      {selectedOrganization ? (
-        <>
-          <Typography variant="h5" fontWeight="bold" gutterBottom>
-            {selectedOrganization.companyName}
-          </Typography>
-          <Typography variant="body2" color="text.secondary" gutterBottom>
-            Incorporation Year: {selectedOrganization.incorporationYear || 'N/A'}
-          </Typography>
-          <Typography variant="body2" color="text.secondary" gutterBottom>
-            Startup: {selectedOrganization.isStartup ? 'Yes' : 'No'}
-          </Typography>
-          <Typography variant="body2" color="text.secondary" gutterBottom>
-            About: {selectedOrganization.about || 'N/A'}
-          </Typography>
-          <Typography variant="body2" color="text.secondary" gutterBottom>
-            Website: <a href={selectedOrganization.website} target="_blank" rel="noopener noreferrer">{selectedOrganization.website || 'N/A'}</a>
-          </Typography>
-          <Typography variant="body2" color="text.secondary" gutterBottom>
-            Company Type: {selectedOrganization.companyType || 'N/A'}
-          </Typography>
-          <Typography variant="body2" color="text.secondary" gutterBottom>
-            Address: {selectedOrganization.officeAddress || 'N/A'}
-          </Typography>
-          <Typography variant="body2" color="text.secondary" gutterBottom>
-            Pincode: {selectedOrganization.officePincode || 'N/A'}
-          </Typography>
-          <Button variant="contained" color="primary" sx={{ mt: 2 }} onClick={handleCloseOrganizationModal}>
-            Close
-          </Button>
-        </>
-      ) : (
-        <Typography>No organization data available.</Typography>
-      )}
-    </Box>
-  </Fade>
-</Modal>
-
-
-{/* <Box sx={{ mt: 5 }}>
+      {/* <Box sx={{ mt: 5 }}>
   <Typography variant="h4" gutterBottom>
     Jobs You Applied For
   </Typography>
@@ -465,9 +481,6 @@ setIsOrganizationModalOpen(true);
     </TableContainer>
   )}
 </Box> */}
-
-
-
     </MainLayout>
   );
 };
