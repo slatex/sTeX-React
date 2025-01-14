@@ -2,7 +2,7 @@ import { getAllQuizzes } from '@stex-react/node-utils';
 import { CURRENT_TERM } from '@stex-react/utils';
 import mysql from 'serverless-mysql';
 
-const COURSE_ID = 'ai-1';
+const COURSE_ID = 'lbs';
 const COURESE_ENROLLMENT_ACL = `${COURSE_ID}-${CURRENT_TERM}-enrollments`;
 
 interface GradingEntry {
@@ -65,7 +65,7 @@ export async function addUserIdToAccessControlList(): Promise<void> {
 
     // Fetch user IDs from answer table
     const userIdsFromAnswerTable = await db.query<GradingEntry[]>(
-      'SELECT DISTINCT userId FROM answer WHERE courseId = ?',
+      'SELECT DISTINCT userId FROM Answer WHERE courseId = ?',
       [COURSE_ID]
     );
 
@@ -83,7 +83,7 @@ export async function addUserIdToAccessControlList(): Promise<void> {
 
     // Fetch existing user IDs in aclmembership
     const existingUserIdsInAclMembership = await db.query<AccessControlListRow[]>(
-      'SELECT DISTINCT memberUserId FROM aclmembership WHERE parentACLId = ? AND memberUserId IN (?)',
+      'SELECT DISTINCT memberUserId FROM ACLMembership WHERE parentACLId = ? AND memberUserId IN (?)',
       [COURESE_ENROLLMENT_ACL, allUserIds]
     );
 
@@ -98,12 +98,12 @@ export async function addUserIdToAccessControlList(): Promise<void> {
     }
 
     console.log(`New user IDs to be added to aclmembership: ${newUserIds.join(', ')}`);
-
+    console.log(newUserIds.length)
     // Insert new user IDs into aclmembership
     const insertValues = newUserIds.map((userId) => [COURESE_ENROLLMENT_ACL, userId]);
-    await db.query('INSERT INTO aclmembership (parentACLId, memberUserId) VALUES ?', [
-      insertValues,
-    ]);
+    // await db.query('INSERT INTO ACLMembership (parentACLId, memberUserId) VALUES ?', [
+    //   insertValues,
+    // ]);
 
     console.log('User IDs successfully added to aclmembership.');
   } catch (error) {

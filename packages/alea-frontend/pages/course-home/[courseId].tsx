@@ -16,6 +16,7 @@ import {
 } from '@stex-react/api';
 
 import {
+  Alert,
   Box,
   Button,
   CircularProgress,
@@ -156,7 +157,7 @@ const CourseHomePage: NextPage = () => {
   const { mmtUrl } = useContext(ServerLinksContext);
   const [isInstructor, setIsInstructor] = useState(false);
   const [userId, setUserId] = useState<string | undefined>(undefined);
-  const [enrolled, setIsEnrolled] = useState(false);
+  const [enrolled, setIsEnrolled] = useState<boolean | undefined>(undefined);
 
   useEffect(() => {
     getUserInfo().then((userInfo: UserInfo) => {
@@ -229,7 +230,9 @@ const CourseHomePage: NextPage = () => {
   };
 
   const enrollInCourse = async () => {
-    if (!userId || !courseId) return;
+    if (!userId || !courseId) {
+      return router.push('/login');
+    }
     const enrollmentSuccess = await handleEnrollment(userId, courseId, CURRENT_TERM);
     setIsEnrolled(enrollmentSuccess);
   };
@@ -295,7 +298,7 @@ const CourseHomePage: NextPage = () => {
             </CourseComponentLink>
           )}
         </Box>
-        {!enrolled && (
+        {enrolled === false && (
           <Box
             sx={{
               display: 'flex',
@@ -317,9 +320,9 @@ const CourseHomePage: NextPage = () => {
               {q.getEnrolled}
               <SchoolIcon />
             </Button>
-            {/* <Alert severity="info" sx={{ display: 'flex', justifyContent: 'center' }}>
+            <Alert severity="info" sx={{ display: 'flex', justifyContent: 'center' }}>
               {q.enrollmentMessage}
-            </Alert> */}
+            </Alert>
           </Box>
         )}
         {showSearchBar && (

@@ -1,4 +1,5 @@
 import { Delete, Edit, OpenInNew } from '@mui/icons-material';
+import ShowChartIcon from '@mui/icons-material/ShowChart';
 import {
   Box,
   Button,
@@ -20,13 +21,17 @@ import { getLocaleObject } from '../lang/utils';
 
 const HomeworkList = ({
   homeworkStubs,
+  selectedHomeworkId,
   onCreate,
   handleEdit,
+  handleShow,
   confirmDelete,
 }: {
   homeworkStubs: HomeworkStub[];
+  selectedHomeworkId: number | null;
   onCreate: () => void;
   handleEdit: (homework: HomeworkInfo) => void;
+  handleShow: (homework: HomeworkInfo) => void;
   confirmDelete: (homeworkId: number) => void;
 }) => {
   const { homeworkManager: t } = getLocaleObject(useRouter());
@@ -103,6 +108,15 @@ const HomeworkList = ({
                   <TableCell>{formattedDueTs}</TableCell>
                   <TableCell>{formattedReleaseDate}</TableCell>
                   <TableCell>
+                    <IconButton
+                      color="primary"
+                      onClick={async () => {
+                        handleShow((await getHomework(homework.id)).homework);
+                      }}
+                      disabled={selectedHomeworkId === homework.id}
+                    >
+                      <ShowChartIcon />
+                    </IconButton>
                     <IconButton
                       color="primary"
                       onClick={async () => {

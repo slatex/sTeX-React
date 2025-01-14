@@ -1,4 +1,5 @@
-import { Box, Button, CircularProgress } from '@mui/material';
+import SchoolIcon from '@mui/icons-material/School';
+import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import {
   canAccessResource,
   getQuiz,
@@ -209,31 +210,31 @@ const QuizPage: NextPage = () => {
     );
   }
 
-  // if (!enrolled) {
-  //   return (
-  //     <MainLayout title="Quizzes | VoLL-KI">
-  //       <Box
-  //         p="20px"
-  //         sx={{
-  //           display: 'flex',
-  //           alignItems: 'center',
-  //           gap: '10px',
-  //           justifyContent: 'center',
-  //           flexDirection: 'column',
-  //         }}
-  //       >
-  //         <Typography variant="h6">
-  //           You are not enrolled in this course. Please click the &quot;Enroll&quot; button to
-  //           access the quiz.
-  //         </Typography>
-  //         <Button onClick={enrollInCourse} variant="contained" sx={{ backgroundColor: 'green' }}>
-  //           {q.getEnrolled}
-  //           <SchoolIcon />
-  //         </Button>
-  //       </Box>
-  //     </MainLayout>
-  //   );
-  // }
+  if (!enrolled) {
+    return (
+      <MainLayout title="Quizzes | VoLL-KI">
+        <Box
+          p="20px"
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            justifyContent: 'center',
+            flexDirection: 'column',
+          }}
+        >
+          <Typography variant="h6">
+            You are not enrolled in this course. Please click the &quot;Enroll&quot; button to
+            access the quiz.
+          </Typography>
+          <Button onClick={enrollInCourse} variant="contained" sx={{ backgroundColor: 'green' }}>
+            {q.getEnrolled}
+            <SchoolIcon />
+          </Button>
+        </Box>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout title="Quizzes | ALeA">

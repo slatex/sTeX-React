@@ -22,7 +22,7 @@ const HomeworkPage: NextPage = () => {
   const [forceFauLogin, setForceFauLogin] = useState(false);
   const { mmtUrl } = useContext(ServerLinksContext);
   const [userId, setUserId] = useState(null);
-  const [enrolled, setIsEnrolled] = useState<boolean>(false);
+  const [enrolled, setIsEnrolled] = useState<boolean | undefined>(undefined);
 
   useEffect(() => {
     getUserInfo().then((i) => {
@@ -40,9 +40,7 @@ const HomeworkPage: NextPage = () => {
         courseId,
         instanceId: CURRENT_TERM,
       });
-      if (hasAccess) {
-        setIsEnrolled(true);
-      }
+      setIsEnrolled(hasAccess);
     };
     checkAccess();
   }, [courseId]);
@@ -61,33 +59,35 @@ const HomeworkPage: NextPage = () => {
 
   if (forceFauLogin) {
     return (
+
       <MainLayout
         title={(courseId || '').toUpperCase() + ` ${tHome.courseThumb.homeworks} | ALeA`}
       >
         <ForceFauLogin content={"homework"} />
+
       </MainLayout>
     );
   }
   const enrollInCourse = async () => {
-    if (!userId || !courseId) return;
+    if (!userId || !courseId) {
+      return router.push('/login');
+    }
     const enrollmentSuccess = await handleEnrollment(userId, courseId, CURRENT_TERM);
     if (enrollmentSuccess) setIsEnrolled(true);
   };
 
   return (
-    <MainLayout
-      title={(courseId || '').toUpperCase() + ` ${tHome.courseThumb.homeworks} | ALeA`}
-    >
+    <MainLayout title={(courseId || '').toUpperCase() + ` ${tHome.courseThumb.homeworks} | ALeA`}>
       <CourseHeader
         courseName={courseInfo.courseName}
         imageLink={courseInfo.imageLink}
         courseId={courseId}
       />
       <Box maxWidth="900px" m="auto" px="10px">
-        {!enrolled && <Alert severity="info">{q.enrollmentMessage}</Alert>}
+        {enrolled === false && <Alert severity="info">{q.enrollmentMessage}</Alert>}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', m: '30px 0 15px' }}>
           <Typography variant="h4">{t.homeworkDashboard}</Typography>
-          {!enrolled && (
+          {enrolled === false && (
             <Button onClick={enrollInCourse} variant="contained" sx={{ backgroundColor: 'green' }}>
               {q.getEnrolled}
               <SchoolIcon />
@@ -97,7 +97,7 @@ const HomeworkPage: NextPage = () => {
         <Typography variant="body1" sx={{ color: '#333' }}>
           {t.homeworkDashboardDescription.replace('{courseId}', courseId.toUpperCase())}
         </Typography>
-        <HomeworkPerformanceTable courseId={courseId} />
+        {enrolled && <HomeworkPerformanceTable courseId={courseId} />}
       </Box>
     </MainLayout>
   );

@@ -147,7 +147,7 @@ const QuizDashPage: NextPage = () => {
   const ongoingQuizzes = quizList.filter((q) => q.quizStartTs < now && q.quizEndTs >= now);
 
   const [forceFauLogin, setForceFauLogin] = useState(false);
-  const [enrolled, setIsEnrolled] = useState<boolean>(false);
+  const [enrolled, setIsEnrolled] = useState<boolean | undefined>(undefined);
 
   useEffect(() => {
     getUserInfo().then((i) => {
@@ -176,10 +176,7 @@ const QuizDashPage: NextPage = () => {
           courseId,
           instanceId: CURRENT_TERM,
         });
-        if (hasAccess) {
-          setIsEnrolled(true);
-          return;
-        }
+        setIsEnrolled(hasAccess);
       }
     }
     checkAccess();
@@ -193,7 +190,9 @@ const QuizDashPage: NextPage = () => {
     return <>Course Not Found!</>;
   }
   const enrollInCourse = async () => {
-    if (!userId || !courseId) return;
+    if (!userId || !courseId) {
+      return router.push('/login');
+    }
     const enrollmentSuccess = await handleEnrollment(userId, courseId, CURRENT_TERM);
     setIsEnrolled(enrollmentSuccess);
   };
@@ -216,10 +215,10 @@ const QuizDashPage: NextPage = () => {
         courseId={courseId}
       />
       <Box maxWidth="900px" m="auto" px="10px">
-        {/* {!enrolled && <Alert severity="info">{t.enrollmentMessage}</Alert>} */}
+        {enrolled === false && <Alert severity="info">{t.enrollmentMessage}</Alert>}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', m: '30px 0 15px' }}>
           <Typography variant="h4">{t.quizDashboard}</Typography>
-          {!enrolled && (
+          {enrolled === false && (
             <Button onClick={enrollInCourse} variant="contained" sx={{ backgroundColor: 'green' }}>
               {t.getEnrolled}
               <SchoolIcon />
@@ -248,8 +247,7 @@ const QuizDashPage: NextPage = () => {
           &nbsp;{t.demoQuizText}
         </Typography>
 
-        {
-          // enrolled &&
+        {enrolled && (
           <>
             {' '}
             <QuizList header={t.ongoingQuizzes} quizList={ongoingQuizzes} />
@@ -265,7 +263,7 @@ const QuizDashPage: NextPage = () => {
               header={t.previousQuizzes}
             />
           </>
-        }
+        )}
       </Box>
     </MainLayout>
   );

@@ -95,6 +95,7 @@ export interface Input {
 
 export interface SubProblemData {
   solution: string;
+  id: string;
   answerclasses: AnswerClass[];
 }
 export interface AnswerClass {
@@ -125,7 +126,7 @@ export interface AutogradableResponse {
 
 export interface ProblemResponse {
   autogradableResponses: AutogradableResponse[];
-  freeTextResponses: Record<string, string>; // subProblemId -> response
+  freeTextResponses?: Record<string, string>; // subProblemId -> response
 }
 
 export interface PerProblemStats {

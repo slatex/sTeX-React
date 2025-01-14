@@ -333,6 +333,7 @@ export const de = {
   homeworkManager: {
     title: 'Titel',
     homeworks: 'Hausaufgaben',
+    homeworkStats: 'Hausaufgabenstatistiken',
     createHomework: 'Hausaufgabe erstellen',
     givenTs: 'Angegebenes Datum',
     dueTs: 'Fälligkeitsdatum',
