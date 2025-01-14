@@ -108,7 +108,7 @@ const QuizPage: NextPage = () => {
   const [quizInfo, setQuizInfo] = useState<GetQuizResponse | undefined>(undefined);
   const [moderatorPhase, setModeratorPhase] = useState<Phase>(undefined);
   const [debuggerMode, setDebuggerMode] = useState<boolean>(false);
-  const [enrolled, setIsEnrolled] = useState<boolean>(false);
+  const [enrolled, setIsEnrolled] = useState<boolean | undefined>(undefined);
   const clientQuizEndTimeMs = getClientEndTimeMs(quizInfo);
   const clientQuizStartTimeMs = getClientStartTimeMs(quizInfo);
 
@@ -210,7 +210,7 @@ const QuizPage: NextPage = () => {
     );
   }
 
-  if (!enrolled) {
+  if (enrolled === false) {
     return (
       <MainLayout title="Quizzes | VoLL-KI">
         <Box
