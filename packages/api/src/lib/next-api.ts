@@ -13,6 +13,7 @@ export interface SectionInfo {
   level: number /* top level nodes have level 0 */;
   title: string;
   clipId?: string;
+  clipInfo?: { clipId: string; startTimeSec: number; endTimeSec: number }[];
   timestamp_ms?: number;
 
   children: SectionInfo[];
@@ -37,4 +38,10 @@ export interface ClipDetails {
   r720?: string;
   r1080?: string;
   sub?: string;
+}
+
+export interface SlideClipInfo {
+  clipId: string;
+  startTimeSec: number;
+  endTimeSec: number;
 }
