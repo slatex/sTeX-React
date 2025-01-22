@@ -303,3 +303,13 @@ export async function getCoverageTimeline() {
   const response = await axios.get('/api/get-coverage-timeline');
   return response.data;
 }
+
+export async function getStudentsEnrolledInCourse(courseId: string, instanceId: string) {
+  const response = await axios.get('/api/get-students-enrolled-in-course', {
+    params: {
+      courseId,
+      instanceId,
+    },
+  });
+  return response.data;
+}
