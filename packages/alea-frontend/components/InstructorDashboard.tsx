@@ -4,7 +4,15 @@ import Diversity3Icon from '@mui/icons-material/Diversity3';
 import GradingIcon from '@mui/icons-material/Grading';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import QuizIcon from '@mui/icons-material/Quiz';
-import { Avatar, Box, Card, CardActionArea, CardContent, Typography } from '@mui/material';
+import {
+  Avatar,
+  Box,
+  Card,
+  CardActionArea,
+  CardContent,
+  IconButton,
+  Typography,
+} from '@mui/material';
 import {
   CommentType,
   getCourseGradingItems,
@@ -29,6 +37,7 @@ import MainLayout from '../layouts/MainLayout';
 import { BannerSection, VollKiInfoSection } from '../pages';
 import Link from 'next/link';
 import { getLocaleObject } from '../lang/utils';
+import { Rule, Visibility } from '@mui/icons-material';
 
 interface ResourceDisplayInfo {
   description: string | null;
@@ -39,24 +48,20 @@ interface ResourceDisplayInfo {
 
 const EXCLUDED_RESOURCES = [ResourceName.COURSE_STUDY_BUDDY, ResourceName.COURSE_ACCESS];
 
-const getResourceDisplayText = (name: ResourceName, action: Action, router) => {
+const getResourceDisplayText = (name: ResourceName, action?: Action) => {
+  const router = useRouter();
+
   const { resource: r } = getLocaleObject(router);
-  if (name === ResourceName.COURSE_COMMENTS && action === Action.MODERATE) {
+  if (name === ResourceName.COURSE_COMMENTS) {
     return r.forum;
   }
-  if (name === ResourceName.COURSE_QUIZ && action === Action.PREVIEW) {
-    return r.reviewLatestQuiz;
+  if (name === ResourceName.COURSE_QUIZ) {
+    return r.quiz;
   }
-  if (name === ResourceName.COURSE_QUIZ && action === Action.MUTATE) {
-    return r.createUpdateQuiz;
+  if (name === ResourceName.COURSE_HOMEWORK) {
+    return r.homework;
   }
-  if (name === ResourceName.COURSE_HOMEWORK && action === Action.INSTRUCTOR_GRADING) {
-    return r.gradeHomework;
-  }
-  if (name === ResourceName.COURSE_HOMEWORK && action === Action.MUTATE) {
-    return r.createUpdateHomework;
-  }
-  if (name === ResourceName.COURSE_NOTES && action === Action.MUTATE) {
+  if (name === ResourceName.COURSE_NOTES) {
     return r.updateGoTo;
   }
   return name.replace('COURSE_', ' ').replace('_', ' ');
@@ -77,6 +82,21 @@ const getTimeAgoColor = (timestamp: string | null): string => {
   if (daysDifference >= -2) return 'lightgreen';
   if (daysDifference >= -5) return 'orange';
   return 'red';
+};
+const getColoredDescription = (text: string) => {
+  const keywordColors: { [key: string]: string } = {
+    'Last Updated': 'text.secondary',
+    Latest: '#007bff',
+    'Ungraded Problems': '#fd7e14',
+    'Unanswered Question': '#dc3545',
+  };
+
+  for (const [keyword, color] of Object.entries(keywordColors)) {
+    if (text.startsWith(keyword)) {
+      return <span style={{ color }}>{text}</span>;
+    }
+  }
+  return <span style={{ color: 'text.secondary' }}>{text}</span>; // Black
 };
 
 const getResourceIcon = (name: ResourceName) => {
@@ -205,9 +225,7 @@ async function getLastUpdatedDescriptions({
       break;
     case ResourceName.COURSE_QUIZ:
       ({ description, timeAgo, timestamp, quizId } = await getLastUpdatedQuiz(courseId));
-      if (action === Action.PREVIEW) {
-        description = `Start Date: ${dayjs(parseInt(timestamp)).format('YYYY-MM-DD HH:mm:ss')}`;
-      }
+      description = `Latest Quiz:\n ${dayjs(parseInt(timestamp)).format('YYYY-MM-DD HH:mm:ss')}`;
       break;
     case ResourceName.COURSE_COMMENTS:
       ({ description, timeAgo, timestamp } = await getCommentsInfo(courseId));
@@ -231,87 +249,167 @@ const groupByCourseId = (resources: CourseResourceAction[]) => {
   }, {} as Record<string, CourseResourceAction[]>);
 };
 
-const handleResourceClick = (router, resource: CourseResourceAction, quizId: string) => {
-  const { courseId, name, action } = resource;
+const handleResourceClick = (
+  router: any,
+  resource: CourseResourceAction,
+  action?: Action,
+  quizId?: string
+) => {
+  const actionsToDisplay: Action[] = [
+    Action.PREVIEW,
+    Action.MODERATE,
+    Action.INSTRUCTOR_GRADING,
+    Action.MUTATE,
+  ];
 
+  if (action && !actionsToDisplay.includes(action)) return;
+
+  const { courseId, name } = resource;
   let url = '';
   if (name === ResourceName.COURSE_NOTES) {
     url = `coverage-update?courseId=${courseId}`;
-  } else if (name === ResourceName.COURSE_HOMEWORK && action === Action.INSTRUCTOR_GRADING) {
-    url = `instructor-dash/${courseId}?tab=homework-grading`;
-  } else if (name === ResourceName.COURSE_HOMEWORK && action === Action.MUTATE) {
-    url = `instructor-dash/${courseId}?tab=homework-manager`;
-  } else if (name === ResourceName.COURSE_QUIZ && action === Action.MUTATE) {
-    url = `instructor-dash/${courseId}?tab=quiz-dashboard`;
-  } else if (name === ResourceName.COURSE_QUIZ && action === Action.PREVIEW) {
-    url = `quiz/${quizId}`;
-  } else if (name === ResourceName.COURSE_COMMENTS && action === Action.MODERATE) {
+  } else if (name === ResourceName.COURSE_HOMEWORK) {
+    if (action === Action.INSTRUCTOR_GRADING) {
+      url = `instructor-dash/${courseId}?tab=homework-grading`;
+    } else {
+      url = `instructor-dash/${courseId}?tab=homework-manager`;
+    }
+  } else if (name === ResourceName.COURSE_QUIZ) {
+    if (action === Action.PREVIEW && quizId) {
+      url = `quiz/${quizId}`;
+    } else {
+      url = `instructor-dash/${courseId}?tab=quiz-dashboard`;
+    }
+  } else if (name === ResourceName.COURSE_COMMENTS) {
     url = `forum/${courseId}`;
   }
   if (url) {
     router.push(url);
   } else {
-    console.warn('No matching URL for this resource');
+    console.warn('No matching URL for this resource or action');
   }
 };
 
 function ResourceCard({
   resource,
-  key,
   descriptions,
   courseId,
 }: {
   resource: CourseResourceAction;
-  key: number;
   descriptions: Record<string, ResourceDisplayInfo>;
   courseId: string;
 }) {
   const router = useRouter();
-  const quizId = descriptions[`${courseId}-${resource.name}-${resource.action}`]?.quizId;
+  const isQuiz = resource.name === 'COURSE_QUIZ';
+  const isHomework = resource.name === 'COURSE_HOMEWORK';
+  const actionsToDisplay: Action[] = [
+    Action.PREVIEW,
+    Action.MODERATE,
+    Action.INSTRUCTOR_GRADING,
+    Action.MUTATE,
+  ];
+  const commonActions = actionsToDisplay.filter((action) => resource.actions.includes(action));
+
+  const resourceDescriptions = Object.entries(descriptions)
+    .filter(([key]) => {
+      return commonActions.some((action) =>
+        key.startsWith(`${courseId}-${resource.name}-${action}`)
+      );
+    })
+    .reduce(
+      (acc, [, value]) => {
+        acc.description = [...new Set([...acc.description, value.description])];
+        acc.timeAgo = [...new Set([...acc.timeAgo, value.timeAgo])];
+        acc.timestamp = [...new Set([...acc.timestamp, value.timestamp])];
+        acc.quizId = [...new Set([...acc.quizId, value.quizId])];
+        return acc;
+      },
+      { description: [], timeAgo: [], timestamp: [], quizId: [] }
+    );
+
+  const timeAgoColor = getTimeAgoColor(resourceDescriptions.timestamp[0]);
+
   return (
-    <Box key={key}>
-      <Card
-        sx={{
-          border: '1px solid lightgray',
-          boxShadow: '0px 4px 6px gray',
-          borderRadius: '8px',
-          minHeight: '100px',
-          minWidth: '300px',
-          transition: 'transform 0.2s, box-shadow 0.2s',
-          '&:hover': {
-            transform: 'scale(1.02)',
-            boxShadow: '0px 8px 12px gray',
-          },
-        }}
-      >
-        <CardActionArea onClick={() => handleResourceClick(router, resource, quizId)}>
-          <CardContent sx={{ display: 'flex', alignItems: 'center' }}>
-            <Avatar sx={{ marginRight: 2, bgcolor: 'primary.main' }}>
-              {getResourceIcon(resource.name)}
-            </Avatar>
+    <Card
+      key={resource.name}
+      sx={{
+        flex: '1 1 calc(25% - 16px)',
+        border: '1px solid lightgray',
+        boxShadow: '0px 4px 6px gray',
+        borderRadius: '8px',
+        minHeight: '140px',
+        minWidth: '250px',
+        maxWidth: '400px',
+        alignContent: 'center',
+        mb: 1,
+        transition: 'transform 0.2s, box-shadow 0.2s',
+        '&:hover': {
+          transform: 'scale(1.02)',
+          boxShadow: '0px 8px 12px gray',
+        },
+      }}
+    >
+      <CardActionArea onClick={() => handleResourceClick(router, resource)}>
+        <CardContent sx={{ display: 'flex', alignItems: 'center' }}>
+          <Avatar sx={{ marginRight: 2, bgcolor: 'primary.main' }}>
+            {getResourceIcon(resource.name)}
+          </Avatar>
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
             <Box>
               <Typography sx={{ fontSize: '18px', fontWeight: 'medium' }}>
-                {getResourceDisplayText(resource.name, resource.action, router)}
-              </Typography>
-              <Typography sx={{ fontSize: '14px', color: 'text.secondary' }}>
-                {descriptions[`${courseId}-${resource.name}-${resource.action}`]?.description}
-              </Typography>
-              <Typography
-                sx={{
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                  color: getTimeAgoColor(
-                    descriptions[`${courseId}-${resource.name}-${resource.action}`]?.timestamp
-                  ),
-                }}
-              >
-                {descriptions[`${courseId}-${resource.name}-${resource.action}`]?.timeAgo}
+                {getResourceDisplayText(resource.name)}
               </Typography>
             </Box>
-          </CardContent>
-        </CardActionArea>
-      </Card>
-    </Box>
+            <Box>
+              <Box>
+                {resourceDescriptions.description
+                  .filter((d) => d !== null)
+                  .map((d, index) => (
+                    <Typography key={index} sx={{ fontSize: '14px', whiteSpace: 'pre-line' }}>
+                      {getColoredDescription(d)}
+                    </Typography>
+                  ))}
+              </Box>
+
+              {resourceDescriptions.timeAgo && (
+                <Typography sx={{ fontSize: '14px', fontWeight: 'bold', color: timeAgoColor }}>
+                  {resourceDescriptions.timeAgo.filter((t) => t !== null).join('\n')}
+                </Typography>
+              )}
+            </Box>
+          </Box>
+          {isQuiz && resourceDescriptions?.quizId.some((id) => id) && (
+            <IconButton
+              sx={{ color: 'primary.main' }}
+              onClick={(event) => {
+                event.stopPropagation();
+                handleResourceClick(
+                  router,
+                  resource,
+                  Action.PREVIEW,
+                  resourceDescriptions.quizId[0]
+                );
+              }}
+              aria-label="Preview quiz"
+            >
+              <Visibility />
+            </IconButton>
+          )}
+          {isHomework && (
+            <IconButton
+              sx={{ mt: 5, color: 'primary.main' }}
+              onClick={(event) => {
+                event.stopPropagation();
+                handleResourceClick(router, resource, Action.INSTRUCTOR_GRADING);
+              }}
+              aria-label="Ungraded problems"
+            >
+              <Rule />
+            </IconButton>
+          )}
+        </CardContent>
+      </CardActionArea>
+    </Card>
   );
 }
 
@@ -338,17 +436,21 @@ function InstructorDashBoard({
       const newDescriptions: Record<string, ResourceDisplayInfo> = {};
       for (const courseId of Object.keys(groupedResources)) {
         for (const resource of groupedResources[courseId]) {
-          const promise = getLastUpdatedDescriptions(resource).then(
-            ({ description, timeAgo, timestamp, quizId }) => {
-              newDescriptions[`${courseId}-${resource.name}-${resource.action}`] = {
+          for (const action of resource.actions) {
+            const promise = getLastUpdatedDescriptions({
+              courseId,
+              name: resource.name,
+              action: action,
+            }).then(({ description, timeAgo, timestamp, quizId }) => {
+              newDescriptions[`${courseId}-${resource.name}-${action}`] = {
                 description,
                 timeAgo,
                 timestamp,
                 quizId,
               };
-            }
-          );
-          fetchPromises.push(promise);
+            });
+            fetchPromises.push(promise);
+          }
         }
       }
 
@@ -389,10 +491,10 @@ function InstructorDashBoard({
             <Box
               sx={{
                 display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
                 flexWrap: 'wrap',
-                gap: 5,
-                maxWidth: '1400px',
-                margin: '0 auto',
+                gap: 1,
               }}
             >
               {resources.map((resource, index) => (

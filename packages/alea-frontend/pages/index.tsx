@@ -333,9 +333,11 @@ const StudentHomePage: NextPage = ({ filteredCourses }: { filteredCourses: Cours
   const { mmtUrl } = useContext(ServerLinksContext);
   useEffect(() => {
     async function resourcesAccessToUser() {
-      const resourceAccessToInstructor = (await getResourcesForUserId(mmtUrl)).filter(
-        (item) => item.action !== Action.TAKE
-      );
+      const resources = await getResourcesForUserId(mmtUrl);
+      const resourceAccessToInstructor = resources.map((item) => ({
+        ...item,
+        actions: item.actions.filter((action) => action !== Action.TAKE),
+      }));
       setResourcesForInstructor(resourceAccessToInstructor);
     }
     resourcesAccessToUser();
