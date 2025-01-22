@@ -47,6 +47,9 @@ import { RecordedSyllabus } from '../../components/RecordedSyllabus';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
 
+export function generateCourseEnrollmentAcl(courseId: string, instanceId: string) {
+  return `${courseId}-${instanceId}-enrollments`;
+}
 export async function handleEnrollment(userId: string, courseId: string, currentTerm: string) {
   if (!userId || userId.length !== 8 || userId.includes('@')) {
     alert('Please Login Using FAU Id.');
@@ -56,7 +59,7 @@ export async function handleEnrollment(userId: string, courseId: string, current
   try {
     await addRemoveMember({
       memberId: userId,
-      aclId: `${courseId}-${currentTerm}-enrollments`,
+      aclId: generateCourseEnrollmentAcl(courseId, currentTerm),
       isAclMember: false,
       toBeAdded: true,
     });

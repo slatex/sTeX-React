@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { executeAndEndSet500OnError } from './comment-utils';
-
-const ENROLLMENTS = 'enrollments';
+import { generateCourseEnrollmentAcl } from '../course-home/[courseId]';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -9,7 +8,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!courseId || !instanceId) {
       return res.status(400).json({ error: 'Missing courseId or instanceId in request body.' });
     }
-    const aclId = `${courseId}-${instanceId}-${ENROLLMENTS}`;
+    const aclId = generateCourseEnrollmentAcl(courseId, instanceId);
     const students = await executeAndEndSet500OnError(
       'SELECT memberUserId FROM ACLMembership WHERE parentACLId = ?',
       [aclId],
