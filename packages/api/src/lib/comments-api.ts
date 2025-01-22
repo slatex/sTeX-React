@@ -305,9 +305,11 @@ export async function getCoverageTimeline() {
 }
 
 export async function getStudentsEnrolledInCourse(courseId: string, instanceId: string) {
-  const response = await axios.post('/api/get-students-enrolled-in-course', {
-    courseId,
-    instanceId,
+  const response = await axios.get('/api/get-students-enrolled-in-course', {
+    params: {
+      courseId,
+      instanceId,
+    },
   });
   return response.data;
 }
