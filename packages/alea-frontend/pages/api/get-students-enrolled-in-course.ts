@@ -1,3 +1,4 @@
+
 import { Action, CURRENT_TERM, getResourceId, ResourceName } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getCourseEnrollmentAcl } from '../course-home/[courseId]';
@@ -13,6 +14,7 @@ const instructorResourceAndAction = [
   { resource: ResourceName.COURSE_HOMEWORK, action: Action.MUTATE },
   { resource: ResourceName.COURSE_ACCESS, action: Action.ACCESS_CONTROL },
 ];
+
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -62,3 +64,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 }
+
