@@ -161,7 +161,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
     });
 
     return () => {
-      isCancelled = true;
+      isCancelled = true; // avoids race condition on rapid deckId changes.
     };
   }, [courseId, sectionId]);
   const contentUrl = XhtmlContentUrl(currentSlide?.archive, currentSlide?.filepath);

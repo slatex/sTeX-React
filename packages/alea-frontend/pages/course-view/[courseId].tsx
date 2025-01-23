@@ -203,7 +203,7 @@ const CourseViewPage: NextPage = () => {
     }
     if (!viewMode) {
       someParamMissing = true;
-      query.viewMode = localStore?.getItem('defaultMode') || ViewMode.SLIDE_MODE.toString();
+      query.viewMode = localStore?.getItem('defaultMode') || ViewMode.COMBINED_MODE.toString();
     }
     if (!audioOnlyStr) {
       someParamMissing = true;
