@@ -49,3 +49,7 @@ export async function validateMemberAndAclIds(res: NextApiResponse, memberUserId
   if (aclCount !== memberACLIds.length) return false;
   return true;
 }
+
+export async function getAclMembers(aclId: string) {
+  return CACHE_STORE.getFromSet(getCacheKey(aclId));
+}

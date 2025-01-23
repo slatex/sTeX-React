@@ -35,6 +35,7 @@ import {
   BG_COLOR,
   CourseInfo,
   CURRENT_TERM,
+  INSTRUCTOR_RESOURCE_AND_ACTION,
   ResourceName,
   XhtmlContentUrl,
 } from '@stex-react/utils';
@@ -186,15 +187,9 @@ const CourseHomePage: NextPage = () => {
 
   useEffect(() => {
     if (!courseId) return;
-    const instructorActions = [
-      { resource: ResourceName.COURSE_NOTES, action: Action.MUTATE },
-      { resource: ResourceName.COURSE_QUIZ, action: Action.MUTATE },
-      { resource: ResourceName.COURSE_STUDY_BUDDY, action: Action.MODERATE },
-      { resource: ResourceName.COURSE_HOMEWORK, action: Action.MUTATE },
-      { resource: ResourceName.COURSE_ACCESS, action: Action.ACCESS_CONTROL },
-    ];
+
     async function checkAccess() {
-      for (const { resource, action } of instructorActions) {
+      for (const { resource, action } of INSTRUCTOR_RESOURCE_AND_ACTION) {
         const hasAccess = await canAccessResource(resource, action, {
           courseId,
           instanceId: CURRENT_TERM,
