@@ -225,7 +225,9 @@ async function getLastUpdatedDescriptions({
       break;
     case ResourceName.COURSE_QUIZ:
       ({ description, timeAgo, timestamp, quizId } = await getLastUpdatedQuiz(courseId));
-      description = `Latest Quiz:\n ${dayjs(parseInt(timestamp)).format('YYYY-MM-DD HH:mm:ss')}`;
+      if (quizId) {
+        description = `Latest Quiz: ${dayjs(parseInt(timestamp)).format('YYYY-MM-DD HH:mm:ss')}`;
+      }
       break;
     case ResourceName.COURSE_COMMENTS:
       ({ description, timeAgo, timestamp } = await getCommentsInfo(courseId));
@@ -351,17 +353,25 @@ function ResourceCard({
     >
       <CardActionArea onClick={() => handleResourceClick(router, resource)}>
         <CardContent sx={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar sx={{ marginRight: 2, bgcolor: 'primary.main' }}>
-            {getResourceIcon(resource.name)}
-          </Avatar>
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Box>
-              <Typography sx={{ fontSize: '18px', fontWeight: 'medium' }}>
+            <Box display="flex">
+              <Avatar
+                sx={{
+                  marginRight: 1,
+                  bgcolor: 'primary.main',
+                  width: 35,
+                  height: 35,
+                  fontSize: '20px',
+                }}
+              >
+                <Box>{getResourceIcon(resource.name)}</Box>
+              </Avatar>
+              <Typography sx={{ fontSize: '22px', fontWeight: 'medium' }}>
                 {getResourceDisplayText(resource.name)}
               </Typography>
             </Box>
             <Box>
-              <Box>
+              <Box sx={{ m: '10px 0 0 4px' }}>
                 {resourceDescriptions.description
                   .filter((d) => d !== null)
                   .map((d, index) => (
@@ -372,7 +382,9 @@ function ResourceCard({
               </Box>
 
               {resourceDescriptions.timeAgo && (
-                <Typography sx={{ fontSize: '14px', fontWeight: 'bold', color: timeAgoColor }}>
+                <Typography
+                  sx={{ fontSize: '14px', fontWeight: 'bold', color: timeAgoColor, ml: '4px' }}
+                >
                   {resourceDescriptions.timeAgo.filter((t) => t !== null).join('\n')}
                 </Typography>
               )}
@@ -380,7 +392,7 @@ function ResourceCard({
           </Box>
           {isQuiz && resourceDescriptions?.quizId.some((id) => id) && (
             <IconButton
-              sx={{ color: 'primary.main' }}
+              sx={{ color: 'primary.main', mt: 3 }}
               onClick={(event) => {
                 event.stopPropagation();
                 handleResourceClick(
