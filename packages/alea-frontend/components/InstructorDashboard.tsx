@@ -83,36 +83,53 @@ const getTimeAgoColor = (timestamp: string | null): string => {
   if (daysDifference >= -5) return 'orange';
   return 'red';
 };
+
 const getColoredDescription = (text: string) => {
   const keywordColors: { [key: string]: string } = {
     'Last Updated': 'text.secondary',
     Latest: '#007bff',
-    'Ungraded Problems': '#fd7e14',
-    'Unanswered Question': '#dc3545',
   };
+  const match = text.match(/(Unanswered Questions|Ungraded Problems) - (\d+)\/(\d+)/);
+  if (match) {
+    const [, keyword, count, total] = match;
+    const value = parseInt(count, 10);
+    const max = parseInt(total, 10);
+    const percentage = max > 0 ? ((max - value) / max) * 100 : 0;
+    let color = 'inherit';
 
+    if (max == 0 && value == 0) {
+      color = 'text.secondary';
+    } else if (percentage < 30) {
+      color = 'red';
+    } else if (percentage < 70) {
+      color = 'orange';
+    } else {
+      color = 'green';
+    }
+    return <span style={{ color }}>{text}</span>;
+  }
   for (const [keyword, color] of Object.entries(keywordColors)) {
     if (text.startsWith(keyword)) {
       return <span style={{ color }}>{text}</span>;
     }
   }
-  return <span style={{ color: 'text.secondary' }}>{text}</span>; // Black
+  return <span style={{ color: 'text.secondary' }}>{text}</span>;
 };
 
 const getResourceIcon = (name: ResourceName) => {
   switch (name) {
     case ResourceName.COURSE_NOTES:
-      return <ArticleIcon />;
+      return <ArticleIcon sx={{ fontSize: '15px' }} />;
     case ResourceName.COURSE_QUIZ:
-      return <QuizIcon />;
+      return <QuizIcon sx={{ fontSize: '15px' }} />;
     case ResourceName.COURSE_COMMENTS:
-      return <CommentIcon />;
+      return <CommentIcon sx={{ fontSize: '15px' }} />;
     case ResourceName.COURSE_STUDY_BUDDY:
-      return <Diversity3Icon />;
+      return <Diversity3Icon sx={{ fontSize: '15px' }} />;
     case ResourceName.COURSE_HOMEWORK:
-      return <GradingIcon />;
+      return <GradingIcon sx={{ fontSize: '15px' }} />;
     case ResourceName.COURSE_ACCESS:
-      return <LockOpenIcon />;
+      return <LockOpenIcon sx={{ fontSize: '15px' }} />;
     default:
       return name[0];
   }
@@ -339,11 +356,9 @@ function ResourceCard({
         border: '1px solid lightgray',
         boxShadow: '0px 4px 6px gray',
         borderRadius: '8px',
-        minHeight: '140px',
+        minHeight: '122px',
         minWidth: '250px',
         maxWidth: '400px',
-        alignContent: 'center',
-        mb: 1,
         transition: 'transform 0.2s, box-shadow 0.2s',
         '&:hover': {
           transform: 'scale(1.02)',
@@ -352,16 +367,15 @@ function ResourceCard({
       }}
     >
       <CardActionArea onClick={() => handleResourceClick(router, resource)}>
-        <CardContent sx={{ display: 'flex', alignItems: 'center' }}>
+        <CardContent sx={{ display: 'flex', alignItems: 'center', padding: '8px !important' }}>
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Box display="flex">
+            <Box display="flex" sx={{ alignItems: 'center' }}>
               <Avatar
                 sx={{
                   marginRight: 1,
                   bgcolor: 'primary.main',
-                  width: 35,
-                  height: 35,
-                  fontSize: '20px',
+                  width: 25,
+                  height: 25,
                 }}
               >
                 <Box>{getResourceIcon(resource.name)}</Box>
