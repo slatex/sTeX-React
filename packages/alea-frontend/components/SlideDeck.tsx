@@ -66,11 +66,13 @@ export default function SeekVideo({
   slidesClipInfo,
   slideNum,
   setTimestampSec,
+  audioOnly,
 }: {
   slides: Slide[];
   slidesClipInfo: SlideClipInfo[];
   slideNum: number;
   setTimestampSec?: React.Dispatch<React.SetStateAction<number>>;
+  audioOnly?: boolean;
 }) {
   const currentSlide = slides[slideNum - 1];
   if (!currentSlide) return;
@@ -78,13 +80,10 @@ export default function SeekVideo({
 
   const frameSlides = slides.filter((slide) => slide.slideType === SlideType.FRAME);
   const clipInfoIndex = frameSlides.indexOf(currentSlide);
-  const clipInfo =
-    clipInfoIndex !== -1 &&
-    slidesClipInfo &&
-    clipInfoIndex >= 0 &&
-    clipInfoIndex < slidesClipInfo.length
-      ? slidesClipInfo[clipInfoIndex]
-      : null;
+  const isValidIndex =
+    Array.isArray(slidesClipInfo) && clipInfoIndex >= 0 && clipInfoIndex < slidesClipInfo.length;
+  const clipInfo = isValidIndex ? slidesClipInfo[clipInfoIndex] : null;
+
   const handleSeek = () => {
     if (clipInfo) {
       setTimestampSec((prev) =>
@@ -93,11 +92,12 @@ export default function SeekVideo({
     }
   };
   return (
-    <Box>
+    <Box sx={{ position: 'absolute', top: '-15px', left: audioOnly ? '30px' : '80px' }}>
       <Tooltip title={`Seek Video to slide no. ${slideNum}`} arrow>
         <IconButton
           onClick={handleSeek}
           sx={{
+            padding: '5px',
             backgroundColor: '#1976d2',
             color: 'white',
             margin: '10px',
@@ -119,6 +119,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
   navOnTop = false,
   slideNum = 1,
   slidesClipInfo,
+  audioOnly,
   setTimestampSec,
   topLevelDocUrl = undefined,
   onSlideChange,
@@ -132,6 +133,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
   slidesClipInfo?: {
     [sectionId: string]: SlideClipInfo[];
   };
+  audioOnly?: boolean;
   setTimestampSec?: React.Dispatch<React.SetStateAction<number>>;
   topLevelDocUrl?: string;
   onSlideChange?: (slide: Slide) => void;
@@ -226,6 +228,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
           slidesClipInfo={slidesClipInfo[sectionId]}
           slideNum={slideNum}
           setTimestampSec={setTimestampSec}
+          audioOnly={audioOnly}
         />
       )}
       <SlideNavBar

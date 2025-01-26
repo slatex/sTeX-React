@@ -31,7 +31,7 @@ import {
   ResourceName,
 } from '@stex-react/utils';
 import dayjs from 'dayjs';
-import { useRouter } from 'next/router';
+import { NextRouter, useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
 import MainLayout from '../layouts/MainLayout';
 import { BannerSection, VollKiInfoSection } from '../pages';
@@ -48,9 +48,7 @@ interface ResourceDisplayInfo {
 
 const EXCLUDED_RESOURCES = [ResourceName.COURSE_STUDY_BUDDY, ResourceName.COURSE_ACCESS];
 
-const getResourceDisplayText = (name: ResourceName, action?: Action) => {
-  const router = useRouter();
-
+const getResourceDisplayText = (name: ResourceName, router: NextRouter) => {
   const { resource: r } = getLocaleObject(router);
   if (name === ResourceName.COURSE_COMMENTS) {
     return r.forum;
@@ -381,7 +379,7 @@ function ResourceCard({
                 <Box>{getResourceIcon(resource.name)}</Box>
               </Avatar>
               <Typography sx={{ fontSize: '22px', fontWeight: 'medium' }}>
-                {getResourceDisplayText(resource.name)}
+                {getResourceDisplayText(resource.name, router)}
               </Typography>
             </Box>
             <Box>
@@ -513,6 +511,7 @@ function InstructorDashBoard({
                     cursor: 'pointer',
                     textDecoration: 'underline',
                     backgroundColor: 'secondary.main',
+                    color: PRIMARY_COL,
                   },
                 }}
               >

@@ -1,8 +1,5 @@
 import ArticleIcon from '@mui/icons-material/Article';
-import MergeIcon from '@mui/icons-material/Merge';
-import SlideshowIcon from '@mui/icons-material/Slideshow';
-import VideoCameraFrontIcon from '@mui/icons-material/VideoCameraFront';
-import { Box, Button, CircularProgress, ToggleButtonGroup, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import {
   SectionInfo,
   SectionsAPIData,
@@ -35,10 +32,10 @@ import Link from 'next/link';
 import { NextRouter, useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import { SlideDeck } from '../../components/SlideDeck';
-import { TooltipToggleButton } from '../../components/TooltipToggleButton';
 import { VideoDisplay } from '../../components/VideoDisplay';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
+import { VideoCameraBack } from '@mui/icons-material';
 
 function RenderElements({ elements }: { elements: string[] }) {
   return (
@@ -52,7 +49,6 @@ function RenderElements({ elements }: { elements: string[] }) {
 
 export enum ViewMode {
   SLIDE_MODE = 'SLIDE_MODE',
-  VIDEO_MODE = 'VIDEO_MODE',
   COMBINED_MODE = 'COMBINED_MODE',
 }
 function ToggleModeButton({
@@ -65,29 +61,27 @@ function ToggleModeButton({
   const router = useRouter();
   const { courseView: t } = getLocaleObject(router);
 
+  const isCombinedMode = viewMode === ViewMode.COMBINED_MODE;
+  const buttonLabel = isCombinedMode ? t.hideVideo : t.showVideo;
+
   return (
-    <ToggleButtonGroup
-      value={viewMode}
-      exclusive
-      onChange={(event, newVal) => {
-        if (!newVal) {
-          newVal =
-            viewMode === ViewMode.COMBINED_MODE ? ViewMode.SLIDE_MODE : ViewMode.COMBINED_MODE;
-        }
-        updateViewMode(newVal);
+    <Button
+      variant="outlined"
+      onClick={() => {
+        const newMode = isCombinedMode ? ViewMode.SLIDE_MODE : ViewMode.COMBINED_MODE;
+        updateViewMode(newMode);
       }}
-      sx={{ m: '5px 0', border: '1px solid black' }}
+      sx={{
+        m: '5px 0',
+        '&:hover': {
+          backgroundColor: 'primary.main',
+          color: 'white',
+        },
+      }}
     >
-      <TooltipToggleButton value={ViewMode.SLIDE_MODE} title={t.showSlides}>
-        <SlideshowIcon />
-      </TooltipToggleButton>
-      <TooltipToggleButton value={ViewMode.VIDEO_MODE} title={t.showVideo}>
-        <VideoCameraFrontIcon />
-      </TooltipToggleButton>
-      <TooltipToggleButton value={ViewMode.COMBINED_MODE} title={t.showSlidesAndVideo}>
-        <MergeIcon />
-      </TooltipToggleButton>
-    </ToggleButtonGroup>
+      {buttonLabel}
+      <VideoCameraBack sx={{ ml: '5px' }} />
+    </Button>
   );
 }
 
@@ -294,7 +288,7 @@ const CourseViewPage: NextPage = () => {
                 {mmtHTMLToReact(sectionNode?.title || '')}
               </Typography>
             </Box>
-            {(viewMode === ViewMode.VIDEO_MODE || viewMode === ViewMode.COMBINED_MODE) && (
+            {viewMode === ViewMode.COMBINED_MODE && (
               <VideoDisplay
                 clipId={clipIds[sectionId]}
                 audioOnly={audioOnly}
@@ -320,6 +314,7 @@ const CourseViewPage: NextPage = () => {
                 goToPrevSection={goToPrevSection}
                 slideNum={slideNum}
                 slidesClipInfo={slidesClipInfo}
+                audioOnly={audioOnly}
                 setTimestampSec={setTimestampSec}
               />
             )}
@@ -330,24 +325,20 @@ const CourseViewPage: NextPage = () => {
                 sectionTitle={sectionNode?.title}
               />
             </Box>
-            {viewMode !== ViewMode.VIDEO_MODE && (
-              <CommentNoteToggleView
-                file={{ archive: slideArchive, filepath: slideFilepath }}
-                defaultPrivate={true}
-                extraPanel={{
-                  label: t.instructorNotes,
-                  panelContent: (
-                    <Box p="5px" sx={{ overflowX: 'auto' }}>
-                      <RenderElements elements={preNotes} />
-                      {preNotes.length > 0 && postNotes.length > 0 && (
-                        <hr style={{ width: '98%' }} />
-                      )}
-                      <RenderElements elements={postNotes} />
-                    </Box>
-                  ),
-                }}
-              />
-            )}
+            <CommentNoteToggleView
+              file={{ archive: slideArchive, filepath: slideFilepath }}
+              defaultPrivate={true}
+              extraPanel={{
+                label: t.instructorNotes,
+                panelContent: (
+                  <Box p="5px" sx={{ overflowX: 'auto' }}>
+                    <RenderElements elements={preNotes} />
+                    {preNotes.length > 0 && postNotes.length > 0 && <hr style={{ width: '98%' }} />}
+                    <RenderElements elements={postNotes} />
+                  </Box>
+                ),
+              }}
+            />
           </Box>
         </Box>
       </LayoutWithFixedMenu>

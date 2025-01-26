@@ -2,7 +2,6 @@ import { MusicNote } from '@mui/icons-material';
 import CheckIcon from '@mui/icons-material/Check';
 import SettingsIcon from '@mui/icons-material/Settings';
 import VideocamIcon from '@mui/icons-material/Videocam';
-import VideocamOffIcon from '@mui/icons-material/VideocamOff';
 import { Box, CircularProgress, IconButton, Menu, MenuItem, Tooltip } from '@mui/material';
 import { ClipDetails } from '@stex-react/api';
 import { localStore } from '@stex-react/utils';
@@ -136,7 +135,6 @@ export function VideoDisplay({
   const videoId = getVideoId(clipDetails, resolution, availableRes);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-
   useEffect(() => {
     if (!clipId) {
       setIsLoading(false);
