@@ -35,6 +35,7 @@ import {
   BG_COLOR,
   CourseInfo,
   CURRENT_TERM,
+  INSTRUCTOR_RESOURCE_AND_ACTION,
   ResourceName,
   XhtmlContentUrl,
 } from '@stex-react/utils';
@@ -47,6 +48,9 @@ import { RecordedSyllabus } from '../../components/RecordedSyllabus';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
 
+export function getCourseEnrollmentAcl(courseId: string, instanceId: string) {
+  return `${courseId}-${instanceId}-enrollments`;
+}
 export async function handleEnrollment(userId: string, courseId: string, currentTerm: string) {
   if (!userId || userId.length !== 8 || userId.includes('@')) {
     alert('Please Login Using FAU Id.');
@@ -56,7 +60,7 @@ export async function handleEnrollment(userId: string, courseId: string, current
   try {
     await addRemoveMember({
       memberId: userId,
-      aclId: `${courseId}-${currentTerm}-enrollments`,
+      aclId: getCourseEnrollmentAcl(courseId, currentTerm),
       isAclMember: false,
       toBeAdded: true,
     });
@@ -183,15 +187,9 @@ const CourseHomePage: NextPage = () => {
 
   useEffect(() => {
     if (!courseId) return;
-    const instructorActions = [
-      { resource: ResourceName.COURSE_NOTES, action: Action.MUTATE },
-      { resource: ResourceName.COURSE_QUIZ, action: Action.MUTATE },
-      { resource: ResourceName.COURSE_STUDY_BUDDY, action: Action.MODERATE },
-      { resource: ResourceName.COURSE_HOMEWORK, action: Action.MUTATE },
-      { resource: ResourceName.COURSE_ACCESS, action: Action.ACCESS_CONTROL },
-    ];
+
     async function checkAccess() {
-      for (const { resource, action } of instructorActions) {
+      for (const { resource, action } of INSTRUCTOR_RESOURCE_AND_ACTION) {
         const hasAccess = await canAccessResource(resource, action, {
           courseId,
           instanceId: CURRENT_TERM,
