@@ -509,6 +509,11 @@ function InstructorDashBoard({
                   color: 'white',
                   padding: '10px',
                   textAlign: 'center',
+                  '&:hover': {
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                    backgroundColor: 'secondary.main',
+                  },
                 }}
               >
                 {courseId.toUpperCase()}

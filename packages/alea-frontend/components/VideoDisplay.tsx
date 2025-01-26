@@ -1,15 +1,9 @@
+import { MusicNote } from '@mui/icons-material';
 import CheckIcon from '@mui/icons-material/Check';
 import SettingsIcon from '@mui/icons-material/Settings';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import VideocamOffIcon from '@mui/icons-material/VideocamOff';
-import {
-  Box,
-  CircularProgress,
-  IconButton,
-  Menu,
-  MenuItem,
-  Tooltip,
-} from '@mui/material';
+import { Box, CircularProgress, IconButton, Menu, MenuItem, Tooltip } from '@mui/material';
 import { ClipDetails } from '@stex-react/api';
 import { localStore } from '@stex-react/utils';
 import axios from 'axios';
@@ -31,14 +25,10 @@ function ToggleResolution({
 }) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   return (
-    <Box
-      display="inline-block"
-      border={audioOnly ? undefined : '1px solid #CCC'}
-      zIndex="1"
-    >
+    <Box display="inline-block" border={audioOnly ? undefined : '1px solid #CCC'} zIndex="1">
       <IconButton onClick={() => setAudioOnly(!audioOnly)}>
         <Tooltip title={audioOnly ? 'Show Video' : 'Audio Only'}>
-          {audioOnly ? <VideocamIcon /> : <VideocamOffIcon />}
+          {audioOnly ? <VideocamIcon /> : <MusicNote />}
         </Tooltip>
       </IconButton>
       {!audioOnly && (
@@ -46,11 +36,7 @@ function ToggleResolution({
           <IconButton onClick={(e) => setAnchorEl(e.currentTarget)}>
             <SettingsIcon />
           </IconButton>
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={() => setAnchorEl(null)}
-          >
+          <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
             {availableResolutions.map((res) => (
               <MenuItem key={res} onClick={() => setResolution(res)}>
                 <CheckIcon
@@ -77,11 +63,7 @@ function getAvailableRes(info?: ClipDetails) {
     .sort((a, b) => a - b);
 }
 
-function getVideoId(
-  info: ClipDetails,
-  needRes: number,
-  availableRes: number[]
-) {
+function getVideoId(info: ClipDetails, needRes: number, availableRes: number[]) {
   if (!info || !availableRes?.length) return;
   const res = availableRes.includes(needRes) ? needRes : availableRes[0];
   return info[`r${res}`];
@@ -134,15 +116,7 @@ function MediaItem({
       }}
       ref={mediaRef as any}
     >
-      {sub && (
-        <track
-          src={sub}
-          label="English"
-          kind="captions"
-          srcLang="en-us"
-          default
-        ></track>
-      )}
+      {sub && <track src={sub} label="English" kind="captions" srcLang="en-us" default></track>}
     </video>
   );
 }
