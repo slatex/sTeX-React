@@ -2,8 +2,8 @@ import FirstPageIcon from '@mui/icons-material/FirstPage';
 import LastPageIcon from '@mui/icons-material/LastPage';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import { Box, IconButton, LinearProgress } from '@mui/material';
-import { Slide } from '@stex-react/api';
+import { Box, IconButton, LinearProgress, Tooltip } from '@mui/material';
+import { Slide, SlideClipInfo, SlideType } from '@stex-react/api';
 import {
   ContentWithHighlight,
   DocumentWidthSetter,
@@ -14,8 +14,9 @@ import { XhtmlContentUrl } from '@stex-react/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { memo, useEffect, useState } from 'react';
-import { setSlideNumAndSectionId } from '../pages/course-view/[courseId]';
+import { setSlideNumAndSectionId, ViewMode } from '../pages/course-view/[courseId]';
 import styles from '../styles/slide-deck.module.scss';
+import { FastForward } from '@mui/icons-material';
 
 export function SlideNavBar({
   slideNum,
@@ -60,12 +61,65 @@ export function SlideNavBar({
     </Box>
   );
 }
+export default function SeekVideo({
+  slides,
+  slidesClipInfo,
+  slideNum,
+  setTimestampSec,
+}: {
+  slides: Slide[];
+  slidesClipInfo: SlideClipInfo[];
+  slideNum: number;
+  setTimestampSec?: React.Dispatch<React.SetStateAction<number>>;
+}) {
+  const currentSlide = slides[slideNum - 1];
+  if (!currentSlide) return;
+  if (currentSlide.slideType === SlideType.TEXT) return;
+
+  const frameSlides = slides.filter((slide) => slide.slideType === SlideType.FRAME);
+  const clipInfoIndex = frameSlides.indexOf(currentSlide);
+  const clipInfo =
+    clipInfoIndex !== -1 &&
+    slidesClipInfo &&
+    clipInfoIndex >= 0 &&
+    clipInfoIndex < slidesClipInfo.length
+      ? slidesClipInfo[clipInfoIndex]
+      : null;
+  const handleSeek = () => {
+    if (clipInfo) {
+      setTimestampSec((prev) =>
+        prev === clipInfo.startTimeSec ? prev + 0.001 : clipInfo.startTimeSec
+      );
+    }
+  };
+  return (
+    <Box>
+      <Tooltip title={`Seek Video to slide no. ${slideNum}`} arrow>
+        <IconButton
+          onClick={handleSeek}
+          sx={{
+            backgroundColor: '#1976d2',
+            color: 'white',
+            margin: '10px',
+            '&:hover': {
+              backgroundColor: '#1565c0',
+            },
+          }}
+        >
+          <FastForward />
+        </IconButton>
+      </Tooltip>
+    </Box>
+  );
+}
 
 export const SlideDeck = memo(function SlidesFromUrl({
   courseId,
   sectionId,
   navOnTop = false,
   slideNum = 1,
+  slidesClipInfo,
+  setTimestampSec,
   topLevelDocUrl = undefined,
   onSlideChange,
   goToNextSection = undefined,
@@ -75,6 +129,10 @@ export const SlideDeck = memo(function SlidesFromUrl({
   sectionId: string;
   navOnTop?: boolean;
   slideNum?: number;
+  slidesClipInfo?: {
+    [sectionId: string]: SlideClipInfo[];
+  };
+  setTimestampSec?: React.Dispatch<React.SetStateAction<number>>;
   topLevelDocUrl?: string;
   onSlideChange?: (slide: Slide) => void;
   goToNextSection?: () => void;
@@ -83,11 +141,10 @@ export const SlideDeck = memo(function SlidesFromUrl({
   const [slides, setSlides] = useState<Slide[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadedSectionId, setLoadedSectionId] = useState('');
-  const [currentSlide, setCurrentSlide] = useState(
-    undefined as Slide | undefined
-  );
+  const [currentSlide, setCurrentSlide] = useState(undefined as Slide | undefined);
   const router = useRouter();
-
+  const viewModeStr = router.query.viewMode as string;
+  const viewMode = ViewMode[viewModeStr as keyof typeof ViewMode];
   useEffect(() => {
     let isCancelled = false;
     if (!courseId?.length || !sectionId?.length) return;
@@ -107,11 +164,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
       isCancelled = true; // avoids race condition on rapid deckId changes.
     };
   }, [courseId, sectionId]);
-  const contentUrl = XhtmlContentUrl(
-    currentSlide?.archive,
-    currentSlide?.filepath
-  );
-
+  const contentUrl = XhtmlContentUrl(currentSlide?.archive, currentSlide?.filepath);
   useEffect(() => {
     if (!slides?.length || loadedSectionId !== sectionId) return;
     if (slideNum < 1) {
@@ -166,6 +219,14 @@ export const SlideDeck = memo(function SlidesFromUrl({
         >
           No slides in this section
         </Box>
+      )}
+      {viewMode === ViewMode.COMBINED_MODE && (
+        <SeekVideo
+          slides={slides}
+          slidesClipInfo={slidesClipInfo[sectionId]}
+          slideNum={slideNum}
+          setTimestampSec={setTimestampSec}
+        />
       )}
       <SlideNavBar
         slideNum={slideNum}
