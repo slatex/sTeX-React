@@ -384,10 +384,8 @@ export const de = {
   },
   resource: {
     updateGoTo: 'aktualisieren Got-tos',
-    createUpdateQuiz: 'Quiz erstellen/aktualisieren',
-    gradeHomework: 'Hausaufgaben bewerten',
-    createUpdateHomework: 'Hausaufgabe erstellen/aktualisieren',
-    reviewLatestQuiz: 'Letzten Quiz prüfen',
+    quiz: 'Quizze',
+    homework: 'Hausaufgaben',
     forum: 'Forum',
     welcome: 'Willkommen',
   },

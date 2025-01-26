@@ -7,6 +7,7 @@ import {
   SectionInfo,
   SectionsAPIData,
   Slide,
+  SlideClipInfo,
   getAncestors,
   getCourseInfo,
   getDocumentSections,
@@ -49,7 +50,7 @@ function RenderElements({ elements }: { elements: string[] }) {
   );
 }
 
-enum ViewMode {
+export enum ViewMode {
   SLIDE_MODE = 'SLIDE_MODE',
   VIDEO_MODE = 'VIDEO_MODE',
   COMBINED_MODE = 'COMBINED_MODE',
@@ -96,6 +97,15 @@ function populateClipIds(sections: SectionInfo[], clipIds: { [sectionId: string]
     populateClipIds(section.children, clipIds);
   }
 }
+function populateSlidesClipInfos(
+  sections: SectionInfo[],
+  slidesClipInfo: { [sectionId: string]: SlideClipInfo[] }
+) {
+  for (const section of sections) {
+    slidesClipInfo[section.id] = section.clipInfo;
+    populateSlidesClipInfos(section.children, slidesClipInfo);
+  }
+}
 
 export function setSlideNumAndSectionId(router: NextRouter, slideNum: number, sectionId?: string) {
   const { pathname, query } = router;
@@ -139,13 +149,16 @@ const CourseViewPage: NextPage = () => {
   }>({});
 
   const [clipIds, setClipIds] = useState<{ [sectionId: string]: string }>({});
+  const [slidesClipInfo, setSlidesClipInfo] = useState<{ [sectionId: string]: SlideClipInfo[] }>(
+    {}
+  );
   const [slideArchive, setSlideArchive] = useState('');
   const [slideFilepath, setSlideFilepath] = useState('');
   const { mmtUrl } = useContext(ServerLinksContext);
   const { courseView: t, home: tHome } = getLocaleObject(router);
   const [contentUrl, setContentUrl] = useState(undefined as string);
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
-
+  const [timestampSec, setTimestampSec] = useState(0);
   useEffect(() => {
     if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
   }, [mmtUrl]);
@@ -163,6 +176,9 @@ const CourseViewPage: NextPage = () => {
       const clipIds = {};
       populateClipIds(r.data, clipIds);
       setClipIds(clipIds);
+      const slidesClipInfo = {};
+      populateSlidesClipInfos(r.data, slidesClipInfo);
+      setSlidesClipInfo(slidesClipInfo);
     });
   }, [courseId, router.isReady]);
 
@@ -187,7 +203,7 @@ const CourseViewPage: NextPage = () => {
     }
     if (!viewMode) {
       someParamMissing = true;
-      query.viewMode = localStore?.getItem('defaultMode') || ViewMode.SLIDE_MODE.toString();
+      query.viewMode = localStore?.getItem('defaultMode') || ViewMode.COMBINED_MODE.toString();
     }
     if (!audioOnlyStr) {
       someParamMissing = true;
@@ -279,7 +295,11 @@ const CourseViewPage: NextPage = () => {
               </Typography>
             </Box>
             {(viewMode === ViewMode.VIDEO_MODE || viewMode === ViewMode.COMBINED_MODE) && (
-              <VideoDisplay clipId={clipIds[sectionId]} audioOnly={audioOnly} />
+              <VideoDisplay
+                clipId={clipIds[sectionId]}
+                audioOnly={audioOnly}
+                timestampSec={timestampSec}
+              />
             )}
             {(viewMode === ViewMode.SLIDE_MODE || viewMode === ViewMode.COMBINED_MODE) && (
               <SlideDeck
@@ -299,6 +319,8 @@ const CourseViewPage: NextPage = () => {
                 goToNextSection={goToNextSection}
                 goToPrevSection={goToPrevSection}
                 slideNum={slideNum}
+                slidesClipInfo={slidesClipInfo}
+                setTimestampSec={setTimestampSec}
               />
             )}
             <hr style={{ width: '98%', padding: '1px 0' }} />

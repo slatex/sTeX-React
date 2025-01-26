@@ -53,7 +53,7 @@ export const COURSE_SPECIFIC_RESOURCENAMES = [
 export interface CourseResourceAction {
   courseId: string;
   name: ResourceName;
-  action: Action;
+  actions: Action[];
 }
 export interface ResourceIdComponent {
   name?: string;

@@ -408,10 +408,8 @@ export const en = {
   },
   resource: {
     updateGoTo: 'Update Got-tos',
-    createUpdateQuiz: 'Create/Update Quiz',
-    gradeHomework: 'Grade Homework',
-    createUpdateHomework: 'Create/Update Homework',
-    reviewLatestQuiz: 'Review Latest Quiz',
+    quiz: 'Quizzes',
+    homework: 'Homeworks',
     forum: 'Forum',
     welcome: 'Welcome',
   },
