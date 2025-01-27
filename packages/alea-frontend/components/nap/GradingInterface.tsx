@@ -134,6 +134,8 @@ function getSelectedGradingItems(
   }
   return items
     .filter((item) => {
+      if (params.showHomeworkOnly && !item.homeworkId) return false;
+      if (params.showPracticeOnly && item.homeworkId) return false;
       for (const field of MULTI_SELECT_FIELDS) {
         if (
           params.multiSelectField[field].length > 0 &&
@@ -502,6 +504,8 @@ interface SortAndFilterParams {
   isInstructorGraded: Tristate; //only switches between false and unknown
   sortingFields: SortField[];
   sortOrders: Record<SortField, 'ASC' | 'DESC'>;
+  showHomeworkOnly: boolean;
+  showPracticeOnly: boolean;
 }
 
 export function GradingInterface({ courseId }: { courseId: string }) {
@@ -515,18 +519,16 @@ export function GradingInterface({ courseId }: { courseId: string }) {
     isInstructorGraded: Tristate.UNKNOWN,
     sortingFields: [...ALL_SORT_FIELDS],
     sortOrders: DEFAULT_SORT_ORDER,
+    showHomeworkOnly: true,
+    showPracticeOnly: false,
   });
   const [gradingItems, setGradingItems] = useState<GradingItem[]>([]);
-  const originalGradingItems = useRef<GradingItem[]>([]);
   const homeworkMap = useRef<Record<string, HomeworkInfo>>({});
   const questionMap = useRef<Record<string, Problem>>({});
 
   const [selected, setSelected] = useState<
     { homeworkId: number; questionId: string; studentId: string } | undefined
   >(undefined);
-
-  const [showHomework, setShowHomework] = useState(true);
-  const [showPractice, setShowPractice] = useState(false);
 
   const selectedGradedItems = useMemo(
     () =>
@@ -543,7 +545,6 @@ export function GradingInterface({ courseId }: { courseId: string }) {
     if (!courseId) return;
     getCourseGradingItems(courseId).then((res) => {
       setGradingItems(res.gradingItems);
-      originalGradingItems.current = res.gradingItems;
       homeworkMap.current = res.homeworks.reduce((acc, c) => {
         acc[c.id] = c;
         return acc;
@@ -554,41 +555,8 @@ export function GradingInterface({ courseId }: { courseId: string }) {
         }
         return acc;
       }, {} as Record<string, Problem>);
-      filterItems();
     });
   }, [courseId]);
-
-  useEffect(() => {
-    filterItems();
-  }, [showHomework, showPractice]);
-
-  const filterItems = () => {
-    if (showHomework && !showPractice) {
-      setGradingItems(originalGradingItems.current.filter((g) => g.homeworkId));
-    } else if (!showHomework && showPractice) {
-      setGradingItems(originalGradingItems.current.filter((g) => !g.homeworkId));
-    } else {
-      setGradingItems([...originalGradingItems.current]);
-    }
-  };
-
-  const handleSwitchChange = (type: 'homework' | 'practice') => {
-    if (type === 'homework') {
-      if (showHomework) {
-        setShowHomework(false);
-      } else {
-        setShowHomework(true);
-        setShowPractice(false);
-      }
-    } else {
-      if (showPractice) {
-        setShowPractice(false);
-      } else {
-        setShowPractice(true);
-        setShowHomework(false);
-      }
-    }
-  };
 
   return (
     <Box>
@@ -596,8 +564,14 @@ export function GradingInterface({ courseId }: { courseId: string }) {
         <FormControlLabel
           control={
             <Switch
-              checked={showHomework}
-              onChange={() => handleSwitchChange('homework')}
+              checked={sortAndFilterParams.showHomeworkOnly}
+              onChange={() =>
+                setSortAndFilterParams({
+                  ...sortAndFilterParams,
+                  showHomeworkOnly: !sortAndFilterParams.showHomeworkOnly,
+                  showPracticeOnly: false,
+                })
+              }
               color="primary"
             />
           }
@@ -606,8 +580,14 @@ export function GradingInterface({ courseId }: { courseId: string }) {
         <FormControlLabel
           control={
             <Switch
-              checked={showPractice}
-              onChange={() => handleSwitchChange('practice')}
+              checked={sortAndFilterParams.showPracticeOnly}
+              onChange={() =>
+                setSortAndFilterParams({
+                  ...sortAndFilterParams,
+                  showPracticeOnly: !sortAndFilterParams.showPracticeOnly,
+                  showHomeworkOnly: false,
+                })
+              }
               color="primary"
             />
           }
