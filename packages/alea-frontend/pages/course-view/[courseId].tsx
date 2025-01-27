@@ -146,6 +146,7 @@ const CourseViewPage: NextPage = () => {
   const [slidesClipInfo, setSlidesClipInfo] = useState<{ [sectionId: string]: SlideClipInfo[] }>(
     {}
   );
+  const [currentSlideClipInfo, setCurrentSlideClipInfo] = useState<SlideClipInfo>(null);
   const [slideArchive, setSlideArchive] = useState('');
   const [slideFilepath, setSlideFilepath] = useState('');
   const { mmtUrl } = useContext(ServerLinksContext);
@@ -293,6 +294,8 @@ const CourseViewPage: NextPage = () => {
                 clipId={clipIds[sectionId]}
                 audioOnly={audioOnly}
                 timestampSec={timestampSec}
+                setTimestampSec={setTimestampSec}
+                currentSlideClipInfo={currentSlideClipInfo}
               />
             )}
             {(viewMode === ViewMode.SLIDE_MODE || viewMode === ViewMode.COMBINED_MODE) && (
@@ -312,10 +315,11 @@ const CourseViewPage: NextPage = () => {
                 }}
                 goToNextSection={goToNextSection}
                 goToPrevSection={goToPrevSection}
+                onCurrentSlideClipInfoChange={(clipInfo: SlideClipInfo) => {
+                  setCurrentSlideClipInfo(clipInfo);
+                }}
                 slideNum={slideNum}
                 slidesClipInfo={slidesClipInfo}
-                audioOnly={audioOnly}
-                setTimestampSec={setTimestampSec}
               />
             )}
             <hr style={{ width: '98%', padding: '1px 0' }} />

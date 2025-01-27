@@ -83,10 +83,6 @@ const getTimeAgoColor = (timestamp: string | null): string => {
 };
 
 const getColoredDescription = (text: string) => {
-  const keywordColors: { [key: string]: string } = {
-    'Last Updated': 'text.secondary',
-    Latest: '#007bff',
-  };
   const match = text.match(/(Unanswered Questions|Ungraded Problems) - (\d+)\/(\d+)/);
   if (match) {
     const [, keyword, count, total] = match;
@@ -105,11 +101,6 @@ const getColoredDescription = (text: string) => {
       color = 'green';
     }
     return <span style={{ color }}>{text}</span>;
-  }
-  for (const [keyword, color] of Object.entries(keywordColors)) {
-    if (text.startsWith(keyword)) {
-      return <span style={{ color }}>{text}</span>;
-    }
   }
   return <span style={{ color: 'text.secondary' }}>{text}</span>;
 };

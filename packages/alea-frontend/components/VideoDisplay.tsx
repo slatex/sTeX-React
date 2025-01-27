@@ -1,13 +1,49 @@
-import { MusicNote } from '@mui/icons-material';
+import { FastForward, MusicNote } from '@mui/icons-material';
 import CheckIcon from '@mui/icons-material/Check';
 import SettingsIcon from '@mui/icons-material/Settings';
 import VideocamIcon from '@mui/icons-material/Videocam';
-import { Box, CircularProgress, IconButton, Menu, MenuItem, Tooltip } from '@mui/material';
-import { ClipDetails } from '@stex-react/api';
+import { Box, CircularProgress, Divider, IconButton, Menu, MenuItem, Tooltip } from '@mui/material';
+import { ClipDetails, SlideClipInfo } from '@stex-react/api';
 import { localStore } from '@stex-react/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+
+export default function SeekVideo({
+  currentSlideClipInfo,
+  setTimestampSec,
+}: {
+  currentSlideClipInfo?: SlideClipInfo;
+  setTimestampSec?: React.Dispatch<React.SetStateAction<number>>;
+}) {
+  const handleSeek = () => {
+    if (currentSlideClipInfo) {
+      const { startTimeSec } = currentSlideClipInfo;
+      setTimestampSec((prev) => (prev === startTimeSec ? prev + 0.001 : startTimeSec));
+    }
+  };
+  if (!currentSlideClipInfo) return null;
+  return (
+    <Box display="inline-block" zIndex="1">
+      <Tooltip title={`Seek Video to current slide`} arrow>
+        <IconButton
+          onClick={handleSeek}
+          sx={{
+            padding: '5px',
+            backgroundColor: '#1976d2',
+            color: 'white',
+            margin: '10px',
+            '&:hover': {
+              backgroundColor: '#1565c0',
+            },
+          }}
+        >
+          <FastForward />
+        </IconButton>
+      </Tooltip>
+    </Box>
+  );
+}
 
 function ToggleResolution({
   audioOnly,
@@ -24,12 +60,13 @@ function ToggleResolution({
 }) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   return (
-    <Box display="inline-block" border={audioOnly ? undefined : '1px solid #CCC'} zIndex="1">
+    <Box display="flex" alignItems="center" border={'1px solid #CCC'} zIndex="1">
       <IconButton onClick={() => setAudioOnly(!audioOnly)}>
         <Tooltip title={audioOnly ? 'Show Video' : 'Audio Only'}>
           {audioOnly ? <VideocamIcon /> : <MusicNote />}
         </Tooltip>
       </IconButton>
+      <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
       {!audioOnly && (
         <>
           <IconButton onClick={(e) => setAnchorEl(e.currentTarget)}>
@@ -123,10 +160,14 @@ function MediaItem({
 export function VideoDisplay({
   clipId,
   timestampSec,
+  setTimestampSec,
+  currentSlideClipInfo,
   audioOnly,
 }: {
   clipId: string;
   timestampSec?: number;
+  setTimestampSec?: Dispatch<SetStateAction<number>>;
+  currentSlideClipInfo?: SlideClipInfo;
   audioOnly: boolean;
 }) {
   const [resolution, setResolution] = useState(720);
@@ -160,7 +201,7 @@ export function VideoDisplay({
         audioOnly={audioOnly}
         sub={clipDetails?.sub}
       />
-      <Box sx={{ m: '-4px 0 5px' }}>
+      <Box sx={{ display: 'flex', m: '-4px 0 5px' }}>
         <ToggleResolution
           audioOnly={audioOnly}
           setAudioOnly={(v: boolean) => {
@@ -176,6 +217,7 @@ export function VideoDisplay({
           }}
           availableResolutions={availableRes}
         />
+        <SeekVideo currentSlideClipInfo={currentSlideClipInfo} setTimestampSec={setTimestampSec} />
       </Box>
     </>
   );

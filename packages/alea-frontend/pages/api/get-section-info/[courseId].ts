@@ -58,13 +58,13 @@ function addClipInfo(allSections: SectionInfo[], jsonData: any[]) {
     [sectionId: string]: SlideClipInfo[];
   } = {};
   jsonData.forEach((entry) => {
-    const { sectionId, start_time, end_time, video_name } = entry;
+    const { sectionId, start_time, end_time, video_id } = entry;
     if (!clipDataMap[sectionId]) {
       clipDataMap[sectionId] = [];
     }
     if (start_time !== undefined && end_time !== undefined) {
       clipDataMap[sectionId].push({
-        clipId: video_name,
+        clipId: video_id,
         startTimeSec: start_time,
         endTimeSec: end_time,
       });
