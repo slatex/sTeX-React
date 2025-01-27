@@ -9,11 +9,13 @@ import {
   Button,
   Checkbox,
   Chip,
+  FormControlLabel,
   IconButton,
   List,
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Switch,
   TextField,
   Typography,
 } from '@mui/material';
@@ -515,12 +517,16 @@ export function GradingInterface({ courseId }: { courseId: string }) {
     sortOrders: DEFAULT_SORT_ORDER,
   });
   const [gradingItems, setGradingItems] = useState<GradingItem[]>([]);
+  const originalGradingItems = useRef<GradingItem[]>([]);
   const homeworkMap = useRef<Record<string, HomeworkInfo>>({});
   const questionMap = useRef<Record<string, Problem>>({});
 
   const [selected, setSelected] = useState<
     { homeworkId: number; questionId: string; studentId: string } | undefined
   >(undefined);
+
+  const [showHomework, setShowHomework] = useState(true);
+  const [showPractice, setShowPractice] = useState(false);
 
   const selectedGradedItems = useMemo(
     () =>
@@ -537,6 +543,7 @@ export function GradingInterface({ courseId }: { courseId: string }) {
     if (!courseId) return;
     getCourseGradingItems(courseId).then((res) => {
       setGradingItems(res.gradingItems);
+      originalGradingItems.current = res.gradingItems;
       homeworkMap.current = res.homeworks.reduce((acc, c) => {
         acc[c.id] = c;
         return acc;
@@ -547,12 +554,66 @@ export function GradingInterface({ courseId }: { courseId: string }) {
         }
         return acc;
       }, {} as Record<string, Problem>);
-      console.log('questionMap', questionMap.current);
+      filterItems();
     });
   }, [courseId]);
 
+  useEffect(() => {
+    filterItems();
+  }, [showHomework, showPractice]);
+
+  const filterItems = () => {
+    if (showHomework && !showPractice) {
+      setGradingItems(originalGradingItems.current.filter((g) => g.homeworkId));
+    } else if (!showHomework && showPractice) {
+      setGradingItems(originalGradingItems.current.filter((g) => !g.homeworkId));
+    } else {
+      setGradingItems([...originalGradingItems.current]);
+    }
+  };
+
+  const handleSwitchChange = (type: 'homework' | 'practice') => {
+    if (type === 'homework') {
+      if (showHomework) {
+        setShowHomework(false);
+      } else {
+        setShowHomework(true);
+        setShowPractice(false);
+      }
+    } else {
+      if (showPractice) {
+        setShowPractice(false);
+      } else {
+        setShowPractice(true);
+        setShowHomework(false);
+      }
+    }
+  };
+
   return (
     <Box>
+      <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={showHomework}
+              onChange={() => handleSwitchChange('homework')}
+              color="primary"
+            />
+          }
+          label="Homework Problems Only"
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              checked={showPractice}
+              onChange={() => handleSwitchChange('practice')}
+              color="primary"
+            />
+          }
+          label="Practice Problems Only"
+        />
+      </Box>
       <GradingItemOrganizer
         questionMap={questionMap.current}
         homeworkMap={homeworkMap.current}
