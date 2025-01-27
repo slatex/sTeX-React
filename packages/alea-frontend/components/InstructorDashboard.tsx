@@ -31,7 +31,7 @@ import {
   ResourceName,
 } from '@stex-react/utils';
 import dayjs from 'dayjs';
-import { useRouter } from 'next/router';
+import { NextRouter, useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
 import MainLayout from '../layouts/MainLayout';
 import { BannerSection, VollKiInfoSection } from '../pages';
@@ -48,9 +48,7 @@ interface ResourceDisplayInfo {
 
 const EXCLUDED_RESOURCES = [ResourceName.COURSE_STUDY_BUDDY, ResourceName.COURSE_ACCESS];
 
-const getResourceDisplayText = (name: ResourceName, action?: Action) => {
-  const router = useRouter();
-
+const getResourceDisplayText = (name: ResourceName, router: NextRouter) => {
   const { resource: r } = getLocaleObject(router);
   if (name === ResourceName.COURSE_COMMENTS) {
     return r.forum;
@@ -85,10 +83,6 @@ const getTimeAgoColor = (timestamp: string | null): string => {
 };
 
 const getColoredDescription = (text: string) => {
-  const keywordColors: { [key: string]: string } = {
-    'Last Updated': 'text.secondary',
-    Latest: '#007bff',
-  };
   const match = text.match(/(Unanswered Questions|Ungraded Problems) - (\d+)\/(\d+)/);
   if (match) {
     const [, keyword, count, total] = match;
@@ -107,11 +101,6 @@ const getColoredDescription = (text: string) => {
       color = 'green';
     }
     return <span style={{ color }}>{text}</span>;
-  }
-  for (const [keyword, color] of Object.entries(keywordColors)) {
-    if (text.startsWith(keyword)) {
-      return <span style={{ color }}>{text}</span>;
-    }
   }
   return <span style={{ color: 'text.secondary' }}>{text}</span>;
 };
@@ -381,7 +370,7 @@ function ResourceCard({
                 <Box>{getResourceIcon(resource.name)}</Box>
               </Avatar>
               <Typography sx={{ fontSize: '22px', fontWeight: 'medium' }}>
-                {getResourceDisplayText(resource.name)}
+                {getResourceDisplayText(resource.name, router)}
               </Typography>
             </Box>
             <Box>
@@ -509,6 +498,12 @@ function InstructorDashBoard({
                   color: 'white',
                   padding: '10px',
                   textAlign: 'center',
+                  '&:hover': {
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                    backgroundColor: 'secondary.main',
+                    color: PRIMARY_COL,
+                  },
                 }}
               >
                 {courseId.toUpperCase()}

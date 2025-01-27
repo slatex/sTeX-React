@@ -169,6 +169,7 @@ export const de = {
     instructorNotes: 'Notizen der Lehrenden',
     showSlides: 'Folien anzeigen',
     showVideo: 'Videos anzeigen',
+    hideVideo: 'Video ausblenden',
     showSlidesAndVideo: 'Folien und Videos anzeigen',
     courseContent: 'Kursinhalt',
     personalizedSuggestion: 'Personalisierter Vorschlag',

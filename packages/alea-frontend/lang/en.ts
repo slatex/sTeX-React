@@ -194,6 +194,7 @@ export const en = {
     instructorNotes: "Instructor's notes",
     showSlides: 'Show slides',
     showVideo: 'Show video',
+    hideVideo: 'Hide video',
     showSlidesAndVideo: 'Show slides and video',
     courseContent: 'Course Content',
     personalizedSuggestion: 'Personalized Suggestion',
