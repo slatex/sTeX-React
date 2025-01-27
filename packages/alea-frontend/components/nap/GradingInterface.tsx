@@ -9,11 +9,13 @@ import {
   Button,
   Checkbox,
   Chip,
+  FormControlLabel,
   IconButton,
   List,
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Switch,
   TextField,
   Typography,
 } from '@mui/material';
@@ -132,6 +134,8 @@ function getSelectedGradingItems(
   }
   return items
     .filter((item) => {
+      if (params.showHomeworkOnly && !item.homeworkId) return false;
+      if (params.showPracticeOnly && item.homeworkId) return false;
       for (const field of MULTI_SELECT_FIELDS) {
         if (
           params.multiSelectField[field].length > 0 &&
@@ -500,6 +504,8 @@ interface SortAndFilterParams {
   isInstructorGraded: Tristate; //only switches between false and unknown
   sortingFields: SortField[];
   sortOrders: Record<SortField, 'ASC' | 'DESC'>;
+  showHomeworkOnly: boolean;
+  showPracticeOnly: boolean;
 }
 
 export function GradingInterface({ courseId }: { courseId: string }) {
@@ -513,6 +519,8 @@ export function GradingInterface({ courseId }: { courseId: string }) {
     isInstructorGraded: Tristate.UNKNOWN,
     sortingFields: [...ALL_SORT_FIELDS],
     sortOrders: DEFAULT_SORT_ORDER,
+    showHomeworkOnly: true,
+    showPracticeOnly: false,
   });
   const [gradingItems, setGradingItems] = useState<GradingItem[]>([]);
   const homeworkMap = useRef<Record<string, HomeworkInfo>>({});
@@ -547,12 +555,45 @@ export function GradingInterface({ courseId }: { courseId: string }) {
         }
         return acc;
       }, {} as Record<string, Problem>);
-      console.log('questionMap', questionMap.current);
     });
   }, [courseId]);
 
   return (
     <Box>
+      <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={sortAndFilterParams.showHomeworkOnly}
+              onChange={() =>
+                setSortAndFilterParams({
+                  ...sortAndFilterParams,
+                  showHomeworkOnly: !sortAndFilterParams.showHomeworkOnly,
+                  showPracticeOnly: false,
+                })
+              }
+              color="primary"
+            />
+          }
+          label="Homework Problems Only"
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              checked={sortAndFilterParams.showPracticeOnly}
+              onChange={() =>
+                setSortAndFilterParams({
+                  ...sortAndFilterParams,
+                  showPracticeOnly: !sortAndFilterParams.showPracticeOnly,
+                  showHomeworkOnly: false,
+                })
+              }
+              color="primary"
+            />
+          }
+          label="Practice Problems Only"
+        />
+      </Box>
       <GradingItemOrganizer
         questionMap={questionMap.current}
         homeworkMap={homeworkMap.current}
