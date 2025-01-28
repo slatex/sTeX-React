@@ -21,12 +21,12 @@ const TO_BE_EXCUSED = {
       'ki61hevu', // Jingxuan Yang
     ],
   },
-  'lbs': {
+  lbs: {
     'quiz-0bc0d1ca': [
       'er86inin', // Mahmoud Mohamed
     ],
-  }
-}
+  },
+};
 
 export interface QuizData {
   score: number;
@@ -90,12 +90,23 @@ GROUP BY userId,quizId`,
         percentage: (score / MAX_POINTS[quizId]) * 100,
       };
     }
-    for (const userData of Object.values(USER_ID_TO_QUIZ_SCORES)) {
+
+    for (const [userId, userData] of Object.entries(USER_ID_TO_QUIZ_SCORES)) {
       const quizPercentages = Object.values(userData.perQuiz).map(
         (quizData) => quizData.percentage
       );
       quizPercentages.sort((a, b) => b - a);
+
+      const excusedQuizzes = Object.entries(
+        TO_BE_EXCUSED[process.env.QUIZ_SUMMARY_COURSE_ID] || {}
+      ).filter(([_, userIds]) => (userIds as string[]).includes(userId)).length;
+
+      const remainingQuizzesAfterExcuses = TOP_N - excusedQuizzes;
+      const scalingFactor = remainingQuizzesAfterExcuses / TOP_N;
       userData.sumTopN = quizPercentages.slice(0, TOP_N).reduce((a, b) => a + b, 0) / TOP_N;
+      if (excusedQuizzes > 0) {
+        userData.sumTopN *= scalingFactor;
+      }
     }
 
     // Write to csv
