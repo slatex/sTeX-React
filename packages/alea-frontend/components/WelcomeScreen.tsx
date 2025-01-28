@@ -428,7 +428,7 @@ function ResourceCard({
   );
 }
 
-function InstructorDashBoard({
+function WelcomeScreen({
   resourcesForInstructor,
 }: {
   resourcesForInstructor: CourseResourceAction[];
@@ -535,4 +535,4 @@ function InstructorDashBoard({
   );
 }
 
-export default InstructorDashBoard;
+export default WelcomeScreen;
