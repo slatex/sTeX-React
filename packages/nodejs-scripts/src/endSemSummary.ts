@@ -102,11 +102,9 @@ GROUP BY userId,quizId`,
       ).filter(([_, userIds]) => (userIds as string[]).includes(userId)).length;
 
       const remainingQuizzesAfterExcuses = TOP_N - excusedQuizzes;
-      const scalingFactor = remainingQuizzesAfterExcuses / TOP_N;
-      userData.sumTopN = quizPercentages.slice(0, TOP_N).reduce((a, b) => a + b, 0) / TOP_N;
-      if (excusedQuizzes > 0) {
-        userData.sumTopN *= scalingFactor;
-      }
+      userData.sumTopN =
+        quizPercentages.slice(0, remainingQuizzesAfterExcuses).reduce((a, b) => a + b, 0) /
+        remainingQuizzesAfterExcuses;
     }
 
     // Write to csv
