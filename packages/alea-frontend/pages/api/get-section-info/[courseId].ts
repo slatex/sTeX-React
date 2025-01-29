@@ -9,7 +9,7 @@ import { CoverageSnap } from '@stex-react/utils';
 import { convert } from 'html-to-text';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getCoverageData } from '../get-coverage-timeline';
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 
 let processedSlidesJson: any = null;
 function getAllSections(data: SectionsAPIData, level = 0): SectionInfo | SectionInfo[] {
@@ -101,9 +101,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const coverageData = getCoverageData()[courseId];
   if (coverageData?.length) addVideoInfo(allSections, coverageData);
   if (!processedSlidesJson) {
-    const filePath = process.env.PROCESSED_SLIDES_JSON_PATH;
-    processedSlidesJson = JSON.parse(readFileSync(filePath, 'utf-8'));
+    const filePath = `${process.env.PROCESSED_SLIDES_JSON_PATH}/${courseId}_processed_slides.json`;
+    if (existsSync(filePath)) {
+      processedSlidesJson = JSON.parse(readFileSync(filePath, 'utf-8'));
+    }
+    if (processedSlidesJson) {
+      addClipInfo(allSections, processedSlidesJson);
+    }
   }
-  addClipInfo(allSections, processedSlidesJson);
   res.status(200).send(allSections);
 }
