@@ -12,14 +12,19 @@ import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 export default function SeekVideo({
   currentSlideClipInfo,
   setTimestampSec,
+  setCurrentClipId,
 }: {
-  currentSlideClipInfo?: SlideClipInfo;
-  setTimestampSec?: React.Dispatch<React.SetStateAction<number>>;
+  currentSlideClipInfo: SlideClipInfo;
+  setTimestampSec: React.Dispatch<React.SetStateAction<number>>;
+  setCurrentClipId: Dispatch<SetStateAction<string>>;
 }) {
   const handleSeek = () => {
     if (currentSlideClipInfo) {
-      const { startTimeSec } = currentSlideClipInfo;
-      setTimestampSec((prev) => (prev === startTimeSec ? prev + 0.001 : startTimeSec));
+      const { startTimeSec, clipId } = currentSlideClipInfo;
+      setCurrentClipId(clipId);
+      if (startTimeSec) {
+        setTimestampSec((prev) => (prev === startTimeSec ? prev + 0.001 : startTimeSec));
+      } else setTimestampSec(0);
     }
   };
   if (!currentSlideClipInfo) return null;
@@ -159,12 +164,14 @@ function MediaItem({
 
 export function VideoDisplay({
   clipId,
+  setCurrentClipId,
   timestampSec,
   setTimestampSec,
   currentSlideClipInfo,
   audioOnly,
 }: {
   clipId: string;
+  setCurrentClipId: Dispatch<SetStateAction<string>>;
   timestampSec?: number;
   setTimestampSec?: Dispatch<SetStateAction<number>>;
   currentSlideClipInfo?: SlideClipInfo;
@@ -217,7 +224,11 @@ export function VideoDisplay({
           }}
           availableResolutions={availableRes}
         />
-        <SeekVideo currentSlideClipInfo={currentSlideClipInfo} setTimestampSec={setTimestampSec} />
+        <SeekVideo
+          currentSlideClipInfo={currentSlideClipInfo}
+          setTimestampSec={setTimestampSec}
+          setCurrentClipId={setCurrentClipId}
+        />
       </Box>
     </>
   );
