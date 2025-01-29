@@ -146,6 +146,7 @@ const CourseViewPage: NextPage = () => {
   const [slidesClipInfo, setSlidesClipInfo] = useState<{ [sectionId: string]: SlideClipInfo[] }>(
     {}
   );
+  const [currentClipId, setCurrentClipId] = useState('');
   const [currentSlideClipInfo, setCurrentSlideClipInfo] = useState<SlideClipInfo>(null);
   const [slideArchive, setSlideArchive] = useState('');
   const [slideFilepath, setSlideFilepath] = useState('');
@@ -216,6 +217,11 @@ const CourseViewPage: NextPage = () => {
     }
     getIndex();
   }, [mmtUrl, contentUrl]);
+  useEffect(() => {
+    if (!sectionId) return;
+    const newClipId = slidesClipInfo?.[sectionId]?.[0]?.clipId || clipIds?.[sectionId] || null;
+    setCurrentClipId(newClipId);
+  }, [slidesClipInfo, clipIds, sectionId]);
 
   function goToPrevSection() {
     const secIdx = courseSections.indexOf(sectionId);
@@ -291,7 +297,8 @@ const CourseViewPage: NextPage = () => {
             </Box>
             {viewMode === ViewMode.COMBINED_MODE && (
               <VideoDisplay
-                clipId={clipIds[sectionId]}
+                clipId={currentClipId}
+                setCurrentClipId={setCurrentClipId}
                 audioOnly={audioOnly}
                 timestampSec={timestampSec}
                 setTimestampSec={setTimestampSec}
