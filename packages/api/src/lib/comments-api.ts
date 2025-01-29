@@ -313,3 +313,14 @@ export async function getStudentsEnrolledInCourse(courseId: string, instanceId: 
   });
   return response.data;
 }
+
+export async function getEnrolledCoursesOfUser(instanceId?: string) {
+  const response = await axios.post(
+    '/api/get-enrolled-courses-of-user',
+    {
+      instanceId,
+    },
+    { headers: getAuthHeaders() }
+  );
+  return response.data;
+}
