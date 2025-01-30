@@ -37,13 +37,13 @@ import {
   ResourceName,
 } from '@stex-react/utils';
 import dayjs from 'dayjs';
+import Link from 'next/link';
 import { NextRouter, useRouter } from 'next/router';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
-import { BannerSection, VollKiInfoSection } from '../pages';
+import { BannerSection, CourseCard, VollKiInfoSection } from '../pages';
 import { CourseThumb } from '../pages/u/[institution]';
-import Link from 'next/link';
 
 interface ResourceDisplayInfo {
   description: string | null;
@@ -326,8 +326,8 @@ function MyCourses({ enrolledCourseIds }) {
       </Typography>
       <Box sx={{ display: 'flex', justifyContent: 'center' }}>
         {enrolledCourseIds
-          .filter((courseId) => allCourses[courseId])
-          .map((courseId) => (
+          .filter((courseId: string) => allCourses[courseId])
+          .map((courseId: string) => (
             <CourseThumb key={courseId} course={allCourses[courseId]} />
           ))}
       </Box>
@@ -467,14 +467,19 @@ function ResourceCard({
 
 function WelcomeScreen({
   resourcesForInstructor,
+  filteredCourses,
 }: {
   resourcesForInstructor: CourseResourceAction[];
+  filteredCourses: CourseInfo[];
 }) {
   const [userInfo, setUserInfo] = useState(null);
   const [descriptions, setDescriptions] = useState<Record<string, ResourceDisplayInfo>>({});
   const [enrolledCourseIds, setEnrolledCourseIds] = useState<string[]>([]);
   const router = useRouter();
-  const { resource: r } = getLocaleObject(router);
+  const {
+    resource: r,
+    home: { newHome: n },
+  } = getLocaleObject(router);
   const groupedResources = useMemo(
     () => groupByCourseId(resourcesForInstructor),
     [resourcesForInstructor]
@@ -572,19 +577,23 @@ function WelcomeScreen({
           </Box>
         ))}
       </Box>
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-        <Link href="/course-list" passHref>
-          <Button
-            variant="contained"
-            sx={{
-              fontSize: '16px',
-              fontWeight: 'bold',
-              px: 4,
-              py: 1,
-            }}
-          >
-            Explore All Courses
-          </Button>
+      <Box
+        id="courses"
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-around',
+          marginTop: '40px',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+        }}
+      >
+        {filteredCourses.map((course) => (
+          <CourseCard key={course.courseId} course={course} />
+        ))}
+      </Box>
+      <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '40px' }}>
+        <Link href="/course-list">
+          <Button variant="contained">{n.exploreOurCourse}</Button>
         </Link>
       </Box>
       <VollKiInfoSection bgcolor="white" />
