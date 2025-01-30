@@ -56,7 +56,9 @@
     "sharp": "^0.33.3",
     "stream": "^0.0.3",
     "tslib": "^2.3.0",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "video.js": "^8.21.0",
+    "videojs": "^1.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.14.5",
@@ -85,6 +87,7 @@
     "@types/react": "18.2.24",
     "@types/react-dom": "18.2.9",
     "@types/uuid": "^9.0.2",
+    "@types/video.js": "^7.3.58",
     "@typescript-eslint/eslint-plugin": "5.60.1",
     "@typescript-eslint/parser": "5.60.1",
     "@vitejs/plugin-react": "^4.0.0",

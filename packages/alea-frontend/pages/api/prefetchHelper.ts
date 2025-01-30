@@ -26,9 +26,7 @@ export async function fetchDocument(mmtUrl: string, url: string) {
   if (currTime - printTime > 5000) {
     printTime = currTime;
     const elapsed = Math.round((currTime - startTime) / 1000);
-    console.log(
-      `${elapsed}s: ${fetchedDocs} of ${requestedDocs} fetched\n${url}`
-    );
+    console.log(`${elapsed}s: ${fetchedDocs} of ${requestedDocs} fetched\n${url}`);
   }
   requestedDocs++;
   let docContent;
@@ -60,22 +58,16 @@ export function fetchDocumentCached(url: string) {
   exit(0);
 }
 
-export async function preFetchDescendentsOfDoc(
-  mmtUrl: string,
-  docUrl: string
-): Promise<void> {
+export async function preFetchDescendentsOfDoc(mmtUrl: string, docUrl: string): Promise<void> {
   docUrl = normalizeUrl(docUrl);
-  console.log(`prefetching ${mmtUrl} / ${docUrl}`);
+  // console.log(`prefetching ${mmtUrl} / ${docUrl}`);
   const docContent = await fetchDocument(mmtUrl, docUrl);
   // DOMParser is not available on nodejs.
   const htmlDoc = htmlparser2.parseDocument(docContent);
   await preFetchDescendentsOfDocNode(mmtUrl, htmlDoc);
 }
 
-async function preFetchDescendentsOfDocNode(
-  mmtUrl: string,
-  node: any
-): Promise<void> {
+async function preFetchDescendentsOfDocNode(mmtUrl: string, node: any): Promise<void> {
   const embedUrl = node.attribs?.['data-inputref-url'];
   if (embedUrl) {
     await preFetchDescendentsOfDoc(mmtUrl, embedUrl);
