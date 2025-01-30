@@ -101,7 +101,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const coverageData = getCoverageData()[courseId];
   if (coverageData?.length) addVideoInfo(allSections, coverageData);
   if (!processedSlidesJson) {
-    const filePath = `${process.env.PROCESSED_SLIDES_JSON_PATH}/${courseId}_processed_slides.json`;
+    const filePath = `${process.env.VIDEO_TO_SLIDES_MAP_DIR}/${courseId}_processed_slides.json`;
     if (existsSync(filePath)) {
       processedSlidesJson = JSON.parse(readFileSync(filePath, 'utf-8'));
     }
