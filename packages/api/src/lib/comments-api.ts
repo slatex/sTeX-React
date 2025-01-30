@@ -314,9 +314,9 @@ export async function getStudentsEnrolledInCourse(courseId: string, instanceId: 
   return response.data;
 }
 
-export async function getEnrolledCoursesOfUser(instanceId?: string) {
+export async function getCourseIdsForEnrolledUser(instanceId?: string) {
   const response = await axios.post(
-    '/api/get-enrolled-courses-of-user',
+    '/api/get-courseids-for-enrolled-user',
     {
       instanceId,
     },

@@ -9,7 +9,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
-import InstructorDashBoard from '../components/InstructorDashboard';
+import WelcomeScreen from '../components/WelcomeScreen';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 
@@ -343,7 +343,7 @@ const StudentHomePage: NextPage = ({ filteredCourses }: { filteredCourses: Cours
     resourcesAccessToUser();
   }, [mmtUrl]);
   if (resourcesForInstructor.length > 0) {
-    return <InstructorDashBoard resourcesForInstructor={resourcesForInstructor} />;
+    return <WelcomeScreen resourcesForInstructor={resourcesForInstructor} />;
   }
   return (
     <MainLayout title="Courses | ALeA">

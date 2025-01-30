@@ -1,3 +1,4 @@
+import { Rule, Visibility } from '@mui/icons-material';
 import ArticleIcon from '@mui/icons-material/Article';
 import CommentIcon from '@mui/icons-material/Comment';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
@@ -7,6 +8,7 @@ import QuizIcon from '@mui/icons-material/Quiz';
 import {
   Avatar,
   Box,
+  Button,
   Card,
   CardActionArea,
   CardContent,
@@ -16,6 +18,8 @@ import {
 import {
   CommentType,
   getCourseGradingItems,
+  getCourseIdsForEnrolledUser,
+  getCourseInfo,
   getCourseInstanceThreads,
   getCourseQuizList,
   getCoverageTimeline,
@@ -23,8 +27,10 @@ import {
   getUserInfo,
   QuestionStatus,
 } from '@stex-react/api';
+import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import {
   Action,
+  CourseInfo,
   CourseResourceAction,
   CURRENT_TERM,
   PRIMARY_COL,
@@ -32,12 +38,12 @@ import {
 } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import { NextRouter, useRouter } from 'next/router';
-import { useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
+import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 import { BannerSection, VollKiInfoSection } from '../pages';
+import { CourseThumb } from '../pages/u/[institution]';
 import Link from 'next/link';
-import { getLocaleObject } from '../lang/utils';
-import { Rule, Visibility } from '@mui/icons-material';
 
 interface ResourceDisplayInfo {
   description: string | null;
@@ -298,6 +304,37 @@ const handleResourceClick = (
   }
 };
 
+function MyCourses({ enrolledCourseIds }) {
+  const { mmtUrl } = useContext(ServerLinksContext);
+  const [allCourses, setAllCourses] = useState<Record<string, CourseInfo>>({});
+  useEffect(() => {
+    getCourseInfo(mmtUrl).then((res) => {
+      setAllCourses(res);
+    });
+  }, [mmtUrl]);
+  return (
+    <>
+      <Typography
+        sx={{
+          fontSize: '22px',
+          fontWeight: 'bold',
+          padding: '10px',
+          textAlign: 'center',
+        }}
+      >
+        My Courses
+      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+        {enrolledCourseIds
+          .filter((courseId) => allCourses[courseId])
+          .map((courseId) => (
+            <CourseThumb key={courseId} course={allCourses[courseId]} />
+          ))}
+      </Box>
+    </>
+  );
+}
+
 function ResourceCard({
   resource,
   descriptions,
@@ -428,13 +465,14 @@ function ResourceCard({
   );
 }
 
-function InstructorDashBoard({
+function WelcomeScreen({
   resourcesForInstructor,
 }: {
   resourcesForInstructor: CourseResourceAction[];
 }) {
   const [userInfo, setUserInfo] = useState(null);
   const [descriptions, setDescriptions] = useState<Record<string, ResourceDisplayInfo>>({});
+  const [enrolledCourseIds, setEnrolledCourseIds] = useState<string[]>([]);
   const router = useRouter();
   const { resource: r } = getLocaleObject(router);
   const groupedResources = useMemo(
@@ -443,6 +481,10 @@ function InstructorDashBoard({
   );
   useEffect(() => {
     getUserInfo().then((user) => setUserInfo(user));
+  }, []);
+
+  useEffect(() => {
+    getCourseIdsForEnrolledUser().then((c) => setEnrolledCourseIds(c.enrolledCourseIds));
   }, []);
 
   useEffect(() => {
@@ -485,7 +527,7 @@ function InstructorDashBoard({
         >
           {r.welcome}, {userInfo?.fullName}
         </Typography>
-
+        {enrolledCourseIds.length > 0 && <MyCourses enrolledCourseIds={enrolledCourseIds} />}
         {Object.entries(groupedResources).map(([courseId, resources]) => (
           <Box key={courseId} sx={{ marginBottom: 4 }}>
             <Link href={`/course-home/${courseId}`}>
@@ -530,9 +572,24 @@ function InstructorDashBoard({
           </Box>
         ))}
       </Box>
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+        <Link href="/course-list" passHref>
+          <Button
+            variant="contained"
+            sx={{
+              fontSize: '16px',
+              fontWeight: 'bold',
+              px: 4,
+              py: 1,
+            }}
+          >
+            Explore All Courses
+          </Button>
+        </Link>
+      </Box>
       <VollKiInfoSection bgcolor="white" />
     </MainLayout>
   );
 }
 
-export default InstructorDashBoard;
+export default WelcomeScreen;
