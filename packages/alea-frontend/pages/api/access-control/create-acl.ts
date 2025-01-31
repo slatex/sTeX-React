@@ -38,6 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const memberQueryParams = [];
     for (const userId of memberUserIds) memberQueryParams.push(id, null, userId);
     for (const aclId of memberACLIds) memberQueryParams.push(id, aclId, null);
+    console.log("I am inside");
     const memberQuery = `INSERT INTO ACLMembership (parentACLId, memberACLId, memberUserId) VALUES 
     ${values.join(', ')}`;
     const resp= await executeAndEndSet500OnError(memberQuery, memberQueryParams, res);
