@@ -9,9 +9,9 @@ import { CoverageSnap } from '@stex-react/utils';
 import { convert } from 'html-to-text';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getCoverageData } from '../get-coverage-timeline';
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 
-let processedSlidesJson: any = null;
+const videoToSlidesMap: Record<string, any> = {};
 function getAllSections(data: SectionsAPIData, level = 0): SectionInfo | SectionInfo[] {
   if (data.title?.length) {
     const title = convert(data.title);
@@ -100,10 +100,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const allSections = getAllSections(docSections) as SectionInfo[];
   const coverageData = getCoverageData()[courseId].filter(snap=>snap.sectionName);
   if (coverageData?.length) addVideoInfo(allSections, coverageData);
-  if (!processedSlidesJson) {
-    // const filePath = process.env.PROCESSED_SLIDES_JSON_PATH;
-    // processedSlidesJson = JSON.parse(readFileSync(filePath, 'utf-8'));
+  if (!videoToSlidesMap[courseId]) {
+    const filePath = `${process.env.VIDEO_TO_SLIDES_MAP_DIR}/${courseId}_processed_slides.json`;
+    if (existsSync(filePath)) {
+      videoToSlidesMap[courseId] = JSON.parse(readFileSync(filePath, 'utf-8'));
+    }
   }
-  // addClipInfo(allSections, processedSlidesJson);
+  if (videoToSlidesMap[courseId]) {
+    addClipInfo(allSections, videoToSlidesMap[courseId]);
+  }
   res.status(200).send(allSections);
 }
