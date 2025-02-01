@@ -9,47 +9,33 @@ import { CoverageSnap } from '@stex-react/utils';
 import { convert } from 'html-to-text';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getCoverageData } from '../get-coverage-timeline';
-import { readdirSync, readFileSync, statSync } from 'fs';
-import path from 'path';
-
+import { readdirSync, readFileSync } from 'fs';
 const CACHE_EXPIRY_TIME = 60 * 60 * 1000;
-const FILE_AVAILABILITY_LIST_EXPIRY_TIME = 60 * 60 * 1000;
+const videoToSlidesMap: Record<string, any> = {};
+let cacheRefreshTime: number | undefined = undefined;
 
-const videoToSlidesMap: Record<string, { data: any; lastUpdated: number }> = {};
-const FILE_AVAILABILITY_LIST: Record<string, { lastUpdated: number }> = {};
-function getCourseIdFromFile(filePath: string): string {
-  return filePath.split('/').pop()?.split('_')[0] || '';
-}
-function isVideoToSlidesMapCached(courseId: string): boolean {
-  const cachedData = videoToSlidesMap[courseId];
-  return cachedData && Date.now() - cachedData.lastUpdated < CACHE_EXPIRY_TIME;
-}
+function populateVideoToSlidesMap() {
+  const dirPath = process.env.VIDEO_TO_SLIDES_MAP_DIR;
+  if (!dirPath) return;
 
-export function getAllFilesInDirectory(directoryPath: string): string[] {
-  const files = readdirSync(directoryPath);
-  if (!files) return [];
-  return files.filter((file) => {
-    const fullPath = path.join(directoryPath, file);
-    return !statSync(fullPath).isDirectory();
+  const files = readdirSync(dirPath);
+  files.forEach((file) => {
+    if (file.endsWith('_processed_slides.json')) {
+      const courseId = file.replace('_processed_slides.json', '');
+      const filePath = `${dirPath}/${file}`;
+      const data = JSON.parse(readFileSync(filePath, 'utf-8'));
+      videoToSlidesMap[courseId] = data;
+    }
   });
 }
 
-function updateAvailableFiles() {
-  const allFiles = getAllFilesInDirectory(process.env.VIDEO_TO_SLIDES_MAP_DIR);
-  allFiles.forEach((file) => {
-    const courseId = getCourseIdFromFile(file);
-    FILE_AVAILABILITY_LIST[courseId] = { lastUpdated: Date.now() };
-  });
-}
-
-function isFileAvailable(courseId: string): boolean {
-  const courseData = FILE_AVAILABILITY_LIST[courseId];
-  if (!courseData || Date.now() - courseData.lastUpdated >= FILE_AVAILABILITY_LIST_EXPIRY_TIME) {
-    updateAvailableFiles();
-    return false;
+function getVideoToSlidesMap(courseId: string) {
+  const cacheInvalid = !cacheRefreshTime || Date.now() > cacheRefreshTime + CACHE_EXPIRY_TIME;
+  if (cacheInvalid) {
+    populateVideoToSlidesMap();
+    cacheRefreshTime = Date.now();
   }
-
-  return true;
+  return videoToSlidesMap[courseId];
 }
 
 function getAllSections(data: SectionsAPIData, level = 0): SectionInfo | SectionInfo[] {
@@ -140,18 +126,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const allSections = getAllSections(docSections) as SectionInfo[];
   const coverageData = getCoverageData()[courseId];
   if (coverageData?.length) addVideoInfo(allSections, coverageData);
-
-  if (!isVideoToSlidesMapCached(courseId)) {
-    const filePath = `${process.env.VIDEO_TO_SLIDES_MAP_DIR}/${courseId}_processed_slides.json`;
-    if (isFileAvailable(courseId)) {
-      videoToSlidesMap[courseId] = {
-        data: JSON.parse(readFileSync(filePath, 'utf-8')),
-        lastUpdated: Date.now(),
-      };
-    }
-  }
-  if (videoToSlidesMap[courseId]) {
-    addClipInfo(allSections, videoToSlidesMap[courseId]?.data);
+  const videoSlides = getVideoToSlidesMap(courseId);
+  if (videoSlides) {
+    addClipInfo(allSections, videoSlides);
   }
   res.status(200).send(allSections);
 }
