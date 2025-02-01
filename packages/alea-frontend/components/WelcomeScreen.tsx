@@ -324,7 +324,7 @@ function MyCourses({ enrolledCourseIds }) {
       >
         My Courses
       </Typography>
-      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', flexWrap: 'Wrap' }}>
         {enrolledCourseIds
           .filter((courseId: string) => allCourses[courseId])
           .map((courseId: string) => (
