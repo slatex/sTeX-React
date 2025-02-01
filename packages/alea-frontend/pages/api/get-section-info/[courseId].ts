@@ -98,7 +98,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     notesFilepath
   );
   const allSections = getAllSections(docSections) as SectionInfo[];
-  const coverageData = getCoverageData()[courseId];
+  const coverageData = getCoverageData()[courseId].filter(snap=>snap.sectionName);
   if (coverageData?.length) addVideoInfo(allSections, coverageData);
   if (!videoToSlidesMap[courseId]) {
     const filePath = `${process.env.VIDEO_TO_SLIDES_MAP_DIR}/${courseId}_processed_slides.json`;

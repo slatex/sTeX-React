@@ -84,6 +84,8 @@ export interface CoverageSnap {
   timestamp_ms: number;
   sectionName: string;
   clipId?: string; // https://fau.tv/clip/id/{clipId}
+  targetSectionName?: string;
+  isQuizScheduled?: boolean;
 }
 
 export interface CoverageTimeline {

@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import { useRouter } from 'next/router';
 import DownloadIcon from '@mui/icons-material/Download';
-import { CURRENT_TERM } from '@stex-react/utils';
+import { CURRENT_TERM, getSectionInfo } from '@stex-react/utils';
 import { MystViewer } from '@stex-react/myst';
 
 function joinerForLevel(level: number) {
@@ -72,17 +72,21 @@ function createAndPush(
 }
 function getLectureDescs(sections: SectionInfo[]): {
   [timestamp_ms: number]: string;
+  
 } {
+  console.log(sections);
   const descPieces: { [timestamp_ms: number]: string[] } = {};
   for (const section of sections) {
     const { title, level, timestamp_ms } = section;
     if (!timestamp_ms) break;
+    
 
     const secInfo = getLectureDescs(section.children);
     let addedForThis = false;
+    console.log(secInfo);
     for (const childTimestamp_ms of Object.keys(secInfo).map((n) => +n)) {
       const childDesc = secInfo[childTimestamp_ms];
-      if (childDesc.length) {
+      if (childDesc?.length) {
         const piece = joinSectionWithChildren(title, level, childDesc);
         createAndPush(descPieces, childTimestamp_ms, piece);
         if (childTimestamp_ms === timestamp_ms) addedForThis = true;
@@ -158,7 +162,7 @@ function SyllabusTable({
               {dayjs(timestamp_ms).format(showYear ? 'DD-MMM-YY' : 'DD-MMM')}
             </td>
             <td style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              <MystViewer content={topics} />
+              {topics?<MystViewer content={topics} />:"wrong"}
             </td>
             {hasAnyVideoClip && (
               <td>
@@ -204,7 +208,8 @@ export function RecordedSyllabus({ courseId }: { courseId: string }) {
   useEffect(() => {
     if (!courseId) return;
     axios.get(`/api/get-section-info/${courseId}`).then((resp) => {
-      setLectureDescs(getLectureDescs(resp.data));
+       setLectureDescs(getLectureDescs(resp.data));
+       console.log("Section Info Response:", resp.data);
       const clipIds = {};
       getLectureClipIds(resp.data, clipIds);
       setLectureClipIds(clipIds);
@@ -214,7 +219,8 @@ export function RecordedSyllabus({ courseId }: { courseId: string }) {
   useEffect(() => {
     if (!courseId) return;
     axios.get(`/api/get-historical-syllabus/${courseId}`).then((resp) => {
-      setHistoricalSyllabus(resp.data);
+    setHistoricalSyllabus(resp.data);
+    console.log("Historical Syllabus Response:", resp.data);
     });
   }, [courseId]);
 
