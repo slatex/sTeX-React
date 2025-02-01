@@ -9,9 +9,49 @@ import { CoverageSnap } from '@stex-react/utils';
 import { convert } from 'html-to-text';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getCoverageData } from '../get-coverage-timeline';
-import { existsSync, readFileSync } from 'fs';
+import { readdirSync, readFileSync, statSync } from 'fs';
+import path from 'path';
 
-const videoToSlidesMap: Record<string, any> = {};
+const CACHE_EXPIRY_TIME = 60 * 60 * 1000;
+const FILE_AVAILABILITY_LIST_EXPIRY_TIME = 60 * 60 * 1000;
+
+const videoToSlidesMap: Record<string, { data: any; lastUpdated: number }> = {};
+const FILE_AVAILABILITY_LIST: Record<string, { lastUpdated: number }> = {};
+function getCourseIdFromFile(filePath: string): string {
+  return filePath.split('/').pop()?.split('_')[0] || '';
+}
+function isVideoToSlidesMapCached(courseId: string): boolean {
+  const cachedData = videoToSlidesMap[courseId];
+  return cachedData && Date.now() - cachedData.lastUpdated < CACHE_EXPIRY_TIME;
+}
+
+export function getAllFilesInDirectory(directoryPath: string): string[] {
+  const files = readdirSync(directoryPath);
+  if (!files) return [];
+  return files.filter((file) => {
+    const fullPath = path.join(directoryPath, file);
+    return !statSync(fullPath).isDirectory();
+  });
+}
+
+function updateAvailableFiles() {
+  const allFiles = getAllFilesInDirectory(process.env.VIDEO_TO_SLIDES_MAP_DIR);
+  allFiles.forEach((file) => {
+    const courseId = getCourseIdFromFile(file);
+    FILE_AVAILABILITY_LIST[courseId] = { lastUpdated: Date.now() };
+  });
+}
+
+function isFileAvailable(courseId: string): boolean {
+  const courseData = FILE_AVAILABILITY_LIST[courseId];
+  if (!courseData || Date.now() - courseData.lastUpdated >= FILE_AVAILABILITY_LIST_EXPIRY_TIME) {
+    updateAvailableFiles();
+    return false;
+  }
+
+  return true;
+}
+
 function getAllSections(data: SectionsAPIData, level = 0): SectionInfo | SectionInfo[] {
   if (data.title?.length) {
     const title = convert(data.title);
@@ -100,14 +140,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const allSections = getAllSections(docSections) as SectionInfo[];
   const coverageData = getCoverageData()[courseId];
   if (coverageData?.length) addVideoInfo(allSections, coverageData);
-  if (!videoToSlidesMap[courseId]) {
+
+  if (!isVideoToSlidesMapCached(courseId)) {
     const filePath = `${process.env.VIDEO_TO_SLIDES_MAP_DIR}/${courseId}_processed_slides.json`;
-    if (existsSync(filePath)) {
-      videoToSlidesMap[courseId] = JSON.parse(readFileSync(filePath, 'utf-8'));
+    if (isFileAvailable(courseId)) {
+      videoToSlidesMap[courseId] = {
+        data: JSON.parse(readFileSync(filePath, 'utf-8')),
+        lastUpdated: Date.now(),
+      };
     }
   }
   if (videoToSlidesMap[courseId]) {
-    addClipInfo(allSections, videoToSlidesMap[courseId]);
+    addClipInfo(allSections, videoToSlidesMap[courseId]?.data);
   }
   res.status(200).send(allSections);
 }
