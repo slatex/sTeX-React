@@ -1,9 +1,6 @@
 import { AccessControlList } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
-import {
-  checkIfPostOrSetError,
-  executeAndEndSet500OnError,
-} from '../comment-utils';
+import { checkIfPostOrSetError, executeAndEndSet500OnError } from '../comment-utils';
 import { validateMemberAndAclIds } from '../acl-utils/acl-common-utils';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -30,7 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     [id, description, updaterId, isOpen],
     res
   );
-  if(!result) return;
+  if (!result) return;
 
   const numMembershipRows = memberUserIds.length + memberACLIds.length;
   if (numMembershipRows > 0) {
@@ -38,11 +35,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const memberQueryParams = [];
     for (const userId of memberUserIds) memberQueryParams.push(id, null, userId);
     for (const aclId of memberACLIds) memberQueryParams.push(id, aclId, null);
-    console.log("I am inside");
+
     const memberQuery = `INSERT INTO ACLMembership (parentACLId, memberACLId, memberUserId) VALUES 
     ${values.join(', ')}`;
-    const resp= await executeAndEndSet500OnError(memberQuery, memberQueryParams, res);
-    if(!resp) return;
+    const resp = await executeAndEndSet500OnError(memberQuery, memberQueryParams, res);
+    if (!resp) return;
   }
   res.status(201).end();
 }

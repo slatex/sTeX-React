@@ -47,8 +47,6 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
   const [targetSectionName, setTargetSectionName] = useState('');
   const [isQuizScheduled, setIsQuizScheduled] = useState(false);
 
-
-
   useEffect(() => {
     setSectionName(snaps[snaps.length - 1]?.sectionName);
   }, [snaps]);
@@ -60,39 +58,34 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
   }
 
   const handleAddItem = () => {
-    
-    const sectionToAdd = sectionName?.length ? sectionName : "";  
-    const targetSectionToAdd = targetSectionName?.length ? targetSectionName : ""; 
-    
-    
+    const sectionToAdd = sectionName?.length ? sectionName : '';
+    const targetSectionToAdd = targetSectionName?.length ? targetSectionName : '';
+
     // Create the new item object
     const newItem = {
       timestamp_ms: selectedTimestamp,
-      sectionName: sectionToAdd,       
-      targetSectionName: targetSectionToAdd, 
+      sectionName: sectionToAdd,
+      targetSectionName: targetSectionToAdd,
       clipId,
       isQuizScheduled,
     };
-  
+
     // Add the new item to the list or update the existing one if editing
     if (editIndex !== null) {
       const updatedSnaps = [...snaps];
       updatedSnaps[editIndex] = newItem;
-      setSnaps(updatedSnaps); 
+      setSnaps(updatedSnaps);
       setEditIndex(null);
     } else {
       setSnaps([...snaps, newItem]);
     }
-  
-    
-    setSectionName('');           
-    setTargetSectionName('');     
-    setClipId('');                
-    setSelectedTimestamp(Date.now()); 
-    setIsQuizScheduled(false);    
+
+    setSectionName('');
+    setTargetSectionName('');
+    setClipId('');
+    setSelectedTimestamp(Date.now());
+    setIsQuizScheduled(false);
   };
-  
-  
 
   const handleEditItem = (index: number) => {
     const itemToEdit = snaps[index];
@@ -100,22 +93,21 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
     setTargetSectionName(itemToEdit.targetSectionName);
     setClipId(itemToEdit.clipId || '');
     setSelectedTimestamp(itemToEdit.timestamp_ms);
-    setIsQuizScheduled(itemToEdit.isQuizScheduled);  
+    setIsQuizScheduled(itemToEdit.isQuizScheduled);
     setEditIndex(index);
   };
-  
 
   const handleCancelEdit = () => {
     setSectionName('');
     setClipId('');
     setTargetSectionName('');
     setSelectedTimestamp(Date.now());
-    setIsQuizScheduled(false);  
+    setIsQuizScheduled(false);
     setEditIndex(null);
   };
-  
+
   return (
-    <Box mt="10px">
+    <Box mt="10px" sx={{display:'flex',justifyContent:'center'}}>
       <table>
         {snaps.map((item, idx) => (
           <tr key={item.timestamp_ms} style={{ border: '1px solid black' }}>
@@ -126,21 +118,21 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
             <td
               style={{
                 maxWidth: '300px',
-                overflow:'hidden',
+                overflow: 'hidden',
                 textOverflow: 'ellipsis',
               }}
             >
               {item.sectionName}
             </td>
             <td
-            style={{
-              maxWidth: '300px',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            {item.targetSectionName}
-          </td>
+              style={{
+                maxWidth: '300px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              {item.targetSectionName}
+            </td>
             <td>
               {item.clipId?.length ? (
                 <a
@@ -156,9 +148,8 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
                 <i>None</i>
               )}
             </td>
-            <td>
-            {item.isQuizScheduled ? "Yes" : "No"}
-            </td>
+            <td/>
+            <td>{item.isQuizScheduled ? 'Ouiz Scheduled' : 'Quiz not scheduled'}</td>
             <td>
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <IconButton onClick={() => handleEditItem(idx)}>
@@ -193,109 +184,106 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
             />
           </td>
           <td>
-      {/* Section Name Field */}
-      <FormControl sx={{ m: '20px 5px 0', width: '300px' }}>
-      <InputLabel id="section-name-select-label">Section Name</InputLabel>
-      <Select
-        labelId="section-name-select-label"
-        value={sectionName} 
-        onChange={(e) => setSectionName(e.target.value)} 
-        label="Section Name"
-        sx={{ width: '300px' }}
-      >
-        <MenuItem value=""> 
-          <em>None</em> 
-        </MenuItem>
-        {sectionNames.map((option) => {
-          const isDuplicate = duplicateNames.includes(option.trim());
+            {/* Section Name Field */}
+            <FormControl sx={{ m: '20px 5px 0', width: '300px' }}>
+              <InputLabel id="section-name-select-label">Section Name</InputLabel>
+              <Select
+                labelId="section-name-select-label"
+                value={sectionName}
+                onChange={(e) => setSectionName(e.target.value)}
+                label="Section Name"
+                sx={{ width: '300px' }}
+              >
+                <MenuItem value="">
+                  <em>None</em>
+                </MenuItem>
+                {sectionNames.map((option) => {
+                  const isDuplicate = duplicateNames.includes(option.trim());
 
-          return (
-          <MenuItem
-              key={option}
-              value={option.trim()}
-              sx={{ backgroundColor: isDuplicate ? 'red' : undefined }}
-            >
-              {option}
-            </MenuItem>
-          );
-        })}
-      </Select>
-    </FormControl>
-        </td>
-    <td>
-  {/* Target Section Dropdown */}
-  <FormControl sx={{ m: '20px 5px 0' , width:'300px'}}>
-    <InputLabel id="target-section-select-label">Target Section</InputLabel>
-    <Select
-      labelId="target-section-select-label"
-      value={targetSectionName} 
-      onChange={(e) => setTargetSectionName(e.target.value)} 
-      label="Target Section"
-      sx={{ width: '300px' }}
-    >
-      <MenuItem value=""> 
-          <em>None</em> 
-        </MenuItem>
-      {sectionNames.map((option) => {
-        const isDuplicate = duplicateNames.includes(option.trim());
+                  return (
+                    <MenuItem
+                      key={option}
+                      value={option.trim()}
+                      sx={{ backgroundColor: isDuplicate ? 'red' : undefined }}
+                    >
+                      {option}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>
+          </td>
+          <td>
+            {/* Target Section Dropdown */}
+            <FormControl sx={{ m: '20px 5px 0', width: '300px' }}>
+              <InputLabel id="target-section-select-label">Target Section</InputLabel>
+              <Select
+                labelId="target-section-select-label"
+                value={targetSectionName}
+                onChange={(e) => setTargetSectionName(e.target.value)}
+                label="Target Section"
+                sx={{ width: '300px' }}
+              >
+                <MenuItem value="">
+                  <em>None</em>
+                </MenuItem>
+                {sectionNames.map((option) => {
+                  const isDuplicate = duplicateNames.includes(option.trim());
 
-        return (
-          <MenuItem
-            key={option}
-            value={option.trim()}
-            sx={{ backgroundColor: isDuplicate ? 'red' : undefined }}
-          >
-            {option}
-          </MenuItem>
-        );
-      })}
-    </Select>
-  </FormControl>
-</td>
+                  return (
+                    <MenuItem
+                      key={option}
+                      value={option.trim()}
+                      sx={{ backgroundColor: isDuplicate ? 'red' : undefined }}
+                    >
+                      {option}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>
+          </td>
           <td>
             <TextField
               label="ClipId"
               value={clipId}
               onChange={(e) => setClipId(e.target.value)}
-              sx={{ m: '20px 5px 0' }}
+              sx={{ m: '20px 20px 0', width:'100%' }}
             />
           </td>
-         
-        <td>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={isQuizScheduled} 
-                onChange={(e) => setIsQuizScheduled(e.target.checked)} 
-              />
-            }
-            label="Quiz"
-            sx={{ mt: '20px'}}
-          />
-          </td>
+          
+            
           <td>
-  {editIndex !== null ? (
-    <Box sx={{ display: 'flex', mt: '20px', mr: '10px' }}>
-      <Button variant="contained" color="primary" onClick={handleAddItem}>
-        Update
-      </Button>
-      <IconButton onClick={() => handleCancelEdit()}>
-        <ClearIcon sx={{ color: PRIMARY_COL, fontSize: 'large', variant: 'contained' }} />
-      </IconButton>
-    </Box>
-  ) : (
-    <Button variant="contained" onClick={handleAddItem} sx={{ mt: '20px' }}>
-      Add
-    </Button>
-  )}
-</td>
-
-
-
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={isQuizScheduled}
+                  onChange={(e) => setIsQuizScheduled(e.target.checked)}
+                />
+              }
+              label="Quiz"
+              sx={{ display:'flex',alignItems:'center',mt: '20px',padding:'20px',ml:'20px' }}
+            />
+          </td>
+          
+          <td>
+            {editIndex !== null ? (
+              <Box sx={{ display: 'flex', mt: '20px', mr: '10px' }}>
+                <Button variant="contained" color="primary" onClick={handleAddItem}>
+                  Update
+                </Button>
+                <IconButton onClick={() => handleCancelEdit()}>
+                  <ClearIcon sx={{ color: PRIMARY_COL, fontSize: 'large', variant: 'contained' }} />
+                </IconButton>
+              </Box>
+            ) : (
+              <Button variant="contained" onClick={handleAddItem} sx={{ mt: '20px' }}>
+                Add
+              </Button>
+            )}
+          </td>
         </tr>
       </table>
     </Box>
   );
 }
-
-

@@ -1,10 +1,6 @@
 import OndemandVideoIcon from '@mui/icons-material/OndemandVideo';
 import { Box, IconButton, Tab, Tabs } from '@mui/material';
-import {
-  GetHistoricalSyllabusResponse,
-  SectionInfo,
-  SyllabusRow,
-} from '@stex-react/api';
+import { GetHistoricalSyllabusResponse, SectionInfo, SyllabusRow } from '@stex-react/api';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
@@ -36,11 +32,7 @@ function sectionTitleWithFormatting(title: string, level: number) {
   }
 }
 
-function joinSectionWithChildren(
-  parent: string,
-  parentLevel: number,
-  children: string
-) {
+function joinSectionWithChildren(parent: string, parentLevel: number, children: string) {
   const formattedParent = sectionTitleWithFormatting(parent, parentLevel);
   switch (parentLevel) {
     case 0:
@@ -52,10 +44,7 @@ function joinSectionWithChildren(
   }
 }
 
-function getLectureClipIds(
-  sections: SectionInfo[],
-  clipIds: { [timestamp_ms: number]: string }
-) {
+function getLectureClipIds(sections: SectionInfo[], clipIds: { [timestamp_ms: number]: string }) {
   for (const s of sections) {
     if (s.clipId?.length) clipIds[s.timestamp_ms] = s.clipId;
     getLectureClipIds(s.children, clipIds);
@@ -72,18 +61,15 @@ function createAndPush(
 }
 function getLectureDescs(sections: SectionInfo[]): {
   [timestamp_ms: number]: string;
-  
 } {
-  console.log(sections);
   const descPieces: { [timestamp_ms: number]: string[] } = {};
   for (const section of sections) {
     const { title, level, timestamp_ms } = section;
     if (!timestamp_ms) break;
-    
 
     const secInfo = getLectureDescs(section.children);
     let addedForThis = false;
-    console.log(secInfo);
+
     for (const childTimestamp_ms of Object.keys(secInfo).map((n) => +n)) {
       const childDesc = secInfo[childTimestamp_ms];
       if (childDesc?.length) {
@@ -102,20 +88,14 @@ function getLectureDescs(sections: SectionInfo[]): {
   const descriptions: { [timestamp_ms: number]: string } = {};
   for (const timestamp_ms of Object.keys(descPieces)) {
     const pieces = descPieces[timestamp_ms];
-    const isJoined = pieces.some(
-      (piece) => piece.includes(',') || piece.includes('\n')
-    );
+    const isJoined = pieces.some((piece) => piece.includes(',') || piece.includes('\n'));
     const joiner = isJoined ? joinerForLevel(sections[0]?.level) : ', ';
     descriptions[timestamp_ms] = pieces.join(joiner);
   }
   return descriptions;
 }
 
-function downloadSyllabusData(
-  jsonData: any,
-  courseId: string,
-  semester: string
-) {
+function downloadSyllabusData(jsonData: any, courseId: string, semester: string) {
   // Convert JSON to string
   const jsonString = JSON.stringify(jsonData, null, 2);
   const blob = new Blob([jsonString], { type: 'application/json' });
@@ -162,16 +142,12 @@ function SyllabusTable({
               {dayjs(timestamp_ms).format(showYear ? 'DD-MMM-YY' : 'DD-MMM')}
             </td>
             <td style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {topics?<MystViewer content={topics} />:"wrong"}
+              {topics ? <MystViewer content={topics} /> : 'wrong'}
             </td>
             {hasAnyVideoClip && (
               <td>
                 {clipId?.length > 0 && (
-                  <a
-                    href={`https://fau.tv/clip/id/${clipId}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
+                  <a href={`https://fau.tv/clip/id/${clipId}`} target="_blank" rel="noreferrer">
                     <IconButton size="large" sx={{ m: '10px' }}>
                       <OndemandVideoIcon />
                     </IconButton>
@@ -182,11 +158,7 @@ function SyllabusTable({
           </tr>
         ))}
       </table>
-      <IconButton
-        onClick={() =>
-          downloadSyllabusData(rows, courseId, semester ?? CURRENT_TERM)
-        }
-      >
+      <IconButton onClick={() => downloadSyllabusData(rows, courseId, semester ?? CURRENT_TERM)}>
         <DownloadIcon />
       </IconButton>
     </>
@@ -202,14 +174,13 @@ export function RecordedSyllabus({ courseId }: { courseId: string }) {
     [timestamp_ms: number]: string;
   }>({});
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
-  const [historicalSyllabus, setHistoricalSyllabus] =
-    useState<GetHistoricalSyllabusResponse>({});
+  const [historicalSyllabus, setHistoricalSyllabus] = useState<GetHistoricalSyllabusResponse>({});
 
   useEffect(() => {
     if (!courseId) return;
     axios.get(`/api/get-section-info/${courseId}`).then((resp) => {
-       setLectureDescs(getLectureDescs(resp.data));
-       console.log("Section Info Response:", resp.data);
+      setLectureDescs(getLectureDescs(resp.data));
+
       const clipIds = {};
       getLectureClipIds(resp.data, clipIds);
       setLectureClipIds(clipIds);
@@ -219,8 +190,7 @@ export function RecordedSyllabus({ courseId }: { courseId: string }) {
   useEffect(() => {
     if (!courseId) return;
     axios.get(`/api/get-historical-syllabus/${courseId}`).then((resp) => {
-    setHistoricalSyllabus(resp.data);
-    console.log("Historical Syllabus Response:", resp.data);
+      setHistoricalSyllabus(resp.data);
     });
   }, [courseId]);
 

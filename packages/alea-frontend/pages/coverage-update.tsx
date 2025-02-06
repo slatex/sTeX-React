@@ -86,7 +86,7 @@ const CoverageUpdatePage: NextPage = () => {
   return (
     <MainLayout title="Coverage Update | ALeA">
       <Box px="10px" m="auto" maxWidth="800px">
-        <FormControl sx={{ my: '10px' }}>
+        <FormControl sx={{ my: '10px', marginLeft:'-170px' }}>
           <InputLabel id="course-select-label">Course</InputLabel>
           <Select
             labelId="course-select-label"
@@ -125,11 +125,11 @@ const CoverageUpdatePage: NextPage = () => {
               (e) => alert(e)
             );
           }}
-          sx={{ mt: '15px' }}
+          sx={{ mt: '15px',alignSelf:'flex-start',ml:'-170px'}}
         >
           Save
         </Button>
-        <span style={{ color: 'red', display: 'flex' }}>
+        <span style={{ color: 'red', display: 'flex',marginLeft:'-170px',marginTop:'10px' }}>
           Your changes will not be saved till you click &apos;Save&apos;.
         </span>
       </Box>
