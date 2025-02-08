@@ -1,17 +1,6 @@
 import CheckIcon from '@mui/icons-material/Check';
 import EditIcon from '@mui/icons-material/Edit';
-import {
-  Alert,
-  Box,
-  Button,
-  Grid,
-  IconButton,
-  List,
-  ListItem,
-  ListItemText,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Alert, Box, Button, Grid, IconButton, List, TextField, Typography } from '@mui/material';
 import {
   createAcl,
   getCourseAcls,
@@ -32,6 +21,8 @@ const ALL_SHORT_IDS = [
   'comments',
   'study-buddy',
   'quiz-preview',
+  'quiz-take',
+  'homework-take',
 ];
 
 export type ShortId = (typeof ALL_SHORT_IDS)[number];
@@ -47,15 +38,20 @@ const EMPTY_ASSIGMENT = ALL_SHORT_IDS.reduce(
   {} as AclMappings
 );
 
-const ACL_DISPLAY_NAMES: Record<ShortId, string> = {
-  notes: 'Notes Management',
+const staffAccessResources: Record<ShortId, string> = {
   quiz: 'Quiz Management',
   'quiz-preview': 'Quiz Preview',
   'homework-crud': 'Homework Create/Update',
   'homework-grading': 'Homework Grading',
-  comments: 'Comments Moderation',
+  notes: 'Notes Management',
   'study-buddy': 'Study Buddy Management',
+  comments: 'Comments Moderation',
 } as const;
+
+const studentAccessResources: Record<ShortId, string> = {
+  'quiz-take': 'Quiz Take',
+  'homework-take': 'Homework Take',
+};
 
 const getAclShortIdToResourceActionPair = (courseId: string) =>
   ({
@@ -86,6 +82,14 @@ const getAclShortIdToResourceActionPair = (courseId: string) =>
     'quiz-preview': {
       resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/quiz`,
       actionId: Action.PREVIEW,
+    },
+    'quiz-take': {
+      resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/quiz`,
+      actionId: Action.TAKE,
+    },
+    'homework-take': {
+      resourceId: `/course/${courseId}/instance/${CURRENT_TERM}/homework`,
+      actionId: Action.TAKE,
     },
   } as Record<ShortId, ResourceActionPair>);
 
@@ -209,8 +213,43 @@ const CourseAccessControlDashboard = ({ courseId }) => {
 
   return (
     <Box display="flex" flexDirection="column" maxWidth="900px" m="auto" p="20px" gap="20px">
+      <Typography variant="h5">Staff</Typography>
       <Grid container spacing={1}>
-        {Object.entries(ACL_DISPLAY_NAMES).map(([shortId, displayName]) => (
+        {Object.entries(staffAccessResources).map(([shortId, displayName]) => (
+          <Grid item xs={6} key={shortId}>
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              p="10px"
+              border="1px solid #ddd"
+              borderRadius="8px"
+              bgcolor="background.default"
+            >
+              <Typography variant="h6" fontSize="14px">
+                {displayName}
+              </Typography>
+              {renderEditableField(shortId as ShortId)}
+              <IconButton
+                size="small"
+                onClick={() => handleEditClick(shortId as ShortId)}
+                disabled={Object.keys(isAnyDataEditing).some(
+                  (key) => isAnyDataEditing[key] && key !== shortId
+                )}
+              >
+                {isAnyDataEditing[shortId] ? (
+                  <CheckIcon fontSize="small" />
+                ) : (
+                  <EditIcon fontSize="small" />
+                )}
+              </IconButton>
+            </Box>
+          </Grid>
+        ))}
+      </Grid>
+      <Typography variant="h5">Students</Typography>
+      <Grid container spacing={1}>
+        {Object.entries(studentAccessResources).map(([shortId, displayName]) => (
           <Grid item xs={6} key={shortId}>
             <Box
               display="flex"
