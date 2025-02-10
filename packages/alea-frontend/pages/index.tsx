@@ -335,10 +335,10 @@ const StudentHomePage: NextPage = ({ filteredCourses }: { filteredCourses: Cours
   useEffect(() => {
     async function resourcesAccessToUser() {
       const resources = await getResourcesForUserId(mmtUrl);
-      const resourceAccessToInstructor = resources.map((item) => ({
+      const resourceAccessToInstructor =( resources.map((item) => ({
         ...item,
         actions: item.actions.filter((action) => action !== Action.TAKE),
-      }));
+      }))).filter((resource)=>resource.actions.length>0)
       setResourcesForInstructor(resourceAccessToInstructor);
     }
     resourcesAccessToUser();
