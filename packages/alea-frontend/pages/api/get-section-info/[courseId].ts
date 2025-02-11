@@ -13,8 +13,8 @@ import { readdir, readFile } from 'fs/promises';
 import { getSlideCounts } from '../get-slide-counts/[courseId]';
 const CACHE_EXPIRY_TIME = 60 * 60 * 1000;
 export const CACHED_VIDEO_SLIDESMAP: Record<string, any> = {};
-let cacheRefreshTime: number | undefined = undefined;
-let cachePromise: Promise<void> | null = null;
+let CACHE_REFRESH_TIME: number | undefined = undefined;
+let CACHE_PROMISE: Promise<void> | null = null;
 
 export async function populateVideoToSlidesMap() {
   const dirPath = process.env.VIDEO_TO_SLIDES_MAP_DIR;
@@ -29,27 +29,29 @@ export async function populateVideoToSlidesMap() {
       CACHED_VIDEO_SLIDESMAP[courseId] = data;
     }
   }
-  cacheRefreshTime = Date.now();
+  CACHE_REFRESH_TIME = Date.now();
 }
 
 async function refreshCache() {
-  if (!cachePromise) {
-    cachePromise = new Promise<void>((resolve) => {
+  if (!CACHE_PROMISE) {
+    CACHE_PROMISE = new Promise<void>((resolve) => {
       (async () => {
         await populateVideoToSlidesMap();
         resolve();
       })();
     }).finally(() => {
-      cachePromise = null;
+      CACHE_PROMISE = null;
     });
   }
-  await cachePromise;
+  await CACHE_PROMISE;
 }
 
 async function getVideoToSlidesMap(courseId: string) {
-  const isCacheExpired = !cacheRefreshTime || Date.now() > cacheRefreshTime + CACHE_EXPIRY_TIME;
-  if (isCacheExpired && !cachePromise) {
-    await refreshCache();
+  const isCacheExpired = !CACHE_REFRESH_TIME || Date.now() > CACHE_REFRESH_TIME + CACHE_EXPIRY_TIME;
+  if (isCacheExpired && !CACHE_PROMISE) {
+    if (!CACHED_VIDEO_SLIDESMAP[courseId]) {
+      await refreshCache();
+    } else refreshCache();
   }
   return CACHED_VIDEO_SLIDESMAP[courseId];
 }
