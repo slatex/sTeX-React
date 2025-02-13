@@ -1,0 +1,17 @@
+{
+  "name": "ftml-viewer",
+  "type": "module",
+  "version": "0.0.1",
+  "files": [
+    "ftml_viewer_bg.wasm",
+    "ftml_viewer.js",
+    "ftml_viewer_bg.js",
+    "ftml_viewer.d.ts"
+  ],
+  "main": "ftml_viewer.js",
+  "types": "ftml_viewer.d.ts",
+  "sideEffects": [
+    "./ftml_viewer.js",
+    "./snippets/*"
+  ]
+}
