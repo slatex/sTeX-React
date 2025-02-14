@@ -68,8 +68,12 @@ export function useLeptosTunnels() {
 
 
 const WithLeptosContext: React.FC<{ context:LeptosContext,children:ReactNode }> = ({context,children}) => {
+  console.log("WithLeptosContext",context);
   useEffect(() => {
-    return () => {context.cleanup();}
+    return () => {
+      console.log("Cleaning up leptos context:",context);
+      try{context.cleanup();} catch (e){console.log("Error cleaning up leptos context:",e)}
+    }
   },[]);
   return <SHTMLContext.Provider value={context}>{children}</SHTMLContext.Provider>
 }
