@@ -1,6 +1,7 @@
 import ArticleIcon from '@mui/icons-material/Article';
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import {
+  ClipInfo,
   SectionInfo,
   SectionsAPIData,
   Slide,
@@ -122,7 +123,14 @@ function getSections(data: SectionsAPIData): string[] {
   });
   return sections;
 }
-
+export interface ClipData {
+  sectionId: string;
+  slideIndex: number;
+  title: string;
+  start_time: number;
+  end_time: number;
+  thumbnail?: string;
+}
 const CourseViewPage: NextPage = () => {
   const router = useRouter();
   const courseId = router.query.courseId as string;
@@ -147,7 +155,11 @@ const CourseViewPage: NextPage = () => {
     {}
   );
   const [currentClipId, setCurrentClipId] = useState('');
-  const [currentSlideClipInfo, setCurrentSlideClipInfo] = useState<SlideClipInfo>(null);
+  const [videoExtractedData, setVideoExtractedData] = useState<{
+    [timestampSec: number]: ClipData;
+  }>({});
+
+  const [currentSlideClipInfo, setCurrentSlideClipInfo] = useState<ClipInfo>(null);
   const [slideArchive, setSlideArchive] = useState('');
   const [slideFilepath, setSlideFilepath] = useState('');
   const { mmtUrl } = useContext(ServerLinksContext);
@@ -155,6 +167,7 @@ const CourseViewPage: NextPage = () => {
   const [contentUrl, setContentUrl] = useState(undefined as string);
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
   const [timestampSec, setTimestampSec] = useState(0);
+  const [currentTime, setCurrentTime] = useState<number>(0);
   useEffect(() => {
     if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
   }, [mmtUrl]);
@@ -178,6 +191,13 @@ const CourseViewPage: NextPage = () => {
     });
   }, [courseId, router.isReady]);
 
+  useEffect(() => {
+    if (!router.isReady || !courseId?.length || !currentClipId) return;
+    axios
+      .get(`/api/get-slide-details/${courseId}/${currentClipId}`)
+      .then((resp) => setVideoExtractedData(resp.data));
+  }, [courseId, currentClipId]);
+  console.log({ slidesClipInfo });
   useEffect(() => {
     if (!router.isReady) return;
     if (sectionId && slideNum && viewMode && audioOnlyStr) return;
@@ -217,9 +237,10 @@ const CourseViewPage: NextPage = () => {
     }
     getIndex();
   }, [mmtUrl, contentUrl]);
+
   useEffect(() => {
     if (!sectionId) return;
-    const newClipId = slidesClipInfo?.[sectionId]?.[0]?.clipId || clipIds?.[sectionId] || null;
+    const newClipId = clipIds?.[sectionId];
     setCurrentClipId(newClipId);
   }, [slidesClipInfo, clipIds, sectionId]);
 
@@ -246,7 +267,10 @@ const CourseViewPage: NextPage = () => {
   const sectionParentInfo = lastFileNode(ancestors);
   const sectionNode = ancestors?.length > 0 ? ancestors.at(-1) : undefined;
   const { archive, filepath } = sectionParentInfo ?? {};
-
+  const onClipChange = (clip: any) => {
+    setCurrentClipId(clip.video_id);
+    setTimestampSec(clip.start_time);
+  };
   return (
     <MainLayout title={(courseId || '').toUpperCase() + ` ${tHome.courseThumb.slides} | ALeA`}>
       <LayoutWithFixedMenu
@@ -303,6 +327,16 @@ const CourseViewPage: NextPage = () => {
                 timestampSec={timestampSec}
                 setTimestampSec={setTimestampSec}
                 currentSlideClipInfo={currentSlideClipInfo}
+                videoExtractedData={videoExtractedData}
+                onTimeUpdate={(slideIndex, sectionId) => {
+                  // const safeSlideIndex = isNaN(slideIndex) || slideIndex === null ? 1 : slideIndex;
+                  console.log({ slideIndex });
+                  console.log({ sectionId });
+                  if (sectionId && slideIndex) {
+                    console.log('calling', slideIndex, sectionId);
+                    // setSlideNumAndSectionId(router, slideIndex, sectionId);
+                  }
+                }}
               />
             )}
             {(viewMode === ViewMode.SLIDE_MODE || viewMode === ViewMode.COMBINED_MODE) && (
@@ -319,14 +353,24 @@ const CourseViewPage: NextPage = () => {
                   setPostNotes(slide?.postNotes || []);
                   setSlideArchive(slide?.archive);
                   setSlideFilepath(slide?.filepath);
+                  if (
+                    slidesClipInfo &&
+                    slidesClipInfo[sectionId] &&
+                    slidesClipInfo[sectionId][slideNum]
+                  ) {
+                    const slideClips = slidesClipInfo[sectionId][slideNum];
+                    if (!Array.isArray(slideClips)) {
+                      return;
+                    }
+                    const matchedClip = slideClips.find((clip) => clip.video_id === currentClipId);
+                    setCurrentSlideClipInfo(matchedClip || slideClips[0]);
+                  }
                 }}
                 goToNextSection={goToNextSection}
                 goToPrevSection={goToPrevSection}
-                onCurrentSlideClipInfoChange={(clipInfo: SlideClipInfo) => {
-                  setCurrentSlideClipInfo(clipInfo);
-                }}
                 slideNum={slideNum}
                 slidesClipInfo={slidesClipInfo}
+                onClipChange={onClipChange}
               />
             )}
             <hr style={{ width: '98%', padding: '1px 0' }} />
