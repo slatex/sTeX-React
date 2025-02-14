@@ -25,6 +25,9 @@
     "@types/jsonwebtoken": "^9.0.7",
     "@uiw/codemirror-extensions-langs": "^4.21.21",
     "@uiw/react-codemirror": "^4.21.21",
+    "@webassemblyjs/ast": "^1.14.1",
+    "@webassemblyjs/wasm-edit": "^1.14.1",
+    "@webassemblyjs/wasm-parser": "^1.14.1",
     "axios": "1.6.0",
     "bcrypt": "^5.1.1",
     "crypto": "^1.0.1",
@@ -105,6 +108,7 @@
     "jest-environment-node": "^29.4.1",
     "jsdom": "~22.1.0",
     "node-mocks-http": "^1.13.0",
+    "npm-force-resolutions": "^0.0.10",
     "nx": "20.3.4",
     "nx-cloud": "19.1.0",
     "prettier": "^2.6.2",
@@ -118,5 +122,8 @@
     "vite-plugin-dts": "~2.3.0",
     "vite-tsconfig-paths": "^4.2.0",
     "vitest": "0.34.6"
+  },
+  "resolutions": {
+    "webpack": "5.98.0"
   }
 }

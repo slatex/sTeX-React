@@ -10,22 +10,22 @@ module.exports = composePlugins(withNx(), withReact(), (config) => {
     asyncWebAssembly: true,
   };
 
-  config.module.rules.push(
-    {
-      // You can provide better regexp
-      test: /\.wasm$/,
-      type: 'asset/resource',
-    },
-    {
-      test: /\.js$/,
-      exclude: /node_modules/,
-      use: [
-        {
-          loader: 'babel-loader',
-        },
-      ],
-    }
-  );
+  // config.module.rules.push(
+  //   {
+  //     // You can provide better regexp
+  //     test: /\.wasm$/,
+  //     type: 'asset/resource',
+  //   },
+  //   {
+  //     test: /\.js$/,
+  //     exclude: /node_modules/,
+  //     use: [
+  //       {
+  //         loader: 'babel-loader',
+  //       },
+  //     ],
+  //   }
+  // );
 
   return config;
 });
