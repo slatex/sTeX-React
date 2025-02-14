@@ -49,13 +49,12 @@ export const FTMLDocument: React.FC<{
           }
         }
       : undefined;
-    const cont = context?context.wasm_clone():context;
     const handle = FTML.render_document(
       mountRef.current,
       opts,
       on_section_start,
       on_section_end,
-      cont
+      context
     );
     return () => {
       handle.unmount();
@@ -81,19 +80,18 @@ export const FTMLFragment: React.FC<{ opt: FragmentOptions; ex?: ExerciseOptions
   useEffect(() => {
     if (!mountRef.current) return;
     let handle: any;
-    const cont = context?context.wasm_clone():context;
     if (ex) {
       if ('graded' in ex) {
-        handle = FTML.render_fragment(mountRef.current, opts, cont, { WithFeedback: ex.graded });
+        handle = FTML.render_fragment(mountRef.current, opts, context, { WithFeedback: ex.graded });
       } else if ('withSolutions' in ex) {
-        handle = FTML.render_fragment(mountRef.current, opts, cont, {
+        handle = FTML.render_fragment(mountRef.current, opts, context, {
           WithSolutions: ex.withSolutions,
         });
       } else {
-        handle = FTML.render_fragment_with_cont(mountRef.current, opts, cont, ex.onEvent);
+        handle = FTML.render_fragment_with_cont(mountRef.current, opts, context, ex.onEvent);
       }
     } else {
-      handle = FTML.render_fragment(mountRef.current, opts, cont);
+      handle = FTML.render_fragment(mountRef.current, opts, context);
     }
 
     return () => {
