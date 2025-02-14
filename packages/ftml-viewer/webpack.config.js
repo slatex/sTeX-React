@@ -10,6 +10,8 @@ module.exports = composePlugins(withNx(), withReact(), (config) => {
     asyncWebAssembly: true,
   };
 
+  
+
   // config.module.rules.push(
   //   {
   //     // You can provide better regexp

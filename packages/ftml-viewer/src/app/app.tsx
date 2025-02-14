@@ -1,14 +1,11 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
 import { Box } from '@mui/material';
-import { FTMLSetup } from '../ftml-react/lib';
-
+import { FTMLSetup, setDebugLog, setServerUrl, TestDocument, TestFragmentA, TestFragmentB } from '@stex-react/ftml-utils';
 import { useState } from 'react';
-import * as FTML from '../ftml-react/lib';
-import { TestDocument, TestFragmentA, TestFragmentB } from '../ftml-react/test';
 
-FTML.setDebugLog();
-FTML.setServerUrl('https://mmt.beta.vollki.kwarc.info');
+setDebugLog();
+setServerUrl('https://mmt.beta.vollki.kwarc.info');
 
 const Click: React.FC = () => {
   const [count, setCount] = useState(0);

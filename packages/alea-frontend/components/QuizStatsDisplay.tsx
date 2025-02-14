@@ -34,8 +34,7 @@ export function QuizStatsDisplay({
   return (
     <>
       <h2>
-        Quiz attempted by <b style={{ color: 'red' }}>{stats.totalStudents}</b>{' '}
-        students
+        Quiz attempted by <b style={{ color: 'red' }}>{stats.totalStudents}</b> students
       </h2>
 
       <h2>Problems attempted</h2>
@@ -56,7 +55,7 @@ export function QuizStatsDisplay({
           .sort((a, b) => a - b)
           .map((ts) => ({
             ts: +ts,
-            value: +stats.requestsPerSec[ts] ?? 0,
+            value: +stats.requestsPerSec[ts],
           }))}
         column1="Time"
         column2="Responses/sec"
@@ -69,7 +68,7 @@ export function QuizStatsDisplay({
           .sort((a, b) => bucketToFirstNum(a) - bucketToFirstNum(b))
           .map((bucket) => ({
             key: bucket,
-            value: +stats.scoreHistogram[bucket] ?? 0,
+            value: +stats.scoreHistogram[bucket],
           }))}
         column1="Score"
         column2="Number of students"
@@ -104,8 +103,7 @@ export function QuizStatsDisplay({
         data={[
           ['Quotient', 'AvgQuotient', { role: 'style' }],
           ...Object.keys(stats.perProblemStats).map((problemId) => {
-            const { avgQuotient, header, maxPoints } =
-              stats.perProblemStats[problemId];
+            const { avgQuotient, header, maxPoints } = stats.perProblemStats[problemId];
             let disp = header ? convertHtmlStringToPlain(header) : '';
             disp += ` (${problemId}) [${maxPoints}]`;
             return [disp, avgQuotient, getColorOfBar(avgQuotient)];
