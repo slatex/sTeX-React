@@ -5,6 +5,14 @@
  */
 export function set_server_url(server_url: string): void;
 /**
+ * #### Errors
+ */
+export function get_document_html(doc: string): Promise<HTMLFragment>;
+/**
+ * #### Errors
+ */
+export function get_paragraph_html(elem: string): Promise<HTMLFragment>;
+/**
  * activates debug logging
  */
 export function set_debug_log(): void;
@@ -31,14 +39,6 @@ export function render_fragment(to: HTMLElement, fragment: FragmentOptions, cont
  */
 export function ftml_setup(to: HTMLElement, cont: LeptosContinuation): FTMLMountHandle;
 /**
- * #### Errors
- */
-export function get_document_html(doc: string): Promise<HTMLFragment>;
-/**
- * #### Errors
- */
-export function get_paragraph_html(elem: string): Promise<HTMLFragment>;
-/**
  * gets the current server url
  */
 export function get_server_url(): string;
@@ -48,6 +48,11 @@ export function get_server_url(): string;
  * *This API requires the following crate features to be activated: `ReadableStreamType`*
  */
 type ReadableStreamType = "bytes";
+export interface HTMLFragment {
+    css: CSS[];
+    html: string;
+}
+
 /**
  * Options for rendering an FTML document
  * - `FromBackend`: calls the backend for the document
@@ -77,26 +82,6 @@ export type TOCOptions = "FromBackend" | { Predefined: TOCElem[] };
 
 export type ExerciseOption = { WithFeedback: [string,ExerciseFeedback][] } | { WithSolutions: [string,Solutions][] };
 
-export interface HTMLFragment {
-    css: CSS[];
-    html: string;
-}
-
-export interface ExerciseResponse {
-    uri: string;
-    responses: ExerciseResponseType[];
-}
-
-/**
- * Either a list of booleans (multiple choice), a single integer (single choice),
- * or a string (fill-in-the-gaps)
- */
-export type ExerciseResponseType = boolean[] | number | string;
-
-export type CSS = { Link: string } | { Inline: string } | { Class: { name: string; css: string } };
-
-export type LeptosContinuation = (e:HTMLDivElement,o:LeptosContext) => void;
-
 /**
  * An entry in a table of contents. Either:
  * 1. a section; the title is assumed to be an HTML string, or
@@ -113,6 +98,21 @@ export type TOCElem = { Section: { title: string | undefined; uri: string; id: s
  *    will be requested to obtain the TOC for that document.
  */
 export type TOC = { Full: TOCElem[] } | { Get: string };
+
+export type LeptosContinuation = (e:HTMLDivElement,o:LeptosContext) => void;
+
+export interface ExerciseResponse {
+    uri: string;
+    responses: ExerciseResponseType[];
+}
+
+/**
+ * Either a list of booleans (multiple choice), a single integer (single choice),
+ * or a string (fill-in-the-gaps)
+ */
+export type ExerciseResponseType = boolean[] | number | string;
+
+export type CSS = { Link: string } | { Inline: string } | { Class: { name: string; css: string } };
 
 export class ExerciseFeedback {
   private constructor();
@@ -160,6 +160,7 @@ export class LeptosContext {
    * Not calling this is a memory leak
    */
   cleanup(): void;
+  wasm_clone(): LeptosContext;
 }
 export class Solutions {
   private constructor();
