@@ -41,7 +41,7 @@ function ChosenTab({ tabName, courseId }: { tabName: TabName; courseId: string }
     case 'homework-manager':
       return <HomeworkManager courseId={courseId} />;
     case 'homework-grading':
-      return <GradingInterface courseId={courseId} />;
+      return <GradingInterface isPeerGrading={false} courseId={courseId} />;
     case 'quiz-dashboard':
       return <QuizDashboard courseId={courseId} />;
     case 'study-buddy':
