@@ -1,11 +1,4 @@
-import {
-  Box,
-  Button,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-} from '@mui/material';
+import { Box, Button, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import {
   SectionsAPIData,
   getAuthHeaders,
@@ -44,16 +37,12 @@ const CoverageUpdatePage: NextPage = () => {
   }>({});
   const [sectionNames, setSectionNames] = useState<string[]>([]);
   const [snaps, setSnaps] = useState<CoverageSnap[]>([]);
-  const [coverageTimeline, setCoverageTimeline] = useState<CoverageTimeline>(
-    {}
-  );
+  const [coverageTimeline, setCoverageTimeline] = useState<CoverageTimeline>({});
   const { mmtUrl } = useContext(ServerLinksContext);
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
 
   useEffect(() => {
-    axios
-      .get('/api/get-coverage-timeline')
-      .then((resp) => setCoverageTimeline(resp.data));
+    axios.get('/api/get-coverage-timeline').then((resp) => setCoverageTimeline(resp.data));
   }, []);
 
   useEffect(() => {
@@ -85,8 +74,8 @@ const CoverageUpdatePage: NextPage = () => {
 
   return (
     <MainLayout title="Coverage Update | ALeA">
-      <Box px="10px" m="auto" maxWidth="800px">
-        <FormControl sx={{ my: '10px' }}>
+      <Box px="10px" m="auto" maxWidth="1200px" display="flex" flexDirection="column">
+        <FormControl sx={{ my: '10px', width: '150px' }}>
           <InputLabel id="course-select-label">Course</InputLabel>
           <Select
             labelId="course-select-label"
@@ -106,11 +95,7 @@ const CoverageUpdatePage: NextPage = () => {
           </Select>
         </FormControl>
 
-        <CoverageUpdater
-          snaps={snaps}
-          setSnaps={setSnaps}
-          sectionNames={sectionNames}
-        />
+        <CoverageUpdater snaps={snaps} setSnaps={setSnaps} sectionNames={sectionNames} />
         <Button
           variant="contained"
           onClick={() => {
@@ -129,7 +114,7 @@ const CoverageUpdatePage: NextPage = () => {
         >
           Save
         </Button>
-        <span style={{ color: 'red', display: 'flex' }}>
+        <span style={{ color: 'red', display: 'flex', marginTop: '10px' }}>
           Your changes will not be saved till you click &apos;Save&apos;.
         </span>
       </Box>

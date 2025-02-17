@@ -13,7 +13,7 @@ export default function MainLayout({
   title,
   children,
   showBrowserAutocomplete = false,
-  bgColor
+  bgColor,
 }: {
   title?: string;
   children: any;
@@ -72,7 +72,7 @@ export default function MainLayout({
             target="_blank"
             rel="noreferrer"
             href="https://www.voll-ki.fau.de/impressum"
-            style={{ marginRight: '10px' }}
+            style={{ marginRight: '20px' }}
           >
             {t.legalNotice}
           </a>
