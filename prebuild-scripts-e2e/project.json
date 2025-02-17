@@ -1,23 +1,18 @@
 {
   "name": "prebuild-scripts-e2e",
   "$schema": "../node_modules/nx/schemas/project-schema.json",
-  "implicitDependencies": ["prebuild-scripts"],
   "projectType": "application",
+  "implicitDependencies": ["prebuild-scripts"],
   "targets": {
     "e2e": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{e2eProjectRoot}"],
       "options": {
-        "jestConfig": "prebuild-scripts-e2e/jest.config.ts",
-        "passWithNoTests": true
+        "jestConfig": "prebuild-scripts-e2e/jest.config.ts"
       }
     },
     "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["prebuild-scripts-e2e/**/*.{js,ts}"]
-      }
+      "executor": "@nx/eslint:lint"
     }
   }
 }

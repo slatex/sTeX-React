@@ -17,17 +17,14 @@
     "paths": {
       "@stex-react/api": ["packages/api/src/index.ts"],
       "@stex-react/comments": ["packages/comments/src/index.ts"],
+      "@stex-react/ftml-utils": ["packages/ftml-utils/src/index.ts"],
       "@stex-react/mathjax": ["packages/mathjax/src/index.ts"],
       "@stex-react/myst": ["packages/myst/src/index.ts"],
       "@stex-react/node-utils": ["packages/node-utils/src/index.ts"],
       "@stex-react/quiz-utils": ["packages/quiz-utils/src/index.ts"],
       "@stex-react/react-utils": ["packages/react-utils/src/index.ts"],
-      "@stex-react/report-a-problem": [
-        "packages/report-a-problem/src/index.ts"
-      ],
-      "@stex-react/stex-react-renderer": [
-        "packages/stex-react-renderer/src/index.ts"
-      ],
+      "@stex-react/report-a-problem": ["packages/report-a-problem/src/index.ts"],
+      "@stex-react/stex-react-renderer": ["packages/stex-react-renderer/src/index.ts"],
       "@stex-react/utils": ["packages/utils/src/index.ts"]
     }
   },

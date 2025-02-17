@@ -28,7 +28,7 @@ import {
   mmtHTMLToReact,
 } from '@stex-react/stex-react-renderer';
 
-function RecorrectionInfo({
+function RecorrectionInfoDisp({
   recorrectionInfo,
 }: {
   recorrectionInfo?: RecorrectionInfo[];
@@ -129,7 +129,7 @@ function QuizPerformanceTable({
                       >
                         {convertHtmlStringToPlain(quiz.title)}
                       </Link>
-                      <RecorrectionInfo
+                      <RecorrectionInfoDisp
                         recorrectionInfo={
                           previousQuizData?.quizInfo[quiz.quizId]
                             ?.recorrectionInfo

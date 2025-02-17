@@ -40,17 +40,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const authorizedResourceActions = (
     await Promise.all(
-      resourceActions.map(async (resourceAction) => {
-        const resourceActionParams = resourceAction.actions.map((action) => ({
-          name: resourceAction.name,
-          action,
-          variables: { courseId: resourceAction.courseId, instanceId: CURRENT_TERM },
-        }));
-        const isAuthorized = await isUserIdAuthorizedForAny(userId, resourceActionParams);
-        return isAuthorized ? resourceAction : null;
+      resourceActions.map(async ({ name, courseId, actions }) => {
+        const validActions = [];
+
+        for (const action of actions) {
+          const isAuthorized = await isUserIdAuthorizedForAny(userId, [
+            { name, action, variables: { courseId, instanceId: CURRENT_TERM } },
+          ]);
+
+          if (isAuthorized) validActions.push(action);
+        }
+        return validActions.length ? { name, courseId, actions: validActions } : null;
       })
     )
-  ).filter((res) => res !== null);
-
+  ).filter((resource) => resource !== null);
   return res.status(200).json(authorizedResourceActions);
 }

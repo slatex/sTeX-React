@@ -9,7 +9,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
-import InstructorDashBoard from '../components/InstructorDashboard';
+import WelcomeScreen from '../components/WelcomeScreen';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 
@@ -241,7 +241,7 @@ export function VollKiInfoSection({ bgcolor = '#F5F5F5' }: { bgcolor?: string })
   );
 }
 
-function CourseCard({ key, course }) {
+export function CourseCard({ key, course }) {
   const { imageLink: courseImage, courseName, courseId, institution, instructors } = course;
   const instructor = getInstructor(course, 'SS24') ?? instructors[0].name;
   return (
@@ -321,6 +321,7 @@ function AleaFeatures({ img_url, title, description }) {
 }
 
 const StudentHomePage: NextPage = ({ filteredCourses }: { filteredCourses: CourseInfo[] }) => {
+  const loggedIn = isLoggedIn();
   const router = useRouter();
   const [resourcesForInstructor, setResourcesForInstructor] = useState<CourseResourceAction[]>([]);
   useEffect(() => {
@@ -334,16 +335,22 @@ const StudentHomePage: NextPage = ({ filteredCourses }: { filteredCourses: Cours
   useEffect(() => {
     async function resourcesAccessToUser() {
       const resources = await getResourcesForUserId(mmtUrl);
-      const resourceAccessToInstructor = resources.map((item) => ({
+      const resourceAccessToInstructor =( resources.map((item) => ({
         ...item,
         actions: item.actions.filter((action) => action !== Action.TAKE),
-      }));
+      }))).filter((resource)=>resource.actions.length>0)
       setResourcesForInstructor(resourceAccessToInstructor);
     }
     resourcesAccessToUser();
   }, [mmtUrl]);
-  if (resourcesForInstructor.length > 0) {
-    return <InstructorDashBoard resourcesForInstructor={resourcesForInstructor} />;
+
+  if (loggedIn) {
+    return (
+      <WelcomeScreen
+        resourcesForInstructor={resourcesForInstructor}
+        filteredCourses={filteredCourses}
+      />
+    );
   }
   return (
     <MainLayout title="Courses | ALeA">
