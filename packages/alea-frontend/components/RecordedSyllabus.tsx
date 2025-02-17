@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import { useRouter } from 'next/router';
 import DownloadIcon from '@mui/icons-material/Download';
-import { CURRENT_TERM, getSectionInfo } from '@stex-react/utils';
+import { CURRENT_TERM } from '@stex-react/utils';
 import { MystViewer } from '@stex-react/myst';
 
 function joinerForLevel(level: number) {
@@ -142,7 +142,7 @@ function SyllabusTable({
               {dayjs(timestamp_ms).format(showYear ? 'DD-MMM-YY' : 'DD-MMM')}
             </td>
             <td style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {topics ? <MystViewer content={topics} /> : 'wrong'}
+              {topics ? <MystViewer content={topics} /> : 'Topics unexpectedly empty'}
             </td>
             {hasAnyVideoClip && (
               <td>
