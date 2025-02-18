@@ -139,7 +139,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     notesFilepath
   );
   const allSections = getAllSections(docSections) as SectionInfo[];
-  const coverageData = getCoverageData()[courseId];
+  const coverageData = getCoverageData()[courseId].filter(snap=>snap.sectionName);
   if (coverageData?.length) addVideoInfo(allSections, coverageData);
   const videoSlides = await getVideoToSlidesMap(courseId);
   if (videoSlides) {
