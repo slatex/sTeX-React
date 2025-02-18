@@ -1,4 +1,4 @@
-import { FastForward, InfoOutlined, MusicNote } from '@mui/icons-material';
+import { FastForward, InfoOutlined, MusicNote, OpenInNew } from '@mui/icons-material';
 import CheckIcon from '@mui/icons-material/Check';
 import SettingsIcon from '@mui/icons-material/Settings';
 import VideocamIcon from '@mui/icons-material/Videocam';
@@ -15,16 +15,26 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { ClipDetails, ClipInfo } from '@stex-react/api';
-import { localStore } from '@stex-react/utils';
+import {
+  ClipDetails,
+  ClipInfo,
+  getAncestors,
+  getDefiniedaInDoc,
+  lastFileNode,
+  SectionsAPIData,
+} from '@stex-react/api';
+import { localStore, PathToTour2 } from '@stex-react/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from 'react';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
 import '../styles/mediafile.module.scss';
 
 import { ClipData, setSlideNumAndSectionId } from '../pages/course-view/[courseId]';
+import { ServerLinksContext } from '@stex-react/stex-react-renderer';
+import Link from 'next/link';
+import Image from 'next/image';
 
 export default function SeekVideo({
   currentSlideClipInfo,
@@ -146,21 +156,46 @@ const MediaItem = ({
   sub,
   timestampSec,
   markers,
-  onTimeUpdate,
+
+  courseDocSections,
+  autoSync,
 }: {
   audioOnly: boolean;
   videoId: string;
   sub?: string;
   timestampSec?: number;
-  markers: Marker[];
-  onTimeUpdate?: (slideIndex: number, sectionId: string) => void;
+  markers?: Marker[];
+  courseDocSections?: SectionsAPIData;
+  autoSync?: boolean;
 }) => {
   const playerRef = useRef<HTMLVideoElement | null>(null);
   const videoPlayer = useRef<any>(null);
   const [tooltip, setTooltip] = useState<string>('');
   const [overlay, setOverlay] = useState<{ title: string; description: string } | null>(null);
-  const lastMarkerRef = useRef<string | null>(null);
+  const lastMarkerRef = useRef<number | null>(null);
   const router = useRouter();
+  const [concepts, setConcepts] = useState<string[]>([]);
+  const { mmtUrl } = useContext(ServerLinksContext);
+
+  const getDefinedConcepts = async (sectionId: string) => {
+    if (!sectionId || !courseDocSections) return [];
+    const ancestors = getAncestors(undefined, undefined, String(sectionId), courseDocSections);
+    const sectionParentInfo = lastFileNode(ancestors);
+    const { archive, filepath } = sectionParentInfo;
+    const definedConcepts = await getDefiniedaInDoc(mmtUrl, archive, filepath);
+    if (!definedConcepts || definedConcepts.length === 0) return [];
+    return [...new Set(definedConcepts.flatMap((data) => data.symbols))];
+  };
+
+  const handleMarkerClick = async (marker: any) => {
+    const definedConcepts = await getDefinedConcepts(marker.data.sectionId);
+    setConcepts(definedConcepts ?? []);
+    setOverlay({
+      title: marker.label ?? 'Untitled',
+      description: marker.data.description ?? 'No Description Available',
+    });
+  };
+
   useEffect(() => {
     if (playerRef.current) {
       videoPlayer.current = videojs(playerRef.current, {
@@ -240,12 +275,7 @@ const MediaItem = ({
               setTooltip(`${marker.label} - ${marker.time}s`)
             );
             markerElement.addEventListener('mouseleave', () => setTooltip(''));
-            markerElement.addEventListener('click', () =>
-              setOverlay({
-                title: marker.data.title ?? 'Untitled',
-                description: marker.data.description ?? 'No Description Available',
-              })
-            );
+            markerElement.addEventListener('click', () => handleMarkerClick(marker));
 
             progressHolder.appendChild(markerElement);
           }
@@ -254,6 +284,7 @@ const MediaItem = ({
       videoPlayer.current.on('timeupdate', () => {
         const currentTime = videoPlayer.current.currentTime();
         const markers = Array.from(document.querySelectorAll('.custom-marker')) as HTMLElement[];
+
         let latestMarker: HTMLElement | null = null;
         for (const marker of markers) {
           const markerTime = parseInt(marker.dataset.time, 10);
@@ -266,31 +297,35 @@ const MediaItem = ({
             marker.style.backgroundColor = 'yellow';
           }
         }
-
-        if (latestMarker) {
-          const sectionId = latestMarker.dataset.sectionId || '';
-          const slideIndex = latestMarker.dataset.slideIndex
-            ? parseInt(latestMarker.dataset.slideIndex, 10)
-            : 0;
-
-          const markerId = `${sectionId}-${slideIndex}`;
-
-          if (lastMarkerRef.current !== markerId) {
-            lastMarkerRef.current = markerId;
-            const safeSlideIndex = isNaN(slideIndex) || slideIndex === null ? 1 : slideIndex;
-            //causing the issue of sync video either directly will set sectionId and slideIndex here
-            //  or using onTimeUpdate
-            // setSlideNumAndSectionId(router, safeSlideIndex, sectionId);
+        const markerData = markers
+          .map((marker) => ({
+            element: marker,
+            time: parseInt(marker.dataset.time, 10),
+            sectionId: marker.dataset.sectionId || '',
+            slideIndex: marker.dataset.slideIndex ? parseInt(marker.dataset.slideIndex, 10) : 0,
+          }))
+          .sort((a, b) => a.time - b.time);
+        if (markerData.length === 0) return;
+        let nextMarkerIndex = markerData.findIndex((marker) => marker.time > currentTime) - 1;
+        if (nextMarkerIndex < 0) return;
+        const newMarker = markerData[nextMarkerIndex];
+        if (lastMarkerRef.current !== newMarker.time) {
+          lastMarkerRef.current = newMarker.time;
+          const safeSlideIndex = isNaN(newMarker.slideIndex) ? 1 : newMarker.slideIndex;
+          if (autoSync) {
+            setSlideNumAndSectionId(router, newMarker.slideIndex, newMarker.sectionId);
           }
         }
       });
     }
-  }, [markers, timestampSec, videoId, onTimeUpdate]);
+  }, [markers, timestampSec, videoId]);
+
   useEffect(() => {
     if (videoPlayer.current && timestampSec !== undefined) {
       videoPlayer.current.currentTime(timestampSec);
     }
   }, [timestampSec]);
+
   const handleMouseMove = (e: React.MouseEvent) => {
     const progressBar = videoPlayer.current?.controlBar.progressControl.seekBar.el() as HTMLElement;
     const rect = progressBar.getBoundingClientRect();
@@ -307,7 +342,7 @@ const MediaItem = ({
   const handleMouseLeave = () => setTooltip('');
 
   return (
-    <div style={{ marginBottom: '7px', position: 'relative' }}>
+    <Box style={{ marginBottom: '7px', position: 'relative' }}>
       <video
         ref={playerRef}
         className="video-js vjs-fluid vjs-styles=defaults vjs-big-play-centered"
@@ -319,7 +354,7 @@ const MediaItem = ({
       </video>
 
       {tooltip && (
-        <div
+        <Box
           style={{
             position: 'absolute',
             top: '10px',
@@ -333,32 +368,133 @@ const MediaItem = ({
           }}
         >
           {tooltip}
-        </div>
+        </Box>
       )}
 
       {overlay && (
-        <div
+        <Box
           style={{
             position: 'absolute',
-            top: '20%',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            padding: '20px',
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            top: '0',
+            left: '0',
+            width: '35%',
+            height: '83%',
+            backgroundColor: 'rgba(0, 0, 0, 0.2)',
+            backdropFilter: 'blur(10px)',
             color: '#fff',
-            borderRadius: '8px',
             zIndex: '100',
-            display: 'block',
+            padding: '20px 0 20px 20px',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
           }}
         >
-          <h3>{overlay.title}</h3>
-          <p>{overlay.description}</p>
-          <button onClick={() => setOverlay(null)} style={{ background: '#f00', color: '#fff' }}>
-            Close
-          </button>
-        </div>
+          {concepts && concepts.length > 0 ? (
+            <>
+              <Typography
+                variant="h5"
+                sx={{
+                  textAlign: 'center',
+                  fontWeight: '600',
+                  fontSize: '1rem',
+                  color: '#d7e4fa',
+                  marginBottom: '8px',
+                }}
+              >
+                Concepts in this slide
+              </Typography>
+
+              {concepts.map((uri, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    width: '90%',
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    color: '#fff',
+                    padding: '12px',
+                    borderRadius: '10px',
+                    textAlign: 'center',
+                    display: 'flex',
+                    marginBottom: '10px',
+                    transition: 'transform 0.5s ease-in-out',
+                    '&:hover': {
+                      transform: 'rotateY(10deg)',
+                    },
+                  }}
+                >
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontSize: '1.2rem',
+                      fontWeight: '600',
+                      textOverflow: 'ellipsis',
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap',
+                      width: '85%',
+                    }}
+                    title={uri}
+                  >
+                    {uri.split('?').pop()}
+                  </Typography>
+                  <Link href={PathToTour2(uri)} target="_blank" style={{ textDecoration: 'none' }}>
+                    <Tooltip title="Take a guided tour" arrow>
+                      <IconButton
+                        sx={{
+                          backgroundColor: '#fff',
+                          borderRadius: '50%',
+                          padding: '2px',
+                          '&:hover': {
+                            backgroundColor: '#f0f0f0',
+                            transform: 'scale(1.2)',
+                            transition: 'transform 0.2s ease-in-out',
+                          },
+                        }}
+                      >
+                        <Image
+                          src="/guidedTour.png"
+                          alt="Tour Logo"
+                          width={25}
+                          height={25}
+                          priority
+                        />
+                      </IconButton>
+                    </Tooltip>
+                  </Link>
+                </Box>
+              ))}
+            </>
+          ) : (
+            <Typography
+              variant="h6"
+              sx={{
+                textAlign: 'center',
+                fontWeight: 'bold',
+                color: '#ccc',
+                marginTop: '12px',
+              }}
+            >
+              No concepts available for the current slide
+            </Typography>
+          )}
+
+          <IconButton
+            onClick={() => setOverlay(null)}
+            sx={{
+              position: 'absolute',
+              top: '5px',
+              right: '5px',
+              backgroundColor: 'rgba(255, 0, 0, 0.7)',
+              color: '#fff',
+              borderRadius: '50%',
+              padding: '5px',
+              '&:hover': { backgroundColor: 'rgba(255, 0, 0, 0.9)' },
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 };
 
@@ -448,7 +584,8 @@ export function VideoDisplay({
   currentSlideClipInfo,
   audioOnly,
   videoExtractedData,
-  onTimeUpdate,
+  courseDocSections,
+  autoSync,
 }: {
   clipId: string;
   setCurrentClipId: Dispatch<SetStateAction<string>>;
@@ -459,7 +596,8 @@ export function VideoDisplay({
   videoExtractedData?: {
     [timestampSec: number]: ClipData;
   };
-  onTimeUpdate?: (slideIndex: number, sectionId: string) => void;
+  courseDocSections?: SectionsAPIData;
+  autoSync?: boolean;
 }) {
   const [resolution, setResolution] = useState(720);
   const [clipDetails, setClipDetails] = useState(undefined as ClipDetails);
@@ -509,6 +647,7 @@ export function VideoDisplay({
   };
   if (isLoading) return <CircularProgress />;
   if (!videoId) return <i>Video not available for this section</i>;
+
   return (
     <>
       <Box
@@ -524,7 +663,8 @@ export function VideoDisplay({
           audioOnly={audioOnly}
           sub={clipDetails?.sub}
           markers={markers}
-          onTimeUpdate={onTimeUpdate}
+          courseDocSections={courseDocSections}
+          autoSync={autoSync}
         />
         <Box sx={{ display: 'flex', m: '-4px 0 5px' }}>
           <ToggleResolution

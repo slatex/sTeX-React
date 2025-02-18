@@ -167,7 +167,8 @@ const CourseViewPage: NextPage = () => {
   const [contentUrl, setContentUrl] = useState(undefined as string);
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
   const [timestampSec, setTimestampSec] = useState(0);
-  const [currentTime, setCurrentTime] = useState<number>(0);
+  const [autoSync, setAutoSync] = useState(true);
+
   useEffect(() => {
     if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
   }, [mmtUrl]);
@@ -328,15 +329,8 @@ const CourseViewPage: NextPage = () => {
                 setTimestampSec={setTimestampSec}
                 currentSlideClipInfo={currentSlideClipInfo}
                 videoExtractedData={videoExtractedData}
-                onTimeUpdate={(slideIndex, sectionId) => {
-                  // const safeSlideIndex = isNaN(slideIndex) || slideIndex === null ? 1 : slideIndex;
-                  console.log({ slideIndex });
-                  console.log({ sectionId });
-                  if (sectionId && slideIndex) {
-                    console.log('calling', slideIndex, sectionId);
-                    // setSlideNumAndSectionId(router, slideIndex, sectionId);
-                  }
-                }}
+                courseDocSections={docSections}
+                autoSync={autoSync}
               />
             )}
             {(viewMode === ViewMode.SLIDE_MODE || viewMode === ViewMode.COMBINED_MODE) && (
@@ -371,6 +365,8 @@ const CourseViewPage: NextPage = () => {
                 slideNum={slideNum}
                 slidesClipInfo={slidesClipInfo}
                 onClipChange={onClipChange}
+                autoSync={autoSync}
+                setAutoSync={setAutoSync}
               />
             )}
             <hr style={{ width: '98%', padding: '1px 0' }} />
