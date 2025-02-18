@@ -174,6 +174,8 @@ export const SlideDeck = memo(function SlidesFromUrl({
   goToNextSection = undefined,
   goToPrevSection = undefined,
   onClipChange,
+  autoSync,
+  setAutoSync,
 }: {
   courseId: string;
   sectionId: string;
@@ -188,12 +190,13 @@ export const SlideDeck = memo(function SlidesFromUrl({
   goToNextSection?: () => void;
   goToPrevSection?: () => void;
   onClipChange?: (clip: any) => void;
+  autoSync?: boolean;
+  setAutoSync?: Dispatch<SetStateAction<boolean>>;
 }) {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadedSectionId, setLoadedSectionId] = useState('');
   const [currentSlide, setCurrentSlide] = useState(undefined as Slide | undefined);
-  const [autoSync, setAutoSync] = useState(true);
   const [isDebugVideo, setIsDebugVideo] = useState(false);
 
   useEffect(() => {
