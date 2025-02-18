@@ -311,7 +311,6 @@ const MediaItem = ({
         const newMarker = markerData[nextMarkerIndex];
         if (lastMarkerRef.current !== newMarker.time) {
           lastMarkerRef.current = newMarker.time;
-          const safeSlideIndex = isNaN(newMarker.slideIndex) ? 1 : newMarker.slideIndex;
           if (autoSync) {
             setSlideNumAndSectionId(router, newMarker.slideIndex, newMarker.sectionId);
           }

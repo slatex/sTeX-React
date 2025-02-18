@@ -94,7 +94,11 @@ function populateClipIds(sections: SectionInfo[], clipIds: { [sectionId: string]
 }
 function populateSlidesClipInfos(
   sections: SectionInfo[],
-  slidesClipInfo: { [sectionId: string]: SlideClipInfo[] }
+  slidesClipInfo: {
+    [sectionId: string]: {
+      [slideNumber: number]: ClipInfo[];
+    };
+  }
 ) {
   for (const section of sections) {
     slidesClipInfo[section.id] = section.clipInfo;
@@ -151,9 +155,11 @@ const CourseViewPage: NextPage = () => {
   }>({});
 
   const [clipIds, setClipIds] = useState<{ [sectionId: string]: string }>({});
-  const [slidesClipInfo, setSlidesClipInfo] = useState<{ [sectionId: string]: SlideClipInfo[] }>(
-    {}
-  );
+  const [slidesClipInfo, setSlidesClipInfo] = useState<{
+    [sectionId: string]: {
+      [slideNumber: number]: ClipInfo[];
+    };
+  }>({});
   const [currentClipId, setCurrentClipId] = useState('');
   const [videoExtractedData, setVideoExtractedData] = useState<{
     [timestampSec: number]: ClipData;
@@ -191,14 +197,12 @@ const CourseViewPage: NextPage = () => {
       setSlidesClipInfo(slidesClipInfo);
     });
   }, [courseId, router.isReady]);
-
   useEffect(() => {
     if (!router.isReady || !courseId?.length || !currentClipId) return;
     axios
       .get(`/api/get-slide-details/${courseId}/${currentClipId}`)
       .then((resp) => setVideoExtractedData(resp.data));
   }, [courseId, currentClipId]);
-  console.log({ slidesClipInfo });
   useEffect(() => {
     if (!router.isReady) return;
     if (sectionId && slideNum && viewMode && audioOnlyStr) return;

@@ -7,7 +7,7 @@ import { Badge, Popover, Typography } from '@mui/material';
 import MovieIcon from '@mui/icons-material/Movie';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { Box, IconButton, LinearProgress, Tooltip } from '@mui/material';
-import { Slide, SlideClipInfo, SlideType } from '@stex-react/api';
+import { ClipInfo, Slide, SlideClipInfo, SlideType } from '@stex-react/api';
 import {
   ContentWithHighlight,
   DocumentWidthSetter,
@@ -170,7 +170,6 @@ export const SlideDeck = memo(function SlidesFromUrl({
   slidesClipInfo,
   topLevelDocUrl = undefined,
   onSlideChange,
-  onCurrentSlideClipInfoChange: onCurrentSlideClipInfoChange,
   goToNextSection = undefined,
   goToPrevSection = undefined,
   onClipChange,
@@ -182,11 +181,12 @@ export const SlideDeck = memo(function SlidesFromUrl({
   navOnTop?: boolean;
   slideNum?: number;
   slidesClipInfo?: {
-    [sectionId: string]: SlideClipInfo[];
+    [sectionId: string]: {
+      [slideNumber: number]: ClipInfo[];
+    };
   };
   topLevelDocUrl?: string;
   onSlideChange?: (slide: Slide) => void;
-  onCurrentSlideClipInfoChange?: (clipInfo: SlideClipInfo | null) => void;
   goToNextSection?: () => void;
   goToPrevSection?: () => void;
   onClipChange?: (clip: any) => void;
@@ -237,16 +237,6 @@ export const SlideDeck = memo(function SlidesFromUrl({
     const selectedSlide = slides[slideNum - 1];
     setCurrentSlide(selectedSlide);
     if (onSlideChange) onSlideChange(selectedSlide);
-    if (selectedSlide?.slideType === SlideType.FRAME && slidesClipInfo) {
-      const frameSlides = slides.filter((slide) => slide.slideType === SlideType.FRAME);
-      const clipInfoIndex = frameSlides.indexOf(selectedSlide);
-      const isValidIndex =
-        slidesClipInfo && clipInfoIndex >= 0 && clipInfoIndex < slidesClipInfo[sectionId]?.length;
-      const clipInfo = isValidIndex ? slidesClipInfo[sectionId][clipInfoIndex] : null;
-      if (onCurrentSlideClipInfoChange) onCurrentSlideClipInfoChange(clipInfo);
-    } else {
-      if (onCurrentSlideClipInfoChange) onCurrentSlideClipInfoChange(null);
-    }
   }, [sectionId, loadedSectionId, slides, slideNum, router, onSlideChange]);
 
   function formatDuration(seconds: number) {
@@ -264,7 +254,9 @@ export const SlideDeck = memo(function SlidesFromUrl({
   }
   function getClipsFromVideoData(
     slidesClipInfo: {
-      [sectionId: string]: SlideClipInfo[];
+      [sectionId: string]: {
+        [slideNumber: number]: ClipInfo[];
+      };
     },
     sectionId: string,
     slideIndex: number
