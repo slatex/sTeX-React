@@ -29,7 +29,6 @@ import { useRouter } from 'next/router';
 import { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from 'react';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
-import '../styles/mediafile.module.scss';
 
 import { ClipData, setSlideNumAndSectionId } from '../pages/course-view/[courseId]';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
@@ -156,12 +155,15 @@ const MediaItem = ({
   sub,
   timestampSec,
   markers,
-
+  clipId,
+  clipIds,
   courseDocSections,
   autoSync,
 }: {
   audioOnly: boolean;
   videoId: string;
+  clipId: string;
+  clipIds: { [sectionId: string]: string };
   sub?: string;
   timestampSec?: number;
   markers?: Marker[];
@@ -281,12 +283,27 @@ const MediaItem = ({
           }
         });
       });
+      const markersInDescOrder: Marker[] = markers.sort((a, b) => b.time - a.time);
+      videoPlayer.current.on('playing', () => {
+        setOverlay(null);
+      });
+      videoPlayer.current.on('pause', () => {
+        const currentTime = videoPlayer.current.currentTime();
+        const markerIndex = markersInDescOrder.findIndex((marker) => marker.time <= currentTime);
+        if (markerIndex < 0) return;
+        const newMarker = markersInDescOrder[markerIndex];
+        handleMarkerClick(newMarker);
+      });
+      console.log('in', autoSync);
+
       videoPlayer.current.on('timeupdate', () => {
         const currentTime = videoPlayer.current.currentTime();
-        const markers = Array.from(document.querySelectorAll('.custom-marker')) as HTMLElement[];
+        const availableMarkers = Array.from(
+          document.querySelectorAll('.custom-marker')
+        ) as HTMLElement[];
 
         let latestMarker: HTMLElement | null = null;
-        for (const marker of markers) {
+        for (const marker of availableMarkers) {
           const markerTime = parseInt(marker.dataset.time, 10);
           if (currentTime >= markerTime) {
             marker.style.backgroundColor = 'green';
@@ -297,27 +314,24 @@ const MediaItem = ({
             marker.style.backgroundColor = 'yellow';
           }
         }
-        const markerData = markers
-          .map((marker) => ({
-            element: marker,
-            time: parseInt(marker.dataset.time, 10),
-            sectionId: marker.dataset.sectionId || '',
-            slideIndex: marker.dataset.slideIndex ? parseInt(marker.dataset.slideIndex, 10) : 0,
-          }))
-          .sort((a, b) => a.time - b.time);
-        if (markerData.length === 0) return;
-        let nextMarkerIndex = markerData.findIndex((marker) => marker.time > currentTime) - 1;
-        if (nextMarkerIndex < 0) return;
-        const newMarker = markerData[nextMarkerIndex];
+        if (markersInDescOrder.length === 0) return;
+        const markerIndex = markersInDescOrder.findIndex((marker) => marker.time <= currentTime);
+        if (markerIndex < 0) return;
+        const newMarker = markersInDescOrder[markerIndex];
         if (lastMarkerRef.current !== newMarker.time) {
           lastMarkerRef.current = newMarker.time;
-          if (autoSync) {
-            setSlideNumAndSectionId(router, newMarker.slideIndex, newMarker.sectionId);
+          console.log({ autoSync });
+          if (autoSync && clipIds?.[newMarker?.data?.sectionId] === clipId) {
+            setSlideNumAndSectionId(
+              router,
+              newMarker?.data?.slideIndex,
+              newMarker?.data?.sectionId
+            );
           }
         }
       });
     }
-  }, [markers, timestampSec, videoId]);
+  }, [markers, timestampSec, videoId, autoSync]);
 
   useEffect(() => {
     if (videoPlayer.current && timestampSec !== undefined) {
@@ -577,6 +591,7 @@ function DraggableOverlay({ showOverlay, setShowOverlay, data }) {
 
 export function VideoDisplay({
   clipId,
+  clipIds,
   setCurrentClipId,
   timestampSec,
   setTimestampSec,
@@ -587,6 +602,7 @@ export function VideoDisplay({
   autoSync,
 }: {
   clipId: string;
+  clipIds: { [sectionId: string]: string };
   setCurrentClipId: Dispatch<SetStateAction<string>>;
   timestampSec?: number;
   setTimestampSec?: Dispatch<SetStateAction<number>>;
@@ -653,11 +669,12 @@ export function VideoDisplay({
         style={{
           width: '100%',
           position: 'relative',
-          zIndex: 1,
         }}
       >
         <MediaItem
           videoId={videoId}
+          clipId={clipId}
+          clipIds={clipIds}
           timestampSec={timestampSec}
           audioOnly={audioOnly}
           sub={clipDetails?.sub}
@@ -665,7 +682,7 @@ export function VideoDisplay({
           courseDocSections={courseDocSections}
           autoSync={autoSync}
         />
-        <Box sx={{ display: 'flex', m: '-4px 0 5px' }}>
+        <Box sx={{ display: 'flex', m: '-4px 0 10px' }}>
           <ToggleResolution
             audioOnly={audioOnly}
             setAudioOnly={(v: boolean) => {
@@ -714,7 +731,6 @@ export function VideoDisplay({
           )}
         </Box>
       </Box>
-      <div style={{ height: '20px' }} />
     </>
   );
 }

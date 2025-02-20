@@ -21,8 +21,8 @@ export async function populateVideoToSlidesMap() {
   if (!dirPath) return;
   const files = await readdir(dirPath);
   for (const file of files) {
-    if (file.endsWith('_extracted_content.json')) {
-      const courseId = file.replace('_extracted_content.json', '');
+    if (file.endsWith('_updated_extracted_content.json')) {
+      const courseId = file.replace('_updated_extracted_content.json', '');
       const filePath = `${dirPath}/${file}`;
       const fileData = await readFile(filePath, 'utf-8');
       const data = JSON.parse(fileData);
@@ -169,7 +169,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     notesFilepath
   );
   const allSections = getAllSections(docSections) as SectionInfo[];
-  const coverageData = getCoverageData()[courseId].filter(snap=>snap.sectionName);
+  const coverageData = getCoverageData()[courseId].filter((snap) => snap.sectionName);
   if (coverageData?.length) addVideoInfo(allSections, coverageData);
   const videoSlides = await getVideoToSlidesMap(courseId);
   const slideCounts = await getSlideCounts(courseId, res);

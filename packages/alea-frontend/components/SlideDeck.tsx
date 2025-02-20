@@ -3,7 +3,7 @@ import LastPageIcon from '@mui/icons-material/LastPage';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import SyncLockIcon from '@mui/icons-material/SyncLock';
-import { Badge, Popover, Typography } from '@mui/material';
+import { Badge, Link, Popover, Typography } from '@mui/material';
 import MovieIcon from '@mui/icons-material/Movie';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { Box, IconButton, LinearProgress, Tooltip } from '@mui/material';
@@ -20,6 +20,7 @@ import { useRouter } from 'next/router';
 import { Dispatch, memo, SetStateAction, useEffect, useState } from 'react';
 import { ClipData, setSlideNumAndSectionId, ViewMode } from '../pages/course-view/[courseId]';
 import styles from '../styles/slide-deck.module.scss';
+import { InsertLink } from '@mui/icons-material';
 
 export function SlideNavBar({
   slideNum,
@@ -95,7 +96,7 @@ const ClipSelector = ({
 
   return (
     <>
-      <IconButton onClick={handleOpen} color="primary" sx={{ m: '5px' }}>
+      <IconButton onClick={handleOpen} color="primary" sx={{ mr: '5px' }}>
         <Badge badgeContent={clips.length} color="error">
           <MovieIcon />
         </Badge>
@@ -295,7 +296,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
     <Box
       className={styles['deck-box']}
       flexDirection={navOnTop ? 'column-reverse' : 'column'}
-      mt={navOnTop ? '-40px' : '0px'}
+      mt={navOnTop ? '-55px' : '0px'}
     >
       <Box sx={{ position: 'absolute', right: '20px' }}>
         <ExpandableContextMenu contentUrl={contentUrl} />
@@ -321,29 +322,36 @@ export const SlideDeck = memo(function SlidesFromUrl({
           No slides in this section
         </Box>
       )}
-      <Box display="flex" justifyContent="flex-end">
-        {isDebugVideo && <ClipSelector clips={clips} onClipChange={onClipChange} />}
+      <Box display="flex" justifyContent="space-between" alignItems="center" width="100%">
+        <Box flex={1} />
+
         {isDebugVideo && (
-          <Tooltip title="Sync video to slides">
-            <IconButton
-              onClick={() => setAutoSync((prev) => !prev)}
-              sx={{
-                backgroundColor: autoSync ? '#dfdfeb' : 'inherit',
-                color: autoSync ? 'primary.main' : 'secondary',
-                mb: '5px',
-              }}
-            >
-              <SyncLockIcon />
-            </IconButton>
-          </Tooltip>
+          <Box>
+            <Tooltip title={autoSync ? 'Disable video-slide sync' : 'Sync video to slides'}>
+              <IconButton
+                onClick={() => setAutoSync((prev) => !prev)}
+                sx={{
+                  backgroundColor: autoSync ? '#dfdfeb' : 'inherit',
+                  color: autoSync ? 'success.main' : 'secondary.main',
+                  mt: '-10px',
+                }}
+              >
+                <InsertLink sx={{ fontSize: '1.5rem', transform: 'rotate(90deg)' }} />
+              </IconButton>
+            </Tooltip>
+          </Box>
         )}
-        <SlideNavBar
-          slideNum={slideNum}
-          numSlides={slides.length}
-          goToNextSection={goToNextSection}
-          goToPrevSection={goToPrevSection}
-          setAutoSync={setAutoSync}
-        />
+
+        <Box display="flex" justifyContent="flex-end" flex={1}>
+          {isDebugVideo && <ClipSelector clips={clips} onClipChange={onClipChange} />}
+          <SlideNavBar
+            slideNum={slideNum}
+            numSlides={slides.length}
+            goToNextSection={goToNextSection}
+            goToPrevSection={goToPrevSection}
+            setAutoSync={setAutoSync}
+          />
+        </Box>
       </Box>
     </Box>
   );

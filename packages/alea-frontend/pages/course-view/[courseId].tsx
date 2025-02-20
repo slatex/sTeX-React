@@ -5,7 +5,6 @@ import {
   SectionInfo,
   SectionsAPIData,
   Slide,
-  SlideClipInfo,
   getAncestors,
   getCourseInfo,
   getDocumentSections,
@@ -327,6 +326,7 @@ const CourseViewPage: NextPage = () => {
             {viewMode === ViewMode.COMBINED_MODE && (
               <VideoDisplay
                 clipId={currentClipId}
+                clipIds={clipIds}
                 setCurrentClipId={setCurrentClipId}
                 audioOnly={audioOnly}
                 timestampSec={timestampSec}
