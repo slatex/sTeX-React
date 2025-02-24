@@ -1,6 +1,6 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Typography } from '@mui/material';
-import { DocIdx, DocIdxType, getCourseInfo, getDocIdx } from '@stex-react/api';
+import { ArchiveIndex, DocIdxType, getCourseInfo, getDocIdx, Institution } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { CourseInfo, PRIMARY_COL } from '@stex-react/utils';
 import { NextPage } from 'next';
@@ -12,11 +12,12 @@ import { CourseThumb } from './u/[institution]';
 const CourseList: NextPage = () => {
   const { mmtUrl } = useContext(ServerLinksContext);
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
-  const [docIdx, setDocIdx] = useState<DocIdx[]>([]);
+  const [docIdx, setDocIdx] = useState<(ArchiveIndex | Institution)[]>([]);
   useEffect(() => {
     const fetchData = async () => {
       if (mmtUrl) {
         const docIdxData = await getDocIdx(mmtUrl);
+        console.log({ docIdxData });
         setDocIdx(docIdxData);
 
         const courseInfoData = await getCourseInfo(mmtUrl);
@@ -33,7 +34,7 @@ const CourseList: NextPage = () => {
     groupedCourses[course.institution].push(course);
   });
 
-  const universities = docIdx.filter((doc) => doc.type === DocIdxType.university);
+  const universities = docIdx.filter((doc) => doc.type === DocIdxType.university) as Institution[];
   return (
     <MainLayout title="Course-List | ALeA">
       <Box m="0 auto" maxWidth="800px">
@@ -51,12 +52,12 @@ const CourseList: NextPage = () => {
                     </Link>
                   </Typography>
                   <Typography>{uni.country + ', ' + uni.place}</Typography>
-                  <Typography display="flex" alignItems="center">
+                  {/* <Typography display="flex" alignItems="center">
                     View sources
                     <Link href={`https://gl.mathhub.info/${uni.archive}`} target="_blank">
                       <OpenInNewIcon style={{ color: PRIMARY_COL }} />
                     </Link>
-                  </Typography>
+                  </Typography> */}
                 </Box>
               );
             })}

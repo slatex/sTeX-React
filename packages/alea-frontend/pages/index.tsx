@@ -17,7 +17,7 @@ function getInstructor(courseData: CourseInfo, currentSemester: string) {
   for (const instance of courseData.instances) {
     if (instance.semester === currentSemester) {
       if (instance.instructors && instance.instructors.length > 0) {
-        return instance.instructors[0].name;
+        return instance.instructors[0];
       }
     }
   }
@@ -243,7 +243,8 @@ export function VollKiInfoSection({ bgcolor = '#F5F5F5' }: { bgcolor?: string })
 
 export function CourseCard({ key, course }) {
   const { imageLink: courseImage, courseName, courseId, institution, instructors } = course;
-  const instructor = getInstructor(course, 'SS24') ?? instructors[0].name;
+  const instructor = getInstructor(course, 'SS24') ?? instructors[0];
+  console.log('instructor--', course);
   return (
     <Link href={`/course-home/${courseId}`}>
       <Box
@@ -335,10 +336,12 @@ const StudentHomePage: NextPage = ({ filteredCourses }: { filteredCourses: Cours
   useEffect(() => {
     async function resourcesAccessToUser() {
       const resources = await getResourcesForUserId(mmtUrl);
-      const resourceAccessToInstructor =( resources.map((item) => ({
-        ...item,
-        actions: item.actions.filter((action) => action !== Action.TAKE),
-      }))).filter((resource)=>resource.actions.length>0)
+      const resourceAccessToInstructor = resources
+        .map((item) => ({
+          ...item,
+          actions: item.actions.filter((action) => action !== Action.TAKE),
+        }))
+        .filter((resource) => resource.actions.length > 0);
       setResourcesForInstructor(resourceAccessToInstructor);
     }
     resourcesAccessToUser();
@@ -509,6 +512,7 @@ export async function getStaticProps() {
     FEATURED_COURSES.includes(courses[key].courseId)
   );
   const filteredCourses = filteredKeys.map((key) => courses[key]);
+  console.log('filter --- ', filteredKeys);
   return {
     props: { filteredCourses },
     revalidate: 3600,

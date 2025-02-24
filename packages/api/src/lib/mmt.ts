@@ -7,6 +7,12 @@ import {
   createCourseInfo,
 } from '@stex-react/utils';
 import axios from 'axios';
+import { ArchiveIndex, Institution } from './flam-types';
+import * as FLAMS from './flam';
+
+
+const FLAMS_SERVER_URL = 'https://mmt.beta.vollki.kwarc.info';
+const server = new FLAMS.FLAMSServer(FLAMS_SERVER_URL);
 
 ///////////////////
 // :sTeX/query/problems
@@ -235,52 +241,69 @@ export enum DocIdxType {
 export interface Person {
   name: string;
 }
-export interface Instance {
-  semester: string;
-  instructor: string;
-}
-export interface DocIdx {
-  type: DocIdxType;
-  archive: string;
-  title: string;
+// export interface Instance {
+//   semester: string;
+//   instructor: string;
+// }
+// export interface DocIdx {
+//   type: DocIdxType;
+//   archive: string;
+//   title: string;
 
-  // for type course
-  landing?: string;
-  acronym?: string;
-  instructors?: Person[];
-  institution?: string;
-  notes?: string;
-  slides?: string;
-  thumbnail?: string;
-  instances?: Instance[];
-  quizzes?: boolean;
+//   // for type course
+//   landing?: string;
+//   acronym?: string;
+//   instructors?: Person[];
+//   institution?: string;
+//   notes?: string;
+//   slides?: string;
+//   thumbnail?: string;
+//   instances?: Instance[];
+//   quizzes?: boolean;
 
-  // for type library
-  teaser?: string;
+//   // for type library
+//   teaser?: string;
 
-  // for type book
-  authors?: Person[];
-  file?: string;
-  //university detail
-  country?: string;
-  place?: string;
-  url?: string;
-}
+//   // for type book
+//   authors?: Person[];
+//   file?: string;
+//   //university detail
+//   country?: string;
+//   place?: string;
+//   url?: string;
+// }
 
-let CACHED_DOCIDX: DocIdx[] | undefined = undefined;
+let CACHED_ARCHIVE_INDEX: ArchiveIndex[] | undefined = undefined;
+let CACHED_INSTITUTION_INDEX: Institution[] | undefined = undefined;
+
 export async function getDocIdx(mmtUrl: string, institution?: string) {
-  if (!CACHED_DOCIDX) {
-    const resp = await axios.get(`${mmtUrl}/:sTeX/docidx`);
-    CACHED_DOCIDX = resp.data as DocIdx[];
-    CACHED_DOCIDX.forEach((doc) => {
-      doc.instances = doc.instances?.map((i) => ({ ...i, semester: i.semester.replace('/', '-') }));
-    });
+  if (!CACHED_ARCHIVE_INDEX) {
+    const res = await server.index();
+    if (res) {
+      CACHED_INSTITUTION_INDEX = res[0] as Institution[];
+      CACHED_ARCHIVE_INDEX = res[1] as ArchiveIndex[];
+      CACHED_ARCHIVE_INDEX.forEach((doc) => {
+        if (doc.type === 'course') {
+          doc.instances = doc.instances?.map((i) => ({
+            ...i,
+            semester: i.semester.replace('/', '-'),
+          }));
+        }
+      });
+    }
   }
+  const archiveIndex = CACHED_ARCHIVE_INDEX || [];
+  const institutionIndex = CACHED_INSTITUTION_INDEX || [];
+
   if (!institution) {
-    return CACHED_DOCIDX;
+    return [...archiveIndex, ...institutionIndex];
   }
-  const filteredDocIdx = CACHED_DOCIDX.filter((doc) => doc.institution === institution);
-  return filteredDocIdx;
+
+  const filteredArchiveIndex = archiveIndex.filter(
+    (doc) => doc.type === 'course' && doc.institution === institution
+  );
+
+  return [...filteredArchiveIndex, ...institutionIndex];
 }
 
 export async function getCourseInfo(mmtUrl: string, institution?: string) {
@@ -304,7 +327,7 @@ export async function getCourseInfo(mmtUrl: string, institution?: string) {
       courseInfo[doc.acronym] = createCourseInfo(
         doc.acronym,
         doc.title,
-        doc.archive,
+        doc.landing,
         doc.notes,
         doc.landing,
         isCurrent,

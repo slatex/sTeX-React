@@ -1,7 +1,7 @@
 export interface CourseInfo {
   courseId: string;
   courseName: string;
-  notesArchive: string;
+  notesArchive?: string;
   notesFilepath: string;
   landingFilepath: string;
   notesLink: string;
@@ -14,7 +14,7 @@ export interface CourseInfo {
   isCurrent: boolean;
   hasQuiz: boolean;
   institution?: string;
-  instances?: { semester: string; instructors?: { name: string }[] }[];
+  instances?: { semester: string; instructors?: string[] }[];
   instructors?: { name: string }[];
 }
 
@@ -52,8 +52,8 @@ export function createCourseInfo(
   isCurrent = false,
   hasQuiz = false,
   institution?: string,
-  instances?: { semester: string; instructors?: { name: string }[] }[],
-  instructors?: { name: string }[]
+  instances?: { semester: string; instructors?: string[] }[],
+  instructors?: string[]
 ): CourseInfo {
   notesFilepath = notesFilepath.replace('.tex', '.xhtml');
 
@@ -266,8 +266,7 @@ export const MaAI_COURSES: {
     courseName: 'Kommunikation und parallele Prozesse',
   },
   krmt: {
-    courseName:
-      'Logic-Based Representation of Mathematical/Technical Knowledge',
+    courseName: 'Logic-Based Representation of Mathematical/Technical Knowledge',
   },
   lbs: {
     courseName: 'Logik-Basierte Sprachverarbeitung',
@@ -393,8 +392,7 @@ export const MaAI_COURSES: {
     courseName: 'Project Music and Audio Processing ProjMAP',
   },
   'ai-faps': {
-    courseName:
-      'Project on Applied AI in Factory Automation and Production Systems',
+    courseName: 'Project on Applied AI in Factory Automation and Production Systems',
   },
   prl: {
     courseName: 'Project Representation Learning PRL',
@@ -436,8 +434,7 @@ export const MaAI_COURSES: {
     courseName: 'Blender Seminar',
   },
   ets: {
-    courseName:
-      'Blickfang: KI-getriebene Modellierung und Analyse von Eye-Tracking-Daten',
+    courseName: 'Blickfang: KI-getriebene Modellierung und Analyse von Eye-Tracking-Daten',
   },
   semcogsurob: {
     courseName: 'Cognitive Surgical Robotics',
@@ -467,8 +464,7 @@ export const MaAI_COURSES: {
     courseName: 'Machine Learning in MRI',
   },
   nyt: {
-    courseName:
-      'Nailing your Thesis (Anleitung zum wissenschaftlichen Arbeiten)',
+    courseName: 'Nailing your Thesis (Anleitung zum wissenschaftlichen Arbeiten)',
   },
   semaineuro: {
     courseName: 'Neurosciene-inspired Artificial Intelligence',
