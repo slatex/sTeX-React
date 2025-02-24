@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return;
   }
 
-  const courses = await getCourseInfo(process.env.NEXT_PUBLIC_MMT_URL);
+  const courses = await getCourseInfo();
   const courseIds = Object.keys(courses);
   const enrolledCourseIds: string[] = [];
 
