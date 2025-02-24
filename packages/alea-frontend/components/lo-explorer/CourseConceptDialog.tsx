@@ -84,7 +84,7 @@ export const CourseConceptsDialog = ({
   const selectAllKey = 'Select All';
 
   useEffect(() => {
-    if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
+    if (mmtUrl) getCourseInfo().then(setCourses);
   }, [mmtUrl]);
 
   useEffect(() => {

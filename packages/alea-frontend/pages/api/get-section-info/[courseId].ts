@@ -127,7 +127,7 @@ function addClipInfo(allSections: SectionInfo[], jsonData: any[]) {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const courseId = req.query.courseId as string;
-  const courses = await getCourseInfo(process.env.NEXT_PUBLIC_MMT_URL);
+  const courses = await getCourseInfo();
   if (!courseId || !courses[courseId]) {
     res.status(404).send(`Course not found [${courseId}]`);
     return;

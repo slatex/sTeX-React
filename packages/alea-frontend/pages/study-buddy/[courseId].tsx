@@ -92,7 +92,7 @@ const StudyBuddyPage: NextPage = () => {
     getUserInfo().then(setUserInfo);
   }, []);
   useEffect(() => {
-    getCourseInfo(mmtUrl).then(setCourses);
+    getCourseInfo().then(setCourses);
   }, [mmtUrl]);
 
   useEffect(() => {

@@ -159,7 +159,7 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
     setFeedbackReleaseTs((prev) => Math.max(prev, quizStartTs, quizEndTs));
   }, [quizStartTs, quizEndTs]);
   useEffect(() => {
-    getCourseInfo(mmtUrl).then(setCourses);
+    getCourseInfo().then(setCourses);
   }, [mmtUrl]);
 
   if (!selectedQuiz && !isNew) return <>Error</>;

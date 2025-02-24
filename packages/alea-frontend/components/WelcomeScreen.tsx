@@ -308,7 +308,7 @@ function MyCourses({ enrolledCourseIds }) {
   const { mmtUrl } = useContext(ServerLinksContext);
   const [allCourses, setAllCourses] = useState<Record<string, CourseInfo>>({});
   useEffect(() => {
-    getCourseInfo(mmtUrl).then((res) => {
+    getCourseInfo().then((res) => {
       setAllCourses(res);
     });
   }, [mmtUrl]);

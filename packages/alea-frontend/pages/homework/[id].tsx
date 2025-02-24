@@ -46,7 +46,7 @@ const HomeworkPage: NextPage = () => {
   }, [courseId]);
 
   useEffect(() => {
-    if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
+    if (mmtUrl) getCourseInfo().then(setCourses);
   }, [mmtUrl]);
 
   if (!router.isReady || !courses) return <CircularProgress />;

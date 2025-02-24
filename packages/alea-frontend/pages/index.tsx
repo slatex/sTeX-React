@@ -244,7 +244,6 @@ export function VollKiInfoSection({ bgcolor = '#F5F5F5' }: { bgcolor?: string })
 export function CourseCard({ key, course }) {
   const { imageLink: courseImage, courseName, courseId, institution, instructors } = course;
   const instructor = getInstructor(course, 'SS24') ?? instructors[0];
-  console.log('instructor--', course);
   return (
     <Link href={`/course-home/${courseId}`}>
       <Box
@@ -506,13 +505,11 @@ const StudentHomePage: NextPage = ({ filteredCourses }: { filteredCourses: Cours
 export default StudentHomePage;
 
 export async function getStaticProps() {
-  const mmtUrl = 'https://stexmmt.mathhub.info';
-  const courses = await getCourseInfo(mmtUrl);
+  const courses = await getCourseInfo();
   const filteredKeys = Object.keys(courses).filter((key) =>
     FEATURED_COURSES.includes(courses[key].courseId)
   );
   const filteredCourses = filteredKeys.map((key) => courses[key]);
-  console.log('filter --- ', filteredKeys);
   return {
     props: { filteredCourses },
     revalidate: 3600,

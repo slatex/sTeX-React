@@ -159,7 +159,7 @@ const QuizDashPage: NextPage = () => {
   });
 
   useEffect(() => {
-    if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
+    if (mmtUrl) getCourseInfo().then(setCourses);
   }, [mmtUrl]);
 
   useEffect(() => {

@@ -46,7 +46,7 @@ const CourseNotesPage: NextPage = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
-    if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
+    if (mmtUrl) getCourseInfo().then(setCourses);
   }, [mmtUrl]);
 
   useEffect(() => {

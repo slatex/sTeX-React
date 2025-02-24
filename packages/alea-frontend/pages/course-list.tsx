@@ -20,7 +20,7 @@ const CourseList: NextPage = () => {
         console.log({ docIdxData });
         setDocIdx(docIdxData);
 
-        const courseInfoData = await getCourseInfo(mmtUrl);
+        const courseInfoData = await getCourseInfo();
         setCourses(courseInfoData);
       }
     };

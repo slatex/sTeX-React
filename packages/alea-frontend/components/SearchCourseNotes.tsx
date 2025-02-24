@@ -134,7 +134,7 @@ const SearchCourseNotes = ({
     const fetchSectionData = async () => {
       if (!mmtUrl || !courseId) return;
       try {
-        const courseInfo = await getCourseInfo(mmtUrl);
+        const courseInfo = await getCourseInfo();
         const { notesArchive: archive, notesFilepath: filepath } = courseInfo[courseId] || {};
         if (archive && filepath) {
           const sections = await getDocumentSections(mmtUrl, archive, filepath);

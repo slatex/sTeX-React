@@ -156,7 +156,7 @@ const CourseViewPage: NextPage = () => {
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
   const [timestampSec, setTimestampSec] = useState(0);
   useEffect(() => {
-    if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
+    if (mmtUrl) getCourseInfo().then(setCourses);
   }, [mmtUrl]);
 
   useEffect(() => {

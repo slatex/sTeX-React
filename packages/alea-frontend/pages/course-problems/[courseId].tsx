@@ -19,7 +19,7 @@ const CourseProblemsPage: NextPage = () => {
   const { mmtUrl } = useContext(ServerLinksContext);
 
   useEffect(() => {
-    if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
+    if (mmtUrl) getCourseInfo().then(setCourses);
   }, [mmtUrl]);
 
   if (!router.isReady || !courses) return <CircularProgress />;

@@ -276,7 +276,7 @@ export interface Person {
 let CACHED_ARCHIVE_INDEX: ArchiveIndex[] | undefined = undefined;
 let CACHED_INSTITUTION_INDEX: Institution[] | undefined = undefined;
 
-export async function getDocIdx(mmtUrl: string, institution?: string) {
+export async function getDocIdx( institution?: string) {
   if (!CACHED_ARCHIVE_INDEX) {
     const res = await server.index();
     if (res) {
@@ -306,7 +306,7 @@ export async function getDocIdx(mmtUrl: string, institution?: string) {
   return [...filteredArchiveIndex, ...institutionIndex];
 }
 
-export async function getCourseInfo(mmtUrl: string, institution?: string) {
+export async function getCourseInfo(institution?: string) {
   /*  const filtered = { ...COURSES_INFO };
 
   // Don't show Luka's course on production.
@@ -315,7 +315,7 @@ export async function getCourseInfo(mmtUrl: string, institution?: string) {
   }
   return filtered;*/
   try {
-    const docIdx = await getDocIdx(mmtUrl, institution);
+    const docIdx = await getDocIdx(institution);
     const courseInfo: { [courseId: string]: CourseInfo } = {};
     for (const doc of docIdx) {
       if (doc.type !== DocIdxType.course) continue;
@@ -349,7 +349,7 @@ export async function getCourseId(
   institution: string,
   { archive, filepath }: FileLocation
 ) {
-  const courses = await getCourseInfo(mmtUrl, institution);
+  const courses = await getCourseInfo(institution);
   for (const [courseId, info] of Object.entries(courses)) {
     if (archive === info.notesArchive && filepath === info.notesFilepath) return courseId;
   }

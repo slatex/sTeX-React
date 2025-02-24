@@ -27,8 +27,7 @@ import {
 import {
   ContentFromUrl,
   DisplayReason,
-  DocumentWidthSetter,
-  ServerLinksContext,
+  DocumentWidthSetter
 } from '@stex-react/stex-react-renderer';
 import {
   Action,
@@ -43,7 +42,7 @@ import { NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { RecordedSyllabus } from '../../components/RecordedSyllabus';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
@@ -158,7 +157,6 @@ const CourseHomePage: NextPage = () => {
   const courseId = router.query.courseId as string;
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState('');
-  const { mmtUrl } = useContext(ServerLinksContext);
   const [isInstructor, setIsInstructor] = useState(false);
   const [userId, setUserId] = useState<string | undefined>(undefined);
   const [enrolled, setIsEnrolled] = useState<boolean | undefined>(undefined);
@@ -170,8 +168,8 @@ const CourseHomePage: NextPage = () => {
   }, []);
 
   useEffect(() => {
-    if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
-  }, [mmtUrl]);
+    getCourseInfo().then(setCourses);
+  }, []);
 
   useEffect(() => {
     if (!courseId) return;

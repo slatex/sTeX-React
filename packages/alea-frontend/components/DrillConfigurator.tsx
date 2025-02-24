@@ -392,7 +392,7 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
   const selectedChapters = checkedChapterIdxs.map((idx) => sectionCounts[idx].sectionTitle);
   const selectedCards = getSelectedCards(mode, shuffle, sectionCounts, selectedChapters);
   useEffect(() => {
-    getCourseInfo(mmtUrl).then((c) =>
+    getCourseInfo().then((c) =>
       setTopLevelDocUrl(XhtmlContentUrl(c[courseId]?.notesArchive, c[courseId]?.notesFilepath))
     );
   }, [courseId, mmtUrl]);
