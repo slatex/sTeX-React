@@ -9,11 +9,11 @@ import {
   IconButton,
 } from '@mui/material';
 import { getCourseInfo } from '@stex-react/api';
-import { ServerLinksContext, StexReactRenderer } from '@stex-react/stex-react-renderer';
+import { StexReactRenderer } from '@stex-react/stex-react-renderer';
 import { CourseInfo, PRIMARY_COL, XhtmlContentUrl } from '@stex-react/utils';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import SearchCourseNotes from '../../components/SearchCourseNotes';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
@@ -42,12 +42,11 @@ const CourseNotesPage: NextPage = () => {
   const t = home.courseThumb;
   const courseId = router.query.courseId as string;
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
-  const { mmtUrl } = useContext(ServerLinksContext);
   const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
-    if (mmtUrl) getCourseInfo().then(setCourses);
-  }, [mmtUrl]);
+    getCourseInfo().then(setCourses);
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

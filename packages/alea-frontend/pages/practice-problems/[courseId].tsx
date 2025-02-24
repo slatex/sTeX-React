@@ -17,8 +17,8 @@ const CourseProblemsPage: NextPage = () => {
   const { mmtUrl } = useContext(ServerLinksContext);
 
   useEffect(() => {
-    if (mmtUrl) getCourseInfo().then(setCourses);
-  }, [mmtUrl]);
+    getCourseInfo().then(setCourses);
+  }, []);
 
   useEffect(() => {
     if (!courses || !courseId) return;
