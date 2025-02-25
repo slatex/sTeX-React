@@ -1,9 +1,8 @@
 export interface CourseInfo {
   courseId: string;
   courseName: string;
-  notesArchive?: string;
-  notesFilepath: string;
-  landingFilepath: string;
+  notes: string;
+  landing: string;
   notesLink: string;
   imageLink: string;
   courseHome: string;
@@ -15,7 +14,9 @@ export interface CourseInfo {
   hasQuiz: boolean;
   institution?: string;
   instances?: { semester: string; instructors?: string[] }[];
-  instructors?: { name: string }[];
+  instructors?: string[];
+  teaser?: string;
+  slides?: string;
 }
 
 export function getSlidesLink(courseId: string) {
@@ -46,37 +47,35 @@ export const CURRENT_TERM = 'WS24-25';
 export function createCourseInfo(
   courseId: string,
   courseName: string,
-  notesArchive: string,
-  notesFilepath: string,
-  landingFilepath: string,
+  notes: string,
+  landing: string,
   isCurrent = false,
   hasQuiz = false,
   institution?: string,
   instances?: { semester: string; instructors?: string[] }[],
-  instructors?: string[]
+  instructors?: string[],
+  teaser?: string,
+  slides?: string
 ): CourseInfo {
-  notesFilepath = notesFilepath.replace('.tex', '.xhtml');
-
-  // landing filepath is language specific.
-  landingFilepath = landingFilepath.replace('.tex', '');
   return {
     courseId,
     courseName,
     imageLink: `/${courseId}.jpg`,
-    notesArchive,
-    notesFilepath,
+    notes,
     courseHome: getCourseHome(courseId),
     notesLink: getNotesLink(courseId),
     cardsLink: getCardsLink(courseId),
     slidesLink: getSlidesLink(courseId),
     forumLink: getForumLink(courseId),
     quizzesLink: getQuizzesLink(courseId),
-    landingFilepath,
+    landing,
     isCurrent,
     hasQuiz,
     institution,
     instances,
     instructors,
+    teaser,
+    slides,
   };
 }
 
@@ -97,67 +96,53 @@ export const COURSES_INFO: { [courseId: string]: CourseInfo } = {
     'ai-1',
     'Artifical Intelligence - I',
     'MiKoMH/AI',
-    'course/notes/notes1.tex',
-    'course/notes/coursepage1.tex'
+    'course/notes/notes1.tex'
   ),
   'ai-2': createCourseInfo(
     'ai-2',
     'Artifical Intelligence - II',
     'MiKoMH/AI',
     'course/notes/notes2.xhtml',
-    'course/notes/coursepage2',
     true,
     true
   ),
-  'iwgs-1': createCourseInfo(
-    'iwgs-1',
-    'IWGS - I',
-    'MiKoMH/IWGS',
-    'course/notes/notes-part1.xhtml',
-    'course/notes/coursepage1'
-  ),
+  'iwgs-1': createCourseInfo('iwgs-1', 'IWGS - I', 'MiKoMH/IWGS', 'course/notes/notes-part1.xhtml'),
   'iwgs-2': createCourseInfo(
     'iwgs-2',
     'IWGS - II',
     'MiKoMH/IWGS',
     'course/notes/notes-part2.xhtml',
-    'course/notes/coursepage2',
     true
   ),
   krmt: createCourseInfo(
     'krmt',
     'Knowledge Representation for Mathematical Theories',
     'MiKoMH/KRMT',
-    'course/notes/notes.xhtml',
-    'course/notes/coursepage'
+    'course/notes/notes.xhtml'
   ),
   lbs: createCourseInfo(
     'lbs',
     'Logic-based Natural Language Semantics',
     'MiKoMH/LBS',
-    'course/notes/notes.xhtml',
-    'course/notes/coursepage'
+    'course/notes/notes.xhtml'
   ),
   gdp: createCourseInfo(
     'gdp',
     'Grundlagen der Programmierung',
     'courses/FAU/gdp',
-    'course/notes/notes.de.xhtml',
-    'course/notes/coursepage'
+    'course/notes/notes.de.xhtml'
   ),
   f29fa1: createCourseInfo(
     'f29fa1',
     'Foundations 1',
     'courses/HW/foundations1',
-    'mod/lect2-stex.tex',
-    ''
+    'mod/lect2-stex.tex'
   ),
   rip: createCourseInfo(
     'rip',
     'Repetitorium Informatik',
     'courses/FAU/rip/course',
-    'course/notes/notes.de.xhtml',
-    'course/notes/coursepage'
+    'course/notes/notes.de.xhtml'
   ),
 };
 
