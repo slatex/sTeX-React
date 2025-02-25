@@ -241,13 +241,12 @@ export function VollKiInfoSection({ bgcolor = '#F5F5F5' }: { bgcolor?: string })
   );
 }
 
-export function CourseCard({ key, course }) {
+export function CourseCard({ course }) {
   const { imageLink: courseImage, courseName, courseId, institution, instructors } = course;
   const instructor = getInstructor(course, 'SS24') ?? instructors[0];
   return (
     <Link href={`/course-home/${courseId}`}>
       <Box
-        key={key}
         sx={{
           cursor: 'pointer',
           boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2)',
