@@ -240,37 +240,6 @@ export enum DocIdxType {
 export interface Person {
   name: string;
 }
-// export interface Instance {
-//   semester: string;
-//   instructor: string;
-// }
-// export interface DocIdx {
-//   type: DocIdxType;
-//   archive: string;
-//   title: string;
-
-//   // for type course
-//   landing?: string;
-//   acronym?: string;
-//   instructors?: Person[];
-//   institution?: string;
-//   notes?: string;
-//   slides?: string;
-//   thumbnail?: string;
-//   instances?: Instance[];
-//   quizzes?: boolean;
-
-//   // for type library
-//   teaser?: string;
-
-//   // for type book
-//   authors?: Person[];
-//   file?: string;
-//   //university detail
-//   country?: string;
-//   place?: string;
-//   url?: string;
-// }
 
 let CACHED_ARCHIVE_INDEX: ArchiveIndex[] | undefined = undefined;
 let CACHED_INSTITUTION_INDEX: Institution[] | undefined = undefined;
