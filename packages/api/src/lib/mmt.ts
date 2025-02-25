@@ -10,7 +10,6 @@ import axios from 'axios';
 import { ArchiveIndex, Institution } from './flam-types';
 import * as FLAMS from './flam';
 
-
 const FLAMS_SERVER_URL = 'https://mmt.beta.vollki.kwarc.info';
 const server = new FLAMS.FLAMSServer(FLAMS_SERVER_URL);
 
@@ -276,7 +275,7 @@ export interface Person {
 let CACHED_ARCHIVE_INDEX: ArchiveIndex[] | undefined = undefined;
 let CACHED_INSTITUTION_INDEX: Institution[] | undefined = undefined;
 
-export async function getDocIdx( institution?: string) {
+export async function getDocIdx(institution?: string) {
   if (!CACHED_ARCHIVE_INDEX) {
     const res = await server.index();
     if (res) {
@@ -327,14 +326,15 @@ export async function getCourseInfo(institution?: string) {
       courseInfo[doc.acronym] = createCourseInfo(
         doc.acronym,
         doc.title,
-        doc.landing,
         doc.notes,
         doc.landing,
         isCurrent,
         ['lbs', 'ai-1', 'iwgs-1'].includes(doc.acronym) ? true : doc.quizzes ?? false,
         doc.institution,
         doc.instances,
-        doc.instructors
+        doc.instructors,
+        doc.teaser,
+        doc.slides
       );
     }
     return courseInfo;
