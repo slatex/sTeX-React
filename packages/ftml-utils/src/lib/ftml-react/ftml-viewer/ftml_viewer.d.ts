@@ -1,10 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * sets the server url used to the provided one; by default `https://flams.mathhub.info`.
- */
-export function set_server_url(server_url: string): void;
-/**
  * activates debug logging
  */
 export function set_debug_log(): void;
@@ -39,6 +35,10 @@ export function get_document_html(doc: string): Promise<HTMLFragment>;
  */
 export function get_paragraph_html(elem: string): Promise<HTMLFragment>;
 /**
+ * sets the server url used to the provided one; by default `https://flams.mathhub.info`.
+ */
+export function set_server_url(server_url: string): void;
+/**
  * gets the current server url
  */
 export function get_server_url(): string;
@@ -48,6 +48,19 @@ export function get_server_url(): string;
  * *This API requires the following crate features to be activated: `ReadableStreamType`*
  */
 type ReadableStreamType = "bytes";
+export interface ExerciseResponse {
+    uri: string;
+    responses: ExerciseResponseType[];
+}
+
+/**
+ * Either a list of booleans (multiple choice), a single integer (single choice),
+ * or a string (fill-in-the-gaps)
+ */
+export type ExerciseResponseType = boolean[] | number | string;
+
+export type CSS = { Link: string } | { Inline: string } | { Class: { name: string; css: string } };
+
 /**
  * Options for rendering an FTML document
  * - `FromBackend`: calls the backend for the document
@@ -82,19 +95,6 @@ export interface HTMLFragment {
     html: string;
 }
 
-export interface ExerciseResponse {
-    uri: string;
-    responses: ExerciseResponseType[];
-}
-
-/**
- * Either a list of booleans (multiple choice), a single integer (single choice),
- * or a string (fill-in-the-gaps)
- */
-export type ExerciseResponseType = boolean[] | number | string;
-
-export type CSS = { Link: string } | { Inline: string } | { Class: { name: string; css: string } };
-
 export type LeptosContinuation = (e:HTMLDivElement,o:LeptosContext) => void;
 
 /**
@@ -104,7 +104,7 @@ export type LeptosContinuation = (e:HTMLDivElement,o:LeptosContext) => void;
  *    inputref itself; not the referenced Document. For the TOC,
  *    which document is inputrefed is actually irrelevant.
  */
-export type TOCElem = { Section: { title: string | undefined; uri: string; id: string; children: TOCElem[] } } | { Inputref: { uri: string; title: string | undefined; id: string; children: TOCElem[] } };
+export type TOCElem = { Section: { title: string | undefined; uri: string; id: string; children: TOCElem[] } } | { Inputref: { uri: string; title: string | undefined; id: string; children: TOCElem[] } } | { Paragraph: { styles: Name[]; kind: ParagraphKind } } | "Slide";
 
 /**
  * A Table of contents; Either:
@@ -160,6 +160,7 @@ export class LeptosContext {
    * Not calling this is a memory leak
    */
   cleanup(): void;
+  wasm_clone(): LeptosContext;
 }
 export class Solutions {
   private constructor();
