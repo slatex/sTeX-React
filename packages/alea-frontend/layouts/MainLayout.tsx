@@ -141,8 +141,6 @@ export default function MainLayout({
   const router = useRouter();
   const { header: t } = getLocaleObject(router);
   const [prevLoc, setPrevLoc] = useState('');
-  const { isRecording, setIsRecording } = useContext(PositionContext);
-  const [blink, setBlink] = useState(false);
 
   useEffect(() => {
     const loc = router.asPath;
@@ -151,68 +149,6 @@ export default function MainLayout({
     setPrevLoc(loc);
   }, [router.isReady, router.asPath]);
 
-  // useEffect(() => {
-  //   if (isRecording) {
-  //     const interval = setInterval(() => {
-  //       setBlink((prev) => !prev);
-  //     }, 500);
-  //     return () => clearInterval(interval);
-  //   } else {
-  //     setBlink(false);
-  //   }
-  // }, [isRecording]);
-
-  // const expContent = (
-  //   <>
-  //     <IconButton
-  //       onClick={() => setIsRecording(!isRecording)}
-  //       sx={{
-  //         position: 'fixed',
-  //         top: 0,
-  //         left: 0,
-  //         p: 1,
-  //         bgcolor: 'lightcoral',
-  //         zIndex: 2000,
-  //         borderRadius: '4px',
-  //         '&:hover': {
-  //           bgcolor: 'lightcoral',
-  //         },
-  //       }}
-  //     >
-  //       <GpsFixedIcon
-  //         sx={{
-  //           color: isRecording ? 'green' : 'inherit',
-  //         }}
-  //       />
-  //       {isRecording && (
-  //         <FiberManualRecordIcon
-  //           sx={{
-  //             color: blink ? 'red' : 'white',
-  //             ml: 1,
-  //           }}
-  //         />
-  //       )}
-  //     </IconButton>
-  //     <IconButton
-  //       sx={{
-  //         position: 'fixed',
-  //         bottom: 0,
-  //         right: 0,
-  //         p: 1,
-  //         bgcolor: 'lightcoral',
-  //         zIndex: 2000,
-  //         borderRadius: '4px',
-  //       }}
-  //     >
-  //       <GpsFixedIcon
-  //         sx={{
-  //           color: isRecording ? 'green' : 'inherit',
-  //         }}
-  //       />
-  //     </IconButton>
-  //     <SessionResetSlider />
-  //   </>
-  // );
   const isExpMode = localStorage.getItem('exp-mode') === 'true';
   return (
     <Box minHeight="100vh" display="flex" flexDirection="column" bgcolor={bgColor}>
