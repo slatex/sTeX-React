@@ -108,6 +108,8 @@ const PositionDataSelector: React.FC = () => {
           display: 'flex',
           justifyContent: 'space-between',
           padding: 3,
+          minWidth: '300px',
+          flexWrap: 'wrap',
         }}
       >
         {' '}
@@ -116,7 +118,7 @@ const PositionDataSelector: React.FC = () => {
             variant={expMode ? 'contained' : 'outlined'}
             onClick={toggleExpMode}
             sx={{
-              marginBottom: 1,
+              m: '10px 10px 10px 0',
             }}
           >
             {expMode ? 'Disable EXP Mode' : 'Enable EXP Mode'}

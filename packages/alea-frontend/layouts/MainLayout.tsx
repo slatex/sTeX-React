@@ -141,6 +141,7 @@ export default function MainLayout({
   const router = useRouter();
   const { header: t } = getLocaleObject(router);
   const [prevLoc, setPrevLoc] = useState('');
+  const [isExpMode, setIsExpMode] = useState(false);
 
   useEffect(() => {
     const loc = router.asPath;
@@ -149,7 +150,13 @@ export default function MainLayout({
     setPrevLoc(loc);
   }, [router.isReady, router.asPath]);
 
-  const isExpMode = localStorage.getItem('exp-mode') === 'true';
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const expMode = localStorage.getItem('exp-mode') === 'true';
+      setIsExpMode(expMode);
+    }
+  }, []);
+
   return (
     <Box minHeight="100vh" display="flex" flexDirection="column" bgcolor={bgColor}>
       <Head>
