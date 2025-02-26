@@ -50,6 +50,7 @@ import { langSelector } from './helper/langSelector';
 import { ServerLinksContext } from './stex-react-renderer';
 import { useOnScreen } from './useOnScreen';
 import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
 
 const APFEL_TOKEN = 'apfel-token';
 export const CustomItemsContext = createContext<{
@@ -70,10 +71,28 @@ interface PositionData {
 
 export const PositionContext = createContext<{
   addPosition: (position: PositionData) => void;
+  isRecording: boolean;
+  setIsRecording: (state: boolean) => void;
 }>(null as any);
 
+const getDeviceId = () => {
+  let deviceId = localStorage.getItem('deviceId');
+  if (!deviceId) {
+    (deviceId = uuidv4().substring(0, 8)), localStorage.setItem('deviceId', deviceId);
+  }
+  return deviceId;
+};
+const getRecordingId = () => {
+  let recordingId = sessionStorage.getItem('recordingId');
+  if (!recordingId) {
+    recordingId = new Date().toISOString();
+    sessionStorage.setItem('recordingId', recordingId);
+  }
+  return recordingId;
+};
 export const PositionProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [positions, setPositions] = useState<PositionData[]>([]);
+  const [isRecording, setIsRecording] = useState<boolean>(false);
 
   const addPosition = (position: PositionData) => {
     setPositions((prev) => {
@@ -95,12 +114,16 @@ export const PositionProvider: React.FC<{ children: ReactNode }> = ({ children }
   };
 
   useEffect(() => {
-    if (positions.length === 0) return;
+    if (positions.length === 0 || !isRecording) return;
+
     const timer = setTimeout(() => {
       const browserCurrentTime = new Date().toISOString();
       const pageUrl = window.location.href;
-
+      const deviceId = getDeviceId();
+      const recordingId = getRecordingId();
       const payload = {
+        deviceId,
+        recordingId,
         browserCurrentTime,
         pageUrl,
         positions,
@@ -115,9 +138,13 @@ export const PositionProvider: React.FC<{ children: ReactNode }> = ({ children }
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [positions]);
+  }, [positions, isRecording]);
 
-  return <PositionContext.Provider value={{ addPosition }}>{children}</PositionContext.Provider>;
+  return (
+    <PositionContext.Provider value={{ addPosition, isRecording, setIsRecording }}>
+      {children}
+    </PositionContext.Provider>
+  );
 };
 
 export const NoMaxWidthTooltip = styled(({ className, ...props }: TooltipProps) => (
