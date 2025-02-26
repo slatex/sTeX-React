@@ -1,5 +1,6 @@
 import { useMatomo } from '@jonkoops/matomo-tracker-react';
-import { Box, Toolbar } from '@mui/material';
+import { Box, IconButton, Toolbar } from '@mui/material';
+import GpsFixedIcon from '@mui/icons-material/GpsFixed';
 import { ReportProblemPopover } from '@stex-react/report-a-problem';
 import { PRIMARY_COL, SECONDARY_COL } from '@stex-react/utils';
 import Head from 'next/head';
@@ -53,6 +54,33 @@ export default function MainLayout({
           working to get it resolved and apologize for the inconvenience.
         </Typography>*/}
         <Box>{children}</Box>
+        <IconButton
+          sx={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            p: 1,
+            bgcolor: 'lightcoral',
+            zIndex: 2000,
+            borderRadius: '4px',
+          }}
+        >
+          <GpsFixedIcon />
+        </IconButton>
+
+        <IconButton
+          sx={{
+            position: 'fixed',
+            bottom: 0,
+            right: 0,
+            p: 1,
+            bgcolor: 'lightcoral',
+            zIndex: 2000,
+            borderRadius: '4px',
+          }}
+        >
+          <GpsFixedIcon />
+        </IconButton>
       </main>
       <footer id="footer">
         <Toolbar
