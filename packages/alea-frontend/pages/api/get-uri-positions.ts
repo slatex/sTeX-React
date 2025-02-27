@@ -10,7 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const deviceId = positionData.deviceId;
   const recordingId = positionData.recordingId;
   if (!deviceId) return;
-  const directoryPath = path.join(process.cwd(), 'position-data', deviceId);
+  const directoryPath = path.join(process.env.BASE_POSITION_PATH, deviceId);
   const fileName = `${recordingId}.json`;
   const filePath = path.join(directoryPath, fileName);
 
