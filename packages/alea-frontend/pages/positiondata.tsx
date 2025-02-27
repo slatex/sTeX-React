@@ -1,20 +1,20 @@
-import { useState, useEffect } from 'react';
+import { ContentCopy } from '@mui/icons-material';
 import {
   Box,
-  Select,
-  MenuItem,
-  Typography,
-  IconButton,
-  Tooltip,
+  Button,
   Card,
   CardContent,
   CardHeader,
   CircularProgress,
-  Button,
+  IconButton,
+  MenuItem,
+  Select,
+  Tooltip,
+  Typography,
 } from '@mui/material';
-import { ContentCopy } from '@mui/icons-material';
-import MainLayout from '../layouts/MainLayout';
 import axios from 'axios';
+import { useEffect, useState } from 'react';
+import MainLayout from '../layouts/MainLayout';
 
 const PositionDataSelector: React.FC = () => {
   const [deviceIds, setDeviceIds] = useState<string[]>([]);
@@ -121,11 +121,13 @@ const PositionDataSelector: React.FC = () => {
               m: '10px 10px 10px 0',
             }}
           >
-            {expMode ? 'Disable EXP Mode' : 'Enable EXP Mode'}
+            {expMode ? 'Disable Tracking' : 'Enable Tracking'}
           </Button>
           <Typography variant="body1" sx={{ color: 'text.secondary', p: 0.5 }}>
-            Exp Mode is {expMode ? 'Enabled' : 'Disabled'}
-          </Typography>{' '}
+            Concept Position Tracking is {expMode ? 'Enabled' : 'Disabled'}
+            <br/>
+            Your device id is <b>{selectedDeviceId || 'not set'}</b>
+          </Typography>
         </Box>
         <Card
           sx={{
