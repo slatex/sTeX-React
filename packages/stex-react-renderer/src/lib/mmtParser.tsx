@@ -10,7 +10,7 @@ import {
   getUserInformation,
   isLoggedIn,
   lastFileNode,
-  reportEvent
+  reportEvent,
 } from '@stex-react/api';
 import { PROBLEM_PARSED_MARKER, getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
 import {
@@ -24,7 +24,15 @@ import CodeMirror from '@uiw/react-codemirror';
 import { getOuterHTML } from 'domutils';
 import parse, { DOMNode, Element, domToReact } from 'html-react-parser';
 import { ElementType } from 'htmlparser2';
-import { createContext, forwardRef, useContext, useEffect, useRef, useState } from 'react';
+import {
+  createContext,
+  forwardRef,
+  ReactNode,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { Slide } from 'react-slideshow-image';
 import 'react-slideshow-image/dist/styles.css';
 import { ContentFromUrl } from './ContentFromUrl';
@@ -41,11 +49,103 @@ import TrafficLightIndicator from './TrafficLightIndicator';
 import { langSelector } from './helper/langSelector';
 import { ServerLinksContext } from './stex-react-renderer';
 import { useOnScreen } from './useOnScreen';
+import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
 
 const APFEL_TOKEN = 'apfel-token';
 export const CustomItemsContext = createContext<{
   items: { [tag: string]: JSX.Element };
 }>({ items: {} });
+
+interface PositionData {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+  width: number;
+  height: number;
+  conceptName: string;
+  conceptRenderedName: string;
+  uri: string;
+}
+
+export const PositionContext = createContext<{
+  addPosition: (position: PositionData) => void;
+  isRecording: boolean;
+  setIsRecording: (state: boolean) => void;
+}>(null as any);
+
+const getDeviceId = () => {
+  let deviceId = localStorage.getItem('deviceId');
+  if (!deviceId) {
+    (deviceId = uuidv4().substring(0, 8)), localStorage.setItem('deviceId', deviceId);
+  }
+  return deviceId;
+};
+const getRecordingId = () => {
+  let recordingId = sessionStorage.getItem('recordingId');
+  if (!recordingId) {
+    recordingId = new Date().toISOString();
+    sessionStorage.setItem('recordingId', recordingId);
+  }
+  return recordingId;
+};
+export const PositionProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [positions, setPositions] = useState<PositionData[]>([]);
+  const [isRecording, setIsRecording] = useState<boolean>(false);
+
+  const addPosition = (position: PositionData) => {
+    setPositions((prev) => {
+      const isDuplicate = prev.some(
+        (p) =>
+          p.top === position.top &&
+          p.left === position.left &&
+          p.width === position.width &&
+          p.height === position.height &&
+          p.conceptName === position.conceptName &&
+          p.uri === position.uri
+      );
+
+      if (!isDuplicate) {
+        return [...prev, position];
+      }
+      return prev;
+    });
+  };
+
+  useEffect(() => {
+    if (positions.length === 0 || !isRecording) return;
+
+    const timer = setTimeout(() => {
+      const browserCurrentTime = new Date().toISOString();
+      const pageUrl = window.location.href;
+      const deviceId = getDeviceId();
+      const recordingId = getRecordingId();
+      const payload = {
+        deviceId,
+        recordingId,
+        browserCurrentTime,
+        pageUrl,
+        positions,
+      };
+
+      axios
+        .post('/api/get-uri-positions', payload)
+        .then(() => console.log('Data sent successfully'))
+        .catch((error) => console.error('Error sending data', error));
+
+      setPositions([]);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [positions, isRecording]);
+
+  return (
+    <PositionContext.Provider value={{ addPosition, isRecording, setIsRecording }}>
+      {children}
+    </PositionContext.Provider>
+  );
+};
 
 export const NoMaxWidthTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
@@ -58,6 +158,55 @@ export const NoMaxWidthTooltip = styled(({ className, ...props }: TooltipProps) 
   },
 });
 
+function Test({ children }: { children: any }) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const { addPosition } = useContext(PositionContext);
+
+  useEffect(() => {
+    const sendPositionData = () => {
+      if (!ref.current) return;
+      const rect = ref.current.getBoundingClientRect();
+      const overlayLink =
+        ref.current
+          .querySelector('.symcomp.group-highlight.rustex-contents')
+          ?.getAttribute('data-overlay-link-click') || '';
+      const cleanedOverlayUri = overlayLink.split('/:sTeX/declaration?')[1] || '';
+
+      const definitionUri =
+        ref.current
+          .querySelector('.definiendum.group-highlight.hasoverlay-parent.rustex-contents')
+          ?.getAttribute('data-definiendum-uri') || '';
+      const uri = cleanedOverlayUri || definitionUri || '';
+      const conceptName = uri.substring(uri.lastIndexOf('?') + 1).split('&')[0] || '';
+      const conceptRenderedName = ref.current.textContent || '';
+      if (rect.bottom <= 0 || rect.top >= window.innerHeight) return;
+      const positionData = {
+        top: rect.top,
+        bottom: rect.bottom,
+        left: rect.left,
+        right: rect.right,
+        width: rect.width,
+        height: rect.height,
+        conceptName,
+        conceptRenderedName,
+        uri,
+      };
+
+      addPosition(positionData);
+    };
+
+    sendPositionData();
+    const intervalId = setInterval(sendPositionData, 1000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
+  return (
+    <div ref={ref} style={{ display: 'inline' }}>
+      {children}
+    </div>
+  );
+}
 function getElement(domNode: DOMNode): Element | undefined {
   // (domNode instanceof Element) doesn't work.
   // Perhaps, there is some versioning issue. But we still use the type 'Element'
@@ -460,6 +609,7 @@ const ApfelHrefWithToken = ({ href, children }: { href: string; children: React.
 
 export const replace = (d: DOMNode): any => {
   const domNode = getElement(d);
+  const isExpMode = localStorage.getItem('exp-mode') === 'true';
 
   if (!domNode) return;
 
@@ -573,7 +723,17 @@ export const replace = (d: DOMNode): any => {
   const definiendaUri = domNode.attribs?.['data-definiendum-uri'];
   if (definiendaUri && !definiendumProcessed) {
     domNode.attribs['definiendum-processed'] = 'true';
-    return <Definiendum node={domNode} />;
+    return (
+      <>
+        {isExpMode ? (
+          <Test>
+            <Definiendum node={domNode} />
+          </Test>
+        ) : (
+          <Definiendum node={domNode} />
+        )}
+      </>
+    );
   }
   const hoverLink = isHoverON() ? domNode.attribs['data-overlay-link-hover'] : undefined;
   const clickLink = domNode.attribs['data-overlay-link-click'];
@@ -626,7 +786,15 @@ export const replace = (d: DOMNode): any => {
               )
             }
           >
-            {hoverParent ? <WithHighlightable /> : (domToReact([domNode], { replace }) as any)}
+            {isExpMode ? (
+              <Test>
+                {hoverParent ? <WithHighlightable /> : (domToReact([domNode], { replace }) as any)}
+              </Test>
+            ) : hoverParent ? (
+              <WithHighlightable />
+            ) : (
+              (domToReact([domNode], { replace }) as any)
+            )}
           </NoMaxWidthTooltip>
         )}
       />
