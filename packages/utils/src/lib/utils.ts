@@ -130,7 +130,10 @@ export function PathToTour(tourId: string) {
   const encoded = encodeURIComponent(tourId);
   return `/guided-tour/${encoded}`;
 }
-
+export function PathToTour2(tourId: string) {
+  const encoded = encodeURIComponent(tourId);
+  return `/guided-tour2/${encoded}`;
+}
 export function texPathToXhtml(texFilepath: string) {
   return texFilepath.slice(0, -3) + 'xhtml';
 }
