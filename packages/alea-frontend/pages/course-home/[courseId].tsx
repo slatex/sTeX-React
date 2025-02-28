@@ -27,7 +27,7 @@ import {
 import {
   ContentFromUrl,
   DisplayReason,
-  DocumentWidthSetter
+  DocumentWidthSetter,
 } from '@stex-react/stex-react-renderer';
 import {
   Action,
@@ -357,15 +357,7 @@ const CourseHomePage: NextPage = () => {
           </Box>
         )}
         <br />
-        <DocumentWidthSetter>
-          <ContentFromUrl
-            displayReason={DisplayReason.NOTES}
-            url={XhtmlContentUrl(
-              courseInfo.notesArchive,
-              `${courseInfo.landingFilepath}.${locale}.xhtml`
-            )}
-          />
-        </DocumentWidthSetter>
+          we will use FTMLVIEWER
         <br />
         <br />
 

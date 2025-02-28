@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   );
 
   const { courseId } = req.query;
-  const courseInfo = (await getCourseInfo(process.env.NEXT_PUBLIC_MMT_URL))[
+  const courseInfo = (await getCourseInfo())[
     courseId
   ];
   if (!courseInfo) {

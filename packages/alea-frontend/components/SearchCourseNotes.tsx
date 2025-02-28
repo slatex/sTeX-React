@@ -102,7 +102,7 @@ function ResultDocument({
         </Typography>
         <hr />
         <ExpandableContent
-          contentUrl={XhtmlContentUrl(reference.archive, `${reference.filepath}.xhtml`)}
+          contentUrl={"we will use FTMLVIEWER"}
           noFurtherExpansion
         />
       </Box>

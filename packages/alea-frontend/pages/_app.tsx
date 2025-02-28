@@ -5,6 +5,10 @@ import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { PRIMARY_COL, SECONDARY_COL } from '@stex-react/utils';
 import { AppProps } from 'next/app';
 import './styles.scss';
+import { setDebugLog, setServerUrl } from '@stex-react/ftml-utils';
+
+setDebugLog();
+setServerUrl('https://mmt.beta.vollki.kwarc.info');
 
 const instance = createInstance({
   urlBase: 'https://matomo.kwarc.info',

@@ -393,7 +393,7 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
   const selectedCards = getSelectedCards(mode, shuffle, sectionCounts, selectedChapters);
   useEffect(() => {
     getCourseInfo().then((c) =>
-      setTopLevelDocUrl(XhtmlContentUrl(c[courseId]?.notesArchive, c[courseId]?.notesFilepath))
+      setTopLevelDocUrl("we will use FTMLVIEWER")
     );
   }, [courseId, mmtUrl]);
   useEffect(() => {
