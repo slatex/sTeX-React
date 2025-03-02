@@ -6,6 +6,7 @@ export async function addAnswerClassesToGrading(
   grading: GradingWithAnswer[],
   res: NextApiResponse
 ) {
+  if (grading.length === 0) return grading;
   const gradingAnswerClassess = await executeAndEndSet500OnError<GradingAnswerClass[]>(
     `SELECT gradingId,answerClassId,points,isTrait,closed,title,description,count from GradingAnswerClass where gradingId in (?)`,
     [grading.map((c) => c.id)],

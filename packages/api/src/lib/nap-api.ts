@@ -132,6 +132,9 @@ export async function getReviewItems(courseId: string) {
     })
   ).data;
 }
-export async function deleteReview(id: number) {
-  return axios.post('/api/nap/admin/delete-peer-review', { id }, { headers: getAuthHeaders() });
+export async function deleteReview(id: number, courseId: string) {
+  return axios.get(
+    '/api/nap/admin/delete-peer-review',
+    { headers: getAuthHeaders(), params: { id, courseId } }
+  );
 }

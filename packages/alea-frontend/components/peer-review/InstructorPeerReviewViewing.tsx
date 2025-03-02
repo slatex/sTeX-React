@@ -1,7 +1,7 @@
 import { Box, Button, IconButton, List, ListItemButton, ListItemText } from '@mui/material';
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import { MultiItemSelector } from '../nap/MultiItemsSeletctor';
-import { GradingWithAnswer } from '@stex-react/api';
+import { deleteGraded, deleteReview, getReviewItems, GradingWithAnswer } from '@stex-react/api';
 import { SettingsBackupRestore } from '@mui/icons-material';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
@@ -40,7 +40,7 @@ export default function InstructorPeerReviewViewing({ courseId }: { courseId: st
   );
   const onDelete = (id: number) => {
     if (confirm('Are you sure you want to delete this grade?')) {
-      deleteGraded(id).then(() => {
+      deleteReview(id,courseId).then(() => {
         getReviewItems(courseId).then((items) => setReviewItems(items));
       });
       setSelected(undefined);
@@ -183,16 +183,6 @@ function PeerReviewItemOrganizer({
             }))
           }
         />
-      </Box>
-      <Box my={1}>
-        <Button
-          variant="contained"
-          onClick={() =>
-            setSortAndFilterParams({
-              ...sortAndFilterParams,
-            })
-          }
-        ></Button>
       </Box>
       <PeerReviewListSortFields
         sortAndFilterParams={sortAndFilterParams}
