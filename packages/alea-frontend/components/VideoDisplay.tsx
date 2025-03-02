@@ -26,7 +26,15 @@ import {
 import { localStore, PathToTour2 } from '@stex-react/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from 'react';
+import {
+  Dispatch,
+  MutableRefObject,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
 
@@ -63,7 +71,7 @@ export default function SeekVideo({
             padding: '5px',
             backgroundColor: '#1976d2',
             color: 'white',
-            margin: '10px',
+            margin: '5px',
             '&:hover': {
               backgroundColor: '#1565c0',
             },
@@ -91,7 +99,7 @@ function ToggleResolution({
 }) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   return (
-    <Box display="flex" alignItems="center" border={'1px solid #CCC'} zIndex="1">
+    <Box display="flex" alignItems="center" border={'1px solid #CCC'} zIndex="1" sx={{ mb: 1 }}>
       <IconButton onClick={() => setAudioOnly(!audioOnly)}>
         <Tooltip title={audioOnly ? 'Show Video' : 'Audio Only'}>
           {audioOnly ? <VideocamIcon /> : <MusicNote />}
@@ -170,11 +178,13 @@ const MediaItem = ({
   courseDocSections?: SectionsAPIData;
   autoSync?: boolean;
 }) => {
-  const playerRef = useRef<HTMLVideoElement | null>(null);
+  const playerRef = useRef<HTMLVideoElement | HTMLAudioElement>(null);
   const videoPlayer = useRef<any>(null);
   const [tooltip, setTooltip] = useState<string>('');
   const [overlay, setOverlay] = useState<{ title: string; description: string } | null>(null);
   const lastMarkerRef = useRef<number | null>(null);
+  const autoSyncRef = useRef(autoSync);
+  const prevAutoSyncRef = useRef(false);
   const router = useRouter();
   const [concepts, setConcepts] = useState<string[]>([]);
   const { mmtUrl } = useContext(ServerLinksContext);
@@ -199,139 +209,153 @@ const MediaItem = ({
   };
 
   useEffect(() => {
-    if (playerRef.current) {
-      videoPlayer.current = videojs(playerRef.current, {
-        controls: true,
-        preload: 'auto',
-        autoplay: true,
-        sources: [{ src: videoId, type: 'video/mp4' }],
-      });
-      const controlBar = playerRef.current.parentNode.querySelector(
-        '.vjs-control-bar'
-      ) as HTMLElement;
-      if (controlBar) {
-        controlBar.style.paddingBottom = '30px';
-        controlBar.style.paddingTop = '10px';
-        controlBar.style.position = 'absolute';
-        controlBar.style.zIndex = '9999';
-      }
+    autoSyncRef.current = autoSync;
+  }, [autoSync]);
 
-      const progressBar = playerRef.current.parentNode.querySelector(
-        '.vjs-progress-holder'
-      ) as HTMLElement;
-      if (progressBar) {
-        progressBar.style.marginTop = '20px';
-      }
-
-      const bigPlayButton = playerRef.current.parentNode.querySelector('.vjs-big-play-button');
-      if (bigPlayButton) {
-        const playIcon = bigPlayButton.querySelector('.vjs-icon-placeholder') as HTMLElement;
-        if (playIcon) {
-          playIcon.style.bottom = '5px';
-          playIcon.style.paddingRight = '25px';
+  useEffect(() => {
+    if (audioOnly) {
+      return;
+    } else {
+      if (playerRef.current) {
+        videoPlayer.current = videojs(playerRef.current, {
+          controls: !audioOnly,
+          preload: 'auto',
+          autoplay: true,
+          sources: [{ src: videoId, type: 'video/mp4' }],
+        });
+        const controlBar = playerRef.current.parentNode.querySelector(
+          '.vjs-control-bar'
+        ) as HTMLElement;
+        if (controlBar) {
+          controlBar.style.paddingBottom = '30px';
+          controlBar.style.paddingTop = '10px';
+          controlBar.style.position = 'absolute';
+          controlBar.style.zIndex = '9999';
         }
-      }
 
-      const textTrackDisplay = playerRef.current.parentNode.querySelector(
-        '.vjs-text-track-display'
-      ) as HTMLElement;
-      if (textTrackDisplay) {
-        Object.assign(textTrackDisplay.style, {
-          insetBlock: '0px',
-          position: 'absolute',
-          top: '0',
-          left: '0',
-          right: '0',
-          bottom: '0',
-          margin: '0',
-          padding: '0',
-        });
-      }
+        const progressBar = playerRef.current.parentNode.querySelector(
+          '.vjs-progress-holder'
+        ) as HTMLElement;
+        if (progressBar) {
+          progressBar.style.marginTop = '20px';
+        }
 
-      videoPlayer.current.on('loadedmetadata', () => {
-        const progressHolder = videoPlayer.current.controlBar.progressControl.seekBar.el();
-        const videoDuration = videoPlayer.current.duration();
-        if (timestampSec) videoPlayer.current.currentTime(timestampSec);
-
-        markers.forEach((marker) => {
-          if (marker.time < videoDuration) {
-            const markerElement = document.createElement('div');
-            markerElement.className = 'custom-marker';
-            markerElement.dataset.label = marker.label;
-            markerElement.dataset.time = marker.time.toString();
-            markerElement.dataset.sectionId = marker.data.sectionId;
-            markerElement.dataset.slideIndex = String(marker.data.slideIndex);
-
-            Object.assign(markerElement.style, {
-              position: 'absolute',
-              top: '0',
-              width: '6px',
-              height: '100%',
-              backgroundColor: 'yellow',
-              left: `${(marker.time / videoDuration) * 100}%`,
-              zIndex: '10',
-              cursor: 'pointer',
-            });
-
-            markerElement.addEventListener('mouseenter', () =>
-              setTooltip(`${marker.label} - ${marker.time}s`)
-            );
-            markerElement.addEventListener('mouseleave', () => setTooltip(''));
-            markerElement.addEventListener('click', () => handleMarkerClick(marker));
-
-            progressHolder.appendChild(markerElement);
+        const bigPlayButton = playerRef.current.parentNode.querySelector('.vjs-big-play-button');
+        if (bigPlayButton) {
+          const playIcon = bigPlayButton.querySelector('.vjs-icon-placeholder') as HTMLElement;
+          if (playIcon) {
+            playIcon.style.bottom = '5px';
+            playIcon.style.paddingRight = '25px';
           }
-        });
-      });
-      const markersInDescOrder: Marker[] = markers.sort((a, b) => b.time - a.time);
-      videoPlayer.current.on('playing', () => {
-        setOverlay(null);
-      });
-      videoPlayer.current.on('pause', () => {
-        const currentTime = videoPlayer.current.currentTime();
-        const markerIndex = markersInDescOrder.findIndex((marker) => marker.time <= currentTime);
-        if (markerIndex < 0) return;
-        const newMarker = markersInDescOrder[markerIndex];
-        handleMarkerClick(newMarker);
-      });
-      console.log('in', autoSync);
+        }
 
-      videoPlayer.current.on('timeupdate', () => {
-        const currentTime = videoPlayer.current.currentTime();
-        const availableMarkers = Array.from(
-          document.querySelectorAll('.custom-marker')
-        ) as HTMLElement[];
+        const textTrackDisplay = playerRef.current.parentNode.querySelector(
+          '.vjs-text-track-display'
+        ) as HTMLElement;
+        if (textTrackDisplay) {
+          Object.assign(textTrackDisplay.style, {
+            insetBlock: '0px',
+            position: 'absolute',
+            top: '0',
+            left: '0',
+            right: '0',
+            bottom: '0',
+            margin: '0',
+            padding: '0',
+          });
+        }
 
-        let latestMarker: HTMLElement | null = null;
-        for (const marker of availableMarkers) {
-          const markerTime = parseInt(marker.dataset.time, 10);
-          if (currentTime >= markerTime) {
-            marker.style.backgroundColor = 'green';
-            if (!latestMarker) {
-              latestMarker = marker;
+        videoPlayer.current.on('loadedmetadata', () => {
+          const progressHolder = videoPlayer.current.controlBar.progressControl.seekBar.el();
+          const videoDuration = videoPlayer.current.duration();
+          if (timestampSec) videoPlayer.current.currentTime(timestampSec);
+
+          markers.forEach((marker) => {
+            if (marker.time < videoDuration) {
+              const markerElement = document.createElement('div');
+              markerElement.className = 'custom-marker';
+              markerElement.dataset.label = marker.label;
+              markerElement.dataset.time = marker.time.toString();
+              markerElement.dataset.sectionId = marker.data.sectionId;
+              markerElement.dataset.slideIndex = String(marker.data.slideIndex);
+
+              Object.assign(markerElement.style, {
+                position: 'absolute',
+                top: '0',
+                width: '6px',
+                height: '100%',
+                backgroundColor: 'yellow',
+                left: `${(marker.time / videoDuration) * 100}%`,
+                zIndex: '10',
+                cursor: 'pointer',
+              });
+
+              markerElement.addEventListener('mouseenter', () =>
+                setTooltip(`${marker.label} - ${marker.time}s`)
+              );
+              markerElement.addEventListener('mouseleave', () => setTooltip(''));
+              markerElement.addEventListener('click', () => handleMarkerClick(marker));
+
+              progressHolder.appendChild(markerElement);
             }
-          } else {
-            marker.style.backgroundColor = 'yellow';
+          });
+        });
+        const markersInDescOrder: Marker[] = markers.sort((a, b) => b.time - a.time);
+        videoPlayer.current.on('playing', () => {
+          setOverlay(null);
+        });
+        videoPlayer.current.on('pause', () => {
+          const currentTime = videoPlayer.current.currentTime();
+          const markerIndex = markersInDescOrder.findIndex((marker) => marker.time <= currentTime);
+          if (markerIndex < 0) return;
+          const newMarker = markersInDescOrder[markerIndex];
+          handleMarkerClick(newMarker);
+        });
+
+        videoPlayer.current.on('timeupdate', () => {
+          const currentTime = videoPlayer.current.currentTime();
+          const availableMarkers = Array.from(
+            document.querySelectorAll('.custom-marker')
+          ) as HTMLElement[];
+
+          let latestMarker: HTMLElement | null = null;
+          for (const marker of availableMarkers) {
+            const markerTime = parseInt(marker.dataset.time, 10);
+            if (currentTime >= markerTime) {
+              marker.style.backgroundColor = 'green';
+              if (!latestMarker) {
+                latestMarker = marker;
+              }
+            } else {
+              marker.style.backgroundColor = 'yellow';
+            }
           }
-        }
-        if (markersInDescOrder.length === 0) return;
-        const markerIndex = markersInDescOrder.findIndex((marker) => marker.time <= currentTime);
-        if (markerIndex < 0) return;
-        const newMarker = markersInDescOrder[markerIndex];
-        if (lastMarkerRef.current !== newMarker.time) {
-          lastMarkerRef.current = newMarker.time;
-          console.log({ autoSync });
-          if (autoSync && clipIds?.[newMarker?.data?.sectionId] === clipId) {
-            setSlideNumAndSectionId(
-              router,
-              newMarker?.data?.slideIndex,
-              newMarker?.data?.sectionId
-            );
+          if (markersInDescOrder.length === 0) return;
+          const markerIndex = markersInDescOrder.findIndex((marker) => marker.time <= currentTime);
+          if (markerIndex < 0) return;
+          const newMarker = markersInDescOrder[markerIndex];
+          if (
+            lastMarkerRef.current !== newMarker.time ||
+            (prevAutoSyncRef.current === false && autoSyncRef.current === true)
+          ) {
+            lastMarkerRef.current = newMarker.time;
+            if (autoSyncRef.current && clipIds?.[newMarker?.data?.sectionId] === clipId) {
+              console.log('inside');
+              setSlideNumAndSectionId(
+                router,
+                newMarker?.data?.slideIndex,
+                newMarker?.data?.sectionId
+              );
+            }
           }
-        }
-      });
+          prevAutoSyncRef.current = autoSyncRef.current;
+        });
+      }
     }
-  }, [markers, timestampSec, videoId, autoSync]);
+    return () => {
+      playerRef.current?.pause();
+    };
+  }, [markers, timestampSec, videoId]);
 
   useEffect(() => {
     if (videoPlayer.current && timestampSec !== undefined) {
@@ -354,10 +378,26 @@ const MediaItem = ({
 
   const handleMouseLeave = () => setTooltip('');
 
+  if (audioOnly) {
+    return (
+      <audio
+        autoPlay={true}
+        src={videoId}
+        preload="auto"
+        controls
+        onLoadedMetadata={() => {
+          if (timestampSec) playerRef.current.currentTime = timestampSec;
+        }}
+        style={{ width: '100%', background: '#f1f3f4' }}
+        ref={playerRef}
+      ></audio>
+    );
+  }
   return (
     <Box style={{ marginBottom: '7px', position: 'relative' }}>
       <video
-        ref={playerRef}
+        key="videoPlayer"
+        ref={playerRef as MutableRefObject<HTMLVideoElement>}
         className="video-js vjs-fluid vjs-styles=defaults vjs-big-play-centered"
         style={{ border: '0.5px solid black', borderRadius: '8px' }}
         onMouseMove={handleMouseMove}
@@ -660,7 +700,7 @@ export function VideoDisplay({
   const handleKeyRelease = (e) => {
     if (e.key === 'Shift') setReveal(false);
   };
-  if (isLoading) return <CircularProgress />;
+  if (isLoading) return <CircularProgress sx={{ mb: '15px' }} />;
   if (!videoId) return <i>Video not available for this section</i>;
 
   return (
@@ -698,11 +738,13 @@ export function VideoDisplay({
             }}
             availableResolutions={availableRes}
           />
-          <SeekVideo
-            currentSlideClipInfo={currentSlideClipInfo}
-            setTimestampSec={setTimestampSec}
-            setCurrentClipId={setCurrentClipId}
-          />
+          {!audioOnly && (
+            <SeekVideo
+              currentSlideClipInfo={currentSlideClipInfo}
+              setTimestampSec={setTimestampSec}
+              setCurrentClipId={setCurrentClipId}
+            />
+          )}
           <Box
             onKeyDown={handleKeyPress}
             onKeyUp={handleKeyRelease}

@@ -2,12 +2,11 @@ import FirstPageIcon from '@mui/icons-material/FirstPage';
 import LastPageIcon from '@mui/icons-material/LastPage';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import SyncLockIcon from '@mui/icons-material/SyncLock';
-import { Badge, Link, Popover, Typography } from '@mui/material';
+import { Badge, Popover, Typography } from '@mui/material';
 import MovieIcon from '@mui/icons-material/Movie';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { Box, IconButton, LinearProgress, Tooltip } from '@mui/material';
-import { ClipInfo, Slide, SlideClipInfo, SlideType } from '@stex-react/api';
+import { ClipInfo, Slide } from '@stex-react/api';
 import {
   ContentWithHighlight,
   DocumentWidthSetter,
@@ -18,9 +17,9 @@ import { XhtmlContentUrl } from '@stex-react/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { Dispatch, memo, SetStateAction, useEffect, useState } from 'react';
-import { ClipData, setSlideNumAndSectionId, ViewMode } from '../pages/course-view/[courseId]';
+import { setSlideNumAndSectionId } from '../pages/course-view/[courseId]';
 import styles from '../styles/slide-deck.module.scss';
-import { InsertLink } from '@mui/icons-material';
+import { InsertLink, LinkOff } from '@mui/icons-material';
 
 export function SlideNavBar({
   slideNum,
@@ -176,6 +175,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
   onClipChange,
   autoSync,
   setAutoSync,
+  audioOnly,
 }: {
   courseId: string;
   sectionId: string;
@@ -193,6 +193,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
   onClipChange?: (clip: any) => void;
   autoSync?: boolean;
   setAutoSync?: Dispatch<SetStateAction<boolean>>;
+  audioOnly?: boolean;
 }) {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -324,8 +325,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
       )}
       <Box display="flex" justifyContent="space-between" alignItems="center" width="100%">
         <Box flex={1} />
-
-        {isDebugVideo && (
+        {isDebugVideo && !audioOnly && (
           <Box>
             <Tooltip title={autoSync ? 'Disable video-slide sync' : 'Sync video to slides'}>
               <IconButton
@@ -336,14 +336,18 @@ export const SlideDeck = memo(function SlidesFromUrl({
                   mt: '-10px',
                 }}
               >
-                <InsertLink sx={{ fontSize: '1.5rem', transform: 'rotate(90deg)' }} />
+                {autoSync ? (
+                  <InsertLink sx={{ fontSize: '1.5rem', transform: 'rotate(90deg)' }} />
+                ) : (
+                  <LinkOff sx={{ fontSize: '1.5rem', transform: 'rotate(90deg)' }} />
+                )}
               </IconButton>
             </Tooltip>
           </Box>
         )}
 
         <Box display="flex" justifyContent="flex-end" flex={1}>
-          {isDebugVideo && <ClipSelector clips={clips} onClipChange={onClipChange} />}
+          {isDebugVideo && !audioOnly && <ClipSelector clips={clips} onClipChange={onClipChange} />}
           <SlideNavBar
             slideNum={slideNum}
             numSlides={slides.length}

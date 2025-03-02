@@ -371,6 +371,7 @@ const CourseViewPage: NextPage = () => {
                 onClipChange={onClipChange}
                 autoSync={autoSync}
                 setAutoSync={setAutoSync}
+                audioOnly={audioOnly}
               />
             )}
             <hr style={{ width: '98%', padding: '1px 0' }} />
