@@ -3,7 +3,7 @@ import LastPageIcon from '@mui/icons-material/LastPage';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { Box, IconButton, LinearProgress } from '@mui/material';
-import { Slide } from '@stex-react/api';
+import { Slide, SlideClipInfo, SlideType } from '@stex-react/api';
 import {
   ContentWithHighlight,
   DocumentWidthSetter,
@@ -14,7 +14,7 @@ import { XhtmlContentUrl } from '@stex-react/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { memo, useEffect, useState } from 'react';
-import { setSlideNumAndSectionId } from '../pages/course-view/[courseId]';
+import { setSlideNumAndSectionId, ViewMode } from '../pages/course-view/[courseId]';
 import styles from '../styles/slide-deck.module.scss';
 
 export function SlideNavBar({
@@ -66,8 +66,10 @@ export const SlideDeck = memo(function SlidesFromUrl({
   sectionId,
   navOnTop = false,
   slideNum = 1,
+  slidesClipInfo,
   topLevelDocUrl = undefined,
   onSlideChange,
+  onCurrentSlideClipInfoChange: onCurrentSlideClipInfoChange,
   goToNextSection = undefined,
   goToPrevSection = undefined,
 }: {
@@ -75,17 +77,19 @@ export const SlideDeck = memo(function SlidesFromUrl({
   sectionId: string;
   navOnTop?: boolean;
   slideNum?: number;
+  slidesClipInfo?: {
+    [sectionId: string]: SlideClipInfo[];
+  };
   topLevelDocUrl?: string;
   onSlideChange?: (slide: Slide) => void;
+  onCurrentSlideClipInfoChange?: (clipInfo: SlideClipInfo | null) => void;
   goToNextSection?: () => void;
   goToPrevSection?: () => void;
 }) {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadedSectionId, setLoadedSectionId] = useState('');
-  const [currentSlide, setCurrentSlide] = useState(
-    undefined as Slide | undefined
-  );
+  const [currentSlide, setCurrentSlide] = useState(undefined as Slide | undefined);
   const router = useRouter();
 
   useEffect(() => {
@@ -107,11 +111,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
       isCancelled = true; // avoids race condition on rapid deckId changes.
     };
   }, [courseId, sectionId]);
-  const contentUrl = XhtmlContentUrl(
-    currentSlide?.archive,
-    currentSlide?.filepath
-  );
-
+  const contentUrl = XhtmlContentUrl(currentSlide?.archive, currentSlide?.filepath);
   useEffect(() => {
     if (!slides?.length || loadedSectionId !== sectionId) return;
     if (slideNum < 1) {
@@ -125,6 +125,16 @@ export const SlideDeck = memo(function SlidesFromUrl({
     const selectedSlide = slides[slideNum - 1];
     setCurrentSlide(selectedSlide);
     if (onSlideChange) onSlideChange(selectedSlide);
+    if (selectedSlide?.slideType === SlideType.FRAME && slidesClipInfo) {
+      const frameSlides = slides.filter((slide) => slide.slideType === SlideType.FRAME);
+      const clipInfoIndex = frameSlides.indexOf(selectedSlide);
+      const isValidIndex =
+        slidesClipInfo && clipInfoIndex >= 0 && clipInfoIndex < slidesClipInfo[sectionId]?.length;
+      const clipInfo = isValidIndex ? slidesClipInfo[sectionId][clipInfoIndex] : null;
+      if (onCurrentSlideClipInfoChange) onCurrentSlideClipInfoChange(clipInfo);
+    } else {
+      if (onCurrentSlideClipInfoChange) onCurrentSlideClipInfoChange(null);
+    }
   }, [sectionId, loadedSectionId, slides, slideNum, router, onSlideChange]);
 
   if (isLoading) {

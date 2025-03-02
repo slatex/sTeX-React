@@ -1,6 +1,7 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
 .env.local
+.env.test
 
 packages/alea-frontend/specs/test-dir
 
@@ -48,8 +49,12 @@ Thumbs.db
 .next
 
 .nx/cache
+.nx/workspace-data
 # Sentry Config File
 .sentryclirc
 
 #static folder
 static
+
+vite.config.*.timestamp*
+vitest.config.*.timestamp*

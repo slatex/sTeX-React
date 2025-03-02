@@ -170,6 +170,7 @@ export const de = {
     instructorNotes: 'Notizen der Lehrenden',
     showSlides: 'Folien anzeigen',
     showVideo: 'Videos anzeigen',
+    hideVideo: 'Video ausblenden',
     showSlidesAndVideo: 'Folien und Videos anzeigen',
     courseContent: 'Kursinhalt',
     personalizedSuggestion: 'Personalisierter Vorschlag',
@@ -388,10 +389,8 @@ export const de = {
   },
   resource: {
     updateGoTo: 'aktualisieren Got-tos',
-    createUpdateQuiz: 'Quiz erstellen/aktualisieren',
-    gradeHomework: 'Hausaufgaben bewerten',
-    createUpdateHomework: 'Hausaufgabe erstellen/aktualisieren',
-    reviewLatestQuiz: 'Letzten Quiz prüfen',
+    quiz: 'Quizze',
+    homework: 'Hausaufgaben',
     forum: 'Forum',
     welcome: 'Willkommen',
     peerReview:'Peer Review'
