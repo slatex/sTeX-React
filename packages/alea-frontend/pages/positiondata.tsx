@@ -19,6 +19,7 @@ import MainLayout from '../layouts/MainLayout';
 const PositionDataSelector: React.FC = () => {
   const [deviceIds, setDeviceIds] = useState<string[]>([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null);
+  const [storedDeviceId, setStoredDeviceId] = useState<string | null>(null);
   const [recordingIds, setRecordingIds] = useState<string[]>([]);
   const [selectedRecordingId, setSelectedRecordingId] = useState<string | null>(null);
   const [fileContent, setFileContent] = useState<string | null>(null);
@@ -36,6 +37,7 @@ const PositionDataSelector: React.FC = () => {
       .then((r) => {
         setDeviceIds(r.data || []);
         const storedDeviceId = localStorage.getItem('deviceId');
+        setStoredDeviceId(storedDeviceId);
         if (storedDeviceId && r.data.includes(storedDeviceId)) {
           setSelectedDeviceId(storedDeviceId);
           handleDeviceIdSelect(storedDeviceId);
@@ -126,7 +128,7 @@ const PositionDataSelector: React.FC = () => {
           <Typography variant="body1" sx={{ color: 'text.secondary', p: 0.5 }}>
             Concept Position Tracking is {conceptTracking ? 'Enabled' : 'Disabled'}
             <br />
-            Your device id is <b>{selectedDeviceId || 'not set'}</b>
+            Your device id is <b>{storedDeviceId || 'not set'}</b>
           </Typography>
         </Box>
         <Card

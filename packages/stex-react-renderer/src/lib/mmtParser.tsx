@@ -130,7 +130,7 @@ export const PositionProvider: React.FC<{ children: ReactNode }> = ({ children }
       };
 
       axios
-        .post('/api/get-uri-positions', payload)
+        .post('/api/set-concept-positions', payload)
         .then(() => console.log('Data sent successfully'))
         .catch((error) => console.error('Error sending data', error));
 
