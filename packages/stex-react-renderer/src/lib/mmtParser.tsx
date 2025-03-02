@@ -158,7 +158,7 @@ export const NoMaxWidthTooltip = styled(({ className, ...props }: TooltipProps) 
   },
 });
 
-function Test({ children }: { children: any }) {
+function ConceptTrackingContainer({ children }: { children: any }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const { addPosition } = useContext(PositionContext);
 
@@ -609,7 +609,7 @@ const ApfelHrefWithToken = ({ href, children }: { href: string; children: React.
 
 export const replace = (d: DOMNode): any => {
   const domNode = getElement(d);
-  const isExpMode = localStorage.getItem('exp-mode') === 'true';
+  const conceptTracking = localStorage.getItem('concept-tracking') === 'true';
 
   if (!domNode) return;
 
@@ -725,10 +725,10 @@ export const replace = (d: DOMNode): any => {
     domNode.attribs['definiendum-processed'] = 'true';
     return (
       <>
-        {isExpMode ? (
-          <Test>
+        {conceptTracking ? (
+          <ConceptTrackingContainer>
             <Definiendum node={domNode} />
-          </Test>
+          </ConceptTrackingContainer>
         ) : (
           <Definiendum node={domNode} />
         )}
@@ -786,10 +786,10 @@ export const replace = (d: DOMNode): any => {
               )
             }
           >
-            {isExpMode ? (
-              <Test>
+            {conceptTracking ? (
+              <ConceptTrackingContainer>
                 {hoverParent ? <WithHighlightable /> : (domToReact([domNode], { replace }) as any)}
-              </Test>
+              </ConceptTrackingContainer>
             ) : hoverParent ? (
               <WithHighlightable />
             ) : (
