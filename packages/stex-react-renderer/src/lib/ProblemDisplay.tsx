@@ -532,12 +532,14 @@ export function ProblemDisplay({
   onFreezeResponse,
   debug,
   problemId = '',
+  showUnAnsweredProblems=true
 }: {
   uri?: string;
   problem: Problem | undefined;
   isFrozen: boolean;
   r?: ProblemResponse;
   showPoints?: boolean;
+  showUnAnsweredProblems?: boolean;
   onResponseUpdate: (r: ProblemResponse) => void;
   onFreezeResponse?: () => void;
   debug?: boolean;
@@ -574,7 +576,14 @@ export function ProblemDisplay({
   });
 
   //Non-Autogradable problem widgets
-  const napWidgets = problem.subProblemData.map((c, i) => (
+  const napWidgets = problem.subProblemData.filter((c,i)=>{
+    if(showUnAnsweredProblems){
+      return true;
+    }
+    else{
+      return r?.freeTextResponses?.[i] !== undefined;
+    }
+  }).map((c, i) => (
     <SubProblemAnswer
       problem={problem}
       questionId={uri ? uri : problemId}
