@@ -394,5 +394,6 @@ export const de = {
     reviewLatestQuiz: 'Letzten Quiz prüfen',
     forum: 'Forum',
     welcome: 'Willkommen',
+    peerReview:'Peer Review'
   },
 };

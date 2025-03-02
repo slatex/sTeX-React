@@ -12,6 +12,7 @@ import QuizDashboard from '../../components/QuizDashboard';
 import { StudyBuddyModeratorStats } from '../../components/StudyBuddyModeratorStats';
 import MainLayout from '../../layouts/MainLayout';
 import { CourseHeader } from '../course-home/[courseId]';
+import InstructorPeerReviewViewing from '../../components/peer-review/InstructorPeerReviewViewing';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -24,14 +25,22 @@ type TabName =
   | 'homework-manager'
   | 'homework-grading'
   | 'quiz-dashboard'
-  | 'study-buddy';
+  | 'study-buddy'
+  | 'peer-review';
 
 const TAB_ACCESS_REQUIREMENTS: Record<TabName, { resource: ResourceName; actions: Action[] }> = {
   'access-control': { resource: ResourceName.COURSE_ACCESS, actions: [Action.ACCESS_CONTROL] },
   'homework-manager': { resource: ResourceName.COURSE_HOMEWORK, actions: [Action.MUTATE] },
-  'homework-grading': { resource: ResourceName.COURSE_HOMEWORK, actions: [Action.INSTRUCTOR_GRADING] },
-  'quiz-dashboard': { resource: ResourceName.COURSE_QUIZ, actions: [Action.MUTATE, Action.PREVIEW] },
-  'study-buddy': { resource: ResourceName.COURSE_STUDY_BUDDY, actions: [Action.MODERATE] }
+  'homework-grading': {
+    resource: ResourceName.COURSE_HOMEWORK,
+    actions: [Action.INSTRUCTOR_GRADING],
+  },
+  'quiz-dashboard': {
+    resource: ResourceName.COURSE_QUIZ,
+    actions: [Action.MUTATE, Action.PREVIEW],
+  },
+  'peer-review': { resource: ResourceName.COURSE_PEERREVIEW, actions: [Action.MUTATE] },
+  'study-buddy': { resource: ResourceName.COURSE_STUDY_BUDDY, actions: [Action.MODERATE] },
 };
 
 function ChosenTab({ tabName, courseId }: { tabName: TabName; courseId: string }) {
@@ -46,6 +55,8 @@ function ChosenTab({ tabName, courseId }: { tabName: TabName; courseId: string }
       return <QuizDashboard courseId={courseId} />;
     case 'study-buddy':
       return <StudyBuddyModeratorStats courseId={courseId} />;
+    case 'peer-review':
+      return <InstructorPeerReviewViewing courseId={courseId}></InstructorPeerReviewViewing>;
     default:
       return null;
   }
@@ -73,7 +84,14 @@ const TabPanel = (props: TabPanelProps) => {
     </Box>
   );
 };
-
+const tabRequireWithds = [
+  { name: 'access-control', maxWidth: '900px' },
+  { name: 'homework-grading', maxWidth: undefined },
+  { name: 'peer-review', maxWidth: undefined },
+  { name: 'homework-manager', maxWidth: '900px' },
+  { name: 'quiz-dashboard', maxWidth: '900px' },
+  { name: 'study-buddy', maxWidth: '900px' },
+];
 const InstructorDash: NextPage = () => {
   const router = useRouter();
   const courseId = router.query.courseId as string;
@@ -112,7 +130,7 @@ const InstructorDash: NextPage = () => {
             break;
           }
         }
-      }      
+      }
       setAccessibleTabs(tabs);
       if (tab && tabs.includes(tab)) {
         setCurrentTabIdx(tabs.indexOf(tab));
@@ -144,7 +162,8 @@ const InstructorDash: NextPage = () => {
         sx={{
           width: '100%',
           margin: 'auto',
-          maxWidth: tab === 'homework-grading' ? undefined : '900px',
+          maxWidth: tabRequireWithds.find((t) => t.name === accessibleTabs[currentTabIdx])
+            ?.maxWidth,
         }}
       >
         <Tabs

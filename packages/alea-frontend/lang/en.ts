@@ -418,5 +418,6 @@ export const en = {
     reviewLatestQuiz: 'Review Latest Quiz',
     forum: 'Forum',
     welcome: 'Welcome',
+    peerReview:'Peer Review'
   },
 };

@@ -1,6 +1,7 @@
 import { executeAndEndSet500OnError, getUserIdOrSetError } from '../comment-utils';
-import { GradingAnswerClass, GradingWithAnswer } from '@stex-react/api';
+import { GradingWithAnswer } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { addAnswerClassesToGrading } from './nap-utils';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const userId = await getUserIdOrSetError(req, res);
@@ -10,13 +11,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     [userId],
     res
   );
-  const gradingAnswerClassess = await executeAndEndSet500OnError<GradingAnswerClass[]>(
-    `SELECT gradingId,answerClassId,points,isTrait,closed,title,description,count from GradingAnswerClass where gradingId in (?)`,
-    [grading.map((c) => c.id)],
-    res
-  );
-  for (const grade of grading) {
-    grade.answerClasses = gradingAnswerClassess.filter((c) => c.gradingId == grade.id);
-  }
-  return res.json(grading);
+  return res.json(addAnswerClassesToGrading(grading, res));
 }

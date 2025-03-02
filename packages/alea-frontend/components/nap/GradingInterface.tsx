@@ -67,7 +67,6 @@ async function fetchAndProcessProblem(questionId: string, mmtUrl: string) {
   return getProblem(problemId, '');
 }
 
-
 function getSelectedGradingItems(
   items: GradingItem[],
   params: SortAndFilterParams,
@@ -213,7 +212,7 @@ function GradingItemOrganizer({
   questionMap: Record<string, Problem>;
   homeworkMap: Record<string, HomeworkInfo>;
   sortAndFilterParams: SortAndFilterParams;
-  isPeerGrading;
+  isPeerGrading: boolean;
   setSortAndFilterParams: Dispatch<SetStateAction<SortAndFilterParams>>;
 }) {
   const allQuestions = useMemo(
@@ -454,7 +453,6 @@ function GradingItemDisplay({
     </Box>
   );
 }
-
 interface SortAndFilterParams {
   multiSelectField: Record<MultSelectField, (string | number)[]>;
   isGraded: Tristate;

@@ -111,7 +111,13 @@ function AnswerItemOrganizer({
     </Box>
   );
 }
-function AnswerItemDisplay({ answer }: { answer: AnswerResponse }) {
+function AnswerItemDisplay({
+  answer,
+  onDelete,
+}: {
+  answer: AnswerResponse;
+  onDelete: (id: number) => void;
+}) {
   dayjs.extend(relativeTime);
   const { mmtUrl } = useContext(ServerLinksContext);
 
@@ -128,13 +134,6 @@ function AnswerItemDisplay({ answer }: { answer: AnswerResponse }) {
     });
     getGradingItems(answer.id, +answer.subProblemId).then((g) => setGradingInfos(g));
   }, [answer.questionId, mmtUrl]);
-  const onDeleteClicked = () => {
-    if (confirm('Are you sure you want to delete this answer?')) {
-      deleteAnswer(answer.id).then(() => {
-        alert('Answer Deleted');
-      });
-    }
-  };
   return (
     <Box>
       <ProblemDisplay
@@ -150,7 +149,7 @@ function AnswerItemDisplay({ answer }: { answer: AnswerResponse }) {
       <Box sx={{ margin: '10px' }}>
         <span>{dayjs(answer.updatedAt).fromNow()}</span>
         <IconButton
-          onClick={onDeleteClicked}
+          onClick={() => onDelete(answer.id)}
           sx={{ float: 'right', display: 'inline' }}
           aria-label="delete"
           color="primary"
@@ -315,7 +314,17 @@ const MyAnswersPage: NextPage = () => {
     () => getSelectedAnswerItems(answerItems, sortAndFilterParams),
     [answerItems, sortAndFilterParams]
   );
-
+  const onDelete = (id: number) => {
+    if (confirm('Are you sure you want to delete this answer?')) {
+      deleteAnswer(id).then(() => {
+        getMyAnswers().then((answers) => {
+          setAnswerItems(answers);
+        });
+        setSelected(undefined);
+        alert('Answer Deleted');
+      });
+    }
+  };
   return (
     <MainLayout title={`${userInfo?.fullName} | ALeA`}>
       {answerItems.length === 0 && <Typography>No Answer Items Found.</Typography>}
@@ -337,7 +346,10 @@ const MyAnswersPage: NextPage = () => {
         </Box>
         <Box border="1px solid #ccc" flex="1 1 400px" p={2} maxWidth="fill-available">
           {selected ? (
-            <AnswerItemDisplay answer={answerItems.find((item) => item.id === selected.answerId)} />
+            <AnswerItemDisplay
+              answer={answerItems.find((item) => item.id === selected.answerId)}
+              onDelete={onDelete}
+            />
           ) : (
             <i>Please click on a answer item on the left.</i>
           )}

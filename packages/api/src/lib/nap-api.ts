@@ -124,3 +124,14 @@ export async function getGradingItems(answerId: number, subProblemId: number) {
     })
   ).data;
 }
+export async function getReviewItems(courseId: string) {
+  return (
+    await axios.get<GradingWithAnswer[]>('/api/nap/admin/get-peer-review-items', {
+      params: { courseId },
+      headers: getAuthHeaders(),
+    })
+  ).data;
+}
+export async function deleteReview(id: number) {
+  return axios.post('/api/nap/admin/delete-peer-review', { id }, { headers: getAuthHeaders() });
+}
