@@ -173,6 +173,10 @@ const CourseViewPage: NextPage = () => {
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
   const [timestampSec, setTimestampSec] = useState(0);
   const [autoSync, setAutoSync] = useState(true);
+  const [videoLoaded, setVideoLoaded] = useState(false);
+  const handleVideoLoad = (status) => {
+    setVideoLoaded(status);
+  };
 
   useEffect(() => {
     if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
@@ -335,6 +339,7 @@ const CourseViewPage: NextPage = () => {
                 videoExtractedData={videoExtractedData}
                 courseDocSections={docSections}
                 autoSync={autoSync}
+                onVideoLoad={handleVideoLoad}
               />
             )}
             {(viewMode === ViewMode.SLIDE_MODE || viewMode === ViewMode.COMBINED_MODE) && (
@@ -372,6 +377,7 @@ const CourseViewPage: NextPage = () => {
                 autoSync={autoSync}
                 setAutoSync={setAutoSync}
                 audioOnly={audioOnly}
+                videoLoaded={videoLoaded}
               />
             )}
             <hr style={{ width: '98%', padding: '1px 0' }} />

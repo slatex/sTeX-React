@@ -340,7 +340,6 @@ const MediaItem = ({
           ) {
             lastMarkerRef.current = newMarker.time;
             if (autoSyncRef.current && clipIds?.[newMarker?.data?.sectionId] === clipId) {
-              console.log('inside');
               setSlideNumAndSectionId(
                 router,
                 newMarker?.data?.slideIndex,
@@ -640,6 +639,7 @@ export function VideoDisplay({
   videoExtractedData,
   courseDocSections,
   autoSync,
+  onVideoLoad,
 }: {
   clipId: string;
   clipIds: { [sectionId: string]: string };
@@ -653,6 +653,7 @@ export function VideoDisplay({
   };
   courseDocSections?: SectionsAPIData;
   autoSync?: boolean;
+  onVideoLoad: (status: boolean) => void;
 }) {
   const [resolution, setResolution] = useState(720);
   const [clipDetails, setClipDetails] = useState(undefined as ClipDetails);
@@ -700,8 +701,18 @@ export function VideoDisplay({
   const handleKeyRelease = (e) => {
     if (e.key === 'Shift') setReveal(false);
   };
+  useEffect(() => {
+    const isVideoLoaded = !isLoading && !!videoId;
+    onVideoLoad(isVideoLoaded);
+  }, [isLoading, videoId, onVideoLoad]);
+
   if (isLoading) return <CircularProgress sx={{ mb: '15px' }} />;
-  if (!videoId) return <i>Video not available for this section</i>;
+  if (!videoId)
+    return (
+      <Box sx={{ mb: '25px', position: 'relative' }}>
+        <i> Video not available for this section</i>
+      </Box>
+    );
 
   return (
     <>

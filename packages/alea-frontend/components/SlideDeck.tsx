@@ -176,6 +176,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
   autoSync,
   setAutoSync,
   audioOnly,
+  videoLoaded,
 }: {
   courseId: string;
   sectionId: string;
@@ -194,6 +195,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
   autoSync?: boolean;
   setAutoSync?: Dispatch<SetStateAction<boolean>>;
   audioOnly?: boolean;
+  videoLoaded?: boolean;
 }) {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -325,7 +327,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
       )}
       <Box display="flex" justifyContent="space-between" alignItems="center" width="100%">
         <Box flex={1} />
-        {isDebugVideo && !audioOnly && (
+        {isDebugVideo && !audioOnly && slides.length > 0 && videoLoaded && (
           <Box>
             <Tooltip title={autoSync ? 'Disable video-slide sync' : 'Sync video to slides'}>
               <IconButton
@@ -347,7 +349,9 @@ export const SlideDeck = memo(function SlidesFromUrl({
         )}
 
         <Box display="flex" justifyContent="flex-end" flex={1}>
-          {isDebugVideo && !audioOnly && <ClipSelector clips={clips} onClipChange={onClipChange} />}
+          {isDebugVideo && !audioOnly && slides.length > 0 && videoLoaded && (
+            <ClipSelector clips={clips} onClipChange={onClipChange} />
+          )}
           <SlideNavBar
             slideNum={slideNum}
             numSlides={slides.length}
