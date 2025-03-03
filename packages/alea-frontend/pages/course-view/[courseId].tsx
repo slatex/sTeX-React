@@ -1,10 +1,10 @@
 import ArticleIcon from '@mui/icons-material/Article';
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import {
+  ClipInfo,
   SectionInfo,
   SectionsAPIData,
   Slide,
-  SlideClipInfo,
   getAncestors,
   getCourseInfo,
   getDocumentSections,
@@ -93,7 +93,11 @@ function populateClipIds(sections: SectionInfo[], clipIds: { [sectionId: string]
 }
 function populateSlidesClipInfos(
   sections: SectionInfo[],
-  slidesClipInfo: { [sectionId: string]: SlideClipInfo[] }
+  slidesClipInfo: {
+    [sectionId: string]: {
+      [slideNumber: number]: ClipInfo[];
+    };
+  }
 ) {
   for (const section of sections) {
     slidesClipInfo[section.id] = section.clipInfo;
@@ -122,7 +126,14 @@ function getSections(data: SectionsAPIData): string[] {
   });
   return sections;
 }
-
+export interface ClipData {
+  sectionId: string;
+  slideIndex: number;
+  title: string;
+  start_time: number;
+  end_time: number;
+  thumbnail?: string;
+}
 const CourseViewPage: NextPage = () => {
   const router = useRouter();
   const courseId = router.query.courseId as string;
@@ -143,11 +154,17 @@ const CourseViewPage: NextPage = () => {
   }>({});
 
   const [clipIds, setClipIds] = useState<{ [sectionId: string]: string }>({});
-  const [slidesClipInfo, setSlidesClipInfo] = useState<{ [sectionId: string]: SlideClipInfo[] }>(
-    {}
-  );
+  const [slidesClipInfo, setSlidesClipInfo] = useState<{
+    [sectionId: string]: {
+      [slideNumber: number]: ClipInfo[];
+    };
+  }>({});
   const [currentClipId, setCurrentClipId] = useState('');
-  const [currentSlideClipInfo, setCurrentSlideClipInfo] = useState<SlideClipInfo>(null);
+  const [videoExtractedData, setVideoExtractedData] = useState<{
+    [timestampSec: number]: ClipData;
+  }>({});
+
+  const [currentSlideClipInfo, setCurrentSlideClipInfo] = useState<ClipInfo>(null);
   const [slideArchive, setSlideArchive] = useState('');
   const [slideFilepath, setSlideFilepath] = useState('');
   const { mmtUrl } = useContext(ServerLinksContext);
@@ -155,6 +172,8 @@ const CourseViewPage: NextPage = () => {
   const [contentUrl, setContentUrl] = useState(undefined as string);
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
   const [timestampSec, setTimestampSec] = useState(0);
+  const [autoSync, setAutoSync] = useState(true);
+
   useEffect(() => {
     if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
   }, [mmtUrl]);
@@ -177,7 +196,12 @@ const CourseViewPage: NextPage = () => {
       setSlidesClipInfo(slidesClipInfo);
     });
   }, [courseId, router.isReady]);
-
+  useEffect(() => {
+    if (!router.isReady || !courseId?.length || !currentClipId) return;
+    axios
+      .get(`/api/get-slide-details/${courseId}/${currentClipId}`)
+      .then((resp) => setVideoExtractedData(resp.data));
+  }, [courseId, currentClipId]);
   useEffect(() => {
     if (!router.isReady) return;
     if (sectionId && slideNum && viewMode && audioOnlyStr) return;
@@ -217,9 +241,10 @@ const CourseViewPage: NextPage = () => {
     }
     getIndex();
   }, [mmtUrl, contentUrl]);
+
   useEffect(() => {
     if (!sectionId) return;
-    const newClipId = slidesClipInfo?.[sectionId]?.[0]?.clipId || clipIds?.[sectionId] || null;
+    const newClipId = clipIds?.[sectionId];
     setCurrentClipId(newClipId);
   }, [slidesClipInfo, clipIds, sectionId]);
 
@@ -246,7 +271,10 @@ const CourseViewPage: NextPage = () => {
   const sectionParentInfo = lastFileNode(ancestors);
   const sectionNode = ancestors?.length > 0 ? ancestors.at(-1) : undefined;
   const { archive, filepath } = sectionParentInfo ?? {};
-
+  const onClipChange = (clip: any) => {
+    setCurrentClipId(clip.video_id);
+    setTimestampSec(clip.start_time);
+  };
   return (
     <MainLayout title={(courseId || '').toUpperCase() + ` ${tHome.courseThumb.slides} | ALeA`}>
       <LayoutWithFixedMenu
@@ -298,11 +326,15 @@ const CourseViewPage: NextPage = () => {
             {viewMode === ViewMode.COMBINED_MODE && (
               <VideoDisplay
                 clipId={currentClipId}
+                clipIds={clipIds}
                 setCurrentClipId={setCurrentClipId}
                 audioOnly={audioOnly}
                 timestampSec={timestampSec}
                 setTimestampSec={setTimestampSec}
                 currentSlideClipInfo={currentSlideClipInfo}
+                videoExtractedData={videoExtractedData}
+                courseDocSections={docSections}
+                autoSync={autoSync}
               />
             )}
             {(viewMode === ViewMode.SLIDE_MODE || viewMode === ViewMode.COMBINED_MODE) && (
@@ -319,14 +351,27 @@ const CourseViewPage: NextPage = () => {
                   setPostNotes(slide?.postNotes || []);
                   setSlideArchive(slide?.archive);
                   setSlideFilepath(slide?.filepath);
+                  if (
+                    slidesClipInfo &&
+                    slidesClipInfo[sectionId] &&
+                    slidesClipInfo[sectionId][slideNum]
+                  ) {
+                    const slideClips = slidesClipInfo[sectionId][slideNum];
+                    if (!Array.isArray(slideClips)) {
+                      return;
+                    }
+                    const matchedClip = slideClips.find((clip) => clip.video_id === currentClipId);
+                    setCurrentSlideClipInfo(matchedClip || slideClips[0]);
+                  }
                 }}
                 goToNextSection={goToNextSection}
                 goToPrevSection={goToPrevSection}
-                onCurrentSlideClipInfoChange={(clipInfo: SlideClipInfo) => {
-                  setCurrentSlideClipInfo(clipInfo);
-                }}
                 slideNum={slideNum}
                 slidesClipInfo={slidesClipInfo}
+                onClipChange={onClipChange}
+                autoSync={autoSync}
+                setAutoSync={setAutoSync}
+                audioOnly={audioOnly}
               />
             )}
             <hr style={{ width: '98%', padding: '1px 0' }} />
