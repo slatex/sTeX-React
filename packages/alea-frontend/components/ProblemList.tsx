@@ -80,7 +80,7 @@ interface ProblemListProps {
 const ProblemList: FC<ProblemListProps> = ({ courseSections, courseId }) => {
   const [problemCounts, setProblemCounts] = useState<Record<string, number>>({});
   const router = useRouter();
-  const { practiceProblems: t } = getLocaleObject(router);
+  const { practiceProblems: t, peerGrading: g } = getLocaleObject(router);
   const scrollPosition = useScrollPosition();
   const [showSubsections, setShowSubsections] = useState(false);
 
@@ -131,17 +131,24 @@ const ProblemList: FC<ProblemListProps> = ({ courseSections, courseId }) => {
       <Typography variant="body1" my={3}>
         {t.practiceProblemsDescription}
       </Typography>
-
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={showSubsections}
-            onChange={() => setShowSubsections(!showSubsections)}
-          />
-        }
-        label="Show subsections"
-      />
-
+      <Box sx={{ display: 'flex', alignItems: 'center', my: 3 }}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={showSubsections}
+              onChange={() => setShowSubsections(!showSubsections)}
+            />
+          }
+          label="Show subsections"
+        />
+        <Box sx={{marginLeft:'auto'}} >
+        <Link  href={`/peer-grading/${courseId}`}>
+          <Button variant="contained" sx={{  height: '48px', fontSize: '16px' }}>
+            {g.peerGrading}
+          </Button>
+        </Link>
+        </Box>
+      </Box>
       <Paper
         sx={{
           p: { xs: 1, sm: 3 },

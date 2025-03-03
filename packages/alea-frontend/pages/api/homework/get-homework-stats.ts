@@ -24,7 +24,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const responseRate: { [attemptedProblems: number]: number } = {};
   const answerHistogram = [];
   const gradingStates = [];
-  const gradingItems = await getGradingItems(courseId, instanceId, res);
+  const gradingItems = await getGradingItems(courseId, instanceId,true, res);
   const responseRateResult = await executeAndEndSet500OnError(
     `select count( userId) as answer_count,UNIX_TIMESTAMP(Date(createdAt)) createdDate From Answer where homeworkId=? group by createdDate`,
     [homeworkId],
