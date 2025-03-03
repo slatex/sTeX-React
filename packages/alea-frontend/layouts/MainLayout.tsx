@@ -35,6 +35,7 @@ function SessionResetSlider() {
         bgcolor: 'rgba(211, 211, 211, 0.2)',
         p: '5px 5px 5px 15px',
         transition: 'left 0.3s ease',
+        zIndex: 2001,
       }}
     >
       <IconButton onClick={() => setOpen(!open)} sx={{ p: 0.5 }}>
