@@ -135,11 +135,12 @@ const SearchCourseNotes = ({
       if (!mmtUrl || !courseId) return;
       try {
         const courseInfo = await getCourseInfo();
-        const { notesArchive: archive, notesFilepath: filepath } = courseInfo[courseId] || {};
-        if (archive && filepath) {
-          const sections = await getDocumentSections(mmtUrl, archive, filepath);
-          setSectionData(sections);
-        }
+        //Todo alea-4
+        // const { notesArchive: archive, notesFilepath: filepath } = courseInfo[courseId] || {};
+        // if (archive && filepath) {
+        //   const sections = await getDocumentSections(mmtUrl, archive, filepath);
+        //   setSectionData(sections);
+        // }
       } catch (error) {
         console.error('Error fetching section data:', error);
       }

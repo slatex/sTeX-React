@@ -2,28 +2,24 @@ import { getCourseInfo, getDefiniedaInDoc } from '@stex-react/api';
 export const EXCLUDED_CHAPTERS = ['Preface', 'Administrativa', 'Resources'];
 
 export default async function handler(req, res) {
-  res.setHeader(
-    'Cache-Control',
-    'public, s-maxage=3600, stale-while-revalidate=3600'
-  );
+  res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=3600');
 
   const { courseId } = req.query;
-  const courseInfo = (await getCourseInfo())[
-    courseId
-  ];
+  const courseInfo = (await getCourseInfo())[courseId];
   if (!courseInfo) {
     res.status(404).json({ error: `Course not found: [${courseId}]` });
     return;
   }
-  const { notesArchive: archive, notesFilepath: filepath } = courseInfo;
-  const cards = await getDefiniedaInDoc(
-    process.env.NEXT_PUBLIC_MMT_URL,
-    archive,
-    filepath
-  );
+  //Todo alea-4
+  // const { notesArchive: archive, notesFilepath: filepath } = courseInfo;
+  // const cards = await getDefiniedaInDoc(
+  //   process.env.NEXT_PUBLIC_MMT_URL,
+  //   archive,
+  //   filepath
+  // );
 
   let count = 0;
-  for (const e of cards) count += e.symbols.length;
+  // for (const e of cards) count += e.symbols.length;
 
   return res.status(200).json({ chapter: 'all', count });
 }

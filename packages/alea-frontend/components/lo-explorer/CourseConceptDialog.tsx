@@ -91,9 +91,10 @@ export const CourseConceptsDialog = ({
     async function getSections() {
       const secDetails: Record<string, SectionDetails[]> = {};
       for (const courseId of Object.keys(courses)) {
-        const { notesArchive: archive, notesFilepath: filepath } = courses[courseId];
-        const docSections = await getDocumentSections(mmtUrl, archive, filepath);
-        secDetails[courseId] = getSectionDetails(docSections);
+        //Todo alea-4
+        // const { notesArchive: archive, notesFilepath: filepath } = courses[courseId];
+        // const docSections = await getDocumentSections(mmtUrl, archive, filepath);
+        // secDetails[courseId] = getSectionDetails(docSections);
       }
       setAllSectionDetails(secDetails);
     }

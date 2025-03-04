@@ -8,10 +8,10 @@ import {
 } from '@stex-react/utils';
 import axios from 'axios';
 import { ArchiveIndex, Institution } from './flam-types';
-import * as FLAMS from './flam';
+import { FLAMSServer } from '@kwarc/flams';
 
 const FLAMS_SERVER_URL = 'https://mmt.beta.vollki.kwarc.info';
-const server = new FLAMS.FLAMSServer(FLAMS_SERVER_URL);
+const server = new FLAMSServer(FLAMS_SERVER_URL);
 
 ///////////////////
 // :sTeX/query/problems
@@ -313,17 +313,17 @@ export async function getCourseInfo(institution?: string) {
   }
 }
 
-export async function getCourseId(
-  mmtUrl: string,
-  institution: string,
-  { archive, filepath }: FileLocation
-) {
-  const courses = await getCourseInfo(institution);
-  for (const [courseId, info] of Object.entries(courses)) {
-    if (archive === info.notesArchive && filepath === info.notesFilepath) return courseId;
-  }
-  return undefined;
-}
+// export async function getCourseId(
+//   mmtUrl: string,
+//   institution: string,
+//   { archive, filepath }: FileLocation
+// ) {
+//   const courses = await getCourseInfo(institution);
+//   for (const [courseId, info] of Object.entries(courses)) {
+//     if (archive === info.notesArchive && filepath === info.notesFilepath) return courseId;
+//   }
+//   return undefined;
+// }
 
 /////////////////////
 // :sTeX/definienda

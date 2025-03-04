@@ -27,9 +27,9 @@ const CourseProblemsPage: NextPage = () => {
       router.replace('/');
       return;
     }
-
-    const { notesArchive, notesFilepath } = courseInfo;
-    getDocumentSections(mmtUrl, notesArchive, notesFilepath).then(setSectionsData);
+    //Todo alea-4
+    // const { notesArchive, notesFilepath } = courseInfo;
+    // getDocumentSections(mmtUrl, notesArchive, notesFilepath).then(setSectionsData);
   }, [courses, courseId]);
 
   if (!router.isReady || !courses) return <CircularProgress />;

@@ -161,8 +161,9 @@ const CourseViewPage: NextPage = () => {
 
   useEffect(() => {
     if (!router.isReady || !courses?.[courseId]) return;
-    const { notesArchive, notesFilepath } = courses[courseId];
-    setContentUrl(XhtmlContentUrl(notesArchive, notesFilepath));
+    //Todo alea-4
+    // const { notesArchive, notesFilepath } = courses[courseId];
+    // setContentUrl(XhtmlContentUrl(notesArchive, notesFilepath));
     axios.get(`/api/get-slide-counts/${courseId}`).then((resp) => setSlideCounts(resp.data));
   }, [router.isReady, courses, courseId]);
 
@@ -310,10 +311,11 @@ const CourseViewPage: NextPage = () => {
                 navOnTop={viewMode === ViewMode.COMBINED_MODE}
                 courseId={courseId}
                 sectionId={sectionId}
-                topLevelDocUrl={XhtmlContentUrl(
-                  courses[courseId]?.notesArchive,
-                  courses[courseId]?.notesFilepath
-                )}
+                //Todo alea-4
+                // topLevelDocUrl={XhtmlContentUrl(
+                //   courses[courseId]?.notesArchive,
+                //   courses[courseId]?.notesFilepath
+                // )}
                 onSlideChange={(slide: Slide) => {
                   setPreNotes(slide?.preNotes || []);
                   setPostNotes(slide?.postNotes || []);

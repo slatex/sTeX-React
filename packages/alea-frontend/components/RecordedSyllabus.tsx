@@ -166,7 +166,6 @@ function SyllabusTable({
 }
 
 export function RecordedSyllabus({ courseId }: { courseId: string }) {
-  console.log("courseId --- ",courseId)
   const { courseHome: t } = getLocaleObject(useRouter());
   const [lectureDescs, setLectureDescs] = useState<{
     [timestamp_ms: number]: string;

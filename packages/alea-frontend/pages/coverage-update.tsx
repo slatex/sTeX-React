@@ -53,9 +53,10 @@ const CoverageUpdatePage: NextPage = () => {
     async function getSections() {
       const secNames: { [courseId: string]: string[] } = {};
       for (const courseId of Object.keys(courses)) {
-        const { notesArchive: a, notesFilepath: f } = courses[courseId];
-        const docSections = await getDocumentSections(mmtUrl, a, f);
-        secNames[courseId] = getSectionNames(docSections);
+        //Todo alea-4
+        // const { notesArchive: a, notesFilepath: f } = courses[courseId];
+        // const docSections = await getDocumentSections(mmtUrl, a, f);
+        // secNames[courseId] = getSectionNames(docSections);
       }
       setAllSectionNames(secNames);
     }

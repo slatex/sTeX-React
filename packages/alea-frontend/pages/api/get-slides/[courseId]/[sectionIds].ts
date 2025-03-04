@@ -1,22 +1,11 @@
 import { Slide, SlideType, getCourseInfo } from '@stex-react/api';
-import {
-  FileLocation,
-  XhtmlContentUrl,
-  getSectionInfo,
-} from '@stex-react/utils';
+import { FileLocation, XhtmlContentUrl, getSectionInfo } from '@stex-react/utils';
 import { getOuterHTML, textContent } from 'domutils';
 import * as htmlparser2 from 'htmlparser2';
 import { NextApiRequest, NextApiResponse } from 'next';
-import {
-  fetchDocumentCached,
-  preFetchDescendentsOfDoc,
-} from '../../prefetchHelper';
+import { fetchDocumentCached, preFetchDescendentsOfDoc } from '../../prefetchHelper';
 
-function FrameSlide(
-  slideContent: any,
-  nodeId: FileLocation,
-  sectionId: string
-): Slide {
+function FrameSlide(slideContent: any, nodeId: FileLocation, sectionId: string): Slide {
   return {
     slideContent: getOuterHTML(slideContent),
     slideType: SlideType.FRAME,
@@ -89,12 +78,7 @@ async function getSlidesForDocNode(
       // console.log(child);
       continue;
     }
-    const subSlides = await getSlidesForDocNode(
-      loc,
-      child,
-      false,
-      currentSectionId
-    );
+    const subSlides = await getSlidesForDocNode(loc, child, false, currentSectionId);
 
     if (subSlides.length > 0) {
       subSlides[0].preNotes = [...preNotes, ...subSlides[0].preNotes];
@@ -135,13 +119,7 @@ async function getSlidesForDoc(
   const url = XhtmlContentUrl(loc.archive, loc.filepath);
   const data = fetchDocumentCached(url);
   const htmlDoc = htmlparser2.parseDocument(data);
-  return await getSlidesForDocNode(
-    loc,
-    htmlDoc,
-    true,
-    currentSectionId,
-    titleElement
-  );
+  return await getSlidesForDocNode(loc, htmlDoc, true, currentSectionId, titleElement);
 }
 
 export async function getSlides({ archive, filepath }: FileLocation) {
@@ -166,10 +144,7 @@ export const CACHED_SLIDES: {
   [courseId: string]: { [sectionId: string]: Slide[] };
 } = {};
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const courseId = req.query.courseId as string;
   const sectionIds = req.query.sectionIds as string;
   const courses = await getCourseInfo(process.env.NEXT_PUBLIC_MMT_URL);
@@ -179,12 +154,13 @@ export default async function handler(
     return;
   }
   const sectionIdArr = sectionIds.split(',');
-  if (!CACHED_SLIDES[courseId]) {
-    CACHED_SLIDES[courseId] = await getSlides({
-      archive: courseInfo.notesArchive,
-      filepath: courseInfo.notesFilepath,
-    });
-  }
+  //Todo alea-4
+  // if (!CACHED_SLIDES[courseId]) {
+  //   CACHED_SLIDES[courseId] = await getSlides({
+  //     archive: courseInfo.notesArchive,
+  //     filepath: courseInfo.notesFilepath,
+  //   });
+  // }
   const data: { [sectionId: string]: Slide[] } = {};
   for (const secId of sectionIdArr) {
     data[secId] = CACHED_SLIDES[courseId][secId];

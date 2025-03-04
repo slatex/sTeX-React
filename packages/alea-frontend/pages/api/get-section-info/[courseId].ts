@@ -132,18 +132,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.status(404).send(`Course not found [${courseId}]`);
     return;
   }
-  const { notesArchive, notesFilepath } = courses[courseId];
-  const docSections = await getDocumentSections(
-    process.env.NEXT_PUBLIC_MMT_URL,
-    notesArchive,
-    notesFilepath
-  );
-  const allSections = getAllSections(docSections) as SectionInfo[];
-  const coverageData = getCoverageData()[courseId].filter(snap=>snap.sectionName);
-  if (coverageData?.length) addVideoInfo(allSections, coverageData);
-  const videoSlides = await getVideoToSlidesMap(courseId);
-  if (videoSlides) {
-    addClipInfo(allSections, videoSlides);
-  }
-  res.status(200).send(allSections);
+  //Todo alea-4
+  // const { notesArchive, notesFilepath } = courses[courseId];
+  // const docSections = await getDocumentSections(
+  //   process.env.NEXT_PUBLIC_MMT_URL,
+  //   notesArchive,
+  //   notesFilepath
+  // );
+  // const allSections = getAllSections(docSections) as SectionInfo[];
+  // const coverageData = getCoverageData()[courseId].filter(snap=>snap.sectionName);
+  // if (coverageData?.length) addVideoInfo(allSections, coverageData);
+  // const videoSlides = await getVideoToSlidesMap(courseId);
+  // if (videoSlides) {
+  //   addClipInfo(allSections, videoSlides);
+  // }
+  // res.status(200).send(allSections);
+  res.status(200).send("we will use contentToc")
 }

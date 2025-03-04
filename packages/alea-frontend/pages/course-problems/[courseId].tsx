@@ -28,7 +28,9 @@ const CourseProblemsPage: NextPage = () => {
     router.replace('/');
     return <>Course Not Found!</>;
   }
-  const url = XhtmlContentUrl(courseInfo.notesArchive, courseInfo.notesFilepath);
+  //Todo alea-4
+  // const url = XhtmlContentUrl(courseInfo.notesArchive, courseInfo.notesFilepath);
+  const url = '';
 
   return (
     <MainLayout title={(courseId || '').toUpperCase() + ` ${t.notes} | ALeA`}>

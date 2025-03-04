@@ -66,8 +66,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       res.status(404).json({ error: `Course not found: [${courseId}]` });
       return;
     }
-    const { notesArchive: archive, notesFilepath: filepath } = courseInfo;
-    counts = await fetchProblemCounts(archive, filepath);
+    //Todo alea-4
+    // const { notesArchive: archive, notesFilepath: filepath } = courseInfo;
+    // counts = await fetchProblemCounts(archive, filepath);
     CACHE.set(courseId, { counts, lastUpdatedTs_ms: Date.now() });
   }
 

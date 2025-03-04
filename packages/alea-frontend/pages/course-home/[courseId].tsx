@@ -46,6 +46,8 @@ import { useEffect, useRef, useState } from 'react';
 import { RecordedSyllabus } from '../../components/RecordedSyllabus';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
+import { FTMLDocument} from 'packages/ftml-utils/src/lib/ftml-react/documents';
+import { SectionEnd, SectionStart } from 'packages/ftml-utils/src/lib/ftml-react/test';
 
 export function getCourseEnrollmentAcl(courseId: string, instanceId: string) {
   return `${courseId}-${instanceId}-enrollments`;
@@ -208,7 +210,8 @@ const CourseHomePage: NextPage = () => {
     return <>Course Not Found!</>;
   }
 
-  const { notesLink, slidesLink, cardsLink, forumLink, quizzesLink, hasQuiz } = courseInfo;
+  const { notesLink, slidesLink, cardsLink, forumLink, quizzesLink, hasQuiz, notes, landing } =
+    courseInfo;
 
   const locale = router.locale || 'en';
   const { home, courseHome: tCourseHome, quiz: q } = getLocaleObject(router);
@@ -356,12 +359,19 @@ const CourseHomePage: NextPage = () => {
             />
           </Box>
         )}
-        <br />
-          we will use FTMLVIEWER
-        <br />
-        <br />
-
-        <RecordedSyllabus courseId={courseId} />
+        <FTMLDocument
+          opt={{
+            uri: landing,
+            toc: 'GET',
+          }}
+          onSectionBegin={(uri: string) => {
+            return <SectionStart sec={uri} />;
+          }}
+          onSectionEnd={(_: string) => {
+            return <SectionEnd />;
+          }}
+        />
+        {/* <RecordedSyllabus courseId={courseId} /> */}
       </Box>
     </MainLayout>
   );

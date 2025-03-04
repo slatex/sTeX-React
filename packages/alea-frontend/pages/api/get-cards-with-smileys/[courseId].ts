@@ -51,9 +51,7 @@ function getSections(
   }
   const sections: TopLevelSection[] = [];
   for (const c of data.children || []) {
-    sections.push(
-      ...getSections(chapterTitle, c, parentArchive, parentFilePath)
-    );
+    sections.push(...getSections(chapterTitle, c, parentArchive, parentFilePath));
   }
   return sections;
 }
@@ -91,11 +89,7 @@ function getChapterAndSections(
 }
 
 export async function getCardsBySection(archive: string, filepath: string) {
-  const docSections = await getDocumentSections(
-    process.env.NEXT_PUBLIC_MMT_URL,
-    archive,
-    filepath
-  );
+  const docSections = await getDocumentSections(process.env.NEXT_PUBLIC_MMT_URL, archive, filepath);
   let topLevelSections = getChapterAndSections(docSections);
   const courseCards: CourseCards = {};
   console.log(topLevelSections);
@@ -105,11 +99,7 @@ export async function getCardsBySection(archive: string, filepath: string) {
   for (const section of topLevelSections) {
     const { archive, filepath, chapterTitle, id } = section;
 
-    const cards = await getDefiniedaInDoc(
-      process.env.NEXT_PUBLIC_MMT_URL,
-      archive,
-      filepath
-    );
+    const cards = await getDefiniedaInDoc(process.env.NEXT_PUBLIC_MMT_URL, archive, filepath);
     const uris = cards.map((c) => c.symbols).flat();
     courseCards[section.sectionTitle] = { chapterTitle, id, uris };
   }
@@ -125,10 +115,11 @@ export default async function handler(req, res) {
     res.status(404).json({ error: `Course not found: [${courseId}]` });
     return;
   }
-  const { notesArchive: archive, notesFilepath: filepath } = courseInfo;
-  if (!CARDS_CACHE[courseId]) {
-    CARDS_CACHE[courseId] = await getCardsBySection(archive, filepath);
-  }
+  //Todo alea-4
+  // const { notesArchive: archive, notesFilepath: filepath } = courseInfo;
+  // if (!CARDS_CACHE[courseId]) {
+  //   CARDS_CACHE[courseId] = await getCardsBySection(archive, filepath);
+  // }
   const cards = CARDS_CACHE[courseId];
 
   const uris = [];
@@ -136,9 +127,7 @@ export default async function handler(req, res) {
     uris.push(...cards[chapter].uris);
   }
 
-  const smileyValues = Authorization
-    ? await getUriSmileys(uris, { Authorization })
-    : new Map();
+  const smileyValues = Authorization ? await getUriSmileys(uris, { Authorization }) : new Map();
 
   const output: CardsWithSmileys[] = [];
   for (const sectionTitle of Object.keys(cards)) {
