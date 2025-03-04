@@ -172,7 +172,7 @@ const CourseViewPage: NextPage = () => {
   const [contentUrl, setContentUrl] = useState(undefined as string);
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
   const [timestampSec, setTimestampSec] = useState(0);
-  const [autoSync, setAutoSync] = useState(true);
+  const [autoSync, setAutoSync] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const handleVideoLoad = (status) => {
     setVideoLoaded(status);

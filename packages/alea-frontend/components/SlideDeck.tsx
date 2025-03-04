@@ -201,11 +201,6 @@ export const SlideDeck = memo(function SlidesFromUrl({
   const [isLoading, setIsLoading] = useState(false);
   const [loadedSectionId, setLoadedSectionId] = useState('');
   const [currentSlide, setCurrentSlide] = useState(undefined as Slide | undefined);
-  const [isDebugVideo, setIsDebugVideo] = useState(false);
-
-  useEffect(() => {
-    setIsDebugVideo(localStorage.getItem('debug-video') === 'true');
-  }, []);
   const router = useRouter();
 
   useEffect(() => {
@@ -327,7 +322,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
       )}
       <Box display="flex" justifyContent="space-between" alignItems="center" width="100%">
         <Box flex={1} />
-        {isDebugVideo && !audioOnly && slides.length > 0 && videoLoaded && (
+        {!audioOnly && slides.length > 0 && videoLoaded && (
           <Box>
             <Tooltip title={autoSync ? 'Disable video-slide sync' : 'Sync video to slides'}>
               <IconButton
@@ -349,7 +344,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
         )}
 
         <Box display="flex" justifyContent="flex-end" flex={1}>
-          {isDebugVideo && !audioOnly && slides.length > 0 && videoLoaded && (
+          {!audioOnly && slides.length > 0 && videoLoaded && (
             <ClipSelector clips={clips} onClipChange={onClipChange} />
           )}
           <SlideNavBar

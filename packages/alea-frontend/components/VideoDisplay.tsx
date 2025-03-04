@@ -427,16 +427,18 @@ const MediaItem = ({
         <Box
           style={{
             position: 'absolute',
-            top: '0',
+            top: '47%',
             left: '0',
             width: '35%',
-            height: '83%',
+            height: '38%',
             backgroundColor: 'rgba(0, 0, 0, 0.2)',
             backdropFilter: 'blur(10px)',
             color: '#fff',
             zIndex: '100',
-            padding: '20px 0 20px 20px',
-            overflow: 'hidden',
+
+            padding: '10px ',
+            overflowY: 'auto',
+            overflowX: 'hidden',
             display: 'flex',
             flexDirection: 'column',
           }}
@@ -479,9 +481,9 @@ const MediaItem = ({
                     sx={{
                       fontSize: '1.2rem',
                       fontWeight: '600',
-                      textOverflow: 'ellipsis',
-                      overflow: 'hidden',
-                      whiteSpace: 'nowrap',
+
+                      whiteSpace: 'normal',
+                      wordWrap: 'break-word',
                       width: '85%',
                     }}
                     title={uri}
