@@ -15,14 +15,14 @@ export const SYSTEM_UPDATES = [
         This survey will only be accessible until March 10th, 2025.
         You may start the survey by scanning or clicking on the qr code below.
         Thank you for participating, it helps us out a lot!
-        \n [![qrcode](../ALeA_Eval25.png)](https://ddi-survey.cs.fau.de/limesurvey/index.php/667123?lang=en)`,
+        \n [![qrcode](../ALeAEval25.png)](https://ddi-survey.cs.fau.de/limesurvey/index.php/667123?lang=en)`,
     header_de: 'Letzte Chance an der ALᴇA Umfrage 2025 teilzunehmen',
     content_de: `Helfen Sie uns, ALᴇA zu bewerten, indem Sie an dieser fünfzehnminütigen Umfrage teilnehmen.
         Wenn Sie an den AI-1-Quizzes teilnehmen, erhalten Sie eine Quiznote für die Teilnahme an der Umfrage.
         Die Umfrage is noch bis einschließlich 10. März 2025 erreichbar.
         Sie können die Umfrage starten, indem Sie den unten stehenden QR-Code scannen oder anklicken.
         Vielen Dank für Ihre Teilnahme, sie hilft uns sehr!
-        \n [![qrcode](../ALeA_Eval25.png)](https://ddi-survey.cs.fau.de/limesurvey/index.php/667123?lang=en)`,
+        \n [![qrcode](../ALeAEval25.png)](https://ddi-survey.cs.fau.de/limesurvey/index.php/667123?lang=en)`,
     postedTimestamp: '2025-32-04T16:30:00+05:30',
   },
   {
