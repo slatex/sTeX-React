@@ -23,7 +23,7 @@ export const SYSTEM_UPDATES = [
         Sie können die Umfrage starten, indem Sie den unten stehenden QR-Code scannen oder anklicken.
         Vielen Dank für Ihre Teilnahme, sie hilft uns sehr!
         \n [![qrcode](../ALeAEval25.png)](https://ddi-survey.cs.fau.de/limesurvey/index.php/667123?lang=en)`,
-    postedTimestamp: '2025-32-04T16:30:00+05:30',
+    postedTimestamp: '2025-03-04T16:30:00+05:30',
   },
   {
     id: 'learning-object-explorer',
