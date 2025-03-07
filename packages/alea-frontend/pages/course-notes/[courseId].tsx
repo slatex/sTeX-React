@@ -17,6 +17,9 @@ import { useEffect, useState } from 'react';
 import SearchCourseNotes from '../../components/SearchCourseNotes';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
+import { FTMLDocument } from 'packages/ftml-utils/src/lib/ftml-react/documents';
+import { SectionEnd, SectionStart } from 'packages/ftml-utils/src/lib/ftml-react/test';
+import { FTMLSetup } from '@stex-react/ftml-utils';
 
 const SearchDialog = ({ open, onClose, courseId }) => {
   return (
@@ -75,12 +78,12 @@ const CourseNotesPage: NextPage = () => {
     router.replace('/');
     return <>Course Not Found!</>;
   }
-  //Todo alea-4
-  // const url = XhtmlContentUrl(courseInfo.notesArchive, courseInfo.notesFilepath);
-  const url = ' ';
+  const { notes } = courseInfo;
 
   return (
     <MainLayout title={(courseId || '').toUpperCase() + ` ${t.notes} | ALeA`}>
+      {/* 
+      //Todo alea4
       <IconButton
         onClick={handleSearchClick}
         style={{
@@ -94,8 +97,21 @@ const CourseNotesPage: NextPage = () => {
       >
         <SearchIcon style={{ color: PRIMARY_COL }} />
       </IconButton>
-      <SearchDialog open={dialogOpen} onClose={handleDialogClose} courseId={courseId} />
-      <StexReactRenderer contentUrl={url} topOffset={64} />
+      <SearchDialog open={dialogOpen} onClose={handleDialogClose} courseId={courseId} /> */}
+      <FTMLSetup>
+        <FTMLDocument
+          opt={{
+            uri: notes,
+            toc: 'GET',
+          }}
+          onSectionBegin={(uri: string) => {
+            return <SectionStart sec={uri} />;
+          }}
+          onSectionEnd={(_: string) => {
+            return <SectionEnd />;
+          }}
+        />
+      </FTMLSetup>
     </MainLayout>
   );
 };
