@@ -20,7 +20,7 @@ const Sidebar = ({
     student: [
       { label: 'Dashboard', path: '/job-portal/student/dashboard' },
       { label: 'Search Job', path: '/job-portal/search-job' },
-      { label: 'Applications', path: '/job-portal/student/applications' },
+      { label: 'Applications', path: '/job-portal/student/application' },
       { label: 'Messages', path: '/job-portal/student/messages' },
       { label: 'Profile', path: '/job-portal/student/profile' },
       { label: 'Statistics', path: '/job-portal/student/statistics' },
@@ -115,6 +115,7 @@ const JpLayoutWithSidebar = ({
   children: any;
 }) => {
   const [drawerOpen, setDrawerOpen] = useState(true);
+  console.log('role', role);
 
   return (
     <Box sx={{ display: 'flex', height: '100vh', backgroundColor: '#f4f4f4' }}>
