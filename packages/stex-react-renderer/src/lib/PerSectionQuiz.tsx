@@ -91,7 +91,7 @@ export function PerSectionQuiz({
   const problem = problems[problemIdx];
   const response = responses[problemIdx];
   const solutions = problems[problemIdx]?.subProblemData?.map((p) => p.solution);
-
+  console.log(solutions);
   if (!problem || !response) return <>error</>;
 
   return (
@@ -161,7 +161,7 @@ export function PerSectionQuiz({
         {showSolution && (
           <Box mb="10px">
             {solutions.map((solution) => (
-              <div style={{ color: '#555' }}>{mmtHTMLToReact(solution)}</div>
+              <div style={{ color: '#555' }} dangerouslySetInnerHTML={{__html:solution}}></div>
             ))}
           </Box>
         )}
