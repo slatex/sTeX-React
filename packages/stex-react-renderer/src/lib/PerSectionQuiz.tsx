@@ -91,7 +91,7 @@ export function PerSectionQuiz({
   const problem = problems[problemIdx];
   const response = responses[problemIdx];
   const solutions = problems[problemIdx]?.subProblemData?.map((p) => p.solution);
-  console.log(solutions);
+
   if (!problem || !response) return <>error</>;
 
   return (
