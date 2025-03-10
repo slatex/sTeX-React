@@ -163,6 +163,18 @@ const MyProfilePage: NextPage = () => {
           </Button>
         </Link>
         <br />
+        <Link href="/my-answers" passHref>
+          <Button variant="contained" sx={{ m: '10px 0' }}>
+            {t.myAnswers}
+          </Button>
+        </Link>
+        <br />
+        <Link href="/my-grading" passHref>
+          <Button variant="contained" sx={{ m: '10px 0' }}>
+            {t.myGrading}
+          </Button>
+        </Link>
+        <br />
         <Link href="/learner-model-init" passHref>
           <Button variant="contained" sx={{ m: '10px 0' }}>
             {t.learnerModelPriming}
