@@ -1,12 +1,5 @@
-@import '../../../styles/rustex.css';
-@import '../../../styles/highlights.css';
-@import '../../../styles/overlay.css';
-@import '../../../styles/browser.css';
-@import '../../../styles/fonts.scss';
-@import '../../../styles/sidebar.css';
-@import '../../../styles/math.css';
-@import '../../../styles/frontend-specific.css';
-
+* { position:relative;}
+a { color: inherit; text-decoration: inherit; }
 html,
 body {
   padding: 0;

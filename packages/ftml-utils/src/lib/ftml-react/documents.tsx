@@ -61,17 +61,6 @@ export const FTMLDocument: React.FC<{
     };
   }, []);
 
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      const rustexBody = document.querySelector('.rustex-body') as HTMLElement | null;
-      if (rustexBody) {
-        rustexBody.style.setProperty('--temp-width', 'unset', 'important');
-      }
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
-    return () => observer.disconnect();
-  }, []);
-
   return (
     <div style={{ textAlign: 'start' }}>
       <div ref={mountRef} />

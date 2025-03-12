@@ -81,38 +81,21 @@ const CourseNotesPage: NextPage = () => {
   const { notes } = courseInfo;
 
   return (
-    <MainLayout title={(courseId || '').toUpperCase() + ` ${t.notes} | ALeA`}>
-      {/* 
-      //Todo alea4
-      <IconButton
-        onClick={handleSearchClick}
-        style={{
-          position: 'fixed',
-          right: '10px',
-          top: '80px',
-          zIndex: 1000,
-          background: '#FFFFFFF0',
-          transform: 'scale(1.1)',
-        }}
-      >
-        <SearchIcon style={{ color: PRIMARY_COL }} />
-      </IconButton>
-      <SearchDialog open={dialogOpen} onClose={handleDialogClose} courseId={courseId} /> */}
+    <>
+      <p>
+        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Molestias, est officia cumque,
+        nisi ut quibusdam provident tenetur voluptatum porro eos error, accusantium enim! Quas, a
+        nam dicta harum exercitationem asperiores numquam consequuntur.
+      </p>
       <FTMLSetup>
         <FTMLDocument
           opt={{
             uri: notes,
             toc: 'GET',
           }}
-          onSectionBegin={(uri: string) => {
-            return <SectionStart sec={uri} />;
-          }}
-          onSectionEnd={(_: string) => {
-            return <SectionEnd />;
-          }}
         />
       </FTMLSetup>
-    </MainLayout>
+    </>
   );
 };
 

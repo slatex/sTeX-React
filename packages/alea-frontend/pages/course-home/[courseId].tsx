@@ -46,7 +46,7 @@ import { useEffect, useRef, useState } from 'react';
 import { RecordedSyllabus } from '../../components/RecordedSyllabus';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
-import { FTMLDocument} from 'packages/ftml-utils/src/lib/ftml-react/documents';
+import { FTMLDocument } from 'packages/ftml-utils/src/lib/ftml-react/documents';
 import { SectionEnd, SectionStart } from 'packages/ftml-utils/src/lib/ftml-react/test';
 
 export function getCourseEnrollmentAcl(courseId: string, instanceId: string) {
@@ -362,14 +362,8 @@ const CourseHomePage: NextPage = () => {
         <FTMLDocument
           opt={{
             uri: landing,
-            toc: 'GET',
           }}
-          onSectionBegin={(uri: string) => {
-            return <SectionStart sec={uri} />;
-          }}
-          onSectionEnd={(_: string) => {
-            return <SectionEnd />;
-          }}
+       
         />
         {/* <RecordedSyllabus courseId={courseId} /> */}
       </Box>
