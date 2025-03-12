@@ -3,6 +3,28 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { composePlugins, withNx } = require('@nx/next');
 const { withSentryConfig } = require('@sentry/nextjs');
+const CopyPlugin = require('copy-webpack-plugin');
+
+
+function patchWasmModuleImport(config, isServer) {
+  config.experiments = Object.assign(config.experiments || {}, {
+    asyncWebAssembly: true,
+  });
+
+  config.optimization.moduleIds = 'named';
+
+  config.module.rules.push({
+    test: /\.wasm$/,
+    type: 'webassembly/async',
+  });
+
+  // TODO: improve this function -> track https://github.com/vercel/next.js/issues/25852
+  if (isServer) {
+    config.output.webassemblyModuleFilename = './../static/wasm/f3554129f854faad.wasm';
+  } else {
+    config.output.webassemblyModuleFilename = 'static/wasm/f3554129f854faad.wasm';
+  }
+}
 
 /**
  * @type {import('@nx/next/plugins/with-nx').WithNxOptions}
@@ -26,11 +48,19 @@ const nextConfig = {
       transform: '@mui/icons-material/{{member}}',
     },
   },
-  webpack: (config) => {
+  webpack: (config, options) => {
     config.experiments = {
       ...config.experiments,
       asyncWebAssembly: true,
     };
+    config.plugins.push(
+      new CopyPlugin({
+        patterns: [{ from: 'public/wasm', to: './static/wasm' }],
+      })
+    );
+   
+    module.exports = nextConfig;
+    // patchWasmModuleImport(config, options.isServer);
     return config;
   },
 };
