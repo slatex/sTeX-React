@@ -293,7 +293,9 @@ const ApplicantTable = ({ loading, filteredApplicants, setFilteredApplicants }) 
   const handleSort = (criteria) => {
     let sortedApplicants = [...filteredApplicants];
     if (criteria === 'date') {
-      sortedApplicants.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      sortedApplicants.sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
     } else if (criteria === 'name') {
       sortedApplicants.sort((a, b) =>
         a.studentProfile[0].name.localeCompare(b.studentProfile[0].name)

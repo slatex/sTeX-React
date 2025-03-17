@@ -63,7 +63,7 @@ const Sidebar = ({
       }}
     >
       <List>
-        <ListItem button onClick={() => setDrawerOpen(!drawerOpen)}>
+        <ListItem component="button" onClick={() => setDrawerOpen(!drawerOpen)}>
           <ListItemIcon>
             <MenuIcon sx={{ color: 'white' }} />
           </ListItemIcon>
@@ -79,7 +79,7 @@ const Sidebar = ({
               }}
             >
               <ListItem
-                button
+                component="button"
                 onClick={() => router.push(path)}
                 sx={{
                   bgcolor: isActive ? '#f9f5f2' : 'transparent',

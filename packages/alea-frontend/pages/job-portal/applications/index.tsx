@@ -221,8 +221,8 @@ export function AppliedJobs() {
 
   const sortedJobs = [...filteredJobs].sort((a, b) =>
     sortOrder === 'NEWEST'
-      ? new Date(b.appliedDate) - new Date(a.appliedDate)
-      : new Date(a.appliedDate) - new Date(b.appliedDate)
+      ? new Date(b.appliedDate).getTime() - new Date(a.appliedDate).getTime()
+      : new Date(a.appliedDate).getTime() - new Date(b.appliedDate).getTime()
   );
 
   return (

@@ -48,7 +48,6 @@ import { AccountCircle, FilterList, Search } from '@mui/icons-material';
 import StudentProfile from './profile';
 import Applications from './application';
 import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
-import { Header, HeaderToolbar } from 'packages/alea-frontend/components/Header';
 import JpLayoutWithSidebar from 'packages/alea-frontend/layouts/JpLayoutWithSidebar';
 import {
   canAccessResource,
@@ -466,8 +465,7 @@ const Dashboard = () => {
     switch (role) {
       case 'dashboard':
         return <StudentDashboard />;
-      case 'search job':
-        return <SearchJob />;
+
       case 'applications':
         return <Applications />;
       case 'messages':

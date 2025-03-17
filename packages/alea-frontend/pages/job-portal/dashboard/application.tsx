@@ -32,7 +32,9 @@ const Applications = () => {
     const sortedApplications = [...applications].sort((a, b) => {
       const dateA = new Date(a.date);
       const dateB = new Date(b.date);
-      return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+      return sortOrder === 'newest'
+        ? dateB.getTime() - dateA.getTime()
+        : dateA.getTime() - dateB.getTime();
     });
     setApplications(sortedApplications);
     setSortOrder(sortOrder === 'newest' ? 'oldest' : 'newest');
