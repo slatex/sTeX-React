@@ -1,9 +1,7 @@
 import ArticleIcon from '@mui/icons-material/Article';
-import MergeIcon from '@mui/icons-material/Merge';
-import SlideshowIcon from '@mui/icons-material/Slideshow';
-import VideoCameraFrontIcon from '@mui/icons-material/VideoCameraFront';
-import { Box, Button, CircularProgress, ToggleButtonGroup, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import {
+  ClipInfo,
   SectionInfo,
   SectionsAPIData,
   Slide,
@@ -34,10 +32,10 @@ import Link from 'next/link';
 import { NextRouter, useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import { SlideDeck } from '../../components/SlideDeck';
-import { TooltipToggleButton } from '../../components/TooltipToggleButton';
 import { VideoDisplay } from '../../components/VideoDisplay';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
+import { VideoCameraBack } from '@mui/icons-material';
 
 function RenderElements({ elements }: { elements: string[] }) {
   return (
@@ -49,9 +47,8 @@ function RenderElements({ elements }: { elements: string[] }) {
   );
 }
 
-enum ViewMode {
+export enum ViewMode {
   SLIDE_MODE = 'SLIDE_MODE',
-  VIDEO_MODE = 'VIDEO_MODE',
   COMBINED_MODE = 'COMBINED_MODE',
 }
 function ToggleModeButton({
@@ -64,29 +61,27 @@ function ToggleModeButton({
   const router = useRouter();
   const { courseView: t } = getLocaleObject(router);
 
+  const isCombinedMode = viewMode === ViewMode.COMBINED_MODE;
+  const buttonLabel = isCombinedMode ? t.hideVideo : t.showVideo;
+
   return (
-    <ToggleButtonGroup
-      value={viewMode}
-      exclusive
-      onChange={(event, newVal) => {
-        if (!newVal) {
-          newVal =
-            viewMode === ViewMode.COMBINED_MODE ? ViewMode.SLIDE_MODE : ViewMode.COMBINED_MODE;
-        }
-        updateViewMode(newVal);
+    <Button
+      variant="outlined"
+      onClick={() => {
+        const newMode = isCombinedMode ? ViewMode.SLIDE_MODE : ViewMode.COMBINED_MODE;
+        updateViewMode(newMode);
       }}
-      sx={{ m: '5px 0', border: '1px solid black' }}
+      sx={{
+        m: '5px 0',
+        '&:hover': {
+          backgroundColor: 'primary.main',
+          color: 'white',
+        },
+      }}
     >
-      <TooltipToggleButton value={ViewMode.SLIDE_MODE} title={t.showSlides}>
-        <SlideshowIcon />
-      </TooltipToggleButton>
-      <TooltipToggleButton value={ViewMode.VIDEO_MODE} title={t.showVideo}>
-        <VideoCameraFrontIcon />
-      </TooltipToggleButton>
-      <TooltipToggleButton value={ViewMode.COMBINED_MODE} title={t.showSlidesAndVideo}>
-        <MergeIcon />
-      </TooltipToggleButton>
-    </ToggleButtonGroup>
+      {buttonLabel}
+      <VideoCameraBack sx={{ ml: '5px' }} />
+    </Button>
   );
 }
 
@@ -94,6 +89,19 @@ function populateClipIds(sections: SectionInfo[], clipIds: { [sectionId: string]
   for (const section of sections) {
     clipIds[section.id] = section.clipId;
     populateClipIds(section.children, clipIds);
+  }
+}
+function populateSlidesClipInfos(
+  sections: SectionInfo[],
+  slidesClipInfo: {
+    [sectionId: string]: {
+      [slideNumber: number]: ClipInfo[];
+    };
+  }
+) {
+  for (const section of sections) {
+    slidesClipInfo[section.id] = section.clipInfo;
+    populateSlidesClipInfos(section.children, slidesClipInfo);
   }
 }
 
@@ -118,7 +126,14 @@ function getSections(data: SectionsAPIData): string[] {
   });
   return sections;
 }
-
+export interface ClipData {
+  sectionId: string;
+  slideIndex: number;
+  title: string;
+  start_time: number;
+  end_time: number;
+  thumbnail?: string;
+}
 const CourseViewPage: NextPage = () => {
   const router = useRouter();
   const courseId = router.query.courseId as string;
@@ -139,12 +154,29 @@ const CourseViewPage: NextPage = () => {
   }>({});
 
   const [clipIds, setClipIds] = useState<{ [sectionId: string]: string }>({});
+  const [slidesClipInfo, setSlidesClipInfo] = useState<{
+    [sectionId: string]: {
+      [slideNumber: number]: ClipInfo[];
+    };
+  }>({});
+  const [currentClipId, setCurrentClipId] = useState('');
+  const [videoExtractedData, setVideoExtractedData] = useState<{
+    [timestampSec: number]: ClipData;
+  }>({});
+
+  const [currentSlideClipInfo, setCurrentSlideClipInfo] = useState<ClipInfo>(null);
   const [slideArchive, setSlideArchive] = useState('');
   const [slideFilepath, setSlideFilepath] = useState('');
   const { mmtUrl } = useContext(ServerLinksContext);
   const { courseView: t, home: tHome } = getLocaleObject(router);
   const [contentUrl, setContentUrl] = useState(undefined as string);
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
+  const [timestampSec, setTimestampSec] = useState(0);
+  const [autoSync, setAutoSync] = useState(false);
+  const [videoLoaded, setVideoLoaded] = useState(false);
+  const handleVideoLoad = (status) => {
+    setVideoLoaded(status);
+  };
 
   useEffect(() => {
     if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
@@ -163,9 +195,17 @@ const CourseViewPage: NextPage = () => {
       const clipIds = {};
       populateClipIds(r.data, clipIds);
       setClipIds(clipIds);
+      const slidesClipInfo = {};
+      populateSlidesClipInfos(r.data, slidesClipInfo);
+      setSlidesClipInfo(slidesClipInfo);
     });
   }, [courseId, router.isReady]);
-
+  useEffect(() => {
+    if (!router.isReady || !courseId?.length || !currentClipId) return;
+    axios
+      .get(`/api/get-slide-details/${courseId}/${currentClipId}`)
+      .then((resp) => setVideoExtractedData(resp.data));
+  }, [courseId, currentClipId]);
   useEffect(() => {
     if (!router.isReady) return;
     if (sectionId && slideNum && viewMode && audioOnlyStr) return;
@@ -187,7 +227,7 @@ const CourseViewPage: NextPage = () => {
     }
     if (!viewMode) {
       someParamMissing = true;
-      query.viewMode = localStore?.getItem('defaultMode') || ViewMode.SLIDE_MODE.toString();
+      query.viewMode = localStore?.getItem('defaultMode') || ViewMode.COMBINED_MODE.toString();
     }
     if (!audioOnlyStr) {
       someParamMissing = true;
@@ -205,6 +245,12 @@ const CourseViewPage: NextPage = () => {
     }
     getIndex();
   }, [mmtUrl, contentUrl]);
+
+  useEffect(() => {
+    if (!sectionId) return;
+    const newClipId = clipIds?.[sectionId];
+    setCurrentClipId(newClipId);
+  }, [slidesClipInfo, clipIds, sectionId]);
 
   function goToPrevSection() {
     const secIdx = courseSections.indexOf(sectionId);
@@ -229,7 +275,10 @@ const CourseViewPage: NextPage = () => {
   const sectionParentInfo = lastFileNode(ancestors);
   const sectionNode = ancestors?.length > 0 ? ancestors.at(-1) : undefined;
   const { archive, filepath } = sectionParentInfo ?? {};
-
+  const onClipChange = (clip: any) => {
+    setCurrentClipId(clip.video_id);
+    setTimestampSec(clip.start_time);
+  };
   return (
     <MainLayout title={(courseId || '').toUpperCase() + ` ${tHome.courseThumb.slides} | ALeA`}>
       <LayoutWithFixedMenu
@@ -278,8 +327,20 @@ const CourseViewPage: NextPage = () => {
                 {mmtHTMLToReact(sectionNode?.title || '')}
               </Typography>
             </Box>
-            {(viewMode === ViewMode.VIDEO_MODE || viewMode === ViewMode.COMBINED_MODE) && (
-              <VideoDisplay clipId={clipIds[sectionId]} audioOnly={audioOnly} />
+            {viewMode === ViewMode.COMBINED_MODE && (
+              <VideoDisplay
+                clipId={currentClipId}
+                clipIds={clipIds}
+                setCurrentClipId={setCurrentClipId}
+                audioOnly={audioOnly}
+                timestampSec={timestampSec}
+                setTimestampSec={setTimestampSec}
+                currentSlideClipInfo={currentSlideClipInfo}
+                videoExtractedData={videoExtractedData}
+                courseDocSections={docSections}
+                autoSync={autoSync}
+                onVideoLoad={handleVideoLoad}
+              />
             )}
             {(viewMode === ViewMode.SLIDE_MODE || viewMode === ViewMode.COMBINED_MODE) && (
               <SlideDeck
@@ -295,10 +356,28 @@ const CourseViewPage: NextPage = () => {
                   setPostNotes(slide?.postNotes || []);
                   setSlideArchive(slide?.archive);
                   setSlideFilepath(slide?.filepath);
+                  if (
+                    slidesClipInfo &&
+                    slidesClipInfo[sectionId] &&
+                    slidesClipInfo[sectionId][slideNum]
+                  ) {
+                    const slideClips = slidesClipInfo[sectionId][slideNum];
+                    if (!Array.isArray(slideClips)) {
+                      return;
+                    }
+                    const matchedClip = slideClips.find((clip) => clip.video_id === currentClipId);
+                    setCurrentSlideClipInfo(matchedClip || slideClips[0]);
+                  }
                 }}
                 goToNextSection={goToNextSection}
                 goToPrevSection={goToPrevSection}
                 slideNum={slideNum}
+                slidesClipInfo={slidesClipInfo}
+                onClipChange={onClipChange}
+                autoSync={autoSync}
+                setAutoSync={setAutoSync}
+                audioOnly={audioOnly}
+                videoLoaded={videoLoaded}
               />
             )}
             <hr style={{ width: '98%', padding: '1px 0' }} />
@@ -308,24 +387,20 @@ const CourseViewPage: NextPage = () => {
                 sectionTitle={sectionNode?.title}
               />
             </Box>
-            {viewMode !== ViewMode.VIDEO_MODE && (
-              <CommentNoteToggleView
-                file={{ archive: slideArchive, filepath: slideFilepath }}
-                defaultPrivate={true}
-                extraPanel={{
-                  label: t.instructorNotes,
-                  panelContent: (
-                    <Box p="5px" sx={{ overflowX: 'auto' }}>
-                      <RenderElements elements={preNotes} />
-                      {preNotes.length > 0 && postNotes.length > 0 && (
-                        <hr style={{ width: '98%' }} />
-                      )}
-                      <RenderElements elements={postNotes} />
-                    </Box>
-                  ),
-                }}
-              />
-            )}
+            <CommentNoteToggleView
+              file={{ archive: slideArchive, filepath: slideFilepath }}
+              defaultPrivate={true}
+              extraPanel={{
+                label: t.instructorNotes,
+                panelContent: (
+                  <Box p="5px" sx={{ overflowX: 'auto' }}>
+                    <RenderElements elements={preNotes} />
+                    {preNotes.length > 0 && postNotes.length > 0 && <hr style={{ width: '98%' }} />}
+                    <RenderElements elements={postNotes} />
+                  </Box>
+                ),
+              }}
+            />
           </Box>
         </Box>
       </LayoutWithFixedMenu>

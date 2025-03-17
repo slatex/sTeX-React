@@ -14,8 +14,14 @@ import {
   Tristate,
 } from '@stex-react/api';
 import { getMMTCustomId, truncateString } from '@stex-react/utils';
-import { ChildNode, Document, Element } from 'domhandler';
 import { DomHandler, DomUtils, Parser, parseDocument } from 'htmlparser2';
+
+
+// Hack: Fix this properly later
+//import { ChildNode, Document, Element1 } from 'domhandler';
+export type ChildNode = any;
+export type Document = any;
+export type Element1 = any;
 
 const NODE_ATTRS_TO_TYPE: { [attrName: string]: InputType } = {
   'data-problem-mcb': InputType.MCQ,
@@ -167,20 +173,20 @@ export function getPoints(problem: Problem, response?: ProblemResponse) {
 }
 
 function recursivelyFindNodes(
-  node: Document | (ChildNode & Element),
+  node: Document | (ChildNode & Element1),
   attrNames: string[]
-): { node: Element; attrName: string; attrVal: any }[] {
-  if (node instanceof Element) {
+): { node: Element1; attrName: string; attrVal: any }[] {
+  if (node?.attribs) { // node instanceof Element1
     for (const attrName of attrNames) {
       const attrVal = node.attribs[attrName];
       if (attrVal || attrVal === '') return [{ node, attrName, attrVal }];
     }
   }
-  const foundList: { node: Element; attrName: string; attrVal: any }[] = [];
+  const foundList: { node: Element1; attrName: string; attrVal: any }[] = [];
   const children = node.childNodes;
   for (const child of children || []) {
     //const child = children.item(i);
-    if (child instanceof Element) {
+    if (child?.attribs) { // child instanceof Element1
       const subFoundList = recursivelyFindNodes(child, attrNames);
       if (subFoundList?.length) foundList.push(...subFoundList);
     }
@@ -188,8 +194,8 @@ function recursivelyFindNodes(
   return foundList;
 }
 
-function removeNodeWithAttrib(node: (ChildNode & Element) | Document, attrNames: string[]) {
-  if (node instanceof Element) {
+function removeNodeWithAttrib(node: (ChildNode & Element1) | Document, attrNames: string[]) {
+  if (node?.attribs) { // node instanceof Element1
     for (const attrName of attrNames) {
       const attrVal = node.attribs[attrName];
       if (attrVal) {
@@ -200,25 +206,25 @@ function removeNodeWithAttrib(node: (ChildNode & Element) | Document, attrNames:
 
   for (const child of node.childNodes ?? []) {
     // const child = children.item(i);
-    if (child instanceof Element) {
+    if (child?.attribs) { //child instanceof Element1) 
       removeNodeWithAttrib(child, attrNames);
     }
   }
 }
 
-function isInlineBlock(node: Element) {
+function isInlineBlock(node: Element1) {
   return node.attribs['data-problem-scb-inline'] === 'true';
 }
 
-function isIgnoredForScoring(node: Element) {
+function isIgnoredForScoring(node: Element1) {
   return node.attribs['data-problem-ignore-scoring'] === 'true';
 }
 
-function findProblemRootNode(node: (ChildNode & Element) | Document) {
+function findProblemRootNode(node: (ChildNode & Element1) | Document) {
   return recursivelyFindNodes(node, ['data-problem'])?.[0]?.node;
 }
 
-function findSolutionRootNodes(node: (ChildNode & Element) | Document): Element[] {
+function findSolutionRootNodes(node: (ChildNode & Element1) | Document): Element1[] {
   return recursivelyFindNodes(node, ['data-problem-solution']).map((result) => result.node);
 }
 
@@ -236,7 +242,7 @@ function stringToQuadState(str: string) {
 }
 
 function getChoiceInfo(
-  choiceNode: Element,
+  choiceNode: Element1,
   solNodeAttr: string,
   shouldSelectStr: string,
   idx: number
@@ -250,7 +256,7 @@ function getChoiceInfo(
   return { shouldSelect, value: { outerHTML }, feedbackHtml, optionId };
 }
 
-function getOptionSet(optionBlock: Element, type: InputType): Option[] {
+function getOptionSet(optionBlock: Element1, type: InputType): Option[] {
   const problemNodeAttr = type === InputType.MCQ ? 'data-problem-mc' : 'data-problem-sc';
   const solutionNodeAttr = problemNodeAttr + '-solution';
   return recursivelyFindNodes(optionBlock, [problemNodeAttr]).map(
@@ -275,7 +281,7 @@ export function fillInValueToStartEndNum(value: string) {
   return { startNum: parseFloat(match[1]), endNum: parseFloat(match[2]) };
 }
 
-function getAnswerClass(node: Element): FillInAnswerClass | undefined {
+function getAnswerClass(node: Element1): FillInAnswerClass | undefined {
   const type = node.attribs['data-fillin-type'];
   const verdict = node.attribs['data-fillin-verdict']?.toLowerCase() === 'true';
   const value = node.attribs['data-fillin-value'];
@@ -311,7 +317,7 @@ function getAnswerClass(node: Element): FillInAnswerClass | undefined {
   }
 }
 
-function getSubProblems(rootNode: Element): SubProblemData[] {
+function getSubProblems(rootNode: Element1): SubProblemData[] {
   const rawAnswerclasses = recursivelyFindNodes(rootNode, ['data-problem-answerclass']);
   const subproblems: SubProblemData[] = [];
   for (const rawAnswerClass of rawAnswerclasses) {
@@ -348,12 +354,12 @@ function getAnswerClassId(attribute: string): string {
   return attribute.substring(startIndex, endIndex);
 }
 
-function getPointsFromAnswerClass(rawClass: Element): number {
+function getPointsFromAnswerClass(rawClass: Element1): number {
   const pointElemnt = recursivelyFindNodes(rawClass, ['data-problem-answerclass-pts'])[0];
   return Number(pointElemnt?.attrVal ?? '0');
 }
 
-function getFillInAnswerClasses(fillInSolNode: Element): FillInAnswerClass[] {
+function getFillInAnswerClasses(fillInSolNode: Element1): FillInAnswerClass[] {
   const answerClassNodes = recursivelyFindNodes(fillInSolNode, ['data-fillin-type']);
   if (!answerClassNodes?.length) {
     const value = DomUtils.textContent(fillInSolNode);
@@ -369,7 +375,7 @@ function getFillInAnswerClasses(fillInSolNode: Element): FillInAnswerClass[] {
     .filter((x) => x) as FillInAnswerClass[];
 }
 
-function findInputs(problemRootNode: (ChildNode & Element) | Document): Input[] {
+function findInputs(problemRootNode: (ChildNode & Element1) | Document): Input[] {
   const rootProblemNodeMarkers = Object.keys(NODE_ATTRS_TO_TYPE);
   const inputNodes = recursivelyFindNodes(problemRootNode, rootProblemNodeMarkers);
   removeNodeWithAttrib(problemRootNode, rootProblemNodeMarkers);
@@ -388,7 +394,7 @@ function findInputs(problemRootNode: (ChildNode & Element) | Document): Input[] 
   });
 }
 
-function getProblemPoints(rootNode: Element) {
+function getProblemPoints(rootNode: Element1) {
   const pointsStr = rootNode?.attribs?.['data-problem-points'];
   if (!pointsStr) return 1;
   const parsedFloat = parseFloat(pointsStr);
@@ -397,12 +403,12 @@ function getProblemPoints(rootNode: Element) {
   return parsedFloat;
 }
 
-function getProblemHeader(rootNode: Element) {
+function getProblemHeader(rootNode: Element1) {
   const header = recursivelyFindNodes(rootNode, ['data-problem-title'])?.[0]?.node;
   return header ? DomUtils.getOuterHTML(header) : '';
 }
 
-function getProblemSolution(rootNode?: Element): string {
+function getProblemSolution(rootNode?: Element1): string {
   if (!rootNode) return '';
   const solutionNodes = findSolutionRootNodes(rootNode);
   return solutionNodes.map((node) => DomUtils.getOuterHTML(node)).join('\n');

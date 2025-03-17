@@ -29,29 +29,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const resourceActions: CourseResourceAction[] = courseIds.flatMap((courseId) =>
     resourceNames.flatMap((name) => {
-      const validActions = getValidActionsForResource(name);
-      return validActions.map((action) => ({
+      const actions = getValidActionsForResource(name);
+      return {
         courseId,
         name,
-        action,
-      }));
+        actions,
+      };
     })
   );
 
   const authorizedResourceActions = (
     await Promise.all(
-      resourceActions.map(async (resourceAction) => {
-        const isAuthorized = await isUserIdAuthorizedForAny(userId, [
-          {
-            name: resourceAction.name,
-            action: resourceAction.action,
-            variables: { courseId: resourceAction.courseId, instanceId: CURRENT_TERM },
-          },
-        ]);
-        return isAuthorized ? resourceAction : null;
+      resourceActions.map(async ({ name, courseId, actions }) => {
+        const validActions = [];
+
+        for (const action of actions) {
+          const isAuthorized = await isUserIdAuthorizedForAny(userId, [
+            { name, action, variables: { courseId, instanceId: CURRENT_TERM } },
+          ]);
+
+          if (isAuthorized) validActions.push(action);
+        }
+        return validActions.length ? { name, courseId, actions: validActions } : null;
       })
     )
-  ).filter((res) => res !== null);
-
+  ).filter((resource) => resource !== null);
   return res.status(200).json(authorizedResourceActions);
 }

@@ -1,13 +1,25 @@
+import { Rule, Visibility } from '@mui/icons-material';
 import ArticleIcon from '@mui/icons-material/Article';
 import CommentIcon from '@mui/icons-material/Comment';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import GradingIcon from '@mui/icons-material/Grading';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import QuizIcon from '@mui/icons-material/Quiz';
-import { Avatar, Box, Card, CardActionArea, CardContent, Typography } from '@mui/material';
+import {
+  Avatar,
+  Box,
+  Button,
+  Card,
+  CardActionArea,
+  CardContent,
+  IconButton,
+  Typography,
+} from '@mui/material';
 import {
   CommentType,
   getCourseGradingItems,
+  getCourseIdsForEnrolledUser,
+  getCourseInfo,
   getCourseInstanceThreads,
   getCourseQuizList,
   getCoverageTimeline,
@@ -15,20 +27,23 @@ import {
   getUserInfo,
   QuestionStatus,
 } from '@stex-react/api';
+import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import {
   Action,
+  CourseInfo,
   CourseResourceAction,
   CURRENT_TERM,
   PRIMARY_COL,
   ResourceName,
 } from '@stex-react/utils';
 import dayjs from 'dayjs';
-import { useRouter } from 'next/router';
-import { useEffect, useMemo, useState } from 'react';
-import MainLayout from '../layouts/MainLayout';
-import { BannerSection, VollKiInfoSection } from '../pages';
 import Link from 'next/link';
+import { NextRouter, useRouter } from 'next/router';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
+import MainLayout from '../layouts/MainLayout';
+import { BannerSection, CourseCard, VollKiInfoSection } from '../pages';
+import { CourseThumb } from '../pages/u/[institution]';
 
 interface ResourceDisplayInfo {
   description: string | null;
@@ -39,24 +54,18 @@ interface ResourceDisplayInfo {
 
 const EXCLUDED_RESOURCES = [ResourceName.COURSE_STUDY_BUDDY, ResourceName.COURSE_ACCESS];
 
-const getResourceDisplayText = (name: ResourceName, action: Action, router) => {
+const getResourceDisplayText = (name: ResourceName, router: NextRouter) => {
   const { resource: r } = getLocaleObject(router);
-  if (name === ResourceName.COURSE_COMMENTS && action === Action.MODERATE) {
+  if (name === ResourceName.COURSE_COMMENTS) {
     return r.forum;
   }
-  if (name === ResourceName.COURSE_QUIZ && action === Action.PREVIEW) {
-    return r.reviewLatestQuiz;
+  if (name === ResourceName.COURSE_QUIZ) {
+    return r.quiz;
   }
-  if (name === ResourceName.COURSE_QUIZ && action === Action.MUTATE) {
-    return r.createUpdateQuiz;
+  if (name === ResourceName.COURSE_HOMEWORK) {
+    return r.homework;
   }
-  if (name === ResourceName.COURSE_HOMEWORK && action === Action.INSTRUCTOR_GRADING) {
-    return r.gradeHomework;
-  }
-  if (name === ResourceName.COURSE_HOMEWORK && action === Action.MUTATE) {
-    return r.createUpdateHomework;
-  }
-  if (name === ResourceName.COURSE_NOTES && action === Action.MUTATE) {
+  if (name === ResourceName.COURSE_NOTES) {
     return r.updateGoTo;
   }
   return name.replace('COURSE_', ' ').replace('_', ' ');
@@ -79,20 +88,43 @@ const getTimeAgoColor = (timestamp: string | null): string => {
   return 'red';
 };
 
+const getColoredDescription = (text: string) => {
+  const match = text.match(/(Unanswered Questions|Ungraded Problems) - (\d+)\/(\d+)/);
+  if (match) {
+    const [, keyword, count, total] = match;
+    const value = parseInt(count, 10);
+    const max = parseInt(total, 10);
+    const percentage = max > 0 ? ((max - value) / max) * 100 : 0;
+    let color = 'inherit';
+
+    if (max == 0 && value == 0) {
+      color = 'text.secondary';
+    } else if (percentage < 30) {
+      color = 'red';
+    } else if (percentage < 70) {
+      color = 'orange';
+    } else {
+      color = 'green';
+    }
+    return <span style={{ color }}>{text}</span>;
+  }
+  return <span style={{ color: 'text.secondary' }}>{text}</span>;
+};
+
 const getResourceIcon = (name: ResourceName) => {
   switch (name) {
     case ResourceName.COURSE_NOTES:
-      return <ArticleIcon />;
+      return <ArticleIcon sx={{ fontSize: '15px' }} />;
     case ResourceName.COURSE_QUIZ:
-      return <QuizIcon />;
+      return <QuizIcon sx={{ fontSize: '15px' }} />;
     case ResourceName.COURSE_COMMENTS:
-      return <CommentIcon />;
+      return <CommentIcon sx={{ fontSize: '15px' }} />;
     case ResourceName.COURSE_STUDY_BUDDY:
-      return <Diversity3Icon />;
+      return <Diversity3Icon sx={{ fontSize: '15px' }} />;
     case ResourceName.COURSE_HOMEWORK:
-      return <GradingIcon />;
+      return <GradingIcon sx={{ fontSize: '15px' }} />;
     case ResourceName.COURSE_ACCESS:
-      return <LockOpenIcon />;
+      return <LockOpenIcon sx={{ fontSize: '15px' }} />;
     default:
       return name[0];
   }
@@ -205,8 +237,8 @@ async function getLastUpdatedDescriptions({
       break;
     case ResourceName.COURSE_QUIZ:
       ({ description, timeAgo, timestamp, quizId } = await getLastUpdatedQuiz(courseId));
-      if (action === Action.PREVIEW) {
-        description = `Start Date: ${dayjs(parseInt(timestamp)).format('YYYY-MM-DD HH:mm:ss')}`;
+      if (quizId) {
+        description = `Latest Quiz: ${dayjs(parseInt(timestamp)).format('YYYY-MM-DD HH:mm:ss')}`;
       }
       break;
     case ResourceName.COURSE_COMMENTS:
@@ -231,99 +263,223 @@ const groupByCourseId = (resources: CourseResourceAction[]) => {
   }, {} as Record<string, CourseResourceAction[]>);
 };
 
-const handleResourceClick = (router, resource: CourseResourceAction, quizId: string) => {
-  const { courseId, name, action } = resource;
+const handleResourceClick = (
+  router: any,
+  resource: CourseResourceAction,
+  action?: Action,
+  quizId?: string
+) => {
+  const actionsToDisplay: Action[] = [
+    Action.PREVIEW,
+    Action.MODERATE,
+    Action.INSTRUCTOR_GRADING,
+    Action.MUTATE,
+  ];
 
+  if (action && !actionsToDisplay.includes(action)) return;
+
+  const { courseId, name } = resource;
   let url = '';
   if (name === ResourceName.COURSE_NOTES) {
     url = `coverage-update?courseId=${courseId}`;
-  } else if (name === ResourceName.COURSE_HOMEWORK && action === Action.INSTRUCTOR_GRADING) {
-    url = `instructor-dash/${courseId}?tab=homework-grading`;
-  } else if (name === ResourceName.COURSE_HOMEWORK && action === Action.MUTATE) {
-    url = `instructor-dash/${courseId}?tab=homework-manager`;
-  } else if (name === ResourceName.COURSE_QUIZ && action === Action.MUTATE) {
-    url = `instructor-dash/${courseId}?tab=quiz-dashboard`;
-  } else if (name === ResourceName.COURSE_QUIZ && action === Action.PREVIEW) {
-    url = `quiz/${quizId}`;
-  } else if (name === ResourceName.COURSE_COMMENTS && action === Action.MODERATE) {
+  } else if (name === ResourceName.COURSE_HOMEWORK) {
+    if (action === Action.INSTRUCTOR_GRADING) {
+      url = `instructor-dash/${courseId}?tab=homework-grading`;
+    } else {
+      url = `instructor-dash/${courseId}?tab=homework-manager`;
+    }
+  } else if (name === ResourceName.COURSE_QUIZ) {
+    if (action === Action.PREVIEW && quizId) {
+      url = `quiz/${quizId}`;
+    } else {
+      url = `instructor-dash/${courseId}?tab=quiz-dashboard`;
+    }
+  } else if (name === ResourceName.COURSE_COMMENTS) {
     url = `forum/${courseId}`;
   }
   if (url) {
     router.push(url);
   } else {
-    console.warn('No matching URL for this resource');
+    console.warn('No matching URL for this resource or action');
   }
 };
 
+function MyCourses({ enrolledCourseIds }) {
+  const { mmtUrl } = useContext(ServerLinksContext);
+  const [allCourses, setAllCourses] = useState<Record<string, CourseInfo>>({});
+  useEffect(() => {
+    getCourseInfo(mmtUrl).then((res) => {
+      setAllCourses(res);
+    });
+  }, [mmtUrl]);
+  return (
+    <>
+      <Typography
+        sx={{
+          fontSize: '22px',
+          fontWeight: 'bold',
+          padding: '10px',
+          textAlign: 'center',
+        }}
+      >
+        My Courses
+      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'center', flexWrap: 'Wrap' }}>
+        {enrolledCourseIds
+          .filter((courseId: string) => allCourses[courseId])
+          .map((courseId: string) => (
+            <CourseThumb key={courseId} course={allCourses[courseId]} />
+          ))}
+      </Box>
+    </>
+  );
+}
+
 function ResourceCard({
   resource,
-  key,
   descriptions,
   courseId,
 }: {
   resource: CourseResourceAction;
-  key: number;
   descriptions: Record<string, ResourceDisplayInfo>;
   courseId: string;
 }) {
   const router = useRouter();
-  const quizId = descriptions[`${courseId}-${resource.name}-${resource.action}`]?.quizId;
+  const isQuiz = resource.name === 'COURSE_QUIZ';
+  const isHomework = resource.name === 'COURSE_HOMEWORK';
+  const actionsToDisplay: Action[] = [
+    Action.PREVIEW,
+    Action.MODERATE,
+    Action.INSTRUCTOR_GRADING,
+    Action.MUTATE,
+  ];
+  const commonActions = actionsToDisplay.filter((action) => resource.actions.includes(action));
+
+  const resourceDescriptions = Object.entries(descriptions)
+    .filter(([key]) => {
+      return commonActions.some((action) =>
+        key.startsWith(`${courseId}-${resource.name}-${action}`)
+      );
+    })
+    .reduce(
+      (acc, [, value]) => {
+        acc.description = [...new Set([...acc.description, value.description])];
+        acc.timeAgo = [...new Set([...acc.timeAgo, value.timeAgo])];
+        acc.timestamp = [...new Set([...acc.timestamp, value.timestamp])];
+        acc.quizId = [...new Set([...acc.quizId, value.quizId])];
+        return acc;
+      },
+      { description: [], timeAgo: [], timestamp: [], quizId: [] }
+    );
+
+  const timeAgoColor = getTimeAgoColor(resourceDescriptions.timestamp[0]);
+
   return (
-    <Box key={key}>
-      <Card
-        sx={{
-          border: '1px solid lightgray',
-          boxShadow: '0px 4px 6px gray',
-          borderRadius: '8px',
-          minHeight: '100px',
-          minWidth: '300px',
-          transition: 'transform 0.2s, box-shadow 0.2s',
-          '&:hover': {
-            transform: 'scale(1.02)',
-            boxShadow: '0px 8px 12px gray',
-          },
-        }}
-      >
-        <CardActionArea onClick={() => handleResourceClick(router, resource, quizId)}>
-          <CardContent sx={{ display: 'flex', alignItems: 'center' }}>
-            <Avatar sx={{ marginRight: 2, bgcolor: 'primary.main' }}>
-              {getResourceIcon(resource.name)}
-            </Avatar>
-            <Box>
-              <Typography sx={{ fontSize: '18px', fontWeight: 'medium' }}>
-                {getResourceDisplayText(resource.name, resource.action, router)}
-              </Typography>
-              <Typography sx={{ fontSize: '14px', color: 'text.secondary' }}>
-                {descriptions[`${courseId}-${resource.name}-${resource.action}`]?.description}
-              </Typography>
-              <Typography
+    <Card
+      key={resource.name}
+      sx={{
+        flex: '1 1 calc(25% - 16px)',
+        border: '1px solid lightgray',
+        boxShadow: '0px 4px 6px gray',
+        borderRadius: '8px',
+        minHeight: '122px',
+        minWidth: '250px',
+        maxWidth: '400px',
+        transition: 'transform 0.2s, box-shadow 0.2s',
+        '&:hover': {
+          transform: 'scale(1.02)',
+          boxShadow: '0px 8px 12px gray',
+        },
+      }}
+    >
+      <CardActionArea onClick={() => handleResourceClick(router, resource)}>
+        <CardContent sx={{ display: 'flex', alignItems: 'center', padding: '8px !important' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            <Box display="flex" sx={{ alignItems: 'center' }}>
+              <Avatar
                 sx={{
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                  color: getTimeAgoColor(
-                    descriptions[`${courseId}-${resource.name}-${resource.action}`]?.timestamp
-                  ),
+                  marginRight: 1,
+                  bgcolor: 'primary.main',
+                  width: 25,
+                  height: 25,
                 }}
               >
-                {descriptions[`${courseId}-${resource.name}-${resource.action}`]?.timeAgo}
+                <Box>{getResourceIcon(resource.name)}</Box>
+              </Avatar>
+              <Typography sx={{ fontSize: '22px', fontWeight: 'medium' }}>
+                {getResourceDisplayText(resource.name, router)}
               </Typography>
             </Box>
-          </CardContent>
-        </CardActionArea>
-      </Card>
-    </Box>
+            <Box>
+              <Box sx={{ m: '10px 0 0 4px' }}>
+                {resourceDescriptions.description
+                  .filter((d) => d !== null)
+                  .map((d, index) => (
+                    <Typography key={index} sx={{ fontSize: '14px', whiteSpace: 'pre-line' }}>
+                      {getColoredDescription(d)}
+                    </Typography>
+                  ))}
+              </Box>
+
+              {resourceDescriptions.timeAgo && (
+                <Typography
+                  sx={{ fontSize: '14px', fontWeight: 'bold', color: timeAgoColor, ml: '4px' }}
+                >
+                  {resourceDescriptions.timeAgo.filter((t) => t !== null).join('\n')}
+                </Typography>
+              )}
+            </Box>
+          </Box>
+          {isQuiz && resourceDescriptions?.quizId.some((id) => id) && (
+            <IconButton
+              sx={{ color: 'primary.main', mt: 3 }}
+              onClick={(event) => {
+                event.stopPropagation();
+                handleResourceClick(
+                  router,
+                  resource,
+                  Action.PREVIEW,
+                  resourceDescriptions.quizId[0]
+                );
+              }}
+              aria-label="Preview quiz"
+            >
+              <Visibility />
+            </IconButton>
+          )}
+          {isHomework && (
+            <IconButton
+              sx={{ mt: 5, color: 'primary.main' }}
+              onClick={(event) => {
+                event.stopPropagation();
+                handleResourceClick(router, resource, Action.INSTRUCTOR_GRADING);
+              }}
+              aria-label="Ungraded problems"
+            >
+              <Rule />
+            </IconButton>
+          )}
+        </CardContent>
+      </CardActionArea>
+    </Card>
   );
 }
 
-function InstructorDashBoard({
+function WelcomeScreen({
   resourcesForInstructor,
+  filteredCourses,
 }: {
   resourcesForInstructor: CourseResourceAction[];
+  filteredCourses: CourseInfo[];
 }) {
   const [userInfo, setUserInfo] = useState(null);
   const [descriptions, setDescriptions] = useState<Record<string, ResourceDisplayInfo>>({});
+  const [enrolledCourseIds, setEnrolledCourseIds] = useState<string[]>([]);
   const router = useRouter();
-  const { resource: r } = getLocaleObject(router);
+  const {
+    resource: r,
+    home: { newHome: n },
+  } = getLocaleObject(router);
   const groupedResources = useMemo(
     () => groupByCourseId(resourcesForInstructor),
     [resourcesForInstructor]
@@ -333,22 +489,30 @@ function InstructorDashBoard({
   }, []);
 
   useEffect(() => {
+    getCourseIdsForEnrolledUser().then((c) => setEnrolledCourseIds(c.enrolledCourseIds));
+  }, []);
+
+  useEffect(() => {
     const fetchDescriptions = async () => {
       const fetchPromises: Promise<void>[] = [];
       const newDescriptions: Record<string, ResourceDisplayInfo> = {};
       for (const courseId of Object.keys(groupedResources)) {
         for (const resource of groupedResources[courseId]) {
-          const promise = getLastUpdatedDescriptions(resource).then(
-            ({ description, timeAgo, timestamp, quizId }) => {
-              newDescriptions[`${courseId}-${resource.name}-${resource.action}`] = {
+          for (const action of resource.actions) {
+            const promise = getLastUpdatedDescriptions({
+              courseId,
+              name: resource.name,
+              action: action,
+            }).then(({ description, timeAgo, timestamp, quizId }) => {
+              newDescriptions[`${courseId}-${resource.name}-${action}`] = {
                 description,
                 timeAgo,
                 timestamp,
                 quizId,
               };
-            }
-          );
-          fetchPromises.push(promise);
+            });
+            fetchPromises.push(promise);
+          }
         }
       }
 
@@ -368,7 +532,7 @@ function InstructorDashBoard({
         >
           {r.welcome}, {userInfo?.fullName}
         </Typography>
-
+        {enrolledCourseIds.length > 0 && <MyCourses enrolledCourseIds={enrolledCourseIds} />}
         {Object.entries(groupedResources).map(([courseId, resources]) => (
           <Box key={courseId} sx={{ marginBottom: 4 }}>
             <Link href={`/course-home/${courseId}`}>
@@ -381,6 +545,12 @@ function InstructorDashBoard({
                   color: 'white',
                   padding: '10px',
                   textAlign: 'center',
+                  '&:hover': {
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                    backgroundColor: 'secondary.main',
+                    color: PRIMARY_COL,
+                  },
                 }}
               >
                 {courseId.toUpperCase()}
@@ -389,10 +559,10 @@ function InstructorDashBoard({
             <Box
               sx={{
                 display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
                 flexWrap: 'wrap',
-                gap: 5,
-                maxWidth: '1400px',
-                margin: '0 auto',
+                gap: 1,
               }}
             >
               {resources.map((resource, index) => (
@@ -407,9 +577,28 @@ function InstructorDashBoard({
           </Box>
         ))}
       </Box>
+      <Box
+        id="courses"
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-around',
+          marginTop: '40px',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+        }}
+      >
+        {filteredCourses.map((course) => (
+          <CourseCard key={course.courseId} course={course} />
+        ))}
+      </Box>
+      <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '40px' }}>
+        <Link href="/course-list">
+          <Button variant="contained">{n.exploreOurCourse}</Button>
+        </Link>
+      </Box>
       <VollKiInfoSection bgcolor="white" />
     </MainLayout>
   );
 }
 
-export default InstructorDashBoard;
+export default WelcomeScreen;

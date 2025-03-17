@@ -58,7 +58,7 @@ export const COURSE_SPECIFIC_RESOURCENAMES = [
 export interface CourseResourceAction {
   courseId: string;
   name: ResourceName;
-  action: Action;
+  actions: Action[];
 }
 export interface ResourceIdComponent {
   name?: string;
@@ -76,6 +76,14 @@ export interface ResourceActionPair {
   resourceId: string;
   actionId: string;
 }
+
+export const INSTRUCTOR_RESOURCE_AND_ACTION = [
+  { resource: ResourceName.COURSE_NOTES, action: Action.MUTATE },
+  { resource: ResourceName.COURSE_QUIZ, action: Action.MUTATE },
+  { resource: ResourceName.COURSE_STUDY_BUDDY, action: Action.MODERATE },
+  { resource: ResourceName.COURSE_HOMEWORK, action: Action.MUTATE },
+  { resource: ResourceName.COURSE_ACCESS, action: Action.ACCESS_CONTROL },
+];
 
 export const ALL_RESOURCE_TYPES: ResourceType[] = [
   {
