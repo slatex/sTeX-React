@@ -1,15 +1,7 @@
 import { useMatomo } from '@jonkoops/matomo-tracker-react';
 import HelpIcon from '@mui/icons-material/Help';
 import WarningIcon from '@mui/icons-material/Warning';
-import {
-  Box,
-  Button,
-  IconButton,
-  Menu,
-  MenuItem,
-  Toolbar,
-  Tooltip,
-} from '@mui/material';
+import { Box, Button, IconButton, Menu, MenuItem, Toolbar, Tooltip } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import { getUserInfo, isLoggedIn, logout } from '@stex-react/api';
 import { CountryFlag, useScrollDirection } from '@stex-react/react-utils';
@@ -21,6 +13,7 @@ import { BrowserAutocomplete } from '../components/BrowserAutocomplete';
 import { getLocaleObject } from '../lang/utils';
 import styles from '../styles/header.module.scss';
 import NotificationButton from './NotificationButton';
+import { PRIMARY_COL } from '@stex-react/utils';
 
 export const HIDE_BANNER_ITEM = 'hide-survey-banner';
 
@@ -62,12 +55,7 @@ function UserButton() {
       >
         {userName}
       </Button>
-      <Menu
-        id="basic-menu"
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-      >
+      <Menu id="basic-menu" anchorEl={anchorEl} open={open} onClose={handleClose}>
         <MenuItem
           onClick={() => {
             router.push('/my-profile');
@@ -114,19 +102,10 @@ function LanguageButton() {
     <Box whiteSpace="nowrap">
       <Tooltip title={t.changeLanguage}>
         <IconButton onClick={handleClick}>
-          <CountryFlag
-            flag={locale === 'en' ? 'gb' : locale}
-            size="28x21"
-            size2="56x42"
-          />
+          <CountryFlag flag={locale === 'en' ? 'gb' : locale} size="28x21" size2="56x42" />
         </IconButton>
       </Tooltip>
-      <Menu
-        id="basic-menu"
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-      >
+      <Menu id="basic-menu" anchorEl={anchorEl} open={open} onClose={handleClose}>
         <MenuItem
           onClick={() => {
             changeLocale('en');
@@ -152,21 +131,24 @@ function LanguageButton() {
 
 export function Header({
   showBrowserAutocomplete,
+  headerBgColor,
 }: {
   showBrowserAutocomplete: boolean;
+  headerBgColor?: string;
 }) {
   const loggedIn = isLoggedIn();
   const router = useRouter();
   const { header: t } = getLocaleObject(router);
-  const background =
-    process.env.NEXT_PUBLIC_SITE_VERSION === 'production'
-      ? undefined
-      : process.env.NEXT_PUBLIC_SITE_VERSION === 'staging'
-      ? 'crimson !important'
-      : 'blue !important';
+  const background = headerBgColor
+    ? `${headerBgColor} !important`
+    : process.env.NEXT_PUBLIC_SITE_VERSION === 'production'
+    ? undefined
+    : process.env.NEXT_PUBLIC_SITE_VERSION === 'staging'
+    ? 'crimson !important'
+    : 'blue !important';
+
   const scrollDirection = useScrollDirection();
-  const forceShowBar =
-    scrollDirection === 'up' && router.asPath.includes('course-notes');
+  const forceShowBar = scrollDirection === 'up' && router.asPath.includes('course-notes');
 
   return (
     <AppBar
@@ -179,13 +161,10 @@ export function Header({
       <Toolbar className={styles['toolbar']} sx={{ background }}>
         <Link href="/" passHref>
           <Tooltip
-            placement='right'
+            placement="right"
             title={
               <Tooltip title={t.headerWarning}>
-                <WarningIcon
-                  fontSize="large"
-                  sx={{ cursor: 'pointer', color: '#e20' }}
-                />
+                <WarningIcon fontSize="large" sx={{ cursor: 'pointer', color: '#e20' }} />
               </Tooltip>
             }
           >
@@ -208,10 +187,10 @@ export function Header({
         )}
         <Box>
           <Box display="flex" alignItems="center">
-            <NotificationButton />
+            <NotificationButton bgColor="#ced9f2" />
             <Link href="/help" tabIndex={-1}>
               <Tooltip title={t.helpCenter}>
-                <IconButton>
+                <IconButton sx={{ bgcolor: PRIMARY_COL, ml: '5px' }}>
                   <HelpIcon htmlColor="white" />
                 </IconButton>
               </Tooltip>
@@ -225,9 +204,7 @@ export function Header({
                 onClick={() => {
                   // Don't change target when user reclicks 'Login' button.
                   if (window.location.pathname === '/login') return;
-                  router.push(
-                    '/login?target=' + encodeURIComponent(window.location.href)
-                  );
+                  router.push('/login?target=' + encodeURIComponent(window.location.href));
                 }}
               >
                 {t.login}

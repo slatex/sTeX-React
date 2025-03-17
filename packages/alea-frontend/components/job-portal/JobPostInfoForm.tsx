@@ -101,7 +101,7 @@ const FormActions = ({ activeStep, handleNext, handleBack, isLastStep }) => (
   </Box>
 );
 
-const EligibilityForm = ({ formData, handleChange }) => {
+export const EligibilityForm = ({ formData, handleChange }) => {
   return (
     <Box>
       <Typography variant="h6" gutterBottom>
@@ -115,6 +115,7 @@ const EligibilityForm = ({ formData, handleChange }) => {
           name="qualification"
           value={formData.qualification}
           onChange={handleChange}
+          sx={{ bgcolor: 'white' }}
         >
           <MenuItem value="Bachelors">Bachelors</MenuItem>
           <MenuItem value="Masters">Masters</MenuItem>
@@ -127,6 +128,7 @@ const EligibilityForm = ({ formData, handleChange }) => {
         name="targetYears"
         value={formData.targetYears}
         onChange={handleChange}
+        sx={{ bgcolor: 'white' }}
       />
       <TextField
         type="datetime-local"
@@ -135,6 +137,7 @@ const EligibilityForm = ({ formData, handleChange }) => {
         InputLabelProps={{ shrink: true }}
         margin="normal"
         name="applicationDeadline"
+        sx={{ bgcolor: 'white' }}
         value={formData.applicationDeadline}
         onChange={(e) => {
           const selectedDate = new Date(e.target.value);
@@ -153,12 +156,13 @@ const EligibilityForm = ({ formData, handleChange }) => {
         name="openPositions"
         value={formData.openPositions}
         onChange={handleChange}
+        sx={{ bgcolor: 'white' }}
       />
     </Box>
   );
 };
 
-const OfferDetailsForm = ({ formData, handleChange }) => {
+export const OfferDetailsForm = ({ formData, handleChange }) => {
   return (
     <Box>
       <Typography variant="h6" gutterBottom>
@@ -172,6 +176,7 @@ const OfferDetailsForm = ({ formData, handleChange }) => {
           name="currency"
           value={formData.currency}
           onChange={handleChange}
+          sx={{ bgcolor: 'white' }}
         >
           <MenuItem value="INR per month">INR per month</MenuItem>
           <MenuItem value="USD per month">USD per month</MenuItem>
@@ -185,6 +190,7 @@ const OfferDetailsForm = ({ formData, handleChange }) => {
         name="stipend"
         value={formData.stipend}
         onChange={handleChange}
+        sx={{ bgcolor: 'white' }}
       />
       <TextField
         label="Other Facilities"
@@ -195,12 +201,13 @@ const OfferDetailsForm = ({ formData, handleChange }) => {
         onChange={handleChange}
         multiline
         rows={4}
+        sx={{ bgcolor: 'white' }}
       />
     </Box>
   );
 };
 
-const TrainingDetailsForm = ({ formData, handleChange }) => {
+export const TrainingDetailsForm = ({ formData, handleChange }) => {
   return (
     <Box>
       <Typography variant="h6" gutterBottom>
@@ -214,6 +221,9 @@ const TrainingDetailsForm = ({ formData, handleChange }) => {
         value={formData.session}
         onChange={handleChange}
         disabled
+        sx={{
+          bgcolor: 'white',
+        }}
       />
       <TextField
         label="Job Title"
@@ -222,6 +232,9 @@ const TrainingDetailsForm = ({ formData, handleChange }) => {
         name="jobTitle"
         value={formData.jobTitle}
         onChange={handleChange}
+        sx={{
+          bgcolor: 'white',
+        }}
       />
       <TextField
         label="Location of Training"
@@ -230,6 +243,9 @@ const TrainingDetailsForm = ({ formData, handleChange }) => {
         name="trainingLocation"
         value={formData.trainingLocation}
         onChange={handleChange}
+        sx={{
+          bgcolor: 'white',
+        }}
       />
       <TextField
         label="Job Description"
@@ -240,6 +256,9 @@ const TrainingDetailsForm = ({ formData, handleChange }) => {
         onChange={handleChange}
         multiline
         rows={4}
+        sx={{
+          bgcolor: 'white',
+        }}
         placeholder="Enter the job description here..."
       />
     </Box>

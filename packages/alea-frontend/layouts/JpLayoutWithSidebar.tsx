@@ -23,15 +23,18 @@ const Sidebar = ({
       { label: 'Applications', path: '/job-portal/student/applications' },
       { label: 'Messages', path: '/job-portal/student/messages' },
       { label: 'Profile', path: '/job-portal/student/profile' },
-      { label: 'Statistics', path: '/job-portal/student/statistics' },
-      { label: 'News', path: '/job-portal/student/news' },
+      //   { label: 'Statistics', path: '/job-portal/student/statistics' },
+      //   { label: 'News', path: '/job-portal/student/news' },
     ],
     recruiter: [
       { label: 'Dashboard', path: '/job-portal/recruiter/dashboard' },
-      { label: 'Post Job', path: '/job-portal/recruiter/post-job' },
+      { label: 'Create Job', path: '/job-portal/recruiter/create-job' },
       { label: 'Applications', path: '/job-portal/recruiter/applications' },
       { label: 'Messages', path: '/job-portal/recruiter/messages' },
-      { label: 'Company Profile', path: '/job-portal/recruiter/profile' },
+      { label: 'Profile', path: '/job-portal/recruiter/profile' },
+      //   { label: 'Offer Status', path: '/job-portal/recruiter/offer-status' },
+
+      //   { label: 'Company Profile', path: '/job-portal/recruiter/company-profile' },
       { label: 'Statistics', path: '/job-portal/recruiter/statistics' },
     ],
     admin: [
@@ -60,7 +63,7 @@ const Sidebar = ({
       }}
     >
       <List>
-        <ListItem button onClick={() => setDrawerOpen(!drawerOpen)}>
+        <ListItem component="button" onClick={() => setDrawerOpen(!drawerOpen)}>
           <ListItemIcon>
             <MenuIcon sx={{ color: 'white' }} />
           </ListItemIcon>
@@ -76,7 +79,7 @@ const Sidebar = ({
               }}
             >
               <ListItem
-                button
+                component="button"
                 onClick={() => router.push(path)}
                 sx={{
                   bgcolor: isActive ? '#f9f5f2' : 'transparent',

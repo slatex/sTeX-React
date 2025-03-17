@@ -36,13 +36,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!userId) return;
   const userExists = await checkIfUserExistsOnJP(userId, res);
   if (!userExists) return;
-  const { name, email, position, mobile, altMobile, organizationId } = req.body;
+  const { name, email, position, mobile, altMobile, organizationId, about } = req.body;
   const hasDefinedOrg = req.body.hasDefinedOrg !== undefined ? req.body.hasDefinedOrg : 1;
   const result = await executeAndEndSet500OnError(
     `UPDATE recruiterProfile 
-     SET name = ?, email = ?, position = ?, hasDefinedOrg = ?, mobile = ?, altMobile = ?,organizationId=?
+     SET name = ?, email = ?, position = ?, hasDefinedOrg = ?, mobile = ?, altMobile = ?,organizationId=?,about=?
      WHERE userId = ?`,
-    [name, email, position, hasDefinedOrg, mobile, altMobile, organizationId, userId],
+    [name, email, position, hasDefinedOrg, mobile, altMobile, organizationId, about, userId],
     res
   );
   if (!result) return;

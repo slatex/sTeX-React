@@ -15,7 +15,7 @@ import {
   getRecruiterProfile,
   OrganizationData,
   RecruiterData,
-  upDateRecruiterProfile,
+  updateRecruiterProfile,
 } from '@stex-react/api';
 import { Action, CURRENT_TERM, ResourceName } from '@stex-react/utils';
 import { useRouter } from 'next/router';
@@ -118,7 +118,7 @@ export default function RecruiterRegistration() {
     const organizationData: OrganizationData = { companyName };
     await createOrganizationProfile(organizationData);
     const id = await getOrganizationId(companyName);
-    await upDateRecruiterProfile({ ...recruiterData, organizationId: id, hasDefinedOrg: 0 });
+    await updateRecruiterProfile({ ...recruiterData, organizationId: id, hasDefinedOrg: 0 });
     router.push('/job-portal/recruiter-dashboard');
   };
   return (

@@ -1,4 +1,13 @@
-import { Cancel, Check, CheckCircle, Delete, Edit, Groups, Send, Visibility } from '@mui/icons-material';
+import {
+  Cancel,
+  Check,
+  CheckCircle,
+  Delete,
+  Edit,
+  Groups,
+  Send,
+  Visibility,
+} from '@mui/icons-material';
 import {
   Avatar,
   Box,
@@ -26,7 +35,7 @@ import {
 import {
   deleteJobPost,
   getJobApplicationsByJobPost,
-  getJobApplicationsByUserIdAndJobPostId, 
+  getJobApplicationsByUserIdAndJobPostId,
   getJobPosts,
   getRecruiterProfile,
   getStudentProfileUsingUserId,
@@ -42,13 +51,18 @@ import JobPostInfoForm from './JobPostInfoForm';
 import { ApplicantActionDialog } from './ApplicantActionDialog';
 import { ApplicantProfileDialog } from './ApplicantProfileDialog';
 
-const EditJobPost = ({ isEditing, jobData, onClose ,onUpdate }) => {
+const EditJobPost = ({ isEditing, jobData, onClose, onUpdate }) => {
   return (
     <div>
       <Dialog open={isEditing} onClose={onClose} maxWidth="md" fullWidth keepMounted={false}>
         <DialogTitle>Edit Job Post</DialogTitle>
         <DialogContent>
-          <JobPostInfoForm JobCategoryId={jobData?.JobCategoryId} onClose={onClose} jobData={jobData} onUpdate={onUpdate} />
+          <JobPostInfoForm
+            JobCategoryId={jobData?.JobCategoryId}
+            onClose={onClose}
+            jobData={jobData}
+            onUpdate={onUpdate}
+          />
         </DialogContent>
         <DialogActions>
           <Button
@@ -64,17 +78,27 @@ const EditJobPost = ({ isEditing, jobData, onClose ,onUpdate }) => {
   );
 };
 
-
-
-const JobTable = ({ totalJobPosts, renderActions }:{totalJobPosts:JobPostInfo[],renderActions: (job: JobPostInfo) => JSX.Element}) => {
+const JobTable = ({
+  totalJobPosts,
+  renderActions,
+}: {
+  totalJobPosts: JobPostInfo[];
+  renderActions: (job: JobPostInfo) => JSX.Element;
+}) => {
   return (
     <TableContainer component={Paper}>
       <Table>
         <TableHead>
           <TableRow sx={{ backgroundColor: 'primary.main', color: 'white' }}>
-            <TableCell sx={{ fontWeight: 'bold', color: 'white', textAlign: 'center' }}>Session</TableCell>
-            <TableCell sx={{ fontWeight: 'bold', color: 'white', textAlign: 'center' }}>Job Title</TableCell>
-            <TableCell sx={{ fontWeight: 'bold', color: 'white', textAlign: 'center' }}>Actions</TableCell>
+            <TableCell sx={{ fontWeight: 'bold', color: 'white', textAlign: 'center' }}>
+              Session
+            </TableCell>
+            <TableCell sx={{ fontWeight: 'bold', color: 'white', textAlign: 'center' }}>
+              Job Title
+            </TableCell>
+            <TableCell sx={{ fontWeight: 'bold', color: 'white', textAlign: 'center' }}>
+              Actions
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -99,10 +123,14 @@ const JobTable = ({ totalJobPosts, renderActions }:{totalJobPosts:JobPostInfo[],
   );
 };
 
-export function RecruiterJobsPanel({totalJobPosts,setTotalJobPosts,onUpdate}:{
-  totalJobPosts:JobPostInfo[];
-  setTotalJobPosts:React.Dispatch<React.SetStateAction<JobPostInfo[]>>;
-  onUpdate:()=> Promise<void>;
+export function RecruiterJobsPanel({
+  totalJobPosts,
+  setTotalJobPosts,
+  onUpdate,
+}: {
+  totalJobPosts: JobPostInfo[];
+  setTotalJobPosts: React.Dispatch<React.SetStateAction<JobPostInfo[]>>;
+  onUpdate: () => Promise<void>;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [jobData, setJobData] = useState<JobPostInfo>(null);
@@ -113,7 +141,7 @@ export function RecruiterJobsPanel({totalJobPosts,setTotalJobPosts,onUpdate}:{
   const [openProfileDialog, setOpenProfileDialog] = useState(false);
   const [selectedStudentProfile, setSelectedStudentProfile] = useState(null);
 
-  const handleEdit = (job:JobPostInfo) => {
+  const handleEdit = (job: JobPostInfo) => {
     setJobData(job);
     console.log({ job });
 
@@ -123,7 +151,7 @@ export function RecruiterJobsPanel({totalJobPosts,setTotalJobPosts,onUpdate}:{
   const handleClose = () => {
     setIsEditing(false);
   };
-  const handleDelete = async (job:JobPostInfo) => {
+  const handleDelete = async (job: JobPostInfo) => {
     console.log({ job });
     await deleteJobPost(job?.id);
     onUpdate();
@@ -131,62 +159,60 @@ export function RecruiterJobsPanel({totalJobPosts,setTotalJobPosts,onUpdate}:{
     console.log('dfd', totalJobPosts);
   };
 
-async function viewApplicants(job:JobPostInfo){
- const applications= await getJobApplicationsByJobPost(job?.id);
-
-const applicant:ApplicantProfile[] = await Promise.all(
-  applications.map(async (application) => {
-    const studentProfile = await getStudentProfileUsingUserId(
-      application.applicantId
+  async function viewApplicants(job: JobPostInfo) {
+    const applications = await getJobApplicationsByJobPost(job?.id);
+    console.log({ applications });
+    const applicant: ApplicantProfile[] = await Promise.all(
+      applications.map(async (application) => {
+        const studentProfile = await getStudentProfileUsingUserId(application.applicantId);
+        return { ...application, studentProfile };
+      })
     );
-    return { ...application, studentProfile };
-  })
-);
-setApplicants(applicant);
+    setApplicants(applicant);
 
- setSelectedJob(job); 
- setOpenDialog(true); 
- 
-}
-const handleCloseDialog = () => {
-  setOpenDialog(false);
-  setApplicants([]);
-  setSelectedJob(null); 
-};
+    setSelectedJob(job);
+    setOpenDialog(true);
+  }
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setApplicants([]);
+    setSelectedJob(null);
+  };
 
-const handleViewProfile = (profile:StudentData) => {
-  setSelectedStudentProfile(profile);
-  setOpenProfileDialog(true);
-};
+  const handleViewProfile = (profile: StudentData) => {
+    setSelectedStudentProfile(profile);
+    setOpenProfileDialog(true);
+  };
 
-const handleCloseProfileDialog = () => {
-  setOpenProfileDialog(false);
-  setSelectedStudentProfile(null);
-};
+  const handleCloseProfileDialog = () => {
+    setOpenProfileDialog(false);
+    setSelectedStudentProfile(null);
+  };
 
-async function handleAcceptApplication(applicant:ApplicantProfile){
-  const application = {...applicant,applicationStatus:"ACCEPTED",recruiterAction:"ACCEPT"};
-  const res = await updateJobApplication(application);
-  setOpenDialog(false);
-  
-}
+  async function handleAcceptApplication(applicant: ApplicantProfile) {
+    const application = { ...applicant, applicationStatus: 'ACCEPTED', recruiterAction: 'ACCEPT' };
+    const res = await updateJobApplication(application);
+    setOpenDialog(false);
+  }
 
-async function handleRejectApplication(applicant:ApplicantProfile){
-  const application = {...applicant,applicationStatus:"REJECTED",recruiterAction:"REJECT"};
-  const res = await updateJobApplication(application);
-  setOpenDialog(false);
-  
-}
+  async function handleRejectApplication(applicant: ApplicantProfile) {
+    const application = { ...applicant, applicationStatus: 'REJECTED', recruiterAction: 'REJECT' };
+    const res = await updateJobApplication(application);
+    setOpenDialog(false);
+  }
 
-async function handleMakeOffer(applicant:ApplicantProfile){
-  const application = {...applicant,applicationStatus:"OFFERED",recruiterAction:"SEND_OFFER"};
-  const res = await updateJobApplication(application);
-  setOpenDialog(false);
-  
-}
+  async function handleMakeOffer(applicant: ApplicantProfile) {
+    const application = {
+      ...applicant,
+      applicationStatus: 'OFFERED',
+      recruiterAction: 'SEND_OFFER',
+    };
+    const res = await updateJobApplication(application);
+    setOpenDialog(false);
+  }
 
-console.log({applicants: applicants});
-  const renderActions = (job:JobPostInfo) => (
+  console.log({ applicants: applicants });
+  const renderActions = (job: JobPostInfo) => (
     <>
       <Tooltip title="Edit">
         <IconButton onClick={() => handleEdit(job)} color="primary">
@@ -208,26 +234,31 @@ console.log({applicants: applicants});
 
   return (
     <>
-<JobTable totalJobPosts={totalJobPosts} renderActions={renderActions}/>
-< ApplicantActionDialog
-  openDialog={openDialog}
-  selectedJob={selectedJob}
-  applicants={applicants}
-  handleCloseDialog={handleCloseDialog}
-  handleViewProfile={handleViewProfile}
-  handleAcceptApplication={handleAcceptApplication}
-  handleRejectApplication={handleRejectApplication}
-  handleMakeOffer={handleMakeOffer}
-/>
-<ApplicantProfileDialog 
-  openProfileDialog={openProfileDialog}
-  handleCloseProfileDialog={handleCloseProfileDialog}
-  selectedStudentProfile={selectedStudentProfile}/>
+      <JobTable totalJobPosts={totalJobPosts} renderActions={renderActions} />
+      <ApplicantActionDialog
+        openDialog={openDialog}
+        selectedJob={selectedJob}
+        applicants={applicants}
+        handleCloseDialog={handleCloseDialog}
+        handleViewProfile={handleViewProfile}
+        handleAcceptApplication={handleAcceptApplication}
+        handleRejectApplication={handleRejectApplication}
+        handleMakeOffer={handleMakeOffer}
+      />
+      <ApplicantProfileDialog
+        openProfileDialog={openProfileDialog}
+        handleCloseProfileDialog={handleCloseProfileDialog}
+        selectedStudentProfile={selectedStudentProfile}
+      />
 
-      {isEditing && <EditJobPost isEditing={isEditing} jobData={jobData} onClose={handleClose} 
-      onUpdate ={onUpdate} />}
+      {isEditing && (
+        <EditJobPost
+          isEditing={isEditing}
+          jobData={jobData}
+          onClose={handleClose}
+          onUpdate={onUpdate}
+        />
+      )}
     </>
   );
 }
-
-
