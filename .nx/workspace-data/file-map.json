@@ -1,0 +1,5172 @@
+{
+  "version": "6.0",
+  "nxVersion": "20.3.4",
+  "pathMappings": {
+    "@stex-react/api": [
+      "packages/api/src/index.ts"
+    ],
+    "@stex-react/comments": [
+      "packages/comments/src/index.ts"
+    ],
+    "@stex-react/mathjax": [
+      "packages/mathjax/src/index.ts"
+    ],
+    "@stex-react/myst": [
+      "packages/myst/src/index.ts"
+    ],
+    "@stex-react/node-utils": [
+      "packages/node-utils/src/index.ts"
+    ],
+    "@stex-react/quiz-utils": [
+      "packages/quiz-utils/src/index.ts"
+    ],
+    "@stex-react/react-utils": [
+      "packages/react-utils/src/index.ts"
+    ],
+    "@stex-react/report-a-problem": [
+      "packages/report-a-problem/src/index.ts"
+    ],
+    "@stex-react/stex-react-renderer": [
+      "packages/stex-react-renderer/src/index.ts"
+    ],
+    "@stex-react/utils": [
+      "packages/utils/src/index.ts"
+    ]
+  },
+  "nxJsonPlugins": [],
+  "fileMap": {
+    "nonProjectFiles": [
+      {
+        "file": ".editorconfig",
+        "hash": "5443105041930014821"
+      },
+      {
+        "file": ".eslintignore",
+        "hash": "7663861978715868291"
+      },
+      {
+        "file": ".eslintrc.json",
+        "hash": "17866138117546000433"
+      },
+      {
+        "file": ".gitignore",
+        "hash": "8892172653835910319"
+      },
+      {
+        "file": ".prettierignore",
+        "hash": "16448050467312557263"
+      },
+      {
+        "file": ".prettierrc",
+        "hash": "6512826816570784492"
+      },
+      {
+        "file": ".vscode/extensions.json",
+        "hash": "235626400633494639"
+      },
+      {
+        "file": ".vscode/settings.json",
+        "hash": "8597221748220595221"
+      },
+      {
+        "file": "LICENSE",
+        "hash": "15526817612571291837"
+      },
+      {
+        "file": "README.md",
+        "hash": "12414420760388121232"
+      },
+      {
+        "file": "data/current-sem.json",
+        "hash": "7099839153295168357"
+      },
+      {
+        "file": "data/processed_ai-1_slides.json",
+        "hash": "8317388992941540222"
+      },
+      {
+        "file": "data/quizInfo/quiz-42b90c79.json",
+        "hash": "15185659881355806434"
+      },
+      {
+        "file": "data/quizInfo/quizResult.json",
+        "hash": "3244421341483603138"
+      },
+      {
+        "file": "data/slides/ai-1_extracted_content.json",
+        "hash": "2809742123808081969"
+      },
+      {
+        "file": "data/slides/ai-1_processed_slides.json",
+        "hash": "4102412824358855704"
+      },
+      {
+        "file": "data/slides/iwgs-1_processed_slides.json",
+        "hash": "5631814797510395467"
+      },
+      {
+        "file": "data/slides/lbs_processed_slides.json",
+        "hash": "17239103914129394375"
+      },
+      {
+        "file": "data/slides/old-ai-1_extracted_content.json",
+        "hash": "2809742123808081969"
+      },
+      {
+        "file": "data/slides/old_ai-1_extracted_content.json",
+        "hash": "10550489749079448548"
+      },
+      {
+        "file": "data/slides/old_ai-1_processed_slides.json",
+        "hash": "1970929430933868291"
+      },
+      {
+        "file": "frontend_guidelines.md",
+        "hash": "7595569165055776990"
+      },
+      {
+        "file": "jest.config.ts",
+        "hash": "12333515226966617182"
+      },
+      {
+        "file": "jest.preset.js",
+        "hash": "9430166341120122740"
+      },
+      {
+        "file": "load_testing/buddy_info.json",
+        "hash": "6302399944180665910"
+      },
+      {
+        "file": "load_testing/create_study_buddy_users.py",
+        "hash": "11167156675738986446"
+      },
+      {
+        "file": "load_testing/get_access_tokens.py",
+        "hash": "2355324518498143237"
+      },
+      {
+        "file": "load_testing/quiz_scenario.js",
+        "hash": "13536714317505901550"
+      },
+      {
+        "file": "matomo_setup.md",
+        "hash": "1713577400641823045"
+      },
+      {
+        "file": "migrations.json",
+        "hash": "8009898309438563514"
+      },
+      {
+        "file": "mmt_playbook.md",
+        "hash": "7359464619068083363"
+      },
+      {
+        "file": "next.config.js",
+        "hash": "7116172128443893298"
+      },
+      {
+        "file": "nx.json",
+        "hash": "5746936302033927627"
+      },
+      {
+        "file": "nx16update.md",
+        "hash": "3665517280478938780"
+      },
+      {
+        "file": "package-lock.json",
+        "hash": "16367382898448662601"
+      },
+      {
+        "file": "package.json",
+        "hash": "1735203245367497077"
+      },
+      {
+        "file": "packages/.gitkeep",
+        "hash": "3244421341483603138"
+      },
+      {
+        "file": "sql/add_forum_columns.sql",
+        "hash": "2695919595108414091"
+      },
+      {
+        "file": "sql/comments_database_setup.sql",
+        "hash": "5572964606877513780"
+      },
+      {
+        "file": "sql/grading_database_setup.sql",
+        "hash": "16583251626195443647"
+      },
+      {
+        "file": "style_guide.md",
+        "hash": "1303668738446040802"
+      },
+      {
+        "file": "styles/browser.css",
+        "hash": "577722380364749055"
+      },
+      {
+        "file": "styles/fonts.scss",
+        "hash": "14482276743323550374"
+      },
+      {
+        "file": "styles/frontend-specific.css",
+        "hash": "18206793143061744581"
+      },
+      {
+        "file": "styles/highlights.css",
+        "hash": "13087556399791541498"
+      },
+      {
+        "file": "styles/math.css",
+        "hash": "4895167132558056213"
+      },
+      {
+        "file": "styles/overlay.css",
+        "hash": "6992965836223297293"
+      },
+      {
+        "file": "styles/rustex.css",
+        "hash": "13054423608772226610"
+      },
+      {
+        "file": "styles/sidebar.css",
+        "hash": "14133754236447310400"
+      },
+      {
+        "file": "tools/tsconfig.tools.json",
+        "hash": "16088922570277978783"
+      },
+      {
+        "file": "tsconfig.base.json",
+        "hash": "6282538724884772876"
+      }
+    ],
+    "projectFileMap": {
+      "prebuild-scripts": [
+        {
+          "file": "prebuild-scripts/.eslintrc.json",
+          "hash": "11808533155536463924"
+        },
+        {
+          "file": "prebuild-scripts/jest.config.ts",
+          "hash": "10322207355730874626"
+        },
+        {
+          "file": "prebuild-scripts/project.json",
+          "hash": "14452804545340426781"
+        },
+        {
+          "file": "prebuild-scripts/src/assets/.gitkeep",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "prebuild-scripts/src/blogDataExport.ts",
+          "hash": "6879551027652992208",
+          "deps": [
+            "npm:serverless-mysql"
+          ]
+        },
+        {
+          "file": "prebuild-scripts/src/main.ts",
+          "hash": "13288408973013316218"
+        },
+        {
+          "file": "prebuild-scripts/src/updateSyntaxHighlighterPaths.ts",
+          "hash": "17324092380793024089"
+        },
+        {
+          "file": "prebuild-scripts/tsconfig.app.json",
+          "hash": "1650782542565282680"
+        },
+        {
+          "file": "prebuild-scripts/tsconfig.json",
+          "hash": "16197431539271744736"
+        },
+        {
+          "file": "prebuild-scripts/tsconfig.spec.json",
+          "hash": "17313551537729802733"
+        }
+      ],
+      "node-utils": [
+        {
+          "file": "packages/node-utils/.eslintrc.json",
+          "hash": "13800677001662881425"
+        },
+        {
+          "file": "packages/node-utils/README.md",
+          "hash": "14787629742664712213"
+        },
+        {
+          "file": "packages/node-utils/project.json",
+          "hash": "14817764419390172533"
+        },
+        {
+          "file": "packages/node-utils/src/index.ts",
+          "hash": "12258768604158335222"
+        },
+        {
+          "file": "packages/node-utils/src/lib/quiz.ts",
+          "hash": "14867065920854419562",
+          "deps": [
+            "api",
+            "npm:dayjs"
+          ]
+        },
+        {
+          "file": "packages/node-utils/tsconfig.json",
+          "hash": "634795086719220447"
+        },
+        {
+          "file": "packages/node-utils/tsconfig.lib.json",
+          "hash": "3632393694954060084"
+        }
+      ],
+      "mmt-viewer": [
+        {
+          "file": "packages/mmt-viewer/.babelrc",
+          "hash": "13020124393823981135"
+        },
+        {
+          "file": "packages/mmt-viewer/.eslintrc.json",
+          "hash": "11012487992710232822"
+        },
+        {
+          "file": "packages/mmt-viewer/jest.config.ts",
+          "hash": "7430655375959581975"
+        },
+        {
+          "file": "packages/mmt-viewer/project.json",
+          "hash": "8470247323613373243"
+        },
+        {
+          "file": "packages/mmt-viewer/src/app/app.module.scss",
+          "hash": "8887387885984320532"
+        },
+        {
+          "file": "packages/mmt-viewer/src/app/app.spec.tsx",
+          "hash": "15417792838469355453",
+          "deps": [
+            "npm:@testing-library/react"
+          ]
+        },
+        {
+          "file": "packages/mmt-viewer/src/app/app.tsx",
+          "hash": "15408743799379883998",
+          "deps": [
+            "mathjax",
+            "stex-react-renderer"
+          ]
+        },
+        {
+          "file": "packages/mmt-viewer/src/assets/.gitkeep",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "packages/mmt-viewer/src/environments/environment.prod.ts",
+          "hash": "10220522844224226756"
+        },
+        {
+          "file": "packages/mmt-viewer/src/environments/environment.ts",
+          "hash": "11309522437153898482"
+        },
+        {
+          "file": "packages/mmt-viewer/src/favicon.ico",
+          "hash": "9750489773893625538"
+        },
+        {
+          "file": "packages/mmt-viewer/src/index.html",
+          "hash": "9097990781749375634"
+        },
+        {
+          "file": "packages/mmt-viewer/src/main.tsx",
+          "hash": "4731961929376199421",
+          "deps": [
+            "npm:react",
+            "npm:react-dom"
+          ]
+        },
+        {
+          "file": "packages/mmt-viewer/src/styles.scss",
+          "hash": "11245512128157833921"
+        },
+        {
+          "file": "packages/mmt-viewer/tsconfig.app.json",
+          "hash": "2124737438119609304"
+        },
+        {
+          "file": "packages/mmt-viewer/tsconfig.json",
+          "hash": "9850153468027031608"
+        },
+        {
+          "file": "packages/mmt-viewer/tsconfig.spec.json",
+          "hash": "11051500322653514258"
+        },
+        {
+          "file": "packages/mmt-viewer/webpack.config.js",
+          "hash": "11025298383149350467",
+          "deps": [
+            "npm:@nx/webpack",
+            "npm:@nx/react"
+          ]
+        }
+      ],
+      "comments": [
+        {
+          "file": "packages/comments/.babelrc",
+          "hash": "2946678488919325452"
+        },
+        {
+          "file": "packages/comments/.eslintrc.json",
+          "hash": "11012487992710232822"
+        },
+        {
+          "file": "packages/comments/README.md",
+          "hash": "16070842293359799752"
+        },
+        {
+          "file": "packages/comments/project.json",
+          "hash": "11362415545211897296"
+        },
+        {
+          "file": "packages/comments/src/index.ts",
+          "hash": "10630585457250955406"
+        },
+        {
+          "file": "packages/comments/src/lib/CommentLabel.tsx",
+          "hash": "15796876951081665599",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "react-utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/comments/src/lib/CommentMenu.tsx",
+          "hash": "10797793655129169316",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "react-utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/comments/src/lib/CommentReply.tsx",
+          "hash": "7118920178976561777",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/comments/src/lib/CommentView.tsx",
+          "hash": "11661190616430815665",
+          "deps": [
+            "api",
+            "npm:react",
+            "myst"
+          ]
+        },
+        {
+          "file": "packages/comments/src/lib/EditView.tsx",
+          "hash": "13682294205923766850",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "utils",
+            "npm:next",
+            "npm:react",
+            "myst"
+          ]
+        },
+        {
+          "file": "packages/comments/src/lib/HideDialogContent.tsx",
+          "hash": "9706022328740086985",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/comments/src/lib/PointsGrantDialogContent.tsx",
+          "hash": "15517632372280708997",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/comments/src/lib/comment-button.tsx",
+          "hash": "14103231096682692119",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "myst",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/comments/src/lib/comment-filters.ts",
+          "hash": "4138680555810143961",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "packages/comments/src/lib/comment-helpers.ts",
+          "hash": "11741094553794755193",
+          "deps": [
+            "api",
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/comments/src/lib/comment-note-toggle-view.tsx",
+          "hash": "17588576689914336810",
+          "deps": [
+            "npm:@mui/material",
+            "npm:@mui/icons-material",
+            "npm:react",
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/comments/src/lib/comment-section.tsx",
+          "hash": "11757494478449198698",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "npm:react",
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/comments/src/lib/comment-store-manager.ts",
+          "hash": "4563361228694002778",
+          "deps": [
+            "api",
+            "utils",
+            "npm:rxjs"
+          ]
+        },
+        {
+          "file": "packages/comments/src/lib/comment-store.ts",
+          "hash": "14731606662203864321",
+          "deps": [
+            "api",
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/comments/src/lib/comments.module.scss",
+          "hash": "4840314202812378361"
+        },
+        {
+          "file": "packages/comments/src/lib/comments.spec.tsx",
+          "hash": "7329461310526033842",
+          "deps": [
+            "npm:@testing-library/react"
+          ]
+        },
+        {
+          "file": "packages/comments/src/lib/comments.tsx",
+          "hash": "15626876690431139112"
+        },
+        {
+          "file": "packages/comments/src/lib/lang/de.ts",
+          "hash": "3885288937196756561"
+        },
+        {
+          "file": "packages/comments/src/lib/lang/en.ts",
+          "hash": "108174457008449996"
+        },
+        {
+          "file": "packages/comments/src/lib/lang/utils.ts",
+          "hash": "2508210669652096532",
+          "deps": [
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/comments/src/lib/notes-view.tsx",
+          "hash": "15019058323235569783",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/comments/src/lib/selected-info.tsx",
+          "hash": "10508740723562779384",
+          "deps": [
+            "npm:@mui/material"
+          ]
+        },
+        {
+          "file": "packages/comments/tsconfig.json",
+          "hash": "14088618039610991405"
+        },
+        {
+          "file": "packages/comments/tsconfig.lib.json",
+          "hash": "17190776767862500632"
+        }
+      ],
+      "react-utils": [
+        {
+          "file": "packages/react-utils/.babelrc",
+          "hash": "2946678488919325452"
+        },
+        {
+          "file": "packages/react-utils/.eslintrc.json",
+          "hash": "11012487992710232822"
+        },
+        {
+          "file": "packages/react-utils/README.md",
+          "hash": "15278669255917560273"
+        },
+        {
+          "file": "packages/react-utils/project.json",
+          "hash": "5199940627376651066"
+        },
+        {
+          "file": "packages/react-utils/src/index.ts",
+          "hash": "8103875278907153926"
+        },
+        {
+          "file": "packages/react-utils/src/lib/ConfirmDialog.tsx",
+          "hash": "16777947182349225865",
+          "deps": [
+            "npm:@mui/material",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/react-utils/src/lib/CountryFlag.tsx",
+          "hash": "10910836564863927527"
+        },
+        {
+          "file": "packages/react-utils/src/lib/DateView.tsx",
+          "hash": "10166069445555238473",
+          "deps": [
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/react-utils/src/lib/lang/de.ts",
+          "hash": "2952615994473106282"
+        },
+        {
+          "file": "packages/react-utils/src/lib/lang/en.ts",
+          "hash": "4563088158555131835"
+        },
+        {
+          "file": "packages/react-utils/src/lib/lang/utils.ts",
+          "hash": "2508210669652096532",
+          "deps": [
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/react-utils/src/lib/react-utils.tsx",
+          "hash": "1548952074276868865"
+        },
+        {
+          "file": "packages/react-utils/src/lib/useScrollDirection.tsx",
+          "hash": "3282710680837267635",
+          "deps": [
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/react-utils/tsconfig.json",
+          "hash": "14088618039610991405"
+        },
+        {
+          "file": "packages/react-utils/tsconfig.lib.json",
+          "hash": "17190776767862500632"
+        }
+      ],
+      "prebuild-scripts-e2e": [
+        {
+          "file": "prebuild-scripts-e2e/.eslintrc.json",
+          "hash": "11808533155536463924"
+        },
+        {
+          "file": "prebuild-scripts-e2e/jest.config.ts",
+          "hash": "7770580786288189817"
+        },
+        {
+          "file": "prebuild-scripts-e2e/project.json",
+          "hash": "18278448781509750907"
+        },
+        {
+          "file": "prebuild-scripts-e2e/src/prebuild-scripts/prebuild-scripts.spec.ts",
+          "hash": "5843769960362871576"
+        },
+        {
+          "file": "prebuild-scripts-e2e/src/test-setup.ts",
+          "hash": "12277343883897675151"
+        },
+        {
+          "file": "prebuild-scripts-e2e/tsconfig.json",
+          "hash": "2346920493880922870"
+        },
+        {
+          "file": "prebuild-scripts-e2e/tsconfig.spec.json",
+          "hash": "11811063609444882018"
+        }
+      ],
+      "nodejs-scripts": [
+        {
+          "file": "packages/nodejs-scripts/.eslintrc.json",
+          "hash": "13800677001662881425"
+        },
+        {
+          "file": "packages/nodejs-scripts/jest.config.ts",
+          "hash": "18296358163170639888"
+        },
+        {
+          "file": "packages/nodejs-scripts/project.json",
+          "hash": "3237811534961086715"
+        },
+        {
+          "file": "packages/nodejs-scripts/src/addUserIdToAccessControlList.ts",
+          "hash": "3858066588153211806",
+          "deps": [
+            "node-utils",
+            "utils",
+            "npm:serverless-mysql"
+          ]
+        },
+        {
+          "file": "packages/nodejs-scripts/src/assets/.gitkeep",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "packages/nodejs-scripts/src/endSemSummary.ts",
+          "hash": "9925882218676786362",
+          "deps": [
+            "node-utils",
+            "quiz-utils",
+            "npm:serverless-mysql"
+          ]
+        },
+        {
+          "file": "packages/nodejs-scripts/src/main.ts",
+          "hash": "9218377182574791037"
+        },
+        {
+          "file": "packages/nodejs-scripts/src/populateResponseColumn.ts",
+          "hash": "5791917477834596332",
+          "deps": [
+            "api",
+            "node-utils",
+            "quiz-utils",
+            "npm:serverless-mysql"
+          ]
+        },
+        {
+          "file": "packages/nodejs-scripts/src/quizLmsInfoWriter.ts",
+          "hash": "2343886773625525109",
+          "deps": [
+            "node-utils",
+            "quiz-utils"
+          ]
+        },
+        {
+          "file": "packages/nodejs-scripts/src/recorrectQuizzes.ts",
+          "hash": "9259728290074215922",
+          "deps": [
+            "api",
+            "node-utils",
+            "quiz-utils",
+            "npm:serverless-mysql"
+          ]
+        },
+        {
+          "file": "packages/nodejs-scripts/tsconfig.app.json",
+          "hash": "1558509971940032459"
+        },
+        {
+          "file": "packages/nodejs-scripts/tsconfig.json",
+          "hash": "3490524966360018312"
+        },
+        {
+          "file": "packages/nodejs-scripts/tsconfig.spec.json",
+          "hash": "11550347367511341917"
+        }
+      ],
+      "report-a-problem": [
+        {
+          "file": "packages/report-a-problem/.babelrc",
+          "hash": "2946678488919325452"
+        },
+        {
+          "file": "packages/report-a-problem/.eslintrc.json",
+          "hash": "11012487992710232822"
+        },
+        {
+          "file": "packages/report-a-problem/README.md",
+          "hash": "15077160053216947937"
+        },
+        {
+          "file": "packages/report-a-problem/project.json",
+          "hash": "8397918138800377877"
+        },
+        {
+          "file": "packages/report-a-problem/src/index.ts",
+          "hash": "4235970194102527919"
+        },
+        {
+          "file": "packages/report-a-problem/src/lib/ReportProblemDialog.tsx",
+          "hash": "4767212045015924988",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/report-a-problem/src/lib/ReportProblemPopover.tsx",
+          "hash": "16559502906145306213",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "comments",
+            "utils",
+            "npm:next",
+            "npm:react",
+            "npm:react-dom"
+          ]
+        },
+        {
+          "file": "packages/report-a-problem/src/lib/issueCreator.ts",
+          "hash": "3686228666489058237",
+          "deps": [
+            "api",
+            "utils",
+            "npm:axios"
+          ]
+        },
+        {
+          "file": "packages/report-a-problem/src/lib/lang/de.ts",
+          "hash": "1919558590188924846"
+        },
+        {
+          "file": "packages/report-a-problem/src/lib/lang/en.ts",
+          "hash": "16618405322631469751"
+        },
+        {
+          "file": "packages/report-a-problem/src/lib/lang/utils.ts",
+          "hash": "2508210669652096532",
+          "deps": [
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/report-a-problem/src/lib/report-a-problem.module.scss",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "packages/report-a-problem/src/lib/report-a-problem.spec.tsx",
+          "hash": "10980769206328380154",
+          "deps": [
+            "npm:@testing-library/react"
+          ]
+        },
+        {
+          "file": "packages/report-a-problem/src/lib/report-a-problem.tsx",
+          "hash": "4990817230664968883"
+        },
+        {
+          "file": "packages/report-a-problem/src/lib/useTextSelection.ts",
+          "hash": "8701168500814773692",
+          "deps": [
+            "npm:react",
+            "npm:rxjs"
+          ]
+        },
+        {
+          "file": "packages/report-a-problem/tsconfig.json",
+          "hash": "14088618039610991405"
+        },
+        {
+          "file": "packages/report-a-problem/tsconfig.lib.json",
+          "hash": "17190776767862500632"
+        }
+      ],
+      "utils": [
+        {
+          "file": "packages/utils/.eslintrc.json",
+          "hash": "13800677001662881425"
+        },
+        {
+          "file": "packages/utils/README.md",
+          "hash": "7895454965472636336"
+        },
+        {
+          "file": "packages/utils/project.json",
+          "hash": "13790306359581191072"
+        },
+        {
+          "file": "packages/utils/src/index.ts",
+          "hash": "12872942994107254890"
+        },
+        {
+          "file": "packages/utils/src/lib/courseInfo.ts",
+          "hash": "2929119400407603914"
+        },
+        {
+          "file": "packages/utils/src/lib/file-location.ts",
+          "hash": "10989814920830155747"
+        },
+        {
+          "file": "packages/utils/src/lib/resource-action-utils.ts",
+          "hash": "3635804976976674649"
+        },
+        {
+          "file": "packages/utils/src/lib/utils.spec.ts",
+          "hash": "1869297507391227175"
+        },
+        {
+          "file": "packages/utils/src/lib/utils.ts",
+          "hash": "12534650180597234959",
+          "deps": [
+            "npm:domutils"
+          ]
+        },
+        {
+          "file": "packages/utils/tsconfig.json",
+          "hash": "634795086719220447"
+        },
+        {
+          "file": "packages/utils/tsconfig.lib.json",
+          "hash": "3632393694954060084"
+        }
+      ],
+      "quiz-utils": [
+        {
+          "file": "packages/quiz-utils/.eslintrc.json",
+          "hash": "13800677001662881425"
+        },
+        {
+          "file": "packages/quiz-utils/README.md",
+          "hash": "17944002255897310571"
+        },
+        {
+          "file": "packages/quiz-utils/jest.config.ts",
+          "hash": "10818517530918770424"
+        },
+        {
+          "file": "packages/quiz-utils/project.json",
+          "hash": "5180360646226495464"
+        },
+        {
+          "file": "packages/quiz-utils/src/index.ts",
+          "hash": "2131426403886371943"
+        },
+        {
+          "file": "packages/quiz-utils/src/lib/quiz-utils.spec.ts",
+          "hash": "15472996882991272074"
+        },
+        {
+          "file": "packages/quiz-utils/src/lib/quiz-utils.ts",
+          "hash": "13517893822968864064",
+          "deps": [
+            "api",
+            "utils",
+            "npm:domhandler@2.4.2",
+            "npm:htmlparser2"
+          ]
+        },
+        {
+          "file": "packages/quiz-utils/tsconfig.json",
+          "hash": "5840880287502376438"
+        },
+        {
+          "file": "packages/quiz-utils/tsconfig.lib.json",
+          "hash": "3632393694954060084"
+        },
+        {
+          "file": "packages/quiz-utils/tsconfig.spec.json",
+          "hash": "11550347367511341917"
+        }
+      ],
+      "mathjax": [
+        {
+          "file": "packages/mathjax/.babelrc",
+          "hash": "2946678488919325452"
+        },
+        {
+          "file": "packages/mathjax/.eslintrc.json",
+          "hash": "11012487992710232822"
+        },
+        {
+          "file": "packages/mathjax/README.md",
+          "hash": "1865585909832047906"
+        },
+        {
+          "file": "packages/mathjax/project.json",
+          "hash": "15270245740572287031"
+        },
+        {
+          "file": "packages/mathjax/src/index.ts",
+          "hash": "11998955439091098401"
+        },
+        {
+          "file": "packages/mathjax/src/lib/mathjax.tsx",
+          "hash": "10981230574663138868",
+          "deps": [
+            "npm:mathjax-full",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/mathjax/tsconfig.json",
+          "hash": "14088618039610991405"
+        },
+        {
+          "file": "packages/mathjax/tsconfig.lib.json",
+          "hash": "17190776767862500632"
+        }
+      ],
+      "alea-frontend": [
+        {
+          "file": "packages/alea-frontend/.eslintrc.json",
+          "hash": "11921867701416128332"
+        },
+        {
+          "file": "packages/alea-frontend/_env.production",
+          "hash": "12568851648745237179"
+        },
+        {
+          "file": "packages/alea-frontend/_env.staging",
+          "hash": "4121963350899881282"
+        },
+        {
+          "file": "packages/alea-frontend/components/AclDisplay.tsx",
+          "hash": "14857429058458116387",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/BrowserAutocomplete.tsx",
+          "hash": "765185947447208077",
+          "deps": [
+            "npm:@mui/material",
+            "stex-react-renderer",
+            "utils",
+            "npm:next",
+            "npm:react",
+            "api"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/CheckBoxWithTimestamp.tsx",
+          "hash": "15012104973027850099",
+          "deps": [
+            "npm:@mui/material",
+            "utils",
+            "npm:dayjs",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/CourseAccessControlDashboard.tsx",
+          "hash": "12259337712646226233",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/CoverageUpdater.tsx",
+          "hash": "782882515100273845",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "utils",
+            "npm:dayjs",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/CreateGptProblemsForm.tsx",
+          "hash": "10546551813714657825",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "utils",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/DrillConfigurator.tsx",
+          "hash": "9189812490832101001",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "utils",
+            "npm:axios",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/FileDebugData.tsx",
+          "hash": "5456122072091861686",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/FileSectionDisplay.tsx",
+          "hash": "18047409582336372241",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/FlashCards.tsx",
+          "hash": "3703034875565587296",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "utils",
+            "npm:next",
+            "npm:react",
+            "npm:react-swipeable"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/ForceFAULogin.tsx",
+          "hash": "5402182313822616572",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/ForumView.tsx",
+          "hash": "6051850635554131244",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "myst",
+            "react-utils",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/GptEvalForm.tsx",
+          "hash": "4558569372608022723",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/Header.tsx",
+          "hash": "12718942354409182489",
+          "deps": [
+            "npm:@jonkoops/matomo-tracker-react",
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "react-utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/HomeworkForm.tsx",
+          "hash": "13194476074693246736",
+          "deps": [
+            "npm:@mui/material",
+            "stex-react-renderer",
+            "npm:dayjs",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/HomeworkList.tsx",
+          "hash": "10454423570017943885",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "npm:dayjs",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/HomeworkManager.tsx",
+          "hash": "8156465109978087522",
+          "deps": [
+            "npm:@mui/material",
+            "npm:react",
+            "api",
+            "utils",
+            "npm:dayjs"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/HomeworkPerformanceTable.tsx",
+          "hash": "4630861553403183181",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/HomeworkState.tsx",
+          "hash": "9831401788126199508",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "npm:next",
+            "npm:react-google-charts"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/ImageCard.tsx",
+          "hash": "10476806103479034100",
+          "deps": [
+            "npm:@mui/material",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/LearnerCompetencyData.tsx",
+          "hash": "12093506527283197348",
+          "deps": [
+            "npm:react",
+            "api",
+            "stex-react-renderer"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/LoListDisplay.tsx",
+          "hash": "15765440856358120931",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "utils",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/NotificationButton.tsx",
+          "hash": "2395867440562954433",
+          "deps": [
+            "npm:@emotion/styled",
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "npm:@mui/system",
+            "api",
+            "react-utils",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/ProblemFetcher.tsx",
+          "hash": "12590559282797236990",
+          "deps": [
+            "api",
+            "quiz-utils",
+            "stex-react-renderer",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/ProblemList.tsx",
+          "hash": "2681198372428109456",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "utils",
+            "npm:axios",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/QuizDashboard.tsx",
+          "hash": "5026213194632762736",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "quiz-utils",
+            "stex-react-renderer",
+            "utils",
+            "npm:axios",
+            "npm:dayjs",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/QuizFileReader.tsx",
+          "hash": "8480806099038194841",
+          "deps": [
+            "npm:@mui/material",
+            "utils",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/QuizPerformanceTable.tsx",
+          "hash": "13444381014584587531",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "utils",
+            "npm:dayjs",
+            "npm:next",
+            "npm:react",
+            "npm:@mui/icons-material",
+            "stex-react-renderer"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/QuizStatsDisplay.tsx",
+          "hash": "12639761270911765731",
+          "deps": [
+            "api",
+            "npm:react-google-charts",
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/RecordedSyllabus.tsx",
+          "hash": "9367537618576321139",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "npm:axios",
+            "npm:dayjs",
+            "npm:react",
+            "npm:next",
+            "utils",
+            "myst"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/SearchBar.tsx",
+          "hash": "17996439958305774752",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/SearchCourseNotes.tsx",
+          "hash": "1733057337383684012",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/SearchResultView.tsx",
+          "hash": "18202086430744681716",
+          "deps": [
+            "npm:@mui/material",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/SlideDeck.tsx",
+          "hash": "4024146472665989446",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "utils",
+            "npm:axios",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/StudyBuddyConnectionsGraph.tsx",
+          "hash": "14257766326143184288",
+          "deps": [
+            "npm:@mui/material",
+            "npm:react",
+            "npm:react-force-graph-2d"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/StudyBuddyForm.tsx",
+          "hash": "16070048999590091915",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/StudyBuddyListingTable.tsx",
+          "hash": "14161344118544349980",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "npm:react",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/StudyBuddyModeratorOverview.tsx",
+          "hash": "2003852282157065094",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/StudyBuddyModeratorStats.tsx",
+          "hash": "234547479656220891",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/ThreadView.tsx",
+          "hash": "1850475832219344167",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "comments",
+            "stex-react-renderer",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/TooltipToggleButton.tsx",
+          "hash": "13798348412632713446",
+          "deps": [
+            "npm:@mui/material"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/ToursAutocomplete.tsx",
+          "hash": "2155418048320019743",
+          "deps": [
+            "npm:@mui/material",
+            "stex-react-renderer",
+            "utils",
+            "npm:axios",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/UserModelVisualization.tsx",
+          "hash": "11515576184484683583",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "stex-react-renderer",
+            "utils",
+            "npm:axios",
+            "npm:d3",
+            "npm:d3-dag",
+            "npm:react",
+            "api"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/VideoDisplay.tsx",
+          "hash": "12973799694867463733",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "utils",
+            "npm:axios",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/WelcomeScreen.tsx",
+          "hash": "13547417098462731508",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "utils",
+            "npm:dayjs",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/guided-tour2/GuidedTour2Navigation.tsx",
+          "hash": "3080597535176419074",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/guided-tour2/stateTransition.ts",
+          "hash": "13670645959771510483",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/lo-explorer/CourseConceptDialog.tsx",
+          "hash": "6900904048197732742",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "utils",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/lo-explorer/LoCartModal.tsx",
+          "hash": "2975744335139162964",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/lo-explorer/LoFilterAndSearch.tsx",
+          "hash": "10576505601896436346",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "utils",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/lo-explorer/LoQuizModal.tsx",
+          "hash": "10577698505933265994",
+          "deps": [
+            "npm:@mui/material",
+            "npm:react",
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/lo-explorer/LoRelations.tsx",
+          "hash": "11178147538865430411",
+          "deps": [
+            "npm:@mui/icons-material",
+            "api",
+            "npm:@mui/material",
+            "utils",
+            "stex-react-renderer",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/lo-explorer/LoReverseRelation.tsx",
+          "hash": "1574647558598573653",
+          "deps": [
+            "api",
+            "npm:react",
+            "npm:@mui/material",
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/lo-explorer/index.tsx",
+          "hash": "1652177875936027243",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "utils",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/components/nap/GradingInterface.tsx",
+          "hash": "456988198481995731",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "quiz-utils",
+            "stex-react-renderer",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/constants/avatar.ts",
+          "hash": "14698085517595697483"
+        },
+        {
+          "file": "packages/alea-frontend/constants/messages.ts",
+          "hash": "4787305515979374579"
+        },
+        {
+          "file": "packages/alea-frontend/get_files.py",
+          "hash": "12577464702952266499"
+        },
+        {
+          "file": "packages/alea-frontend/guided-tour-list.preval.ts",
+          "hash": "16066548677079815581",
+          "deps": [
+            "npm:axios",
+            "npm:next-plugin-preval"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/index.d.ts",
+          "hash": "5498222895072842432"
+        },
+        {
+          "file": "packages/alea-frontend/index.module.scss",
+          "hash": "1373491113447571607"
+        },
+        {
+          "file": "packages/alea-frontend/jest.config.ts",
+          "hash": "4243644651621091156"
+        },
+        {
+          "file": "packages/alea-frontend/lang/de.ts",
+          "hash": "863576331309628153"
+        },
+        {
+          "file": "packages/alea-frontend/lang/en.ts",
+          "hash": "11947686075725877425"
+        },
+        {
+          "file": "packages/alea-frontend/lang/utils.ts",
+          "hash": "5965952339033997680"
+        },
+        {
+          "file": "packages/alea-frontend/layouts/MainLayout.tsx",
+          "hash": "5766709949049531263",
+          "deps": [
+            "npm:@jonkoops/matomo-tracker-react",
+            "npm:@mui/material",
+            "report-a-problem",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/next-env.d.ts",
+          "hash": "5909181270615354023"
+        },
+        {
+          "file": "packages/alea-frontend/next.config.js",
+          "hash": "733299506872030525",
+          "deps": [
+            "npm:@nx/next",
+            "npm:@sentry/nextjs"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/_app.tsx",
+          "hash": "16101918272771565821",
+          "deps": [
+            "npm:@jonkoops/matomo-tracker-react",
+            "npm:@mui/material",
+            "mathjax",
+            "stex-react-renderer",
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/_document.tsx",
+          "hash": "6304366399299635765",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/acl/[aclId].tsx",
+          "hash": "8254163499319379875",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/acl/edit/[aclId].tsx",
+          "hash": "17134636943652241325",
+          "deps": [
+            "npm:@mui/material",
+            "npm:@mui/icons-material",
+            "npm:next",
+            "npm:react",
+            "api"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/acl/index.tsx",
+          "hash": "7315504472203607472",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/acl/new.tsx",
+          "hash": "16161313590659687104",
+          "deps": [
+            "npm:@mui/material",
+            "npm:@mui/icons-material",
+            "api",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/all-comments.tsx",
+          "hash": "12036642530620148165",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "comments",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/all-notifications.tsx",
+          "hash": "15896165895371475549",
+          "deps": [
+            "npm:@mui/lab",
+            "npm:@mui/material",
+            "react-utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/anon-login.tsx",
+          "hash": "11004667585473969852",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/access-control/acl-membership.ts",
+          "hash": "11710835381872465220"
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/access-control/add-remove-member.ts",
+          "hash": "18409485618556364878",
+          "deps": [
+            "api",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/access-control/can-access-resource.ts",
+          "hash": "10231194941769485865",
+          "deps": [
+            "npm:next",
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/access-control/can-moderate-comment.ts",
+          "hash": "9185738439315747064",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/access-control/can-moderate-study-buddy.ts",
+          "hash": "14980917616262060013",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/access-control/create-acl.ts",
+          "hash": "10607088252248850801",
+          "deps": [
+            "api",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/access-control/create-resourceaction.ts",
+          "hash": "14326320069750084994",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/access-control/delete-acl.ts",
+          "hash": "2771921799045044439",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/access-control/delete-resourceaction.ts",
+          "hash": "16019187073258057718",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/access-control/get-acl-userdetails.ts",
+          "hash": "18396656033482492515",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/access-control/get-acl.ts",
+          "hash": "7266079599316515609",
+          "deps": [
+            "api",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/access-control/get-all-acl-ids.ts",
+          "hash": "6431275058265239762",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/access-control/get-all-members.ts",
+          "hash": "1871485262152295165",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/access-control/get-all-resourceacces-pairs.ts",
+          "hash": "4205239755396987717",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/access-control/get-course-acls.ts",
+          "hash": "12372099746920645206",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/access-control/get-specific-aclids.ts",
+          "hash": "15469028951811171367",
+          "deps": [
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/access-control/is-member.ts",
+          "hash": "476391576872727291",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/access-control/is-user-member.ts",
+          "hash": "4955543387324153920",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/access-control/is-valid.ts",
+          "hash": "15385423508541488002",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/access-control/recompute-memberships.ts",
+          "hash": "14070988697046407979",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/access-control/resource-utils.ts",
+          "hash": "15547763884105156099",
+          "deps": [
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/access-control/update-acl.ts",
+          "hash": "11830253916337555747",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/access-control/update-resourceaccess-pair.ts",
+          "hash": "18048388610469422810",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/acl-utils/abstract-cache-store.ts",
+          "hash": "6162371666043614981",
+          "deps": [
+            "npm:ioredis",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/acl-utils/acl-common-utils.ts",
+          "hash": "16504136210045522609",
+          "deps": [
+            "api",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/acl-utils/cache-store.ts",
+          "hash": "13714735535913962510"
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/acl-utils/flattening.ts",
+          "hash": "15137666560748871683"
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/acl-utils/inmemory-acl-membership-cache.ts",
+          "hash": "11920571929453138934",
+          "deps": [
+            "npm:ioredis"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/acl-utils/redis-store.ts",
+          "hash": "15431580213160756516",
+          "deps": [
+            "npm:ioredis"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/acl-utils/redis-utils.ts",
+          "hash": "5984716284605425103",
+          "deps": [
+            "npm:ioredis"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/acl-utils/resourceaccess-utils/inmemory-cache.ts",
+          "hash": "1363335655283405052",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/acl-utils/resourceaccess-utils/recache-resource-action-assignments.ts",
+          "hash": "1332911918123052956",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/acl-utils/resourceaccess-utils/redis-cache.ts",
+          "hash": "17182633106608128471",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/acl-utils/resourceaccess-utils/resource-cache-store.ts",
+          "hash": "16931860814327298244",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/acl-utils/resourceaccess-utils/resource-common-utils.ts",
+          "hash": "10152436285839443908"
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/acl-utils/resourceaccess-utils/resource-store.ts",
+          "hash": "511155610201842368",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/add-comment.ts",
+          "hash": "15348305421020998059",
+          "deps": [
+            "api",
+            "utils",
+            "npm:axios"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/anon-login/signup.ts",
+          "hash": "6213071700944034570",
+          "deps": [
+            "api",
+            "npm:bcrypt",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/blog/create-post.ts",
+          "hash": "13004519998001002174",
+          "deps": [
+            "npm:next",
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/blog/delete-post.ts",
+          "hash": "9475126707098407173",
+          "deps": [
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/blog/get-cdn-images.ts",
+          "hash": "15236979259811948220",
+          "deps": [
+            "api",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/blog/get-post-by-id.ts",
+          "hash": "5834883052284392717",
+          "deps": [
+            "api",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/blog/get-post-snippets.ts",
+          "hash": "2595893752497804760",
+          "deps": [
+            "api",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/blog/update-post.ts",
+          "hash": "17124395255739365078",
+          "deps": [
+            "npm:next",
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/blog/upload-cdn-image.ts",
+          "hash": "172377833714289024",
+          "deps": [
+            "npm:axios",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/check-user-exist.ts",
+          "hash": "2071997342399720413",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/comment-utils.ts",
+          "hash": "18443222066992084338",
+          "deps": [
+            "api",
+            "npm:axios",
+            "npm:next",
+            "npm:serverless-mysql"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/common-homework-utils.ts",
+          "hash": "4619055336843544992",
+          "deps": [
+            "api",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/create-issue.ts",
+          "hash": "4352393633813894425",
+          "deps": [
+            "api",
+            "npm:axios"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/delete-comment/[commentId].ts",
+          "hash": "17653424130649340869"
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/edit-comment.ts",
+          "hash": "9281351112223495935",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/email-utils.ts",
+          "hash": "17608171225036363606",
+          "deps": [
+            "npm:nodemailer"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/fake-login/[userId].ts",
+          "hash": "13442405045074635056",
+          "deps": [
+            "npm:axios",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/generate-apfel-token.ts",
+          "hash": "9427520257660195218",
+          "deps": [
+            "npm:jsonwebtoken",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/get-all-my-comments.ts",
+          "hash": "6259926416324511011",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/get-card-counts/[courseId].ts",
+          "hash": "14988437870504616890",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/get-cards-with-smileys/[courseId].ts",
+          "hash": "8159066304040876141",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/get-comments-for-thread/[threadId].ts",
+          "hash": "5526305691104815938",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/get-comments.ts",
+          "hash": "17203229871196610605",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/get-course-instance-threads.ts",
+          "hash": "3226566577412323324",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/get-course-problem-counts/[courseId].ts",
+          "hash": "6799339525599131316",
+          "deps": [
+            "api",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/get-course-student/[courseId].ts",
+          "hash": "1699219113591376099",
+          "deps": [
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/get-courseids-for-enrolled-user.ts",
+          "hash": "10789941112560799630",
+          "deps": [
+            "npm:next",
+            "utils",
+            "api"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/get-coverage-timeline.ts",
+          "hash": "12182342657839277127",
+          "deps": [
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/get-documents.ts",
+          "hash": "994482332261293832",
+          "deps": [
+            "npm:next",
+            "utils",
+            "api"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/get-fau-clip-info/[clipId].ts",
+          "hash": "10304525729244875661",
+          "deps": [
+            "api",
+            "npm:axios"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/get-historical-syllabus/[courseId].tsx",
+          "hash": "7411234369446101045",
+          "deps": [
+            "api",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/get-latest-updated-sections.ts",
+          "hash": "2495451834138869975",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/get-my-notes-sections.ts",
+          "hash": "10002238499258841125"
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/get-notificationseen-time.ts",
+          "hash": "17222094806620759977",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/get-resources-for-userid.ts",
+          "hash": "1851150341319223099",
+          "deps": [
+            "npm:next",
+            "api",
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/get-section-info/[courseId].ts",
+          "hash": "13790579678498838433",
+          "deps": [
+            "api",
+            "utils",
+            "npm:html-to-text",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/get-slide-counts/[courseId].tsx",
+          "hash": "2269345396358038269",
+          "deps": [
+            "npm:next",
+            "api"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/get-slide-details/[courseId]/[videoId].ts",
+          "hash": "12050739403396224359",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/get-slides/[courseId]/[sectionIds].ts",
+          "hash": "5251425248218764172",
+          "deps": [
+            "api",
+            "utils",
+            "npm:domutils",
+            "npm:htmlparser2",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/get-students-enrolled-in-course.ts",
+          "hash": "10502492020286632898",
+          "deps": [
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/get-user-information.ts",
+          "hash": "17557747187235703675",
+          "deps": [
+            "npm:next",
+            "api"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/get-user-notifications/[locale].ts",
+          "hash": "16471325179672632474",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/gpt-redirect.ts",
+          "hash": "6679368950132933934",
+          "deps": [
+            "npm:axios",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/grading-db-utils.ts",
+          "hash": "16456805868538597320",
+          "deps": [
+            "npm:serverless-mysql"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/grant-points.ts",
+          "hash": "4033170438864026400",
+          "deps": [
+            "api",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/homework/create-homework.ts",
+          "hash": "8217320553826539488",
+          "deps": [
+            "npm:next",
+            "utils",
+            "api"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/homework/delete-homework.ts",
+          "hash": "17879883120489896045",
+          "deps": [
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/homework/get-homework-list.ts",
+          "hash": "16192519990822761109",
+          "deps": [
+            "utils",
+            "npm:next",
+            "api"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/homework/get-homework-stats.ts",
+          "hash": "11115096263483304378",
+          "deps": [
+            "api",
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/homework/get-homework.ts",
+          "hash": "9996242936956644154",
+          "deps": [
+            "api",
+            "quiz-utils",
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/homework/update-homework.ts",
+          "hash": "9074304284284660132",
+          "deps": [
+            "api",
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/login.ts",
+          "hash": "12278045099127119501",
+          "deps": [
+            "npm:axios",
+            "npm:bcrypt",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/matomo-db-utils.ts",
+          "hash": "9415008318415206158",
+          "deps": [
+            "npm:serverless-mysql"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/nap/create-answer.ts",
+          "hash": "9020678009447951620",
+          "deps": [
+            "api",
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/nap/create-grading.ts",
+          "hash": "3171144116500441621",
+          "deps": [
+            "api",
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/nap/create-review-request.ts",
+          "hash": "1968807256507846588",
+          "deps": [
+            "npm:next",
+            "api"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/nap/delete-answer.ts",
+          "hash": "7606915837792821824",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/nap/delete-grading.ts",
+          "hash": "4260390496508530789",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/nap/delete-review-request.ts",
+          "hash": "15611531198516885548",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/nap/edit-answer.ts",
+          "hash": "13757559387032398665",
+          "deps": [
+            "api",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/nap/edit-grading.ts",
+          "hash": "9489634173701659998",
+          "deps": [
+            "npm:next",
+            "api"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/nap/get-answers-with-grading.ts",
+          "hash": "16425777409518566521",
+          "deps": [
+            "api",
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/nap/get-course-grading-items.ts",
+          "hash": "4544916298792302770",
+          "deps": [
+            "api",
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/notesHelpers.ts",
+          "hash": "10987389080949221708",
+          "deps": [
+            "npm:axios",
+            "npm:domutils",
+            "npm:htmlparser2",
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/prefetchHelper.ts",
+          "hash": "8353159566686201446",
+          "deps": [
+            "utils",
+            "npm:axios",
+            "npm:htmlparser2"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/purge-comments.ts",
+          "hash": "15082892653684486497"
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/purge-user-notifications.ts",
+          "hash": "9717418437834060357",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/quiz/create-quiz.ts",
+          "hash": "6853606716912071081",
+          "deps": [
+            "api",
+            "node-utils",
+            "utils",
+            "npm:next",
+            "npm:uuid"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/quiz/delete-quiz.ts",
+          "hash": "9859679440447480701",
+          "deps": [
+            "npm:next",
+            "node-utils",
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/quiz/get-all-quizzes.ts",
+          "hash": "6010600079249763334",
+          "deps": [
+            "node-utils",
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/quiz/get-course-quiz-list/[courseId].ts",
+          "hash": "17990354114723569624",
+          "deps": [
+            "api",
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/quiz/get-previous-quiz-info/[courseId].ts",
+          "hash": "6631802192402394828",
+          "deps": [
+            "api",
+            "quiz-utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/quiz/get-quiz-stats/[quizId].ts",
+          "hash": "14184452223607982259",
+          "deps": [
+            "api",
+            "quiz-utils",
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/quiz/get-quiz/[quizId].ts",
+          "hash": "17940061699000682927",
+          "deps": [
+            "api",
+            "node-utils",
+            "quiz-utils",
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/quiz/insert-quiz-response.ts",
+          "hash": "13822554239722255574",
+          "deps": [
+            "api",
+            "quiz-utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/quiz/quiz-utils.ts",
+          "hash": "14398429689687157289",
+          "deps": [
+            "api",
+            "npm:dayjs"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/quiz/read-quiz-results.ts",
+          "hash": "16304315942412281160",
+          "deps": [
+            "api",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/quiz/update-quiz.ts",
+          "hash": "9754820657744610338",
+          "deps": [
+            "api",
+            "node-utils",
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/quiz/write-quiz-result.ts",
+          "hash": "1227113506460905420",
+          "deps": [
+            "api",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/read-interview-response.ts",
+          "hash": "13495675261809570141",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/reset-password.ts",
+          "hash": "16598580574248590005",
+          "deps": [
+            "npm:bcrypt",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/send-forgot-email.ts",
+          "hash": "644629762844701473",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/send-verification-email.ts",
+          "hash": "8160660308947944919",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/sentry-example-api.js",
+          "hash": "15260547610968800161"
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/set-coverage-timeline.ts",
+          "hash": "12661714198046963049",
+          "deps": [
+            "api",
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/signup.ts",
+          "hash": "1225750552969147635",
+          "deps": [
+            "npm:bcrypt",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/study-buddy/connection-request/[courseId].ts",
+          "hash": "5874179182231097632",
+          "deps": [
+            "api",
+            "npm:next",
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/study-buddy/get-all-users-stats.ts",
+          "hash": "15533794072644607027",
+          "deps": [
+            "api",
+            "npm:next",
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/study-buddy/get-courses-sortedby-connections.ts",
+          "hash": "10921198793778366181",
+          "deps": [
+            "api",
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/study-buddy/get-enrolled-course-ids.ts",
+          "hash": "3892410098120395741",
+          "deps": [
+            "npm:next",
+            "api",
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/study-buddy/get-study-buddies/[courseId].ts",
+          "hash": "12322497503261142255",
+          "deps": [
+            "api",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/study-buddy/get-user-info/[courseId].ts",
+          "hash": "836909887479203608",
+          "deps": [
+            "npm:next",
+            "api",
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/study-buddy/get-users-stats/[courseId].ts",
+          "hash": "17612050186695569948",
+          "deps": [
+            "api",
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/study-buddy/purge-info.ts",
+          "hash": "9135205061305612098",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/study-buddy/remove-connection-request/[courseId].ts",
+          "hash": "2779934374440345153",
+          "deps": [
+            "npm:next",
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/study-buddy/set-active/[courseId].tsx",
+          "hash": "4648400113247434638",
+          "deps": [
+            "npm:next",
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/study-buddy/study-buddy-utils.ts",
+          "hash": "10439379264567991218",
+          "deps": [
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/study-buddy/update-info/[courseId].ts",
+          "hash": "11161160204359417067",
+          "deps": [
+            "api",
+            "npm:next",
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/test-redis/index.ts",
+          "hash": "2344720601197325627",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/update-comment-state.ts",
+          "hash": "7952097288763209712",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/update-notificationseen-time.ts",
+          "hash": "7122336127529828607",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/update-question-state.ts",
+          "hash": "12369267276620076352",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/update-section-review-status.ts",
+          "hash": "674829254963395681",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/update-trafficlight-status.ts",
+          "hash": "11757448395276311320",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/user-anon-data.ts",
+          "hash": "12268555977894328596",
+          "deps": [
+            "npm:next",
+            "api",
+            "node-utils",
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/userid-exists.ts",
+          "hash": "10793561952403538292",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/verify-email.ts",
+          "hash": "15010232637276261980",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/api/write-interview-response.ts",
+          "hash": "12255496979123391818",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/blog/[postId].tsx",
+          "hash": "16748970747467579463",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "npm:next",
+            "npm:react",
+            "myst",
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/blog/edit.tsx",
+          "hash": "9194796575909701974",
+          "deps": [
+            "api",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/blog/index.tsx",
+          "hash": "2151160774573328707",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "myst",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/blog/new.tsx",
+          "hash": "14586944238014995444",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "myst",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/browser/[id].tsx",
+          "hash": "38069315481203146",
+          "deps": [
+            "stex-react-renderer",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/course-home/[courseId].tsx",
+          "hash": "3048806643798204460",
+          "deps": [
+            "npm:@mui/icons-material",
+            "api",
+            "npm:@mui/material",
+            "stex-react-renderer",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/course-list.tsx",
+          "hash": "16491878024018160761",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/course-notes/[courseId].tsx",
+          "hash": "1965799507806788011",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/course-problems/[courseId].tsx",
+          "hash": "5570527810106523760",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/course-view/[courseId].tsx",
+          "hash": "9067134650178791123",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "comments",
+            "stex-react-renderer",
+            "utils",
+            "npm:axios",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/coverage-update.tsx",
+          "hash": "15806878306028680182",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "utils",
+            "npm:axios",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/debug-section.tsx",
+          "hash": "4733299642898176615",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/exp/_immt.tsx_",
+          "hash": "12094687094613094127"
+        },
+        {
+          "file": "packages/alea-frontend/pages/exp/code-editor.tsx",
+          "hash": "6312225017891952535",
+          "deps": [
+            "npm:react",
+            "npm:@uiw/react-codemirror",
+            "npm:@mui/material",
+            "npm:@codemirror/lang-javascript"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/exp/dialog-tour.module.scss",
+          "hash": "3762136408795547641"
+        },
+        {
+          "file": "packages/alea-frontend/pages/exp/diligence-and-perf.tsx",
+          "hash": "9315276147850457576",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "npm:axios",
+            "npm:next",
+            "npm:react",
+            "npm:react-google-charts"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/exp/gpt-eval.tsx",
+          "hash": "3022136888872692585",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "npm:next",
+            "npm:react",
+            "stex-react-renderer",
+            "utils",
+            "npm:dayjs",
+            "npm:@mui/icons-material"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/exp/gpt-problems.tsx",
+          "hash": "10939269137492190454",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "npm:next",
+            "npm:react",
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/exp/gpt-templates.tsx",
+          "hash": "15035543489299547399",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/exp/index.tsx",
+          "hash": "1264338010896021876",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "myst",
+            "stex-react-renderer",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/exp/pp_dialogue_tour.tsx",
+          "hash": "8733727570325499951",
+          "deps": [
+            "npm:@mui/material",
+            "npm:html-react-parser",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/exp/pp_students.tsx",
+          "hash": "8787928139069737550",
+          "deps": [
+            "npm:@mui/material",
+            "npm:axios",
+            "npm:html-react-parser",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/exp/pp_teachers_and_tas.tsx",
+          "hash": "13328535012383214298",
+          "deps": [
+            "npm:@mui/material",
+            "npm:axios",
+            "npm:html-react-parser",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/file-browser.tsx",
+          "hash": "16141770840064324359",
+          "deps": [
+            "api",
+            "stex-react-renderer",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/flash-cards/[courseId].tsx",
+          "hash": "14126630352077791290",
+          "deps": [
+            "npm:next",
+            "npm:@mui/material"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/forgot-password.tsx",
+          "hash": "263540452112607835",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/forum/[courseId]/[[...threadId]].tsx",
+          "hash": "9981336013313366235",
+          "deps": [
+            "npm:@mui/material",
+            "npm:next",
+            "npm:react",
+            "stex-react-renderer",
+            "api",
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/guided-tour/[id].tsx",
+          "hash": "7299724648016271975",
+          "deps": [
+            "npm:@mui/material",
+            "stex-react-renderer",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/guided-tour2/[id].tsx",
+          "hash": "10173500442139352519",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/help.tsx",
+          "hash": "1743492367633815080",
+          "deps": [
+            "stex-react-renderer",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/homework-doc.tsx",
+          "hash": "11786277129327913067",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "quiz-utils",
+            "stex-react-renderer",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/homework/[id].tsx",
+          "hash": "1351441155090046109",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/index.tsx",
+          "hash": "16609737037322590136",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/instructor-dash/[courseId].tsx",
+          "hash": "10173497874347452715",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/learner-model-init.tsx",
+          "hash": "14588178430018878856",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/lo-explorer.tsx",
+          "hash": "6830088989347761666",
+          "deps": [
+            "npm:@mui/material"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/login.tsx",
+          "hash": "16489418427977360785",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "utils",
+            "npm:@mui/icons-material",
+            "npm:next",
+            "npm:react",
+            "myst"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/my-learner-model.tsx",
+          "hash": "8368512254688248090",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/my-notes.tsx",
+          "hash": "12726342616682160655",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "comments",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/my-profile.tsx",
+          "hash": "11250869945005448493",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/per-section-quiz.tsx",
+          "hash": "16849819117017036598",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "stex-react-renderer",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/practice-problems/[courseId].tsx",
+          "hash": "9546706775955724850",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/privacy.tsx",
+          "hash": "8713622687370474847",
+          "deps": [
+            "npm:@mui/material",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/quiz-dash/[courseId].tsx",
+          "hash": "7493574962469967413",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "utils",
+            "npm:dayjs",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/quiz/[quizId].tsx",
+          "hash": "5639590513719581300",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "quiz-utils",
+            "stex-react-renderer",
+            "utils",
+            "npm:dayjs",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/quiz/old/[quizId].tsx",
+          "hash": "4570312174110395732",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "quiz-utils",
+            "stex-react-renderer",
+            "npm:axios",
+            "npm:next",
+            "npm:react",
+            "npm:uuid"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/quiz/old/index.tsx",
+          "hash": "11557860044844004531",
+          "deps": [
+            "npm:@mui/material",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/quiz/results.tsx",
+          "hash": "17706658184023502692",
+          "deps": [
+            "npm:@mui/material",
+            "utils",
+            "npm:axios",
+            "npm:next",
+            "npm:react",
+            "npm:react-google-charts",
+            "myst",
+            "api"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/reset-and-redirect.tsx",
+          "hash": "17557678837329214890",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/reset-password.tsx",
+          "hash": "18287334267334272383",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/search.tsx",
+          "hash": "14061127786216872707",
+          "deps": [
+            "npm:@mui/material",
+            "npm:axios",
+            "npm:next",
+            "npm:react",
+            "stex-react-renderer"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/search/[courseId].tsx",
+          "hash": "2666286340296079372",
+          "deps": [
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/sentry-example-page.jsx",
+          "hash": "2530194291503041547",
+          "deps": [
+            "npm:next",
+            "npm:@sentry/nextjs"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/settings.tsx",
+          "hash": "9262791221740087767",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/signup.tsx",
+          "hash": "3215234076085002940",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "npm:next",
+            "npm:react",
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/study-buddy/[courseId].tsx",
+          "hash": "4138037098293650142",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "stex-react-renderer",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/study-buddy/index.tsx",
+          "hash": "12623594798850911068",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/styles.scss",
+          "hash": "14475032219651402087"
+        },
+        {
+          "file": "packages/alea-frontend/pages/sys-admin.tsx",
+          "hash": "6462028934273181439",
+          "deps": [
+            "npm:next",
+            "npm:@mui/material",
+            "npm:@mui/icons-material",
+            "api",
+            "npm:react",
+            "utils",
+            "react-utils"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/u/[institution].tsx",
+          "hash": "11815675527249796442",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/updates.tsx",
+          "hash": "9603110751777564540",
+          "deps": [
+            "npm:@mui/material",
+            "myst",
+            "npm:dayjs",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/verify.tsx",
+          "hash": "15159584302701725286",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/pages/visualization.tsx",
+          "hash": "2785909394841819746",
+          "deps": [
+            "npm:@mui/material",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/preval-utils.ts",
+          "hash": "16631602312257451498",
+          "deps": [
+            "npm:axios"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/project.json",
+          "hash": "10870040370795055429"
+        },
+        {
+          "file": "packages/alea-frontend/public/.gitkeep",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "packages/alea-frontend/public/ALeA_Eval.png",
+          "hash": "9974302548312544086"
+        },
+        {
+          "file": "packages/alea-frontend/public/University_Credits.png",
+          "hash": "4720507653717572330"
+        },
+        {
+          "file": "packages/alea-frontend/public/acs.jpg",
+          "hash": "9472346021800802014"
+        },
+        {
+          "file": "packages/alea-frontend/public/ai-1.jpg",
+          "hash": "2978240187246196643"
+        },
+        {
+          "file": "packages/alea-frontend/public/ai-2.jpg",
+          "hash": "12574255425083696016"
+        },
+        {
+          "file": "packages/alea-frontend/public/ai12.jpg",
+          "hash": "6454459859374151690"
+        },
+        {
+          "file": "packages/alea-frontend/public/ai3.jpg",
+          "hash": "1560474368120341563"
+        },
+        {
+          "file": "packages/alea-frontend/public/alea-logo.svg",
+          "hash": "6000595099847782722"
+        },
+        {
+          "file": "packages/alea-frontend/public/atc.jpg",
+          "hash": "9472346021800802014"
+        },
+        {
+          "file": "packages/alea-frontend/public/bloom-dimensions/Analyse.svg",
+          "hash": "8803868227450350669"
+        },
+        {
+          "file": "packages/alea-frontend/public/bloom-dimensions/Analyse_white.svg",
+          "hash": "13719008360705862933"
+        },
+        {
+          "file": "packages/alea-frontend/public/bloom-dimensions/Apply.svg",
+          "hash": "15832505113832722405"
+        },
+        {
+          "file": "packages/alea-frontend/public/bloom-dimensions/Apply_white.svg",
+          "hash": "4728645316545205230"
+        },
+        {
+          "file": "packages/alea-frontend/public/bloom-dimensions/Create.svg",
+          "hash": "6963453364156859744"
+        },
+        {
+          "file": "packages/alea-frontend/public/bloom-dimensions/Create_white.svg",
+          "hash": "5783190865760215221"
+        },
+        {
+          "file": "packages/alea-frontend/public/bloom-dimensions/Evaluate.svg",
+          "hash": "9667858848405061168"
+        },
+        {
+          "file": "packages/alea-frontend/public/bloom-dimensions/Evaluate_white.svg",
+          "hash": "15105498286139549509"
+        },
+        {
+          "file": "packages/alea-frontend/public/bloom-dimensions/Meaning.svg",
+          "hash": "8651160002286776647"
+        },
+        {
+          "file": "packages/alea-frontend/public/bloom-dimensions/Remember.svg",
+          "hash": "18388421607152259588"
+        },
+        {
+          "file": "packages/alea-frontend/public/bloom-dimensions/Remember_white.svg",
+          "hash": "7668984154826940511"
+        },
+        {
+          "file": "packages/alea-frontend/public/bloom-dimensions/Understand.svg",
+          "hash": "12267195176332658494"
+        },
+        {
+          "file": "packages/alea-frontend/public/bloom-dimensions/Understand_white.svg",
+          "hash": "16613992849252925140"
+        },
+        {
+          "file": "packages/alea-frontend/public/complog.jpg",
+          "hash": "1751825107209798236"
+        },
+        {
+          "file": "packages/alea-frontend/public/comsem.jpg",
+          "hash": "15576902272177240586"
+        },
+        {
+          "file": "packages/alea-frontend/public/course_lm_exp/ai_structure.html",
+          "hash": "16053198776579257935"
+        },
+        {
+          "file": "packages/alea-frontend/public/course_lm_exp/d3.v7.js",
+          "hash": "11244806011038396774"
+        },
+        {
+          "file": "packages/alea-frontend/public/course_lm_exp/lm_visualising_1.html",
+          "hash": "4844955064123018825"
+        },
+        {
+          "file": "packages/alea-frontend/public/course_lm_exp/lm_visualising_2.html",
+          "hash": "8562525837893523859"
+        },
+        {
+          "file": "packages/alea-frontend/public/exp_res/ai-overview.png",
+          "hash": "2068919521074679349"
+        },
+        {
+          "file": "packages/alea-frontend/public/exp_res/ai_element.png",
+          "hash": "11675260624301560611"
+        },
+        {
+          "file": "packages/alea-frontend/public/exp_res/cohort.png",
+          "hash": "14311391328695542222"
+        },
+        {
+          "file": "packages/alea-frontend/public/exp_res/example_triangle_1.png",
+          "hash": "3465660915275123520"
+        },
+        {
+          "file": "packages/alea-frontend/public/exp_res/example_triangle_2.png",
+          "hash": "9859510623174346223"
+        },
+        {
+          "file": "packages/alea-frontend/public/exp_res/example_triangle_3.png",
+          "hash": "1365654269114592809"
+        },
+        {
+          "file": "packages/alea-frontend/public/exp_res/images.png",
+          "hash": "8737467081315493245"
+        },
+        {
+          "file": "packages/alea-frontend/public/exp_res/learning_progess_0.png",
+          "hash": "11481124004882449767"
+        },
+        {
+          "file": "packages/alea-frontend/public/exp_res/learning_progess_1.png",
+          "hash": "18298796211716682516"
+        },
+        {
+          "file": "packages/alea-frontend/public/exp_res/learning_progess_10.png",
+          "hash": "11262248164291201082"
+        },
+        {
+          "file": "packages/alea-frontend/public/exp_res/learning_progess_11.png",
+          "hash": "12964721737966341449"
+        },
+        {
+          "file": "packages/alea-frontend/public/exp_res/learning_progess_12.png",
+          "hash": "13109785522216501959"
+        },
+        {
+          "file": "packages/alea-frontend/public/exp_res/learning_progess_13.png",
+          "hash": "4739326997982264998"
+        },
+        {
+          "file": "packages/alea-frontend/public/exp_res/learning_progess_14.png",
+          "hash": "17889246911239612928"
+        },
+        {
+          "file": "packages/alea-frontend/public/exp_res/learning_progess_15.png",
+          "hash": "7248483179656460864"
+        },
+        {
+          "file": "packages/alea-frontend/public/exp_res/learning_progess_2.png",
+          "hash": "15501739178399359099"
+        },
+        {
+          "file": "packages/alea-frontend/public/exp_res/learning_progess_3.png",
+          "hash": "14685592666064022419"
+        },
+        {
+          "file": "packages/alea-frontend/public/exp_res/learning_progess_4.png",
+          "hash": "11478697859251307160"
+        },
+        {
+          "file": "packages/alea-frontend/public/exp_res/learning_progess_5.png",
+          "hash": "7216573228963334626"
+        },
+        {
+          "file": "packages/alea-frontend/public/exp_res/learning_progess_6.png",
+          "hash": "12373427348118921442"
+        },
+        {
+          "file": "packages/alea-frontend/public/exp_res/learning_progess_7.png",
+          "hash": "16674354666844598251"
+        },
+        {
+          "file": "packages/alea-frontend/public/exp_res/learning_progess_8.png",
+          "hash": "13689842213513588794"
+        },
+        {
+          "file": "packages/alea-frontend/public/exp_res/learning_progess_9.png",
+          "hash": "16638137855740092748"
+        },
+        {
+          "file": "packages/alea-frontend/public/exp_res/learning_progess_total.png",
+          "hash": "12784248144586784031"
+        },
+        {
+          "file": "packages/alea-frontend/public/exp_res/learning_progess_wireframe.png",
+          "hash": "4256363900324358047"
+        },
+        {
+          "file": "packages/alea-frontend/public/exp_res/pp_students.htm",
+          "hash": "627308826707554515"
+        },
+        {
+          "file": "packages/alea-frontend/public/exp_res/pp_teachers_and_tas.htm",
+          "hash": "2001104497055092393"
+        },
+        {
+          "file": "packages/alea-frontend/public/exp_res/pythagoras_animated.gif",
+          "hash": "9681351302411416719"
+        },
+        {
+          "file": "packages/alea-frontend/public/exp_res/right_triangle.png",
+          "hash": "17698308614923306013"
+        },
+        {
+          "file": "packages/alea-frontend/public/experiment.svg",
+          "hash": "4201291640385745355"
+        },
+        {
+          "file": "packages/alea-frontend/public/f29fa1.jpg",
+          "hash": "10406722554124100880"
+        },
+        {
+          "file": "packages/alea-frontend/public/fau_kwarc.png",
+          "hash": "11710416875656238863"
+        },
+        {
+          "file": "packages/alea-frontend/public/faulogo.png",
+          "hash": "12346589622466195553"
+        },
+        {
+          "file": "packages/alea-frontend/public/favicon.ico",
+          "hash": "8222421628574002998"
+        },
+        {
+          "file": "packages/alea-frontend/public/gdp.jpg",
+          "hash": "10406722554124100880"
+        },
+        {
+          "file": "packages/alea-frontend/public/gdp.png",
+          "hash": "2477126225030291420"
+        },
+        {
+          "file": "packages/alea-frontend/public/gdp2.jpg",
+          "hash": "12918401876074989272"
+        },
+        {
+          "file": "packages/alea-frontend/public/genict.jpg",
+          "hash": "10406722554124100880"
+        },
+        {
+          "file": "packages/alea-frontend/public/gt.jpg",
+          "hash": "15459276563787612274"
+        },
+        {
+          "file": "packages/alea-frontend/public/guidedTour.png",
+          "hash": "6562339127811978372"
+        },
+        {
+          "file": "packages/alea-frontend/public/heriott_logo.png",
+          "hash": "765402677520644087"
+        },
+        {
+          "file": "packages/alea-frontend/public/idm-login.png",
+          "hash": "16352875236264508764"
+        },
+        {
+          "file": "packages/alea-frontend/public/iisc.png",
+          "hash": "2199039672664294347"
+        },
+        {
+          "file": "packages/alea-frontend/public/interview.jpg",
+          "hash": "8633006223109712670"
+        },
+        {
+          "file": "packages/alea-frontend/public/iwgs-1.jpg",
+          "hash": "1459531171465851032"
+        },
+        {
+          "file": "packages/alea-frontend/public/iwgs-1_extended.jpg",
+          "hash": "4480599839705687884"
+        },
+        {
+          "file": "packages/alea-frontend/public/iwgs-2 - full.jpg",
+          "hash": "5862071501812795519"
+        },
+        {
+          "file": "packages/alea-frontend/public/iwgs-2.jpg",
+          "hash": "6560479171807829933"
+        },
+        {
+          "file": "packages/alea-frontend/public/jacoblogo.png",
+          "hash": "13563726046780940683"
+        },
+        {
+          "file": "packages/alea-frontend/public/kamen-luke-arm.jpg",
+          "hash": "2973956801501706700"
+        },
+        {
+          "file": "packages/alea-frontend/public/krmt.jpg",
+          "hash": "9752396993893284577"
+        },
+        {
+          "file": "packages/alea-frontend/public/krmt.png",
+          "hash": "14287569521514765622"
+        },
+        {
+          "file": "packages/alea-frontend/public/lbs.jpg",
+          "hash": "15576902272177240586"
+        },
+        {
+          "file": "packages/alea-frontend/public/likert-icons/-1.svg",
+          "hash": "9200516704810917539"
+        },
+        {
+          "file": "packages/alea-frontend/public/likert-icons/-1color.svg",
+          "hash": "15331507578068457360"
+        },
+        {
+          "file": "packages/alea-frontend/public/likert-icons/-2.svg",
+          "hash": "17070411304599406823"
+        },
+        {
+          "file": "packages/alea-frontend/public/likert-icons/-2color.svg",
+          "hash": "17319208799376857852"
+        },
+        {
+          "file": "packages/alea-frontend/public/likert-icons/0.svg",
+          "hash": "18202090115767049222"
+        },
+        {
+          "file": "packages/alea-frontend/public/likert-icons/0color.svg",
+          "hash": "12321782030516733494"
+        },
+        {
+          "file": "packages/alea-frontend/public/likert-icons/1.svg",
+          "hash": "12224892622360387010"
+        },
+        {
+          "file": "packages/alea-frontend/public/likert-icons/1color.svg",
+          "hash": "15936637749567830367"
+        },
+        {
+          "file": "packages/alea-frontend/public/likert-icons/2.svg",
+          "hash": "14032504164255830474"
+        },
+        {
+          "file": "packages/alea-frontend/public/likert-icons/2color.svg",
+          "hash": "13846129989397741590"
+        },
+        {
+          "file": "packages/alea-frontend/public/logo.png",
+          "hash": "13091550101286501032"
+        },
+        {
+          "file": "packages/alea-frontend/public/marsrover.jpg",
+          "hash": "1643746349765142327"
+        },
+        {
+          "file": "packages/alea-frontend/public/noun-flash-cards-2494102.svg",
+          "hash": "1394499610391316905"
+        },
+        {
+          "file": "packages/alea-frontend/public/others.png",
+          "hash": "5684587268332132092"
+        },
+        {
+          "file": "packages/alea-frontend/public/practice_problems.svg",
+          "hash": "14650163205047960681"
+        },
+        {
+          "file": "packages/alea-frontend/public/quiz.png",
+          "hash": "14375580225905262415"
+        },
+        {
+          "file": "packages/alea-frontend/public/quiz5-problem2.png",
+          "hash": "16919479212664796067"
+        },
+        {
+          "file": "packages/alea-frontend/public/rip.jpg",
+          "hash": "14050004362154206877"
+        },
+        {
+          "file": "packages/alea-frontend/public/selfpaced.png",
+          "hash": "360352237779814451"
+        },
+        {
+          "file": "packages/alea-frontend/public/spinf.jpg",
+          "hash": "10033138868086137350"
+        },
+        {
+          "file": "packages/alea-frontend/public/student.jpg",
+          "hash": "9806342197274815765"
+        },
+        {
+          "file": "packages/alea-frontend/public/tdm.jpg",
+          "hash": "4370407558284168698"
+        },
+        {
+          "file": "packages/alea-frontend/public/traffic_green.jpg",
+          "hash": "13458485966530983741"
+        },
+        {
+          "file": "packages/alea-frontend/public/traffic_light - full.jpg",
+          "hash": "5806125512464928121"
+        },
+        {
+          "file": "packages/alea-frontend/public/traffic_not_ready.jpg",
+          "hash": "15143245002282835823"
+        },
+        {
+          "file": "packages/alea-frontend/public/traffic_red.jpg",
+          "hash": "1100252247770084589"
+        },
+        {
+          "file": "packages/alea-frontend/public/traffic_yellow.jpg",
+          "hash": "9166527929086704665"
+        },
+        {
+          "file": "packages/alea-frontend/public/up.png",
+          "hash": "18042429555102941243"
+        },
+        {
+          "file": "packages/alea-frontend/public/vercel.svg",
+          "hash": "3233056503954796132"
+        },
+        {
+          "file": "packages/alea-frontend/public/voll-ki-courses.svg",
+          "hash": "17248500632792899782"
+        },
+        {
+          "file": "packages/alea-frontend/public/voll-ki.png",
+          "hash": "7430374773789961567"
+        },
+        {
+          "file": "packages/alea-frontend/public/voll-ki.svg",
+          "hash": "14227639206597259427"
+        },
+        {
+          "file": "packages/alea-frontend/sentry.client.config.js",
+          "hash": "2289749517503198169",
+          "deps": [
+            "npm:@sentry/nextjs"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/sentry.edge.config.js",
+          "hash": "10826140988593418312",
+          "deps": [
+            "npm:@sentry/nextjs"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/sentry.server.config.js",
+          "hash": "8664484349366045190",
+          "deps": [
+            "npm:@sentry/nextjs"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/shared/quiz.ts",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "packages/alea-frontend/specs/add-comment.spec.tsx",
+          "hash": "16459092005996339581",
+          "deps": [
+            "npm:axios",
+            "npm:node-mocks-http",
+            "api"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/specs/create-quiz.spec.tsx",
+          "hash": "13056362329851707618",
+          "deps": [
+            "api",
+            "npm:axios",
+            "npm:node-mocks-http",
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/specs/delete-comments.spec.tsx",
+          "hash": "15521868563305757797",
+          "deps": [
+            "npm:axios",
+            "npm:node-mocks-http"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/specs/edit-comment.spec.tsx",
+          "hash": "12846102909813925764",
+          "deps": [
+            "npm:axios",
+            "npm:node-mocks-http"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/specs/get-comments.spec.tsx",
+          "hash": "17106100065590490674",
+          "deps": [
+            "npm:axios",
+            "npm:node-mocks-http"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/specs/update-comment-state.spec.tsx",
+          "hash": "13518160520215672673",
+          "deps": [
+            "api",
+            "npm:axios",
+            "npm:node-mocks-http"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend/styles/flash-card.module.scss",
+          "hash": "5291496222451663428"
+        },
+        {
+          "file": "packages/alea-frontend/styles/guided-tour.module.scss",
+          "hash": "7534484764966897941"
+        },
+        {
+          "file": "packages/alea-frontend/styles/header.module.scss",
+          "hash": "8083779257669264795"
+        },
+        {
+          "file": "packages/alea-frontend/styles/lo-explorer.module.scss",
+          "hash": "8641730652352071776"
+        },
+        {
+          "file": "packages/alea-frontend/styles/mediaPlayer.module.scss",
+          "hash": "16450105779371452035"
+        },
+        {
+          "file": "packages/alea-frontend/styles/mediafile.module.scss",
+          "hash": "17125573594617737871"
+        },
+        {
+          "file": "packages/alea-frontend/styles/search.module.scss",
+          "hash": "2314841315864754482"
+        },
+        {
+          "file": "packages/alea-frontend/styles/slide-deck.module.scss",
+          "hash": "15829166452427636832"
+        },
+        {
+          "file": "packages/alea-frontend/styles/utils.module.scss",
+          "hash": "16309022565234862178"
+        },
+        {
+          "file": "packages/alea-frontend/system-updates.ts",
+          "hash": "17131452729311801357"
+        },
+        {
+          "file": "packages/alea-frontend/tsconfig.json",
+          "hash": "13757389258132385338"
+        },
+        {
+          "file": "packages/alea-frontend/tsconfig.spec.json",
+          "hash": "6922413205408300107"
+        }
+      ],
+      "api": [
+        {
+          "file": "packages/api/.eslintrc.json",
+          "hash": "13800677001662881425"
+        },
+        {
+          "file": "packages/api/README.md",
+          "hash": "5469442499387101132"
+        },
+        {
+          "file": "packages/api/project.json",
+          "hash": "17748993035292744539"
+        },
+        {
+          "file": "packages/api/src/index.ts",
+          "hash": "12586935006249659665"
+        },
+        {
+          "file": "packages/api/src/lib/access-control-api.ts",
+          "hash": "11948709831991039034",
+          "deps": [
+            "utils",
+            "npm:axios"
+          ]
+        },
+        {
+          "file": "packages/api/src/lib/access-control.ts",
+          "hash": "16807181503664738758"
+        },
+        {
+          "file": "packages/api/src/lib/api.ts",
+          "hash": "13929390254365245099"
+        },
+        {
+          "file": "packages/api/src/lib/comment.ts",
+          "hash": "14297781669581872198",
+          "deps": [
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/api/src/lib/comments-api.ts",
+          "hash": "7215690912886308293",
+          "deps": [
+            "utils",
+            "npm:axios"
+          ]
+        },
+        {
+          "file": "packages/api/src/lib/course-grade-info.ts",
+          "hash": "8306338601520562459"
+        },
+        {
+          "file": "packages/api/src/lib/gpt-problems-api.ts",
+          "hash": "6296895848600795775",
+          "deps": [
+            "npm:axios"
+          ]
+        },
+        {
+          "file": "packages/api/src/lib/gpt-problems.ts",
+          "hash": "13474899578021845695"
+        },
+        {
+          "file": "packages/api/src/lib/homework-api.ts",
+          "hash": "1170226863202556805",
+          "deps": [
+            "npm:axios"
+          ]
+        },
+        {
+          "file": "packages/api/src/lib/homework.ts",
+          "hash": "2874892513125842762"
+        },
+        {
+          "file": "packages/api/src/lib/lmp.ts",
+          "hash": "3816798475547940066",
+          "deps": [
+            "utils",
+            "npm:axios"
+          ]
+        },
+        {
+          "file": "packages/api/src/lib/misc.ts",
+          "hash": "5200600040881322418",
+          "deps": [
+            "utils",
+            "npm:axios"
+          ]
+        },
+        {
+          "file": "packages/api/src/lib/mmt.ts",
+          "hash": "17664327475855383090",
+          "deps": [
+            "utils",
+            "npm:axios"
+          ]
+        },
+        {
+          "file": "packages/api/src/lib/nap-api.ts",
+          "hash": "11925130999942206538",
+          "deps": [
+            "utils",
+            "npm:axios"
+          ]
+        },
+        {
+          "file": "packages/api/src/lib/nap.ts",
+          "hash": "6144638297786984855"
+        },
+        {
+          "file": "packages/api/src/lib/next-api.ts",
+          "hash": "2967768144215841566",
+          "deps": [
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/api/src/lib/notifications-api.ts",
+          "hash": "417716611961933636",
+          "deps": [
+            "npm:axios"
+          ]
+        },
+        {
+          "file": "packages/api/src/lib/notifications.ts",
+          "hash": "12789625652688474959"
+        },
+        {
+          "file": "packages/api/src/lib/points-api.ts",
+          "hash": "2764571750337718017",
+          "deps": [
+            "npm:axios"
+          ]
+        },
+        {
+          "file": "packages/api/src/lib/points.ts",
+          "hash": "6264333441601191519"
+        },
+        {
+          "file": "packages/api/src/lib/quiz-api.ts",
+          "hash": "16619453291938125659",
+          "deps": [
+            "npm:axios"
+          ]
+        },
+        {
+          "file": "packages/api/src/lib/quiz.ts",
+          "hash": "5717425996763226896"
+        },
+        {
+          "file": "packages/api/src/lib/request-aggregator.ts",
+          "hash": "8486700252842738520",
+          "deps": [
+            "npm:rxjs"
+          ]
+        },
+        {
+          "file": "packages/api/src/lib/study-buddy-api.ts",
+          "hash": "14770111418655704451",
+          "deps": [
+            "npm:axios"
+          ]
+        },
+        {
+          "file": "packages/api/src/lib/study-buddy.ts",
+          "hash": "16161180912856698210"
+        },
+        {
+          "file": "packages/api/tsconfig.json",
+          "hash": "634795086719220447"
+        },
+        {
+          "file": "packages/api/tsconfig.lib.json",
+          "hash": "3632393694954060084"
+        }
+      ],
+      "nodejs-scripts-e2e": [
+        {
+          "file": "packages/nodejs-scripts-e2e/.eslintrc.json",
+          "hash": "13800677001662881425"
+        },
+        {
+          "file": "packages/nodejs-scripts-e2e/jest.config.ts",
+          "hash": "9460841375293396011"
+        },
+        {
+          "file": "packages/nodejs-scripts-e2e/project.json",
+          "hash": "10404983562236385158"
+        },
+        {
+          "file": "packages/nodejs-scripts-e2e/src/nodejs-scripts/nodejs-scripts.spec.ts",
+          "hash": "8038413474722166440"
+        },
+        {
+          "file": "packages/nodejs-scripts-e2e/src/test-setup.ts",
+          "hash": "12277343883897675151"
+        },
+        {
+          "file": "packages/nodejs-scripts-e2e/tsconfig.json",
+          "hash": "15443990093475294480"
+        },
+        {
+          "file": "packages/nodejs-scripts-e2e/tsconfig.spec.json",
+          "hash": "14384658316786387328"
+        }
+      ],
+      "myst": [
+        {
+          "file": "packages/myst/.babelrc",
+          "hash": "2946678488919325452"
+        },
+        {
+          "file": "packages/myst/.eslintrc.json",
+          "hash": "11012487992710232822"
+        },
+        {
+          "file": "packages/myst/README.md",
+          "hash": "3071549972926497555"
+        },
+        {
+          "file": "packages/myst/project.json",
+          "hash": "16245342220290340635"
+        },
+        {
+          "file": "packages/myst/src/index.ts",
+          "hash": "1259136572932554640"
+        },
+        {
+          "file": "packages/myst/src/lib/lang/de.ts",
+          "hash": "13137895923562024902"
+        },
+        {
+          "file": "packages/myst/src/lib/lang/en.ts",
+          "hash": "9822841604966516058"
+        },
+        {
+          "file": "packages/myst/src/lib/lang/utils.ts",
+          "hash": "2508210669652096532",
+          "deps": [
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/myst/src/lib/latex/md-latex.tsx",
+          "hash": "18100667700696097347",
+          "deps": [
+            "mathjax",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/myst/src/lib/latex/md-partial-latex.tsx",
+          "hash": "15849537513364583096",
+          "deps": [
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/myst/src/lib/myst-editor.tsx",
+          "hash": "6837147205720220851",
+          "deps": [
+            "npm:@mui/material",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/myst/src/lib/myst-viewer.tsx",
+          "hash": "16313372329979567796",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@myst-theme/providers",
+            "npm:myst-parser",
+            "npm:myst-to-react",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/myst/src/lib/myst.module.scss",
+          "hash": "1338754050096852442"
+        },
+        {
+          "file": "packages/myst/src/lib/myst.tsx",
+          "hash": "5547445347216307058"
+        },
+        {
+          "file": "packages/myst/src/lib/parser/myst-parser.ts",
+          "hash": "2071966189162449838",
+          "deps": [
+            "npm:myst-parser",
+            "npm:react",
+            "npm:myst-common"
+          ]
+        },
+        {
+          "file": "packages/myst/tsconfig.json",
+          "hash": "14088618039610991405"
+        },
+        {
+          "file": "packages/myst/tsconfig.lib.json",
+          "hash": "15147195313780277677"
+        }
+      ],
+      "stex-react-renderer": [
+        {
+          "file": "packages/stex-react-renderer/.babelrc",
+          "hash": "2946678488919325452"
+        },
+        {
+          "file": "packages/stex-react-renderer/.eslintrc.json",
+          "hash": "11012487992710232822"
+        },
+        {
+          "file": "packages/stex-react-renderer/README.md",
+          "hash": "2054985791773759123"
+        },
+        {
+          "file": "packages/stex-react-renderer/jest.config.ts",
+          "hash": "16709856758455424310"
+        },
+        {
+          "file": "packages/stex-react-renderer/project.json",
+          "hash": "11573380974719194542"
+        },
+        {
+          "file": "packages/stex-react-renderer/src/index.ts",
+          "hash": "4757537368242482136"
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/CompetencyTable.tsx",
+          "hash": "4181910880224765317",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/ConceptHistoryTable.tsx",
+          "hash": "4541272980917581691",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "npm:react",
+            "npm:react-google-charts",
+            "npm:@mui/icons-material"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/ContentDashboard.tsx",
+          "hash": "2066093003446193788",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "utils",
+            "npm:axios",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/ContentFromUrl.tsx",
+          "hash": "4511026399675150069",
+          "deps": [
+            "npm:@mui/material",
+            "npm:axios",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/ContentWithHightlight.tsx",
+          "hash": "10551036734052822758",
+          "deps": [
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/DocFragManager.ts",
+          "hash": "17185744846923404331",
+          "deps": [
+            "api",
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/DocProblemBrowser.tsx",
+          "hash": "10281708716106767495",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "npm:next",
+            "utils",
+            "npm:axios",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/DocumentWidthSetter.tsx",
+          "hash": "2678795837833942612",
+          "deps": [
+            "npm:@mui/material",
+            "utils",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/ErrorBoundary.tsx",
+          "hash": "7033089728922439618",
+          "deps": [
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/ExpandableContent.tsx",
+          "hash": "1782736102020707854",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "utils",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/ExpandableContextMenu.tsx",
+          "hash": "8756274891045206491",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "npm:react",
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/FileBrowser.tsx",
+          "hash": "10469571150270362424",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/FileTree.tsx",
+          "hash": "12831017458261928295",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/GradingCreator.tsx",
+          "hash": "3022363702841374396",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "quiz-utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/IFrameWithProgress.tsx",
+          "hash": "13766360454481536658",
+          "deps": [
+            "npm:@mui/material",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/InfoSidebar.tsx",
+          "hash": "8867834523091860211",
+          "deps": [
+            "npm:@mui/material",
+            "comments",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/InlineProblemDisplay.tsx",
+          "hash": "17337988711941252874",
+          "deps": [
+            "api",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/LayoutWithFixedMenu.tsx",
+          "hash": "14581110075410617134",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "utils",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/MathJaxHack.tsx",
+          "hash": "16403455766866860878",
+          "deps": [
+            "npm:react",
+            "mathjax"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/MathMLDisplay.tsx",
+          "hash": "12647292580414312098",
+          "deps": [
+            "npm:react",
+            "mathjax",
+            "npm:domutils"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/OverlayDialog.tsx",
+          "hash": "12589929335662240806",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "utils",
+            "npm:next",
+            "npm:react",
+            "api"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/PerSectionQuiz.tsx",
+          "hash": "9713841893063488050",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "quiz-utils",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/PracticeQuestions.tsx",
+          "hash": "1157812668607885082",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "quiz-utils",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/ProblemDisplay.tsx",
+          "hash": "3711617534814799323",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "quiz-utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/QuizDebug.tsx",
+          "hash": "14460986786184702137",
+          "deps": [
+            "npm:@mui/material",
+            "api"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/QuizDisplay.tsx",
+          "hash": "9532186108519083334",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "quiz-utils",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/QuizSubmitConfirm.tsx",
+          "hash": "17991557029392790004",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "npm:react",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/QuizTimer.tsx",
+          "hash": "8881135451988992718",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "npm:react",
+            "api"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/RenderStatusTree.tsx",
+          "hash": "4264689085969721827",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "utils",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/RendererDisplayOptions.tsx",
+          "hash": "8689958280852889308",
+          "deps": [
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/SectionReview.tsx",
+          "hash": "13188380632934502715",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/SelfAssessmentDialog.tsx",
+          "hash": "337377534499843114",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/SubProblemAnswer.tsx",
+          "hash": "13787690023899174750",
+          "deps": [
+            "npm:@mui/material",
+            "npm:@mui/icons-material",
+            "api",
+            "myst",
+            "utils",
+            "npm:dayjs",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/TourDisplay.tsx",
+          "hash": "1765937120383931768",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "utils",
+            "npm:axios",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/TrafficLightIndicator.tsx",
+          "hash": "13901666840788389759",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "utils",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/collectIndexInfo.ts",
+          "hash": "14169568092827853490"
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/helper/langSelector.ts",
+          "hash": "13094245399755833426",
+          "deps": [
+            "npm:@codemirror/lang-javascript",
+            "npm:@codemirror/lang-java",
+            "npm:@codemirror/lang-python"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/lang/de.ts",
+          "hash": "1070736900042548375"
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/lang/en.ts",
+          "hash": "5209393590305345953"
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/lang/utils.ts",
+          "hash": "2508210669652096532",
+          "deps": [
+            "utils",
+            "npm:next"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/mmtParser.tsx",
+          "hash": "10212759771837593186",
+          "deps": [
+            "npm:@mui/icons-material",
+            "npm:@mui/material",
+            "api",
+            "quiz-utils",
+            "utils",
+            "npm:@uiw/react-codemirror",
+            "npm:domutils",
+            "npm:html-react-parser",
+            "npm:htmlparser2",
+            "npm:react",
+            "npm:react-slideshow-image"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/quiz.module.scss",
+          "hash": "7271716615912994475"
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/stex-react-renderer.module.scss",
+          "hash": "5295544211180247570"
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/stex-react-renderer.spec.tsx",
+          "hash": "17919224770356536176",
+          "deps": [
+            "npm:@testing-library/react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/stex-react-renderer.tsx",
+          "hash": "13084785465584460959",
+          "deps": [
+            "npm:@mui/material",
+            "api",
+            "utils",
+            "npm:next",
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/styles/competency-indicator.module.scss",
+          "hash": "12045721905404679059"
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/styles/tour-display.module.scss",
+          "hash": "14981738967494088848"
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/useOnScreen.tsx",
+          "hash": "11195810896801656219",
+          "deps": [
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/useRect.tsx",
+          "hash": "9535818199633759596",
+          "deps": [
+            "npm:react"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/utils.spec.ts",
+          "hash": "6077601380386522586",
+          "deps": [
+            "utils"
+          ]
+        },
+        {
+          "file": "packages/stex-react-renderer/src/lib/utils.ts",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "packages/stex-react-renderer/tsconfig.json",
+          "hash": "12937361759397702261"
+        },
+        {
+          "file": "packages/stex-react-renderer/tsconfig.lib.json",
+          "hash": "17190776767862500632"
+        },
+        {
+          "file": "packages/stex-react-renderer/tsconfig.spec.json",
+          "hash": "11550347367511341917"
+        }
+      ],
+      "mmt-viewer-e2e": [
+        {
+          "file": "packages/mmt-viewer-e2e/.eslintrc.json",
+          "hash": "14060216369337943343"
+        },
+        {
+          "file": "packages/mmt-viewer-e2e/cypress.config.ts",
+          "hash": "15414076024138857470",
+          "deps": [
+            "npm:cypress",
+            "npm:@nx/cypress"
+          ]
+        },
+        {
+          "file": "packages/mmt-viewer-e2e/project.json",
+          "hash": "12965536925697949193"
+        },
+        {
+          "file": "packages/mmt-viewer-e2e/src/e2e/app.cy.ts",
+          "hash": "8107566217911768366"
+        },
+        {
+          "file": "packages/mmt-viewer-e2e/src/fixtures/example.json",
+          "hash": "11614668686582597233"
+        },
+        {
+          "file": "packages/mmt-viewer-e2e/src/support/app.po.ts",
+          "hash": "11157016311132186162"
+        },
+        {
+          "file": "packages/mmt-viewer-e2e/src/support/commands.ts",
+          "hash": "7314691991044890572"
+        },
+        {
+          "file": "packages/mmt-viewer-e2e/src/support/e2e.ts",
+          "hash": "3666078656922506009"
+        },
+        {
+          "file": "packages/mmt-viewer-e2e/tsconfig.json",
+          "hash": "1788248097864730386"
+        }
+      ],
+      "alea-frontend-e2e": [
+        {
+          "file": "packages/alea-frontend-e2e/.eslintrc.json",
+          "hash": "14060216369337943343"
+        },
+        {
+          "file": "packages/alea-frontend-e2e/cypress.config.ts",
+          "hash": "15414076024138857470",
+          "deps": [
+            "npm:cypress",
+            "npm:@nx/cypress"
+          ]
+        },
+        {
+          "file": "packages/alea-frontend-e2e/project.json",
+          "hash": "6796504411800639094"
+        },
+        {
+          "file": "packages/alea-frontend-e2e/src/e2e/app.cy.ts",
+          "hash": "14956732969145859838"
+        },
+        {
+          "file": "packages/alea-frontend-e2e/src/fixtures/example.json",
+          "hash": "11614668686582597233"
+        },
+        {
+          "file": "packages/alea-frontend-e2e/src/support/app.po.ts",
+          "hash": "11157016311132186162"
+        },
+        {
+          "file": "packages/alea-frontend-e2e/src/support/commands.ts",
+          "hash": "7314691991044890572"
+        },
+        {
+          "file": "packages/alea-frontend-e2e/src/support/e2e.ts",
+          "hash": "3666078656922506009"
+        },
+        {
+          "file": "packages/alea-frontend-e2e/tsconfig.json",
+          "hash": "1788248097864730386"
+        }
+      ]
+    }
+  }
+}

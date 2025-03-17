@@ -25,7 +25,7 @@ export default function StudentRegistration() {
     name: '',
     resumeURL: '',
     email: '',
-    contactNo: '',
+    mobile: '',
     programme: '',
     yearOfAdmission: '',
     yearOfGraduation: '',
@@ -35,7 +35,7 @@ export default function StudentRegistration() {
   });
   const [errors, setErrors] = useState({
     email: '',
-    contactNo: '',
+    mobile: '',
   });
   const [loading, setLoading] = useState(false);
   const [accessCheckLoading, setAccessCheckLoading] = useState(true);
@@ -125,18 +125,18 @@ export default function StudentRegistration() {
   };
 
   const validateFields = () => {
-    const newErrors = { email: '', contactNo: '' };
+    const newErrors = { email: '', mobile: '' };
 
     if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email address.';
     }
 
-    if (!formData.contactNo || !/^\d{10,15}$/.test(formData.contactNo)) {
-      newErrors.contactNo = 'Please enter a valid contact number (10-15 digits).';
+    if (!formData.mobile || !/^\d{10,15}$/.test(formData.mobile)) {
+      newErrors.mobile = 'Please enter a valid contact number (10-15 digits).';
     }
 
     setErrors(newErrors);
-    return !newErrors.email && !newErrors.contactNo;
+    return !newErrors.email && !newErrors.mobile;
   };
 
   const handleSubmit = async () => {
@@ -182,14 +182,14 @@ export default function StudentRegistration() {
           />
           <TextField
             label="Contact Number"
-            name="contactNo"
-            value={formData.contactNo}
+            name="mobile"
+            value={formData.mobile}
             onChange={handleChange}
             type="tel"
             fullWidth
             margin="normal"
-            error={!!errors.contactNo}
-            helperText={errors.contactNo}
+            error={!!errors.mobile}
+            helperText={errors.mobile}
           />
           <TextField
             label="Programme"
@@ -208,6 +208,7 @@ export default function StudentRegistration() {
             fullWidth
             margin="normal"
           />
+
           <TextField
             label="Year of Graduation"
             name="yearOfGraduation"

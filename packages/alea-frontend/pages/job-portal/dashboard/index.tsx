@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -43,8 +43,21 @@ import WorkIcon from '@mui/icons-material/Work';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ChatIcon from '@mui/icons-material/Chat';
 import { Chart } from 'react-google-charts';
-import { PRIMARY_COL } from '@stex-react/utils';
-import { FilterList, Search } from '@mui/icons-material';
+import { Action, CURRENT_TERM, PRIMARY_COL, ResourceName } from '@stex-react/utils';
+import { AccountCircle, FilterList, Search } from '@mui/icons-material';
+import StudentProfile from './profile';
+import Applications from './application';
+import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
+import { Header, HeaderToolbar } from 'packages/alea-frontend/components/Header';
+import JpLayoutWithSidebar from 'packages/alea-frontend/layouts/JpLayoutWithSidebar';
+import {
+  canAccessResource,
+  getAllJobPosts,
+  getOrganizationProfile,
+  getStudentProfile,
+  StudentData,
+} from '@stex-react/api';
+import { useRouter } from 'next/router';
 
 const recruiterData = [
   ['Category', 'Count'],
@@ -77,7 +90,7 @@ const getRandomStudentProfile = () => {
   return {
     name: 'fakejoy',
     email: 'fakejoy@gmail.com',
-    contactNo: '+49 163 555 1584',
+    mobile: '+49 163 555 1584',
     programme: 'Artificial Intelligence',
     yearOfAdmission: '2024',
     yearOfGraduation: '2026',
@@ -89,13 +102,50 @@ const getRandomStudentProfile = () => {
 
 const selectedStudentProfile = getRandomStudentProfile();
 
-function StudentDashboard() {
+export function StudentDashboard() {
   const [filters, setFilters] = useState({
     sent: true,
     interviewed: true,
     rejected: true,
     dateRange: '',
   });
+  const [accessCheckLoading, setAccessCheckLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [student, setStudent] = useState<StudentData>(null);
+  const router = useRouter();
+  useEffect(() => {
+    const checkAccess = async () => {
+      setAccessCheckLoading(true);
+      const hasAccess = await canAccessResource(ResourceName.JOB_PORTAL, Action.APPLY, {
+        instanceId: CURRENT_TERM,
+      });
+      if (!hasAccess) {
+        alert('You donot have access to this page.');
+        router.push('/job-portal');
+        return;
+      }
+      setAccessCheckLoading(false);
+    };
+
+    checkAccess();
+  }, []);
+  useEffect(() => {
+    if (accessCheckLoading) return;
+    const fetchStudentData = async () => {
+      try {
+        setLoading(true);
+
+        const res = await getStudentProfile();
+        setStudent(res[0]);
+        // setFormData(res[0]);
+      } catch (error) {
+        console.error('Error fetching student data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStudentData();
+  }, [accessCheckLoading]);
 
   const handleFilterChange = (event) => {
     setFilters({ ...filters, [event.target.name]: event.target.checked });
@@ -104,83 +154,21 @@ function StudentDashboard() {
   const handleDateChange = (event) => {
     setFilters({ ...filters, dateRange: event.target.value });
   };
+  // const {
+  //   name,
+  //   resumeURL,
+  //   email,
+  //   mobile,
+  //   programme,
+  //   yearOfAdmission,
+  //   yearOfGraduation,
+  //   courses,
+  //   grades,
+  //   about,
+  // } = student;
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-      <Box
-        sx={{
-          bgcolor: '#f9f5f2',
-          padding: '16px',
-          position: 'fixed',
-          top: 0,
-          left: '240px',
-          right: 0,
-          zIndex: 1000,
-        }}
-      >
-        <Toolbar sx={{ justifyContent: 'space-between' }}>
-          <IconButton
-            edge="start"
-            color="inherit"
-            sx={{ bgcolor: 'white', borderRadius: '50%', padding: '10px' }}
-          >
-            <MenuIcon />
-          </IconButton>
-
-          <TextField
-            variant="outlined"
-            size="small"
-            placeholder="Search..."
-            sx={{
-              bgcolor: 'white',
-              borderRadius: '20px',
-              width: '50%',
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '20px',
-              },
-              '& .MuiInputAdornment-root': {
-                marginRight: '8px',
-              },
-            }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
-          />
-
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton
-              color="inherit"
-              sx={{ bgcolor: 'white', borderRadius: '50%', padding: '10px', marginRight: '18px' }}
-            >
-              <Badge badgeContent={4} color="error">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
-            <IconButton
-              color="inherit"
-              sx={{ bgcolor: 'white', borderRadius: '50%', padding: '10px', marginRight: '18px' }}
-            >
-              <Badge badgeContent={2} color="error">
-                <MessageIcon />
-              </Badge>
-            </IconButton>
-            <IconButton
-              color="inherit"
-              sx={{ bgcolor: 'white', borderRadius: '50%', padding: '10px' }}
-            >
-              <PersonIcon />
-            </IconButton>
-            <Typography variant="body1" sx={{ ml: 1 }}>
-              fakejoy
-            </Typography>
-          </Box>
-        </Toolbar>
-      </Box>
-
-      <Grid container spacing={2} sx={{ p: '100px 20px 20px 20px' }}>
+      <Grid container spacing={2} sx={{ p: '70px 20px 20px 20px' }}>
         {['Interviews', 'Applied', 'Rejected', 'Messages'].map((stat, index) => (
           <Grid item xs={12} sm={6} md={3} key={stat}>
             <Card
@@ -265,7 +253,7 @@ function StudentDashboard() {
                 Contact No
               </Typography>
               <Typography variant="body2" color="textSecondary">
-                {selectedStudentProfile.contactNo}
+                {selectedStudentProfile.mobile}
               </Typography>
             </Grid>
             <Grid item xs={12}>
@@ -430,286 +418,9 @@ function StudentDashboard() {
     </Box>
   );
 }
-function SearchJob() {
-  const jobData = [
-    {
-      title: 'Software Engineer',
-      company: 'SAP',
-      location: 'Berlin, Germany',
-      salary: '€6,000/month',
-      deadline: 'March 15, 2025',
-      logo: 'https://upload.wikimedia.org/wikipedia/commons/5/59/SAP_2011_logo.svg',
-    },
-    {
-      title: 'Frontend Developer',
-      company: 'Siemens',
-      location: 'Munich, Germany',
-      salary: '€5,500/month',
-      deadline: 'April 5, 2025',
-      logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Siemens_AG_logo.svg/2560px-Siemens_AG_logo.svg.png',
-    },
-    {
-      title: 'Backend Developer',
-      company: 'Bosch',
-      location: 'Stuttgart, Germany',
-      salary: '€5,800/month',
-      deadline: 'March 25, 2025',
-      logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Bosch-logo.svg/1920px-Bosch-logo.svg.png',
-    },
-  ];
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState('latest');
-  const [filters, setFilters] = useState({ remote: false, onsite: false });
-
-  const handleFilterChange = (event) => {
-    setFilters({ ...filters, [event.target.name]: event.target.checked });
-  };
-
-  return (
-    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-      <Box
-        sx={{
-          bgcolor: '#f9f5f2',
-          padding: '16px',
-          position: 'fixed',
-          top: 0,
-          left: '240px',
-          right: 0,
-          zIndex: 1000,
-        }}
-      >
-        <Toolbar sx={{ justifyContent: 'space-between' }}>
-          <IconButton
-            edge="start"
-            color="inherit"
-            sx={{ bgcolor: 'white', borderRadius: '50%', padding: '10px' }}
-          >
-            <MenuIcon />
-          </IconButton>
-
-          <TextField
-            variant="outlined"
-            size="small"
-            placeholder="Search..."
-            sx={{
-              bgcolor: 'white',
-              borderRadius: '20px',
-              width: '50%',
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '20px',
-              },
-              '& .MuiInputAdornment-root': {
-                marginRight: '8px',
-              },
-            }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
-          />
-
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton
-              color="inherit"
-              sx={{ bgcolor: 'white', borderRadius: '50%', padding: '10px', marginRight: '18px' }}
-            >
-              <Badge badgeContent={4} color="error">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
-            <IconButton
-              color="inherit"
-              sx={{ bgcolor: 'white', borderRadius: '50%', padding: '10px', marginRight: '18px' }}
-            >
-              <Badge badgeContent={2} color="error">
-                <MessageIcon />
-              </Badge>
-            </IconButton>
-            <IconButton
-              color="inherit"
-              sx={{ bgcolor: 'white', borderRadius: '50%', padding: '10px' }}
-            >
-              <PersonIcon />
-            </IconButton>
-            <Typography variant="body1" sx={{ ml: 1 }}>
-              fakejoy
-            </Typography>
-          </Box>
-        </Toolbar>
-      </Box>
-
-      <Box sx={{ p: '100px 50px 0' }}>
-        <Box
-          sx={{
-            display: 'flex',
-            gap: 3,
-            alignItems: 'center',
-            mb: 3,
-            px: 3,
-            py: 2,
-            backgroundColor: '#fff',
-            borderRadius: '12px',
-            boxShadow: 2,
-          }}
-        >
-          <TextField
-            label="Search Jobs"
-            variant="outlined"
-            fullWidth
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            InputProps={{
-              startAdornment: <Search sx={{ color: 'gray', mr: 1 }} />,
-            }}
-            sx={{
-              borderRadius: '10px',
-              backgroundColor: '#f9f9f9',
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '10px',
-              },
-            }}
-          />
-
-          <FormControl variant="outlined" sx={{ minWidth: 180 }}>
-            <InputLabel>Sort By</InputLabel>
-            <Select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              label="Sort By"
-              sx={{
-                borderRadius: '10px',
-                backgroundColor: '#f9f9f9',
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: '10px',
-                },
-              }}
-            >
-              <MenuItem value="latest">Latest</MenuItem>
-              <MenuItem value="salary">Highest Salary</MenuItem>
-            </Select>
-          </FormControl>
-        </Box>
-
-        <Box sx={{ display: 'flex', gap: 2, mb: 3, alignItems: 'center' }}>
-          <FilterList />
-          <FormControlLabel
-            control={
-              <Checkbox name="remote" checked={filters.remote} onChange={handleFilterChange} />
-            }
-            label="Remote"
-          />
-          <FormControlLabel
-            control={
-              <Checkbox name="onsite" checked={filters.onsite} onChange={handleFilterChange} />
-            }
-            label="Onsite"
-          />
-        </Box>
-
-        <Grid container spacing={5}>
-          {jobData.map((job, index) => (
-            <Grid item xs={12} sm={6} md={4} key={index}>
-              <Card sx={{ borderRadius: 2, boxShadow: 3, position: 'relative' }}>
-                <img
-                  src={job.logo}
-                  alt={job.company}
-                  style={{ width: 50, height: 50, position: 'absolute', top: 10, right: 10 }}
-                />
-                <CardContent>
-                  <Typography variant="h6">{job.title}</Typography>
-                  <Typography variant="body1" color="textSecondary">
-                    {job.company}
-                  </Typography>
-                  <Typography variant="body2">📍 {job.location}</Typography>
-                  <Typography variant="body2">💰 {job.salary}</Typography>
-                  <Typography variant="body2">⏳ Deadline: {job.deadline}</Typography>
-                  <Button variant="contained" fullWidth sx={{ mt: 2 }}>
-                    Apply Now
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-          {jobData.map((job, index) => (
-            <Grid item xs={12} sm={6} md={4} key={index}>
-              <Card sx={{ borderRadius: 2, boxShadow: 3, position: 'relative' }}>
-                <img
-                  src={job.logo}
-                  alt={job.company}
-                  style={{ width: 50, height: 50, position: 'absolute', top: 10, right: 10 }}
-                />
-                <CardContent>
-                  <Typography variant="h6">{job.title}</Typography>
-                  <Typography variant="body1" color="textSecondary">
-                    {job.company}
-                  </Typography>
-                  <Typography variant="body2">📍 {job.location}</Typography>
-                  <Typography variant="body2">💰 {job.salary}</Typography>
-                  <Typography variant="body2">⏳ Deadline: {job.deadline}</Typography>
-                  <Button variant="contained" fullWidth sx={{ mt: 2 }}>
-                    Apply Now
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-          {jobData.map((job, index) => (
-            <Grid item xs={12} sm={6} md={4} key={index}>
-              <Card sx={{ borderRadius: 2, boxShadow: 3, position: 'relative' }}>
-                <img
-                  src={job.logo}
-                  alt={job.company}
-                  style={{ width: 50, height: 50, position: 'absolute', top: 10, right: 10 }}
-                />
-                <CardContent>
-                  <Typography variant="h6">{job.title}</Typography>
-                  <Typography variant="body1" color="textSecondary">
-                    {job.company}
-                  </Typography>
-                  <Typography variant="body2">📍 {job.location}</Typography>
-                  <Typography variant="body2">💰 {job.salary}</Typography>
-                  <Typography variant="body2">⏳ Deadline: {job.deadline}</Typography>
-                  <Button variant="contained" fullWidth sx={{ mt: 2 }}>
-                    Apply Now
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-          {jobData.map((job, index) => (
-            <Grid item xs={12} sm={6} md={4} key={index}>
-              <Card sx={{ borderRadius: 3, boxShadow: 3, position: 'relative', p: 2 }}>
-                <img
-                  src={job.logo}
-                  alt={job.company}
-                  style={{ width: 50, height: 50, position: 'absolute', top: 10, right: 10 }}
-                />
-                <CardContent sx={{ p: 2 }}>
-                  <Typography variant="h6">{job.title}</Typography>
-                  <Typography variant="body1" color="textSecondary">
-                    {job.company}
-                  </Typography>
-                  <Typography variant="body2">📍 {job.location}</Typography>
-                  <Typography variant="body2">💰 {job.salary}</Typography>
-                  <Typography variant="body2">⏳ Deadline: {job.deadline}</Typography>
-                  <Button variant="contained" fullWidth sx={{ mt: 2 }}>
-                    Apply Now
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      </Box>
-    </Box>
-  );
-}
 const RecruiterDashboard = () => (
-  <Box>
+  <Box sx={{ height: '100vh' }}>
     <Typography variant="h4"> Dashboard</Typography>
     <Card>
       <CardContent>
@@ -725,36 +436,36 @@ const RecruiterDashboard = () => (
     </Card>
   </Box>
 );
-const Applications = () => (
-  <Box>
-    <Typography variant="h4"> Applications</Typography>
-  </Box>
-);
+
 const News = () => (
   <Box>
-    <Typography variant="h4"> News</Typography>
+    <Typography variant="h4">News</Typography>
+    <AppBar position="static" sx={{ bgcolor: '#8d9eb0' }}>
+      <Toolbar>
+        <Typography variant="h6">Centered AppBar</Typography>
+      </Toolbar>
+    </AppBar>
+    <Box>
+      {[...Array(50)].map((_, index) => (
+        <Typography key={index}>News Content {index + 1}</Typography>
+      ))}
+    </Box>
   </Box>
 );
-const Profile = () => (
-  <Box>
-    <Typography variant="h4">Edit Profile</Typography>
-  </Box>
-);
+
 const Messages = () => (
-  <Box>
+  <Box sx={{ height: '100vh' }}>
     <Typography variant="h4"> Messages</Typography>
   </Box>
 );
 
 const Dashboard = () => {
   const [role, setRole] = useState('student');
-  const [drawerOpen, setDrawerOpen] = useState(true);
 
   const getDashboardContent = () => {
     switch (role) {
       case 'dashboard':
         return <StudentDashboard />;
-
       case 'search job':
         return <SearchJob />;
       case 'applications':
@@ -766,81 +477,13 @@ const Dashboard = () => {
       case 'news':
         return <News />;
       case 'profile':
-        return <Profile />;
+        return <StudentProfile />;
       default:
         return <StudentDashboard />;
     }
   };
 
-  return (
-    <Box sx={{ display: 'flex' }}>
-      <Drawer
-        variant="permanent"
-        sx={{
-          width: drawerOpen ? 240 : 70,
-          transition: 'width 0.3s',
-          overflowX: 'hidden',
-          bgcolor: PRIMARY_COL,
-          borderRadius: '0 15px 15px 0',
-          '& .MuiDrawer-paper': {
-            background: 'linear-gradient(to bottom, #806BE7, #4A69E1, #525AE2, #5C49E0)',
-          },
-          zIndex: 0,
-        }}
-      >
-        <List>
-          <ListItem button onClick={() => setDrawerOpen(!drawerOpen)}>
-            <ListItemIcon>
-              <MenuIcon sx={{ color: 'white' }} />
-            </ListItemIcon>
-          </ListItem>
-          {[
-            'dashboard',
-            'search job',
-            'applications',
-            'messages',
-            'profile',
-            'statistics',
-            'news',
-          ].map((item) => (
-            <ListItem
-              button
-              key={item}
-              onClick={() => setRole(item)}
-              sx={{
-                bgcolor: role === item ? '#f9f5f2' : 'transparent',
-                color: role === item ? PRIMARY_COL : 'white',
-                borderRadius: '30px 0 0 30px',
-                m: '5px',
-                pr: 10,
-                // mr: 0,
-              }}
-            >
-              <ListItemIcon>
-                <DashboardIcon sx={{ color: role === item ? PRIMARY_COL : 'white' }} />
-              </ListItemIcon>
-              {drawerOpen && (
-                <ListItemText primary={`${item.charAt(0).toUpperCase() + item.slice(1)} `} />
-              )}
-            </ListItem>
-          ))}
-        </List>
-      </Drawer>
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: 3,
-          bgcolor: '#f9f5f2',
-          borderRadius: '20px 0 0 0',
-          zIndex: '1',
-          ml: '-20px',
-        }}
-      >
-        {getDashboardContent()}
-      </Box>
-    </Box>
-  );
+  return <JpLayoutWithSidebar role="student">{getDashboardContent()}</JpLayoutWithSidebar>;
 };
 
 export default Dashboard;

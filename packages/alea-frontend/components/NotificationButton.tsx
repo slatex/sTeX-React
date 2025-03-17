@@ -102,7 +102,7 @@ export function useNotificationData() {
   return sortedItems;
 }
 
-function NotificationButton() {
+function NotificationButton({ bgColor }: { bgColor?: string }) {
   const router = useRouter();
   const { notification: t } = getLocaleObject(router);
   const [notificationSeenTime, setNotificationSeenTime] = useState<string | undefined>(undefined);
@@ -146,7 +146,10 @@ function NotificationButton() {
   return (
     <>
       <Tooltip title={t.notifications}>
-        <IconButton onClick={(e) => handleUpdate(e)}>
+        <IconButton
+          // sx={{ bgcolor: bgColor ? bgColor : undefined }}
+          onClick={(e) => handleUpdate(e)}
+        >
           <NotificationBell shouldRing={shouldRing(topUpdate())} />
         </IconButton>
       </Tooltip>

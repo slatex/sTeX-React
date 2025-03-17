@@ -1,15 +1,19 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { checkIfPostOrSetError, executeAndEndSet500OnError, getUserIdOrSetError } from '../comment-utils';
+import {
+  checkIfPostOrSetError,
+  executeAndEndSet500OnError,
+  getUserIdOrSetError,
+} from '../comment-utils';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
   const userId = await getUserIdOrSetError(req, res);
-  if(!userId)return;
+  if (!userId) return;
 
   const {
     name,
     email,
-    contactNo,
+    mobile,
     programme,
     yearOfAdmission,
     yearOfGraduation,
@@ -20,7 +24,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } = req.body;
   const result = await executeAndEndSet500OnError(
     `INSERT INTO studentprofile 
-      (name,userId, resumeURL, email, contactNo, programme, yearOfAdmission, yearOfGraduation, 
+      (name,userId, resumeURL, email, mobile, programme, yearOfAdmission, yearOfGraduation, 
         courses, grades, about) 
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)`,
     [
@@ -28,7 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       userId,
       resumeURL,
       email,
-      contactNo,
+      mobile,
       programme,
       yearOfAdmission,
       yearOfGraduation,

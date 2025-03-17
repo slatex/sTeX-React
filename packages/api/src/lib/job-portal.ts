@@ -1,13 +1,18 @@
 export interface StudentData {
+  userId?: string;
   name: string;
-  resumeURL: string;
+  gender: string;
   email: string;
-  contactNo: string;
+  mobile: string;
+  altMobile?: string;
   programme: string;
+  courses: string;
+  gpa: string;
   yearOfAdmission: string;
   yearOfGraduation: string;
-  courses: string;
-  grades: string;
+  location: string;
+  resumeURL?: string;
+  socialLinks?: string;
   about: string;
 }
 

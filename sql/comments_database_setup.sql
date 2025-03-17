@@ -264,7 +264,7 @@ CREATE TABLE StudentProfile (
     name VARCHAR(255) NOT NULL, 
     resumeURL VARCHAR(2083), 
     email VARCHAR(255) NOT NULL, 
-    contactNo VARCHAR(15), 
+    mobile VARCHAR(15), 
     programme VARCHAR(255) NOT NULL, 
     yearOfAdmission YEAR NOT NULL, 
     yearOfGraduation YEAR, 
@@ -351,13 +351,63 @@ CREATE TABLE JobApplication (
     id INT AUTO_INCREMENT PRIMARY KEY, 
     jobPostId INT, 
     applicantId VARCHAR(50), 
-    applicationStatus ENUM('APPLIED', 'ACCEPTED', 'REJECTED', 'OFFERED', 'PROCESSING') NOT NULL,
-    applicantAction ENUM('ACCEPT_OFFER', 'REJECT_OFFER') DEFAULT NULL,
-    recruiterAction ENUM('ACCEPT', 'REJECT', 'SEND_OFFER') DEFAULT NULL,
+    -- applicationStatus ENUM('APPLIED', 'ACCEPTED', 'REJECTED', 'OFFERED', 'PROCESSING') NOT NULL,
+    applicationStatus ENUM('APPLIED', 'SHORTLISTED_FOR_INTERVIEW','ON_HOLD', 'REJECTED', 'OFFERED', 'APPLICATION_WITHDRAWN','OFFER_ACCEPTED','OFFER_REJECTED') NOT NULL,
+    -- applicantAction ENUM('ACCEPT_OFFER', 'REJECT_OFFER') DEFAULT NULL,
+ applicantAction ENUM(
+        'ACCEPT_OFFER', 
+        'REJECT_OFFER', 
+        'WITHDRAW_APPLICATION',
+        'NONE'
+    ) DEFAULT 'NONE',     -- recruiterAction ENUM('ACCEPT', 'REJECT', 'SEND_OFFER') DEFAULT NULL,
+    recruiterAction ENUM('SHORTLIST_FOR_INTERVIEW', 'ON_HOLD','REJECT', 'SEND_OFFER','NONE') DEFAULT 'NONE',
     studentMessage VARCHAR(255), 
     recruiterMessage VARCHAR(255), 
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_jobPost FOREIGN KEY (jobPostId) REFERENCES JobPost(id) ,
-    CONSTRAINT fk_applicant FOREIGN KEY (applicantId) REFERENCES StudentProfile(id) 
+    CONSTRAINT fk_applicant FOREIGN KEY (applicantId) REFERENCES StudentProfile(userId) 
 );
+
+-- ALTER TABLE comments_test.jobapplication
+-- ADD COLUMN applicantAction ENUM('ACCEPT_OFFER', 'REJECT_OFFER') DEFAULT NULL AFTER applicationStatus,
+-- ADD COLUMN recruiterAction ENUM('ACCEPT', 'REJECT', 'SEND_OFFER') DEFAULT NULL AFTER applicantAction
+
+
+
+ ALTER TABLE StudentProfile  
+ADD COLUMN gender ENUM('Male', 'Female', 'Other') NULL,  
+ADD COLUMN socialLinks JSON NULL;
+
+
+ALTER TABLE recruiterProfile  
+ADD COLUMN gender ENUM('Male', 'Female', 'Other') NULL,  
+ADD COLUMN socialLinks JSON NULL;
+
+
+ALTER TABLE JobApplication
+    MODIFY applicationStatus ENUM(
+        'APPLIED', 
+        'SHORTLISTED_FOR_INTERVIEW', 
+        'ON_HOLD', 
+        'REJECTED', 
+        'OFFERED', 
+        'APPLICATION_WITHDRAWN', 
+        'OFFER_ACCEPTED', 
+        'OFFER_REJECTED'
+    ) NOT NULL,
+    
+    MODIFY applicantAction ENUM(
+        'ACCEPT_OFFER', 
+        'REJECT_OFFER', 
+        'WITHDRAW_APPLICATION',
+        'NONE'
+    ) DEFAULT 'NONE',
+    
+    MODIFY recruiterAction ENUM(
+        'SHORTLIST_FOR_INTERVIEW', 
+        'ON_HOLD', 
+        'REJECT', 
+        'SEND_OFFER',
+        'NONE'
+    ) DEFAULT 'NONE';

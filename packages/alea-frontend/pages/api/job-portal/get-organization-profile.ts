@@ -14,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res
   );
   if (!results) return;
-  if (!results.length) return res.status(404).send('No organization profile found');
+  // if (!results.length) return res.status(404).send('No organization profile found');
 
   res.status(200).json(results[0]);
 }

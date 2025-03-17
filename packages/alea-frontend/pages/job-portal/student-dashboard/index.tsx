@@ -26,7 +26,15 @@ import {
   Chip,
   Tooltip,
 } from '@mui/material';
-import { Email, Phone, School, Description, CheckCircle, Cancel, PendingActions } from '@mui/icons-material';
+import {
+  Email,
+  Phone,
+  School,
+  Description,
+  CheckCircle,
+  Cancel,
+  PendingActions,
+} from '@mui/icons-material';
 import {
   canAccessResource,
   getJobApplicationsByUserId,
@@ -36,7 +44,7 @@ import {
   JobApplicationInfo,
   StudentData,
   updateJobApplication,
-  upDateStudentProfile,
+  updateStudentProfile,
 } from '@stex-react/api';
 import { Action, CURRENT_TERM, ResourceName } from '@stex-react/utils';
 import { useRouter } from 'next/router';
@@ -44,46 +52,41 @@ import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
 import { RecruiterJobsPanel } from 'packages/alea-frontend/components/job-portal/RecruiterJobsPanel';
 import RecruiterJobDialog from 'packages/alea-frontend/components/job-portal/RecruiterJobDialog';
 
-
-const AppliedJobsDialog = ({ appliedJobs ,setAppliedJobs,open,onClose}) => {
-
+const AppliedJobsDialog = ({ appliedJobs, setAppliedJobs, open, onClose }) => {
   async function handleAcceptOffer(jobApplication: JobApplicationInfo) {
     const updatedApplication = {
       ...jobApplication,
-      applicantAction: "ACCEPT_OFFER",
+      applicantAction: 'ACCEPT_OFFER',
     };
-    
+
     const response = await updateJobApplication(updatedApplication);
-      setAppliedJobs((prevApplications) =>
-        prevApplications.map((application) =>
-          application.id === jobApplication.id
-            ? { ...application, applicantAction: "ACCEPT_OFFER" }
-            : application
-        ));
-      
-    }
+    setAppliedJobs((prevApplications) =>
+      prevApplications.map((application) =>
+        application.id === jobApplication.id
+          ? { ...application, applicantAction: 'ACCEPT_OFFER' }
+          : application
+      )
+    );
+  }
   async function handleRejectOffer(jobApplication: JobApplicationInfo) {
     const updatedApplication = {
       ...jobApplication,
-      applicantAction: "REJECT_OFFER",
+      applicantAction: 'REJECT_OFFER',
     };
-    
-    const response = await updateJobApplication(updatedApplication);
-      setAppliedJobs((prevApplications) =>
-        prevApplications.map((application) =>
-          application.id === jobApplication.id
-            ? { ...application, applicantAction: "REJECT_OFFER" }
-            : application
-        ));
-      
-    }
 
-  
-  
+    const response = await updateJobApplication(updatedApplication);
+    setAppliedJobs((prevApplications) =>
+      prevApplications.map((application) =>
+        application.id === jobApplication.id
+          ? { ...application, applicantAction: 'REJECT_OFFER' }
+          : application
+      )
+    );
+  }
+
   return (
     <>
-
-      <Dialog open={open} onClose={onClose } fullWidth maxWidth="md">
+      <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
         <DialogTitle>Jobs You Applied For</DialogTitle>
         <DialogContent>
           <Box sx={{ mt: 2 }}>
@@ -115,24 +118,24 @@ const AppliedJobsDialog = ({ appliedJobs ,setAppliedJobs,open,onClose}) => {
                       <TableRow key={jobApplication.id} hover>
                         <TableCell>{jobApplication.jobTitle}</TableCell>
                         <TableCell>
-                          {jobApplication?.companyName || "Unknown Organization"}
+                          {jobApplication?.companyName || 'Unknown Organization'}
                         </TableCell>
                         <TableCell>
-                          {jobApplication.applicationStatus === "OFFERED" ? (
+                          {jobApplication.applicationStatus === 'OFFERED' ? (
                             <Chip
                               label="Offer Received"
                               color="success"
                               icon={<CheckCircle />}
                               sx={{ mt: 1 }}
                             />
-                          ) : jobApplication.applicationStatus === "ACCEPTED" ? (
+                          ) : jobApplication.applicationStatus === 'ACCEPTED' ? (
                             <Chip
                               label="Application Accepted"
                               color="primary"
                               icon={<CheckCircle />}
                               sx={{ mt: 1 }}
                             />
-                          ) : jobApplication.applicationStatus === "REJECTED" ? (
+                          ) : jobApplication.applicationStatus === 'REJECTED' ? (
                             <Chip
                               label="Application Rejected"
                               color="error"
@@ -149,66 +152,73 @@ const AppliedJobsDialog = ({ appliedJobs ,setAppliedJobs,open,onClose}) => {
                           )}
                         </TableCell>
                         <TableCell>
-  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-    <Tooltip
-      title={
-           jobApplication.applicationStatus !== "OFFERED"
-          ? 'Action not available until an offer is made'
-          : 'Accept the offer'
-      }
-    >
-      <span>
-        <Button
-          variant="contained"
-          color="success"
-          size="small"
-          onClick={() => handleAcceptOffer(jobApplication)}
-          disabled={   jobApplication.applicationStatus !== "OFFERED" || jobApplication.applicantAction==="ACCEPT_OFFER"||jobApplication.applicantAction==='REJECT_OFFER'}
-          sx={{
-            textTransform: 'none',
-            ...(   jobApplication.applicationStatus !== "OFFERED" && {
-              backgroundColor: 'rgba(76, 175, 80, 0.5)', 
-            }),
-          }}
-        >
-  {jobApplication.applicantAction === "ACCEPT_OFFER"
-    ? "Offer Accepted"
-    : "Accept Offer"}
-        </Button>
-      </span>
-    </Tooltip>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Tooltip
+                              title={
+                                jobApplication.applicationStatus !== 'OFFERED'
+                                  ? 'Action not available until an offer is made'
+                                  : 'Accept the offer'
+                              }
+                            >
+                              <span>
+                                <Button
+                                  variant="contained"
+                                  color="success"
+                                  size="small"
+                                  onClick={() => handleAcceptOffer(jobApplication)}
+                                  disabled={
+                                    jobApplication.applicationStatus !== 'OFFERED' ||
+                                    jobApplication.applicantAction === 'ACCEPT_OFFER' ||
+                                    jobApplication.applicantAction === 'REJECT_OFFER'
+                                  }
+                                  sx={{
+                                    textTransform: 'none',
+                                    ...(jobApplication.applicationStatus !== 'OFFERED' && {
+                                      backgroundColor: 'rgba(76, 175, 80, 0.5)',
+                                    }),
+                                  }}
+                                >
+                                  {jobApplication.applicantAction === 'ACCEPT_OFFER'
+                                    ? 'Offer Accepted'
+                                    : 'Accept Offer'}
+                                </Button>
+                              </span>
+                            </Tooltip>
 
-    <Tooltip
-      title={
-        jobApplication.applicationStatus !== "OFFERED"
-          ? 'Action not available until an offer is made'
-          : 'Reject the offer'
-      }
-    >
-      <span>
-        <Button
-          variant="outlined"
-          color="error"
-          size="small"
-          onClick={() => handleRejectOffer(jobApplication)}
-          disabled={   jobApplication.applicationStatus !== "OFFERED" || jobApplication.applicantAction==="ACCEPT_OFFER"||jobApplication.applicantAction==='REJECT_OFFER'}
-          sx={{
-            textTransform: 'none',
-            ...(   jobApplication.applicationStatus !== "OFFERED" && {
-              borderColor: 'rgba(244, 67, 54, 0.5)', 
-              color: 'rgba(244, 67, 54, 0.5)',
-            }),
-          }}
-        >
-  {jobApplication.applicantAction === "REJECT_OFFER"
-    ? "Offer Rejected"
-    : "Reject Offer"}      
-       </Button>
-      </span>
-    </Tooltip>
-  </Box>
-</TableCell>
-
+                            <Tooltip
+                              title={
+                                jobApplication.applicationStatus !== 'OFFERED'
+                                  ? 'Action not available until an offer is made'
+                                  : 'Reject the offer'
+                              }
+                            >
+                              <span>
+                                <Button
+                                  variant="outlined"
+                                  color="error"
+                                  size="small"
+                                  onClick={() => handleRejectOffer(jobApplication)}
+                                  disabled={
+                                    jobApplication.applicationStatus !== 'OFFERED' ||
+                                    jobApplication.applicantAction === 'ACCEPT_OFFER' ||
+                                    jobApplication.applicantAction === 'REJECT_OFFER'
+                                  }
+                                  sx={{
+                                    textTransform: 'none',
+                                    ...(jobApplication.applicationStatus !== 'OFFERED' && {
+                                      borderColor: 'rgba(244, 67, 54, 0.5)',
+                                      color: 'rgba(244, 67, 54, 0.5)',
+                                    }),
+                                  }}
+                                >
+                                  {jobApplication.applicantAction === 'REJECT_OFFER'
+                                    ? 'Offer Rejected'
+                                    : 'Reject Offer'}
+                                </Button>
+                              </span>
+                            </Tooltip>
+                          </Box>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -227,7 +237,6 @@ const AppliedJobsDialog = ({ appliedJobs ,setAppliedJobs,open,onClose}) => {
   );
 };
 
-
 const StudentDashboard = () => {
   const [student, setStudent] = useState<StudentData>(null);
   const [loading, setLoading] = useState(true);
@@ -236,7 +245,7 @@ const StudentDashboard = () => {
   const [formData, setFormData] = useState<StudentData>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [appliedJobs,setAppliedJobs] = useState([]);
+  const [appliedJobs, setAppliedJobs] = useState([]);
   const [open, setOpen] = useState(false);
 
   const handleOpen = () => {
@@ -247,26 +256,25 @@ const StudentDashboard = () => {
     setOpen(false);
   };
 
-
-  const router=useRouter();
+  const router = useRouter();
   useEffect(() => {
     const checkAccess = async () => {
-      setAccessCheckLoading(true); 
-      const hasAccess = await canAccessResource(ResourceName.JOB_PORTAL, Action.APPLY,{
+      setAccessCheckLoading(true);
+      const hasAccess = await canAccessResource(ResourceName.JOB_PORTAL, Action.APPLY, {
         instanceId: CURRENT_TERM,
       });
       if (!hasAccess) {
-        alert("You donot have access to this page.")
-        router.push("/job-portal");
-        return; 
+        alert('You donot have access to this page.');
+        router.push('/job-portal');
+        return;
       }
-      setAccessCheckLoading(false); 
+      setAccessCheckLoading(false);
     };
- 
+
     checkAccess();
   }, []);
   useEffect(() => {
-    if(accessCheckLoading)return;
+    if (accessCheckLoading) return;
     const fetchStudentData = async () => {
       try {
         setLoading(true);
@@ -275,7 +283,7 @@ const StudentDashboard = () => {
         setStudent(res[0]);
         setFormData(res[0]);
       } catch (error) {
-        console.error("Error fetching student data:", error);
+        console.error('Error fetching student data:', error);
       } finally {
         setLoading(false);
       }
@@ -283,43 +291,43 @@ const StudentDashboard = () => {
     fetchStudentData();
   }, [accessCheckLoading]);
 
-  useEffect(()=>{
-    const fetchAppliedJobs=async () =>{
-      const appliedJobsList= await getJobApplicationsByUserId();
+  useEffect(() => {
+    const fetchAppliedJobs = async () => {
+      const appliedJobsList = await getJobApplicationsByUserId();
       const jobPosts = await Promise.all(
         appliedJobsList.map((job) => getJobPostById(job?.jobPostId))
       );
-      console.log({jobPosts});
+      console.log({ jobPosts });
       const organizationIds = [...new Set(jobPosts.map((post) => post.organizationId))];
-      console.log({organizationIds});
+      console.log({ organizationIds });
       const organizations = await Promise.all(
         organizationIds.map((id) => getOrganizationProfile(id))
       );
 
-      console.log({organizationIds});
-      console.log({organizations});
+      console.log({ organizationIds });
+      console.log({ organizations });
       const enrichedJobs = appliedJobsList.map((job, index) => {
         const jobPost = jobPosts.find((post) => post.id === job.jobPostId);
-        
+
         // const jobPost = jobPosts[job.jobPostId];
-        console.log({jobPost});
-        const organization= organizations.find((org)=>org.id===jobPost?.organizationId);
+        console.log({ jobPost });
+        const organization = organizations.find((org) => org.id === jobPost?.organizationId);
         // const organization = organizations[jobPost?.organizationId];
-        console.log({organization});
+        console.log({ organization });
         return {
           ...job,
           jobTitle: jobPost?.jobTitle,
-          companyName: organization?.companyName || "Unknown Organization",
+          companyName: organization?.companyName || 'Unknown Organization',
         };
       });
-console.log(enrichedJobs);
+      console.log(enrichedJobs);
 
       setAppliedJobs(enrichedJobs);
     };
     fetchAppliedJobs();
-  },[])
+  }, []);
 
-  console.log({appliedJobs})
+  console.log({ appliedJobs });
   const handleInputChange =
     (field: keyof StudentData) => (event: React.ChangeEvent<HTMLInputElement>) => {
       setFormData({ ...formData, [field]: event.target.value });
@@ -331,7 +339,7 @@ console.log(enrichedJobs);
     [
       'name',
       'email',
-      'contactNo',
+      'mobile',
       'programme',
       'yearOfAdmission',
       'yearOfGraduation',
@@ -348,8 +356,8 @@ console.log(enrichedJobs);
       newErrors.email = 'Invalid email format';
     }
 
-    if (formData?.contactNo && !/^\d{10}$/.test(formData.contactNo)) {
-      newErrors.contactNo = 'Phone number must be 10 digits';
+    if (formData?.mobile && !/^\d{10}$/.test(formData.mobile)) {
+      newErrors.mobile = 'Phone number must be 10 digits';
     }
 
     setErrors(newErrors);
@@ -360,7 +368,7 @@ console.log(enrichedJobs);
     if (!validateFields()) return;
 
     try {
-      await upDateStudentProfile(formData);
+      await updateStudentProfile(formData);
       setStudent(formData);
       setDialogOpen(false);
       setSnackbarOpen(true);
@@ -390,7 +398,7 @@ console.log(enrichedJobs);
     name,
     resumeURL,
     email,
-    contactNo,
+    mobile,
     programme,
     yearOfAdmission,
     yearOfGraduation,
@@ -416,27 +424,31 @@ console.log(enrichedJobs);
           </Typography>
           <Typography variant="subtitle1">Your academic profile at a glance</Typography>
         </Box>
-          <Box
+        <Box
           sx={{
             display: 'flex',
             gap: '16px',
-            ml: '30px', 
-                  }}>
+            ml: '30px',
+          }}
+        >
           <Button variant="contained" onClick={() => setDialogOpen(true)}>
             Edit Profile
           </Button>
-          <Button variant="contained"  onClick ={()=>router.push("/job-portal/jobs")}>
-          Jobs Available
+          <Button variant="contained" onClick={() => router.push('/job-portal/jobs')}>
+            Jobs Available
           </Button>
           <Box>
-          <Button variant="contained" onClick={handleOpen}>
-        Jobs Applied
-        </Button>
+            <Button variant="contained" onClick={handleOpen}>
+              Jobs Applied
+            </Button>
+          </Box>
+          <AppliedJobsDialog
+            appliedJobs={appliedJobs}
+            setAppliedJobs={setAppliedJobs}
+            open={open}
+            onClose={handleClose}
+          />
         </Box>
-        <AppliedJobsDialog appliedJobs={appliedJobs} setAppliedJobs={setAppliedJobs} open={open} onClose={handleClose}/>
-        </Box>
-
-
 
         <Box sx={{ px: { xs: 2, md: 4 }, py: 2 }}>
           <Grid container spacing={4}>
@@ -458,7 +470,7 @@ console.log(enrichedJobs);
                   </Typography>
                   <Typography>
                     <Phone sx={{ verticalAlign: 'middle', mr: 1 }} />
-                    <strong>Phone:</strong> {contactNo}
+                    <strong>Phone:</strong> {mobile}
                   </Typography>
                 </CardContent>
               </Card>
@@ -559,7 +571,7 @@ console.log(enrichedJobs);
             {[
               { label: 'Name', field: 'name', placeholder: 'Enter your name' },
               { label: 'Email', field: 'email', placeholder: 'Enter your email' },
-              { label: 'Phone', field: 'contactNo', placeholder: 'Enter your phone number' },
+              { label: 'Phone', field: 'mobile', placeholder: 'Enter your phone number' },
               { label: 'Programme', field: 'programme', placeholder: 'Enter your programme' },
               {
                 label: 'Year of Admission',
@@ -599,22 +611,21 @@ console.log(enrichedJobs);
           </Grid>
         </DialogContent>
         <DialogActions sx={{ justifyContent: 'space-between', padding: 2 }}>
-        
-<Button
-  onClick={() => setDialogOpen(false)}
-  variant="outlined"
-  color="secondary"
-  sx={{
-    borderColor: 'secondary.main',
-    color: 'secondary.main',
-    '&:hover': {
-      borderColor: 'primary.main',
-      color: 'primary.main',
-    },
-  }}
->
-  Cancel
-</Button>
+          <Button
+            onClick={() => setDialogOpen(false)}
+            variant="outlined"
+            color="secondary"
+            sx={{
+              borderColor: 'secondary.main',
+              color: 'secondary.main',
+              '&:hover': {
+                borderColor: 'primary.main',
+                color: 'primary.main',
+              },
+            }}
+          >
+            Cancel
+          </Button>
 
           <Button onClick={handleEditSubmit} variant="contained" color="primary">
             Submit

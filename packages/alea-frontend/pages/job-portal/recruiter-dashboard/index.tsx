@@ -19,7 +19,7 @@ import {
   OrganizationData,
   RecruiterAndOrgData,
   RecruiterData,
-  upDateRecruiterProfile,
+  updateRecruiterProfile,
 } from '@stex-react/api';
 import { useRouter } from 'next/router';
 import { Action, CURRENT_TERM, ResourceName } from '@stex-react/utils';
@@ -170,7 +170,7 @@ const OrganizationInfoCard = ({
   </CardContent>
 );
 
-const JobPostsSection = ({
+export const JobPostsSection = ({
   totalJobPosts,
   setTotalJobPosts,
   handleRefresh,
@@ -238,7 +238,7 @@ const RecruiterDashboard = () => {
       const organizationId = recruiterData?.organizationId;
       if (recruiterData.hasDefinedOrg === 0) {
         setIsOpen(true);
-        await upDateRecruiterProfile({ ...recruiterData, hasDefinedOrg: 1 });
+        await updateRecruiterProfile({ ...recruiterData, hasDefinedOrg: 1 });
       }
       if (organizationId) {
         const orgData = await getOrganizationProfile(organizationId);

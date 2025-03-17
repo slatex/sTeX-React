@@ -11,8 +11,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!checkIfGetOrSetError(req, res)) return;
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
+  console.log({ userId });
   let instanceId = req.query.instanceId as string;
   if (!instanceId) instanceId = CURRENT_TERM;
+  console.log({ instanceId });
   const results: any = await executeDontEndSet500OnError(
     `SELECT id,jobCategory,internshipPeriod,startDate,endDate
     FROM jobCategories 
@@ -20,6 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     [instanceId],
     res
   );
+  console.log({ results });
   if (!results) return;
   if (!results.length) return res.status(404).send('No job created yet');
 
