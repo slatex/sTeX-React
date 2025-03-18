@@ -68,8 +68,14 @@ export default function RecruiterRegistration() {
     const fetchRecruiterData = async () => {
       try {
         const res = await getRecruiterProfile();
-        setIsRegistered(!!res);
+        if (!res || (Array.isArray(res) && res.length === 0)) {
+          setIsRegistered(false);
+          return;
+        }
+        setIsRegistered(true);
       } catch (error) {
+        //   setIsRegistered(!!res);
+        // }
         console.error('Error fetching recruiter data:', error);
       } finally {
         setLoading(false);
