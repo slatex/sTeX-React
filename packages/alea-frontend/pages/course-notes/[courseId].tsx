@@ -81,11 +81,6 @@ const CourseNotesPage: NextPage = () => {
 
   return (
     <>
-      <p>
-        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Molestias, est officia cumque,
-        nisi ut quibusdam provident tenetur voluptatum porro eos error, accusantium enim! Quas, a
-        nam dicta harum exercitationem asperiores numquam consequuntur.
-      </p>
       <FTMLSetup>
         <FTMLDocument
           document={{

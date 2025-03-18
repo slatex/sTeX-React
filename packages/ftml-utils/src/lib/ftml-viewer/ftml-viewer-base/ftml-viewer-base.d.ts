@@ -10,17 +10,76 @@ export function set_debug_log(): void;
  * [render_document] and [render_fragment] also inject a context
  * iff none already exists, so this is optional in every case.
  */
-export function ftml_setup(to: HTMLElement, children: LeptosContinuation, on_section?: (uri: DocumentElementURI,lvl:SectionLevel) => (LeptosContinuation | undefined) | null, on_section_title?: (uri: DocumentElementURI,lvl:SectionLevel) => (LeptosContinuation | undefined) | null, on_paragraph?: (uri: DocumentElementURI,kind:ParagraphKind) => (LeptosContinuation | undefined) | null, on_inputref?: (uri: DocumentURI) => (LeptosContinuation | undefined) | null, on_slide?: (uri: DocumentElementURI) => (LeptosContinuation | undefined) | null, exercise_opts?: ExerciseOption | null, on_exercise?: (r:ExerciseResponse) => void | null): FTMLMountHandle;
+export function ftml_setup(
+  to: HTMLElement,
+  children: LeptosContinuation,
+  on_section?: (
+    uri: DocumentElementURI,
+    lvl: SectionLevel
+  ) => (LeptosContinuation | undefined) | null,
+  on_section_title?: (
+    uri: DocumentElementURI,
+    lvl: SectionLevel
+  ) => (LeptosContinuation | undefined) | null,
+  on_paragraph?: (
+    uri: DocumentElementURI,
+    kind: ParagraphKind
+  ) => (LeptosContinuation | undefined) | null,
+  on_inputref?: (uri: DocumentURI) => (LeptosContinuation | undefined) | null,
+  on_slide?: (uri: DocumentElementURI) => (LeptosContinuation | undefined) | null,
+  exercise_opts?: ExerciseOption | null,
+  on_exercise?: (r: ExerciseResponse) => void | null
+): FTMLMountHandle;
 /**
  * render an FTML document to the provided element
  * #### Errors
  */
-export function render_document(to: HTMLElement, document: DocumentOptions, context?: LeptosContext | null, on_section?: (uri: DocumentElementURI,lvl:SectionLevel) => (LeptosContinuation | undefined) | null, on_section_title?: (uri: DocumentElementURI,lvl:SectionLevel) => (LeptosContinuation | undefined) | null, on_paragraph?: (uri: DocumentElementURI,kind:ParagraphKind) => (LeptosContinuation | undefined) | null, on_inputref?: (uri: DocumentURI) => (LeptosContinuation | undefined) | null, on_slide?: (uri: DocumentElementURI) => (LeptosContinuation | undefined) | null, exercise_opts?: ExerciseOption | null, on_exercise?: (r:ExerciseResponse) => void | null): FTMLMountHandle;
+export function render_document(
+  to: HTMLElement,
+  document: DocumentOptions,
+  context?: LeptosContext | null,
+  on_section?: (
+    uri: DocumentElementURI,
+    lvl: SectionLevel
+  ) => (LeptosContinuation | undefined) | null,
+  on_section_title?: (
+    uri: DocumentElementURI,
+    lvl: SectionLevel
+  ) => (LeptosContinuation | undefined) | null,
+  on_paragraph?: (
+    uri: DocumentElementURI,
+    kind: ParagraphKind
+  ) => (LeptosContinuation | undefined) | null,
+  on_inputref?: (uri: DocumentURI) => (LeptosContinuation | undefined) | null,
+  on_slide?: (uri: DocumentElementURI) => (LeptosContinuation | undefined) | null,
+  exercise_opts?: ExerciseOption | null,
+  on_exercise?: (r: ExerciseResponse) => void | null
+): FTMLMountHandle;
 /**
  * render an FTML document fragment to the provided element
  * #### Errors
  */
-export function render_fragment(to: HTMLElement, fragment: FragmentOptions, context?: LeptosContext | null, on_section?: (uri: DocumentElementURI,lvl:SectionLevel) => (LeptosContinuation | undefined) | null, on_section_title?: (uri: DocumentElementURI,lvl:SectionLevel) => (LeptosContinuation | undefined) | null, on_paragraph?: (uri: DocumentElementURI,kind:ParagraphKind) => (LeptosContinuation | undefined) | null, on_inputref?: (uri: DocumentURI) => (LeptosContinuation | undefined) | null, on_slide?: (uri: DocumentElementURI) => (LeptosContinuation | undefined) | null, exercise_opts?: ExerciseOption | null, on_exercise?: (r:ExerciseResponse) => void | null): FTMLMountHandle;
+export function render_fragment(
+  to: HTMLElement,
+  fragment: FragmentOptions,
+  context?: LeptosContext | null,
+  on_section?: (
+    uri: DocumentElementURI,
+    lvl: SectionLevel
+  ) => (LeptosContinuation | undefined) | null,
+  on_section_title?: (
+    uri: DocumentElementURI,
+    lvl: SectionLevel
+  ) => (LeptosContinuation | undefined) | null,
+  on_paragraph?: (
+    uri: DocumentElementURI,
+    kind: ParagraphKind
+  ) => (LeptosContinuation | undefined) | null,
+  on_inputref?: (uri: DocumentURI) => (LeptosContinuation | undefined) | null,
+  on_slide?: (uri: DocumentElementURI) => (LeptosContinuation | undefined) | null,
+  exercise_opts?: ExerciseOption | null,
+  on_exercise?: (r: ExerciseResponse) => void | null
+): FTMLMountHandle;
 /**
  * sets the server url used to the provided one; by default `https://flams.mathhub.info`.
  */
@@ -34,7 +93,7 @@ export function get_server_url(): string;
  *
  * *This API requires the following crate features to be activated: `ReadableStreamType`*
  */
-type ReadableStreamType = "bytes";
+type ReadableStreamType = 'bytes';
 /**
  * Options for rendering an FTML document
  * - `FromBackend`: calls the backend for the document
@@ -44,7 +103,9 @@ type ReadableStreamType = "bytes";
  *     html: the HTML String
  *     toc: if defined, will render a table of contents for the document
  */
-export type DocumentOptions = { uri: DocumentURI; toc: TOCOptions | undefined } | { html: string; toc: TOCElem[] | undefined };
+export type DocumentOptions =
+  | { uri: DocumentURI; toc: TOCOptions | undefined }
+  | { html: string; toc: TOCElem[] | undefined };
 
 /**
  * Options for rendering an FTML document fragment
@@ -53,20 +114,24 @@ export type DocumentOptions = { uri: DocumentURI; toc: TOCOptions | undefined } 
  * - `HtmlString`: render the provided HTML String
  *     html: the HTML String
  */
-export type FragmentOptions = { uri: DocumentElementURI } | { uri: DocumentElementURI | undefined; html: string };
+export type FragmentOptions =
+  | { uri: DocumentElementURI }
+  | { uri: DocumentElementURI | undefined; html: string };
 
 /**
  * Options for rendering a table of contents
  * `GET` will retrieve it from the remote backend
  * `TOCElem[]` will render the provided TOC
  */
-export type TOCOptions = "GET" | { Predefined: TOCElem[] };
+export type TOCOptions = 'GET' | { Predefined: TOCElem[] };
 
-export type ExerciseOption = { WithFeedback: [DocumentElementURI, ExerciseFeedback][] } | { WithSolutions: [DocumentElementURI, Solutions][] };
+export type ExerciseOption =
+  | { WithFeedback: [DocumentElementURI, ExerciseFeedback][] }
+  | { WithSolutions: [DocumentElementURI, Solutions][] };
 
 export interface ExerciseResponse {
-    uri: DocumentElementURI;
-    responses: ExerciseResponseType[];
+  uri: DocumentElementURI;
+  responses: ExerciseResponseType[];
 }
 
 /**
@@ -75,86 +140,190 @@ export interface ExerciseResponse {
  */
 export type ExerciseResponseType = boolean[] | number | string;
 
-export type CognitiveDimension = "Remember" | "Understand" | "Apply" | "Analyze" | "Evaluate" | "Create";
+export type CognitiveDimension =
+  | 'Remember'
+  | 'Understand'
+  | 'Apply'
+  | 'Analyze'
+  | 'Evaluate'
+  | 'Create';
 
 export type SymbolURI = string;
 
 export type DocumentElementURI = string;
 
-export type ParagraphKind = "Definition" | "Assertion" | "Paragraph" | "Proof" | "SubProof" | "Example";
+export type ParagraphKind =
+  | 'Definition'
+  | 'Assertion'
+  | 'Paragraph'
+  | 'Proof'
+  | 'SubProof'
+  | 'Example';
+
+export type Language = 'en' | 'de' | 'fr' | 'ro' | 'ar' | 'bg' | 'ru' | 'fi' | 'tr' | 'sl';
 
 export interface FileData {
-    rel_path: string;
-    format: string;
+  rel_path: string;
+  format: string;
 }
 
 export interface DirectoryData {
-    rel_path: string;
-    summary?: FileStateSummary | undefined;
+  rel_path: string;
+  summary?: FileStateSummary | undefined;
 }
 
 export interface ArchiveGroupData {
-    id: ArchiveId;
-    summary?: FileStateSummary | undefined;
+  id: ArchiveId;
+  summary?: FileStateSummary | undefined;
 }
 
 export interface ArchiveData {
-    id: ArchiveId;
-    git?: string | undefined;
-    summary?: FileStateSummary | undefined;
+  id: ArchiveId;
+  git?: string | undefined;
+  summary?: FileStateSummary | undefined;
 }
 
 export interface Instance {
-    semester: string;
-    instructors?: string[] | undefined;
+  semester: string;
+  instructors?: string[] | undefined;
 }
 
-export type ArchiveIndex = { type: "library"; archive: ArchiveId; title: string; teaser?: string | undefined; thumbnail?: string | undefined } | { type: "book"; title: string; authors: string[]; file: DocumentURI; teaser?: string | undefined; thumbnail?: string | undefined } | { type: "paper"; title: string; authors: string[]; file: DocumentURI; thumbnail?: string | undefined; teaser?: string | undefined; venue?: string | undefined; venue_url?: string | undefined } | { type: "course"; title: string; landing: DocumentURI; acronym: string | undefined; instructors: string[]; institution: string; instances: Instance[]; notes: DocumentURI; slides?: DocumentURI | undefined; thumbnail?: string | undefined; quizzes?: boolean; homeworks?: boolean; teaser?: string | undefined } | { type: "self-study"; title: string; landing: DocumentURI; notes: DocumentURI; acronym?: string | undefined; slides?: DocumentURI | undefined; thumbnail?: string | undefined; teaser?: string | undefined };
+export type ArchiveIndex =
+  | {
+      type: 'library';
+      archive: ArchiveId;
+      title: string;
+      teaser?: string | undefined;
+      thumbnail?: string | undefined;
+    }
+  | {
+      type: 'book';
+      title: string;
+      authors: string[];
+      file: DocumentURI;
+      teaser?: string | undefined;
+      thumbnail?: string | undefined;
+    }
+  | {
+      type: 'paper';
+      title: string;
+      authors: string[];
+      file: DocumentURI;
+      thumbnail?: string | undefined;
+      teaser?: string | undefined;
+      venue?: string | undefined;
+      venue_url?: string | undefined;
+    }
+  | {
+      type: 'course';
+      title: string;
+      landing: DocumentURI;
+      acronym: string | undefined;
+      instructors: string[];
+      institution: string;
+      instances: Instance[];
+      notes: DocumentURI;
+      slides?: DocumentURI | undefined;
+      thumbnail?: string | undefined;
+      quizzes?: boolean;
+      homeworks?: boolean;
+      teaser?: string | undefined;
+    }
+  | {
+      type: 'self-study';
+      title: string;
+      landing: DocumentURI;
+      notes: DocumentURI;
+      acronym?: string | undefined;
+      slides?: DocumentURI | undefined;
+      thumbnail?: string | undefined;
+      teaser?: string | undefined;
+    };
 
-export type Institution = { type: "university"; title: string; place: string; country: string; url: string; acronym: string; logo: string } | { type: "school"; title: string; place: string; country: string; url: string; acronym: string; logo: string };
+export type Institution =
+  | {
+      type: 'university';
+      title: string;
+      place: string;
+      country: string;
+      url: string;
+      acronym: string;
+      logo: string;
+    }
+  | {
+      type: 'school';
+      title: string;
+      place: string;
+      country: string;
+      url: string;
+      acronym: string;
+      logo: string;
+    };
 
-export type LOKind = { type: "Definition" } | { type: "Example" } | ({ type: "Exercise" } & CognitiveDimension) | ({ type: "SubExercise" } & CognitiveDimension);
+export type LOKind =
+  | { type: 'Definition' }
+  | { type: 'Example' }
+  | ({ type: 'Exercise' } & CognitiveDimension)
+  | ({ type: 'SubExercise' } & CognitiveDimension);
 
-export type Language = "en" | "de" | "fr" | "ro" | "ar" | "bg" | "ru" | "fi" | "tr" | "sl";
+export type ArchiveId = string;
 
 export type DocumentURI = string;
 
 export interface FileStateSummary {
-    new: number;
-    stale: number;
-    deleted: number;
-    up_to_date: number;
-    last_built: Timestamp;
-    last_changed: Timestamp;
+  new: number;
+  stale: number;
+  deleted: number;
+  up_to_date: number;
+  last_built: Timestamp;
+  last_changed: Timestamp;
 }
-
-export type ArchiveId = string;
 
 export type Name = string;
 
-export type SearchResultKind = "Document" | "Paragraph" | "Definition" | "Example" | "Assertion" | "Exercise";
+export type SearchResultKind =
+  | 'Document'
+  | 'Paragraph'
+  | 'Definition'
+  | 'Example'
+  | 'Assertion'
+  | 'Exercise';
 
-export type SearchResult = { Document: DocumentURI } | { Paragraph: { uri: DocumentElementURI; fors: SymbolURI[]; def_like: boolean; kind: SearchResultKind } };
+export type SearchResult =
+  | { Document: DocumentURI }
+  | {
+      Paragraph: {
+        uri: DocumentElementURI;
+        fors: SymbolURI[];
+        def_like: boolean;
+        kind: SearchResultKind;
+      };
+    };
 
-export interface FragmentQueryOpts {
-    allow_documents?: boolean;
-    allow_paragraphs?: boolean;
-    allow_definitions?: boolean;
-    allow_examples?: boolean;
-    allow_assertions?: boolean;
-    allow_exercises?: boolean;
-    definition_like_only?: boolean;
+export interface QueryFilter {
+  allow_documents?: boolean;
+  allow_paragraphs?: boolean;
+  allow_definitions?: boolean;
+  allow_examples?: boolean;
+  allow_assertions?: boolean;
+  allow_exercises?: boolean;
+  definition_like_only?: boolean;
 }
 
-export type QueryFilter = "Symbols" | { Fragments: FragmentQueryOpts };
-
-export type SectionLevel = "Part" | "Chapter" | "Section" | "Subsection" | "Subsubsection" | "Paragraph" | "Subparagraph";
+export type SectionLevel =
+  | 'Part'
+  | 'Chapter'
+  | 'Section'
+  | 'Subsection'
+  | 'Subsubsection'
+  | 'Paragraph'
+  | 'Subparagraph';
 
 export type CSS = { Link: string } | { Inline: string } | { Class: { name: string; css: string } };
 
 export type Timestamp = number;
 
-export type LeptosContinuation = (e:HTMLDivElement,o:LeptosContext) => void;
+export type LeptosContinuation = (e: HTMLDivElement, o: LeptosContext) => void;
 
 /**
  * An entry in a table of contents. Either:
@@ -163,7 +332,24 @@ export type LeptosContinuation = (e:HTMLDivElement,o:LeptosContext) => void;
  *    inputref itself; not the referenced Document. For the TOC,
  *    which document is inputrefed is actually irrelevant.
  */
-export type TOCElem = { type: "Section"; title: string | undefined; uri: DocumentElementURI; id: string; children: TOCElem[] } | { type: "SkippedSection"; children: TOCElem[] } | { type: "Inputref"; uri: DocumentURI; title: string | undefined; id: string; children: TOCElem[] } | { type: "Paragraph"; styles: Name[]; kind: ParagraphKind } | { type: "Slide" };
+export type TOCElem =
+  | {
+      type: 'Section';
+      title: string | undefined;
+      uri: DocumentElementURI;
+      id: string;
+      children: TOCElem[];
+    }
+  | { type: 'SkippedSection'; children: TOCElem[] }
+  | {
+      type: 'Inputref';
+      uri: DocumentURI;
+      title: string | undefined;
+      id: string;
+      children: TOCElem[];
+    }
+  | { type: 'Paragraph'; styles: Name[]; kind: ParagraphKind }
+  | { type: 'Slide' };
 
 /**
  * A Table of contents; Either:

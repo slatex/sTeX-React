@@ -1,5 +1,5 @@
 import * as FTMLT from "./ftml-viewer";//"./ftml-viewer";//
-import * as FTML from "./ftml-viewer/ftml-viewer-base/ftml-viewer-base";//"./ftml-viewer/ftml-viewer-base";//
+import * as FTML from "./ftml-viewer/ftml-viewer-base";//"./ftml-viewer/ftml-viewer-base";//
 
 import React, { ReactNode, useContext, useEffect, useRef } from "react";
 import { FTMLContext, useLeptosTunnel, useLeptosTunnels } from "./leptos";

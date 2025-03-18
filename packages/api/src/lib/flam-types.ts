@@ -1,4 +1,4 @@
-import * as FTML from './ftml-viewer-base'; 
+import * as FTML from './ftml-viewer-base';
 
 export type DocumentURI = FTML.DocumentURI;
 export type SymbolURI = FTML.SymbolURI;

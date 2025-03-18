@@ -2,9 +2,41 @@
 /* eslint-disable */
 export const memory: WebAssembly.Memory;
 export const set_debug_log: () => void;
-export const ftml_setup: (a: any, b: any, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => number;
-export const render_document: (a: any, b: any, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number) => [number, number, number];
-export const render_fragment: (a: any, b: any, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number) => [number, number, number];
+export const ftml_setup: (
+  a: any,
+  b: any,
+  c: number,
+  d: number,
+  e: number,
+  f: number,
+  g: number,
+  h: number,
+  i: number
+) => number;
+export const render_document: (
+  a: any,
+  b: any,
+  c: number,
+  d: number,
+  e: number,
+  f: number,
+  g: number,
+  h: number,
+  i: number,
+  j: number
+) => [number, number, number];
+export const render_fragment: (
+  a: any,
+  b: any,
+  c: number,
+  d: number,
+  e: number,
+  f: number,
+  g: number,
+  h: number,
+  i: number,
+  j: number
+) => [number, number, number];
 export const __wbg_ftmlmounthandle_free: (a: number, b: number) => void;
 export const ftmlmounthandle_unmount: (a: number) => void;
 export const __wbg_solutions_free: (a: number, b: number) => void;
@@ -42,8 +74,11 @@ export const __wbindgen_export_4: WebAssembly.Table;
 export const __wbindgen_free: (a: number, b: number, c: number) => void;
 export const __wbindgen_export_6: WebAssembly.Table;
 export const __externref_table_dealloc: (a: number) => void;
-export const _dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h4cec65c1ae8a9e42: (a: number, b: number) => void;
-export const closure775_externref_shim: (a: number, b: number, c: any) => void;
-export const closure960_externref_shim: (a: number, b: number, c: any) => number;
-export const closure793_externref_shim: (a: number, b: number, c: any, d: any) => void;
+export const _dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h4ed24e189a98788b: (
+  a: number,
+  b: number
+) => void;
+export const closure475_externref_shim: (a: number, b: number, c: any) => void;
+export const closure963_externref_shim: (a: number, b: number, c: any) => number;
+export const closure796_externref_shim: (a: number, b: number, c: any, d: any) => void;
 export const __wbindgen_start: () => void;
