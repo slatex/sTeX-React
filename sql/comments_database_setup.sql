@@ -411,3 +411,14 @@ ALTER TABLE JobApplication
         'SEND_OFFER',
         'NONE'
     ) DEFAULT 'NONE';
+
+ALTER TABLE studentProfile
+ADD gpa DECIMAL(3, 3) NULL,           
+ADD location VARCHAR(100) NULL,       
+ADD altMobile VARCHAR(15) NULL;
+
+ALTER TABLE JobPost
+ADD workMode VARCHAR(50) NULL;         
+
+ALTER TABLE JobPost
+ADD workMode VARCHAR(50) NULL;  

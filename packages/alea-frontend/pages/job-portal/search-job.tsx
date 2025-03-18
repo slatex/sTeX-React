@@ -142,7 +142,7 @@ export function SearchJob() {
   const [appliedJobs, setAppliedJobs] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('latestJobPost');
-  const [filters, setFilters] = useState({ remote: false, onsite: true, hybrid: false });
+  const [filters, setFilters] = useState({ remote: false, onsite: false, hybrid: false });
   const [selectedJob, setSelectedJob] = useState(null);
   const [selectedOrg, setSelectedOrg] = useState(null);
   console.log({ selectedOrg });
