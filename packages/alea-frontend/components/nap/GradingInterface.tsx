@@ -39,7 +39,7 @@ import {
   ProblemDisplay,
   ServerLinksContext,
 } from '@stex-react/stex-react-renderer';
-import { GradingContext } from 'packages/stex-react-renderer/src/lib/SubProblemAnswer';
+import { GradingContext, ShowGradingFor } from 'packages/stex-react-renderer/src/lib/SubProblemAnswer';
 import {
   Dispatch,
   SetStateAction,
@@ -426,6 +426,7 @@ function GradingItemDisplay({
         value={{
           isGrading: true,
           showGrading: true,
+          showGradingFor:ShowGradingFor.INSTRUCTOR,
           gradingInfo: { [questionId]: subProblemInfoToGradingInfo },
           studentId,
           onNewGrading: async (

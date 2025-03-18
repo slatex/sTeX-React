@@ -16,6 +16,7 @@ import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { ForceFauLogin } from '../components/ForceFAULogin';
 import MainLayout from '../layouts/MainLayout';
+import { ShowGradingFor } from 'packages/stex-react-renderer/src/lib/SubProblemAnswer';
 
 const HomeworkDocPage: React.FC = () => {
   const router = useRouter();
@@ -85,6 +86,7 @@ const HomeworkDocPage: React.FC = () => {
         ) : (
           <GradingContext.Provider
             value={{
+              showGradingFor: ShowGradingFor.INSTRUCTOR,
               isGrading: false,
               showGrading: true,
               gradingInfo: hwInfo?.gradingInfo || {},
