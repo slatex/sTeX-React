@@ -17,8 +17,7 @@ import { useEffect, useState } from 'react';
 import SearchCourseNotes from '../../components/SearchCourseNotes';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
-import { FTMLDocument } from 'packages/ftml-utils/src/lib/ftml-react/documents';
-import { SectionEnd, SectionStart } from 'packages/ftml-utils/src/lib/ftml-react/test';
+import { FTMLDocument } from '@stex-react/ftml-utils';
 import { FTMLSetup } from '@stex-react/ftml-utils';
 
 const SearchDialog = ({ open, onClose, courseId }) => {
@@ -89,7 +88,7 @@ const CourseNotesPage: NextPage = () => {
       </p>
       <FTMLSetup>
         <FTMLDocument
-          opt={{
+          document={{
             uri: notes,
             toc: 'GET',
           }}

@@ -8,7 +8,7 @@ import {
 } from '@stex-react/utils';
 import axios from 'axios';
 import { ArchiveIndex, Institution } from './flam-types';
-import { FLAMSServer } from '@kwarc/flams';
+import { FLAMSServer } from './flam';
 
 const FLAMS_SERVER_URL = 'https://mmt.beta.vollki.kwarc.info';
 const server = new FLAMSServer(FLAMS_SERVER_URL);

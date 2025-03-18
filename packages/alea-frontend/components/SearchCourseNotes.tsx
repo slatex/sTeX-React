@@ -13,7 +13,7 @@ import {
     getDocumentSections,
     isSection,
     searchCourseNotes,
-    SearchResult,
+    GptSearchResult,
     SectionsAPIData,
 } from '@stex-react/api';
 import {
@@ -67,7 +67,7 @@ function ResultDocument({
   sectionData,
   onClose,
 }: {
-  reference: SearchResult;
+  reference: GptSearchResult;
   courseId: string;
   sectionData: SectionsAPIData;
   onClose?: any;
@@ -121,7 +121,7 @@ const SearchCourseNotes = ({
 }) => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState<string>(query);
-  const [references, setReferences] = useState<SearchResult[]>([]);
+  const [references, setReferences] = useState<GptSearchResult[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { mmtUrl } = useContext(ServerLinksContext);
   const [sectionData, setSectionData] = useState<SectionsAPIData | undefined>();
