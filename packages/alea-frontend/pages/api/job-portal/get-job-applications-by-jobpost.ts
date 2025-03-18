@@ -10,7 +10,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
   const jobPostId = req.query.jobPostId as string;
-  //   if (!instanceId) instanceId = CURRENT_TERM;
   const results: any = await executeDontEndSet500OnError(
     `SELECT id,jobPostId,applicantId,applicationStatus,applicantAction,recruiterAction,studentMessage,recruiterMessage,createdAt
     FROM jobapplication 
@@ -18,10 +17,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     [jobPostId],
     res
   );
-  if (!results) return;
-  if (!results.length) {
-    res.status(404).send('No job application yet');
-    return null;
+  if (!results || !results.length) {
+    return res.status(200).json([]);
   }
 
   res.status(200).json(results);

@@ -23,19 +23,23 @@ export default function StudentRegistration() {
   const [isRegistered, setIsRegistered] = useState(false);
   const [formData, setFormData] = useState<StudentData>({
     name: '',
+    gender: '',
     resumeURL: '',
     email: '',
     mobile: '',
+    altMobile: '',
     programme: '',
     yearOfAdmission: '',
     yearOfGraduation: '',
+    location: '',
     courses: '',
-    grades: '',
+    gpa: '',
     about: '',
   });
   const [errors, setErrors] = useState({
     email: '',
     mobile: '',
+    altMobile: '',
   });
   const [loading, setLoading] = useState(false);
   const [accessCheckLoading, setAccessCheckLoading] = useState(true);
@@ -57,44 +61,17 @@ export default function StudentRegistration() {
     checkAccess();
   }, []);
 
-  // useEffect(() => {
-  //   const fetchStudentData = async () => {
-  //     try {
-  //       setLoading(true);
-
-  //       if (accessCheckLoading) {
-  //         return;
-  //       }
-
-  //       const res = await getStudentProfile();
-
-  //       if (!res) {
-  //         setIsRegistered(false);
-  //         return;
-  //       }
-
-  //       setIsRegistered(!!res[0]);
-  //     } catch (error) {
-  //       console.error('Error fetching student data:', error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchStudentData();
-  // }, [accessCheckLoading]);
-
   useEffect(() => {
     setLoading(true);
     if (accessCheckLoading) return;
     const fetchStudentData = async () => {
       try {
         const res = await getStudentProfile();
-        if (!res) {
+        if (!res || (Array.isArray(res) && res.length === 0)) {
           setIsRegistered(false);
           return;
         }
-        setIsRegistered(!!res[0]);
+        setIsRegistered(true);
       } catch (error) {
         console.error('Error fetching recruiter data:', error);
       } finally {
@@ -125,7 +102,7 @@ export default function StudentRegistration() {
   };
 
   const validateFields = () => {
-    const newErrors = { email: '', mobile: '' };
+    const newErrors = { email: '', mobile: '', altMobile: '' };
 
     if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email address.';
@@ -142,7 +119,7 @@ export default function StudentRegistration() {
   const handleSubmit = async () => {
     if (!validateFields()) return;
     await createStudentProfile(formData);
-    router.push('/job-portal/student-dashboard');
+    router.push('/job-portal/student/dashboard');
   };
 
   return (
@@ -170,6 +147,14 @@ export default function StudentRegistration() {
             margin="normal"
           />
           <TextField
+            label="Gender"
+            name="gender"
+            value={formData.gender}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
             label="Email"
             name="email"
             value={formData.email}
@@ -181,7 +166,7 @@ export default function StudentRegistration() {
             helperText={errors.email}
           />
           <TextField
-            label="Contact Number"
+            label="Mobile Number"
             name="mobile"
             value={formData.mobile}
             onChange={handleChange}
@@ -192,12 +177,45 @@ export default function StudentRegistration() {
             helperText={errors.mobile}
           />
           <TextField
+            label="Alternate Mobile Number"
+            name="altMobile"
+            value={formData.altMobile}
+            onChange={handleChange}
+            type="tel"
+            fullWidth
+            margin="normal"
+            error={!!errors.altMobile}
+            helperText={errors.altMobile}
+          />
+          <TextField
             label="Programme"
             name="programme"
             value={formData.programme}
             onChange={handleChange}
             fullWidth
             margin="normal"
+          />
+          <TextField
+            label="Courses"
+            name="courses"
+            value={formData.courses}
+            onChange={handleChange}
+            multiline
+            rows={3}
+            fullWidth
+            margin="normal"
+            placeholder="Enter your courses separated by commas"
+          />
+          <TextField
+            label="GPA"
+            name="gpa"
+            value={formData.gpa}
+            onChange={handleChange}
+            multiline
+            rows={2}
+            fullWidth
+            margin="normal"
+            placeholder="Enter Your GPA "
           />
           <TextField
             label="Year of Admission"
@@ -218,27 +236,16 @@ export default function StudentRegistration() {
             fullWidth
             margin="normal"
           />
+
           <TextField
-            label="Courses"
-            name="courses"
-            value={formData.courses}
-            onChange={handleChange}
-            multiline
-            rows={3}
-            fullWidth
-            margin="normal"
-            placeholder="Enter your courses separated by commas"
-          />
-          <TextField
-            label="Grades"
-            name="grades"
-            value={formData.grades}
+            label="Location"
+            name="location"
+            value={formData.location}
             onChange={handleChange}
             multiline
             rows={2}
             fullWidth
             margin="normal"
-            placeholder="Enter grades corresponding to the courses"
           />
           <TextField
             label="About Yourself"

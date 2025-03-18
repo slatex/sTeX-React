@@ -112,7 +112,7 @@ const JobPortal: NextPage = () => {
                 } else {
                   const result = await checkIfUserRegisteredOnJP(userId);
                   if (result.exists) {
-                    router.push('job-portal/student-dashboard');
+                    router.push('job-portal/student/dashboard');
                   } else {
                     router.push('job-portal/register/student');
                   }
@@ -135,7 +135,7 @@ const JobPortal: NextPage = () => {
                 } else {
                   const result = await checkIfUserRegisteredOnJP(userId);
                   if (result.exists) {
-                    router.push('job-portal/recruiter-dashboard');
+                    router.push('job-portal/recruiter/dashboard');
                   } else {
                     router.push('job-portal/register/recruiter');
                   }

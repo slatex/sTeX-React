@@ -13,8 +13,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     [id],
     res
   );
-  if (!results) return;
-  // if (!results.length) return res.status(404).send('No organization profile found');
-
+  if (!results || !results.length) {
+    return res.status(200).json([]);
+  }
   res.status(200).json(results[0]);
 }

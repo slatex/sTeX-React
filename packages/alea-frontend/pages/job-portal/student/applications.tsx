@@ -22,6 +22,7 @@ import {
   TableBody,
   Chip,
   Tooltip,
+  CircularProgress,
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -32,6 +33,7 @@ import {
   CheckCircle,
   Cancel,
   PendingActions,
+  Pause,
 } from '@mui/icons-material';
 import {
   getJobApplicationsByUserId,
@@ -45,33 +47,42 @@ const Applications = () => {
   const [companySortOrder, setCompanySortOrder] = useState('asc');
   const [appliedJobs, setAppliedJobs] = useState([]);
   const [filter, setFilter] = useState('ALL');
-
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     const fetchAppliedJobs = async () => {
-      const appliedJobsList = await getJobApplicationsByUserId();
-      const jobPosts = await Promise.all(
-        appliedJobsList.map((job) => getJobPostById(job?.jobPostId))
-      );
+      setLoading(true);
 
-      const organizationIds = [...new Set(jobPosts.map((post) => post.organizationId))];
-      const organizations = await Promise.all(
-        organizationIds.map((id) => getOrganizationProfile(id))
-      );
+      try {
+        const appliedJobsList = await getJobApplicationsByUserId();
+        const jobPosts = await Promise.all(
+          appliedJobsList.map((job) => getJobPostById(job?.jobPostId))
+        );
 
-      const enrichedJobs = appliedJobsList.map((job, index) => {
-        const jobPost = jobPosts.find((post) => post.id === job.jobPostId);
-        const organization = organizations.find((org) => org.id === jobPost?.organizationId);
+        const organizationIds = [...new Set(jobPosts.map((post) => post.organizationId))];
+        const organizations = await Promise.all(
+          organizationIds.map((id) => getOrganizationProfile(id))
+        );
 
-        return {
-          ...job,
-          jobTitle: jobPost?.jobTitle,
-          companyName: organization?.companyName || 'Unknown Organization',
-          index: index + 1,
-        };
-      });
+        const enrichedJobs = appliedJobsList.map((job, index) => {
+          const jobPost = jobPosts.find((post) => post.id === job.jobPostId);
+          const organization = organizations.find((org) => org.id === jobPost?.organizationId);
 
-      setAppliedJobs(enrichedJobs);
+          return {
+            ...job,
+            jobTitle: jobPost?.jobTitle,
+            companyName: organization?.companyName || 'Unknown Organization',
+            index: index + 1,
+          };
+        });
+
+        setAppliedJobs(enrichedJobs);
+      } catch (error) {
+        console.error('Error fetching applied jobs:', error);
+      } finally {
+        setLoading(false);
+      }
     };
+
     fetchAppliedJobs();
   }, []);
 
@@ -103,9 +114,17 @@ const Applications = () => {
   };
 
   const handleRejectOffer = async (job) => {
-    await updateJobApplication({ ...job, applicantAction: 'REJECT_OFFER' });
+    await updateJobApplication({
+      ...job,
+      applicantAction: 'REJECT_OFFER',
+      applicationStatus: 'OFFER_REJECTED',
+    });
     setAppliedJobs((prevJobs) =>
-      prevJobs.map((j) => (j.id === job.id ? { ...j, applicantAction: 'REJECT_OFFER' } : j))
+      prevJobs.map((j) =>
+        j.id === job.id
+          ? { ...j, applicantAction: 'REJECT_OFFER', applicationStatus: 'OFFER_REJECTED' }
+          : j
+      )
     );
   };
 
@@ -116,9 +135,18 @@ const Applications = () => {
       case 'PENDING':
         return job.applicationStatus?.toUpperCase() === 'APPLIED';
       case 'ON HOLD':
-        return job.applicationStatus?.toUpperCase() === 'OFFERED' && !job.applicantAction;
-      case 'ACCEPTED':
-        return job.applicationStatus?.toUpperCase() === 'ACCEPTED';
+        return job.applicationStatus?.toUpperCase() === 'ON_HOLD';
+      case 'SHORTLISTED FOR INTERVIEW':
+        return job.applicationStatus?.toUpperCase() === 'SHORTLISTED_FOR_INTERVIEW';
+      case 'REJECTED':
+        return job.applicationStatus?.toUpperCase() === 'REJECTED';
+      case 'OFFERED':
+        return (
+          job.applicationStatus?.toUpperCase() === 'OFFERED' ||
+          job.applicationStatus?.toUpperCase() === 'OFFER_ACCEPTED' ||
+          job.applicationStatus?.toUpperCase() === 'OFFER_REJECTED'
+        );
+
       default:
         return true;
     }
@@ -147,10 +175,22 @@ const Applications = () => {
             ON HOLD
           </Button>
           <Button
-            variant={filter === 'ACCEPTED' ? 'contained' : 'outlined'}
-            onClick={() => setFilter('ACCEPTED')}
+            variant={filter === 'SHORTLISTED FOR INTERVIEW' ? 'contained' : 'outlined'}
+            onClick={() => setFilter('SHORTLISTED FOR INTERVIEW')}
           >
             ACCEPTED
+          </Button>
+          <Button
+            variant={filter === 'OFFERED' ? 'contained' : 'outlined'}
+            onClick={() => setFilter('OFFERED')}
+          >
+            OFFERED
+          </Button>
+          <Button
+            variant={filter === 'REJECTED' ? 'contained' : 'outlined'}
+            onClick={() => setFilter('REJECTED')}
+          >
+            REJECTED
           </Button>
         </Box>
         <TableContainer component={Paper} sx={{ mt: 2 }}>
@@ -159,6 +199,9 @@ const Applications = () => {
               <TableRow>
                 <TableCell align="center">
                   <b>No.</b>
+                </TableCell>
+                <TableCell align="center">
+                  <b>Date Applied</b>
                 </TableCell>
                 <TableCell align="center">
                   <b>Company</b>
@@ -177,32 +220,55 @@ const Applications = () => {
                 </TableCell>
               </TableRow>
             </TableHead>
-            <TableBody>
-              {filteredJobs.map((jobApplication) => (
-                <TableRow key={jobApplication.id} hover>
-                  <TableCell align="center">{jobApplication.index}</TableCell>
-                  <TableCell align="center">{jobApplication.companyName}</TableCell>
-                  <TableCell align="center">{jobApplication.jobTitle}</TableCell>
-                  <TableCell align="center">
-                    {jobApplication.applicationStatus === 'OFFERED' ? (
-                      <Chip label="Offer Received" color="success" icon={<CheckCircle />} />
-                    ) : jobApplication.applicationStatus === 'ACCEPTED' ? (
-                      <Chip label="Application Accepted" color="primary" icon={<CheckCircle />} />
-                    ) : jobApplication.applicationStatus === 'REJECTED' ? (
-                      <Chip label="Application Rejected" color="error" icon={<Cancel />} />
-                    ) : (
-                      <Chip label="Pending Review" color="warning" icon={<PendingActions />} />
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Tooltip
-                        title={
-                          jobApplication.applicationStatus !== 'OFFERED'
-                            ? 'Action not available until an offer is made'
-                            : 'Accept the offer'
-                        }
-                      >
+            {loading ? (
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            ) : (
+              <TableBody>
+                {filteredJobs.map((jobApplication) => (
+                  <TableRow key={jobApplication.id} hover>
+                    <TableCell align="center">{jobApplication.index}</TableCell>
+                    <TableCell align="center">
+                      {new Date(jobApplication.createdAt).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell align="center">{jobApplication.companyName}</TableCell>
+                    <TableCell align="center">{jobApplication.jobTitle}</TableCell>
+                    <TableCell align="center">
+                      {jobApplication.applicationStatus === 'OFFERED' ||
+                      jobApplication.applicationStatus === 'OFFER_ACCEPTED' ||
+                      jobApplication.applicationStatus === 'OFFER_REJECTED' ? (
+                        <Chip label="Offer Received" color="success" icon={<CheckCircle />} />
+                      ) : jobApplication.applicationStatus === 'SHORTLISTED_FOR_INTERVIEW' ? (
+                        <Chip
+                          label="Shortlisted For Interview "
+                          color="primary"
+                          icon={<CheckCircle />}
+                        />
+                      ) : jobApplication.applicationStatus === 'REJECTED' ? (
+                        <Chip label="Application Rejected" color="error" icon={<Cancel />} />
+                      ) : jobApplication.applicationStatus === 'ON_HOLD' ? (
+                        <Chip
+                          label="Application Kept On Hold"
+                          sx={{
+                            bgcolor: '#806BE7',
+                            color: 'white',
+                            '& .MuiChip-icon': { color: 'white' },
+                          }}
+                          icon={<Pause />}
+                        />
+                      ) : (
+                        <Chip label="Pending Review" color="warning" icon={<PendingActions />} />
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <span>
                           <Button
                             variant="contained"
@@ -210,9 +276,9 @@ const Applications = () => {
                             size="small"
                             onClick={() => handleAcceptOffer(jobApplication)}
                             disabled={
-                              jobApplication.applicationStatus !== 'OFFERED' ||
-                              jobApplication.applicantAction === 'ACCEPT_OFFER' ||
-                              jobApplication.applicantAction === 'REJECT_OFFER'
+                              (jobApplication.applicationStatus !== 'OFFERED' &&
+                                jobApplication.applicationStatus !== 'OFFER_REJECTED') ||
+                              jobApplication.applicantAction === 'ACCEPT_OFFER'
                             }
                           >
                             {jobApplication.applicantAction === 'ACCEPT_OFFER'
@@ -220,14 +286,7 @@ const Applications = () => {
                               : 'Accept Offer'}
                           </Button>
                         </span>
-                      </Tooltip>
-                      <Tooltip
-                        title={
-                          jobApplication.applicationStatus !== 'OFFERED'
-                            ? 'Action not available until an offer is made'
-                            : 'Reject the offer'
-                        }
-                      >
+
                         <span>
                           <Button
                             variant="outlined"
@@ -235,8 +294,8 @@ const Applications = () => {
                             size="small"
                             onClick={() => handleRejectOffer(jobApplication)}
                             disabled={
-                              jobApplication.applicationStatus !== 'OFFERED' ||
-                              jobApplication.applicantAction === 'ACCEPT_OFFER' ||
+                              (jobApplication.applicationStatus !== 'OFFERED' &&
+                                jobApplication.applicationStatus !== 'OFFER_ACCEPTED') ||
                               jobApplication.applicantAction === 'REJECT_OFFER'
                             }
                           >
@@ -245,12 +304,12 @@ const Applications = () => {
                               : 'Reject Offer'}
                           </Button>
                         </span>
-                      </Tooltip>
-                    </Box>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            )}
           </Table>
         </TableContainer>
       </Paper>

@@ -12,7 +12,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const organizationId = req.query.organizationId as string;
 
   console.log('ell', req.query);
-  //   if (!instanceId) instanceId = CURRENT_TERM;
   const results: any = await executeDontEndSet500OnError(
     `SELECT id,JobCategoryId,organizationId ,session,jobTitle,jobDescription,trainingLocation,qualification,targetYears,openPositions,currency,stipend,facilities,applicationDeadline
     FROM jobPost 
@@ -20,8 +19,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     [organizationId],
     res
   );
-  if (!results) return;
-  if (!results.length) return res.status(404).send('No job posted yet');
+  if (!results || !results.length) {
+    return res.status(200).json([]);
+  }
 
   res.status(200).json(results);
 }

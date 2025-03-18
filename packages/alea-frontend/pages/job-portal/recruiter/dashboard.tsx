@@ -467,103 +467,63 @@ export function RecruiterDashboard() {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-      <Grid container spacing={2} sx={{ p: '70px 20px 20px 20px' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 2,
+          p: '70px 20px 20px 20px',
+          justifyContent: 'center',
+        }}
+      >
         {[
           'Applications received',
           'Pending Applications',
           'Shortlisted Candidates',
           'Hired Candidates',
         ].map((stat, index) => (
-          <Grid item xs={12} sm={6} md={3} key={stat}>
-            <Card
+          <Box
+            key={stat}
+            sx={{
+              bgcolor: colors[index],
+              p: 3,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              borderRadius: '15px',
+              boxShadow: 3,
+              minWidth: '300px',
+              height: '200px',
+              flex: '1 1 300px',
+            }}
+          >
+            <Icon
               sx={{
-                bgcolor: colors[index],
-                p: 3,
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
+                fontSize: 80,
+                mr: 2,
+                color: 'white',
+                border: '1px solid #fff',
                 borderRadius: '15px',
-                boxShadow: 3,
-                height: '200px',
+                pb: '20px',
               }}
             >
-              <Icon
-                sx={{
-                  fontSize: 80,
-                  mr: 10,
-                  color: 'white',
-                  border: '1px solid #fff',
-                  borderRadius: '15px',
-                  pb: '20px',
-                }}
+              {icons[index]}
+            </Icon>
+            <Box sx={{ flexGrow: 1 }}>
+              <Typography
+                variant="h6"
+                sx={{ color: '#FFFFFF', fontWeight: '500', fontSize: '1.5rem' }}
               >
-                {icons[index]}
-              </Icon>{' '}
-              <Box sx={{ flexGrow: 1 }}>
-                <Typography
-                  variant="h6"
-                  sx={{ color: '#FFFFFF', fontWeight: '500', fontSize: '1.5rem' }}
-                >
-                  {stat}
-                </Typography>
-                <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: '600' }}>
-                  {Math.floor(Math.random() * 100) % 10}
-                </Typography>
-              </Box>
-            </Card>
-          </Grid>
+                {stat}
+              </Typography>
+              <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: '600' }}>
+                {Math.floor(Math.random() * 100) % 10}
+              </Typography>
+            </Box>
+          </Box>
         ))}
-      </Grid>
-      {/* <Grid container spacing={2} sx={{ p: '70px 20px 20px 20px' }}>
-        {statusState?.map((stat, index) => (
-          <Grid item xs={12} sm={6} md={3} key={stat}>
-            <Card
-              sx={{
-                bgcolor: colors[index],
-                p: 3,
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                borderRadius: '15px',
-                boxShadow: 3,
-                height: '200px',
-              }}
-            >
-              <Icon
-                sx={{
-                  fontSize: 80,
-                  mr: 10,
-                  color: 'white',
-                  border: '1px solid #fff',
-                  borderRadius: '15px',
-                  pb: '20px',
-                }}
-              >
-                {icons[index]}
-              </Icon>
-              <Box sx={{ flexGrow: 1 }}>
-                <Typography
-                  variant="h6"
-                  sx={{ color: '#FFFFFF', fontWeight: '500', fontSize: '1.5rem' }}
-                >
-                  {stat}
-                </Typography>
-                <Typography variant="h3" sx={{ color: '#FFFFFF', fontWeight: '600' }}>
-                  {stat === 'Applied'
-                    ? statusState.applied
-                    : stat === 'Accepted'
-                    ? statusState.accepted
-                    : stat === 'Rejected'
-                    ? statusState.rejected
-                    : stat === 'Messages'
-                    ? statusState.messages
-                    : 0}
-                </Typography>
-              </Box>
-            </Card>
-          </Grid>
-        ))}
-      </Grid> */}
+      </Box>
+
       <Box sx={{ display: 'flex', flexGrow: 1, p: 2 }}>
         <Card
           elevation={3}

@@ -119,7 +119,7 @@ export default function RecruiterRegistration() {
     await createOrganizationProfile(organizationData);
     const id = await getOrganizationId(companyName);
     await updateRecruiterProfile({ ...recruiterData, organizationId: id, hasDefinedOrg: 0 });
-    router.push('/job-portal/recruiter-dashboard');
+    router.push('/job-portal/recruiter/dashboard');
   };
   return (
     <MainLayout title="Register-Recruiter | VoLL-KI">

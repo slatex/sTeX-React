@@ -21,19 +21,20 @@ const Sidebar = ({
       { label: 'Dashboard', path: '/job-portal/student/dashboard' },
       { label: 'Search Job', path: '/job-portal/search-job' },
       { label: 'Applications', path: '/job-portal/student/applications' },
-      { label: 'Messages', path: '/job-portal/student/messages' },
+      //   { label: 'Messages', path: '/job-portal/student/messages' },
+      { label: 'Messages', path: '', action: () => alert('Functionality disabled as of now') },
       { label: 'Profile', path: '/job-portal/student/profile' },
       //   { label: 'Statistics', path: '/job-portal/student/statistics' },
+      { label: 'Statistics', path: '', action: () => alert('Functionality disabled as of now') },
       //   { label: 'News', path: '/job-portal/student/news' },
     ],
     recruiter: [
       { label: 'Dashboard', path: '/job-portal/recruiter/dashboard' },
       { label: 'Create Job', path: '/job-portal/recruiter/create-job' },
       { label: 'Applications', path: '/job-portal/recruiter/applications' },
-      { label: 'Messages', path: '/job-portal/recruiter/messages' },
+      { label: 'Messages', path: '', action: () => alert('Functionality disabled as of now') },
       { label: 'Profile', path: '/job-portal/recruiter/profile' },
       //   { label: 'Offer Status', path: '/job-portal/recruiter/offer-status' },
-
       //   { label: 'Company Profile', path: '/job-portal/recruiter/company-profile' },
       { label: 'Statistics', path: '/job-portal/recruiter/statistics' },
     ],
@@ -63,13 +64,12 @@ const Sidebar = ({
       }}
     >
       <List>
-        <ListItem component="button" onClick={() => setDrawerOpen(!drawerOpen)}>
+        <ListItem onClick={() => setDrawerOpen(!drawerOpen)}>
           <ListItemIcon>
             <MenuIcon sx={{ color: 'white' }} />
           </ListItemIcon>
         </ListItem>
-
-        {menuItems[role]?.map(({ label, path }) => {
+        {menuItems[role]?.map(({ label, path, action }) => {
           const isActive = router.pathname === path;
           return (
             <Box
@@ -79,8 +79,13 @@ const Sidebar = ({
               }}
             >
               <ListItem
-                component="button"
-                onClick={() => router.push(path)}
+                onClick={() => {
+                  if (action) {
+                    action();
+                  } else {
+                    router.push(path);
+                  }
+                }}
                 sx={{
                   bgcolor: isActive ? '#f9f5f2' : 'transparent',
                   color: isActive ? '#4A69E1' : '#f9f5f2',
