@@ -37,6 +37,7 @@ import {
 import {
   createJobApplication,
   getAllJobPosts,
+  getJobApplicationsByJobPost,
   getOrganizationProfile,
   getUserInfo,
 } from '@stex-react/api';
@@ -164,12 +165,18 @@ export function SearchJob() {
       setLoading(true);
       try {
         const data = await getAllJobPosts();
+        const appliedJobsList = [];
         const enrichedJobPosts = await Promise.all(
           data.map(async (job) => {
+            let alreadyApplied = false;
             const organizationDetail = await getOrganizationProfile(job.organizationId);
+            const application = await getJobApplicationsByJobPost(job.id);
+            alreadyApplied = application.length > 0;
+
             return {
               ...job,
               organization: organizationDetail,
+              alreadyApplied,
             };
           })
         );
@@ -183,7 +190,7 @@ export function SearchJob() {
 
     fetchJobPosts();
   }, []);
-
+  console.log('jP', jobPosts);
   const handleFilterChange = (e) => {
     const value = e.target.value;
     setFilters({
@@ -261,7 +268,7 @@ export function SearchJob() {
       console.error('Error applying for this job:', error);
     }
   };
-
+  console.log({ jobPosts });
   const filteredJobs = handleSearch().filter((job) => {
     const workModeFilter =
       (filters.remote && job.workMode === 'remote') ||
@@ -468,9 +475,10 @@ export function SearchJob() {
                         variant="contained"
                         fullWidth
                         sx={{ mb: 1 }}
+                        disabled={job.alreadyApplied}
                         onClick={() => handleApply(job.id)}
                       >
-                        Apply Now
+                        {job?.alreadyApplied ? 'Already Applied' : 'Apply'}
                       </Button>
                       <Button variant="outlined" fullWidth onClick={() => handleReadMore(job)}>
                         Read More
