@@ -35,6 +35,7 @@ function SessionResetSlider() {
         bgcolor: 'rgba(211, 211, 211, 0.2)',
         p: '5px 5px 5px 15px',
         transition: 'left 0.3s ease',
+        zIndex: 2001,
       }}
     >
       <IconButton onClick={() => setOpen(!open)} sx={{ p: 0.5 }}>
@@ -141,7 +142,7 @@ export default function MainLayout({
   const router = useRouter();
   const { header: t } = getLocaleObject(router);
   const [prevLoc, setPrevLoc] = useState('');
-  const [isExpMode, setIsExpMode] = useState(false);
+  const [conceptTracking, setConceptTracking] = useState(false);
 
   useEffect(() => {
     const loc = router.asPath;
@@ -152,8 +153,8 @@ export default function MainLayout({
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const expMode = localStorage.getItem('exp-mode') === 'true';
-      setIsExpMode(expMode);
+      const conceptTrackingMode = localStorage.getItem('concept-tracking') === 'true';
+      setConceptTracking(conceptTrackingMode);
     }
   }, []);
 
@@ -178,7 +179,7 @@ export default function MainLayout({
           working to get it resolved and apologize for the inconvenience.
         </Typography>*/}
         <Box>{children}</Box>
-        {isExpMode && <RecordingComponent />}
+        {conceptTracking && <RecordingComponent />}
       </main>
       <footer id="footer">
         <Toolbar

@@ -19,6 +19,7 @@ import MainLayout from '../layouts/MainLayout';
 const PositionDataSelector: React.FC = () => {
   const [deviceIds, setDeviceIds] = useState<string[]>([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null);
+  const [storedDeviceId, setStoredDeviceId] = useState<string | null>(null);
   const [recordingIds, setRecordingIds] = useState<string[]>([]);
   const [selectedRecordingId, setSelectedRecordingId] = useState<string | null>(null);
   const [fileContent, setFileContent] = useState<string | null>(null);
@@ -26,7 +27,7 @@ const PositionDataSelector: React.FC = () => {
   const [loadingDeviceId, setLoadingDeviceId] = useState<boolean>(false);
   const [loadingRecordingId, setLoadingRecordingId] = useState<boolean>(false);
   const [loadingFileContent, setLoadingFileContent] = useState<boolean>(false);
-  const [expMode, setExpMode] = useState<boolean>(false);
+  const [conceptTracking, setConceptTracking] = useState<boolean>(false);
 
   useEffect(() => {
     setLoadingDeviceId(true);
@@ -36,6 +37,7 @@ const PositionDataSelector: React.FC = () => {
       .then((r) => {
         setDeviceIds(r.data || []);
         const storedDeviceId = localStorage.getItem('deviceId');
+        setStoredDeviceId(storedDeviceId);
         if (storedDeviceId && r.data.includes(storedDeviceId)) {
           setSelectedDeviceId(storedDeviceId);
           handleDeviceIdSelect(storedDeviceId);
@@ -43,8 +45,8 @@ const PositionDataSelector: React.FC = () => {
       })
       .catch((err) => console.error('Error fetching device lists:', err))
       .finally(() => setLoadingDeviceId(false));
-    const storedExpMode = localStorage.getItem('exp-mode');
-    setExpMode(storedExpMode === 'true');
+    const storedConceptTrackingMode = localStorage.getItem('concept-tracking');
+    setConceptTracking(storedConceptTrackingMode === 'true');
   }, []);
 
   const handleDeviceIdSelect = (folder: string) => {
@@ -95,10 +97,10 @@ const PositionDataSelector: React.FC = () => {
       console.error('Error copying text:', err);
     }
   };
-  const toggleExpMode = () => {
-    const newExpMode = !expMode;
-    setExpMode(newExpMode);
-    localStorage.setItem('exp-mode', newExpMode.toString());
+  const toggleConceptTrackingMode = () => {
+    const newMode = !conceptTracking;
+    setConceptTracking(newMode);
+    localStorage.setItem('concept-tracking', newMode.toString());
   };
 
   return (
@@ -115,18 +117,18 @@ const PositionDataSelector: React.FC = () => {
         {' '}
         <Box>
           <Button
-            variant={expMode ? 'contained' : 'outlined'}
-            onClick={toggleExpMode}
+            variant={conceptTracking ? 'contained' : 'outlined'}
+            onClick={toggleConceptTrackingMode}
             sx={{
               m: '10px 10px 10px 0',
             }}
           >
-            {expMode ? 'Disable Tracking' : 'Enable Tracking'}
+            {conceptTracking ? 'Disable Tracking' : 'Enable Tracking'}
           </Button>
           <Typography variant="body1" sx={{ color: 'text.secondary', p: 0.5 }}>
-            Concept Position Tracking is {expMode ? 'Enabled' : 'Disabled'}
-            <br/>
-            Your device id is <b>{selectedDeviceId || 'not set'}</b>
+            Concept Position Tracking is {conceptTracking ? 'Enabled' : 'Disabled'}
+            <br />
+            Your device id is <b>{storedDeviceId || 'not set'}</b>
           </Typography>
         </Box>
         <Card

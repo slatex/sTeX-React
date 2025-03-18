@@ -20,14 +20,15 @@ import {
   localStore,
   urlWithContextParams,
 } from '@stex-react/utils';
-import CodeMirror from '@uiw/react-codemirror';
+//import CodeMirror from '@uiw/react-codemirror';
+import axios from 'axios';
 import { getOuterHTML } from 'domutils';
 import parse, { DOMNode, Element, domToReact } from 'html-react-parser';
 import { ElementType } from 'htmlparser2';
 import {
+  ReactNode,
   createContext,
   forwardRef,
-  ReactNode,
   useContext,
   useEffect,
   useRef,
@@ -35,6 +36,7 @@ import {
 } from 'react';
 import { Slide } from 'react-slideshow-image';
 import 'react-slideshow-image/dist/styles.css';
+import { v4 as uuidv4 } from 'uuid';
 import { ContentFromUrl } from './ContentFromUrl';
 import { DisplayContext, DisplayReason } from './ContentWithHightlight';
 import { ErrorBoundary } from './ErrorBoundary';
@@ -46,11 +48,8 @@ import { MathMLDisplay } from './MathMLDisplay';
 import { OverlayDialog, isHoverON } from './OverlayDialog';
 import SectionReview from './SectionReview';
 import TrafficLightIndicator from './TrafficLightIndicator';
-import { langSelector } from './helper/langSelector';
 import { ServerLinksContext } from './stex-react-renderer';
 import { useOnScreen } from './useOnScreen';
-import axios from 'axios';
-import { v4 as uuidv4 } from 'uuid';
 
 const APFEL_TOKEN = 'apfel-token';
 export const CustomItemsContext = createContext<{
@@ -130,7 +129,7 @@ export const PositionProvider: React.FC<{ children: ReactNode }> = ({ children }
       };
 
       axios
-        .post('/api/get-uri-positions', payload)
+        .post('/api/set-concept-positions', payload)
         .then(() => console.log('Data sent successfully'))
         .catch((error) => console.error('Error sending data', error));
 
@@ -158,7 +157,7 @@ export const NoMaxWidthTooltip = styled(({ className, ...props }: TooltipProps) 
   },
 });
 
-function Test({ children }: { children: any }) {
+function ConceptTrackingContainer({ children }: { children: any }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const { addPosition } = useContext(PositionContext);
 
@@ -609,7 +608,7 @@ const ApfelHrefWithToken = ({ href, children }: { href: string; children: React.
 
 export const replace = (d: DOMNode): any => {
   const domNode = getElement(d);
-  const isExpMode = localStorage.getItem('exp-mode') === 'true';
+  const conceptTracking = localStorage.getItem('concept-tracking') === 'true';
 
   if (!domNode) return;
 
@@ -665,13 +664,16 @@ export const replace = (d: DOMNode): any => {
     const codeContent = domNode.children
       .map((child) => (child.type === 'text' ? child.data : ' '))
       .join('');
+
+    return <pre>{codeContent.trim()}</pre>;
+    /*
     return (
       <CodeMirror
         value={codeContent.trim()}
         theme="dark"
         extensions={[langSelector(domNode.attribs['language'])]}
       />
-    );
+    );*/
   }
 
   if (domNode.name === 'a') {
@@ -725,10 +727,10 @@ export const replace = (d: DOMNode): any => {
     domNode.attribs['definiendum-processed'] = 'true';
     return (
       <>
-        {isExpMode ? (
-          <Test>
+        {conceptTracking ? (
+          <ConceptTrackingContainer>
             <Definiendum node={domNode} />
-          </Test>
+          </ConceptTrackingContainer>
         ) : (
           <Definiendum node={domNode} />
         )}
@@ -786,10 +788,10 @@ export const replace = (d: DOMNode): any => {
               )
             }
           >
-            {isExpMode ? (
-              <Test>
+            {conceptTracking ? (
+              <ConceptTrackingContainer>
                 {hoverParent ? <WithHighlightable /> : (domToReact([domNode], { replace }) as any)}
-              </Test>
+              </ConceptTrackingContainer>
             ) : hoverParent ? (
               <WithHighlightable />
             ) : (
