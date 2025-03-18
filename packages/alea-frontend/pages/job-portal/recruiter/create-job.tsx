@@ -375,6 +375,7 @@ const JobPostPage = () => {
   const [selectedJob, setSelectedJob] = useState(null);
   const [jobCategories, setJobCategories] = useState<JobCategoryInfo[]>([]);
   const [selectedJobCategory, setSelectedJobCategory] = useState<string>('');
+  const [selectedJobCategoryId, setSelectedJobCategoryId] = useState<number>(null);
   const [isFormDisabled, setIsFormDisabled] = useState(true);
   const [jobPostFormData, setJobPostFormData] = useState({
     session: '',
@@ -432,8 +433,16 @@ const JobPostPage = () => {
     fetchJobCategoryData();
   }, []);
 
+  //   const handleJobCategoryChange = (event: any) => {
+  //     setSelectedJobCategory(event.target.value);
+  //   };
   const handleJobCategoryChange = (event: any) => {
-    setSelectedJobCategory(event.target.value);
+    const selectedId = event.target.value;
+    setSelectedJobCategoryId(Number(selectedId));
+    const selectedJob = jobCategories.find((job) => job.id === selectedId);
+    if (selectedJob) {
+      setSelectedJobCategory(selectedJob.jobCategory);
+    }
   };
   useEffect(() => {
     if (selectedJobCategory) {
@@ -444,12 +453,15 @@ const JobPostPage = () => {
       setIsFormDisabled(false);
     }
   }, [selectedJobCategory]);
-  // Handle Next & Submit
   const handleNext = async () => {
     if (activeStep < 2) {
       setActiveStep((prev) => prev + 1);
     } else {
-      const jobPostPayload = { ...jobPostFormData, organizationId: recruiter?.organizationId };
+      const jobPostPayload = {
+        ...jobPostFormData,
+        JobCategoryId: selectedJobCategoryId,
+        organizationId: recruiter?.organizationId,
+      };
 
       if (!selectedJob) {
         setIsFormDisabled(true);
@@ -499,15 +511,15 @@ const JobPostPage = () => {
             fullWidth
             sx={{
               '& .MuiOutlinedInput-root': {
-                borderRadius: '8px', // Rounded corners for input
+                borderRadius: '8px',
               },
               '& .MuiSelect-icon': {
-                right: 8, // Adjust icon position
+                right: 8,
               },
             }}
           >
             {jobCategories.map((job, index) => (
-              <MenuItem key={index} value={job.jobCategory}>
+              <MenuItem key={index} value={job.id}>
                 {job.jobCategory}
               </MenuItem>
             ))}

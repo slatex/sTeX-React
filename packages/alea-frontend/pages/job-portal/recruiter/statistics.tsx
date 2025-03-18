@@ -101,24 +101,24 @@ const ApplicantDemographics = ({ applicants }) => {
     const genderData = [['Gender', 'Count']];
     Object.entries(genderCounts).forEach(([gender, count]) => {
       if (count > 0) {
-        genderData.push([gender, count]);
+        genderData.push([gender, String(count)]);
       }
     });
 
     const locationData = [['Location', 'Count']];
     Object.entries(locationCounts).forEach(([location, count]) => {
-      locationData.push([location, count]);
+      locationData.push([location, String(count)]);
     });
 
     const educationData = [['Education Level', 'Count']];
     Object.entries(educationCounts).forEach(([education, count]) => {
-      educationData.push([education, count]);
+      educationData.push([education, String(count)]);
     });
 
     const gpaData = [['GPA Range', 'Count']];
     Object.entries(gpaRanges).forEach(([range, count]) => {
       if (count > 0) {
-        gpaData.push([range, count]);
+        gpaData.push([range, String(count)]);
       }
     });
 
@@ -282,8 +282,8 @@ function RecruiterStatistics() {
 
     Object.entries(statusCounts).forEach(([status, count]) => {
       if (count > 0) {
-        pieChartData.push([status.replace(/_/g, ' '), count]);
-        barChartData.push([status.replace(/_/g, ' '), count]);
+        pieChartData.push([status.replace(/_/g, ' '), String(count)]);
+        barChartData.push([status.replace(/_/g, ' '), String(count)]);
       }
     });
 

@@ -579,14 +579,19 @@ export const ProfileCard = ({ profileData, userType }) => {
                       {getSocialIcon(name)}
                     </Avatar>
                   </Tooltip>
-                  {url !== 'N/A' ? (
-                    <Link
-                      href={url}
-                      target="_blank"
-                      underline="hover"
-                      sx={{ fontSize: 16, fontWeight: 'bold', color: '#333' }}
-                    >
-                      {url}
+                  {url && url !== 'N/A' ? (
+                    <Link href={String(url)} passHref>
+                      <a
+                        target="_blank"
+                        style={{
+                          fontSize: 16,
+                          fontWeight: 'bold',
+                          color: '#333',
+                          textDecoration: 'underline',
+                        }}
+                      >
+                        {String(url)}
+                      </a>
                     </Link>
                   ) : (
                     <Typography sx={{ fontSize: 16, fontWeight: 'bold', color: '#777' }}>

@@ -53,7 +53,6 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import ChatIcon from '@mui/icons-material/Chat';
 import dayjs from 'dayjs';
 import { Add } from '@mui/icons-material';
-import RecruiterDashboard from '../recruiter-dashboard';
 // import { StudentDashboard } from '../dashboard';
 const recruiterData = [
   ['Category', 'Count'],
@@ -263,8 +262,8 @@ export const JobStatsChart = ({ applicationData }) => {
       ...(filters.interviewStage ? ['InterviewStage'] : []),
       ...(filters.rejected ? ['Rejected'] : []),
     ],
-    ...filteredData.map(({ createdAt, sent, interviewStage, rejected }) => [
-      dayjs(createdAt).format('MMM DD'),
+    ...filteredData.map(({ date, sent, interviewStage, rejected }) => [
+      dayjs(date).format('MMM DD'),
       ...(filters.sent ? [sent] : []),
       ...(filters.interviewStage ? [interviewStage] : []),
       ...(filters.rejected ? [rejected] : []),

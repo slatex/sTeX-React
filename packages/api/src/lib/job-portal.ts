@@ -17,6 +17,7 @@ export interface StudentData {
 }
 
 export interface RecruiterData {
+  userId?: string;
   name: string;
   email: string;
   position: string;
@@ -24,6 +25,8 @@ export interface RecruiterData {
   altMobile?: string;
   organizationId?: number;
   hasDefinedOrg?: number;
+  socialLinks?: string;
+  about?: string;
 }
 
 export interface OrganizationData {

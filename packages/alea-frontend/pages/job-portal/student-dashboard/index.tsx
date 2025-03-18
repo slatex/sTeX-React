@@ -345,7 +345,7 @@ const StudentDashboard = () => {
       'yearOfGraduation',
       'about',
       'courses',
-      'grades',
+      'gpa',
     ].forEach((field) => {
       if (!formData?.[field]) {
         newErrors[field] = 'This field is required';
@@ -403,7 +403,7 @@ const StudentDashboard = () => {
     yearOfAdmission,
     yearOfGraduation,
     courses,
-    grades,
+    gpa,
     about,
   } = student;
 
@@ -506,13 +506,13 @@ const StudentDashboard = () => {
                   <Typography variant="h6" gutterBottom>
                     Course & Grade
                   </Typography>
-                  {courses && grades ? (
+                  {courses && gpa ? (
                     <Box>
                       <Typography>
                         <strong>Course:</strong> {courses}
                       </Typography>
                       <Typography>
-                        <strong>Grade:</strong> {grades}
+                        <strong>Grade:</strong> {gpa}
                       </Typography>
                     </Box>
                   ) : (
@@ -584,7 +584,7 @@ const StudentDashboard = () => {
                 placeholder: 'Enter year of graduation',
               },
               { label: 'Courses', field: 'courses', placeholder: 'List your courses' },
-              { label: 'Grades', field: 'grades', placeholder: 'List your grades' },
+              { label: 'GPA', field: 'gpa', placeholder: 'List your gpa' },
               {
                 label: 'About',
                 field: 'about',

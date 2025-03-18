@@ -257,8 +257,8 @@ export const JobStatsChart = ({ applicationData }) => {
       ...(filters.interviewStage ? ['InterviewStage'] : []),
       ...(filters.rejected ? ['Rejected'] : []),
     ],
-    ...filteredData.map(({ createdAt, sent, interviewStage, rejected }) => [
-      dayjs(createdAt).format('MMM DD'),
+    ...filteredData.map(({ date, sent, interviewStage, rejected }) => [
+      dayjs(date).format('MMM DD'),
       ...(filters.sent ? [sent] : []),
       ...(filters.interviewStage ? [interviewStage] : []),
       ...(filters.rejected ? [rejected] : []),

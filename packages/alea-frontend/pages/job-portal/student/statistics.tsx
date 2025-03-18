@@ -19,7 +19,12 @@ import { JobStatsChart } from './dashboard';
 const StudentStats = () => {
   const [applications, setApplications] = useState([]);
   const [profileStrength, setProfileStrength] = useState(0); // Sample profile strength
-  const [resumeInsights, setResumeInsights] = useState([]);
+  const [resumeInsights, setResumeInsights] = useState({
+    skills: [],
+    experience: 0,
+    certifications: [],
+    keywordsMatch: 0,
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -70,11 +75,11 @@ const StudentStats = () => {
   };
 
   // Analyze resume insights (Sample logic for insights)
-  const analyzeResumeInsights = (data) => {
-    const skills = data.flatMap((app) => app.skills); // Assuming "skills" is part of the application data
-    const uniqueSkills = [...new Set(skills)];
-    setResumeInsights(uniqueSkills);
-  };
+  // const analyzeResumeInsights = (data) => {
+  //   const skills = data.flatMap((app) => app.skills); // Assuming "skills" is part of the application data
+  //   const uniqueSkills = [...new Set(skills)];
+  //   setResumeInsights(uniqueSkills);
+  // };
 
   //   const statusData = [
   //     ['Status', 'Count'],
