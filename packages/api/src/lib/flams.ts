@@ -1,5 +1,5 @@
-import * as FLAMS from './flam-types';
-export * from './flam-types';
+import * as FLAMS from './flams-types';
+export * from './flams-types';
 
 export class FLAMSServer {
   _url: string;

@@ -80,7 +80,7 @@ const CourseNotesPage: NextPage = () => {
   const { notes } = courseInfo;
 
   return (
-    <>
+    <MainLayout title={courseId.toUpperCase()}>
       <FTMLSetup>
         <FTMLDocument
           document={{
@@ -89,7 +89,7 @@ const CourseNotesPage: NextPage = () => {
           }}
         />
       </FTMLSetup>
-    </>
+    </MainLayout>
   );
 };
 

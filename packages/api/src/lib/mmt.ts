@@ -7,8 +7,8 @@ import {
   createCourseInfo,
 } from '@stex-react/utils';
 import axios from 'axios';
-import { ArchiveIndex, Institution } from './flam-types';
-import { FLAMSServer } from './flam';
+import { ArchiveIndex, Institution } from './flams-types';
+import { FLAMSServer } from './flams';
 
 const FLAMS_SERVER_URL = 'https://mmt.beta.vollki.kwarc.info';
 const server = new FLAMSServer(FLAMS_SERVER_URL);

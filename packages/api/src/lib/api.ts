@@ -22,5 +22,5 @@ export * from './quiz-api';
 export * from './request-aggregator';
 export * from './study-buddy';
 export * from './study-buddy-api';
-export * from './flam-types';
-export * from './flam';
+export * from './flams-types';
+export * from './flams';
