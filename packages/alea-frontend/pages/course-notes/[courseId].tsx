@@ -1,5 +1,6 @@
 import SearchIcon from '@mui/icons-material/Search';
 import {
+  Box,
   Button,
   CircularProgress,
   Dialog,
@@ -81,14 +82,16 @@ const CourseNotesPage: NextPage = () => {
 
   return (
     <MainLayout title={courseId.toUpperCase()}>
-      <FTMLSetup>
-        <FTMLDocument
-          document={{
-            uri: notes,
-            toc: 'GET',
-          }}
-        />
-      </FTMLSetup>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <FTMLSetup>
+          <FTMLDocument
+            document={{
+              uri: notes,
+              toc: 'GET',
+            }}
+          />
+        </FTMLSetup>
+      </Box>
     </MainLayout>
   );
 };
