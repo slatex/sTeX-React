@@ -139,6 +139,37 @@ export async function getUserInformation() {
   return cachedUserInformation;
 }
 
+export async function getUserProfile() {
+  try {
+    const response = await axios.get('/api/get-user-profile', { headers: getAuthHeaders() });
+    return response.data;
+  } catch (err) {
+    const error = err as AxiosError;
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      logoutAndGetToLoginPage();
+    }
+    throw new Error("Failed to fetch user profile");
+  }
+}
+
+export async function updateUserProfile(
+  userId: string,
+  firstName: string,
+  lastName: string,
+  email: string,
+  studyProgram: string,
+  semester: string,
+  languages: string
+) {
+  return await axios.post(
+    '/api/update-user-profile', // ✅ API route
+    { userId, firstName, lastName, email, studyProgram, semester, languages },
+    { headers: getAuthHeaders() }
+  );
+}
+
+
+
 export async function updateTrafficLightStatus(trafficStatus: boolean) {
   cachedUserInformation = undefined;
   return await axios.post(

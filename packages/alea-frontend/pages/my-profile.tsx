@@ -1,41 +1,41 @@
-import React, { useEffect, useState } from 'react';
-import { 
-  Avatar, 
-  Box, 
-  Button, 
-  Card, 
-  Container, 
-  Dialog, 
-  DialogActions, 
-  DialogContent, 
-  DialogContentText, 
-  DialogTitle, 
-  Divider, 
-  Stack, 
-  Switch, 
-  Tab, 
-  Tabs, 
-  TextField, 
-  Typography,
-  Paper
-} from '@mui/material';
-import EmailIcon from '@mui/icons-material/Email';
-import DownloadIcon from '@mui/icons-material/Download';
-import DeleteIcon from '@mui/icons-material/Delete';
-import NoteAltIcon from '@mui/icons-material/NoteAlt';
-import AssessmentIcon from '@mui/icons-material/Assessment';
-import SchoolIcon from '@mui/icons-material/School';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import DeleteIcon from '@mui/icons-material/Delete';
+import DownloadIcon from '@mui/icons-material/Download';
+import EditIcon from '@mui/icons-material/Edit';
+import EmailIcon from '@mui/icons-material/Email';
+import NoteAltIcon from '@mui/icons-material/NoteAlt';
+import SchoolIcon from '@mui/icons-material/School';
 import SettingsIcon from '@mui/icons-material/Settings';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
+import {
+  Avatar,
+  Box,
+  Button,
+  Card,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Paper,
+  Stack,
+  Switch,
+  Tab,
+  Tabs,
+  TextField,
+  Typography,
+} from '@mui/material';
+import { useEffect, useState } from 'react';
 
 import {
   ANON_USER_ID_PREFIX,
-  UserInfo,
   getAllMyComments,
   getAllMyData,
   getUserInfo,
   getUserInformation,
+  getUserProfile,
   purgeAllMyData,
   purgeComments,
   purgeStudyBuddyData,
@@ -44,9 +44,9 @@ import {
   sendVerificationEmail,
   updateSectionReviewStatus,
   updateTrafficLightStatus,
+  updateUserProfile,
 } from '@stex-react/api';
 import { PRIMARY_COL, downloadFile } from '@stex-react/utils';
-import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { getLocaleObject } from '../lang/utils';
@@ -72,12 +72,10 @@ export function ConfirmPurgeDialogContent({ onClose }) {
   const router = useRouter();
   const { myProfile: t } = getLocaleObject(router);
   const [text, setText] = useState('');
-  
+
   return (
     <>
-      <DialogTitle sx={{ bgcolor: 'error.light', color: 'white' }}>
-        {t.confirmPurge}
-      </DialogTitle>
+      <DialogTitle sx={{ bgcolor: 'error.light', color: 'white' }}>{t.confirmPurge}</DialogTitle>
       <DialogContent>
         <DialogContentText sx={{ my: 2 }}>
           {t.purgeWarning}
@@ -85,18 +83,16 @@ export function ConfirmPurgeDialogContent({ onClose }) {
             Enter this text to confirm: <b>{t.confirmText}</b>
           </Typography>
         </DialogContentText>
-        <TextField 
+        <TextField
           fullWidth
-          label={t.confirmation} 
-          value={text} 
+          label={t.confirmation}
+          value={text}
           onChange={(e) => setText(e.target.value)}
-          variant="outlined" 
+          variant="outlined"
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => onClose(false)}>
-          {t.cancel}
-        </Button>
+        <Button onClick={() => onClose(false)}>{t.cancel}</Button>
         <Button
           onClick={() => onClose(true)}
           disabled={text.toLocaleLowerCase() !== t.confirmText.toLocaleLowerCase()}
@@ -111,16 +107,169 @@ export function ConfirmPurgeDialogContent({ onClose }) {
   );
 }
 
+export function EditProfileDialog({ open, onClose, profileData, userId, onSave }) {
+  const router = useRouter();
+  const { myProfile: t } = getLocaleObject(router);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    studyProgram: '',
+    semester: '',
+    languages: '',
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (profileData) {
+      setFormData({
+        firstName: profileData.firstName || '',
+        lastName: profileData.lastName || '',
+        studyProgram: profileData.studyProgram || '',
+        email: profileData.email || '',
+        semester: profileData.semester || '',
+        languages: profileData.languages || '',
+      });
+    }
+  }, [profileData]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    setError('');
+
+    if (!userId) {
+      setError('User ID is missing. Please refresh the page and try again.');
+      setIsLoading(false);
+      return;
+    }
+
+    const updatedProfile = {
+      userId,
+      ...formData,
+    };
+
+    try {
+      console.log('Updating profile with:', updatedProfile);
+      await updateUserProfile(
+        updatedProfile.userId,
+        updatedProfile.firstName,
+        updatedProfile.lastName,
+        updatedProfile.email,
+        updatedProfile.studyProgram,
+        updatedProfile.semester,
+        updatedProfile.languages
+      );
+      onSave(updatedProfile);
+      onClose();
+    } catch (err: any) {
+      console.error('Error updating profile:', err);
+      setError(err.message || 'An unexpected error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle sx={{ bgcolor: 'primary.light', color: 'white' }}>Edit Profile</DialogTitle>
+      <DialogContent>
+        <Stack spacing={2} sx={{ mt: 2 }}>
+          {error && (
+            <Typography color="error" variant="body2">
+              {error}
+            </Typography>
+          )}
+          <TextField
+            fullWidth
+            label="First Name"
+            name="firstName"
+            value={formData.firstName}
+            onChange={handleChange}
+            variant="outlined"
+          />
+          <TextField
+            fullWidth
+            label="Last Name"
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleChange}
+            variant="outlined"
+          />
+          <TextField
+            fullWidth
+            label="Last Name"
+            name="lastName"
+            value={formData.email}
+            onChange={handleChange}
+            variant="outlined"
+          />
+          <TextField
+            fullWidth
+            label="Study Program"
+            name="studyProgram"
+            value={formData.studyProgram}
+            onChange={handleChange}
+            variant="outlined"
+          />
+          <TextField
+            fullWidth
+            label="Semester"
+            name="semester"
+            value={formData.semester}
+            onChange={handleChange}
+            variant="outlined"
+          />
+          <TextField
+            fullWidth
+            label="Languages"
+            name="languages"
+            value={formData.languages}
+            onChange={handleChange}
+            variant="outlined"
+            helperText="Separate multiple languages with commas"
+          />
+        </Stack>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} disabled={isLoading}>
+          Cancel
+        </Button>
+        <Button
+          onClick={handleSubmit}
+          variant="contained"
+          color="primary"
+          disabled={isLoading}
+          startIcon={<EditIcon />}
+        >
+          {isLoading ? 'Saving...' : 'Save Changes'}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
 const MyProfilePage = () => {
   const router = useRouter();
   const { myProfile: t, logInSystem: l } = getLocaleObject(router);
   const [userInfo, setUserInfo] = useState(undefined);
   const [openPurgeDialog, setOpenPurgeDialog] = useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
   const [persona, setPresetProfileName] = useState('Blank');
   const [trafficLightStatus, setTrafficLightStatus] = useState(false);
   const [sectionReviewStatus, setSectionReviewStatus] = useState(false);
   const [isVerifiedUser, setIsVerifiedUser] = useState(false);
   const [tabValue, setTabValue] = useState(0);
+  const [profileData, setProfileData] = useState(null);
+  const [isProfileUpdated, setIsProfileUpdated] = useState(false);
 
   useEffect(() => {
     getUserInfo().then((info) => {
@@ -140,6 +289,21 @@ const MyProfilePage = () => {
     });
   }, []);
 
+  useEffect(() => {
+    if (tabValue === 0 && (profileData === null || isProfileUpdated)) {
+      // Fetch if not loaded before or if profile was updated
+      getUserProfile()
+        .then((data) => {
+          setProfileData(data);
+          setIsProfileUpdated(false);
+        })
+        .catch((err) => {
+          console.error('Error fetching profile data:', err);
+          setProfileData({ error: 'Failed to load profile information' });
+        });
+    }
+  }, [tabValue, profileData, isProfileUpdated]);
+
   async function handleTrafficLight(trafficLightStatus) {
     try {
       await updateTrafficLightStatus(trafficLightStatus);
@@ -148,7 +312,7 @@ const MyProfilePage = () => {
       console.error('Error updating traffic light status:', error);
     }
   }
-  
+
   async function handleSectionReviewStatus(sectionReviewStatus) {
     try {
       await updateSectionReviewStatus(sectionReviewStatus);
@@ -190,35 +354,44 @@ const MyProfilePage = () => {
     }
   }
 
+  const handleProfileUpdate = (updatedData) => {
+    // Update local state to reflect changes
+    setProfileData((prev) => ({
+      ...prev,
+      ...updatedData,
+    }));
+    setIsProfileUpdated(true);
+  };
+
   if (!userInfo) return null;
 
   return (
     <MainLayout title={`${userInfo.fullName} | ALeA`}>
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
-          <Box 
-            sx={{ 
-              p: 4, 
+          <Box
+            sx={{
+              p: 4,
               bgcolor: PRIMARY_COL,
               color: 'white',
               display: 'flex',
               flexDirection: { xs: 'column', sm: 'row' },
               alignItems: { xs: 'center', sm: 'flex-start' },
-              gap: 3
+              gap: 3,
             }}
           >
-            <Avatar 
-              sx={{ 
-                width: 100, 
-                height: 100, 
+            <Avatar
+              sx={{
+                width: 100,
+                height: 100,
                 fontSize: '2.5rem',
                 bgcolor: 'white',
-                color: PRIMARY_COL
+                color: PRIMARY_COL,
               }}
             >
               {userInfo.fullName.charAt(0)}
             </Avatar>
-            
+
             <Box sx={{ flexGrow: 1 }}>
               <Typography variant="h4" fontWeight="bold">
                 {userInfo.fullName}
@@ -226,10 +399,10 @@ const MyProfilePage = () => {
               <Typography variant="subtitle1" sx={{ opacity: 0.9, mb: 1 }}>
                 {userInfo.userId}
               </Typography>
-              
+
               {!isVerifiedUser && !userInfo.userId.startsWith(ANON_USER_ID_PREFIX) && (
-                <Button 
-                  onClick={() => handleVerification(userInfo.userId)} 
+                <Button
+                  onClick={() => handleVerification(userInfo.userId)}
                   variant="contained"
                   color="secondary"
                   size="small"
@@ -239,19 +412,21 @@ const MyProfilePage = () => {
                   {l.sendVerifcationBtn}
                 </Button>
               )}
-              
+
               {isVerifiedUser && (
                 <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                   <VerifiedUserIcon color="success" />
-                  <Typography variant="body2" sx={{ ml: 1 }}>Verified Account</Typography>
+                  <Typography variant="body2" sx={{ ml: 1 }}>
+                    Verified Account
+                  </Typography>
                 </Box>
               )}
             </Box>
           </Box>
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-            <Tabs 
-              value={tabValue} 
-              onChange={handleTabChange} 
+            <Tabs
+              value={tabValue}
+              onChange={handleTabChange}
               variant="scrollable"
               scrollButtons="auto"
               aria-label="profile tabs"
@@ -263,35 +438,86 @@ const MyProfilePage = () => {
           </Box>
 
           <TabPanel value={tabValue} index={0}>
-            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
-              <Box sx={{ flex: '1 1 50%' }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
+            <Box sx={{ flex: '1 1 50%' }}>
+              <Card variant="outlined">
+                <Box
+                  sx={{
+                    p: 2,
+                    bgcolor: 'primary.light',
+                    color: 'white',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Typography variant="h6">Personal Information</Typography>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    size="small"
+                    startIcon={<EditIcon />}
+                    onClick={() => setOpenEditDialog(true)}
+                  >
+                    Edit
+                  </Button>
+                </Box>
+                <Box sx={{ p: 3, borderRadius: 2, bgcolor: 'background.paper', boxShadow: 2 }}>
+                {profileData ? (
+                  <Stack spacing={2}>
+                    {[
+                      { label: 'First Name', value: profileData.firstName },
+                      { label: 'Last Name', value: profileData.lastName },
+                      { label: 'Email', value: profileData.email },
+                      { label: 'Study Program', value: profileData.studyProgram },
+                      { label: 'Semester', value: profileData.semester },
+                      { label: 'Languages', value: profileData.languages }
+                    ].map((field) => (
+                      <Box key={field.label} sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Typography variant="body1" sx={{ fontWeight: 'bold', color: 'text.secondary', minWidth: 140 }}>
+                          {field.label}:
+                        </Typography>
+                        <Typography variant="body1" sx={{ color: 'text.primary' }}>
+                          {field.value || '-'}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Stack>
+                ) : (
+                  <Typography sx={{ color: 'text.secondary' }}>Loading...</Typography>
+                )}
+              </Box>
+              </Card>
+            </Box>
+            
+            <Box sx={{ flex: '1 1 50%' }}>
                 <Card variant="outlined" sx={{ height: '100%' }}>
                   <Box sx={{ p: 2, bgcolor: 'primary.light', color: 'white' }}>
-                    <Typography variant="h6">Learning Resources</Typography>
+                    <Typography variant="h6">Your Data in ALeA</Typography>
                   </Box>
                   <Stack spacing={2} sx={{ p: 2 }}>
-                    <Button 
-                      component={Link} 
-                      href="/my-notes" 
-                      variant="contained" 
+                    <Button
+                      component={Link}
+                      href="/my-notes"
+                      variant="contained"
                       fullWidth
                       startIcon={<NoteAltIcon />}
                     >
                       {t.myNotes}
                     </Button>
-                    <Button 
-                      component={Link} 
-                      href="/my-learner-model" 
-                      variant="contained" 
+                    <Button
+                      component={Link}
+                      href="/my-learner-model"
+                      variant="contained"
                       fullWidth
                       startIcon={<AssessmentIcon />}
                     >
                       {t.myCompetencyData}
                     </Button>
-                    <Button 
-                      component={Link} 
-                      href="/learner-model-init" 
-                      variant="contained" 
+                    <Button
+                      component={Link}
+                      href="/learner-model-init"
+                      variant="contained"
                       fullWidth
                       startIcon={<SchoolIcon />}
                     >
@@ -300,7 +526,54 @@ const MyProfilePage = () => {
                   </Stack>
                 </Card>
               </Box>
-              
+          </Box>
+          </TabPanel>
+
+          <TabPanel value={tabValue} index={1}>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
+              <Box sx={{ flex: '1 1 50%' }}>
+                <Card variant="outlined">
+                  <Box sx={{ p: 2, bgcolor: 'primary.light', color: 'white' }}>
+                    <Typography variant="h6">Display Settings</Typography>
+                  </Box>
+                  <Box sx={{ p: 2 }}>
+                    <Stack spacing={2}>
+                      <Paper
+                        variant="outlined"
+                        sx={{
+                          p: 2,
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <Typography fontWeight="medium">Show Traffic Light on Notes</Typography>
+                        <Switch
+                          checked={trafficLightStatus}
+                          onChange={() => handleTrafficLight(!trafficLightStatus)}
+                          color="primary"
+                        />
+                      </Paper>
+                      <Paper
+                        variant="outlined"
+                        sx={{
+                          p: 2,
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <Typography fontWeight="medium">Show Review Section on Notes</Typography>
+                        <Switch
+                          checked={sectionReviewStatus}
+                          onChange={() => handleSectionReviewStatus(!sectionReviewStatus)}
+                          color="primary"
+                        />
+                      </Paper>
+                    </Stack>
+                  </Box>
+                </Card>
+              </Box>
               <Box sx={{ flex: '1 1 50%' }}>
                 <Card variant="outlined" sx={{ height: '100%' }}>
                   <Box sx={{ p: 2, bgcolor: 'primary.light', color: 'white' }}>
@@ -332,11 +605,16 @@ const MyProfilePage = () => {
                         </Box>
                       </Box>
                     )}
-                    
+
                     <Typography variant="body1">
-                      Account Type: <strong>{userInfo.userId.startsWith(ANON_USER_ID_PREFIX) ? 'Anonymous' : 'Registered'}</strong>
+                      Account Type:{' '}
+                      <strong>
+                        {userInfo.userId.startsWith(ANON_USER_ID_PREFIX)
+                          ? 'Anonymous'
+                          : 'Registered'}
+                      </strong>
                     </Typography>
-                    
+
                     {!isVerifiedUser && !userInfo.userId.startsWith(ANON_USER_ID_PREFIX) && (
                       <Box sx={{ mt: 2, p: 2, bgcolor: 'warning.light', borderRadius: 1 }}>
                         <Typography>{l.verifcationMessage}</Typography>
@@ -346,38 +624,6 @@ const MyProfilePage = () => {
                 </Card>
               </Box>
             </Box>
-          </TabPanel>
-
-          <TabPanel value={tabValue} index={1}>
-            <Card variant="outlined">
-              <Box sx={{ p: 2, bgcolor: 'primary.light', color: 'white' }}>
-                <Typography variant="h6">Display Settings</Typography>
-              </Box>
-              <Box sx={{ p: 2 }}>
-                <Stack spacing={2}>
-                  <Paper variant="outlined" sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Typography fontWeight="medium">
-                      Show Traffic Light on Notes
-                    </Typography>
-                    <Switch
-                      checked={trafficLightStatus}
-                      onChange={() => handleTrafficLight(!trafficLightStatus)}
-                      color="primary"
-                    />
-                  </Paper>
-                  <Paper variant="outlined" sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Typography fontWeight="medium">
-                      Show Review Section on Notes
-                    </Typography>
-                    <Switch
-                      checked={sectionReviewStatus}
-                      onChange={() => handleSectionReviewStatus(!sectionReviewStatus)}
-                      color="primary"
-                    />
-                  </Paper>
-                </Stack>
-              </Box>
-            </Card>
           </TabPanel>
 
           <TabPanel value={tabValue} index={2}>
@@ -431,11 +677,12 @@ const MyProfilePage = () => {
                   </Box>
                   <Box sx={{ p: 3 }}>
                     <Typography variant="body2" color="error" sx={{ mb: 2 }}>
-                      Warning: This action cannot be undone. All your data will be permanently deleted.
+                      Warning: This action cannot be undone. All your data will be permanently
+                      deleted.
                     </Typography>
-                    <Button 
-                      variant="outlined" 
-                      color="error" 
+                    <Button
+                      variant="outlined"
+                      color="error"
                       startIcon={<DeleteIcon />}
                       onClick={() => setOpenPurgeDialog(true)}
                       fullWidth
@@ -450,14 +697,22 @@ const MyProfilePage = () => {
         </Paper>
       </Container>
 
-      <Dialog 
-        onClose={() => setOpenPurgeDialog(false)} 
+      <Dialog
+        onClose={() => setOpenPurgeDialog(false)}
         open={openPurgeDialog}
         maxWidth="sm"
         fullWidth
       >
         <ConfirmPurgeDialogContent onClose={handleDataPurge} />
       </Dialog>
+
+      <EditProfileDialog
+        open={openEditDialog}
+        onClose={() => setOpenEditDialog(false)}
+        profileData={profileData}
+        userId={userInfo?.userId}
+        onSave={handleProfileUpdate}
+      />
     </MainLayout>
   );
 };
