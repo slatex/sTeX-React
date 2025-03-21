@@ -359,16 +359,16 @@ function __wbg_adapter_58(arg0, arg1) {
 }
 
 function __wbg_adapter_63(arg0, arg1, arg2) {
-    wasm.closure475_externref_shim(arg0, arg1, arg2);
+    wasm.closure568_externref_shim(arg0, arg1, arg2);
 }
 
 function __wbg_adapter_74(arg0, arg1, arg2) {
-    const ret = wasm.closure963_externref_shim(arg0, arg1, arg2);
+    const ret = wasm.closure995_externref_shim(arg0, arg1, arg2);
     return ret >>> 0;
 }
 
-function __wbg_adapter_149(arg0, arg1, arg2, arg3) {
-    wasm.closure796_externref_shim(arg0, arg1, arg2, arg3);
+function __wbg_adapter_151(arg0, arg1, arg2, arg3) {
+    wasm.closure826_externref_shim(arg0, arg1, arg2, arg3);
 }
 
 const __wbindgen_enum_ReadableStreamType = ["bytes"];
@@ -416,20 +416,33 @@ export class ExerciseFeedback {
         wasm.__wbg_set_exercisefeedback_correct(this.__wbg_ptr, arg0);
     }
     /**
-     * @param {string} json
+     * @returns {number}
+     */
+    get score_fraction() {
+        const ret = wasm.__wbg_get_exercisefeedback_score_fraction(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * @param {number} arg0
+     */
+    set score_fraction(arg0) {
+        wasm.__wbg_set_exercisefeedback_score_fraction(this.__wbg_ptr, arg0);
+    }
+    /**
+     * @param {string} s
      * @returns {ExerciseFeedback | undefined}
      */
-    static from_json(json) {
-        const ptr0 = passStringToWasm0(json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    static from_jstring(s) {
+        const ptr0 = passStringToWasm0(s, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.exercisefeedback_from_json(ptr0, len0);
+        const ret = wasm.exercisefeedback_from_jstring(ptr0, len0);
         return ret === 0 ? undefined : ExerciseFeedback.__wrap(ret);
     }
     /**
      * @returns {string | undefined}
      */
-    to_json() {
-        const ret = wasm.exercisefeedback_to_json(this.__wbg_ptr);
+    to_jstring() {
+        const ret = wasm.exercisefeedback_to_jstring(this.__wbg_ptr);
         let v1;
         if (ret[0] !== 0) {
             v1 = getStringFromWasm0(ret[0], ret[1]).slice();
@@ -666,20 +679,20 @@ export class Solutions {
         wasm.__wbg_solutions_free(ptr, 0);
     }
     /**
-     * @param {string} json
+     * @param {string} s
      * @returns {Solutions | undefined}
      */
-    static from_json(json) {
-        const ptr0 = passStringToWasm0(json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    static from_jstring(s) {
+        const ptr0 = passStringToWasm0(s, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.solutions_from_json(ptr0, len0);
+        const ret = wasm.solutions_from_jstring(ptr0, len0);
         return ret === 0 ? undefined : Solutions.__wrap(ret);
     }
     /**
      * @returns {string | undefined}
      */
-    to_json() {
-        const ret = wasm.solutions_to_json(this.__wbg_ptr);
+    to_jstring() {
+        const ret = wasm.solutions_to_jstring(this.__wbg_ptr);
         let v1;
         if (ret[0] !== 0) {
             v1 = getStringFromWasm0(ret[0], ret[1]).slice();
@@ -1320,7 +1333,7 @@ export function __wbg_new_23a2665fac83c611(arg0, arg1) {
             const a = state0.a;
             state0.a = 0;
             try {
-                return __wbg_adapter_149(a, state0.b, arg0, arg1);
+                return __wbg_adapter_151(a, state0.b, arg0, arg1);
             } finally {
                 state0.a = a;
             }
@@ -1759,43 +1772,43 @@ export function __wbindgen_cb_drop(arg0) {
     return ret;
 };
 
-export function __wbindgen_closure_wrapper1130(arg0, arg1, arg2) {
-    const ret = makeMutClosure(arg0, arg1, 476, __wbg_adapter_58);
+export function __wbindgen_closure_wrapper1252(arg0, arg1, arg2) {
+    const ret = makeMutClosure(arg0, arg1, 569, __wbg_adapter_58);
     return ret;
 };
 
-export function __wbindgen_closure_wrapper1416(arg0, arg1, arg2) {
-    const ret = makeMutClosure(arg0, arg1, 476, __wbg_adapter_58);
+export function __wbindgen_closure_wrapper1625(arg0, arg1, arg2) {
+    const ret = makeMutClosure(arg0, arg1, 569, __wbg_adapter_58);
     return ret;
 };
 
-export function __wbindgen_closure_wrapper4135(arg0, arg1, arg2) {
-    const ret = makeMutClosure(arg0, arg1, 476, __wbg_adapter_63);
+export function __wbindgen_closure_wrapper4142(arg0, arg1, arg2) {
+    const ret = makeMutClosure(arg0, arg1, 569, __wbg_adapter_63);
     return ret;
 };
 
-export function __wbindgen_closure_wrapper4136(arg0, arg1, arg2) {
-    const ret = makeMutClosure(arg0, arg1, 476, __wbg_adapter_63);
+export function __wbindgen_closure_wrapper4608(arg0, arg1, arg2) {
+    const ret = makeMutClosure(arg0, arg1, 569, __wbg_adapter_63);
     return ret;
 };
 
-export function __wbindgen_closure_wrapper5312(arg0, arg1, arg2) {
-    const ret = makeMutClosure(arg0, arg1, 476, __wbg_adapter_63);
+export function __wbindgen_closure_wrapper5413(arg0, arg1, arg2) {
+    const ret = makeMutClosure(arg0, arg1, 569, __wbg_adapter_63);
     return ret;
 };
 
-export function __wbindgen_closure_wrapper6885(arg0, arg1, arg2) {
-    const ret = makeMutClosure(arg0, arg1, 476, __wbg_adapter_63);
+export function __wbindgen_closure_wrapper7008(arg0, arg1, arg2) {
+    const ret = makeMutClosure(arg0, arg1, 569, __wbg_adapter_63);
     return ret;
 };
 
-export function __wbindgen_closure_wrapper7717(arg0, arg1, arg2) {
-    const ret = makeMutClosure(arg0, arg1, 476, __wbg_adapter_63);
+export function __wbindgen_closure_wrapper7848(arg0, arg1, arg2) {
+    const ret = makeMutClosure(arg0, arg1, 569, __wbg_adapter_63);
     return ret;
 };
 
-export function __wbindgen_closure_wrapper7797(arg0, arg1, arg2) {
-    const ret = makeClosure(arg0, arg1, 476, __wbg_adapter_74);
+export function __wbindgen_closure_wrapper7959(arg0, arg1, arg2) {
+    const ret = makeClosure(arg0, arg1, 569, __wbg_adapter_74);
     return ret;
 };
 

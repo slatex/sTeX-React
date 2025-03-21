@@ -94,41 +94,6 @@ export function get_server_url(): string;
  * *This API requires the following crate features to be activated: `ReadableStreamType`*
  */
 type ReadableStreamType = 'bytes';
-/**
- * Options for rendering an FTML document
- * - `FromBackend`: calls the backend for the document
- *     uri: the URI of the document (as string)
- *     toc: if defined, will render a table of contents for the document
- * - `HtmlString`: render the provided HTML String
- *     html: the HTML String
- *     toc: if defined, will render a table of contents for the document
- */
-export type DocumentOptions =
-  | { uri: DocumentURI; toc: TOCOptions | undefined }
-  | { html: string; toc: TOCElem[] | undefined };
-
-/**
- * Options for rendering an FTML document fragment
- * - `FromBackend`: calls the backend for the document fragment
- *     uri: the URI of the document fragment (as string)
- * - `HtmlString`: render the provided HTML String
- *     html: the HTML String
- */
-export type FragmentOptions =
-  | { uri: DocumentElementURI }
-  | { uri: DocumentElementURI | undefined; html: string };
-
-/**
- * Options for rendering a table of contents
- * `GET` will retrieve it from the remote backend
- * `TOCElem[]` will render the provided TOC
- */
-export type TOCOptions = 'GET' | { Predefined: TOCElem[] };
-
-export type ExerciseOption =
-  | { WithFeedback: [DocumentElementURI, ExerciseFeedback][] }
-  | { WithSolutions: [DocumentElementURI, Solutions][] };
-
 export interface ExerciseResponse {
   uri: DocumentElementURI;
   responses: ExerciseResponseType[];
@@ -148,9 +113,27 @@ export type CognitiveDimension =
   | 'Evaluate'
   | 'Create';
 
-export type SymbolURI = string;
+export interface Quiz {
+  css: CSS[];
+  title: string | undefined;
+  elements: QuizElement[];
+  solutions: Map<DocumentElementURI, string>;
+}
 
-export type DocumentElementURI = string;
+export type QuizElement =
+  | { Section: { title: string; elements: QuizElement[] } }
+  | { Question: QuizQuestion }
+  | { Paragraph: { html: string } };
+
+export interface QuizQuestion {
+  html: string;
+  uri: DocumentElementURI;
+  total_points: number;
+  preconditions: [CognitiveDimension, SymbolURI][];
+  objectives: [CognitiveDimension, SymbolURI][];
+}
+
+export type DocumentURI = string;
 
 export type ParagraphKind =
   | 'Definition'
@@ -160,7 +143,46 @@ export type ParagraphKind =
   | 'SubProof'
   | 'Example';
 
+export type Name = string;
+
 export type Language = 'en' | 'de' | 'fr' | 'ro' | 'ar' | 'bg' | 'ru' | 'fi' | 'tr' | 'sl';
+
+export type ArchiveId = string;
+
+export type SearchResultKind =
+  | 'Document'
+  | 'Paragraph'
+  | 'Definition'
+  | 'Example'
+  | 'Assertion'
+  | 'Exercise';
+
+export type SearchResult =
+  | { Document: DocumentURI }
+  | {
+      Paragraph: {
+        uri: DocumentElementURI;
+        fors: SymbolURI[];
+        def_like: boolean;
+        kind: SearchResultKind;
+      };
+    };
+
+export interface QueryFilter {
+  allow_documents?: boolean;
+  allow_paragraphs?: boolean;
+  allow_definitions?: boolean;
+  allow_examples?: boolean;
+  allow_assertions?: boolean;
+  allow_exercises?: boolean;
+  definition_like_only?: boolean;
+}
+
+export type SlideElement =
+  | { type: 'Slide'; html: string }
+  | { type: 'Paragraph'; html: string }
+  | { type: 'Inputref'; uri: DocumentURI }
+  | { type: 'Section'; title: string | undefined; children: SlideElement[] };
 
 export interface FileData {
   rel_path: string;
@@ -266,9 +288,7 @@ export type LOKind =
   | ({ type: 'Exercise' } & CognitiveDimension)
   | ({ type: 'SubExercise' } & CognitiveDimension);
 
-export type ArchiveId = string;
-
-export type DocumentURI = string;
+export type DocumentElementURI = string;
 
 export interface FileStateSummary {
   new: number;
@@ -277,37 +297,6 @@ export interface FileStateSummary {
   up_to_date: number;
   last_built: Timestamp;
   last_changed: Timestamp;
-}
-
-export type Name = string;
-
-export type SearchResultKind =
-  | 'Document'
-  | 'Paragraph'
-  | 'Definition'
-  | 'Example'
-  | 'Assertion'
-  | 'Exercise';
-
-export type SearchResult =
-  | { Document: DocumentURI }
-  | {
-      Paragraph: {
-        uri: DocumentElementURI;
-        fors: SymbolURI[];
-        def_like: boolean;
-        kind: SearchResultKind;
-      };
-    };
-
-export interface QueryFilter {
-  allow_documents?: boolean;
-  allow_paragraphs?: boolean;
-  allow_definitions?: boolean;
-  allow_examples?: boolean;
-  allow_assertions?: boolean;
-  allow_exercises?: boolean;
-  definition_like_only?: boolean;
 }
 
 export type SectionLevel =
@@ -319,9 +308,46 @@ export type SectionLevel =
   | 'Paragraph'
   | 'Subparagraph';
 
+export type SymbolURI = string;
+
 export type CSS = { Link: string } | { Inline: string } | { Class: { name: string; css: string } };
 
 export type Timestamp = number;
+
+/**
+ * Options for rendering an FTML document
+ * - `FromBackend`: calls the backend for the document
+ *     uri: the URI of the document (as string)
+ *     toc: if defined, will render a table of contents for the document
+ * - `HtmlString`: render the provided HTML String
+ *     html: the HTML String
+ *     toc: if defined, will render a table of contents for the document
+ */
+export type DocumentOptions =
+  | { uri: DocumentURI; toc: TOCOptions | undefined }
+  | { html: string; toc: TOCElem[] | undefined };
+
+/**
+ * Options for rendering an FTML document fragment
+ * - `FromBackend`: calls the backend for the document fragment
+ *     uri: the URI of the document fragment (as string)
+ * - `HtmlString`: render the provided HTML String
+ *     html: the HTML String
+ */
+export type FragmentOptions =
+  | { uri: DocumentElementURI }
+  | { uri: DocumentElementURI | undefined; html: string };
+
+/**
+ * Options for rendering a table of contents
+ * `GET` will retrieve it from the remote backend
+ * `TOCElem[]` will render the provided TOC
+ */
+export type TOCOptions = 'GET' | { Predefined: TOCElem[] };
+
+export type ExerciseOption =
+  | { WithFeedback: [DocumentElementURI, ExerciseFeedback][] }
+  | { WithSolutions: [DocumentElementURI, Solutions][] };
 
 export type LeptosContinuation = (e: HTMLDivElement, o: LeptosContext) => void;
 
@@ -362,9 +388,10 @@ export type TOC = TOCElem[] | DocumentURI;
 export class ExerciseFeedback {
   private constructor();
   free(): void;
-  static from_json(json: string): ExerciseFeedback | undefined;
-  to_json(): string | undefined;
+  static from_jstring(s: string): ExerciseFeedback | undefined;
+  to_jstring(): string | undefined;
   correct: boolean;
+  score_fraction: number;
 }
 export class FTMLMountHandle {
   private constructor();
@@ -410,7 +437,7 @@ export class LeptosContext {
 export class Solutions {
   private constructor();
   free(): void;
-  static from_json(json: string): Solutions | undefined;
-  to_json(): string | undefined;
+  static from_jstring(s: string): Solutions | undefined;
+  to_jstring(): string | undefined;
   check_response(response: ExerciseResponse): ExerciseFeedback | undefined;
 }

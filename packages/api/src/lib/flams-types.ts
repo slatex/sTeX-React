@@ -27,6 +27,8 @@ export type Directory = FTML.DirectoryData;
 export type File = FTML.FileData;
 export type SearchResult = FTML.SearchResult;
 export type QueryFilter = FTML.QueryFilter;
+export type FTMLQuiz = FTML.Quiz;
+export type SlideElement = FTML.SlideElement;
 
 export type DocumentURIParams =
   | { uri: DocumentURI }

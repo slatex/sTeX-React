@@ -1,53 +1,23 @@
 /* tslint:disable */
 /* eslint-disable */
 export const memory: WebAssembly.Memory;
-export const set_debug_log: () => void;
-export const ftml_setup: (
-  a: any,
-  b: any,
-  c: number,
-  d: number,
-  e: number,
-  f: number,
-  g: number,
-  h: number,
-  i: number
-) => number;
-export const render_document: (
-  a: any,
-  b: any,
-  c: number,
-  d: number,
-  e: number,
-  f: number,
-  g: number,
-  h: number,
-  i: number,
-  j: number
-) => [number, number, number];
-export const render_fragment: (
-  a: any,
-  b: any,
-  c: number,
-  d: number,
-  e: number,
-  f: number,
-  g: number,
-  h: number,
-  i: number,
-  j: number
-) => [number, number, number];
-export const __wbg_ftmlmounthandle_free: (a: number, b: number) => void;
-export const ftmlmounthandle_unmount: (a: number) => void;
 export const __wbg_solutions_free: (a: number, b: number) => void;
-export const solutions_from_json: (a: number, b: number) => number;
-export const solutions_to_json: (a: number) => [number, number];
+export const solutions_from_jstring: (a: number, b: number) => number;
+export const solutions_to_jstring: (a: number) => [number, number];
 export const solutions_check_response: (a: number, b: any) => number;
 export const __wbg_exercisefeedback_free: (a: number, b: number) => void;
 export const __wbg_get_exercisefeedback_correct: (a: number) => number;
 export const __wbg_set_exercisefeedback_correct: (a: number, b: number) => void;
-export const exercisefeedback_from_json: (a: number, b: number) => number;
-export const exercisefeedback_to_json: (a: number) => [number, number];
+export const __wbg_get_exercisefeedback_score_fraction: (a: number) => number;
+export const __wbg_set_exercisefeedback_score_fraction: (a: number, b: number) => void;
+export const exercisefeedback_from_jstring: (a: number, b: number) => number;
+export const exercisefeedback_to_jstring: (a: number) => [number, number];
+export const set_debug_log: () => void;
+export const ftml_setup: (a: any, b: any, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => number;
+export const render_document: (a: any, b: any, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number) => [number, number, number];
+export const render_fragment: (a: any, b: any, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number) => [number, number, number];
+export const __wbg_ftmlmounthandle_free: (a: number, b: number) => void;
+export const ftmlmounthandle_unmount: (a: number) => void;
 export const set_server_url: (a: number, b: number) => void;
 export const __wbg_leptoscontext_free: (a: number, b: number) => void;
 export const leptoscontext_cleanup: (a: number) => void;
@@ -74,11 +44,8 @@ export const __wbindgen_export_4: WebAssembly.Table;
 export const __wbindgen_free: (a: number, b: number, c: number) => void;
 export const __wbindgen_export_6: WebAssembly.Table;
 export const __externref_table_dealloc: (a: number) => void;
-export const _dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h4ed24e189a98788b: (
-  a: number,
-  b: number
-) => void;
-export const closure475_externref_shim: (a: number, b: number, c: any) => void;
-export const closure963_externref_shim: (a: number, b: number, c: any) => number;
-export const closure796_externref_shim: (a: number, b: number, c: any, d: any) => void;
+export const _dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h4ed24e189a98788b: (a: number, b: number) => void;
+export const closure568_externref_shim: (a: number, b: number, c: any) => void;
+export const closure995_externref_shim: (a: number, b: number, c: any) => number;
+export const closure826_externref_shim: (a: number, b: number, c: any, d: any) => void;
 export const __wbindgen_start: () => void;
