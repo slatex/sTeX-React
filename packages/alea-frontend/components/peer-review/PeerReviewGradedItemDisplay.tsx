@@ -43,7 +43,7 @@ export function PeerReviewGradedItemDisplay({
         >
           <Box>
             <ProblemDisplay
-              showUnAnsweredProblems={false}
+              showUnansweredProblems={false}
               showPoints={false}
               problem={problem}
               isFrozen={true}

@@ -532,14 +532,14 @@ export function ProblemDisplay({
   onFreezeResponse,
   debug,
   problemId = '',
-  showUnAnsweredProblems=true
+  showUnansweredProblems = true,
 }: {
   uri?: string;
   problem: Problem | undefined;
   isFrozen: boolean;
   r?: ProblemResponse;
   showPoints?: boolean;
-  showUnAnsweredProblems?: boolean;
+  showUnansweredProblems?: boolean;
   onResponseUpdate: (r: ProblemResponse) => void;
   onFreezeResponse?: () => void;
   debug?: boolean;
@@ -575,38 +575,36 @@ export function ProblemDisplay({
     });
   });
 
-  //Non-Autogradable problem widgets
-  const napWidgets = problem.subProblemData.filter((c,i)=>{
-    if(showUnAnsweredProblems){
-      return true;
-    }
-    else{
+  // Non-Autogradable problem widgets
+  const napWidgets = problem.subProblemData
+    .filter((c, i) => {
+      if (showUnansweredProblems) return true;
       return r?.freeTextResponses?.[i] !== undefined;
-    }
-  }).map((c, i) => (
-    <SubProblemAnswer
-      problem={problem}
-      questionId={uri ? uri : problemId}
-      subProblemId={i.toString()}
-      subProblem={c}
-      isFrozen={isFrozen}
-      existingResponse={r?.freeTextResponses?.[i]}
-      onSaveClick={() => {
-        if (!r) return;
-        const freeTextResponses: Record<string, string> = {};
-        for (let i = 0; i < problem.subProblemData.length; i++) {
-          freeTextResponses[i.toString()] =
-            getAnswerFromLocalStorage(uri ? uri : problemId, i.toString()) ?? '';
-        }
-        saveAnswers({
-          problemId,
-          uri,
-          freeTextResponses,
-        });
-        onResponseUpdate({ ...r, freeTextResponses });
-      }}
-    ></SubProblemAnswer>
-  ));
+    })
+    .map((c, i) => (
+      <SubProblemAnswer
+        problem={problem}
+        questionId={uri ? uri : problemId}
+        subProblemId={i.toString()}
+        subProblem={c}
+        isFrozen={isFrozen}
+        existingResponse={r?.freeTextResponses?.[i]}
+        onSaveClick={() => {
+          if (!r) return;
+          const freeTextResponses: Record<string, string> = {};
+          for (let i = 0; i < problem.subProblemData.length; i++) {
+            freeTextResponses[i.toString()] =
+              getAnswerFromLocalStorage(uri ? uri : problemId, i.toString()) ?? '';
+          }
+          saveAnswers({
+            problemId,
+            uri,
+            freeTextResponses,
+          });
+          onResponseUpdate({ ...r, freeTextResponses });
+        }}
+      ></SubProblemAnswer>
+    ));
 
   const customItems: Record<string, any> = {};
 

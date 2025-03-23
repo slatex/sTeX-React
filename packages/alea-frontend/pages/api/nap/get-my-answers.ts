@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import {
   checkIfGetOrSetError,
-  getUserIdOrSetError,
   executeAndEndSet500OnError,
+  getUserIdOrSetError,
 } from '../comment-utils';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -10,9 +10,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
   const result = await executeAndEndSet500OnError(
-    `select id,questionId,subProblemId,answer,questionTitle,courseId,courseInstance, updatedAt from Answer where userId=? and homeworkId is null order by updatedAt desc`,
+    `SELECT id, questionId, subProblemId, answer, questionTitle, courseId, courseInstance, updatedAt
+    FROM Answer 
+    WHERE userId=? AND homeworkId IS NULL 
+    ORDER BY updatedAt DESC`,
     [userId],
     res
   );
+  if (!result) return;
   return res.json(result);
 }

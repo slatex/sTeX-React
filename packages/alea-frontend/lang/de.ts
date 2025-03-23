@@ -136,7 +136,7 @@ export const de = {
     myNotes: 'Meine Notizen',
     myCompetencyData: 'Meine Kompetenzdaten',
     learnerModelPriming: 'Fundament des Lernendenmodells',
-    myAnswers: "Meine Antworten",
+    myAnswers: 'Meine Antworten',
     myGrading: 'Meine Bewertung',
     downloadData: 'Laden Sie Ihre Daten herunter',
     downloadNotes: 'Laden Sie Ihre Notizen und Kommentare herunter',
@@ -393,6 +393,6 @@ export const de = {
     homework: 'Hausaufgaben',
     forum: 'Forum',
     welcome: 'Willkommen',
-    peerReview:'Peer Review'
+    peerReview: 'Peer Review',
   },
 };

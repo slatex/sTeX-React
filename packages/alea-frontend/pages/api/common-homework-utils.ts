@@ -13,7 +13,7 @@ interface PerSubProblemGradingType {
   updatedAt: string;
 }
 
-export async function getGradingItems(
+export async function getGradingItemsOrSetError(
   courseId: string,
   instanceId: string,
   isPeerGrading: boolean,

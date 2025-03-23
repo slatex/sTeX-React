@@ -72,6 +72,7 @@ export interface GradingInfo {
   createdAt: Date;
   updatedAt: Date;
 }
+
 export interface GradingWithAnswer extends GradingInfo {
   questionTitle: string;
   subProblemId: string;

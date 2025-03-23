@@ -8,11 +8,11 @@ import { useContext, useEffect, useState } from 'react';
 import CourseAccessControlDashboard from '../../components/CourseAccessControlDashboard';
 import HomeworkManager from '../../components/HomeworkManager';
 import { GradingInterface } from '../../components/nap/GradingInterface';
+import InstructorPeerReviewViewing from '../../components/peer-review/InstructorPeerReviewViewing';
 import QuizDashboard from '../../components/QuizDashboard';
 import { StudyBuddyModeratorStats } from '../../components/StudyBuddyModeratorStats';
 import MainLayout from '../../layouts/MainLayout';
 import { CourseHeader } from '../course-home/[courseId]';
-import InstructorPeerReviewViewing from '../../components/peer-review/InstructorPeerReviewViewing';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -84,14 +84,16 @@ const TabPanel = (props: TabPanelProps) => {
     </Box>
   );
 };
-const tabRequireWithds = [
-  { name: 'access-control', maxWidth: '900px' },
-  { name: 'homework-grading', maxWidth: undefined },
-  { name: 'peer-review', maxWidth: undefined },
-  { name: 'homework-manager', maxWidth: '900px' },
-  { name: 'quiz-dashboard', maxWidth: '900px' },
-  { name: 'study-buddy', maxWidth: '900px' },
-];
+
+const TAB_MAX_WIDTH: Record<TabName, string | undefined> = {
+  'access-control': '900px',
+  'homework-grading': undefined,
+  'peer-review': undefined,
+  'homework-manager': '900px',
+  'quiz-dashboard': '900px',
+  'study-buddy': '900px',
+};
+
 const InstructorDash: NextPage = () => {
   const router = useRouter();
   const courseId = router.query.courseId as string;
@@ -162,8 +164,7 @@ const InstructorDash: NextPage = () => {
         sx={{
           width: '100%',
           margin: 'auto',
-          maxWidth: tabRequireWithds.find((t) => t.name === accessibleTabs[currentTabIdx])
-            ?.maxWidth,
+          maxWidth: TAB_MAX_WIDTH[accessibleTabs[currentTabIdx]],
         }}
       >
         <Tabs

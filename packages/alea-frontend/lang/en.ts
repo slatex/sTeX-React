@@ -417,6 +417,6 @@ export const en = {
     homework: 'Homeworks',
     forum: 'Forum',
     welcome: 'Welcome',
-    peerReview:'Peer Review'
+    peerReview: 'Peer Review',
   },
 };

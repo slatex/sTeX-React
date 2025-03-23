@@ -7,7 +7,7 @@ import {
 import { getUserIdIfAnyAuthorizedOrSetError } from '../../access-control/resource-utils';
 import { Action, CURRENT_TERM, ResourceName } from '@stex-react/utils';
 import { GradingWithAnswer } from '@stex-react/api';
-import { addAnswerClassesToGrading } from '../nap-utils';
+import { addAnswerClassesToGradingOrSetError } from '../nap-utils';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfGetOrSetError(req, res)) return;
@@ -23,9 +23,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!userId) return;
   
   const grading = await executeAndEndSet500OnError<GradingWithAnswer[]>(
-    `SELECT Grading.id,Answer.questionTitle,Answer.subProblemId,Grading.answerId,Grading.checkerId,Answer.questionId,Grading.reviewType,Grading.customFeedback,Grading.totalPoints,Grading.updatedAt,Answer.courseInstance,Answer.courseId,Answer.answer FROM Answer INNER JOIN Grading ON Answer.id = Grading.answerId WHERE Answer.courseId = ? and Answer.homeworkId is null ORDER BY Grading.updatedAt DESC`,
+    `SELECT Grading.id, Answer.questionTitle, Answer.subProblemId, Grading.answerId,Grading.checkerId,Answer.questionId,Grading.reviewType,Grading.customFeedback,Grading.totalPoints,Grading.updatedAt,Answer.courseInstance,Answer.courseId,Answer.answer 
+    FROM Answer INNER JOIN Grading ON Answer.id = Grading.answerId 
+    WHERE Answer.courseId = ? and Answer.homeworkId IS NULL
+    ORDER BY Grading.updatedAt DESC`,
     [courseId],
     res
   );
-  return res.json(await addAnswerClassesToGrading(grading, res));
+  if(!grading) return;
+  const gradingWithAnswerClasses = await addAnswerClassesToGradingOrSetError(grading, res);
+  if (!gradingWithAnswerClasses) return;
+  res.json(gradingWithAnswerClasses);
 }

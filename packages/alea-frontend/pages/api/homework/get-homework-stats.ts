@@ -2,7 +2,7 @@ import { HomeworkStatsInfo } from '@stex-react/api';
 import { CURRENT_TERM } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { checkIfGetOrSetError, executeAndEndSet500OnError } from '../comment-utils';
-import { getGradingItems } from '../common-homework-utils';
+import { getGradingItemsOrSetError } from '../common-homework-utils';
 import { getHomeworkOrSetError } from './get-homework';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -24,12 +24,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const responseRate: { [attemptedProblems: number]: number } = {};
   const answerHistogram = [];
   const gradingStates = [];
-  const gradingItems = await getGradingItems(courseId, instanceId,true, res);
+  const gradingItems = await getGradingItemsOrSetError(courseId, instanceId, true, res);
+  if (!gradingItems) return;
   const responseRateResult = await executeAndEndSet500OnError(
     `select count( userId) as answer_count,UNIX_TIMESTAMP(Date(createdAt)) createdDate From Answer where homeworkId=? group by createdDate`,
     [homeworkId],
     res
   );
+  if (!responseRateResult) return;
   for (const rr of responseRateResult) {
     responseRate[rr.createdDate] = rr.answer_count;
   }

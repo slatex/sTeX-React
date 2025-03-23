@@ -18,6 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!userId) return;
 
   const id = +req.query.id;
-  await executeAndEndSet500OnError(`Delete From Grading Where id=?`, [id], res);
+  const deleted = await executeAndEndSet500OnError(`DELETE FROM Grading WHERE id=?`, [id], res);
+  if (!deleted) return;
   res.status(200).end();
 }
