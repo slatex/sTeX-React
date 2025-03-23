@@ -266,8 +266,7 @@ export const MaAI_COURSES: {
     courseName: 'Kommunikation und parallele Prozesse',
   },
   krmt: {
-    courseName:
-      'Logic-Based Representation of Mathematical/Technical Knowledge',
+    courseName: 'Logic-Based Representation of Mathematical/Technical Knowledge',
   },
   lbs: {
     courseName: 'Logik-Basierte Sprachverarbeitung',
@@ -393,8 +392,7 @@ export const MaAI_COURSES: {
     courseName: 'Project Music and Audio Processing ProjMAP',
   },
   'ai-faps': {
-    courseName:
-      'Project on Applied AI in Factory Automation and Production Systems',
+    courseName: 'Project on Applied AI in Factory Automation and Production Systems',
   },
   prl: {
     courseName: 'Project Representation Learning PRL',
@@ -436,8 +434,7 @@ export const MaAI_COURSES: {
     courseName: 'Blender Seminar',
   },
   ets: {
-    courseName:
-      'Blickfang: KI-getriebene Modellierung und Analyse von Eye-Tracking-Daten',
+    courseName: 'Blickfang: KI-getriebene Modellierung und Analyse von Eye-Tracking-Daten',
   },
   semcogsurob: {
     courseName: 'Cognitive Surgical Robotics',
@@ -467,8 +464,7 @@ export const MaAI_COURSES: {
     courseName: 'Machine Learning in MRI',
   },
   nyt: {
-    courseName:
-      'Nailing your Thesis (Anleitung zum wissenschaftlichen Arbeiten)',
+    courseName: 'Nailing your Thesis (Anleitung zum wissenschaftlichen Arbeiten)',
   },
   semaineuro: {
     courseName: 'Neurosciene-inspired Artificial Intelligence',
@@ -530,4 +526,37 @@ export const MaAI_COURSES: {
   traco: {
     courseName: 'Tracking Olympiad',
   },
+  Konto1700: {
+    courseName: 'Studienrichtung Medizinelektronik, medizinische Bild- und Datenverarbeitung',
+  },
+  Konto1705: { courseName: 'Vertiefungsmodule ET/INF' },
+  Konto1750: {
+    courseName: 'Studienrichtung Medizinische Gerätetechnik, Produktionstechnik und Prothetik',
+  },
+  Konto1755: { courseName: 'Vertiefungsmodule MB/WW/CBI' },
+  95801: { courseName: 'Medizintechnik I (Biomaterialien)' },
+  95811: { courseName: 'Medizintechnik II (Bildgebende Verfahren)' },
+  67840: { courseName: 'Mathematik für MT 1' },
+  67850: { courseName: 'Mathematik für MT 2' },
+  67860: { courseName: 'Mathematik für MT 3' },
+  67870: { courseName: 'Mathematik für MT 4' },
+  92561: { courseName: 'Grundlagen der Elektrotechnik I für MT, MECH' },
+  92570: { courseName: 'Grundlagen der Elektrotechnik II' },
+  66012: { courseName: 'Experimentalphysik II' },
+  66002: { courseName: 'Experimentalphysik I' },
+  94660: { courseName: 'Statik und Festigkeitslehre' },
+  93055: { courseName: 'Algorithmen und Datenstrukturen für MT - Vorlesung' },
+  93000: { courseName: 'Algorithmik kontinuierlicher Systeme' },
+  Konto1801: { courseName: 'Ingenieurwissenschaftliche Kernmodule' },
+  Konto1802: { courseName: 'Medizintechnische Kernmodule' },
+  Konto1803: { courseName: 'Medizintechnische Vertiefungsmodule' },
+  Konto1811: { courseName: 'Ingenieurwissenschaftliche Kernmodule' },
+  Konto1812: { courseName: 'Medizintechnische Kernmodule' },
+  Konto1813: { courseName: 'Medizintechnische Vertiefungsmodule' },
+  Konto1821: { courseName: 'Ingenieurwissenschaftliche Kernmodule' },
+  Konto1822: { courseName: 'Medizintechnische Kernmodule' },
+  Konto1823: { courseName: 'Medizintechnische Vertiefungsmodule' },
+  Konto1842: { courseName: 'Engineering Core Modules' },
+  Konto1843: { courseName: 'Medical Engineering Core Modules' },
+  Konto1844: { courseName: 'Medical Engineering specialisation modules' },
 };
