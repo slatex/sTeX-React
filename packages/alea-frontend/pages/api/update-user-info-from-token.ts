@@ -3,10 +3,7 @@ import { executeAndEndSet500OnError, getUserInfo } from './comment-utils';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const userInfo = await getUserInfo(req);
-  if (!userInfo) {
-    res.status(403).send({ message: "Couldn't get user info" });
-    return;
-  }
+  if (!userInfo) return res.status(204).end();
   const { userId, givenName, sn } = userInfo;
 
   const updateResult = await executeAndEndSet500OnError(
@@ -19,8 +16,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (!updateResult) return;
 
-  res.status(200).json({
-    success: true,
-    message: 'userInfo updated successfully',
-  });
+  res.status(204).end();
 }
