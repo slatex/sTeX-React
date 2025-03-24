@@ -1,3 +1,6 @@
+import { Settings } from "@mui/icons-material";
+import { profile } from "console";
+
 export const de = {
   home: {
     header: 'ALeA basierte Kurse an der FAU',
@@ -133,6 +136,22 @@ export const de = {
     header: 'Systemaktualisierung',
   },
   myProfile: {
+    profile: 'Profil',
+    Settings: 'Einstellungen',
+    dataExport: 'Datenexport',
+    personalInfo : 'Persönliche Informationen',
+    firstName: 'Vorname',
+    lastName: 'Nachname',
+    email: 'E-Mail',
+    studyProgram: 'Studiengang',
+    semester: 'Semester',
+    languages: 'Sprachen',
+    save: 'Speichern',
+
+    dataAlea: 'Ihre Daten im ALᴇA-System',
+    displaySettings: 'Anzeigeeinstellungen',
+    accountInformation: 'Kontoinformationen',
+
     myNotes: 'Meine Notizen',
     myCompetencyData: 'Meine Kompetenzdaten',
     learnerModelPriming: 'Fundament des Lernendenmodells',

@@ -11,7 +11,6 @@ export * from './lmp';
 export * from './misc';
 export * from './mmt';
 export * from './my-profile';
-export { Languages } from './my-profile';
 export * from './nap';
 export * from './nap-api';
 export * from './next-api';

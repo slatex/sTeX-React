@@ -42,7 +42,7 @@ import {
   getUserInfo,
   getUserInformation,
   getUserProfile,
-  Languages,
+  Language,
   myprofile,
   purgeAllMyData,
   purgeComments,
@@ -124,7 +124,7 @@ export function EditProfileDialog({ open, onClose, profileData, userId, onSave }
     email: '',
     studyProgram: '',
     semester: '',
-    languages: Languages.English,
+    languages: Language.English,
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -221,7 +221,7 @@ export function EditProfileDialog({ open, onClose, profileData, userId, onSave }
           )}
           <TextField
             fullWidth
-            label="First Name"
+            label={t.firstName}
             name="firstName"
             value={formData.firstName}
             onChange={handleChange}
@@ -229,7 +229,7 @@ export function EditProfileDialog({ open, onClose, profileData, userId, onSave }
           />
           <TextField
             fullWidth
-            label="Last Name"
+            label={t.lastName}
             name="lastName"
             value={formData.lastName}
             onChange={handleChange}
@@ -237,15 +237,15 @@ export function EditProfileDialog({ open, onClose, profileData, userId, onSave }
           />
           <TextField
             fullWidth
-            label="Last Name"
-            name="lastName"
+            label={t.email}
+            name="Email"
             value={formData.email}
             onChange={handleChange}
             variant="outlined"
           />
           <TextField
             fullWidth
-            label="Study Program"
+            label={t.studyProgram}
             name="studyProgram"
             value={formData.studyProgram}
             onChange={handleChange}
@@ -254,7 +254,7 @@ export function EditProfileDialog({ open, onClose, profileData, userId, onSave }
           <TextField
             fullWidth
             select
-            label="Semester"
+            label={t.semester}
             name="semester"
             value={formData.semester}
             onChange={handleChange}
@@ -286,10 +286,10 @@ export function EditProfileDialog({ open, onClose, profileData, userId, onSave }
               renderValue={(selected) => selected.join(', ')}
               fullWidth
             >
-              {Object.keys(Languages).map((key) => (
+              {Object.keys(Language).map((key) => (
                 <MenuItem key={key} value={key}>
                   <Checkbox checked={formData.languages.includes(key)} />
-                  <ListItemText primary={Languages[key]} />
+                  <ListItemText primary={Language[key]} />
                 </MenuItem>
               ))}
             </Select>
@@ -486,9 +486,9 @@ const MyProfilePage = () => {
               scrollButtons="auto"
               aria-label="profile tabs"
             >
-              <Tab icon={<AccountCircleIcon />} iconPosition="start" label="Profile" />
-              <Tab icon={<SettingsIcon />} iconPosition="start" label="Settings" />
-              <Tab icon={<DownloadIcon />} iconPosition="start" label="Data Export" />
+              <Tab icon={<AccountCircleIcon />} iconPosition="start" label={t.profile} />
+              <Tab icon={<SettingsIcon />} iconPosition="start" label={t.Settings} />
+              <Tab icon={<DownloadIcon />} iconPosition="start" label={t.dataExport} />
             </Tabs>
           </Box>
 
@@ -506,7 +506,7 @@ const MyProfilePage = () => {
                       alignItems: 'center',
                     }}
                   >
-                    <Typography variant="h6">Personal Information</Typography>
+                    <Typography variant="h6">{t.personalInfo}</Typography>
                     <Button
                       variant="contained"
                       color="secondary"
@@ -521,12 +521,12 @@ const MyProfilePage = () => {
                     {profileData ? (
                       <Stack spacing={2}>
                         {[
-                          { label: 'First Name', value: profileData.firstName },
-                          { label: 'Last Name', value: profileData.lastName },
-                          { label: 'Email', value: profileData.email },
-                          { label: 'Study Program', value: profileData.studyProgram },
-                          { label: 'Semester', value: profileData.semester },
-                          { label: 'Languages', value: profileData.languages },
+                          { label: t.firstName, value: profileData.firstName },
+                          { label: t.lastName, value: profileData.lastName },
+                          { label: t.email, value: profileData.email },
+                          { label: t.studyProgram, value: profileData.studyProgram },
+                          { label: t.semester, value: profileData.semester },
+                          { label: t.languages, value: profileData.languages },
                         ].map((field) => (
                           <Box key={field.label} sx={{ display: 'flex', alignItems: 'center' }}>
                             <Typography
@@ -551,7 +551,7 @@ const MyProfilePage = () => {
               <Box sx={{ flex: '1 1 50%' }}>
                 <Card variant="outlined" sx={{ height: '100%' }}>
                   <Box sx={{ p: 2, bgcolor: 'primary.light', color: 'white' }}>
-                    <Typography variant="h6">Your Data in ALeA</Typography>
+                    <Typography variant="h6">{t.dataAlea}</Typography>
                   </Box>
                   <Stack spacing={2} sx={{ p: 2 }}>
                     <Button
@@ -592,7 +592,7 @@ const MyProfilePage = () => {
               <Box sx={{ flex: '1 1 50%' }}>
                 <Card variant="outlined">
                   <Box sx={{ p: 2, bgcolor: 'primary.light', color: 'white' }}>
-                    <Typography variant="h6">Display Settings</Typography>
+                    <Typography variant="h6">{t.displaySettings}</Typography>
                   </Box>
                   <Box sx={{ p: 2 }}>
                     <Stack spacing={2}>
@@ -635,7 +635,7 @@ const MyProfilePage = () => {
               <Box sx={{ flex: '1 1 50%' }}>
                 <Card variant="outlined" sx={{ height: '100%' }}>
                   <Box sx={{ p: 2, bgcolor: 'primary.light', color: 'white' }}>
-                    <Typography variant="h6">Account Information</Typography>
+                    <Typography variant="h6">{t.accountInformation}</Typography>
                   </Box>
                   <Box sx={{ p: 3 }}>
                     {userInfo?.userId?.startsWith('fake_') && (

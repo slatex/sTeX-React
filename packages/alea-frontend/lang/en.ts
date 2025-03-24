@@ -1,3 +1,5 @@
+import { Settings } from "@mui/icons-material";
+
 export const en = {
   home: {
     header: 'ALeA based Courses at FAU',
@@ -158,6 +160,21 @@ export const en = {
     goToTour: 'Go To Tour',
   },
   myProfile: {
+    profile: 'Profile',
+    Settings: 'Settings',
+    dataExport: 'Data Export',
+    personalInfo: 'Personal Information',
+    firstName: 'First Name',
+    lastName: 'Last Name',
+    email: 'Email',
+    languages: 'Languages',
+    studyProgram: 'Study Program',
+    semester: 'Semester',
+    save: 'Save',
+
+    dataAlea: 'Your Data in ALᴇA',
+    displaySettings: 'Display Settings',
+
     myNotes: 'My notes',
     myCompetencyData: 'My competency data',
     learnerModelPriming: 'Learner Model Priming',

@@ -1,7 +1,6 @@
-export enum Languages {
+export enum Language {
     Deutsch = 'Deutsch',
     English = 'English',
-    
     Arabic = 'Arabic',
     Bengali = 'Bengali',
     Hindi = 'Hindi',
@@ -29,5 +28,5 @@ export interface myprofile{
     email: string;
     studyProgram: string;
     semester: string;
-    languages: Languages;
+    languages: Language;
 }
