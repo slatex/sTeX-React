@@ -13,9 +13,10 @@ interface PerSubProblemGradingType {
   updatedAt: string;
 }
 
-export async function getGradingItems(
+export async function getGradingItemsOrSetError(
   courseId: string,
   instanceId: string,
+  isPeerGrading: boolean,
   res: NextApiResponse
 ): Promise<GradingItem[]> {
   const gradingList: PerSubProblemGradingType[] = await executeAndEndSet500OnError(
@@ -33,7 +34,7 @@ export async function getGradingItems(
     [courseId, instanceId],
     res
   );
-  if (!gradingList) return [];  
+  if (!gradingList) return [];
   const gradingItemsMap: {
     [key: string]: Omit<
       GradingItem,
@@ -69,9 +70,16 @@ export async function getGradingItems(
   });
 
   return Object.values(gradingItemsMap).map((i) => {
-    const { subProblemsAnswered, subProblemsGraded, subProblemsInstructorGraded, ...rest } = i;
+    const {
+      subProblemsAnswered,
+      subProblemsGraded,
+      subProblemsInstructorGraded,
+      studentId,
+      ...rest
+    } = i;
     return {
       ...rest,
+      studentId: isPeerGrading ? '' : studentId,
       numSubProblemsAnswered: subProblemsAnswered?.size ?? 0,
       numSubProblemsGraded: subProblemsGraded?.size ?? 0,
       numSubProblemsInstructorGraded: subProblemsInstructorGraded?.size ?? 0,

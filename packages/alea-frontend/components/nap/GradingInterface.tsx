@@ -5,7 +5,6 @@ import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CloseIcon from '@mui/icons-material/Close';
 import ShieldIcon from '@mui/icons-material/Shield';
 import {
-  Autocomplete,
   Button,
   Checkbox,
   Chip,
@@ -40,7 +39,7 @@ import {
   ProblemDisplay,
   ServerLinksContext,
 } from '@stex-react/stex-react-renderer';
-import { GradingContext } from 'packages/stex-react-renderer/src/lib/SubProblemAnswer';
+import { GradingContext, ShowGradingFor } from 'packages/stex-react-renderer/src/lib/SubProblemAnswer';
 import {
   Dispatch,
   SetStateAction,
@@ -51,6 +50,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { MultiItemSelector } from './MultiItemsSeletctor';
 
 const MULTI_SELECT_FIELDS = ['homeworkId', 'questionId', 'studentId'] as const;
 const ALL_SORT_FIELDS = ['homeworkDate', 'questionTitle', 'updatedAt', 'studentId'] as const;
@@ -69,55 +69,6 @@ async function fetchAndProcessProblem(questionId: string, mmtUrl: string) {
   const problemHtml = await getLearningObjectShtml(mmtUrl, problemObject);
   const problemId = hackAwayProblemId(problemHtml);
   return getProblem(problemId, '');
-}
-function MultiItemSelector<T>({
-  selectedValues,
-  allValues,
-  label,
-  onUpdate,
-}: {
-  selectedValues: T[];
-  allValues: { value: T; title: string }[];
-  label: string;
-  onUpdate: (value: T[]) => void;
-}) {
-  return (
-    <Autocomplete
-      multiple
-      id={`${label}-filter`}
-      options={allValues}
-      isOptionEqualToValue={(option, value) => option.value === value.value}
-      disableCloseOnSelect
-      getOptionLabel={(option) => option.title}
-      limitTags={2}
-      value={selectedValues.map((v) => allValues.find((a) => a.value === v))}
-      onChange={(e, newValue) => {
-        onUpdate(newValue.map((v) => v.value));
-      }}
-      renderOption={(props, option, { selected }) => {
-        const { key, ...optionProps } = props;
-        return (
-          <li key={key} {...optionProps}>
-            <Checkbox checked={selected} />
-            {option.title ? mmtHTMLToReact(option.title) : (option.value ?? 'unset').toString()}
-          </li>
-        );
-      }}
-      renderTags={(value, getTagProps) => {
-        return value.map((option, index) => (
-          <Chip
-            key={index}
-            {...getTagProps({ index })}
-            label={
-              option.title ? mmtHTMLToReact(option.title) : option.value.toString().substring(0, 30)
-            }
-          />
-        ));
-      }}
-      renderInput={(params) => <TextField {...params} label={label} />}
-      sx={{ minWidth: 300 }}
-    />
-  );
 }
 
 function getSelectedGradingItems(
@@ -171,45 +122,49 @@ function getSelectedGradingItems(
 function GradingListSortFields({
   sortAndFilterParams,
   setSortAndFilterParams,
+  isPeerGrading,
 }: {
   sortAndFilterParams: SortAndFilterParams;
+  isPeerGrading: boolean;
   setSortAndFilterParams: Dispatch<SetStateAction<SortAndFilterParams>>;
 }) {
   const { sortingFields, sortOrders } = sortAndFilterParams;
   return (
     <Box display="flex" rowGap={1} columnGap={2} alignItems="center" flexWrap="wrap">
       Sort:
-      {sortingFields.map((item) => (
-        <Button
-          key={item}
-          variant="outlined"
-          onClick={(e) => {
-            e.stopPropagation();
-            setSortAndFilterParams((prev) => ({
-              ...prev,
-              sortingFields: [item, ...prev.sortingFields.filter((f) => f !== item)],
-            }));
-          }}
-          sx={{ py: 0 }}
-        >
-          {item}&nbsp;
-          <IconButton
+      {sortingFields
+        .filter((i) => (isPeerGrading ? i !== 'studentId' : i))
+        .map((item) => (
+          <Button
+            key={item}
+            variant="outlined"
             onClick={(e) => {
               e.stopPropagation();
-
               setSortAndFilterParams((prev) => ({
                 ...prev,
-                sortOrders: {
-                  ...prev.sortOrders,
-                  [item]: sortOrders[item] === 'ASC' ? 'DESC' : 'ASC',
-                },
+                sortingFields: [item, ...prev.sortingFields.filter((f) => f !== item)],
               }));
             }}
+            sx={{ py: 0 }}
           >
-            {sortOrders[item] === 'ASC' ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
-          </IconButton>
-        </Button>
-      ))}
+            {item}&nbsp;
+            <IconButton
+              onClick={(e) => {
+                e.stopPropagation();
+
+                setSortAndFilterParams((prev) => ({
+                  ...prev,
+                  sortOrders: {
+                    ...prev.sortOrders,
+                    [item]: sortOrders[item] === 'ASC' ? 'DESC' : 'ASC',
+                  },
+                }));
+              }}
+            >
+              {sortOrders[item] === 'ASC' ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
+            </IconButton>
+          </Button>
+        ))}
       <IconButton
         onClick={() => {
           setSortAndFilterParams((prev) => ({
@@ -256,12 +211,14 @@ function GradingItemOrganizer({
   questionMap,
   homeworkMap,
   sortAndFilterParams,
+  isPeerGrading,
   setSortAndFilterParams,
 }: {
   gradingItems: GradingItem[];
   questionMap: Record<string, Problem>;
   homeworkMap: Record<string, HomeworkInfo>;
   sortAndFilterParams: SortAndFilterParams;
+  isPeerGrading: boolean;
   setSortAndFilterParams: Dispatch<SetStateAction<SortAndFilterParams>>;
 }) {
   const allQuestions = useMemo(
@@ -302,17 +259,19 @@ function GradingItemOrganizer({
             }))
           }
         />
-        <MultiItemSelector
-          label="Students"
-          selectedValues={sortAndFilterParams.multiSelectField.studentId}
-          allValues={allStudentIds}
-          onUpdate={(studentId) =>
-            setSortAndFilterParams((prev) => ({
-              ...prev,
-              multiSelectField: { ...prev.multiSelectField, studentId },
-            }))
-          }
-        />
+        {!isPeerGrading && (
+          <MultiItemSelector
+            label="Students"
+            selectedValues={sortAndFilterParams.multiSelectField.studentId}
+            allValues={allStudentIds}
+            onUpdate={(studentId) =>
+              setSortAndFilterParams((prev) => ({
+                ...prev,
+                multiSelectField: { ...prev.multiSelectField, studentId },
+              }))
+            }
+          />
+        )}
       </Box>
       <Box my={1}>
         <Button
@@ -333,6 +292,7 @@ function GradingItemOrganizer({
         </Button>
       </Box>
       <GradingListSortFields
+        isPeerGrading={isPeerGrading}
         sortAndFilterParams={sortAndFilterParams}
         setSortAndFilterParams={setSortAndFilterParams}
       />
@@ -345,11 +305,13 @@ function GradingItemsList({
   onSelectItem,
   homeworkMap,
   problemMap,
+  isPeerGrading,
 }: {
   gradingItems: GradingItem[];
   onSelectItem: (homeworkId: number, problemId: string, studentId: string) => void;
   homeworkMap: Record<string, HomeworkInfo>;
   problemMap: Record<string, Problem>;
+  isPeerGrading: boolean;
 }) {
   return (
     <Box maxHeight="50vh" overflow="scroll">
@@ -391,7 +353,7 @@ function GradingItemsList({
                       : homeworkMap[homeworkId]?.title
                       ? mmtHTMLToReact(homeworkMap[homeworkId].title)
                       : 'HW ' + homeworkId}
-                    &nbsp;({studentId})
+                    &nbsp;{isPeerGrading ? '' : `(${studentId})`}
                   </>
                 }
               />
@@ -464,6 +426,7 @@ function GradingItemDisplay({
         value={{
           isGrading: true,
           showGrading: true,
+          showGradingFor:ShowGradingFor.INSTRUCTOR,
           gradingInfo: { [questionId]: subProblemInfoToGradingInfo },
           studentId,
           onNewGrading: async (
@@ -497,7 +460,6 @@ function GradingItemDisplay({
     </Box>
   );
 }
-
 interface SortAndFilterParams {
   multiSelectField: Record<MultSelectField, (string | number)[]>;
   isGraded: Tristate;
@@ -508,7 +470,13 @@ interface SortAndFilterParams {
   showPracticeOnly: boolean;
 }
 
-export function GradingInterface({ courseId }: { courseId: string }) {
+export function GradingInterface({
+  isPeerGrading,
+  courseId,
+}: {
+  isPeerGrading: boolean;
+  courseId: string;
+}) {
   const [sortAndFilterParams, setSortAndFilterParams] = useState<SortAndFilterParams>({
     multiSelectField: {
       homeworkId: [],
@@ -598,6 +566,7 @@ export function GradingInterface({ courseId }: { courseId: string }) {
         questionMap={questionMap.current}
         homeworkMap={homeworkMap.current}
         gradingItems={gradingItems}
+        isPeerGrading={isPeerGrading}
         sortAndFilterParams={sortAndFilterParams}
         setSortAndFilterParams={setSortAndFilterParams}
       />
@@ -610,6 +579,7 @@ export function GradingInterface({ courseId }: { courseId: string }) {
             gradingItems={selectedGradedItems}
             homeworkMap={homeworkMap.current}
             problemMap={questionMap.current}
+            isPeerGrading={isPeerGrading}
             onSelectItem={(homeworkId, questionId, studentId) =>
               setSelected({ homeworkId, questionId, studentId })
             }
