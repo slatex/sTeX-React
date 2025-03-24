@@ -148,7 +148,7 @@ export async function getUserProfile() {
     if (axios.isAxiosError(error) && error.response?.status === 401) {
       logoutAndGetToLoginPage();
     }
-    throw new Error("Failed to fetch user profile");
+    throw new Error('Failed to fetch user profile');
   }
 }
 
@@ -162,13 +162,11 @@ export async function updateUserProfile(
   languages: string
 ) {
   return await axios.post(
-    '/api/update-user-profile', // ✅ API route
+    '/api/update-user-profile',
     { userId, firstName, lastName, email, studyProgram, semester, languages },
     { headers: getAuthHeaders() }
   );
 }
-
-
 
 export async function updateTrafficLightStatus(trafficStatus: boolean) {
   cachedUserInformation = undefined;

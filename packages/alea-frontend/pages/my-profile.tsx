@@ -13,13 +13,19 @@ import {
   Box,
   Button,
   Card,
+  Checkbox,
   Container,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
+  FormControl,
+  InputLabel,
+  ListItemText,
+  MenuItem,
   Paper,
+  Select,
   Stack,
   Switch,
   Tab,
@@ -36,6 +42,8 @@ import {
   getUserInfo,
   getUserInformation,
   getUserProfile,
+  Languages,
+  myprofile,
   purgeAllMyData,
   purgeComments,
   purgeStudyBuddyData,
@@ -46,7 +54,7 @@ import {
   updateTrafficLightStatus,
   updateUserProfile,
 } from '@stex-react/api';
-import { PRIMARY_COL, downloadFile } from '@stex-react/utils';
+import { downloadFile, PRIMARY_COL } from '@stex-react/utils';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { getLocaleObject } from '../lang/utils';
@@ -110,13 +118,13 @@ export function ConfirmPurgeDialogContent({ onClose }) {
 export function EditProfileDialog({ open, onClose, profileData, userId, onSave }) {
   const router = useRouter();
   const { myProfile: t } = getLocaleObject(router);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<myprofile>({
     firstName: '',
     lastName: '',
     email: '',
     studyProgram: '',
     semester: '',
-    languages: '',
+    languages: Languages.English,
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -178,6 +186,29 @@ export function EditProfileDialog({ open, onClose, profileData, userId, onSave }
     }
   };
 
+  const semesterOptions = [
+    'SS16',
+    'WS16-17',
+    'SS17',
+    'WS17-18',
+    'SS18',
+    'WS18-19',
+    'SS19',
+    'WS19-20',
+    'SS20',
+    'WS20-21',
+    'SS21',
+    'WS21-22',
+    'SS22',
+    'WS22-23',
+    'SS23',
+    'WS23-24',
+    'SS24',
+    'WS24-25',
+    'SS25',
+    'WS25-26',
+  ];
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ bgcolor: 'primary.light', color: 'white' }}>Edit Profile</DialogTitle>
@@ -222,21 +253,47 @@ export function EditProfileDialog({ open, onClose, profileData, userId, onSave }
           />
           <TextField
             fullWidth
+            select
             label="Semester"
             name="semester"
             value={formData.semester}
             onChange={handleChange}
             variant="outlined"
-          />
-          <TextField
-            fullWidth
-            label="Languages"
-            name="languages"
-            value={formData.languages}
-            onChange={handleChange}
-            variant="outlined"
-            helperText="Separate multiple languages with commas"
-          />
+            SelectProps={{
+              native: true,
+            }}
+          >
+            <option value="">Select a semester</option>
+            {semesterOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </TextField>
+          <FormControl sx={{ mb: '0.5rem' }} fullWidth>
+            <InputLabel id="language-label">{t.languages}</InputLabel>
+            <Select
+              labelId="language-label"
+              id="language-select"
+              value={formData.languages ? formData.languages.split(',') : []}
+              multiple
+              label={t.languages}
+              variant="outlined"
+              onChange={(e) => {
+                const languages = (e.target.value as string[]).join(',');
+                setFormData((prev) => ({ ...prev, languages }));
+              }}
+              renderValue={(selected) => selected.join(', ')}
+              fullWidth
+            >
+              {Object.keys(Languages).map((key) => (
+                <MenuItem key={key} value={key}>
+                  <Checkbox checked={formData.languages.includes(key)} />
+                  <ListItemText primary={Languages[key]} />
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Stack>
       </DialogContent>
       <DialogActions>
@@ -291,7 +348,6 @@ const MyProfilePage = () => {
 
   useEffect(() => {
     if (tabValue === 0 && (profileData === null || isProfileUpdated)) {
-      // Fetch if not loaded before or if profile was updated
       getUserProfile()
         .then((data) => {
           setProfileData(data);
@@ -355,7 +411,6 @@ const MyProfilePage = () => {
   }
 
   const handleProfileUpdate = (updatedData) => {
-    // Update local state to reflect changes
     setProfileData((prev) => ({
       ...prev,
       ...updatedData,
@@ -438,59 +493,62 @@ const MyProfilePage = () => {
           </Box>
 
           <TabPanel value={tabValue} index={0}>
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
-            <Box sx={{ flex: '1 1 50%' }}>
-              <Card variant="outlined">
-                <Box
-                  sx={{
-                    p: 2,
-                    bgcolor: 'primary.light',
-                    color: 'white',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  }}
-                >
-                  <Typography variant="h6">Personal Information</Typography>
-                  <Button
-                    variant="contained"
-                    color="secondary"
-                    size="small"
-                    startIcon={<EditIcon />}
-                    onClick={() => setOpenEditDialog(true)}
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
+              <Box sx={{ flex: '1 1 50%' }}>
+                <Card variant="outlined">
+                  <Box
+                    sx={{
+                      p: 2,
+                      bgcolor: 'primary.light',
+                      color: 'white',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
                   >
-                    Edit
-                  </Button>
-                </Box>
-                <Box sx={{ p: 3, borderRadius: 2, bgcolor: 'background.paper', boxShadow: 2 }}>
-                {profileData ? (
-                  <Stack spacing={2}>
-                    {[
-                      { label: 'First Name', value: profileData.firstName },
-                      { label: 'Last Name', value: profileData.lastName },
-                      { label: 'Email', value: profileData.email },
-                      { label: 'Study Program', value: profileData.studyProgram },
-                      { label: 'Semester', value: profileData.semester },
-                      { label: 'Languages', value: profileData.languages }
-                    ].map((field) => (
-                      <Box key={field.label} sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Typography variant="body1" sx={{ fontWeight: 'bold', color: 'text.secondary', minWidth: 140 }}>
-                          {field.label}:
-                        </Typography>
-                        <Typography variant="body1" sx={{ color: 'text.primary' }}>
-                          {field.value || '-'}
-                        </Typography>
-                      </Box>
-                    ))}
-                  </Stack>
-                ) : (
-                  <Typography sx={{ color: 'text.secondary' }}>Loading...</Typography>
-                )}
+                    <Typography variant="h6">Personal Information</Typography>
+                    <Button
+                      variant="contained"
+                      color="secondary"
+                      size="small"
+                      startIcon={<EditIcon />}
+                      onClick={() => setOpenEditDialog(true)}
+                    >
+                      Edit
+                    </Button>
+                  </Box>
+                  <Box sx={{ p: 3, borderRadius: 2, bgcolor: 'background.paper', boxShadow: 2 }}>
+                    {profileData ? (
+                      <Stack spacing={2}>
+                        {[
+                          { label: 'First Name', value: profileData.firstName },
+                          { label: 'Last Name', value: profileData.lastName },
+                          { label: 'Email', value: profileData.email },
+                          { label: 'Study Program', value: profileData.studyProgram },
+                          { label: 'Semester', value: profileData.semester },
+                          { label: 'Languages', value: profileData.languages },
+                        ].map((field) => (
+                          <Box key={field.label} sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Typography
+                              variant="body1"
+                              sx={{ fontWeight: 'bold', color: 'text.secondary', minWidth: 140 }}
+                            >
+                              {field.label}:
+                            </Typography>
+                            <Typography variant="body1" sx={{ color: 'text.primary' }}>
+                              {field.value || '-'}
+                            </Typography>
+                          </Box>
+                        ))}
+                      </Stack>
+                    ) : (
+                      <Typography sx={{ color: 'text.secondary' }}>Loading...</Typography>
+                    )}
+                  </Box>
+                </Card>
               </Box>
-              </Card>
-            </Box>
-            
-            <Box sx={{ flex: '1 1 50%' }}>
+
+              <Box sx={{ flex: '1 1 50%' }}>
                 <Card variant="outlined" sx={{ height: '100%' }}>
                   <Box sx={{ p: 2, bgcolor: 'primary.light', color: 'white' }}>
                     <Typography variant="h6">Your Data in ALeA</Typography>
@@ -526,7 +584,7 @@ const MyProfilePage = () => {
                   </Stack>
                 </Card>
               </Box>
-          </Box>
+            </Box>
           </TabPanel>
 
           <TabPanel value={tabValue} index={1}>
