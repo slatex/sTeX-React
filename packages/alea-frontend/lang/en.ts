@@ -174,6 +174,7 @@ export const en = {
 
     dataAlea: 'Your Data in ALᴇA',
     displaySettings: 'Display Settings',
+    accountInformation: 'Account Information',
 
     myNotes: 'My notes',
     myCompetencyData: 'My competency data',
