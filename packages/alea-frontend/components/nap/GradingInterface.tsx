@@ -39,7 +39,10 @@ import {
   ProblemDisplay,
   ServerLinksContext,
 } from '@stex-react/stex-react-renderer';
-import { GradingContext, ShowGradingFor } from 'packages/stex-react-renderer/src/lib/SubProblemAnswer';
+import {
+  GradingContext,
+  ShowGradingFor,
+} from 'packages/stex-react-renderer/src/lib/SubProblemAnswer';
 import {
   Dispatch,
   SetStateAction,
@@ -308,7 +311,12 @@ function GradingItemsList({
   isPeerGrading,
 }: {
   gradingItems: GradingItem[];
-  onSelectItem: (homeworkId: number, problemId: string, studentId: string) => void;
+  onSelectItem: (
+    homeworkId: number,
+    problemId: string,
+    studentId: string,
+    answerId: number
+  ) => void;
   homeworkMap: Record<string, HomeworkInfo>;
   problemMap: Record<string, Problem>;
   isPeerGrading: boolean;
@@ -322,6 +330,7 @@ function GradingItemsList({
               homeworkId,
               questionId,
               studentId,
+              answerId,
               numSubProblemsAnswered,
               numSubProblemsGraded,
               numSubProblemsInstructorGraded,
@@ -330,7 +339,7 @@ function GradingItemsList({
           ) => (
             <ListItemButton
               key={`${homeworkId}-${questionId}-${studentId}`}
-              onClick={(e) => onSelectItem(homeworkId, questionId, studentId)}
+              onClick={(e) => onSelectItem(homeworkId, questionId, studentId, answerId)}
               sx={{ py: 0, bgcolor: idx % 2 === 0 ? '#f0f0f0' : '#ffffff' }}
             >
               <ListItemIcon>
@@ -369,6 +378,7 @@ function GradingItemDisplay({
   homeworkId,
   questionId,
   studentId,
+  answerId,
   questionMap,
   onNextGradingItem,
   onPrevGradingItem,
@@ -376,6 +386,7 @@ function GradingItemDisplay({
   homeworkId: number;
   questionId: string;
   studentId: string;
+  answerId: number;
   questionMap: Record<string, Problem>;
   onNextGradingItem: () => void;
   onPrevGradingItem: () => void;
@@ -392,9 +403,8 @@ function GradingItemDisplay({
     setStudentResponse(undefined);
     setSubProblemIdToAnswerId({});
     setSubProblemInfoToGradingInfo({});
-    getAnswersWithGrading(homeworkId, questionId, studentId).then((r) => {
+    getAnswersWithGrading(homeworkId, questionId, studentId, answerId).then((r) => {
       setStudentResponse(r.answers);
-      console.log(r.answers);
       setSubProblemIdToAnswerId(r.subProblemIdToAnswerId);
       setSubProblemInfoToGradingInfo(r.subProblemIdToGrades);
     });
@@ -426,7 +436,7 @@ function GradingItemDisplay({
         value={{
           isGrading: true,
           showGrading: true,
-          showGradingFor:ShowGradingFor.INSTRUCTOR,
+          showGradingFor: ShowGradingFor.INSTRUCTOR,
           gradingInfo: { [questionId]: subProblemInfoToGradingInfo },
           studentId,
           onNewGrading: async (
@@ -495,7 +505,7 @@ export function GradingInterface({
   const questionMap = useRef<Record<string, Problem>>({});
 
   const [selected, setSelected] = useState<
-    { homeworkId: number; questionId: string; studentId: string } | undefined
+    { homeworkId: number; questionId: string; studentId: string; answerId: number } | undefined
   >(undefined);
 
   const selectedGradedItems = useMemo(
@@ -580,8 +590,8 @@ export function GradingInterface({
             homeworkMap={homeworkMap.current}
             problemMap={questionMap.current}
             isPeerGrading={isPeerGrading}
-            onSelectItem={(homeworkId, questionId, studentId) =>
-              setSelected({ homeworkId, questionId, studentId })
+            onSelectItem={(homeworkId, questionId, studentId, answerId) =>
+              setSelected({ homeworkId, questionId, studentId, answerId })
             }
           />
         </Box>
@@ -600,8 +610,8 @@ export function GradingInterface({
 
                 if (idx === selectedGradedItems.length - 1) return;
                 const newIdx = idx === -1 ? 0 : idx + 1;
-                const { homeworkId, questionId, studentId } = selectedGradedItems[newIdx];
-                setSelected({ homeworkId, questionId, studentId });
+                const { homeworkId, questionId, studentId, answerId } = selectedGradedItems[newIdx];
+                setSelected({ homeworkId, questionId, studentId, answerId });
               }}
               onPrevGradingItem={() => {
                 const idx = selectedGradedItems.findIndex(
@@ -613,8 +623,8 @@ export function GradingInterface({
 
                 if (idx === 0) return;
                 const newIdx = idx === 0 ? selectedGradedItems.length - 1 : idx - 1;
-                const { homeworkId, questionId, studentId } = selectedGradedItems[newIdx];
-                setSelected({ homeworkId, questionId, studentId });
+                const { homeworkId, questionId, studentId, answerId } = selectedGradedItems[newIdx];
+                setSelected({ homeworkId, questionId, studentId, answerId });
               }}
             />
           ) : (
