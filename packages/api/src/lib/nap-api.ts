@@ -84,11 +84,12 @@ export interface GetAnswersWithGradingResponse {
 export async function getAnswersWithGrading(
   homeworkId: number,
   questionId: string,
-  studentId: string
+  studentId: string,
+  answerId: number
 ) {
   return axios
     .get('/api/nap/get-answers-with-grading', {
-      params: { homeworkId, questionId, studentId },
+      params: { homeworkId, questionId, studentId, answerId },
       headers: getAuthHeaders(),
     })
     .then((c) => c.data as GetAnswersWithGradingResponse);
@@ -133,8 +134,8 @@ export async function getReviewItems(courseId: string) {
   ).data;
 }
 export async function deleteReview(id: number, courseId: string) {
-  return axios.get(
-    '/api/nap/admin/delete-peer-review',
-    { headers: getAuthHeaders(), params: { id, courseId } }
-  );
+  return axios.get('/api/nap/admin/delete-peer-review', {
+    headers: getAuthHeaders(),
+    params: { id, courseId },
+  });
 }

@@ -104,7 +104,7 @@ export interface GradingItem {
   questionId: string;
   studentId: string;
   updatedAt: string;
-
+  answerId: number;
   numSubProblemsAnswered: number;
   numSubProblemsGraded: number;
   numSubProblemsInstructorGraded: number;

@@ -76,15 +76,27 @@ export function convertToSubProblemIdToAnswerId(
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (!checkIfQueryParameterExistOrSetError(req, res, ['questionId', 'studentId'])) return;
+  if (!checkIfQueryParameterExistOrSetError(req, res, ['questionId'])) return;
   const questionId = req.query.questionId as string;
-  const studentId = req.query.studentId as string;
+  let studentId: null | string = req.query?.studentId as string;
   const homeworkId = +(req.query.homeworkId as string);
-
+  const answerId = +(req.query.answerId as string);
+  if (!studentId) {
+    studentId = (
+      await executeAndEndSet500OnError<string[]>(
+        `select userId from Answer where id = ?`,
+        [answerId],
+        res
+      )
+    )[0];
+  }
   if (!homeworkId || isNaN(homeworkId)) {
     const answers = await getAllAnswersForQuestion(studentId, questionId, res);
+    console.log(answers);
     if (!answers) return;
+
     const problemAnswers = answers[questionId];
+    console.log(problemAnswers);
     const subProblemIdToAnswerId = convertToSubProblemIdToAnswerId(problemAnswers);
     const grades = await getAllGradingsOrSetError(subProblemIdToAnswerId, res);
     const response: ProblemResponse = {

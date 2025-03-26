@@ -6,7 +6,7 @@ interface PerSubProblemGradingType {
   homeworkId: number;
   questionId: string;
   studentId: string;
-
+  answerId: number;
   subProblemId: string;
   reviewType?: ReviewType;
 
@@ -26,10 +26,11 @@ export async function getGradingItemsOrSetError(
             a.subProblemId AS subProblemId,
             a.userId AS studentId,
             g.reviewType AS reviewType,
-            MAX(a.updatedAt) AS updatedAt
+            MAX(a.updatedAt) AS updatedAt,
+            a.id AS answerId
         FROM Answer a LEFT JOIN Grading g ON a.id = g.answerId
         WHERE a.courseId = ? AND a.courseInstance = ?
-        GROUP BY homeworkId, questionId, subProblemId, userId, reviewType 
+        GROUP BY homeworkId, questionId, subProblemId, userId, reviewType ,a.id 
         `,
     [courseId, instanceId],
     res
@@ -52,6 +53,7 @@ export async function getGradingItemsOrSetError(
         homeworkId: i.homeworkId,
         questionId: i.questionId,
         studentId: i.studentId,
+        answerId: i.answerId,
         updatedAt: i.updatedAt,
         subProblemsAnswered: new Set(),
         subProblemsGraded: new Set(),
