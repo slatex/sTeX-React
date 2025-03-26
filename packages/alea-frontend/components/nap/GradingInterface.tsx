@@ -380,6 +380,7 @@ function GradingItemDisplay({
   studentId,
   answerId,
   questionMap,
+  courseId,
   onNextGradingItem,
   onPrevGradingItem,
 }: {
@@ -387,6 +388,7 @@ function GradingItemDisplay({
   questionId: string;
   studentId: string;
   answerId: number;
+  courseId: string;
   questionMap: Record<string, Problem>;
   onNextGradingItem: () => void;
   onPrevGradingItem: () => void;
@@ -403,7 +405,7 @@ function GradingItemDisplay({
     setStudentResponse(undefined);
     setSubProblemIdToAnswerId({});
     setSubProblemInfoToGradingInfo({});
-    getAnswersWithGrading(homeworkId, questionId, studentId, answerId).then((r) => {
+    getAnswersWithGrading(homeworkId, questionId, studentId, answerId, courseId).then((r) => {
       setStudentResponse(r.answers);
       setSubProblemIdToAnswerId(r.subProblemIdToAnswerId);
       setSubProblemInfoToGradingInfo(r.subProblemIdToGrades);
@@ -497,7 +499,7 @@ export function GradingInterface({
     isInstructorGraded: Tristate.UNKNOWN,
     sortingFields: [...ALL_SORT_FIELDS],
     sortOrders: DEFAULT_SORT_ORDER,
-    showHomeworkOnly: true,
+    showHomeworkOnly: !isPeerGrading,
     showPracticeOnly: false,
   });
   const [gradingItems, setGradingItems] = useState<GradingItem[]>([]);
@@ -599,6 +601,7 @@ export function GradingInterface({
           {selected ? (
             <GradingItemDisplay
               {...selected}
+              courseId={courseId}
               questionMap={questionMap.current}
               onNextGradingItem={() => {
                 const idx = selectedGradedItems.findIndex(

@@ -85,11 +85,19 @@ export async function getAnswersWithGrading(
   homeworkId: number,
   questionId: string,
   studentId: string,
-  answerId: number
+  answerId: number,
+  courseId: string
 ) {
   return axios
     .get('/api/nap/get-answers-with-grading', {
-      params: { homeworkId, questionId, studentId, answerId },
+      params: {
+        homeworkId,
+        questionId,
+        studentId,
+        answerId,
+        courseId,
+        courseInstance: CURRENT_TERM,
+      },
       headers: getAuthHeaders(),
     })
     .then((c) => c.data as GetAnswersWithGradingResponse);
