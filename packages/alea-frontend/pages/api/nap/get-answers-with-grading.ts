@@ -92,16 +92,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const instanceId = (req.query.courseInstance as string) ?? CURRENT_TERM;
   if (!studentId) {
     studentId = (
-      await executeAndEndSet500OnError<string[]>(
+      await executeAndEndSet500OnError<[]>(
         `select userId from Answer where id = ?`,
         [answerId],
         res
       )
-    )[0];
+    )[0].userId as string;
   }
   if (!homeworkId || isNaN(homeworkId)) {
     const answers = await getAllAnswersForQuestion(studentId, questionId, res);
-    console.log(answers);
     if (!answers) return;
 
     const problemAnswers = answers[questionId];
