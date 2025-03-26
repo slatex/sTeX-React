@@ -1,42 +1,33 @@
-import React, { useEffect, useState } from 'react';
-import {
-  Avatar,
-  Box,
-  Button,
-  Container,
-  Paper,
-  Tabs,
-  Tab,
-  Typography,
-} from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import SettingsIcon from '@mui/icons-material/Settings';
 import DownloadIcon from '@mui/icons-material/Download';
 import EmailIcon from '@mui/icons-material/Email';
+import SettingsIcon from '@mui/icons-material/Settings';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
+import { Avatar, Box, Button, Container, Paper, Tab, Tabs, Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
 
+import {
+  ANON_USER_ID_PREFIX,
+  getUserInfo,
+  getUserInformation,
+  getUserProfile,
+  purgeAllMyData,
+  purgeComments,
+  purgeStudyBuddyData,
+  purgeUserNotifications,
+  resetFakeUserData,
+  sendVerificationEmail,
+  updateSectionReviewStatus,
+  updateTrafficLightStatus,
+} from '@stex-react/api';
+import { PRIMARY_COL } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
-import { 
-  getUserInfo, 
-  getUserInformation, 
-  getUserProfile, 
-  sendVerificationEmail, 
-  updateTrafficLightStatus, 
-  updateSectionReviewStatus,
-  ANON_USER_ID_PREFIX,
-  purgeAllMyData,
-  purgeComments,
-  purgeUserNotifications,
-  purgeStudyBuddyData,
-  resetFakeUserData
-} from '@stex-react/api';
-import { PRIMARY_COL } from '@stex-react/utils';
 
+import { DataExportTab } from '../components/profile/DataExportTab';
 import { ProfileTab } from '../components/profile/ProfileTab';
 import { SettingsTab } from '../components/profile/SettingsTab';
-import { DataExportTab } from '../components/profile/DataExportTab';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -213,18 +204,18 @@ const MyProfilePage = () => {
           </Box>
 
           <TabPanel value={tabValue} index={0}>
-            <ProfileTab 
-              t={t} 
-              profileData={profileData} 
-              userInfo={userInfo} 
-              setOpenEditDialog={setOpenEditDialog} 
+            <ProfileTab
+              t={t}
+              profileData={profileData}
+              userInfo={userInfo}
+              setOpenEditDialog={setOpenEditDialog}
               openEditDialog={openEditDialog}
               handleProfileUpdate={handleProfileUpdate}
             />
           </TabPanel>
 
           <TabPanel value={tabValue} index={1}>
-            <SettingsTab 
+            <SettingsTab
               t={t}
               l={l}
               trafficLightStatus={trafficLightStatus}
@@ -241,7 +232,7 @@ const MyProfilePage = () => {
           </TabPanel>
 
           <TabPanel value={tabValue} index={2}>
-            <DataExportTab 
+            <DataExportTab
               t={t}
               userInfo={userInfo}
               purgeAllMyData={purgeAllMyData}

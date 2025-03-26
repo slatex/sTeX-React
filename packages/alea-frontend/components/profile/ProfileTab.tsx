@@ -1,26 +1,19 @@
-import React, { useState } from 'react';
-import {
-  Box,
-  Card,
-  Typography,
-  Button,
-  Stack,
-} from '@mui/material';
-import Link from 'next/link';
+import AssessmentIcon from '@mui/icons-material/Assessment';
 import EditIcon from '@mui/icons-material/Edit';
 import NoteAltIcon from '@mui/icons-material/NoteAlt';
-import AssessmentIcon from '@mui/icons-material/Assessment';
 import SchoolIcon from '@mui/icons-material/School';
+import { Box, Button, Card, Stack, Typography } from '@mui/material';
+import Link from 'next/link';
 
 import { EditProfileDialog } from './EditProfileDialog';
 
-export const ProfileTab = ({ 
-  t, 
-  profileData, 
-  userInfo, 
-  setOpenEditDialog, 
-  openEditDialog, 
-  handleProfileUpdate 
+export const ProfileTab = ({
+  t,
+  profileData,
+  userInfo,
+  setOpenEditDialog,
+  openEditDialog,
+  handleProfileUpdate,
 }) => {
   return (
     <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
@@ -76,7 +69,7 @@ export const ProfileTab = ({
             )}
           </Box>
         </Card>
-        
+
         <EditProfileDialog
           open={openEditDialog}
           onClose={() => setOpenEditDialog(false)}

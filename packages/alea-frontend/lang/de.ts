@@ -1,6 +1,3 @@
-import { Settings } from "@mui/icons-material";
-import { profile } from "console";
-
 export const de = {
   home: {
     header: 'ALeA basierte Kurse an der FAU',

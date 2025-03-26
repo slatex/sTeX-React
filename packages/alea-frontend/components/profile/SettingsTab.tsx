@@ -1,28 +1,20 @@
-import React from 'react';
-import {
-  Box,
-  Card,
-  Typography,
-  Switch,
-  Paper,
-  Button,
-} from '@mui/material';
-import { PersonaChooser } from '../../pages/login';
+import { Box, Button, Card, Paper, Switch, Typography } from '@mui/material';
 import { ANON_USER_ID_PREFIX } from '@stex-react/api';
+import { PersonaChooser } from '../../pages/login';
 
-export const SettingsTab = ({ 
-  t, 
-  l, 
-  trafficLightStatus, 
-  sectionReviewStatus, 
-  userInfo, 
-  persona, 
-  isVerifiedUser, 
-  handleTrafficLight, 
-  handleSectionReviewStatus, 
-  handleVerification, 
-  setPresetProfileName, 
-  resetFakeUserData 
+export const SettingsTab = ({
+  t,
+  l,
+  trafficLightStatus,
+  sectionReviewStatus,
+  userInfo,
+  persona,
+  isVerifiedUser,
+  handleTrafficLight,
+  handleSectionReviewStatus,
+  handleVerification,
+  setPresetProfileName,
+  resetFakeUserData,
 }) => {
   return (
     <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
@@ -103,9 +95,7 @@ export const SettingsTab = ({
             <Typography variant="body1">
               Account Type:{' '}
               <strong>
-                {userInfo.userId.startsWith(ANON_USER_ID_PREFIX)
-                  ? 'Anonymous'
-                  : 'Registered'}
+                {userInfo.userId.startsWith(ANON_USER_ID_PREFIX) ? 'Anonymous' : 'Registered'}
               </strong>
             </Typography>
 

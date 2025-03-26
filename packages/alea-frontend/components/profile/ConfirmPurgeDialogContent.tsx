@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
-import {
-  Button,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  TextField,
-  Typography,
-} from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import {
+    Button,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    TextField,
+    Typography,
+} from '@mui/material';
 import { useRouter } from 'next/router';
+import { useState } from 'react';
 import { getLocaleObject } from '../../lang/utils';
 
 export function ConfirmPurgeDialogContent({ onClose }) {

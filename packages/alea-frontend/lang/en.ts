@@ -1,5 +1,3 @@
-import { Settings } from "@mui/icons-material";
-
 export const en = {
   home: {
     header: 'ALeA based Courses at FAU',

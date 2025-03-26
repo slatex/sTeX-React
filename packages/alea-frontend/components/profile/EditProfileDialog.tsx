@@ -1,24 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Button,
-  Stack,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Checkbox,
-  ListItemText,
-  Typography,
-} from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
+import {
+    Button,
+    Checkbox,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    FormControl,
+    InputLabel,
+    ListItemText,
+    MenuItem,
+    Select,
+    Stack,
+    TextField,
+    Typography,
+} from '@mui/material';
+import { Language, myprofile, updateUserProfile } from '@stex-react/api';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import { getLocaleObject } from '../../lang/utils';
-import { updateUserProfile, Language, myprofile } from '@stex-react/api';
 
 export function EditProfileDialog({ open, onClose, profileData, userId, onSave }) {
   const router = useRouter();
@@ -71,7 +71,6 @@ export function EditProfileDialog({ open, onClose, profileData, userId, onSave }
     };
 
     try {
-      console.log('Updating profile with:', updatedProfile);
       await updateUserProfile(
         updatedProfile.userId,
         updatedProfile.firstName,
@@ -92,9 +91,26 @@ export function EditProfileDialog({ open, onClose, profileData, userId, onSave }
   };
 
   const semesterOptions = [
-    'SS16', 'WS16-17', 'SS17', 'WS17-18', 'SS18', 'WS18-19', 'SS19', 'WS19-20', 
-    'SS20', 'WS20-21', 'SS21', 'WS21-22', 'SS22', 'WS22-23', 'SS23', 'WS23-24', 
-    'SS24', 'WS24-25', 'SS25', 'WS25-26',
+    'SS16',
+    'WS16-17',
+    'SS17',
+    'WS17-18',
+    'SS18',
+    'WS18-19',
+    'SS19',
+    'WS19-20',
+    'SS20',
+    'WS20-21',
+    'SS21',
+    'WS21-22',
+    'SS22',
+    'WS22-23',
+    'SS23',
+    'WS23-24',
+    'SS24',
+    'WS24-25',
+    'SS25',
+    'WS25-26',
   ];
 
   return (

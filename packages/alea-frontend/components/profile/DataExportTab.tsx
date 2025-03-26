@@ -1,26 +1,19 @@
-import React, { useState } from 'react';
-import {
-  Box,
-  Card,
-  Typography,
-  Button,
-  Stack,
-  Dialog,
-} from '@mui/material';
-import DownloadIcon from '@mui/icons-material/Download';
 import DeleteIcon from '@mui/icons-material/Delete';
+import DownloadIcon from '@mui/icons-material/Download';
+import { Box, Button, Card, Dialog, Stack, Typography } from '@mui/material';
+import { useState } from 'react';
 
 import { getAllMyComments, getAllMyData } from '@stex-react/api';
-import { downloadFile} from '@stex-react/utils';
+import { downloadFile } from '@stex-react/utils';
 import { ConfirmPurgeDialogContent } from './ConfirmPurgeDialogContent';
 
-export const DataExportTab = ({ 
-  t, 
-  userInfo, 
-  purgeAllMyData, 
-  purgeComments, 
-  purgeUserNotifications, 
-  purgeStudyBuddyData 
+export const DataExportTab = ({
+  t,
+  userInfo,
+  purgeAllMyData,
+  purgeComments,
+  purgeUserNotifications,
+  purgeStudyBuddyData,
 }) => {
   const [openPurgeDialog, setOpenPurgeDialog] = useState(false);
 
