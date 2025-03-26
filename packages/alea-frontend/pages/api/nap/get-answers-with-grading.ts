@@ -85,7 +85,7 @@ export function convertToSubProblemIdToAnswerId(
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfQueryParameterExistOrSetError(req, res, ['questionId'])) return;
   const questionId = req.query.questionId as string;
-  let studentId: null | string = null;
+  let studentId: null | string = req.query?.studentId as string;
   const homeworkId = +(req.query.homeworkId as string);
   const answerId = +(req.query.answerId as string);
   const courseId = req.query.courseId as string;
