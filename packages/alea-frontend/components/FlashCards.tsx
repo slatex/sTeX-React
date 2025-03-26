@@ -83,13 +83,7 @@ export function FlashCardFooter({
   const { locale } = useRouter();
   const { flashCards: t } = getLocaleObject({ locale });
   return (
-    <Box
-      display="flex"
-      flexDirection="column"
-      width="100%"
-      alignItems="center"
-      margin="5px 15px"
-    >
+    <Box display="flex" flexDirection="column" width="100%" alignItems="center" margin="5px 15px">
       {loggedIn && (
         <Box display="flex" alignItems="center" gap="10px" px="10px">
           <Typography variant="h6" color="gray" textAlign="right">
@@ -106,10 +100,7 @@ export function FlashCardFooter({
       )}
       <IconButton onClick={onFlip} color="primary" sx={{ m: 'auto' }}>
         <Tooltip title={isFront ? t.flipCard : t.flipBack}>
-          <FlipCameraAndroidIcon
-            fontSize="large"
-            sx={{ transform: 'rotateX(30deg)' }}
-          />
+          <FlipCameraAndroidIcon fontSize="large" sx={{ transform: 'rotateX(30deg)' }} />
         </Tooltip>
       </IconButton>
     </Box>
@@ -170,9 +161,7 @@ function FlashCardFront({
                 },
               }}
             >
-              <span style={{ fontSize: '32px', color: '#ed028c' }}>
-                {getConceptName(uri)}
-              </span>
+              <span style={{ fontSize: '32px', color: '#ed028c' }}>{getConceptName(uri)}</span>
               {/*<ContentWithHighlight mmtHtml={htmlNode} />*/}
             </Box>
             {idx === 0 && synonyms.length > 1 && (
@@ -214,12 +203,14 @@ function FlashCardBack({
           '& *': { fontSize: 'large !important' },
         }}
       >
-        <ContentFromUrl
+        {/* <ContentFromUrl
           topLevelDocUrl={topLevelDocUrl}
           displayReason={DisplayReason.FLASH_CARD}
           url={`/:sTeX/fragment?${uri}`}
           modifyRendered={getChildrenOfBodyNode}
-        />
+        /> */}
+        {uri && uri}
+        use FTMFragment Here
       </Box>
 
       <FlashCardFooter
@@ -289,13 +280,7 @@ function FlashCard({
   }, []);
 
   return (
-    <Box
-      display="flex"
-      margin="0 5px"
-      alignItems="center"
-      justifyContent="center"
-      flexWrap="wrap"
-    >
+    <Box display="flex" margin="0 5px" alignItems="center" justifyContent="center" flexWrap="wrap">
       <Box
         display="flex"
         maxWidth="600px"
@@ -305,17 +290,8 @@ function FlashCard({
         margin="auto"
         {...handlers}
       >
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          width="100%"
-        >
-          <Box
-            className={`${styles['card-container']} ${
-              isFlipped ? styles['flipped'] : ''
-            }`}
-          >
+        <Box display="flex" justifyContent="center" alignItems="center" width="100%">
+          <Box className={`${styles['card-container']} ${isFlipped ? styles['flipped'] : ''}`}>
             <FlashCardFront
               uri={uri}
               htmlNodes={htmlNodes}
@@ -399,20 +375,12 @@ export function ItemListWithStatus({
   );
 }
 
-export function SummaryCard({
-  items,
-  onFinish,
-}: {
-  items: FlashCardItem[];
-  onFinish: () => void;
-}) {
+export function SummaryCard({ items, onFinish }: { items: FlashCardItem[]; onFinish: () => void }) {
   const [isLoading, setIsLoading] = useState(false);
   const { locale } = useRouter();
   const { flashCards: t } = getLocaleObject({ locale });
 
-  const [uriMap, setUriMap] = useState<Map<string, SmileyCognitiveValues>>(
-    new Map()
-  );
+  const [uriMap, setUriMap] = useState<Map<string, SmileyCognitiveValues>>(new Map());
 
   useEffect(() => {
     setIsLoading(true);
@@ -422,35 +390,13 @@ export function SummaryCard({
     });
   }, [items]);
 
-  const rememberAndUnderstand = filterItems(
-    items,
-    uriMap,
-    GOOD_SMILEYS,
-    GOOD_SMILEYS
-  );
-  const rememberNotUnderstand = filterItems(
-    items,
-    uriMap,
-    GOOD_SMILEYS,
-    NOT_GOOD_SMILEYS
-  );
-  const notRememberButUnderstand = filterItems(
-    items,
-    uriMap,
-    NOT_GOOD_SMILEYS,
-    GOOD_SMILEYS
-  );
-  const notRememberNotUnderstand = filterItems(
-    items,
-    uriMap,
-    NOT_GOOD_SMILEYS,
-    NOT_GOOD_SMILEYS
-  );
+  const rememberAndUnderstand = filterItems(items, uriMap, GOOD_SMILEYS, GOOD_SMILEYS);
+  const rememberNotUnderstand = filterItems(items, uriMap, GOOD_SMILEYS, NOT_GOOD_SMILEYS);
+  const notRememberButUnderstand = filterItems(items, uriMap, NOT_GOOD_SMILEYS, GOOD_SMILEYS);
+  const notRememberNotUnderstand = filterItems(items, uriMap, NOT_GOOD_SMILEYS, NOT_GOOD_SMILEYS);
 
-  const numRemembered =
-    rememberAndUnderstand.length + rememberNotUnderstand.length;
-  const numUnderstood =
-    rememberAndUnderstand.length + notRememberButUnderstand.length;
+  const numRemembered = rememberAndUnderstand.length + rememberNotUnderstand.length;
+  const numUnderstood = rememberAndUnderstand.length + notRememberButUnderstand.length;
   if (isLoading) return <CircularProgress />;
   return (
     <Card>
@@ -464,54 +410,39 @@ export function SummaryCard({
             <Typography variant="h6">
               {locale === 'de' ? (
                 <>
-                  Sie haben sich an <b>{numRemembered}</b> erinnert und{' '}
-                  <b>{numUnderstood}</b> von <b>{items.length}</b> Konzepten
-                  verstanden.
+                  Sie haben sich an <b>{numRemembered}</b> erinnert und <b>{numUnderstood}</b> von{' '}
+                  <b>{items.length}</b> Konzepten verstanden.
                 </>
               ) : (
                 <>
-                  You recalled <b>{numRemembered}</b> and understoood{' '}
-                  <b>{numUnderstood}</b> out of <b>{items.length}</b> concepts.
+                  You recalled <b>{numRemembered}</b> and understoood <b>{numUnderstood}</b> out of{' '}
+                  <b>{items.length}</b> concepts.
                 </>
               )}
             </Typography>
           </Box>
           {notRememberNotUnderstand.length > 0 && (
             <>
-              <Typography variant="h5">
-                {t.notRememberedNotUnderstood}
-              </Typography>
-              <ItemListWithStatus
-                items={notRememberNotUnderstand}
-                uriMap={uriMap}
-              />
+              <Typography variant="h5">{t.notRememberedNotUnderstood}</Typography>
+              <ItemListWithStatus items={notRememberNotUnderstand} uriMap={uriMap} />
             </>
           )}
           {rememberNotUnderstand.length > 0 && (
             <>
               <Typography variant="h5">{t.rememberedNotUnderstood}</Typography>
-              <ItemListWithStatus
-                items={rememberNotUnderstand}
-                uriMap={uriMap}
-              />
+              <ItemListWithStatus items={rememberNotUnderstand} uriMap={uriMap} />
             </>
           )}
           {notRememberButUnderstand.length > 0 && (
             <>
               <Typography variant="h5">{t.understoodNotRemembered}</Typography>
-              <ItemListWithStatus
-                items={notRememberButUnderstand}
-                uriMap={uriMap}
-              />
+              <ItemListWithStatus items={notRememberButUnderstand} uriMap={uriMap} />
             </>
           )}
           {rememberAndUnderstand.length > 0 && (
             <>
               <Typography variant="h5">{t.rememberedAndUnderstood}</Typography>
-              <ItemListWithStatus
-                items={rememberAndUnderstand}
-                uriMap={uriMap}
-              />
+              <ItemListWithStatus items={rememberAndUnderstand} uriMap={uriMap} />
             </>
           )}
         </Box>
@@ -591,8 +522,7 @@ export function FlashCardNavigation({
               fontSize: `20px !important`,
               cursor: onSelect ? undefined : 'auto !important',
               userSelect: 'none',
-              color:
-                !onSelect && cardIdx < cardNo ? 'gray !important' : undefined,
+              color: !onSelect && cardIdx < cardNo ? 'gray !important' : undefined,
             },
           }}
           onClick={() => (onSelect ? onSelect(cardIdx) : undefined)}
@@ -601,8 +531,7 @@ export function FlashCardNavigation({
             style={{
               fontSize: '20px',
               cursor: onSelect ? 'pointer' : undefined,
-              color:
-                !onSelect && cardIdx < cardNo ? 'gray !important' : undefined,
+              color: !onSelect && cardIdx < cardNo ? 'gray !important' : undefined,
             }}
           >
             {getConceptName(card.uri)}
@@ -634,17 +563,12 @@ function FlashCardsContainer({
   const { locale } = useRouter();
   const { flashCards: t } = getLocaleObject({ locale });
 
-  const [defaultFlipped, setDefaultSkipped] = useState(
-    !!localStore?.getItem('default-flipped')
-  );
+  const [defaultFlipped, setDefaultSkipped] = useState(!!localStore?.getItem('default-flipped'));
 
   const currentItem = cards[cardNo];
 
   useEffect(() => {
-    if (
-      mode !== FlashCardMode.REVISION_MODE ||
-      cardType !== CardType.ITEM_CARD
-    ) {
+    if (mode !== FlashCardMode.REVISION_MODE || cardType !== CardType.ITEM_CARD) {
       return;
     }
     const handlePrevAndNext = (event: KeyboardEvent) => {
@@ -665,12 +589,7 @@ function FlashCardsContainer({
   }, [cardType, mode]);
 
   if (cardType === CardType.SUMMARY_CARD || !cards?.length || !currentItem) {
-    return (
-      <SummaryCard
-        items={cards.slice(0, drillCardsSeen)}
-        onFinish={() => onFinish()}
-      />
-    );
+    return <SummaryCard items={cards.slice(0, drillCardsSeen)} onFinish={() => onFinish()} />;
   }
   return (
     <Box mt="10px" display="flex" flexDirection="column">
@@ -687,9 +606,7 @@ function FlashCardsContainer({
           }
           setCardNo((prev) => (prev + 1) % cards.length);
         }}
-        onPrev={() =>
-          setCardNo((prev) => (prev + cards.length - 1) % cards.length)
-        }
+        onPrev={() => setCardNo((prev) => (prev + cards.length - 1) % cards.length)}
       />
       <Box mt="10px" display="flex" justifyContent="space-between">
         <IconButton
@@ -709,9 +626,7 @@ function FlashCardsContainer({
         <Box>
           {!isDrill(mode) && (
             <Button
-              onClick={() =>
-                setCardNo((prev) => (prev + cards.length - 1) % cards.length)
-              }
+              onClick={() => setCardNo((prev) => (prev + cards.length - 1) % cards.length)}
               size="small"
               variant="contained"
               sx={{ mr: '10px' }}

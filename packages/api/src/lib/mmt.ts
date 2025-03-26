@@ -182,9 +182,9 @@ export function isFile(data: SectionsAPIData) {
 export function isSection(data: SectionsAPIData) {
   return !isFile(data);
 }
-export async function getDocumentSections(mmtUrl: string, archive: string, filepath: string) {
-  const resp = await axios.get(`${mmtUrl}/:sTeX/sections?archive=${archive}&filepath=${filepath}`);
-  return resp.data as SectionsAPIData;
+export async function getDocumentSections(notesUri: string) {
+  const resp = await server.contentToc({ uri: notesUri });
+  return resp;
 }
 
 ///////////////////////
@@ -336,11 +336,16 @@ export interface DefiniendaItem {
 }
 
 // Gets list of symbols defined in a document. Includes nested docs.
-export async function getDefiniedaInDoc(mmtUrl: string, archive: string, filepath: string) {
-  const resp = await axios.get(
-    `${mmtUrl}/:sTeX/definienda?archive=${archive}&filepath=${filepath}`
+export async function getDefiniedaInDoc(uri: string) {
+  const query = `SELECT DISTINCT ?s WHERE { <${uri}> (ulo:contains|dc:hasPart)* ?q. ?q ulo:defines ?s.}`;
+  const resp = await axios.post(
+    `${FLAMS_SERVER_URL}/api/backend/query`,
+    { query },
+    {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    }
   );
-  return resp.data as DefiniendaItem[];
+  return resp.data as SparqlResponse;
 }
 
 export async function getUriFragment(URI: string) {

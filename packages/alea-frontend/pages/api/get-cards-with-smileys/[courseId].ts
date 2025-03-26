@@ -4,7 +4,7 @@ import {
   getDefiniedaInDoc,
   getDocumentSections,
   getUriSmileys,
-  SectionsAPIData,
+  TOCElem,
 } from '@stex-react/api';
 
 export const EXCLUDED_CHAPTERS = ['Preface', 'Administrativa', 'Resources'];
@@ -19,114 +19,73 @@ export interface CourseCards {
 }
 interface TopLevelSection {
   id: string;
-
-  archive: string;
-  filepath: string;
-
+  uri: string;
   chapterTitle: string;
   sectionTitle: string;
 }
 
-function getSections(
-  chapterTitle: string,
-  data: SectionsAPIData,
-  parentArchive: string | undefined,
-  parentFilePath: string | undefined
-): TopLevelSection[] {
-  const { archive, filepath, title, id } = data;
-  if (title?.length) {
-    return [
-      {
-        id,
-        archive: parentArchive,
-        filepath: parentFilePath,
-        chapterTitle,
-        sectionTitle: title,
-      },
-    ];
-  }
-  if (archive?.length && filepath?.length) {
-    parentArchive = archive;
-    parentFilePath = filepath;
-  }
-  const sections: TopLevelSection[] = [];
-  for (const c of data.children || []) {
-    sections.push(...getSections(chapterTitle, c, parentArchive, parentFilePath));
-  }
-  return sections;
-}
-
 function getChapterAndSections(
-  data: SectionsAPIData,
-  parentArchive?: string | undefined,
-  parentFilePath?: string | undefined,
-  chapterIsSection = false
+  toc: TOCElem,
+  chapterTitle = '',
+  parentUri?: string
 ): TopLevelSection[] {
-  const { title, id, archive, filepath } = data;
   const sections: TopLevelSection[] = [];
-  if (title?.length) {
-    if (chapterIsSection) {
-      return [
-        {
-          id,
-          archive: parentArchive,
-          filepath: parentFilePath,
-          chapterTitle: title,
-          sectionTitle: title,
-        },
-      ];
-    }
-    for (const c of data.children || []) {
-      sections.push(...getSections(title, c, undefined, undefined));
-    }
+
+  if (toc.type === 'Paragraph' || toc.type === 'Slide' || toc.children.length === 0) {
     return sections;
   }
-
-  for (const c of data.children || []) {
-    sections.push(...getChapterAndSections(c, archive, filepath, chapterIsSection));
+  const currentUri = toc.type === 'Inputref' ? toc.uri : parentUri;
+  const effectiveChapterTitle = chapterTitle || (toc.type === 'Section' ? toc.title : '');
+  if (toc.type === 'Section') {
+    sections.push({
+      id: toc.id,
+      uri: currentUri,
+      chapterTitle: effectiveChapterTitle,
+      sectionTitle: toc.title,
+    });
+  }
+  for (const child of toc.children) {
+    sections.push(...getChapterAndSections(child, effectiveChapterTitle, currentUri));
   }
   return sections;
 }
 
-export async function getCardsBySection(archive: string, filepath: string) {
-  const docSections = await getDocumentSections(process.env.NEXT_PUBLIC_MMT_URL, archive, filepath);
-  let topLevelSections = getChapterAndSections(docSections);
+export async function getCardsBySection(notesUri: string) {
+  const docSections = await getDocumentSections(notesUri);
+  const tocContent = docSections[1];
+  const topLevelSections = tocContent.map((toc) => getChapterAndSections(toc)).flat();
   const courseCards: CourseCards = {};
-  console.log(topLevelSections);
-  if (!topLevelSections.length) {
-    topLevelSections = getChapterAndSections(docSections, undefined, undefined, true);
-  }
-  for (const section of topLevelSections) {
-    const { archive, filepath, chapterTitle, id } = section;
-
-    const cards = await getDefiniedaInDoc(process.env.NEXT_PUBLIC_MMT_URL, archive, filepath);
-    const uris = cards.map((c) => c.symbols).flat();
-    courseCards[section.sectionTitle] = { chapterTitle, id, uris };
-  }
+  const promises = topLevelSections.map(({ uri }) => getDefiniedaInDoc(uri));
+  const results = await Promise.all(promises);
+  topLevelSections.forEach((section, index) => {
+    const { chapterTitle, id, sectionTitle } = section;
+    const cards = results[index];
+    const parsedCards = JSON.parse(cards as string);
+    const uris = parsedCards?.results?.bindings.map((card) => card.s.value);
+    courseCards[sectionTitle] = { chapterTitle, id, uris };
+  });
   return courseCards;
 }
 
 export default async function handler(req, res) {
   const { courseId } = req.query;
   const Authorization = req.headers.authorization;
-  const courses = await getCourseInfo(process.env.NEXT_PUBLIC_MMT_URL);
+  const courses = await getCourseInfo();
   const courseInfo = courses[courseId];
   if (!courseInfo) {
     res.status(404).json({ error: `Course not found: [${courseId}]` });
     return;
   }
-  //Todo alea-4
-  // const { notesArchive: archive, notesFilepath: filepath } = courseInfo;
-  // if (!CARDS_CACHE[courseId]) {
-  //   CARDS_CACHE[courseId] = await getCardsBySection(archive, filepath);
-  // }
+
+  if (!CARDS_CACHE[courseId]) {
+    CARDS_CACHE[courseId] = await getCardsBySection(courseInfo.notes);
+  }
   const cards = CARDS_CACHE[courseId];
 
   const uris = [];
   for (const chapter of Object.keys(cards)) {
-    uris.push(...cards[chapter].uris);
+    uris.push(...(cards[chapter]?.uris || []));
   }
-
   const smileyValues = Authorization ? await getUriSmileys(uris, { Authorization }) : new Map();
 
   const output: CardsWithSmileys[] = [];
