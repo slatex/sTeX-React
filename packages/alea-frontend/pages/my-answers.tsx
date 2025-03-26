@@ -128,8 +128,12 @@ function AnswerItemDisplay({
     getLearningObjectShtml(mmtUrl, answer.questionId).then((p) => {
       setProblem(getProblem(hackAwayProblemId(p), ''));
     });
+    let answers = {};
+    for (let index = 0; index <= +answer.subProblemId; index++) {
+      answers = { ...answers, ...{ [index]: +answer.subProblemId == index ? answer.answer : '' } };
+    }
     setAnswerText({
-      freeTextResponses: { [answer.subProblemId]: answer.answer },
+      freeTextResponses: answers,
       autogradableResponses: [],
     });
     getGradingItems(answer.id, +answer.subProblemId).then((g) => setGradingInfos(g));
