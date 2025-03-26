@@ -5,10 +5,17 @@ import {
   ProblemResponse,
   ReviewType,
 } from '@stex-react/api';
-import { Action, ResourceName } from '@stex-react/utils';
+import { Action, CURRENT_TERM, ResourceName } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getUserIdIfAuthorizedOrSetError } from '../access-control/resource-utils';
-import { checkIfQueryParameterExistOrSetError, executeAndEndSet500OnError } from '../comment-utils';
+import {
+  getUserIdIfAuthorizedOrSetError,
+  isUserIdAuthorizedForAny,
+} from '../access-control/resource-utils';
+import {
+  checkIfQueryParameterExistOrSetError,
+  executeAndEndSet500OnError,
+  getUserIdOrSetError,
+} from '../comment-utils';
 import {
   getAllAnswersForHomeworkOrSetError,
   getAllAnswersForQuestion,
@@ -81,6 +88,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   let studentId: null | string = req.query?.studentId as string;
   const homeworkId = +(req.query.homeworkId as string);
   const answerId = +(req.query.answerId as string);
+  const courseId = req.query.courseId as string;
+  const instanceId = (req.query.courseInstance as string) ?? CURRENT_TERM;
   if (!studentId) {
     studentId = (
       await executeAndEndSet500OnError<string[]>(
@@ -118,14 +127,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const homework = await getHomeworkOrSetError(homeworkId, false, res);
   if (!homework) return;
-  const checkerId = await getUserIdIfAuthorizedOrSetError(
-    req,
-    res,
-    ResourceName.COURSE_HOMEWORK,
-    Action.INSTRUCTOR_GRADING,
-    { courseId: homework.courseId, instanceId: homework.courseInstance }
-  );
-  if (!checkerId) return;
+  // const checkerId = await getUserIdIfAuthorizedOrSetError(
+  //   req,
+  //   res,
+  //   ResourceName.COURSE_HOMEWORK,
+  //   Action.INSTRUCTOR_GRADING,
+  //   { courseId: homework.courseId, instanceId: homework.courseInstance }
+  // );
+  // if (!checkerId) return;
 
   const answers = await getAllAnswersForHomeworkOrSetError(studentId, homeworkId, questionId, res);
   if (!answers) return;
@@ -142,10 +151,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const subProblemIdToAnswerId = convertToSubProblemIdToAnswerId(problemAnswers);
   const grades = await getAllGradingsOrSetError(subProblemIdToAnswerId, res);
+  const userId = await getUserIdOrSetError(req, res);
+  if (!userId) return;
+  const isInstructor = await isUserIdAuthorizedForAny(userId, [
+    {
+      name: ResourceName.COURSE_HOMEWORK,
+      action: Action.INSTRUCTOR_GRADING,
+      variables: { courseId: courseId, instanceId: instanceId },
+    },
+  ]);
+  if (!isInstructor) {
+    const isStudent = await isUserIdAuthorizedForAny(userId, [
+      {
+        name: ResourceName.COURSE_HOMEWORK,
+        action: Action.TAKE,
+        variables: {
+          courseId,
+          instanceId,
+        },
+      },
+    ]);
+    if (!isStudent) return;
+  }
   if (!grades) return;
   res.send({
     answers: response,
     subProblemIdToAnswerId,
-    subProblemIdToGrades: grades,
+    subProblemIdToGrades: isInstructor ? grades : null,
   } as GetAnswersWithGradingResponse);
 }

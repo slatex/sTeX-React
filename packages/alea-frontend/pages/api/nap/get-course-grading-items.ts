@@ -6,6 +6,7 @@ import { checkIfGetOrSetError, getUserIdOrSetError } from '../comment-utils';
 import { getGradingItemsOrSetError } from '../common-homework-utils';
 import { getAllHomeworksOrSetError } from '../homework/get-homework-list';
 
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfGetOrSetError(req, res)) return;
   const courseId = req.query.courseId as string;
