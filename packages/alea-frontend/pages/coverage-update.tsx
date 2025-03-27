@@ -1,10 +1,5 @@
 import { Box, Button, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
-import {
-  SectionsAPIData,
-  getAuthHeaders,
-  getCourseInfo,
-  getDocumentSections,
-} from '@stex-react/api';
+import { TOCElem, getAuthHeaders, getCourseInfo, getDocumentSections } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import {
   CourseInfo,
@@ -19,12 +14,16 @@ import { useContext, useEffect, useState } from 'react';
 import { CoverageUpdater } from '../components/CoverageUpdater';
 import MainLayout from '../layouts/MainLayout';
 
-function getSectionNames(data: SectionsAPIData, level = 0): string[] {
-  const names = [];
-  if (data.title?.length)
+function getSectionNames(data: TOCElem, level = 0): string[] {
+  const names: string[] = [];
+  if (data.type === 'Section' && data.title) {
     names.push('\xa0'.repeat(level * 4) + convertHtmlStringToPlain(data.title));
-  for (const c of data.children || []) {
-    names.push(...getSectionNames(c, level + (data.title?.length ? 1 : 0)));
+    level++;
+  }
+  if ((data.type === 'Section' || data.type === 'Inputref') && Array.isArray(data.children)) {
+    for (const child of data.children) {
+      names.push(...getSectionNames(child, level));
+    }
   }
   return names;
 }
@@ -32,9 +31,7 @@ function getSectionNames(data: SectionsAPIData, level = 0): string[] {
 const CoverageUpdatePage: NextPage = () => {
   const router = useRouter();
   const courseId = router.query.courseId as string;
-  const [allSectionNames, setAllSectionNames] = useState<{
-    [courseId: string]: string[];
-  }>({});
+  const [allSectionNames, setAllSectionNames] = useState<{ [courseId: string]: string[] }>({});
   const [sectionNames, setSectionNames] = useState<string[]>([]);
   const [snaps, setSnaps] = useState<CoverageSnap[]>([]);
   const [coverageTimeline, setCoverageTimeline] = useState<CoverageTimeline>({});
@@ -46,17 +43,23 @@ const CoverageUpdatePage: NextPage = () => {
   }, []);
 
   useEffect(() => {
-    if (mmtUrl) getCourseInfo().then(setCourses);
+    if (mmtUrl) {
+      getCourseInfo().then(setCourses);
+    }
   }, [mmtUrl]);
 
   useEffect(() => {
     async function getSections() {
       const secNames: { [courseId: string]: string[] } = {};
       for (const courseId of Object.keys(courses)) {
-        //Todo alea-4
-        // const { notesArchive: a, notesFilepath: f } = courses[courseId];
-        // const docSections = await getDocumentSections(mmtUrl, a, f);
-        // secNames[courseId] = getSectionNames(docSections);
+        const { notes } = courses[courseId];
+        try {
+          const tocResp = await getDocumentSections(notes);
+          const docSections = tocResp[1];
+          secNames[courseId] = docSections.map((d) => getSectionNames(d)).flat();
+        } catch (error) {
+          console.error(`Failed to fetch sections for ${courseId}:`, error);
+        }
       }
       setAllSectionNames(secNames);
     }
