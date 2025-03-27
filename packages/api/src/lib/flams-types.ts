@@ -14,7 +14,6 @@ export type ParagraphKind = FTML.ParagraphKind;
 export type SectionLevel = FTML.SectionLevel;
 export type CSS = FTML.CSS;
 export type TOCElem = FTML.TOCElem;
-export type TOC = FTML.TOC;
 export type Institution = FTML.Institution;
 export type ArchiveIndex = FTML.ArchiveIndex;
 export type Instance = FTML.Instance;

@@ -99,15 +99,16 @@ export function StexReactRenderer({
     docFragManager.scrollToSection(getScrollInfo(inDocPath).sectionId);
   }, [router, router?.isReady, router?.query]);
 
-  useEffect(() => {
-    const { archive, filepath } = getSectionInfo(contentUrl);
-    getDocumentSections(mmtUrl, archive, filepath).then((s) => {
-      docFragManager.setDocSections(s);
-      forceRerender();
-    });
-  }, [mmtUrl, contentUrl]);
+  //Todo alea-4
+  // useEffect(() => {
+  //   const { archive, filepath } = getSectionInfo(contentUrl);
+  //   getDocumentSections(mmtUrl, archive, filepath).then((s) => {
+  //     docFragManager.setDocSections(s);
+  //     forceRerender();
+  //   });
+  // }, [mmtUrl, contentUrl]);
 
-  if (!docFragManager.docSections) return <CircularProgress />;
+  // if (!docFragManager.docSections) return <CircularProgress />;
 
   return (
     <DocSectionContext.Provider

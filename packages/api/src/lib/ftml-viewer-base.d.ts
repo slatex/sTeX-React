@@ -133,7 +133,19 @@ export interface QuizQuestion {
   objectives: [CognitiveDimension, SymbolURI][];
 }
 
+export type Name = string;
+
+export type Language = 'en' | 'de' | 'fr' | 'ro' | 'ar' | 'bg' | 'ru' | 'fi' | 'tr' | 'sl';
+
+export type SymbolURI = string;
+
 export type DocumentURI = string;
+
+export type SlideElement =
+  | { type: 'Slide'; html: string }
+  | { type: 'Paragraph'; html: string }
+  | { type: 'Inputref'; uri: DocumentURI }
+  | { type: 'Section'; title: string | undefined; children: SlideElement[] };
 
 export type ParagraphKind =
   | 'Definition'
@@ -142,10 +154,6 @@ export type ParagraphKind =
   | 'Proof'
   | 'SubProof'
   | 'Example';
-
-export type Name = string;
-
-export type Language = 'en' | 'de' | 'fr' | 'ro' | 'ar' | 'bg' | 'ru' | 'fi' | 'tr' | 'sl';
 
 export type ArchiveId = string;
 
@@ -177,12 +185,6 @@ export interface QueryFilter {
   allow_exercises?: boolean;
   definition_like_only?: boolean;
 }
-
-export type SlideElement =
-  | { type: 'Slide'; html: string }
-  | { type: 'Paragraph'; html: string }
-  | { type: 'Inputref'; uri: DocumentURI }
-  | { type: 'Section'; title: string | undefined; children: SlideElement[] };
 
 export interface FileData {
   rel_path: string;
@@ -308,11 +310,9 @@ export type SectionLevel =
   | 'Paragraph'
   | 'Subparagraph';
 
-export type SymbolURI = string;
+export type Timestamp = number;
 
 export type CSS = { Link: string } | { Inline: string } | { Class: { name: string; css: string } };
-
-export type Timestamp = number;
 
 /**
  * Options for rendering an FTML document
@@ -324,8 +324,8 @@ export type Timestamp = number;
  *     toc: if defined, will render a table of contents for the document
  */
 export type DocumentOptions =
-  | { uri: DocumentURI; toc: TOCOptions | undefined }
-  | { html: string; toc: TOCElem[] | undefined };
+  | { uri: DocumentURI; gottos?: Gotto[] | undefined; toc: TOCOptions | undefined }
+  | { html: string; gottos?: Gotto[] | undefined; toc: TOCElem[] | undefined };
 
 /**
  * Options for rendering an FTML document fragment
@@ -336,7 +336,7 @@ export type DocumentOptions =
  */
 export type FragmentOptions =
   | { uri: DocumentElementURI }
-  | { uri: DocumentElementURI | undefined; html: string };
+  | { html: string; uri?: DocumentElementURI | undefined };
 
 /**
  * Options for rendering a table of contents
@@ -348,8 +348,6 @@ export type TOCOptions = 'GET' | { Predefined: TOCElem[] };
 export type ExerciseOption =
   | { WithFeedback: [DocumentElementURI, ExerciseFeedback][] }
   | { WithSolutions: [DocumentElementURI, Solutions][] };
-
-export type LeptosContinuation = (e: HTMLDivElement, o: LeptosContext) => void;
 
 /**
  * An entry in a table of contents. Either:
@@ -378,12 +376,15 @@ export type TOCElem =
   | { type: 'Slide' };
 
 /**
- * A Table of contents; Either:
- * 1. an already known TOC, consisting of a list of [`TOCElem`]s, or
- * 2. the URI of a Document. In that case, the relevant FLAMS server
- *    will be requested to obtain the TOC for that document.
+ * A section that has been \"covered\" at the specified timestamp; will be marked accordingly
+ * in the TOC.
  */
-export type TOC = TOCElem[] | DocumentURI;
+export interface Gotto {
+  uri: DocumentElementURI;
+  timestamp?: Timestamp | undefined;
+}
+
+export type LeptosContinuation = (e: HTMLDivElement, o: LeptosContext) => void;
 
 export class ExerciseFeedback {
   private constructor();

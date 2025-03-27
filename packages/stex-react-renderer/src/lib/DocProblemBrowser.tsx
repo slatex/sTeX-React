@@ -72,7 +72,8 @@ export function DocProblemBrowser({
 
   useEffect(() => {
     const { archive, filepath } = getSectionInfo(contentUrl);
-    getDocumentSections(mmtUrl, archive, filepath).then(setDocSections);
+     //Todo alea-4
+    // getDocumentSections(mmtUrl, archive, filepath).then(setDocSections);
   }, [mmtUrl, contentUrl]);
 
   useEffect(() => {

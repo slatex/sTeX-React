@@ -15,8 +15,9 @@ const FileDebugData = ({
   const { mmtUrl } = useContext(ServerLinksContext);
   useEffect(() => {
     async function fetchData() {
-      const data = await getDefiniedaInDoc(mmtUrl, archive, filepath);
-      setDefinedData(data);
+      //Todo alea-4
+      // const data = await getDefiniedaInDoc(mmtUrl, archive, filepath);
+      // setDefinedData(data);
     }
     fetchData();
   }, [archive, filepath, mmtUrl]);

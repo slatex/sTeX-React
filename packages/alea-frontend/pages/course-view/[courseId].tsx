@@ -208,16 +208,16 @@ const CourseViewPage: NextPage = () => {
     }
     if (someParamMissing) router.replace({ pathname, query });
   }, [router, router.isReady, sectionId, slideNum, viewMode, courseId, audioOnlyStr, slideCounts]);
-
-  useEffect(() => {
-    async function getIndex() {
-      const { archive, filepath } = getSectionInfo(contentUrl);
-      const docSections = await getDocumentSections(mmtUrl, archive, filepath);
-      setDocSections(docSections);
-      setCourseSections(getSections(docSections));
-    }
-    getIndex();
-  }, [mmtUrl, contentUrl]);
+  //Todo alea-4
+  // useEffect(() => {
+  //   async function getIndex() {
+  //     const { archive, filepath } = getSectionInfo(contentUrl);
+  //     const docSections = await getDocumentSections(mmtUrl, archive, filepath);
+  //     setDocSections(docSections);
+  //     setCourseSections(getSections(docSections));
+  //   }
+  //   getIndex();
+  // }, [mmtUrl, contentUrl]);
   useEffect(() => {
     if (!sectionId) return;
     const newClipId = slidesClipInfo?.[sectionId]?.[0]?.clipId || clipIds?.[sectionId] || null;

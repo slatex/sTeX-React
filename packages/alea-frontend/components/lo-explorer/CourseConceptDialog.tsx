@@ -115,18 +115,20 @@ export const CourseConceptsDialog = ({
     }
     setLoading(true);
     try {
-      const definedConcepts = await getDefiniedaInDoc(
-        mmtUrl,
-        selectedSection?.archive,
-        selectedSection?.filepath
-      );
-      const conceptsUri = [...new Set(definedConcepts.flatMap((data) => data.symbols))];
-      setProcessedOptions(
-        [...conceptsUri].map((uri) => ({
-          label: `${uri.split('?').pop()} (${uri})`,
-          value: uri,
-        }))
-      );
+
+       //Todo alea-4
+      // const definedConcepts = await getDefiniedaInDoc(
+      //   mmtUrl,
+      //   selectedSection?.archive,
+      //   selectedSection?.filepath
+      // );
+      // const conceptsUri = [...new Set(definedConcepts.flatMap((data) => data.symbols))];
+      // setProcessedOptions(
+      //   [...conceptsUri].map((uri) => ({
+      //     label: `${uri.split('?').pop()} (${uri})`,
+      //     value: uri,
+      //   }))
+      // );
     } catch (error) {
       console.error('Error fetching concepts:', error);
     } finally {

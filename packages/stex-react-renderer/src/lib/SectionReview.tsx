@@ -74,7 +74,8 @@ const SectionReview = ({
 
   useEffect(() => {
     if (!isLoggedIn()) return;
-    getDefiniedaInDoc(mmtUrl, archive, filepath).then(setDefinedData);
+     //Todo alea-4
+    // getDefiniedaInDoc(mmtUrl, archive, filepath).then(setDefinedData);
   }, [archive, filepath, mmtUrl]);
 
   useEffect(() => {

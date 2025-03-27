@@ -13,8 +13,9 @@ const DebugSection: NextPage = () => {
   const [path, setPath] = useState('course/sec/overview.en.xhtml');
 
   async function fetchData(archive: string, path: string) {
-    const data = await getDocumentSections(mmtUrl, archive, path);
-    setSectionData(data);
+    //Todo alea-4
+    // const data = await getDocumentSections(mmtUrl, archive, path);
+    // setSectionData(data);
   }
   return (
     <MainLayout>

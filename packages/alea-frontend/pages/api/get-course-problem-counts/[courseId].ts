@@ -40,21 +40,21 @@ function getAllSectionInfo(node: SectionsAPIData, ancestors: SectionsAPIData[]) 
   return sections;
 }
 
-async function fetchProblemCounts(archive: string, filepath: string) {
-  const mmtUrl = process.env.NEXT_PUBLIC_MMT_URL;
-  const docSections = await getDocumentSections(mmtUrl, archive, filepath);
-  const sections = getAllSectionInfo(docSections, []);
-  const promises = sections.map(({ parent }) =>
-    getProblemIdsForFile(mmtUrl, parent.archive, parent.filepath)
-  );
-  const problemIds = await Promise.all(promises);
+// async function fetchProblemCounts(archive: string, filepath: string) {
+//   const mmtUrl = process.env.NEXT_PUBLIC_MMT_URL;
+//   const docSections = await getDocumentSections(mmtUrl, archive, filepath);
+//   const sections = getAllSectionInfo(docSections, []);
+//   const promises = sections.map(({ parent }) =>
+//     getProblemIdsForFile(mmtUrl, parent.archive, parent.filepath)
+//   );
+//   const problemIds = await Promise.all(promises);
 
-  const problemCounts: { [section: string]: number } = {};
-  for (let i = 0; i < sections.length; i++) {
-    problemCounts[sections[i].sectionId] = problemIds[i].length;
-  }
-  return problemCounts;
-}
+//   const problemCounts: { [section: string]: number } = {};
+//   for (let i = 0; i < sections.length; i++) {
+//     problemCounts[sections[i].sectionId] = problemIds[i].length;
+//   }
+//   return problemCounts;
+// }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const courseId = req.query.courseId as string;
