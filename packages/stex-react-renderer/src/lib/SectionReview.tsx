@@ -27,6 +27,7 @@ import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import CompetencyTable from './CompetencyTable';
 import { PerSectionQuiz } from './PerSectionQuiz';
+import { ForMe } from './ForMe';
 import { RenderOptions } from './RendererDisplayOptions';
 import { getLocaleObject } from './lang/utils';
 import {
@@ -138,6 +139,7 @@ const SectionReview = ({
               </Tooltip>
             ))}
           </Box>
+          <ForMe archive={archive} filepath={filepath} showHideButton={true}/>
           <PerSectionQuiz archive={archive} filepath={filepath} showHideButton={true}/>
         </AccordionDetails>
       </Accordion>
