@@ -133,7 +133,7 @@ function AnswerItemDisplay({
       answers = { ...answers, ...{ [index]: +answer.subProblemId == index ? answer.answer : '' } };
     }
     setAnswerText({
-      freeTextResponses: answers,
+      freeTextResponses: { [answer.subProblemId]: answer.answer  },
       autogradableResponses: [],
     });
     getGradingItems(answer.id, +answer.subProblemId).then((g) => setGradingInfos(g));
@@ -141,7 +141,6 @@ function AnswerItemDisplay({
   return (
     <Box>
       <ProblemDisplay
-        showUnansweredProblems={false}
         showPoints={false}
         problem={problem}
         isFrozen={true}
