@@ -11,12 +11,17 @@ export enum Action {
   MODERATE = 'MODERATE',
 
   ACCESS_CONTROL = 'ACCESS_CONTROL',
+
+  APPLY = 'APPLY',
+  CREATE_JOB_POST = 'CREATE_JOB_POST',
+  CREATE_JOB_TYPE = 'CREATE_JOB_TYPE',
   TAKE = 'TAKE',
 }
 
 export enum ResourceName {
   BLOG = 'BLOG',
   EXPERIMENTAL = 'EXPERIMENTAL',
+  JOB_PORTAL = 'JOB_PORTAL',
 
   // Resources related to specific courses.
   COURSE_NOTES = 'COURSE_NOTES',
@@ -181,6 +186,15 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
       { type: ComponentType.FIXED, value: 'instance' },
       { name: 'instanceId', type: ComponentType.VARIABLE, value: CURRENT_TERM },
       { type: ComponentType.WILDCARD2, value: '**' },
+    ],
+  },
+  {
+    name: ResourceName.JOB_PORTAL,
+    possibleActions: [Action.APPLY, Action.CREATE_JOB_POST, Action.CREATE_JOB_TYPE],
+    components: [
+      { type: ComponentType.FIXED, value: 'instance' },
+      { name: 'instanceId', type: ComponentType.VARIABLE, value: CURRENT_TERM },
+      { type: ComponentType.FIXED, value: 'job-portal' },
     ],
   },
 ];
