@@ -118,7 +118,6 @@ function AnswerItemDisplay({
   answer: AnswerResponse;
   onDelete: (id: number) => void;
 }) {
-  dayjs.extend(relativeTime);
   const { mmtUrl } = useContext(ServerLinksContext);
 
   const [problem, setProblem] = useState<Problem>();
@@ -128,6 +127,10 @@ function AnswerItemDisplay({
     getLearningObjectShtml(mmtUrl, answer.questionId).then((p) => {
       setProblem(getProblem(hackAwayProblemId(p), ''));
     });
+    let answers = {};
+    for (let index = 0; index <= +answer.subProblemId; index++) {
+      answers = { ...answers, ...{ [index]: +answer.subProblemId == index ? answer.answer : '' } };
+    }
     setAnswerText({
       freeTextResponses: { [answer.subProblemId]: answer.answer },
       autogradableResponses: [],
@@ -137,7 +140,6 @@ function AnswerItemDisplay({
   return (
     <Box>
       <ProblemDisplay
-        showUnansweredProblems={false}
         showPoints={false}
         problem={problem}
         isFrozen={true}
@@ -208,7 +210,7 @@ function AnswerItemsList({
   return (
     <Box maxHeight="50vh" overflow="scroll">
       <List disablePadding>
-        {answerItems.map(({ questionTitle, answer, id }, idx) => (
+        {answerItems.map(({ questionTitle, courseInstance,courseId, id, subProblemId, updatedAt }, idx) => (
           <ListItemButton
             key={`${questionTitle}-${id}-${idx}`}
             onClick={(e) => onSelectItem(id)}
@@ -216,9 +218,26 @@ function AnswerItemsList({
           >
             <ListItemText
               primary={questionTitle ? mmtHTMLToReact(questionTitle) : id}
-              secondary={mmtHTMLToReact(
-                questionTitle.slice(0, questionTitle.length > 20 ? 20 : questionTitle.length)
-              )}
+              secondary={
+                <Box>
+                  <Box>
+                    <span>Sub problem: </span>
+                    <span>{+subProblemId + 1}</span>
+                  </Box>
+                  <Box>
+                    <span>Answered: </span>
+                    <span>{dayjs(updatedAt).fromNow()}</span>
+                  </Box>
+                  <Box>
+                    <span>Semester: </span>
+                    <span>{courseInstance}</span>
+                  </Box>
+                  <Box>
+                    <span>Course: </span>
+                    <span>{courseId}</span>
+                  </Box>
+                </Box>
+              }
             />
           </ListItemButton>
         ))}
@@ -283,6 +302,7 @@ function AnswerListSortFields({
   );
 }
 const MyAnswersPage: NextPage = () => {
+  dayjs.extend(relativeTime);
   const [answerItems, setAnswerItems] = useState<AnswerResponse[]>([]);
   const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
   const [sortAndFilterParams, setSortAndFilterParams] = useState<SortAndFilterParams>({
