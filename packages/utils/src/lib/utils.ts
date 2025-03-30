@@ -146,6 +146,11 @@ export function sourceFileUrl(projectId: string, texFilepath: string) {
   return `https://gl.mathhub.info/${projectId}/-/blob/main/source/${texFilepath}`;
 }
 
+export function isFauId(id: string) {
+  return id?.length === 8 && !id.includes('@');
+}
+
+
 export function fixDuplicateLabels<T extends { label: string }>(RAW: T[]) {
   const fixed = [...RAW]; // create a copy;
   const labelToIndex = new Map<string, number[]>();
