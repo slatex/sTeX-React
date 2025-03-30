@@ -61,8 +61,12 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
   const [isQuizScheduled, setIsQuizScheduled] = useState(false);
 
   useEffect(() => {
-    setSectionName(snaps[snaps.length - 1]?.sectionName);
-  }, [snaps]);
+    const lastSnap = getSectionNameForUri(
+      snaps[snaps.length - 1]?.sectionName,
+      sectionNames
+    ).trim();
+    setSectionName(lastSnap);
+  }, [snaps, sectionNames]);
 
   const duplicateNames: string[] = findDuplicates(sectionNames.map(({ title }) => title.trim()));
 
