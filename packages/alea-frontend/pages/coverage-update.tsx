@@ -1,5 +1,11 @@
 import { Box, Button, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
-import { TOCElem, getAuthHeaders, getCourseInfo, getDocumentSections } from '@stex-react/api';
+import {
+  DocumentURI,
+  TOCElem,
+  getAuthHeaders,
+  getCourseInfo,
+  getDocumentSections,
+} from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import {
   CourseInfo,
@@ -13,26 +19,36 @@ import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import { CoverageUpdater } from '../components/CoverageUpdater';
 import MainLayout from '../layouts/MainLayout';
+export interface Section {
+  id: string;
+  title: string;
+  uri: DocumentURI;
+}
 
-function getSectionNames(data: TOCElem, level = 0): string[] {
-  const names: string[] = [];
+function getSectionNames(data: TOCElem, level = 0): Section[] {
+  const sections: Section[] = [];
+
   if (data.type === 'Section' && data.title) {
-    names.push('\xa0'.repeat(level * 4) + convertHtmlStringToPlain(data.title));
+    sections.push({
+      id: data.id,
+      title: '\xa0'.repeat(level * 4) + convertHtmlStringToPlain(data.title),
+      uri: data.uri,
+    });
     level++;
   }
   if ((data.type === 'Section' || data.type === 'Inputref') && Array.isArray(data.children)) {
     for (const child of data.children) {
-      names.push(...getSectionNames(child, level));
+      sections.push(...getSectionNames(child, level)); 
     }
   }
-  return names;
+  return sections;
 }
 
 const CoverageUpdatePage: NextPage = () => {
   const router = useRouter();
   const courseId = router.query.courseId as string;
-  const [allSectionNames, setAllSectionNames] = useState<{ [courseId: string]: string[] }>({});
-  const [sectionNames, setSectionNames] = useState<string[]>([]);
+  const [allSectionNames, setAllSectionNames] = useState<{ [courseId: string]: Section[] }>({});
+  const [sectionNames, setSectionNames] = useState<Section[]>([]);
   const [snaps, setSnaps] = useState<CoverageSnap[]>([]);
   const [coverageTimeline, setCoverageTimeline] = useState<CoverageTimeline>({});
   const { mmtUrl } = useContext(ServerLinksContext);
@@ -50,13 +66,13 @@ const CoverageUpdatePage: NextPage = () => {
 
   useEffect(() => {
     async function getSections() {
-      const secNames: { [courseId: string]: string[] } = {};
+      const secNames: { [courseId: string]: Section[] } = {};
       for (const courseId of Object.keys(courses)) {
         const { notes } = courses[courseId];
         try {
           const tocResp = await getDocumentSections(notes);
           const docSections = tocResp[1];
-          secNames[courseId] = docSections.map((d) => getSectionNames(d)).flat();
+          secNames[courseId] = docSections.flatMap((d) => getSectionNames(d));
         } catch (error) {
           console.error(`Failed to fetch sections for ${courseId}:`, error);
         }

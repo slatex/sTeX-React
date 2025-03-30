@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { getCourseInfo } from '@stex-react/api';
 import { StexReactRenderer } from '@stex-react/stex-react-renderer';
-import { CourseInfo, PRIMARY_COL, XhtmlContentUrl } from '@stex-react/utils';
+import { CourseInfo, CoverageSnap, PRIMARY_COL, XhtmlContentUrl } from '@stex-react/utils';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -20,6 +20,7 @@ import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
 import { FTMLDocument } from '@stex-react/ftml-utils';
 import { FTMLSetup } from '@stex-react/ftml-utils';
+import axios from 'axios';
 
 const SearchDialog = ({ open, onClose, courseId }) => {
   return (
@@ -46,10 +47,30 @@ const CourseNotesPage: NextPage = () => {
   const courseId = router.query.courseId as string;
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [gottos, setGottos] = useState<{ uri: string; timestamp: number }[]>([]);
 
   useEffect(() => {
     getCourseInfo().then(setCourses);
   }, []);
+
+  useEffect(() => {
+    async function fetchGottos() {
+      try {
+        const response = await axios.get('/api/get-coverage-timeline');
+        const currentSemData: CoverageSnap[] = response.data[courseId] || [];
+        const coverageData = currentSemData.map((item) => ({
+          uri: item.sectionName,
+          timestamp: item.timestamp_ms,
+        }));
+        setGottos(coverageData );
+      } catch (error) {
+        console.error('Error fetching gottos:', error);
+      }
+    }
+    if (courseId) {
+      fetchGottos();
+    }
+  }, [courseId]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -88,6 +109,7 @@ const CourseNotesPage: NextPage = () => {
             document={{
               uri: notes,
               toc: 'GET',
+              gottos,
             }}
           />
         </FTMLSetup>

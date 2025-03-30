@@ -17,11 +17,24 @@ import {
 import { CoverageSnap, PRIMARY_COL } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
+import { Section } from '../pages/coverage-update';
+
+function getUriForSectionName(sectionName: string, sectionNames: Section[]): string {
+  const section = sectionNames.find(({ title }) => title.trim() === sectionName);
+  return section?.uri || '';
+}
+
+function getSectionNameForUri(uri: string, sectionNames: Section[]): string {
+  const section = sectionNames.find(({ uri: sectionUri }) => sectionUri === uri);
+  return section?.title || '';
+}
+
 interface FormWithListProps {
   snaps: CoverageSnap[];
   setSnaps: React.Dispatch<React.SetStateAction<CoverageSnap[]>>;
-  sectionNames: string[];
+  sectionNames: Section[];
 }
+
 function findDuplicates(arr: string[]): string[] {
   const duplicates: string[] = [];
   const seen: { [key: string]: boolean } = {};
@@ -43,7 +56,7 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
   const [sectionName, setSectionName] = useState('');
   const [clipId, setClipId] = useState('');
   const [selectedTimestamp, setSelectedTimestamp] = useState(Date.now());
-  const [editIndex, setEditIndex] = useState<number | null>(null); // New state for edit index
+  const [editIndex, setEditIndex] = useState<number | null>(null);
   const [targetSectionName, setTargetSectionName] = useState('');
   const [isQuizScheduled, setIsQuizScheduled] = useState(false);
 
@@ -51,18 +64,20 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
     setSectionName(snaps[snaps.length - 1]?.sectionName);
   }, [snaps]);
 
-  const duplicateNames: string[] = findDuplicates(sectionNames.map((option) => option.trim()));
+  const duplicateNames: string[] = findDuplicates(sectionNames.map(({ title }) => title.trim()));
 
   function setNoonDefaultTime(timestamp: number) {
     return new Date(timestamp).setHours(12, 0, 0, 0);
   }
 
   const handleAddItem = () => {
-    const sectionToAdd = sectionName?.length ? sectionName : '';
-    const targetSectionToAdd = targetSectionName?.length ? targetSectionName : '';
+    const sectionToAdd = sectionName?.length ? getUriForSectionName(sectionName, sectionNames) : '';
+    const targetSectionToAdd = targetSectionName?.length
+      ? getUriForSectionName(targetSectionName, sectionNames)
+      : '';
 
-    // Create the new item object
     const newItem = {
+      sectionId: sectionNames.find(({ title }) => title === sectionName)?.id,
       timestamp_ms: selectedTimestamp,
       sectionName: sectionToAdd,
       targetSectionName: targetSectionToAdd,
@@ -70,7 +85,6 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
       isQuizScheduled,
     };
 
-    // Add the new item to the list or update the existing one if editing
     if (editIndex !== null) {
       const updatedSnaps = [...snaps];
       updatedSnaps[editIndex] = newItem;
@@ -89,11 +103,16 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
 
   const handleEditItem = (index: number) => {
     const itemToEdit = snaps[index];
-    setSectionName(itemToEdit.sectionName);
-    setTargetSectionName(itemToEdit.targetSectionName);
+    const sectionNameToEdit = getSectionNameForUri(itemToEdit.sectionName, sectionNames).trim();
+    const targetSectionNameToEdit = getSectionNameForUri(
+      itemToEdit.targetSectionName,
+      sectionNames
+    ).trim();
+    setSectionName(sectionNameToEdit || '');
+    setTargetSectionName(targetSectionNameToEdit || '');
     setClipId(itemToEdit.clipId || '');
-    setSelectedTimestamp(itemToEdit.timestamp_ms);
-    setIsQuizScheduled(itemToEdit.isQuizScheduled);
+    setSelectedTimestamp(itemToEdit.timestamp_ms || Date.now());
+    setIsQuizScheduled(itemToEdit.isQuizScheduled || false);
     setEditIndex(index);
   };
 
@@ -124,7 +143,7 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
                 border: '1px solid black',
               }}
             >
-              {item.sectionName}
+              {getSectionNameForUri(item.sectionName, sectionNames)}
             </td>
             <td
               style={{
@@ -135,7 +154,7 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
                 padding: '10px',
               }}
             >
-              {item.targetSectionName}
+              {getSectionNameForUri(item.targetSectionName, sectionNames)}
             </td>
             <td style={{ border: '1px solid black' }}>
               {item.clipId?.length ? (
@@ -188,7 +207,6 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
           }}
           sx={{ m: '20px 5px 0' }}
         />
-        {/* Section Name Field */}
         <FormControl sx={{ m: '20px 5px 0' }}>
           <InputLabel id="section-name-select-label">Section Name</InputLabel>
           <Select
@@ -201,16 +219,16 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
             <MenuItem value="">
               <em>None</em>
             </MenuItem>
-            {sectionNames.map((option) => {
-              const isDuplicate = duplicateNames.includes(option.trim());
+            {sectionNames.map(({ title }) => {
+              const isDuplicate = duplicateNames.includes(title.trim());
 
               return (
                 <MenuItem
-                  key={option}
-                  value={option.trim()}
+                  key={title}
+                  value={title.trim()}
                   sx={{ backgroundColor: isDuplicate ? 'red' : undefined }}
                 >
-                  {option}
+                  {title}
                 </MenuItem>
               );
             })}
@@ -228,16 +246,16 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
             <MenuItem value="">
               <em>None</em>
             </MenuItem>
-            {sectionNames.map((option) => {
-              const isDuplicate = duplicateNames.includes(option.trim());
+            {sectionNames.map(({ title }) => {
+              const isDuplicate = duplicateNames.includes(title.trim());
 
               return (
                 <MenuItem
-                  key={option}
-                  value={option.trim()}
+                  key={title}
+                  value={title.trim()}
                   sx={{ backgroundColor: isDuplicate ? 'red' : undefined }}
                 >
-                  {option}
+                  {title}
                 </MenuItem>
               );
             })}
