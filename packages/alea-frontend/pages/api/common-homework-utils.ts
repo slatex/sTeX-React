@@ -81,7 +81,7 @@ export async function getGradingItemsOrSetError(
     } = i;
     return {
       ...rest,
-      studentId: isPeerGrading ? '' : studentId,
+      studentId: isPeerGrading ? Math.random().toString() : studentId,
       numSubProblemsAnswered: subProblemsAnswered?.size ?? 0,
       numSubProblemsGraded: subProblemsGraded?.size ?? 0,
       numSubProblemsInstructorGraded: subProblemsInstructorGraded?.size ?? 0,
