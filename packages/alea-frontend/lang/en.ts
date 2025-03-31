@@ -429,5 +429,6 @@ export const en = {
     homework: 'Homeworks',
     forum: 'Forum',
     welcome: 'Welcome',
+    studyBuddy: 'Study Buddy',
   },
 };

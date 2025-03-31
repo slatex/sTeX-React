@@ -405,5 +405,6 @@ export const de = {
     homework: 'Hausaufgaben',
     forum: 'Forum',
     welcome: 'Willkommen',
+    studyBuddy: 'Study Buddy',
   },
 };
