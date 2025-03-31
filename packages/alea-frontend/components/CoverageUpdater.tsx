@@ -175,9 +175,15 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
                 <i>None</i>
               )}
             </td>
-            <td />
-            <td style={{ borderRight: '1px solid black' }}>
-              {item.isQuizScheduled ? 'Quiz Scheduled' : ''}
+            <td
+              style={{
+                border: '1px solid black',
+                textAlign: 'center',
+                padding: '10px',
+                verticalAlign: 'middle',
+              }}
+            >
+              {item.isQuizScheduled ? 'Quiz Scheduled' : <i>Not Scheduled</i>}
             </td>
             <td>
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
