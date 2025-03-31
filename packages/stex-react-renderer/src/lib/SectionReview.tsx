@@ -26,7 +26,7 @@ import { BG_COLOR, getSectionInfo } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import CompetencyTable from './CompetencyTable';
-import { PerSectionQuiz } from './PerSectionQuiz';
+import PracticeProblem from './PracticeProblem';
 import { RenderOptions } from './RendererDisplayOptions';
 import { getLocaleObject } from './lang/utils';
 import {
@@ -138,7 +138,8 @@ const SectionReview = ({
               </Tooltip>
             ))}
           </Box>
-          <PerSectionQuiz archive={archive} filepath={filepath} showHideButton={true}/>
+          {/* <PerSectionQuiz archive={archive} filepath={filepath} showHideButton={true}/> */}
+          <PracticeProblem archive={archive} filepath={filepath} showHideButton={true} />
         </AccordionDetails>
       </Accordion>
       <Dialog

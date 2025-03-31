@@ -1,6 +1,5 @@
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import {
-  DefiniendaItem,
   getDefiniedaInDoc,
   getLearningObjects,
   getLearningObjectShtml,
@@ -8,7 +7,7 @@ import {
   ProblemResponse,
 } from '@stex-react/api';
 import { useContext, useEffect, useReducer, useState } from 'react';
-import { ServerLinksContext, mmtHTMLToReact } from './stex-react-renderer';
+import { ServerLinksContext } from './stex-react-renderer';
 import { ProblemDisplay } from './ProblemDisplay';
 import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
 import { defaultProblemResponse } from './InlineProblemDisplay';
@@ -94,7 +93,7 @@ export function ForMe({
   if (show) {
     return (
       <Button onClick={handleClick} variant="contained">
-        For Me
+        {t.ForMe}
       </Button>
     );
   }
@@ -133,7 +132,7 @@ export function ForMe({
   return (
     <Box p={2} maxWidth="800px" m="auto" bgcolor="white" border="1px solid #CCC" borderRadius="5px">
       <Typography variant="h6" mb={2}>
-        For Me
+        {t.ForMe}
       </Typography>
       <Typography fontWeight="bold" textAlign="left">
               {`${t.problem} ${problemIdx + 1} ${t.of} ${problems.length} `}
@@ -176,7 +175,7 @@ export function ForMe({
       >
         {showHideButton && (
           <Button onClick={() => setShow(true)} variant="contained">
-            {t.hideProblems}
+            {t.hideForMe}
           </Button>
         )}
       </Box>

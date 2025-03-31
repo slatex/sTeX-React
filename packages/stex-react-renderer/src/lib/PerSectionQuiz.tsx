@@ -16,7 +16,6 @@ import { ProblemDisplay } from './ProblemDisplay';
 import { ListStepper } from './QuizDisplay';
 import { getLocaleObject } from './lang/utils';
 import { ServerLinksContext, mmtHTMLToReact } from './stex-react-renderer';
-import { ForMe } from './ForMe';
 
 export function PerSectionQuiz({
   archive,
@@ -104,7 +103,7 @@ export function PerSectionQuiz({
       border="1px solid #CCC"
       borderRadius="5px"
     >
-      <ForMe archive={archive} filepath={filepath} showHideButton={true}/>
+      {/* <ForMe archive={archive} filepath={filepath} showHideButton={true}/> */}
       <Typography fontWeight="bold" textAlign="left">
         {`${t.problem} ${problemIdx + 1} ${t.of} ${problems.length} `}
       </Typography>
