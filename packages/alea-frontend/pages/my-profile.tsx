@@ -24,7 +24,6 @@ import { PRIMARY_COL } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
-
 import { DataExportTab } from '../components/profile/DataExportTab';
 import { ProfileTab } from '../components/profile/ProfileTab';
 import { SettingsTab } from '../components/profile/SettingsTab';
@@ -32,7 +31,7 @@ import { SettingsTab } from '../components/profile/SettingsTab';
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
   return (
-    <div
+    <Box
       role="tabpanel"
       hidden={value !== index}
       id={`profile-tabpanel-${index}`}
@@ -40,7 +39,7 @@ function TabPanel(props) {
       {...other}
     >
       {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-    </div>
+    </Box>
   );
 }
 
