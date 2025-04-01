@@ -560,6 +560,21 @@ export const MaAI_COURSES: {
   anla: { courseName: 'Algorithms of Numerical Linear Algebra' },
   lkopt: { courseName: 'Optimization in industry and economy' },
   ano: { courseName: 'Advanced nonlinear optimization' },
-  'disco-1': { courseName: 'Discrete optimization I' },
-  'disco-2': { courseName: 'Discrete optimization II' },
+  'discopt-1': { courseName: 'Discrete optimization I' },
+  'discopt-2': { courseName: 'Discrete optimization II' },
+
+  // from Claudia Barnickel (bachelor’s program)
+  'medtech-1': { courseName: 'Medizintechnik I (Biomaterialien)' },
+  'medtech-2': { courseName: 'Medizintechnik II (Bildgebende Verfahren)' },
+  'matha-1': { courseName: 'Mathematik A 1' },
+  'matha-2': { courseName: 'Mathematik A 2' },
+  'matha-3': { courseName: 'Mathematik A 3' },
+  'matha-4': { courseName: 'Mathematik A 4' },
+  'gde-1': { courseName: 'Grundlagen der Elektrotechnik I für MT, MECH' },
+  'gde-2': { courseName: 'Grundlagen der Elektrotechnik II' },
+  'exphy-1': { courseName: 'Experimentalphysik II' },
+  'exphy-2': { courseName: 'Experimentalphysik I' },
+  stfl: { courseName: 'Statik und Festigkeitslehre' },
+  'aud-mt': { courseName: 'Algorithmen und Datenstrukturen für MT' },
+  'alg-ks': { courseName: 'Algorithmik kontinuierlicher Systeme' },
 };
