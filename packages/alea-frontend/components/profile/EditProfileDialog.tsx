@@ -112,6 +112,7 @@ export function EditProfileDialog({ open, onClose, profileData, userId, onSave }
     'SS25',
     'WS25-26',
   ];
+  
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -155,25 +156,25 @@ export function EditProfileDialog({ open, onClose, profileData, userId, onSave }
             onChange={handleChange}
             variant="outlined"
           />
-          <TextField
-            fullWidth
-            select
-            label={t.semester}
-            name="semester"
-            value={formData.semester}
-            onChange={handleChange}
-            variant="outlined"
-            SelectProps={{
-              native: true,
-            }}
-          >
-            <option value="">Select a semester</option>
-            {semesterOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </TextField>
+          <FormControl fullWidth variant="outlined">
+            <InputLabel>{t.semester}</InputLabel>
+            <Select
+              name="semester"
+              value={formData.semester}
+              onChange={handleChange}
+              label={t.semester}
+            >
+              <MenuItem value="">
+                <em>Select a semester</em>
+              </MenuItem>
+              {semesterOptions.map((option) => (
+                <MenuItem key={option} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
           <FormControl sx={{ mb: '0.5rem' }} fullWidth>
             <InputLabel id="language-label">{t.languages}</InputLabel>
             <Select

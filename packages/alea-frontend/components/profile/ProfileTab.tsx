@@ -85,33 +85,21 @@ export const ProfileTab = ({
             <Typography variant="h6">{t.dataAlea}</Typography>
           </Box>
           <Stack spacing={2} sx={{ p: 2 }}>
-            <Button
-              component={Link}
-              href="/my-notes"
-              variant="contained"
-              fullWidth
-              startIcon={<NoteAltIcon />}
-            >
-              {t.myNotes}
-            </Button>
-            <Button
-              component={Link}
-              href="/my-learner-model"
-              variant="contained"
-              fullWidth
-              startIcon={<AssessmentIcon />}
-            >
-              {t.myCompetencyData}
-            </Button>
-            <Button
-              component={Link}
-              href="/learner-model-init"
-              variant="contained"
-              fullWidth
-              startIcon={<SchoolIcon />}
-            >
-              {t.learnerModelPriming}
-            </Button>
+            <Link href="/my-notes" passHref>
+              <Button variant="contained" fullWidth startIcon={<NoteAltIcon />}>
+                {t.myNotes}
+              </Button>
+            </Link>
+            <Link href="/my-learner-model" passHref>
+              <Button variant="contained" fullWidth startIcon={<AssessmentIcon />}>
+                {t.myCompetencyData}
+              </Button>
+            </Link>
+            <Link href="/learner-model-init" passHref>
+              <Button variant="contained" fullWidth startIcon={<SchoolIcon />}>
+                {t.learnerModelPriming}
+              </Button>
+            </Link>
           </Stack>
         </Card>
       </Box>
