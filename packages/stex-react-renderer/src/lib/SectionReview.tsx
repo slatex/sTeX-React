@@ -138,7 +138,6 @@ const SectionReview = ({
               </Tooltip>
             ))}
           </Box>
-          {/* <PerSectionQuiz archive={archive} filepath={filepath} showHideButton={true}/> */}
           <PracticeProblem archive={archive} filepath={filepath} showHideButton={true} />
         </AccordionDetails>
       </Accordion>

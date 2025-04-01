@@ -42,18 +42,14 @@ export function ForMe({
     setShow(false);
     setLoading(true);
     try {
-      console.log('Fetching data for:', archive, filepath);
       const data = await getDefiniedaInDoc(mmtUrl, archive, filepath);
       const URIs = data?.flatMap((item) => item.symbols) || [];
-      console.log('URIs:', URIs);
 
       const fetchedResponse = await getLearningObjects(URIs, 30, ['problem']);
-      console.log('Fetched Response:', fetchedResponse);
       const extractedProblemIds =
         fetchedResponse?.['learning-objects']?.map((lo: any) => lo['learning-object']) || [];
 
       setProblemIds(extractedProblemIds);
-      console.log('Extracted Problem IDs:', extractedProblemIds);
 
       if (extractedProblemIds.length > 0) {
         setStartQuiz(true);

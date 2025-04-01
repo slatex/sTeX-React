@@ -6,14 +6,15 @@ import { getLocaleObject } from './lang/utils';
 import { useRouter } from 'next/router';
 
 interface PracticeProblemProps {
-  archive: any;
+  archive: string;
   filepath: string;
   showHideButton: boolean;
 }
 
 const PracticeProblem: React.FC<PracticeProblemProps> = ({ archive, filepath, showHideButton }) => {
   const [showProblems, setShowProblems] = useState(false);
-  const t = getLocaleObject(useRouter()).quiz;
+  const router = useRouter();
+  const { quiz: t } = getLocaleObject(router);
 
   return (
     <Box>
@@ -22,9 +23,9 @@ const PracticeProblem: React.FC<PracticeProblemProps> = ({ archive, filepath, sh
           variant="contained"
           color="primary"
           onClick={() => setShowProblems(true)}
-          style={{ marginBottom: '10px' }}
+          sx={{ marginBottom: '10px' }}
         >
-         {t.practiceProblem}
+          {t.practiceProblem}
         </Button>
       )}
 
@@ -42,7 +43,7 @@ const PracticeProblem: React.FC<PracticeProblemProps> = ({ archive, filepath, sh
             variant="contained"
             color="secondary"
             onClick={() => setShowProblems(false)}
-            style={{ marginTop: '10px' }}
+            sx={{ marginTop: '10px' }}
           >
             {t.hidepracticeProblem}
           </Button>
