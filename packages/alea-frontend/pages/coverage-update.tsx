@@ -19,6 +19,7 @@ import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import { CoverageUpdater } from '../components/CoverageUpdater';
 import MainLayout from '../layouts/MainLayout';
+
 export interface Section {
   id: string;
   title: string;
@@ -38,7 +39,7 @@ function getSectionNames(data: TOCElem, level = 0): Section[] {
   }
   if ((data.type === 'Section' || data.type === 'Inputref') && Array.isArray(data.children)) {
     for (const child of data.children) {
-      sections.push(...getSectionNames(child, level)); 
+      sections.push(...getSectionNames(child, level));
     }
   }
   return sections;
@@ -65,20 +66,31 @@ const CoverageUpdatePage: NextPage = () => {
   }, [mmtUrl]);
 
   useEffect(() => {
-    async function getSections() {
-      const secNames: { [courseId: string]: Section[] } = {};
-      for (const courseId of Object.keys(courses)) {
-        const { notes } = courses[courseId];
-        try {
-          const tocResp = await getDocumentSections(notes);
-          const docSections = tocResp[1];
-          secNames[courseId] = docSections.flatMap((d) => getSectionNames(d));
-        } catch (error) {
-          console.error(`Failed to fetch sections for ${courseId}:`, error);
-        }
+    const getSections = async () => {
+      if (!Object.keys(courses).length) return;
+      try {
+        const sectionPromises = Object.keys(courses).map(async (courseId) => {
+          const { notes } = courses[courseId];
+          try {
+            const tocResp = await getDocumentSections(notes);
+            const docSections = tocResp[1];
+            return { courseId, sections: docSections.flatMap((d) => getSectionNames(d)) };
+          } catch (error) {
+            console.error(`Failed to fetch sections for ${courseId}:`, error);
+            return { courseId, sections: [] };
+          }
+        });
+        const results = await Promise.all(sectionPromises);
+        const secNames = results.reduce((acc, { courseId, sections }) => {
+          acc[courseId] = sections;
+          return acc;
+        }, {} as { [courseId: string]: Section[] });
+        setAllSectionNames(secNames);
+      } catch (error) {
+        console.error('Failed to fetch all sections:', error);
       }
-      setAllSectionNames(secNames);
-    }
+    };
+
     getSections();
   }, [mmtUrl, courses]);
 
