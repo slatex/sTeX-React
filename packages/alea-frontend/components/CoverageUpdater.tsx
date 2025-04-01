@@ -26,7 +26,7 @@ function getUriForSectionName(sectionName: string, sectionNames: Section[]): str
 
 function getSectionNameForUri(uri: string, sectionNames: Section[]): string {
   const section = sectionNames.find(({ uri: sectionUri }) => sectionUri === uri);
-  return section?.title || '';
+  return section?.title.trim() || '';
 }
 
 interface FormWithListProps {
