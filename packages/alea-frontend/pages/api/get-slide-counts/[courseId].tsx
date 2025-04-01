@@ -1,9 +1,8 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { CACHED_SLIDES, getSlides } from '../get-slides/[courseId]/[sectionIds]';
 import { getCourseInfo } from '@stex-react/api';
+import { NextApiRequest, NextApiResponse } from 'next';
+import { CACHED_SLIDES } from '../get-slides/[courseId]/[sectionIds]';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const courseId = req.query.courseId as string;
+export async function getSlideCounts(courseId: string, res: NextApiResponse) {
   const courses = await getCourseInfo(process.env.NEXT_PUBLIC_MMT_URL);
   const courseInfo = courses[courseId];
   if (!courseInfo) {
@@ -21,6 +20,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   for (const [secId, slides] of Object.entries(CACHED_SLIDES[courseId])) {
     data[secId] = slides.length;
   }
+  return data;
+}
 
-  return res.status(200).json(data);
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const courseId = req.query.courseId as string;
+  const slideCounts = await getSlideCounts(courseId, res);
+  if (slideCounts) {
+    return res.status(200).json(slideCounts);
+  }
 }

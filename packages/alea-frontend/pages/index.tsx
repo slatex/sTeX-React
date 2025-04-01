@@ -1,7 +1,12 @@
 import FeedIcon from '@mui/icons-material/Feed';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import { Box, Button, IconButton, Tooltip, Typography, useMediaQuery } from '@mui/material';
-import { checkUserExist, getCourseInfo, getResourcesForUserId, isLoggedIn } from '@stex-react/api';
+import {
+  getCourseInfo,
+  getResourcesForUser,
+  isLoggedIn,
+  updateUserInfoFromToken,
+} from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { Action, CourseInfo, CourseResourceAction, PRIMARY_COL } from '@stex-react/utils';
 import { NextPage } from 'next';
@@ -324,8 +329,9 @@ const StudentHomePage: NextPage = ({ filteredCourses }: { filteredCourses: Cours
   const router = useRouter();
   const [resourcesForInstructor, setResourcesForInstructor] = useState<CourseResourceAction[]>([]);
   useEffect(() => {
-    checkUserExist();
+    updateUserInfoFromToken();
   }, []);
+
   const {
     home: { newHome: n },
   } = getLocaleObject(router);
@@ -333,7 +339,7 @@ const StudentHomePage: NextPage = ({ filteredCourses }: { filteredCourses: Cours
   const { mmtUrl } = useContext(ServerLinksContext);
   useEffect(() => {
     async function resourcesAccessToUser() {
-      const resources = await getResourcesForUserId(mmtUrl);
+      const resources = await getResourcesForUser();
       const resourceAccessToInstructor = resources
         .map((item) => ({
           ...item,

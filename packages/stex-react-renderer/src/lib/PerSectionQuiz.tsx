@@ -161,7 +161,7 @@ export function PerSectionQuiz({
         {showSolution && (
           <Box mb="10px">
             {solutions.map((solution) => (
-              <div style={{ color: '#555' }}>{mmtHTMLToReact(solution)}</div>
+              <div style={{ color: '#555' }} dangerouslySetInnerHTML={{__html:solution}}></div>
             ))}
           </Box>
         )}

@@ -3,11 +3,13 @@ import axios, { AxiosError } from 'axios';
 import { HomeworkInfo } from './homework';
 import { getAuthHeaders } from './lmp';
 import {
+  AnswerResponse,
   CreateAnswerRequest,
   CreateGradingRequest,
   CreateReviewRequest,
   GradingInfo,
   GradingItem,
+  GradingWithAnswer,
 } from './nap';
 import { ProblemResponse } from './quiz';
 
@@ -65,6 +67,9 @@ export async function getAnswerWithReviewRequestId(id: number) {
 export async function deleteAnswer(id: number) {
   return axios.post('/api/nap/delete-answer', { id }, { headers: getAuthHeaders() });
 }
+export async function deleteGraded(id: number) {
+  return axios.post('/api/nap/delete-grade', { id }, { headers: getAuthHeaders() });
+}
 
 export async function deleteReviewRequest(id: number) {
   return axios.post('/api/nap/delete-review-request', { id }, { headers: getAuthHeaders() });
@@ -79,11 +84,20 @@ export interface GetAnswersWithGradingResponse {
 export async function getAnswersWithGrading(
   homeworkId: number,
   questionId: string,
-  studentId: string
+  studentId: string,
+  answerId: number,
+  courseId: string
 ) {
   return axios
     .get('/api/nap/get-answers-with-grading', {
-      params: { homeworkId, questionId, studentId },
+      params: {
+        homeworkId,
+        questionId,
+        studentId,
+        answerId,
+        courseId,
+        courseInstance: CURRENT_TERM,
+      },
       headers: getAuthHeaders(),
     })
     .then((c) => c.data as GetAnswersWithGradingResponse);
@@ -100,4 +114,36 @@ export async function getCourseGradingItems(courseId: string) {
     headers: getAuthHeaders(),
   });
   return resp.data as GetCourseGradingItemsResponse;
+}
+export async function getMyAnswers() {
+  return (
+    await axios.get<AnswerResponse[]>('/api/nap/get-my-answers', { headers: getAuthHeaders() })
+  ).data;
+}
+export async function getMyGraded() {
+  return (
+    await axios.get<GradingWithAnswer[]>('/api/nap/get-my-graded', { headers: getAuthHeaders() })
+  ).data;
+}
+export async function getGradingItems(answerId: number, subProblemId: number) {
+  return (
+    await axios.get<GradingInfo[]>('/api/nap/get-answer-grading', {
+      params: { answerId, subProblemId },
+      headers: getAuthHeaders(),
+    })
+  ).data;
+}
+export async function getReviewItems(courseId: string) {
+  return (
+    await axios.get<GradingWithAnswer[]>('/api/nap/admin/get-peer-review-items', {
+      params: { courseId },
+      headers: getAuthHeaders(),
+    })
+  ).data;
+}
+export async function deleteReview(id: number, courseId: string) {
+  return axios.get('/api/nap/admin/delete-peer-review', {
+    headers: getAuthHeaders(),
+    params: { id, courseId },
+  });
 }

@@ -9,7 +9,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     time,
   };
   const secretKey = process.env.APFEL_PRIVATE_KEY;
-  const options = { expiresIn: '365d' };
+  const options = { expiresIn: '365D' as any };
   try {
     const token = sign(payload, secretKey, options);
     res.status(200).json({ token });

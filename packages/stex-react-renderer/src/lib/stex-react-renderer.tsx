@@ -35,7 +35,12 @@ import {
 } from './SelfAssessmentDialog';
 import { TourAPIEntry, TourDisplay } from './TourDisplay';
 import { TOCFileNode, getScrollInfo } from './collectIndexInfo';
-import { CustomItemsContext, NoMaxWidthTooltip, mmtHTMLToReact } from './mmtParser';
+import {
+  CustomItemsContext,
+  NoMaxWidthTooltip,
+  PositionProvider,
+  mmtHTMLToReact,
+} from './mmtParser';
 import { DimAndURIListDisplay, ProblemDisplay, URIListDisplay } from './ProblemDisplay';
 import { GradingCreator } from './GradingCreator';
 import { GradingContext } from './SubProblemAnswer';
@@ -223,6 +228,7 @@ export {
   ListStepper,
   NoMaxWidthTooltip,
   PerSectionQuiz,
+  PositionProvider,
   PracticeQuestions,
   ProblemDisplay,
   QuizDisplay,

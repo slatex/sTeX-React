@@ -285,15 +285,19 @@ export async function generateApfelToken(userId: string, time: number) {
   return response.data;
 }
 
-export async function checkUserExist() {
-  const response = await axios.post('/api/check-user-exist', {}, { headers: getAuthHeaders() });
+export async function updateUserInfoFromToken() {
+  const response = await axios.post(
+    '/api/update-user-info-from-token',
+    {},
+    { headers: getAuthHeaders() }
+  );
   return response.data;
 }
 
-export async function getResourcesForUserId(mmtUrl: string) {
+export async function getResourcesForUser() {
   const response = await axios.post(
-    '/api/get-resources-for-userid',
-    { mmtUrl },
+    '/api/get-resources-for-user',
+    {},
     { headers: getAuthHeaders() }
   );
   return response.data as CourseResourceAction[];

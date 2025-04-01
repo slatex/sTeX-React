@@ -1,7 +1,7 @@
 import { createInstance, MatomoProvider } from '@jonkoops/matomo-tracker-react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { MathJaxContext } from '@stex-react/mathjax';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
+import { PositionProvider, ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { PRIMARY_COL, SECONDARY_COL } from '@stex-react/utils';
 import { AppProps } from 'next/app';
 import './styles.scss';
@@ -63,7 +63,9 @@ function CustomApp({ Component, pageProps }: AppProps) {
       <MatomoProvider value={instance}>
         <ThemeProvider theme={theme}>
           <MathJaxContext>
-            <Component {...pageProps} />
+            <PositionProvider>
+              <Component {...pageProps} />
+            </PositionProvider>
           </MathJaxContext>
         </ThemeProvider>
       </MatomoProvider>

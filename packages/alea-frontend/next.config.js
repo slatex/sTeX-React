@@ -77,8 +77,6 @@ const withSentry = (config) =>
       org: 'alea-m4',
       project: 'alea-nextjs',
       //publicRuntimeConfig
-    },
-    {
       // For all available options, see:
       // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
 
@@ -86,7 +84,7 @@ const withSentry = (config) =>
       widenClientFileUpload: true,
 
       // Transpiles SDK to be compatible with IE11 (increases bundle size)
-      transpileClientSDK: true,
+      // transpileClientSDK: true,
 
       // Routes browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers (increases server load)
       tunnelRoute: '/monitoring',

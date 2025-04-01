@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import CodeMirror from '@uiw/react-codemirror';
-import { Button, Box } from '@mui/material';
-import { javascript } from '@codemirror/lang-javascript';
+import { useState } from 'react';
+//import CodeMirror from '@uiw/react-codemirror';
+import { Box, Button } from '@mui/material';
+//import { javascript } from '@codemirror/lang-javascript';
 import MainLayout from '../../layouts/MainLayout';
 
 function CodeEditor() {
@@ -31,21 +31,17 @@ function CodeEditor() {
 
   return (
     <MainLayout title="CodeEditor | ALeA">
-      <CodeMirror
+      {/*<CodeMirror
         value={value}
         height="300px"
         extensions={[javascript({ jsx: true })]}
         onChange={handleEditorChange}
         theme={'dark'}
-      />
+      />*/}
       <Button onClick={handleRun} variant="contained" sx={{ m: '15px' }}>
         Run Code
       </Button>
-      <Button
-        onClick={() => setValue(defaultCode)}
-        variant="contained"
-        sx={{ m: '15px' }}
-      >
+      <Button onClick={() => setValue(defaultCode)} variant="contained" sx={{ m: '15px' }}>
         Reset
       </Button>
       {showResult && (
@@ -59,10 +55,7 @@ function CodeEditor() {
         >
           <Box display="flex" justifyContent="space-between" mx="20px">
             <strong>Output</strong>
-            <strong
-              style={{ cursor: 'pointer' }}
-              onClick={() => setShowResult(false)}
-            >
+            <strong style={{ cursor: 'pointer' }} onClick={() => setShowResult(false)}>
               X
             </strong>
           </Box>

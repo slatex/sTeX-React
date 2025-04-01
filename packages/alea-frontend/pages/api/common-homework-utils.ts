@@ -6,16 +6,17 @@ interface PerSubProblemGradingType {
   homeworkId: number;
   questionId: string;
   studentId: string;
-
+  answerId: number;
   subProblemId: string;
   reviewType?: ReviewType;
 
   updatedAt: string;
 }
 
-export async function getGradingItems(
+export async function getGradingItemsOrSetError(
   courseId: string,
   instanceId: string,
+  isPeerGrading: boolean,
   res: NextApiResponse
 ): Promise<GradingItem[]> {
   const gradingList: PerSubProblemGradingType[] = await executeAndEndSet500OnError(
@@ -25,15 +26,16 @@ export async function getGradingItems(
             a.subProblemId AS subProblemId,
             a.userId AS studentId,
             g.reviewType AS reviewType,
-            MAX(a.updatedAt) AS updatedAt
+            MAX(a.updatedAt) AS updatedAt,
+            a.id AS answerId
         FROM Answer a LEFT JOIN Grading g ON a.id = g.answerId
         WHERE a.courseId = ? AND a.courseInstance = ?
-        GROUP BY homeworkId, questionId, subProblemId, userId, reviewType 
+        GROUP BY homeworkId, questionId, subProblemId, userId, reviewType ,a.id 
         `,
     [courseId, instanceId],
     res
   );
-  if (!gradingList) return [];  
+  if (!gradingList) return [];
   const gradingItemsMap: {
     [key: string]: Omit<
       GradingItem,
@@ -51,6 +53,7 @@ export async function getGradingItems(
         homeworkId: i.homeworkId,
         questionId: i.questionId,
         studentId: i.studentId,
+        answerId: i.answerId,
         updatedAt: i.updatedAt,
         subProblemsAnswered: new Set(),
         subProblemsGraded: new Set(),
@@ -69,9 +72,16 @@ export async function getGradingItems(
   });
 
   return Object.values(gradingItemsMap).map((i) => {
-    const { subProblemsAnswered, subProblemsGraded, subProblemsInstructorGraded, ...rest } = i;
+    const {
+      subProblemsAnswered,
+      subProblemsGraded,
+      subProblemsInstructorGraded,
+      studentId,
+      ...rest
+    } = i;
     return {
       ...rest,
+      studentId: isPeerGrading ? '' : studentId,
       numSubProblemsAnswered: subProblemsAnswered?.size ?? 0,
       numSubProblemsGraded: subProblemsGraded?.size ?? 0,
       numSubProblemsInstructorGraded: subProblemsInstructorGraded?.size ?? 0,
