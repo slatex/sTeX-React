@@ -1,3 +1,4 @@
+import { VideoCameraBack } from '@mui/icons-material';
 import ArticleIcon from '@mui/icons-material/Article';
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import {
@@ -5,6 +6,7 @@ import {
   SectionInfo,
   SectionsAPIData,
   Slide,
+  TOCElem,
   getAncestors,
   getCourseInfo,
   getDocumentSections,
@@ -19,13 +21,7 @@ import {
   ServerLinksContext,
   mmtHTMLToReact,
 } from '@stex-react/stex-react-renderer';
-import {
-  CourseInfo,
-  XhtmlContentUrl,
-  getSectionInfo,
-  localStore,
-  shouldUseDrawer,
-} from '@stex-react/utils';
+import { CourseInfo, XhtmlContentUrl, localStore, shouldUseDrawer } from '@stex-react/utils';
 import axios from 'axios';
 import { NextPage } from 'next';
 import Link from 'next/link';
@@ -35,7 +31,6 @@ import { SlideDeck } from '../../components/SlideDeck';
 import { VideoDisplay } from '../../components/VideoDisplay';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
-import { VideoCameraBack } from '@mui/icons-material';
 
 function RenderElements({ elements }: { elements: string[] }) {
   return (
@@ -91,6 +86,7 @@ function populateClipIds(sections: SectionInfo[], clipIds: { [sectionId: string]
     populateClipIds(section.children, clipIds);
   }
 }
+
 function populateSlidesClipInfos(
   sections: SectionInfo[],
   slidesClipInfo: {
@@ -174,6 +170,7 @@ const CourseViewPage: NextPage = () => {
   const [timestampSec, setTimestampSec] = useState(0);
   const [autoSync, setAutoSync] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
+  const [toc, setToc] = useState<TOCElem[]>([]);
   const handleVideoLoad = (status) => {
     setVideoLoaded(status);
   };
@@ -183,11 +180,18 @@ const CourseViewPage: NextPage = () => {
   }, []);
 
   useEffect(() => {
-    if (!router.isReady || !courses?.[courseId]) return;
+    if (!router.isReady) return;
     //Todo alea-4
+
+    const notes = courses?.[courseId]?.notes;
+    if (!notes) return;
+    getDocumentSections(notes).then(([_, toc]) => {
+      console.log('toc', toc);
+      setToc(toc);
+    });
     // const { notesArchive, notesFilepath } = courses[courseId];
     // setContentUrl(XhtmlContentUrl(notesArchive, notesFilepath));
-    axios.get(`/api/get-slide-counts/${courseId}`).then((resp) => setSlideCounts(resp.data));
+    // axios.get(`/api/get-slide-counts/${courseId}`).then((resp) => setSlideCounts(resp.data));
   }, [router.isReady, courses, courseId]);
 
   useEffect(() => {
@@ -207,6 +211,7 @@ const CourseViewPage: NextPage = () => {
       .get(`/api/get-slide-details/${courseId}/${currentClipId}`)
       .then((resp) => setVideoExtractedData(resp.data));
   }, [courseId, currentClipId]);
+
   useEffect(() => {
     if (!router.isReady) return;
     if (sectionId && slideNum && viewMode && audioOnlyStr) return;
@@ -236,8 +241,7 @@ const CourseViewPage: NextPage = () => {
     }
     if (someParamMissing) router.replace({ pathname, query });
   }, [router, router.isReady, sectionId, slideNum, viewMode, courseId, audioOnlyStr, slideCounts]);
-  
-  // Todo alea-4
+
   // useEffect(() => {
   //   async function getIndex() {
   //     const { archive, filepath } = getSectionInfo(contentUrl);
@@ -285,20 +289,16 @@ const CourseViewPage: NextPage = () => {
     <MainLayout title={(courseId || '').toUpperCase() + ` ${tHome.courseThumb.slides} | ALeA`}>
       <LayoutWithFixedMenu
         menu={
-          contentUrl?.length ? (
-            <>
-              <ContentDashboard
-                courseId={courseId}
-                docSections={docSections}
-                contentUrl={contentUrl}
-                selectedSection={sectionId}
-                onClose={() => setShowDashboard(false)}
-                onSectionClick={(sectionId: string) =>
-                  setSlideNumAndSectionId(router, 1, sectionId)
-                }
-              />
-            </>
-          ) : null
+          toc?.length && (
+            <ContentDashboard
+              key={courseId}
+              courseId={courseId}
+              toc={toc}
+              selectedSection={sectionId}
+              onClose={() => setShowDashboard(false)}
+              onSectionClick={(sectionId: string) => setSlideNumAndSectionId(router, 1, sectionId)}
+            />
+          )
         }
         topOffset={64}
         showDashboard={showDashboard}

@@ -36,15 +36,11 @@ function getChapterAndSections(toc: TOCElem, chapterTitle = ''): TopLevelSection
       },
     ];
   } else {
-    if (!chapterTitle) {
-      if (toc.type === 'Section') chapterTitle = toc.title;
-      else if (toc.type === 'SkippedSection') chapterTitle = 'Untitled';
-    }
+    if (!chapterTitle && toc.type === 'Section') chapterTitle = toc.title;
     const sections: TopLevelSection[] = [];
     for (const child of toc.children) {
       sections.push(...getChapterAndSections(child, chapterTitle));
     }
-
     return sections;
   }
 }

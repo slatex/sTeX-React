@@ -1,27 +1,15 @@
 import { Box, CircularProgress } from '@mui/material';
-import {
-  SectionsAPIData,
-  getAncestors,
-  getCoveredSections,
-  getDocumentSections,
-  lastFileNode,
-} from '@stex-react/api';
-import { useRouter } from 'next/router';
-import {
-  BG_COLOR,
-  IS_MMT_VIEWER,
-  XhtmlContentUrl,
-  getSectionInfo,
-  shouldUseDrawer,
-} from '@stex-react/utils';
+import { SectionsAPIData, getAncestors, lastFileNode } from '@stex-react/api';
+import { BG_COLOR, IS_MMT_VIEWER, getSectionInfo, shouldUseDrawer } from '@stex-react/utils';
 import axios from 'axios';
+import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import { ContentDashboard } from './ContentDashboard';
 import { LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 import { PerSectionQuiz } from './PerSectionQuiz';
+import { getLocaleObject } from './lang/utils';
 import { mmtHTMLToReact } from './mmtParser';
 import { ServerLinksContext } from './stex-react-renderer';
-import { getLocaleObject } from './lang/utils';
 
 function shortenDocSections(coveredSectionIds: string[], docSections?: SectionsAPIData) {
   if (!coveredSectionIds.length || !docSections) return docSections;
@@ -63,16 +51,16 @@ export function DocProblemBrowser({
   const [problemCounts, setProblemCounts] = useState<{ [id: string]: number }>({});
 
   const sectionParentInfo = lastFileNode(ancestors);
-  const coveredSectionIds =
-    startSecNameExcl && endSecNameIncl
-      ? getCoveredSections(startSecNameExcl, endSecNameIncl, docSections).coveredSectionIds
-      : [];
-
-  const shortenedDocSections = shortenDocSections(coveredSectionIds, docSections);
+  // TODO alea-4
+  // const coveredSectionIds =
+  //   startSecNameExcl && endSecNameIncl
+  //     ? getCoveredSections(startSecNameExcl, endSecNameIncl, docSections).coveredSectionIds
+  //     : [];
+  //   const shortenedDocSections = shortenDocSections(coveredSectionIds, docSections);
 
   useEffect(() => {
     const { archive, filepath } = getSectionInfo(contentUrl);
-     //Todo alea-4
+    //Todo alea-4
     // getDocumentSections(mmtUrl, archive, filepath).then(setDocSections);
   }, [mmtUrl, contentUrl]);
 
@@ -89,11 +77,10 @@ export function DocProblemBrowser({
     <LayoutWithFixedMenu
       menu={
         <ContentDashboard
-          coveredSectionIds={coveredSectionIds}
+          //TODO alea-4 coveredSectionIds={coveredSectionIds}
           courseId={courseId}
-          docSections={shortenedDocSections}
+          toc={[]} //TODO alea-4
           onClose={() => setShowDashboard(false)}
-          contentUrl={contentUrl}
           preAdornment={(sectionId) => {
             const numProblems = problemCounts[sectionId];
             if (numProblems === undefined) return <></>;

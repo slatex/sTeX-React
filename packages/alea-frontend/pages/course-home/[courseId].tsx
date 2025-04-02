@@ -24,29 +24,22 @@ import {
   InputAdornment,
   TextField,
 } from '@mui/material';
-import {
-  ContentFromUrl,
-  DisplayReason,
-  DocumentWidthSetter,
-} from '@stex-react/stex-react-renderer';
+import { FTMLDocument } from '@stex-react/ftml-utils';
 import {
   Action,
   BG_COLOR,
   CourseInfo,
   CURRENT_TERM,
   INSTRUCTOR_RESOURCE_AND_ACTION,
-  ResourceName,
-  XhtmlContentUrl,
+  ResourceName
 } from '@stex-react/utils';
 import { NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
-import { RecordedSyllabus } from '../../components/RecordedSyllabus';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
-import { FTMLDocument } from '@stex-react/ftml-utils';
 
 export function getCourseEnrollmentAcl(courseId: string, instanceId: string) {
   return `${courseId}-${instanceId}-enrollments`;
@@ -358,12 +351,7 @@ const CourseHomePage: NextPage = () => {
             />
           </Box>
         )}
-        <FTMLDocument
-          document={{
-            uri: landing,
-            toc: undefined,
-          }}
-        />
+        <FTMLDocument document={{ uri: landing, toc: undefined }} />
         {/* <RecordedSyllabus courseId={courseId} /> */}
       </Box>
     </MainLayout>

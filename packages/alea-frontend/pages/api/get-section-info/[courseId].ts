@@ -179,5 +179,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   //   addClipInfo(allSections, slideCounts, videoSlides);
   // }
   // res.status(200).send(allSections);
-  res.status(200).send("we will use contentToc");
+  res.status(200).send([]);
 }

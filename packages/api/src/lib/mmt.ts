@@ -8,6 +8,7 @@ import {
 import axios from 'axios';
 import { FLAMSServer } from './flams';
 import { ArchiveIndex, Institution } from './flams-types';
+import { TOCElem } from './ftml-viewer-base';
 
 const FLAMS_SERVER_URL = 'https://mmt.beta.vollki.kwarc.info';
 const server = new FLAMSServer(FLAMS_SERVER_URL);
@@ -113,7 +114,7 @@ export function lastFileNode(ancestors: SectionsAPIData[] | undefined) {
 export function getCoveredSections(
   startSecNameExcl: string,
   endSecNameIncl: string,
-  sectionData: SectionsAPIData | undefined,
+  tocElem: TOCElem,
   started = false
 ): {
   started: boolean;
@@ -122,19 +123,19 @@ export function getCoveredSections(
   coveredSectionIds: string[];
 } {
   const wasStartedForMe = started;
-  if (!sectionData) return { started, ended: true, coveredSectionIds: [], fullyCovered: false };
+  if (!tocElem) return { started, ended: true, coveredSectionIds: [], fullyCovered: false };
 
-  const isSec = isSection(sectionData);
+  const isSec = tocElem.type === 'Section';
   let iAmEnding = false;
   if (isSec) {
-    const sectionName = convertHtmlStringToPlain(sectionData.title || '');
+    const sectionName = tocElem.title ?? '';
     if (sectionName === startSecNameExcl) started = true;
     iAmEnding = sectionName === endSecNameIncl;
   }
 
   let allChildrenCovered = true;
   const coveredSectionIds: string[] = [];
-  for (const child of sectionData.children || []) {
+  for (const child of (tocElem as any).children || []) {
     const cResp = getCoveredSections(startSecNameExcl, endSecNameIncl, child, started);
     if (!cResp.fullyCovered) allChildrenCovered = false;
     coveredSectionIds.push(...cResp.coveredSectionIds);
@@ -151,7 +152,8 @@ export function getCoveredSections(
   }
 
   const fullyCovered = allChildrenCovered && wasStartedForMe;
-  if (sectionData.id && fullyCovered) coveredSectionIds.push(sectionData.id);
+  const tocId = (tocElem as any).id;
+  if (tocId && fullyCovered) coveredSectionIds.push(tocId);
   return { started, ended: iAmEnding, fullyCovered, coveredSectionIds };
 }
 
@@ -182,8 +184,7 @@ export function isSection(data: SectionsAPIData) {
   return !isFile(data);
 }
 export async function getDocumentSections(notesUri: string) {
-  const resp = await server.contentToc({ uri: notesUri });
-  return resp;
+  return await server.contentToc({ uri: notesUri });
 }
 
 ///////////////////////

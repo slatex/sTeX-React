@@ -142,10 +142,9 @@ export function StexReactRenderer({
         <LayoutWithFixedMenu
           menu={
             <ContentDashboard
-              docSections={docFragManager.docSections}
+              toc={[]} //TODO alea-4 docSections={docFragManager.docSections}
               courseId={router?.query?.courseId as string}
               onClose={() => setShowDashboard(false)}
-              contentUrl={contentUrl}
               selectedSection={''}
             />
           }

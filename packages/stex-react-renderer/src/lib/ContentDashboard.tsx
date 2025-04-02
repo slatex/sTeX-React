@@ -5,63 +5,59 @@ import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/Indeterminate
 import UnfoldLessDoubleIcon from '@mui/icons-material/UnfoldLessDouble';
 import UnfoldMoreDoubleIcon from '@mui/icons-material/UnfoldMoreDouble';
 import { Box, IconButton, TextField, Tooltip } from '@mui/material';
+import { getCoveredSections, TOCElem } from '@stex-react/api';
 import {
-  SectionsAPIData,
-  canAccessResource,
-  getCoveredSections,
-} from '@stex-react/api';
-import {
-  Action,
-  CURRENT_TERM,
-  CoverageTimeline,
-  PRIMARY_COL,
-  ResourceName,
   convertHtmlStringToPlain,
-  createHash,
-  localStore,
+  CoverageTimeline,
+  PRIMARY_COL
 } from '@stex-react/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
-import { FixedPositionMenu } from './LayoutWithFixedMenu';
-import {
-  TOCFileNode,
-  TOCNode,
-  TOCNodeType,
-  TOCSectionNode,
-} from './collectIndexInfo';
+import { useEffect, useMemo, useState } from 'react';
 import { getLocaleObject } from './lang/utils';
+import { FixedPositionMenu } from './LayoutWithFixedMenu';
 import styles from './stex-react-renderer.module.scss';
 
 interface SectionTreeNode {
   parentNode?: SectionTreeNode;
   children: SectionTreeNode[];
-  tocNode: TOCSectionNode;
+  tocElem: Extract<TOCElem, { type: 'Section' }>;
+  isCovered?: boolean;
 }
 
 function fillCoverage(node: SectionTreeNode, coveredSectionIds: string[]) {
-  if (!node) return;
+  if (!node || node.tocElem.type !== 'Section') return;
   for (const child of node.children) {
     fillCoverage(child, coveredSectionIds);
   }
-  if (node.tocNode?.id && coveredSectionIds.includes(node.tocNode.id)) {
-    node.tocNode.isCovered = true;
+  if (node.tocElem?.id && coveredSectionIds.includes(node.tocElem.id)) {
+    node.isCovered = true;
   }
 }
+
+function getTopLevelSections(tocElems: TOCElem[], parentNode: SectionTreeNode): SectionTreeNode[] {
+  return tocElems
+    .map((t) => getSectionTree(t, parentNode))
+    .filter(Boolean)
+    .map((t) => (Array.isArray(t) ? t : [t as SectionTreeNode]))
+    .flat();
+}
+
 function getSectionTree(
-  tocNode: TOCNode,
-  parentNode?: SectionTreeNode
-): SectionTreeNode | SectionTreeNode[] {
-  const isSection = tocNode.type === TOCNodeType.SECTION;
+  tocElem: TOCElem,
+  parentNode: SectionTreeNode
+): SectionTreeNode | SectionTreeNode[] | undefined {
+  if (tocElem.type === 'Paragraph' || tocElem.type === 'Slide') return undefined;
+  const isSection = tocElem.type === 'Section';
 
   if (isSection) {
     const children: SectionTreeNode[] = [];
     const thisNode = {
-      tocNode: tocNode as TOCSectionNode,
+      tocElem,
       children,
       parentNode,
-    };
-    for (const s of tocNode.childNodes.values()) {
+    } as SectionTreeNode;
+    for (const s of tocElem.children || []) {
       const subNodes = getSectionTree(s, thisNode);
       if (!subNodes) continue;
       if (Array.isArray(subNodes)) children.push(...subNodes);
@@ -70,7 +66,7 @@ function getSectionTree(
     return thisNode;
   } else {
     const children: SectionTreeNode[] = [];
-    for (const s of tocNode.childNodes.values()) {
+    for (const s of tocElem.children) {
       const subNodes = getSectionTree(s, parentNode);
       if (!subNodes) continue;
       if (Array.isArray(subNodes)) children.push(...subNodes);
@@ -91,7 +87,7 @@ function applyFilterOne(
     if (newChild) newChildren.push(newChild);
   }
   const matchesThisNode = searchTerms.some((term) =>
-    node.tocNode.title?.toLowerCase().includes(term)
+    node.tocElem.title?.toLowerCase().includes(term)
   );
   if (newChildren.length === 0 && !matchesThisNode) {
     return undefined;
@@ -99,7 +95,7 @@ function applyFilterOne(
   return {
     parentNode: node.parentNode,
     children: newChildren,
-    tocNode: node.tocNode,
+    tocElem: node.tocElem,
   };
 }
 
@@ -108,9 +104,7 @@ function applyFilter(
   searchTerms?: string[]
 ): SectionTreeNode[] | undefined {
   if (!nodes || !searchTerms?.length) return nodes;
-  return nodes
-    .map((n) => applyFilterOne(n, searchTerms))
-    .filter((n) => n) as any;
+  return nodes.map((n) => applyFilterOne(n, searchTerms)).filter((n) => n) as any;
 }
 
 function RenderTree({
@@ -134,15 +128,14 @@ function RenderTree({
     setIsOpen(defaultOpen);
   }, [defaultOpen]);
 
-  const itemClassName =
-    level === 0 ? styles['level0_dashboard_item'] : styles['dashboard_item'];
-  const isSelected = selectedSection === node.tocNode.id;
+  const itemClassName = level === 0 ? styles['level0_dashboard_item'] : styles['dashboard_item'];
+  const isSelected = selectedSection === node.tocElem.id;
   return (
     <Box
-      key={node.tocNode.id}
+      key={(node.tocElem as any).id}
       sx={{
         py: '6px',
-        backgroundColor: node.tocNode.isCovered ? '#FFB' : undefined,
+        backgroundColor: node.isCovered ? '#FFB' : undefined,
       }}
     >
       <Box
@@ -169,34 +162,16 @@ function RenderTree({
             color: isSelected ? 'white' : undefined,
             padding: isSelected ? '0 3px' : undefined,
             backgroundColor: isSelected ? PRIMARY_COL : 'inherit',
-            borderRadius: "3px"
+            borderRadius: '3px',
           }}
           onClick={(e) => {
             e.stopPropagation();
-            if (onSectionClick) {
-              onSectionClick(node.tocNode.id);
-              return;
-            }
-            const paths: string[] = [];
-            let n: TOCNode | undefined = node.tocNode;
-            while (n?.parentNode) {
-              const hash = (n as any)?.hash;
-              if (hash) paths.push(hash);
-              // console.log(hash);
-              n = n.parentNode;
-            }
-            if (router) {
-              const inDocPath =
-                paths.reverse().join('.') + '~' + node.tocNode.id;
-              const fileId = router.query['id'] || router.query['courseId'];
-              localStore?.setItem(`inDocPath-${fileId}`, inDocPath);
-              const query = { ...router.query, inDocPath };
-              router.push({ query }, undefined, { scroll: false });
-            }
+            onSectionClick?.(node.tocElem.id);
+            return;
           }}
         >
-          {preAdornment ? preAdornment(node.tocNode.id) : null}
-          {convertHtmlStringToPlain(node.tocNode.title || 'Untitled')}
+          {preAdornment ? preAdornment(node.tocElem.id) : null}
+          {convertHtmlStringToPlain(node.tocElem.title || 'Untitled')}
         </span>
       </Box>
       {isOpen && node.children.length > 0 && (
@@ -216,7 +191,7 @@ function RenderTree({
           <Box>
             {(node.children || []).map((child) => (
               <RenderTree
-                key={child.tocNode.id}
+                key={(child.tocElem as any).id}
                 node={child}
                 level={level + 1}
                 defaultOpen={defaultOpen}
@@ -232,46 +207,8 @@ function RenderTree({
   );
 }
 
-export function getDocumentTree(
-  data: SectionsAPIData,
-  parentNode?: TOCNode
-): TOCNode {
-  const { children, archive, filepath, id, title } = data;
-  const isFileNode = archive && filepath;
-  let node: TOCNode | undefined = undefined;
-  const childNodes = new Map<string, TOCNode>();
-  if (isFileNode) {
-    const hash = createHash({ archive, filepath });
-    node = {
-      type: TOCNodeType.FILE,
-      parentNode,
-      childNodes,
-
-      hash,
-      archive,
-      filepath,
-    } as TOCFileNode;
-  } else {
-    node = {
-      type: TOCNodeType.SECTION,
-      parentNode,
-      childNodes,
-
-      id,
-      title,
-    } as TOCSectionNode;
-  }
-
-  (children || []).forEach((c) => {
-    const cNode = getDocumentTree(c, node) as any;
-    childNodes.set(cNode.id || cNode.hash, cNode);
-  });
-  return node;
-}
-
 export function ContentDashboard({
-  contentUrl,
-  docSections,
+  toc,
   selectedSection,
   courseId,
   coveredSectionIds = undefined,
@@ -279,8 +216,7 @@ export function ContentDashboard({
   onClose,
   onSectionClick,
 }: {
-  contentUrl: string;
-  docSections: SectionsAPIData | undefined;
+  toc: TOCElem[];
   selectedSection: string;
   courseId?: string;
   coveredSectionIds?: string[];
@@ -291,26 +227,8 @@ export function ContentDashboard({
   const t = getLocaleObject(useRouter());
   const [filterStr, setFilterStr] = useState('');
   const [defaultOpen, setDefaultOpen] = useState(true);
-  const [covUpdateLink, setCovUpdateLink] = useState<string | undefined>(
-    undefined
-  );
-  const [fetchedCoveredSectionIds, setFetchedCoveredSectionIds] = useState<
-    string[]
-  >([]);
-
-  const root = docSections
-    ? getDocumentTree(docSections, undefined)
-    : undefined;
-  const dashInfo = root?.type !== TOCNodeType.FILE ? undefined : root;
-
-  useEffect(() => {
-    canAccessResource(ResourceName.COURSE_NOTES, Action.MUTATE, {
-      courseId: courseId as string,
-      instanceId: CURRENT_TERM,
-    }).then((canMutate) => {
-      setCovUpdateLink(canMutate ? `/coverage-update?courseId=${courseId}`: undefined);
-    });
-  }, [contentUrl, courseId]);
+  const [covUpdateLink, setCovUpdateLink] = useState<string | undefined>(undefined);
+  const [fetchedCoveredSectionIds, setFetchedCoveredSectionIds] = useState<string[]>([]);
 
   useEffect(() => {
     async function getCoverageInfo() {
@@ -319,25 +237,20 @@ export function ContentDashboard({
       const snaps = (resp.data as CoverageTimeline)?.[courseId];
       if (!snaps?.length) return;
       const endSec = snaps[snaps.length - 1].sectionName;
-      const r = getCoveredSections('', endSec, docSections, true);
+      const shadowTopLevel: TOCElem = { type: 'SkippedSection', children: toc };
+      const r = getCoveredSections('', endSec, shadowTopLevel, true);
       setFetchedCoveredSectionIds(r.coveredSectionIds);
     }
     getCoverageInfo();
-  }, [courseId, coveredSectionIds, docSections]);
+  }, [courseId, coveredSectionIds, toc]);
 
-  const shadowTopLevel = { children: [] as any, tocNode: undefined as any };
-  const firstLevelSections =
-    dashInfo &&
-    applyFilter(
-      getSectionTree(dashInfo, shadowTopLevel) as SectionTreeNode[],
-      filterStr
-        .toLowerCase()
-        .split(' ')
-        .map((s) => s.trim())
-        .filter((t) => !!t?.length)
-    );
-  if (firstLevelSections) shadowTopLevel.children = firstLevelSections;
-  fillCoverage(shadowTopLevel, coveredSectionIds || fetchedCoveredSectionIds);
+  const firstLevelSections = useMemo(() => {
+    const shadowTopLevel: SectionTreeNode = { children: [], tocElem: undefined as any };
+    const topLevel = getTopLevelSections(toc, shadowTopLevel);
+    shadowTopLevel.children = topLevel;
+    console.log('topLevel', topLevel);
+    return topLevel;
+  }, [toc]);
 
   return (
     <FixedPositionMenu
@@ -362,11 +275,7 @@ export function ContentDashboard({
                 onClick={() => setDefaultOpen((v) => !v)}
                 sx={{ border: '1px solid #CCC', borderRadius: '40px' }}
               >
-                {defaultOpen ? (
-                  <UnfoldLessDoubleIcon />
-                ) : (
-                  <UnfoldMoreDoubleIcon />
-                )}
+                {defaultOpen ? <UnfoldLessDoubleIcon /> : <UnfoldMoreDoubleIcon />}
               </IconButton>
             </Tooltip>
             {covUpdateLink?.length && (
@@ -382,7 +291,7 @@ export function ContentDashboard({
     >
       {(firstLevelSections || []).map((child) => (
         <RenderTree
-          key={child.tocNode.id}
+          key={(child.tocElem as any).id ?? 'skipped'}
           node={child}
           level={0}
           defaultOpen={defaultOpen}
