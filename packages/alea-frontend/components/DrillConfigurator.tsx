@@ -18,19 +18,14 @@ import {
   CardsWithSmileys,
   SmileyLevel,
   getAuthHeaders,
-  getCourseInfo,
   isLoggedIn,
   smileyToLevel,
 } from '@stex-react/api';
-import {
-  ConfigureLevelSlider,
-  ServerLinksContext,
-  mmtHTMLToReact,
-} from '@stex-react/stex-react-renderer';
+import { ConfigureLevelSlider, mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import { PRIMARY_COL, SECONDARY_COL, Window, stableShuffle } from '@stex-react/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { Dispatch, Fragment, SetStateAction, useContext, useEffect, useState } from 'react';
+import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import { FlashCardMode, FlashCards } from './FlashCards';
 
@@ -387,7 +382,7 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
   const sectionCounts = getSectionCounts(levels, loggedIn, courseCards);
   const selectedChapters = checkedChapterIdxs.map((idx) => sectionCounts[idx].sectionTitle);
   const selectedCards = getSelectedCards(mode, shuffle, sectionCounts, selectedChapters);
- 
+
   useEffect(() => {
     if (!courseId) return;
     setIsLoading(true);
@@ -410,7 +405,10 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
     return (
       <FlashCards
         mode={mode}
-        cards={selectedCards.map((card) => ({ uri: card.uri }))}
+        cards={selectedCards.map((card) => ({
+          conceptUri: card.conceptUri,
+          definitionUri: card.definitionUri,
+        }))}
         onFinish={() => setStarted(false)}
       />
     );

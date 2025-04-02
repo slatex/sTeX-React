@@ -14,7 +14,7 @@ interface CourseCards {
   [sectionTitle: string]: {
     chapterTitle: string;
     sectionUri: string;
-    uris: string[];
+    cardUris: { conceptUri: string; definitionUri: string }[];
   };
 }
 interface TopLevelSection {
@@ -59,7 +59,7 @@ export async function getCardsBySection(notesUri: string) {
   );
   topLevelSections.forEach((section, index) => {
     const { chapterTitle, uri, sectionTitle } = section;
-    courseCards[sectionTitle] = { chapterTitle, sectionUri: uri, uris: cardsBySection[index] };
+    courseCards[sectionTitle] = { chapterTitle, sectionUri: uri, cardUris: cardsBySection[index] };
   });
   return courseCards;
 }
@@ -79,18 +79,20 @@ export default async function handler(req, res) {
   }
   const cards = CARDS_CACHE[courseId];
 
-  const uris = [];
+  const conceptUris: string[] = [];
   for (const chapter of Object.keys(cards)) {
-    uris.push(...(cards[chapter]?.uris || []));
+    conceptUris.push(...(cards[chapter]?.cardUris.map((c) => c.conceptUri) || []));
   }
-  const smileyValues = Authorization ? await getUriSmileys(uris, { Authorization }) : new Map();
+  const smileyValues = Authorization
+    ? await getUriSmileys(conceptUris, { Authorization })
+    : new Map();
 
   const output: CardsWithSmileys[] = [];
   for (const sectionTitle of Object.keys(cards)) {
-    const { chapterTitle, uris } = cards[sectionTitle];
-    for (const uri of uris) {
-      const smileys = smileyValues.get(uri) || {};
-      output.push({ uri, chapterTitle, sectionTitle, smileys });
+    const { chapterTitle, cardUris } = cards[sectionTitle];
+    for (const { conceptUri, definitionUri } of cardUris) {
+      const smileys = smileyValues.get(conceptUri) || {};
+      output.push({ conceptUri, definitionUri, chapterTitle, sectionTitle, smileys });
     }
   }
 

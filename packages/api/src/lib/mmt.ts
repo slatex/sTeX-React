@@ -335,8 +335,10 @@ export interface DefiniendaItem {
 }
 
 // Gets list of symbols defined in a document. Includes nested docs.
-export async function getDefiniedaInDoc(uri: string) {
-  const query = `SELECT DISTINCT ?s WHERE { <${uri}> (ulo:contains|dc:hasPart)* ?q. ?q ulo:defines ?s.}`;
+export async function getDefiniedaInDoc(
+  uri: string
+): Promise<{ conceptUri: string; definitionUri: string }[]> {
+  const query = `SELECT DISTINCT ?q ?s WHERE { <${uri}> (ulo:contains|dc:hasPart)* ?q. ?q ulo:defines ?s.}`;
   const resp = await axios.post(
     `${FLAMS_SERVER_URL}/api/backend/query`,
     { query },
@@ -346,7 +348,10 @@ export async function getDefiniedaInDoc(uri: string) {
   );
 
   const sparqlResponse = JSON.parse(resp.data) as SparqlResponse;
-  return sparqlResponse?.results?.bindings.map((card) => card['s'].value) || [];
+  return sparqlResponse?.results?.bindings.map((card) => ({
+    conceptUri: card['s'].value,
+    definitionUri: card['q'].value,
+  })) || [];
 }
 
 export async function getUriFragment(URI: string) {

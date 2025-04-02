@@ -18,14 +18,13 @@ import {
 } from '@mui/material';
 import {
   BloomDimension,
-  DocumentElementURI,
   SmileyCognitiveValues,
   SmileyType,
   getUriSmileys,
   isLoggedIn,
   smileyToLevel,
 } from '@stex-react/api';
-import { FTMLDocument, FTMLFragment } from '@stex-react/ftml-utils';
+import { FTMLFragment } from '@stex-react/ftml-utils';
 import {
   ContentWithHighlight,
   FixedPositionMenu,
@@ -33,7 +32,7 @@ import {
   LevelIcon,
   SelfAssessment2,
 } from '@stex-react/stex-react-renderer';
-import { PRIMARY_COL, convertHtmlStringToPlain, localStore } from '@stex-react/utils';
+import { PRIMARY_COL, localStore } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react';
 import { useSwipeable } from 'react-swipeable';
@@ -55,7 +54,8 @@ function isDrill(mode: FlashCardMode) {
 }
 
 export interface FlashCardItem {
-  uri: string;
+  conceptUri: string;
+  definitionUri: string;
 }
 
 function isDialogOpen() {
@@ -111,15 +111,15 @@ function getConceptName(uri: string) {
 }
 
 function FlashCardFront({
-  uri,
+  conceptUri,
   needUpdateMarker,
   onFlip,
 }: {
-  uri: string;
+  conceptUri: string;
   needUpdateMarker: any;
   onFlip: () => void;
 }) {
-  const synonyms = [uri];
+  const synonyms = [conceptUri];
   return (
     <Box className={styles['front']}>
       &nbsp;
@@ -141,7 +141,9 @@ function FlashCardFront({
                 },
               }}
             >
-              <span style={{ fontSize: '32px', color: '#ed028c' }}>{getConceptName(uri)}</span>
+              <span style={{ fontSize: '32px', color: '#ed028c' }}>
+                {getConceptName(conceptUri)}
+              </span>
             </Box>
             {idx === 0 && synonyms.length > 1 && (
               <Typography fontSize="12px" my="5px" color="gray">
@@ -152,7 +154,7 @@ function FlashCardFront({
         ))}
       </Box>
       <FlashCardFooter
-        uri={uri}
+        uri={conceptUri}
         onFlip={onFlip}
         isFront={true}
         needUpdateMarker={needUpdateMarker}
@@ -162,36 +164,31 @@ function FlashCardFront({
 }
 
 function FlashCardBack({
-  uri,
+  definitionUri,
   needUpdateMarker,
   onFlip,
 }: {
-  uri: string;
+  definitionUri: string;
   needUpdateMarker: any;
   onFlip: () => void;
 }) {
   return (
     <Box className={styles['back']}>
-      <Box
-        sx={{
-          overflowY: 'auto',
-          maxWidth: '100%',
-          m: '10px 5px 0',
-          '& *': { fontSize: 'large !important' },
-        }}
-      >
-        {/* <ContentFromUrl
-          topLevelDocUrl={topLevelDocUrl}
-          displayReason={DisplayReason.FLASH_CARD}
-          url={`/:sTeX/fragment?${uri}`}
-          modifyRendered={getChildrenOfBodyNode}
-        /> */}
-        [{uri}]
-        {/*uri && <FTMLFragment fragment={{ uri: uri as DocumentElementURI }} />}*/}
+      <Box display="flex" flexDirection="column" flexGrow={1} justifyContent="center">
+        <Box
+          sx={{
+            overflowY: 'auto',
+            maxWidth: '100%',
+            m: '10px 5px 0',
+            '& *': { fontSize: 'large !important' },
+          }}
+        >
+          {definitionUri && <FTMLFragment key={definitionUri} fragment={{ uri: definitionUri }} />}
+        </Box>
       </Box>
 
       <FlashCardFooter
-        uri={uri}
+        uri={definitionUri}
         onFlip={onFlip}
         isFront={false}
         needUpdateMarker={needUpdateMarker}
@@ -201,13 +198,15 @@ function FlashCardBack({
 }
 
 function FlashCard({
-  uri,
+  conceptUri,
+  definitionUri,
   mode,
   defaultFlipped,
   onNext,
   onPrev,
 }: {
-  uri: string;
+  conceptUri: string;
+  definitionUri: string;
   mode: FlashCardMode;
   defaultFlipped: boolean;
   onNext: () => void;
@@ -216,7 +215,7 @@ function FlashCard({
   const [isFlipped, setIsFlipped] = useState(defaultFlipped);
   useEffect(() => {
     setIsFlipped(defaultFlipped);
-  }, [uri]);
+  }, [conceptUri, definitionUri]);
 
   const [lastTapTimeMs, setLastTapTimeMs] = useState(0);
 
@@ -266,12 +265,12 @@ function FlashCard({
         <Box display="flex" justifyContent="center" alignItems="center" width="100%">
           <Box className={`${styles['card-container']} ${isFlipped ? styles['flipped'] : ''}`}>
             <FlashCardFront
-              uri={uri}
+              conceptUri={conceptUri}
               onFlip={() => setIsFlipped(true)}
               needUpdateMarker={isFlipped}
             />
             <FlashCardBack
-              uri={uri}
+              definitionUri={definitionUri}
               onFlip={() => setIsFlipped(false)}
               needUpdateMarker={isFlipped}
             />
@@ -289,7 +288,7 @@ function filterItems(
   understandValues: SmileyType[]
 ) {
   return items.filter((item) => {
-    const smileyVal = uriMap.get(item.uri);
+    const smileyVal = uriMap.get(item.conceptUri);
     return (
       smileyVal?.Remember &&
       smileyVal?.Understand &&
@@ -319,14 +318,14 @@ export function ItemListWithStatus({
         <th>{t.understand}</th>
       </tr>
       {items.map((item) => {
-        const smileyLevel = uriMap.get(item.uri);
+        const smileyLevel = uriMap.get(item.conceptUri);
         const rememberLevel = smileyToLevel(smileyLevel?.Remember);
         const understandLevel = smileyToLevel(smileyLevel?.Understand);
         return (
-          <tr key={item.uri}>
+          <tr key={item.conceptUri}>
             <td>
               <Box mr="10px">
-                <ContentWithHighlight mmtHtml={getConceptName(item.uri)} />
+                <ContentWithHighlight mmtHtml={getConceptName(item.conceptUri)} />
               </Box>
             </td>
             <td>
@@ -355,7 +354,7 @@ export function SummaryCard({ items, onFinish }: { items: FlashCardItem[]; onFin
 
   useEffect(() => {
     setIsLoading(true);
-    getUriSmileys(items.map((item) => item.uri)).then((uriSmileys) => {
+    getUriSmileys(items.map((item) => item.conceptUri)).then((uriSmileys) => {
       setIsLoading(false);
       setUriMap(uriSmileys);
     });
@@ -502,7 +501,7 @@ export function FlashCardNavigation({
               color: !onSelect && cardIdx < cardNo ? 'gray !important' : undefined,
             }}
           >
-            {getConceptName(card.uri)}
+            {getConceptName(card.conceptUri)}
           </span>
           {/*<ContentWithHighlight mmtHtml={card.instances[0].htmlNode} />*/}
         </Box>
@@ -532,6 +531,7 @@ function FlashCardsContainer({
   const [defaultFlipped, setDefaultSkipped] = useState(!!localStore?.getItem('default-flipped'));
 
   const currentItem = cards[cardNo];
+  console.log('currentItem', currentItem);
 
   useEffect(() => {
     if (mode !== FlashCardMode.REVISION_MODE || cardType !== CardType.ITEM_CARD) {
@@ -560,7 +560,8 @@ function FlashCardsContainer({
   return (
     <Box mt="10px" display="flex" flexDirection="column">
       <FlashCard
-        uri={currentItem.uri}
+        conceptUri={currentItem.conceptUri}
+        definitionUri={currentItem.definitionUri}
         mode={mode}
         defaultFlipped={defaultFlipped && !isDrill(mode)}
         onNext={() => {

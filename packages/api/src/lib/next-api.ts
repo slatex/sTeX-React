@@ -2,7 +2,8 @@ import { FileLocation } from '@stex-react/utils';
 import { SmileyCognitiveValues } from './lmp';
 
 export interface CardsWithSmileys {
-  uri: string;
+  conceptUri: string;
+  definitionUri: string;
   smileys: SmileyCognitiveValues;
   chapterTitle: string;
   sectionTitle: string;
