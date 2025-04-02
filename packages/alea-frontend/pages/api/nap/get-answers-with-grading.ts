@@ -104,7 +104,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!answers) return;
 
     const problemAnswers = answers[questionId];
-    console.log(problemAnswers);
     const subProblemIdToAnswerId = convertToSubProblemIdToAnswerId(problemAnswers);
     const grades = await getAllGradingsOrSetError(subProblemIdToAnswerId, res);
     const response: ProblemResponse = {
