@@ -34,7 +34,6 @@ import {
   SelfAssessmentDialog,
 } from './SelfAssessmentDialog';
 import { TourAPIEntry, TourDisplay } from './TourDisplay';
-import { TOCFileNode, getScrollInfo } from './collectIndexInfo';
 import {
   CustomItemsContext,
   NoMaxWidthTooltip,
@@ -47,7 +46,6 @@ import { GradingContext } from './SubProblemAnswer';
 import { PracticeQuestions } from './PracticeQuestions';
 import { defaultProblemResponse } from './InlineProblemDisplay';
 import { PerSectionQuiz } from './PerSectionQuiz';
-//import { RenderStatusTree } from './RenderStatusTree';
 
 export const ServerLinksContext = createContext({ mmtUrl: '', gptUrl: '' });
 
@@ -91,18 +89,6 @@ export function StexReactRenderer({
     Window?.addEventListener('resize', handleResize);
     return () => Window?.removeEventListener('resize', handleResize);
   }, []);
-
-  useEffect(() => {
-    if (!router?.isReady) return;
-    const inDocPath = router?.query?.['inDocPath'] as string;
-    if (!inDocPath && router) {
-      const fileId = router.query['id'] || router.query['courseId'];
-      router.query['inDocPath'] = localStore?.getItem(`inDocPath-${fileId}`) || '0';
-      router.replace({ pathname: router.pathname, query: router.query });
-      return;
-    }
-    docFragManager.scrollToSection(getScrollInfo(inDocPath).sectionId);
-  }, [router, router?.isReady, router?.query]);
 
   //Todo alea-4
   // useEffect(() => {
@@ -238,4 +224,4 @@ export {
   defaultProblemResponse,
   mmtHTMLToReact,
 };
-export type { TOCFileNode, TourAPIEntry };
+export type { TourAPIEntry };

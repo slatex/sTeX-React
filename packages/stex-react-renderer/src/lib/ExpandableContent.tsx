@@ -21,21 +21,10 @@ import { ContentFromUrl } from './ContentFromUrl';
 import { ErrorBoundary } from './ErrorBoundary';
 import { ExpandableContextMenu } from './ExpandableContextMenu';
 import { DocSectionContext } from './InfoSidebar';
-import { SEPARATOR_inDocPath } from './collectIndexInfo';
 import { useOnScreen } from './useOnScreen';
 import { useRect } from './useRect';
 
 const ExpandContext = createContext([] as string[]);
-const STOP_EXPANSION_MARKER = 'STOP_EXPANSION';
-function getInDocumentLink(childContext: string[]) {
-  if (typeof window === 'undefined') return '';
-  return (
-    window.location.origin +
-    window.location.pathname +
-    '?inDocPath=' +
-    childContext.join(SEPARATOR_inDocPath)
-  );
-}
 
 export function ExpandableStaticContent({
   staticContent,
@@ -116,7 +105,6 @@ export function ExpandableContent({
   const [rendered, setRendered] = useState(false);
   const [fetched, setFetched] = useState(false);
   const [wasSeen, setWasSeen] = useState(false);
-  if (noFurtherExpansion) childContext.push(STOP_EXPANSION_MARKER);
 
   const contentRef = useRef<HTMLElement>();
   const rect = useRect(contentRef);
@@ -161,10 +149,7 @@ export function ExpandableContent({
       addSectionLoc({ contentUrl, positionFromTop });
   }, [contentUrl, positionFromTop, addSectionLoc]);
 
-  if (parentContext.includes(STOP_EXPANSION_MARKER)) return null;
-  const titleText = convertHtmlNodeToPlain(htmlTitle);
-  const showMenu =
-    noFurtherExpansion || (titleText && !titleText.startsWith('http'));
+  const showMenu = false;
 
   return (
     <ErrorBoundary hidden={false}>
@@ -172,7 +157,7 @@ export function ExpandableContent({
         {showMenu && (
           <Box position="absolute" right="10px">
             <ExpandableContextMenu
-              sectionLink={getInDocumentLink(childContext)}
+              sectionLink={'#'}
               contentUrl={contentUrl}
             />
           </Box>
