@@ -10,44 +10,43 @@ import {
 export const EXCLUDED_CHAPTERS = ['Preface', 'Administrativa', 'Resources'];
 const CARDS_CACHE: { [courseId: string]: CourseCards } = {};
 
-export interface CourseCards {
+interface CourseCards {
   [sectionTitle: string]: {
     chapterTitle: string;
-    id: string;
+    sectionUri: string;
     uris: string[];
   };
 }
 interface TopLevelSection {
-  id: string;
   uri: string;
   chapterTitle: string;
   sectionTitle: string;
 }
 
-function getChapterAndSections(
-  toc: TOCElem,
-  chapterTitle = '',
-  parentUri?: string
-): TopLevelSection[] {
-  const sections: TopLevelSection[] = [];
+function getChapterAndSections(toc: TOCElem, chapterTitle = ''): TopLevelSection[] {
+  if (toc.type === 'Paragraph' || toc.type === 'Slide') {
+    return [];
+  }
+  if (toc.type === 'Section' && chapterTitle) {
+    return [
+      {
+        uri: toc.uri,
+        chapterTitle: chapterTitle,
+        sectionTitle: toc.title,
+      },
+    ];
+  } else {
+    if (!chapterTitle) {
+      if (toc.type === 'Section') chapterTitle = toc.title;
+      else if (toc.type === 'SkippedSection') chapterTitle = 'Untitled';
+    }
+    const sections: TopLevelSection[] = [];
+    for (const child of toc.children) {
+      sections.push(...getChapterAndSections(child, chapterTitle));
+    }
 
-  if (toc.type === 'Paragraph' || toc.type === 'Slide' || toc.children.length === 0) {
     return sections;
   }
-  const currentUri = toc.type === 'Inputref' ? toc.uri : parentUri;
-  const effectiveChapterTitle = chapterTitle || (toc.type === 'Section' ? toc.title : '');
-  if (toc.type === 'Section') {
-    sections.push({
-      id: toc.id,
-      uri: currentUri,
-      chapterTitle: effectiveChapterTitle,
-      sectionTitle: toc.title,
-    });
-  }
-  for (const child of toc.children) {
-    sections.push(...getChapterAndSections(child, effectiveChapterTitle, currentUri));
-  }
-  return sections;
 }
 
 export async function getCardsBySection(notesUri: string) {
@@ -55,14 +54,12 @@ export async function getCardsBySection(notesUri: string) {
   const tocContent = docSections[1];
   const topLevelSections = tocContent.map((toc) => getChapterAndSections(toc)).flat();
   const courseCards: CourseCards = {};
-  const promises = topLevelSections.map(({ uri }) => getDefiniedaInDoc(uri));
-  const results = await Promise.all(promises);
+  const cardsBySection = await Promise.all(
+    topLevelSections.map(({ uri }) => getDefiniedaInDoc(uri))
+  );
   topLevelSections.forEach((section, index) => {
-    const { chapterTitle, id, sectionTitle } = section;
-    const cards = results[index];
-    const parsedCards = JSON.parse(cards as string);
-    const uris = parsedCards?.results?.bindings.map((card) => card.s.value);
-    courseCards[sectionTitle] = { chapterTitle, id, uris };
+    const { chapterTitle, uri, sectionTitle } = section;
+    courseCards[sectionTitle] = { chapterTitle, sectionUri: uri, uris: cardsBySection[index] };
   });
   return courseCards;
 }

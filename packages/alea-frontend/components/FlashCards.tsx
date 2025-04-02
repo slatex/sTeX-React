@@ -18,27 +18,22 @@ import {
 } from '@mui/material';
 import {
   BloomDimension,
+  DocumentElementURI,
   SmileyCognitiveValues,
   SmileyType,
   getUriSmileys,
   isLoggedIn,
   smileyToLevel,
 } from '@stex-react/api';
+import { FTMLDocument, FTMLFragment } from '@stex-react/ftml-utils';
 import {
-  ContentFromUrl,
   ContentWithHighlight,
-  DisplayReason,
   FixedPositionMenu,
   LayoutWithFixedMenu,
   LevelIcon,
   SelfAssessment2,
 } from '@stex-react/stex-react-renderer';
-import {
-  PRIMARY_COL,
-  convertHtmlStringToPlain,
-  getChildrenOfBodyNode,
-  localStore,
-} from '@stex-react/utils';
+import { PRIMARY_COL, convertHtmlStringToPlain, localStore } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react';
 import { useSwipeable } from 'react-swipeable';
@@ -61,7 +56,6 @@ function isDrill(mode: FlashCardMode) {
 
 export interface FlashCardItem {
   uri: string;
-  instances: { htmlNode: string }[];
 }
 
 function isDialogOpen() {
@@ -106,40 +100,26 @@ export function FlashCardFooter({
     </Box>
   );
 }
-function dedupNodes(nodes: string[]) {
-  if (nodes.length <= 1) return nodes;
-  const texts = nodes.map((n) => convertHtmlStringToPlain(n).toLowerCase());
-  const selectedIdxs = [];
-  for (const [idx, textA] of texts.entries()) {
-    let dup = false;
-    for (let i = 0; i < idx; i++) {
-      if (textA === texts[i]) {
-        dup = true;
-        break;
-      }
-    }
-    if (!dup) selectedIdxs.push(idx);
-  }
-  return selectedIdxs.map((idx) => nodes[idx]);
-}
 
 function getConceptName(uri: string) {
-  const parts = uri.split('?');
-  return parts[parts.length - 1];
+  try {
+    const url = new URL(uri);
+    return url.searchParams.get('s') || uri;
+  } catch {
+    return uri;
+  }
 }
 
 function FlashCardFront({
   uri,
-  htmlNodes,
   needUpdateMarker,
   onFlip,
 }: {
   uri: string;
-  htmlNodes: string[];
   needUpdateMarker: any;
   onFlip: () => void;
 }) {
-  const synonyms = [uri]; //dedupNodes(htmlNodes);
+  const synonyms = [uri];
   return (
     <Box className={styles['front']}>
       &nbsp;
@@ -162,7 +142,6 @@ function FlashCardFront({
               }}
             >
               <span style={{ fontSize: '32px', color: '#ed028c' }}>{getConceptName(uri)}</span>
-              {/*<ContentWithHighlight mmtHtml={htmlNode} />*/}
             </Box>
             {idx === 0 && synonyms.length > 1 && (
               <Typography fontSize="12px" my="5px" color="gray">
@@ -185,12 +164,10 @@ function FlashCardFront({
 function FlashCardBack({
   uri,
   needUpdateMarker,
-  topLevelDocUrl,
   onFlip,
 }: {
   uri: string;
   needUpdateMarker: any;
-  topLevelDocUrl?: string;
   onFlip: () => void;
 }) {
   return (
@@ -209,8 +186,8 @@ function FlashCardBack({
           url={`/:sTeX/fragment?${uri}`}
           modifyRendered={getChildrenOfBodyNode}
         /> */}
-        {uri && uri}
-        use FTMFragment Here
+        [{uri}]
+        {/*uri && <FTMLFragment fragment={{ uri: uri as DocumentElementURI }} />}*/}
       </Box>
 
       <FlashCardFooter
@@ -225,18 +202,14 @@ function FlashCardBack({
 
 function FlashCard({
   uri,
-  htmlNodes,
   mode,
   defaultFlipped,
-  topLevelDocUrl,
   onNext,
   onPrev,
 }: {
   uri: string;
-  htmlNodes: string[];
   mode: FlashCardMode;
   defaultFlipped: boolean;
-  topLevelDocUrl?: string;
   onNext: () => void;
   onPrev: () => void;
 }) {
@@ -294,12 +267,10 @@ function FlashCard({
           <Box className={`${styles['card-container']} ${isFlipped ? styles['flipped'] : ''}`}>
             <FlashCardFront
               uri={uri}
-              htmlNodes={htmlNodes}
               onFlip={() => setIsFlipped(true)}
               needUpdateMarker={isFlipped}
             />
             <FlashCardBack
-              topLevelDocUrl={topLevelDocUrl}
               uri={uri}
               onFlip={() => setIsFlipped(false)}
               needUpdateMarker={isFlipped}
@@ -454,12 +425,10 @@ export function SummaryCard({ items, onFinish }: { items: FlashCardItem[]; onFin
 export function FlashCards({
   mode,
   cards,
-  topLevelDocUrl,
   onFinish: onFinish,
 }: {
   mode: FlashCardMode;
   cards: FlashCardItem[];
-  topLevelDocUrl?: string;
   onFinish: () => void;
 }) {
   const [showDashboard, setShowDashboard] = useState(false);
@@ -483,7 +452,6 @@ export function FlashCards({
         mode={mode}
         cards={cards}
         cardNo={cardNo}
-        topLevelDocUrl={topLevelDocUrl}
         setCardNo={setCardNo}
         onFinish={onFinish}
       />
@@ -547,14 +515,12 @@ function FlashCardsContainer({
   mode,
   cards,
   cardNo,
-  topLevelDocUrl,
   setCardNo,
   onFinish: onFinish,
 }: {
   mode: FlashCardMode;
   cards: FlashCardItem[];
   cardNo: number;
-  topLevelDocUrl?: string;
   setCardNo: Dispatch<SetStateAction<number>>;
   onFinish: () => void;
 }) {
@@ -595,9 +561,7 @@ function FlashCardsContainer({
     <Box mt="10px" display="flex" flexDirection="column">
       <FlashCard
         uri={currentItem.uri}
-        htmlNodes={(currentItem.instances || []).map((i) => i.htmlNode)}
         mode={mode}
-        topLevelDocUrl={topLevelDocUrl}
         defaultFlipped={defaultFlipped && !isDrill(mode)}
         onNext={() => {
           if (cardNo >= cards.length - 1 && isDrill(mode)) {

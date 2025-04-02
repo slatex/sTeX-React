@@ -22,16 +22,13 @@ import {
   isLoggedIn,
   smileyToLevel,
 } from '@stex-react/api';
-import { ServerLinksContext, mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import {
-  PRIMARY_COL,
-  SECONDARY_COL,
-  Window,
-  XhtmlContentUrl,
-  stableShuffle,
-} from '@stex-react/utils';
+  ConfigureLevelSlider,
+  ServerLinksContext,
+  mmtHTMLToReact,
+} from '@stex-react/stex-react-renderer';
+import { PRIMARY_COL, SECONDARY_COL, Window, stableShuffle } from '@stex-react/utils';
 import axios from 'axios';
-import { ConfigureLevelSlider } from '@stex-react/stex-react-renderer';
 import { useRouter } from 'next/router';
 import { Dispatch, Fragment, SetStateAction, useContext, useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
@@ -286,6 +283,7 @@ function CoverageConfigurator({
     </>
   );
 }
+
 function ReviseAndDrillButtons({
   selectedCards,
   start,
@@ -380,22 +378,16 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
     Understand: 0,
   });
   const [checkedChapterIdxs, setCheckedChapterIdxs] = useState<number[]>([]);
-  const [topLevelDocUrl, setTopLevelDocUrl] = useState<string | undefined>(undefined);
   const [started, setStarted] = useState(false);
   const [mode, setMode] = useState(FlashCardMode.REVISION_MODE);
   const [shuffle, setShuffle] = useState(true);
-  const { mmtUrl } = useContext(ServerLinksContext);
 
   const loggedIn = isLoggedIn();
 
   const sectionCounts = getSectionCounts(levels, loggedIn, courseCards);
   const selectedChapters = checkedChapterIdxs.map((idx) => sectionCounts[idx].sectionTitle);
   const selectedCards = getSelectedCards(mode, shuffle, sectionCounts, selectedChapters);
-  useEffect(() => {
-    getCourseInfo().then((c) =>
-      setTopLevelDocUrl("we will use FTMLVIEWER")
-    );
-  }, [courseId, mmtUrl]);
+ 
   useEffect(() => {
     if (!courseId) return;
     setIsLoading(true);
@@ -417,9 +409,8 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
   if (started) {
     return (
       <FlashCards
-        topLevelDocUrl={topLevelDocUrl}
         mode={mode}
-        cards={selectedCards.map((card) => ({ uri: card.uri, instances: [] }))}
+        cards={selectedCards.map((card) => ({ uri: card.uri }))}
         onFinish={() => setStarted(false)}
       />
     );

@@ -2,13 +2,12 @@ import {
   COURSES_INFO,
   CURRENT_TERM,
   CourseInfo,
-  FileLocation,
   convertHtmlStringToPlain,
   createCourseInfo,
 } from '@stex-react/utils';
 import axios from 'axios';
-import { ArchiveIndex, Institution } from './flams-types';
 import { FLAMSServer } from './flams';
+import { ArchiveIndex, Institution } from './flams-types';
 
 const FLAMS_SERVER_URL = 'https://mmt.beta.vollki.kwarc.info';
 const server = new FLAMSServer(FLAMS_SERVER_URL);
@@ -345,7 +344,9 @@ export async function getDefiniedaInDoc(uri: string) {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     }
   );
-  return resp.data as SparqlResponse;
+
+  const sparqlResponse = JSON.parse(resp.data) as SparqlResponse;
+  return sparqlResponse?.results?.bindings.map((card) => card['s'].value) || [];
 }
 
 export async function getUriFragment(URI: string) {
