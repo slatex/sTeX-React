@@ -390,7 +390,7 @@ function GradingItemDisplay({
   studentId: string;
   answerId: number;
   courseId: string;
-  isPeerGrading: boolean;
+  isPeerGrading?: boolean;
   questionMap: Record<string, Problem>;
   onNextGradingItem: () => void;
   onPrevGradingItem: () => void;
