@@ -117,8 +117,8 @@ export function setSlideNumAndSectionId(router: NextRouter, slideNum: number, se
 
 function getSections(tocElems: TOCElem[]): string[] {
   const sectionIds: string[] = [];
-  for(const tocElem of tocElems) {
-    if(tocElem.type === 'Section') {
+  for (const tocElem of tocElems) {
+    if (tocElem.type === 'Section') {
       sectionIds.push(tocElem.id);
     }
     if ('children' in tocElem) {
@@ -185,7 +185,7 @@ const CourseViewPage: NextPage = () => {
   useEffect(() => {
     if (!router.isReady) return;
 
-    const notes = 'https://mathhub.info?a=courses/FAU/AI/course&p=course/sec&d=preliminaries&l=en'; //    courses?.[courseId]?.notes;
+    const notes = courses?.[courseId]?.notes;
     if (!notes) return;
     getDocumentSections(notes).then(([_, toc]) => {
       setToc(toc);
@@ -243,7 +243,6 @@ const CourseViewPage: NextPage = () => {
     }
     if (someParamMissing) router.replace({ pathname, query });
   }, [router, router.isReady, sectionId, slideNum, viewMode, courseId, audioOnlyStr, slideCounts]);
-
 
   useEffect(() => {
     if (!sectionId) return;

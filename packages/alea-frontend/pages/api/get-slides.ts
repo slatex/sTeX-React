@@ -97,8 +97,7 @@ async function getSlidesFromToc(elems: TOCElem[], bySection: Record<string, Slid
   }
 }
 
-export async function getSlides(notesUri1: string) {
-  const notesUri = 'https://mathhub.info?a=courses/FAU/AI/course&p=course/sec&d=preliminaries&l=en';
+export async function getSlides(notesUri: string) {
   const toc = (await getDocumentSections(notesUri))[1];
   const bySection: { [sectionId: string]: Slide[] } = {};
   await getSlidesFromToc(toc, bySection);
