@@ -1,13 +1,13 @@
 /* tslint:disable */
 /* eslint-disable */
 export const memory: WebAssembly.Memory;
+export const set_server_url: (a: number, b: number) => void;
 export const ftml_setup: (a: any, b: any, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => number;
 export const render_document: (a: any, b: any, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number) => [number, number, number];
 export const render_fragment: (a: any, b: any, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number) => [number, number, number];
 export const __wbg_ftmlmounthandle_free: (a: number, b: number) => void;
 export const ftmlmounthandle_unmount: (a: number) => [number, number];
 export const set_debug_log: () => void;
-export const set_server_url: (a: number, b: number) => void;
 export const __wbg_leptoscontext_free: (a: number, b: number) => void;
 export const leptoscontext_cleanup: (a: number) => [number, number];
 export const leptoscontext_wasm_clone: (a: number) => number;
@@ -44,11 +44,10 @@ export const __wbindgen_export_4: WebAssembly.Table;
 export const __wbindgen_free: (a: number, b: number, c: number) => void;
 export const __wbindgen_export_6: WebAssembly.Table;
 export const __externref_table_dealloc: (a: number) => void;
-export const closure636_externref_shim: (a: number, b: number, c: any) => void;
-export const closure4863_externref_shim: (a: number, b: number, c: any) => number;
-export const closure5171_externref_shim: (a: number, b: number, c: any) => void;
-export const _dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__hc09b039c178171a5: (a: number, b: number) => void;
-export const closure5197_externref_shim: (a: number, b: number, c: any) => void;
-export const closure5241_externref_shim: (a: number, b: number, c: any) => void;
-export const closure5599_externref_shim: (a: number, b: number, c: any, d: any) => void;
+export const closure3417_externref_shim: (a: number, b: number, c: any) => void;
+export const closure4560_externref_shim: (a: number, b: number, c: any) => number;
+export const _dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__hd1bbe3417693c51d: (a: number, b: number) => void;
+export const closure5186_externref_shim: (a: number, b: number, c: any) => void;
+export const closure5226_externref_shim: (a: number, b: number, c: any) => void;
+export const closure5583_externref_shim: (a: number, b: number, c: any, d: any) => void;
 export const __wbindgen_start: () => void;
