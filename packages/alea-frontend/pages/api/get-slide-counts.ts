@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { CACHED_SLIDES, getSlides } from './get-slides';
 
 export async function getSlideCounts(courseId: string, res: NextApiResponse) {
-  const courses = await getCourseInfo(process.env.NEXT_PUBLIC_MMT_URL);
+  const courses = await getCourseInfo();
   const courseInfo = courses[courseId];
   if (!courseInfo) {
     res.status(404).json({ error: 'Course not found!' });

@@ -149,7 +149,7 @@ export class FLAMSServer {
     const response = await this.getRequestI(endpoint, request);
     if (response) {
       const j = await response.json();
-      console.log('Response', endpoint, ':', j);
+      // console.log('Response', endpoint, ':', j);
       return j as TResponse;
     }
   }

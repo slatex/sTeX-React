@@ -18,7 +18,6 @@ import {
   ContentDashboard,
   LayoutWithFixedMenu,
   SectionReview,
-  ServerLinksContext,
   mmtHTMLToReact,
 } from '@stex-react/stex-react-renderer';
 import { CourseInfo, XhtmlContentUrl, localStore, shouldUseDrawer } from '@stex-react/utils';
@@ -26,7 +25,7 @@ import axios from 'axios';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { NextRouter, useRouter } from 'next/router';
-import { Fragment, useContext, useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { SlideDeck } from '../../components/SlideDeck';
 import { VideoDisplay } from '../../components/VideoDisplay';
 import { getLocaleObject } from '../../lang/utils';
@@ -116,14 +115,17 @@ export function setSlideNumAndSectionId(router: NextRouter, slideNum: number, se
   router.push({ pathname, query });
 }
 
-function getSections(data: SectionsAPIData): string[] {
-  const { children, id } = data;
-  const sections: string[] = [];
-  if (id) sections.push(id);
-  (children || []).forEach((c) => {
-    sections.push(...getSections(c));
-  });
-  return sections;
+function getSections(tocElems: TOCElem[]): string[] {
+  const sectionIds: string[] = [];
+  for(const tocElem of tocElems) {
+    if(tocElem.type === 'Section') {
+      sectionIds.push(tocElem.id);
+    }
+    if ('children' in tocElem) {
+      sectionIds.push(...getSections(tocElem.children));
+    }
+  }
+  return sectionIds;
 }
 export interface ClipData {
   sectionId: string;
@@ -166,9 +168,7 @@ const CourseViewPage: NextPage = () => {
   const [currentSlideClipInfo, setCurrentSlideClipInfo] = useState<ClipInfo>(null);
   const [slideArchive, setSlideArchive] = useState('');
   const [slideFilepath, setSlideFilepath] = useState('');
-  const { mmtUrl } = useContext(ServerLinksContext);
   const { courseView: t, home: tHome } = getLocaleObject(router);
-  const [contentUrl, setContentUrl] = useState(undefined as string);
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
   const [timestampSec, setTimestampSec] = useState(0);
   const [autoSync, setAutoSync] = useState(false);
@@ -184,17 +184,16 @@ const CourseViewPage: NextPage = () => {
 
   useEffect(() => {
     if (!router.isReady) return;
-    //Todo alea-4
 
-    const notes = courses?.[courseId]?.notes;
+    const notes = 'https://mathhub.info?a=courses/FAU/AI/course&p=course/sec&d=preliminaries&l=en'; //    courses?.[courseId]?.notes;
     if (!notes) return;
     getDocumentSections(notes).then(([_, toc]) => {
-      console.log('toc', toc);
       setToc(toc);
+      setCourseSections(getSections(toc));
     });
-    // const { notesArchive, notesFilepath } = courses[courseId];
-    // setContentUrl(XhtmlContentUrl(notesArchive, notesFilepath));
-    // axios.get(`/api/get-slide-counts/${courseId}`).then((resp) => setSlideCounts(resp.data));
+    axios
+      .get(`/api/get-slide-counts`, { params: { courseId } })
+      .then((resp) => setSlideCounts(resp.data));
   }, [router.isReady, courses, courseId]);
 
   useEffect(() => {
@@ -245,15 +244,6 @@ const CourseViewPage: NextPage = () => {
     if (someParamMissing) router.replace({ pathname, query });
   }, [router, router.isReady, sectionId, slideNum, viewMode, courseId, audioOnlyStr, slideCounts]);
 
-  // useEffect(() => {
-  //   async function getIndex() {
-  //     const { archive, filepath } = getSectionInfo(contentUrl);
-  //     const docSections = await getDocumentSections(mmtUrl, archive, filepath);
-  //     setDocSections(docSections);
-  //     setCourseSections(getSections(docSections));
-  //   }
-  //   getIndex();
-  // }, [mmtUrl, contentUrl]);
 
   useEffect(() => {
     if (!sectionId) return;
@@ -352,11 +342,6 @@ const CourseViewPage: NextPage = () => {
                 navOnTop={viewMode === ViewMode.COMBINED_MODE}
                 courseId={courseId}
                 sectionId={sectionId}
-                //Todo alea-4
-                // topLevelDocUrl={XhtmlContentUrl(
-                //   courses[courseId]?.notesArchive,
-                //   courses[courseId]?.notesFilepath
-                // )}
                 onSlideChange={(slide: Slide) => {
                   setPreNotes(slide?.preNotes.map((p) => p.html) || []);
                   setPostNotes(slide?.postNotes.map((p) => p.html) || []);

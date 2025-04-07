@@ -102,6 +102,7 @@ export async function getSlides(notesUri1: string) {
   const toc = (await getDocumentSections(notesUri))[1];
   const bySection: { [sectionId: string]: Slide[] } = {};
   await getSlidesFromToc(toc, bySection);
+  console.log('bySection: ', bySection);
   return bySection;
 }
 
@@ -128,6 +129,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
   const data: { [sectionId: string]: Slide[] } = {};
   for (const secId of sectionIdArr) {
+    console.log('secId: ', secId);
     data[secId] = CACHED_SLIDES[courseId][secId];
   }
 

@@ -61,7 +61,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   let counts = getCachedCourseProblemCounts(courseId);
 
   if (!counts) {
-    const courseInfo = (await getCourseInfo(process.env.NEXT_PUBLIC_MMT_URL))[courseId];
+    const courseInfo = (await getCourseInfo())[courseId];
     if (!courseInfo) {
       res.status(404).json({ error: `Course not found: [${courseId}]` });
       return;

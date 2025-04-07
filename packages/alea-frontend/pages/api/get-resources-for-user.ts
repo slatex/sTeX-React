@@ -23,7 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
 
-  const courseIds = Object.keys(await getCourseInfo(process.env.NEXT_PUBLIC_MMT_URL));
+  const courseIds = Object.keys(await getCourseInfo());
   const resourceNames = COURSE_SPECIFIC_RESOURCENAMES;
 
   const resourceActions: CourseResourceAction[] = courseIds.flatMap((courseId) =>
