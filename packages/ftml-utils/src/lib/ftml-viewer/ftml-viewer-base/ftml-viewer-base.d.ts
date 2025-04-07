@@ -35,6 +35,57 @@ export function get_server_url(): string;
  * *This API requires the following crate features to be activated: `ReadableStreamType`*
  */
 type ReadableStreamType = "bytes";
+/**
+ * Options for rendering an FTML document
+ * - `FromBackend`: calls the backend for the document
+ *     uri: the URI of the document (as string)
+ *     toc: if defined, will render a table of contents for the document
+ * - `HtmlString`: render the provided HTML String
+ *     html: the HTML String
+ *     toc: if defined, will render a table of contents for the document
+ */
+export type DocumentOptions = { uri: DocumentURI; gottos?: Gotto[] | undefined; toc: TOCOptions | undefined } | { html: string; gottos?: Gotto[] | undefined; toc: TOCElem[] | undefined };
+
+/**
+ * Options for rendering an FTML document fragment
+ * - `FromBackend`: calls the backend for the document fragment
+ *     uri: the URI of the document fragment (as string)
+ * - `HtmlString`: render the provided HTML String
+ *     html: the HTML String
+ */
+export type FragmentOptions = { uri: DocumentElementURI } | { html: string; uri?: DocumentElementURI | undefined };
+
+/**
+ * Options for rendering a table of contents
+ * `GET` will retrieve it from the remote backend
+ * `TOCElem[]` will render the provided TOC
+ */
+export type TOCOptions = "GET" | { Predefined: TOCElem[] };
+
+export type ExerciseOption = { WithFeedback: [DocumentElementURI, ExerciseFeedback][] } | { WithSolutions: [DocumentElementURI, Solutions][] };
+
+export type LeptosContinuation = (e:HTMLDivElement,o:LeptosContext) => void;
+
+/**
+ * An entry in a table of contents. Either:
+ * 1. a section; the title is assumed to be an HTML string, or
+ * 2. an inputref to some other document; the URI is the one for the
+ *    inputref itself; not the referenced Document. For the TOC,
+ *    which document is inputrefed is actually irrelevant.
+ */
+export type TOCElem = { type: "Section"; title: string | undefined; uri: DocumentElementURI; id: string; children: TOCElem[] } | { type: "SkippedSection"; children: TOCElem[] } | { type: "Inputref"; uri: DocumentURI; title: string | undefined; id: string; children: TOCElem[] } | { type: "Paragraph"; styles: Name[]; kind: ParagraphKind } | { type: "Slide" };
+
+/**
+ * A section that has been \"covered\" at the specified timestamp; will be marked accordingly
+ * in the TOC.
+ */
+export interface Gotto {
+    uri: DocumentElementURI;
+    timestamp?: Timestamp | undefined;
+}
+
+export type DocumentElementURI = string;
+
 export interface ExerciseResponse {
     uri: DocumentElementURI;
     responses: ExerciseResponseType[];
@@ -46,6 +97,14 @@ export interface ExerciseResponse {
  */
 export type ExerciseResponseType = boolean[] | number | string;
 
+export interface AnswerClass {
+    id: string;
+    feedback: string;
+    kind: AnswerKind;
+}
+
+export type AnswerKind = ({ type: "Class" } & number) | ({ type: "Trait" } & number);
+
 export type CognitiveDimension = "Remember" | "Understand" | "Apply" | "Analyze" | "Evaluate" | "Create";
 
 export interface Quiz {
@@ -53,6 +112,7 @@ export interface Quiz {
     title: string | undefined;
     elements: QuizElement[];
     solutions: Map<DocumentElementURI, string>;
+    answer_classes: Map<DocumentElementURI, AnswerClass[]>;
 }
 
 export type QuizElement = { Section: { title: string; elements: QuizElement[] } } | { Question: QuizQuestion } | { Paragraph: { html: string } };
@@ -65,7 +125,19 @@ export interface QuizQuestion {
     objectives: [CognitiveDimension, SymbolURI][];
 }
 
+export type SectionLevel = "Part" | "Chapter" | "Section" | "Subsection" | "Subsubsection" | "Paragraph" | "Subparagraph";
+
+export type DocumentURI = string;
+
+export type SymbolURI = string;
+
+export type Language = "en" | "de" | "fr" | "ro" | "ar" | "bg" | "ru" | "fi" | "tr" | "sl";
+
+export type LOKind = { type: "Definition" } | { type: "Example" } | ({ type: "Exercise" } & CognitiveDimension) | ({ type: "SubExercise" } & CognitiveDimension);
+
 export type SlideElement = { type: "Slide"; html: string } | { type: "Paragraph"; html: string } | { type: "Inputref"; uri: DocumentURI } | { type: "Section"; title: string | undefined; children: SlideElement[] };
+
+export type Name = string;
 
 export interface FileData {
     rel_path: string;
@@ -97,13 +169,14 @@ export type ArchiveIndex = { type: "library"; archive: ArchiveId; title: string;
 
 export type Institution = { type: "university"; title: string; place: string; country: string; url: string; acronym: string; logo: string } | { type: "school"; title: string; place: string; country: string; url: string; acronym: string; logo: string };
 
-export type ParagraphKind = "Definition" | "Assertion" | "Paragraph" | "Proof" | "SubProof" | "Example";
-
-export type Name = string;
-
-export type DocumentElementURI = string;
-
-export type DocumentURI = string;
+export interface FileStateSummary {
+    new: number;
+    stale: number;
+    deleted: number;
+    up_to_date: number;
+    last_built: Timestamp;
+    last_changed: Timestamp;
+}
 
 export type SearchResultKind = "Document" | "Paragraph" | "Definition" | "Example" | "Assertion" | "Exercise";
 
@@ -119,77 +192,13 @@ export interface QueryFilter {
     definition_like_only?: boolean;
 }
 
-export type Language = "en" | "de" | "fr" | "ro" | "ar" | "bg" | "ru" | "fi" | "tr" | "sl";
-
-export type SymbolURI = string;
-
-export interface FileStateSummary {
-    new: number;
-    stale: number;
-    deleted: number;
-    up_to_date: number;
-    last_built: Timestamp;
-    last_changed: Timestamp;
-}
-
-export type SectionLevel = "Part" | "Chapter" | "Section" | "Subsection" | "Subsubsection" | "Paragraph" | "Subparagraph";
+export type ParagraphKind = "Definition" | "Assertion" | "Paragraph" | "Proof" | "SubProof" | "Example";
 
 export type ArchiveId = string;
-
-export type LOKind = { type: "Definition" } | { type: "Example" } | ({ type: "Exercise" } & CognitiveDimension) | ({ type: "SubExercise" } & CognitiveDimension);
 
 export type CSS = { Link: string } | { Inline: string } | { Class: { name: string; css: string } };
 
 export type Timestamp = number;
-
-/**
- * Options for rendering an FTML document
- * - `FromBackend`: calls the backend for the document
- *     uri: the URI of the document (as string)
- *     toc: if defined, will render a table of contents for the document
- * - `HtmlString`: render the provided HTML String
- *     html: the HTML String
- *     toc: if defined, will render a table of contents for the document
- */
-export type DocumentOptions = { uri: DocumentURI; gottos?: Gotto[] | undefined; toc: TOCOptions | undefined } | { html: string; gottos?: Gotto[] | undefined; toc: TOCElem[] | undefined };
-
-/**
- * Options for rendering an FTML document fragment
- * - `FromBackend`: calls the backend for the document fragment
- *     uri: the URI of the document fragment (as string)
- * - `HtmlString`: render the provided HTML String
- *     html: the HTML String
- */
-export type FragmentOptions = { uri: DocumentElementURI } | { html: string; uri?: DocumentElementURI | undefined };
-
-/**
- * Options for rendering a table of contents
- * `GET` will retrieve it from the remote backend
- * `TOCElem[]` will render the provided TOC
- */
-export type TOCOptions = "GET" | { Predefined: TOCElem[] };
-
-export type ExerciseOption = { WithFeedback: [DocumentElementURI, ExerciseFeedback][] } | { WithSolutions: [DocumentElementURI, Solutions][] };
-
-/**
- * An entry in a table of contents. Either:
- * 1. a section; the title is assumed to be an HTML string, or
- * 2. an inputref to some other document; the URI is the one for the
- *    inputref itself; not the referenced Document. For the TOC,
- *    which document is inputrefed is actually irrelevant.
- */
-export type TOCElem = { type: "Section"; title: string | undefined; uri: DocumentElementURI; id: string; children: TOCElem[] } | { type: "SkippedSection"; children: TOCElem[] } | { type: "Inputref"; uri: DocumentURI; title: string | undefined; id: string; children: TOCElem[] } | { type: "Paragraph"; styles: Name[]; kind: ParagraphKind } | { type: "Slide" };
-
-/**
- * A section that has been \"covered\" at the specified timestamp; will be marked accordingly
- * in the TOC.
- */
-export interface Gotto {
-    uri: DocumentElementURI;
-    timestamp?: Timestamp | undefined;
-}
-
-export type LeptosContinuation = (e:HTMLDivElement,o:LeptosContext) => void;
 
 export class ExerciseFeedback {
   private constructor();
