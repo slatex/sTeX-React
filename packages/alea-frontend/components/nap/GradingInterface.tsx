@@ -381,6 +381,7 @@ function GradingItemDisplay({
   answerId,
   questionMap,
   courseId,
+  isPeerGrading,
   onNextGradingItem,
   onPrevGradingItem,
 }: {
@@ -389,6 +390,7 @@ function GradingItemDisplay({
   studentId: string;
   answerId: number;
   courseId: string;
+  isPeerGrading?: boolean;
   questionMap: Record<string, Problem>;
   onNextGradingItem: () => void;
   onPrevGradingItem: () => void;
@@ -405,7 +407,13 @@ function GradingItemDisplay({
     setStudentResponse(undefined);
     setSubProblemIdToAnswerId({});
     setSubProblemInfoToGradingInfo({});
-    getAnswersWithGrading(homeworkId, questionId, studentId, answerId, courseId).then((r) => {
+    getAnswersWithGrading(
+      homeworkId,
+      questionId,
+      isPeerGrading ? null : studentId,
+      answerId,
+      courseId
+    ).then((r) => {
       setStudentResponse(r.answers);
       setSubProblemIdToAnswerId(r.subProblemIdToAnswerId);
       setSubProblemInfoToGradingInfo(r.subProblemIdToGrades);
