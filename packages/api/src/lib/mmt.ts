@@ -313,6 +313,10 @@ export async function getCourseInfo(institution?: string) {
   }
 }
 
+export async function getSectionSlides(sectionUri: string) {
+  return await server.slides({ uri: sectionUri });
+}
+
 // export async function getCourseId(
 //   mmtUrl: string,
 //   institution: string,

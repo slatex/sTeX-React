@@ -1,16 +1,9 @@
-import {
-  ClipInfo,
-  SectionInfo,
-  SectionsAPIData,
-  getCourseInfo,
-  getDocumentSections,
-} from '@stex-react/api';
+import { ClipInfo, getCourseInfo, SectionInfo, SectionsAPIData } from '@stex-react/api';
 import { CoverageSnap } from '@stex-react/utils';
+import { readdir, readFile } from 'fs/promises';
 import { convert } from 'html-to-text';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getCoverageData } from '../get-coverage-timeline';
-import { readdir, readFile } from 'fs/promises';
-import { getSlideCounts } from '../get-slide-counts/[courseId]';
+
 const CACHE_EXPIRY_TIME = 60 * 60 * 1000;
 export const CACHED_VIDEO_SLIDESMAP: Record<string, any> = {};
 let CACHE_REFRESH_TIME: number | undefined = undefined;
