@@ -1,5 +1,6 @@
 import { FileLocation } from '@stex-react/utils';
 import { SmileyCognitiveValues } from './lmp';
+import { SlideElement } from './ftml-viewer-base';
 
 export interface CardsWithSmileys {
   conceptUri: string;
@@ -28,11 +29,11 @@ export enum SlideType {
 }
 
 export interface Slide extends FileLocation {
-  slideContent: string;
   slideType: SlideType;
-  autoExpand: boolean;
-  preNotes: string[];
-  postNotes: string[];
+  paragraphs?: Extract<SlideElement, { type: 'Paragraph' }>[];
+  slide?: Extract<SlideElement, { type: 'Slide' }>;
+  preNotes: Extract<SlideElement, { type: 'Paragraph' }>[];
+  postNotes: Extract<SlideElement, { type: 'Paragraph' }>[];
   sectionId: string;
 }
 

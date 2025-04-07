@@ -1,6 +1,6 @@
 import { getCourseInfo } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { CACHED_SLIDES } from '../get-slides/[courseId]/[sectionIds]';
+import { CACHED_SLIDES, getSlides } from './get-slides';
 
 export async function getSlideCounts(courseId: string, res: NextApiResponse) {
   const courses = await getCourseInfo(process.env.NEXT_PUBLIC_MMT_URL);
@@ -9,13 +9,10 @@ export async function getSlideCounts(courseId: string, res: NextApiResponse) {
     res.status(404).json({ error: 'Course not found!' });
     return;
   }
-  //Todo alea-4
-  // if (!CACHED_SLIDES[courseId]) {
-  //   CACHED_SLIDES[courseId] = await getSlides({
-  //     archive: courseInfo.notesArchive,
-  //     filepath: courseInfo.notesFilepath,
-  //   });
-  // }
+
+  if (!CACHED_SLIDES[courseId]) {
+    CACHED_SLIDES[courseId] = await getSlides(courseInfo.notes);
+  }
   const data: { [sectionId: string]: number } = {};
   for (const [secId, slides] of Object.entries(CACHED_SLIDES[courseId])) {
     data[secId] = slides.length;

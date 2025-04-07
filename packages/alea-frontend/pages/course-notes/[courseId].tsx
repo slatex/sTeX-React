@@ -62,7 +62,7 @@ const CourseNotesPage: NextPage = () => {
           uri: item.sectionName,
           timestamp: item.timestamp_ms,
         }));
-        setGottos(coverageData );
+        setGottos(coverageData);
       } catch (error) {
         console.error('Error fetching gottos:', error);
       }

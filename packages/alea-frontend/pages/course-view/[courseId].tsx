@@ -13,9 +13,9 @@ import {
   lastFileNode,
 } from '@stex-react/api';
 import { CommentNoteToggleView } from '@stex-react/comments';
+import { FTMLFragment } from '@stex-react/ftml-utils';
 import {
   ContentDashboard,
-  ContentWithHighlight,
   LayoutWithFixedMenu,
   SectionReview,
   ServerLinksContext,
@@ -26,7 +26,7 @@ import axios from 'axios';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { NextRouter, useRouter } from 'next/router';
-import { useContext, useEffect, useState } from 'react';
+import { Fragment, useContext, useEffect, useState } from 'react';
 import { SlideDeck } from '../../components/SlideDeck';
 import { VideoDisplay } from '../../components/VideoDisplay';
 import { getLocaleObject } from '../../lang/utils';
@@ -36,7 +36,10 @@ function RenderElements({ elements }: { elements: string[] }) {
   return (
     <>
       {elements.map((e, idx) => (
-        <ContentWithHighlight key={idx} mmtHtml={e} />
+        <Fragment key={idx}>
+          <FTMLFragment fragment={{ html: e }} />
+          {idx < elements.length - 1 && <br />}
+        </Fragment>
       ))}
     </>
   );
@@ -355,8 +358,8 @@ const CourseViewPage: NextPage = () => {
                 //   courses[courseId]?.notesFilepath
                 // )}
                 onSlideChange={(slide: Slide) => {
-                  setPreNotes(slide?.preNotes || []);
-                  setPostNotes(slide?.postNotes || []);
+                  setPreNotes(slide?.preNotes.map((p) => p.html) || []);
+                  setPostNotes(slide?.postNotes.map((p) => p.html) || []);
                   setSlideArchive(slide?.archive);
                   setSlideFilepath(slide?.filepath);
                   if (

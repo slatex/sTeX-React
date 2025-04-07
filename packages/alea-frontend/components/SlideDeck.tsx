@@ -1,25 +1,28 @@
+import { InsertLink, LinkOff } from '@mui/icons-material';
 import FirstPageIcon from '@mui/icons-material/FirstPage';
 import LastPageIcon from '@mui/icons-material/LastPage';
+import MovieIcon from '@mui/icons-material/Movie';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import { Badge, Popover, Typography } from '@mui/material';
-import MovieIcon from '@mui/icons-material/Movie';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import { Box, IconButton, LinearProgress, Tooltip } from '@mui/material';
-import { ClipInfo, Slide } from '@stex-react/api';
 import {
-  ContentWithHighlight,
-  DocumentWidthSetter,
-  DisplayReason,
-  ExpandableContextMenu,
-} from '@stex-react/stex-react-renderer';
+  Badge,
+  Box,
+  IconButton,
+  LinearProgress,
+  Popover,
+  Tooltip,
+  Typography,
+} from '@mui/material';
+import { ClipInfo, Slide, SlideType } from '@stex-react/api';
+import { FTMLFragment } from '@stex-react/ftml-utils';
+import { ExpandableContextMenu } from '@stex-react/stex-react-renderer';
 import { XhtmlContentUrl } from '@stex-react/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { Dispatch, memo, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, Fragment, memo, SetStateAction, useEffect, useState } from 'react';
 import { setSlideNumAndSectionId } from '../pages/course-view/[courseId]';
 import styles from '../styles/slide-deck.module.scss';
-import { InsertLink, LinkOff } from '@mui/icons-material';
 
 export function SlideNavBar({
   slideNum,
@@ -162,6 +165,24 @@ const ClipSelector = ({
   );
 };
 
+function SlideRenderer({ slide }: { slide: Slide }) {
+  if (!slide) return <>No slide</>;
+  if (slide.slideType === SlideType.FRAME) {
+    return <FTMLFragment key={slide.slide?.html.length ?? 0} fragment={{ html: slide.slide?.html }} />;
+  } else if (slide.slideType === SlideType.TEXT) {
+    return (
+      <>
+        {slide.paragraphs?.map((p, idx) => (
+          <Fragment key={idx}>
+            <FTMLFragment fragment={{ html: p.html }} />
+            {idx < slide.paragraphs.length - 1 && <br />}
+          </Fragment>
+        ))}
+      </>
+    );
+  }
+}
+
 export const SlideDeck = memo(function SlidesFromUrl({
   courseId,
   sectionId,
@@ -209,7 +230,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
     setIsLoading(true);
     setSlides([]);
     const loadingSectionId = sectionId;
-    axios.get(`/api/get-slides/${courseId}/${sectionId}`).then((r) => {
+    axios.get('/api/get-slides', { params: { courseId, sectionIds: sectionId } }).then((r) => {
       if (isCancelled) return;
       const slides: Slide[] = r.data?.[sectionId] || [];
 
@@ -300,14 +321,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
         <ExpandableContextMenu contentUrl={contentUrl} />
       </Box>
       {slides.length ? (
-        <DocumentWidthSetter>
-          <ContentWithHighlight
-            topLevelDocUrl={topLevelDocUrl}
-            mmtHtml={currentSlide?.slideContent || ''}
-            displayReason={DisplayReason.SLIDES}
-            renderWrapperParams={{ 'section-url': contentUrl }}
-          />
-        </DocumentWidthSetter>
+        <SlideRenderer key={slideNum} slide={currentSlide} />
       ) : (
         <Box
           height="574px"
