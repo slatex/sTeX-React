@@ -264,3 +264,9 @@ export function capitalizeFirstLetter(str: string): string {
 export function chooseRandomlyFromList(list: any[]) {
   return list[Math.floor(Math.random() * list.length)];
 }
+export function truncateText(text: string, maxLength: number) {
+  if (text.length > maxLength) {
+    text = text.substring(0, maxLength) + '...';
+  }
+  return text;
+}

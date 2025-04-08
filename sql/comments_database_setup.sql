@@ -202,6 +202,7 @@ CREATE TABLE Grading  (
   PRIMARY KEY (id),
   FOREIGN KEY (answerId) REFERENCES Answer (id) ON DELETE CASCADE
 );
+
 CREATE TABLE GradingAnswerClass  (
   id int UNSIGNED NOT NULL AUTO_INCREMENT,
   gradingId int UNSIGNED NOT NULL,
@@ -217,6 +218,7 @@ CREATE TABLE GradingAnswerClass  (
   PRIMARY KEY (id),
   FOREIGN KEY (gradingId) REFERENCES Grading (id) ON DELETE CASCADE
 );
+
 CREATE TABLE ReviewRequest   (
   id int UNSIGNED NOT NULL AUTO_INCREMENT,
   reviewType enum('INSTRUCTOR','PEER') NOT NULL,

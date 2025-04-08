@@ -178,8 +178,7 @@ export const en = {
     myCompetencyData: 'My competency data',
     learnerModelPriming: 'Learner Model Priming',
     myAnswers: 'My Answers',
-    myGrading: 'My Grading',  
-
+    myGrading: 'My Grading',
     downloadData: 'Download Your Data',
     downloadNotes: 'Download your notes and comments',
     downloadProfile: 'Download your profile data',
@@ -425,11 +424,15 @@ export const en = {
       'Note: These problems are only to aid your learning. They do not cover the course material exhaustively and there are no guarantees that the problems are correct or that they are representative of the kinds of problems that will be on the quizzes or the exam.',
     backToAllCourseProblems: 'Back to all course problems',
   },
+  peerGrading: {
+    peerGrading: 'Peer Grading',
+  },
   resource: {
     updateGoTo: 'Update Got-tos',
     quiz: 'Quizzes',
     homework: 'Homeworks',
     forum: 'Forum',
     welcome: 'Welcome',
+    peerReview: 'Peer Review',
   },
 };

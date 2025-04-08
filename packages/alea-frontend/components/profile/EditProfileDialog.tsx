@@ -29,7 +29,7 @@ export function EditProfileDialog({ open, onClose, profileData, userId, onSave }
     email: '',
     studyProgram: '',
     semester: '',
-    languages: Language.English,
+    languages: '',
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -188,7 +188,7 @@ export function EditProfileDialog({ open, onClose, profileData, userId, onSave }
                 const languages = (e.target.value as string[]).join(',');
                 setFormData((prev) => ({ ...prev, languages }));
               }}
-              renderValue={(selected) => selected.join(', ')}
+              renderValue={(selected) => (selected as string[]).join(', ')}
               fullWidth
             >
               {Object.keys(Language).map((key) => (
@@ -198,6 +198,7 @@ export function EditProfileDialog({ open, onClose, profileData, userId, onSave }
                 </MenuItem>
               ))}
             </Select>
+
           </FormControl>
         </Stack>
       </DialogContent>
