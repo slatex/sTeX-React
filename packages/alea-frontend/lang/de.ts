@@ -152,6 +152,8 @@ export const de = {
     myNotes: 'Meine Notizen',
     myCompetencyData: 'Meine Kompetenzdaten',
     learnerModelPriming: 'Fundament des Lernendenmodells',
+    myAnswers: 'Meine Antworten',   
+    myGrading: 'Meine Noten',
 
     downloadData: 'Laden Sie Ihre Daten herunter',
     downloadNotes: 'Laden Sie Ihre Notizen und Kommentare herunter',

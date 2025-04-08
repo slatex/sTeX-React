@@ -177,6 +177,8 @@ export const en = {
     myNotes: 'My notes',
     myCompetencyData: 'My competency data',
     learnerModelPriming: 'Learner Model Priming',
+    myAnswers: 'My Answers',
+    myGrading: 'My Grading',  
 
     downloadData: 'Download Your Data',
     downloadNotes: 'Download your notes and comments',

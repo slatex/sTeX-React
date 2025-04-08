@@ -1,7 +1,9 @@
-import AssessmentIcon from '@mui/icons-material/Assessment';
+import InsightsIcon from '@mui/icons-material/Insights';
 import EditIcon from '@mui/icons-material/Edit';
 import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import SchoolIcon from '@mui/icons-material/School';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import GradingIcon from '@mui/icons-material/Grading';
 import { Box, Button, Card, Stack, Typography } from '@mui/material';
 import Link from 'next/link';
 
@@ -91,8 +93,18 @@ export const ProfileTab = ({
               </Button>
             </Link>
             <Link href="/my-learner-model" passHref>
-              <Button variant="contained" fullWidth startIcon={<AssessmentIcon />}>
+              <Button variant="contained" fullWidth startIcon={<InsightsIcon />}>
                 {t.myCompetencyData}
+              </Button>
+            </Link>
+            <Link href="/my-answers" passHref>
+              <Button variant="contained" fullWidth startIcon={<AssignmentTurnedInIcon />}>
+                {t.myAnswers}
+              </Button>
+            </Link>
+            <Link href="/my-grading" passHref>
+              <Button variant="contained" fullWidth startIcon={<GradingIcon />}>
+                {t.myGrading}
               </Button>
             </Link>
             <Link href="/learner-model-init" passHref>
