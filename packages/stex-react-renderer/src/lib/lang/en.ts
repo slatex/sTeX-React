@@ -1,3 +1,5 @@
+import { ForMe } from "../ForMe";
+
 export const en = {
   // content dashboard
   expandCollapseAll: 'Expand/collapse all',
@@ -64,8 +66,12 @@ export const en = {
     sureFinish: 'Are you sure you want to finish?',
     showSolution: 'Show Solution',
     hideSolution: 'Hide Solution',
-    perSectionQuizButton: 'Practice Problems ($1)',
-    hideProblems: 'Hide Problems',
+    practiceProblem: 'Practice Problem',
+    perSectionQuizButton: 'All Problems ($1)',
+    ForMe : 'For Me',
+    hideProblems: 'Hide All Problems',
+    hideForMe: 'Hide For Me',
+    hidepracticeProblem: 'Hide Practice Problems',
     answer: 'Answer',
     point: 'Point',
     submit: 'Submit',
