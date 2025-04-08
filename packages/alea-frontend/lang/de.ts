@@ -1,3 +1,5 @@
+import StudentHomePage from "../pages";
+
 export const de = {
   home: {
     header: 'ALeA basierte Kurse an der FAU',
@@ -410,5 +412,6 @@ export const de = {
     forum: 'Forum',
     welcome: 'Willkommen',
     peerReview: 'Peer Review',
+    studyBuddy: 'Study Buddy',
   },
 };

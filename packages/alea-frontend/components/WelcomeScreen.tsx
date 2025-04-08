@@ -26,6 +26,7 @@ import {
   getHomeworkList,
   getUserInfo,
   QuestionStatus,
+  UserInfo,
 } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import {
@@ -535,7 +536,13 @@ function WelcomeScreen({
         >
           {r.welcome}, {userInfo?.fullName}
         </Typography>
-        
+        {isFAUId && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', my: 2 }}>
+            <Link href="/study-buddy" style={{ textDecoration: 'none' }}>
+              <Button variant="contained">{r.studyBuddy}</Button>
+            </Link>
+          </Box>
+        )}
         {enrolledCourseIds.length > 0 && <MyCourses enrolledCourseIds={enrolledCourseIds} />}
         {Object.entries(groupedResources).map(([courseId, resources]) => (
           <Box key={courseId} sx={{ marginBottom: 4 }}>
