@@ -1,28 +1,16 @@
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import DownloadIcon from '@mui/icons-material/Download';
 import EmailIcon from '@mui/icons-material/Email';
-import {
-  Box,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Switch,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableRow,
-  TextField,
-  Typography,
-} from '@mui/material';
+import SettingsIcon from '@mui/icons-material/Settings';
+import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
+import { Avatar, Box, Button, Container, Paper, Tab, Tabs, Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
+
 import {
   ANON_USER_ID_PREFIX,
-  UserInfo,
-  getAllMyComments,
-  getAllMyData,
   getUserInfo,
   getUserInformation,
+  getUserProfile,
   purgeAllMyData,
   purgeComments,
   purgeStudyBuddyData,
@@ -32,56 +20,41 @@ import {
   updateSectionReviewStatus,
   updateTrafficLightStatus,
 } from '@stex-react/api';
-import { PRIMARY_COL, downloadFile } from '@stex-react/utils';
-import type { NextPage } from 'next';
-import Link from 'next/link';
+import { PRIMARY_COL } from '@stex-react/utils';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
-import { PersonaChooser } from './login';
+import { DataExportTab } from '../components/profile/DataExportTab';
+import { ProfileTab } from '../components/profile/ProfileTab';
+import { SettingsTab } from '../components/profile/SettingsTab';
 
-export function ConfirmPurgeDialogContent({ onClose }: { onClose: (confirmed: boolean) => void }) {
-  const router = useRouter();
-  const { myProfile: t } = getLocaleObject(router);
-  const [text, setText] = useState('');
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
   return (
-    <>
-      <DialogTitle>{t.confirmPurge}</DialogTitle>
-      <DialogContent>
-        <DialogContentText>
-          {t.purgeWarning}
-          <br />
-          <br />
-          Enter this text in the box below to confirm: <b>{t.confirmText}</b>
-          <br /> <br />
-        </DialogContentText>
-        <TextField label={t.confirmation} value={text} onChange={(e) => setText(e.target.value)} />
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => onClose(false)}>{t.cancel}</Button>
-        <Button
-          onClick={() => onClose(true)}
-          disabled={text.toLocaleLowerCase() !== t.confirmText.toLocaleLowerCase()}
-          variant="contained"
-          color="error"
-        >
-          {t.purge}
-        </Button>
-      </DialogActions>
-    </>
+    <Box
+      role="tabpanel"
+      hidden={value !== index}
+      id={`profile-tabpanel-${index}`}
+      aria-labelledby={`profile-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+    </Box>
   );
 }
 
-const MyProfilePage: NextPage = () => {
+const MyProfilePage = () => {
   const router = useRouter();
   const { myProfile: t, logInSystem: l } = getLocaleObject(router);
-  const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
-  const [openPurgeDialog, setOpenPurgeDialog] = useState(false);
-  const [persona, setPresetProfileName] = useState<string>('Blank');
-  const [trafficLightStatus, setTrafficLightStatus] = useState<boolean>(false);
-  const [sectionReviewStatus, setSectionReviewStatus] = useState<boolean>(false);
-  const [isVerifiedUser, setIsVerifiedUser] = useState<boolean>(false);
+  const [userInfo, setUserInfo] = useState(undefined);
+  const [persona, setPresetProfileName] = useState('Blank');
+  const [trafficLightStatus, setTrafficLightStatus] = useState(false);
+  const [sectionReviewStatus, setSectionReviewStatus] = useState(false);
+  const [isVerifiedUser, setIsVerifiedUser] = useState(false);
+  const [tabValue, setTabValue] = useState(0);
+  const [profileData, setProfileData] = useState(null);
+  const [isProfileUpdated, setIsProfileUpdated] = useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
 
   useEffect(() => {
     getUserInfo().then((info) => {
@@ -94,37 +67,46 @@ const MyProfilePage: NextPage = () => {
   }, [router]);
 
   useEffect(() => {
-    getUserInformation().then((res) => setTrafficLightStatus(res.showTrafficLight));
-  }, [trafficLightStatus]);
-  useEffect(() => {
-    getUserInformation().then((res) => setSectionReviewStatus(res.showSectionReview));
-  }, [sectionReviewStatus]);
-  useEffect(() => {
     getUserInformation().then((res) => {
+      setTrafficLightStatus(res.showTrafficLight);
+      setSectionReviewStatus(res.showSectionReview);
       setIsVerifiedUser(res.isVerified);
     });
-  }, [isVerifiedUser]);
+  }, []);
 
-  async function handleTrafficLight(trafficLightStatus: boolean) {
+  useEffect(() => {
+    if (tabValue === 0 && (profileData === null || isProfileUpdated)) {
+      getUserProfile()
+        .then((data) => {
+          setProfileData(data);
+          setIsProfileUpdated(false);
+        })
+        .catch((err) => {
+          console.error('Error fetching profile data:', err);
+          setProfileData({ error: 'Failed to load profile information' });
+        });
+    }
+  }, [tabValue, profileData, isProfileUpdated]);
+
+  async function handleTrafficLight(trafficLightStatus) {
     try {
       await updateTrafficLightStatus(trafficLightStatus);
       setTrafficLightStatus(trafficLightStatus);
-      console.log('Traffic light status updated successfully.');
     } catch (error) {
       console.error('Error updating traffic light status:', error);
     }
   }
-  async function handleSectionReviewStatus(sectionReviewStatus: boolean) {
+
+  async function handleSectionReviewStatus(sectionReviewStatus) {
     try {
       await updateSectionReviewStatus(sectionReviewStatus);
       setSectionReviewStatus(sectionReviewStatus);
-      console.log('Section review status updated successfully.');
     } catch (error) {
       console.error('Error updating section review status:', error);
     }
   }
 
-  async function handleVerification(userId: string) {
+  async function handleVerification(userId) {
     try {
       await sendVerificationEmail(userId, crypto.randomUUID());
       alert(l.verificationEmail);
@@ -133,189 +115,135 @@ const MyProfilePage: NextPage = () => {
       console.error('Error in sending verification email:', error);
     }
   }
-  if (!userInfo) return <></>;
+
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+  };
+
+  const handleProfileUpdate = (updatedData) => {
+    setProfileData((prev) => ({
+      ...prev,
+      ...updatedData,
+    }));
+    setIsProfileUpdated(true);
+  };
+
+  if (!userInfo) return null;
+
   return (
     <MainLayout title={`${userInfo.fullName} | ALeA`}>
-      <Box p="10px" m="0 auto" maxWidth="800px" fontSize="1.2em">
-        <h2>{userInfo.fullName}</h2>
-        <h3 style={{ marginTop: '-15px' }}>
-          <i>{userInfo.userId}</i>
-        </h3>
-        {!isVerifiedUser && !userInfo.userId.startsWith(ANON_USER_ID_PREFIX) && (
-          <Box>
-            <Typography>{l.verifcationMessage}</Typography>
-            <Button onClick={() => handleVerification(userInfo.userId)} variant="contained">
-              {l.sendVerifcationBtn}
-              <EmailIcon sx={{ marginLeft: '5px' }} />
-            </Button>
-          </Box>
-        )}
-        <hr />
-        <Link href="/my-notes" passHref>
-          <Button variant="contained" sx={{ m: '10px 0' }}>
-            {t.myNotes}
-          </Button>
-        </Link>
-        <br />
-        <Link href="/my-learner-model" passHref>
-          <Button variant="contained" sx={{ m: '10px 0' }}>
-            {t.myCompetencyData}
-          </Button>
-        </Link>
-        <br />
-        <Link href="/my-answers" passHref>
-          <Button variant="contained" sx={{ m: '10px 0' }}>
-            {t.myAnswers}
-          </Button>
-        </Link>
-        <br />
-        <Link href="/my-grading" passHref>
-          <Button variant="contained" sx={{ m: '10px 0' }}>
-            {t.myGrading}
-          </Button>
-        </Link>
-        <br />
-        <Link href="/learner-model-init" passHref>
-          <Button variant="contained" sx={{ m: '10px 0' }}>
-            {t.learnerModelPriming}
-          </Button>
-        </Link>
-        <br />
-        <TableContainer>
-          <Table>
-            <TableBody>
-              <TableRow>
-                <TableCell component="th" scope="row">
-                  <Typography fontWeight="bold" color={PRIMARY_COL}>
-                    Show Traffic Light on Notes
-                  </Typography>
-                </TableCell>
-                <TableCell align="right">
-                  <Switch
-                    checked={trafficLightStatus}
-                    onChange={() => handleTrafficLight(!trafficLightStatus)}
-                  />
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell component="th" scope="row">
-                  <Typography fontWeight="bold" color={PRIMARY_COL}>
-                    Show the Review Section on Notes.
-                  </Typography>
-                </TableCell>
-                <TableCell align="right">
-                  <Switch
-                    checked={sectionReviewStatus}
-                    onChange={() => handleSectionReviewStatus(!sectionReviewStatus)}
-                  />
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <br />
-        <h2
-          style={{
-            borderBottom: '1px solid #AAA',
-            padding: '7px 0',
-            display: 'inline',
-          }}
-        >
-          {t.downloadData}
-        </h2>
-        <br />
-        <br />
-        <Button
-          variant="contained"
-          onClick={() => {
-            getAllMyComments().then((data) => {
-              downloadFile(
-                JSON.stringify(data, undefined, 2),
-                `${userInfo.userId}-comments-${Date.now()}.json`,
-                'text/json'
-              );
-            });
-          }}
-        >
-          {t.downloadNotes}
-        </Button>
-        <br />
-        <br />
-        <Button
-          variant="contained"
-          onClick={() => {
-            getAllMyData().then((data) => {
-              downloadFile(
-                JSON.stringify(data, undefined, 2),
-                `${userInfo.userId}-lms-${Date.now()}.json`,
-                'text/json'
-              );
-            });
-          }}
-        >
-          {t.downloadProfile}
-        </Button>
-        <br />
-        <br />
-        <h2
-          style={{
-            borderBottom: '1px solid #AAA',
-            padding: '7px 0',
-            display: 'inline',
-          }}
-        >
-          {t.dataDeletion}
-        </h2>
-        <br />
-        <br />
-        <Button variant="contained" onClick={() => setOpenPurgeDialog(true)}>
-          {t.purgeData}
-        </Button>
-        {userInfo?.userId?.startsWith('fake_') && (
-          <Box>
-            <br />
-            <br />
-            <hr />
-            <PersonaChooser
-              label={t.choosePersona}
-              persona={persona}
-              onPersonaUpdate={(l) => {
-                setPresetProfileName(l);
-              }}
-            />
-            <Button
-              disabled={!persona?.length}
-              variant="contained"
-              onClick={() => resetFakeUserData(persona)}
-              sx={{ ml: '10px' }}
-            >
-              {t.resetFake}
-            </Button>
-          </Box>
-        )}
-        <Dialog onClose={() => setOpenPurgeDialog(false)} open={openPurgeDialog}>
-          <ConfirmPurgeDialogContent
-            onClose={async (confirmed) => {
-              if (!confirmed) {
-                setOpenPurgeDialog(false);
-                return;
-              }
-              try {
-                await purgeAllMyData();
-                await purgeComments();
-                await purgeUserNotifications();
-                await purgeStudyBuddyData();
-                alert(t.dataPurged);
-                setOpenPurgeDialog(false);
-              } catch (err) {
-                console.log(err);
-                alert(t.purgeError);
-              }
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+          <Box
+            sx={{
+              p: 4,
+              bgcolor: PRIMARY_COL,
+              color: 'white',
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              alignItems: { xs: 'center', sm: 'flex-start' },
+              gap: 3,
             }}
-          />
-        </Dialog>
-      </Box>
+          >
+            <Avatar
+              sx={{
+                width: 100,
+                height: 100,
+                fontSize: '2.5rem',
+                bgcolor: 'white',
+                color: PRIMARY_COL,
+              }}
+            >
+              {userInfo.fullName.charAt(0)}
+            </Avatar>
+
+            <Box sx={{ flexGrow: 1 }}>
+              <Typography variant="h4" fontWeight="bold">
+                {userInfo.fullName}
+              </Typography>
+              <Typography variant="subtitle1" sx={{ opacity: 0.9, mb: 1 }}>
+                {userInfo.userId}
+              </Typography>
+
+              {!isVerifiedUser && !userInfo.userId.startsWith(ANON_USER_ID_PREFIX) && (
+                <Button
+                  onClick={() => handleVerification(userInfo.userId)}
+                  variant="contained"
+                  color="secondary"
+                  size="small"
+                  startIcon={<EmailIcon />}
+                  sx={{ mt: 1 }}
+                >
+                  {l.sendVerifcationBtn}
+                </Button>
+              )}
+
+              {isVerifiedUser && (
+                <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                  <VerifiedUserIcon color="success" />
+                  <Typography variant="body2" sx={{ ml: 1 }}>
+                    Verified Account
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+          </Box>
+          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <Tabs
+              value={tabValue}
+              onChange={handleTabChange}
+              variant="scrollable"
+              scrollButtons="auto"
+              aria-label="profile tabs"
+            >
+              <Tab icon={<AccountCircleIcon />} iconPosition="start" label={t.profile} />
+              <Tab icon={<SettingsIcon />} iconPosition="start" label={t.Settings} />
+              <Tab icon={<DownloadIcon />} iconPosition="start" label={t.dataExport} />
+            </Tabs>
+          </Box>
+
+          <TabPanel value={tabValue} index={0}>
+            <ProfileTab
+              t={t}
+              profileData={profileData}
+              userInfo={userInfo}
+              setOpenEditDialog={setOpenEditDialog}
+              openEditDialog={openEditDialog}
+              handleProfileUpdate={handleProfileUpdate}
+            />
+          </TabPanel>
+
+          <TabPanel value={tabValue} index={1}>
+            <SettingsTab
+              t={t}
+              l={l}
+              trafficLightStatus={trafficLightStatus}
+              sectionReviewStatus={sectionReviewStatus}
+              userInfo={userInfo}
+              persona={persona}
+              isVerifiedUser={isVerifiedUser}
+              handleTrafficLight={handleTrafficLight}
+              handleSectionReviewStatus={handleSectionReviewStatus}
+              handleVerification={handleVerification}
+              setPresetProfileName={setPresetProfileName}
+              resetFakeUserData={resetFakeUserData}
+            />
+          </TabPanel>
+
+          <TabPanel value={tabValue} index={2}>
+            <DataExportTab
+              t={t}
+              userInfo={userInfo}
+              purgeAllMyData={purgeAllMyData}
+              purgeComments={purgeComments}
+              purgeUserNotifications={purgeUserNotifications}
+              purgeStudyBuddyData={purgeStudyBuddyData}
+            />
+          </TabPanel>
+        </Paper>
+      </Container>
     </MainLayout>
   );
 };
+
 export default MyProfilePage;
