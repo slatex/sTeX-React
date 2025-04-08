@@ -3,7 +3,7 @@ import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import { canAccessResource, getCourseInfo, getUserInfo } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { Action, CourseInfo, CURRENT_TERM, ResourceName } from '@stex-react/utils';
+import { Action, CourseInfo, CURRENT_TERM, isFauId, ResourceName } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
@@ -29,7 +29,7 @@ const HomeworkPage: NextPage = () => {
       const uid = i?.userId;
       if (!uid) return;
       setUserId(uid);
-      setForceFauLogin(uid.length !== 8 || uid.includes('@'));
+      isFauId(uid) ? setForceFauLogin(false) : setForceFauLogin(true);
     });
   });
 

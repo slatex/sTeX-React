@@ -33,6 +33,7 @@ import {
   CourseInfo,
   CourseResourceAction,
   CURRENT_TERM,
+  isFauId,
   PRIMARY_COL,
   ResourceName,
 } from '@stex-react/utils';
@@ -472,7 +473,7 @@ function WelcomeScreen({
   resourcesForInstructor: CourseResourceAction[];
   filteredCourses: CourseInfo[];
 }) {
-  const [userInfo, setUserInfo] = useState(null);
+  const [userInfo, setUserInfo] = useState<UserInfo>(null);
   const [descriptions, setDescriptions] = useState<Record<string, ResourceDisplayInfo>>({});
   const [enrolledCourseIds, setEnrolledCourseIds] = useState<string[]>([]);
   const router = useRouter();
@@ -491,6 +492,8 @@ function WelcomeScreen({
   useEffect(() => {
     getCourseIdsForEnrolledUser().then((c) => setEnrolledCourseIds(c.enrolledCourseIds));
   }, []);
+
+  const isFAUId = isFauId(userInfo?.userId);
 
   useEffect(() => {
     const fetchDescriptions = async () => {
@@ -532,6 +535,7 @@ function WelcomeScreen({
         >
           {r.welcome}, {userInfo?.fullName}
         </Typography>
+        
         {enrolledCourseIds.length > 0 && <MyCourses enrolledCourseIds={enrolledCourseIds} />}
         {Object.entries(groupedResources).map(([courseId, resources]) => (
           <Box key={courseId} sx={{ marginBottom: 4 }}>
