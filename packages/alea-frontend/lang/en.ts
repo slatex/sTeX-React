@@ -434,5 +434,6 @@ export const en = {
     forum: 'Forum',
     welcome: 'Welcome',
     peerReview: 'Peer Review',
+    studyBuddy: 'Study Buddy',
   },
 };

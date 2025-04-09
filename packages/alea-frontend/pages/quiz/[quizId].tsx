@@ -12,7 +12,7 @@ import {
 } from '@stex-react/api';
 import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
 import { QuizDisplay } from '@stex-react/stex-react-renderer';
-import { Action, CURRENT_TERM, localStore, ResourceName } from '@stex-react/utils';
+import { Action, CURRENT_TERM, isFauId, localStore, ResourceName } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -128,7 +128,7 @@ const QuizPage: NextPage = () => {
     getUserInfo().then((i) => {
       const uid = i?.userId;
       if (!uid) return;
-      setForceFauLogin(uid.length !== 8 || uid.includes('@'));
+      isFauId(uid) ? setForceFauLogin(false) : setForceFauLogin(true);
     });
   }, []);
 

@@ -36,6 +36,7 @@ import {
   CourseInfo,
   CURRENT_TERM,
   INSTRUCTOR_RESOURCE_AND_ACTION,
+  isFauId,
   ResourceName,
   XhtmlContentUrl,
 } from '@stex-react/utils';
@@ -52,7 +53,7 @@ export function getCourseEnrollmentAcl(courseId: string, instanceId: string) {
   return `${courseId}-${instanceId}-enrollments`;
 }
 export async function handleEnrollment(userId: string, courseId: string, currentTerm: string) {
-  if (!userId || userId.length !== 8 || userId.includes('@')) {
+  if (!userId || isFauId(userId)) {
     alert('Please Login Using FAU Id.');
     return false;
   }
