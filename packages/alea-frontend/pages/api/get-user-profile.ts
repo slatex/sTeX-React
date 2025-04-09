@@ -9,7 +9,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
 
-  const query = `SELECT firstName, lastName, email, studyProgram, semester, languages FROM userinfo WHERE userId = ?`;
+  const query = `SELECT firstName, lastName, email, studyProgram, semester, languages FROM userInfo WHERE userId = ?`;
   const result = await executeAndEndSet500OnError(query, [userId], res);
   if (!result || result.length === 0) {
     return res.status(404).json({ error: 'User not found' });
