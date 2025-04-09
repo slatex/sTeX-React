@@ -10,7 +10,7 @@ import { FLAMSServer } from './flams';
 import { ArchiveIndex, Institution } from './flams-types';
 import { TOCElem } from './ftml-viewer-base';
 
-const FLAMS_SERVER_URL = 'https://mmt.beta.vollki.kwarc.info';
+const FLAMS_SERVER_URL = 'https://mathhub.info';
 const server = new FLAMSServer(FLAMS_SERVER_URL);
 
 ///////////////////

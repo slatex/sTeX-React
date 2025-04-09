@@ -8,7 +8,7 @@ import './styles.scss';
 import { setDebugLog, setServerUrl } from '@stex-react/ftml-utils';
 
 setDebugLog();
-setServerUrl('https://mmt.beta.vollki.kwarc.info');
+setServerUrl(process.env['NEXT_PUBLIC_FLAMS_URL']!);
 
 const instance = createInstance({
   urlBase: 'https://matomo.kwarc.info',
