@@ -281,7 +281,7 @@ const CourseViewPage: NextPage = () => {
     <MainLayout title={(courseId || '').toUpperCase() + ` ${tHome.courseThumb.slides} | ALeA`}>
       <LayoutWithFixedMenu
         menu={
-          toc?.length && (
+          toc?.length > 0 && (
             <ContentDashboard
               key={courseId}
               courseId={courseId}

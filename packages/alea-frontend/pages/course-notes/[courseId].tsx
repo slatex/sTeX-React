@@ -1,26 +1,20 @@
-import SearchIcon from '@mui/icons-material/Search';
 import {
-  Box,
   Button,
   CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  IconButton,
 } from '@mui/material';
 import { getCourseInfo } from '@stex-react/api';
-import { StexReactRenderer } from '@stex-react/stex-react-renderer';
-import { CourseInfo, CoverageSnap, PRIMARY_COL, XhtmlContentUrl } from '@stex-react/utils';
+import { FTMLDocument, FTMLSetup } from '@stex-react/ftml-utils';
+import { CourseInfo, CoverageSnap, PRIMARY_COL } from '@stex-react/utils';
+import axios from 'axios';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import SearchCourseNotes from '../../components/SearchCourseNotes';
-import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
-import { FTMLDocument } from '@stex-react/ftml-utils';
-import { FTMLSetup } from '@stex-react/ftml-utils';
-import axios from 'axios';
 
 const SearchDialog = ({ open, onClose, courseId }) => {
   return (
@@ -38,40 +32,9 @@ const SearchDialog = ({ open, onClose, courseId }) => {
       </DialogActions>
     </Dialog>
   );
-};
-
-const CourseNotesPage: NextPage = () => {
-  const router = useRouter();
-  const { home } = getLocaleObject(router);
-  const t = home.courseThumb;
-  const courseId = router.query.courseId as string;
-  const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
+  /*
+  <SearchDialog open={dialogOpen} onClose={handleDialogClose} courseId={courseId} />
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [gottos, setGottos] = useState<{ uri: string; timestamp: number }[]>([]);
-
-  useEffect(() => {
-    getCourseInfo().then(setCourses);
-  }, []);
-
-  useEffect(() => {
-    async function fetchGottos() {
-      try {
-        const response = await axios.get('/api/get-coverage-timeline');
-        const currentSemData: CoverageSnap[] = response.data[courseId] || [];
-        const coverageData = currentSemData.map((item) => ({
-          uri: item.sectionName,
-          timestamp: item.timestamp_ms,
-        }));
-        setGottos(coverageData);
-      } catch (error) {
-        console.error('Error fetching gottos:', error);
-      }
-    }
-    if (courseId) {
-      fetchGottos();
-    }
-  }, [courseId]);
-
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
@@ -91,7 +54,36 @@ const CourseNotesPage: NextPage = () => {
 
   const handleDialogClose = () => {
     setDialogOpen(false);
-  };
+  };*/
+};
+
+const CourseNotesPage: NextPage = () => {
+  const router = useRouter();
+  const courseId = router.query.courseId as string;
+  const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
+  const [gottos, setGottos] = useState<{ uri: string; timestamp: number }[] | undefined>(undefined);
+
+  useEffect(() => {
+    getCourseInfo().then(setCourses);
+  }, []);
+
+  useEffect(() => {
+    async function fetchGottos() {
+      try {
+        const response = await axios.get('/api/get-coverage-timeline');
+        const currentSemData: CoverageSnap[] = response.data[courseId] || [];
+        const coverageData = currentSemData.map((item) => ({
+          uri: item.sectionName,
+          timestamp: item.timestamp_ms,
+        }));
+        setGottos(coverageData);
+      } catch (error) {
+        setGottos([]);
+        console.error('Error fetching gottos:', error);
+      }
+    }
+    if (courseId) fetchGottos();
+  }, [courseId]);
 
   if (!router.isReady || !courses) return <CircularProgress />;
   const courseInfo = courses[courseId];
@@ -103,17 +95,13 @@ const CourseNotesPage: NextPage = () => {
 
   return (
     <MainLayout title={courseId.toUpperCase()}>
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <FTMLSetup>
-          <FTMLDocument
-            document={{
-              uri: notes,
-              toc: 'GET',
-              gottos,
-            }}
-          />
-        </FTMLSetup>
-      </Box>
+      <FTMLSetup>
+        {/* FTML does not effificent update if the props (i.e., gottos) are changed.
+        Therefore, we only render it when all the props are ready. */}
+        {gottos === undefined ? null : (
+          <FTMLDocument document={{ uri: notes, toc: 'GET', gottos }} />
+        )}
+      </FTMLSetup>
     </MainLayout>
   );
 };
