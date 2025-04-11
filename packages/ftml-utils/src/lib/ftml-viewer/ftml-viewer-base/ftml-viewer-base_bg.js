@@ -270,17 +270,18 @@ export function set_debug_log() {
  * iff none already exists, so this is optional in every case.
  * @param {HTMLElement} to
  * @param {LeptosContinuation} children
+ * @param {boolean | null} [allow_hovers]
  * @param {(uri: DocumentElementURI,lvl:SectionLevel) => (LeptosContinuation | undefined) | null} [on_section]
  * @param {(uri: DocumentElementURI,lvl:SectionLevel) => (LeptosContinuation | undefined) | null} [on_section_title]
  * @param {(uri: DocumentElementURI,kind:ParagraphKind) => (LeptosContinuation | undefined) | null} [on_paragraph]
  * @param {(uri: DocumentURI) => (LeptosContinuation | undefined) | null} [on_inputref]
  * @param {(uri: DocumentElementURI) => (LeptosContinuation | undefined) | null} [on_slide]
- * @param {ExerciseOption | null} [exercise_opts]
- * @param {(r:ExerciseResponse) => void | null} [on_exercise]
+ * @param {ProblemOption | null} [problem_opts]
+ * @param {(r:ProblemResponse) => void | null} [on_problem]
  * @returns {FTMLMountHandle}
  */
-export function ftml_setup(to, children, on_section, on_section_title, on_paragraph, on_inputref, on_slide, exercise_opts, on_exercise) {
-    const ret = wasm.ftml_setup(addHeapObject(to), addHeapObject(children), isLikeNone(on_section) ? 0 : addHeapObject(on_section), isLikeNone(on_section_title) ? 0 : addHeapObject(on_section_title), isLikeNone(on_paragraph) ? 0 : addHeapObject(on_paragraph), isLikeNone(on_inputref) ? 0 : addHeapObject(on_inputref), isLikeNone(on_slide) ? 0 : addHeapObject(on_slide), isLikeNone(exercise_opts) ? 0 : addHeapObject(exercise_opts), isLikeNone(on_exercise) ? 0 : addHeapObject(on_exercise));
+export function ftml_setup(to, children, allow_hovers, on_section, on_section_title, on_paragraph, on_inputref, on_slide, problem_opts, on_problem) {
+    const ret = wasm.ftml_setup(addHeapObject(to), addHeapObject(children), isLikeNone(allow_hovers) ? 0xFFFFFF : allow_hovers ? 1 : 0, isLikeNone(on_section) ? 0 : addHeapObject(on_section), isLikeNone(on_section_title) ? 0 : addHeapObject(on_section_title), isLikeNone(on_paragraph) ? 0 : addHeapObject(on_paragraph), isLikeNone(on_inputref) ? 0 : addHeapObject(on_inputref), isLikeNone(on_slide) ? 0 : addHeapObject(on_slide), isLikeNone(problem_opts) ? 0 : addHeapObject(problem_opts), isLikeNone(on_problem) ? 0 : addHeapObject(on_problem));
     return FTMLMountHandle.__wrap(ret);
 }
 
@@ -295,16 +296,17 @@ function _assertClass(instance, klass) {
  * @param {HTMLElement} to
  * @param {DocumentOptions} document
  * @param {LeptosContext | null} [context]
+ * @param {boolean | null} [allow_hovers]
  * @param {(uri: DocumentElementURI,lvl:SectionLevel) => (LeptosContinuation | undefined) | null} [on_section]
  * @param {(uri: DocumentElementURI,lvl:SectionLevel) => (LeptosContinuation | undefined) | null} [on_section_title]
  * @param {(uri: DocumentElementURI,kind:ParagraphKind) => (LeptosContinuation | undefined) | null} [on_paragraph]
  * @param {(uri: DocumentURI) => (LeptosContinuation | undefined) | null} [on_inputref]
  * @param {(uri: DocumentElementURI) => (LeptosContinuation | undefined) | null} [on_slide]
- * @param {ExerciseOption | null} [exercise_opts]
- * @param {(r:ExerciseResponse) => void | null} [on_exercise]
+ * @param {ProblemOption | null} [problem_opts]
+ * @param {(r:ProblemResponse) => void | null} [on_problem]
  * @returns {FTMLMountHandle}
  */
-export function render_document(to, document, context, on_section, on_section_title, on_paragraph, on_inputref, on_slide, exercise_opts, on_exercise) {
+export function render_document(to, document, context, allow_hovers, on_section, on_section_title, on_paragraph, on_inputref, on_slide, problem_opts, on_problem) {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
         let ptr0 = 0;
@@ -312,7 +314,7 @@ export function render_document(to, document, context, on_section, on_section_ti
             _assertClass(context, LeptosContext);
             ptr0 = context.__destroy_into_raw();
         }
-        wasm.render_document(retptr, addHeapObject(to), addHeapObject(document), ptr0, isLikeNone(on_section) ? 0 : addHeapObject(on_section), isLikeNone(on_section_title) ? 0 : addHeapObject(on_section_title), isLikeNone(on_paragraph) ? 0 : addHeapObject(on_paragraph), isLikeNone(on_inputref) ? 0 : addHeapObject(on_inputref), isLikeNone(on_slide) ? 0 : addHeapObject(on_slide), isLikeNone(exercise_opts) ? 0 : addHeapObject(exercise_opts), isLikeNone(on_exercise) ? 0 : addHeapObject(on_exercise));
+        wasm.render_document(retptr, addHeapObject(to), addHeapObject(document), ptr0, isLikeNone(allow_hovers) ? 0xFFFFFF : allow_hovers ? 1 : 0, isLikeNone(on_section) ? 0 : addHeapObject(on_section), isLikeNone(on_section_title) ? 0 : addHeapObject(on_section_title), isLikeNone(on_paragraph) ? 0 : addHeapObject(on_paragraph), isLikeNone(on_inputref) ? 0 : addHeapObject(on_inputref), isLikeNone(on_slide) ? 0 : addHeapObject(on_slide), isLikeNone(problem_opts) ? 0 : addHeapObject(problem_opts), isLikeNone(on_problem) ? 0 : addHeapObject(on_problem));
         var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
         var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
         var r2 = getDataViewMemory0().getInt32(retptr + 4 * 2, true);
@@ -331,16 +333,17 @@ export function render_document(to, document, context, on_section, on_section_ti
  * @param {HTMLElement} to
  * @param {FragmentOptions} fragment
  * @param {LeptosContext | null} [context]
+ * @param {boolean | null} [allow_hovers]
  * @param {(uri: DocumentElementURI,lvl:SectionLevel) => (LeptosContinuation | undefined) | null} [on_section]
  * @param {(uri: DocumentElementURI,lvl:SectionLevel) => (LeptosContinuation | undefined) | null} [on_section_title]
  * @param {(uri: DocumentElementURI,kind:ParagraphKind) => (LeptosContinuation | undefined) | null} [on_paragraph]
  * @param {(uri: DocumentURI) => (LeptosContinuation | undefined) | null} [on_inputref]
  * @param {(uri: DocumentElementURI) => (LeptosContinuation | undefined) | null} [on_slide]
- * @param {ExerciseOption | null} [exercise_opts]
- * @param {(r:ExerciseResponse) => void | null} [on_exercise]
+ * @param {ProblemOption | null} [problem_opts]
+ * @param {(r:ProblemResponse) => void | null} [on_problem]
  * @returns {FTMLMountHandle}
  */
-export function render_fragment(to, fragment, context, on_section, on_section_title, on_paragraph, on_inputref, on_slide, exercise_opts, on_exercise) {
+export function render_fragment(to, fragment, context, allow_hovers, on_section, on_section_title, on_paragraph, on_inputref, on_slide, problem_opts, on_problem) {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
         let ptr0 = 0;
@@ -348,7 +351,7 @@ export function render_fragment(to, fragment, context, on_section, on_section_ti
             _assertClass(context, LeptosContext);
             ptr0 = context.__destroy_into_raw();
         }
-        wasm.render_fragment(retptr, addHeapObject(to), addHeapObject(fragment), ptr0, isLikeNone(on_section) ? 0 : addHeapObject(on_section), isLikeNone(on_section_title) ? 0 : addHeapObject(on_section_title), isLikeNone(on_paragraph) ? 0 : addHeapObject(on_paragraph), isLikeNone(on_inputref) ? 0 : addHeapObject(on_inputref), isLikeNone(on_slide) ? 0 : addHeapObject(on_slide), isLikeNone(exercise_opts) ? 0 : addHeapObject(exercise_opts), isLikeNone(on_exercise) ? 0 : addHeapObject(on_exercise));
+        wasm.render_fragment(retptr, addHeapObject(to), addHeapObject(fragment), ptr0, isLikeNone(allow_hovers) ? 0xFFFFFF : allow_hovers ? 1 : 0, isLikeNone(on_section) ? 0 : addHeapObject(on_section), isLikeNone(on_section_title) ? 0 : addHeapObject(on_section_title), isLikeNone(on_paragraph) ? 0 : addHeapObject(on_paragraph), isLikeNone(on_inputref) ? 0 : addHeapObject(on_inputref), isLikeNone(on_slide) ? 0 : addHeapObject(on_slide), isLikeNone(problem_opts) ? 0 : addHeapObject(problem_opts), isLikeNone(on_problem) ? 0 : addHeapObject(on_problem));
         var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
         var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
         var r2 = getDataViewMemory0().getInt32(retptr + 4 * 2, true);
@@ -362,7 +365,7 @@ export function render_fragment(to, fragment, context, on_section, on_section_ti
 }
 
 /**
- * sets the server url used to the provided one; by default `https://flams.mathhub.info`.
+ * sets the server url used to the provided one; by default `https://mathhub.info`.
  * @param {string} server_url
  */
 export function set_server_url(server_url) {
@@ -392,6 +395,26 @@ export function get_server_url() {
     }
 }
 
+function passArrayJsValueToWasm0(array, malloc) {
+    const ptr = malloc(array.length * 4, 4) >>> 0;
+    const mem = getDataViewMemory0();
+    for (let i = 0; i < array.length; i++) {
+        mem.setUint32(ptr + 4 * i, addHeapObject(array[i]), true);
+    }
+    WASM_VECTOR_LEN = array.length;
+    return ptr;
+}
+
+function getArrayJsValueFromWasm0(ptr, len) {
+    ptr = ptr >>> 0;
+    const mem = getDataViewMemory0();
+    const result = [];
+    for (let i = ptr; i < ptr + 4 * len; i += 4) {
+        result.push(takeObject(mem.getUint32(i, true)));
+    }
+    return result;
+}
+
 let stack_pointer = 128;
 
 function addBorrowedObject(obj) {
@@ -399,32 +422,32 @@ function addBorrowedObject(obj) {
     heap[--stack_pointer] = obj;
     return stack_pointer;
 }
-function __wbg_adapter_58(arg0, arg1, arg2) {
+function __wbg_adapter_56(arg0, arg1, arg2) {
     wasm.__wbindgen_export_5(arg0, arg1, addHeapObject(arg2));
 }
 
-function __wbg_adapter_61(arg0, arg1, arg2) {
+function __wbg_adapter_59(arg0, arg1, arg2) {
     const ret = wasm.__wbindgen_export_6(arg0, arg1, addHeapObject(arg2));
     return ret >>> 0;
 }
 
-function __wbg_adapter_64(arg0, arg1, arg2) {
+function __wbg_adapter_62(arg0, arg1, arg2) {
     wasm.__wbindgen_export_7(arg0, arg1, addHeapObject(arg2));
 }
 
-function __wbg_adapter_67(arg0, arg1) {
+function __wbg_adapter_65(arg0, arg1) {
     wasm.__wbindgen_export_8(arg0, arg1);
 }
 
-function __wbg_adapter_70(arg0, arg1, arg2) {
+function __wbg_adapter_68(arg0, arg1, arg2) {
     wasm.__wbindgen_export_9(arg0, arg1, addHeapObject(arg2));
 }
 
-function __wbg_adapter_73(arg0, arg1, arg2) {
+function __wbg_adapter_71(arg0, arg1, arg2) {
     wasm.__wbindgen_export_10(arg0, arg1, addHeapObject(arg2));
 }
 
-function __wbg_adapter_448(arg0, arg1, arg2, arg3) {
+function __wbg_adapter_452(arg0, arg1, arg2, arg3) {
     wasm.__wbindgen_export_11(arg0, arg1, addHeapObject(arg2), addHeapObject(arg3));
 }
 
@@ -433,88 +456,6 @@ const __wbindgen_enum_ReadableStreamType = ["bytes"];
 const __wbindgen_enum_ScrollBehavior = ["auto", "instant", "smooth"];
 
 const __wbindgen_enum_ScrollLogicalPosition = ["start", "center", "end", "nearest"];
-
-const ExerciseFeedbackFinalization = (typeof FinalizationRegistry === 'undefined')
-    ? { register: () => {}, unregister: () => {} }
-    : new FinalizationRegistry(ptr => wasm.__wbg_exercisefeedback_free(ptr >>> 0, 1));
-
-export class ExerciseFeedback {
-
-    static __wrap(ptr) {
-        ptr = ptr >>> 0;
-        const obj = Object.create(ExerciseFeedback.prototype);
-        obj.__wbg_ptr = ptr;
-        ExerciseFeedbackFinalization.register(obj, obj.__wbg_ptr, obj);
-        return obj;
-    }
-
-    __destroy_into_raw() {
-        const ptr = this.__wbg_ptr;
-        this.__wbg_ptr = 0;
-        ExerciseFeedbackFinalization.unregister(this);
-        return ptr;
-    }
-
-    free() {
-        const ptr = this.__destroy_into_raw();
-        wasm.__wbg_exercisefeedback_free(ptr, 0);
-    }
-    /**
-     * @returns {boolean}
-     */
-    get correct() {
-        const ret = wasm.__wbg_get_exercisefeedback_correct(this.__wbg_ptr);
-        return ret !== 0;
-    }
-    /**
-     * @param {boolean} arg0
-     */
-    set correct(arg0) {
-        wasm.__wbg_set_exercisefeedback_correct(this.__wbg_ptr, arg0);
-    }
-    /**
-     * @returns {number}
-     */
-    get score_fraction() {
-        const ret = wasm.__wbg_get_exercisefeedback_score_fraction(this.__wbg_ptr);
-        return ret;
-    }
-    /**
-     * @param {number} arg0
-     */
-    set score_fraction(arg0) {
-        wasm.__wbg_set_exercisefeedback_score_fraction(this.__wbg_ptr, arg0);
-    }
-    /**
-     * @param {string} s
-     * @returns {ExerciseFeedback | undefined}
-     */
-    static from_jstring(s) {
-        const ptr0 = passStringToWasm0(s, wasm.__wbindgen_export_0, wasm.__wbindgen_export_1);
-        const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.exercisefeedback_from_jstring(ptr0, len0);
-        return ret === 0 ? undefined : ExerciseFeedback.__wrap(ret);
-    }
-    /**
-     * @returns {string | undefined}
-     */
-    to_jstring() {
-        try {
-            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            wasm.exercisefeedback_to_jstring(retptr, this.__wbg_ptr);
-            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
-            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
-            let v1;
-            if (r0 !== 0) {
-                v1 = getStringFromWasm0(r0, r1).slice();
-                wasm.__wbindgen_export_3(r0, r1 * 1, 1);
-            }
-            return v1;
-        } finally {
-            wasm.__wbindgen_add_to_stack_pointer(16);
-        }
-    }
-}
 
 const FTMLMountHandleFinalization = (typeof FinalizationRegistry === 'undefined')
     ? { register: () => {}, unregister: () => {} }
@@ -737,6 +678,103 @@ export class LeptosContext {
     }
 }
 
+const ProblemFeedbackFinalization = (typeof FinalizationRegistry === 'undefined')
+    ? { register: () => {}, unregister: () => {} }
+    : new FinalizationRegistry(ptr => wasm.__wbg_problemfeedback_free(ptr >>> 0, 1));
+
+export class ProblemFeedback {
+
+    static __wrap(ptr) {
+        ptr = ptr >>> 0;
+        const obj = Object.create(ProblemFeedback.prototype);
+        obj.__wbg_ptr = ptr;
+        ProblemFeedbackFinalization.register(obj, obj.__wbg_ptr, obj);
+        return obj;
+    }
+
+    __destroy_into_raw() {
+        const ptr = this.__wbg_ptr;
+        this.__wbg_ptr = 0;
+        ProblemFeedbackFinalization.unregister(this);
+        return ptr;
+    }
+
+    free() {
+        const ptr = this.__destroy_into_raw();
+        wasm.__wbg_problemfeedback_free(ptr, 0);
+    }
+    /**
+     * @returns {boolean}
+     */
+    get correct() {
+        const ret = wasm.__wbg_get_problemfeedback_correct(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * @param {boolean} arg0
+     */
+    set correct(arg0) {
+        wasm.__wbg_set_problemfeedback_correct(this.__wbg_ptr, arg0);
+    }
+    /**
+     * @returns {number}
+     */
+    get score_fraction() {
+        const ret = wasm.__wbg_get_problemfeedback_score_fraction(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * @param {number} arg0
+     */
+    set score_fraction(arg0) {
+        wasm.__wbg_set_problemfeedback_score_fraction(this.__wbg_ptr, arg0);
+    }
+    /**
+     * @param {string} s
+     * @returns {ProblemFeedback | undefined}
+     */
+    static from_jstring(s) {
+        const ptr0 = passStringToWasm0(s, wasm.__wbindgen_export_0, wasm.__wbindgen_export_1);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.problemfeedback_from_jstring(ptr0, len0);
+        return ret === 0 ? undefined : ProblemFeedback.__wrap(ret);
+    }
+    /**
+     * @returns {string | undefined}
+     */
+    to_jstring() {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.problemfeedback_to_jstring(retptr, this.__wbg_ptr);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            let v1;
+            if (r0 !== 0) {
+                v1 = getStringFromWasm0(r0, r1).slice();
+                wasm.__wbindgen_export_3(r0, r1 * 1, 1);
+            }
+            return v1;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+     * @param {ProblemFeedbackJson} arg0
+     * @returns {ProblemFeedback}
+     */
+    static from_json(arg0) {
+        const ret = wasm.problemfeedback_from_json(addHeapObject(arg0));
+        return ProblemFeedback.__wrap(ret);
+    }
+    /**
+     * @returns {ProblemFeedbackJson}
+     */
+    to_json() {
+        const ret = wasm.problemfeedback_to_json(this.__wbg_ptr);
+        return takeObject(ret);
+    }
+}
+
 const SolutionsFinalization = (typeof FinalizationRegistry === 'undefined')
     ? { register: () => {}, unregister: () => {} }
     : new FinalizationRegistry(ptr => wasm.__wbg_solutions_free(ptr >>> 0, 1));
@@ -792,13 +830,39 @@ export class Solutions {
         }
     }
     /**
-     * @param {ExerciseResponse} response
-     * @returns {ExerciseFeedback | undefined}
+     * @param {SolutionData[]} solutions
+     * @returns {Solutions}
+     */
+    static from_solutions(solutions) {
+        const ptr0 = passArrayJsValueToWasm0(solutions, wasm.__wbindgen_export_0);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.solutions_from_solutions(ptr0, len0);
+        return Solutions.__wrap(ret);
+    }
+    /**
+     * @returns {SolutionData[]}
+     */
+    to_solutions() {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.solutions_to_solutions(retptr, this.__wbg_ptr);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var v1 = getArrayJsValueFromWasm0(r0, r1).slice();
+            wasm.__wbindgen_export_3(r0, r1 * 4, 4);
+            return v1;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+     * @param {ProblemResponse} response
+     * @returns {ProblemFeedback | undefined}
      */
     check_response(response) {
         try {
             const ret = wasm.solutions_check_response(this.__wbg_ptr, addBorrowedObject(response));
-            return ret === 0 ? undefined : ExerciseFeedback.__wrap(ret);
+            return ret === 0 ? undefined : ProblemFeedback.__wrap(ret);
         } finally {
             heap[stack_pointer++] = undefined;
         }
@@ -1201,6 +1265,14 @@ export function __wbg_includes_937486a108ec147b(arg0, arg1, arg2) {
     return ret;
 };
 
+export function __wbg_innerHTML_e1553352fe93921a(arg0, arg1) {
+    const ret = getObject(arg1).innerHTML;
+    const ptr1 = passStringToWasm0(ret, wasm.__wbindgen_export_0, wasm.__wbindgen_export_1);
+    const len1 = WASM_VECTOR_LEN;
+    getDataViewMemory0().setInt32(arg0 + 4 * 1, len1, true);
+    getDataViewMemory0().setInt32(arg0 + 4 * 0, ptr1, true);
+};
+
 export function __wbg_innerHeight_05f4225d754a7929() { return handleError(function (arg0) {
     const ret = getObject(arg0).innerHeight;
     return addHeapObject(ret);
@@ -1486,7 +1558,7 @@ export function __wbg_new_23a2665fac83c611(arg0, arg1) {
             const a = state0.a;
             state0.a = 0;
             try {
-                return __wbg_adapter_448(a, state0.b, arg0, arg1);
+                return __wbg_adapter_452(a, state0.b, arg0, arg1);
             } finally {
                 state0.a = a;
             }
@@ -1915,11 +1987,6 @@ export function __wbg_y_be10a4f665290032(arg0) {
     return ret;
 };
 
-export function __wbindgen_as_number(arg0) {
-    const ret = +getObject(arg0);
-    return ret;
-};
-
 export function __wbindgen_bigint_from_i64(arg0) {
     const ret = arg0;
     return addHeapObject(ret);
@@ -1953,33 +2020,33 @@ export function __wbindgen_cb_drop(arg0) {
     return ret;
 };
 
-export function __wbindgen_closure_wrapper14808(arg0, arg1, arg2) {
-    const ret = makeMutClosure(arg0, arg1, 3178, __wbg_adapter_58);
+export function __wbindgen_closure_wrapper14076(arg0, arg1, arg2) {
+    const ret = makeMutClosure(arg0, arg1, 1484, __wbg_adapter_56);
     return addHeapObject(ret);
 };
 
-export function __wbindgen_closure_wrapper18038(arg0, arg1, arg2) {
-    const ret = makeClosure(arg0, arg1, 4307, __wbg_adapter_61);
+export function __wbindgen_closure_wrapper17971(arg0, arg1, arg2) {
+    const ret = makeClosure(arg0, arg1, 4303, __wbg_adapter_59);
     return addHeapObject(ret);
 };
 
-export function __wbindgen_closure_wrapper21730(arg0, arg1, arg2) {
-    const ret = makeMutClosure(arg0, arg1, 4719, __wbg_adapter_64);
+export function __wbindgen_closure_wrapper21663(arg0, arg1, arg2) {
+    const ret = makeMutClosure(arg0, arg1, 4715, __wbg_adapter_62);
     return addHeapObject(ret);
 };
 
-export function __wbindgen_closure_wrapper21732(arg0, arg1, arg2) {
-    const ret = makeMutClosure(arg0, arg1, 4719, __wbg_adapter_67);
+export function __wbindgen_closure_wrapper21665(arg0, arg1, arg2) {
+    const ret = makeMutClosure(arg0, arg1, 4715, __wbg_adapter_65);
     return addHeapObject(ret);
 };
 
-export function __wbindgen_closure_wrapper21963(arg0, arg1, arg2) {
-    const ret = makeMutClosure(arg0, arg1, 4762, __wbg_adapter_70);
+export function __wbindgen_closure_wrapper21896(arg0, arg1, arg2) {
+    const ret = makeMutClosure(arg0, arg1, 4758, __wbg_adapter_68);
     return addHeapObject(ret);
 };
 
-export function __wbindgen_closure_wrapper24224(arg0, arg1, arg2) {
-    const ret = makeMutClosure(arg0, arg1, 4801, __wbg_adapter_73);
+export function __wbindgen_closure_wrapper24158(arg0, arg1, arg2) {
+    const ret = makeMutClosure(arg0, arg1, 4797, __wbg_adapter_71);
     return addHeapObject(ret);
 };
 
