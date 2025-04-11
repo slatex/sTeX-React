@@ -62,9 +62,9 @@ export interface FTMLConfig {
    */
   onSlide?: (uri: FTML.DocumentElementURI) => ((ch: ReactNode) => ReactNode) | undefined;
   /**
-   * How to handle exercises
+   * How to handle problems
    */
-  exercises?: FTMLT.ExerciseConfig;
+  problems?: FTMLT.ProblemConfig;
 }
 
 /**
@@ -127,7 +127,7 @@ export const FTMLDocument: React.FC<FTMLDocumentArgs> = (args) => {
   const context = useContext(FTMLContext);
 
   useEffect(() => {
-    if (!mountRef.current) return;
+    if (mountRef.current === null) return;
     const cont = context ? context.wasm_clone() : context;
     const handle = FTMLT.renderDocument(
       mountRef.current,
@@ -183,7 +183,10 @@ export const FTMLFragment: React.FC<FTMLFragmentArgs> = (args) => {
   );
 };
 
-const ElemToReact: React.FC<{ elems: ChildNode[]; ctx: FTML.LeptosContext }> = ({ elems, ctx }) => {
+const ElemToReact: React.FC<{
+  elems: ChildNode[];
+  ctx: FTML.LeptosContext;
+}> = ({ elems, ctx }) => {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (ref.current) {
@@ -263,6 +266,6 @@ function toConfig(
     onSectionTitle: onSectionTitle,
     onParagraph: onParagraph,
     onSlide: onSlide,
-    exercises: config.exercises,
+    problems: config.problems,
   };
 }

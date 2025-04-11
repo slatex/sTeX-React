@@ -40,6 +40,11 @@ export function getServerUrl(): string {
  */
 export interface FTMLConfig {
   /**
+   * whether to allow hovers
+   */
+  allowHovers?: boolean;
+
+  /**
    * callback for wrapping sections
    */
   onSection?: (
@@ -69,19 +74,19 @@ export interface FTMLConfig {
    */
   onSlide?: (uri: FTML.DocumentElementURI) => FTML.LeptosContinuation | undefined;
   /**
-   * configuration for exercises
+   * configuration for problems
    */
-  exercises?: ExerciseConfig;
+  problems?: ProblemConfig;
 }
 
 /**
- * What to do with exercises?
+ * What to do with problems?
  */
-export type ExerciseConfig =
+export type ProblemConfig =
   /**
    * use existent feedback
    */
-  | [FTML.DocumentElementURI, FTML.ExerciseFeedback][]
+  | [FTML.DocumentElementURI, FTML.ProblemFeedback][]
   /**
    * use existent solutions
    */
@@ -89,7 +94,7 @@ export type ExerciseConfig =
   /**
    * call this function whenever user response changes
    */
-  | ((response: FTML.ExerciseResponse) => void);
+  | ((response: FTML.ProblemResponse) => void);
 
 /**
  * sets up a leptos context for rendering FTML documents or fragments.
@@ -109,17 +114,18 @@ export function ftmlSetup(
   then: FTML.LeptosContinuation,
   cfg?: FTMLConfig
 ): FTML.FTMLMountHandle {
-  const [exOpt, onExercise] = splitExerciseOptions(cfg);
+  const [exOpt, onProblem] = splitProblemOptions(cfg);
   return FTML.ftml_setup(
     to,
     then,
+    cfg?.allowHovers,
     cfg?.onSection,
     cfg?.onSectionTitle,
     cfg?.onParagraph,
     cfg?.onInputref,
     cfg?.onSlide,
     exOpt,
-    onExercise
+    onProblem
   );
 }
 
@@ -138,18 +144,19 @@ export function renderDocument(
   context?: FTML.LeptosContext,
   cfg?: FTMLConfig
 ): FTML.FTMLMountHandle {
-  const [exOpt, onExercise] = splitExerciseOptions(cfg);
+  const [exOpt, onProblem] = splitProblemOptions(cfg);
   return FTML.render_document(
     to,
     document,
     context,
+    cfg?.allowHovers,
     cfg?.onSection,
     cfg?.onSectionTitle,
     cfg?.onParagraph,
     cfg?.onInputref,
     cfg?.onSlide,
     exOpt,
-    onExercise
+    onProblem
   );
 }
 
@@ -168,40 +175,43 @@ export function renderFragment(
   context?: FTML.LeptosContext,
   cfg?: FTMLConfig
 ): FTML.FTMLMountHandle {
-  const [exOpt, onExercise] = splitExerciseOptions(cfg);
+  const [exOpt, onProblem] = splitProblemOptions(cfg);
   return FTML.render_fragment(
     to,
     fragment,
     context,
+    cfg?.allowHovers,
     cfg?.onSection,
     cfg?.onSectionTitle,
     cfg?.onParagraph,
     cfg?.onInputref,
     cfg?.onSlide,
     exOpt,
-    onExercise
+    onProblem
   );
 }
 
-function splitExerciseOptions(
+function splitProblemOptions(
   cfg?: FTMLConfig
-): [FTML.ExerciseOption | undefined, ((response: FTML.ExerciseResponse) => void) | undefined] {
-  let exOpt: FTML.ExerciseOption | undefined = undefined;
-  let onExercise: ((response: FTML.ExerciseResponse) => void) | undefined = undefined;
-  if (cfg?.exercises) {
-    if (Array.isArray(cfg.exercises)) {
-      if (cfg.exercises.length > 0) {
-        if (cfg.exercises[0][1] instanceof FTML.ExerciseFeedback) {
+): [FTML.ProblemOption | undefined, ((response: FTML.ProblemResponse) => void) | undefined] {
+  let exOpt: FTML.ProblemOption | undefined = undefined;
+  let onProblem: ((response: FTML.ProblemResponse) => void) | undefined = undefined;
+  if (cfg?.problems) {
+    if (Array.isArray(cfg.problems)) {
+      if (cfg.problems.length > 0) {
+        if (cfg.problems[0][1] instanceof FTML.ProblemFeedback) {
           exOpt = {
-            WithFeedback: <[FTML.DocumentElementURI, FTML.ExerciseFeedback][]>cfg.exercises,
+            WithFeedback: <[FTML.DocumentElementURI, FTML.ProblemFeedback][]>cfg.problems,
           };
         } else {
-          exOpt = { WithSolutions: <[FTML.DocumentElementURI, FTML.Solutions][]>cfg.exercises };
+          exOpt = {
+            WithSolutions: <[FTML.DocumentElementURI, FTML.Solutions][]>cfg.problems,
+          };
         }
       }
     } else {
-      onExercise = cfg.exercises;
+      onProblem = cfg.problems;
     }
   }
-  return [exOpt, onExercise];
+  return [exOpt, onProblem];
 }
