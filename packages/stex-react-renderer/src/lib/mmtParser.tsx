@@ -12,7 +12,7 @@ import {
   lastFileNode,
   reportEvent,
 } from '@stex-react/api';
-import { PROBLEM_PARSED_MARKER, getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
+import { PROBLEM_PARSED_MARKER } from '@stex-react/quiz-utils';
 import {
   IS_MMT_VIEWER,
   XhtmlContentUrl,
@@ -22,7 +22,6 @@ import {
 } from '@stex-react/utils';
 //import CodeMirror from '@uiw/react-codemirror';
 import axios from 'axios';
-import { getOuterHTML } from 'domutils';
 import parse, { DOMNode, Element, domToReact } from 'html-react-parser';
 import { ElementType } from 'htmlparser2';
 import {
@@ -42,7 +41,6 @@ import { DisplayContext, DisplayReason } from './ContentWithHightlight';
 import { ErrorBoundary } from './ErrorBoundary';
 import { ExpandableContent, ExpandableStaticContent } from './ExpandableContent';
 import { DocSectionContext } from './InfoSidebar';
-import { InlineProblemDisplay } from './InlineProblemDisplay';
 import MathJaxHack from './MathJaxHack';
 import { MathMLDisplay } from './MathMLDisplay';
 import { OverlayDialog, isHoverON } from './OverlayDialog';
@@ -701,8 +699,7 @@ export const replace = (d: DOMNode): any => {
   const isProblem = domNode.attribs?.['data-problem'] === 'true';
   const problemProcessed = domNode.attribs?.[PROBLEM_PARSED_MARKER];
   if (isProblem && !problemProcessed) {
-    const problem = getProblem(hackAwayProblemId(getOuterHTML(domNode)), '');
-    return <InlineProblemDisplay problem={problem} />;
+    return <></>;
   }
 
   if (!IS_MMT_VIEWER && !localStore?.getItem('no-responsive')) {

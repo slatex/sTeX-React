@@ -2,6 +2,7 @@ import {
   AnswerClass,
   FillInAnswerClass,
   FillInAnswerClassType,
+  FTMLProblemWithSolution,
   Input,
   InputType,
   Option,
@@ -9,13 +10,12 @@ import {
   Problem,
   ProblemResponse,
   QuadState,
-  Quiz,
+  QuizWithStatus,
   SubProblemData,
   Tristate,
 } from '@stex-react/api';
 import { getMMTCustomId, truncateString } from '@stex-react/utils';
-import { DomHandler, DomUtils, Parser, parseDocument } from 'htmlparser2';
-
+import { DomUtils, parseDocument } from 'htmlparser2';
 
 // Hack: Fix this properly later
 //import { ChildNode, Document, Element1 } from 'domhandler';
@@ -140,43 +140,20 @@ function mcqCorrectnessQuotient(options?: Option[], multiOptionIdx?: { [index: n
   }
 }
 
-export function getPoints(problem: Problem, response?: ProblemResponse) {
+export function getPoints(problem: FTMLProblemWithSolution, response?: ProblemResponse) {
   if (!response) return 0;
-  const perInputCorrectnessQuotient: number[] = problem.inputs
-    .map((input, idx) => {
-      const resp = response?.autogradableResponses?.[idx];
-      const { type, fillInAnswerClasses, options } = input;
-      if (type !== input.type) {
-        console.error(`Input [${idx}] (${type}) has unexpected response: ${resp.type}`);
-        return NaN;
-      }
-      if (input.ignoreForScoring) return null;
-      if (input.type === InputType.FILL_IN) {
-        return fillInCorrectnessQuotient(fillInAnswerClasses, resp.filledInAnswer);
-      } else if (input.type === InputType.MCQ) {
-        return mcqCorrectnessQuotient(options, resp.multipleOptionIdxs);
-      } else if (input.type === InputType.SCQ) {
-        return scqCorrectnessQuotient(options, resp.singleOptionIdx);
-      } else {
-        console.error(`Unknown input type: ${input.type}`);
-        return NaN;
-      }
-    })
-    .filter((v) => v !== null) as number[];
-
-  const numGradable = perInputCorrectnessQuotient.length;
-  if (numGradable === 0) return 0;
-  if (perInputCorrectnessQuotient.some((s) => isNaN(s))) return undefined;
-  const totalCorrect = perInputCorrectnessQuotient.reduce((s, a) => s + a, 0);
-
-  return (problem.points * totalCorrect) / numGradable;
+  if (!problem?.solution) return NaN;
+  //TODO alea4 const s = Solutions.from_jstring(problem.solution);
+  //const fraction = s?.check_response(response)?.score_fraction;
+  return 0; //fraction ? fraction * problem.problem.total_points : NaN;
 }
 
 function recursivelyFindNodes(
   node: Document | (ChildNode & Element1),
   attrNames: string[]
 ): { node: Element1; attrName: string; attrVal: any }[] {
-  if (node?.attribs) { // node instanceof Element1
+  if (node?.attribs) {
+    // node instanceof Element1
     for (const attrName of attrNames) {
       const attrVal = node.attribs[attrName];
       if (attrVal || attrVal === '') return [{ node, attrName, attrVal }];
@@ -186,7 +163,8 @@ function recursivelyFindNodes(
   const children = node.childNodes;
   for (const child of children || []) {
     //const child = children.item(i);
-    if (child?.attribs) { // child instanceof Element1
+    if (child?.attribs) {
+      // child instanceof Element1
       const subFoundList = recursivelyFindNodes(child, attrNames);
       if (subFoundList?.length) foundList.push(...subFoundList);
     }
@@ -195,7 +173,8 @@ function recursivelyFindNodes(
 }
 
 function removeNodeWithAttrib(node: (ChildNode & Element1) | Document, attrNames: string[]) {
-  if (node?.attribs) { // node instanceof Element1
+  if (node?.attribs) {
+    // node instanceof Element1
     for (const attrName of attrNames) {
       const attrVal = node.attribs[attrName];
       if (attrVal) {
@@ -206,7 +185,8 @@ function removeNodeWithAttrib(node: (ChildNode & Element1) | Document, attrNames
 
   for (const child of node.childNodes ?? []) {
     // const child = children.item(i);
-    if (child?.attribs) { //child instanceof Element1) 
+    if (child?.attribs) {
+      //child instanceof Element1)
       removeNodeWithAttrib(child, attrNames);
     }
   }
@@ -453,7 +433,7 @@ export function getProblem(htmlStr: string, problemUrl = '') {
   return problem;
 }
 
-export function getQuizPhase(q: Quiz) {
+export function getQuizPhase(q: QuizWithStatus) {
   if (q.manuallySetPhase && q.manuallySetPhase !== Phase.UNSET) {
     return q.manuallySetPhase;
   }
@@ -467,61 +447,6 @@ export function getQuizPhase(q: Quiz) {
 export function hackAwayProblemId(quizHtml: string) {
   if (!quizHtml) return quizHtml;
   return quizHtml.replace('Problem 0.1', '').replace('Aufgabe 0.1', '');
-}
-
-const ANSWER_ATTRIBS_TO_REDACT = ['data-problem-sc', 'data-problem-mc'];
-
-const ATTRIBS_TO_REMOVE = [
-  'data-overlay-link-click',
-  'data-overlay-link-hover',
-  'data-highlight-parent',
-];
-
-const ATTRIBS_OF_ANSWER_ELEMENTS = ['data-problem-sc-solution', 'data-problem-mc-solution'];
-
-const ATTRIBS_OF_PARENTS_OF_ANSWER_ELEMENTS = ['data-problem-fillinsol'];
-
-export function removeAnswerInfo(problem: string) {
-  const handler = new DomHandler();
-  const parser = new Parser(handler);
-  parser.write(problem);
-  parser.end();
-
-  // Traverse and modify the parsed DOM to remove nodes with 'solution' attribute
-  const traverse = (node: any) => {
-    if (node.attribs) {
-      for (const attrib of ATTRIBS_OF_ANSWER_ELEMENTS) {
-        // Skip this node and its children
-        if (node.attribs[attrib]) return null;
-      }
-      const classNames = node.attribs['class'];
-      if (classNames?.includes('symcomp')) {
-        node.attribs['class'] = classNames.replace('symcomp', ' ');
-      }
-
-      for (const attrib of ANSWER_ATTRIBS_TO_REDACT) {
-        if (node.attribs[attrib]) node.attribs[attrib] = 'REDACTED';
-      }
-      for (const attrib of ATTRIBS_TO_REMOVE) {
-        if (node.attribs[attrib]) delete node.attribs[attrib];
-      }
-    }
-    const removeChildren = ATTRIBS_OF_PARENTS_OF_ANSWER_ELEMENTS.some(
-      (attrib) => node.attribs?.[attrib]
-    );
-    if (removeChildren) {
-      node.children = [];
-      return node;
-    }
-
-    // Recursively traverse and process children
-    node.children = node.children?.map(traverse).filter(Boolean);
-    return node;
-  };
-
-  const modifiedDom = handler.dom.map((n) => traverse(n)).filter(Boolean);
-  // Convert the modified DOM back to HTML
-  return DomUtils.getOuterHTML(modifiedDom);
 }
 
 export const DEFAULT_ANSWER_CLASSES: Readonly<AnswerClass[]> = [

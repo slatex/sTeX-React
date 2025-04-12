@@ -1,13 +1,13 @@
 import axios, { AxiosError } from 'axios';
+import { ProblemResponse } from './ftml-viewer-base';
 import { getAuthHeaders } from './lmp';
 import {
   GetPreviousQuizInfoResponse,
   GetQuizResponse,
   InsertAnswerRequest,
-  ProblemResponse,
-  Quiz,
   QuizStatsResponse,
   QuizStubInfo,
+  QuizWithStatus,
 } from './quiz';
 
 export async function insertQuizResponse(
@@ -18,7 +18,7 @@ export async function insertQuizResponse(
   const req: InsertAnswerRequest = {
     quizId,
     problemId,
-    responses: r.autogradableResponses,
+    responses: r,
     browserTimestamp_ms: Date.now(),
   };
   try {
@@ -59,22 +59,26 @@ export async function getQuizStats(quizId: string, courseId: string, courseTerm:
   return resp.data as QuizStatsResponse;
 }
 
-export async function createQuiz(quiz: Quiz) {
+export async function createQuiz(quiz: QuizWithStatus) {
   return await axios.post('/api/quiz/create-quiz', quiz, {
     headers: getAuthHeaders(),
   });
 }
 
-export async function updateQuiz(quiz: Quiz) {
+export async function updateQuiz(quiz: QuizWithStatus) {
   return await axios.post('/api/quiz/update-quiz', quiz, {
     headers: getAuthHeaders(),
   });
 }
 
 export async function deleteQuiz(quizId: string, courseId: string, courseTerm: string) {
-  return await axios.post('/api/quiz/delete-quiz', { quizId, courseId, courseTerm}, {
-    headers: getAuthHeaders(),
-  });
+  return await axios.post(
+    '/api/quiz/delete-quiz',
+    { quizId, courseId, courseTerm },
+    {
+      headers: getAuthHeaders(),
+    }
+  );
 }
 
 export async function getCourseQuizList(courseId: string): Promise<QuizStubInfo[]> {

@@ -1,19 +1,22 @@
 import * as FTML from './ftml-viewer-base';
 
+export type ProblemResponse = FTML.ProblemResponse;
+export type ProblemResponseType = FTML.ProblemResponseType;
+export type FTMLProblem = FTML.QuizProblem;
 export type DocumentURI = FTML.DocumentURI;
 export type SymbolURI = FTML.SymbolURI;
 export type DocumentElementURI = FTML.DocumentElementURI;
 export type Name = FTML.Name;
-
-export type ExerciseResponse = FTML.ExerciseResponse;
-export type ExerciseResponseType = FTML.ExerciseResponseType;
-export type ExerciseFeedback = FTML.ExerciseFeedback;
-export type ExerciseSolutions = FTML.Solutions;
-
 export type ParagraphKind = FTML.ParagraphKind;
 export type SectionLevel = FTML.SectionLevel;
 export type CSS = FTML.CSS;
 export type TOCElem = FTML.TOCElem;
+
+/*
+export type ExerciseResponse = FTML.ExerciseResponse;
+export type ExerciseFeedback = FTML.ExerciseFeedback;
+export type ExerciseSolutions = FTML.Solutions;*/
+
 export type Institution = FTML.Institution;
 export type ArchiveIndex = FTML.ArchiveIndex;
 export type Instance = FTML.Instance;

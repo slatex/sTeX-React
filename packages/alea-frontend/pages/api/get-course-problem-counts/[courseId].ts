@@ -58,7 +58,7 @@ function getAllSectionInfo(node: SectionsAPIData, ancestors: SectionsAPIData[]) 
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const courseId = req.query.courseId as string;
-  let counts = getCachedCourseProblemCounts(courseId);
+  const counts = getCachedCourseProblemCounts(courseId);
 
   if (!counts) {
     const courseInfo = (await getCourseInfo())[courseId];

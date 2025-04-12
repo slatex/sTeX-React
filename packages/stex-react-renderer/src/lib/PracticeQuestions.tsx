@@ -1,16 +1,15 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { Box, Button, IconButton, Tooltip } from '@mui/material';
+import { Box, IconButton, Tooltip } from '@mui/material';
 import LinearProgress from '@mui/material/LinearProgress';
-import { Problem, ProblemResponse, getLearningObjectShtml } from '@stex-react/api';
-import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
+import {  FTMLProblemWithSolution, getLearningObjectShtml } from '@stex-react/api';
 import { extractProjectIdAndFilepath, sourceFileUrl } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useReducer, useState } from 'react';
-import { defaultProblemResponse } from './InlineProblemDisplay';
 import { ProblemDisplay } from './ProblemDisplay';
 import { ListStepper } from './QuizDisplay';
 import { getLocaleObject } from './lang/utils';
-import { ServerLinksContext, mmtHTMLToReact } from './stex-react-renderer';
+import { ServerLinksContext } from './stex-react-renderer';
+import { ProblemResponse } from '@stex-react/ftml-utils';
 
 function handleViewSource(problemId: string) {
   const [projectId, filePath] = extractProjectIdAndFilepath(problemId);
@@ -37,7 +36,7 @@ export function PracticeQuestions({
 }) {
   const t = getLocaleObject(useRouter()).quiz;
   const { mmtUrl } = useContext(ServerLinksContext);
-  const [problems, setProblems] = useState<Problem[]>([]);
+  const [problems, setProblems] = useState<FTMLProblemWithSolution[]>([]);
   const [isLoadingProblems, setIsLoadingProblems] = useState<boolean>(true);
   const [responses, setResponses] = useState<ProblemResponse[]>([]);
   const [problemIdx, setProblemIdx] = useState(0);
@@ -49,9 +48,9 @@ export function PracticeQuestions({
     const problems$ = problemIds.map((p) => getLearningObjectShtml(mmtUrl, p));
     setIsLoadingProblems(true);
     Promise.all(problems$).then((problemStrs) => {
-      const problems = problemStrs.map((p) => getProblem(hackAwayProblemId(p), ''));
-      setProblems(problems);
-      setResponses(problems.map((p) => defaultProblemResponse(p)));
+      // TODO alea4 const problems = problemStrs.map((p) => getProblem(hackAwayProblemId(p), ''));
+      // setProblems(problems);
+      // setResponses(problems.map((p) => defaultProblemResponse(p)));
       setIsFrozen(problems.map(() => false));
       setIsLoadingProblems(false);
     });
@@ -62,7 +61,7 @@ export function PracticeQuestions({
 
   const problem = problems[problemIdx];
   const response = responses[problemIdx];
-  const subProblems = problems[problemIdx]?.subProblemData;
+  // TODO alea4 const subProblems = problems[problemIdx]?.subProblemData;
 
   if (!problem || !response) return <>error</>;
 
@@ -84,7 +83,7 @@ export function PracticeQuestions({
           ) : (
             <SourceIcon problemId={problemIds[problemIdx]} />
           )}
-          {problem.header && <>({mmtHTMLToReact(problem.header)})</>}
+          {/* TODO alea4 problem.header && <>({mmtHTMLToReact(problem.header)})</>}*/}
         </h2>
       </Box>
       {problems.length > 1 && (
@@ -129,16 +128,16 @@ export function PracticeQuestions({
         mb={2}
         sx={{ display: 'flex', gap: '10px', flexDirection: 'column', alignItems: 'flex-start' }}
       >
-        {subProblems?.length > 0 && (
+        {/* TODO alea4 subProblems?.length > 0 && (
           <Button variant="contained" onClick={() => setShowSolution(!showSolution)}>
             {showSolution ? t.hideSolution : t.showSolution}
           </Button>
-        )}
+        )}*/}
         {showSolution && (
           <Box mb="10px">
-            {subProblems.map((p) => (
+            {/* TODO alea4 subProblems.map((p) => (
               <div style={{ color: '#555' }}>{mmtHTMLToReact(p.solution)}</div>
-            ))}
+            ))*/}
           </Box>
         )}
       </Box>

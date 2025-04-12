@@ -4,12 +4,13 @@ import {
   canAccessResource,
   createQuiz,
   deleteQuiz,
+  FTMLProblemWithSolution,
   getAuthHeaders,
   getCourseInfo,
   getQuizStats,
   Phase,
-  Quiz,
   QuizStatsResponse,
+  QuizWithStatus,
   updateQuiz,
 } from '@stex-react/api';
 import { getQuizPhase } from '@stex-react/quiz-utils';
@@ -34,7 +35,7 @@ function getFormErrorReason(
   quizEndTs: number,
   feedbackReleaseTs: number,
   manuallySetPhase: string,
-  problems: { [problemId: string]: string },
+  problems: Record<string, FTMLProblemWithSolution>,
   title: string
 ) {
   const phaseTimes = [quizStartTs, quizEndTs, feedbackReleaseTs].filter((ts) => ts !== 0);
@@ -80,8 +81,8 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
   const [feedbackReleaseTs, setFeedbackReleaseTs] = useState<number>(roundToMinutes(Date.now()));
   const [courseTerm, setCourseTerm] = useState<string>(CURRENT_TERM);
   const [manuallySetPhase, setManuallySetPhase] = useState<string>(Phase.UNSET);
-  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
-  const [problems, setProblems] = useState<{ [problemId: string]: string }>({});
+  const [quizzes, setQuizzes] = useState<QuizWithStatus[]>([]);
+  const [problems, setProblems] = useState<Record<string, FTMLProblemWithSolution>>({});
   const [stats, setStats] = useState<QuizStatsResponse>({
     attemptedHistogram: {},
     scoreHistogram: {},
@@ -112,7 +113,7 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
         headers: getAuthHeaders(),
       })
       .then((res) => {
-        const allQuizzes: Quiz[] = res.data;
+        const allQuizzes: QuizWithStatus[] = res.data;
         allQuizzes?.sort((a, b) => b.quizStartTs - a.quizStartTs);
         setQuizzes(allQuizzes);
         if (allQuizzes?.length) setSelectedQuizId(allQuizzes[0].id);
@@ -162,8 +163,6 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
     getCourseInfo().then(setCourses);
   }, [mmtUrl]);
 
-  if (!selectedQuiz && !isNew) return <>Error</>;
-
   useEffect(() => {
     async function checkHasAccessAndGetTypeOfAccess() {
       const canMutate = await canAccessResource(ResourceName.COURSE_QUIZ, Action.MUTATE, {
@@ -189,6 +188,8 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
     checkHasAccessAndGetTypeOfAccess();
   }, []);
 
+  if (!selectedQuiz && !isNew) return <>Error</>;
+
   async function handleDelete(quizId: string) {
     await deleteQuiz(quizId, courseId, courseTerm);
     setQuizzes(quizzes.filter((quiz) => quiz.id !== quizId));
@@ -201,7 +202,7 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
     <Box m="auto" maxWidth="800px" p="10px">
       {accessType == 'PREVIEW_ONLY' && (
         <Typography fontSize={16} color="red">
-          You don't have access to mutate this course Quizzes
+          You don&apos;t have access to mutate this course Quizzes
         </Typography>
       )}
       <Select value={selectedQuizId} onChange={(e) => setSelectedQuizId(e.target.value)}>
@@ -289,7 +290,7 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
               feedbackReleaseTs,
               manuallySetPhase,
               problems,
-            } as Quiz;
+            } as QuizWithStatus;
             let resp: AxiosResponse;
             try {
               resp = await (isNew ? createQuiz(quiz) : updateQuiz(quiz));

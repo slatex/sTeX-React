@@ -1,22 +1,7 @@
-import { NextPage } from 'next';
-import MainLayout from '../layouts/MainLayout';
-import {
-  AnswerResponse,
-  deleteAnswer,
-  getGradingItems,
-  getLearningObjectShtml,
-  getMyAnswers,
-  getUserInfo,
-  GradingInfo,
-  Problem,
-  ProblemResponse,
-  Tristate,
-  UserInfo,
-} from '@stex-react/api';
+import { SettingsBackupRestore } from '@mui/icons-material';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import { Dispatch, SetStateAction, useContext, useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'next/router';
+import DeleteIcon from '@mui/icons-material/Delete';
 import {
   Box,
   Button,
@@ -26,16 +11,30 @@ import {
   ListItemText,
   Typography,
 } from '@mui/material';
-import { MultiItemSelector } from '../components/nap/MultiItemsSeletctor';
-import { SettingsBackupRestore } from '@mui/icons-material';
 import {
+  AnswerResponse,
+  deleteAnswer,
+  FTMLProblemWithSolution,
+  getMyAnswers,
+  getUserInfo,
+  GradingInfo,
+  Tristate,
+  UserInfo,
+} from '@stex-react/api';
+import { ProblemResponse } from '@stex-react/ftml-utils';
+import {
+  GradingDisplay,
   mmtHTMLToReact,
   ProblemDisplay,
   ServerLinksContext,
 } from '@stex-react/stex-react-renderer';
-import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
-import { GradingDisplay } from 'packages/stex-react-renderer/src/lib/SubProblemAnswer';
-import DeleteIcon from '@mui/icons-material/Delete';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import { NextPage } from 'next';
+import { useRouter } from 'next/router';
+import { Dispatch, SetStateAction, useContext, useEffect, useMemo, useState } from 'react';
+import { MultiItemSelector } from '../components/nap/MultiItemsSeletctor';
+import MainLayout from '../layouts/MainLayout';
 const MULTI_SELECT_FIELDS = ['courseId', 'questionId', 'courseInstance'] as const;
 const ALL_SORT_FIELDS = ['courseId', 'questionTitle', 'updatedAt', 'courseInstance'] as const;
 const DEFAULT_SORT_ORDER: Record<SortField, 'ASC' | 'DESC'> = {
@@ -44,8 +43,6 @@ const DEFAULT_SORT_ORDER: Record<SortField, 'ASC' | 'DESC'> = {
   courseInstance: 'ASC',
   updatedAt: 'ASC',
 };
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
 
 type MultSelectField = (typeof MULTI_SELECT_FIELDS)[number];
 type SortField = (typeof ALL_SORT_FIELDS)[number];
@@ -120,22 +117,23 @@ function AnswerItemDisplay({
 }) {
   const { mmtUrl } = useContext(ServerLinksContext);
 
-  const [problem, setProblem] = useState<Problem>();
+  const [problem, setProblem] = useState<FTMLProblemWithSolution | undefined>();
   const [answerText, setAnswerText] = useState<ProblemResponse>();
   const [gradingInfos, setGradingInfos] = useState<GradingInfo[]>([]);
   useEffect(() => {
-    getLearningObjectShtml(mmtUrl, answer.questionId).then((p) => {
-      setProblem(getProblem(hackAwayProblemId(p), ''));
-    });
-    let answers = {};
-    for (let index = 0; index <= +answer.subProblemId; index++) {
-      answers = { ...answers, ...{ [index]: +answer.subProblemId == index ? answer.answer : '' } };
-    }
-    setAnswerText({
-      freeTextResponses: { [answer.subProblemId]: answer.answer },
-      autogradableResponses: [],
-    });
-    getGradingItems(answer.id, +answer.subProblemId).then((g) => setGradingInfos(g));
+    // TODO alea4
+    // getLearningObjectShtml(mmtUrl, answer.questionId).then((p) => {
+    //  setProblem(getProblem(hackAwayProblemId(p), ''));
+    //});
+    // let answers = {};
+    // for (let index = 0; index <= +answer.subProblemId; index++) {
+    //   answers = { ...answers, ...{ [index]: +answer.subProblemId == index ? answer.answer : '' } };
+    // }
+    // setAnswerText({
+    //   freeTextResponses: { [answer.subProblemId]: answer.answer },
+    //   autogradableResponses: [],
+    // });
+    // getGradingItems(answer.id, +answer.subProblemId).then((g) => setGradingInfos(g));
   }, [answer.questionId, mmtUrl]);
   return (
     <Box>
@@ -145,8 +143,7 @@ function AnswerItemDisplay({
         isFrozen={true}
         r={answerText}
         uri={answer.questionId}
-        onResponseUpdate={() => {}}
-        problemId={answer.questionId}
+        // problem={problem} TODO alea4
       ></ProblemDisplay>
       <Box sx={{ margin: '10px' }}>
         <span>{dayjs(answer.updatedAt).fromNow()}</span>
@@ -210,37 +207,39 @@ function AnswerItemsList({
   return (
     <Box maxHeight="50vh" overflow="scroll">
       <List disablePadding>
-        {answerItems.map(({ questionTitle, courseInstance,courseId, id, subProblemId, updatedAt }, idx) => (
-          <ListItemButton
-            key={`${questionTitle}-${id}-${idx}`}
-            onClick={(e) => onSelectItem(id)}
-            sx={{ py: 0, bgcolor: idx % 2 === 0 ? '#f0f0f0' : '#ffffff' }}
-          >
-            <ListItemText
-              primary={questionTitle ? mmtHTMLToReact(questionTitle) : id}
-              secondary={
-                <Box>
+        {answerItems.map(
+          ({ questionTitle, courseInstance, courseId, id, subProblemId, updatedAt }, idx) => (
+            <ListItemButton
+              key={`${questionTitle}-${id}-${idx}`}
+              onClick={(e) => onSelectItem(id)}
+              sx={{ py: 0, bgcolor: idx % 2 === 0 ? '#f0f0f0' : '#ffffff' }}
+            >
+              <ListItemText
+                primary={questionTitle ? mmtHTMLToReact(questionTitle) : id}
+                secondary={
                   <Box>
-                    <span>Sub problem: </span>
-                    <span>{+subProblemId + 1}</span>
+                    <Box>
+                      <span>Sub problem: </span>
+                      <span>{+subProblemId + 1}</span>
+                    </Box>
+                    <Box>
+                      <span>Answered: </span>
+                      <span>{dayjs(updatedAt).fromNow()}</span>
+                    </Box>
+                    <Box>
+                      <span>Semester: </span>
+                      <span>{courseInstance}</span>
+                    </Box>
+                    <Box>
+                      <span>Course: </span>
+                      <span>{courseId}</span>
+                    </Box>
                   </Box>
-                  <Box>
-                    <span>Answered: </span>
-                    <span>{dayjs(updatedAt).fromNow()}</span>
-                  </Box>
-                  <Box>
-                    <span>Semester: </span>
-                    <span>{courseInstance}</span>
-                  </Box>
-                  <Box>
-                    <span>Course: </span>
-                    <span>{courseId}</span>
-                  </Box>
-                </Box>
-              }
-            />
-          </ListItemButton>
-        ))}
+                }
+              />
+            </ListItemButton>
+          )
+        )}
       </List>
     </Box>
   );

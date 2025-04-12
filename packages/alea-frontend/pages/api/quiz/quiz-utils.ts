@@ -1,9 +1,9 @@
-import { Phase, Quiz } from '@stex-react/api';
+import { Phase, QuizWithStatus } from '@stex-react/api';
 import dayjs from 'dayjs';
 import fs from 'fs';
 import path from 'path';
 
-let QUIZ_CACHE: Map<string, Quiz> | undefined = undefined;
+let QUIZ_CACHE: Map<string, QuizWithStatus> | undefined = undefined;
 let QUIZ_CACHE_TS: number | undefined = undefined;
 const QUIZ_CACHE_TTL = 1000 * 10; // 10 sec
 
@@ -20,19 +20,19 @@ function refreshQuizCache() {
   console.log(
     '\n\n\nRefreshing Cache: ' + dayjs(Date.now()).format('YYYY-MM-DD HH:mm:ss')
   );
-  QUIZ_CACHE = new Map<string, Quiz>();
+  QUIZ_CACHE = new Map<string, QuizWithStatus>();
   QUIZ_CACHE_TS = Date.now();
   const quizFiles = fs.readdirSync(process.env.QUIZ_INFO_DIR);
   quizFiles.forEach((file) => {
     if (!(file.startsWith('quiz-') && file.endsWith('.json'))) return;
     const quiz = JSON.parse(
       fs.readFileSync(process.env.QUIZ_INFO_DIR + '/' + file, 'utf-8')
-    ) as Quiz;
+    ) as QuizWithStatus;
     QUIZ_CACHE.set(quiz.id, quiz);
   });
 }
 
-export function writeQuizFile(quiz: Quiz) {
+export function writeQuizFile(quiz: QuizWithStatus) {
   const filePath = getQuizFilePath(quiz.id);
   fs.writeFileSync(filePath, JSON.stringify(quiz, null, 2));
   invalidateQuizCache();
@@ -69,7 +69,7 @@ export function getQuiz(id: string) {
   return QUIZ_CACHE.get(id);
 }
 
-export function getQuizTimes(q: Quiz) {
+export function getQuizTimes(q: QuizWithStatus) {
   if (q.manuallySetPhase && q.manuallySetPhase !== Phase.UNSET) return {};
 
   const { quizStartTs, quizEndTs, feedbackReleaseTs } = q;

@@ -10,8 +10,7 @@ import { FLAMSServer } from './flams';
 import { ArchiveIndex, Institution } from './flams-types';
 import { TOCElem } from './ftml-viewer-base';
 
-const FLAMS_SERVER_URL = 'https://mathhub.info';
-const server = new FLAMSServer(FLAMS_SERVER_URL);
+const server = new FLAMSServer(process.env['NEXT_PUBLIC_FLAMS_URL']!);
 
 ///////////////////
 // :sTeX/query/problems
@@ -345,7 +344,7 @@ export async function getDefiniedaInDoc(
 ): Promise<{ conceptUri: string; definitionUri: string }[]> {
   const query = `SELECT DISTINCT ?q ?s WHERE { <${uri}> (ulo:contains|dc:hasPart)* ?q. ?q ulo:defines ?s.}`;
   const resp = await axios.post(
-    `${FLAMS_SERVER_URL}/api/backend/query`,
+    `${process.env['FLAMS_SERVER_URL']}/api/backend/query`,
     { query },
     {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

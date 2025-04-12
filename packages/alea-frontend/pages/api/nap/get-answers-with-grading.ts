@@ -1,16 +1,7 @@
-import {
-  GetAnswersWithGradingResponse,
-  GradingAnswerClass,
-  GradingInfo,
-  ProblemResponse,
-  ReviewType,
-} from '@stex-react/api';
+import { GradingAnswerClass, GradingInfo, ProblemResponse, ReviewType } from '@stex-react/api';
 import { Action, CURRENT_TERM, ResourceName } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
-import {
-  getUserIdIfAuthorizedOrSetError,
-  isUserIdAuthorizedForAny,
-} from '../access-control/resource-utils';
+import { isUserIdAuthorizedForAny } from '../access-control/resource-utils';
 import {
   checkIfQueryParameterExistOrSetError,
   executeAndEndSet500OnError,
@@ -107,19 +98,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const subProblemIdToAnswerId = convertToSubProblemIdToAnswerId(problemAnswers);
     const grades = await getAllGradingsOrSetError(subProblemIdToAnswerId, res);
     const response: ProblemResponse = {
-      autogradableResponses: [],
-      freeTextResponses: {},
+      // TODO alea4
+      uri: '',
+      responses: []
+      // freeTextResponses: {},
     };
 
     Object.entries(problemAnswers || {}).forEach(([subProblemId, answerEntry]) => {
-      response.freeTextResponses[subProblemId] = answerEntry.answer;
+      // TODO alea4
+      response.responses[subProblemId] = answerEntry.answer;
     });
-    res.send({
+    /*res.send({
       answers: response,
       subProblemIdToAnswerId,
       subProblemIdToGrades: grades,
-    } as GetAnswersWithGradingResponse);
-
+    } as GetAnswersWithGradingResponse);*/ // TODO alea4
+    res.send(undefined);
     return;
   }
 
@@ -139,12 +133,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const problemAnswers = answers[questionId];
   const response: ProblemResponse = {
-    autogradableResponses: [],
-    freeTextResponses: {},
+    uri: '',
+    responses: []
+    // TODO alea4 autogradableResponses: [],
+    //freeTextResponses: {},
   };
 
   Object.entries(problemAnswers || {}).forEach(([subProblemId, answerEntry]) => {
-    response.freeTextResponses[subProblemId] = answerEntry.answer;
+    // TODO alea4
+    response.responses[subProblemId] = answerEntry.answer;
   });
 
   const subProblemIdToAnswerId = convertToSubProblemIdToAnswerId(problemAnswers);
@@ -172,9 +169,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!isStudent) return;
   }
   if (!grades) return;
-  res.send({
+  /*res.send({
     answers: response,
     subProblemIdToAnswerId,
     subProblemIdToGrades: isInstructor ? grades : null,
-  } as GetAnswersWithGradingResponse);
+  } as GetAnswersWithGradingResponse);*/ // TODO alea4
+  res.send(undefined);
 }

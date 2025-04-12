@@ -1,5 +1,6 @@
 import { CURRENT_TERM } from '@stex-react/utils';
 import axios, { AxiosError } from 'axios';
+import { ProblemResponse } from './flams-types';
 import { HomeworkInfo } from './homework';
 import { getAuthHeaders } from './lmp';
 import {
@@ -11,7 +12,6 @@ import {
   GradingItem,
   GradingWithAnswer,
 } from './nap';
-import { ProblemResponse } from './quiz';
 
 export async function createAnswer(answer: CreateAnswerRequest) {
   try {
@@ -76,7 +76,7 @@ export async function deleteReviewRequest(id: number) {
 }
 
 export interface GetAnswersWithGradingResponse {
-  answers: ProblemResponse;
+  answers: ProblemResponse | undefined;
   subProblemIdToAnswerId: Record<string, number>;
   subProblemIdToGrades: Record<string, GradingInfo[]>; // subProblemId -> gradingInfo[]
 }

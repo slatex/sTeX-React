@@ -2,8 +2,7 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Button, IconButton, Tooltip, Typography } from '@mui/material';
 import LinearProgress from '@mui/material/LinearProgress';
 import {
-  Problem,
-  ProblemResponse,
+  FTMLProblemWithSolution,
   getLearningObjectShtml,
   getProblemIdsForFile,
 } from '@stex-react/api';
@@ -11,11 +10,11 @@ import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
 import { extractProjectIdAndFilepath, sourceFileUrl } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useReducer, useState } from 'react';
-import { defaultProblemResponse } from './InlineProblemDisplay';
 import { ProblemDisplay } from './ProblemDisplay';
 import { ListStepper } from './QuizDisplay';
 import { getLocaleObject } from './lang/utils';
 import { ServerLinksContext, mmtHTMLToReact } from './stex-react-renderer';
+import { ProblemResponse } from '@stex-react/ftml-utils';
 
 export function PerSectionQuiz({
   archive,
@@ -31,7 +30,7 @@ export function PerSectionQuiz({
   const t = getLocaleObject(useRouter()).quiz;
   const { mmtUrl } = useContext(ServerLinksContext);
   const [problemIds, setProblemIds] = useState<string[]>([]);
-  const [problems, setProblems] = useState<Problem[]>([]);
+  const [problems, setProblems] = useState<FTMLProblemWithSolution[]>([]);
   const [isLoadingProblemIds, setIsLoadingProblemIds] = useState<boolean>(true);
   const [isLoadingProblems, setIsLoadingProblems] = useState<boolean>(true);
   const [responses, setResponses] = useState<ProblemResponse[]>([]);
@@ -56,9 +55,9 @@ export function PerSectionQuiz({
     const problems$ = problemIds.map((p) => getLearningObjectShtml(mmtUrl, p));
     setIsLoadingProblems(true);
     Promise.all(problems$).then((problemStrs) => {
-      const problems = problemStrs.map((p) => getProblem(hackAwayProblemId(p), ''));
-      setProblems(problems);
-      setResponses(problems.map((p) => defaultProblemResponse(p)));
+       // TODO alea4 const problems = problemStrs.map((p) => getProblem(hackAwayProblemId(p), ''));
+      // setProblems(problems);
+      // setResponses(problems.map((p) => defaultProblemResponse(p)));
       setIsFrozen(problems.map(() => false));
       setProblemIdx(0);
       setIsLoadingProblems(false);
@@ -90,7 +89,7 @@ export function PerSectionQuiz({
 
   const problem = problems[problemIdx];
   const response = responses[problemIdx];
-  const solutions = problems[problemIdx]?.subProblemData?.map((p) => p.solution);
+  // TODO alea4 const solutions = problems[problemIdx]?.subProblemData?.map((p) => p.solution);
 
   if (!problem || !response) return <>error</>;
 
@@ -124,9 +123,9 @@ export function PerSectionQuiz({
           </Tooltip>
         </IconButton>
       </Box>
-      {problem.header && (
+      {/* TODO alea4 problem.header && (
         <div style={{ color: '#555', marginTop: '10px' }}>{mmtHTMLToReact(problem.header)}</div>
-      )}
+      )}*/}
       <Box mb="10px">
         <ProblemDisplay
           r={response}
@@ -153,16 +152,16 @@ export function PerSectionQuiz({
         mb={2}
         sx={{ display: 'flex', gap: '10px', flexDirection: 'column', alignItems: 'flex-start' }}
       >
-        {solutions?.length > 0 && (
+        {/* TODO alea4 solutions?.length > 0 && (
           <Button variant="contained" onClick={() => setShowSolution(!showSolution)}>
             {showSolution ? t.hideSolution : t.showSolution}
           </Button>
-        )}
+        )}*/}
         {showSolution && (
           <Box mb="10px">
-            {solutions.map((solution) => (
+            {/* TODO alea4 solutions.map((solution) => (
               <div style={{ color: '#555' }} dangerouslySetInnerHTML={{__html:solution}}></div>
-            ))}
+            ))*/}
           </Box>
         )}
         {showHideButton && (

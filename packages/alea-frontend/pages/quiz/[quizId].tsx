@@ -2,6 +2,7 @@ import SchoolIcon from '@mui/icons-material/School';
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import {
   canAccessResource,
+  FTMLProblemWithSolution,
   getQuiz,
   GetQuizResponse,
   getUserInfo,
@@ -102,7 +103,7 @@ const QuizPage: NextPage = () => {
   const quizId = router.query.quizId as string;
   const { quiz: q } = getLocaleObject(router);
 
-  const [problems, setProblems] = useState<{ [problemId: string]: Problem }>({});
+  const [problems, setProblems] = useState<{ [problemId: string]: FTMLProblemWithSolution }>({});
   const [finished, setFinished] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo | undefined | null>(null);
   const [quizInfo, setQuizInfo] = useState<GetQuizResponse | undefined>(undefined);
@@ -136,12 +137,7 @@ const QuizPage: NextPage = () => {
     if (!quizId) return;
     getQuiz(quizId).then((quizInfo) => {
       setQuizInfo(quizInfo);
-      const problemObj: { [problemId: string]: Problem } = {};
-      Object.keys(quizInfo.problems).map((problemId) => {
-        const html = hackAwayProblemId(quizInfo.problems[problemId]);
-        problemObj[problemId] = getProblem(html, undefined);
-      });
-      setProblems(problemObj);
+      setProblems(quizInfo.problems);
     });
   }, [quizId]);
 

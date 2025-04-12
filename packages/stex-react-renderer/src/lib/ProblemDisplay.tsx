@@ -1,29 +1,16 @@
+import { Visibility } from '@mui/icons-material';
 import CancelIcon from '@mui/icons-material/Cancel';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import {
-  Box,
-  Button,
-  Card,
-  Checkbox,
-  CircularProgress,
-  IconButton,
-  MenuItem,
-  Select,
-  TextField,
-  Typography,
-} from '@mui/material';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Radio, { RadioProps } from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
+import { Box, Button, Card, CircularProgress, IconButton, Typography } from '@mui/material';
 import {
   AnswerUpdateEntry,
   AutogradableResponse,
   BloomDimension,
+  FTMLProblemWithSolution,
   Input,
   InputType,
-  Problem,
   ProblemAnswerEvent,
-  ProblemResponse,
   QuadState,
   Tristate,
   UserInfo,
@@ -31,32 +18,14 @@ import {
   getUserInfo,
   postAnswer,
 } from '@stex-react/api';
-import {
-  getFillInFeedbackHtml,
-  getPoints,
-  isFillInInputCorrect,
-  removeAnswerInfo,
-} from '@stex-react/quiz-utils';
-
-import { Visibility } from '@mui/icons-material';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { FTMLFragment, ProblemResponse } from '@stex-react/ftml-utils';
+import { getFillInFeedbackHtml, isFillInInputCorrect } from '@stex-react/quiz-utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { getMMTHtml } from './CompetencyTable';
-import { DocumentWidthSetter } from './DocumentWidthSetter';
-import { CustomItemsContext, NoMaxWidthTooltip, mmtHTMLToReact } from './mmtParser';
+import { NoMaxWidthTooltip, mmtHTMLToReact } from './mmtParser';
 import styles from './quiz.module.scss';
-import { AnswerClassesTable, DebugMCQandSCQ, InlineScqTable } from './QuizDebug';
 import { DimIcon } from './SelfAssessmentDialog';
-import { SubProblemAnswer, getAnswerFromLocalStorage } from './SubProblemAnswer';
-
-function BpRadio(props: RadioProps) {
-  return <Radio disableRipple color="default" {...props} />;
-}
-
-function removeInfoIfNeeded(sHtml: string, isFrozen: boolean) {
-  return isFrozen ? sHtml : removeAnswerInfo(sHtml);
-}
 
 function getClassNames(isSelected: boolean, isFrozen: boolean, correctness: QuadState) {
   const shouldSelect = correctness === QuadState.TRUE;
@@ -159,10 +128,10 @@ function feedbackInfo(isFrozen: boolean, input: Input, response?: AutogradableRe
   }
 }
 
-export function PointsInfo({ points }: { points: number }) {
+export function PointsInfo({ points }: { points: number | undefined }) {
   return (
     <Typography variant="h6" sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-      <b>{points} pt</b>
+      <b>{points?? 1} pt</b>
     </Typography>
   );
 }
@@ -213,168 +182,6 @@ function FeedbackDisplay({
       <DirectFeedback isCorrect={isCorrect} feedbackHtml={feedbackHtml} />
     </>
   );
-}
-
-function inputDisplay({
-  input,
-  response,
-  isFrozen,
-  onUpdate,
-  debug,
-}: {
-  input: Input;
-  response?: AutogradableResponse;
-  isFrozen: boolean;
-  onUpdate: (value: AutogradableResponse) => void;
-  debug: boolean;
-}) {
-  const { type, inline } = input;
-  const info = feedbackInfo(isFrozen, input, response);
-  if (type === InputType.SCQ) {
-    if (inline) {
-      return (
-        <>
-          <Select
-            name="customized-select"
-            value={response?.singleOptionIdx || '-1'}
-            onChange={(e) => {
-              onUpdate({
-                type: InputType.SCQ,
-                singleOptionIdx: e.target.value,
-              } as AutogradableResponse);
-            }}
-          >
-            <MenuItem key="-1" value="-1" disabled={true}>
-              <i style={{ color: 'gray' }}>Choose</i>
-            </MenuItem>
-            {(input.options || []).map(({ optionId, value, shouldSelect }) => (
-              <MenuItem key={optionId} value={optionId}>
-                <Box
-                  display="inline"
-                  className={getDropdownClassNames(
-                    response?.singleOptionIdx === optionId,
-                    isFrozen,
-                    shouldSelect
-                  )}
-                >
-                  {value.outerHTML
-                    ? mmtHTMLToReact(removeInfoIfNeeded(value.outerHTML, isFrozen))
-                    : value.textContent}
-                </Box>
-              </MenuItem>
-            ))}
-          </Select>
-          <FeedbackDisplay inline={inline} info={info} />
-        </>
-      );
-    } else {
-      return (
-        <>
-          <RadioGroup
-            name="customized-radios"
-            value={response?.singleOptionIdx ?? ''}
-            onChange={(e) => {
-              if (isFrozen) return;
-              onUpdate({
-                type: InputType.SCQ,
-                singleOptionIdx: e.target.value,
-              } as AutogradableResponse);
-            }}
-          >
-            {(input.options || []).map(({ optionId, shouldSelect, value, feedbackHtml }) => (
-              <>
-                <FormControlLabel
-                  key={optionId}
-                  value={optionId}
-                  control={<BpRadio />}
-                  className={getClassNames(
-                    response?.singleOptionIdx === optionId,
-                    isFrozen,
-                    shouldSelect
-                  )}
-                  label={
-                    <Box display="inline">
-                      {value.outerHTML
-                        ? mmtHTMLToReact(removeInfoIfNeeded(value.outerHTML, isFrozen))
-                        : value.textContent}
-                    </Box>
-                  }
-                />
-                {debug && (
-                  <DebugMCQandSCQ feedbackHtml={feedbackHtml} shouldSelect={shouldSelect} />
-                )}
-              </>
-            ))}
-          </RadioGroup>
-          <FeedbackDisplay inline={inline} info={info} />
-        </>
-      );
-    }
-  } else if (type === InputType.FILL_IN) {
-    const setColor = isFrozen && input.fillInAnswerClasses;
-    const color = setColor ? (info?.isCorrect ? 'green' : 'red') : undefined;
-    return (
-      <Box display="inline-flex" alignItems="center">
-        <TextField
-          label="Answer"
-          value={response?.filledInAnswer}
-          onChange={(e) =>
-            onUpdate({
-              type: InputType.FILL_IN,
-              filledInAnswer: e.target.value,
-            } as AutogradableResponse)
-          }
-          disabled={isFrozen}
-          sx={{ color, minWidth: '250px' }}
-          variant="outlined"
-        />
-        <FeedbackDisplay inline={true} info={info} />
-      </Box>
-    );
-  } else if (type === InputType.MCQ) {
-    return (
-      <Box display="inline-flex" flexDirection="column" width="100%">
-        {input.options?.map(({ optionId, value, shouldSelect, feedbackHtml }) => (
-          <>
-            <FormControlLabel
-              key={optionId}
-              className={getClassNames(
-                response?.multipleOptionIdxs?.[optionId] ?? false,
-                isFrozen,
-                shouldSelect
-              )}
-              control={
-                <Checkbox
-                  checked={response?.multipleOptionIdxs?.[optionId] ?? false}
-                  onChange={(e) => {
-                    if (!response) return;
-                    if (!response.multipleOptionIdxs) {
-                      console.error('Error: multipleOptionIdxs is undefined');
-                      response.multipleOptionIdxs = {};
-                    }
-                    response.multipleOptionIdxs[optionId] = e.target.checked;
-                    onUpdate({
-                      type: InputType.MCQ,
-                      multipleOptionIdxs: response.multipleOptionIdxs,
-                    } as AutogradableResponse);
-                  }}
-                />
-              }
-              label={
-                <Box display="inline">
-                  {value.outerHTML
-                    ? mmtHTMLToReact(removeInfoIfNeeded(value.outerHTML, isFrozen))
-                    : value.textContent}
-                </Box>
-              }
-            />
-            {debug && <DebugMCQandSCQ feedbackHtml={feedbackHtml} shouldSelect={shouldSelect} />}
-          </>
-        ))}
-        <FeedbackDisplay inline={inline} info={info} />
-      </Box>
-    );
-  }
 }
 
 function toBloomDimension(key: string): BloomDimension {
@@ -502,12 +309,16 @@ function getUpdates(objectives: string, quotient: number) {
   return transformData(dimensionAndURI, quotient);
 }
 
-function handleSubmit(problem: Problem, uri: string, response: ProblemResponse, userId: string) {
-  const maxPoint = problem.points;
-  const points = getPoints(problem, response);
+function handleSubmit(
+  problem: FTMLProblemWithSolution,
+  uri: string,
+  response: ProblemResponse,
+  userId: string
+) {
+  const maxPoint = 1; // problem.points; TODO alea4
+  const points = 0; // getPoints(problem, response);
   const quotient = points ? points / maxPoint : 0;
-  const currentTime = new Date().toISOString();
-  const updates = getUpdates(problem.objectives, quotient);
+  const updates: AnswerUpdateEntry[] = []; //getUpdates(problem.objectives, quotient);
   const answerObject: ProblemAnswerEvent = {
     type: 'problem-answer',
     uri: uri.substring(0, uri.indexOf('.en')) + '.tex',
@@ -515,7 +326,7 @@ function handleSubmit(problem: Problem, uri: string, response: ProblemResponse, 
     score: points,
     'max-points': maxPoint,
     updates: updates,
-    time: currentTime,
+    time: new Date().toISOString(),
     payload: '',
     comment: ' ',
   };
@@ -531,19 +342,16 @@ export function ProblemDisplay({
   onResponseUpdate,
   onFreezeResponse,
   debug,
-  problemId = '',
-  showUnansweredProblems = true,
 }: {
   uri?: string;
-  problem: Problem | undefined;
+  problem: FTMLProblemWithSolution | undefined;
   isFrozen: boolean;
   r?: ProblemResponse;
   showPoints?: boolean;
   showUnansweredProblems?: boolean;
-  onResponseUpdate: (r: ProblemResponse) => void;
+  onResponseUpdate?: (r: ProblemResponse) => void;
   onFreezeResponse?: () => void;
   debug?: boolean;
-  problemId?: string;
 }) {
   const router = useRouter();
   const [userId, setUserId] = useState('');
@@ -555,68 +363,8 @@ export function ProblemDisplay({
     });
   }, []);
   if (!problem) return <CircularProgress />;
-  const isEffectivelyFrozen = isFrozen || !problem.inputs?.length;
-  const fillInInputs = problem.inputs?.filter((input) => input.type === InputType.FILL_IN) || [];
-  const inlineSCQInputs =
-    problem.inputs?.filter((input) => input.type === InputType.SCQ && input.inline) || [];
+  const isEffectivelyFrozen = isFrozen;
 
-  //Autogradable problem widgets
-  const apWidgets = problem.inputs.map((input, optIdx) => {
-    return inputDisplay({
-      input,
-      response: r?.autogradableResponses[optIdx],
-      isFrozen,
-      onUpdate: (resp) => {
-        if (isFrozen || !r) return;
-        r.autogradableResponses[optIdx] = resp;
-        onResponseUpdate({ ...r });
-      },
-      debug: debug ?? false,
-    });
-  });
-
-  // Non-Autogradable problem widgets
-  const napWidgets = problem.subProblemData
-    .filter((c, i) => {
-      if (showUnansweredProblems) return true;
-      return r?.freeTextResponses?.[i] !== undefined;
-    })
-    .map((c, i) => (
-      <SubProblemAnswer
-        problem={problem}
-        questionId={uri ? uri : problemId}
-        subProblemId={i.toString()}
-        subProblem={c}
-        isFrozen={isFrozen}
-        existingResponse={r?.freeTextResponses?.[i]}
-        onSaveClick={() => {
-          if (!r) return;
-          const freeTextResponses: Record<string, string> = {};
-          for (let i = 0; i < problem.subProblemData.length; i++) {
-            freeTextResponses[i.toString()] =
-              getAnswerFromLocalStorage(uri ? uri : problemId, i.toString()) ?? '';
-          }
-          saveAnswers({
-            problemId,
-            uri,
-            freeTextResponses,
-          });
-          onResponseUpdate({ ...r, freeTextResponses });
-        }}
-      ></SubProblemAnswer>
-    ));
-
-  const customItems: Record<string, any> = {};
-
-  napWidgets.forEach((widget, index) => {
-    customItems[`nap_${index}`] = widget;
-  });
-
-  apWidgets.forEach((widget, index) => {
-    customItems[`ap_${index}`] = widget;
-  });
-
-  const statement = removeInfoIfNeeded(problem.statement.outerHTML ?? '', isEffectivelyFrozen);
   async function saveAnswers({
     problemId,
     uri,
@@ -654,22 +402,19 @@ export function ProblemDisplay({
       }}
     >
       <Box fontSize="20px">
-        {showPoints && <PointsInfo points={problem.points} />}
-        <CustomItemsContext.Provider value={{ items: customItems }}>
-          <DocumentWidthSetter>{mmtHTMLToReact(statement)}</DocumentWidthSetter>
-        </CustomItemsContext.Provider>
-        {debug && (
-          <>
-            {inlineSCQInputs.map((inlineInput) => (
-              <InlineScqTable options={inlineInput?.options || []} />
-            ))}
-            {(fillInInputs || []).map((fillInInput) => (
-              <AnswerClassesTable fillInAnswerClass={fillInInput?.fillInAnswerClasses || []} />
-            ))}
-            <DimAndURIListDisplay title="Objectives" data={problem.objectives} />
-            <DimAndURIListDisplay title="Preconditions" data={problem.preconditions} />
-          </>
-        )}
+        {showPoints && <PointsInfo points={problem.problem.total_points} />}
+
+        <FTMLFragment
+          key={problem.problem.uri}
+          fragment={{ html: problem.problem.html }}
+          problems={(response) => {
+            //if (isFrozen || !response) return;
+            console.log(JSON.stringify(response));
+            //r.autogradableResponses[optIdx] = resp;
+            //onResponseUpdate?.({ ...r });
+          }}
+        />
+
         {onFreezeResponse && !isEffectivelyFrozen && r && (
           <Button
             onClick={() => {

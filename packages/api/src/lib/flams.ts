@@ -68,7 +68,7 @@ export class FLAMSServer {
     });
   }
 
-  /**
+  /** 
    * SPARQL query
    */
   async query(sparql: String): Promise<any> {

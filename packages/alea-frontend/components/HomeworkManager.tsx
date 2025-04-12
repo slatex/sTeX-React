@@ -15,6 +15,7 @@ import {
   createHomework,
   CreateHomeworkRequest,
   deleteHomework,
+  FTMLProblemWithSolution,
   getHomeworkList,
   getHomeworkStats,
   HomeworkInfo,
@@ -34,7 +35,7 @@ function timestampNow() {
 }
 
 function timestampEOD() {
-  let date = new Date();
+  const date = new Date();
   date.setHours(23, 59, 59);
   return date;
 }
@@ -44,7 +45,7 @@ const HomeworkManager = ({ courseId }) => {
   const [stats, setStats] = useState<HomeworkStatsInfo | null>(null);
   const [id, setId] = useState<number | null>(null);
   const [title, setTitle] = useState('');
-  const [problems, setProblems] = useState<Record<string, string>>({});
+  const [problems, setProblems] = useState<Record<string, FTMLProblemWithSolution>>({});
   const [givenTs, setGivenTs] = useState(timestampNow());
   const [dueTs, setDueTs] = useState(timestampEOD());
   const [feedbackReleaseTs, setFeedbackReleaseTs] = useState(timestampEOD());
@@ -82,7 +83,7 @@ const HomeworkManager = ({ courseId }) => {
   }, [view, courseId]);
 
   const handleSave = async () => {
-    let body = {
+    const body = {
       givenTs: dayjs(givenTs).format('YYYY-MM-DDTHH:mm:ssZ'),
       dueTs: dayjs(dueTs).format('YYYY-MM-DDTHH:mm:ssZ'),
       feedbackReleaseTs: dayjs(feedbackReleaseTs).format('YYYY-MM-DDTHH:mm:ssZ'),

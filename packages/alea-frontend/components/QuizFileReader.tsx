@@ -1,19 +1,25 @@
 import { Box } from '@mui/material';
-import { simpleHash } from '@stex-react/utils';
+import { FTMLProblemWithSolution } from '@stex-react/api';
+import { FTMLQuiz, FTMLQuizElement } from '@stex-react/ftml-utils';
 import React from 'react';
 
-interface QuizJson {
-  title: string;
-  problems: string[];
-}
 
-function problemsListToObjectWithId(problems: string[]) {
-  const problemObj: { [problemId: string]: string } = {};
-  for (const problem of problems) {
-    const problemId = simpleHash(problem);
-    problemObj[problemId] = problem;
+function getProblemsFromQuiz(quiz: FTMLQuiz): Record<string, FTMLProblemWithSolution> {
+  const result: Record<string, FTMLProblemWithSolution> = {};
+
+  function processQuizElement(element: FTMLQuizElement) {
+    if ('Problem' in element) {
+      const problem = element.Problem;
+      const solution = quiz.solutions[problem.uri] || '';
+      result[problem.uri] = { problem, solution };
+    } else if ('Section' in element) {
+      element.Section.elements.forEach(processQuizElement);
+    }
   }
-  return problemObj;
+
+  quiz.elements.forEach(processQuizElement);
+  console.log(result);
+  return result;
 }
 
 export function QuizFileReader({
@@ -21,7 +27,7 @@ export function QuizFileReader({
   setProblems,
 }: {
   setTitle: (title: string) => void;
-  setProblems: (problems: { [problemId: string]: string }) => void;
+  setProblems: (problems: Record<string, FTMLProblemWithSolution>) => void;
 }) {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -31,11 +37,11 @@ export function QuizFileReader({
       console.log(e.target?.result);
       const contents = e.target?.result as string;
       try {
-        const parsedJson = JSON.parse(contents) as QuizJson;
+        const parsedJson = JSON.parse(contents) as FTMLQuiz;
         console.log(parsedJson);
         // Check if the parsed content is a valid JSON object before updating the state
         if (typeof parsedJson === 'object' && parsedJson !== null) {
-          setProblems(problemsListToObjectWithId(parsedJson.problems));
+          setProblems(getProblemsFromQuiz(parsedJson));
           setTitle(parsedJson.title);
         } else {
           alert('Invalid JSON file.');

@@ -1,27 +1,24 @@
 import { Box } from '@mui/material';
 import {
-  createAnswer,
+  FTMLProblemWithSolution,
   getHomework,
   getHomeworkPhase,
   GetHomeworkResponse,
   getUserInfo,
   GradingInfo,
-  Problem,
-  ProblemResponse,
   UserInfo,
 } from '@stex-react/api';
-import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
-import { GradingContext, QuizDisplay } from '@stex-react/stex-react-renderer';
+import { GradingContext, QuizDisplay, ShowGradingFor } from '@stex-react/stex-react-renderer';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { ForceFauLogin } from '../components/ForceFAULogin';
 import MainLayout from '../layouts/MainLayout';
-import { ShowGradingFor } from 'packages/stex-react-renderer/src/lib/SubProblemAnswer';
+import { ProblemResponse } from '@stex-react/ftml-utils';
 
 const HomeworkDocPage: React.FC = () => {
   const router = useRouter();
 
-  const [problems, setProblems] = useState<{ [problemId: string]: Problem }>({});
+  const [problems, setProblems] = useState<Record<string, FTMLProblemWithSolution>>({});
   const [userInfo, setUserInfo] = useState<UserInfo | undefined | null>(null);
   const [hwInfo, setHwInfo] = useState<GetHomeworkResponse | undefined>(undefined);
 
@@ -56,12 +53,8 @@ const HomeworkDocPage: React.FC = () => {
     }
     getHomework(+id).then((hwInfo) => {
       setHwInfo(hwInfo);
-      const problemObj: { [problemId: string]: Problem } = {};
-      Object.keys(hwInfo.homework.problems).map((problemId) => {
-        const html = hackAwayProblemId(hwInfo.homework.problems[problemId]);
-        problemObj[problemId] = getProblem(html, undefined);
-      });
-      setProblems(problemObj);
+      const problemObj: { [problemId: string]: FTMLProblemWithSolution } = {};
+      setProblems(hwInfo.homework.problems);
       setResponses(hwInfo.responses);
     });
   }, [router.isReady, id]);
@@ -100,20 +93,21 @@ const HomeworkDocPage: React.FC = () => {
               existingResponses={responses}
               homeworkId={+id}
               onResponse={async (problemId, response) => {
-                for (const [idx, answer] of Object.entries(response.freeTextResponses)) {
+                /*for (const [idx, answer] of Object.entries(response.freeTextResponses)) {
                   const answerAccepted = await createAnswer({
                     homeworkId: +id,
                     questionId: problemId,
                     subProblemId: idx,
                     answer,
-                    questionTitle: problems[problemId].header,
+                    questionTitle: problems[problemId]['header'] ?? 'TODO', // TODO: fix this
                     courseId,
                   });
                   if (!answerAccepted) {
                     alert('Answers are no longer being accepted');
                     location.reload();
                   }
-                }
+                }*/
+                // TODO alea4
               }}
             />
           </GradingContext.Provider>

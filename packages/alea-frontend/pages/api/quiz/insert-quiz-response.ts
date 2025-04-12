@@ -29,10 +29,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return;
   }
 
-  const points = getPoints(getProblem(problem, undefined), {
-    autogradableResponses: responses,
-    freeTextResponses: {},
-  });
+  const points = 0; // getPoints(problem.problem, {
+  //   autogradableResponses: responses,
+  //   freeTextResponses: {},
+  // }); TODO alea4
 
   const results = await queryGradingDbAndEndSet500OnError(
     'INSERT INTO grading(userId, quizId, problemId, response, points, browserTimestamp_ms) VALUES (?, ?, ?, ?, ?, ?)',

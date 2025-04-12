@@ -1,5 +1,4 @@
 import { PerProblemStats, QuizStatsResponse } from '@stex-react/api';
-import { getProblem } from '@stex-react/quiz-utils';
 import { Action, ResourceName } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getUserIdIfAuthorizedOrSetError } from '../../access-control/resource-utils';
@@ -41,11 +40,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const quiz = getQuiz(quizId);
   const perProblemStats: { [problemKey: string]: PerProblemStats } = {};
-  for (const [problemId, problemStr] of Object.entries(quiz.problems)) {
-    const { points, header } = getProblem(problemStr, '');
+  for (const [problemId, problemWithSolution] of Object.entries(quiz.problems)) {
+    const total_points = problemWithSolution.problem.total_points;
+    const header = problemWithSolution.problem['header'] ?? 'TODO'; // TODO alea4
     perProblemStats[problemId] = {
       header,
-      maxPoints: points,
+      maxPoints: total_points,
       satisfactory: 0,
       pass: 0,
       fail: 0,

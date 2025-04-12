@@ -42,7 +42,7 @@ import {
 } from './mmtParser';
 import { DimAndURIListDisplay, ProblemDisplay, URIListDisplay } from './ProblemDisplay';
 import { GradingCreator } from './GradingCreator';
-import { GradingContext } from './SubProblemAnswer';
+import { GradingContext, GradingDisplay, ShowGradingFor } from './SubProblemAnswer';
 import { PracticeQuestions } from './PracticeQuestions';
 import { defaultProblemResponse } from './InlineProblemDisplay';
 import { PerSectionQuiz } from './PerSectionQuiz';
@@ -208,6 +208,7 @@ export {
   FixedPositionMenu,
   GradingContext,
   GradingCreator,
+  GradingDisplay,
   LayoutWithFixedMenu,
   LevelIcon,
   ListStepper,
@@ -219,6 +220,7 @@ export {
   QuizDisplay,
   SelfAssessment2,
   SelfAssessmentDialog,
+  ShowGradingFor,
   TourDisplay,
   URIListDisplay,
   defaultProblemResponse,

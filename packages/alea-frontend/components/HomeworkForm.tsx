@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
 import { getLocaleObject } from '../lang/utils';
 import { QuizFileReader } from './QuizFileReader';
+import { FTMLProblemWithSolution } from '@stex-react/api';
 
 const HomeworkForm = ({
   title,
@@ -28,8 +29,8 @@ const HomeworkForm = ({
   feedbackReleaseTs: Date;
   setFeedbackReleaseTs: (value: Date) => void;
   setTitle: (title: string) => void;
-  problems: { [problemId: string]: string };
-  setProblems: (problems: { [problemId: string]: string }) => void;
+  problems: Record<string, FTMLProblemWithSolution>;
+  setProblems: (problems: Record<string, FTMLProblemWithSolution>) => void;
   id: number | null;
   handleSave: () => void;
   resetForm: () => void;

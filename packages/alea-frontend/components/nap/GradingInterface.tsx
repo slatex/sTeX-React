@@ -7,7 +7,6 @@ import ShieldIcon from '@mui/icons-material/Shield';
 import {
   Button,
   Checkbox,
-  Chip,
   FormControlLabel,
   IconButton,
   List,
@@ -15,13 +14,13 @@ import {
   ListItemIcon,
   ListItemText,
   Switch,
-  TextField,
   Typography,
 } from '@mui/material';
 import Box from '@mui/material/Box';
 import {
   CreateAnswerClassRequest,
   createGrading,
+  FTMLProblemWithSolution,
   getAnswersWithGrading,
   getCourseGradingItems,
   getLearningObjectShtml,
@@ -29,20 +28,16 @@ import {
   GradingInfo,
   GradingItem,
   HomeworkInfo,
-  Problem,
-  ProblemResponse,
   Tristate,
 } from '@stex-react/api';
 import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
 import {
+  GradingContext,
   mmtHTMLToReact,
   ProblemDisplay,
   ServerLinksContext,
-} from '@stex-react/stex-react-renderer';
-import {
-  GradingContext,
   ShowGradingFor,
-} from 'packages/stex-react-renderer/src/lib/SubProblemAnswer';
+} from '@stex-react/stex-react-renderer';
 import {
   Dispatch,
   SetStateAction,
@@ -54,7 +49,7 @@ import {
   useState,
 } from 'react';
 import { MultiItemSelector } from './MultiItemsSeletctor';
-
+import { ProblemResponse } from '@stex-react/ftml-utils';
 const MULTI_SELECT_FIELDS = ['homeworkId', 'questionId', 'studentId'] as const;
 const ALL_SORT_FIELDS = ['homeworkDate', 'questionTitle', 'updatedAt', 'studentId'] as const;
 const DEFAULT_SORT_ORDER: Record<SortField, 'ASC' | 'DESC'> = {
@@ -78,11 +73,11 @@ function getSelectedGradingItems(
   items: GradingItem[],
   params: SortAndFilterParams,
   homeworkMap: Record<string, HomeworkInfo>,
-  questionMap: Record<string, Problem>
+  questionMap: Record<string, FTMLProblemWithSolution>
 ) {
   function getValue(item: GradingItem, field: SortField) {
     if (field === 'homeworkDate') return homeworkMap[item.homeworkId]?.givenTs;
-    if (field === 'questionTitle') return questionMap[item.questionId]?.header;
+    if (field === 'questionTitle') return item.questionId + '(TODO)'; // questionMap[item.questionId]?.problem;
     if (field === 'studentId') return item.studentId;
     if (field === 'updatedAt') return item.updatedAt;
   }
@@ -218,14 +213,18 @@ function GradingItemOrganizer({
   setSortAndFilterParams,
 }: {
   gradingItems: GradingItem[];
-  questionMap: Record<string, Problem>;
+  questionMap: Record<string, FTMLProblemWithSolution>;
   homeworkMap: Record<string, HomeworkInfo>;
   sortAndFilterParams: SortAndFilterParams;
   isPeerGrading: boolean;
   setSortAndFilterParams: Dispatch<SetStateAction<SortAndFilterParams>>;
 }) {
   const allQuestions = useMemo(
-    () => Object.entries(questionMap).map(([id, p]) => ({ value: id, title: p.header })),
+    () =>
+      Object.entries(questionMap).map(([id, p]) => ({
+        value: id,
+        title: p.problem['header'] ?? 'TODO alea4',
+      })),
     [questionMap]
   );
   const allHomeworks = useMemo(
@@ -318,7 +317,7 @@ function GradingItemsList({
     answerId: number
   ) => void;
   homeworkMap: Record<string, HomeworkInfo>;
-  problemMap: Record<string, Problem>;
+  problemMap: Record<string, FTMLProblemWithSolution>;
   isPeerGrading: boolean;
 }) {
   return (
@@ -351,8 +350,8 @@ function GradingItemsList({
               </ListItemIcon>
               <ListItemText
                 primary={
-                  problemMap[questionId]?.header
-                    ? mmtHTMLToReact(problemMap[questionId].header)
+                  problemMap[questionId]?.['header'] // TODO ale4
+                    ? mmtHTMLToReact(problemMap[questionId]?.['header'])
                     : questionId
                 }
                 secondary={
@@ -391,13 +390,15 @@ function GradingItemDisplay({
   answerId: number;
   courseId: string;
   isPeerGrading?: boolean;
-  questionMap: Record<string, Problem>;
+  questionMap: Record<string, FTMLProblemWithSolution>;
   onNextGradingItem: () => void;
   onPrevGradingItem: () => void;
 }) {
   const { mmtUrl } = useContext(ServerLinksContext);
-  const [studentResponse, setStudentResponse] = useState<ProblemResponse>(undefined);
-  const [problem, setProblem] = useState<Problem | null>(questionMap[questionId] || null);
+  const [studentResponse, setStudentResponse] = useState<ProblemResponse | undefined>(undefined);
+  const [problem, setProblem] = useState<FTMLProblemWithSolution | null>(
+    questionMap[questionId] || null
+  );
   const [subProblemIdToAnswerId, setSubProblemIdToAnswerId] = useState<Record<string, number>>({});
   const [subProblemInfoToGradingInfo, setSubProblemInfoToGradingInfo] = useState<
     Record<string, GradingInfo[]>
@@ -432,7 +433,7 @@ function GradingItemDisplay({
     const fetchProblem = async () => {
       try {
         const fetchedProblem = await fetchAndProcessProblem(questionId, mmtUrl);
-        setProblem(fetchedProblem);
+        // setProblem(fetchedProblem); TODO alea 4
       } catch (error) {
         console.error('Error fetching problem:', error);
       }
@@ -470,7 +471,7 @@ function GradingItemDisplay({
           isFrozen={true}
           r={studentResponse}
           debug={true}
-          problemId={questionId}
+          // problemId={questionId} TODO alea4
           problem={problem}
           onResponseUpdate={() => {
             console.log('onResponseUpdate');
@@ -512,7 +513,7 @@ export function GradingInterface({
   });
   const [gradingItems, setGradingItems] = useState<GradingItem[]>([]);
   const homeworkMap = useRef<Record<string, HomeworkInfo>>({});
-  const questionMap = useRef<Record<string, Problem>>({});
+  const questionMap = useRef<Record<string, FTMLProblemWithSolution>>({});
 
   const [selected, setSelected] = useState<
     { homeworkId: number; questionId: string; studentId: string; answerId: number } | undefined
@@ -538,11 +539,11 @@ export function GradingInterface({
         return acc;
       }, {} as Record<string, HomeworkInfo>);
       questionMap.current = res.homeworks.reduce((acc, c) => {
-        for (const [id, problemStr] of Object.entries(c.problems || {})) {
-          acc[id] = getProblem(problemStr);
+        for (const [id, problem] of Object.entries(c.problems || {})) {
+          acc[id] = problem;
         }
         return acc;
-      }, {} as Record<string, Problem>);
+      }, {} as Record<string, FTMLProblemWithSolution>);
     });
   }, [courseId]);
 

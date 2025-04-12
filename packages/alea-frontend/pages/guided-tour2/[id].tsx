@@ -5,7 +5,6 @@ import {
   getLearningObjects,
   getLearningObjectShtml,
   LoType,
-  ProblemResponse,
 } from '@stex-react/api';
 import { LayoutWithFixedMenu, ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { shouldUseDrawer } from '@stex-react/utils';
@@ -23,6 +22,7 @@ import {
 } from '../../constants/messages';
 import MainLayout from '../../layouts/MainLayout';
 import styles from '../../styles/guided-tour.module.scss';
+import { ProblemResponse } from '@stex-react/ftml-utils';
 
 export const structureLearningObjects = async (
   mmtUrl: string,
@@ -61,7 +61,7 @@ export const structureLearningObjects = async (
 // TODO: Split this into UserConvOptions and UserAction.
 // UserConvOptions (actionType, options, optionVerbalization ) are used to display options to the user.
 // UserAction is the actual action taken by user (chosenOption, targetConceptUri, repsonse, quotient).
-// UserAction can be outside the UserConvOptions 
+// UserAction can be outside the UserConvOptions
 // stateTransition should take UserAction as input and return UserConvOptions as output.
 export interface UserAction {
   actionType: 'problem' | 'choose-option' | 'end' | 'out-of-conversation';

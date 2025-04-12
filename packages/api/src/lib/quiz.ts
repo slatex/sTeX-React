@@ -1,3 +1,5 @@
+import { ProblemResponse, FTMLProblem, ProblemResponseType } from "./flams-types";
+
 export enum Phase {
   UNSET = 'UNSET',
   NOT_STARTED = 'NOT_STARTED',
@@ -13,7 +15,12 @@ export interface RecorrectionInfo {
   description: string;
 }
 
-export interface Quiz {
+export interface FTMLProblemWithSolution {
+  problem: FTMLProblem;
+  solution?: string;
+}
+
+export interface QuizWithStatus {
   id: string;
   version: number;
 
@@ -25,7 +32,7 @@ export interface Quiz {
   manuallySetPhase: Phase;
 
   title: string;
-  problems: { [problemId: string]: string };
+  problems: Record<string, FTMLProblemWithSolution>;
 
   recorrectionInfo?: RecorrectionInfo[];
 
@@ -124,10 +131,10 @@ export interface AutogradableResponse {
   multipleOptionIdxs?: { [index: string]: boolean };
 }
 
-export interface ProblemResponse {
-  autogradableResponses: AutogradableResponse[];
+/*export interface ProblemResponse {
+  autogradableResponses: ExerciseResponseType[];
   freeTextResponses?: Record<string, string>; // subProblemId -> response
-}
+}*/
 
 export interface PerProblemStats {
   header: string;
@@ -187,14 +194,14 @@ export interface GetQuizResponse {
 
   phase: Phase;
 
-  problems: { [problemId: string]: string };
+  problems: { [problemId: string]: FTMLProblemWithSolution };
   responses: { [problemId: string]: ProblemResponse };
 }
 
 export interface InsertAnswerRequest {
   quizId: string;
   problemId: string;
-  responses: AutogradableResponse[];
+  responses: ProblemResponse;
 
   browserTimestamp_ms: number;
 }
@@ -209,7 +216,7 @@ export interface DiligenceAndPerformanceData {
 }
 export interface UserAnonData {
   userData: { [userId: string]: DiligenceAndPerformanceData };
-  quizzes: Quiz[];
+  quizzes: QuizWithStatus[];
 }
 
 export interface QuizStubInfo {

@@ -4,6 +4,13 @@ import * as FTML from './ftml-viewer/ftml-viewer-base'; //"./ftml-viewer/ftml-vi
 import React, { ReactNode, useContext, useEffect, useRef } from 'react';
 import { FTMLContext, useLeptosTunnel, useLeptosTunnels } from './leptos';
 
+export type ProblemResponse = FTML.ProblemResponse;
+
+export type ProblemResponseType = FTML.ProblemResponseType;
+export type FTMLQuiz = FTML.Quiz;
+export type FTMLQuizElement = FTML.QuizElement;
+
+
 /**
  * sets the server url. Reexported for **emphasis**.
  */
