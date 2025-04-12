@@ -1,10 +1,10 @@
 import { Box } from '@mui/material';
 import { FTMLProblemWithSolution } from '@stex-react/api';
-import { FTMLQuiz, FTMLQuizElement } from '@stex-react/ftml-utils';
+import { Quiz, FTMLQuizElement } from '@stex-react/ftml-utils';
 import React from 'react';
 
 
-function getProblemsFromQuiz(quiz: FTMLQuiz): Record<string, FTMLProblemWithSolution> {
+function getProblemsFromQuiz(quiz: Quiz): Record<string, FTMLProblemWithSolution> {
   const result: Record<string, FTMLProblemWithSolution> = {};
 
   function processQuizElement(element: FTMLQuizElement) {
@@ -37,7 +37,7 @@ export function QuizFileReader({
       console.log(e.target?.result);
       const contents = e.target?.result as string;
       try {
-        const parsedJson = JSON.parse(contents) as FTMLQuiz;
+        const parsedJson = JSON.parse(contents) as Quiz;
         console.log(parsedJson);
         // Check if the parsed content is a valid JSON object before updating the state
         if (typeof parsedJson === 'object' && parsedJson !== null) {

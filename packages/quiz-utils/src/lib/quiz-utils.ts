@@ -14,6 +14,7 @@ import {
   SubProblemData,
   Tristate,
 } from '@stex-react/api';
+import { Solutions } from '@stex-react/ftml-utils';
 import { getMMTCustomId, truncateString } from '@stex-react/utils';
 import { DomUtils, parseDocument } from 'htmlparser2';
 
@@ -143,9 +144,9 @@ function mcqCorrectnessQuotient(options?: Option[], multiOptionIdx?: { [index: n
 export function getPoints(problem: FTMLProblemWithSolution, response?: ProblemResponse) {
   if (!response) return 0;
   if (!problem?.solution) return NaN;
-  //TODO alea4 const s = Solutions.from_jstring(problem.solution);
-  //const fraction = s?.check_response(response)?.score_fraction;
-  return 0; //fraction ? fraction * problem.problem.total_points : NaN;
+  const s = Solutions.from_jstring(problem.solution);
+  const fraction = s?.check_response(response)?.score_fraction;
+  return fraction ? fraction * (problem.problem.total_points ?? 1) : NaN;
 }
 
 function recursivelyFindNodes(
