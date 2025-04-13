@@ -354,7 +354,7 @@ export function QuizDisplay({
                 prev[problemId] = response;
                 return prev;
               });
-              if (onResponse) onResponse(problemId, response);
+              onResponse?.(problemId, response);
             }}
           />
         </Box>

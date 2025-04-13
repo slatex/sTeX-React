@@ -1,44 +1,41 @@
 import { FLAMSServer } from '@stex-react/api';
 import * as FTML from './ftml-viewer-base'; // "./ftml-viewer-base"; //
 
-const Window: { FLAMS_SERVER_URL: string } =
-  typeof window !== 'undefined'
-    ? (window as unknown as { FLAMS_SERVER_URL: string })
-    : { FLAMS_SERVER_URL: '' };
+const Window:{FLAMS_SERVER_URL:string} = typeof window !== "undefined" ? ((window as unknown) as {FLAMS_SERVER_URL:string}) : {FLAMS_SERVER_URL:""};
 
-/**
+/** 
  * Turns on debugging messages on the console
  */
-export function setDebugLog() {
-  FTML.set_debug_log();
-}
+export function setDebugLog() { FTML.set_debug_log(); }
 
-/**
+/** 
  * Get the FLAMS server used globally
  */
 export function getFlamsServer(): FLAMSServer {
   return new FLAMSServer(Window.FLAMS_SERVER_URL);
 }
 
-/**
- * Set the FLAMS server used globally
+/** 
+ * Set the FLAMS server used globally 
  */
-export function setServerUrl(s: string) {
+export function setServerUrl(s:string) {
   Window.FLAMS_SERVER_URL = s;
   FTML.set_server_url(s);
 }
 
-/**
- * Get the FLAMS server URL used globally
+/** 
+ * Get the FLAMS server URL used globally 
  */
 export function getServerUrl(): string {
   return Window.FLAMS_SERVER_URL;
 }
 
+
 /**
  * Configuration for rendering FTML content
  */
 export interface FTMLConfig {
+
   /**
    * whether to allow hovers
    */
@@ -49,21 +46,21 @@ export interface FTMLConfig {
    */
   onSection?: (
     uri: FTML.DocumentElementURI,
-    lvl: FTML.SectionLevel
+    lvl: FTML.SectionLevel,
   ) => FTML.LeptosContinuation | undefined;
   /**
    * callback for *inserting* elements immediately after a section's title
    */
   onSectionTitle?: (
     uri: FTML.DocumentElementURI,
-    lvl: FTML.SectionLevel
+    lvl: FTML.SectionLevel,
   ) => FTML.LeptosContinuation | undefined;
   /**
    * callback for wrapping logical paragraphs (Definitions, Theorems, Examples, etc.)
    */
   onParagraph?: (
     uri: FTML.DocumentElementURI,
-    kind: FTML.ParagraphKind
+    kind: FTML.ParagraphKind,
   ) => FTML.LeptosContinuation | undefined;
   /**
    * callback for wrapping inputreferences (i.e. lazily loaded document fragments)
@@ -72,29 +69,14 @@ export interface FTMLConfig {
   /**
    * callback for wrapping (beamer presentation) slides
    */
-  onSlide?: (uri: FTML.DocumentElementURI) => FTML.LeptosContinuation | undefined;
-  /**
-   * configuration for problems
-   */
-  problems?: ProblemConfig;
+  onSlide?: (
+    uri: FTML.DocumentElementURI,
+  ) => FTML.LeptosContinuation | undefined;
+  
+  problemStates?: FTML.ProblemStates | undefined,
+  onProblem?: ((response: FTML.ProblemResponse) => void) | undefined,
 }
 
-/**
- * What to do with problems?
- */
-export type ProblemConfig =
-  /**
-   * use existent feedback
-   */
-  | [FTML.DocumentElementURI, FTML.ProblemFeedback][]
-  /**
-   * use existent solutions
-   */
-  | [FTML.DocumentElementURI, FTML.Solutions][]
-  /**
-   * call this function whenever user response changes
-   */
-  | ((response: FTML.ProblemResponse) => void);
 
 /**
  * sets up a leptos context for rendering FTML documents or fragments.
@@ -112,9 +94,8 @@ export type ProblemConfig =
 export function ftmlSetup(
   to: HTMLElement,
   then: FTML.LeptosContinuation,
-  cfg?: FTMLConfig
+  cfg?: FTMLConfig,
 ): FTML.FTMLMountHandle {
-  const [exOpt, onProblem] = splitProblemOptions(cfg);
   return FTML.ftml_setup(
     to,
     then,
@@ -124,8 +105,8 @@ export function ftmlSetup(
     cfg?.onParagraph,
     cfg?.onInputref,
     cfg?.onSlide,
-    exOpt,
-    onProblem
+    cfg?.onProblem,
+    cfg?.problemStates
   );
 }
 
@@ -142,9 +123,8 @@ export function renderDocument(
   to: HTMLElement,
   document: FTML.DocumentOptions,
   context?: FTML.LeptosContext,
-  cfg?: FTMLConfig
+  cfg?: FTMLConfig,
 ): FTML.FTMLMountHandle {
-  const [exOpt, onProblem] = splitProblemOptions(cfg);
   return FTML.render_document(
     to,
     document,
@@ -155,8 +135,8 @@ export function renderDocument(
     cfg?.onParagraph,
     cfg?.onInputref,
     cfg?.onSlide,
-    exOpt,
-    onProblem
+    cfg?.onProblem,
+    cfg?.problemStates
   );
 }
 
@@ -173,9 +153,8 @@ export function renderFragment(
   to: HTMLElement,
   fragment: FTML.FragmentOptions,
   context?: FTML.LeptosContext,
-  cfg?: FTMLConfig
+  cfg?: FTMLConfig,
 ): FTML.FTMLMountHandle {
-  const [exOpt, onProblem] = splitProblemOptions(cfg);
   return FTML.render_fragment(
     to,
     fragment,
@@ -186,32 +165,7 @@ export function renderFragment(
     cfg?.onParagraph,
     cfg?.onInputref,
     cfg?.onSlide,
-    exOpt,
-    onProblem
+    cfg?.onProblem,
+    cfg?.problemStates
   );
-}
-
-function splitProblemOptions(
-  cfg?: FTMLConfig
-): [FTML.ProblemOption | undefined, ((response: FTML.ProblemResponse) => void) | undefined] {
-  let exOpt: FTML.ProblemOption | undefined = undefined;
-  let onProblem: ((response: FTML.ProblemResponse) => void) | undefined = undefined;
-  if (cfg?.problems) {
-    if (Array.isArray(cfg.problems)) {
-      if (cfg.problems.length > 0) {
-        if (cfg.problems[0][1] instanceof FTML.ProblemFeedback) {
-          exOpt = {
-            WithFeedback: <[FTML.DocumentElementURI, FTML.ProblemFeedback][]>cfg.problems,
-          };
-        } else {
-          exOpt = {
-            WithSolutions: <[FTML.DocumentElementURI, FTML.Solutions][]>cfg.problems,
-          };
-        }
-      }
-    } else {
-      onProblem = cfg.problems;
-    }
-  }
-  return [exOpt, onProblem];
 }

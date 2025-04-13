@@ -407,11 +407,13 @@ export function ProblemDisplay({
         <FTMLFragment
           key={problem.problem.uri}
           fragment={{ html: problem.problem.html }}
-          problems={(response) => {
+          onProblem={(response) => {
             //if (isFrozen || !response) return;
-            console.log(JSON.stringify(response));
             //r.autogradableResponses[optIdx] = resp;
-            //onResponseUpdate?.({ ...r });
+            console.log(JSON.stringify(response));
+            // was unknown.source
+            response.uri = problem.problem.uri;
+            onResponseUpdate?.(response);
           }}
         />
 

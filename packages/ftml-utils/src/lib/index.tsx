@@ -1,8 +1,9 @@
-import * as FTMLT from './ftml-viewer'; //"./ftml-viewer";//
-import * as FTML from './ftml-viewer/ftml-viewer-base'; //"./ftml-viewer/ftml-viewer-base";//
+import * as FTMLT from "./ftml-viewer";//"./ftml-viewer";//
+import * as FTML from "./ftml-viewer/ftml-viewer-base";//"./ftml-viewer/ftml-viewer-base";//
 
-import React, { ReactNode, useContext, useEffect, useRef } from 'react';
-import { FTMLContext, useLeptosTunnel, useLeptosTunnels } from './leptos';
+import React, { ReactNode, useContext, useEffect, useRef } from "react";
+import { FTMLContext, useLeptosTunnel, useLeptosTunnels } from "./leptos";
+
 
 export type ProblemResponse = FTML.ProblemResponse;
 
@@ -11,10 +12,9 @@ export type Quiz = FTML.Quiz;
 export type FTMLQuizElement = FTML.QuizElement;
 export { Solutions } from './ftml-viewer/ftml-viewer-base';
 
-
-/**
+/** 
  * sets the server url. Reexported for **emphasis**.
- */
+ */ 
 export const setServerUrl = FTMLT.setServerUrl;
 
 /**
@@ -32,6 +32,7 @@ export const getFlamsServer = FTMLT.getFlamsServer;
  */
 export const setDebugLog = FTMLT.setDebugLog;
 
+
 /**
  * Configurables for FTML rendering.
  * Every attribute is inherited from ancestor nodes *unless explicitly overridden*.
@@ -45,14 +46,17 @@ export interface FTMLConfig {
    */
   onSection?: (
     uri: FTML.DocumentElementURI,
-    lvl: FTML.SectionLevel
+    lvl: FTML.SectionLevel,
   ) => ((ch: ReactNode) => ReactNode) | undefined;
   /** may return a react component to *insert* after the title of a section
    * @param uri the uri of the section
    * @param lvl the level of the section
    * @return a react component to insert
    */
-  onSectionTitle?: (uri: FTML.DocumentElementURI, lvl: FTML.SectionLevel) => ReactNode | undefined;
+  onSectionTitle?: (
+    uri: FTML.DocumentElementURI,
+    lvl: FTML.SectionLevel,
+  ) => ReactNode | undefined;
   /**
    * may return a react component to wrap around a logical paragraph (e.g. Definition, Example, etc.)
    * @param uri the uri of the paragraph
@@ -61,18 +65,19 @@ export interface FTMLConfig {
    */
   onParagraph?: (
     uri: FTML.DocumentElementURI,
-    kind: FTML.ParagraphKind
+    kind: FTML.ParagraphKind,
   ) => ((ch: ReactNode) => ReactNode) | undefined;
   /**
    * may return a react component to wrap around a slide)
    * @param uri the uri of the slide
    * @return a react component to wrap around its argument
    */
-  onSlide?: (uri: FTML.DocumentElementURI) => ((ch: ReactNode) => ReactNode) | undefined;
-  /**
-   * How to handle problems
-   */
-  problems?: FTMLT.ProblemConfig;
+  onSlide?: (
+    uri: FTML.DocumentElementURI,
+  ) => ((ch: ReactNode) => ReactNode) | undefined;
+  
+  problemStates?: FTML.ProblemStates | undefined;
+  onProblem?: ((response: FTML.ProblemResponse) => void) | undefined;
 }
 
 /**
@@ -101,10 +106,10 @@ export const FTMLSetup: React.FC<FTMLSetupArgs> = (args) => {
             {args.children}
             <TunnelRenderer />
           </>,
-          o
+          o,
         );
       },
-      toConfig(args, addTunnel)
+      toConfig(args, addTunnel),
     );
     return () => {
       handle.unmount();
@@ -113,7 +118,7 @@ export const FTMLSetup: React.FC<FTMLSetupArgs> = (args) => {
 
   return (
     <>
-      <div ref={mountRef} style={{ display: 'contents' }} />
+      <div ref={mountRef} style={{ display: "contents" }} />
       <main.TunnelRenderer />
     </>
   );
@@ -141,14 +146,14 @@ export const FTMLDocument: React.FC<FTMLDocumentArgs> = (args) => {
       mountRef.current,
       args.document,
       cont,
-      toConfig(args, addTunnel)
+      toConfig(args, addTunnel),
     );
     return () => {
       handle.unmount();
     };
   }, []);
   return (
-    <div style={{ textAlign: 'start' }}>
+    <div style={{ textAlign: "start" }}>
       <div ref={mountRef} />
       <TunnelRenderer />
     </div>
@@ -177,14 +182,14 @@ export const FTMLFragment: React.FC<FTMLFragmentArgs> = (args) => {
       mountRef.current,
       args.fragment,
       cont,
-      toConfig(args, addTunnel)
+      toConfig(args, addTunnel),
     );
     return () => {
       handle.unmount();
     };
   }, []);
   return (
-    <div style={{ textAlign: 'start' }}>
+    <div style={{ textAlign: "start" }}>
       <div ref={mountRef} />
       <TunnelRenderer />
     </div>
@@ -203,7 +208,7 @@ const ElemToReact: React.FC<{
   }, []);
   return (
     <FTMLContext.Provider value={ctx}>
-      <div ref={ref} style={{ display: 'contents' }} />
+      <div ref={ref} style={{ display: "contents" }} />
     </FTMLContext.Provider>
   );
 };
@@ -216,7 +221,11 @@ function elemToReact(elem: HTMLDivElement, ctx: FTML.LeptosContext): ReactNode {
 
 function toConfig(
   config: FTMLConfig,
-  addTunnel: (element: Element, node: ReactNode, context: FTML.LeptosContext) => string
+  addTunnel: (
+    element: Element,
+    node: ReactNode,
+    context: FTML.LeptosContext,
+  ) => string,
 ): FTMLT.FTMLConfig {
   const osecO = config.onSection;
   const onSection = osecO
@@ -274,6 +283,7 @@ function toConfig(
     onSectionTitle: onSectionTitle,
     onParagraph: onParagraph,
     onSlide: onSlide,
-    problems: config.problems,
+    problemStates: config.problemStates,
+    onProblem: config.onProblem
   };
 }

@@ -263,6 +263,7 @@ const QuizPage: NextPage = () => {
             existingResponses={quizInfo?.responses}
             onResponse={async (problemId, response) => {
               if (!quizId?.length) return;
+              console.log('inserting response', problemId, response);
               const answerAccepted = await insertQuizResponse(quizId, problemId, response);
               if (!answerAccepted) {
                 alert('Answers are no longer being accepted');
