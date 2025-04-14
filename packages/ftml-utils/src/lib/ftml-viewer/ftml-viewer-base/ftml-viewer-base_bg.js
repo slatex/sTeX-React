@@ -145,28 +145,6 @@ const CLOSURE_DTORS = (typeof FinalizationRegistry === 'undefined')
     wasm.__wbindgen_export_4.get(state.dtor)(state.a, state.b)
 });
 
-function makeClosure(arg0, arg1, dtor, f) {
-    const state = { a: arg0, b: arg1, cnt: 1, dtor };
-    const real = (...args) => {
-        // First up with a closure we increment the internal reference
-        // count. This ensures that the Rust closure environment won't
-        // be deallocated while we're invoking it.
-        state.cnt++;
-        try {
-            return f(state.a, state.b, ...args);
-        } finally {
-            if (--state.cnt === 0) {
-                wasm.__wbindgen_export_4.get(state.dtor)(state.a, state.b);
-                state.a = 0;
-                CLOSURE_DTORS.unregister(state);
-            }
-        }
-    };
-    real.original = state;
-    CLOSURE_DTORS.register(real, state, state);
-    return real;
-}
-
 function makeMutClosure(arg0, arg1, dtor, f) {
     const state = { a: arg0, b: arg1, cnt: 1, dtor };
     const real = (...args) => {
@@ -184,6 +162,28 @@ function makeMutClosure(arg0, arg1, dtor, f) {
                 CLOSURE_DTORS.unregister(state);
             } else {
                 state.a = a;
+            }
+        }
+    };
+    real.original = state;
+    CLOSURE_DTORS.register(real, state, state);
+    return real;
+}
+
+function makeClosure(arg0, arg1, dtor, f) {
+    const state = { a: arg0, b: arg1, cnt: 1, dtor };
+    const real = (...args) => {
+        // First up with a closure we increment the internal reference
+        // count. This ensures that the Rust closure environment won't
+        // be deallocated while we're invoking it.
+        state.cnt++;
+        try {
+            return f(state.a, state.b, ...args);
+        } finally {
+            if (--state.cnt === 0) {
+                wasm.__wbindgen_export_4.get(state.dtor)(state.a, state.b);
+                state.a = 0;
+                CLOSURE_DTORS.unregister(state);
             }
         }
     };
@@ -257,6 +257,13 @@ function debugString(val) {
     return className;
 }
 /**
+ * @param {CSS} css
+ */
+export function injectCss(css) {
+    wasm.injectCss(addHeapObject(css));
+}
+
+/**
  * activates debug logging
  */
 export function set_debug_log() {
@@ -271,17 +278,15 @@ export function set_debug_log() {
  * @param {HTMLElement} to
  * @param {LeptosContinuation} children
  * @param {boolean | null} [allow_hovers]
- * @param {(uri: DocumentElementURI,lvl:SectionLevel) => (LeptosContinuation | undefined) | null} [on_section]
  * @param {(uri: DocumentElementURI,lvl:SectionLevel) => (LeptosContinuation | undefined) | null} [on_section_title]
- * @param {(uri: DocumentElementURI,kind:ParagraphKind) => (LeptosContinuation | undefined) | null} [on_paragraph]
+ * @param {(uri: DocumentElementURI,kind:FragmentKind) => (LeptosContinuation | undefined) | null} [on_fragment]
  * @param {(uri: DocumentURI) => (LeptosContinuation | undefined) | null} [on_inputref]
- * @param {(uri: DocumentElementURI) => (LeptosContinuation | undefined) | null} [on_slide]
  * @param {(r:ProblemResponse) => void | null} [on_problem]
  * @param {ProblemStates | null} [problem_states]
  * @returns {FTMLMountHandle}
  */
-export function ftml_setup(to, children, allow_hovers, on_section, on_section_title, on_paragraph, on_inputref, on_slide, on_problem, problem_states) {
-    const ret = wasm.ftml_setup(addHeapObject(to), addHeapObject(children), isLikeNone(allow_hovers) ? 0xFFFFFF : allow_hovers ? 1 : 0, isLikeNone(on_section) ? 0 : addHeapObject(on_section), isLikeNone(on_section_title) ? 0 : addHeapObject(on_section_title), isLikeNone(on_paragraph) ? 0 : addHeapObject(on_paragraph), isLikeNone(on_inputref) ? 0 : addHeapObject(on_inputref), isLikeNone(on_slide) ? 0 : addHeapObject(on_slide), isLikeNone(on_problem) ? 0 : addHeapObject(on_problem), isLikeNone(problem_states) ? 0 : addHeapObject(problem_states));
+export function ftml_setup(to, children, allow_hovers, on_section_title, on_fragment, on_inputref, on_problem, problem_states) {
+    const ret = wasm.ftml_setup(addHeapObject(to), addHeapObject(children), isLikeNone(allow_hovers) ? 0xFFFFFF : allow_hovers ? 1 : 0, isLikeNone(on_section_title) ? 0 : addHeapObject(on_section_title), isLikeNone(on_fragment) ? 0 : addHeapObject(on_fragment), isLikeNone(on_inputref) ? 0 : addHeapObject(on_inputref), isLikeNone(on_problem) ? 0 : addHeapObject(on_problem), isLikeNone(problem_states) ? 0 : addHeapObject(problem_states));
     return FTMLMountHandle.__wrap(ret);
 }
 
@@ -297,16 +302,14 @@ function _assertClass(instance, klass) {
  * @param {DocumentOptions} document
  * @param {LeptosContext | null} [context]
  * @param {boolean | null} [allow_hovers]
- * @param {(uri: DocumentElementURI,lvl:SectionLevel) => (LeptosContinuation | undefined) | null} [on_section]
  * @param {(uri: DocumentElementURI,lvl:SectionLevel) => (LeptosContinuation | undefined) | null} [on_section_title]
- * @param {(uri: DocumentElementURI,kind:ParagraphKind) => (LeptosContinuation | undefined) | null} [on_paragraph]
+ * @param {(uri: DocumentElementURI,kind:FragmentKind) => (LeptosContinuation | undefined) | null} [on_fragment]
  * @param {(uri: DocumentURI) => (LeptosContinuation | undefined) | null} [on_inputref]
- * @param {(uri: DocumentElementURI) => (LeptosContinuation | undefined) | null} [on_slide]
  * @param {(r:ProblemResponse) => void | null} [on_problem]
  * @param {ProblemStates | null} [problem_states]
  * @returns {FTMLMountHandle}
  */
-export function render_document(to, document, context, allow_hovers, on_section, on_section_title, on_paragraph, on_inputref, on_slide, on_problem, problem_states) {
+export function render_document(to, document, context, allow_hovers, on_section_title, on_fragment, on_inputref, on_problem, problem_states) {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
         let ptr0 = 0;
@@ -314,7 +317,7 @@ export function render_document(to, document, context, allow_hovers, on_section,
             _assertClass(context, LeptosContext);
             ptr0 = context.__destroy_into_raw();
         }
-        wasm.render_document(retptr, addHeapObject(to), addHeapObject(document), ptr0, isLikeNone(allow_hovers) ? 0xFFFFFF : allow_hovers ? 1 : 0, isLikeNone(on_section) ? 0 : addHeapObject(on_section), isLikeNone(on_section_title) ? 0 : addHeapObject(on_section_title), isLikeNone(on_paragraph) ? 0 : addHeapObject(on_paragraph), isLikeNone(on_inputref) ? 0 : addHeapObject(on_inputref), isLikeNone(on_slide) ? 0 : addHeapObject(on_slide), isLikeNone(on_problem) ? 0 : addHeapObject(on_problem), isLikeNone(problem_states) ? 0 : addHeapObject(problem_states));
+        wasm.render_document(retptr, addHeapObject(to), addHeapObject(document), ptr0, isLikeNone(allow_hovers) ? 0xFFFFFF : allow_hovers ? 1 : 0, isLikeNone(on_section_title) ? 0 : addHeapObject(on_section_title), isLikeNone(on_fragment) ? 0 : addHeapObject(on_fragment), isLikeNone(on_inputref) ? 0 : addHeapObject(on_inputref), isLikeNone(on_problem) ? 0 : addHeapObject(on_problem), isLikeNone(problem_states) ? 0 : addHeapObject(problem_states));
         var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
         var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
         var r2 = getDataViewMemory0().getInt32(retptr + 4 * 2, true);
@@ -334,16 +337,14 @@ export function render_document(to, document, context, allow_hovers, on_section,
  * @param {FragmentOptions} fragment
  * @param {LeptosContext | null} [context]
  * @param {boolean | null} [allow_hovers]
- * @param {(uri: DocumentElementURI,lvl:SectionLevel) => (LeptosContinuation | undefined) | null} [on_section]
  * @param {(uri: DocumentElementURI,lvl:SectionLevel) => (LeptosContinuation | undefined) | null} [on_section_title]
- * @param {(uri: DocumentElementURI,kind:ParagraphKind) => (LeptosContinuation | undefined) | null} [on_paragraph]
+ * @param {(uri: DocumentElementURI,kind:FragmentKind) => (LeptosContinuation | undefined) | null} [on_fragment]
  * @param {(uri: DocumentURI) => (LeptosContinuation | undefined) | null} [on_inputref]
- * @param {(uri: DocumentElementURI) => (LeptosContinuation | undefined) | null} [on_slide]
  * @param {(r:ProblemResponse) => void | null} [on_problem]
  * @param {ProblemStates | null} [problem_states]
  * @returns {FTMLMountHandle}
  */
-export function render_fragment(to, fragment, context, allow_hovers, on_section, on_section_title, on_paragraph, on_inputref, on_slide, on_problem, problem_states) {
+export function render_fragment(to, fragment, context, allow_hovers, on_section_title, on_fragment, on_inputref, on_problem, problem_states) {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
         let ptr0 = 0;
@@ -351,7 +352,7 @@ export function render_fragment(to, fragment, context, allow_hovers, on_section,
             _assertClass(context, LeptosContext);
             ptr0 = context.__destroy_into_raw();
         }
-        wasm.render_fragment(retptr, addHeapObject(to), addHeapObject(fragment), ptr0, isLikeNone(allow_hovers) ? 0xFFFFFF : allow_hovers ? 1 : 0, isLikeNone(on_section) ? 0 : addHeapObject(on_section), isLikeNone(on_section_title) ? 0 : addHeapObject(on_section_title), isLikeNone(on_paragraph) ? 0 : addHeapObject(on_paragraph), isLikeNone(on_inputref) ? 0 : addHeapObject(on_inputref), isLikeNone(on_slide) ? 0 : addHeapObject(on_slide), isLikeNone(on_problem) ? 0 : addHeapObject(on_problem), isLikeNone(problem_states) ? 0 : addHeapObject(problem_states));
+        wasm.render_fragment(retptr, addHeapObject(to), addHeapObject(fragment), ptr0, isLikeNone(allow_hovers) ? 0xFFFFFF : allow_hovers ? 1 : 0, isLikeNone(on_section_title) ? 0 : addHeapObject(on_section_title), isLikeNone(on_fragment) ? 0 : addHeapObject(on_fragment), isLikeNone(on_inputref) ? 0 : addHeapObject(on_inputref), isLikeNone(on_problem) ? 0 : addHeapObject(on_problem), isLikeNone(problem_states) ? 0 : addHeapObject(problem_states));
         var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
         var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
         var r2 = getDataViewMemory0().getInt32(retptr + 4 * 2, true);
@@ -426,13 +427,13 @@ function __wbg_adapter_56(arg0, arg1, arg2) {
     wasm.__wbindgen_export_5(arg0, arg1, addHeapObject(arg2));
 }
 
-function __wbg_adapter_59(arg0, arg1, arg2) {
-    const ret = wasm.__wbindgen_export_6(arg0, arg1, addHeapObject(arg2));
-    return ret >>> 0;
+function __wbg_adapter_59(arg0, arg1) {
+    wasm.__wbindgen_export_6(arg0, arg1);
 }
 
 function __wbg_adapter_62(arg0, arg1, arg2) {
-    wasm.__wbindgen_export_7(arg0, arg1, addHeapObject(arg2));
+    const ret = wasm.__wbindgen_export_7(arg0, arg1, addHeapObject(arg2));
+    return ret >>> 0;
 }
 
 function __wbg_adapter_65(arg0, arg1) {
@@ -867,6 +868,13 @@ export class Solutions {
             heap[stack_pointer++] = undefined;
         }
     }
+    /**
+     * @returns {ProblemFeedback}
+     */
+    default_feedback() {
+        const ret = wasm.solutions_default_feedback(this.__wbg_ptr);
+        return ProblemFeedback.__wrap(ret);
+    }
 }
 
 export function __wbg_String_8f0eb39a4a4c2f66(arg0, arg1) {
@@ -1263,14 +1271,6 @@ export function __wbg_id_c65402eae48fb242(arg0, arg1) {
 export function __wbg_includes_937486a108ec147b(arg0, arg1, arg2) {
     const ret = getObject(arg0).includes(getObject(arg1), arg2);
     return ret;
-};
-
-export function __wbg_innerHTML_e1553352fe93921a(arg0, arg1) {
-    const ret = getObject(arg1).innerHTML;
-    const ptr1 = passStringToWasm0(ret, wasm.__wbindgen_export_0, wasm.__wbindgen_export_1);
-    const len1 = WASM_VECTOR_LEN;
-    getDataViewMemory0().setInt32(arg0 + 4 * 1, len1, true);
-    getDataViewMemory0().setInt32(arg0 + 4 * 0, ptr1, true);
 };
 
 export function __wbg_innerHeight_05f4225d754a7929() { return handleError(function (arg0) {
@@ -2020,33 +2020,33 @@ export function __wbindgen_cb_drop(arg0) {
     return ret;
 };
 
-export function __wbindgen_closure_wrapper18162(arg0, arg1, arg2) {
-    const ret = makeClosure(arg0, arg1, 4365, __wbg_adapter_59);
+export function __wbindgen_closure_wrapper13196(arg0, arg1, arg2) {
+    const ret = makeMutClosure(arg0, arg1, 1997, __wbg_adapter_56);
     return addHeapObject(ret);
 };
 
-export function __wbindgen_closure_wrapper21854(arg0, arg1, arg2) {
-    const ret = makeMutClosure(arg0, arg1, 4777, __wbg_adapter_62);
+export function __wbindgen_closure_wrapper16494(arg0, arg1, arg2) {
+    const ret = makeMutClosure(arg0, arg1, 3838, __wbg_adapter_59);
     return addHeapObject(ret);
 };
 
-export function __wbindgen_closure_wrapper21856(arg0, arg1, arg2) {
-    const ret = makeMutClosure(arg0, arg1, 4777, __wbg_adapter_65);
+export function __wbindgen_closure_wrapper17356(arg0, arg1, arg2) {
+    const ret = makeClosure(arg0, arg1, 4404, __wbg_adapter_62);
     return addHeapObject(ret);
 };
 
-export function __wbindgen_closure_wrapper22087(arg0, arg1, arg2) {
-    const ret = makeMutClosure(arg0, arg1, 4820, __wbg_adapter_68);
+export function __wbindgen_closure_wrapper22281(arg0, arg1, arg2) {
+    const ret = makeMutClosure(arg0, arg1, 4882, __wbg_adapter_65);
     return addHeapObject(ret);
 };
 
-export function __wbindgen_closure_wrapper24349(arg0, arg1, arg2) {
-    const ret = makeMutClosure(arg0, arg1, 4859, __wbg_adapter_71);
+export function __wbindgen_closure_wrapper22388(arg0, arg1, arg2) {
+    const ret = makeMutClosure(arg0, arg1, 4923, __wbg_adapter_68);
     return addHeapObject(ret);
 };
 
-export function __wbindgen_closure_wrapper4790(arg0, arg1, arg2) {
-    const ret = makeMutClosure(arg0, arg1, 2244, __wbg_adapter_56);
+export function __wbindgen_closure_wrapper24853(arg0, arg1, arg2) {
+    const ret = makeMutClosure(arg0, arg1, 4957, __wbg_adapter_71);
     return addHeapObject(ret);
 };
 

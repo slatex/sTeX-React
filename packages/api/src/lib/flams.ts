@@ -140,7 +140,7 @@ export class FLAMSServer {
    * can be turned into a "proper" ProblemFeedback using ProblemFeedback.from_json().
    */
   async batchGrade(
-    ...submissions: [FLAMS.SolutionData[],FLAMS.ProblemResponse[]][]
+    ...submissions: [FLAMS.SolutionData[],(FLAMS.ProblemResponse | undefined)[]][]
   ): Promise<(FLAMS.ProblemFeedbackJson[])[] | undefined> {
     return await this.rawPostRequest("content/grade", {submissions: submissions});
   }

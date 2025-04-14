@@ -18,6 +18,11 @@ export { Solutions } from './ftml-viewer/ftml-viewer-base';
 export const setServerUrl = FTMLT.setServerUrl;
 
 /**
+ * Injects the given CSS rule into the header of the DOM (if adequate and not duplicate)
+ */
+export const injectCss = FTMLT.injectCss;
+
+/**
  * Get the FLAMS server URL used globally
  */
 export const getServerUrl = FTMLT.getServerUrl;
@@ -32,22 +37,11 @@ export const getFlamsServer = FTMLT.getFlamsServer;
  */
 export const setDebugLog = FTMLT.setDebugLog;
 
-
 /**
  * Configurables for FTML rendering.
  * Every attribute is inherited from ancestor nodes *unless explicitly overridden*.
  */
 export interface FTMLConfig {
-  /**
-   * may return a react component to wrap around a section
-   * @param uri the uri of the section
-   * @param lvl the level of the section
-   * @return a react component to wrap around its argument
-   */
-  onSection?: (
-    uri: FTML.DocumentElementURI,
-    lvl: FTML.SectionLevel,
-  ) => ((ch: ReactNode) => ReactNode) | undefined;
   /** may return a react component to *insert* after the title of a section
    * @param uri the uri of the section
    * @param lvl the level of the section
@@ -57,23 +51,16 @@ export interface FTMLConfig {
     uri: FTML.DocumentElementURI,
     lvl: FTML.SectionLevel,
   ) => ReactNode | undefined;
+
   /**
-   * may return a react component to wrap around a logical paragraph (e.g. Definition, Example, etc.)
-   * @param uri the uri of the paragraph
-   * @param kind the paragraph's kind
+   * may return a react component to wrap around a fragment (e.g. Section, Definition, Problem, etc.)
+   * @param uri the uri of the fragment
+   * @param kind the fragment's kind
    * @return a react component to wrap around its argument
    */
-  onParagraph?: (
+  onFragment?: (
     uri: FTML.DocumentElementURI,
-    kind: FTML.ParagraphKind,
-  ) => ((ch: ReactNode) => ReactNode) | undefined;
-  /**
-   * may return a react component to wrap around a slide)
-   * @param uri the uri of the slide
-   * @return a react component to wrap around its argument
-   */
-  onSlide?: (
-    uri: FTML.DocumentElementURI,
+    kind: FTML.FragmentKind,
   ) => ((ch: ReactNode) => ReactNode) | undefined;
   
   problemStates?: FTML.ProblemStates | undefined;
@@ -227,19 +214,6 @@ function toConfig(
     context: FTML.LeptosContext,
   ) => string,
 ): FTMLT.FTMLConfig {
-  const osecO = config.onSection;
-  const onSection = osecO
-    ? (uri: FTML.DocumentElementURI, lvl: FTML.SectionLevel) => {
-        const r = osecO(uri, lvl);
-        return r
-          ? (elem: HTMLDivElement, ctx: FTML.LeptosContext) => {
-              const ret = r(elemToReact(elem, ctx));
-              return addTunnel(elem, ret, ctx);
-            }
-          : undefined;
-      }
-    : undefined;
-
   const otO = config.onSectionTitle;
   const onSectionTitle = otO
     ? (uri: FTML.DocumentElementURI, lvl: FTML.SectionLevel) => {
@@ -252,23 +226,10 @@ function toConfig(
       }
     : undefined;
 
-  const opO = config.onParagraph;
-  const onParagraph = opO
-    ? (uri: FTML.DocumentElementURI, kind: FTML.ParagraphKind) => {
-        const r = opO(uri, kind);
-        return r
-          ? (elem: HTMLDivElement, ctx: FTML.LeptosContext) => {
-              const ret = r(elemToReact(elem, ctx));
-              return addTunnel(elem, ret, ctx);
-            }
-          : undefined;
-      }
-    : undefined;
-
-  const oslideO = config.onSlide;
-  const onSlide = oslideO
-    ? (uri: FTML.DocumentElementURI) => {
-        const r = oslideO(uri);
+  const ofO = config.onFragment;
+  const onFragment = ofO
+    ? (uri: FTML.DocumentElementURI, kind: FTML.FragmentKind) => {
+        const r = ofO(uri, kind);
         return r
           ? (elem: HTMLDivElement, ctx: FTML.LeptosContext) => {
               const ret = r(elemToReact(elem, ctx));
@@ -279,10 +240,8 @@ function toConfig(
     : undefined;
 
   return {
-    onSection: onSection,
     onSectionTitle: onSectionTitle,
-    onParagraph: onParagraph,
-    onSlide: onSlide,
+    onFragment: onFragment,
     problemStates: config.problemStates,
     onProblem: config.onProblem
   };

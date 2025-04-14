@@ -3,33 +3,41 @@ import * as FTML from './ftml-viewer-base'; // "./ftml-viewer-base"; //
 
 const Window:{FLAMS_SERVER_URL:string} = typeof window !== "undefined" ? ((window as unknown) as {FLAMS_SERVER_URL:string}) : {FLAMS_SERVER_URL:""};
 
-/** 
+/**
  * Turns on debugging messages on the console
  */
-export function setDebugLog() { FTML.set_debug_log(); }
+export function setDebugLog() {
+  FTML.set_debug_log();
+}
 
-/** 
+/**
+ * Injects the given CSS rule into the header of the DOM (if adequate and not duplicate)
+ */
+export function injectCss(css:FTML.CSS) {
+  FTML.injectCss(css);
+}
+
+/**
  * Get the FLAMS server used globally
  */
 export function getFlamsServer(): FLAMSServer {
   return new FLAMSServer(Window.FLAMS_SERVER_URL);
 }
 
-/** 
- * Set the FLAMS server used globally 
+/**
+ * Set the FLAMS server used globally
  */
-export function setServerUrl(s:string) {
+export function setServerUrl(s: string) {
   Window.FLAMS_SERVER_URL = s;
   FTML.set_server_url(s);
 }
 
-/** 
- * Get the FLAMS server URL used globally 
+/**
+ * Get the FLAMS server URL used globally
  */
 export function getServerUrl(): string {
   return Window.FLAMS_SERVER_URL;
 }
-
 
 /**
  * Configuration for rendering FTML content
@@ -42,36 +50,24 @@ export interface FTMLConfig {
   allowHovers?: boolean;
 
   /**
-   * callback for wrapping sections
-   */
-  onSection?: (
-    uri: FTML.DocumentElementURI,
-    lvl: FTML.SectionLevel,
-  ) => FTML.LeptosContinuation | undefined;
-  /**
    * callback for *inserting* elements immediately after a section's title
    */
   onSectionTitle?: (
     uri: FTML.DocumentElementURI,
     lvl: FTML.SectionLevel,
   ) => FTML.LeptosContinuation | undefined;
+
   /**
-   * callback for wrapping logical paragraphs (Definitions, Theorems, Examples, etc.)
+   * callback for wrapping fragments (sections, paragraphs, problems, etc.)
    */
-  onParagraph?: (
+  onFragment?: (
     uri: FTML.DocumentElementURI,
-    kind: FTML.ParagraphKind,
+    kind: FTML.FragmentKind,
   ) => FTML.LeptosContinuation | undefined;
   /**
    * callback for wrapping inputreferences (i.e. lazily loaded document fragments)
    */
   onInputref?: (uri: FTML.DocumentURI) => FTML.LeptosContinuation | undefined;
-  /**
-   * callback for wrapping (beamer presentation) slides
-   */
-  onSlide?: (
-    uri: FTML.DocumentElementURI,
-  ) => FTML.LeptosContinuation | undefined;
   
   problemStates?: FTML.ProblemStates | undefined,
   onProblem?: ((response: FTML.ProblemResponse) => void) | undefined,
@@ -100,11 +96,9 @@ export function ftmlSetup(
     to,
     then,
     cfg?.allowHovers,
-    cfg?.onSection,
     cfg?.onSectionTitle,
-    cfg?.onParagraph,
+    cfg?.onFragment,
     cfg?.onInputref,
-    cfg?.onSlide,
     cfg?.onProblem,
     cfg?.problemStates
   );
@@ -130,11 +124,9 @@ export function renderDocument(
     document,
     context,
     cfg?.allowHovers,
-    cfg?.onSection,
     cfg?.onSectionTitle,
-    cfg?.onParagraph,
+    cfg?.onFragment,
     cfg?.onInputref,
-    cfg?.onSlide,
     cfg?.onProblem,
     cfg?.problemStates
   );
@@ -160,11 +152,9 @@ export function renderFragment(
     fragment,
     context,
     cfg?.allowHovers,
-    cfg?.onSection,
     cfg?.onSectionTitle,
-    cfg?.onParagraph,
+    cfg?.onFragment,
     cfg?.onInputref,
-    cfg?.onSlide,
     cfg?.onProblem,
     cfg?.problemStates
   );
