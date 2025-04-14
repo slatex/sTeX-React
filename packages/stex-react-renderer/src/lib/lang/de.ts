@@ -1,3 +1,5 @@
+import { ForMe } from "../ForMe";
+
 export const de = {
   // content dashboard
   expandCollapseAll: 'Alles anzeigen/Minimieren',
@@ -64,8 +66,12 @@ export const de = {
     sureFinish: 'Sind Sie sicher, dass Sie den Vorgang abschließen möchten?',
     showSolution: 'Lösung anzeigen',
     hideSolution: 'Lösung ausblenden',
-    perSectionQuizButton: 'Übungsprobleme ($1)',
+    practiceProblem : 'Übungsproblem',
+    perSectionQuizButton: 'Alle probleme ($1)',
+    ForMe : 'Für mich',
     hideProblems: 'Probleme ausblenden',
+    hideForMe: 'Für mich ausblenden',
+    hidepracticeProblem: 'Übungsprobleme ausblenden',
     answer: 'Antwort',
     point: 'Punkt',
     submit: 'Senden',
