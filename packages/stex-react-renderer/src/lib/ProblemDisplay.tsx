@@ -7,19 +7,21 @@ import {
   AnswerUpdateEntry,
   AutogradableResponse,
   BloomDimension,
+  CognitiveDimension,
   FTMLProblemWithSolution,
   Input,
   InputType,
   ProblemAnswerEvent,
   QuadState,
+  SymbolURI,
   Tristate,
   UserInfo,
   createAnswer,
   getUserInfo,
-  postAnswer,
+  postAnswerToLMP,
 } from '@stex-react/api';
-import { FTMLFragment, ProblemResponse } from '@stex-react/ftml-utils';
-import { getFillInFeedbackHtml, isFillInInputCorrect } from '@stex-react/quiz-utils';
+import { FTMLFragment, ProblemResponse, ProblemState, Solutions } from '@stex-react/ftml-utils';
+import { getFillInFeedbackHtml, getPoints, isFillInInputCorrect } from '@stex-react/quiz-utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { getMMTHtml } from './CompetencyTable';
@@ -131,7 +133,7 @@ function feedbackInfo(isFrozen: boolean, input: Input, response?: AutogradableRe
 export function PointsInfo({ points }: { points: number | undefined }) {
   return (
     <Typography variant="h6" sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-      <b>{points?? 1} pt</b>
+      <b>{points ?? 1} pt</b>
     </Typography>
   );
 }
@@ -304,8 +306,9 @@ function transformData(dimensionAndURI: string[], quotient: number): AnswerUpdat
   return Object.values(conceptUpdate);
 }
 
-function getUpdates(objectives: string, quotient: number) {
-  const dimensionAndURI = objectives.split(',');
+function getUpdates(objectives: [CognitiveDimension, SymbolURI][] | undefined, quotient: number) {
+  if (!objectives) return [];
+  const dimensionAndURI = objectives.map(([dim, uri]) => `${dim}:${uri}`);
   return transformData(dimensionAndURI, quotient);
 }
 
@@ -315,10 +318,10 @@ function handleSubmit(
   response: ProblemResponse,
   userId: string
 ) {
-  const maxPoint = 1; // problem.points; TODO alea4
-  const points = 0; // getPoints(problem, response);
+  const maxPoint = problem.problem?.total_points ?? 1;
+  const points = getPoints(problem, response);
   const quotient = points ? points / maxPoint : 0;
-  const updates: AnswerUpdateEntry[] = []; //getUpdates(problem.objectives, quotient);
+  const updates: AnswerUpdateEntry[] = getUpdates(problem.problem.objectives, quotient);
   const answerObject: ProblemAnswerEvent = {
     type: 'problem-answer',
     uri: uri.substring(0, uri.indexOf('.en')) + '.tex',
@@ -330,7 +333,48 @@ function handleSubmit(
     payload: '',
     comment: ' ',
   };
-  postAnswer(answerObject);
+  postAnswerToLMP(answerObject);
+}
+
+function getProblemState(
+  isFrozen: boolean,
+  solution?: string,
+  current_response?: ProblemResponse
+): ProblemState {
+  if (!isFrozen) return { type: 'Interactive', current_response };
+  if (!solution || !current_response) return { type: 'Finished', current_response };
+  const feedback = Solutions.from_jstring(solution)?.check_response(current_response);
+  if (!feedback) return { type: 'Finished', current_response }; // Something went wrong!!
+  return { type: 'Graded', feedback: feedback.to_json() };
+}
+
+export function ProblemViewer({
+  problem,
+  onResponseUpdate,
+  isFrozen,
+  r,
+}: {
+  problem: FTMLProblemWithSolution;
+  onResponseUpdate?: (response: ProblemResponse) => void;
+  isFrozen: boolean;
+  r?: ProblemResponse;
+}) {
+  const problemState = getProblemState(isFrozen, problem.solution, r);
+
+  console.log('to wasm', JSON.stringify(r ?? {}), JSON.stringify(problemState));
+  return (
+    <FTMLFragment
+      key={problem.problem.uri}
+      fragment={{ html: problem.problem.html }}
+      problemStates={new Map([[problem.problem.uri, problemState]])}
+      onProblem={(response) => {
+        console.log('from wasm', JSON.stringify(response));
+        // was unknown.source
+        response.uri = problem.problem.uri;
+        onResponseUpdate?.(response);
+      }}
+    />
+  );
 }
 
 export function ProblemDisplay({
@@ -395,7 +439,6 @@ export function ProblemDisplay({
   return (
     <Card
       sx={{
-        backgroundColor: 'hsl(210, 20%, 95%)',
         border: '1px solid #CCC',
         p: '10px',
         userSelect: 'none',
@@ -404,19 +447,12 @@ export function ProblemDisplay({
       <Box fontSize="20px">
         {showPoints && <PointsInfo points={problem.problem.total_points} />}
 
-        <FTMLFragment
-          key={problem.problem.uri}
-          fragment={{ html: problem.problem.html }}
-          onProblem={(response) => {
-            //if (isFrozen || !response) return;
-            //r.autogradableResponses[optIdx] = resp;
-            console.log(JSON.stringify(response));
-            // was unknown.source
-            response.uri = problem.problem.uri;
-            onResponseUpdate?.(response);
-          }}
+        <ProblemViewer
+          problem={problem}
+          isFrozen={isEffectivelyFrozen}
+          r={r}
+          onResponseUpdate={onResponseUpdate}
         />
-
         {onFreezeResponse && !isEffectivelyFrozen && r && (
           <Button
             onClick={() => {

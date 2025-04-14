@@ -465,7 +465,7 @@ export async function getConceptHistory(concept: string): Promise<ConceptHistory
   });
 }
 
-export async function postAnswer(answer: ProblemAnswerEvent) {
+export async function postAnswerToLMP(answer: ProblemAnswerEvent) {
   return await lmpRequest('lmp', '/lmp/input/events', 'POST', null, answer);
 }
 

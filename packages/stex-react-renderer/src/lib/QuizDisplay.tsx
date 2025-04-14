@@ -8,7 +8,7 @@ import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { Box, Button, CircularProgress, Dialog, IconButton } from '@mui/material';
 import { FTMLProblemWithSolution, TimerEvent, TimerEventType } from '@stex-react/api';
-import { ProblemResponse, ProblemResponseType } from '@stex-react/ftml-utils';
+import { FTMLFragment, ProblemResponse, ProblemResponseType } from '@stex-react/ftml-utils';
 import { getPoints } from '@stex-react/quiz-utils';
 import { shouldUseDrawer } from '@stex-react/utils';
 import { useRouter } from 'next/router';
@@ -77,9 +77,10 @@ function IndexEntry({
       : 'red'
     : '#333';
   const responded = numInputsResponded(response);
+  const numInputs = response?.responses?.length ?? 1;
   const respondedIcon = isFrozen ? (
     <span style={{ width: '24px' }}></span>
-  ) : responded > 0 ? ( // TODO alea4: === problem.inputs.length
+  ) : responded === numInputs ? (
     <CheckBox />
   ) : responded === 0 ? (
     <CheckBoxOutlineBlankIcon />
@@ -324,8 +325,7 @@ export function QuizDisplay({
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <h2>
             {t.problem} {problemIdx + 1} {t.of} {problemIds.length}&nbsp;
-            {/*problem.header && <>({mmtHTMLToReact(problem.header)})</>}*/}
-            TODO alea4: header
+            <FTMLFragment fragment={{ html: problem.problem.title_html ?? '<i>Untitled</i>' }} />
           </h2>
           {(!!quizEndTs || showPerProblemTime) && (
             <QuizTimer
@@ -342,9 +342,7 @@ export function QuizDisplay({
         <Box my="10px">
           <ProblemDisplay
             r={response}
-            //problemUrl={problemUrl}
             debug={debug}
-            // problemId={problemIds[problemIdx]} TODO alea4
             problem={problem}
             isFrozen={isFrozen}
             onResponseUpdate={(response) => {

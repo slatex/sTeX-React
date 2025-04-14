@@ -6,7 +6,7 @@ import { FTMLContext, useLeptosTunnel, useLeptosTunnels } from "./leptos";
 
 
 export type ProblemResponse = FTML.ProblemResponse;
-
+export type ProblemState = FTML.ProblemState;
 export type ProblemResponseType = FTML.ProblemResponseType;
 export type Quiz = FTML.Quiz;
 export type FTMLQuizElement = FTML.QuizElement;
