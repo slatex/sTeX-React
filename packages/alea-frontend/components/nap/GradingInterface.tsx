@@ -341,7 +341,7 @@ function GradingItemsList({
               </ListItemIcon>
               <ListItemText
                 primary={
-                  problemMap[questionId]?.['header'] // TODO ale4
+                  problemMap[questionId]?.['header'] // TODO alea4
                     ? /*mmtHTMLToReact(problemMap[questionId]?.['header'])*/
                       'TODO ALEA-4'
                     : questionId
@@ -425,7 +425,7 @@ function GradingItemDisplay({
     }
     const fetchProblem = async () => {
       try {
-        // TODO alea 4
+        // TODO alea-4
         // const problemIdPrefix = questionId.replace(/\?[^?]*$/, '');
         // const problemObject = await getProblemObject(mmtUrl, problemIdPrefix);
         // const problemHtml = await getLearningObjectShtml(mmtUrl, problemObject);
