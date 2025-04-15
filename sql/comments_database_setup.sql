@@ -262,3 +262,107 @@ CREATE TABLE homeworkHistory (
     
     PRIMARY KEY (id, versionNo)   
 );
+
+-- Job Portal Tables
+CREATE TABLE StudentProfile (
+    userId VARCHAR(50) PRIMARY KEY, 
+    name VARCHAR(255) NOT NULL, 
+    resumeURL VARCHAR(2083), 
+    email VARCHAR(255) NOT NULL, 
+    contactNo VARCHAR(15), 
+    programme VARCHAR(255) NOT NULL, 
+    yearOfAdmission YEAR NOT NULL, 
+    yearOfGraduation YEAR, 
+    courses TEXT, 
+    grades TEXT, 
+    about TEXT, 
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP, 
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
+    CONSTRAINT fk_user FOREIGN KEY (userId) REFERENCES userInfo(userId) 
+);
+
+CREATE TABLE organizationprofile (
+    id INT AUTO_INCREMENT PRIMARY KEY, 
+    companyName VARCHAR(255) , 
+    incorporationYear YEAR ,
+    isStartup  ENUM('Yes', 'No'),
+    website VARCHAR(255),
+    about TEXT, 
+    companyType VARCHAR(255),
+    officeAddress VARCHAR(255), 
+    officePincode VARCHAR(255) 
+);
+
+
+CREATE TABLE RecruiterProfile (
+    userId VARCHAR(50) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    position VARCHAR(255) NOT NULL, 
+    organizationId INT ,
+    mobile VARCHAR(15) ,
+    altMobile VARCHAR (15),
+    hasDefinedOrg tinyint,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP, 
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
+    CONSTRAINT fk_recruiter FOREIGN KEY (userId) REFERENCES userInfo(userId) ,
+    CONSTRAINT fk_organization FOREIGN KEY (organizationId) REFERENCES organizationprofile(id)
+
+);
+
+CREATE TABLE jobCategories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    jobCategory ENUM('internship', 'full-time') NOT NULL,
+    internshipPeriod VARCHAR(255),
+    startDate DATE,
+    endDate DATE,
+    instanceId VARCHAR(255),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Admin (
+    id SERIAL PRIMARY KEY,                  
+    name VARCHAR(255) NOT NULL,            
+    email VARCHAR(255) UNIQUE NOT NULL,    
+    universityName VARCHAR(255) NOT NULL,  
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP 
+);
+
+CREATE TABLE JobPost (
+    id INT AUTO_INCREMENT PRIMARY KEY,                          
+    organizationId INT,                                          
+    JobCategoryId INT,                                               
+    session VARCHAR(255),                                         
+    jobTitle VARCHAR(255),                                        
+    jobDescription TEXT,                                          
+    trainingLocation VARCHAR(255),                                
+    qualification VARCHAR(255),                                   
+    targetYears VARCHAR(255),                                     
+    openPositions INT,                                            
+    currency VARCHAR(50),                                         
+    stipend DECIMAL(10, 2),                                       
+    facilities TEXT,                                              
+    applicationDeadline DATETIME,                                 
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  
+    FOREIGN KEY (organizationId) REFERENCES organizationprofile(id),  
+    FOREIGN KEY (JobCategoryId) REFERENCES jobCategories(id)                
+);
+
+
+CREATE TABLE JobApplication (
+    id INT AUTO_INCREMENT PRIMARY KEY, 
+    jobPostId INT, 
+    applicantId VARCHAR(50), 
+    applicationStatus ENUM('APPLIED', 'ACCEPTED', 'REJECTED', 'OFFERED', 'PROCESSING') NOT NULL,
+    applicantAction ENUM('ACCEPT_OFFER', 'REJECT_OFFER') DEFAULT NULL,
+    recruiterAction ENUM('ACCEPT', 'REJECT', 'SEND_OFFER') DEFAULT NULL,
+    studentMessage VARCHAR(255), 
+    recruiterMessage VARCHAR(255), 
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_jobPost FOREIGN KEY (jobPostId) REFERENCES JobPost(id) ,
+    CONSTRAINT fk_applicant FOREIGN KEY (applicantId) REFERENCES StudentProfile(id) 
+);
