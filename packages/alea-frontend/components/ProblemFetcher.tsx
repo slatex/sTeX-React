@@ -40,8 +40,7 @@ const ProblemFetcher = ({
           solution: '',
         };
         /*const problemHtml = await getLearningObjectShtml(mmtUrl, problemUri);
-        const problemId = hackAwayProblemId(problemHtml);
-        const fetchedProblem = getProblem(problemId, '');
+        const fetchedProblem = getProblem(problemHtml, '');
         setProblem(fetchedProblem);*/
         if (!isFrozen) onResponseUpdate(undefined, 0);
       } catch (error) {

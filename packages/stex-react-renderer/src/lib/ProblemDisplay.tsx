@@ -1,188 +1,29 @@
 import { Visibility } from '@mui/icons-material';
-import CancelIcon from '@mui/icons-material/Cancel';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { Box, Button, Card, CircularProgress, IconButton, Typography } from '@mui/material';
 import {
   AnswerUpdateEntry,
-  AutogradableResponse,
   BloomDimension,
   CognitiveDimension,
   FTMLProblemWithSolution,
-  Input,
-  InputType,
   ProblemAnswerEvent,
-  QuadState,
   SymbolURI,
-  Tristate,
   UserInfo,
   createAnswer,
   getUserInfo,
   postAnswerToLMP,
 } from '@stex-react/api';
 import { FTMLFragment, ProblemResponse, ProblemState, Solutions } from '@stex-react/ftml-utils';
-import { getFillInFeedbackHtml, getPoints, isFillInInputCorrect } from '@stex-react/quiz-utils';
+import { getPoints } from '@stex-react/quiz-utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { getMMTHtml } from './CompetencyTable';
-import { NoMaxWidthTooltip, mmtHTMLToReact } from './mmtParser';
-import styles from './quiz.module.scss';
 import { DimIcon } from './SelfAssessmentDialog';
-
-function getClassNames(isSelected: boolean, isFrozen: boolean, correctness: QuadState) {
-  const shouldSelect = correctness === QuadState.TRUE;
-  const shouldNotSelect = correctness === QuadState.FALSE;
-  const toBeIgnored = correctness === QuadState.ANY;
-  const relevant = isSelected || (isFrozen && !isSelected && shouldSelect);
-
-  const styleList = ['option'];
-  styleList.push(relevant ? 'option_relevant' : 'option_not_relevant');
-
-  if (isFrozen) {
-    if (shouldSelect) {
-      styleList.push('should_select');
-      styleList.push(isSelected ? 'got_right' : 'got_wrong');
-    } else if (shouldNotSelect) {
-      if (isSelected) {
-        styleList.push('should_not_select');
-        styleList.push('got_wrong');
-      }
-    } else if (toBeIgnored) {
-      styleList.push('to_be_ignored');
-    }
-  } else {
-    if (isSelected) styleList.push('option_unsubmitted_selected');
-  }
-
-  // console.log(style);
-  return styleList.map((s) => styles[s]).join(' ');
-}
-
-function getDropdownClassNames(isSelected: boolean, isFrozen: boolean, correctness: QuadState) {
-  if (!isFrozen || correctness === QuadState.UNKNOWN) return '';
-
-  if (correctness === QuadState.TRUE) {
-    const style = styles['correct'] + ' ' + (isSelected ? styles['got_right'] : styles['missed']);
-    return style;
-  } else if (isSelected) {
-    return styles['incorrect'];
-  }
-  return '';
-}
-
-function fillInFeedback(input: Input, response?: AutogradableResponse) {
-  if (input.ignoreForScoring) {
-    return {
-      isCorrect: Tristate.TRUE,
-      feedbackHtml: 'Your response to this input will not be graded.',
-    };
-  }
-  const expected = input.fillInAnswerClasses;
-  if (!expected) return { isCorrect: Tristate.UNKNOWN, feedbackHtml: '' };
-  const actual = response?.filledInAnswer;
-  const isCorrect = isFillInInputCorrect(expected, actual) === Tristate.TRUE;
-  const feedbackHtml = getFillInFeedbackHtml(input, actual);
-  return {
-    isCorrect: isCorrect ? Tristate.TRUE : Tristate.FALSE,
-    feedbackHtml,
-  };
-}
-
-function quadStateToTristate(qs: QuadState) {
-  switch (qs) {
-    case QuadState.TRUE:
-    case QuadState.ANY:
-      return Tristate.TRUE;
-    case QuadState.FALSE:
-      return Tristate.FALSE;
-    default:
-      return Tristate.UNKNOWN;
-  }
-}
-
-function scbFeedback(input: Input, response?: AutogradableResponse) {
-  if (input.ignoreForScoring) {
-    return {
-      isCorrect: Tristate.TRUE,
-      feedbackHtml: 'Your response to this input will not be graded.',
-    };
-  }
-  const chosen = (input.options || []).find((o) => o.optionId === response?.singleOptionIdx);
-  if (!chosen) return { isCorrect: Tristate.FALSE, feedbackHtml: 'Wrong!' };
-  const isCorrect: Tristate = quadStateToTristate(chosen.shouldSelect);
-  if (isCorrect === Tristate.UNKNOWN) return { isCorrect, feedbackHtml: '' };
-  let feedbackHtml = chosen?.feedbackHtml;
-  if (chosen && !feedbackHtml?.length)
-    feedbackHtml = isCorrect === Tristate.TRUE ? 'Correct!' : 'Wrong!';
-  return { isCorrect, feedbackHtml };
-}
-
-function feedbackInfo(isFrozen: boolean, input: Input, response?: AutogradableResponse) {
-  if (!isFrozen) return undefined;
-  switch (input.type) {
-    case InputType.FILL_IN:
-      return fillInFeedback(input, response);
-    case InputType.SCQ:
-      return scbFeedback(input, response);
-    case InputType.MCQ:
-    default:
-      return undefined;
-  }
-}
 
 export function PointsInfo({ points }: { points: number | undefined }) {
   return (
     <Typography variant="h6" sx={{ display: 'flex', justifyContent: 'flex-end' }}>
       <b>{points ?? 1} pt</b>
     </Typography>
-  );
-}
-
-function DirectFeedback({
-  isCorrect,
-  feedbackHtml,
-}: {
-  isCorrect: Tristate;
-  feedbackHtml: string;
-}) {
-  if (isCorrect === Tristate.UNKNOWN) return null;
-  return (
-    <Box
-      display="block"
-      padding="3px 10px"
-      mb="5px"
-      bgcolor={isCorrect === Tristate.TRUE ? '#a3e9a0' : '#f39797'}
-      borderRadius="10px"
-    >
-      <span style={{ display: 'inline', textAlign: 'center', fontSize: '20px' }}>
-        {mmtHTMLToReact(feedbackHtml)}
-      </span>
-    </Box>
-  );
-}
-
-function FeedbackDisplay({
-  inline,
-  info,
-}: {
-  inline: boolean;
-  info?: { isCorrect: Tristate; feedbackHtml: string };
-}) {
-  if (!info) return null;
-  const { isCorrect, feedbackHtml } = info;
-  if (isCorrect === Tristate.UNKNOWN) return null;
-  return inline ? (
-    <NoMaxWidthTooltip title={<DirectFeedback isCorrect={isCorrect} feedbackHtml={feedbackHtml} />}>
-      {isCorrect === Tristate.TRUE ? (
-        <CheckCircleIcon htmlColor="green" />
-      ) : (
-        <CancelIcon htmlColor="red" />
-      )}
-    </NoMaxWidthTooltip>
-  ) : (
-    <>
-      <DirectFeedback isCorrect={isCorrect} feedbackHtml={feedbackHtml} />
-    </>
   );
 }
 
@@ -232,7 +73,8 @@ export function URIListDisplay({ uris, displayReverseRelation }: URIListDisplayP
     <Box>
       {uris?.map((uri, index, array) => (
         <span key={index}>
-          {mmtHTMLToReact(getMMTHtml(uri))}
+          {/*mmtHTMLToReact(getMMTHtml(uri))*/}
+          TODO ALEA-4
           <IconButton
             size="small"
             onClick={() => handleCopy(uri)}
@@ -251,7 +93,6 @@ export function URIListDisplay({ uris, displayReverseRelation }: URIListDisplayP
               <Visibility fontSize="small" />
             </IconButton>
           )}
-
           {index < array.length - 1 ? ',\xa0' : ''}
         </span>
       ))}
@@ -361,7 +202,6 @@ export function ProblemViewer({
 }) {
   const problemState = getProblemState(isFrozen, problem.solution, r);
 
-  console.log('to wasm', JSON.stringify(r ?? {}), JSON.stringify(problemState));
   return (
     <FTMLFragment
       key={problem.problem.uri}

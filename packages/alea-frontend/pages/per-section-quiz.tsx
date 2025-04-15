@@ -1,6 +1,6 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, IconButton, Tooltip } from '@mui/material';
-import { mmtHTMLToReact, PerSectionQuiz } from '@stex-react/stex-react-renderer';
+import { PerSectionQuiz } from '@stex-react/stex-react-renderer';
 import { PRIMARY_COL } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import React from 'react';
@@ -45,7 +45,7 @@ const PerSectionQuizPage: React.FC = () => {
                 fontWeight: 'bold',
               }}
             >
-              {title ? mmtHTMLToReact(title) : 'Untitled'} ({courseId.toUpperCase()})
+              {title ? /*mmtHTMLToReact(title)*/ 'TODO ALEA-4' : 'Untitled'} ({courseId.toUpperCase()})
             </span>
           </b>
         </Box>

@@ -5,7 +5,6 @@ export const BG_COLOR = 'hsl(210, 20%, 98%)';
 export const IS_SERVER = typeof window === 'undefined';
 export const localStore = IS_SERVER ? undefined : localStorage;
 export const Window = IS_SERVER ? undefined : window;
-export const IS_MMT_VIEWER = IS_SERVER ? false : (window as any).SHOW_FILE_BROWSER !== undefined;
 export const PRIMARY_COL = '#203360';
 export const PRIMARY_COL_DARK_HOVER = '#162343';
 export const SECONDARY_COL = '#8c9fb1';
@@ -46,21 +45,6 @@ export function convertHtmlStringToPlain(htmlStr: string) {
   return tempDivElement.textContent || tempDivElement.innerText || '';
 }
 
-export function getSectionInfo(url: string): FileInfo {
-  if (!url) url = '';
-  const match = /archive=([^&]+)&filepath=([^&]+)/g.exec(url);
-  const archive = match?.[1] || '';
-  const filepath = match?.[2] || '';
-  const sourcePath = filepath.replace('xhtml', 'tex');
-  const source = sourceFileUrl(archive, sourcePath);
-  return {
-    url: url.replace('/document?', '/fulldocument?'),
-    archive,
-    filepath,
-    source,
-  };
-}
-
 export function extractProjectIdAndFilepath(problemId: string, fileExtension = '.tex') {
   const url = problemId.replace('http://mathhub.info/', '').replace(/\?en.*/, '');
   const parts = url.split('/');
@@ -74,17 +58,6 @@ export function extractProjectIdAndFilepath(problemId: string, fileExtension = '
   const archive = parts.slice(0, projectParts).join('/');
   const filePath = parts.slice(projectParts).join('/').replace('.omdoc', fileExtension);
   return [archive, filePath];
-}
-
-export function urlWithContextParams(url: string, locale: string, topLevelUrl?: string) {
-  const sectionInfo = getSectionInfo(topLevelUrl ?? '');
-  if (!sectionInfo) return '';
-  const { archive, filepath } = sectionInfo;
-  if (url.endsWith('language=')) {
-    // Horrible hack.
-    return `${url}${locale}&contextArchive=${archive}&contextFilepath=${filepath}`;
-  }
-  return `${url}&language=${locale}&contextArchive=${archive}&contextFilepath=${filepath}`;
 }
 
 // Not crypto-safe.
@@ -163,10 +136,6 @@ export function fixDuplicateLabels<T extends { label: string }>(RAW: T[]) {
     }
   }
   return fixed;
-}
-
-export function getChildrenOfBodyNode(bodyNode: any) {
-  return bodyNode?.props?.children;
 }
 
 export function getCookie(name: string) {

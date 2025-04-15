@@ -24,7 +24,6 @@ import {
 import { ProblemResponse } from '@stex-react/ftml-utils';
 import {
   GradingDisplay,
-  mmtHTMLToReact,
   ProblemDisplay,
   ServerLinksContext,
 } from '@stex-react/stex-react-renderer';
@@ -123,7 +122,7 @@ function AnswerItemDisplay({
   useEffect(() => {
     // TODO alea4
     // getLearningObjectShtml(mmtUrl, answer.questionId).then((p) => {
-    //  setProblem(getProblem(hackAwayProblemId(p), ''));
+    //  setProblem(getProblem(p, ''));
     //});
     // let answers = {};
     // for (let index = 0; index <= +answer.subProblemId; index++) {
@@ -215,7 +214,7 @@ function AnswerItemsList({
               sx={{ py: 0, bgcolor: idx % 2 === 0 ? '#f0f0f0' : '#ffffff' }}
             >
               <ListItemText
-                primary={questionTitle ? mmtHTMLToReact(questionTitle) : id}
+                primary={questionTitle ? /*mmtHTMLToReact(questionTitle)*/ 'TODO ALEA-4' : id}
                 secondary={
                   <Box>
                     <Box>

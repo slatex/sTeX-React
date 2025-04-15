@@ -11,7 +11,7 @@ import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import { Header } from '../components/Header';
 import { getLocaleObject } from '../lang/utils';
-import { PositionContext } from 'packages/stex-react-renderer/src/lib/mmtParser';
+import { PositionContext } from '@stex-react/stex-react-renderer';
 import { ChevronRight, ChevronLeft } from '@mui/icons-material';
 function SessionResetSlider() {
   const [open, setOpen] = useState(false);

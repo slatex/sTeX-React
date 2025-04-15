@@ -28,7 +28,6 @@ import ConceptHistoryTable from './ConceptHistoryTable';
 import { PracticeQuestions } from './PracticeQuestions';
 import { SelfAssessmentDialogRow } from './SelfAssessmentDialog';
 import { getLocaleObject } from './lang/utils';
-import { mmtHTMLToReact } from './mmtParser';
 import { ServerLinksContext } from './stex-react-renderer';
 
 const extractLastWordAfterQuestionMark = (url: string) => {
@@ -36,14 +35,6 @@ const extractLastWordAfterQuestionMark = (url: string) => {
   const parts = url.split('?');
   return parts[parts.length - 1];
 };
-
-export function getMMTHtml(uri: string) {
-  const lastWord = extractLastWordAfterQuestionMark(uri);
-  const hoverLink = `/:sTeX/fragment?${uri}`;
-  const clickLink = `/:sTeX/declaration?${uri}`;
-  const highlightParent = Math.random() * 1000000;
-  return `<span data-overlay-link-click="${clickLink}" data-highlight-parent="${highlightParent}" data-overlay-link-hover="${hoverLink}" class="symcomp group-highlight rustex-contents">${lastWord}</span>`;
-}
 
 function QuizIconWithProblemsCount({ problemIds }: { problemIds: string[] }) {
   return (
@@ -262,7 +253,16 @@ export function CompetencyTable({
           <TableBody>
             {combinedData.map((row, index) => (
               <TableRow key={index}>
-                <TableCell>{mmtHTMLToReact(getMMTHtml(row.concepts))}</TableCell>
+                {/* TODO ALEA-4 
+                export function getMMTHtml(uri: string) {
+                  const lastWord = extractLastWordAfterQuestionMark(uri);
+                  const hoverLink = `/:sTeX/fragment?${uri}`;
+                  const clickLink = `/:sTeX/declaration?${uri}`;
+                  const highlightParent = Math.random() * 1000000;
+                  return `<span data-overlay-link-click="${clickLink}" data-highlight-parent="${highlightParent}" data-overlay-link-hover="${hoverLink}" class="symcomp group-highlight rustex-contents">${lastWord}</span>`;
+                }
+*/}
+                <TableCell>TODO ALEA-4{/*mmtHTMLToReact(getMMTHtml(row.concepts))*/}</TableCell>
                 <TableCell>
                   <Tooltip
                     title="View how you reached the current competency level"

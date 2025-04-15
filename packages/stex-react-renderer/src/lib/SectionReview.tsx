@@ -18,22 +18,14 @@ import {
   DefiniendaItem,
   NumericCognitiveValues,
   SHOW_DIMENSIONS,
-  getDefiniedaInDoc,
   getUriWeights,
-  isLoggedIn,
 } from '@stex-react/api';
-import { BG_COLOR, getSectionInfo } from '@stex-react/utils';
+import { BG_COLOR } from '@stex-react/utils';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import CompetencyTable from './CompetencyTable';
-import { PerSectionQuiz } from './PerSectionQuiz';
-import { RenderOptions } from './RendererDisplayOptions';
 import { getLocaleObject } from './lang/utils';
-import {
-  DimIcon,
-  ServerLinksContext,
-  mmtHTMLToReact,
-} from './stex-react-renderer';
+import { DimIcon } from './stex-react-renderer';
 import styles from './styles/competency-indicator.module.scss';
 
 function CompetencyBar({ dim, val }: { dim: BloomDimension; val: number }) {
@@ -61,22 +53,20 @@ const SectionReview = ({
   contentUrl: string;
   sectionTitle: string;
 }) => {
-  const [competencyData, setCompetencyData] = useState<
-    NumericCognitiveValues[] | null
-  >(null);
+  const [competencyData, setCompetencyData] = useState<NumericCognitiveValues[] | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [definedData, setDefinedData] = useState<DefiniendaItem[] | null>(null);
-  const { archive, filepath } = getSectionInfo(contentUrl);
-  const { mmtUrl } = useContext(ServerLinksContext);
-  const { renderOptions } = useContext(RenderOptions);
   const [URIs, setURIs] = useState<string[]>([]);
   const t = getLocaleObject(useRouter());
 
+  //Todo alea-4
+  /*
+  const { archive, filepath } = getSectionInfo(contentUrl);
   useEffect(() => {
     if (!isLoggedIn()) return;
-     //Todo alea-4
+     
     // getDefiniedaInDoc(mmtUrl, archive, filepath).then(setDefinedData);
-  }, [archive, filepath, mmtUrl]);
+  }, [archive, filepath, mmtUrl]);*/
 
   useEffect(() => {
     if (!definedData) return;
@@ -99,7 +89,7 @@ const SectionReview = ({
     return acc;
   }, {} as { [competency: string]: number });
 
-  if (!definedData?.length || renderOptions.noFrills) return null;
+  if (!definedData?.length) return null;
 
   return (
     <Box maxWidth="var(--document-width)">
@@ -114,20 +104,15 @@ const SectionReview = ({
                 <CompetencyBar key={dim} dim={dim} val={averages[dim]} />
               ))}
             </Box>
-            <span style={{ color: 'gray', whiteSpace: 'nowrap' }}>
-              {t.review}
-            </span>
+            <span style={{ color: 'gray', whiteSpace: 'nowrap' }}>{t.review}</span>
             &nbsp;
-            <b>{mmtHTMLToReact(sectionTitle)}</b>
+            <b>{/*mmtHTMLToReact(sectionTitle)*/}TODO ALEA-4</b>
           </Box>
         </AccordionSummary>
         <AccordionDetails>
           <Box className={styles['details-competence-bar-container']}>
             {SHOW_DIMENSIONS.map((dim) => (
-              <Tooltip
-                key={dim}
-                title={`${dim}: ${(averages[dim] * 100).toFixed(1)}%`}
-              >
+              <Tooltip key={dim} title={`${dim}: ${(averages[dim] * 100).toFixed(1)}%`}>
                 <Box
                   className={styles['details-competence-bar']}
                   bgcolor={BG_COLOR}
@@ -139,15 +124,11 @@ const SectionReview = ({
               </Tooltip>
             ))}
           </Box>
-          <PerSectionQuiz archive={archive} filepath={filepath} showHideButton={true}/>
+          {/* TODO ALEA-4 */}
+          {/* <PerSectionQuiz archive={archive} filepath={filepath} showHideButton={true}/> */}
         </AccordionDetails>
       </Accordion>
-      <Dialog
-        open={openDialog}
-        onClose={() => setOpenDialog(false)}
-        fullWidth={true}
-        maxWidth="lg"
-      >
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} fullWidth={true} maxWidth="lg">
         <DialogTitle>
           <b>{t.details}</b>
         </DialogTitle>
@@ -163,11 +144,7 @@ const SectionReview = ({
           ) : null}
         </DialogContent>
         <DialogActions style={{ justifyContent: 'center' }}>
-          <Button
-            onClick={() => setOpenDialog(false)}
-            color="primary"
-            variant="contained"
-          >
+          <Button onClick={() => setOpenDialog(false)} color="primary" variant="contained">
             {t.close}
           </Button>
         </DialogActions>

@@ -1,25 +1,12 @@
 import AddCommentIcon from '@mui/icons-material/AddComment';
 import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
-import {
-  Box,
-  Button,
-  Dialog,
-  DialogActions,
-  IconButton,
-  Tooltip,
-} from '@mui/material';
+import { Box, Button, Dialog, DialogActions, IconButton, Tooltip } from '@mui/material';
 import { Comment } from '@stex-react/api';
 import { MystViewer } from '@stex-react/myst';
-import { getSectionInfo } from '@stex-react/utils';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
-import { getTotalComments } from './comment-helpers';
+import { useState } from 'react';
 import { CommentNoteToggleView } from './comment-note-toggle-view';
-import {
-  getPrivateNotes,
-  getPublicCommentTrees,
-} from './comment-store-manager';
 import { getLocaleObject } from './lang/utils';
 
 function buttonProps(backgroundColor: string) {
@@ -79,7 +66,7 @@ export function CommentsIcon({ numComments }: { numComments: number }) {
 }
 
 export function CommentButton({ url = '' }: { url?: string }) {
-  const { archive, filepath } = getSectionInfo(url);
+  //const { archive, filepath } = getSectionInfo(url);
   const [numPublicComments, setNumPublicComments] = useState(0);
   const [numPrivateNotes, setNumPrivateNotes] = useState(0);
   const [open, setOpen] = useState(false);
@@ -88,6 +75,8 @@ export function CommentButton({ url = '' }: { url?: string }) {
   const [topNote, setTopNote] = useState<Comment | undefined>(undefined);
   const t = getLocaleObject(useRouter());
 
+  //Todo alea-4
+  /*
   useEffect(() => {
     if (!archive || !filepath) {
       setNumPublicComments(0);
@@ -103,7 +92,7 @@ export function CommentButton({ url = '' }: { url?: string }) {
     });
   }, [archive, filepath, open]);
 
-  if (!archive || !filepath) return null;
+  if (!archive || !filepath) return null;*/
 
   return (
     <Box>
@@ -164,10 +153,8 @@ export function CommentButton({ url = '' }: { url?: string }) {
       )}
       {open && (
         <Dialog onClose={() => setOpen(false)} open={open} maxWidth="lg">
-          <CommentNoteToggleView
-            defaultPrivate={defaultPrivate}
-            file={{ archive, filepath }}
-          />
+          {/* TODO ALEA-4 */}
+          {/* <CommentNoteToggleView defaultPrivate={defaultPrivate} file={{ archive, filepath }} /> */}
           <DialogActions sx={{ p: '0' }}>
             <Button onClick={() => setOpen(false)}>{t.close}</Button>
           </DialogActions>

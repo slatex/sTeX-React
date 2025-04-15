@@ -48,7 +48,7 @@ export function PracticeQuestions({
     const problems$ = problemIds.map((p) => getLearningObjectShtml(mmtUrl, p));
     setIsLoadingProblems(true);
     Promise.all(problems$).then((problemStrs) => {
-      // TODO alea4 const problems = problemStrs.map((p) => getProblem(hackAwayProblemId(p), ''));
+      // TODO alea4 const problems = problemStrs.map((p) => getProblem(p, ''));
       // setProblems(problems);
       // setResponses(problems.map((p) => defaultProblemResponse(p)));
       setIsFrozen(problems.map(() => false));
@@ -138,6 +138,7 @@ export function PracticeQuestions({
             {/* TODO alea4 subProblems.map((p) => (
               <div style={{ color: '#555' }}>{mmtHTMLToReact(p.solution)}</div>
             ))*/}
+            TODO ALEA-4
           </Box>
         )}
       </Box>

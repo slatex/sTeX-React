@@ -23,16 +23,9 @@ import { useEffect, useState } from 'react';
 import InfoIcon from '@mui/icons-material/Info';
 import { getLocaleObject } from '../lang/utils';
 import { useRouter } from 'next/router';
-import {
-  NoMaxWidthTooltip,
-  mmtHTMLToReact,
-} from '@stex-react/stex-react-renderer';
+import { NoMaxWidthTooltip } from '@stex-react/stex-react-renderer';
 
-function RecorrectionInfoDisp({
-  recorrectionInfo,
-}: {
-  recorrectionInfo?: RecorrectionInfo[];
-}) {
+function RecorrectionInfoDisp({ recorrectionInfo }: { recorrectionInfo?: RecorrectionInfo[] }) {
   const { quizPerformanceTable: t } = getLocaleObject(useRouter());
   if (!recorrectionInfo?.length) return null;
   return (
@@ -51,12 +44,10 @@ function RecorrectionInfoDisp({
             {recorrectionInfo.map((r, idx) => (
               <li key={idx} style={{ marginBottom: '10px' }}>
                 <Typography variant="body1">
-                  {t.theProblem}{' '}
-                  <b>{mmtHTMLToReact(r.problemHeader || r.problemId)}</b>
-                  &nbsp;{t.wasRecorrected} (
-                  {dayjs(r.recorrectedTs).format('MMM DD')}).
+                  {t.theProblem} <b>{/*mmtHTMLToReact(r.problemHeader || r.problemId)*/}TODO ALEA-4</b>
+                  &nbsp;{t.wasRecorrected} ({dayjs(r.recorrectedTs).format('MMM DD')}).
                   <br />
-                  {mmtHTMLToReact(r.description)}
+                  {/*mmtHTMLToReact(r.description)*/}TODO ALEA-4
                 </Typography>
               </li>
             ))}
@@ -79,8 +70,7 @@ function QuizPerformanceTable({
   header: string;
 }) {
   const { quizPerformanceTable: t } = getLocaleObject(useRouter());
-  const [previousQuizData, setPreviousQuizData] =
-    useState<GetPreviousQuizInfoResponse>();
+  const [previousQuizData, setPreviousQuizData] = useState<GetPreviousQuizInfoResponse>();
   useEffect(() => {
     getPreviousQuizInfo(courseId).then(setPreviousQuizData);
   }, [courseId]);
@@ -123,39 +113,29 @@ function QuizPerformanceTable({
                     }}
                   >
                     <Box display="flex" alignItems="center">
-                      <Link
-                        href={`/quiz/${quiz.quizId}`}
-                        style={{ marginRight: '5px' }}
-                      >
+                      <Link href={`/quiz/${quiz.quizId}`} style={{ marginRight: '5px' }}>
                         {convertHtmlStringToPlain(quiz.title)}
                       </Link>
                       <RecorrectionInfoDisp
-                        recorrectionInfo={
-                          previousQuizData?.quizInfo[quiz.quizId]
-                            ?.recorrectionInfo
-                        }
+                        recorrectionInfo={previousQuizData?.quizInfo[quiz.quizId]?.recorrectionInfo}
                       />
                     </Box>
                   </TableCell>
                   <TableCell>
                     <Tooltip
-                      title={`${dayjs(quiz.quizStartTs).format(
-                        'MMM-DD HH:mm'
-                      )} to ${dayjs(quiz.quizEndTs).format('MMM-DD HH:mm')}`}
+                      title={`${dayjs(quiz.quizStartTs).format('MMM-DD HH:mm')} to ${dayjs(
+                        quiz.quizEndTs
+                      ).format('MMM-DD HH:mm')}`}
                     >
                       <span>{dayjs(quiz.quizStartTs).format('MMM-DD')}</span>
                     </Tooltip>
                   </TableCell>
-                  <TableCell>
-                    {previousQuizData?.quizInfo[quiz.quizId]?.maxPoints}
-                  </TableCell>
+                  <TableCell>{previousQuizData?.quizInfo[quiz.quizId]?.maxPoints}</TableCell>
                   <TableCell>
                     {previousQuizData?.quizInfo[quiz.quizId]?.score?.toFixed(2)}
                   </TableCell>
                   <TableCell>
-                    {previousQuizData?.quizInfo[
-                      quiz.quizId
-                    ]?.averageScore?.toFixed(2)}
+                    {previousQuizData?.quizInfo[quiz.quizId]?.averageScore?.toFixed(2)}
                   </TableCell>
                 </TableRow>
               ))}

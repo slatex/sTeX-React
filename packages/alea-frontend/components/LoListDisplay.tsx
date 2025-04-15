@@ -6,7 +6,6 @@ import SchoolIcon from '@mui/icons-material/School';
 import { alpha, Box, IconButton, Paper, TextField, Tooltip, Typography } from '@mui/material';
 import { getLearningObjectShtml, LoType } from '@stex-react/api';
 import {
-  mmtHTMLToReact,
   PracticeQuestions,
   ServerLinksContext,
 } from '@stex-react/stex-react-renderer';
@@ -125,7 +124,8 @@ export const LoViewer: React.FC<{ uri: string; uriType: LoType }> = ({ uri, uriT
       ) : error ? (
         <Typography color="error">Error: {error}</Typography>
       ) : learningObject ? (
-        mmtHTMLToReact(learningObject)
+        //mmtHTMLToReact(learningObject)
+        <Typography>TODO ALEA-4</Typography>
       ) : (
         <Typography>No {uriType} found.</Typography>
       )}

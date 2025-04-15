@@ -9,7 +9,6 @@ import {
   Typography,
 } from '@mui/material';
 import { HomeworkStub, LearnerHomeworkInfo, getHomeworkList } from '@stex-react/api';
-import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import { PRIMARY_COL } from '@stex-react/utils';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -89,7 +88,8 @@ function HomeworkPerformanceTable({ courseId }: { courseId: string }) {
                     onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
                     onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
                   >
-                    {mmtHTMLToReact(homework.title)}
+                    {/*mmtHTMLToReact(homework.title)*/}
+                    TODO ALEA-4
                   </Link>
                 </TableCell>
                 <TableCell sx={{ color: PRIMARY_COL, wordBreak: 'break-word', minWidth: '100px' }}>

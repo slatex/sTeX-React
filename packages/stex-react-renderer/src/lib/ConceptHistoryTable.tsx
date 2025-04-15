@@ -21,8 +21,6 @@ import {
 } from '@stex-react/api';
 import { useEffect, useState } from 'react';
 import { Chart } from 'react-google-charts';
-import { getMMTHtml } from './CompetencyTable';
-import { mmtHTMLToReact } from './mmtParser';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
 const eventTypeMapping: { [key: string]: string } = {
@@ -227,7 +225,7 @@ function ConceptHistoryTable({
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth={true} maxWidth="lg">
-      <DialogTitle>{mmtHTMLToReact(getMMTHtml(concept))}</DialogTitle>
+      <DialogTitle>TODO ALEA-4{/*mmtHTMLToReact(getMMTHtml(concept))*/}</DialogTitle>
       <DialogContent>
         {loading ? (
           <Box

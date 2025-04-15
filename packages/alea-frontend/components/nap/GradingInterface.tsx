@@ -30,10 +30,9 @@ import {
   HomeworkInfo,
   Tristate,
 } from '@stex-react/api';
-import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
+import { ProblemResponse } from '@stex-react/ftml-utils';
 import {
   GradingContext,
-  mmtHTMLToReact,
   ProblemDisplay,
   ServerLinksContext,
   ShowGradingFor,
@@ -49,7 +48,6 @@ import {
   useState,
 } from 'react';
 import { MultiItemSelector } from './MultiItemsSeletctor';
-import { ProblemResponse } from '@stex-react/ftml-utils';
 const MULTI_SELECT_FIELDS = ['homeworkId', 'questionId', 'studentId'] as const;
 const ALL_SORT_FIELDS = ['homeworkDate', 'questionTitle', 'updatedAt', 'studentId'] as const;
 const DEFAULT_SORT_ORDER: Record<SortField, 'ASC' | 'DESC'> = {
@@ -61,13 +59,6 @@ const DEFAULT_SORT_ORDER: Record<SortField, 'ASC' | 'DESC'> = {
 type MultSelectField = (typeof MULTI_SELECT_FIELDS)[number];
 type SortField = (typeof ALL_SORT_FIELDS)[number];
 
-async function fetchAndProcessProblem(questionId: string, mmtUrl: string) {
-  const problemIdPrefix = questionId.replace(/\?[^?]*$/, '');
-  const problemObject = await getProblemObject(mmtUrl, problemIdPrefix);
-  const problemHtml = await getLearningObjectShtml(mmtUrl, problemObject);
-  const problemId = hackAwayProblemId(problemHtml);
-  return getProblem(problemId, '');
-}
 
 function getSelectedGradingItems(
   items: GradingItem[],
@@ -77,7 +68,7 @@ function getSelectedGradingItems(
 ) {
   function getValue(item: GradingItem, field: SortField) {
     if (field === 'homeworkDate') return homeworkMap[item.homeworkId]?.givenTs;
-    if (field === 'questionTitle') return item.questionId + '(TODO)'; // questionMap[item.questionId]?.problem;
+    if (field === 'questionTitle') return item.questionId + '(TODO ALEA-4)'; // questionMap[item.questionId]?.problem;
     if (field === 'studentId') return item.studentId;
     if (field === 'updatedAt') return item.updatedAt;
   }
@@ -351,7 +342,8 @@ function GradingItemsList({
               <ListItemText
                 primary={
                   problemMap[questionId]?.['header'] // TODO ale4
-                    ? mmtHTMLToReact(problemMap[questionId]?.['header'])
+                    ? /*mmtHTMLToReact(problemMap[questionId]?.['header'])*/
+                      'TODO ALEA-4'
                     : questionId
                 }
                 secondary={
@@ -359,7 +351,8 @@ function GradingItemsList({
                     {!homeworkId
                       ? 'Not Homework'
                       : homeworkMap[homeworkId]?.title
-                      ? mmtHTMLToReact(homeworkMap[homeworkId].title)
+                      ? /*mmtHTMLToReact(homeworkMap[homeworkId].title)*/
+                        'TODO ALEA-4'
                       : 'HW ' + homeworkId}
                     &nbsp;{isPeerGrading ? '' : `(${studentId})`}
                   </>
@@ -432,8 +425,11 @@ function GradingItemDisplay({
     }
     const fetchProblem = async () => {
       try {
-        const fetchedProblem = await fetchAndProcessProblem(questionId, mmtUrl);
-        // setProblem(fetchedProblem); TODO alea 4
+        // TODO alea 4
+        // const problemIdPrefix = questionId.replace(/\?[^?]*$/, '');
+        // const problemObject = await getProblemObject(mmtUrl, problemIdPrefix);
+        // const problemHtml = await getLearningObjectShtml(mmtUrl, problemObject);
+        // setProblem(getProblem(problemHtml, ''));
       } catch (error) {
         console.error('Error fetching problem:', error);
       }

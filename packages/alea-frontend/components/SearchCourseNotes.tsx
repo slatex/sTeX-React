@@ -1,28 +1,22 @@
 import SearchIcon from '@mui/icons-material/Search';
 import {
-    Box,
-    IconButton,
-    InputAdornment,
-    LinearProgress,
-    TextField,
-    Tooltip,
-    Typography,
+  Box,
+  IconButton,
+  InputAdornment,
+  LinearProgress,
+  TextField,
+  Tooltip,
+  Typography,
 } from '@mui/material';
 import {
-    getCourseInfo,
-    getDocumentSections,
-    isSection,
-    searchCourseNotes,
-    GptSearchResult,
-    SectionsAPIData,
+  getCourseInfo,
+  GptSearchResult,
+  isSection,
+  searchCourseNotes,
+  SectionsAPIData,
 } from '@stex-react/api';
-import {
-    DocumentWidthSetter,
-    ExpandableContent,
-    mmtHTMLToReact,
-    ServerLinksContext,
-} from '@stex-react/stex-react-renderer';
-import { PRIMARY_COL, XhtmlContentUrl } from '@stex-react/utils';
+import { ServerLinksContext } from '@stex-react/stex-react-renderer';
+import { PRIMARY_COL } from '@stex-react/utils';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
@@ -78,35 +72,36 @@ function ResultDocument({
     sectionData
   );
   return (
-    <DocumentWidthSetter>
-      <Box
+    <Box
+      sx={{
+        borderRadius: '5px',
+        my: '20px',
+        p: '5px',
+        boxShadow: '5px 5px 10px gray',
+      }}
+    >
+      <Typography
+        variant="h6"
         sx={{
-          borderRadius: '5px',
-          my: '20px',
-          p: '5px',
-          boxShadow: '5px 5px 10px gray',
+          fontWeight: 'bold',
+          my: '10px',
+          color: PRIMARY_COL,
+          textAlign: 'center',
         }}
       >
-        <Typography
-          variant="h6"
-          sx={{
-            fontWeight: 'bold',
-            my: '10px',
-            color: PRIMARY_COL,
-            textAlign: 'center',
-          }}
-        >
-          <Link href={`/course-notes/${courseId}?inDocPath=~${parentIdData?.id}`} onClick={onClose}>
-            {mmtHTMLToReact(parentIdData?.title || '')}
-          </Link>
-        </Typography>
-        <hr />
+        <Link href={`/course-notes/${courseId}?inDocPath=~${parentIdData?.id}`} onClick={onClose}>
+          {/*mmtHTMLToReact(parentIdData?.title || '')*/}
+          TODO ALEA-4
+        </Link>
+      </Typography>
+      <hr />
+      {/* TODO ALEA-4 
         <ExpandableContent
           contentUrl={"we will use FTMLVIEWER"}
           noFurtherExpansion
         />
-      </Box>
-    </DocumentWidthSetter>
+        */}
+    </Box>
   );
 }
 

@@ -1,5 +1,4 @@
-import { Autocomplete, Checkbox, Chip, TextField } from "@mui/material";
-import { mmtHTMLToReact } from "@stex-react/stex-react-renderer";
+import { Autocomplete, Checkbox, Chip, TextField } from '@mui/material';
 
 export function MultiItemSelector<T>({
   selectedValues,
@@ -30,7 +29,9 @@ export function MultiItemSelector<T>({
         return (
           <li key={key} {...optionProps}>
             <Checkbox checked={selected} />
-            {option.title ? mmtHTMLToReact(option.title) : (option.value ?? 'unset').toString()}
+            {option.title
+              ? /*mmtHTMLToReact(option.title)*/ 'TODO ALEA-4'
+              : (option.value ?? 'unset').toString()}
           </li>
         );
       }}
@@ -40,7 +41,9 @@ export function MultiItemSelector<T>({
             key={index}
             {...getTagProps({ index })}
             label={
-              option.title ? mmtHTMLToReact(option.title) : option.value.toString().substring(0, 30)
+              option.title
+                ? /*mmtHTMLToReact(option.title)*/ 'TODO ALEA-4'
+                : option.value.toString().substring(0, 30)
             }
           />
         ));

@@ -5,17 +5,9 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import {
-  BloomDimension,
-  NumericCognitiveValues,
-  getSectionDependencies,
-  getUriWeights,
-  isLoggedIn,
-} from '@stex-react/api';
-import { getSectionInfo } from '@stex-react/utils';
-import { useContext, useEffect, useState } from 'react';
+import { BloomDimension, NumericCognitiveValues, getUriWeights } from '@stex-react/api';
+import { useState } from 'react';
 import CompetencyTable from './CompetencyTable';
-import { ServerLinksContext } from './stex-react-renderer';
 
 const trafficLightStyle = {
   width: '30px',
@@ -59,18 +51,17 @@ function getText(averageUnderstand: number): string {
 }
 
 const TrafficLightIndicator = ({ contentUrl }: { contentUrl: string }) => {
-  const { archive, filepath } = getSectionInfo(contentUrl);
-  const { mmtUrl } = useContext(ServerLinksContext);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [competencyData, setCompetencyData] = useState<NumericCognitiveValues[] | null>(null);
   const [URIs, setURIs] = useState<string[]>([]);
-  useEffect(() => {
+  /* useEffect(() => {
     if (!isLoggedIn()) return;
+   TODO ALEA-4
     getSectionDependencies(mmtUrl, archive, filepath).then((uris) => {
       setURIs(uris);
       getUriWeights(uris).then((data) => setCompetencyData(data));
     });
-  }, [archive, filepath, mmtUrl]);
+  }, [archive, filepath, mmtUrl]);*/
 
   const handleBoxClick = () => {
     setDialogOpen(true);

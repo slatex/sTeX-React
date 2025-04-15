@@ -1,9 +1,4 @@
-import { NextPage } from 'next';
-import MainLayout from '../layouts/MainLayout';
 import { Box, List, ListItemButton, ListItemText } from '@mui/material';
-import {
-  mmtHTMLToReact,
-} from '@stex-react/stex-react-renderer';
 import {
   deleteGraded,
   getMyGraded,
@@ -11,9 +6,11 @@ import {
   GradingWithAnswer,
   UserInfo,
 } from '@stex-react/api';
-import { useEffect, useState } from 'react';
+import { NextPage } from 'next';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import { PeerReviewGradedItemDisplay } from '../components/peer-review/PeerReviewGradedItemDisplay';
+import MainLayout from '../layouts/MainLayout';
 function GradedItemsList({
   gradedItems,
   onSelectItem,
@@ -31,10 +28,13 @@ function GradedItemsList({
             sx={{ py: 0, bgcolor: idx % 2 === 0 ? '#f0f0f0' : '#ffffff' }}
           >
             <ListItemText
-              primary={questionTitle ? mmtHTMLToReact(questionTitle) : id}
-              secondary={mmtHTMLToReact(
+              primary={questionTitle ? /*mmtHTMLToReact(questionTitle)*/ 'TODO ALEA-4' : id}
+              secondary={
+                /*mmtHTMLToReact(
                 questionTitle.slice(0, questionTitle.length > 20 ? 20 : questionTitle.length)
-              )}
+              )*/
+                'TODO ALEA-4'
+              }
             />
           </ListItemButton>
         ))}

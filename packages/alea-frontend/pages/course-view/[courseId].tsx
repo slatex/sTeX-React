@@ -17,8 +17,7 @@ import { FTMLFragment } from '@stex-react/ftml-utils';
 import {
   ContentDashboard,
   LayoutWithFixedMenu,
-  SectionReview,
-  mmtHTMLToReact,
+  SectionReview
 } from '@stex-react/stex-react-renderer';
 import { CourseInfo, XhtmlContentUrl, localStore, shouldUseDrawer } from '@stex-react/utils';
 import axios from 'axios';
@@ -318,7 +317,7 @@ const CourseViewPage: NextPage = () => {
             </Box>
             <Box sx={{ marginBottom: '10px', marginTop: '10px' }}>
               <Typography variant="h6" sx={{ color: '#333' }}>
-                {mmtHTMLToReact(sectionNode?.title || '')}
+                {/*mmtHTMLToReact(sectionNode?.title || '')*/}TODO ALEA-4
               </Typography>
             </Box>
             {viewMode === ViewMode.COMBINED_MODE && (

@@ -1,6 +1,5 @@
 import { Box, TextField } from '@mui/material';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
-import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import { PathToTour, fixDuplicateLabels } from '@stex-react/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
@@ -67,7 +66,8 @@ export function ToursAutocomplete({
       )}
       renderOption={(props, option) => (
         <Box component="li" {...props}>
-          {mmtHTMLToReact((option as any).label)}
+          {/*mmtHTMLToReact((option as any).label)*/}
+          TODO ALEA-4
         </Box>
       )}
       onChange={(_e, n: any) => {

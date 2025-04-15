@@ -1,6 +1,6 @@
 import { Box, CircularProgress } from '@mui/material';
 import { SectionsAPIData, getAncestors, lastFileNode } from '@stex-react/api';
-import { BG_COLOR, IS_MMT_VIEWER, getSectionInfo, shouldUseDrawer } from '@stex-react/utils';
+import { BG_COLOR, shouldUseDrawer } from '@stex-react/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
@@ -8,7 +8,6 @@ import { ContentDashboard } from './ContentDashboard';
 import { LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 import { PerSectionQuiz } from './PerSectionQuiz';
 import { getLocaleObject } from './lang/utils';
-import { mmtHTMLToReact } from './mmtParser';
 import { ServerLinksContext } from './stex-react-renderer';
 
 function shortenDocSections(coveredSectionIds: string[], docSections?: SectionsAPIData) {
@@ -43,7 +42,7 @@ export function DocProblemBrowser({
   noFrills?: boolean;
 }) {
   const { practiceProblems: t } = getLocaleObject(useRouter());
-  const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer() && !IS_MMT_VIEWER);
+  const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
   const [docSections, setDocSections] = useState<SectionsAPIData | undefined>(undefined);
   const { mmtUrl } = useContext(ServerLinksContext);
   const [selectedSection, setSelectedSection] = useState('');
@@ -59,8 +58,9 @@ export function DocProblemBrowser({
   //   const shortenedDocSections = shortenDocSections(coveredSectionIds, docSections);
 
   useEffect(() => {
-    const { archive, filepath } = getSectionInfo(contentUrl);
     //Todo alea-4
+    // const { archive, filepath } = getSectionInfo(contentUrl);
+    
     // getDocumentSections(mmtUrl, archive, filepath).then(setDocSections);
   }, [mmtUrl, contentUrl]);
 
@@ -99,7 +99,8 @@ export function DocProblemBrowser({
         {ancestors?.length && (
           <h3>
             <span style={{ color: 'gray' }}>{t.problemsFor}</span>{' '}
-            {mmtHTMLToReact(ancestors[ancestors.length - 1].title ?? '')}
+            {/* TODO ALEA-4 */}
+            {/* mmtHTMLToReact(ancestors[ancestors.length - 1].title ?? '') */}
           </h3>
         )}
         {!selectedSection && (

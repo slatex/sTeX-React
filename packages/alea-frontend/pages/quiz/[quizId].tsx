@@ -11,7 +11,6 @@ import {
   Problem,
   UserInfo,
 } from '@stex-react/api';
-import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
 import { QuizDisplay } from '@stex-react/stex-react-renderer';
 import { Action, CURRENT_TERM, localStore, ResourceName } from '@stex-react/utils';
 import dayjs from 'dayjs';

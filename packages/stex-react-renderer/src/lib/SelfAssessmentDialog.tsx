@@ -16,7 +16,6 @@ import { BG_COLOR, PRIMARY_COL, SECONDARY_COL } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { getLocaleObject } from './lang/utils';
-import { mmtHTMLToReact } from './mmtParser';
 
 const ICON_SIZE = 33;
 
@@ -203,7 +202,8 @@ export function SelfAssessmentDialogRow({
                 '& *': { display: 'inline!important' },
               }}
             >
-              {mmtHTMLToReact(htmlName)}
+              {/*mmtHTMLToReact(htmlName)*/}
+              TODO ALEA4
             </Box>
           </span>
         )}

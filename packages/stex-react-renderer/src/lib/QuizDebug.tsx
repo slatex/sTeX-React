@@ -9,7 +9,6 @@ import {
     TableRow
 } from '@mui/material';
 import { FillInAnswerClass, FillInAnswerClassType, Option, QuadState } from '@stex-react/api';
-import { mmtHTMLToReact } from './mmtParser';
 
 const getQuadStateColor = (shouldSelect: QuadState) => {
     switch (shouldSelect) {
@@ -49,7 +48,8 @@ export function AnswerClassesTable({
         <TableRow key={index}>
           <TableCell>{input?.type}</TableCell>
           <TableCell>{getParameters(input?.type, input)}</TableCell>
-          <TableCell>{mmtHTMLToReact(input?.feedbackHtml || '')}</TableCell>
+          {/*<TableCell>{mmtHTMLToReact(input?.feedbackHtml || '')}</TableCell>*/}
+          <TableCell>TODO ALEA-4</TableCell>
           <TableCell>{input?.verdict?.toString()}</TableCell>
         </TableRow>
       )
@@ -89,16 +89,18 @@ export function AnswerClassesTable({
           borderRadius: '5px',
         }}
       >
-        {mmtHTMLToReact(feedbackHtml)}
+        {/*mmtHTMLToReact(feedbackHtml)*/}
+        TODO ALEA-4
       </Box>
     );
   }
   export function InlineScqTable({ options }: { options: Option[] }) {
     const tableRows = options.map(({ value, feedbackHtml, shouldSelect }) => (
       <TableRow>
-        <TableCell>{mmtHTMLToReact(value.outerHTML)}</TableCell>
+        <TableCell>{/*mmtHTMLToReact(value.outerHTML)*/}TODO ALEA-4</TableCell>
         <TableCell sx={{ color: getQuadStateColor(shouldSelect) }}>
-          {mmtHTMLToReact(feedbackHtml)}
+          {/*mmtHTMLToReact(feedbackHtml)*/}
+          TODO ALEA-4
         </TableCell>
       </TableRow>
     ));

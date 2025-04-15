@@ -14,7 +14,7 @@ import {
   updateQuiz,
 } from '@stex-react/api';
 import { getQuizPhase } from '@stex-react/quiz-utils';
-import { mmtHTMLToReact, ServerLinksContext } from '@stex-react/stex-react-renderer';
+import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { Action, CourseInfo, CURRENT_TERM, ResourceName, roundToMinutes } from '@stex-react/utils';
 import axios, { AxiosResponse } from 'axios';
 import dayjs from 'dayjs';
@@ -213,7 +213,8 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
         )}
         {quizzes.map((quiz) => (
           <MenuItem key={quiz.id} value={quiz.id}>
-            {mmtHTMLToReact(quiz.title)}&nbsp;({quiz.id})
+            {/*mmtHTMLToReact(quiz.title)*/}
+            TODO ALEA-4 &nbsp;({quiz.id})
           </MenuItem>
         ))}
       </Select>
@@ -225,7 +226,7 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
           ? ''
           : selectedQuizId}
       </h2>
-      <b>{mmtHTMLToReact(title)}</b>
+      <b>{/*mmtHTMLToReact(title)*/}TODO ALEA-4</b>
       {selectedQuiz && (
         <b>
           <br />

@@ -14,7 +14,6 @@ import {
   Typography,
 } from '@mui/material';
 import { getHomework, HomeworkInfo, HomeworkStub } from '@stex-react/api';
-import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
 import { getLocaleObject } from '../lang/utils';
@@ -93,7 +92,8 @@ const HomeworkList = ({
               return (
                 <TableRow key={homework.id}>
                   <TableCell>
-                    {mmtHTMLToReact(homework.title)}
+                    {/*mmtHTMLToReact(homework.title)*/}
+                    TODO ALEA-4
                     <a
                       href={`/homework-doc?id=${homework.id}&courseId=${homework.courseId}`}
                       target="_blank"

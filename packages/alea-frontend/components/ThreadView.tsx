@@ -5,15 +5,12 @@ import {
   Comment,
   CommentType,
   QuestionStatus,
-  UserInfo,
   canAccessResource,
   getCommentsForThread,
-  getUserInfo,
   updateQuestionState,
 } from '@stex-react/api';
 import { CommentTree, organizeHierarchically } from '@stex-react/comments';
-import { DocumentWidthSetter, ExpandableContent } from '@stex-react/stex-react-renderer';
-import { Action, CURRENT_TERM, ResourceName, XhtmlContentUrl } from '@stex-react/utils';
+import { Action, CURRENT_TERM, ResourceName } from '@stex-react/utils';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useReducer, useState } from 'react';
@@ -102,12 +99,12 @@ export function ThreadView({ courseId, threadId }: { courseId: string; threadId:
         (showContent ? (
           <Box bgcolor="#DDD" borderRadius="5px" mb="15px">
             <Box maxWidth="600px" m="0 auto 30px" p="10px">
-              <DocumentWidthSetter>
+              {/* TODO ALEA-4 
                 <ExpandableContent
                   contentUrl={XhtmlContentUrl(fileLoc.archive, fileLoc.filepath)}
                   noFurtherExpansion={true}
                 />
-              </DocumentWidthSetter>
+                */}
             </Box>
           </Box>
         ) : (

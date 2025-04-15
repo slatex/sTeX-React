@@ -1,13 +1,9 @@
 import LinkIcon from '@mui/icons-material/Link';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import IntegrationInstructionsIcon from '@mui/icons-material/IntegrationInstructions';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { IconButton, Menu, MenuItem, Snackbar } from '@mui/material';
-import { useContext, useState } from 'react';
-import { getSectionInfo } from '@stex-react/utils';
-import { RenderOptions } from './RendererDisplayOptions';
-import { getLocaleObject } from './lang/utils';
 import { useRouter } from 'next/router';
+import { useState } from 'react';
+import { getLocaleObject } from './lang/utils';
 
 export function ExpandableContextMenu({
   sectionLink,
@@ -29,12 +25,11 @@ export function ExpandableContextMenu({
   };
   // menu crap end
 
-  const { renderOptions: { noFrills} } = useContext(RenderOptions);
   const [snackBarOpen, setSnackbarOpen] = useState(false);
 
-  const sourceUrl = getSectionInfo(contentUrl).source;
+  //Todo alea-4
+  //const sourceUrl = getSectionInfo(contentUrl).source;
 
-  if (noFrills) return null;
   return (
     <>
       <IconButton
@@ -89,7 +84,8 @@ export function ExpandableContextMenu({
           }}
           sx={{ p: '0' }}
         >
-          <a
+          {/* TODO ALEA-4 */}
+          {/* <a
             href={sourceUrl}
             target="_blank"
             rel="noreferrer"
@@ -98,7 +94,7 @@ export function ExpandableContextMenu({
             <IntegrationInstructionsIcon />
             &nbsp;{t.viewSource}&nbsp;
             <OpenInNewIcon sx={{ fontSize: '14px' }} fontSize="small" />
-          </a>
+          </a> */}
         </MenuItem>
       </Menu>
     </>

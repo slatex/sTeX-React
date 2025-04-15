@@ -5,7 +5,6 @@ import { deleteReview, getReviewItems, GradingWithAnswer } from '@stex-react/api
 import { SettingsBackupRestore } from '@mui/icons-material';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import { truncateText } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -128,7 +127,7 @@ function PeerReviewItemsList({
                 primary={customFeedback ? truncateText(customFeedback, 50) : 'No feedback'}
                 secondary={
                   <>
-                    {!mmtHTMLToReact(questionTitle)} &nbsp;{`(${checkerId})`} &nbsp;
+                    {/*mmtHTMLToReact(questionTitle)*/}TODO ALEA-4 &nbsp;{`(${checkerId})`} &nbsp;
                     <span>{dayjs(updatedAt).fromNow()}</span>
                   </>
                 }

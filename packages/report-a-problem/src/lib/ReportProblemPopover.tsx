@@ -11,7 +11,7 @@ import {
   Tooltip,
 } from '@mui/material';
 import { CommentNoteToggleView } from '@stex-react/comments';
-import { getSectionInfo, SECONDARY_COL, FileInfo } from '@stex-react/utils';
+import { SECONDARY_COL, FileInfo } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { PropsWithChildren, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -36,7 +36,9 @@ function getContext(node?: Node): FileInfo[] {
     const parentContext = getContext(node.parentNode as Node);
     const sectionUrl = (node as any).attributes?.['section-url']?.value;
     if (!sectionUrl) return parentContext;
-    return [getSectionInfo(sectionUrl), ...parentContext];
+    //Todo alea-4
+    // return [getSectionInfo(sectionUrl), ...parentContext];
+    return [];
   } catch (e) {
     console.error(e);
     console.error(node);

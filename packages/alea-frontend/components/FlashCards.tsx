@@ -26,7 +26,6 @@ import {
 } from '@stex-react/api';
 import { FTMLFragment } from '@stex-react/ftml-utils';
 import {
-  ContentWithHighlight,
   FixedPositionMenu,
   LayoutWithFixedMenu,
   LevelIcon,
@@ -325,7 +324,8 @@ export function ItemListWithStatus({
           <tr key={item.conceptUri}>
             <td>
               <Box mr="10px">
-                <ContentWithHighlight mmtHtml={getConceptName(item.conceptUri)} />
+                {/*<ContentWithHighlight mmtHtml={getConceptName(item.conceptUri)} />*/}
+                TODO ALEA-4
               </Box>
             </td>
             <td>
@@ -503,7 +503,7 @@ export function FlashCardNavigation({
           >
             {getConceptName(card.conceptUri)}
           </span>
-          {/*<ContentWithHighlight mmtHtml={card.instances[0].htmlNode} />*/}
+          {/*<ContentWithHighlight mmtHtml={card.instances[0].htmlNode} /> TODO ALEA-4*/}
         </Box>
       ))}
     </FixedPositionMenu>

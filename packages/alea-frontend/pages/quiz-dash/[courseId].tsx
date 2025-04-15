@@ -8,7 +8,7 @@ import {
   getCourseQuizList,
   getUserInfo,
 } from '@stex-react/api';
-import { ServerLinksContext, mmtHTMLToReact } from '@stex-react/stex-react-renderer';
+import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { Action, CURRENT_TERM, CourseInfo, ResourceName } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import { NextPage } from 'next';
@@ -35,7 +35,7 @@ function QuizThumbnail({ quiz }: { quiz: QuizStubInfo }) {
             width: 'fit-content',
           }}
         >
-          <Box>{mmtHTMLToReact(title)}</Box>
+          <Box>{/*mmtHTMLToReact(title)*/}TODO ALEA-4</Box>
           <Box>
             <b>
               {dayjs(quizStartTs).format('MMM-DD HH:mm')} to {dayjs(quizEndTs).format('HH:mm')}

@@ -1,39 +1,21 @@
 import CloseIcon from '@mui/icons-material/Close';
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Divider,
-  IconButton,
-} from '@mui/material';
+import { Box, Button, CircularProgress, Divider, IconButton } from '@mui/material';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import {
   BloomDimension,
   getUriSmileys,
-  NumericCognitiveValues,
   SmileyCognitiveValues,
   smileyToLevel,
 } from '@stex-react/api';
-import {
-  getChildrenOfBodyNode,
-  IS_MMT_VIEWER,
-  shouldUseDrawer,
-  simpleHash,
-} from '@stex-react/utils';
+import { shouldUseDrawer, simpleHash } from '@stex-react/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { memo, useContext, useEffect, useRef, useState } from 'react';
-import { ContentFromUrl } from './ContentFromUrl';
 import { getLocaleObject } from './lang/utils';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
-import { mmtHTMLToReact } from './mmtParser';
-import {
-  DisplayReason,
-  SelfAssessmentDialog,
-  ServerLinksContext,
-} from './stex-react-renderer';
+import { SelfAssessmentDialog, ServerLinksContext } from './stex-react-renderer';
 import styles from './styles/tour-display.module.scss';
 import { useOnScreen } from './useOnScreen';
 
@@ -73,7 +55,7 @@ function getSuccessorChain(item: TourItem, allItemsMap: Map<string, TourItem>) {
   return succChain;
 }
 const RenderedMmtMemo = memo(({ html }: { html: string }) => {
-  return <>{mmtHTMLToReact(html)}</>;
+  return <>TODO ALEA-4 </>;
 });
 
 function isConceptUnderstood(val?: SmileyCognitiveValues) {
@@ -164,19 +146,8 @@ function TourItemDisplay({
   }, [isVisible]);
 
   return (
-    <Box
-      id={expandedItemId(item)}
-      maxWidth={IS_MMT_VIEWER ? undefined : '600px'}
-      width="100%"
-      ref={ref}
-    >
-      <Box
-        display="flex"
-        alignItems="start"
-        mt="15px"
-        mb="5px"
-        justifyContent="space-between"
-      >
+    <Box id={expandedItemId(item)} maxWidth="600px" width="100%" ref={ref}>
+      <Box display="flex" alignItems="start" mt="15px" mb="5px" justifyContent="space-between">
         <h3 style={{ margin: 0 }}>
           <RenderedMmtMemo html={item.header} />
         </h3>
@@ -192,16 +163,14 @@ function TourItemDisplay({
                 {t.hide}
               </Button>
             )}
-            {!IS_MMT_VIEWER && (
-              <SelfAssessmentDialog
-                dims={[BloomDimension.Remember, BloomDimension.Understand]}
-                uri={item.uri}
-                htmlName={item.header}
-                onUpdate={(v: SmileyCognitiveValues) => {
-                  if (isConceptUnderstood(v)) onUnderstood();
-                }}
-              />
-            )}
+            <SelfAssessmentDialog
+              dims={[BloomDimension.Remember, BloomDimension.Understand]}
+              uri={item.uri}
+              htmlName={item.header}
+              onUpdate={(v: SmileyCognitiveValues) => {
+                if (isConceptUnderstood(v)) onUnderstood();
+              }}
+            />
           </Box>
 
           {/*
@@ -214,17 +183,14 @@ function TourItemDisplay({
           </Button>*/}
         </Box>
       </Box>
-      <ItemBreadcrumbs
-        item={item}
-        allItemsMap={allItemsMap}
-        addToTempShowUri={addToTempShowUri}
-      />
+      <ItemBreadcrumbs item={item} allItemsMap={allItemsMap} addToTempShowUri={addToTempShowUri} />
       <Box sx={{ mt: '20px' }}>
-        <ContentFromUrl
+        {/*<ContentFromUrl
           displayReason={DisplayReason.GUIDED_TOUR}
           url={`/:vollki/frag?path=${item.uri}&lang=${lang}`}
           modifyRendered={getChildrenOfBodyNode}
-        />
+        />*/}
+        TODO ALEA-4
       </Box>
 
       <Divider />
@@ -253,9 +219,7 @@ function computeOrderedList(
   if (alreadyPreset) return;
 
   if (callStack.has(currentId)) {
-    console.error(
-      `Circular dependency detected: ${currentId} is already in the call stack`
-    );
+    console.error(`Circular dependency detected: ${currentId} is already in the call stack`);
     return;
   }
 
@@ -318,24 +282,14 @@ function getDisplayItemList(
   understoodUri: string[],
   tempShowUri: string[]
 ): TourItem[] {
-  const rootItem = Array.from(tourItemMap.values()).find(
-    (item) => !item.successors?.length
-  );
+  const rootItem = Array.from(tourItemMap.values()).find((item) => !item.successors?.length);
   if (!rootItem) return [];
 
   if (understoodUri.includes(rootItem.uri)) {
     return [rootItem];
   }
   const orderedList: TourItem[] = [];
-  computeOrderedList(
-    tourItemMap,
-    understoodUri,
-    tempShowUri,
-    rootItem.uri,
-    0,
-    orderedList,
-    false
-  );
+  computeOrderedList(tourItemMap, understoodUri, tempShowUri, rootItem.uri, 0, orderedList, false);
   return orderedList;
 }
 
@@ -356,11 +310,7 @@ function LeftGuide({ children, level }: { children: any; level: number }) {
       {Array(level)
         .fill(0)
         .map((_, idx) => (
-          <Box
-            display="inline"
-            key={idx}
-            sx={{ ml: `10px`, borderLeft: '1px solid #BBB' }}
-          ></Box>
+          <Box display="inline" key={idx} sx={{ ml: `10px`, borderLeft: '1px solid #BBB' }}></Box>
         ))}
       <Box display="flex" p="0" alignItems="center">
         <span
@@ -446,9 +396,7 @@ function scrollNavToShowVisibleItems(
   const idx = items.findIndex((item) => itemVisibility[item.hash]);
   if (idx < 0) return;
   const container = document.getElementById(NAV_MENU_ID);
-  const displayItem = document.getElementById(
-    navMenuItemId(items[idx > 0 ? idx - 1 : idx])
-  );
+  const displayItem = document.getElementById(navMenuItemId(items[idx > 0 ? idx - 1 : idx]));
   if (!container || !displayItem) return;
   container.scrollTop = displayItem.offsetTop;
 }
@@ -496,9 +444,7 @@ export function TourDisplay({
   }, [tourId, language, mmtUrl]);
 
   useEffect(() => {
-    setDisplayItemList(
-      getDisplayItemList(allItemsMap, understoodUri, tempShowUri)
-    );
+    setDisplayItemList(getDisplayItemList(allItemsMap, understoodUri, tempShowUri));
   }, [allItemsMap, understoodUri, tempShowUri]);
 
   useEffect(() => {
@@ -548,12 +494,7 @@ export function TourDisplay({
       showDashboard={showDashboard}
       setShowDashboard={setShowDashboard}
     >
-      <Box
-        id={EXPANSION_BOX_ID}
-        sx={{ overflowY: 'auto' }}
-        flexGrow={1}
-        flexBasis="600px"
-      >
+      <Box id={EXPANSION_BOX_ID} sx={{ overflowY: 'auto' }} flexGrow={1} flexBasis="600px">
         <Box mx="10px">
           {displayItemList.map((item) => (
             <TourItemDisplay

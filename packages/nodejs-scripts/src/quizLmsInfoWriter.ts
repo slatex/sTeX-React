@@ -1,5 +1,5 @@
 import { getAllQuizzes } from '@stex-react/node-utils';
-import { getProblem } from '@stex-react/quiz-utils';
+//import { getProblem } from '@stex-react/quiz-utils';
 import fs from 'fs';
 
 import { exit } from 'process';
@@ -30,13 +30,14 @@ export async function quizLmsInfoWriter() {
   for (const quiz of quizzes) {
     const quizLmsInfo = {};
     for (const [problemId, problemStr] of Object.entries(quiz.problems)) {
-      const problem = getProblem(problemStr as string, undefined);
+      // TODO ALEA4 
+      /*const problem = getProblem(problemStr as string, undefined);
       const { points, objectives, preconditions } = problem;
       quizLmsInfo[problemId] = {
         points,
         objectives,
         preconditions,
-      };
+      };*/
     }
     LMSInfo[quiz.id] = quizLmsInfo;
   }

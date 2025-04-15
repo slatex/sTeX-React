@@ -6,14 +6,13 @@ import {
   getLearningObjectShtml,
   getProblemIdsForFile,
 } from '@stex-react/api';
-import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
 import { extractProjectIdAndFilepath, sourceFileUrl } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useReducer, useState } from 'react';
 import { ProblemDisplay } from './ProblemDisplay';
 import { ListStepper } from './QuizDisplay';
 import { getLocaleObject } from './lang/utils';
-import { ServerLinksContext, mmtHTMLToReact } from './stex-react-renderer';
+import { ServerLinksContext } from './stex-react-renderer';
 import { ProblemResponse } from '@stex-react/ftml-utils';
 
 export function PerSectionQuiz({
@@ -55,7 +54,7 @@ export function PerSectionQuiz({
     const problems$ = problemIds.map((p) => getLearningObjectShtml(mmtUrl, p));
     setIsLoadingProblems(true);
     Promise.all(problems$).then((problemStrs) => {
-       // TODO alea4 const problems = problemStrs.map((p) => getProblem(hackAwayProblemId(p), ''));
+       // TODO alea4 const problems = problemStrs.map((p) => getProblem(p, ''));
       // setProblems(problems);
       // setResponses(problems.map((p) => defaultProblemResponse(p)));
       setIsFrozen(problems.map(() => false));

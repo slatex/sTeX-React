@@ -1,5 +1,4 @@
 import { Box, Button, TextField, Typography } from '@mui/material';
-import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
 import { getLocaleObject } from '../lang/utils';
@@ -58,7 +57,8 @@ const HomeworkForm = ({
             },
           }}
         >
-          {mmtHTMLToReact(title)}
+          {/*mmtHTMLToReact(title)*/}
+          TODO ALEA-4
         </Box>
       )}
       <TextField

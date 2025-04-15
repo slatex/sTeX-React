@@ -1,15 +1,12 @@
-import { StexReactRenderer } from '@stex-react/stex-react-renderer';
+import { FTMLDocument } from '@stex-react/ftml-utils';
 import type { NextPage } from 'next';
 import MainLayout from '../layouts/MainLayout';
 
 const HelpPage: NextPage = () => {
   return (
     <MainLayout title="Help | ALeA">
-      <StexReactRenderer
-        contentUrl={
-          ':sTeX/document?archive=voll-ki/ALeA&filepath=doc/help.en.xhtml'
-        }
-        topOffset={64}
+      <FTMLDocument
+        document={{ uri: 'https://mathhub.info?a=voll-ki/ALeA&p=doc&d=help&l=en', toc: 'GET' }}
       />
     </MainLayout>
   );

@@ -1,6 +1,6 @@
 import { AutogradableResponse, Problem } from '@stex-react/api';
 import { getAllQuizzes } from '@stex-react/node-utils';
-import { getPoints, getProblem } from '@stex-react/quiz-utils';
+import { getPoints } from '@stex-react/quiz-utils';
 import { exit } from 'process';
 import mysql from 'serverless-mysql';
 
@@ -27,8 +27,8 @@ export async function recorrectQuizzes() {
   const problems: { [problemId: string]: Problem } = {};
   for (const quiz of quizzes) {
     for (const [problemId, problemStr] of Object.entries(quiz.problems)) {
-      const problem = getProblem(problemStr as string, undefined);
-      problems[problemId] = problem;
+      // TODO ALEA4 const problem = getProblem(problemStr as string, undefined);
+      // problems[problemId] = problem;
     }
   }
   const missing_ids = {};
@@ -50,7 +50,7 @@ export async function recorrectQuizzes() {
       }
       const responses: AutogradableResponse[] = JSON.parse(response);
 
-      const expectedPts = getPoints(problem, { autogradableResponses: responses });
+      const expectedPts = 0; // TODO ALEA4 getPoints(problem, { autogradableResponses: responses });
       if (Math.abs(expectedPts - points) > 0.01) {
         console.log(
           `gradingId: ${gradingId} problem: ${quizId} ${problemId} expectedPts: ${expectedPts} assignedPts: ${points} response: ${response}`

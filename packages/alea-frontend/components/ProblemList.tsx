@@ -10,7 +10,6 @@ import {
   Typography,
 } from '@mui/material';
 import { SectionsAPIData } from '@stex-react/api';
-import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import { PRIMARY_COL } from '@stex-react/utils';
 import axios from 'axios';
 import Link from 'next/link';
@@ -223,7 +222,8 @@ const ProblemList: FC<ProblemListProps> = ({ courseSections, courseId }) => {
                               rel="noopener noreferrer"
                               onClick={() => handleLinkClick()}
                             >
-                              {mmtHTMLToReact(item.title)}
+                              {/*mmtHTMLToReact(item.title)*/}
+                              TODO ALEA-4
                             </Link>
                           </>
                         ) : (

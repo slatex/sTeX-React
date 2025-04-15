@@ -27,7 +27,7 @@ export function PeerReviewGradedItemDisplay({
   const [answerText, setAnswerText] = useState<ProblemResponse>();
   useEffect(() => {
     getLearningObjectShtml(mmtUrl, grade.questionId).then((p) => {
-      // setProblem(getProblem(hackAwayProblemId(p), '')); TODO alea4
+      // setProblem(getProblem(p, '')); TODO alea4
     });
     // TODO alea4
     // setAnswerText({
