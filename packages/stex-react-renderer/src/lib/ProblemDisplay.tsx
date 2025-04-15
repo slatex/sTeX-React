@@ -201,16 +201,14 @@ export function ProblemViewer({
   r?: ProblemResponse;
 }) {
   const problemState = getProblemState(isFrozen, problem.solution, r);
+  const { html, uri } = problem.problem;
 
   return (
     <FTMLFragment
-      key={problem.problem.uri}
-      fragment={{ html: problem.problem.html }}
-      problemStates={new Map([[problem.problem.uri, problemState]])}
+      key={uri}
+      fragment={{ html, uri }}
+      problemStates={new Map([[uri, problemState]])}
       onProblem={(response) => {
-        console.log('from wasm', JSON.stringify(response));
-        // was unknown.source
-        response.uri = problem.problem.uri;
         onResponseUpdate?.(response);
       }}
     />
