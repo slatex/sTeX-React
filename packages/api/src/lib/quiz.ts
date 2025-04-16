@@ -46,60 +46,6 @@ export enum Tristate {
   UNKNOWN = 'UNKNOWN',
 }
 
-export enum QuadState {
-  TRUE = 'TRUE',
-  FALSE = 'FALSE',
-  UNKNOWN = 'UNKNOWN',
-
-  // Only for multi-answer MCQs. When the question creator has created an invalid option.
-  // After the students have taken the quiz, if an option is marked as 'any',
-  // the response to that option will not affect the correctness of the problem.
-  ANY = 'ANY',
-}
-
-export interface Option {
-  shouldSelect: QuadState;
-  value: { outerHTML: string; textContent?: string };
-  feedbackHtml: string;
-  optionId: string;
-}
-
-export enum InputType {
-  MCQ = 'MCQ', // multiple choice, multiple correct answers
-  SCQ = 'SCQ', // multiple choice, single correct answer
-  FILL_IN = 'FILL_IN',
-}
-
-export enum FillInAnswerClassType {
-  exact = 'exact',
-  numrange = 'numrange',
-  regex = 'regex',
-}
-
-export interface FillInAnswerClass {
-  type: FillInAnswerClassType;
-  verdict: boolean;
-  feedbackHtml?: string;
-
-  startNum?: number;
-  endNum?: number;
-  regex?: string;
-  exactMatch?: string;
-}
-
-export interface FillInBox {
-  solution: string;
-  inline: boolean;
-}
-
-export interface Input {
-  type: InputType;
-  options?: Option[]; // For MCQ and SCQ types.
-  fillInAnswerClasses?: FillInAnswerClass[]; // For FILL_IN type.
-  inline: boolean;
-  ignoreForScoring?: boolean;
-}
-
 export interface SubProblemData {
   solution: string;
   id: string;
@@ -119,22 +65,9 @@ export interface Problem {
   objectives: string;
   preconditions: string;
   statement: { outerHTML: string };
-  inputs: Input[];
   points: number;
   subProblemData: SubProblemData[];
 }
-
-export interface AutogradableResponse {
-  type: InputType;
-  filledInAnswer?: string;
-  singleOptionIdx?: string;
-  multipleOptionIdxs?: { [index: string]: boolean };
-}
-
-/*export interface ProblemResponse {
-  autogradableResponses: ExerciseResponseType[];
-  freeTextResponses?: Record<string, string>; // subProblemId -> response
-}*/
 
 export interface PerProblemStats {
   header: string;

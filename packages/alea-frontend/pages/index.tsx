@@ -3,6 +3,7 @@ import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import { Box, Button, IconButton, Tooltip, Typography, useMediaQuery } from '@mui/material';
 import {
   getCourseInfo,
+  getQuiz3,
   getResourcesForUser,
   isLoggedIn,
   updateUserInfoFromToken,
@@ -350,6 +351,16 @@ const StudentHomePage: NextPage = ({ filteredCourses }: { filteredCourses: Cours
     }
     resourcesAccessToUser();
   }, [mmtUrl]);
+
+  useEffect(() => {
+    async function getQuiz2() {
+      const quiz = await getQuiz3(
+        'https://mathhub.info/?a=courses%2FFAU%2FAI%2Fhwexam&p=general%2Fquizzes&d=pretest&l=en'
+      );
+      console.log('quiz', quiz);
+    }
+    getQuiz2();
+  }, []);
 
   if (loggedIn) {
     return (

@@ -216,6 +216,14 @@ function populateArchiveAndFilepath(nodes?: FileNode[]) {
   }
 }
 
+export async function getQuiz3(uri: string) {
+  const quiz = await server.quiz({
+    uri: 'https://mathhub.info/?a=courses/FAU/AI/hwexam&p=general/quizzes&d=pretest&l=en',
+  });
+  console.log('quiz', quiz);
+  return quiz;
+}
+
 let CACHED_DOCUMENT_TREE: FileNode[] | undefined = undefined;
 export async function getDocumentTree(mmtUrl: string) {
   if (mmtUrl === null || mmtUrl === undefined) return [];
@@ -343,19 +351,26 @@ export async function getDefiniedaInDoc(
   uri: string
 ): Promise<{ conceptUri: string; definitionUri: string }[]> {
   const query = `SELECT DISTINCT ?q ?s WHERE { <${uri}> (ulo:contains|dc:hasPart)* ?q. ?q ulo:defines ?s.}`;
-  const resp = await axios.post(
-    `${process.env['FLAMS_SERVER_URL']}/api/backend/query`,
-    { query },
-    {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    }
-  );
 
-  const sparqlResponse = JSON.parse(resp.data) as SparqlResponse;
-  return sparqlResponse?.results?.bindings.map((card) => ({
-    conceptUri: card['s'].value,
-    definitionUri: card['q'].value,
-  })) || [];
+  try {
+    const resp = await axios.post(
+      `${process.env['FLAMS_SERVER_URL']}/api/backend/query`,
+      { query },
+      {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      }
+    );
+    const sparqlResponse = JSON.parse(resp.data) as SparqlResponse;
+    return (
+      sparqlResponse?.results?.bindings.map((card) => ({
+        conceptUri: card['s'].value,
+        definitionUri: card['q'].value,
+      })) || []
+    );
+  } catch (error) {
+    console.error('Error executing SPARQL query:', error);
+    throw error;
+  }
 }
 
 export async function getUriFragment(URI: string) {

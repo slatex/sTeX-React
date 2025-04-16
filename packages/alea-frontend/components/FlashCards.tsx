@@ -37,6 +37,7 @@ import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react';
 import { useSwipeable } from 'react-swipeable';
 import { getLocaleObject } from '../lang/utils';
 import styles from '../styles/flash-card.module.scss';
+import { SafeHtml } from '@stex-react/react-utils';
 
 enum CardType {
   ITEM_CARD,
@@ -182,7 +183,8 @@ function FlashCardBack({
             '& *': { fontSize: 'large !important' },
           }}
         >
-          {definitionUri && <FTMLFragment key={definitionUri} fragment={{ uri: definitionUri }} />}
+          {definitionUri}
+          {definitionUri && <FTMLFragment key={definitionUri} fragment={{ uri: 'https://mathhub.info?a=courses/FAU/AI/course&p=course/slides&d=llms-not&l=en&e=definition_1' }} />}
         </Box>
       </Box>
 
@@ -324,8 +326,7 @@ export function ItemListWithStatus({
           <tr key={item.conceptUri}>
             <td>
               <Box mr="10px">
-                {/*<ContentWithHighlight mmtHtml={getConceptName(item.conceptUri)} />*/}
-                TODO ALEA-4
+                <SafeHtml html={getConceptName(item.conceptUri)} />
               </Box>
             </td>
             <td>
@@ -503,7 +504,6 @@ export function FlashCardNavigation({
           >
             {getConceptName(card.conceptUri)}
           </span>
-          {/*<ContentWithHighlight mmtHtml={card.instances[0].htmlNode} /> TODO ALEA-4*/}
         </Box>
       ))}
     </FixedPositionMenu>
