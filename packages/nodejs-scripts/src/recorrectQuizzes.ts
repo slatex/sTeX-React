@@ -1,4 +1,3 @@
-import { AutogradableResponse, Problem } from '@stex-react/api';
 import { getAllQuizzes } from '@stex-react/node-utils';
 import { getPoints } from '@stex-react/quiz-utils';
 import { exit } from 'process';
@@ -24,13 +23,14 @@ export async function recorrectQuizzes() {
 
   const quizzes = getAllQuizzes();
 
-  const problems: { [problemId: string]: Problem } = {};
-  for (const quiz of quizzes) {
+  // TODO ALEA4 
+  const problems: { [problemId: string]: /*Problem*/ any } = {};
+  /*for (const quiz of quizzes) {
     for (const [problemId, problemStr] of Object.entries(quiz.problems)) {
-      // TODO ALEA4 const problem = getProblem(problemStr as string, undefined);
+      const problem = getProblem(problemStr as string, undefined);
       // problems[problemId] = problem;
     }
-  }
+  }*/
   const missing_ids = {};
   const wrong_points_problem_ids = {};
   const gradingId_to_updated_points = {};
@@ -48,7 +48,7 @@ export async function recorrectQuizzes() {
         missing_ids[pId]++;
         continue;
       }
-      const responses: AutogradableResponse[] = JSON.parse(response);
+      // TODO ALEA4 const responses: AutogradableResponse[] = JSON.parse(response);
 
       const expectedPts = 0; // TODO ALEA4 getPoints(problem, { autogradableResponses: responses });
       if (Math.abs(expectedPts - points) > 0.01) {

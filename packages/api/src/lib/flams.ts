@@ -177,7 +177,7 @@ export class FLAMSServer {
     const response = await this.getRequestI(endpoint, request);
     if (response) {
       const j = await response.json();
-      console.log("Response", endpoint, ":", j);
+      //console.log("Response", endpoint, ":", j);
       return j as TResponse;
     }
   }
@@ -237,7 +237,7 @@ export class FLAMSServer {
     const response = await this.postRequestI(endpoint, request);
     if (response) {
       const j = await response.json();
-      console.log(`Response ${this._url}/${endpoint} with body:`, j);
+      //console.log(`Response ${this._url}/${endpoint} with body:`, j);
       return j as TResponse;
     }
   }

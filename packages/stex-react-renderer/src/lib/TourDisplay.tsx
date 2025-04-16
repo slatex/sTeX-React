@@ -9,6 +9,7 @@ import {
   SmileyCognitiveValues,
   smileyToLevel,
 } from '@stex-react/api';
+import { SafeHtml } from '@stex-react/react-utils';
 import { shouldUseDrawer, simpleHash } from '@stex-react/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
@@ -55,7 +56,7 @@ function getSuccessorChain(item: TourItem, allItemsMap: Map<string, TourItem>) {
   return succChain;
 }
 const RenderedMmtMemo = memo(({ html }: { html: string }) => {
-  return <>TODO ALEA-4 </>;
+  return <SafeHtml html={html} />;
 });
 
 function isConceptUnderstood(val?: SmileyCognitiveValues) {

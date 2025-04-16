@@ -21,6 +21,7 @@ import {
   isLoggedIn,
   smileyToLevel,
 } from '@stex-react/api';
+import { SafeHtml } from '@stex-react/react-utils';
 import { ConfigureLevelSlider } from '@stex-react/stex-react-renderer';
 import { PRIMARY_COL, SECONDARY_COL, Window, stableShuffle } from '@stex-react/utils';
 import axios from 'axios';
@@ -211,8 +212,7 @@ function CoverageConfigurator({
                     }}
                   >
                     <b style={{ display: 'block', color: PRIMARY_COL, fontSize: 'large' }}>
-                      {/*mmtHTMLToReact(chapterTitle)*/}
-                      TODO ALEA-4
+                      <SafeHtml html={chapterTitle} />
                     </b>
                   </ListItemButton>
                 </ListItem>
@@ -233,8 +233,7 @@ function CoverageConfigurator({
                     primary={
                       <Box sx={{ fontSize: '14px' }}>
                         <b style={{ display: 'block', color: PRIMARY_COL }}>
-                          {/*mmtHTMLToReact(sectionTitle)*/}
-                          TODO ALEA-4
+                          <SafeHtml html={sectionTitle} />
                         </b>
                         <b style={{ color: SECONDARY_COL }}>
                           {loggedIn && selectedCards.length + '/'}

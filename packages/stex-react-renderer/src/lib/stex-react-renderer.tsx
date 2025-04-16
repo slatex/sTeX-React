@@ -7,7 +7,6 @@ import { ContentDashboard } from './ContentDashboard';
 import { DocProblemBrowser } from './DocProblemBrowser';
 import { ExpandableContextMenu } from './ExpandableContextMenu';
 import { GradingCreator } from './GradingCreator';
-import { defaultProblemResponse } from './InlineProblemDisplay';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 import { PerSectionQuiz } from './PerSectionQuiz';
 import { PracticeQuestions } from './PracticeQuestions';
@@ -136,7 +135,6 @@ export {
   CompetencyTable,
   ConfigureLevelSlider,
   ContentDashboard,
-  defaultProblemResponse,
   DimAndURIListDisplay,
   DimIcon,
   DocProblemBrowser,
