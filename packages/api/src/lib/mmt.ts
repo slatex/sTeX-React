@@ -373,6 +373,12 @@ export async function getDefiniedaInDoc(
   }
 }
 
+export async function getPracticeProblems(conceptUri: string) {
+  const learningObjects = await server.learningObjects({ uri: conceptUri }, true);
+  if (!learningObjects) return [];
+  return learningObjects.filter((obj) => obj[1].type === 'Problem').map((obj) => obj[0]);
+}
+
 export async function getUriFragment(URI: string) {
   const resp = await axios.get(`https://stexmmt.mathhub.info//:sTeX/fragment?${URI}`);
   return resp.data as string;
