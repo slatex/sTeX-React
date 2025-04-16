@@ -344,7 +344,7 @@ export async function getDefiniedaInDoc(
 ): Promise<{ conceptUri: string; definitionUri: string }[]> {
   const query = `SELECT DISTINCT ?q ?s WHERE { <${uri}> (ulo:contains|dc:hasPart)* ?q. ?q ulo:defines ?s.}`;
   const resp = await axios.post(
-    `${process.env['FLAMS_SERVER_URL']}/api/backend/query`,
+    `${process.env['NEXT_PUBLIC_FLAMS_URL']}/api/backend/query`,
     { query },
     {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -352,10 +352,18 @@ export async function getDefiniedaInDoc(
   );
 
   const sparqlResponse = JSON.parse(resp.data) as SparqlResponse;
-  return sparqlResponse?.results?.bindings.map((card) => ({
-    conceptUri: card['s'].value,
-    definitionUri: card['q'].value,
-  })) || [];
+  return (
+    sparqlResponse?.results?.bindings.map((card) => ({
+      conceptUri: card['s'].value,
+      definitionUri: card['q'].value,
+    })) || []
+  );
+}
+
+export async function getPracticeProblems(conceptUri: string) {
+  const learningObjects = await server.learningObjects({ uri: conceptUri }, true);
+  if (!learningObjects) return [];
+  return learningObjects.filter((obj) => obj[1].type === 'Problem').map((obj) => obj[0]);
 }
 
 export async function getUriFragment(URI: string) {

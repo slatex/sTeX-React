@@ -49,6 +49,9 @@ function passStringToWasm0(arg, malloc, realloc) {
         WASM_VECTOR_LEN = buf.length;
         return ptr;
     }
+    if(!arg){
+      arg='';
+    }
 
     let len = arg.length;
     let ptr = malloc(len, 1) >>> 0;
