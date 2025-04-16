@@ -1,5 +1,5 @@
 import { CircularProgress } from '@mui/material';
-import { getCourseInfo, getDocumentSections, SectionsAPIData } from '@stex-react/api';
+import { getCourseInfo, getDocumentSections, SectionsAPIData, TOCElem } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { CourseInfo } from '@stex-react/utils';
 import { NextPage } from 'next';
@@ -13,7 +13,7 @@ const CourseProblemsPage: NextPage = () => {
   const courseId = router.query.courseId as string;
 
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
-  const [sectionsData, setSectionsData] = useState<SectionsAPIData | undefined>(undefined);
+  const [sectionsData, setSectionsData] = useState<TOCElem[] | undefined>(undefined);
   const { mmtUrl } = useContext(ServerLinksContext);
 
   useEffect(() => {
@@ -21,15 +21,19 @@ const CourseProblemsPage: NextPage = () => {
   }, []);
 
   useEffect(() => {
-    if (!courses || !courseId) return;
-    const courseInfo = courses?.[courseId];
-    if (!courseInfo) {
-      router.replace('/');
-      return;
+    async function fetchSectionData() {
+      if (!courses || !courseId) return;
+      const courseInfo = courses?.[courseId];
+      if (!courseInfo) {
+        router.replace('/');
+        return;
+      }
+      const { notes } = courseInfo;
+      const docSections = await getDocumentSections(notes);
+      const tocContent = docSections[1];
+      setSectionsData(tocContent);
     }
-    //Todo alea-4
-    // const { notesArchive, notesFilepath } = courseInfo;
-    // getDocumentSections(mmtUrl, notesArchive, notesFilepath).then(setSectionsData);
+    fetchSectionData();
   }, [courses, courseId]);
 
   if (!router.isReady || !courses) return <CircularProgress />;

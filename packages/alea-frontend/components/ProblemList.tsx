@@ -1,15 +1,5 @@
-import {
-  Box,
-  Button,
-  Checkbox,
-  FormControlLabel,
-  List,
-  ListItem,
-  ListItemText,
-  Paper,
-  Typography,
-} from '@mui/material';
-import { SectionsAPIData } from '@stex-react/api';
+import { Box, Button, List, ListItem, ListItemText, Paper, Typography } from '@mui/material';
+import { TOCElem } from '@stex-react/api';
 import { PRIMARY_COL } from '@stex-react/utils';
 import axios from 'axios';
 import Link from 'next/link';
@@ -18,109 +8,68 @@ import { FC, useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 
 interface TitleMetadata {
-  title: string;
-  archive?: string;
-  filepath?: string;
-  id: string;
-  level: number;
+  uri?: string;
+  chapterTitle: string;
+  sectionTitle: string;
 }
 
-function useScrollPosition() {
-  const [scrollPosition, setScrollPosition] = useState(0);
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollPosition(window.pageYOffset);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
-  return scrollPosition;
-}
-
-const extractTitlesAndMetadata = (
-  node: SectionsAPIData | null,
-  level = 0,
-  parentArchive: string | null = null,
-  parentFilepath: string | null = null
-): TitleMetadata[] => {
-  if (!node) return [];
-
-  let result: TitleMetadata[] = [];
-  const currentArchive = node.archive || parentArchive;
-  const currentFilepath = node.filepath || parentFilepath;
-
-  if (node.title === '' || node.title) {
-    result.push({
-      title: node.title,
-      archive: currentArchive,
-      filepath: currentFilepath,
-      id: node.id,
-      level: level,
-    });
+const extractTitlesAndSectionUri = (toc: TOCElem | null, chapterTitle = ''): TitleMetadata[] => {
+  if (!toc || toc.type === 'Paragraph' || toc.type === 'Slide') {
+    return [];
   }
 
-  if (Array.isArray(node.children)) {
-    node.children.forEach((child) => {
-      result = result.concat(
-        extractTitlesAndMetadata(child, level + 1, currentArchive, currentFilepath)
-      );
-    });
+  if (toc.type === 'Section' && chapterTitle) {
+    return [
+      {
+        uri: toc.uri,
+        chapterTitle,
+        sectionTitle: toc.title,
+      },
+    ];
   }
 
-  return result;
+  if (!chapterTitle && toc.type === 'Section') chapterTitle = toc.title;
+
+  return toc.children.flatMap((child) => extractTitlesAndSectionUri(child, chapterTitle));
 };
 
 interface ProblemListProps {
-  courseSections: SectionsAPIData;
+  courseSections: TOCElem[];
   courseId: string;
 }
+
 const ProblemList: FC<ProblemListProps> = ({ courseSections, courseId }) => {
   const [problemCounts, setProblemCounts] = useState<Record<string, number>>({});
   const router = useRouter();
   const { practiceProblems: t, peerGrading: g } = getLocaleObject(router);
-  const scrollPosition = useScrollPosition();
-  const [showSubsections, setShowSubsections] = useState(false);
 
   useEffect(() => {
     if (!courseId) return;
-
     axios
       .get(`/api/get-course-problem-counts/${courseId}`)
-      .then((resp) => {
-        setProblemCounts(resp.data);
-      })
-      .catch((error) => {
-        console.error('Error fetching problem counts:', error);
-      });
+      .then((resp) => setProblemCounts(resp.data))
+      .catch((err) => console.error('Error fetching problem counts:', err));
   }, [courseId]);
 
-  const handleButtonClick = (
-    archive?: string,
-    filepath?: string,
-    title?: string,
-    courseId?: string
-  ) => {
-    sessionStorage.setItem('scrollPosition', scrollPosition.toString());
-    router.push({
-      pathname: '/per-section-quiz',
-      query: { archive, filepath, title, courseId },
-    });
-  };
+  const titlesAndSectionUri = courseSections
+    .flatMap((toc) => extractTitlesAndSectionUri(toc))
+    .filter(
+      ({ chapterTitle, sectionTitle }) =>
+        chapterTitle.toLowerCase() !== 'preface' && sectionTitle.toLowerCase() !== 'preface'
+    );
 
-  const handleLinkClick = () => {
-    sessionStorage.setItem('scrollPosition', scrollPosition.toString());
-  };
-  useEffect(() => {
-    const savedScrollPosition = sessionStorage.getItem('scrollPosition');
-    if (savedScrollPosition) {
-      window.scrollTo(0, parseInt(savedScrollPosition, 10));
-      sessionStorage.removeItem('scrollPosition');
+  const groupedByChapter: Record<string, TitleMetadata[]> = {};
+  titlesAndSectionUri.forEach((item) => {
+    const { chapterTitle } = item;
+    if (!groupedByChapter[chapterTitle]) {
+      groupedByChapter[chapterTitle] = [];
     }
-  }, [router.asPath]);
+    groupedByChapter[chapterTitle].push(item);
+  });
 
-  const titlesAndMetadata = courseSections ? extractTitlesAndMetadata(courseSections) : [];
+  const handleButtonClick = (sectionUri?: string) => {
+    console.log('uri : ', sectionUri);
+  };
 
   return (
     <Box maxWidth="800px" px={{ xs: 1, sm: 2 }} m="0 auto">
@@ -130,24 +79,17 @@ const ProblemList: FC<ProblemListProps> = ({ courseSections, courseId }) => {
       <Typography variant="body1" my={3}>
         {t.practiceProblemsDescription}
       </Typography>
+
       <Box sx={{ display: 'flex', alignItems: 'center', my: 3 }}>
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={showSubsections}
-              onChange={() => setShowSubsections(!showSubsections)}
-            />
-          }
-          label="Show subsections"
-        />
-        <Box sx={{marginLeft:'auto'}} >
-        <Link  href={`/peer-grading/${courseId}`}>
-          <Button variant="contained" sx={{  height: '48px', fontSize: '16px' }}>
-            {g.peerGrading}
-          </Button>
-        </Link>
+        <Box sx={{ marginLeft: 'auto' }}>
+          <Link href={`/peer-grading/${courseId}`} passHref>
+            <Button variant="contained" sx={{ height: '48px', fontSize: '16px' }}>
+              {g.peerGrading}
+            </Button>
+          </Link>
         </Box>
       </Box>
+
       <Paper
         sx={{
           p: { xs: 1, sm: 3 },
@@ -159,118 +101,76 @@ const ProblemList: FC<ProblemListProps> = ({ courseSections, courseId }) => {
           borderLeft: `3px solid ${PRIMARY_COL}`,
         }}
       >
-        <List>
-          {titlesAndMetadata.map((item, index) => {
-            if (item.level !== 2 && item.level !== 4 && !(item.level === 6 && showSubsections))
-              return null;
-            const isChapter = item.level === 2;
-            const isSubSection = item.level === 6;
-            const problemCount = problemCounts[item.id] || 0;
-            const isEnabled = problemCount > 0;
-            const isBold = isChapter;
-            const fontWeight = isBold ? 'bold' : 'normal';
-            const backgroundColor = '#f0f4f8';
-            const borderRadius = '8px';
-            const fontStyle = isSubSection ? 'italic' : 'normal';
-            const fontSize = isChapter ? '1.125rem' : isSubSection ? '0.875rem' : '1rem';
-            const compress = isSubSection && problemCount === 0;
+        {Object.entries(groupedByChapter).map(([chapter, sections]) => (
+          <Box key={chapter} mb={3}>
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="h6" sx={{ mb: 1, fontWeight: 'bold' }}>
+                {chapter}
+              </Typography>
+            </Box>
+            <List>
+              {sections.map(({ uri, sectionTitle }) => {
+                const problemCount = problemCounts[uri || ''] || 0;
+                const isEnabled = problemCount > 0;
 
-            return (
-              <ListItem
-                key={index}
-                sx={{
-                  paddingLeft: `${item.level * 10}px`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  backgroundColor,
-                  borderRadius,
-                  my: compress ? 0 : 0.5,
-                  py: compress ? 0 : 1,
-                  cursor: isEnabled ? 'pointer' : undefined,
-                  transition: 'background-color 0.3s ease, transform 0.2s ease',
-                  '&:hover': isEnabled && {
-                    background: 'linear-gradient(90deg, #e0f7fa 0%, #d1c4e9 100%)',
-                    color: 'white',
-                    transform: 'scale(1.02)',
-                    '& .MuiButton-root': {
-                      backgroundColor: 'white',
-                      color: PRIMARY_COL,
-                      borderColor: 'white',
-                    },
-                  },
-                }}
-              >
-                <ListItemText
-                  primary={
-                    <>
-                      <Typography
-                        variant="h6"
-                        component="div"
-                        color="primary"
-                        sx={{
-                          fontWeight,
-                          fontStyle,
-                          fontSize,
-                          '& > *': { textAlign: 'left !important' },
-                        }}
-                      >
-                        {item.title ? (
-                          <>
-                            <Link
-                              href={`/course-notes/${courseId}?inDocPath=~${item.id}`}
-                              rel="noopener noreferrer"
-                              onClick={() => handleLinkClick()}
-                            >
-                              {/*mmtHTMLToReact(item.title)*/}
-                              TODO ALEA-4
-                            </Link>
-                          </>
-                        ) : (
-                          'Untitled'
-                        )}
-                        {compress && ' (None)'}
-                      </Typography>
-                      {!compress && (
-                        <Typography
-                          component="div"
-                          variant="body2"
-                          sx={{
-                            color: 'grey',
-                            fontSize,
-                            marginTop: '4px',
-                            fontWeight: 300,
-                          }}
-                        >
-                          {problemCount} {t.problems}
-                        </Typography>
-                      )}
-                    </>
-                  }
-                />
-                {isEnabled && (
-                  <Button
-                    variant="contained"
+                return (
+                  <ListItem
+                    key={uri}
+                    disablePadding
                     sx={{
-                      minWidth: '127px',
-                      borderRadius: '20px',
-                      textTransform: 'none',
-                      boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+                      mb: 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      backgroundColor: '#f0f4f8',
+                      borderRadius: '8px',
+                      py: problemCount > 0 ? 2 : 0,
+                      px: 2,
+                      cursor: isEnabled ? 'pointer' : undefined,
                       transition: 'background-color 0.3s ease, transform 0.2s ease',
-                      '&:hover': { transform: 'scale(1.05)' },
-                    }}
-                    onClick={() => {
-                      if (!isEnabled) return;
-                      handleButtonClick(item.archive, item.filepath, item.title, courseId);
+                      '&:hover': isEnabled && {
+                        background: 'linear-gradient(90deg, #e0f7fa 0%, #d1c4e9 100%)',
+                        transform: 'scale(1.02)',
+                      },
                     }}
                   >
-                    {t.practice}&nbsp;
-                  </Button>
-                )}
-              </ListItem>
-            );
-          })}
-        </List>
+                    <ListItemText
+                      primary={
+                        <>
+                          <Typography
+                            variant="body1"
+                            sx={{ fontWeight: 'medium', fontSize: '1rem' }}
+                          >
+                            {sectionTitle}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                            {problemCount ? `${problemCount} problems` : null}
+                          </Typography>
+                        </>
+                      }
+                    />
+                    {isEnabled && (
+                      <Button
+                        variant="contained"
+                        sx={{
+                          minWidth: '127px',
+                          borderRadius: '20px',
+                          textTransform: 'none',
+                          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+                          transition: 'background-color 0.3s ease, transform 0.2s ease',
+                          '&:hover': { transform: 'scale(1.05)' },
+                        }}
+                        onClick={() => handleButtonClick(uri)}
+                      >
+                        {t.practice}
+                      </Button>
+                    )}
+                  </ListItem>
+                );
+              })}
+            </List>
+          </Box>
+        ))}
       </Paper>
     </Box>
   );
