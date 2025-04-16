@@ -222,18 +222,15 @@ export function ProblemDisplay({
   r,
   showPoints = true,
   onResponseUpdate,
-  onFreezeResponse,
-  debug,
+  onFreezeResponse
 }: {
   uri?: string;
   problem: FTMLProblemWithSolution | undefined;
   isFrozen: boolean;
   r?: ProblemResponse;
   showPoints?: boolean;
-  showUnansweredProblems?: boolean;
   onResponseUpdate?: (r: ProblemResponse) => void;
   onFreezeResponse?: () => void;
-  debug?: boolean;
 }) {
   const router = useRouter();
   const [userId, setUserId] = useState('');

@@ -21,7 +21,7 @@ import {
 } from '@mui/material';
 import {
   getCourseInfo,
-  getDefiniedaInDoc,
+  getDefiniedaInSection,
   getDocumentSections,
   SectionsAPIData,
 } from '@stex-react/api';

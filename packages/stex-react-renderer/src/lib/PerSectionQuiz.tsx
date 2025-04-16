@@ -1,37 +1,26 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Button, IconButton, Tooltip, Typography } from '@mui/material';
 import LinearProgress from '@mui/material/LinearProgress';
-import {
-  FTMLProblemWithSolution,
-  getLearningObjectShtml,
-  getProblemIdsForFile,
-} from '@stex-react/api';
+import { getProblemsForSection } from '@stex-react/api';
+import { FTMLFragment, ProblemResponse } from '@stex-react/ftml-utils';
 import { extractProjectIdAndFilepath, sourceFileUrl } from '@stex-react/utils';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useReducer, useState } from 'react';
-import { ProblemDisplay } from './ProblemDisplay';
+import { useEffect, useReducer, useState } from 'react';
 import { ListStepper } from './QuizDisplay';
 import { getLocaleObject } from './lang/utils';
-import { ServerLinksContext } from './stex-react-renderer';
-import { ProblemResponse } from '@stex-react/ftml-utils';
 
 export function PerSectionQuiz({
-  archive,
-  filepath,
+  sectionUri,
   showButtonFirst = true,
   showHideButton = false,
 }: {
-  archive: string;
-  filepath: string;
+  sectionUri: string;
   showButtonFirst?: boolean;
   showHideButton?: boolean;
 }) {
   const t = getLocaleObject(useRouter()).quiz;
-  const { mmtUrl } = useContext(ServerLinksContext);
-  const [problemIds, setProblemIds] = useState<string[]>([]);
-  const [problems, setProblems] = useState<FTMLProblemWithSolution[]>([]);
-  const [isLoadingProblemIds, setIsLoadingProblemIds] = useState<boolean>(true);
-  const [isLoadingProblems, setIsLoadingProblems] = useState<boolean>(true);
+  const [problemUris, setProblemUris] = useState<string[]>([]);
+  const [isLoadingProblemUris, setIsLoadingProblemUris] = useState<boolean>(true);
   const [responses, setResponses] = useState<ProblemResponse[]>([]);
   const [problemIdx, setProblemIdx] = useState(0);
   const [isFrozen, setIsFrozen] = useState<boolean[]>([]);
@@ -41,56 +30,43 @@ export function PerSectionQuiz({
   const [showSolution, setShowSolution] = useState(false);
 
   useEffect(() => {
-    if (!archive || !filepath) return;
-    setIsLoadingProblemIds(true);
-    getProblemIdsForFile(mmtUrl, archive, filepath).then((p) => {
-      setProblemIds(p);
-      setIsLoadingProblemIds(false);
+    if (!sectionUri) return;
+    setIsLoadingProblemUris(true);
+    console.log('sectionUri', sectionUri);
+    getProblemsForSection(sectionUri).then((p) => {
+      setProblemUris(p);
+      setIsLoadingProblemUris(false);
     }, console.error);
-  }, [archive, filepath, mmtUrl]);
-
-  useEffect(() => {
-    if (!startQuiz) return;
-    const problems$ = problemIds.map((p) => getLearningObjectShtml(mmtUrl, p));
-    setIsLoadingProblems(true);
-    Promise.all(problems$).then((problemStrs) => {
-       // TODO alea4 const problems = problemStrs.map((p) => getProblem(p, ''));
-      // setProblems(problems);
-      // setResponses(problems.map((p) => defaultProblemResponse(p)));
-      setIsFrozen(problems.map(() => false));
-      setProblemIdx(0);
-      setIsLoadingProblems(false);
-    });
-  }, [startQuiz, problemIds, mmtUrl]);
+  }, [sectionUri]);
 
   function handleViewSource(problemId: string) {
     const [projectId, filePath] = extractProjectIdAndFilepath(problemId);
     const sourceLink = sourceFileUrl(projectId, filePath);
     window.open(sourceLink, '_blank');
   }
-  if (isLoadingProblemIds) return null;
-  if (!problemIds.length) return !showButtonFirst && <i>No problems found.</i>;
+  if (isLoadingProblemUris) return null;
+  if (!problemUris.length) return !showButtonFirst && <i>No problems found.</i>;
   if (!startQuiz) {
     return (
       <Button onClick={() => setStartQuiz(true)} variant="contained">
-        {t.perSectionQuizButton.replace('$1', problemIds.length.toString())}
+        {t.perSectionQuizButton.replace('$1', problemUris.length.toString())}
       </Button>
     );
   }
   if (!show) {
     return (
       <Button onClick={() => setShow(true)} variant="contained">
-        {t.perSectionQuizButton.replace('$1', problemIds.length.toString())}
+        {t.perSectionQuizButton.replace('$1', problemUris.length.toString())}
       </Button>
     );
   }
-  if (isLoadingProblems) return <LinearProgress />;
+  if (isLoadingProblemUris) return <LinearProgress />;
 
-  const problem = problems[problemIdx];
-  const response = responses[problemIdx];
-  // TODO alea4 const solutions = problems[problemIdx]?.subProblemData?.map((p) => p.solution);
+  const problemUri = problemUris[problemIdx];
+  // TODO alea4 const response = responses[problemIdx];
+  // const solutions = problems[problemIdx]?.subProblemData?.map((p) => p.solution);
 
-  if (!problem || !response) return <>error</>;
+  if (!problemUri) return <>error: [{problemUri}] </>;
 
   return (
     <Box
@@ -102,21 +78,18 @@ export function PerSectionQuiz({
       borderRadius="5px"
     >
       <Typography fontWeight="bold" textAlign="left">
-        {`${t.problem} ${problemIdx + 1} ${t.of} ${problems.length} `}
+        {`${t.problem} ${problemIdx + 1} ${t.of} ${problemUris.length} `}
       </Typography>
       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <ListStepper
           idx={problemIdx}
-          listSize={problems.length}
+          listSize={problemUris.length}
           onChange={(idx) => {
             setProblemIdx(idx);
             setShowSolution(false);
           }}
         />
-        <IconButton
-          onClick={() => handleViewSource(problemIds[problemIdx])}
-          sx={{ float: 'right' }}
-        >
+        <IconButton onClick={() => handleViewSource(problemUri)} sx={{ float: 'right' }}>
           <Tooltip title="view source">
             <OpenInNewIcon />
           </Tooltip>
@@ -126,9 +99,10 @@ export function PerSectionQuiz({
         <div style={{ color: '#555', marginTop: '10px' }}>{mmtHTMLToReact(problem.header)}</div>
       )}*/}
       <Box mb="10px">
-        <ProblemDisplay
+        <FTMLFragment key={problemUri} fragment={{ uri: problemUri }} />
+        {/*<ProblemDisplay
           r={response}
-          uri={problemIds[problemIdx]}
+          uri={problemUris[problemIdx]}
           showPoints={false}
           problem={problem}
           isFrozen={isFrozen[problemIdx]}
@@ -145,7 +119,7 @@ export function PerSectionQuiz({
               return [...prev];
             })
           }
-        />
+        />*/}
       </Box>
       <Box
         mb={2}

@@ -19,7 +19,7 @@ import {
   ClipDetails,
   ClipInfo,
   getAncestors,
-  getDefiniedaInDoc,
+  getDefiniedaInSection,
   lastFileNode,
   SectionsAPIData,
 } from '@stex-react/api';
@@ -712,7 +712,7 @@ export function VideoDisplay({
   if (!videoId)
     return (
       <Box sx={{ mb: '25px', position: 'relative' }}>
-        <i> Video not available for this section</i>
+        <i>Video not available for this section</i>
       </Box>
     );
 

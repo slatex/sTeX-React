@@ -25,6 +25,7 @@ import {
   smileyToLevel,
 } from '@stex-react/api';
 import { FTMLFragment } from '@stex-react/ftml-utils';
+import { SafeHtml } from '@stex-react/react-utils';
 import {
   FixedPositionMenu,
   LayoutWithFixedMenu,
@@ -37,7 +38,6 @@ import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react';
 import { useSwipeable } from 'react-swipeable';
 import { getLocaleObject } from '../lang/utils';
 import styles from '../styles/flash-card.module.scss';
-import { SafeHtml } from '@stex-react/react-utils';
 
 enum CardType {
   ITEM_CARD,
@@ -183,8 +183,7 @@ function FlashCardBack({
             '& *': { fontSize: 'large !important' },
           }}
         >
-          {definitionUri}
-          {definitionUri && <FTMLFragment key={definitionUri} fragment={{ uri: 'https://mathhub.info?a=courses/FAU/AI/course&p=course/slides&d=llms-not&l=en&e=definition_1' }} />}
+          {definitionUri && <FTMLFragment key={definitionUri} fragment={{ uri: definitionUri }} />}
         </Box>
       </Box>
 

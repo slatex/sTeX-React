@@ -51,13 +51,13 @@ export function PeerReviewGradedItemDisplay({
     >
       <Box>
         <ProblemDisplay
-          showUnansweredProblems={false}
+          // problemId={grade.questionId} TODO alea4
+          // showUnansweredProblems={false}
           showPoints={false}
           problem={problem}
           isFrozen={true}
           r={answerText}
           uri={grade.questionId}
-          // problemId={grade.questionId} TODO alea4
         ></ProblemDisplay>
         <Box sx={{ margin: '10px' }}>
           <span>{dayjs(grade.updatedAt).fromNow()}</span>

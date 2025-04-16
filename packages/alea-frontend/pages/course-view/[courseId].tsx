@@ -14,10 +14,11 @@ import {
 } from '@stex-react/api';
 import { CommentNoteToggleView } from '@stex-react/comments';
 import { FTMLFragment } from '@stex-react/ftml-utils';
+import { SafeHtml } from '@stex-react/react-utils';
 import {
   ContentDashboard,
   LayoutWithFixedMenu,
-  SectionReview
+  SectionReview,
 } from '@stex-react/stex-react-renderer';
 import { CourseInfo, XhtmlContentUrl, localStore, shouldUseDrawer } from '@stex-react/utils';
 import axios from 'axios';
@@ -317,7 +318,7 @@ const CourseViewPage: NextPage = () => {
             </Box>
             <Box sx={{ marginBottom: '10px', marginTop: '10px' }}>
               <Typography variant="h6" sx={{ color: '#333' }}>
-                {/*mmtHTMLToReact(sectionNode?.title || '')*/}TODO ALEA-4
+                <SafeHtml html={sectionNode?.title || '<i>Untitled</i>'} />
               </Typography>
             </Box>
             {viewMode === ViewMode.COMBINED_MODE && (

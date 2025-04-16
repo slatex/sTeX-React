@@ -1,7 +1,7 @@
 import {
   CardsWithSmileys,
   getCourseInfo,
-  getDefiniedaInDoc,
+  getDefiniedaInSection,
   getDocumentSections,
   getUriSmileys,
   TOCElem,
@@ -51,7 +51,7 @@ export async function getCardsBySection(notesUri: string) {
   const topLevelSections = tocContent.map((toc) => getChapterAndSections(toc)).flat();
   const courseCards: CourseCards = {};
   const cardsBySection = await Promise.all(
-    topLevelSections.map(({ uri }) => getDefiniedaInDoc(uri))
+    topLevelSections.map(({ uri }) => getDefiniedaInSection(uri))
   );
   topLevelSections.forEach((section, index) => {
     const { chapterTitle, uri, sectionTitle } = section;

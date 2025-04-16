@@ -1,58 +1,10 @@
-import {
-  COURSES_INFO,
-  CURRENT_TERM,
-  CourseInfo,
-  convertHtmlStringToPlain,
-  createCourseInfo,
-} from '@stex-react/utils';
+import { COURSES_INFO, CURRENT_TERM, CourseInfo, createCourseInfo } from '@stex-react/utils';
 import axios from 'axios';
 import { FLAMSServer } from './flams';
 import { ArchiveIndex, Institution } from './flams-types';
 import { TOCElem } from './ftml-viewer-base';
 
 const server = new FLAMSServer(process.env['NEXT_PUBLIC_FLAMS_URL']!);
-
-///////////////////
-// :sTeX/query/problems
-///////////////////
-
-/*
-https://stexmmt.mathhub.info/:sTeX/query/problems
-Without parameters, it will return all problems as standard SPARQL json with 
-  1. the path of the problem
-  2. the path of the objective symbol 
-  3. the cognitive dimension
-
-with a ?path= query parameter, it will return the list of problems with that 
-particular path as objective
-
-with both ?path=...&dimension=, it will also filter by dimension, e.g.:
-https://stexmmt.mathhub.info/:sTeX/query/problems?path=http://mathhub.info/smglom/csp/mod?constraint-network?constraint%20network or
-https://stexmmt.mathhub.info/:sTeX/query/problems?path=http://mathhub.info/smglom/csp/mod?constraint-network?constraint%20network&dimension=understand
-
-if it has arguments archive/filePath as in other places, it will return an
-array of objects with fields "path" and "problems", the former being a definiendum
-and the second the list of problems with that definiendum as objective.
-*/
-export async function getProblemIdsForConcept(mmtUrl: string, conceptUri: string) {
-  const url = `${mmtUrl}/:sTeX/query/problems?path=${conceptUri}`;
-  const resp = await axios.get(url);
-  const problemIds = resp.data as string[];
-  if (!problemIds?.length) return [];
-  return [...new Set(problemIds)];
-}
-
-export async function getProblemIdsForFile(mmtUrl: string, archive: string, filepath: string) {
-  const url = `${mmtUrl}/:sTeX/query/problems?archive=${archive}&filepath=${filepath}`;
-  const resp = await axios.get(url);
-  const infoByFile = resp.data as { path: string; problems: string[] }[];
-  if (!infoByFile?.length) return [];
-  const problemIds = new Set<string>();
-  for (const { problems } of infoByFile) {
-    problems.forEach(problemIds.add, problemIds);
-  }
-  return [...problemIds];
-}
 
 ///////////////////
 // :sTeX/loraw
@@ -182,8 +134,9 @@ export function isFile(data: SectionsAPIData) {
 export function isSection(data: SectionsAPIData) {
   return !isFile(data);
 }
+
 export async function getDocumentSections(notesUri: string) {
-  return await server.contentToc({ uri: notesUri });
+  return (await server.contentToc({ uri: notesUri })) ?? [[], []];
 }
 
 ///////////////////////
@@ -346,15 +299,15 @@ export interface DefiniendaItem {
   symbols: string[];
 }
 
-// Gets list of symbols defined in a document. Includes nested docs.
-export async function getDefiniedaInDoc(
+// Gets list of symbols defined in a section.
+export async function getDefiniedaInSection(
   uri: string
 ): Promise<{ conceptUri: string; definitionUri: string }[]> {
   const query = `SELECT DISTINCT ?q ?s WHERE { <${uri}> (ulo:contains|dc:hasPart)* ?q. ?q ulo:defines ?s.}`;
 
   try {
     const resp = await axios.post(
-      `${process.env['FLAMS_SERVER_URL']}/api/backend/query`,
+      `${process.env['NEXT_PUBLIC_FLAMS_URL']}/api/backend/query`,
       { query },
       {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -373,11 +326,27 @@ export async function getDefiniedaInDoc(
   }
 }
 
-export async function getPracticeProblems(conceptUri: string) {
+export async function getProblemsForConcept(conceptUri: string) {
   const learningObjects = await server.learningObjects({ uri: conceptUri }, true);
   if (!learningObjects) return [];
   return learningObjects.filter((obj) => obj[1].type === 'Problem').map((obj) => obj[0]);
 }
+
+export async function getProblemsForSection(sectionUri: string): Promise<string[]> {
+  const concepts = await getDefiniedaInSection(sectionUri);
+  const conceptUris = concepts.map((item) => item.conceptUri);
+  const uniqueProblemUrls = new Set<string>();
+  await Promise.all(
+    conceptUris.map(async (conceptUri) => {
+      const problems = await getProblemsForConcept(conceptUri);
+      problems.forEach((problem) => {
+        uniqueProblemUrls.add(problem);
+      });
+    })
+  );
+  return Array.from(uniqueProblemUrls);
+}
+
 
 export async function getUriFragment(URI: string) {
   const resp = await axios.get(`https://stexmmt.mathhub.info//:sTeX/fragment?${URI}`);

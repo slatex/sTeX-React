@@ -1,11 +1,10 @@
 import { CircularProgress } from '@mui/material';
-import { getCourseInfo, getDocumentSections, SectionsAPIData, TOCElem } from '@stex-react/api';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
+import { getCourseInfo, getDocumentSections, TOCElem } from '@stex-react/api';
 import { CourseInfo } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import ProblemList from '../../components/ProblemList';
-import { useContext, useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
 
 const CourseProblemsPage: NextPage = () => {
@@ -14,7 +13,6 @@ const CourseProblemsPage: NextPage = () => {
 
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
   const [sectionsData, setSectionsData] = useState<TOCElem[] | undefined>(undefined);
-  const { mmtUrl } = useContext(ServerLinksContext);
 
   useEffect(() => {
     getCourseInfo().then(setCourses);

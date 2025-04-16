@@ -466,7 +466,6 @@ function GradingItemDisplay({
         <ProblemDisplay
           isFrozen={true}
           r={studentResponse}
-          debug={true}
           // problemId={questionId} TODO alea4
           problem={problem}
           onResponseUpdate={() => {

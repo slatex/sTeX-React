@@ -1,40 +1,41 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, IconButton, Tooltip } from '@mui/material';
-import { PerSectionQuiz } from '@stex-react/stex-react-renderer';
+import { SafeHtml } from '@stex-react/react-utils';
 import { PRIMARY_COL } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import React from 'react';
-import MainLayout from '../layouts/MainLayout';
 import { getLocaleObject } from '../lang/utils';
+import MainLayout from '../layouts/MainLayout';
+import { PerSectionQuiz } from '@stex-react/stex-react-renderer';
 
 const PerSectionQuizPage: React.FC = () => {
   const router = useRouter();
   const { perSectionQuiz: t } = getLocaleObject(router);
 
-  const { archive, filepath, title, courseId } = router.query as {
-    archive: string;
-    filepath: string;
-    title: string;
-    courseId: string;
-  };
+  const sectionUri = router.query.sectionUri as string;
+  const sectionTitle = router.query.sectionTitle as string;
+  const courseId = router.query.courseId as string;
 
-  const handleButtonClick = () => {
+
+  if (!sectionUri) return <div>Invalid URL: sectionUri is undefined</div>;
+
+  const goToAllPracticeProblems = () => {
     router.push(`/practice-problems/${courseId}`);
   };
 
-  if (!archive || !filepath) {
-    return <div>No data found</div>;
-  }
+  const header = sectionTitle ? sectionTitle : new URL(sectionUri)?.searchParams?.get('d');
 
   return (
     <MainLayout title="PerSection Problems | ALeA">
       <Box px="10px" bgcolor="white" maxWidth="800px" m="0 auto">
         <Box display="flex" mt="10px" gap="10px" alignItems="center" my={2}>
-          <Tooltip title={t.backToAllCourseProblems}>
-            <IconButton onClick={handleButtonClick}>
-              <ArrowBackIcon />
-            </IconButton>
-          </Tooltip>
+          {courseId && (
+            <Tooltip title={t.backToAllCourseProblems}>
+              <IconButton onClick={goToAllPracticeProblems}>
+                <ArrowBackIcon />
+              </IconButton>
+            </Tooltip>
+          )}
 
           <b style={{ color: 'gray', fontSize: '1.5rem', fontWeight: 'bold' }}>
             {t.problemsFor}&nbsp;
@@ -45,14 +46,13 @@ const PerSectionQuizPage: React.FC = () => {
                 fontWeight: 'bold',
               }}
             >
-              {title ? /*mmtHTMLToReact(title)*/ 'TODO ALEA-4' : 'Untitled'} ({courseId.toUpperCase()})
+              {header ? <SafeHtml html={header} /> : '<i>Section</i>'} (
+              {courseId.toUpperCase()})
             </span>
           </b>
         </Box>
         <PerSectionQuiz
-          key={archive}
-          archive={archive}
-          filepath={filepath}
+          sectionUri={sectionUri}
           showButtonFirst={false}
         />
         <br />

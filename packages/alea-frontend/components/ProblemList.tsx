@@ -1,5 +1,6 @@
 import { Box, Button, List, ListItem, ListItemText, Paper, Typography } from '@mui/material';
 import { TOCElem } from '@stex-react/api';
+import { SafeHtml } from '@stex-react/react-utils';
 import { PRIMARY_COL } from '@stex-react/utils';
 import axios from 'axios';
 import Link from 'next/link';
@@ -9,6 +10,7 @@ import { getLocaleObject } from '../lang/utils';
 
 interface TitleMetadata {
   uri?: string;
+  id?: string;
   chapterTitle: string;
   sectionTitle: string;
 }
@@ -22,6 +24,7 @@ const extractTitlesAndSectionUri = (toc: TOCElem | null, chapterTitle = ''): Tit
     return [
       {
         uri: toc.uri,
+        id: toc.id,
         chapterTitle,
         sectionTitle: toc.title,
       },
@@ -67,8 +70,14 @@ const ProblemList: FC<ProblemListProps> = ({ courseSections, courseId }) => {
     groupedByChapter[chapterTitle].push(item);
   });
 
-  const handleButtonClick = (sectionUri?: string) => {
-    console.log('uri : ', sectionUri);
+  const seeSectionProblems = (sectionUri?: string, sectionTitle?: string) => {
+    router.push(
+      `/per-section-quiz?sectionUri=${encodeURIComponent(sectionUri)}&courseId=${courseId}&sectionTitle=${encodeURIComponent(sectionTitle)}`
+    );
+  };
+
+  const goToSection = (sectionId?: string) => {
+    window.location.href = `/course-notes/${courseId}#${sectionId}`;
   };
 
   return (
@@ -105,11 +114,11 @@ const ProblemList: FC<ProblemListProps> = ({ courseSections, courseId }) => {
           <Box key={chapter} mb={3}>
             <Box sx={{ mb: 2 }}>
               <Typography variant="h6" sx={{ mb: 1, fontWeight: 'bold' }}>
-                {chapter}
+                <SafeHtml html={chapter} />
               </Typography>
             </Box>
             <List>
-              {sections.map(({ uri, sectionTitle }) => {
+              {sections.map(({ id, uri, sectionTitle }) => {
                 const problemCount = problemCounts[uri || ''] || 0;
                 const isEnabled = problemCount > 0;
 
@@ -126,11 +135,9 @@ const ProblemList: FC<ProblemListProps> = ({ courseSections, courseId }) => {
                       borderRadius: '8px',
                       py: problemCount > 0 ? 2 : 0,
                       px: 2,
-                      cursor: isEnabled ? 'pointer' : undefined,
                       transition: 'background-color 0.3s ease, transform 0.2s ease',
-                      '&:hover': isEnabled && {
+                      '&:hover': {
                         background: 'linear-gradient(90deg, #e0f7fa 0%, #d1c4e9 100%)',
-                        transform: 'scale(1.02)',
                       },
                     }}
                   >
@@ -139,9 +146,16 @@ const ProblemList: FC<ProblemListProps> = ({ courseSections, courseId }) => {
                         <>
                           <Typography
                             variant="body1"
-                            sx={{ fontWeight: 'medium', fontSize: '1rem' }}
+                            sx={{
+                              fontWeight: 'medium',
+                              fontSize: '1rem',
+                              cursor: 'pointer',
+                              width: 'fit-content',
+                              '&:hover': { transform: 'scale(1.02)', textDecoration: 'underline' },
+                            }}
+                            onClick={() => goToSection(id)}
                           >
-                            {sectionTitle}
+                            <SafeHtml html={sectionTitle} />
                           </Typography>
                           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
                             {problemCount ? `${problemCount} problems` : null}
@@ -160,7 +174,7 @@ const ProblemList: FC<ProblemListProps> = ({ courseSections, courseId }) => {
                           transition: 'background-color 0.3s ease, transform 0.2s ease',
                           '&:hover': { transform: 'scale(1.05)' },
                         }}
-                        onClick={() => handleButtonClick(uri)}
+                        onClick={() => seeSectionProblems(uri, sectionTitle)}
                       >
                         {t.practice}
                       </Button>

@@ -8,6 +8,7 @@ import {
   getCourseQuizList,
   getUserInfo,
 } from '@stex-react/api';
+import { SafeHtml } from '@stex-react/react-utils';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { Action, CURRENT_TERM, CourseInfo, ResourceName } from '@stex-react/utils';
 import dayjs from 'dayjs';
@@ -20,6 +21,7 @@ import QuizPerformanceTable from '../../components/QuizPerformanceTable';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
 import { CourseHeader, handleEnrollment } from '../course-home/[courseId]';
+import { FTMLFragment } from '@stex-react/ftml-utils';
 
 function QuizThumbnail({ quiz }: { quiz: QuizStubInfo }) {
   const { quizId, quizStartTs, quizEndTs, title } = quiz;
@@ -28,14 +30,15 @@ function QuizThumbnail({ quiz }: { quiz: QuizStubInfo }) {
       <Link href={`/quiz/${quizId}`}>
         <Card
           sx={{
-            backgroundColor: 'hsl(210, 20%, 95%)',
             border: '1px solid #CCC',
             p: '10px',
             my: '10px',
             width: 'fit-content',
           }}
         >
-          <Box>{/*mmtHTMLToReact(title)*/}TODO ALEA-4</Box>
+          <Box>
+            <FTMLFragment key={title} fragment={{ html: title }} />
+          </Box>
           <Box>
             <b>
               {dayjs(quizStartTs).format('MMM-DD HH:mm')} to {dayjs(quizEndTs).format('HH:mm')}

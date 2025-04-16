@@ -29,8 +29,7 @@ const CourseProblemsPage: NextPage = () => {
     return <>Course Not Found!</>;
   }
   //Todo alea-4
-  // const url = XhtmlContentUrl(courseInfo.notesArchive, courseInfo.notesFilepath);
-  const url = '';
+  const notesDocUri = courseInfo.notes;
 
   return (
     <MainLayout title={(courseId || '').toUpperCase() + ` ${t.notes} | ALeA`}>
@@ -51,7 +50,7 @@ const CourseProblemsPage: NextPage = () => {
         </Button>
       )}
       <DocProblemBrowser
-        contentUrl={url}
+        notesDocUri={notesDocUri}
         courseId={courseId}
         topOffset={64}
         startSecNameExcl={startSecNameExcl}

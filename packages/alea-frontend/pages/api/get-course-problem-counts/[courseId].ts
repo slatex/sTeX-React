@@ -2,16 +2,17 @@ import {
   DocumentElementURI,
   TOCElem,
   getCourseInfo,
-  getDefiniedaInDoc,
+  getDefiniedaInSection,
   getDocumentSections,
-  getPracticeProblems,
+  getProblemsForConcept,
+  getProblemsForSection,
 } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export const EXCLUDED_CHAPTERS = ['Preface', 'Administrativa', 'Resources'];
 
 interface CourseCacheInfo {
-  counts: { [section: string]: number };
+  counts: Record<DocumentElementURI, number>;
   lastUpdatedTs_ms: number;
 }
 
@@ -29,54 +30,30 @@ function isCacheValid(cache: CourseCacheInfo) {
 
 function getCachedCourseProblemCounts(courseId: string) {
   const cache = CACHE.get(courseId);
-  if (cache && isCacheValid(cache)) {
-    console.log('[CACHE HIT]', courseId);
-    return cache.counts;
-  }
-  console.log('[CACHE MISS]', courseId);
-  return null;
+  if (cache && isCacheValid(cache)) return cache.counts;
 }
 
 function collectSectionUris(toc: TOCElem[]): DocumentElementURI[] {
   const result: DocumentElementURI[] = [];
   for (const elem of toc) {
-    if (elem.type === 'Section') {
-      if (elem.uri) {
-        result.push(elem.uri);
-      }
-      result.push(...collectSectionUris(elem.children));
-    } else if (elem.type === 'SkippedSection' || elem.type === 'Inputref') {
-      result.push(...collectSectionUris(elem.children));
-    }
+    if (elem.type === 'Section' && elem.uri) result.push(elem.uri);
+    if ('children' in elem) result.push(...collectSectionUris(elem.children));
   }
   return result;
 }
 
-async function fetchProblemCounts(notesUri: string): Promise<{ [sectionUri: string]: number }> {
-  const docSections = await getDocumentSections(notesUri);
-  const tocContent = docSections[1];
+
+async function fetchProblemCounts(notesUri: string): Promise<Record<DocumentElementURI, number>> {
+  const tocContent = (await getDocumentSections(notesUri))[1];
   const sectionUris = collectSectionUris(tocContent);
-  const sectionToConceptUris = await Promise.all(
+
+  const counts: Record<DocumentElementURI, number> = {};
+  await Promise.all(
     sectionUris.map(async (uri) => {
-      const concepts = await getDefiniedaInDoc(uri);
-      return { sectionUri: uri, conceptUris: concepts.map((item) => item.conceptUri) };
+      const problems = await getProblemsForSection(uri);
+      counts[uri] = problems.length;
     })
   );
-
-  const counts: { [sectionUri: string]: number } = {};
-
-  for (const { sectionUri, conceptUris } of sectionToConceptUris) {
-    const uniqueProblemUrls = new Set<string>();
-    await Promise.all(
-      conceptUris.map(async (conceptUri) => {
-        const problems = await getPracticeProblems(conceptUri);
-        problems.forEach((problem) => {
-          uniqueProblemUrls.add(problem);
-        });
-      })
-    );
-    counts[sectionUri] = uniqueProblemUrls.size;
-  }
 
   return counts;
 }
@@ -86,15 +63,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   let counts = getCachedCourseProblemCounts(courseId);
   if (!counts) {
     const courseInfo = (await getCourseInfo())[courseId];
-    if (!courseInfo) {
-      res.status(404).json({ error: `Course not found: [${courseId}]` });
-      return;
-    }
-
+    if (!courseInfo) return res.status(404).send(`Course not found: [${courseId}]`);
     const { notes } = courseInfo;
     counts = await fetchProblemCounts(notes);
     CACHE.set(courseId, { counts, lastUpdatedTs_ms: Date.now() });
   }
 
-  res.status(200).json(counts);
+  res.status(200).json(counts as Record<DocumentElementURI, number>);
 }

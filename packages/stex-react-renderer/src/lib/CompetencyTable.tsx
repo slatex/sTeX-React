@@ -17,7 +17,7 @@ import { Box, Button, Link, Typography } from '@mui/material';
 import {
   BloomDimension,
   SHOW_DIMENSIONS,
-  getProblemIdsForConcept,
+  getProblemsForConcept,
   uriWeightToSmileyLevel,
 } from '@stex-react/api';
 import { PRIMARY_COL, PathToTour } from '@stex-react/utils';
@@ -60,12 +60,11 @@ function QuizIconWithProblemsCount({ problemIds }: { problemIds: string[] }) {
   );
 }
 
-function QuizButton({ uri, mmtUrl }: { uri: string; mmtUrl?: string }) {
+function QuizButton({ uri }: { uri: string }) {
   const [problemList, setProblemList] = useState<string[]>([]);
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   useEffect(() => {
-    if (!mmtUrl) return;
-    getProblemIdsForConcept(mmtUrl, uri).then(setProblemList);
+    getProblemsForConcept(uri).then(setProblemList);
   }, [uri]);
   if (problemList.length === 0) {
     return null;
@@ -148,7 +147,7 @@ export function CompetencyTable({
     async function fetchProblemIds() {
       try {
         if (!fetchProblem) return;
-        const promises = URIs.map((uri) => getProblemIdsForConcept(mmtUrl, uri));
+        const promises = URIs.map((uri) => getProblemsForConcept(uri));
         const results = await Promise.all(promises);
         const flattenedProblemIds = results.flat();
         setProblemIds(flattenedProblemIds);
@@ -317,7 +316,7 @@ export function CompetencyTable({
                         priority={true}
                       />
                     </Link>
-                    <QuizButton uri={URIs[index]} mmtUrl={mmtUrl} />
+                    <QuizButton uri={URIs[index]} />
                   </TableCell>
                 )}
               </TableRow>

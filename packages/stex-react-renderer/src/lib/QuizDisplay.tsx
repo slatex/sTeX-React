@@ -229,7 +229,6 @@ export function QuizDisplay({
   showPerProblemTime = false,
   existingResponses,
   isFrozen,
-  debug = false,
   homeworkId,
 }: {
   quizEndTs?: number;
@@ -237,7 +236,6 @@ export function QuizDisplay({
   problems: Record<string, FTMLProblemWithSolution>;
   existingResponses: { [problemId: string]: ProblemResponse };
   isFrozen: boolean;
-  debug?: boolean;
   onResponse?: (problemId: string, r: ProblemResponse) => void;
   onSubmit?: (
     events: TimerEvent[],
@@ -342,7 +340,6 @@ export function QuizDisplay({
         <Box my="10px">
           <ProblemDisplay
             r={response}
-            debug={debug}
             problem={problem}
             isFrozen={isFrozen}
             onResponseUpdate={(response) => {

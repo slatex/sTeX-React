@@ -1,3 +1,4 @@
+import InfoIcon from '@mui/icons-material/Info';
 import {
   Box,
   Paper,
@@ -16,14 +17,14 @@ import {
   RecorrectionInfo,
   getPreviousQuizInfo,
 } from '@stex-react/api';
+import { SafeHtml } from '@stex-react/react-utils';
+import { NoMaxWidthTooltip } from '@stex-react/stex-react-renderer';
 import { PRIMARY_COL, convertHtmlStringToPlain } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import InfoIcon from '@mui/icons-material/Info';
-import { getLocaleObject } from '../lang/utils';
 import { useRouter } from 'next/router';
-import { NoMaxWidthTooltip } from '@stex-react/stex-react-renderer';
+import { useEffect, useState } from 'react';
+import { getLocaleObject } from '../lang/utils';
 
 function RecorrectionInfoDisp({ recorrectionInfo }: { recorrectionInfo?: RecorrectionInfo[] }) {
   const { quizPerformanceTable: t } = getLocaleObject(useRouter());
@@ -44,10 +45,13 @@ function RecorrectionInfoDisp({ recorrectionInfo }: { recorrectionInfo?: Recorre
             {recorrectionInfo.map((r, idx) => (
               <li key={idx} style={{ marginBottom: '10px' }}>
                 <Typography variant="body1">
-                  {t.theProblem} <b>{/*mmtHTMLToReact(r.problemHeader || r.problemId)*/}TODO ALEA-4</b>
+                  {t.theProblem}{' '}
+                  <b>
+                    <SafeHtml html={r.problemHeader || r.problemId} />
+                  </b>
                   &nbsp;{t.wasRecorrected} ({dayjs(r.recorrectedTs).format('MMM DD')}).
                   <br />
-                  {/*mmtHTMLToReact(r.description)*/}TODO ALEA-4
+                  <SafeHtml html={r.description} />
                 </Typography>
               </li>
             ))}

@@ -120,7 +120,7 @@ function RenderTree({
   defaultOpen: boolean;
   selectedSection: string;
   preAdornment?: (sectionId: string) => JSX.Element;
-  onSectionClick?: (sectionId: string) => void;
+  onSectionClick?: (sectionId: string, sectionUri: string) => void;
 }) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(defaultOpen);
@@ -166,7 +166,7 @@ function RenderTree({
           }}
           onClick={(e) => {
             e.stopPropagation();
-            onSectionClick?.(node.tocElem.id);
+            onSectionClick?.(node.tocElem.id, node.tocElem.uri);
             return;
           }}
         >
@@ -222,7 +222,7 @@ export function ContentDashboard({
   coveredSectionIds?: string[];
   preAdornment?: (sectionId: string) => JSX.Element;
   onClose: () => void;
-  onSectionClick?: (sectionId: string) => void;
+  onSectionClick?: (sectionId: string, sectionUri: string) => void;
 }) {
   const t = getLocaleObject(useRouter());
   const [filterStr, setFilterStr] = useState('');
