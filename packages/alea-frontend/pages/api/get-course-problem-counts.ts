@@ -2,9 +2,7 @@ import {
   DocumentElementURI,
   TOCElem,
   getCourseInfo,
-  getDefiniedaInSection,
   getDocumentSections,
-  getProblemsForConcept,
   getProblemsForSection,
 } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
@@ -12,7 +10,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 export const EXCLUDED_CHAPTERS = ['Preface', 'Administrativa', 'Resources'];
 
 interface CourseCacheInfo {
-  counts: Record<DocumentElementURI, number>;
+  problems: Record<DocumentElementURI, string[]>;
   lastUpdatedTs_ms: number;
 }
 
@@ -28,9 +26,25 @@ function isCacheValid(cache: CourseCacheInfo) {
   return Date.now() - cache.lastUpdatedTs_ms < HOURS_6;
 }
 
-function getCachedCourseProblemCounts(courseId: string) {
+export async function getCourseProblemsBySection(courseId: string) {
   const cache = CACHE.get(courseId);
-  if (cache && isCacheValid(cache)) return cache.counts;
+  if (cache && isCacheValid(cache)) return cache.problems;
+
+  const courseInfo = (await getCourseInfo())[courseId];
+  if (!courseInfo) return null;
+  const { notes } = courseInfo;
+  const problems = await fetchProblems(notes);
+  CACHE.set(courseId, { problems, lastUpdatedTs_ms: Date.now() });
+  return problems;
+}
+
+export async function getProblemsBySection(sectionUri: string) {
+  for (const courseId of Object.keys(CACHE)) {
+    const problems = await getCourseProblemsBySection(courseId);
+    if (problems && problems[sectionUri]) return problems[sectionUri];
+  }
+  const problems = await getProblemsForSection(sectionUri);
+  return problems;
 }
 
 function collectSectionUris(toc: TOCElem[]): DocumentElementURI[] {
@@ -42,32 +56,28 @@ function collectSectionUris(toc: TOCElem[]): DocumentElementURI[] {
   return result;
 }
 
-
-async function fetchProblemCounts(notesUri: string): Promise<Record<DocumentElementURI, number>> {
+async function fetchProblems(notesUri: string): Promise<Record<DocumentElementURI, string[]>> {
   const tocContent = (await getDocumentSections(notesUri))[1];
   const sectionUris = collectSectionUris(tocContent);
 
-  const counts: Record<DocumentElementURI, number> = {};
+  const problems: Record<DocumentElementURI, string[]> = {};
   await Promise.all(
     sectionUris.map(async (uri) => {
-      const problems = await getProblemsForSection(uri);
-      counts[uri] = problems.length;
+      problems[uri] = await getProblemsForSection(uri);
     })
   );
 
-  return counts;
+  return problems;
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const courseId = req.query.courseId as string;
-  let counts = getCachedCourseProblemCounts(courseId);
-  if (!counts) {
-    const courseInfo = (await getCourseInfo())[courseId];
-    if (!courseInfo) return res.status(404).send(`Course not found: [${courseId}]`);
-    const { notes } = courseInfo;
-    counts = await fetchProblemCounts(notes);
-    CACHE.set(courseId, { counts, lastUpdatedTs_ms: Date.now() });
-  }
+  const problems = await getCourseProblemsBySection(courseId);
+  if (!problems) return res.status(404).send(`Course not found: [${courseId}]`);
+
+  const counts = Object.fromEntries(
+    Object.entries(problems).map(([uri, problems]) => [uri, problems.length])
+  );
 
   res.status(200).json(counts as Record<DocumentElementURI, number>);
 }

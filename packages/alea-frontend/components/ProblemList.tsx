@@ -49,7 +49,7 @@ const ProblemList: FC<ProblemListProps> = ({ courseSections, courseId }) => {
   useEffect(() => {
     if (!courseId) return;
     axios
-      .get(`/api/get-course-problem-counts/${courseId}`)
+      .get(`/api/get-course-problem-counts?courseId=${courseId}`)
       .then((resp) => setProblemCounts(resp.data))
       .catch((err) => console.error('Error fetching problem counts:', err));
   }, [courseId]);

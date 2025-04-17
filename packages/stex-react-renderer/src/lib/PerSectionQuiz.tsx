@@ -1,9 +1,9 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Button, IconButton, Tooltip, Typography } from '@mui/material';
 import LinearProgress from '@mui/material/LinearProgress';
-import { getProblemsForSection } from '@stex-react/api';
 import { FTMLFragment, ProblemResponse } from '@stex-react/ftml-utils';
 import { extractProjectIdAndFilepath, sourceFileUrl } from '@stex-react/utils';
+import axios from 'axios';
 import { useRouter } from 'next/router';
 import { useEffect, useReducer, useState } from 'react';
 import { ListStepper } from './QuizDisplay';
@@ -32,11 +32,12 @@ export function PerSectionQuiz({
   useEffect(() => {
     if (!sectionUri) return;
     setIsLoadingProblemUris(true);
-    console.log('sectionUri', sectionUri);
-    getProblemsForSection(sectionUri).then((p) => {
-      setProblemUris(p);
-      setIsLoadingProblemUris(false);
-    }, console.error);
+    axios
+      .get(`/api/get-problems-by-section?sectionUri=${encodeURIComponent(sectionUri)}`)
+      .then((resp) => {
+        setProblemUris(resp.data);
+        setIsLoadingProblemUris(false);
+      }, console.error);
   }, [sectionUri]);
 
   function handleViewSource(problemId: string) {
