@@ -191,7 +191,7 @@ function TourItemDisplay({
           url={`/:vollki/frag?path=${item.uri}&lang=${lang}`}
           modifyRendered={getChildrenOfBodyNode}
         />*/}
-        TODO ALEA-4
+        TODO ALEA4-M2
       </Box>
 
       <Divider />
@@ -427,6 +427,7 @@ export function TourDisplay({
     if (!tourId?.length) return;
     const tourInfoUrl = `${mmtUrl}/:vollki/tour?path=${tourId}&user=nulluser&lang=${language}`;
     setFetchingItems(true);
+    // TODO ALEA4-M2
     axios.get(tourInfoUrl).then((r) => {
       setFetchingItems(false);
       const apiEntries: TourAPIEntry[] = r.data;

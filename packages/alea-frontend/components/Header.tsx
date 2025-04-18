@@ -1,15 +1,7 @@
 import { useMatomo } from '@jonkoops/matomo-tracker-react';
 import HelpIcon from '@mui/icons-material/Help';
 import WarningIcon from '@mui/icons-material/Warning';
-import {
-  Box,
-  Button,
-  IconButton,
-  Menu,
-  MenuItem,
-  Toolbar,
-  Tooltip,
-} from '@mui/material';
+import { Box, Button, IconButton, Menu, MenuItem, Toolbar, Tooltip } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import { getUserInfo, isLoggedIn, logout } from '@stex-react/api';
 import { CountryFlag, useScrollDirection } from '@stex-react/react-utils';
@@ -17,7 +9,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { BrowserAutocomplete } from '../components/BrowserAutocomplete';
 import { getLocaleObject } from '../lang/utils';
 import styles from '../styles/header.module.scss';
 import NotificationButton from './NotificationButton';
@@ -62,12 +53,7 @@ function UserButton() {
       >
         {userName}
       </Button>
-      <Menu
-        id="basic-menu"
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-      >
+      <Menu id="basic-menu" anchorEl={anchorEl} open={open} onClose={handleClose}>
         <MenuItem
           onClick={() => {
             router.push('/my-profile');
@@ -114,19 +100,10 @@ function LanguageButton() {
     <Box whiteSpace="nowrap">
       <Tooltip title={t.changeLanguage}>
         <IconButton onClick={handleClick}>
-          <CountryFlag
-            flag={locale === 'en' ? 'gb' : locale}
-            size="28x21"
-            size2="56x42"
-          />
+          <CountryFlag flag={locale === 'en' ? 'gb' : locale} size="28x21" size2="56x42" />
         </IconButton>
       </Tooltip>
-      <Menu
-        id="basic-menu"
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-      >
+      <Menu id="basic-menu" anchorEl={anchorEl} open={open} onClose={handleClose}>
         <MenuItem
           onClick={() => {
             changeLocale('en');
@@ -150,11 +127,7 @@ function LanguageButton() {
   );
 }
 
-export function Header({
-  showBrowserAutocomplete,
-}: {
-  showBrowserAutocomplete: boolean;
-}) {
+export function Header() {
   const loggedIn = isLoggedIn();
   const router = useRouter();
   const { header: t } = getLocaleObject(router);
@@ -165,8 +138,7 @@ export function Header({
       ? 'crimson !important'
       : 'blue !important';
   const scrollDirection = useScrollDirection();
-  const forceShowBar =
-    scrollDirection === 'up' && router.asPath.includes('course-notes');
+  const forceShowBar = scrollDirection === 'up' && router.asPath.includes('course-notes');
 
   return (
     <AppBar
@@ -179,13 +151,10 @@ export function Header({
       <Toolbar className={styles['toolbar']} sx={{ background }}>
         <Link href="/" passHref>
           <Tooltip
-            placement='right'
+            placement="right"
             title={
               <Tooltip title={t.headerWarning}>
-                <WarningIcon
-                  fontSize="large"
-                  sx={{ cursor: 'pointer', color: '#e20' }}
-                />
+                <WarningIcon fontSize="large" sx={{ cursor: 'pointer', color: '#e20' }} />
               </Tooltip>
             }
           >
@@ -201,11 +170,6 @@ export function Header({
             </Box>
           </Tooltip>
         </Link>
-        {showBrowserAutocomplete && (
-          <Box sx={{ mx: '40px', maxWidth: '600px' }} flex="1">
-            <BrowserAutocomplete />
-          </Box>
-        )}
         <Box>
           <Box display="flex" alignItems="center">
             <NotificationButton />
@@ -225,9 +189,7 @@ export function Header({
                 onClick={() => {
                   // Don't change target when user reclicks 'Login' button.
                   if (window.location.pathname === '/login') return;
-                  router.push(
-                    '/login?target=' + encodeURIComponent(window.location.href)
-                  );
+                  router.push('/login?target=' + encodeURIComponent(window.location.href));
                 }}
               >
                 {t.login}

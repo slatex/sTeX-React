@@ -42,7 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const perProblemStats: { [problemKey: string]: PerProblemStats } = {};
   for (const [problemId, problemWithSolution] of Object.entries(quiz.problems)) {
     const total_points = problemWithSolution.problem.total_points;
-    const header = problemWithSolution.problem['header'] ?? 'TODO'; // TODO alea4
+    const header = problemWithSolution.problem.title_html ?? '';
     perProblemStats[problemId] = {
       header,
       maxPoints: total_points,

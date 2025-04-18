@@ -6,6 +6,7 @@ import {
   GradingWithAnswer,
   UserInfo,
 } from '@stex-react/api';
+import { SafeHtml } from '@stex-react/react-utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -28,12 +29,11 @@ function GradedItemsList({
             sx={{ py: 0, bgcolor: idx % 2 === 0 ? '#f0f0f0' : '#ffffff' }}
           >
             <ListItemText
-              primary={questionTitle ? /*mmtHTMLToReact(questionTitle)*/ 'TODO ALEA-4' : id}
+              primary={questionTitle ? <SafeHtml html={questionTitle} /> : id}
               secondary={
-                /*mmtHTMLToReact(
-                questionTitle.slice(0, questionTitle.length > 20 ? 20 : questionTitle.length)
-              )*/
-                'TODO ALEA-4'
+                questionTitle ? (
+                  <SafeHtml html={questionTitle.slice(0, Math.min(20, questionTitle.length))} />
+                ) : null
               }
             />
           </ListItemButton>

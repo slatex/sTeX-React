@@ -1,5 +1,5 @@
 import { InsertAnswerRequest, Phase } from '@stex-react/api';
-import { getQuizPhase } from '@stex-react/quiz-utils';
+import { getPoints, getQuizPhase } from '@stex-react/quiz-utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { checkIfPostOrSetError, getUserIdOrSetError } from '../comment-utils';
 import { queryGradingDbAndEndSet500OnError } from '../grading-db-utils';
@@ -29,11 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return;
   }
 
-  const points = 0; // getPoints(problem.problem, {
-  //   autogradableResponses: responses,
-  //   freeTextResponses: {},
-  // }); TODO alea4
-
+  const points = getPoints(problem, responses);
   const results = await queryGradingDbAndEndSet500OnError(
     'INSERT INTO grading(userId, quizId, problemId, response, points, browserTimestamp_ms) VALUES (?, ?, ?, ?, ?, ?)',
     [userId, quizId, problemId, JSON.stringify(responses), points, browserTimestamp_ms],

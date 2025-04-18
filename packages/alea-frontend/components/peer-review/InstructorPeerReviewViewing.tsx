@@ -1,6 +1,6 @@
 import { Box, Button, IconButton, List, ListItemButton, ListItemText } from '@mui/material';
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
-import { MultiItemSelector } from '../nap/MultiItemsSeletctor';
+import { MultiItemSelector } from '../nap/MultiItemsSelector';
 import { deleteReview, getReviewItems, GradingWithAnswer } from '@stex-react/api';
 import { SettingsBackupRestore } from '@mui/icons-material';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
@@ -9,6 +9,7 @@ import { truncateText } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { PeerReviewGradedItemDisplay } from './PeerReviewGradedItemDisplay';
+import { SafeHtml } from '@stex-react/react-utils';
 
 const MULTI_SELECT_FIELDS = ['questionId', 'checkerId'] as const;
 const ALL_SORT_FIELDS = ['questionTitle', 'updatedAt', 'checkerId'] as const;
@@ -127,7 +128,7 @@ function PeerReviewItemsList({
                 primary={customFeedback ? truncateText(customFeedback, 50) : 'No feedback'}
                 secondary={
                   <>
-                    {/*mmtHTMLToReact(questionTitle)*/}TODO ALEA-4 &nbsp;{`(${checkerId})`} &nbsp;
+                    <SafeHtml html={questionTitle} /> &nbsp;{`(${checkerId})`} &nbsp;
                     <span>{dayjs(updatedAt).fromNow()}</span>
                   </>
                 }

@@ -225,7 +225,7 @@ function ConceptHistoryTable({
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth={true} maxWidth="lg">
-      <DialogTitle>TODO ALEA-4{/*mmtHTMLToReact(getMMTHtml(concept))*/}</DialogTitle>
+      <DialogTitle>TODO ALEA4-N10{/*mmtHTMLToReact(getMMTHtml(concept))*/}</DialogTitle>
       <DialogContent>
         {loading ? (
           <Box

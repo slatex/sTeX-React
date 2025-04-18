@@ -12,6 +12,7 @@ import {
   reportEvent,
   smileyToLevel,
 } from '@stex-react/api';
+import { SafeHtml } from '@stex-react/react-utils';
 import { BG_COLOR, PRIMARY_COL, SECONDARY_COL } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -202,8 +203,7 @@ export function SelfAssessmentDialogRow({
                 '& *': { display: 'inline!important' },
               }}
             >
-              {/*mmtHTMLToReact(htmlName)*/}
-              TODO ALEA4
+              <SafeHtml html={htmlName} />
             </Box>
           </span>
         )}

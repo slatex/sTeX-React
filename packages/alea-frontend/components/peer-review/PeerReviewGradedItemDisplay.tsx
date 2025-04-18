@@ -27,9 +27,9 @@ export function PeerReviewGradedItemDisplay({
   const [answerText, setAnswerText] = useState<ProblemResponse>();
   useEffect(() => {
     getLearningObjectShtml(mmtUrl, grade.questionId).then((p) => {
-      // setProblem(getProblem(p, '')); TODO alea4
+      // setProblem(getProblem(p, ''));
     });
-    // TODO alea4
+    // TODO ALEA4-P4
     // setAnswerText({
     //   freeTextResponses: { [grade.subProblemId]: grade.answer },
     //   autogradableResponses: [],
@@ -51,7 +51,7 @@ export function PeerReviewGradedItemDisplay({
     >
       <Box>
         <ProblemDisplay
-          // problemId={grade.questionId} TODO alea4
+          // problemId={grade.questionId} TODO ALEA4-P4
           // showUnansweredProblems={false}
           showPoints={false}
           problem={problem}

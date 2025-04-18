@@ -32,8 +32,9 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { Dispatch, SetStateAction, useContext, useEffect, useMemo, useState } from 'react';
-import { MultiItemSelector } from '../components/nap/MultiItemsSeletctor';
+import { MultiItemSelector } from '../components/nap/MultiItemsSelector';
 import MainLayout from '../layouts/MainLayout';
+import { SafeHtml } from '@stex-react/react-utils';
 const MULTI_SELECT_FIELDS = ['courseId', 'questionId', 'courseInstance'] as const;
 const ALL_SORT_FIELDS = ['courseId', 'questionTitle', 'updatedAt', 'courseInstance'] as const;
 const DEFAULT_SORT_ORDER: Record<SortField, 'ASC' | 'DESC'> = {
@@ -120,7 +121,7 @@ function AnswerItemDisplay({
   const [answerText, setAnswerText] = useState<ProblemResponse>();
   const [gradingInfos, setGradingInfos] = useState<GradingInfo[]>([]);
   useEffect(() => {
-    // TODO alea4
+    // TODO ALEA4-P4
     // getLearningObjectShtml(mmtUrl, answer.questionId).then((p) => {
     //  setProblem(getProblem(p, ''));
     //});
@@ -142,7 +143,7 @@ function AnswerItemDisplay({
         isFrozen={true}
         r={answerText}
         uri={answer.questionId}
-        // problem={problem} TODO alea4
+        // problem={problem} TODO ALEA4-P4
       ></ProblemDisplay>
       <Box sx={{ margin: '10px' }}>
         <span>{dayjs(answer.updatedAt).fromNow()}</span>
@@ -214,7 +215,7 @@ function AnswerItemsList({
               sx={{ py: 0, bgcolor: idx % 2 === 0 ? '#f0f0f0' : '#ffffff' }}
             >
               <ListItemText
-                primary={questionTitle ? /*mmtHTMLToReact(questionTitle)*/ 'TODO ALEA-4' : id}
+                primary={questionTitle ? <SafeHtml html={questionTitle} /> : id}
                 secondary={
                   <Box>
                     <Box>

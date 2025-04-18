@@ -96,7 +96,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         0
       );
       for (const r of recorrectionInfo || []) {
-        r.problemHeader = problemByProblemId[r.problemId].problem['header'] ?? 'TODO'; // TODO alea4
+        r.problemHeader = problemByProblemId[r.problemId].problem.title_html ?? '';
       }
       const quizId = quiz.id;
       quizInfo[quizId] = {

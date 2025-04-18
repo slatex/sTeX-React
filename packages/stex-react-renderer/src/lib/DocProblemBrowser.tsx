@@ -52,7 +52,6 @@ export function DocProblemBrowser({
   //const ancestors = getAncestors(undefined, undefined, selectedSection, docSections);
   // const sectionParentInfo = lastFileNode(ancestors);
 
-  // TODO alea-4
   // const coveredSectionIds =
   //   startSecNameExcl && endSecNameIncl
   //     ? getCoveredSections(startSecNameExcl, endSecNameIncl, docSections).coveredSectionIds
@@ -103,7 +102,7 @@ export function DocProblemBrowser({
       <Box px="10px" bgcolor={BG_COLOR}>
         {/*ancestors?.length && (
           <h3>
-            <span style={{ color: 'gray' }}>{t.problemsFor}</span> // TODO ALEA-4 *
+            <span style={{ color: 'gray' }}>{t.problemsFor}</span> // TODO ALEA4-P1
             // mmtHTMLToReact(ancestors[ancestors.length - 1].title ?? '') 
           </h3>
         )}*/}

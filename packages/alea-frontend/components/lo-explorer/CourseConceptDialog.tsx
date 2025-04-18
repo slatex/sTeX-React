@@ -91,7 +91,7 @@ export const CourseConceptsDialog = ({
     async function getSections() {
       const secDetails: Record<string, SectionDetails[]> = {};
       for (const courseId of Object.keys(courses)) {
-        //Todo alea-4
+        //TODO ALEA4-L1
         // const { notesArchive: archive, notesFilepath: filepath } = courses[courseId];
         // const docSections = await getDocumentSections(mmtUrl, archive, filepath);
         // secDetails[courseId] = getSectionDetails(docSections);
@@ -116,7 +116,7 @@ export const CourseConceptsDialog = ({
     setLoading(true);
     try {
 
-       //Todo alea-4
+       //TODO ALEA4-L1
       // const definedConcepts = await getDefiniedaInDoc(
       //   mmtUrl,
       //   selectedSection?.archive,

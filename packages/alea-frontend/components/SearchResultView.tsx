@@ -8,6 +8,7 @@ import {
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import styles from '../styles/search.module.scss';
+import { SafeHtml } from '@stex-react/react-utils';
 
 export interface SearchResult extends FileLocation {
   title: string;
@@ -43,7 +44,7 @@ export function SearchResultView({ result }: { result: SearchResult }) {
       </Link>
 
       <Box sx={{ mb: '20px' }}>
-        {/*mmtHTMLToReact(result.html, true)*/}
+        <SafeHtml html={result.html} />
         {snippetParts.map((part, idx) => (
           <span
             key={idx}

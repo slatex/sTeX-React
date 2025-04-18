@@ -56,7 +56,7 @@ const TrafficLightIndicator = ({ contentUrl }: { contentUrl: string }) => {
   const [URIs, setURIs] = useState<string[]>([]);
   /* useEffect(() => {
     if (!isLoggedIn()) return;
-   TODO ALEA-4
+   TODO ALEA4-N10
     getSectionDependencies(mmtUrl, archive, filepath).then((uris) => {
       setURIs(uris);
       getUriWeights(uris).then((data) => setCompetencyData(data));

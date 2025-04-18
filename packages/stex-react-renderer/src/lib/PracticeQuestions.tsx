@@ -1,7 +1,9 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, IconButton, Tooltip } from '@mui/material';
 import LinearProgress from '@mui/material/LinearProgress';
-import {  FTMLProblemWithSolution, getLearningObjectShtml } from '@stex-react/api';
+import { FTMLProblemWithSolution, getLearningObjectShtml } from '@stex-react/api';
+import { ProblemResponse } from '@stex-react/ftml-utils';
+import { SafeHtml } from '@stex-react/react-utils';
 import { extractProjectIdAndFilepath, sourceFileUrl } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useReducer, useState } from 'react';
@@ -9,7 +11,6 @@ import { ProblemDisplay } from './ProblemDisplay';
 import { ListStepper } from './QuizDisplay';
 import { getLocaleObject } from './lang/utils';
 import { ServerLinksContext } from './stex-react-renderer';
-import { ProblemResponse } from '@stex-react/ftml-utils';
 
 function handleViewSource(problemId: string) {
   const [projectId, filePath] = extractProjectIdAndFilepath(problemId);
@@ -48,7 +49,7 @@ export function PracticeQuestions({
     const problems$ = problemIds.map((p) => getLearningObjectShtml(mmtUrl, p));
     setIsLoadingProblems(true);
     Promise.all(problems$).then((problemStrs) => {
-      // TODO alea4 const problems = problemStrs.map((p) => getProblem(p, ''));
+      // TODO ALEA4-P4 const problems = problemStrs.map((p) => getProblem(p, ''));
       // setProblems(problems);
       // setResponses(problems.map((p) => defaultProblemResponse(p)));
       setIsFrozen(problems.map(() => false));
@@ -61,7 +62,7 @@ export function PracticeQuestions({
 
   const problem = problems[problemIdx];
   const response = responses[problemIdx];
-  // TODO alea4 const subProblems = problems[problemIdx]?.subProblemData;
+  // const subProblems = problems[problemIdx]?.subProblemData;
 
   if (!problem || !response) return <>error</>;
 
@@ -83,7 +84,7 @@ export function PracticeQuestions({
           ) : (
             <SourceIcon problemId={problemIds[problemIdx]} />
           )}
-          {/* TODO alea4 problem.header && <>({mmtHTMLToReact(problem.header)})</>}*/}
+          {problem.problem.title_html && <SafeHtml html={problem.problem.title_html} />}
         </h2>
       </Box>
       {problems.length > 1 && (
@@ -128,17 +129,17 @@ export function PracticeQuestions({
         mb={2}
         sx={{ display: 'flex', gap: '10px', flexDirection: 'column', alignItems: 'flex-start' }}
       >
-        {/* TODO alea4 subProblems?.length > 0 && (
+        {/* TODO ALEA4-P4 subProblems?.length > 0 && (
           <Button variant="contained" onClick={() => setShowSolution(!showSolution)}>
             {showSolution ? t.hideSolution : t.showSolution}
           </Button>
         )}*/}
         {showSolution && (
           <Box mb="10px">
-            {/* TODO alea4 subProblems.map((p) => (
+            {/* subProblems.map((p) => (
               <div style={{ color: '#555' }}>{mmtHTMLToReact(p.solution)}</div>
             ))*/}
-            TODO ALEA-4
+            TODO ALEA4-P4
           </Box>
         )}
       </Box>

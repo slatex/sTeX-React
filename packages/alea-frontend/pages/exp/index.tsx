@@ -9,9 +9,7 @@ import { localStore } from '@stex-react/utils';
 import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useState } from 'react';
-import { BrowserAutocomplete } from '../../components/BrowserAutocomplete';
 import { SearchBar } from '../../components/SearchBar';
-import { ToursAutocomplete } from '../../components/ToursAutocomplete';
 import MainLayout from '../../layouts/MainLayout';
 
 function ExternalButtonLink({ href, text }: { href: string; text: string }) {
@@ -135,8 +133,6 @@ const ExperimentsHome: NextPage = () => {
               />
             </Box>
             &nbsp;&nbsp;
-            <BrowserAutocomplete />
-            <ToursAutocomplete />
             <SearchBar />
             <Box m="10px" width="fit-content">
               <SelfAssessment2

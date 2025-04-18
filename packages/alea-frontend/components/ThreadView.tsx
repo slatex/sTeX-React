@@ -99,7 +99,7 @@ export function ThreadView({ courseId, threadId }: { courseId: string; threadId:
         (showContent ? (
           <Box bgcolor="#DDD" borderRadius="5px" mb="15px">
             <Box maxWidth="600px" m="0 auto 30px" p="10px">
-              {/* TODO ALEA-4 
+              {/* TODO ALEA4-M1
                 <ExpandableContent
                   contentUrl={XhtmlContentUrl(fileLoc.archive, fileLoc.filepath)}
                   noFurtherExpansion={true}

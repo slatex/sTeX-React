@@ -4,25 +4,19 @@ import { BG_COLOR } from '@stex-react/utils';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { ToursAutocomplete } from '../../components/ToursAutocomplete';
 import MainLayout from '../../layouts/MainLayout';
 
 const GuidedTourPage: NextPage = () => {
   const router = useRouter();
   const { locale } = router;
   const [language, setLanguage] = useState(locale);
-  const tourId = router.query.id
-    ? decodeURI(router.query.id as string)
-    : undefined;
+  const tourId = router.query.id ? decodeURI(router.query.id as string) : undefined;
 
   useEffect(() => setLanguage(locale), [locale]);
 
   return (
     <MainLayout title="Guided Tour">
       <Box display="flex" alignItems="center" mx="10px">
-        <Box flexGrow={1} mr="15px">
-          <ToursAutocomplete />
-        </Box>
         <FormControl style={{ minWidth: '100px', margin: '10px 0' }}>
           <InputLabel id="lang-select-label">Language</InputLabel>
           <Select

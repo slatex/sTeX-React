@@ -23,14 +23,13 @@ import {
   FTMLProblemWithSolution,
   getAnswersWithGrading,
   getCourseGradingItems,
-  getLearningObjectShtml,
-  getProblemObject,
   GradingInfo,
   GradingItem,
   HomeworkInfo,
   Tristate,
 } from '@stex-react/api';
 import { ProblemResponse } from '@stex-react/ftml-utils';
+import { SafeHtml } from '@stex-react/react-utils';
 import {
   GradingContext,
   ProblemDisplay,
@@ -47,7 +46,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { MultiItemSelector } from './MultiItemsSeletctor';
+import { MultiItemSelector } from './MultiItemsSelector';
 const MULTI_SELECT_FIELDS = ['homeworkId', 'questionId', 'studentId'] as const;
 const ALL_SORT_FIELDS = ['homeworkDate', 'questionTitle', 'updatedAt', 'studentId'] as const;
 const DEFAULT_SORT_ORDER: Record<SortField, 'ASC' | 'DESC'> = {
@@ -59,7 +58,6 @@ const DEFAULT_SORT_ORDER: Record<SortField, 'ASC' | 'DESC'> = {
 type MultSelectField = (typeof MULTI_SELECT_FIELDS)[number];
 type SortField = (typeof ALL_SORT_FIELDS)[number];
 
-
 function getSelectedGradingItems(
   items: GradingItem[],
   params: SortAndFilterParams,
@@ -68,7 +66,7 @@ function getSelectedGradingItems(
 ) {
   function getValue(item: GradingItem, field: SortField) {
     if (field === 'homeworkDate') return homeworkMap[item.homeworkId]?.givenTs;
-    if (field === 'questionTitle') return item.questionId + '(TODO ALEA-4)'; // questionMap[item.questionId]?.problem;
+    if (field === 'questionTitle') return item.questionId + '(TODO ALEA4-P4)'; // questionMap[item.questionId]?.problem;
     if (field === 'studentId') return item.studentId;
     if (field === 'updatedAt') return item.updatedAt;
   }
@@ -214,7 +212,7 @@ function GradingItemOrganizer({
     () =>
       Object.entries(questionMap).map(([id, p]) => ({
         value: id,
-        title: p.problem['header'] ?? 'TODO alea4',
+        title: p.problem.title_html,
       })),
     [questionMap]
   );
@@ -341,19 +339,17 @@ function GradingItemsList({
               </ListItemIcon>
               <ListItemText
                 primary={
-                  problemMap[questionId]?.['header'] // TODO alea4
-                    ? /*mmtHTMLToReact(problemMap[questionId]?.['header'])*/
-                      'TODO ALEA-4'
-                    : questionId
+                  <SafeHtml html={problemMap[questionId]?.problem.title_html ?? questionId} />
                 }
                 secondary={
                   <>
-                    {!homeworkId
-                      ? 'Not Homework'
-                      : homeworkMap[homeworkId]?.title
-                      ? /*mmtHTMLToReact(homeworkMap[homeworkId].title)*/
-                        'TODO ALEA-4'
-                      : 'HW ' + homeworkId}
+                    {!homeworkId ? (
+                      'Not Homework'
+                    ) : homeworkMap[homeworkId]?.title ? (
+                      <SafeHtml html={homeworkMap[homeworkId].title} />
+                    ) : (
+                      'HW ' + homeworkId
+                    )}
                     &nbsp;{isPeerGrading ? '' : `(${studentId})`}
                   </>
                 }
@@ -425,7 +421,7 @@ function GradingItemDisplay({
     }
     const fetchProblem = async () => {
       try {
-        // TODO alea-4
+        // TODO ALEA4-P4
         // const problemIdPrefix = questionId.replace(/\?[^?]*$/, '');
         // const problemObject = await getProblemObject(mmtUrl, problemIdPrefix);
         // const problemHtml = await getLearningObjectShtml(mmtUrl, problemObject);
@@ -466,7 +462,7 @@ function GradingItemDisplay({
         <ProblemDisplay
           isFrozen={true}
           r={studentResponse}
-          // problemId={questionId} TODO alea4
+          // problemId={questionId} TODO ALEA4-P4
           problem={problem}
           onResponseUpdate={() => {
             console.log('onResponseUpdate');

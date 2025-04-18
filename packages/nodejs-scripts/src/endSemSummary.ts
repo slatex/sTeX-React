@@ -58,7 +58,7 @@ export function endSemSummary() {
   for (const quiz of quizzes) {
     MAX_POINTS[quiz.id] = 0;
     for (const problemStr of Object.values(quiz.problems)) {
-      // TODO ALEA4 const problem = getProblem(problemStr as string, undefined);
+      // TODO ALEA4-P6 const problem = getProblem(problemStr as string, undefined);
       // MAX_POINTS[quiz.id] += problem.points;
     }
   }

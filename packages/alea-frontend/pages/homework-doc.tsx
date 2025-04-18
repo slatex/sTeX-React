@@ -8,12 +8,12 @@ import {
   GradingInfo,
   UserInfo,
 } from '@stex-react/api';
+import { ProblemResponse } from '@stex-react/ftml-utils';
 import { GradingContext, QuizDisplay, ShowGradingFor } from '@stex-react/stex-react-renderer';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { ForceFauLogin } from '../components/ForceFAULogin';
 import MainLayout from '../layouts/MainLayout';
-import { ProblemResponse } from '@stex-react/ftml-utils';
 
 const HomeworkDocPage: React.FC = () => {
   const router = useRouter();
@@ -99,15 +99,14 @@ const HomeworkDocPage: React.FC = () => {
                     questionId: problemId,
                     subProblemId: idx,
                     answer,
-                    questionTitle: problems[problemId]['header'] ?? 'TODO', // TODO: fix this
+                    questionTitle: problems[problemId].problem.title_html,
                     courseId,
                   });
                   if (!answerAccepted) {
                     alert('Answers are no longer being accepted');
                     location.reload();
                   }
-                }*/
-                // TODO alea4
+                } TODO ALEA4-P4*/
               }}
             />
           </GradingContext.Provider>

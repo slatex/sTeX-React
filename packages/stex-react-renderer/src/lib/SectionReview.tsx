@@ -27,6 +27,7 @@ import CompetencyTable from './CompetencyTable';
 import { getLocaleObject } from './lang/utils';
 import { DimIcon } from './stex-react-renderer';
 import styles from './styles/competency-indicator.module.scss';
+import { SafeHtml } from '@stex-react/react-utils';
 
 function CompetencyBar({ dim, val }: { dim: BloomDimension; val: number }) {
   const hue = 120 * val;
@@ -59,7 +60,7 @@ const SectionReview = ({
   const [URIs, setURIs] = useState<string[]>([]);
   const t = getLocaleObject(useRouter());
 
-  //Todo alea-4
+  //TODO ALEA4-N10
   /*
   const { archive, filepath } = getSectionInfo(contentUrl);
   useEffect(() => {
@@ -106,7 +107,9 @@ const SectionReview = ({
             </Box>
             <span style={{ color: 'gray', whiteSpace: 'nowrap' }}>{t.review}</span>
             &nbsp;
-            <b>{/*mmtHTMLToReact(sectionTitle)*/}TODO ALEA-4</b>
+            <b>
+              <SafeHtml html={sectionTitle} />
+            </b>
           </Box>
         </AccordionSummary>
         <AccordionDetails>
@@ -124,7 +127,7 @@ const SectionReview = ({
               </Tooltip>
             ))}
           </Box>
-          {/* TODO ALEA-4 */}
+          {/* TODO ALEA4-N10 */}
           {/* <PerSectionQuiz archive={archive} filepath={filepath} showHideButton={true}/> */}
         </AccordionDetails>
       </Accordion>

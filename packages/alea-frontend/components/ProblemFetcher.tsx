@@ -27,7 +27,7 @@ const ProblemFetcher = ({
       }
       setLoading(true);
       try {
-        // TODO alea4
+        // TODO ALEA-G1
         const fetchedProblem: FTMLProblemWithSolution = {
           problem: {
             html: '',

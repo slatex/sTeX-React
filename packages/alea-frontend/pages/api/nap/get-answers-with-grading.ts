@@ -98,21 +98,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const subProblemIdToAnswerId = convertToSubProblemIdToAnswerId(problemAnswers);
     const grades = await getAllGradingsOrSetError(subProblemIdToAnswerId, res);
     const response: ProblemResponse = {
-      // TODO alea4
+      // TODO ALEA4-P4
       uri: '',
       responses: []
       // freeTextResponses: {},
     };
 
     Object.entries(problemAnswers || {}).forEach(([subProblemId, answerEntry]) => {
-      // TODO alea4
+      // TODO ALEA4-P4
       response.responses[subProblemId] = answerEntry.answer;
     });
     /*res.send({
       answers: response,
       subProblemIdToAnswerId,
       subProblemIdToGrades: grades,
-    } as GetAnswersWithGradingResponse);*/ // TODO alea4
+    } as GetAnswersWithGradingResponse);*/ // TODO ALEA4-P4
     res.send(undefined);
     return;
   }
@@ -135,12 +135,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const response: ProblemResponse = {
     uri: '',
     responses: []
-    // TODO alea4 autogradableResponses: [],
+    // TODO ALEA4-P4 autogradableResponses: [],
     //freeTextResponses: {},
   };
 
   Object.entries(problemAnswers || {}).forEach(([subProblemId, answerEntry]) => {
-    // TODO alea4
+    // TODO ALEA4-P4
     response.responses[subProblemId] = answerEntry.answer;
   });
 
@@ -173,6 +173,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     answers: response,
     subProblemIdToAnswerId,
     subProblemIdToGrades: isInstructor ? grades : null,
-  } as GetAnswersWithGradingResponse);*/ // TODO alea4
+  } as GetAnswersWithGradingResponse);*/ // TODO ALEA4-P4
   res.send(undefined);
 }

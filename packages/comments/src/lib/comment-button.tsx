@@ -75,7 +75,7 @@ export function CommentButton({ url = '' }: { url?: string }) {
   const [topNote, setTopNote] = useState<Comment | undefined>(undefined);
   const t = getLocaleObject(useRouter());
 
-  //Todo alea-4
+  // TODO ALEA4-N8.2
   /*
   useEffect(() => {
     if (!archive || !filepath) {
@@ -153,7 +153,7 @@ export function CommentButton({ url = '' }: { url?: string }) {
       )}
       {open && (
         <Dialog onClose={() => setOpen(false)} open={open} maxWidth="lg">
-          {/* TODO ALEA-4 */}
+          {/* TODO ALEA4-N8.2 */}
           {/* <CommentNoteToggleView defaultPrivate={defaultPrivate} file={{ archive, filepath }} /> */}
           <DialogActions sx={{ p: '0' }}>
             <Button onClick={() => setOpen(false)}>{t.close}</Button>

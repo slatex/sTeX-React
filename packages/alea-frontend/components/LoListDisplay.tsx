@@ -125,7 +125,7 @@ export const LoViewer: React.FC<{ uri: string; uriType: LoType }> = ({ uri, uriT
         <Typography color="error">Error: {error}</Typography>
       ) : learningObject ? (
         //mmtHTMLToReact(learningObject)
-        <Typography>TODO ALEA-4</Typography>
+        <Typography>TODO ALEA4-L1</Typography>
       ) : (
         <Typography>No {uriType} found.</Typography>
       )}

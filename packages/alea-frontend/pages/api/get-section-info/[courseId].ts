@@ -156,7 +156,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return;
   }
 
-  //Todo alea-4
+  // TODO ALEA4-S5
   // const { notesArchive, notesFilepath } = courses[courseId];
   // const docSections = await getDocumentSections(
   //   process.env.NEXT_PUBLIC_MMT_URL,

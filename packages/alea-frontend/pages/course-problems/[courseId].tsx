@@ -1,7 +1,7 @@
 import { Button, CircularProgress } from '@mui/material';
 import { getCourseInfo } from '@stex-react/api';
 import { DocProblemBrowser, ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { CourseInfo, XhtmlContentUrl } from '@stex-react/utils';
+import { CourseInfo } from '@stex-react/utils';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
@@ -28,7 +28,6 @@ const CourseProblemsPage: NextPage = () => {
     router.replace('/');
     return <>Course Not Found!</>;
   }
-  //Todo alea-4
   const notesDocUri = courseInfo.notes;
 
   return (

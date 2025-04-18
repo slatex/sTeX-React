@@ -23,7 +23,7 @@ export async function recorrectQuizzes() {
 
   const quizzes = getAllQuizzes();
 
-  // TODO ALEA4 
+  // TODO ALEA4-P6
   const problems: { [problemId: string]: /*Problem*/ any } = {};
   /*for (const quiz of quizzes) {
     for (const [problemId, problemStr] of Object.entries(quiz.problems)) {
@@ -48,9 +48,9 @@ export async function recorrectQuizzes() {
         missing_ids[pId]++;
         continue;
       }
-      // TODO ALEA4 const responses: AutogradableResponse[] = JSON.parse(response);
+      // TODO ALEA4-P6 const responses: AutogradableResponse[] = JSON.parse(response);
 
-      const expectedPts = 0; // TODO ALEA4 getPoints(problem, { autogradableResponses: responses });
+      const expectedPts = 0; // getPoints(problem, { autogradableResponses: responses });
       if (Math.abs(expectedPts - points) > 0.01) {
         console.log(
           `gradingId: ${gradingId} problem: ${quizId} ${problemId} expectedPts: ${expectedPts} assignedPts: ${points} response: ${response}`

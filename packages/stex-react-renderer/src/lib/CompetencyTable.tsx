@@ -252,7 +252,7 @@ export function CompetencyTable({
           <TableBody>
             {combinedData.map((row, index) => (
               <TableRow key={index}>
-                {/* TODO ALEA-4 
+                {/* TODO ALEA4-N10
                 export function getMMTHtml(uri: string) {
                   const lastWord = extractLastWordAfterQuestionMark(uri);
                   const hoverLink = `/:sTeX/fragment?${uri}`;
@@ -261,7 +261,7 @@ export function CompetencyTable({
                   return `<span data-overlay-link-click="${clickLink}" data-highlight-parent="${highlightParent}" data-overlay-link-hover="${hoverLink}" class="symcomp group-highlight rustex-contents">${lastWord}</span>`;
                 }
 */}
-                <TableCell>TODO ALEA-4{/*mmtHTMLToReact(getMMTHtml(row.concepts))*/}</TableCell>
+                <TableCell>{/*mmtHTMLToReact(getMMTHtml(row.concepts))*/}</TableCell>
                 <TableCell>
                   <Tooltip
                     title="View how you reached the current competency level"

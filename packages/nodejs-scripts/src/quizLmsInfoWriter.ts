@@ -30,7 +30,7 @@ export async function quizLmsInfoWriter() {
   for (const quiz of quizzes) {
     const quizLmsInfo = {};
     for (const [problemId, problemStr] of Object.entries(quiz.problems)) {
-      // TODO ALEA4 
+      // TODO ALEA4-P6
       /*const problem = getProblem(problemStr as string, undefined);
       const { points, objectives, preconditions } = problem;
       quizLmsInfo[problemId] = {

@@ -30,7 +30,7 @@ export function MultiItemSelector<T>({
           <li key={key} {...optionProps}>
             <Checkbox checked={selected} />
             {option.title
-              ? /*mmtHTMLToReact(option.title)*/ 'TODO ALEA-4'
+              ? /*mmtHTMLToReact(option.title)*/ 'TODO ALEA4-P4'
               : (option.value ?? 'unset').toString()}
           </li>
         );
@@ -42,7 +42,7 @@ export function MultiItemSelector<T>({
             {...getTagProps({ index })}
             label={
               option.title
-                ? /*mmtHTMLToReact(option.title)*/ 'TODO ALEA-4'
+                ? /*mmtHTMLToReact(option.title)*/ 'TODO ALEA-P4'
                 : option.value.toString().substring(0, 30)
             }
           />

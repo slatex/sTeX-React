@@ -15,6 +15,7 @@ import {
   searchCourseNotes,
   SectionsAPIData,
 } from '@stex-react/api';
+import { SafeHtml } from '@stex-react/react-utils';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { PRIMARY_COL } from '@stex-react/utils';
 import Link from 'next/link';
@@ -90,12 +91,11 @@ function ResultDocument({
         }}
       >
         <Link href={`/course-notes/${courseId}?inDocPath=~${parentIdData?.id}`} onClick={onClose}>
-          {/*mmtHTMLToReact(parentIdData?.title || '')*/}
-          TODO ALEA-4
+          <SafeHtml html={parentIdData?.title || ''} />
         </Link>
       </Typography>
       <hr />
-      {/* TODO ALEA-4 
+      {/* TODO ALEA4-N12
         <ExpandableContent
           contentUrl={"we will use FTMLVIEWER"}
           noFurtherExpansion
@@ -130,7 +130,7 @@ const SearchCourseNotes = ({
       if (!mmtUrl || !courseId) return;
       try {
         const courseInfo = await getCourseInfo();
-        //Todo alea-4
+        //TODO ALEA4-N12
         // const { notesArchive: archive, notesFilepath: filepath } = courseInfo[courseId] || {};
         // if (archive && filepath) {
         //   const sections = await getDocumentSections(mmtUrl, archive, filepath);

@@ -26,10 +26,6 @@ export function ExpandableContextMenu({
   // menu crap end
 
   const [snackBarOpen, setSnackbarOpen] = useState(false);
-
-  //Todo alea-4
-  //const sourceUrl = getSectionInfo(contentUrl).source;
-
   return (
     <>
       <IconButton
@@ -84,7 +80,8 @@ export function ExpandableContextMenu({
           }}
           sx={{ p: '0' }}
         >
-          {/* TODO ALEA-4 */}
+          {/* TODO ALEA4-N11
+              const sourceUrl = getSectionInfo(contentUrl).source;*/}
           {/* <a
             href={sourceUrl}
             target="_blank"

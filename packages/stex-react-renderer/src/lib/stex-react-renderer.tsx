@@ -1,7 +1,9 @@
 import { Tooltip } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { tooltipClasses, TooltipProps } from '@mui/material/Tooltip';
-import { createContext, useState, useEffect, ReactNode } from 'react';
+import axios from 'axios';
+import { createContext, ReactNode, useEffect, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import CompetencyTable from './CompetencyTable';
 import { ContentDashboard } from './ContentDashboard';
 import { DocProblemBrowser } from './DocProblemBrowser';
@@ -10,7 +12,7 @@ import { GradingCreator } from './GradingCreator';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 import { PerSectionQuiz } from './PerSectionQuiz';
 import { PracticeQuestions } from './PracticeQuestions';
-import { DimAndURIListDisplay, ProblemDisplay, URIListDisplay } from './ProblemDisplay';
+import { ProblemDisplay } from './ProblemDisplay';
 import { ListStepper, QuizDisplay } from './QuizDisplay';
 import SectionReview from './SectionReview';
 import {
@@ -22,8 +24,7 @@ import {
 } from './SelfAssessmentDialog';
 import { GradingContext, GradingDisplay, ShowGradingFor } from './SubProblemAnswer';
 import { TourAPIEntry, TourDisplay } from './TourDisplay';
-import axios from 'axios';
-import { v4 as uuidv4 } from 'uuid';
+import { DimAndURIListDisplay, URIListDisplay } from './UriListDisplay';
 
 export const ServerLinksContext = createContext({ mmtUrl: '', gptUrl: '' });
 

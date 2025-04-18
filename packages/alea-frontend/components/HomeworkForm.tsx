@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { getLocaleObject } from '../lang/utils';
 import { QuizFileReader } from './QuizFileReader';
 import { FTMLProblemWithSolution } from '@stex-react/api';
+import { SafeHtml } from '@stex-react/react-utils';
 
 const HomeworkForm = ({
   title,
@@ -57,8 +58,7 @@ const HomeworkForm = ({
             },
           }}
         >
-          {/*mmtHTMLToReact(title)*/}
-          TODO ALEA-4
+          <SafeHtml html={title} />
         </Box>
       )}
       <TextField

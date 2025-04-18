@@ -194,7 +194,7 @@ const MediaItem = ({
     const ancestors = getAncestors(undefined, undefined, String(sectionId), courseDocSections);
     //const sectionParentInfo = lastFileNode(ancestors);
     //const { archive, filepath } = sectionParentInfo;
-    const definedConcepts = []; // todo alea4 await getDefiniedaInDoc(mmtUrl, archive, filepath);
+    const definedConcepts = []; // TODO ALEA4-S6 await getDefiniedaInDoc(mmtUrl, archive, filepath);
     if (!definedConcepts || definedConcepts.length === 0) return [];
     return [...new Set(definedConcepts.flatMap((data) => data.symbols))];
   };

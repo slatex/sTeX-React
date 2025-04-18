@@ -130,12 +130,10 @@ const RecordingComponent = () => {
 export default function MainLayout({
   title,
   children,
-  showBrowserAutocomplete = false,
   bgColor,
 }: {
   title?: string;
   children: any;
-  showBrowserAutocomplete?: boolean;
   bgColor?: string;
 }) {
   const { trackPageView } = useMatomo();
@@ -170,7 +168,6 @@ export default function MainLayout({
       </Head>
 
       <main style={{ flexGrow: 1 }}>
-        <Header showBrowserAutocomplete={showBrowserAutocomplete} />
         <ReportProblemPopover />
         {/*<Typography
           sx={{ color: 'red', fontWeight: 'bold', textAlign: 'center' }}

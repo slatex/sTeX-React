@@ -64,7 +64,7 @@ export function PerSectionQuiz({
   if (isLoadingProblemUris) return <LinearProgress />;
 
   const problemUri = problemUris[problemIdx];
-  // TODO alea4 const response = responses[problemIdx];
+  // TODO ALEA4-P3 const response = responses[problemIdx];
   // const solutions = problems[problemIdx]?.subProblemData?.map((p) => p.solution);
 
   if (!problemUri) return <>error: [{problemUri}] </>;
@@ -96,7 +96,7 @@ export function PerSectionQuiz({
           </Tooltip>
         </IconButton>
       </Box>
-      {/* TODO alea4 problem.header && (
+      {/* TODO ALEA4-P3 problem.header && (
         <div style={{ color: '#555', marginTop: '10px' }}>{mmtHTMLToReact(problem.header)}</div>
       )}*/}
       <Box mb="10px">
@@ -126,14 +126,14 @@ export function PerSectionQuiz({
         mb={2}
         sx={{ display: 'flex', gap: '10px', flexDirection: 'column', alignItems: 'flex-start' }}
       >
-        {/* TODO alea4 solutions?.length > 0 && (
+        {/* TODO ALEA4-P3 solutions?.length > 0 && (
           <Button variant="contained" onClick={() => setShowSolution(!showSolution)}>
             {showSolution ? t.hideSolution : t.showSolution}
           </Button>
         )}*/}
         {showSolution && (
           <Box mb="10px">
-            {/* TODO alea4 solutions.map((solution) => (
+            {/* solutions.map((solution) => (
               <div style={{ color: '#555' }} dangerouslySetInnerHTML={{__html:solution}}></div>
             ))*/}
           </Box>
