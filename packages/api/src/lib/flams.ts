@@ -132,6 +132,15 @@ export class FLAMSServer {
   }
 
   /**
+   * Return a git[lab|hub] link for the source file containing the given element
+   */
+  async sourceFile(
+    uri: FLAMS.URIParams,
+  ): Promise<string | undefined> {
+    return await this.rawGetRequest("api/backend/source_file", uri);
+  }
+
+  /**
    * Batch grade an arrray of <solution,response[]> pairs.
    * Each of the responses will be graded against the corresponding solution, and the resulting
    * feedback returned at the same position. If *any* of the responses is malformed,
@@ -158,6 +167,18 @@ export class FLAMSServer {
     }
   }
 
+  async omdoc(
+    uri: FLAMS.URIParams,
+  ): Promise<[FLAMS.CSS[],FLAMS.OMDoc] | undefined> {
+    return await this.rawGetRequest("content/omdoc", {uri:uri});
+  }
+
+  async title(
+    uri: FLAMS.URIParams,
+  ): Promise<[FLAMS.CSS[],string] | undefined> {
+    return await this.rawGetRequest("content/title", {uri:uri});
+  }
+
   async contentDocument(
     uri: FLAMS.DocumentURIParams,
   ): Promise<[FLAMS.DocumentURI, FLAMS.CSS[], string] | undefined> {
@@ -177,7 +198,7 @@ export class FLAMSServer {
     const response = await this.getRequestI(endpoint, request);
     if (response) {
       const j = await response.json();
-      //console.log("Response", endpoint, ":", j);
+      console.log("Response", endpoint, ":", j);
       return j as TResponse;
     }
   }
@@ -237,7 +258,7 @@ export class FLAMSServer {
     const response = await this.postRequestI(endpoint, request);
     if (response) {
       const j = await response.json();
-      //console.log(`Response ${this._url}/${endpoint} with body:`, j);
+      console.log(`Response ${this._url}/${endpoint} with body:`, j);
       return j as TResponse;
     }
   }

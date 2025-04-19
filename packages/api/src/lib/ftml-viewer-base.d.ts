@@ -70,7 +70,63 @@ export type FragmentOptions = { uri: DocumentElementURI } | { html: string; uri?
  */
 export type TOCOptions = "GET" | { Predefined: TOCElem[] };
 
+export type OMDoc = ({ type: "Slide" } & OMDocSlide) | ({ type: "Document" } & OMDocDocument) | ({ type: "Section" } & OMDocSection) | ({ type: "DocModule" } & OMDocModule<OMDocDocumentElement>) | ({ type: "Module" } & OMDocModule<OMDocDeclaration>) | ({ type: "DocMorphism" } & OMDocMorphism<OMDocDocumentElement>) | ({ type: "Morphism" } & OMDocMorphism<OMDocDeclaration>) | ({ type: "DocStructure" } & OMDocStructure<OMDocDocumentElement>) | ({ type: "Structure" } & OMDocStructure<OMDocDeclaration>) | ({ type: "DocExtension" } & OMDocExtension<OMDocDocumentElement>) | ({ type: "Extension" } & OMDocExtension<OMDocDeclaration>) | ({ type: "SymbolDeclaration" } & OMDocSymbol) | ({ type: "Variable" } & OMDocVariable) | ({ type: "Paragraph" } & OMDocParagraph) | ({ type: "Problem" } & OMDocProblem) | { type: "Term"; uri: DocumentElementURI; term: Term } | { type: "DocReference"; uri: DocumentURI; title: string | undefined } | ({ type: "Other" } & string);
+
 export type LeptosContinuation = (e:HTMLDivElement,o:LeptosContext) => void;
+
+export type OMDocDocumentElement = ({ type: "Slide" } & OMDocSlide) | ({ type: "Section" } & OMDocSection) | ({ type: "Module" } & OMDocModule<OMDocDocumentElement>) | ({ type: "Morphism" } & OMDocMorphism<OMDocDocumentElement>) | ({ type: "Structure" } & OMDocStructure<OMDocDocumentElement>) | ({ type: "Extension" } & OMDocExtension<OMDocDocumentElement>) | { type: "DocumentReference"; uri: DocumentURI; title: string | undefined } | ({ type: "Variable" } & OMDocVariable) | ({ type: "Paragraph" } & OMDocParagraph) | ({ type: "Problem" } & OMDocProblem) | { type: "TopTerm"; uri: DocumentElementURI; term: Term } | ({ type: "SymbolDeclaration" } & SymbolURI|OMDocSymbol);
+
+export interface OMDocProblem {
+    uri: DocumentElementURI;
+    sub_problem: boolean;
+    autogradable: boolean;
+    points: number | undefined;
+    title: string | undefined;
+    preconditions: [CognitiveDimension, SymbolURI][];
+    objectives: [CognitiveDimension, SymbolURI][];
+    uses: ModuleURI[];
+    children: OMDocDocumentElement[];
+}
+
+export interface OMDocParagraph {
+    uri: DocumentElementURI;
+    kind: ParagraphKind;
+    formatting: ParagraphFormatting;
+    uses: ModuleURI[];
+    fors: ModuleURI[];
+    title: string | undefined;
+    children: OMDocDocumentElement[];
+    definition_like: boolean;
+}
+
+export interface OMDocVariable {
+    uri: DocumentElementURI;
+    arity: ArgSpec;
+    macro_name: string | undefined;
+    tp: Term | undefined;
+    df: Term | undefined;
+    is_seq: boolean;
+}
+
+export interface OMDocSlide {
+    uri: DocumentElementURI;
+    uses: ModuleURI[];
+    children: OMDocDocumentElement[];
+}
+
+export interface OMDocSection {
+    title: string | undefined;
+    uri: DocumentElementURI;
+    uses: ModuleURI[];
+    children: OMDocDocumentElement[];
+}
+
+export interface OMDocDocument {
+    uri: DocumentURI;
+    title: string | undefined;
+    uses: ModuleURI[];
+    children: OMDocDocumentElement[];
+}
 
 export type FragmentKind = ({ type: "Section" } & SectionLevel) | ({ type: "Paragraph" } & ParagraphKind) | { type: "Slide" } | { type: "Problem"; is_sub_problem: boolean; is_autogradable: boolean };
 
@@ -90,6 +146,49 @@ export type TOCElem = { type: "Section"; title: string | undefined; uri: Documen
 export interface Gotto {
     uri: DocumentElementURI;
     timestamp?: Timestamp | undefined;
+}
+
+export interface OMDocSymbol {
+    uri: SymbolURI;
+    df: Term | undefined;
+    tp: Term | undefined;
+    arity: ArgSpec;
+    macro_name: string | undefined;
+}
+
+export type OMDocDeclaration = ({ type: "Symbol" } & OMDocSymbol) | ({ type: "NestedModule" } & OMDocModule<OMDocDeclaration>) | ({ type: "Structure" } & OMDocStructure<OMDocDeclaration>) | ({ type: "Morphism" } & OMDocMorphism<OMDocDeclaration>) | ({ type: "Extension" } & OMDocExtension<OMDocDeclaration>);
+
+export interface OMDocExtension<E> {
+    uri: SymbolURI;
+    target: SymbolURI;
+    uses: ModuleURI[];
+    children: E[];
+}
+
+export interface OMDocStructure<E> {
+    uri: SymbolURI;
+    macro_name: string | undefined;
+    uses: ModuleURI[];
+    extends: ModuleURI[];
+    children: E[];
+    extensions: [SymbolURI, OMDocSymbol[]][];
+}
+
+export interface OMDocMorphism<E> {
+    uri: SymbolURI;
+    total: boolean;
+    target: ModuleURI | undefined;
+    uses: ModuleURI[];
+    children: E[];
+}
+
+export interface OMDocModule<E> {
+    uri: ModuleURI;
+    imports: ModuleURI[];
+    uses: ModuleURI[];
+    metatheory: ModuleURI | undefined;
+    signature: Language | undefined;
+    children: E[];
 }
 
 export type SolutionData = { Solution: { html: string; answer_class: string | undefined } } | { ChoiceBlock: ChoiceBlock } | { FillInSol: FillInSol };
@@ -178,32 +277,20 @@ export interface QuizProblem {
     objectives: [CognitiveDimension, SymbolURI][];
 }
 
-export type ArchiveId = string;
+export type Informal = { Term: number } | { Node: { tag: string; attributes: [string, string][]; children: Informal[] } } | { Text: string };
 
-export type SectionLevel = "Part" | "Chapter" | "Section" | "Subsection" | "Subsubsection" | "Paragraph" | "Subparagraph";
+export type Var = { Name: Name } | { Ref: { declaration: DocumentElementURI; is_sequence: boolean | undefined } };
 
-export type SymbolURI = string;
+export type ArgMode = "Normal" | "Sequence" | "Binding" | "BindingSequence";
 
-export type DocumentElementURI = string;
-
-export type DocumentURI = string;
-
-export type ParagraphKind = "Definition" | "Assertion" | "Paragraph" | "Proof" | "SubProof" | "Example";
-
-export type ParagraphFormatting = "Block" | "Inline" | "Collapsed";
-
-export type Name = string;
-
-export type LOKind = { type: "Definition" } | { type: "Example" } | ({ type: "Problem" } & CognitiveDimension) | ({ type: "SubProblem" } & CognitiveDimension);
-
-export type Language = "en" | "de" | "fr" | "ro" | "ar" | "bg" | "ru" | "fi" | "tr" | "sl";
-
-export type SlideElement = { type: "Slide"; html: string } | { type: "Paragraph"; html: string } | { type: "Inputref"; uri: DocumentURI } | { type: "Section"; title: string | undefined; children: SlideElement[] };
-
-export interface DocumentRange {
-    start: number;
-    end: number;
+export interface Arg {
+    term: Term;
+    mode: ArgMode;
 }
+
+export type Term = { OMID: ContentURI } | { OMV: Var } | { OMA: { head: Term; args: Arg[] } } | { Field: { record: Term; key: Name; owner: Term | undefined } } | { OML: { name: Name; df: Term | undefined; tp: Term | undefined } } | { Informal: { tag: string; attributes: [string, string][]; children: Informal[]; terms: Term[] } };
+
+export type ArchiveId = string;
 
 export type SearchResultKind = "Document" | "Paragraph" | "Definition" | "Example" | "Assertion" | "Problem";
 
@@ -217,6 +304,17 @@ export interface QueryFilter {
     allow_assertions?: boolean;
     allow_problems?: boolean;
     definition_like_only?: boolean;
+}
+
+export type SectionLevel = "Part" | "Chapter" | "Section" | "Subsection" | "Subsubsection" | "Paragraph" | "Subparagraph";
+
+export type Name = string;
+
+export type SlideElement = { type: "Slide"; html: string } | { type: "Paragraph"; html: string } | { type: "Inputref"; uri: DocumentURI } | { type: "Section"; title: string | undefined; children: SlideElement[] };
+
+export interface DocumentRange {
+    start: number;
+    end: number;
 }
 
 export interface FileData {
@@ -249,6 +347,10 @@ export type ArchiveIndex = { type: "library"; archive: ArchiveId; title: string;
 
 export type Institution = { type: "university"; title: string; place: string; country: string; url: string; acronym: string; logo: string } | { type: "school"; title: string; place: string; country: string; url: string; acronym: string; logo: string };
 
+export type ParagraphKind = "Definition" | "Assertion" | "Paragraph" | "Proof" | "SubProof" | "Example";
+
+export type ParagraphFormatting = "Block" | "Inline" | "Collapsed";
+
 export interface FileStateSummary {
     new: number;
     stale: number;
@@ -258,11 +360,29 @@ export interface FileStateSummary {
     last_changed: Timestamp;
 }
 
+export type LOKind = { type: "Definition" } | { type: "Example" } | ({ type: "Problem" } & CognitiveDimension) | ({ type: "SubProblem" } & CognitiveDimension);
+
+export type Language = "en" | "de" | "fr" | "ro" | "ar" | "bg" | "ru" | "fi" | "tr" | "sl";
+
+export type ModuleURI = string;
+
+export type SymbolURI = string;
+
+export type ContentURI = string;
+
+export type DocumentElementURI = string;
+
+export type DocumentURI = string;
+
+export type URI = string;
+
+export type ArgSpec = ArgMode[];
+
 export type CSS = { Link: string } | { Inline: string } | { Class: { name: string; css: string } };
 
-export type Regex = string;
-
 export type Timestamp = number;
+
+export type Regex = string;
 
 export class FTMLMountHandle {
   private constructor();
