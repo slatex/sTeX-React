@@ -8,13 +8,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import {
-  getCourseInfo,
-  GptSearchResult,
-  isSection,
-  searchCourseNotes,
-  SectionsAPIData,
-} from '@stex-react/api';
+import { getCourseInfo, GptSearchResult, searchCourseNotes } from '@stex-react/api';
 import { SafeHtml } from '@stex-react/react-utils';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { PRIMARY_COL } from '@stex-react/utils';
@@ -23,36 +17,20 @@ import { useRouter } from 'next/router';
 
 import { useContext, useEffect, useState } from 'react';
 
-function findNearestSection(
+function findAncestorsForFile<T>(
   archive: string,
   filepath: string,
-  rootNode: SectionsAPIData | undefined
-): SectionsAPIData {
-  if (!rootNode) return null;
-  const ancestors = findAncestorsForFile(archive, filepath, rootNode);
-  if (!ancestors) return null;
-  const sectionChild = ancestors.at(-1).children.find((c) => isSection(c));
-  if (sectionChild) return sectionChild;
-
-  for (let i = ancestors.length - 1; i >= 0; i--) {
-    if (isSection(ancestors[i])) return ancestors[i];
-  }
-  return null;
-}
-
-function findAncestorsForFile(
-  archive: string,
-  filepath: string,
-  rootNode: SectionsAPIData
-): SectionsAPIData[] | null {
-  if (archive === rootNode.archive && filepath === rootNode.filepath) {
-    return [rootNode];
-  }
-  if (!rootNode.children?.length) return null;
-  for (const child of rootNode.children) {
-    const result = findAncestorsForFile(archive, filepath, child);
-    if (result) return [rootNode, ...result];
-  }
+  rootNode: T // SectionsAPIData
+): T[] | null {
+  // TODO ALEA4-N12
+  // if (archive === rootNode.archive && filepath === rootNode.filepath) {
+  //   return [rootNode];
+  // }
+  // if (!rootNode.children?.length) return null;
+  // for (const child of rootNode.children) {
+  //   const result = findAncestorsForFile(archive, filepath, child);
+  //   if (result) return [rootNode, ...result];
+  // }
   return null;
 }
 
@@ -64,14 +42,16 @@ function ResultDocument({
 }: {
   reference: GptSearchResult;
   courseId: string;
-  sectionData: SectionsAPIData;
+  sectionData: any; // SectionsAPIData;
   onClose?: any;
 }) {
-  const parentIdData = findNearestSection(
-    reference.archive,
-    `${reference.filepath}.xhtml`,
-    sectionData
-  );
+  const parentIdData = null;
+  // TODO ALEA4-N12
+  //  = findNearestSection(
+  //   reference.archive,
+  //   `${reference.filepath}.xhtml`,
+  //   sectionData
+  // );
   return (
     <Box
       sx={{
@@ -119,7 +99,7 @@ const SearchCourseNotes = ({
   const [references, setReferences] = useState<GptSearchResult[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { mmtUrl } = useContext(ServerLinksContext);
-  const [sectionData, setSectionData] = useState<SectionsAPIData | undefined>();
+  const [sectionData, setSectionData] = useState<undefined>();
 
   useEffect(() => {
     handleSearch();

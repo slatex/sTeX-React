@@ -45,20 +45,15 @@ export function convertHtmlStringToPlain(htmlStr: string) {
   return tempDivElement.textContent || tempDivElement.innerText || '';
 }
 
-export function extractProjectIdAndFilepath(problemId: string, fileExtension = '.tex') {
-  const url = problemId.replace('http://mathhub.info/', '').replace(/\?en.*/, '');
-  const parts = url.split('/');
-  const defaultProjectParts = 2;
-  let projectParts;
-  if (parts[0] === 'courses' || parts[0] === 'sTeX') {
-    projectParts = 4;
-  } else {
-    projectParts = Math.min(defaultProjectParts, parts.length - 2);
+export function getParamFromUri(uri: string, param: string) {
+  try {
+    const url = new URL(uri);
+    return url.searchParams.get(param);
+  } catch {
+    return undefined;
   }
-  const archive = parts.slice(0, projectParts).join('/');
-  const filePath = parts.slice(projectParts).join('/').replace('.omdoc', fileExtension);
-  return [archive, filePath];
 }
+
 
 // Not crypto-safe.
 export function simpleNumberHash(str: string) {
@@ -82,23 +77,6 @@ export function simpleHash(str?: string) {
   return hash.toString(36);
 }
 
-export function XhtmlContentUrl(projectId: string, xhtmlFilepath: string) {
-  return `/:sTeX/document?archive=${projectId}&filepath=${xhtmlFilepath}`;
-}
-
-export function fullDocumentUrl({ archive, filepath }: FileLocation) {
-  return `/:sTeX/fulldocument?archive=${archive}&filepath=${filepath}`;
-}
-
-export function XhtmlTopDocumentContentUrl({ archive, filepath }: FileLocation) {
-  return `/:sTeX/documentTop?archive=${archive}&filepath=${filepath}`;
-}
-
-export function PathToArticle({ archive, filepath }: FileLocation) {
-  const path = `:sTeX/document?archive=${archive}&filepath=${filepath}`;
-  return `/browser/${encodeURIComponent(path)}`;
-}
-
 export function PathToTour(tourId: string) {
   const encoded = encodeURIComponent(tourId);
   return `/guided-tour/${encoded}`;
@@ -106,17 +84,6 @@ export function PathToTour(tourId: string) {
 export function PathToTour2(tourId: string) {
   const encoded = encodeURIComponent(tourId);
   return `/guided-tour2/${encoded}`;
-}
-export function texPathToXhtml(texFilepath: string) {
-  return texFilepath.slice(0, -3) + 'xhtml';
-}
-
-export function xhtmlPathToTex(xhtmlFilepath: string) {
-  return xhtmlFilepath.slice(0, -5) + 'tex';
-}
-
-export function sourceFileUrl(projectId: string, texFilepath: string) {
-  return `https://gl.mathhub.info/${projectId}/-/blob/main/source/${texFilepath}`;
 }
 
 export function fixDuplicateLabels<T extends { label: string }>(RAW: T[]) {

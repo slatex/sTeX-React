@@ -11,7 +11,7 @@ const LearnerCompetencyData = ({ URIs }: { URIs: string[] }) => {
     }
     getData();
   }, [URIs]);
-  return <CompetencyTable URIs={URIs} competencyData={competencyData} />;
+  return <CompetencyTable conceptUris={URIs} competencyData={competencyData} />;
 };
 
 export default LearnerCompetencyData;

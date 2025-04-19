@@ -4,7 +4,6 @@ import LinearProgress from '@mui/material/LinearProgress';
 import { FTMLProblemWithSolution, getLearningObjectShtml } from '@stex-react/api';
 import { ProblemResponse } from '@stex-react/ftml-utils';
 import { SafeHtml } from '@stex-react/react-utils';
-import { extractProjectIdAndFilepath, sourceFileUrl } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useReducer, useState } from 'react';
 import { ProblemDisplay } from './ProblemDisplay';
@@ -13,10 +12,11 @@ import { getLocaleObject } from './lang/utils';
 import { ServerLinksContext } from './stex-react-renderer';
 
 function handleViewSource(problemId: string) {
-  const [projectId, filePath] = extractProjectIdAndFilepath(problemId);
-  const sourceLink = sourceFileUrl(projectId, filePath);
-  console.log('sourceLink', sourceLink);
-  window.open(sourceLink, '_blank');
+  // TODO ALEA4-N11
+  // const [projectId, filePath] = extractProjectIdAndFilepath(problemId);
+  // const sourceLink = sourceFileUrl(projectId, filePath);
+  // console.log('sourceLink', sourceLink);
+  // window.open(sourceLink, '_blank');
 }
 
 function SourceIcon({ problemId }: { problemId: string }) {

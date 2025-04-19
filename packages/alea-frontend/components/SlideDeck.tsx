@@ -17,7 +17,6 @@ import {
 import { ClipInfo, Slide, SlideType } from '@stex-react/api';
 import { FTMLFragment } from '@stex-react/ftml-utils';
 import { ExpandableContextMenu } from '@stex-react/stex-react-renderer';
-import { XhtmlContentUrl } from '@stex-react/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { Dispatch, Fragment, memo, SetStateAction, useEffect, useState } from 'react';
@@ -243,7 +242,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
       isCancelled = true; // avoids race condition on rapid deckId changes.
     };
   }, [courseId, sectionId]);
-  const contentUrl = XhtmlContentUrl(currentSlide?.archive, currentSlide?.filepath);
+
   useEffect(() => {
     if (!slides?.length || loadedSectionId !== sectionId) return;
     if (slideNum < 1) {
@@ -318,7 +317,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
       mt={navOnTop ? '-55px' : '0px'}
     >
       <Box sx={{ position: 'absolute', right: '20px' }}>
-        <ExpandableContextMenu contentUrl={contentUrl} />
+        <ExpandableContextMenu contentUrl={'TODO ALEA4-N11'} />
       </Box>
       {slides.length ? (
         <SlideRenderer key={slideNum} slide={currentSlide} />

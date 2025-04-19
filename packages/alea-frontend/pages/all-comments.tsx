@@ -5,7 +5,6 @@ import { CommentSection } from '@stex-react/comments';
 import {
   FileLocation,
   fileLocToString,
-  PathToArticle,
 } from '@stex-react/utils';
 import type { NextPage } from 'next';
 import { useEffect, useState } from 'react';
@@ -33,7 +32,7 @@ const AllCommentsPage: NextPage = () => {
           >
             <a
               style={{ fontSize: '20px' }}
-              href={PathToArticle(section)}
+              href={'/TODO ALEA4-N8.1'} //PathToArticle(section)}
               target="_blank"
               rel="noreferrer"
             >

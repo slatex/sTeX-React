@@ -2,7 +2,6 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Button, IconButton, Tooltip, Typography } from '@mui/material';
 import LinearProgress from '@mui/material/LinearProgress';
 import { FTMLFragment, ProblemResponse } from '@stex-react/ftml-utils';
-import { extractProjectIdAndFilepath, sourceFileUrl } from '@stex-react/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { useEffect, useReducer, useState } from 'react';
@@ -41,9 +40,10 @@ export function PerSectionQuiz({
   }, [sectionUri]);
 
   function handleViewSource(problemId: string) {
-    const [projectId, filePath] = extractProjectIdAndFilepath(problemId);
-    const sourceLink = sourceFileUrl(projectId, filePath);
-    window.open(sourceLink, '_blank');
+    //const [projectId, filePath] = extractProjectIdAndFilepath(problemId);
+    // TODO ALEA4-N11
+    //const sourceLink = sourceFileUrl(projectId, filePath);
+    //window.open(sourceLink, '_blank');
   }
   if (isLoadingProblemUris) return null;
   if (!problemUris.length) return !showButtonFirst && <i>No problems found.</i>;

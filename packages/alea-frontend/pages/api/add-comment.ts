@@ -5,7 +5,7 @@ import {
   GrantReason,
   NotificationType,
 } from '@stex-react/api';
-import { CURRENT_TERM, PathToArticle } from '@stex-react/utils';
+import { CURRENT_TERM } from '@stex-react/utils';
 import axios from 'axios';
 import { canUserModerateComments } from './access-control/resource-utils';
 import {
@@ -17,12 +17,13 @@ import {
 } from './comment-utils';
 
 function linkToComment({ threadId, courseId, courseTerm, archive, filepath }: any) {
-  if (threadId && courseId && courseTerm === CURRENT_TERM) {
-    return `/forum/${courseId}/${threadId}`;
-  }
-  if (archive && filepath) return PathToArticle({ archive, filepath });
-  if (courseId) return `/forum/${courseId}`;
-  return PathToArticle({ archive: archive || '', filepath: filepath || '' });
+  // if (threadId && courseId && courseTerm === CURRENT_TERM) {
+  //   return `/forum/${courseId}/${threadId}`;
+  // }
+  // if (archive && filepath) return PathToArticle({ archive, filepath });
+  // if (courseId) return `/forum/${courseId}`;
+  // return PathToArticle({ archive: archive || '', filepath: filepath || '' });
+  return '/TODO ALEA4-N8.1';
 }
 
 async function sendCommentAlert(

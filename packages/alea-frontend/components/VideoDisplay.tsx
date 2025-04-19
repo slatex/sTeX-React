@@ -15,14 +15,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import {
-  ClipDetails,
-  ClipInfo,
-  getAncestors,
-  getDefiniedaInSection,
-  lastFileNode,
-  SectionsAPIData,
-} from '@stex-react/api';
+import { ClipDetails, ClipInfo } from '@stex-react/api';
 import { localStore, PathToTour2 } from '@stex-react/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
@@ -175,7 +168,7 @@ const MediaItem = ({
   sub?: string;
   timestampSec?: number;
   markers?: Marker[];
-  courseDocSections?: SectionsAPIData;
+  courseDocSections?: any;// SectionsAPIData;
   autoSync?: boolean;
 }) => {
   const playerRef = useRef<HTMLVideoElement | HTMLAudioElement>(null);
@@ -191,7 +184,8 @@ const MediaItem = ({
 
   const getDefinedConcepts = async (sectionId: string) => {
     if (!sectionId || !courseDocSections) return [];
-    const ancestors = getAncestors(undefined, undefined, String(sectionId), courseDocSections);
+    // TODO ALEA4-S5
+    // const ancestors = getAncestors(undefined, undefined, String(sectionId), courseDocSections);
     //const sectionParentInfo = lastFileNode(ancestors);
     //const { archive, filepath } = sectionParentInfo;
     const definedConcepts = []; // TODO ALEA4-S6 await getDefiniedaInDoc(mmtUrl, archive, filepath);
@@ -653,7 +647,7 @@ export function VideoDisplay({
   videoExtractedData?: {
     [timestampSec: number]: ClipData;
   };
-  courseDocSections?: SectionsAPIData;
+  courseDocSections?: any; // SectionsAPIData;
   autoSync?: boolean;
   onVideoLoad: (status: boolean) => void;
 }) {

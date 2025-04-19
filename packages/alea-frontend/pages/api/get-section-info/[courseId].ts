@@ -1,4 +1,4 @@
-import { ClipInfo, getCourseInfo, SectionInfo, SectionsAPIData } from '@stex-react/api';
+import { ClipInfo, getCourseInfo, SectionInfo } from '@stex-react/api';
 import { CoverageSnap } from '@stex-react/utils';
 import { readdir, readFile } from 'fs/promises';
 import { convert } from 'html-to-text';
@@ -49,6 +49,7 @@ async function getVideoToSlidesMap(courseId: string) {
   return CACHED_VIDEO_SLIDESMAP[courseId];
 }
 
+/* TODO ALEA4-S5
 function getAllSections(data: SectionsAPIData, level = 0): SectionInfo | SectionInfo[] {
   if (data.title?.length) {
     const title = convert(data.title);
@@ -67,7 +68,7 @@ function getAllSections(data: SectionsAPIData, level = 0): SectionInfo | Section
     else sections.push(subNodes);
   }
   return sections;
-}
+}*/
 
 function getSectionsInOrder(nodes: SectionInfo[]): SectionInfo[] {
   const nodeList = [] as SectionInfo[];

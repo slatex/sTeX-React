@@ -15,19 +15,21 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import LinearProgress from '@mui/material/LinearProgress';
 import {
   BloomDimension,
-  DefiniendaItem,
+  ConceptAndDefinition,
   NumericCognitiveValues,
   SHOW_DIMENSIONS,
+  getDefiniedaInSection,
   getUriWeights,
+  isLoggedIn,
 } from '@stex-react/api';
+import { SafeHtml } from '@stex-react/react-utils';
 import { BG_COLOR } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import CompetencyTable from './CompetencyTable';
 import { getLocaleObject } from './lang/utils';
-import { DimIcon } from './stex-react-renderer';
+import { DimIcon, PerSectionQuiz } from './stex-react-renderer';
 import styles from './styles/competency-indicator.module.scss';
-import { SafeHtml } from '@stex-react/react-utils';
 
 function CompetencyBar({ dim, val }: { dim: BloomDimension; val: number }) {
   const hue = 120 * val;
@@ -48,33 +50,29 @@ function CompetencyBar({ dim, val }: { dim: BloomDimension; val: number }) {
 }
 
 const SectionReview = ({
-  contentUrl,
+  sectionUri,
   sectionTitle,
 }: {
-  contentUrl: string;
+  sectionUri: string;
   sectionTitle: string;
 }) => {
   const [competencyData, setCompetencyData] = useState<NumericCognitiveValues[] | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
-  const [definedData, setDefinedData] = useState<DefiniendaItem[] | null>(null);
+  const [definedConcepts, setDefinedConcepts] = useState<ConceptAndDefinition[] | null>(null);
   const [URIs, setURIs] = useState<string[]>([]);
   const t = getLocaleObject(useRouter());
 
-  //TODO ALEA4-N10
-  /*
-  const { archive, filepath } = getSectionInfo(contentUrl);
   useEffect(() => {
     if (!isLoggedIn()) return;
-     
-    // getDefiniedaInDoc(mmtUrl, archive, filepath).then(setDefinedData);
-  }, [archive, filepath, mmtUrl]);*/
+    getDefiniedaInSection(sectionUri).then(setDefinedConcepts);
+  }, [sectionUri]);
 
   useEffect(() => {
-    if (!definedData) return;
-    const URIs = [...new Set(definedData.flatMap((data) => data.symbols))];
+    if (!definedConcepts) return;
+    const URIs = [...new Set(definedConcepts.flatMap((data) => data.conceptUri))];
     setURIs(URIs);
     getUriWeights(URIs).then((data) => setCompetencyData(data));
-  }, [definedData]);
+  }, [definedConcepts]);
 
   function refetchCompetencyData() {
     if (!URIs?.length) return;
@@ -90,7 +88,7 @@ const SectionReview = ({
     return acc;
   }, {} as { [competency: string]: number });
 
-  if (!definedData?.length) return null;
+  if (!definedConcepts?.length) return null;
 
   return (
     <Box maxWidth="var(--document-width)">
@@ -127,8 +125,8 @@ const SectionReview = ({
               </Tooltip>
             ))}
           </Box>
-          {/* TODO ALEA4-N10 */}
-          {/* <PerSectionQuiz archive={archive} filepath={filepath} showHideButton={true}/> */}
+
+          <PerSectionQuiz sectionUri={sectionUri} showHideButton={true} />
         </AccordionDetails>
       </Accordion>
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} fullWidth={true} maxWidth="lg">
@@ -139,7 +137,7 @@ const SectionReview = ({
           {competencyData ? (
             <DialogContentText>
               <CompetencyTable
-                URIs={URIs}
+                conceptUris={URIs}
                 competencyData={competencyData}
                 onValueUpdate={refetchCompetencyData}
               />

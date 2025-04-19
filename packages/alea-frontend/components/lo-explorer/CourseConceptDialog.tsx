@@ -19,45 +19,14 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import {
-  getCourseInfo,
-  getDefiniedaInSection,
-  getDocumentSections,
-  SectionsAPIData,
-} from '@stex-react/api';
+import { getCourseInfo } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { convertHtmlStringToPlain, CourseInfo } from '@stex-react/utils';
+import { CourseInfo } from '@stex-react/utils';
 import React, { useContext, useEffect, useState } from 'react';
 
 interface SectionDetails {
   name: string;
-  archive?: string;
-  filepath?: string;
-}
-
-function getSectionDetails(
-  data: SectionsAPIData,
-  level = 0,
-  parentArchive?: string,
-  parentFilepath?: string
-): SectionDetails[] {
-  const sections: SectionDetails[] = [];
-  const inheritedArchive = parentArchive;
-  const inheritedFilepath = parentFilepath;
-  if (data.title?.length) {
-    sections.push({
-      name: '\xa0'.repeat(level * 4) + convertHtmlStringToPlain(data.title),
-      archive: inheritedArchive,
-      filepath: inheritedFilepath,
-    });
-  }
-
-  for (const child of data.children || []) {
-    sections.push(
-      ...getSectionDetails(child, level + (data.title?.length ? 1 : 0), data.archive, data.filepath)
-    );
-  }
-  return sections;
+  uri?: string;
 }
 
 export const CourseConceptsDialog = ({
@@ -115,8 +84,7 @@ export const CourseConceptsDialog = ({
     }
     setLoading(true);
     try {
-
-       //TODO ALEA4-L1
+      //TODO ALEA4-L1
       // const definedConcepts = await getDefiniedaInDoc(
       //   mmtUrl,
       //   selectedSection?.archive,

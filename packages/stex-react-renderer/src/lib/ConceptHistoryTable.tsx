@@ -1,3 +1,4 @@
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import {
   Box,
   Button,
@@ -13,15 +14,10 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
-import {
-  BloomDimension,
-  ConceptHistory,
-  getConceptHistory,
-  HistoryItem,
-} from '@stex-react/api';
+import { BloomDimension, ConceptHistory, getConceptHistory, HistoryItem } from '@stex-react/api';
 import { useEffect, useState } from 'react';
 import { Chart } from 'react-google-charts';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import { ConceptView } from './CompetencyTable';
 
 const eventTypeMapping: { [key: string]: string } = {
   'course-init': 'Previous Course Data',
@@ -50,27 +46,14 @@ function getProblemUrl(url: string): string {
   )}`;
 }
 
-function EventRow({
-  data,
-  prevValues,
-}: {
-  data: HistoryItem;
-  prevValues: any;
-}) {
+function EventRow({ data, prevValues }: { data: HistoryItem; prevValues: any }) {
   const { prevRemember, prevUnderstand, prevApply } = prevValues;
 
   const remember =
-    data['new-values']?.Remember !== undefined
-      ? data['new-values'].Remember
-      : prevRemember;
+    data['new-values']?.Remember !== undefined ? data['new-values'].Remember : prevRemember;
   const understand =
-    data['new-values']?.Understand !== undefined
-      ? data['new-values'].Understand
-      : prevUnderstand;
-  const apply =
-    data['new-values']?.Apply !== undefined
-      ? data['new-values'].Apply
-      : prevApply;
+    data['new-values']?.Understand !== undefined ? data['new-values'].Understand : prevUnderstand;
+  const apply = data['new-values']?.Apply !== undefined ? data['new-values'].Apply : prevApply;
 
   const deltaRemember = remember - prevRemember;
   const deltaUnderstand = understand - prevUnderstand;
@@ -86,11 +69,7 @@ function EventRow({
       <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
         {eventTypeMapping[data.event.type]}
         {data.event.type === 'problem-answer' && (
-          <Link
-            href={getProblemUrl(data.event.uri)}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <Link href={getProblemUrl(data.event.uri)} target="_blank" rel="noopener noreferrer">
             <OpenInNewIcon />
           </Link>
         )}
@@ -99,12 +78,7 @@ function EventRow({
         {remember.toFixed(2)}{' '}
         <span
           style={{
-            color:
-              deltaRemember > 0
-                ? 'green'
-                : deltaRemember < 0
-                ? 'red'
-                : 'inherit',
+            color: deltaRemember > 0 ? 'green' : deltaRemember < 0 ? 'red' : 'inherit',
           }}
         >
           {deltaRemember !== 0 && `(${deltaRemember.toFixed(2)})`}
@@ -114,12 +88,7 @@ function EventRow({
         {understand.toFixed(2)}{' '}
         <span
           style={{
-            color:
-              deltaUnderstand > 0
-                ? 'green'
-                : deltaUnderstand < 0
-                ? 'red'
-                : 'inherit',
+            color: deltaUnderstand > 0 ? 'green' : deltaUnderstand < 0 ? 'red' : 'inherit',
           }}
         >
           {deltaUnderstand !== 0 && `(${deltaUnderstand.toFixed(2)})`}
@@ -129,8 +98,7 @@ function EventRow({
         {apply.toFixed(2)}{' '}
         <span
           style={{
-            color:
-              deltaApply > 0 ? 'green' : deltaApply < 0 ? 'red' : 'inherit',
+            color: deltaApply > 0 ? 'green' : deltaApply < 0 ? 'red' : 'inherit',
           }}
         >
           {deltaApply !== 0 && `(${deltaApply.toFixed(2)})`}
@@ -172,8 +140,7 @@ function ConceptHistoryTable({
   onClose: () => void;
   concept: string;
 }) {
-  const [conceptHistoryData, setConceptHistoryData] =
-    useState<ConceptHistory>();
+  const [conceptHistoryData, setConceptHistoryData] = useState<ConceptHistory>();
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -191,14 +158,12 @@ function ConceptHistoryTable({
     ? computeCompetenciesByDate(conceptHistoryData)
     : new Map<string, [number, number, number]>();
 
-  const chartData = Array.from(competenciesByDate.entries()).map(
-    ([date, values]) => [date, ...values]
-  );
+  const chartData = Array.from(competenciesByDate.entries()).map(([date, values]) => [
+    date,
+    ...values,
+  ]);
 
-  const formattedChartData = [
-    ['Time', 'Remember', 'Understand', 'Apply'],
-    ...chartData,
-  ];
+  const formattedChartData = [['Time', 'Remember', 'Understand', 'Apply'], ...chartData];
 
   const options = {
     hAxis: {
@@ -225,7 +190,9 @@ function ConceptHistoryTable({
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth={true} maxWidth="lg">
-      <DialogTitle>TODO ALEA4-N10{/*mmtHTMLToReact(getMMTHtml(concept))*/}</DialogTitle>
+      <DialogTitle>
+        <ConceptView uri={concept} />
+      </DialogTitle>
       <DialogContent>
         {loading ? (
           <Box
@@ -237,12 +204,7 @@ function ConceptHistoryTable({
             }}
           >
             <CircularProgress />
-            <Typography
-              variant="body1"
-              fontWeight="bold"
-              align="center"
-              sx={{ ml: 2 }}
-            >
+            <Typography variant="body1" fontWeight="bold" align="center" sx={{ ml: 2 }}>
               Data is on its way, just a moment...
             </Typography>
           </Box>

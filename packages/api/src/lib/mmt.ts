@@ -1,8 +1,7 @@
-import { COURSES_INFO, CURRENT_TERM, CourseInfo, createCourseInfo } from '@stex-react/utils';
+import { COURSES_INFO, CURRENT_TERM, CourseInfo, createCourseInfo, getParamFromUri } from '@stex-react/utils';
 import axios from 'axios';
 import { FLAMSServer } from './flams';
 import { ArchiveIndex, Institution } from './flams-types';
-import { TOCElem } from './ftml-viewer-base';
 
 const server = new FLAMSServer(process.env['NEXT_PUBLIC_FLAMS_URL']!);
 
@@ -13,126 +12,6 @@ export async function getLearningObjectShtml(mmtUrl: string, objectId: string) {
   const url = `${mmtUrl}/:sTeX/loraw?${objectId}`;
   const resp = await axios.get(url);
   return resp.data as string;
-}
-
-///////////////////
-// :sTeX/sections
-///////////////////
-export interface SectionsAPIData {
-  archive?: string;
-  filepath?: string;
-
-  title?: string;
-  id?: string;
-
-  ids?: string[];
-  children: SectionsAPIData[];
-}
-
-export function getAncestors(
-  archive: string | undefined,
-  filepath: string | undefined,
-  sectionId: string | undefined,
-  sectionData: SectionsAPIData | undefined,
-  ancestors: SectionsAPIData[] = []
-): SectionsAPIData[] | undefined {
-  if (!sectionData || !sectionId) return undefined;
-
-  if (archive && filepath && sectionData.archive === archive && sectionData.filepath === filepath) {
-    return [...ancestors, sectionData];
-  }
-  if (sectionId && sectionData.id === sectionId) {
-    return [...ancestors, sectionData];
-  }
-  for (const child of sectionData.children || []) {
-    const foundAncestors = getAncestors(archive, filepath, sectionId, child, [
-      ...ancestors,
-      sectionData,
-    ]);
-    if (foundAncestors?.length) return foundAncestors;
-  }
-  return undefined;
-}
-
-export function lastFileNode(ancestors: SectionsAPIData[] | undefined) {
-  if (!ancestors?.length) return undefined;
-  for (let i = ancestors.length - 1; i >= 0; i--) {
-    if (isFile(ancestors[i])) return ancestors[i];
-  }
-  return undefined;
-}
-
-export function getCoveredSections(
-  startSecNameExcl: string,
-  endSecNameIncl: string,
-  tocElem: TOCElem,
-  started = false
-): {
-  started: boolean;
-  ended: boolean;
-  fullyCovered: boolean;
-  coveredSectionIds: string[];
-} {
-  const wasStartedForMe = started;
-  if (!tocElem) return { started, ended: true, coveredSectionIds: [], fullyCovered: false };
-
-  const isSec = tocElem.type === 'Section';
-  let iAmEnding = false;
-  if (isSec) {
-    const sectionName = tocElem.title ?? '';
-    if (sectionName === startSecNameExcl) started = true;
-    iAmEnding = sectionName === endSecNameIncl;
-  }
-
-  let allChildrenCovered = true;
-  const coveredSectionIds: string[] = [];
-  for (const child of (tocElem as any).children || []) {
-    const cResp = getCoveredSections(startSecNameExcl, endSecNameIncl, child, started);
-    if (!cResp.fullyCovered) allChildrenCovered = false;
-    coveredSectionIds.push(...cResp.coveredSectionIds);
-
-    if (cResp.started) started = true;
-    if (cResp.ended) {
-      return {
-        started,
-        ended: true,
-        fullyCovered: false,
-        coveredSectionIds,
-      };
-    }
-  }
-
-  const fullyCovered = allChildrenCovered && wasStartedForMe;
-  const tocId = (tocElem as any).id;
-  if (tocId && fullyCovered) coveredSectionIds.push(tocId);
-  return { started, ended: iAmEnding, fullyCovered, coveredSectionIds };
-}
-
-export function findFileNode(
-  archive: string,
-  filepath: string,
-  sectionData: SectionsAPIData | undefined
-): SectionsAPIData | undefined {
-  if (!sectionData) return;
-  if (sectionData.archive === archive && sectionData.filepath === filepath) {
-    return sectionData;
-  }
-  for (const child of sectionData.children || []) {
-    const foundNode = findFileNode(archive, filepath, child);
-    if (foundNode) return foundNode;
-  }
-  return undefined;
-}
-
-export function hasSectionChild(node?: SectionsAPIData) {
-  return node?.children?.some((child) => isSection(child));
-}
-
-export function isFile(data: SectionsAPIData) {
-  return data.archive && data.filepath ? true : false;
-}
-export function isSection(data: SectionsAPIData) {
-  return !isFile(data);
 }
 
 export async function getDocumentSections(notesUri: string) {
@@ -277,32 +156,21 @@ export async function getSectionSlides(sectionUri: string) {
   return await server.slides({ uri: sectionUri });
 }
 
-// export async function getCourseId(
-//   mmtUrl: string,
-//   institution: string,
-//   { archive, filepath }: FileLocation
-// ) {
-//   const courses = await getCourseInfo(institution);
-//   for (const [courseId, info] of Object.entries(courses)) {
-//     if (archive === info.notesArchive && filepath === info.notesFilepath) return courseId;
-//   }
-//   return undefined;
-// }
+export function getFTMLForConceptView(conceptUri: string) {
+  const name = getParamFromUri(conceptUri, 's') ?? conceptUri;
+  return `<span data-ftml-term="OMID" data-ftml-head="${conceptUri}" data-ftml-comp>${name}</span>`;
+}
 
 /////////////////////
 // :sTeX/definienda
 /////////////////////
-export interface DefiniendaItem {
-  id: string;
-
-  // These are the URIs of the symbols.
-  symbols: string[];
+export interface ConceptAndDefinition {
+  conceptUri: string;
+  definitionUri: string;
 }
 
-// Gets list of symbols defined in a section.
-export async function getDefiniedaInSection(
-  uri: string
-): Promise<{ conceptUri: string; definitionUri: string }[]> {
+// Gets list of concepts and their definition in a section.
+export async function getDefiniedaInSection(uri: string): Promise<ConceptAndDefinition[]> {
   const query = `SELECT DISTINCT ?q ?s WHERE { <${uri}> (ulo:contains|dc:hasPart)* ?q. ?q ulo:defines ?s.}`;
 
   try {
@@ -346,7 +214,6 @@ export async function getProblemsForSection(sectionUri: string): Promise<string[
   );
   return Array.from(uniqueProblemUrls);
 }
-
 
 export async function getUriFragment(URI: string) {
   const resp = await axios.get(`https://stexmmt.mathhub.info//:sTeX/fragment?${URI}`);

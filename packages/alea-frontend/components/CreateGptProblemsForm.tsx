@@ -1,8 +1,8 @@
 import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/Delete';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import CreateIcon from '@mui/icons-material/Create';
+import DeleteIcon from '@mui/icons-material/Delete';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
   Accordion,
   AccordionDetails,
@@ -20,20 +20,9 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import {
-  CreateGptProblemsRequest,
-  SectionsAPIData,
-  Template,
-  getDocumentSections,
-} from '@stex-react/api';
+import { CreateGptProblemsRequest, Template } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
-import {
-  FileLocation,
-  convertHtmlStringToPlain,
-  fileLocToString,
-  fullDocumentUrl,
-  stringToFileLoc,
-} from '@stex-react/utils';
+import { FileLocation, fileLocToString, stringToFileLoc } from '@stex-react/utils';
 import { ChangeEvent, useContext, useEffect, useState } from 'react';
 
 function templateToFormData(template: Template): CreateGptProblemsRequest {
@@ -49,17 +38,13 @@ function templateToFormData(template: Template): CreateGptProblemsRequest {
 }
 
 function getGitlabUrl({ archive, filepath }: FileLocation) {
-  if (filepath.endsWith('.xhtml'))
-    filepath = filepath.replace('.xhtml', '.tex');
+  if (filepath.endsWith('.xhtml')) filepath = filepath.replace('.xhtml', '.tex');
   return `https://gl.mathhub.info/${archive}/-/blob/main/source/${filepath}`;
 }
 
-function getSectionNames(
-  data: SectionsAPIData,
-  level = 0,
-  parentFile: FileLocation = undefined
-): { name: string; parentFile: FileLocation }[] {
+function getSectionNames(): { name: string; parentFile: FileLocation }[] {
   const names = [];
+  /* TODO ALEA4-M3
   if (data.title?.length)
     names.push({
       name: '\xa0'.repeat(level * 4) + convertHtmlStringToPlain(data.title),
@@ -77,7 +62,7 @@ function getSectionNames(
         thisFileLoc || parentFile
       )
     );
-  }
+  }*/
   return names;
 }
 
@@ -89,15 +74,14 @@ function SectionPicker({
   onChange: (value: string) => void;
 }) {
   const { mmtUrl } = useContext(ServerLinksContext);
-  const [sections, setSectionNames] = useState<
-    { name: string; parentFile: FileLocation }[]
-  >([]);
+  const [sections, setSectionNames] = useState<{ name: string; parentFile: FileLocation }[]>([]);
   const fileLoc = stringToFileLoc(sectionParentId);
 
   useEffect(() => {
     async function getSections() {
-      const archive = 'MiKoMH/AI';
-      const filepath = 'course/notes/notes1.tex';
+      // TODO ALEA4-M3
+      // const archive = 'MiKoMH/AI';
+      // const filepath = 'course/notes/notes1.tex';
       // const docSections = await getDocumentSections(mmtUrl, archive, filepath);
       // const s = getSectionNames(docSections);
       // setSectionNames(s);
@@ -131,11 +115,13 @@ function SectionPicker({
       <br />
       <a
         href={
-          mmtUrl +
-          fullDocumentUrl({
-            archive: fileLoc.archive,
-            filepath: fileLoc.filepath.replace('.tex', '.xhtml'),
-          })
+          ''
+          // TODO ALEA4-M3
+          // mmtUrl +
+          // fullDocumentUrl({
+          //   archive: fileLoc.archive,
+          //   filepath: fileLoc.filepath.replace('.tex', '.xhtml'),
+          // })
         }
         style={{ textDecoration: 'underline' }}
         target="_blank"
@@ -148,11 +134,7 @@ function SectionPicker({
           ?.name?.trim() || ''}
       </a>
       &nbsp;
-      <a
-        href={getGitlabUrl(fileLoc)}
-        style={{ textDecoration: 'underline' }}
-        target="_blank"
-      >
+      <a href={getGitlabUrl(fileLoc)} style={{ textDecoration: 'underline' }} target="_blank">
         Gitlab Link
       </a>
     </>
@@ -194,19 +176,13 @@ function AssignmentValueInput({
       )}
       {isFetchStex &&
         (fileLoc?.archive && fileLoc?.filepath ? (
-          <a
-            href={getGitlabUrl(fileLoc)}
-            style={{ textDecoration: 'underline' }}
-            target="_blank"
-          >
+          <a href={getGitlabUrl(fileLoc)} style={{ textDecoration: 'underline' }} target="_blank">
             Link
           </a>
         ) : (
           <>
             Must be of the form{' '}
-            <span style={{ backgroundColor: '#AAA', padding: '0 3px' }}>
-              archive||filepath
-            </span>
+            <span style={{ backgroundColor: '#AAA', padding: '0 3px' }}>archive||filepath</span>
           </>
         ))}
       {isUriDefMd && (
@@ -231,17 +207,10 @@ export function CreateGptProblemsForm({
   template: Template;
   onUpdate: (formData: CreateGptProblemsRequest) => void;
   templates: Template[];
-  onSaveTemplate: (
-    templateName: string,
-    formData: CreateGptProblemsRequest
-  ) => any;
+  onSaveTemplate: (templateName: string, formData: CreateGptProblemsRequest) => any;
 }) {
-  const [templateName, setTemplateName] = useState<string>(
-    template.templateName || ''
-  );
-  const [formData, setFormData] = useState<CreateGptProblemsRequest>(
-    templateToFormData(template)
-  );
+  const [templateName, setTemplateName] = useState<string>(template.templateName || '');
+  const [formData, setFormData] = useState<CreateGptProblemsRequest>(templateToFormData(template));
   const isExisting = templates.some((t) => t.templateName === templateName);
   useEffect(() => {
     setFormData(templateToFormData(template));
@@ -280,10 +249,7 @@ export function CreateGptProblemsForm({
             </IconButton>
           </Box>
         ))}
-        <IconButton
-          onClick={() => handleAddItem('templateStrs')}
-          color="primary"
-        >
+        <IconButton onClick={() => handleAddItem('templateStrs')} color="primary">
           <AddIcon />
         </IconButton>
       </FormControl>
@@ -293,9 +259,7 @@ export function CreateGptProblemsForm({
           <b>Special Key Prefixes</b>
         </AccordionSummary>
         <AccordionDetails>
-          <table
-            style={{ border: '1px solid black', borderCollapse: 'collapse' }}
-          >
+          <table style={{ border: '1px solid black', borderCollapse: 'collapse' }}>
             <tr>
               <th>Prefix</th>
               <th style={{ border: '1px solid black', padding: '0 10px' }}>
@@ -308,18 +272,14 @@ export function CreateGptProblemsForm({
               <td style={{ border: '1px solid black', padding: '0 10px' }}>
                 Value is a combination of sTeX file&apos;s archive and filepath
               </td>
-              <td>
-                Template marker replaced by the stex (recursively expanded)
-              </td>
+              <td>Template marker replaced by the stex (recursively expanded)</td>
             </tr>
             <tr style={{ border: '1px solid black' }}>
               <td>SECTION_STEX</td>
               <td style={{ border: '1px solid black', padding: '0 10px' }}>
                 A section from AI-1 course
               </td>
-              <td>
-                Template marker replaced by the stex (recursively expanded)
-              </td>
+              <td>Template marker replaced by the stex (recursively expanded)</td>
             </tr>
             <tr style={{ border: '1px solid black' }}>
               <td>SECTION_TIDY_STEX</td>
@@ -327,8 +287,8 @@ export function CreateGptProblemsForm({
                 A section from AI-1 course
               </td>
               <td>
-                Template marker replaced by the stex. All sub fragments are
-                dumped as is to make sure that valid stex is generated.
+                Template marker replaced by the stex. All sub fragments are dumped as is to make
+                sure that valid stex is generated.
               </td>
             </tr>
             <tr style={{ border: '1px solid black' }}>
@@ -337,9 +297,8 @@ export function CreateGptProblemsForm({
                 Not special. Replaced as provided
               </td>
               <td>
-                Keys with these prefix are only replaced during the function
-                calling (first) phase of the pipeline when using function
-                calling. Otherwise, they are simply removed.
+                Keys with these prefix are only replaced during the function calling (first) phase
+                of the pipeline when using function calling. Otherwise, they are simply removed.
               </td>
             </tr>
             <tr style={{ border: '1px solid black' }}>
@@ -348,19 +307,16 @@ export function CreateGptProblemsForm({
                 Not special. Replaced as provided
               </td>
               <td>
-                Keys with these prefix are only replaced during the completion
-                (second) phase of the pipeline when using function calling.
-                Otherwise, they are simply removed.
+                Keys with these prefix are only replaced during the completion (second) phase of the
+                pipeline when using function calling. Otherwise, they are simply removed.
               </td>
             </tr>
             <tr style={{ border: '1px solid black' }}>
               <td>FN_RESPONSE</td>
-              <td style={{ border: '1px solid black', padding: '0 10px' }}>
-                Value is unused.
-              </td>
+              <td style={{ border: '1px solid black', padding: '0 10px' }}>Value is unused.</td>
               <td>
-                The key will be replaced by the response of the function call
-                (in the second OpenAPI call) if function calling is used.
+                The key will be replaced by the response of the function call (in the second OpenAPI
+                call) if function calling is used.
               </td>
             </tr>
             <tr style={{ border: '1px solid black' }}>
@@ -368,9 +324,7 @@ export function CreateGptProblemsForm({
               <td style={{ border: '1px solid black', padding: '0 10px' }}>
                 Value is interpreted as an MMT URI
               </td>
-              <td>
-                Template marker replaced by the concept definition (markdown)
-              </td>
+              <td>Template marker replaced by the concept definition (markdown)</td>
             </tr>
             <tr style={{ border: '1px solid black' }}>
               <td>FETCH_URL</td>
@@ -384,13 +338,7 @@ export function CreateGptProblemsForm({
       </Accordion>
       <FormControl fullWidth>
         {formData.assignments.map((assignment, idx) => (
-          <Grid
-            container
-            spacing={2}
-            alignItems="center"
-            key={idx}
-            sx={{ mt: '10px' }}
-          >
+          <Grid container spacing={2} alignItems="center" key={idx} sx={{ mt: '10px' }}>
             <Grid item xs={1}>
               <IconButton
                 onClick={() => {
@@ -460,9 +408,7 @@ export function CreateGptProblemsForm({
         control={
           <Checkbox
             checked={formData.dryRun}
-            onChange={(e) =>
-              setFormData({ ...formData, dryRun: e.target.checked })
-            }
+            onChange={(e) => setFormData({ ...formData, dryRun: e.target.checked })}
             name="dryRun"
           />
         }
@@ -471,11 +417,7 @@ export function CreateGptProblemsForm({
       />
       <br />
 
-      <Button
-        variant="contained"
-        onClick={() => onUpdate(formData)}
-        color="primary"
-      >
+      <Button variant="contained" onClick={() => onUpdate(formData)} color="primary">
         Get GPT Response
       </Button>
 

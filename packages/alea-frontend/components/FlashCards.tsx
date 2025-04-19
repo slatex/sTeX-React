@@ -32,7 +32,7 @@ import {
   LevelIcon,
   SelfAssessment2,
 } from '@stex-react/stex-react-renderer';
-import { PRIMARY_COL, localStore } from '@stex-react/utils';
+import { PRIMARY_COL, getParamFromUri, localStore } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react';
 import { useSwipeable } from 'react-swipeable';
@@ -102,12 +102,7 @@ export function FlashCardFooter({
 }
 
 function getConceptName(uri: string) {
-  try {
-    const url = new URL(uri);
-    return url.searchParams.get('s') || uri;
-  } catch {
-    return uri;
-  }
+  return getParamFromUri(uri, 's') || uri;
 }
 
 function FlashCardFront({

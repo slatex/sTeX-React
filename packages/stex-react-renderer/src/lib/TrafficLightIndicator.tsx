@@ -5,8 +5,8 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import { BloomDimension, NumericCognitiveValues, getUriWeights } from '@stex-react/api';
-import { useState } from 'react';
+import { BloomDimension, ConceptAndDefinition, NumericCognitiveValues, getDefiniedaInSection, getUriWeights, isLoggedIn } from '@stex-react/api';
+import { useEffect, useState } from 'react';
 import CompetencyTable from './CompetencyTable';
 
 const trafficLightStyle = {
@@ -50,19 +50,16 @@ function getText(averageUnderstand: number): string {
   }
 }
 
-const TrafficLightIndicator = ({ contentUrl }: { contentUrl: string }) => {
+const TrafficLightIndicator = ({ sectionUri }: { sectionUri: string }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [competencyData, setCompetencyData] = useState<NumericCognitiveValues[] | null>(null);
-  const [URIs, setURIs] = useState<string[]>([]);
-  /* useEffect(() => {
+  const [definedConcepts, setDefinedConcepts] = useState<ConceptAndDefinition[] | null>(null);
+ 
+  useEffect(() => {
     if (!isLoggedIn()) return;
-   TODO ALEA4-N10
-    getSectionDependencies(mmtUrl, archive, filepath).then((uris) => {
-      setURIs(uris);
-      getUriWeights(uris).then((data) => setCompetencyData(data));
-    });
-  }, [archive, filepath, mmtUrl]);*/
-
+    getDefiniedaInSection(sectionUri).then(setDefinedConcepts);
+  }, [sectionUri]);
+  
   const handleBoxClick = () => {
     setDialogOpen(true);
   };
@@ -71,8 +68,8 @@ const TrafficLightIndicator = ({ contentUrl }: { contentUrl: string }) => {
     setDialogOpen(false);
   };
   function refetchCompetencyData() {
-    if (!URIs?.length) return;
-    getUriWeights(URIs).then((data) => setCompetencyData(data));
+    if (!definedConcepts?.length) return;
+    getUriWeights(definedConcepts.map((c) => c.conceptUri)).then((data) => setCompetencyData(data));
   }
 
   const averageUnderstand = competencyData?.length
@@ -80,7 +77,7 @@ const TrafficLightIndicator = ({ contentUrl }: { contentUrl: string }) => {
       competencyData.length
     : 0;
 
-  if (!URIs?.length) return null;
+  if (!definedConcepts?.length) return null;
 
   return (
     <>
@@ -142,7 +139,7 @@ const TrafficLightIndicator = ({ contentUrl }: { contentUrl: string }) => {
           {competencyData ? (
             <DialogContentText>
               <CompetencyTable
-                URIs={URIs}
+                conceptUris={definedConcepts.map((c) => c.conceptUri)}
                 competencyData={competencyData}
                 onValueUpdate={refetchCompetencyData}
                 showTour={true}

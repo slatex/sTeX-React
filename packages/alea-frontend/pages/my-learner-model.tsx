@@ -89,7 +89,7 @@ const MyLearnerModelPage: NextPage = () => {
 
             {competenceInfo.length ? (
               <CompetencyTable
-                URIs={concepts}
+                conceptUris={concepts}
                 competencyData={plainCompetencyData}
                 onValueUpdate={() => setSnackbarOpen(true)}
                 fetchProblem={false}

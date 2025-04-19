@@ -1,5 +1,5 @@
 import { Box, CircularProgress } from '@mui/material';
-import { SectionsAPIData, TOCElem, getDocumentSections } from '@stex-react/api';
+import { TOCElem, getDocumentSections } from '@stex-react/api';
 import { BG_COLOR, shouldUseDrawer } from '@stex-react/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
@@ -8,22 +8,6 @@ import { ContentDashboard } from './ContentDashboard';
 import { getLocaleObject } from './lang/utils';
 import { LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 import { PerSectionQuiz } from './PerSectionQuiz';
-
-function shortenDocSections(coveredSectionIds: string[], docSections?: SectionsAPIData) {
-  if (!coveredSectionIds.length || !docSections) return docSections;
-  const newChildren: SectionsAPIData[] = [];
-  for (const child of docSections.children || []) {
-    const shortenedChild = shortenDocSections(coveredSectionIds, child);
-    if (shortenedChild) newChildren.push(shortenedChild);
-  }
-  if (!newChildren.length && !coveredSectionIds.includes(docSections.id ?? '')) {
-    return undefined;
-  }
-  const shortenedDocSections: SectionsAPIData = { ...docSections };
-  shortenedDocSections.children = newChildren;
-
-  return shortenedDocSections;
-}
 
 export function DocProblemBrowser({
   notesDocUri,
@@ -49,6 +33,7 @@ export function DocProblemBrowser({
   const [problemCounts, setProblemCounts] = useState<{ [id: string]: number }>({});
   const [toc, setToc] = useState<TOCElem[]>([]);
 
+  // TODO ALEA4-P1
   //const ancestors = getAncestors(undefined, undefined, selectedSection, docSections);
   // const sectionParentInfo = lastFileNode(ancestors);
 

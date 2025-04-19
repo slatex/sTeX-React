@@ -9,7 +9,7 @@ import {
   PracticeQuestions,
   ServerLinksContext,
 } from '@stex-react/stex-react-renderer';
-import { capitalizeFirstLetter, extractProjectIdAndFilepath } from '@stex-react/utils';
+import { capitalizeFirstLetter } from '@stex-react/utils';
 import { memo, useContext, useEffect, useState } from 'react';
 import { CartItem } from './lo-explorer/LoCartModal';
 import LoRelations from './lo-explorer/LoRelations';
@@ -22,7 +22,7 @@ interface UrlData {
   icon?: JSX.Element;
 }
 export function getUrlInfo(url: string): UrlData {
-  const [archive, filePath] = extractProjectIdAndFilepath(url);
+  const [archive, filePath] = ['', '']; // TODO ALEA4-L1
   const fileParts = filePath.split('/');
   const fileName = fileParts[fileParts.length - 1].split('.')[0];
   let projectName = '';
@@ -59,7 +59,7 @@ export function getUrlInfo(url: string): UrlData {
 }
 
 export const handleStexCopy = (uri: string, uriType: LoType) => {
-  const [archive, filePath] = extractProjectIdAndFilepath(uri, '');
+  const [archive, filePath] = ['', '']; // TODO ALEA4-L1
   let stexSource = '';
   switch (uriType) {
     case 'problem':

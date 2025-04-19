@@ -5,7 +5,7 @@ import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/Indeterminate
 import UnfoldLessDoubleIcon from '@mui/icons-material/UnfoldLessDouble';
 import UnfoldMoreDoubleIcon from '@mui/icons-material/UnfoldMoreDouble';
 import { Box, IconButton, TextField, Tooltip } from '@mui/material';
-import { getCoveredSections, TOCElem } from '@stex-react/api';
+import { TOCElem } from '@stex-react/api';
 import {
   convertHtmlStringToPlain,
   CoverageTimeline,
@@ -238,8 +238,9 @@ export function ContentDashboard({
       if (!snaps?.length) return;
       const endSec = snaps[snaps.length - 1].sectionName;
       const shadowTopLevel: TOCElem = { type: 'SkippedSection', children: toc };
-      const r = getCoveredSections('', endSec, shadowTopLevel, true);
-      setFetchedCoveredSectionIds(r.coveredSectionIds);
+      // TODO ALEA4-N1
+      // const r = getCoveredSections('', endSec, shadowTopLevel, true);
+      // setFetchedCoveredSectionIds(r.coveredSectionIds);
     }
     getCoverageInfo();
   }, [courseId, coveredSectionIds, toc]);

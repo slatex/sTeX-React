@@ -85,7 +85,7 @@ async function recursivelyExpandSlideElementsExcludeSections(
 }
 
 async function getSlidesFromToc(elems: TOCElem[], bySection: Record<string, Slide[]>) {
-  for (const elem of elems) {
+  for (const elem of elems.slice(0, 3)) {
     if (elem.type === 'Section') {
       const secId = elem.id;
       const slideElems = (await getSectionSlides(elem.uri))[1];
@@ -105,9 +105,14 @@ export async function getSlides(notesUri: string) {
   return bySection;
 }
 
+// Use global cache to persist between requests in dev/local
+const globalCache = global as any;
+if (!globalCache.G_CACHED_SLIDES) {
+  globalCache.G_CACHED_SLIDES = {};
+}
 export const CACHED_SLIDES: {
   [courseId: string]: { [sectionId: string]: Slide[] };
-} = {};
+} = globalCache.G_CACHED_SLIDES;
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const courseId = req.query.courseId as string;

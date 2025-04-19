@@ -4,13 +4,10 @@ import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import {
   ClipInfo,
   SectionInfo,
-  SectionsAPIData,
   Slide,
   TOCElem,
-  getAncestors,
   getCourseInfo,
   getDocumentSections,
-  lastFileNode,
 } from '@stex-react/api';
 import { CommentNoteToggleView } from '@stex-react/comments';
 import { FTMLFragment } from '@stex-react/ftml-utils';
@@ -20,12 +17,12 @@ import {
   LayoutWithFixedMenu,
   SectionReview,
 } from '@stex-react/stex-react-renderer';
-import { CourseInfo, XhtmlContentUrl, localStore, shouldUseDrawer } from '@stex-react/utils';
+import { CourseInfo, localStore, shouldUseDrawer } from '@stex-react/utils';
 import axios from 'axios';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { NextRouter, useRouter } from 'next/router';
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { SlideDeck } from '../../components/SlideDeck';
 import { VideoDisplay } from '../../components/VideoDisplay';
 import { getLocaleObject } from '../../lang/utils';
@@ -135,6 +132,23 @@ export interface ClipData {
   end_time: number;
   thumbnail?: string;
 }
+
+function findSection(
+  toc: TOCElem[],
+  sectionId: string
+): Extract<TOCElem, { type: 'Section' }> | undefined {
+  for (const tocElem of toc) {
+    if (tocElem.type === 'Section' && tocElem.id === sectionId) {
+      return tocElem;
+    }
+    if ('children' in tocElem) {
+      const result = findSection(tocElem.children, sectionId);
+      if (result) return result;
+    }
+  }
+  return undefined;
+}
+
 const CourseViewPage: NextPage = () => {
   const router = useRouter();
   const courseId = router.query.courseId as string;
@@ -148,7 +162,6 @@ const CourseViewPage: NextPage = () => {
   const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
   const [preNotes, setPreNotes] = useState([] as string[]);
   const [postNotes, setPostNotes] = useState([] as string[]);
-  const [docSections, setDocSections] = useState<SectionsAPIData | undefined>(undefined);
   const [courseSections, setCourseSections] = useState<string[]>([]);
   const [slideCounts, setSlideCounts] = useState<{
     [sectionId: string]: number;
@@ -174,6 +187,11 @@ const CourseViewPage: NextPage = () => {
   const [autoSync, setAutoSync] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [toc, setToc] = useState<TOCElem[]>([]);
+
+  const selectedSectionTOC = useMemo(() => {
+    return findSection(toc, sectionId);
+  }, [toc, sectionId]);
+
   const handleVideoLoad = (status) => {
     setVideoLoaded(status);
   };
@@ -269,10 +287,6 @@ const CourseViewPage: NextPage = () => {
     router.replace('/');
     return <>Course Not Found!</>;
   }
-  const ancestors = getAncestors(undefined, undefined, sectionId, docSections);
-  const sectionParentInfo = lastFileNode(ancestors);
-  const sectionNode = ancestors?.length > 0 ? ancestors.at(-1) : undefined;
-  const { archive, filepath } = sectionParentInfo ?? {};
   const onClipChange = (clip: any) => {
     setCurrentClipId(clip.video_id);
     setTimestampSec(clip.start_time);
@@ -318,7 +332,7 @@ const CourseViewPage: NextPage = () => {
             </Box>
             <Box sx={{ marginBottom: '10px', marginTop: '10px' }}>
               <Typography variant="h6" sx={{ color: '#333' }}>
-                <SafeHtml html={sectionNode?.title || '<i>Untitled</i>'} />
+                <SafeHtml html={selectedSectionTOC?.title || '<i>Untitled</i>'} />
               </Typography>
             </Box>
             {viewMode === ViewMode.COMBINED_MODE && (
@@ -331,7 +345,7 @@ const CourseViewPage: NextPage = () => {
                 setTimestampSec={setTimestampSec}
                 currentSlideClipInfo={currentSlideClipInfo}
                 videoExtractedData={videoExtractedData}
-                courseDocSections={docSections}
+                courseDocSections={[]}
                 autoSync={autoSync}
                 onVideoLoad={handleVideoLoad}
               />
@@ -371,12 +385,14 @@ const CourseViewPage: NextPage = () => {
               />
             )}
             <hr style={{ width: '98%', padding: '1px 0' }} />
-            <Box sx={{ marginTop: '10px', marginBottom: '10px' }}>
-              <SectionReview
-                contentUrl={XhtmlContentUrl(archive, filepath)}
-                sectionTitle={sectionNode?.title}
-              />
-            </Box>
+            {selectedSectionTOC && (
+              <Box sx={{ marginTop: '10px', marginBottom: '10px' }}>
+                <SectionReview
+                  sectionUri={selectedSectionTOC.uri}
+                  sectionTitle={selectedSectionTOC.title}
+                />
+              </Box>
+            )}
             <CommentNoteToggleView
               file={{ archive: slideArchive, filepath: slideFilepath }}
               defaultPrivate={true}

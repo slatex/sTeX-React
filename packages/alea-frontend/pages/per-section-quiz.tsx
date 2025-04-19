@@ -1,12 +1,12 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, IconButton, Tooltip } from '@mui/material';
 import { SafeHtml } from '@stex-react/react-utils';
-import { PRIMARY_COL } from '@stex-react/utils';
+import { PerSectionQuiz } from '@stex-react/stex-react-renderer';
+import { getParamFromUri, PRIMARY_COL } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import React from 'react';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
-import { PerSectionQuiz } from '@stex-react/stex-react-renderer';
 
 const PerSectionQuizPage: React.FC = () => {
   const router = useRouter();
@@ -16,14 +16,13 @@ const PerSectionQuizPage: React.FC = () => {
   const sectionTitle = router.query.sectionTitle as string;
   const courseId = router.query.courseId as string;
 
-
   if (!sectionUri) return <div>Invalid URL: sectionUri is undefined</div>;
 
   const goToAllPracticeProblems = () => {
     router.push(`/practice-problems/${courseId}`);
   };
 
-  const header = sectionTitle ? sectionTitle : new URL(sectionUri)?.searchParams?.get('d');
+  const header = sectionTitle ? sectionTitle : getParamFromUri(sectionUri, 'd');
 
   return (
     <MainLayout title="PerSection Problems | ALeA">
@@ -46,15 +45,11 @@ const PerSectionQuizPage: React.FC = () => {
                 fontWeight: 'bold',
               }}
             >
-              {header ? <SafeHtml html={header} /> : '<i>Section</i>'} (
-              {courseId.toUpperCase()})
+              {header ? <SafeHtml html={header} /> : '<i>Section</i>'} ({courseId.toUpperCase()})
             </span>
           </b>
         </Box>
-        <PerSectionQuiz
-          sectionUri={sectionUri}
-          showButtonFirst={false}
-        />
+        <PerSectionQuiz sectionUri={sectionUri} showButtonFirst={false} />
         <br />
         <Box textAlign="left" mx="auto" mt="20px">
           <b style={{ color: 'red' }}>{t.warning}&nbsp;</b>
