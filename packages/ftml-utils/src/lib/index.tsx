@@ -184,12 +184,16 @@ export const FTMLFragment: React.FC<FTMLFragmentArgs> = (args) => {
 };
 
 const ElemToReact: React.FC<{
-  elems: ChildNode[];
-  ctx: FTML.LeptosContext;
-}> = ({ elems, ctx }) => {
+  elems: ChildNode[],
+  uri: FTML.DocumentElementURI, 
+  ctx: FTML.LeptosContext
+}> = ({ elems, ctx,uri }) => {
   const ref = useRef<HTMLDivElement>(null);
+  const done = useRef<boolean>(false);
   useEffect(() => {
-    if (ref.current) {
+    if (ref.current && !done.current) {
+      done.current = true;
+      //console.log("Mounting",uri);
       ref.current.replaceChildren(...elems);
     }
   }, []);
@@ -200,10 +204,11 @@ const ElemToReact: React.FC<{
   );
 };
 
-function elemToReact(elem: HTMLDivElement, ctx: FTML.LeptosContext): ReactNode {
+function elemToReact(uri: FTML.DocumentElementURI, elem: HTMLDivElement, ctx: FTML.LeptosContext): ReactNode {
+  //console.log("Doing",uri);
   const chs = Array.from(elem.childNodes);
   chs.forEach((c) => elem.removeChild(c));
-  return <ElemToReact elems={chs} ctx={ctx} />;
+  return <ElemToReact elems={chs} uri={uri} ctx={ctx} />;
 }
 
 function toConfig(
@@ -232,7 +237,7 @@ function toConfig(
         const r = ofO(uri, kind);
         return r
           ? (elem: HTMLDivElement, ctx: FTML.LeptosContext) => {
-              const ret = r(elemToReact(elem, ctx));
+              const ret = r(elemToReact(uri,elem, ctx));
               return addTunnel(elem, ret, ctx);
             }
           : undefined;
