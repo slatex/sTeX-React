@@ -54,14 +54,6 @@ function populateArchiveAndFilepath(nodes?: FileNode[]) {
   }
 }
 
-export async function getQuiz3(uri: string) {
-  const quiz = await server.quiz({
-    uri: 'https://mathhub.info/?a=courses/FAU/AI/hwexam&p=general/quizzes&d=pretest&l=en',
-  });
-  console.log('quiz', quiz);
-  return quiz;
-}
-
 let CACHED_DOCUMENT_TREE: FileNode[] | undefined = undefined;
 export async function getDocumentTree(mmtUrl: string) {
   if (mmtUrl === null || mmtUrl === undefined) return [];

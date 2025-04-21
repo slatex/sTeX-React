@@ -3,7 +3,6 @@ import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import { Box, Button, IconButton, Tooltip, Typography, useMediaQuery } from '@mui/material';
 import {
   getCourseInfo,
-  getQuiz3,
   getResourcesForUser,
   isLoggedIn,
   updateUserInfoFromToken,
@@ -97,7 +96,7 @@ export const PARTNERED_UNIVERSITIES = [
   },
 ];
 
-const FEATURED_COURSES = ['ai-1', 'ai-2', 'gdp', 'iwgs-2', 'lbs'];
+const FEATURED_COURSES = ['ai-1', 'ai-2', 'gdp', 'iwgs-2', 'krmt', 'smai'];
 
 export const BannerSection = ({ tight = false }: { tight?: boolean }) => {
   const router = useRouter();
@@ -273,7 +272,7 @@ export function CourseCard({ course }) {
           height={120}
           width={courseId === 'iwgs-1' ? 100 : 200}
           src={courseImage}
-          alt="couse-image"
+          alt="course-image"
           style={{ borderRadius: '10px' }}
         />
         <Box sx={{ display: 'flex', flexDirection: 'column', marginTop: '10px' }}>
@@ -285,7 +284,7 @@ export function CourseCard({ course }) {
               color: '#003786',
             }}
           >
-            {courseName.length > 50 ? courseId.toUpperCase() : courseName}
+            {courseName.length > 45 ? courseId.toUpperCase() : courseName}
           </Typography>
           <Typography sx={{ fontSize: '14px', padding: '5px' }}>{institution}</Typography>
           <Typography sx={{ fontSize: '14px', padding: '5px' }}>{instructor}</Typography>
@@ -351,16 +350,6 @@ const StudentHomePage: NextPage = ({ filteredCourses }: { filteredCourses: Cours
     }
     resourcesAccessToUser();
   }, [mmtUrl]);
-
-  useEffect(() => {
-    async function getQuiz2() {
-      const quiz = await getQuiz3(
-        'https://mathhub.info/?a=courses%2FFAU%2FAI%2Fhwexam&p=general%2Fquizzes&d=pretest&l=en'
-      );
-      console.log('quiz', quiz);
-    }
-    getQuiz2();
-  }, []);
 
   if (loggedIn) {
     return (

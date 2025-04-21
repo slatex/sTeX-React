@@ -62,7 +62,7 @@ function AnswerItemOrganizer({
   sortAndFilterParams: SortAndFilterParams;
   setSortAndFilterParams: Dispatch<SetStateAction<SortAndFilterParams>>;
 }) {
-  const allCousers = useMemo(
+  const allCourses = useMemo(
     () => [...new Set(answerItems.map((c) => c.courseId))].map((i) => ({ value: i, title: i })),
     [answerItems]
   );
@@ -80,7 +80,7 @@ function AnswerItemOrganizer({
         <MultiItemSelector
           label="Courses"
           selectedValues={sortAndFilterParams.multiSelectField.courseId}
-          allValues={allCousers}
+          allValues={allCourses}
           onUpdate={(courseId) =>
             setSortAndFilterParams((prev) => ({
               ...prev,

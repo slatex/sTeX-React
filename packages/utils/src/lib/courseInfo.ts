@@ -42,7 +42,7 @@ export function getQuizzesLink(courseId: string) {
   return `/quiz-dash/${courseId}`;
 }
 
-export const CURRENT_TERM = 'WS24-25';
+export const CURRENT_TERM = 'SS25';
 
 export function createCourseInfo(
   courseId: string,
