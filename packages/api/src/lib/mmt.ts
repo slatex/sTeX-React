@@ -1,4 +1,10 @@
-import { COURSES_INFO, CURRENT_TERM, CourseInfo, createCourseInfo, getParamFromUri } from '@stex-react/utils';
+import {
+  COURSES_INFO,
+  CURRENT_TERM,
+  CourseInfo,
+  createCourseInfo,
+  getParamFromUri,
+} from '@stex-react/utils';
 import axios from 'axios';
 import { FLAMSServer } from './flams';
 import { ArchiveIndex, Institution } from './flams-types';
@@ -177,25 +183,13 @@ export interface ConceptAndDefinition {
 export async function getDefiniedaInSection(uri: string): Promise<ConceptAndDefinition[]> {
   const query = `SELECT DISTINCT ?q ?s WHERE { <${uri}> (ulo:contains|dc:hasPart)* ?q. ?q ulo:defines ?s.}`;
 
-  try {
-    const resp = await axios.post(
-      `${process.env['NEXT_PUBLIC_FLAMS_URL']}/api/backend/query`,
-      { query },
-      {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      }
-    );
-    const sparqlResponse = JSON.parse(resp.data) as SparqlResponse;
-    return (
-      sparqlResponse?.results?.bindings.map((card) => ({
-        conceptUri: card['s'].value,
-        definitionUri: card['q'].value,
-      })) || []
-    );
-  } catch (error) {
-    console.error('Error executing SPARQL query:', error);
-    throw error;
-  }
+  const sparqlResponse = await getQueryResults(query);
+  return (
+    sparqlResponse?.results?.bindings.map((card) => ({
+      conceptUri: card['s'].value,
+      definitionUri: card['q'].value,
+    })) || []
+  );
 }
 
 export async function getProblemsForConcept(conceptUri: string) {
@@ -268,13 +262,37 @@ function getSparlQueryForDependencies(archive: string, filepath: string) {
   }.
 }`;
 }
-export async function getSectionDependencies(mmtUrl: string, archive: string, filepath: string) {
-  const query = getSparlQueryForDependencies(archive, filepath);
-  const sparqlResponse = await sparqlQuery(mmtUrl, query);
+
+async function getQueryResults(query: string) {
+  try {
+    const resp = await axios.post(
+      `${process.env['NEXT_PUBLIC_FLAMS_URL']}/api/backend/query`,
+      { query },
+      {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      }
+    );
+    return JSON.parse(resp.data) as SparqlResponse;
+  } catch (error) {
+    console.error('Error executing SPARQL query:', error);
+    throw error;
+  }
+}
+
+export async function getSectionDependencies(sectionUri: string) {
+  const query = `SELECT DISTINCT ?s WHERE {
+  <${sectionUri}> (ulo:contains|dc:hasPart)* ?p.
+  ?p ulo:crossrefs ?s.
+  MINUS {
+    <${sectionUri}> (ulo:contains|dc:hasPart)* ?p.
+    ?p ulo:defines ?s.
+  }
+}`;
+  const sparqlResponse = await getQueryResults(query);
 
   const dependencies: string[] = [];
   for (const binding of sparqlResponse.results?.bindings || []) {
-    dependencies.push(binding['x'].value);
+    dependencies.push(binding['s'].value);
   }
   return dependencies;
 }

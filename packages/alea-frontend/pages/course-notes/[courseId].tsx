@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   CircularProgress,
   Dialog,
@@ -6,13 +7,14 @@ import {
   DialogContent,
   DialogTitle,
 } from '@mui/material';
-import { getCourseInfo } from '@stex-react/api';
+import { getCourseInfo, getDocumentSections, TOCElem } from '@stex-react/api';
 import { FTMLDocument, FTMLSetup } from '@stex-react/ftml-utils';
+import { SectionReview, TrafficLightIndicator } from '@stex-react/stex-react-renderer';
 import { CourseInfo, CoverageSnap, PRIMARY_COL } from '@stex-react/utils';
 import axios from 'axios';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import SearchCourseNotes from '../../components/SearchCourseNotes';
 import MainLayout from '../../layouts/MainLayout';
 
@@ -57,29 +59,51 @@ const SearchDialog = ({ open, onClose, courseId }) => {
   };*/
 };
 
-const SectionWrap: React.FC<{ uri: string; children: ReactNode }> = ({ uri, children }) => {
+const SectionWrap: React.FC<{
+  uri: string;
+  children: ReactNode;
+  uriToTitle: Record<string, string>;
+}> = ({ uri, children, uriToTitle }) => {
   return (
-    <div style={{ border: '1px solid red', margin: '1em 0', width: '100%' }}>
-      <div style={{ textAlign: 'center' }}>
-        <p>This is the start of a section: {uri}!</p>
-      </div>
+    <Box>
       {children}
-      <div style={{ textAlign: 'center' }}>
-        <p>This is the end of a section!</p>
-      </div>
-    </div>
+      <SectionReview sectionUri={uri} sectionTitle={uriToTitle[uri] ?? ''} />
+    </Box>
   );
 };
+
+function getSectionUriToTitle(toc: TOCElem[], uriToTitle: Record<string, string>) {
+  for (const elem of toc) {
+    if (elem.type === 'Section') {
+      uriToTitle[elem.uri] = elem.title;
+    }
+    if ('children' in elem) {
+      getSectionUriToTitle(elem.children, uriToTitle);
+    }
+  }
+}
 
 const CourseNotesPage: NextPage = () => {
   const router = useRouter();
   const courseId = router.query.courseId as string;
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
   const [gottos, setGottos] = useState<{ uri: string; timestamp: number }[] | undefined>(undefined);
+  const [toc, setToc] = useState<TOCElem[] | undefined>(undefined);
+  const uriToTitle = useRef<Record<string, string>>({});
 
   useEffect(() => {
     getCourseInfo().then(setCourses);
   }, []);
+
+  useEffect(() => {
+    const notes = courses?.[courseId]?.notes;
+    if (!notes) return;
+    setToc(undefined);
+    getDocumentSections(notes).then(([css, toc]) => {
+      uriToTitle.current = {};
+      getSectionUriToTitle(toc, uriToTitle.current);
+    });
+  }, [router.isReady, courses, courseId]);
 
   useEffect(() => {
     async function fetchGottos() {
@@ -113,7 +137,21 @@ const CourseNotesPage: NextPage = () => {
         {/* FTML does not update if the props (i.e., gottos) are changed.
         Therefore, we only render it when all the props are ready. 
         // Skip gottos for now. Seems to be causing rendering to be skipped*/}
-        <FTMLDocument document={{ uri: notes, toc: 'GET' }} />
+        <FTMLDocument
+          key={notes}
+          /* TOC:{Predefined: toc} is throwing an error. */
+          document={{ uri: notes, toc: 'GET' }}
+          onFragment={(uri, kind) => {
+            if (kind.type === 'Section') {
+              return (ch) => (
+                <SectionWrap uri={uri} children={ch} uriToTitle={uriToTitle.current} />
+              );
+            }
+          }}
+          onSectionTitle={(uri, lvl) => {
+            return <TrafficLightIndicator sectionUri={uri} />;
+          }}
+        />
       </FTMLSetup>
     </MainLayout>
   );

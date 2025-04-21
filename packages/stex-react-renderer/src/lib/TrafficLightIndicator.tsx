@@ -5,7 +5,13 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import { BloomDimension, ConceptAndDefinition, NumericCognitiveValues, getDefiniedaInSection, getUriWeights, isLoggedIn } from '@stex-react/api';
+import {
+  BloomDimension,
+  NumericCognitiveValues,
+  getSectionDependencies,
+  getUriWeights,
+  isLoggedIn,
+} from '@stex-react/api';
 import { useEffect, useState } from 'react';
 import CompetencyTable from './CompetencyTable';
 
@@ -53,13 +59,17 @@ function getText(averageUnderstand: number): string {
 const TrafficLightIndicator = ({ sectionUri }: { sectionUri: string }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [competencyData, setCompetencyData] = useState<NumericCognitiveValues[] | null>(null);
-  const [definedConcepts, setDefinedConcepts] = useState<ConceptAndDefinition[] | null>(null);
- 
+  const [prereqs, setPrereqs] = useState<string[] | null>(null);
+
   useEffect(() => {
     if (!isLoggedIn()) return;
-    getDefiniedaInSection(sectionUri).then(setDefinedConcepts);
+
+    getSectionDependencies(sectionUri).then((dependencies) => {
+      setPrereqs(dependencies);
+      getUriWeights(dependencies).then((data) => setCompetencyData(data));
+    });
   }, [sectionUri]);
-  
+
   const handleBoxClick = () => {
     setDialogOpen(true);
   };
@@ -68,8 +78,11 @@ const TrafficLightIndicator = ({ sectionUri }: { sectionUri: string }) => {
     setDialogOpen(false);
   };
   function refetchCompetencyData() {
-    if (!definedConcepts?.length) return;
-    getUriWeights(definedConcepts.map((c) => c.conceptUri)).then((data) => setCompetencyData(data));
+    if (!prereqs?.length) {
+      setCompetencyData([]);
+      return;
+    }
+    getUriWeights(prereqs).then((data) => setCompetencyData(data));
   }
 
   const averageUnderstand = competencyData?.length
@@ -77,7 +90,7 @@ const TrafficLightIndicator = ({ sectionUri }: { sectionUri: string }) => {
       competencyData.length
     : 0;
 
-  if (!definedConcepts?.length) return null;
+  if (!prereqs?.length) return null;
 
   return (
     <>
@@ -139,7 +152,7 @@ const TrafficLightIndicator = ({ sectionUri }: { sectionUri: string }) => {
           {competencyData ? (
             <DialogContentText>
               <CompetencyTable
-                conceptUris={definedConcepts.map((c) => c.conceptUri)}
+                conceptUris={prereqs}
                 competencyData={competencyData}
                 onValueUpdate={refetchCompetencyData}
                 showTour={true}

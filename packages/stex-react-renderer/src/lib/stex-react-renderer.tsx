@@ -25,6 +25,7 @@ import {
 import { GradingContext, GradingDisplay, ShowGradingFor } from './SubProblemAnswer';
 import { TourAPIEntry, TourDisplay } from './TourDisplay';
 import { DimAndURIListDisplay, URIListDisplay } from './UriListDisplay';
+import TrafficLightIndicator from './TrafficLightIndicator';
 
 export const ServerLinksContext = createContext({ mmtUrl: '', gptUrl: '' });
 
@@ -158,6 +159,7 @@ export {
   SelfAssessment2,
   SelfAssessmentDialog,
   ShowGradingFor,
+  TrafficLightIndicator,
   TourDisplay,
   URIListDisplay,
 };
