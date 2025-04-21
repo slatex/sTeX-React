@@ -110,18 +110,10 @@ const CourseNotesPage: NextPage = () => {
   return (
     <MainLayout title={courseId.toUpperCase()}>
       <FTMLSetup>
-        {/* FTML does not effificent update if the props (i.e., gottos) are changed.
-        Therefore, we only render it when all the props are ready. */}
-        {gottos === undefined ? null : (
-          <FTMLDocument
-            document={{ uri: notes, toc: 'GET', gottos }}
-            /*onFragment={(uri, kind) => {
-              if (kind.type === 'Section') {
-                return (ch) => <SectionWrap uri={uri}>{ch}</SectionWrap>;
-              }
-            }}*/
-          />
-        )}
+        {/* FTML does not update if the props (i.e., gottos) are changed.
+        Therefore, we only render it when all the props are ready. 
+        // Skip gottos for now. Seems to be causing rendering to be skipped*/}
+        <FTMLDocument document={{ uri: notes, toc: 'GET' }} />
       </FTMLSetup>
     </MainLayout>
   );
