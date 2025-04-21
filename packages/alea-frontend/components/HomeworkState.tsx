@@ -3,6 +3,7 @@ import { HomeworkStatsInfo } from '@stex-react/api';
 import { useRouter } from 'next/router';
 import Chart from 'react-google-charts';
 import { getLocaleObject } from '../lang/utils';
+import { SafeHtml } from '@stex-react/react-utils';
 
 export function BarChart({
   data,
@@ -38,7 +39,7 @@ const HomeworkStats = ({ title, stats }: { title: string; stats: HomeworkStatsIn
       }}
     >
       <Typography variant="h6" my={3}>
-        {t.homeworkStats} for <b>{/*mmtHTMLToReact(title)*/}TODO ALea4</b>
+        {t.homeworkStats} for <b><SafeHtml html={title} /></b>
       </Typography>
       <h3>
         Homework attempted by <b style={{ color: 'red' }}>{stats?.totalStudentAttend}</b> students

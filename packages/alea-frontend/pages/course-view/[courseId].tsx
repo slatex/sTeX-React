@@ -10,7 +10,7 @@ import {
   getDocumentSections,
 } from '@stex-react/api';
 import { CommentNoteToggleView } from '@stex-react/comments';
-import { FTMLFragment } from '@stex-react/ftml-utils';
+import { FTMLFragment, injectCss } from '@stex-react/ftml-utils';
 import { SafeHtml } from '@stex-react/react-utils';
 import {
   ContentDashboard,
@@ -27,6 +27,7 @@ import { SlideDeck } from '../../components/SlideDeck';
 import { VideoDisplay } from '../../components/VideoDisplay';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
+import { Header } from '../../components/Header';
 
 function RenderElements({ elements }: { elements: string[] }) {
   return (
@@ -179,8 +180,6 @@ const CourseViewPage: NextPage = () => {
   }>({});
 
   const [currentSlideClipInfo, setCurrentSlideClipInfo] = useState<ClipInfo>(null);
-  const [slideArchive, setSlideArchive] = useState('');
-  const [slideFilepath, setSlideFilepath] = useState('');
   const { courseView: t, home: tHome } = getLocaleObject(router);
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
   const [timestampSec, setTimestampSec] = useState(0);
@@ -205,9 +204,10 @@ const CourseViewPage: NextPage = () => {
 
     const notes = courses?.[courseId]?.notes;
     if (!notes) return;
-    getDocumentSections(notes).then(([_, toc]) => {
+    getDocumentSections(notes).then(([css, toc]) => {
       setToc(toc);
       setCourseSections(getSections(toc));
+      for (const e of css) injectCss(e);
     });
     axios
       .get(`/api/get-slide-counts`, { params: { courseId } })
@@ -332,7 +332,7 @@ const CourseViewPage: NextPage = () => {
             </Box>
             <Box sx={{ marginBottom: '10px', marginTop: '10px' }}>
               <Typography variant="h6" sx={{ color: '#333' }}>
-                <SafeHtml html={selectedSectionTOC?.title || '<i>Untitled</i>'} />
+                <SafeHtml html={selectedSectionTOC?.title || '<i>...</i>'} />
               </Typography>
             </Box>
             {viewMode === ViewMode.COMBINED_MODE && (
@@ -358,8 +358,6 @@ const CourseViewPage: NextPage = () => {
                 onSlideChange={(slide: Slide) => {
                   setPreNotes(slide?.preNotes.map((p) => p.html) || []);
                   setPostNotes(slide?.postNotes.map((p) => p.html) || []);
-                  setSlideArchive(slide?.archive);
-                  setSlideFilepath(slide?.filepath);
                   if (
                     slidesClipInfo &&
                     slidesClipInfo[sectionId] &&
@@ -394,7 +392,7 @@ const CourseViewPage: NextPage = () => {
               </Box>
             )}
             <CommentNoteToggleView
-              file={{ archive: slideArchive, filepath: slideFilepath }}
+              file={{ archive: 'TODO ALEA4-N8.1', filepath: 'TODO ALEA4-N8.1' }}
               defaultPrivate={true}
               extraPanel={{
                 label: t.instructorNotes,

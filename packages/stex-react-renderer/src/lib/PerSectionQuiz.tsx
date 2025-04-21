@@ -1,6 +1,7 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Button, IconButton, Tooltip, Typography } from '@mui/material';
 import LinearProgress from '@mui/material/LinearProgress';
+import { getSourceUrl } from '@stex-react/api';
 import { FTMLFragment, ProblemResponse } from '@stex-react/ftml-utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
@@ -8,6 +9,11 @@ import { useEffect, useReducer, useState } from 'react';
 import { ListStepper } from './QuizDisplay';
 import { getLocaleObject } from './lang/utils';
 
+export function handleViewSource(problemUri: string) {
+  getSourceUrl(problemUri).then((sourceLink) => {
+    if (sourceLink) window.open(sourceLink, '_blank');
+  });
+}
 export function PerSectionQuiz({
   sectionUri,
   showButtonFirst = true,
@@ -39,12 +45,7 @@ export function PerSectionQuiz({
       }, console.error);
   }, [sectionUri]);
 
-  function handleViewSource(problemId: string) {
-    //const [projectId, filePath] = extractProjectIdAndFilepath(problemId);
-    // TODO ALEA4-N11
-    //const sourceLink = sourceFileUrl(projectId, filePath);
-    //window.open(sourceLink, '_blank');
-  }
+
   if (isLoadingProblemUris) return null;
   if (!problemUris.length) return !showButtonFirst && <i>No problems found.</i>;
   if (!startQuiz) {

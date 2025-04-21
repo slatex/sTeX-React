@@ -32,7 +32,7 @@ const CourseProblemsPage: NextPage = () => {
       setSectionsData(tocContent);
     }
     fetchSectionData();
-  }, [courses, courseId]);
+  }, [courses, courseId, router]);
 
   if (!router.isReady || !courses) return <CircularProgress />;
   if (!sectionsData) return <CircularProgress />;

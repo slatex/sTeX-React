@@ -5,7 +5,7 @@ import {
   TOCElem,
   getCourseInfo,
   getDocumentSections,
-  getSectionSlides,
+  getSectionSlides
 } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -16,7 +16,7 @@ async function recursivelyExpandSlideElementsExcludeSections(
   const elems: (Extract<SlideElement, { type: 'Paragraph' | 'Slide' }> | Slide)[] = [];
   for (const slideElem of slideElems) {
     if (slideElem.type === 'Inputref') {
-      const slideElems = (await getSectionSlides(slideElem.uri))[1];
+      const [css, slideElems] = await getSectionSlides(slideElem.uri);
       elems.push(...(await recursivelyExpandSlideElementsExcludeSections(slideElems, sectionId)));
     } else if (slideElem.type === 'Paragraph' || slideElem.type === 'Slide') {
       elems.push(slideElem);
@@ -34,8 +34,6 @@ async function recursivelyExpandSlideElementsExcludeSections(
         paragraphs: elems,
         preNotes: [],
         postNotes: [],
-        archive: 'TODO',
-        filepath: 'TODO',
         sectionId,
       },
     ];
@@ -53,8 +51,6 @@ async function recursivelyExpandSlideElementsExcludeSections(
         slide: elem,
         preNotes: [],
         postNotes: [],
-        archive: 'TODO',
-        filepath: 'TODO',
         sectionId,
       } as Slide;
       if (inWaitParas.length > 0) {
@@ -76,8 +72,6 @@ async function recursivelyExpandSlideElementsExcludeSections(
       paragraphs: inWaitParas,
       preNotes: [],
       postNotes: [],
-      archive: 'TODO',
-      filepath: 'TODO',
       sectionId,
     });
   }
@@ -85,10 +79,10 @@ async function recursivelyExpandSlideElementsExcludeSections(
 }
 
 async function getSlidesFromToc(elems: TOCElem[], bySection: Record<string, Slide[]>) {
-  for (const elem of elems.slice(0, 3)) {
+  for (const elem of elems) {
     if (elem.type === 'Section') {
       const secId = elem.id;
-      const slideElems = (await getSectionSlides(elem.uri))[1];
+      const [css, slideElems] = await getSectionSlides(elem.uri);
       bySection[secId] = await recursivelyExpandSlideElementsExcludeSections(slideElems, secId);
     }
     if ('children' in elem) {
@@ -101,7 +95,6 @@ export async function getSlides(notesUri: string) {
   const toc = (await getDocumentSections(notesUri))[1];
   const bySection: { [sectionId: string]: Slide[] } = {};
   await getSlidesFromToc(toc, bySection);
-  console.log('bySection: ', bySection);
   return bySection;
 }
 
@@ -133,7 +126,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
   const data: { [sectionId: string]: Slide[] } = {};
   for (const secId of sectionIdArr) {
-    console.log('secId: ', secId);
     data[secId] = CACHED_SLIDES[courseId][secId];
   }
 

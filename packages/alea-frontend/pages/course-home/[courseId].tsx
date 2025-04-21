@@ -31,7 +31,7 @@ import {
   CourseInfo,
   CURRENT_TERM,
   INSTRUCTOR_RESOURCE_AND_ACTION,
-  ResourceName
+  ResourceName,
 } from '@stex-react/utils';
 import { NextPage } from 'next';
 import Image from 'next/image';
@@ -68,11 +68,17 @@ export async function handleEnrollment(userId: string, courseId: string, current
 
 function CourseComponentLink({ href, children }: { href: string; children: any }) {
   return (
-    <Link href={href}>
-      <Button variant="contained" sx={{ width: '100%', height: '48px', fontSize: '16px' }}>
-        {children}
-      </Button>
-    </Link>
+    //<Link href={href}> TODO ALEA4-N14
+    <Button
+      variant="contained"
+      sx={{ width: '100%', height: '48px', fontSize: '16px' }}
+      onClick={() => {
+        window.location.href = href;
+      }}
+    >
+      {children}
+    </Button>
+    //</Link>
   );
 }
 

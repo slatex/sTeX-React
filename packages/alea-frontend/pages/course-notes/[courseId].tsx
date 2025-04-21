@@ -12,7 +12,7 @@ import { CourseInfo, CoverageSnap, PRIMARY_COL } from '@stex-react/utils';
 import axios from 'axios';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import SearchCourseNotes from '../../components/SearchCourseNotes';
 import MainLayout from '../../layouts/MainLayout';
 
@@ -57,6 +57,20 @@ const SearchDialog = ({ open, onClose, courseId }) => {
   };*/
 };
 
+const SectionWrap: React.FC<{ uri: string; children: ReactNode }> = ({ uri, children }) => {
+  return (
+    <div style={{ border: '1px solid red', margin: '1em 0', width: '100%' }}>
+      <div style={{ textAlign: 'center' }}>
+        <p>This is the start of a section: {uri}!</p>
+      </div>
+      {children}
+      <div style={{ textAlign: 'center' }}>
+        <p>This is the end of a section!</p>
+      </div>
+    </div>
+  );
+};
+
 const CourseNotesPage: NextPage = () => {
   const router = useRouter();
   const courseId = router.query.courseId as string;
@@ -99,7 +113,14 @@ const CourseNotesPage: NextPage = () => {
         {/* FTML does not effificent update if the props (i.e., gottos) are changed.
         Therefore, we only render it when all the props are ready. */}
         {gottos === undefined ? null : (
-          <FTMLDocument document={{ uri: notes, toc: 'GET', gottos }} />
+          <FTMLDocument
+            document={{ uri: notes, toc: 'GET', gottos }}
+            /*onFragment={(uri, kind) => {
+              if (kind.type === 'Section') {
+                return (ch) => <SectionWrap uri={uri}>{ch}</SectionWrap>;
+              }
+            }}*/
+          />
         )}
       </FTMLSetup>
     </MainLayout>

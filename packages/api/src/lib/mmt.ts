@@ -156,6 +156,10 @@ export async function getSectionSlides(sectionUri: string) {
   return await server.slides({ uri: sectionUri });
 }
 
+export async function getSourceUrl(uri: string) {
+  return await server.sourceFile({ uri });
+}
+
 export function getFTMLForConceptView(conceptUri: string) {
   const name = getParamFromUri(conceptUri, 's') ?? conceptUri;
   return `<span data-ftml-term="OMID" data-ftml-head="${conceptUri}" data-ftml-comp>${name}</span>`;

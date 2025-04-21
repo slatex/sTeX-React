@@ -10,18 +10,11 @@ import { ProblemDisplay } from './ProblemDisplay';
 import { ListStepper } from './QuizDisplay';
 import { getLocaleObject } from './lang/utils';
 import { ServerLinksContext } from './stex-react-renderer';
+import { handleViewSource } from './PerSectionQuiz';
 
-function handleViewSource(problemId: string) {
-  // TODO ALEA4-N11
-  // const [projectId, filePath] = extractProjectIdAndFilepath(problemId);
-  // const sourceLink = sourceFileUrl(projectId, filePath);
-  // console.log('sourceLink', sourceLink);
-  // window.open(sourceLink, '_blank');
-}
-
-function SourceIcon({ problemId }: { problemId: string }) {
+function SourceIcon({ problemUri }: { problemUri: string }) {
   return (
-    <IconButton onClick={() => handleViewSource(problemId)}>
+    <IconButton onClick={() => handleViewSource(problemUri)}>
       <Tooltip title="view source">
         <OpenInNewIcon />
       </Tooltip>
@@ -29,7 +22,7 @@ function SourceIcon({ problemId }: { problemId: string }) {
   );
 }
 export function PracticeQuestions({
-  problemIds,
+  problemIds: problemUris,
   showButtonFirst = true,
 }: {
   problemIds: string[];
@@ -46,7 +39,7 @@ export function PracticeQuestions({
   const [showSolution, setShowSolution] = useState(false);
 
   useEffect(() => {
-    const problems$ = problemIds.map((p) => getLearningObjectShtml(mmtUrl, p));
+    const problems$ = problemUris.map((p) => getLearningObjectShtml(mmtUrl, p));
     setIsLoadingProblems(true);
     Promise.all(problems$).then((problemStrs) => {
       // TODO ALEA4-P4 const problems = problemStrs.map((p) => getProblem(p, ''));
@@ -55,9 +48,9 @@ export function PracticeQuestions({
       setIsFrozen(problems.map(() => false));
       setIsLoadingProblems(false);
     });
-  }, [problemIds, mmtUrl]);
+  }, [problemUris, mmtUrl]);
 
-  if (!problemIds.length) return !showButtonFirst && <i>No problems found.</i>;
+  if (!problemUris.length) return !showButtonFirst && <i>No problems found.</i>;
   if (isLoadingProblems) return <LinearProgress />;
 
   const problem = problems[problemIdx];
@@ -82,7 +75,7 @@ export function PracticeQuestions({
               {t.problem} {problemIdx + 1} {t.of} {problems.length}&nbsp;
             </>
           ) : (
-            <SourceIcon problemId={problemIds[problemIdx]} />
+            <SourceIcon problemUri={problemUris[problemIdx]} />
           )}
           {problem.problem.title_html && <SafeHtml html={problem.problem.title_html} />}
         </h2>
@@ -97,7 +90,7 @@ export function PracticeQuestions({
               setShowSolution(false);
             }}
           />
-          <IconButton onClick={() => handleViewSource(problemIds[problemIdx])}>
+          <IconButton onClick={() => handleViewSource(problemUris[problemIdx])}>
             <Tooltip title="view source">
               <OpenInNewIcon />
             </Tooltip>

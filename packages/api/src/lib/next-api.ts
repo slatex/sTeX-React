@@ -28,7 +28,7 @@ export enum SlideType {
   TEXT = 'TEXT',
 }
 
-export interface Slide extends FileLocation {
+export interface Slide {
   slideType: SlideType;
   paragraphs?: Extract<SlideElement, { type: 'Paragraph' }>[];
   slide?: Extract<SlideElement, { type: 'Slide' }>;

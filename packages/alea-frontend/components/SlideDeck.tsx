@@ -167,7 +167,9 @@ const ClipSelector = ({
 function SlideRenderer({ slide }: { slide: Slide }) {
   if (!slide) return <>No slide</>;
   if (slide.slideType === SlideType.FRAME) {
-    return <FTMLFragment key={slide.slide?.html.length ?? 0} fragment={{ html: slide.slide?.html }} />;
+    return (
+      <FTMLFragment key={slide.slide?.html.length ?? 0} fragment={{ html: slide.slide?.html }} />
+    );
   } else if (slide.slideType === SlideType.TEXT) {
     return (
       <>
@@ -179,6 +181,15 @@ function SlideRenderer({ slide }: { slide: Slide }) {
         ))}
       </>
     );
+  }
+}
+
+function getSlideUri(slide: Slide) {
+  if (!slide) return undefined;
+  if (slide.slideType === SlideType.FRAME) {
+    return slide.slide?.uri;
+  } else if (slide.slideType === SlideType.TEXT) {
+    return slide.paragraphs?.[0]?.uri;
   }
 }
 
@@ -255,8 +266,8 @@ export const SlideDeck = memo(function SlidesFromUrl({
     }
     const selectedSlide = slides[slideNum - 1];
     setCurrentSlide(selectedSlide);
-    if (onSlideChange) onSlideChange(selectedSlide);
-  }, [sectionId, loadedSectionId, slides, slideNum, router, onSlideChange]);
+    onSlideChange?.(selectedSlide);
+  }, [sectionId, loadedSectionId, slides, slideNum, router]);
 
   function formatDuration(seconds: number) {
     const hours = Math.floor(seconds / 3600);
@@ -317,10 +328,13 @@ export const SlideDeck = memo(function SlidesFromUrl({
       mt={navOnTop ? '-55px' : '0px'}
     >
       <Box sx={{ position: 'absolute', right: '20px' }}>
-        <ExpandableContextMenu contentUrl={'TODO ALEA4-N11'} />
+        <ExpandableContextMenu uri={getSlideUri(currentSlide)} />
       </Box>
       {slides.length ? (
-        <SlideRenderer key={slideNum} slide={currentSlide} />
+        // TODO ALEA4-hack: Without border box, the content spills out of the container.
+        <Box id="slide-renderer-container" sx={{ '& *': { boxSizing: 'border-box' } }}>
+          <SlideRenderer key={slideNum} slide={currentSlide} />
+        </Box>
       ) : (
         <Box
           height="574px"
