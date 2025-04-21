@@ -172,14 +172,14 @@ function SlideRenderer({ slide }: { slide: Slide }) {
     );
   } else if (slide.slideType === SlideType.TEXT) {
     return (
-      <>
+      <Box className={styles['text-frame']}>
         {slide.paragraphs?.map((p, idx) => (
           <Fragment key={idx}>
             <FTMLFragment fragment={{ html: p.html }} />
             {idx < slide.paragraphs.length - 1 && <br />}
           </Fragment>
         ))}
-      </>
+      </Box>
     );
   }
 }

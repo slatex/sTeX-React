@@ -232,23 +232,6 @@ const QuizDashPage: NextPage = () => {
           {t.onTimeWarning.replace('{courseId}', courseId.toUpperCase())}
         </Typography>
 
-        <Typography variant="h5" sx={{ m: '30px 0 10px' }}>
-          {t.demoQuiz}
-        </Typography>
-
-        <Typography variant="body1" sx={{ color: '#333' }}>
-          <a
-            href={
-              courseId === 'gdp' ? '/quiz/old/problems%2Fgdp' : '/quiz/old/MAAI%20(may)%20-%20small'
-            }
-            target="_blank"
-            rel="noreferrer"
-            style={{ color: 'blue' }}
-          >
-            {t.this}
-          </a>
-          &nbsp;{t.demoQuizText}
-        </Typography>
 
         {enrolled && (
           <>

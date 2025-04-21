@@ -28,11 +28,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.status(400).json({ message });
     return;
   }
-
   const points = getPoints(problem, responses);
   const results = await queryGradingDbAndEndSet500OnError(
     'INSERT INTO grading(userId, quizId, problemId, response, points, browserTimestamp_ms) VALUES (?, ?, ?, ?, ?, ?)',
-    [userId, quizId, problemId, JSON.stringify(responses), points, browserTimestamp_ms],
+    [userId, quizId, problemId, JSON.stringify(responses), Number.isNaN(points) ? 0 : points, browserTimestamp_ms],
     res
   );
   if (!results) return;

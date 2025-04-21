@@ -311,8 +311,8 @@ const CourseViewPage: NextPage = () => {
         setShowDashboard={setShowDashboard}
         drawerAnchor="left"
       >
-        <Box display="flex">
-          <Box maxWidth="800px" margin="0 auto" width="100%">
+        <Box display="flex" minHeight="100svh">
+          <Box maxWidth="800px" margin="0 auto" width="100%" pl="4px" >
             <Box display="flex" alignItems="center" justifyContent="space-between">
               <ToggleModeButton
                 viewMode={viewMode}

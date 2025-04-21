@@ -8,7 +8,6 @@ import {
   getUserInfo,
   insertQuizResponse,
   Phase,
-  Problem,
   UserInfo,
 } from '@stex-react/api';
 import { QuizDisplay } from '@stex-react/stex-react-renderer';
@@ -255,7 +254,7 @@ const QuizPage: NextPage = () => {
             quizEndTs={clientQuizEndTimeMs}
             existingResponses={quizInfo?.responses}
             onResponse={async (problemId, response) => {
-              if (!quizId?.length) return;
+              if (!quizId?.length || phase !== Phase.STARTED) return;
               console.log('inserting response', problemId, response);
               const answerAccepted = await insertQuizResponse(quizId, problemId, response);
               if (!answerAccepted) {

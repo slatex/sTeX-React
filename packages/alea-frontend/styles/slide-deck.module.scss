@@ -3,7 +3,15 @@
   justify-content: space-between;
 }
 
-.deck-box > :nth-child(2) > :first-child { /* The 'frame' or 'text-frame' */
+.deck-box > :nth-child(2) { /* The 'frame' or 'text-frame' */
   height: 550px !important;
   overflow-y: auto;
+}
+
+.text-frame {
+  padding: 10px;
+  height: 550px;
+  overflow-y: auto;
+  border: 1px solid grey;
+  border-radius: 5px;
 }

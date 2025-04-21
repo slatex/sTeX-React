@@ -2,7 +2,6 @@ import {
   AnswerClass,
   FTMLProblemWithSolution,
   Phase,
-  Problem,
   ProblemResponse,
   QuizWithStatus,
 } from '@stex-react/api';
@@ -15,7 +14,8 @@ export function getPoints(problem: FTMLProblemWithSolution, response?: ProblemRe
   if (!problem?.solution) return NaN;
   const s = Solutions.from_jstring(problem.solution);
   const fraction = s?.check_response(response)?.score_fraction;
-  return fraction ? fraction * (problem.problem.total_points ?? 1) : NaN;
+  if (fraction === undefined) return NaN;
+  return fraction * (problem.problem.total_points ?? 1);
 }
 
 export function fillInValueToStartEndNum(value: string) {
