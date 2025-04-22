@@ -9,7 +9,7 @@ import {
 } from '../../access-control/resource-utils';
 import { getUserIdOrSetError } from '../../comment-utils';
 import { queryGradingDbAndEndSet500OnError } from '../../grading-db-utils';
-import { ProblemResponse } from '@stex-react/ftml-utils';
+//import { ProblemResponse } from '@stex-react/ftml-utils';
 
 async function getUserQuizResponseOrSetError(quizId: string, userId: string, res: NextApiResponse) {
   const results: any[] = await queryGradingDbAndEndSet500OnError(
@@ -25,11 +25,11 @@ async function getUserQuizResponseOrSetError(quizId: string, userId: string, res
     res
   );
   if (!results) return undefined;
-  const resp: { [problemId: string]: ProblemResponse } = {};
+  const resp: { [problemId: string]: any } = {};
 
   for (const r of results) {
     const { problemId, response } = r;
-    resp[problemId] = JSON.parse(response) as ProblemResponse;
+    resp[problemId] = JSON.parse(response) as any;
   }
   return resp;
 }
