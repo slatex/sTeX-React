@@ -8,7 +8,7 @@ import {
   updateUserInfoFromToken,
 } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { Action, CourseInfo, CourseResourceAction, PRIMARY_COL } from '@stex-react/utils';
+import { Action, CourseInfo, CourseResourceAction, CURRENT_TERM, PRIMARY_COL } from '@stex-react/utils';
 import { NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -248,7 +248,7 @@ export function VollKiInfoSection({ bgcolor = '#F5F5F5' }: { bgcolor?: string })
 
 export function CourseCard({ course }) {
   const { imageLink: courseImage, courseName, courseId, institution, instructors } = course;
-  const instructor = getInstructor(course, 'SS24') ?? instructors[0];
+  const instructor = getInstructor(course, CURRENT_TERM) ?? instructors[0];
   return (
     <Link href={`/course-home/${courseId}`}>
       <Box

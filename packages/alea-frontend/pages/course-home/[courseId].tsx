@@ -102,7 +102,7 @@ export function CourseHeader({
       </Box>
     );
   }
-  const allowCrop = ['ai-1', 'ai-2', 'lbs'].includes(courseId);
+  const allowCrop = ['ai-1', 'ai-2', 'lbs', 'smai'].includes(courseId);
   return (
     <Box textAlign="center">
       <Link href={`/course-home/${courseId}`}>
