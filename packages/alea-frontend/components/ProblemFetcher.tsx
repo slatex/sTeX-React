@@ -27,7 +27,7 @@ const ProblemFetcher = ({
       }
       setLoading(true);
       try {
-        // TODO ALEA-G1
+        // TODO ALEA4-G1
         const fetchedProblem: FTMLProblemWithSolution = {
           problem: {
             html: '',

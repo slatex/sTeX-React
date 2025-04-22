@@ -42,7 +42,7 @@ export function MultiItemSelector<T>({
             {...getTagProps({ index })}
             label={
               option.title
-                ? /*mmtHTMLToReact(option.title)*/ 'TODO ALEA-P4'
+                ? /*mmtHTMLToReact(option.title)*/ 'TODO ALEA4-P4'
                 : option.value.toString().substring(0, 30)
             }
           />

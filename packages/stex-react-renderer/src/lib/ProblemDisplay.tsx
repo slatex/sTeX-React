@@ -1,9 +1,6 @@
-import { Visibility } from '@mui/icons-material';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import { Box, Button, Card, CircularProgress, IconButton, Typography } from '@mui/material';
+import { Box, Button, Card, CircularProgress, Typography } from '@mui/material';
 import {
   AnswerUpdateEntry,
-  BloomDimension,
   CognitiveDimension,
   FTMLProblemWithSolution,
   ProblemAnswerEvent,
@@ -17,7 +14,6 @@ import { FTMLFragment, ProblemResponse, ProblemState, Solutions } from '@stex-re
 import { getPoints } from '@stex-react/quiz-utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { DimIcon } from './SelfAssessmentDialog';
 
 export function PointsInfo({ points }: { points: number | undefined }) {
   return (
@@ -122,7 +118,7 @@ export function ProblemDisplay({
   r,
   showPoints = true,
   onResponseUpdate,
-  onFreezeResponse
+  onFreezeResponse,
 }: {
   uri?: string;
   problem: FTMLProblemWithSolution | undefined;

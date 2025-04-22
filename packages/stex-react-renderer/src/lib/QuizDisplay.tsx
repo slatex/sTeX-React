@@ -66,7 +66,8 @@ function IndexEntry({
   const { quiz: t } = getLocaleObject(useRouter());
   const isCorrectnessKnown = isFrozen && points !== undefined;
   const isPartiallyCorrect = points && points > 0;
-  const isCorrect = points === problem.problem.total_points;
+  const totalPoints = problem.problem.total_points ?? 1;
+  const isCorrect = points === totalPoints;
   const color = isHomeWork
     ? '#333'
     : isCorrectnessKnown
