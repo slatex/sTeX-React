@@ -158,6 +158,22 @@ export const en = {
     goToTour: 'Go To Tour',
   },
   myProfile: {
+    profile: 'Profile',
+    Settings: 'Settings',
+    dataExport: 'Data Export',
+    personalInfo: 'Personal Information',
+    firstName: 'First Name',
+    lastName: 'Last Name',
+    email: 'Email',
+    languages: 'Languages',
+    studyProgram: 'Study Program',
+    semester: 'Semester',
+    save: 'Save',
+
+    dataAlea: 'Your Data in ALᴇA',
+    displaySettings: 'Display Settings',
+    accountInformation: 'Account Information',
+
     myNotes: 'My notes',
     myCompetencyData: 'My competency data',
     learnerModelPriming: 'Learner Model Priming',
@@ -418,5 +434,6 @@ export const en = {
     forum: 'Forum',
     welcome: 'Welcome',
     peerReview: 'Peer Review',
+    studyBuddy: 'Study Buddy',
   },
 };

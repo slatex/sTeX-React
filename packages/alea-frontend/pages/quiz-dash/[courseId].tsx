@@ -8,9 +8,8 @@ import {
   getCourseQuizList,
   getUserInfo,
 } from '@stex-react/api';
-import { SafeHtml } from '@stex-react/react-utils';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { Action, CURRENT_TERM, CourseInfo, ResourceName } from '@stex-react/utils';
+import { Action, CURRENT_TERM, CourseInfo, ResourceName, isFauId } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import { NextPage } from 'next';
 import Link from 'next/link';
@@ -157,7 +156,7 @@ const QuizDashPage: NextPage = () => {
       const uid = i?.userId;
       setUserId(i?.userId);
       if (!uid) return;
-      setForceFauLogin(uid.length !== 8 || uid.includes('@'));
+      isFauId(uid) ? setForceFauLogin(false) : setForceFauLogin(true);
     });
   });
 

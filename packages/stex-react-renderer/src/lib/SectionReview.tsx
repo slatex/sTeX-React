@@ -27,6 +27,8 @@ import { BG_COLOR } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import CompetencyTable from './CompetencyTable';
+import PracticeProblem from './PracticeProblem';
+import { RenderOptions } from './RendererDisplayOptions';
 import { getLocaleObject } from './lang/utils';
 import { DimIcon, PerSectionQuiz } from './stex-react-renderer';
 import styles from './styles/competency-indicator.module.scss';
@@ -125,8 +127,7 @@ const SectionReview = ({
               </Tooltip>
             ))}
           </Box>
-
-          <PerSectionQuiz sectionUri={sectionUri} showHideButton={true} />
+          <PracticeProblem archive={archive} filepath={filepath} showHideButton={true} />
         </AccordionDetails>
       </Accordion>
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} fullWidth={true} maxWidth="lg">

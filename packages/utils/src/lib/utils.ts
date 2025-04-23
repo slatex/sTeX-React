@@ -86,6 +86,11 @@ export function PathToTour2(tourId: string) {
   return `/guided-tour2/${encoded}`;
 }
 
+export function isFauId(id: string) {
+  return id?.length === 8 && !id.includes('@');
+} 
+
+
 export function fixDuplicateLabels<T extends { label: string }>(RAW: T[]) {
   const fixed = [...RAW]; // create a copy;
   const labelToIndex = new Map<string, number[]>();
