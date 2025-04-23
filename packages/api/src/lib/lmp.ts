@@ -478,13 +478,23 @@ export async function getLearningObjects(
   concepts: string[],
   limit?: number,
   types?: string[],
-  exclude?: string[]
+  exclude?: string[],
+  preMinCompetence?: {
+    remember: number;
+    understand: number;
+  },
+  objMaxCompetence?: {
+    remember: number;
+    understand: number;
+  }
 ) {
   return (await lmpRequest('lmp', 'guided-tours/learning-objects', 'POST', null, {
     concepts,
     limit,
     types,
     exclude,
+    'pre-min-competence': preMinCompetence,
+    'obj-max-competence': objMaxCompetence,
   })) as GetLearningObjectsResponse;
 }
 

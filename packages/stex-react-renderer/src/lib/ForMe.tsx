@@ -6,14 +6,14 @@ import {
   Problem,
   ProblemResponse,
 } from '@stex-react/api';
-import { useContext, useEffect, useReducer, useState } from 'react';
-import { ServerLinksContext } from './stex-react-renderer';
-import { ProblemDisplay } from './ProblemDisplay';
 import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
-import { defaultProblemResponse } from './InlineProblemDisplay';
-import { ListStepper } from './QuizDisplay';
 import { useRouter } from 'next/router';
+import { useContext, useEffect, useReducer, useState } from 'react';
+import { defaultProblemResponse } from './InlineProblemDisplay';
 import { getLocaleObject } from './lang/utils';
+import { ProblemDisplay } from './ProblemDisplay';
+import { ListStepper } from './QuizDisplay';
+import { ServerLinksContext } from './stex-react-renderer';
 
 export function ForMe({
   archive,
@@ -45,7 +45,14 @@ export function ForMe({
       const data = await getDefiniedaInDoc(mmtUrl, archive, filepath);
       const URIs = data?.flatMap((item) => item.symbols) || [];
 
-      const fetchedResponse = await getLearningObjects(URIs, 30, ['problem']);
+      const fetchedResponse = await getLearningObjects(
+        URIs,
+        30,
+        ['problem'],
+        undefined,
+        { remember: 0.2, understand: 0.2 },
+        { remember: 0.85, understand: 0.85 }
+      );
       const extractedProblemIds =
         fetchedResponse?.['learning-objects']?.map((lo: any) => lo['learning-object']) || [];
 
@@ -131,8 +138,8 @@ export function ForMe({
         {t.ForMe}
       </Typography>
       <Typography fontWeight="bold" textAlign="left">
-              {`${t.problem} ${problemIdx + 1} ${t.of} ${problems.length} `}
-            </Typography>
+        {`${t.problem} ${problemIdx + 1} ${t.of} ${problems.length} `}
+      </Typography>
       <ListStepper
         idx={problemIdx}
         listSize={problems.length}
