@@ -153,6 +153,15 @@ export class FLAMSServer {
   ): Promise<(FLAMS.ProblemFeedbackJson[])[] | undefined> {
     return await this.rawPostRequest("content/grade", {submissions: submissions});
   }
+   /**
+   * Like batchGrade, but uses hex-encoded solutions
+   */
+   async batchGradeHex(
+    ...submissions: [string,(FLAMS.ProblemResponse | undefined)[]][]
+  ): Promise<(FLAMS.ProblemFeedbackJson[])[] | undefined> {
+    return await this.rawPostRequest("content/grade_enc", {submissions: submissions});
+  }
+
 
   /**
    * Get the solution for the problem with the given URI. As string, so it can be

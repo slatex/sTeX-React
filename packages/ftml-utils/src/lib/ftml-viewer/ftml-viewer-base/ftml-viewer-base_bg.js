@@ -2034,8 +2034,8 @@ export function __wbindgen_cb_drop(arg0) {
     return ret;
 };
 
-export function __wbindgen_closure_wrapper11615(arg0, arg1, arg2) {
-    const ret = makeMutClosure(arg0, arg1, 2705, __wbg_adapter_58);
+export function __wbindgen_closure_wrapper12580(arg0, arg1, arg2) {
+    const ret = makeMutClosure(arg0, arg1, 2729, __wbg_adapter_58);
     return addHeapObject(ret);
 };
 
