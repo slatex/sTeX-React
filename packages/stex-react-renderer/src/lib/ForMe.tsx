@@ -1,15 +1,12 @@
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import {
-  getDefiniedaInDoc,
   getLearningObjects,
   getLearningObjectShtml,
   Problem,
   ProblemResponse,
 } from '@stex-react/api';
-import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useReducer, useState } from 'react';
-import { defaultProblemResponse } from './InlineProblemDisplay';
 import { getLocaleObject } from './lang/utils';
 import { ProblemDisplay } from './ProblemDisplay';
 import { ListStepper } from './QuizDisplay';
@@ -42,7 +39,7 @@ export function ForMe({
     setShow(false);
     setLoading(true);
     try {
-      const data = await getDefiniedaInDoc(mmtUrl, archive, filepath);
+      /*const data = await getDefiniedaInDoc(mmtUrl, archive, filepath);
       const URIs = data?.flatMap((item) => item.symbols) || [];
 
       const fetchedResponse = await getLearningObjects(
@@ -60,7 +57,7 @@ export function ForMe({
 
       if (extractedProblemIds.length > 0) {
         setStartQuiz(true);
-      }
+      }*/
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -78,10 +75,10 @@ export function ForMe({
           problemIds.map((id) => getLearningObjectShtml(mmtUrl, id))
         );
 
-        const parsedProblems = problemShtmls.map((p) => getProblem(hackAwayProblemId(p), ''));
-        setProblems(parsedProblems);
-        setResponses(parsedProblems.map((p) => defaultProblemResponse(p)));
-        setIsFrozen(parsedProblems.map(() => false));
+        //const parsedProblems = problemShtmls.map((p) => getProblem(hackAwayProblemId(p), ''));
+        //setProblems(parsedProblems);
+        //setResponses(parsedProblems.map((p) => defaultProblemResponse(p)));
+        //setIsFrozen(parsedProblems.map(() => false));
         setProblemIdx(0);
       } catch (error) {
         console.error('Error loading problems:', error);
@@ -149,6 +146,7 @@ export function ForMe({
         }}
       />
       <Box mb={2}>
+        {/* TODO ALEA4-ForMe
         <ProblemDisplay
           r={response}
           uri={problemIds[problemIdx]}
@@ -171,6 +169,7 @@ export function ForMe({
             })
           }
         />
+        */}
       </Box>
       <Box
         mb={2}

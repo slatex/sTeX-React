@@ -32,7 +32,9 @@ const PracticeProblem: React.FC<PracticeProblemProps> = ({ archive, filepath, sh
       {showProblems && (
         <Box>
           <Box mb={2}>
+            {/* TODO ALEA4-ForMe
             <PerSectionQuiz archive={archive} filepath={filepath} showHideButton={showHideButton} />
+            */}
           </Box>
 
           <Box mb={2}>

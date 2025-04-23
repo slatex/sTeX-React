@@ -18,7 +18,7 @@ export type TOCElem = FTML.TOCElem;
 export type Institution = FTML.Institution;
 export type ArchiveIndex = FTML.ArchiveIndex;
 export type Instance = FTML.Instance;
-export type Language = FTML.Language;
+export type FTMLLanguage = FTML.Language;
 export type CognitiveDimension = FTML.CognitiveDimension;
 export type LOKind = FTML.LOKind;
 export type ArchiveGroup = FTML.ArchiveGroupData;
@@ -38,7 +38,7 @@ export type URI = FTML.URI;
 export type DocumentURIParams =
   | { uri: DocumentURI }
   | { a: string; rp: string }
-  | { a: string; p?: string; d: string; l: Language };
+  | { a: string; p?: string; d: string; l: FTMLLanguage };
 
 export type SymbolURIParams =
   | { uri: SymbolURI }
@@ -46,13 +46,13 @@ export type SymbolURIParams =
 
 export type DocumentElementURIParams =
   | { uri: DocumentElementURI }
-  | { a: string; p?: string; d: string; l: Language; e: string };
+  | { a: string; p?: string; d: string; l: FTMLLanguage; e: string };
 
 export type URIParams =
   | { uri: URI }
   | { a: string } // ArchiveURI
   | { a: string; rp: string } // DocumentURI
-  | { a: string; p?: string; d: string; l?: Language } // DocumentURI
-  | { a: string; p?: string; d: string; l?: Language; e: string } // DocumentElementURI
-  | { a: string; p?: string; m: string; l?: Language } // ModuleURI
-  | { a: string; p?: string; m: string; l?: Language; s: string }; // SymbolURI
+  | { a: string; p?: string; d: string; l?: FTMLLanguage } // DocumentURI
+  | { a: string; p?: string; d: string; l?: FTMLLanguage; e: string } // DocumentElementURI
+  | { a: string; p?: string; m: string; l?: FTMLLanguage } // ModuleURI
+  | { a: string; p?: string; m: string; l?: FTMLLanguage; s: string }; // SymbolURI
