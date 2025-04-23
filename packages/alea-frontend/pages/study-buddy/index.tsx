@@ -136,7 +136,7 @@ function StudyBuddyOverviewGraph({ instanceId }: { instanceId: string }) {
 
 function StatsForModerator() {
   const [overviewData, setOverviewData] = useState<AllCoursesStats>();
-  const [semester, setSemester] = useState('WS24-25');
+  const [semester, setSemester] = useState('SS25');
   const { studyBuddy: t } = getLocaleObject(useRouter());
 
   const handleChange = (event: SelectChangeEvent) => {
@@ -167,6 +167,7 @@ function StatsForModerator() {
                   <MenuItem value="WS23-24">WS23-24</MenuItem>
                   <MenuItem value="SS24">SS24</MenuItem>
                   <MenuItem value="WS24-25">WS24-25</MenuItem>
+                  <MenuItem value="SS25">SS25</MenuItem>
                 </Select>
               </FormControl>
             </Box>
