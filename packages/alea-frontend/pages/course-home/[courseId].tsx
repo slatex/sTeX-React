@@ -46,7 +46,7 @@ export function getCourseEnrollmentAcl(courseId: string, instanceId: string) {
   return `${courseId}-${instanceId}-enrollments`;
 }
 export async function handleEnrollment(userId: string, courseId: string, currentTerm: string) {
-  if (!userId || isFauId(userId)) {
+  if (!userId || !isFauId(userId)) {
     alert('Please Login Using FAU Id.');
     return false;
   }
