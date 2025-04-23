@@ -30,6 +30,7 @@ dayjs.extend(relativeTime);
 interface GradingContextType {
   isGrading: boolean;
   showGrading: boolean;
+  showGradingFor: ShowGradingFor;
   studentId: string;
   gradingInfo: Record<string, Record<string, GradingInfo[]>>; // problemId -> (subProblemId -> gradingInfo)
   onNewGrading?: (
@@ -40,10 +41,16 @@ interface GradingContextType {
   onNextGradingItem?: () => void; // Marked as optional
   onPrevGradingItem?: () => void;
 }
-
+export enum ShowGradingFor {
+  ALL,
+  INSTRUCTOR,
+  SELF,
+  PEER,
+}
 export const GradingContext = createContext<GradingContextType>({
   isGrading: false,
   showGrading: false,
+  showGradingFor: ShowGradingFor.INSTRUCTOR,
   studentId: '',
   gradingInfo: {},
 });
@@ -56,7 +63,13 @@ export function saveAnswerToLocalStorage(questionId: string, subProblemId: strin
   localStore?.setItem(`answer-${questionId}-${subProblemId}`, answer);
 }
 
-export function GradingDisplay({ gradingInfo }: { gradingInfo: GradingInfo }) {
+export function GradingDisplay({
+  gradingInfo,
+  showGraderInformation = true,
+}: {
+  gradingInfo: GradingInfo;
+  showGraderInformation?: boolean;
+}) {
   return (
     <Box mt={1}>
       <i>Score: </i> {gradingInfo.totalPoints}
@@ -81,9 +94,11 @@ export function GradingDisplay({ gradingInfo }: { gradingInfo: GradingInfo }) {
         })}
       </Box>
       <i>
-        {gradingInfo.reviewType === 'SELF'
-          ? 'Self Graded'
-          : `Graded by: ${gradingInfo.checkerId} (${gradingInfo.reviewType})`}
+        {showGraderInformation
+          ? gradingInfo.reviewType === 'SELF'
+            ? 'Self Graded'
+            : `Graded by: ${gradingInfo.checkerId} (${gradingInfo.reviewType})`
+          : `${gradingInfo.reviewType}`}
       </i>
     </Box>
   );
@@ -96,12 +111,21 @@ export function GradingManager({
   problemId: string;
   subProblemId: string;
 }) {
-  const { isGrading, showGrading, gradingInfo: g } = useContext(GradingContext);
+  const { isGrading, showGrading, gradingInfo: g, showGradingFor } = useContext(GradingContext);
   const gradingInfo = useMemo(() => {
     const allGradings = g?.[problemId]?.[subProblemId] ?? [];
     return isGrading
       ? allGradings
-      : allGradings.filter((c) => c.reviewType === ReviewType.INSTRUCTOR);
+      : allGradings.filter((c) => {
+          if (
+            showGradingFor === ShowGradingFor.INSTRUCTOR &&
+            c.reviewType === ReviewType.INSTRUCTOR
+          )
+            return c;
+          if (showGradingFor === ShowGradingFor.PEER && c.reviewType === ReviewType.PEER) return c;
+          if (showGradingFor === ShowGradingFor.SELF && c.reviewType === ReviewType.SELF) return c;
+          return c;
+        });
   }, [g, problemId, subProblemId]);
   const [isCreatingNew, setIsCreatingNew] = useState(false);
   const [selectedGradingIdx, setSelectedGradingIdx] = useState(0);

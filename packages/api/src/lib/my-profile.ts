@@ -28,5 +28,5 @@ export interface myprofile{
     email: string;
     studyProgram: string;
     semester: string;
-    languages: Language;
+    languages: string;
 }

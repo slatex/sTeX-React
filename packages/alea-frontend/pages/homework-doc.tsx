@@ -16,6 +16,8 @@ import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { ForceFauLogin } from '../components/ForceFAULogin';
 import MainLayout from '../layouts/MainLayout';
+import { ShowGradingFor } from 'packages/stex-react-renderer/src/lib/SubProblemAnswer';
+import { isFauId } from '@stex-react/utils';
 
 const HomeworkDocPage: React.FC = () => {
   const router = useRouter();
@@ -35,7 +37,7 @@ const HomeworkDocPage: React.FC = () => {
       setUserInfo(i);
       const uid = i?.userId;
       if (!uid) return;
-      setForceFauLogin(uid.length !== 8 || uid.includes('@'));
+      isFauId(uid) ? setForceFauLogin(false) : setForceFauLogin(true);
     });
   }, []);
   const courseId = hwInfo?.homework.courseId;
@@ -85,6 +87,7 @@ const HomeworkDocPage: React.FC = () => {
         ) : (
           <GradingContext.Provider
             value={{
+              showGradingFor: ShowGradingFor.INSTRUCTOR,
               isGrading: false,
               showGrading: true,
               gradingInfo: hwInfo?.gradingInfo || {},
