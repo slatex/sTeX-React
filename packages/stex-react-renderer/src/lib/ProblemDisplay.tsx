@@ -104,6 +104,7 @@ export function ProblemViewer({
     <FTMLFragment
       key={uri}
       fragment={{ html, uri }}
+      allowHovers={isFrozen}
       problemStates={new Map([[uri, problemState]])}
       onProblem={(response) => {
         onResponseUpdate?.(response);

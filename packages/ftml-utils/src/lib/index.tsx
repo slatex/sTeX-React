@@ -43,6 +43,8 @@ export const setDebugLog = FTMLT.setDebugLog;
  * Every attribute is inherited from ancestor nodes *unless explicitly overridden*.
  */
 export interface FTMLConfig {
+
+  allowHovers?: boolean;
   /** may return a react component to *insert* after the title of a section
    * @param uri the uri of the section
    * @param lvl the level of the section
@@ -249,6 +251,7 @@ function toConfig(
     onSectionTitle: onSectionTitle,
     onFragment: onFragment,
     problemStates: config.problemStates,
-    onProblem: config.onProblem
+    onProblem: config.onProblem,
+    allowHovers: config.allowHovers,
   };
 }
