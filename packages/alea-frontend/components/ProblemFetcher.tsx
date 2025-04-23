@@ -1,7 +1,6 @@
-import {  FTMLProblemWithSolution } from '@stex-react/api';
+import { FTMLProblemWithSolution } from '@stex-react/api';
 import { ProblemResponse } from '@stex-react/ftml-utils';
-import { getPoints } from '@stex-react/quiz-utils';
-import { ProblemDisplay, ServerLinksContext } from '@stex-react/stex-react-renderer';
+import { getPoints, ProblemDisplay, ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { useContext, useEffect, useState } from 'react';
 
 const ProblemFetcher = ({
@@ -65,7 +64,7 @@ const ProblemFetcher = ({
       r={response}
       showPoints={false}
       onResponseUpdate={(r) => {
-        const points = getPoints(problem, r); 
+        const points = getPoints(problem, r);
         console.log('points:', points);
         if (onResponseUpdate) onResponseUpdate(r, points / (problem.problem.total_points || 1));
       }}

@@ -3,12 +3,19 @@ import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import { Box, Button, IconButton, Tooltip, Typography, useMediaQuery } from '@mui/material';
 import {
   getCourseInfo,
+  getFTMLQuiz,
   getResourcesForUser,
   isLoggedIn,
   updateUserInfoFromToken,
 } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { Action, CourseInfo, CourseResourceAction, CURRENT_TERM, PRIMARY_COL } from '@stex-react/utils';
+import {
+  Action,
+  CourseInfo,
+  CourseResourceAction,
+  CURRENT_TERM,
+  PRIMARY_COL,
+} from '@stex-react/utils';
 import { NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -330,6 +337,11 @@ const StudentHomePage: NextPage = ({ filteredCourses }: { filteredCourses: Cours
   const [resourcesForInstructor, setResourcesForInstructor] = useState<CourseResourceAction[]>([]);
   useEffect(() => {
     updateUserInfoFromToken();
+    getFTMLQuiz(
+      'https://mathhub.info/?a=courses/FAU/AI/hwexam&p=general/quizzes&d=pretest&l=en'
+    ).then((quiz) => {
+      console.log('quiz', quiz);
+    });
   }, []);
 
   const {

@@ -11,9 +11,9 @@ import {
   postAnswerToLMP,
 } from '@stex-react/api';
 import { FTMLFragment, ProblemResponse, ProblemState, Solutions } from '@stex-react/ftml-utils';
-import { getPoints } from '@stex-react/quiz-utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import { getPoints } from './stex-react-renderer';
 
 export function PointsInfo({ points }: { points: number | undefined }) {
   return (

@@ -1,5 +1,4 @@
 import { getAllQuizzes } from '@stex-react/node-utils';
-import { getPoints } from '@stex-react/quiz-utils';
 import { exit } from 'process';
 import mysql from 'serverless-mysql';
 

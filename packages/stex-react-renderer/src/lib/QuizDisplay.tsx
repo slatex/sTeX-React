@@ -9,7 +9,6 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { Box, Button, CircularProgress, Dialog, IconButton } from '@mui/material';
 import { FTMLProblemWithSolution, TimerEvent, TimerEventType } from '@stex-react/api';
 import { FTMLFragment, ProblemResponse, ProblemResponseType } from '@stex-react/ftml-utils';
-import { getPoints } from '@stex-react/quiz-utils';
 import { shouldUseDrawer } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useEffect, useReducer, useState } from 'react';
@@ -18,6 +17,7 @@ import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 import { ProblemDisplay } from './ProblemDisplay';
 import { QuizSubmitConfirm } from './QuizSubmitConfirm';
 import { QuizTimer, Timer, timerEvent } from './QuizTimer';
+import { getPoints } from './stex-react-renderer';
 
 function isNonEmptyResponse(resp: ProblemResponseType) {
   if (Array.isArray(resp)) {

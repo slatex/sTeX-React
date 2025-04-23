@@ -1,22 +1,6 @@
-import {
-  AnswerClass,
-  FTMLProblemWithSolution,
-  Phase,
-  ProblemResponse,
-  QuizWithStatus,
-} from '@stex-react/api';
-import { Solutions } from '@stex-react/ftml-utils';
+import { AnswerClass, Phase, QuizWithStatus } from '@stex-react/api';
 
 export const PROBLEM_PARSED_MARKER = 'problem-parsed';
-
-export function getPoints(problem: FTMLProblemWithSolution, response?: ProblemResponse) {
-  if (!response) return 0;
-  if (!problem?.solution) return NaN;
-  const s = Solutions.from_jstring(problem.solution);
-  const fraction = s?.check_response(response)?.score_fraction;
-  if (fraction === undefined) return NaN;
-  return fraction * (problem.problem.total_points ?? 1);
-}
 
 export function fillInValueToStartEndNum(value: string) {
   value = value.trim();

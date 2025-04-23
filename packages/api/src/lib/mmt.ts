@@ -7,8 +7,7 @@ import {
 } from '@stex-react/utils';
 import axios from 'axios';
 import { FLAMSServer } from './flams';
-import { ArchiveIndex, Institution } from './flams-types';
-
+import { ArchiveIndex, Institution, ProblemResponse, SolutionData } from './flams-types';
 const server = new FLAMSServer(process.env['NEXT_PUBLIC_FLAMS_URL']!);
 
 ///////////////////
@@ -22,6 +21,15 @@ export async function getLearningObjectShtml(mmtUrl: string, objectId: string) {
 
 export async function getDocumentSections(notesUri: string) {
   return (await server.contentToc({ uri: notesUri })) ?? [[], []];
+}
+
+export async function getFTMLQuiz(uri: string) {
+  return await server.quiz({ uri });
+}
+
+export async function batchGrade(submissions: [SolutionData[],(ProblemResponse | undefined)[]][]
+) {
+  return await server.batchGrade(...submissions);
 }
 
 ///////////////////////
