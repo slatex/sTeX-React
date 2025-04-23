@@ -53,6 +53,7 @@ export interface AnswerResponse {
   questionId: string;
   subProblemId: string;
   userId: string;
+  courseId: string;
   answer: string;
   courseInstance: string;
   questionTitle: string;
@@ -70,6 +71,15 @@ export interface GradingInfo {
   answerClasses: GradingAnswerClass[];
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface GradingWithAnswer extends GradingInfo {
+  questionTitle: string;
+  subProblemId: string;
+  questionId: string;
+  courseInstance: string;
+  courseId: string;
+  answer: string;
 }
 
 export interface GradingAnswerClass {
@@ -94,7 +104,7 @@ export interface GradingItem {
   questionId: string;
   studentId: string;
   updatedAt: string;
-
+  answerId: number;
   numSubProblemsAnswered: number;
   numSubProblemsGraded: number;
   numSubProblemsInstructorGraded: number;

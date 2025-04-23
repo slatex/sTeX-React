@@ -1,3 +1,5 @@
+import StudentHomePage from "../pages";
+
 export const de = {
   home: {
     header: 'ALeA basierte Kurse an der FAU',
@@ -152,7 +154,8 @@ export const de = {
     myNotes: 'Meine Notizen',
     myCompetencyData: 'Meine Kompetenzdaten',
     learnerModelPriming: 'Fundament des Lernendenmodells',
-
+    myAnswers: 'Meine Antworten',
+    myGrading: 'Meine Bewertung',
     downloadData: 'Laden Sie Ihre Daten herunter',
     downloadNotes: 'Laden Sie Ihre Notizen und Kommentare herunter',
     downloadProfile: 'Laden Sie Ihre Profildaten herunter',
@@ -399,12 +402,16 @@ export const de = {
       'Hinweis: Diese Probleme dienen nur dazu, Ihnen beim Lernen zu helfen. Sie decken das Kursmaterial nicht vollständig ab und es gibt keine Garantie dafür, dass die Probleme korrekt sind oder dass sie repräsentativ für die Art von Problemen sind, die in den Tests oder der Prüfung behandelt werden.',
     backToAllCourseProblems: 'Zurück zu allen Kursproblemen',
   },
+  peerGrading: {
+    peerGrading: 'Benotung durch Gleichaltrige',
+  },
   resource: {
     updateGoTo: 'aktualisieren Got-tos',
     quiz: 'Quizze',
     homework: 'Hausaufgaben',
     forum: 'Forum',
     welcome: 'Willkommen',
+    peerReview: 'Peer Review',
     studyBuddy: 'Study Buddy',
   },
 };

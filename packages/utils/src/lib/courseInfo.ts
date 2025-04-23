@@ -41,7 +41,7 @@ export function getQuizzesLink(courseId: string) {
   return `/quiz-dash/${courseId}`;
 }
 
-export const CURRENT_TERM = 'WS24-25';
+export const CURRENT_TERM = 'SS25';
 
 export function createCourseInfo(
   courseId: string,
@@ -266,8 +266,7 @@ export const MaAI_COURSES: {
     courseName: 'Kommunikation und parallele Prozesse',
   },
   krmt: {
-    courseName:
-      'Logic-Based Representation of Mathematical/Technical Knowledge',
+    courseName: 'Logic-Based Representation of Mathematical/Technical Knowledge',
   },
   lbs: {
     courseName: 'Logik-Basierte Sprachverarbeitung',
@@ -393,8 +392,7 @@ export const MaAI_COURSES: {
     courseName: 'Project Music and Audio Processing ProjMAP',
   },
   'ai-faps': {
-    courseName:
-      'Project on Applied AI in Factory Automation and Production Systems',
+    courseName: 'Project on Applied AI in Factory Automation and Production Systems',
   },
   prl: {
     courseName: 'Project Representation Learning PRL',
@@ -436,8 +434,7 @@ export const MaAI_COURSES: {
     courseName: 'Blender Seminar',
   },
   ets: {
-    courseName:
-      'Blickfang: KI-getriebene Modellierung und Analyse von Eye-Tracking-Daten',
+    courseName: 'Blickfang: KI-getriebene Modellierung und Analyse von Eye-Tracking-Daten',
   },
   semcogsurob: {
     courseName: 'Cognitive Surgical Robotics',
@@ -467,8 +464,7 @@ export const MaAI_COURSES: {
     courseName: 'Machine Learning in MRI',
   },
   nyt: {
-    courseName:
-      'Nailing your Thesis (Anleitung zum wissenschaftlichen Arbeiten)',
+    courseName: 'Nailing your Thesis (Anleitung zum wissenschaftlichen Arbeiten)',
   },
   semaineuro: {
     courseName: 'Neurosciene-inspired Artificial Intelligence',
@@ -530,4 +526,55 @@ export const MaAI_COURSES: {
   traco: {
     courseName: 'Tracking Olympiad',
   },
+
+  // From Claudia Barnickel
+  'sisy-2': { courseName: 'Signale und Systeme II' },
+  pb: { courseName: 'Passive Bauelemente und deren HF-Verhalten' },
+  st: { courseName: 'Schaltungstechnik' },
+  'rt-a': { courseName: 'Regelungstechnik A' },
+  'mt-1-biomat': { courseName: 'Medizintechnik I' },
+  subio: { courseName: 'Surfaces of Biomaterials' },
+  'rob-1': { courseName: 'Robotics 1' },
+  'rob-2': { courseName: 'Robotics 2' },
+  mcs: { courseName: 'Mechatronic Components and Systems' },
+  rmi: { courseName: 'Robot Mechanisms and User Interfaces' },
+  rof: { courseName: 'Robotics Frameworks' },
+  cdr: { courseName: 'Computational Multibody Dynamics' },
+  hmr: { courseName: 'Human-centered Mechatronics and Robotics' },
+  rar: { courseName: 'Rehabilitation and Assistive Robotics' },
+  aimedrob: { courseName: 'AI in Medical Robotics' },
+  ins: { courseName: 'Interfacing the Neuromuscular System' },
+  rsd: { courseName: 'Robotics in Surgery and Diagnostics' },
+  ulp: { courseName: 'Upper-Limb Prosthetics' },
+  bac: { courseName: 'Body Area Communications' },
+  gni: { courseName: 'Geometric Numerical Integration' },
+  pih: { courseName: 'Photonics in Medical Technology' },
+  neurotech: { courseName: 'Computational Neurotechnology' },
+  // from Felix Schmutterer
+  'siwir-2': { courseName: 'Simulation und Wissenschaftliches Rechnen 2' },
+  hesp: { courseName: 'High End Simulation in Practice' },
+  hetron: { courseName: 'Heterogene Rechnerarchitekturen Online' },
+  funcan: { courseName: 'Functional Analysis for Engineers' },
+  opting: { courseName: 'Optimierung für Ingenieure mit Praktikum' },
+  elnuma: { courseName: 'Elementary Numerical Mathematics' },
+  anla: { courseName: 'Algorithms of Numerical Linear Algebra' },
+  lkopt: { courseName: 'Optimization in industry and economy' },
+  ano: { courseName: 'Advanced nonlinear optimization' },
+  'discopt-1': { courseName: 'Discrete optimization I' },
+  'discopt-2': { courseName: 'Discrete optimization II' },
+
+  // from Claudia Barnickel (bachelor’s program)
+  'medtech-1': { courseName: 'Medizintechnik I (Biomaterialien)' },
+  'medtech-2': { courseName: 'Medizintechnik II (Bildgebende Verfahren)' },
+  'matha-1': { courseName: 'Mathematik A 1' },
+  'matha-2': { courseName: 'Mathematik A 2' },
+  'matha-3': { courseName: 'Mathematik A 3' },
+  'matha-4': { courseName: 'Mathematik A 4' },
+  'gde-1': { courseName: 'Grundlagen der Elektrotechnik I für MT, MECH' },
+  'gde-2': { courseName: 'Grundlagen der Elektrotechnik II' },
+  'exphy-1': { courseName: 'Experimentalphysik II' },
+  'exphy-2': { courseName: 'Experimentalphysik I' },
+  stfl: { courseName: 'Statik und Festigkeitslehre' },
+  'aud-mt': { courseName: 'Algorithmen und Datenstrukturen für MT' },
+  'alg-ks': { courseName: 'Algorithmik kontinuierlicher Systeme' },
 };

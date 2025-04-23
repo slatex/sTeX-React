@@ -150,7 +150,6 @@ export function isFauId(id: string) {
   return id?.length === 8 && !id.includes('@');
 }
 
-
 export function fixDuplicateLabels<T extends { label: string }>(RAW: T[]) {
   const fixed = [...RAW]; // create a copy;
   const labelToIndex = new Map<string, number[]>();
@@ -268,4 +267,10 @@ export function capitalizeFirstLetter(str: string): string {
 
 export function chooseRandomlyFromList(list: any[]) {
   return list[Math.floor(Math.random() * list.length)];
+}
+export function truncateText(text: string, maxLength: number) {
+  if (text.length > maxLength) {
+    text = text.substring(0, maxLength) + '...';
+  }
+  return text;
 }

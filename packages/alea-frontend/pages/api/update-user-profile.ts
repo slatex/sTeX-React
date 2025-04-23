@@ -14,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const result = await executeAndEndSet500OnError(
-    `UPDATE userinfo SET firstName = ?, lastName = ?, email = ?, studyProgram = ?, semester = ?, languages = ? WHERE userId = ?`,
+    `UPDATE userInfo SET firstName = ?, lastName = ?, email = ?, studyProgram = ?, semester = ?, languages = ? WHERE userId = ?`,
     [firstName, lastName, email, studyProgram ?? null, semester ?? null, languages ?? null, userId],
     res
   );

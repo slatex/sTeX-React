@@ -1,7 +1,9 @@
-import AssessmentIcon from '@mui/icons-material/Assessment';
+import InsightsIcon from '@mui/icons-material/Insights';
 import EditIcon from '@mui/icons-material/Edit';
 import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import SchoolIcon from '@mui/icons-material/School';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import GradingIcon from '@mui/icons-material/Grading';
 import { Box, Button, Card, Stack, Typography } from '@mui/material';
 import Link from 'next/link';
 
@@ -85,33 +87,31 @@ export const ProfileTab = ({
             <Typography variant="h6">{t.dataAlea}</Typography>
           </Box>
           <Stack spacing={2} sx={{ p: 2 }}>
-            <Button
-              component={Link}
-              href="/my-notes"
-              variant="contained"
-              fullWidth
-              startIcon={<NoteAltIcon />}
-            >
-              {t.myNotes}
-            </Button>
-            <Button
-              component={Link}
-              href="/my-learner-model"
-              variant="contained"
-              fullWidth
-              startIcon={<AssessmentIcon />}
-            >
-              {t.myCompetencyData}
-            </Button>
-            <Button
-              component={Link}
-              href="/learner-model-init"
-              variant="contained"
-              fullWidth
-              startIcon={<SchoolIcon />}
-            >
-              {t.learnerModelPriming}
-            </Button>
+            <Link href="/my-notes" passHref>
+              <Button variant="contained" fullWidth startIcon={<NoteAltIcon />}>
+                {t.myNotes}
+              </Button>
+            </Link>
+            <Link href="/my-learner-model" passHref>
+              <Button variant="contained" fullWidth startIcon={<InsightsIcon />}>
+                {t.myCompetencyData}
+              </Button>
+            </Link>
+            <Link href="/my-answers" passHref>
+              <Button variant="contained" fullWidth startIcon={<AssignmentTurnedInIcon />}>
+                {t.myAnswers}
+              </Button>
+            </Link>
+            <Link href="/my-grading" passHref>
+              <Button variant="contained" fullWidth startIcon={<GradingIcon />}>
+                {t.myGrading}
+              </Button>
+            </Link>
+            <Link href="/learner-model-init" passHref>
+              <Button variant="contained" fullWidth startIcon={<SchoolIcon />}>
+                {t.learnerModelPriming}
+              </Button>
+            </Link>
           </Stack>
         </Card>
       </Box>

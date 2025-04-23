@@ -1,15 +1,15 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { checkIfPostOrSetError, getUserIdOrSetError } from './comment-utils';
 import { getCourseInfo } from '@stex-react/api';
 import {
   Action,
-  COURSE_SPECIFIC_RESOURCENAMES,
-  CURRENT_TERM,
   ALL_RESOURCE_TYPES,
-  ResourceName,
+  COURSE_SPECIFIC_RESOURCENAMES,
   CourseResourceAction,
+  CURRENT_TERM,
+  ResourceName,
 } from '@stex-react/utils';
+import { NextApiRequest, NextApiResponse } from 'next';
 import { isUserIdAuthorizedForAny } from './access-control/resource-utils';
+import { getUserIdOrSetError } from './comment-utils';
 
 function getValidActionsForResource(resourceName: ResourceName): Action[] {
   const resource = ALL_RESOURCE_TYPES.find((resource) => resource.name === resourceName);
@@ -20,11 +20,10 @@ function getValidActionsForResource(resourceName: ResourceName): Action[] {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (!checkIfPostOrSetError(req, res)) return;
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
 
-  const courseIds = Object.keys(await getCourseInfo(req.body.mmtUrl));
+  const courseIds = Object.keys(await getCourseInfo(process.env.NEXT_PUBLIC_MMT_URL));
   const resourceNames = COURSE_SPECIFIC_RESOURCENAMES;
 
   const resourceActions: CourseResourceAction[] = courseIds.flatMap((courseId) =>
