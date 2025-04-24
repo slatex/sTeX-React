@@ -151,7 +151,7 @@ export class FLAMSServer {
   async batchGrade(
     ...submissions: [FLAMS.SolutionData[],(FLAMS.ProblemResponse | undefined)[]][]
   ): Promise<(FLAMS.ProblemFeedbackJson[])[] | undefined> {
-    return await this.rawPostRequest("content/grade", {submissions: submissions});
+    return await this.rawPostJson("content/grade", {submissions: submissions});
   }
    /**
    * Like batchGrade, but uses hex-encoded solutions
@@ -159,7 +159,7 @@ export class FLAMSServer {
    async batchGradeHex(
     ...submissions: [string,(FLAMS.ProblemResponse | undefined)[]][]
   ): Promise<(FLAMS.ProblemFeedbackJson[])[] | undefined> {
-    return await this.rawPostRequest("content/grade_enc", {submissions: submissions});
+    return await this.rawPostJson("content/grade_enc", {submissions: submissions});
   }
 
 
@@ -207,7 +207,7 @@ export class FLAMSServer {
     const response = await this.getRequestI(endpoint, request);
     if (response) {
       const j = await response.json();
-      // console.log("Response", endpoint, ":", j);
+      //console.log("Response", endpoint, ":", j);
       return j as TResponse;
     }
   }
@@ -267,7 +267,24 @@ export class FLAMSServer {
     const response = await this.postRequestI(endpoint, request);
     if (response) {
       const j = await response.json();
-      console.log(`Response ${this._url}/${endpoint} with body:`, j);
+      //console.log(`Response ${this._url}/${endpoint} with body:`, j);
+      return j as TResponse;
+    }
+  }
+
+  async rawPostJson<TRequest extends Record<string, unknown>, TResponse>(
+    endpoint: string,
+    request: TRequest,
+  ): Promise<TResponse | undefined> {
+    const formData = JSON.stringify(request);
+    const response = await fetch(`${this._url}/${endpoint}`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (response.ok) {
+      const j = await response.json();
+      //console.log(`Response ${this._url}/${endpoint} with body:`, j);
       return j as TResponse;
     }
   }

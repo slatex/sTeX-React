@@ -20,12 +20,12 @@ import { QuizTimer, Timer, timerEvent } from './QuizTimer';
 import { getPoints } from './stex-react-renderer';
 
 function isNonEmptyResponse(resp: ProblemResponseType) {
-  if (Array.isArray(resp)) {
-    return resp.length > 0 && resp.some((r) => r);
-  } else if (typeof resp === 'string') {
-    return resp.length > 0;
-  } else if (typeof resp === 'number') {
-    return resp > 0;
+  if (resp.type === 'MultipleChoice') {
+    return resp.value.length > 0 && resp.value.some((r) => r);
+  } else if (resp.type === 'SingleChoice') {
+    return resp.value !== undefined;
+  } else if (resp.type === 'Fillinsol') {
+    return resp.value.length > 0;
   }
   return false;
 }

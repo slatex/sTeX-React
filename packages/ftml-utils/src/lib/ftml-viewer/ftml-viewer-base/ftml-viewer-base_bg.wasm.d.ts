@@ -9,10 +9,10 @@ export const render_fragment: (a: number, b: number, c: number, d: number, e: nu
 export const __wbg_ftmlmounthandle_free: (a: number, b: number) => void;
 export const ftmlmounthandle_unmount: (a: number, b: number) => void;
 export const set_server_url: (a: number, b: number) => void;
+export const get_server_url: (a: number) => void;
 export const __wbg_leptoscontext_free: (a: number, b: number) => void;
 export const leptoscontext_cleanup: (a: number, b: number) => void;
 export const leptoscontext_wasm_clone: (a: number) => number;
-export const get_server_url: (a: number) => void;
 export const __wbg_intounderlyingbytesource_free: (a: number, b: number) => void;
 export const intounderlyingbytesource_type: (a: number) => number;
 export const intounderlyingbytesource_autoAllocateChunkSize: (a: number) => number;
