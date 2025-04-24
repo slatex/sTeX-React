@@ -203,21 +203,17 @@ function RenderTree({
 }
 
 export function getCoveredSections(endSecUri: string, elem: TOCElem | undefined): string[] {
-  const converedUris: string[] = [];
-  if (!elem) return converedUris;
-  if (elem.type === 'Section') {
-    converedUris.push(elem.uri);
-    if (elem.uri === endSecUri) {
-      console.log('ended', converedUris);
-      return converedUris;
+  const coveredUris: string[] = [];
+  if (!elem) return coveredUris;
+  if ('children' in elem && elem.children.length) {
+    for (const child of elem.children) {
+      coveredUris.push(...getCoveredSections(endSecUri, child));
+      if (coveredUris.includes(endSecUri)) return coveredUris;
     }
   }
-  if (!('children' in elem) || !elem.children.length) return converedUris;
-  for (const child of elem.children) {
-    converedUris.push(...getCoveredSections(endSecUri, child));
-    if (converedUris.includes(endSecUri)) return converedUris;
-  }
-  return converedUris;
+  if (elem.type === 'Section') coveredUris.push(elem.uri);
+  
+  return coveredUris;
 }
 
 /*export function getCoveredSections(
