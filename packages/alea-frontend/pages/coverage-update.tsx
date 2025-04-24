@@ -35,9 +35,9 @@ function getSectionNames(data: TOCElem, level = 0): Section[] {
       title: '\xa0'.repeat(level * 4) + convertHtmlStringToPlain(data.title),
       uri: data.uri,
     });
-    level++;
   }
-  if ((data.type === 'Section' || data.type === 'Inputref') && Array.isArray(data.children)) {
+  if (data.type === 'SkippedSection' || data.type === 'Section') level++;
+  if ('children' in data) {
     for (const child of data.children) {
       sections.push(...getSectionNames(child, level));
     }

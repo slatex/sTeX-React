@@ -100,6 +100,7 @@ const CourseNotesPage: NextPage = () => {
     if (!notes) return;
     setToc(undefined);
     getDocumentSections(notes).then(([css, toc]) => {
+      setToc(toc);
       uriToTitle.current = {};
       getSectionUriToTitle(toc, uriToTitle.current);
     });
@@ -123,7 +124,9 @@ const CourseNotesPage: NextPage = () => {
     if (courseId) fetchGottos();
   }, [courseId]);
 
-  if (!router.isReady || !courses) return <CircularProgress />;
+  if (!router.isReady || !courses || !gottos || !toc) {
+    return <CircularProgress />;
+  }
   const courseInfo = courses[courseId];
   if (!courseInfo) {
     router.replace('/');
@@ -134,13 +137,9 @@ const CourseNotesPage: NextPage = () => {
   return (
     <MainLayout title={courseId.toUpperCase()}>
       <FTMLSetup>
-        {/* FTML does not update if the props (i.e., gottos) are changed.
-        Therefore, we only render it when all the props are ready. 
-        // Skip gottos for now. Seems to be causing rendering to be skipped*/}
         <FTMLDocument
           key={notes}
-          /* TOC:{Predefined: toc} is throwing an error. */
-          document={{ uri: notes, toc: 'GET' }}
+          document={{ uri: notes, toc: { Predefined: toc }, gottos }}
           onFragment={(uri, kind) => {
             if (kind.type === 'Section') {
               return (ch) => (

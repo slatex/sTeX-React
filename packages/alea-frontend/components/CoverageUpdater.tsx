@@ -68,9 +68,9 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
     setSectionName(lastSnap);
   }, [snaps, sectionNames]);
 
-  const duplicateNames: string[] = findDuplicates(sectionNames.map(({ title }) => title.trim()));
+  const duplicateIds: string[] = findDuplicates(sectionNames.map(({ id }) => id));
 
-  function setNoonDefaultTime(timestamp: number) {
+  function getNoonTimestampOnSameDay(timestamp: number) {
     return new Date(timestamp).setHours(12, 0, 0, 0);
   }
 
@@ -147,7 +147,7 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
                 border: '1px solid black',
               }}
             >
-              {getSectionNameForUri(item.sectionName, sectionNames)}
+              {getSectionNameForUri(item.sectionName, sectionNames) || <i>No Section</i>}
             </td>
             <td
               style={{
@@ -158,7 +158,7 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
                 padding: '10px',
               }}
             >
-              {getSectionNameForUri(item.targetSectionName, sectionNames)}
+              {getSectionNameForUri(item.targetSectionName, sectionNames) || <i>No Target</i>}
             </td>
             <td style={{ border: '1px solid black' }}>
               {item.clipId?.length ? (
@@ -172,7 +172,7 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
                   <OpenInNewIcon fontSize="small" sx={{ mb: '-4px' }} />
                 </a>
               ) : (
-                <i>None</i>
+                <i>No Clip</i>
               )}
             </td>
             <td
@@ -183,7 +183,7 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
                 verticalAlign: 'middle',
               }}
             >
-              {item.isQuizScheduled ? 'Quiz Scheduled' : <i>Not Scheduled</i>}
+              {item.isQuizScheduled ? 'Quiz Scheduled' : <i>No Quiz</i>}
             </td>
             <td>
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -203,22 +203,30 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
           </tr>
         ))}
       </table>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          my: '10px',
+          gap: '10px 5px',
+        }}
+      >
         <TextField
           label="Date"
           type="date"
           value={dayjs(selectedTimestamp).format('YYYY-MM-DD')}
           onChange={(e) => {
             const timestamp = Date.parse(e.target.value);
-            setSelectedTimestamp(setNoonDefaultTime(timestamp));
+            setSelectedTimestamp(getNoonTimestampOnSameDay(timestamp));
           }}
           InputLabelProps={{
             shrink: true,
           }}
-          sx={{ m: '20px 5px 0' }}
+          sx={{ mx: '5px' }}
         />
-        <FormControl sx={{ m: '20px 5px 0' }}>
-          <InputLabel id="section-name-select-label">Section Name</InputLabel>
+        <FormControl sx={{ mx: '5px' }}>
+          <InputLabel id="section-name-select-label">Actually Got-to</InputLabel>
           <Select
             labelId="section-name-select-label"
             value={sectionName}
@@ -229,12 +237,12 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
             <MenuItem value="">
               <em>None</em>
             </MenuItem>
-            {sectionNames.map(({ title }) => {
-              const isDuplicate = duplicateNames.includes(title.trim());
+            {sectionNames.map(({ title, id }) => {
+              const isDuplicate = duplicateIds.includes(id);
 
               return (
                 <MenuItem
-                  key={title}
+                  key={id}
                   value={title.trim()}
                   sx={{ backgroundColor: isDuplicate ? 'red' : undefined }}
                 >
@@ -244,7 +252,7 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
             })}
           </Select>
         </FormControl>
-        <FormControl sx={{ m: '20px 5px 0' }}>
+        <FormControl sx={{ mx: '5px' }}>
           <InputLabel id="target-section-select-label">Target Section</InputLabel>
           <Select
             labelId="target-section-select-label"
@@ -257,7 +265,7 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
               <em>None</em>
             </MenuItem>
             {sectionNames.map(({ title }) => {
-              const isDuplicate = duplicateNames.includes(title.trim());
+              const isDuplicate = duplicateIds.includes(title.trim());
 
               return (
                 <MenuItem
@@ -276,7 +284,7 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
           label="ClipId"
           value={clipId}
           onChange={(e) => setClipId(e.target.value)}
-          sx={{ m: '20px 5px 0', minWidth: '200px' }}
+          sx={{ mx: '5px', minWidth: '200px' }}
         />
 
         <FormControlLabel
@@ -290,7 +298,7 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
         />
 
         {editIndex !== null ? (
-          <Box sx={{ display: 'flex', mt: '20px', mr: '10px' }}>
+          <Box sx={{ display: 'flex', mr: '10px' }}>
             <Button variant="contained" color="primary" onClick={handleAddItem}>
               Update
             </Button>
@@ -299,7 +307,7 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
             </IconButton>
           </Box>
         ) : (
-          <Button variant="contained" onClick={handleAddItem} sx={{ mt: '20px' }}>
+          <Button variant="contained" onClick={handleAddItem}>
             Add
           </Button>
         )}

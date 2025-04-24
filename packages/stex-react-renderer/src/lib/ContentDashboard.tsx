@@ -6,11 +6,7 @@ import UnfoldLessDoubleIcon from '@mui/icons-material/UnfoldLessDouble';
 import UnfoldMoreDoubleIcon from '@mui/icons-material/UnfoldMoreDouble';
 import { Box, IconButton, TextField, Tooltip } from '@mui/material';
 import { TOCElem } from '@stex-react/api';
-import {
-  convertHtmlStringToPlain,
-  CoverageTimeline,
-  PRIMARY_COL
-} from '@stex-react/utils';
+import { convertHtmlStringToPlain, CoverageTimeline, PRIMARY_COL } from '@stex-react/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
@@ -25,12 +21,12 @@ interface SectionTreeNode {
   isCovered?: boolean;
 }
 
-function fillCoverage(node: SectionTreeNode, coveredSectionIds: string[]) {
+function fillCoverage(node: SectionTreeNode, coveredSectionUris: string[]) {
   if (!node || node.tocElem.type !== 'Section') return;
   for (const child of node.children) {
-    fillCoverage(child, coveredSectionIds);
+    fillCoverage(child, coveredSectionUris);
   }
-  if (node.tocElem?.id && coveredSectionIds.includes(node.tocElem.id)) {
+  if (node.tocElem?.uri && coveredSectionUris.includes(node.tocElem.uri)) {
     node.isCovered = true;
   }
 }
@@ -122,7 +118,6 @@ function RenderTree({
   preAdornment?: (sectionId: string) => JSX.Element;
   onSectionClick?: (sectionId: string, sectionUri: string) => void;
 }) {
-  const router = useRouter();
   const [isOpen, setIsOpen] = useState(defaultOpen);
   useEffect(() => {
     setIsOpen(defaultOpen);
@@ -207,6 +202,70 @@ function RenderTree({
   );
 }
 
+export function getCoveredSections(endSecUri: string, elem: TOCElem | undefined): string[] {
+  const converedUris: string[] = [];
+  if (!elem) return converedUris;
+  if (elem.type === 'Section') {
+    converedUris.push(elem.uri);
+    if (elem.uri === endSecUri) {
+      console.log('ended', converedUris);
+      return converedUris;
+    }
+  }
+  if (!('children' in elem) || !elem.children.length) return converedUris;
+  for (const child of elem.children) {
+    converedUris.push(...getCoveredSections(endSecUri, child));
+    if (converedUris.includes(endSecUri)) return converedUris;
+  }
+  return converedUris;
+}
+
+/*export function getCoveredSections(
+  startSecUri: string | undefined,
+  endSecUri: string,
+  elem: TOCElem | undefined,
+  started = false
+): {
+  started: boolean;
+  ended: boolean;
+  fullyCovered: boolean;
+  coveredSectionUris: string[];
+} {
+  const wasStartedForMe = started;
+  if (!elem) return { started, ended: true, coveredSectionUris: [], fullyCovered: false };
+
+  const isSec = elem.type === 'Section';
+  let iAmEnding = false;
+  if (isSec) {
+    const sectionUri = elem.uri;
+    if (sectionUri === startSecUri) started = true;
+    iAmEnding = sectionUri === endSecUri;
+  }
+
+  let allChildrenCovered = true;
+  const coveredSectionUris: string[] = [];
+  const children = 'children' in elem ? elem.children : [];
+  for (const child of children) {
+    const cResp = getCoveredSections(startSecUri, endSecUri, child, started);
+    if (!cResp.fullyCovered) allChildrenCovered = false;
+    coveredSectionUris.push(...cResp.coveredSectionUris);
+
+    if (cResp.started) started = true;
+    if (cResp.ended) {
+      return {
+        started,
+        ended: true,
+        fullyCovered: false,
+        coveredSectionUris: coveredSectionUris,
+      };
+    }
+  }
+
+  const fullyCovered = allChildrenCovered && wasStartedForMe;
+  if (isSec && elem.uri && fullyCovered) coveredSectionUris.push(elem.uri);
+  return { started, ended: iAmEnding, fullyCovered, coveredSectionUris: coveredSectionUris };
+}*/
+
 export function ContentDashboard({
   toc,
   selectedSection,
@@ -228,7 +287,7 @@ export function ContentDashboard({
   const [filterStr, setFilterStr] = useState('');
   const [defaultOpen, setDefaultOpen] = useState(true);
   const [covUpdateLink, setCovUpdateLink] = useState<string | undefined>(undefined);
-  const [fetchedCoveredSectionIds, setFetchedCoveredSectionIds] = useState<string[]>([]);
+  const [coveredSectionUris, setCoveredSectionUris] = useState<string[]>([]);
 
   useEffect(() => {
     async function getCoverageInfo() {
@@ -238,9 +297,9 @@ export function ContentDashboard({
       if (!snaps?.length) return;
       const endSec = snaps[snaps.length - 1].sectionName;
       const shadowTopLevel: TOCElem = { type: 'SkippedSection', children: toc };
-      // TODO ALEA4-N1
-      // const r = getCoveredSections('', endSec, shadowTopLevel, true);
-      // setFetchedCoveredSectionIds(r.coveredSectionIds);
+      const covered = getCoveredSections(endSec, shadowTopLevel);
+      console.log('sectionUris', covered);
+      setCoveredSectionUris(covered);
     }
     getCoverageInfo();
   }, [courseId, coveredSectionIds, toc]);
@@ -250,8 +309,9 @@ export function ContentDashboard({
     const topLevel = getTopLevelSections(toc, shadowTopLevel);
     shadowTopLevel.children = topLevel;
     console.log('topLevel', topLevel);
+    for (const e of topLevel) fillCoverage(e, coveredSectionUris);
     return topLevel;
-  }, [toc]);
+  }, [toc, coveredSectionUris]);
 
   return (
     <FixedPositionMenu
