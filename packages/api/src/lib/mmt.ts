@@ -7,7 +7,7 @@ import {
 } from '@stex-react/utils';
 import axios from 'axios';
 import { FLAMSServer } from './flams';
-import { ArchiveIndex, Institution, ProblemResponse, SolutionData } from './flams-types';
+import { ArchiveIndex, FTMLProblem, Institution, ProblemResponse } from './flams-types';
 const server = new FLAMSServer(process.env['NEXT_PUBLIC_FLAMS_URL']!);
 
 ///////////////////
@@ -27,11 +27,18 @@ export async function getFTMLQuiz(uri: string) {
   return await server.quiz({ uri });
 }
 
-export async function batchGrade(submissions: [SolutionData[],(ProblemResponse | undefined)[]][]
-) {
-  return await server.batchGrade(...submissions);
+export async function batchGradeHex(submissions: [string, (ProblemResponse | undefined)[]][]) {
+  return await server.batchGradeHex(...submissions);
 }
 
+export function computePointsFromFeedbackJson(
+  problem: FTMLProblem,
+  feedbackJson?: { score_fraction: number }
+) {
+  const fraction = feedbackJson?.score_fraction;
+  if (fraction === undefined || fraction === null) return NaN;
+  return fraction * (problem.total_points ?? 1);
+}
 ///////////////////////
 // :sTeX/browser?menu
 ///////////////////////

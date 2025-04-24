@@ -27,7 +27,7 @@ import { TourAPIEntry, TourDisplay } from './TourDisplay';
 import { DimAndURIListDisplay, URIListDisplay } from './UriListDisplay';
 import TrafficLightIndicator from './TrafficLightIndicator';
 import { Solutions } from '@stex-react/ftml-utils';
-import { FTMLProblemWithSolution, ProblemResponse } from '@stex-react/api';
+import { computePointsFromFeedbackJson, FTMLProblemWithSolution, ProblemResponse } from '@stex-react/api';
 
 export const ServerLinksContext = createContext({ mmtUrl: '', gptUrl: '' });
 
@@ -36,9 +36,8 @@ export function getPoints(problem: FTMLProblemWithSolution, response?: ProblemRe
   if (!response) return 0;
   if (!problem?.solution) return NaN;
   const s = Solutions.from_jstring(problem.solution);
-  const fraction = s?.check_response(response)?.score_fraction;
-  if (fraction === undefined) return NaN;
-  return fraction * (problem.problem.total_points ?? 1);
+  const feedbackJson = s?.check_response(response);
+  return computePointsFromFeedbackJson(problem.problem, feedbackJson);
 }
 
 const NoMaxWidthTooltip = styled(({ className, ...props }: TooltipProps) => (
