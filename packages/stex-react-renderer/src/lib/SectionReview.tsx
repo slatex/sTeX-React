@@ -126,9 +126,9 @@ const SectionReview = ({
               </Tooltip>
             ))}
           </Box>
-          <PerSectionQuiz sectionUri={sectionUri} showHideButton={true} />
-          {/* TODO ALEA4-ForMe
-          PracticeProblem archive={archive} filepath={filepath} showHideButton={true} />*/}
+          {/* <PerSectionQuiz sectionUri={sectionUri} showHideButton={true} /> */}
+          {/* TODO ALEA4-ForMe */}
+          <PracticeProblem sectionUri={sectionUri} showHideButton={true} />
         </AccordionDetails>
       </Accordion>
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} fullWidth={true} maxWidth="lg">
