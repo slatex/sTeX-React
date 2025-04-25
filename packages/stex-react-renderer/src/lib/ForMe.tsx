@@ -1,180 +1,140 @@
-import { Box, Button, CircularProgress, Typography } from '@mui/material';
+import { Box, Button, IconButton, LinearProgress, Tooltip, Typography } from '@mui/material';
 import {
   getDefiniedaInSection,
   getLearningObjects,
-  getLearningObjectShtml,
-  Problem,
   ProblemResponse,
 } from '@stex-react/api';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useReducer, useState } from 'react';
 import { getLocaleObject } from './lang/utils';
-import { ProblemDisplay } from './ProblemDisplay';
 import { ListStepper } from './QuizDisplay';
 import { ServerLinksContext } from './stex-react-renderer';
+import { FTMLFragment } from '@stex-react/ftml-utils';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
 export function ForMe({
   sectionUri,
+  showButtonFirst = true,
   showHideButton = false,
 }: {
   sectionUri: string;
+  showButtonFirst?: boolean;
   showHideButton?: boolean;
-}) {
+}){
   const t = getLocaleObject(useRouter()).quiz;
   const { mmtUrl } = useContext(ServerLinksContext);
-  const [loading, setLoading] = useState(false);
-  const [show, setShow] = useState(true);
-  const [startQuiz, setStartQuiz] = useState(false);
-  const [problemIds, setProblemIds] = useState<string[]>([]);
-  const [problems, setProblems] = useState<Problem[]>([]);
+  const [problemUris, setProblemUris] = useState<string[]>([]);
+  const [isLoadingProblemUris, setIsLoadingProblemUris] = useState<boolean>(true);
   const [responses, setResponses] = useState<ProblemResponse[]>([]);
-  const [isFrozen, setIsFrozen] = useState<boolean[]>([]);
   const [problemIdx, setProblemIdx] = useState(0);
-  const [isLoadingProblems, setIsLoadingProblems] = useState(false);
-  const [showSolution, setShowSolution] = useState(false);
+  const [isFrozen, setIsFrozen] = useState<boolean[]>([]);
   const [, forceRerender] = useReducer((x) => x + 1, 0);
-
-  const handleClick = async () => {
-    setShow(false);
-    setLoading(true);
-    try {
-      const data = await getDefiniedaInSection(sectionUri);
-      const URIs = data?.flatMap((item) => item.conceptUri) || [];
-
-      const fetchedResponse = await getLearningObjects(
-        URIs,
-        30,
-        ['problem'],
-        undefined,
-        { remember: 0.2, understand: 0.2 },
-        { remember: 0.85, understand: 0.85 }
-      );
-      const extractedProblemIds =
-        fetchedResponse?.['learning-objects']?.map((lo: any) => lo['learning-object']) || [];
-
-      setProblemIds(extractedProblemIds);
-
-      if (extractedProblemIds.length > 0) {
-        setStartQuiz(true);
-      }
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [startQuiz, setStartQuiz] = useState(!showButtonFirst);
+  const [show, setShow] = useState(true);
+  const [showSolution, setShowSolution] = useState(false);
 
   useEffect(() => {
-    if (!startQuiz || problemIds.length === 0) return;
-
-    const loadProblems = async () => {
-      setIsLoadingProblems(true);
+    const fetchProblemUris = async () => {
+      setIsLoadingProblemUris(true);
       try {
-        const problemShtmls = await Promise.all(
-          problemIds.map((id) => getLearningObjectShtml(mmtUrl, id))
-        );
+        const data = await getDefiniedaInSection(sectionUri);
+        const URIs = data?.flatMap((item) => item.conceptUri) || [];
 
-        // const parsedProblems = problemShtmls.map((p) => getProblem(hackAwayProblemId(p), ''));
-        // setProblems(parsedProblems);
-        // setResponses(parsedProblems.map((p) => defaultProblemResponse(p)));
-        setIsFrozen(problemShtmls.map(() => false));
-        setProblemIdx(0);
+        const fetchedResponse = await getLearningObjects(
+          URIs,
+          100,
+          ['problem'],
+          undefined,
+          { remember: 0.2, understand: 0.2 },
+          { remember: 0.85, understand: 0.85 }
+        );
+        
+        const extractedProblemIds =
+          fetchedResponse?.['learning-objects']?.map((lo: any) => lo['learning-object']) || [];
+
+        setProblemUris(extractedProblemIds);
+        setResponses(Array(extractedProblemIds.length).fill(null));
+        setIsFrozen(Array(extractedProblemIds.length).fill(false));
       } catch (error) {
-        console.error('Error loading problems:', error);
+        console.error('Error fetching problem URIs:', error);
       } finally {
-        setIsLoadingProblems(false);
+        setIsLoadingProblemUris(false);
       }
     };
 
-    loadProblems();
-  }, [startQuiz, problemIds, mmtUrl]);
+    fetchProblemUris();
+  }, [sectionUri]);
 
-  if (show) {
+  const handleViewSource = (uri: string) => {
+    // Implement your view source handler here
+    window.open(uri, '_blank');
+  };
+
+  if (isLoadingProblemUris) return <LinearProgress />;
+  if (!problemUris.length) return !showButtonFirst && <i>No problems found.</i>;
+  
+  if (!startQuiz) {
     return (
-      <Button onClick={handleClick} variant="contained">
-        {t.ForMe}
+      <Button onClick={() => setStartQuiz(true)} variant="contained">
+        {t.ForMe || t.perSectionQuizButton.replace('$1', problemUris.length.toString())}
+      </Button>
+    );
+  }
+  
+  if (!show) {
+    return (
+      <Button onClick={() => setShow(true)} variant="contained">
+        {t.ForMe || t.perSectionQuizButton.replace('$1', problemUris.length.toString())}
       </Button>
     );
   }
 
-  if (loading || isLoadingProblems) {
-    return (
-      <Box p={2} bgcolor="white" border="1px solid #CCC" borderRadius="5px">
-        <Typography variant="h6">For Me</Typography>
-        <CircularProgress />
-      </Box>
-    );
-  }
+  const problemUri = problemUris[problemIdx];
 
-  if (!startQuiz || problemIds.length === 0) {
-    return (
-      <Box p={2} bgcolor="white" border="1px solid #CCC" borderRadius="5px">
-        <Typography variant="h6">For Me</Typography>
-        <Typography variant="body2" color="textSecondary">
-          No Practice Questions Available
-        </Typography>
-      </Box>
-    );
-  }
-
-  const problem = problems[problemIdx];
-  const response = responses[problemIdx];
-  if (!problem || !response) {
-    return (
-      <Box p={2} bgcolor="white" border="1px solid #CCC" borderRadius="5px">
-        <Typography variant="h6">For Me</Typography>
-        <Typography color="error">Error loading problem</Typography>
-      </Box>
-    );
-  }
+  if (!problemUri) return <>error: [{problemUri}] </>;
 
   return (
-    <Box p={2} maxWidth="800px" m="auto" bgcolor="white" border="1px solid #CCC" borderRadius="5px">
-      <Typography variant="h6" mb={2}>
-        {t.ForMe}
-      </Typography>
+    <Box
+      px={1}
+      maxWidth="800px"
+      m="auto"
+      bgcolor="white"
+      border="1px solid #CCC"
+      borderRadius="5px"
+    >
       <Typography fontWeight="bold" textAlign="left">
-        {`${t.problem} ${problemIdx + 1} ${t.of} ${problems.length} `}
+        {`${t.problem} ${problemIdx + 1} ${t.of} ${problemUris.length} `}
       </Typography>
-      <ListStepper
-        idx={problemIdx}
-        listSize={problems.length}
-        onChange={(idx) => {
-          setProblemIdx(idx);
-          setShowSolution(false);
-        }}
-      />
-      <Box mb={2}>
-        <ProblemDisplay
-          r={response}
-          uri={problemIds[problemIdx]}
-          showPoints={false}
-          problem={problem}
-          isFrozen={isFrozen[problemIdx]}
-          onResponseUpdate={(updatedResponse) => {
-            forceRerender();
-            setResponses((prev) => {
-              const newResponses = [...prev];
-              newResponses[problemIdx] = updatedResponse;
-              return newResponses;
-            });
+      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <ListStepper
+          idx={problemIdx}
+          listSize={problemUris.length}
+          onChange={(idx) => {
+            setProblemIdx(idx);
+            setShowSolution(false);
           }}
-          onFreezeResponse={() =>
-            setIsFrozen((prev) => {
-              const newFrozen = [...prev];
-              newFrozen[problemIdx] = true;
-              return newFrozen;
-            })
-          }
         />
+        <IconButton onClick={() => handleViewSource(problemUri)} sx={{ float: 'right' }}>
+          <Tooltip title="view source">
+            <OpenInNewIcon />
+          </Tooltip>
+        </IconButton>
+      </Box>
+      <Box mb="10px">
+        <FTMLFragment key={problemUri} fragment={{ uri: problemUri }} />
       </Box>
       <Box
         mb={2}
         sx={{ display: 'flex', gap: '10px', flexDirection: 'column', alignItems: 'flex-start' }}
       >
+        {showSolution && (
+          <Box mb="10px">
+            {/* Solution would be displayed here when implemented */}
+          </Box>
+        )}
         {showHideButton && (
-          <Button onClick={() => setShow(true)} variant="contained">
-            {t.hideForMe}
+          <Button onClick={() => setShow(false)} variant="contained">
+            {t.hideForMe || t.hideProblems}
           </Button>
         )}
       </Box>

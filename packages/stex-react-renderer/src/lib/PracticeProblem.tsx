@@ -6,12 +6,11 @@ import { getLocaleObject } from './lang/utils';
 import { useRouter } from 'next/router';
 
 interface PracticeProblemProps {
-  archive: string;
-  filepath: string;
-  showHideButton: boolean;
+  sectionUri: string;
+  showHideButton?: boolean;
 }
 
-const PracticeProblem: React.FC<PracticeProblemProps> = ({ archive, filepath, showHideButton }) => {
+const PracticeProblem: React.FC<PracticeProblemProps> = ({ sectionUri, showHideButton }) => {
   const [showProblems, setShowProblems] = useState(false);
   const router = useRouter();
   const { quiz: t } = getLocaleObject(router);
@@ -32,13 +31,11 @@ const PracticeProblem: React.FC<PracticeProblemProps> = ({ archive, filepath, sh
       {showProblems && (
         <Box>
           <Box mb={2}>
-            {/* TODO ALEA4-ForMe
-            <PerSectionQuiz archive={archive} filepath={filepath} showHideButton={showHideButton} />
-            */}
+            <PerSectionQuiz sectionUri={sectionUri} showHideButton={showHideButton} />
           </Box>
 
           <Box mb={2}>
-            <ForMe archive={archive} filepath={filepath} showHideButton={showHideButton} />
+            <ForMe sectionUri={sectionUri} showHideButton={showHideButton} />
           </Box>
 
           <Button
