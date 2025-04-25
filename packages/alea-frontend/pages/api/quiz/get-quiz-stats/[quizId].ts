@@ -160,8 +160,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const sum = perProblemScoreSum[problemId];
     const average = sum / totalStudents;
     perProblemStats[problemId].avgQuotient = average / perProblemStats[problemId].maxPoints;
-    console.log('average', average);
-    console.log('maxPoints', perProblemStats[problemId].maxPoints);
   }
 
   return res.status(200).json({
