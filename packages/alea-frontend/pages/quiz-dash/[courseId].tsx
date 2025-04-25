@@ -8,6 +8,7 @@ import {
   getCourseQuizList,
   getUserInfo,
 } from '@stex-react/api';
+import { FTMLFragment } from '@stex-react/ftml-utils';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { Action, CURRENT_TERM, CourseInfo, ResourceName, isFauId } from '@stex-react/utils';
 import dayjs from 'dayjs';
@@ -20,7 +21,6 @@ import QuizPerformanceTable from '../../components/QuizPerformanceTable';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
 import { CourseHeader, handleEnrollment } from '../course-home/[courseId]';
-import { FTMLFragment } from '@stex-react/ftml-utils';
 
 function QuizThumbnail({ quiz }: { quiz: QuizStubInfo }) {
   const { quizId, quizStartTs, quizEndTs, title } = quiz;
@@ -231,6 +231,21 @@ const QuizDashPage: NextPage = () => {
           {t.onTimeWarning.replace('{courseId}', courseId.toUpperCase())}
         </Typography>
 
+        <Typography variant="h5" sx={{ m: '30px 0 10px' }}>
+          {t.demoQuiz}
+        </Typography>
+
+        <Typography variant="body1" sx={{ color: '#333' }}>
+          <a
+            href="/quiz/quiz-a7175e81"
+            target="_blank"
+            rel="noreferrer"
+            style={{ color: 'blue' }}
+          >
+            {t.this}
+          </a>
+          &nbsp;{t.demoQuizText}
+        </Typography>
 
         {enrolled && (
           <>

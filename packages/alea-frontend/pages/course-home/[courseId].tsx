@@ -67,10 +67,10 @@ export async function handleEnrollment(userId: string, courseId: string, current
   }
 }
 
-function CourseComponentLink({ href, children }: { href: string; children: any }) {
+function CourseComponentLink({ href, children, sx }: { href: string; children: any; sx?: any }) {
   return (
     <Link href={href}>
-      <Button variant="contained" sx={{ width: '100%', height: '48px', fontSize: '16px' }}>
+      <Button variant="contained" sx={{ width: '100%', height: '48px', fontSize: '16px', ...sx }}>
         {children}
       </Button>
     </Link>
@@ -284,7 +284,7 @@ const CourseHomePage: NextPage = () => {
             <Image src="/practice_problems.svg" width={35} height={35} alt="" />
           </CourseComponentLink>
           {isInstructor && (
-            <CourseComponentLink href={`/instructor-dash/${courseId}`}>
+            <CourseComponentLink href={`/instructor-dash/${courseId}`} sx={{ backgroundColor: '#4565af' }}>
               {<p>{t.instructorDashBoard}</p>}&nbsp;
               <PersonIcon fontSize="large" />
             </CourseComponentLink>

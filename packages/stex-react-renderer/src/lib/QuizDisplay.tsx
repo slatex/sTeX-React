@@ -370,7 +370,7 @@ export function QuizDisplay({
               {t.finish}
             </Button>
           )
-        ) : !Object.values(points).some((s) => s === undefined) ? (
+        ) : Object.values(points).every((s) => s !== undefined && !Number.isNaN(s)) ? (
           !isHomeWork && (
             <i style={{ margin: '20px 0', color: '#333', fontSize: '26px' }}>
               {t.youScored.replace('$1', roundedScore(points)).replace(
