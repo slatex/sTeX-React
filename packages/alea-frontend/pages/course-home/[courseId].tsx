@@ -41,6 +41,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
+import { RecordedSyllabus } from 'packages/alea-frontend/components/RecordedSyllabus';
 
 export function getCourseEnrollmentAcl(courseId: string, instanceId: string) {
   return `${courseId}-${instanceId}-enrollments`;
@@ -284,7 +285,10 @@ const CourseHomePage: NextPage = () => {
             <Image src="/practice_problems.svg" width={35} height={35} alt="" />
           </CourseComponentLink>
           {isInstructor && (
-            <CourseComponentLink href={`/instructor-dash/${courseId}`} sx={{ backgroundColor: '#4565af' }}>
+            <CourseComponentLink
+              href={`/instructor-dash/${courseId}`}
+              sx={{ backgroundColor: '#4565af' }}
+            >
               {<p>{t.instructorDashBoard}</p>}&nbsp;
               <PersonIcon fontSize="large" />
             </CourseComponentLink>
@@ -353,7 +357,7 @@ const CourseHomePage: NextPage = () => {
           </Box>
         )}
         <FTMLDocument document={{ uri: landing, toc: undefined }} />
-        {/* <RecordedSyllabus courseId={courseId} /> */}
+        <RecordedSyllabus courseId={courseId} />
       </Box>
     </MainLayout>
   );
