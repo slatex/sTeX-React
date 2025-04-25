@@ -1,16 +1,11 @@
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Button, IconButton, LinearProgress, Tooltip, Typography } from '@mui/material';
-import {
-  getDefiniedaInSection,
-  getLearningObjects,
-  ProblemResponse,
-} from '@stex-react/api';
+import { getDefiniedaInSection, getLearningObjects, ProblemResponse } from '@stex-react/api';
+import { FTMLFragment } from '@stex-react/ftml-utils';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useReducer, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getLocaleObject } from './lang/utils';
 import { ListStepper } from './QuizDisplay';
-import { ServerLinksContext } from './stex-react-renderer';
-import { FTMLFragment } from '@stex-react/ftml-utils';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
 export function ForMe({
   sectionUri,
@@ -20,15 +15,13 @@ export function ForMe({
   sectionUri: string;
   showButtonFirst?: boolean;
   showHideButton?: boolean;
-}){
+}) {
   const t = getLocaleObject(useRouter()).quiz;
-  const { mmtUrl } = useContext(ServerLinksContext);
   const [problemUris, setProblemUris] = useState<string[]>([]);
   const [isLoadingProblemUris, setIsLoadingProblemUris] = useState<boolean>(true);
   const [responses, setResponses] = useState<ProblemResponse[]>([]);
   const [problemIdx, setProblemIdx] = useState(0);
   const [isFrozen, setIsFrozen] = useState<boolean[]>([]);
-  const [, forceRerender] = useReducer((x) => x + 1, 0);
   const [startQuiz, setStartQuiz] = useState(!showButtonFirst);
   const [show, setShow] = useState(true);
   const [showSolution, setShowSolution] = useState(false);
@@ -48,7 +41,7 @@ export function ForMe({
           { remember: 0.2, understand: 0.2 },
           { remember: 0.85, understand: 0.85 }
         );
-        
+
         const extractedProblemIds =
           fetchedResponse?.['learning-objects']?.map((lo: any) => lo['learning-object']) || [];
 
@@ -66,25 +59,34 @@ export function ForMe({
   }, [sectionUri]);
 
   const handleViewSource = (uri: string) => {
-    // Implement your view source handler here
     window.open(uri, '_blank');
   };
 
   if (isLoadingProblemUris) return <LinearProgress />;
-  if (!problemUris.length) return !showButtonFirst && <i>No problems found.</i>;
-  
+  if (!problemUris.length) {
+    return (
+      !showButtonFirst && 
+      <Box p={2} bgcolor="white" border="1px solid #CCC" borderRadius="5px">
+        <Typography variant="h6">For Me</Typography>
+        <Typography variant="body2" color="textSecondary">
+          No Practice Questions Available
+        </Typography>
+      </Box>
+    );
+  }
+
   if (!startQuiz) {
     return (
       <Button onClick={() => setStartQuiz(true)} variant="contained">
-        {t.ForMe || t.perSectionQuizButton.replace('$1', problemUris.length.toString())}
+        {t.ForMe.replace('$1', problemUris.length.toString())}
       </Button>
     );
   }
-  
+
   if (!show) {
     return (
       <Button onClick={() => setShow(true)} variant="contained">
-        {t.ForMe || t.perSectionQuizButton.replace('$1', problemUris.length.toString())}
+        {t.ForMe.replace('$1', problemUris.length.toString())}
       </Button>
     );
   }
@@ -127,11 +129,7 @@ export function ForMe({
         mb={2}
         sx={{ display: 'flex', gap: '10px', flexDirection: 'column', alignItems: 'flex-start' }}
       >
-        {showSolution && (
-          <Box mb="10px">
-            {/* Solution would be displayed here when implemented */}
-          </Box>
-        )}
+        {showSolution && <Box mb="10px"></Box>}
         {showHideButton && (
           <Button onClick={() => setShow(false)} variant="contained">
             {t.hideForMe || t.hideProblems}
