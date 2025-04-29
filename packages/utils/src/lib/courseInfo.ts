@@ -81,10 +81,11 @@ export function createCourseInfo(
 
 export interface CoverageSnap {
   timestamp_ms: number;
-  sectionName: string;
+  sectionName?: string;
   clipId?: string; // https://fau.tv/clip/id/{clipId}
   targetSectionName?: string;
   isQuizScheduled?: boolean;
+  slideUri?: string; 
 }
 
 export interface CoverageTimeline {

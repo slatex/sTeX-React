@@ -14,9 +14,16 @@ export async function isUserIdAuthorizedForAny(
   userId: string,
   resourceActions: ResourceActionParams[]
 ) {
+  console.log('User ID:', userId); // Log userId to ensure it’s being passed correctly
+  console.log('Resource Actions:', resourceActions); // Log resourceActions to verify the data
+
   if (!userId) return false;
+
   for (const resourceAction of resourceActions) {
+    console.log('Checking resource action:', resourceAction); // Log current resource action being checked
+
     const resourceId = getResourceId(resourceAction.name, resourceAction.variables);
+    console.log('Resource ID:', resourceId); // Log the resource ID to verify it's being generated correctly
 
     if (!isValidAction(resourceAction.action, resourceAction.name)) {
       throw new Error(
@@ -25,10 +32,25 @@ export async function isUserIdAuthorizedForAny(
     }
 
     const aclId = await returnAclIdForResourceIdAndActionId(resourceId, resourceAction.action);
-    if (aclId && (await isMemberOfAcl(aclId, userId as string))) return true;
+    console.log('ACL ID:', aclId); // Log the aclId to ensure it's fetched properly
+
+    if (aclId) {
+      const isMember = await isMemberOfAcl(aclId, userId);
+      console.log('Is User Member of ACL:', isMember); // Log whether the user is a member of the ACL
+
+      if (isMember) {
+        console.log('User is authorized for this resource action.');
+        return true; // If authorized, return true
+      }
+    } else {
+      console.log('No ACL found for this resource-action combination.');
+    }
   }
+
+  console.log('User is not authorized for any of the resource actions.');
   return false;
 }
+
 
 export async function getUserIdIfAnyAuthorizedOrSetError(
   req: NextApiRequest,
@@ -36,6 +58,9 @@ export async function getUserIdIfAnyAuthorizedOrSetError(
   resourceActions: ResourceActionParams[]
 ) {
   const userId: string | undefined = await getUserIdOrSetError(req, res);
+  console.log('User ID from request:', userId); // Log the userId
+  console.log('Resource Actions:', resourceActions); // Log resourceActions
+
   if (!userId) return undefined;
   if (await isUserIdAuthorizedForAny(userId, resourceActions)) return userId;
 
