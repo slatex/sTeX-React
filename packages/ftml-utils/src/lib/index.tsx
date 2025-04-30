@@ -44,7 +44,11 @@ export const setDebugLog = FTMLT.setDebugLog;
  */
 export interface FTMLConfig {
 
-  allowHovers?: boolean;
+  /**
+   * whether to allow hovers
+   */
+  allowHovers?: boolean,
+
   /** may return a react component to *insert* after the title of a section
    * @param uri the uri of the section
    * @param lvl the level of the section
@@ -118,7 +122,15 @@ export const FTMLSetup: React.FC<FTMLSetupArgs> = (args) => {
  * See {@link FTMLConfig} and {@link FTML.DocumentOptions}
  */
 export interface FTMLDocumentArgs extends FTMLConfig {
-  document: FTML.DocumentOptions;
+  document: {
+    uri: FTML.DocumentElementURI,  
+    gottos?: FTML.Gotto[] | undefined, 
+    toc: FTML.TOCOptions | undefined 
+  } | {
+    html: string, 
+    gottos?: FTML.Gotto[] | undefined, 
+    toc: FTML.TOCElem[] | undefined
+  };
 }
 
 /**
@@ -129,12 +141,24 @@ export const FTMLDocument: React.FC<FTMLDocumentArgs> = (args) => {
   const { addTunnel, TunnelRenderer } = useLeptosTunnels();
   const context = useContext(FTMLContext);
 
+  const doc = ("html" in args.document)?
+    { type:"HtmlString", 
+      html:args.document.html, 
+      gottos:args.document.gottos, 
+      toc:args.document.toc
+    } as FTML.DocumentOptions: { 
+      type:"FromBackend", 
+      uri: args.document.uri,
+      gottos:args.document.gottos, 
+      toc:args.document.toc
+    } as FTML.DocumentOptions;
+
   useEffect(() => {
     if (mountRef.current === null) return;
     const cont = context ? context.wasm_clone() : context;
     const handle = FTMLT.renderDocument(
       mountRef.current,
-      args.document,
+      doc,
       cont,
       toConfig(args, addTunnel),
     );
@@ -154,7 +178,12 @@ export const FTMLDocument: React.FC<FTMLDocumentArgs> = (args) => {
  * See {@link FTMLConfig} and {@link FTML.FragmentOptions}
  */
 export interface FTMLFragmentArgs extends FTMLConfig {
-  fragment: FTML.FragmentOptions;
+  fragment: {
+    uri: FTML.DocumentElementURI,
+  } | {
+    html: string, 
+    uri?: FTML.DocumentElementURI | undefined 
+  };
 }
 
 /**
@@ -165,12 +194,21 @@ export const FTMLFragment: React.FC<FTMLFragmentArgs> = (args) => {
   const { addTunnel, TunnelRenderer } = useLeptosTunnels();
   const context = useContext(FTMLContext);
 
+  const fragment = ("html" in args.fragment)?
+    { type:"HtmlString", 
+      html:args.fragment.html, 
+      uri:args.fragment.uri
+    } as FTML.FragmentOptions: { 
+      type:"FromBackend", 
+      uri: args.fragment.uri
+    } as FTML.FragmentOptions;
+
   useEffect(() => {
     if (!mountRef.current) return;
     const cont = context ? context.wasm_clone() : context;
     const handle = FTMLT.renderFragment(
       mountRef.current,
-      args.fragment,
+      fragment,
       cont,
       toConfig(args, addTunnel),
     );
