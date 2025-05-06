@@ -19,9 +19,9 @@ export function ForMe({
   const t = getLocaleObject(useRouter()).quiz;
   const [problemUris, setProblemUris] = useState<string[]>([]);
   const [isLoadingProblemUris, setIsLoadingProblemUris] = useState<boolean>(true);
-  const [responses, setResponses] = useState<ProblemResponse[]>([]);
+  const [, setResponses] = useState<ProblemResponse[]>([]);
   const [problemIdx, setProblemIdx] = useState(0);
-  const [isFrozen, setIsFrozen] = useState<boolean[]>([]);
+  const [, setIsFrozen] = useState<boolean[]>([]);
   const [startQuiz, setStartQuiz] = useState(!showButtonFirst);
   const [show, setShow] = useState(true);
   const [showSolution, setShowSolution] = useState(false);
