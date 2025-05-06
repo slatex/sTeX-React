@@ -170,6 +170,10 @@ export function fixDuplicateLabels<T extends { label: string }>(RAW: T[]) {
   return fixed;
 }
 
+export function isFauId(userId:string):boolean{
+  return userId.length===8 && !userId.includes('@');
+}
+
 export function getChildrenOfBodyNode(bodyNode: any) {
   return bodyNode?.props?.children;
 }
