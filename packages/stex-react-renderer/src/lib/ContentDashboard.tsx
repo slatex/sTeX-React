@@ -212,7 +212,7 @@ export function getCoveredSections(endSecUri: string, elem: TOCElem | undefined)
     }
   }
   if (elem.type === 'Section') coveredUris.push(elem.uri);
-  
+
   return coveredUris;
 }
 

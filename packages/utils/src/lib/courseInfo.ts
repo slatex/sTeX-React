@@ -81,10 +81,12 @@ export function createCourseInfo(
 
 export interface CoverageSnap {
   timestamp_ms: number;
-  sectionName: string;
+  sectionName?: string;
   clipId?: string; // https://fau.tv/clip/id/{clipId}
   targetSectionName?: string;
   isQuizScheduled?: boolean;
+  slideUri?: string; 
+  slideNumber?: number;
 }
 
 export interface CoverageTimeline {
@@ -548,7 +550,7 @@ export const MaAI_COURSES: {
   'discopt-1': { courseName: 'Discrete optimization I' },
   'discopt-2': { courseName: 'Discrete optimization II' },
 
-  // from Claudia Barnickel (bachelor’s program)
+  // from Claudia Barnickel (bachelor's program)
   'medtech-1': { courseName: 'Medizintechnik I (Biomaterialien)' },
   'medtech-2': { courseName: 'Medizintechnik II (Bildgebende Verfahren)' },
   'matha-1': { courseName: 'Mathematik A 1' },
