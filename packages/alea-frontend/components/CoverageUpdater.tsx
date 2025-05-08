@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Box, Typography, Paper } from '@mui/material';
 import { CoverageSnap } from '@stex-react/utils';
-import { Section } from '../pages/coverage-update';
+import { Section } from '../types';
 import { CoverageTable } from './CoverageTable';
 import { CoverageForm } from './CoverageForm';
 import { CoverageMobileList } from './CoverageMobileList';
 import { useMediaQuery, useTheme } from '@mui/material';
-
 
 export function getUriForSectionName(sectionName: string, sectionNames: Section[]): string {
   const section = sectionNames.find(({ title }) => title.trim() === sectionName);
@@ -52,7 +51,10 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: CoverageUpdat
     targetSectionName: '',
     isQuizScheduled: false,
     slideUri: '',
+    slideNumber: undefined,
   });
+
+  const [availableSlides, setAvailableSlides] = useState<{ [sectionId: string]: any[] }>({});
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -62,12 +64,11 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: CoverageUpdat
       snaps[snaps.length - 1]?.sectionName,
       sectionNames
     ).trim();
-    setFormData(prev => ({ ...prev, sectionName: lastSnap }));
+    setFormData((prev) => ({ ...prev, sectionName: lastSnap }));
   }, [snaps, sectionNames]);
 
   useEffect(() => {
-    
-    setFormData(prev => ({ ...prev, slideUri: '' }));
+    setFormData((prev) => ({ ...prev, slideUri: '' }));
   }, [formData.sectionName]);
 
   const handleEditItem = (index: number) => {
@@ -77,7 +78,7 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: CoverageUpdat
       itemToEdit.targetSectionName,
       sectionNames
     ).trim();
-    
+
     setFormData({
       sectionName: sectionNameToEdit || '',
       targetSectionName: targetSectionNameToEdit || '',
@@ -85,8 +86,9 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: CoverageUpdat
       selectedTimestamp: itemToEdit.timestamp_ms || Date.now(),
       isQuizScheduled: itemToEdit.isQuizScheduled || false,
       slideUri: itemToEdit.slideUri || '',
+      slideNumber: itemToEdit.slideNumber || undefined,
     });
-    
+
     setEditIndex(index);
   };
 
@@ -96,10 +98,10 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: CoverageUpdat
   };
 
   const handleSubmitForm = (formData: any) => {
-    const sectionToAdd = formData.sectionName?.length 
-      ? getUriForSectionName(formData.sectionName, sectionNames) 
+    const sectionToAdd = formData.sectionName?.length
+      ? getUriForSectionName(formData.sectionName, sectionNames)
       : '';
-      
+
     const targetSectionToAdd = formData.targetSectionName?.length
       ? getUriForSectionName(formData.targetSectionName, sectionNames)
       : '';
@@ -112,6 +114,7 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: CoverageUpdat
       clipId: formData.clipId,
       isQuizScheduled: formData.isQuizScheduled,
       slideUri: formData.slideUri,
+      slideNumber: formData.slideNumber,
     };
 
     if (editIndex !== null) {
@@ -123,7 +126,6 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: CoverageUpdat
       setSnaps([...snaps, newItem]);
     }
 
-    
     setFormData({
       sectionName: '',
       clipId: '',
@@ -131,6 +133,7 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: CoverageUpdat
       targetSectionName: '',
       isQuizScheduled: false,
       slideUri: '',
+      slideNumber: undefined,
     });
   };
 
@@ -142,37 +145,38 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: CoverageUpdat
       targetSectionName: '',
       isQuizScheduled: false,
       slideUri: '',
+      slideNumber: undefined,
     });
     setEditIndex(null);
   };
 
   return (
     <Box sx={{ width: '100%' }}>
-      
       {snaps.length > 0 ? (
         <>
           <Typography variant="h6" gutterBottom sx={{ mt: 2, mb: 3 }}>
             Coverage Entries ({snaps.length})
           </Typography>
-          
+
           {isMobile ? (
-            <CoverageMobileList 
+            <CoverageMobileList
               snaps={snaps}
               sectionNames={sectionNames}
+              availableSlides={availableSlides}
               onEdit={handleEditItem}
               onDelete={handleDeleteItem}
             />
           ) : (
-            <CoverageTable 
+            <CoverageTable
               snaps={snaps}
               sectionNames={sectionNames}
+              availableSlides={availableSlides}
               onEdit={handleEditItem}
               onDelete={handleDeleteItem}
             />
           )}
         </>
       ) : (
-        
         <Box
           sx={{
             py: 5,
@@ -192,7 +196,6 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: CoverageUpdat
         </Box>
       )}
 
-      
       <Paper
         elevation={3}
         sx={{

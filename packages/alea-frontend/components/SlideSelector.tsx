@@ -1,306 +1,304 @@
 import { useState, useEffect } from 'react';
-import { 
-  Box, 
-  FormControl, 
-  InputLabel, 
-  MenuItem, 
-  Select, 
-  IconButton, 
-  Tooltip, 
-  Typography, 
-  Chip, 
-  Paper 
-} from '@mui/material';
-import SlideshowIcon from '@mui/icons-material/Slideshow';
-import ClearIcon from '@mui/icons-material/Clear';
+import { Box, Typography, Alert, Button, Paper, Card, CardContent } from '@mui/material';
+import LayersClearIcon from '@mui/icons-material/LayersClear';
 import axios from 'axios';
 import { PRIMARY_COL } from '@stex-react/utils';
-import { Section } from '../pages/coverage-update';
+import { Section } from '../types';
+import { FTMLFragment } from '@stex-react/ftml-utils';
 
-interface SlideSelectorProps {
-  sectionName: string;
+interface SlidePickerProps {
+  sectionUri: string;
   slideUri: string;
-  setSlideUri: (uri: string) => void;
+  setSlideUri: (uri: string, slideNumber: number) => void;
   sectionNames: Section[];
+  setAvailableSlides?: (slides: { [sectionId: string]: any[] }) => void;
 }
 
-export function SlideSelector({ sectionName, slideUri, setSlideUri, sectionNames }: SlideSelectorProps) {
-  const [showSlidePreview, setShowSlidePreview] = useState(false);
-  const [availableSlides, setAvailableSlides] = useState<{ [key: string]: any[] }>({});
+interface SlideData {
+  id: string;
+  title: string;
+  index: number;
+  uri: string;
+  slideType?: string;
+  paragraphs?: any[];
+  preNotes?: any[];
+  postNotes?: any[];
+  sectionId?: string;
+  slide?: {
+    html?: string;
+    type?: string;
+    uri?: string;
+  };
+  [key: string]: any;
+}
+
+interface AvailableSlides {
+  [sectionId: string]: SlideData[];
+}
+
+export function SlidePicker({
+  sectionUri,
+  slideUri,
+  setSlideUri,
+  sectionNames,
+  setAvailableSlides,
+}: SlidePickerProps) {
+  const [availableSlides, setLocalAvailableSlides] = useState<AvailableSlides>({});
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const section = sectionNames.find(
+    ({ uri }) => uri && sectionUri && uri.trim() === sectionUri.trim()
+  );
+  const sectionDisplayName = section ? section.title.trim() : 'Unknown Section';
 
   useEffect(() => {
-    
     const fetchSlides = async () => {
-      if (!sectionName) {
-        setAvailableSlides({});
+      if (!sectionUri) {
+        setLocalAvailableSlides({});
+        if (setAvailableSlides) setAvailableSlides({});
         return;
       }
-      
-      const sectionUri = getUriForSectionName(sectionName, sectionNames);
-      const section = sectionNames.find(({ uri }) => uri === sectionUri);
-      
-      if (section?.id) {
-        try {
-         
-          const urlParams = new URLSearchParams(window.location.search);
-          const courseId = urlParams.get('courseId') || '';
-          
-          
-          const response = await axios.get(`/api/get-slides?courseId=${courseId}&sectionIds=${section.id}`);
-          if (response.data && Object.keys(response.data).length > 0) {
-            
-            const processedData = { ...response.data };
-            
-           
-            Object.keys(processedData).forEach(sectId => {
-              if (Array.isArray(processedData[sectId])) {
-                processedData[sectId] = processedData[sectId].map((slide, idx) => {
-                  
-                  let slideNumber = idx + 1;
-                  const slideIdMatch = slide.id?.match(/slide-(\d+)$/);
-                  const slideUriMatch = slide.uri?.match(/slide-(\d+)$/);
-                  
-                  if (slideIdMatch && slideIdMatch[1]) {
-                    slideNumber = parseInt(slideIdMatch[1], 10);
-                  } else if (slideUriMatch && slideUriMatch[1]) {
-                    slideNumber = parseInt(slideUriMatch[1], 10);
-                  }
-                  
-                  
-                  const slidePathMatch = slide.uri?.match(/\/section\/([^\/]+)/);
-                  const slidePath = slidePathMatch ? slidePathMatch[1] : '';
-                  
-                  return {
-                    ...slide,
-                    index: idx,
-                    id: slide.id || `${sectId}-slide-${slideNumber}`,
-                    title: slide.title || `Slide ${slideNumber}${slidePath ? ` (${slidePath})` : ''}`
-                  };
-                });
-              }
-            });
-            
-            setAvailableSlides(processedData);
-            console.log(`Fetched slides for section "${sectionName}":`, processedData);
-          } else {
-            
-            const mockSlides = Array(12).fill(null).map((_, idx) => ({
-              id: `${section.id}-slide-${idx + 1}`,
-              title: `Slide ${idx + 1}`,
-              index: idx
-            }));
-            setAvailableSlides({ [section.id]: mockSlides });
-            console.log(`Created mock slides for section "${sectionName}":`, mockSlides);
+      setIsLoading(true);
+      setError(null);
+      if (!section?.id) {
+        setIsLoading(false);
+        setError('Section not found');
+        setLocalAvailableSlides({});
+        if (setAvailableSlides) setAvailableSlides({});
+        return;
+      }
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const courseId = urlParams.get('courseId') || '';
+        const response = await axios.get(
+          `/api/get-slides?courseId=${courseId}&sectionIds=${section.id}`
+        );
+        if (response.data && Object.keys(response.data).length > 0) {
+          const processedSlides: AvailableSlides = {};
+          for (const sectionId in response.data) {
+            if (!Array.isArray(response.data[sectionId])) {
+              processedSlides[sectionId] = [];
+              continue;
+            }
+            processedSlides[sectionId] = response.data[sectionId]
+              .map((slide: any, index: number) => {
+                let slideUri = '';
+                if (slide.uri) {
+                  slideUri = slide.uri;
+                } else if (slide.slide && slide.slide.uri) {
+                  slideUri = slide.slide.uri;
+                } else if (slide.id) {
+                  slideUri = constructUriFromId(slide.id, sectionId);
+                } else {
+                  slideUri = constructUriFromId(`slide-${index + 1}`, sectionId);
+                }
+                return {
+                  ...slide,
+                  uri: slideUri,
+                  id: slide.id || `slide-${index + 1}`,
+                  title: slide.title || `Slide ${index + 1}`,
+                  index: index,
+                  sectionId: sectionId,
+                };
+              })
+              .filter((slide: any) => slide.uri);
           }
-        } catch (error) {
-          console.error('Error fetching slides:', error);
-          
-          const mockSlides = Array(12).fill(null).map((_, idx) => ({
-            id: `${section.id}-slide-${idx + 1}`,
-            title: `Slide ${idx + 1}`,
-            index: idx
-          }));
-          setAvailableSlides({ [section.id]: mockSlides });
+          setLocalAvailableSlides(processedSlides);
+          if (setAvailableSlides) setAvailableSlides(processedSlides);
+          if (Object.values(processedSlides).flat().length === 0) {
+            setError('No slides found for this section');
+          }
+        } else {
+          setError('No slides found for this section');
+          setLocalAvailableSlides({});
+          if (setAvailableSlides) setAvailableSlides({});
         }
+      } catch (error) {
+        setError('Failed to load slides');
+        setLocalAvailableSlides({});
+        if (setAvailableSlides) setAvailableSlides({});
+      } finally {
+        setIsLoading(false);
       }
     };
-    
     fetchSlides();
-  }, [sectionName, sectionNames]);
+  }, [sectionUri, sectionNames]);
+
+  const constructUriFromId = (id: string, sectionId: string): string => {
+    const slideMatch = id.match(/slide-(\d+)$/);
+    const slideNumber = slideMatch ? slideMatch[1] : '1';
+    return `https://mathhub.info?a=courses/FAU/meta-inf&p=${sectionId}/snip&d=${sectionId}&l=en&e=paragraph&slide=${slideNumber}`;
+  };
 
   const getSlideOptions = () => {
-    const sectionId = sectionNames.find(({ title }) => title.trim() === sectionName)?.id;
-    if (!sectionId || !availableSlides[sectionId]) return [];
-    
-    
-    return availableSlides[sectionId].map((slide, idx) => {
-      
-      let slideNumber = idx + 1;
-      let slidePath = '';
-      
-      
-      if (typeof slide.id === 'string') {
-        const match = slide.id.match(/(\d+)$/);
-        if (match) slideNumber = parseInt(match[1], 10);
-        
-        
-        const pathMatch = slide.id.match(/\/section\/([^\/]+)/);
-        if (pathMatch) slidePath = pathMatch[1];
-      }
-      
-      
-      if (typeof slide.uri === 'string') {
-        const parts = slide.uri.split('/');
-        if (parts.length >= 2) {
-          slidePath = parts.slice(0, -1).join('/');
-          
-          
-          const lastPart = parts[parts.length - 1];
-          const match = lastPart.match(/slide-(\d+)$/);
-          if (match) slideNumber = parseInt(match[1], 10);
-        }
-      }
-      
-      const uri = slide.id || slide.uri || `${sectionId}-slide-${slideNumber}`;
-      let label = slide.title;
-      
-      
-      if (!label && typeof uri === 'string') {
-        if (uri.includes('/')) {
-          
-          const cleanUri = uri.replace(/-slide-\d+$/, '');
-          const segments = cleanUri.split('/');
-          if (segments.length > 2) {
-            
-            label = `Slide ${slideNumber}: ${segments[segments.length - 1].replace(/-/g, ' ')}`;
-          }
-        }
-      }
-      
-      
-      if (!label) {
-        label = `Slide ${slideNumber}`;
-      }
-      
-      return { uri, label };
-    });
+    if (!section?.id || !availableSlides[section.id]) return [];
+
+    return availableSlides[section.id]
+      .filter((slide) => slide.slideType !== 'TEXT')
+      .map((slide, idx) => {
+        let label = `Slide ${idx + 1}`;
+        return {
+          uri: slide.uri,
+          html: slide.slide?.html,
+          label,
+          slideNumber: idx + 1,
+          originalData: slide,
+        };
+      });
   };
 
   const slideOptions = getSlideOptions();
+  const selectedSlide = slideOptions.find((slide) => slide.uri === slideUri);
 
-  function getUriForSectionName(sectionName: string, sectionNames: Section[]): string {
-    const section = sectionNames.find(({ title }) => title.trim() === sectionName);
-    return section?.uri || '';
-  }
+  const handleClearSection = () => {
+    setSlideUri(null, 0);
+  };
 
   return (
     <>
-      {showSlidePreview && sectionName && (
-        <Paper 
-          elevation={3} 
-          sx={{ 
-            p: 2, 
-            mb: 2, 
-            backgroundColor: '#f5f5f5',
-            borderLeft: `4px solid ${PRIMARY_COL}`
+      {!sectionUri && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          Please select a section to view available slides
+        </Alert>
+      )}
+      <Paper
+        elevation={3}
+        sx={{
+          mb: 2,
+          backgroundColor: '#f5f5f5',
+          borderLeft: `4px solid ${PRIMARY_COL}`,
+          position: 'relative',
+          overflow: 'hidden',
+          borderRadius: 2,
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            p: 2,
+            backgroundColor: '#f0f0f0',
+            borderBottom: '1px solid #ddd',
           }}
         >
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="h6">
-              Slides for: {sectionName}
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography variant="h6" sx={{ fontWeight: 'medium' }}>
+              {sectionUri ? `Slides for: ${sectionDisplayName}` : 'No Section Selected'}
             </Typography>
-            <IconButton onClick={() => setShowSlidePreview(false)} size="small">
-              <ClearIcon />
-            </IconButton>
           </Box>
-          
-          {slideOptions.length > 0 ? (
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
-              {slideOptions.map((slide) => (
-                <Chip
-                  key={slide.uri}
-                  label={slide.label}
-                  onClick={() => setSlideUri(slide.uri)}
-                  color={slideUri === slide.uri ? "primary" : "default"}
-                  icon={<SlideshowIcon />}
-                  sx={{ mb: 1 }}
-                />
-              ))}
+          {sectionUri && (
+            <Box>
+              <Button
+                variant="outlined"
+                color="error"
+                startIcon={<LayersClearIcon />}
+                onClick={handleClearSection}
+                size="small"
+                sx={{ mr: 1 }}
+              >
+                Clear Selection
+              </Button>
             </Box>
+          )}
+        </Box>
+        <Box sx={{ p: 2 }}>
+          {isLoading ? (
+            <Typography variant="body2" sx={{ p: 2 }}>
+              Loading slides...
+            </Typography>
+          ) : error ? (
+            <Alert severity="error" sx={{ mt: 1 }}>
+              {error}
+            </Alert>
+          ) : slideOptions.length > 0 ? (
+            <>
+              {selectedSlide && (
+                <Card sx={{ mb: 3, overflow: 'hidden' }}>
+                  <Box sx={{ height: '300px', overflow: 'auto', borderBottom: '1px solid #eee' }}>
+                    {selectedSlide.html ? (
+                      <FTMLFragment
+                        key={selectedSlide.uri}
+                        fragment={{ html: selectedSlide.html }}
+                      />
+                    ) : selectedSlide.originalData.slideType === 'TEXT' &&
+                      Array.isArray(selectedSlide.originalData.paragraphs) ? (
+                      <div style={{ padding: '5px', width: '100%', height: '100%' }}>
+                        {selectedSlide.originalData.paragraphs.map((para, idx) => (
+                          <div key={idx} style={{ marginBottom: '5px' }}>
+                            {para.text || JSON.stringify(para)}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <i>No content</i>
+                    )}
+                  </Box>
+                  <CardContent sx={{ p: 1, backgroundColor: '#f9f9f9' }}>
+                    <Typography variant="subtitle1">{selectedSlide.label}</Typography>
+                  </CardContent>
+                </Card>
+              )}
+              <Box>
+                <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 'medium' }}>
+                  Available Slides {selectedSlide ? `(${slideOptions.length})` : ''}
+                </Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  {slideOptions.map((slide, idx) => (
+                    <Button
+                      key={slide.uri}
+                      variant={slide.uri === selectedSlide?.uri ? 'contained' : 'outlined'}
+                      onClick={() => setSlideUri(slide.uri, idx + 1)}
+                      sx={{
+                        minWidth: '140px',
+                        fontWeight: slide.uri === selectedSlide?.uri ? 'bold' : 'normal',
+                      }}
+                    >
+                      {slide.label}
+                    </Button>
+                  ))}
+                </Box>
+              </Box>
+            </>
           ) : (
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              No slides available for this section
+            <Typography variant="body2" sx={{ p: 2 }}>
+              No slides found for this section
             </Typography>
           )}
-        </Paper>
-      )}
-
-      <FormControl sx={{ mx: '5px' }}>
-        <InputLabel id="slide-select-label">Slide</InputLabel>
-        <Select
-          labelId="slide-select-label"
-          value={slideUri}
-          onChange={(e) => setSlideUri(e.target.value)}
-          label="Slide"
-          sx={{ minWidth: '150px' }}
-          endAdornment={
-            <Tooltip title="View all slides for this section">
-              <IconButton 
-                size="small" 
-                sx={{ marginRight: 2 }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowSlidePreview(!showSlidePreview);
-                }}
-              >
-                <SlideshowIcon />
-              </IconButton>
-            </Tooltip>
-          }
-        >
-          <MenuItem value="">
-            <em>None</em>
-          </MenuItem>
-          {slideOptions.map((slide) => (
-            <MenuItem key={slide.uri} value={slide.uri}>
-              {slide.label}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+        </Box>
+      </Paper>
     </>
   );
 }
 
-
 export function getSlideNameByUri(uri: string, availableSlides: { [key: string]: any[] }): string {
   if (!uri) return '';
-  
-  
+
   for (const sectionId in availableSlides) {
-    const slides = availableSlides[sectionId];
-    
-    
-    const slide = slides.find(s => s.id === uri || s.uri === uri);
-    if (slide) {
-      if (slide.title) return slide.title;
-    }
+    const slide = availableSlides[sectionId]?.find((s) => s.uri === uri);
+    if (slide?.title) return slide.title;
   }
-  
-  
+
   if (typeof uri === 'string') {
-    
-    if (uri.includes('/')) {
-      const parts = uri.split('/');
-      let slideNumber = "?";
-      
-      
-      const lastPart = parts[parts.length - 1];
-      const match = lastPart.match(/slide-(\d+)$/);
-      if (match) slideNumber = match[1];
-      
-      
-      if (parts.length > 1) {
-        const sectionName = parts[parts.length - 2].replace(/-/g, ' ');
-        return `Slide ${slideNumber}: ${sectionName}`;
-      }
-      
+    if (uri.includes('mathhub.info')) {
+      const urlParams = new URLSearchParams(uri.split('?')[1]);
+      const slideNumber = urlParams.get('slide') || '1';
       return `Slide ${slideNumber}`;
     }
-    
-    
-    const simpleMatch = uri.match(/slide-(\d+)$/);
-    if (simpleMatch) {
-      return `Slide ${simpleMatch[1]}`;
+
+    const slideMatch = uri.match(/slide-(\d+)$/);
+    const slideNumber = slideMatch ? slideMatch[1] : '1';
+
+    if (uri.includes('/')) {
+      const parts = uri.split('/');
+      if (parts.length > 1) {
+        return `Slide ${slideNumber}`;
+      }
     }
+
+    return `Slide ${slideNumber}`;
   }
-  
-  
-  const numMatch = uri.match(/(\d+)$/);
-  if (numMatch) {
-    return `Slide ${numMatch[1]}`;
-  }
-  
-  
-  return uri.split('/').pop() || uri;
+
+  return String(uri);
 }

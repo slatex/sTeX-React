@@ -1,26 +1,20 @@
-import { 
-  Box, 
-  Button, 
-  FormControl, 
-  InputLabel, 
-  MenuItem, 
-  Select, 
-  Typography, 
-  Container, 
-  Paper, 
-  useTheme, 
-  useMediaQuery, 
-  Alert, 
-  Backdrop, 
-  CircularProgress
-} from '@mui/material';
 import {
-  DocumentURI,
-  TOCElem,
-  getAuthHeaders,
-  getCourseInfo,
-  getDocumentSections,
-} from '@stex-react/api';
+  Box,
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Typography,
+  Container,
+  Paper,
+  useTheme,
+  useMediaQuery,
+  Alert,
+  Backdrop,
+  CircularProgress,
+} from '@mui/material';
+import { TOCElem, getAuthHeaders, getCourseInfo, getDocumentSections } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import {
   CourseInfo,
@@ -34,12 +28,7 @@ import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import { CoverageUpdater } from '../components/CoverageUpdater';
 import MainLayout from '../layouts/MainLayout';
-
-export interface Section {
-  id: string;
-  title: string;
-  uri: DocumentURI;
-}
+import { Section } from '../types';
 
 function getSectionNames(data: TOCElem, level = 0): Section[] {
   const sections: Section[] = [];
@@ -70,8 +59,11 @@ const CoverageUpdatePage: NextPage = () => {
   const { mmtUrl } = useContext(ServerLinksContext);
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
   const [loading, setLoading] = useState(false);
-  const [saveMessage, setSaveMessage] = useState<{type: 'success' | 'error', message: string} | null>(null);
-  
+  const [saveMessage, setSaveMessage] = useState<{
+    type: 'success' | 'error';
+    message: string;
+  } | null>(null);
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -111,7 +103,7 @@ const CoverageUpdatePage: NextPage = () => {
         console.error('Failed to fetch all sections:', error);
         setSaveMessage({
           type: 'error',
-          message: 'Failed to fetch sections. Please try again.'
+          message: 'Failed to fetch sections. Please try again.',
         });
       } finally {
         setLoading(false);
@@ -142,10 +134,9 @@ const CoverageUpdatePage: NextPage = () => {
       await axios.post('/api/set-coverage-timeline', body, { headers });
       setSaveMessage({
         type: 'success',
-        message: 'Coverage data saved successfully!'
+        message: 'Coverage data saved successfully!',
       });
-      
-      
+
       setTimeout(() => {
         setSaveMessage(null);
       }, 3000);
@@ -153,7 +144,7 @@ const CoverageUpdatePage: NextPage = () => {
       console.error('Error saving coverage:', error);
       setSaveMessage({
         type: 'error',
-        message: 'Failed to save coverage data. Please try again.'
+        message: 'Failed to save coverage data. Please try again.',
       });
     } finally {
       setLoading(false);
@@ -163,25 +154,25 @@ const CoverageUpdatePage: NextPage = () => {
   return (
     <MainLayout title="Coverage Update | ALeA">
       <Container maxWidth="xl">
-        <Paper 
-          elevation={3} 
-          sx={{ 
+        <Paper
+          elevation={3}
+          sx={{
             p: { xs: 2, sm: 3 },
             my: 3,
             borderRadius: 2,
-            overflow: 'hidden'
+            overflow: 'hidden',
           }}
         >
           <Typography variant="h4" component="h1" gutterBottom color="primary">
             Coverage Update
           </Typography>
-          
-          <FormControl 
-            variant="outlined" 
+
+          <FormControl
+            variant="outlined"
             fullWidth={isMobile}
-            sx={{ 
-              my: 2, 
-              minWidth: { xs: '100%', sm: '200px' }
+            sx={{
+              my: 2,
+              minWidth: { xs: '100%', sm: '200px' },
             }}
           >
             <InputLabel id="course-select-label">Course</InputLabel>
@@ -204,32 +195,28 @@ const CoverageUpdatePage: NextPage = () => {
           </FormControl>
 
           {saveMessage && (
-            <Alert 
-              severity={saveMessage.type}
-              sx={{ mb: 2 }}
-              onClose={() => setSaveMessage(null)}
-            >
+            <Alert severity={saveMessage.type} sx={{ mb: 2 }} onClose={() => setSaveMessage(null)}>
               {saveMessage.message}
             </Alert>
           )}
 
-          <Box 
-            sx={{ 
+          <Box
+            sx={{
               mt: 2,
-              overflow: 'auto'
+              overflow: 'auto',
             }}
           >
             <CoverageUpdater snaps={snaps} setSnaps={setSnaps} sectionNames={sectionNames} />
           </Box>
-          
-          <Box 
-            sx={{ 
-              mt: 3, 
-              display: 'flex', 
-              flexDirection: { xs: 'column', sm: 'row' }, 
+
+          <Box
+            sx={{
+              mt: 3,
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
               alignItems: { xs: 'stretch', sm: 'center' },
               justifyContent: 'space-between',
-              gap: 2
+              gap: 2,
             }}
           >
             <Button
@@ -238,20 +225,20 @@ const CoverageUpdatePage: NextPage = () => {
               size="large"
               onClick={handleSave}
               fullWidth={isMobile}
-              sx={{ 
+              sx={{
                 py: 1.5,
-                maxWidth: { xs: '100%', sm: '200px' }
+                maxWidth: { xs: '100%', sm: '200px' },
               }}
             >
               Save Changes
             </Button>
-            
-            <Typography 
-              variant="body2" 
+
+            <Typography
+              variant="body2"
               color="error"
-              sx={{ 
+              sx={{
                 fontWeight: 'medium',
-                textAlign: { xs: 'center', sm: 'right' }
+                textAlign: { xs: 'center', sm: 'right' },
               }}
             >
               Your changes will not be saved until you click 'Save Changes'.
@@ -259,12 +246,8 @@ const CoverageUpdatePage: NextPage = () => {
           </Box>
         </Paper>
       </Container>
-      
-      
-      <Backdrop
-        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={loading}
-      >
+
+      <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={loading}>
         <CircularProgress color="inherit" />
       </Backdrop>
     </MainLayout>
