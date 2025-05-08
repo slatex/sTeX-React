@@ -270,7 +270,7 @@ const CourseHomePage: NextPage = () => {
               <QuizIcon fontSize="large" />
             </CourseComponentLink>
           )}
-          {['lbs', 'ai-1'].includes(courseId) && (
+          {['lbs', 'ai-1', 'smai'].includes(courseId) && (
             <CourseComponentLink href={`/homework/${courseId}`}>
               {t.homeworks}&nbsp;
               <AssignmentTurnedInIcon fontSize="large" />
