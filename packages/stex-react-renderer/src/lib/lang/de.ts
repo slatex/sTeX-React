@@ -68,7 +68,7 @@ export const de = {
     hideSolution: 'Lösung ausblenden',
     practiceProblem : 'Übungsproblem',
     perSectionQuizButton: 'Alle probleme ($1)',
-    ForMe : 'Für mich',
+    ForMe : 'Für mich ($1)',
     hideProblems: 'Probleme ausblenden',
     hideForMe: 'Für mich ausblenden',
     hidepracticeProblem: 'Übungsprobleme ausblenden',
