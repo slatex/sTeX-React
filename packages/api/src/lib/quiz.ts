@@ -1,4 +1,4 @@
-import { ProblemResponse, FTMLProblem, ProblemResponseType } from "./flams-types";
+import { CSS, ProblemResponse, FTMLProblem, ProblemResponseType } from './flams-types';
 
 export enum Phase {
   UNSET = 'UNSET',
@@ -33,6 +33,7 @@ export interface QuizWithStatus {
 
   title: string;
   problems: Record<string, FTMLProblemWithSolution>;
+  css: CSS[];
 
   recorrectionInfo?: RecorrectionInfo[];
 
@@ -126,6 +127,7 @@ export interface GetQuizResponse {
   feedbackReleaseTs?: number;
 
   phase: Phase;
+  css: CSS[];
 
   problems: { [problemId: string]: FTMLProblemWithSolution };
   responses: { [problemId: string]: ProblemResponse };

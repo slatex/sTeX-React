@@ -1,5 +1,5 @@
 import { Box } from '@mui/material';
-import { FTMLProblemWithSolution } from '@stex-react/api';
+import { FTMLProblemWithSolution, CSS } from '@stex-react/api';
 import { Quiz, FTMLQuizElement } from '@stex-react/ftml-utils';
 import React from 'react';
 
@@ -23,11 +23,13 @@ function getProblemsFromQuiz(quiz: Quiz): Record<string, FTMLProblemWithSolution
 }
 
 export function QuizFileReader({
+  setCss,
   setTitle,
   setProblems,
 }: {
   setTitle: (title: string) => void;
   setProblems: (problems: Record<string, FTMLProblemWithSolution>) => void;
+  setCss: (css: CSS[]) => void;
 }) {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -43,6 +45,7 @@ export function QuizFileReader({
         if (typeof parsedJson === 'object' && parsedJson !== null) {
           setProblems(getProblemsFromQuiz(parsedJson));
           setTitle(parsedJson.title);
+          setCss(parsedJson.css);
         } else {
           alert('Invalid JSON file.');
         }

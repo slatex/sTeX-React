@@ -20,6 +20,8 @@ import { ForceFauLogin } from '../../components/ForceFAULogin';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
 import { handleEnrollment } from '../course-home/[courseId]';
+import { isEmptyResponse } from 'packages/quiz-utils/src/lib/quiz-utils';
+import { injectCss } from '@stex-react/ftml-utils';
 
 function ToBeStarted({ quizStartTs }: { quizStartTs?: number }) {
   const [showReload, setShowReload] = useState(false);
@@ -107,6 +109,7 @@ const QuizPage: NextPage = () => {
   const [quizInfo, setQuizInfo] = useState<GetQuizResponse | undefined>(undefined);
   const [moderatorPhase, setModeratorPhase] = useState<Phase>(undefined);
   const [enrolled, setIsEnrolled] = useState<boolean | undefined>(undefined);
+  const [isModerator, setIsModerator] = useState<boolean>(false);
   const clientQuizEndTimeMs = getClientEndTimeMs(quizInfo);
   const clientQuizStartTimeMs = getClientStartTimeMs(quizInfo);
 
@@ -133,6 +136,8 @@ const QuizPage: NextPage = () => {
   useEffect(() => {
     if (!quizId) return;
     getQuiz(quizId).then((quizInfo) => {
+      for (const e of quizInfo.css || []) injectCss(e);
+
       setQuizInfo(quizInfo);
       setProblems(quizInfo.problems);
     });
@@ -170,6 +175,7 @@ const QuizPage: NextPage = () => {
       courseId,
       instanceId,
     }).then((isModerator) => {
+      setIsModerator(isModerator);
       if (!isModerator) return;
       const p =
         'Hello moderator! Do you want to see the quiz in feedback release phase (press OK) or quiz started phase (press Cancel)?';
@@ -254,7 +260,8 @@ const QuizPage: NextPage = () => {
             quizEndTs={clientQuizEndTimeMs}
             existingResponses={quizInfo?.responses}
             onResponse={async (problemId, response) => {
-              if (!quizId?.length || phase !== Phase.STARTED) return;
+              if (!quizId?.length || phase !== Phase.STARTED || isModerator) return;
+              if (isEmptyResponse(response)) return;
               console.log('inserting response', problemId, response);
               const answerAccepted = await insertQuizResponse(quizId, problemId, response);
               if (!answerAccepted) {

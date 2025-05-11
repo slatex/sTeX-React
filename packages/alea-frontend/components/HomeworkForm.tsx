@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
 import { getLocaleObject } from '../lang/utils';
 import { QuizFileReader } from './QuizFileReader';
-import { FTMLProblemWithSolution } from '@stex-react/api';
+import { FTMLProblemWithSolution, CSS } from '@stex-react/api';
 import { SafeHtml } from '@stex-react/react-utils';
 
 const HomeworkForm = ({
@@ -15,6 +15,7 @@ const HomeworkForm = ({
   feedbackReleaseTs,
   setFeedbackReleaseTs,
   setTitle,
+  setCss,
   problems,
   setProblems,
   id,
@@ -29,6 +30,7 @@ const HomeworkForm = ({
   feedbackReleaseTs: Date;
   setFeedbackReleaseTs: (value: Date) => void;
   setTitle: (title: string) => void;
+  setCss: (css: CSS[]) => void;
   problems: Record<string, FTMLProblemWithSolution>;
   setProblems: (problems: Record<string, FTMLProblemWithSolution>) => void;
   id: number | null;
@@ -102,7 +104,7 @@ const HomeworkForm = ({
         InputLabelProps={{ shrink: true }}
       />
 
-      <QuizFileReader setTitle={setTitle} setProblems={setProblems} />
+      <QuizFileReader setCss={setCss} setTitle={setTitle} setProblems={setProblems} />
       {<i>{Object.keys(problems ?? {}).length} problems found.</i>}
       <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
         <Button variant="contained" color="primary" onClick={handleSave}>

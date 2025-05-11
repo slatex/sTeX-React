@@ -2,6 +2,7 @@ import {
   Alert,
   Box,
   Button,
+  css,
   Dialog,
   DialogActions,
   DialogContent,
@@ -14,6 +15,7 @@ import { useEffect, useState } from 'react';
 import {
   createHomework,
   CreateHomeworkRequest,
+  CSS,
   deleteHomework,
   FTMLProblemWithSolution,
   getHomeworkList,
@@ -54,6 +56,7 @@ const HomeworkManager = ({ courseId }) => {
   const [view, setView] = useState<'list' | 'create' | 'edit'>('list');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedHomeworkId, setSelectedHomeworkId] = useState<number | null>(null);
+  const [css, setCss] = useState<CSS[]>([]);
 
   const getHomeworks = async () => {
     try {
@@ -206,6 +209,7 @@ const HomeworkManager = ({ courseId }) => {
             title={title}
             givenTs={givenTs}
             dueTs={dueTs}
+            setCss={setCss}
             feedbackReleaseTs={feedbackReleaseTs}
             setGivenTs={(givenTs) => {
               setGivenTs(givenTs);

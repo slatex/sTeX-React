@@ -3,6 +3,7 @@ import { Box, Button, FormControl, InputLabel, MenuItem, Select, Typography } fr
 import {
   canAccessResource,
   createQuiz,
+  CSS,
   deleteQuiz,
   FTMLProblemWithSolution,
   getAuthHeaders,
@@ -81,7 +82,8 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
   const [quizEndTs, setQuizEndTs] = useState<number>(roundToMinutes(Date.now()));
   const [feedbackReleaseTs, setFeedbackReleaseTs] = useState<number>(roundToMinutes(Date.now()));
   const [courseTerm, setCourseTerm] = useState<string>(CURRENT_TERM);
-  const [manuallySetPhase, setManuallySetPhase] = useState<string>(Phase.UNSET);
+  const [manuallySetPhase, setManuallySetPhase] = useState<Phase>(Phase.UNSET);
+  const [css, setCss] = useState<CSS[]>([]);
   const [quizzes, setQuizzes] = useState<QuizWithStatus[]>([]);
   const [problems, setProblems] = useState<Record<string, FTMLProblemWithSolution>>({});
   const [stats, setStats] = useState<QuizStatsResponse>({
@@ -262,7 +264,7 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
           label="Manually Set Phase"
           labelId="manually-set-phase-label"
           value={manuallySetPhase}
-          onChange={(e) => setManuallySetPhase(e.target.value)}
+          onChange={(e) => setManuallySetPhase(e.target.value as Phase)}
         >
           {Object.values(Phase).map((enumValue) => (
             <MenuItem key={enumValue} value={enumValue}>
@@ -271,7 +273,7 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
           ))}
         </Select>
       </FormControl>
-      {accessType == 'MUTATE' && <QuizFileReader setTitle={setTitle} setProblems={setProblems} />}
+      {accessType == 'MUTATE' && <QuizFileReader setCss={setCss} setTitle={setTitle} setProblems={setProblems} />}
       <br />
       <i>{Object.keys(problems).length} problems found.</i>
       <br />
@@ -286,6 +288,7 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
             setIsUpdating(true);
             const quiz = {
               id: selectedQuizId,
+              css,
               title,
               courseId,
               courseTerm,
