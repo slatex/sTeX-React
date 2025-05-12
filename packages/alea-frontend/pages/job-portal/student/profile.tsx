@@ -1,10 +1,18 @@
-import { Box, Button, Card, CardContent, IconButton, TextField, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  CircularProgress,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { Action, CURRENT_TERM, PRIMARY_COL, ResourceName } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import JpLayoutWithSidebar from 'packages/alea-frontend/layouts/JpLayoutWithSidebar';
 import { useEffect, useState } from 'react';
-import { ProfileCard } from '../recruiter/profile';
 import { canAccessResource, getStudentProfile, updateStudentProfile } from '@stex-react/api';
+import { UserProfileCard } from 'packages/alea-frontend/components/job-portal/UserProfileCard';
 
 const ProfileForm = () => {
   const [profileData, setProfileData] = useState({
@@ -12,7 +20,7 @@ const ProfileForm = () => {
     userId: '',
     email: '',
     mobile: '',
-    alternateMobile: '',
+    altMobile: '',
     about: '',
     courses: '',
     location: '',
@@ -22,12 +30,13 @@ const ProfileForm = () => {
     yearOfAdmission: null,
     yearOfGraduation: null,
     socialLinks: {},
-    resumeUrl: '',
+    resumeURL: '',
   });
 
   const [accessCheckLoading, setAccessCheckLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+
   useEffect(() => {
     const checkAccess = async () => {
       setAccessCheckLoading(true);
@@ -41,17 +50,16 @@ const ProfileForm = () => {
       }
       setAccessCheckLoading(false);
     };
-
     checkAccess();
   }, []);
+
   useEffect(() => {
     if (accessCheckLoading) return;
     const fetchStudentData = async () => {
       try {
         setLoading(true);
-
         const res = await getStudentProfile();
-        let parsedSocialLinks = res?.socialLinks ? JSON.parse(res.socialLinks) : {};
+        const parsedSocialLinks = res?.socialLinks || {};
         const requiredSocialLinks = {
           linkedin: parsedSocialLinks.linkedin || 'N/A',
           github: parsedSocialLinks.github || 'N/A',
@@ -64,7 +72,7 @@ const ProfileForm = () => {
           userId: res?.userId || '',
           email: res?.email || '',
           mobile: res?.mobile || '',
-          alternateMobile: res?.mobile || '',
+          altMobile: res?.mobile || '',
           about: res?.about || '',
           courses: res?.courses || '',
           location: res?.location || '',
@@ -74,7 +82,7 @@ const ProfileForm = () => {
           yearOfAdmission: res?.yearOfAdmission || null,
           yearOfGraduation: res?.yearOfGraduation || null,
           socialLinks: requiredSocialLinks,
-          resumeUrl: res?.resumeURL || '',
+          resumeURL: res?.resumeURL || '',
         }));
       } catch (error) {
         console.error('Error fetching student data:', error);
@@ -111,14 +119,14 @@ const ProfileForm = () => {
         name: profileData.name,
         email: profileData.email,
         mobile: profileData.mobile,
-        altMobile: profileData.alternateMobile,
+        altMobile: profileData.altMobile,
         gpa: profileData.gpa,
         courses: profileData.courses,
         programme: profileData.programme,
         gender: profileData.gender,
         yearOfAdmission: profileData.yearOfAdmission,
         yearOfGraduation: profileData.yearOfGraduation,
-        resumeUrl: profileData.resumeUrl,
+        resumeURL: profileData.resumeURL,
         location: profileData.location,
         about: profileData.about,
         socialLinks: JSON.stringify(profileData.socialLinks),
@@ -131,14 +139,16 @@ const ProfileForm = () => {
       setLoading(false);
     }
   };
-
+  if (accessCheckLoading || loading) {
+    return <CircularProgress color="primary" />;
+  }
   return (
-    <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+    <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap', p: { xs: '30px 16px', md: '30px' } }}>
       <Box
         sx={{
           maxWidth: 1200,
           flex: 2,
-          padding: 4,
+          padding: 1,
           backgroundColor: '#f9f9f9',
           borderRadius: 2,
           boxShadow: 3,
@@ -148,7 +158,7 @@ const ProfileForm = () => {
           Profile Information
         </Typography>
 
-        <Card sx={{ marginBottom: 1, px: 10, borderRadius: '20px' }}>
+        <Card sx={{ marginBottom: 1, px: 5, borderRadius: '20px' }}>
           <CardContent>
             <Box
               display="flex"
@@ -257,9 +267,9 @@ const ProfileForm = () => {
                   variant="standard"
                   fullWidth
                   sx={{ maxWidth: '350px', m: '20px 0 0' }}
-                  value={profileData.alternateMobile}
+                  value={profileData.altMobile}
                   onChange={handleChange}
-                  name="alternateMobile"
+                  name="altMobile"
                   type="tel"
                 />
                 <TextField
@@ -330,9 +340,9 @@ const ProfileForm = () => {
                   variant="standard"
                   fullWidth
                   sx={{ maxWidth: '350px', m: '20px 0 0' }}
-                  value={profileData.resumeUrl}
+                  value={profileData.resumeURL}
                   onChange={handleChange}
-                  name="resumeUrl"
+                  name="resumeURL"
                 />
               </Box>
 
@@ -372,7 +382,7 @@ const ProfileForm = () => {
                 rows={4}
                 value={profileData.about}
                 onChange={handleChange}
-                name="aboutMe"
+                name="about"
               />
             </CardContent>
           </Card>
@@ -381,16 +391,16 @@ const ProfileForm = () => {
       <Box
         sx={{
           flex: 1,
-          backgroundColor: '#e0e0e0',
-          padding: 3,
+          boxShadow: 3,
+          borderRadius: 4,
         }}
       >
-        <ProfileCard userType="student" profileData={profileData} />
+        <UserProfileCard type="student" userData={profileData} showPortfolioLinks />;
       </Box>
     </Box>
   );
 };
 const Profile = () => {
-  return <JpLayoutWithSidebar role="recruiter">{<ProfileForm />}</JpLayoutWithSidebar>;
+  return <JpLayoutWithSidebar role="student">{<ProfileForm />}</JpLayoutWithSidebar>;
 };
 export default Profile;

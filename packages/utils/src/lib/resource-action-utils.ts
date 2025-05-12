@@ -22,6 +22,7 @@ export enum ResourceName {
   BLOG = 'BLOG',
   EXPERIMENTAL = 'EXPERIMENTAL',
   JOB_PORTAL = 'JOB_PORTAL',
+  JOB_PORTAL_ORG = 'JOB_PORTAL_ORG',
 
   // Resources related to specific courses.
   COURSE_NOTES = 'COURSE_NOTES',
@@ -179,11 +180,21 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
   },
   {
     name: ResourceName.JOB_PORTAL,
-    possibleActions: [Action.APPLY, Action.CREATE_JOB_POST, Action.CREATE_JOB_TYPE],
+    possibleActions: [Action.APPLY, Action.CREATE_JOB_TYPE],
     components: [
       { type: ComponentType.FIXED, value: 'instance' },
       { name: 'instanceId', type: ComponentType.VARIABLE, value: CURRENT_TERM },
       { type: ComponentType.FIXED, value: 'job-portal' },
+    ],
+  },
+  {
+    name: ResourceName.JOB_PORTAL_ORG,
+    possibleActions: [Action.MUTATE, Action.CREATE_JOB_POST, Action.ACCESS_CONTROL],
+    components: [
+      { type: ComponentType.FIXED, value: 'instance' },
+      { name: 'instanceId', type: ComponentType.VARIABLE, value: CURRENT_TERM },
+      { type: ComponentType.FIXED, value: 'orgId' },
+      { name: 'orgId', type: ComponentType.VARIABLE },
     ],
   },
 ];

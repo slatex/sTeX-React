@@ -1,5 +1,5 @@
 export interface StudentData {
-  userId?: string;
+  userId: string;
   name: string;
   gender: string;
   email: string;
@@ -12,26 +12,26 @@ export interface StudentData {
   yearOfGraduation: string;
   location: string;
   resumeURL?: string;
-  socialLinks?: string;
-  about: string;
+  socialLinks?: Record<string, string>;
+  about?: string;
 }
 
 export interface RecruiterData {
-  userId?: string;
+  userId: string;
   name: string;
   email: string;
   position: string;
   mobile?: string;
   altMobile?: string;
   organizationId?: number;
-  hasDefinedOrg?: number;
-  socialLinks?: string;
+  socialLinks?: Record<string, string>;
   about?: string;
 }
 
 export interface OrganizationData {
   id?: number;
   companyName: string;
+  domain: string;
   incorporationYear?: string;
   isStartup?: string;
   about?: string;
@@ -70,6 +70,7 @@ export interface JobPostInfo {
   stipend: number;
   facilities: string;
   applicationDeadline: Date;
+  createdByUserId?: string;
 }
 
 // export type InitialJobData = JobPostInfo | Pick<JobPostInfo, 'session'>;
@@ -83,8 +84,13 @@ export interface JobApplicationInfo {
   recruiterAction?: string;
   studentMessage?: string;
   recruiterMessage?: string;
+  createdAt?: string;
 }
 
-export interface ApplicantProfile extends JobApplicationInfo {
-  studentProfile: StudentData[];
-}
+// export interface ApplicantProfile extends JobApplicationInfo {
+//   studentProfile: StudentData[];
+// }
+export type ApplicantWithProfile = JobApplicationInfo & {
+  jobPostTitle?: string;
+  studentProfile: StudentData;
+};

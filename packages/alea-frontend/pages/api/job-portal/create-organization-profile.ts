@@ -1,43 +1,83 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { checkIfPostOrSetError, executeAndEndSet500OnError } from '../comment-utils';
-import { getUserIdIfAuthorizedOrSetError } from '../access-control/resource-utils';
-import { Action, CURRENT_TERM, ResourceName } from '@stex-react/utils';
+import {
+  checkIfPostOrSetError,
+  executeAndEndSet500OnError,
+  getUserIdOrSetError,
+} from '../comment-utils';
+
+export async function createOrganizationProfile(
+  {
+    companyName,
+    domain,
+    incorporationYear = null,
+    isStartup = null,
+    website = null,
+    about = null,
+    companyType = null,
+    officeAddress = null,
+    officePincode = null,
+  }: {
+    companyName: string;
+    domain: string;
+    incorporationYear?: string | null;
+    isStartup?: boolean | null;
+    website?: string | null;
+    about?: string | null;
+    companyType?: string | null;
+    officeAddress?: string | null;
+    officePincode?: string | null;
+  },
+  res: NextApiResponse
+) {
+  if (!companyName || !domain) return res.status(422).send('Missing required params');
+  const result = await executeAndEndSet500OnError(
+    `INSERT INTO organizationprofile 
+      (companyName, incorporationYear, isStartup, website, domain, about, companyType, officeAddress, officePincode) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      companyName,
+      incorporationYear,
+      isStartup,
+      website,
+      domain,
+      about,
+      companyType,
+      officeAddress,
+      officePincode,
+    ],
+    res
+  );
+  return result;
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
-  const userId = await getUserIdIfAuthorizedOrSetError(
-    req,
-    res,
-    ResourceName.JOB_PORTAL,
-    Action.CREATE_JOB_POST,
-    { instanceId: CURRENT_TERM }
-  );
+  const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
   const {
     companyName,
     incorporationYear,
     isStartup,
     website,
+    domain,
     about,
     companyType,
     officeAddress,
     officePincode,
   } = req.body;
 
-  const result = await executeAndEndSet500OnError(
-    `INSERT INTO organizationprofile 
-      (companyName,incorporationYear, isStartup,website, about, companyType, officeAddress, officePincode) 
-     VALUES (?, ?, ?, ?, ?, ?, ?,?)`,
-    [
+  const result = await createOrganizationProfile(
+    {
       companyName,
       incorporationYear,
       isStartup,
       website,
+      domain,
       about,
       companyType,
       officeAddress,
       officePincode,
-    ],
+    },
     res
   );
   if (!result) return;

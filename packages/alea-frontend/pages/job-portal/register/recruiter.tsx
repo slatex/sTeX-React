@@ -6,22 +6,16 @@ import {
   Typography,
   CircularProgress,
   Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
-import {
-  canAccessResource,
-  createOrganizationProfile,
-  createRecruiterProfile,
-  getOrganizationId,
-  getRecruiterProfile,
-  OrganizationData,
-  RecruiterData,
-  updateRecruiterProfile,
-} from '@stex-react/api';
-import { Action, CURRENT_TERM, ResourceName } from '@stex-react/utils';
+import { getRecruiterProfile, registerRecruiter } from '@stex-react/api';
+import { isBusinessDomain } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
 import { useEffect, useState } from 'react';
-
 export interface RecruiterRegistrationData {
   name: string;
   email: string;
@@ -40,31 +34,13 @@ export default function RecruiterRegistration() {
   });
   const [errors, setErrors] = useState({ email: '' });
   const router = useRouter();
-  const [accessCheckLoading, setAccessCheckLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
-
-  useEffect(() => {
-    const checkAccess = async () => {
-      setAccessCheckLoading(true);
-      const hasAccess = await canAccessResource(ResourceName.JOB_PORTAL, Action.CREATE_JOB_POST, {
-        instanceId: CURRENT_TERM,
-      });
-      if (!hasAccess) {
-        alert('You donot have access to this page.');
-        router.push('/job-portal');
-        return;
-      }
-      setAccessCheckLoading(false);
-    };
-
-    checkAccess();
-  }, []);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     setLoading(true);
-
-    if (accessCheckLoading) return;
     const fetchRecruiterData = async () => {
       try {
         const res = await getRecruiterProfile();
@@ -74,16 +50,15 @@ export default function RecruiterRegistration() {
         }
         setIsRegistered(true);
       } catch (error) {
-        //   setIsRegistered(!!res);
-        // }
         console.error('Error fetching recruiter data:', error);
       } finally {
         setLoading(false);
       }
     };
     fetchRecruiterData();
-  }, [accessCheckLoading]);
-  if (accessCheckLoading || loading) {
+  }, []);
+
+  if (loading) {
     return <CircularProgress color="primary" />;
   }
   if (isRegistered) return <Alert severity="info">You are already registered.</Alert>;
@@ -106,6 +81,7 @@ export default function RecruiterRegistration() {
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
+
     if (!email) {
       setErrors((prevErrors) => ({ ...prevErrors, email: 'Email is required.' }));
       return false;
@@ -113,19 +89,43 @@ export default function RecruiterRegistration() {
       setErrors((prevErrors) => ({ ...prevErrors, email: 'Invalid email address.' }));
       return false;
     }
+
+    const domain = email.split('@')[1]?.toLowerCase();
+    if (!isBusinessDomain(domain)) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        email: `Please use a valid business email (not a public domain like ${domain}).`,
+      }));
+      return false;
+    }
     return true;
   };
 
   const handleSubmit = async () => {
     if (!validateEmail(formData.email)) return;
-    const { name, email, position, companyName } = formData;
-    const recruiterData: RecruiterData = { name, email, position };
-    await createRecruiterProfile(recruiterData);
-    const organizationData: OrganizationData = { companyName };
-    await createOrganizationProfile(organizationData);
-    const id = await getOrganizationId(companyName);
-    await updateRecruiterProfile({ ...recruiterData, organizationId: id, hasDefinedOrg: 0 });
-    router.push('/job-portal/recruiter/dashboard');
+    setIsSubmitting(true);
+    try {
+      const { name, email, position, companyName } = formData;
+      const data = await registerRecruiter(name, email, position, companyName);
+      if (data?.showInviteDialog) {
+        setOpenDialog(true);
+        return;
+      }
+      if (data?.showProfilePopup) {
+        await router.push({
+          pathname: '/job-portal/recruiter/dashboard',
+          query: { showProfilePopup: 'true' },
+        });
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
   };
   return (
     <MainLayout title="Register-Recruiter | VoLL-KI">
@@ -189,6 +189,25 @@ export default function RecruiterRegistration() {
             Submit
           </Button>
         </Box>
+        {isSubmitting && (
+          <Box mt={2} display="flex" justifyContent="center">
+            <CircularProgress color="primary" />
+          </Box>
+        )}
+        <Dialog open={openDialog} onClose={handleCloseDialog}>
+          <DialogTitle>Organization Exists – Invite Not Found</DialogTitle>
+          <DialogContent>
+            <p>
+              Your organization is already registered(same email domain organization exists). Please
+              contact the admin or recruiter to get an invite to join the organization.
+            </p>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDialog} color="primary">
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Container>
     </MainLayout>
   );

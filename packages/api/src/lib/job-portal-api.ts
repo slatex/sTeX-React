@@ -14,7 +14,10 @@ export async function createStudentProfile(data: StudentData) {
     headers: getAuthHeaders(),
   });
 }
-export async function updateStudentProfile(data: StudentData) {
+export type UpdateStudentProfileData = Omit<StudentData, 'userId' | 'socialLinks'> & {
+  socialLinks: string;
+};
+export async function updateStudentProfile(data: UpdateStudentProfileData) {
   await axios.post('/api/job-portal/update-student-profile', data, {
     headers: getAuthHeaders(),
   });
@@ -24,7 +27,17 @@ export async function createRecruiterProfile(data: RecruiterData) {
     headers: getAuthHeaders(),
   });
 }
-export async function updateRecruiterProfile(data: RecruiterData) {
+export async function deleteRecruiterProfile(id: string) {
+  await axios.post(
+    '/api/job-portal/delete-recruiter-profile',
+    { id },
+    { headers: getAuthHeaders() }
+  );
+}
+export type UpdateRecruiterProfileData = Omit<RecruiterData, 'userId' | 'socialLinks'> & {
+  socialLinks: string;
+};
+export async function updateRecruiterProfile(data: UpdateRecruiterProfileData) {
   await axios.post('/api/job-portal/update-recruiter-profile', data, {
     headers: getAuthHeaders(),
   });
@@ -54,6 +67,14 @@ export async function createOrganizationProfile(data: OrganizationData) {
     headers: getAuthHeaders(),
   });
 }
+export async function deleteOrganizationProfile(id: string) {
+  await axios.post(
+    '/api/job-portal/create-organization-profile',
+    { id },
+    { headers: getAuthHeaders() }
+  );
+}
+
 export async function updateOrganizationProfile(data: OrganizationData, id: number) {
   await axios.post(
     '/api/job-portal/update-organization-profile',
@@ -69,7 +90,45 @@ export async function getOrganizationProfile(id: number) {
   });
   return resp.data as OrganizationData;
 }
+export async function getOrganizationByDomain(domain: string) {
+  const resp = await axios.get('/api/job-portal/get-org-by-domain', {
+    params: { domain },
+  });
+  return resp.data as OrganizationData;
+}
+export async function inviteRecruiterToOrg(email: string, orgId: number) {
+  const resp = await axios.post(
+    '/api/job-portal/create-invite-to-org',
+    { email, orgId },
+    { headers: getAuthHeaders() }
+  );
+  return resp.status === 201;
+}
 
+export async function checkInviteToOrg(organizationId: string, email: string) {
+  const resp = await axios.get('/api/job-portal/check-org-invitations', {
+    params: { organizationId, email },
+  });
+  return resp.data as { hasInvites: boolean };
+}
+export async function registerRecruiter(
+  name: string,
+  email: string,
+  position: string,
+  companyName: string
+) {
+  const resp = await axios.post(
+    '/api/job-portal/register-recruiter',
+    {
+      name,
+      email,
+      position,
+      companyName,
+    },
+    { headers: getAuthHeaders() }
+  );
+  return resp.data;
+}
 export async function getOrganizationId(organizationName: string) {
   const resp = await axios.get('/api/job-portal/get-organization-id', {
     headers: getAuthHeaders(),
@@ -162,10 +221,10 @@ export async function getJobApplicationsByUserId() {
   });
   return resp.data as JobApplicationInfo[];
 }
-export async function getJobApplicationsByUserIdAndJobPostId(userId: string, jobPostId: number) {
-  const resp = await axios.get('/api/job-portal/get-job-applications-by-userid-and-jobpostid', {
+export async function getJobApplicationsByUserIdAndJobPostId(jobPostId: number, userId?: string) {
+  const resp = await axios.get('/api/job-portal/get-job-application-by-userid-and-jobpostid', {
     headers: getAuthHeaders(),
-    params: { userId, jobPostId },
+    params: { jobPostId, userId },
   });
   return resp.data as JobApplicationInfo[];
 }
@@ -180,5 +239,5 @@ export async function getStudentProfileUsingUserId(userId: string) {
     headers: getAuthHeaders(),
     params: { userId },
   });
-  return resp.data as StudentData[];
+  return resp.data as StudentData;
 }

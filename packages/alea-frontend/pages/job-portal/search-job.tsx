@@ -2,29 +2,17 @@ import {
   BusinessOutlined,
   FilterAlt,
   HomeWorkOutlined,
-  Info,
   InfoOutlined,
   Search,
   SyncAltOutlined,
 } from '@mui/icons-material';
 import {
-  Backdrop,
   Box,
   Button,
-  Card,
-  CardContent,
-  Checkbox,
   Chip,
   CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   Fade,
   FormControl,
-  FormControlLabel,
-  FormGroup,
-  Grid,
   IconButton,
   InputAdornment,
   InputLabel,
@@ -35,12 +23,15 @@ import {
   Typography,
 } from '@mui/material';
 import {
+  canAccessResource,
   createJobApplication,
   getAllJobPosts,
-  getJobApplicationsByJobPost,
+  getJobApplicationsByUserIdAndJobPostId,
   getOrganizationProfile,
   getUserInfo,
 } from '@stex-react/api';
+import { Action, CURRENT_TERM, ResourceName } from '@stex-react/utils';
+import { useRouter } from 'next/router';
 import JpLayoutWithSidebar from 'packages/alea-frontend/layouts/JpLayoutWithSidebar';
 import { useEffect, useState } from 'react';
 const JobDetailsModal = ({ open, onClose, selectedJob }) => {
@@ -137,42 +128,137 @@ const JobDetailsModal = ({ open, onClose, selectedJob }) => {
     </Modal>
   );
 };
+export const JobBox = ({ job, onApply, onReadMore }) => {
+  const getIcon = () => {
+    if (job.workMode === 'remote')
+      return <HomeWorkOutlined sx={{ color: 'white', fontSize: 18 }} />;
+    if (job.workMode === 'hybrid') return <SyncAltOutlined sx={{ color: 'white', fontSize: 18 }} />;
+    return <BusinessOutlined sx={{ color: 'white', fontSize: 18 }} />;
+  };
+
+  const getBgColor = () => {
+    if (job.workMode === 'remote') return 'success.light';
+    if (job.workMode === 'hybrid') return 'warning.light';
+    return 'primary.light';
+  };
+
+  return (
+    <Box
+      sx={{
+        borderRadius: 2,
+        boxShadow: 3,
+        position: 'relative',
+        overflow: 'hidden',
+        p: 2,
+        minHeight: 280,
+        bgcolor: 'white',
+      }}
+    >
+      <img
+        src={job.logo}
+        alt={job.organization.companyName}
+        style={{ width: 50, height: 50, position: 'absolute', top: 10, right: 10 }}
+      />
+
+      <Typography variant="h6" mb={1}>
+        {job.jobTitle}
+      </Typography>
+
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+        <Typography
+          variant="body1"
+          color="textSecondary"
+          sx={{ display: 'flex', alignItems: 'center' }}
+        >
+          {job.organization.companyName}
+          <IconButton sx={{ ml: 1 }}>
+            <InfoOutlined color="primary" />
+          </IconButton>
+        </Typography>
+
+        <Chip
+          label={job.workMode}
+          icon={getIcon()}
+          sx={{
+            textTransform: 'capitalize',
+            bgcolor: getBgColor(),
+            color: 'white',
+            fontWeight: 'bold',
+            px: 1.5,
+            '& .MuiChip-icon': { color: 'white' },
+          }}
+        />
+      </Box>
+
+      <Typography variant="body2" gutterBottom>
+        💰 {`${job.stipend} ${job.currency}`}
+      </Typography>
+
+      <Typography variant="body2" gutterBottom>
+        📍 {job.trainingLocation}
+      </Typography>
+
+      <Typography variant="body2">
+        ⏳ Deadline: {new Date(job.applicationDeadline).toLocaleDateString()}
+      </Typography>
+
+      <Box mt={2}>
+        <Button
+          variant="contained"
+          fullWidth
+          sx={{ mb: 1 }}
+          disabled={job.alreadyApplied}
+          onClick={() => onApply(job.id)}
+        >
+          {job.alreadyApplied ? 'Already Applied' : 'Apply'}
+        </Button>
+        <Button variant="outlined" fullWidth onClick={() => onReadMore(job)}>
+          Read More
+        </Button>
+      </Box>
+    </Box>
+  );
+};
 
 export function SearchJob() {
+  const [accessCheckLoading, setAccessCheckLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [jobPosts, setJobPosts] = useState([]);
-  const [appliedJobs, setAppliedJobs] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('latestJobPost');
   const [filters, setFilters] = useState({ remote: false, onsite: false, hybrid: false });
   const [selectedJob, setSelectedJob] = useState(null);
-  const [selectedOrg, setSelectedOrg] = useState(null);
-  console.log({ selectedOrg });
   const [openJobModal, setOpenJobModal] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [openOrgModal, setOpenOrgModal] = useState(false);
-
-  const handleOrgModalOpen = () => {
-    setOpenOrgModal(true);
-  };
-
-  const handleOrgModalClose = () => {
-    setSelectedOrg(null);
-    setOpenOrgModal(false);
-  };
+  const router = useRouter();
 
   useEffect(() => {
+    const checkAccess = async () => {
+      setAccessCheckLoading(true);
+      const hasAccess = await canAccessResource(ResourceName.JOB_PORTAL, Action.APPLY, {
+        instanceId: CURRENT_TERM,
+      });
+      if (!hasAccess) {
+        alert('You donot have access to this page.');
+        router.push('/job-portal');
+        return;
+      }
+      setAccessCheckLoading(false);
+    };
+    checkAccess();
+  }, []);
+
+  useEffect(() => {
+    if (accessCheckLoading) return;
     const fetchJobPosts = async () => {
       setLoading(true);
       try {
         const data = await getAllJobPosts();
-        const appliedJobsList = [];
         const enrichedJobPosts = await Promise.all(
           data.map(async (job) => {
             let alreadyApplied = false;
             const organizationDetail = await getOrganizationProfile(job.organizationId);
-            const application = await getJobApplicationsByJobPost(job.id);
+            const application = await getJobApplicationsByUserIdAndJobPostId(job.id);
             alreadyApplied = application.length > 0;
-
             return {
               ...job,
               organization: organizationDetail,
@@ -187,10 +273,9 @@ export function SearchJob() {
         setLoading(false);
       }
     };
-
     fetchJobPosts();
-  }, []);
-  console.log('jP', jobPosts);
+  }, [accessCheckLoading]);
+
   const handleFilterChange = (e) => {
     const value = e.target.value;
     setFilters({
@@ -221,7 +306,6 @@ export function SearchJob() {
   };
 
   const handleSort = (filteredJobs) => {
-    console.log('cr', filteredJobs[0]?.createdAt);
     if (sortBy === 'salary') {
       return filteredJobs.sort((a, b) => b.stipend - a.stipend);
     } else if (sortBy === 'latestJobPost') {
@@ -250,7 +334,6 @@ export function SearchJob() {
       const userInfo = await getUserInfo();
       if (!userInfo) return;
       const applicantId = userInfo.userId;
-      console.log('applicant id is ', applicantId);
       const JobApplicationInfo = {
         jobPostId,
         applicantId,
@@ -260,15 +343,10 @@ export function SearchJob() {
       setJobPosts((prevJobs) =>
         prevJobs.map((job) => (job.id === jobPostId ? { ...job, alreadyApplied: true } : job))
       );
-      const appliedJob = jobPosts.find((job) => job.id === jobPostId);
-      if (appliedJob) {
-        setAppliedJobs((prev) => [...prev, { ...appliedJob, alreadyApplied: true }]);
-      }
     } catch (error) {
       console.error('Error applying for this job:', error);
     }
   };
-  console.log({ jobPosts });
   const filteredJobs = handleSearch().filter((job) => {
     const workModeFilter =
       (filters.remote && job.workMode === 'remote') ||
@@ -280,12 +358,15 @@ export function SearchJob() {
     return workModeFilter;
   });
 
-  console.log({ filteredJobs });
   const sortedJobs = handleSort(filteredJobs);
-  console.log({ sortedJobs });
+
+  if (accessCheckLoading) {
+    return <CircularProgress color="primary" />;
+  }
+
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-      <Box sx={{ p: '80px 50px 0' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', p: { xs: '30px 16px', md: '30px' } }}>
+      <Box sx={{ maxWidth: 'xl', mx: 'auto' }}>
         <Box
           sx={{
             display: 'flex',
@@ -324,6 +405,7 @@ export function SearchJob() {
             variant="outlined"
             sx={{
               minWidth: 140,
+              flexGrow: { xs: '1', sm: 0 },
             }}
           >
             <InputLabel>Sort By</InputLabel>
@@ -349,6 +431,7 @@ export function SearchJob() {
             variant="outlined"
             sx={{
               minWidth: 140,
+              flexGrow: { xs: '1', md: 0 },
             }}
           >
             <InputLabel>Filter Work Mode</InputLabel>
@@ -397,97 +480,29 @@ export function SearchJob() {
           </Box>
         ) : (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-            {sortedJobs.map((job, index) => (
-              <Box
-                key={index}
-                sx={{
-                  minWidth: '300px',
-                  maxWidth: '600px',
-                  flexGrow: 1,
-                  flexBasis: 'calc(33.333% - 40px)',
-                  mb: 3,
-                }}
-              >
-                <Card
-                  sx={{ borderRadius: 2, boxShadow: 3, position: 'relative', overflow: 'hidden' }}
+            {sortedJobs.length > 0 ? (
+              sortedJobs.map((job, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    minWidth: '300px',
+                    maxWidth: '600px',
+                    flexGrow: 1,
+                    flexBasis: 'calc(33.333% - 40px)',
+                    mb: 3,
+                  }}
                 >
-                  <img
-                    src={job.logo}
-                    alt={job.organization.companyName}
-                    style={{ width: 50, height: 50, position: 'absolute', top: 10, right: 10 }}
-                  />
-                  <CardContent sx={{ padding: '20px' }}>
-                    <Typography variant="h6">{job.jobTitle}</Typography>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <Typography
-                        variant="body1"
-                        color="textSecondary"
-                        sx={{ display: 'flex', alignItems: 'center' }}
-                      >
-                        {job.organization.companyName}
-                        <IconButton sx={{ ml: 1 }}>
-                          <InfoOutlined color="primary" />
-                        </IconButton>
-                      </Typography>
-                      <Chip
-                        label={job.workMode}
-                        icon={
-                          job.workMode === 'remote' ? (
-                            <HomeWorkOutlined sx={{ color: 'white', fontSize: 18 }} />
-                          ) : job.workMode === 'hybrid' ? (
-                            <SyncAltOutlined sx={{ color: 'white', fontSize: 18 }} />
-                          ) : (
-                            <BusinessOutlined sx={{ color: 'white', fontSize: 18 }} />
-                          )
-                        }
-                        sx={{
-                          textTransform: 'capitalize',
-                          bgcolor:
-                            job.workMode === 'remote'
-                              ? 'success.light'
-                              : job.workMode === 'hybrid'
-                              ? 'warning.light'
-                              : 'primary.light',
-                          color: 'white',
-                          fontWeight: 'bold',
-                          px: 1.5,
-                          '& .MuiChip-icon': {
-                            color: 'white',
-                          },
-                        }}
-                      />
-                    </Box>
-                    <Typography variant="body2">💰{`${job.stipend} ${job.currency}`}</Typography>
-
-                    <Typography variant="body2">📍 {job.trainingLocation}</Typography>
-                    <Typography variant="body2">
-                      ⏳ Deadline: {new Date(job.applicationDeadline).toLocaleDateString()}
-                    </Typography>
-
-                    <Box sx={{ mt: 2 }}>
-                      <Button
-                        variant="contained"
-                        fullWidth
-                        sx={{ mb: 1 }}
-                        disabled={job.alreadyApplied}
-                        onClick={() => handleApply(job.id)}
-                      >
-                        {job?.alreadyApplied ? 'Already Applied' : 'Apply'}
-                      </Button>
-                      <Button variant="outlined" fullWidth onClick={() => handleReadMore(job)}>
-                        Read More
-                      </Button>
-                    </Box>
-                  </CardContent>
-                </Card>
-              </Box>
-            ))}
+                  <JobBox job={job} onApply={handleApply} onReadMore={handleReadMore} />
+                </Box>
+              ))
+            ) : (
+              <Typography
+                variant="h6"
+                sx={{ mt: 2, mx: 'auto', textAlign: 'center', width: '100%' }}
+              >
+                No jobs found.
+              </Typography>
+            )}
           </Box>
         )}
       </Box>

@@ -5,26 +5,48 @@ import { Action, CURRENT_TERM, ResourceName } from '@stex-react/utils';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
+  const { organizationId } = req.body;
   const userId = await getUserIdIfAuthorizedOrSetError(
     req,
     res,
-    ResourceName.JOB_PORTAL,
+    ResourceName.JOB_PORTAL_ORG,
     Action.CREATE_JOB_POST,
-    { instanceId: CURRENT_TERM }
+    { orgId: organizationId, instanceId: CURRENT_TERM }
   );
   if (!userId) return;
-  const {organizationId, JobCategoryId,session,jobTitle,jobDescription,trainingLocation,qualification, targetYears, openPositions,currency,stipend,facilities,applicationDeadline
+  const {
+    JobCategoryId,
+    session,
+    jobTitle,
+    jobDescription,
+    trainingLocation,
+    qualification,
+    targetYears,
+    openPositions,
+    currency,
+    stipend,
+    facilities,
+    applicationDeadline,
   } = req.body;
-  console.log({organizationId})
-console.log("of",req.body);
-//   let instanceId = req.body.instanceId as string;
-//   if (!instanceId) instanceId = CURRENT_TERM;
 
   const result = await executeAndEndSet500OnError(
     `INSERT INTO jobpost 
       (JobCategoryId,organizationId ,session,jobTitle,jobDescription,trainingLocation,qualification,targetYears,openPositions,currency,stipend,facilities,applicationDeadline) 
      VALUES (?,?,?, ?, ?, ?,?,?,?,?,?,?,?)`,
-    [JobCategoryId ,organizationId,session,jobTitle,jobDescription,trainingLocation,qualification,targetYears,openPositions,currency,stipend,facilities,applicationDeadline
+    [
+      JobCategoryId,
+      organizationId,
+      session,
+      jobTitle,
+      jobDescription,
+      trainingLocation,
+      qualification,
+      targetYears,
+      openPositions,
+      currency,
+      stipend,
+      facilities,
+      applicationDeadline,
     ],
     res
   );

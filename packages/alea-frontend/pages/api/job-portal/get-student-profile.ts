@@ -21,5 +21,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!results || !results.length) {
     return res.status(200).json([]);
   }
-  res.status(200).json(results[0]);
+  const student = results[0];
+  let parsedSocialLinks: Record<string, string> = {};
+
+  if (typeof student.socialLinks === 'string') {
+    parsedSocialLinks = JSON.parse(student.socialLinks);
+  } else {
+    parsedSocialLinks = student.socialLinks || {};
+  }
+  res.status(200).json({
+    ...student,
+    socialLinks: parsedSocialLinks,
+  });
 }

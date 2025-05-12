@@ -165,8 +165,8 @@ export function fixDuplicateLabels<T extends { label: string }>(RAW: T[]) {
   return fixed;
 }
 
-export function isFauId(userId:string):boolean{
-  return userId.length===8 && !userId.includes('@');
+export function isFauId(userId: string): boolean {
+  return userId.length === 8 && !userId.includes('@');
 }
 
 export function getChildrenOfBodyNode(bodyNode: any) {
@@ -267,4 +267,42 @@ export function capitalizeFirstLetter(str: string): string {
 
 export function chooseRandomlyFromList(list: any[]) {
   return list[Math.floor(Math.random() * list.length)];
+}
+
+export function isBusinessDomain(domain?: string) {
+  if (!domain) return false;
+  return ![
+    'aol.com',
+    'comcast.net',
+    'free.fr',
+    'gmail.com',
+    'gmx.de',
+    'gmx.com',
+    'gmx.us',
+    'googlemail.com',
+    'hotmail.co.uk',
+    'hotmail.com',
+    'hotmail.fr',
+    'icloud.com',
+    'libero.it',
+    'live.com',
+    'msn.com',
+    'mac.com',
+    'me.com',
+    'orange.fr',
+    'outlook.com',
+    'rediffmail.com',
+    'rocketmail.com',
+    'protonmail.com',
+    'wanadoo.fr',
+    'web.de',
+    'yahoo.co.in',
+    'yahoo.co.uk',
+    'yahoo.com',
+    'yahoo.com.br',
+    'yahoo.fr',
+    'yandex.ru',
+    'ymail.com',
+    'yopmail.com',
+  ].includes(domain);
 }

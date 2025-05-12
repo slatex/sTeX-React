@@ -6,7 +6,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!checkIfGetOrSetError(req, res)) return;
   const id = req.query.id;
   const results: OrganizationData[] = await executeDontEndSet500OnError(
-    `SELECT id,companyName,incorporationYear,isStartup, about, companyType,officeAddress,officePincode,website
+    `SELECT id,companyName,incorporationYear,isStartup, about, companyType,officeAddress,officePincode,website,domain
     FROM organizationprofile 
     WHERE id = ? 
     `,

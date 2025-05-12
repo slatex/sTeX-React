@@ -11,8 +11,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!userId) return;
   const jobPostId = req.query.jobPostId as string;
 
-  console.log('ell', req.query);
-  //   if (!instanceId) instanceId = CURRENT_TERM;
   const results: any = await executeDontEndSet500OnError(
     `SELECT id,JobCategoryId,organizationId ,session,jobTitle,jobDescription,trainingLocation,qualification,targetYears,openPositions,currency,stipend,facilities,applicationDeadline
     FROM jobPost 

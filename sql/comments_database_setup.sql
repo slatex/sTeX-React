@@ -422,3 +422,17 @@ ADD workMode VARCHAR(50) NULL;
 
 ALTER TABLE JobPost
 ADD workMode VARCHAR(50) NULL;  
+
+CREATE TABLE OrgInvitations (
+    id INT AUTO_INCREMENT PRIMARY KEY, 
+    organizationId int NOT NULL,
+    inviteeEmail VARCHAR(255) NOT NULL,
+    inviteruserId CHAR(36) NOT NULL,     
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (organizationId) REFERENCES organizationprofile(id) ON DELETE CASCADE
+);
+
+ALTER TABLE JobPost
+ADD COLUMN createdByUserId VARCHAR(50),
+ADD CONSTRAINT fk_createdByUser
+FOREIGN KEY (createdByUserId) REFERENCES userInfo(userId);
