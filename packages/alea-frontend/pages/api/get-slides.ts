@@ -5,7 +5,7 @@ import {
   TOCElem,
   getCourseInfo,
   getDocumentSections,
-  getSectionSlides
+  getSectionSlides,
 } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -16,8 +16,11 @@ async function recursivelyExpandSlideElementsExcludeSections(
   const elems: (Extract<SlideElement, { type: 'Paragraph' | 'Slide' }> | Slide)[] = [];
   for (const slideElem of slideElems) {
     if (slideElem.type === 'Inputref') {
-      const [css, slideElems] = await getSectionSlides(slideElem.uri);
-      elems.push(...(await recursivelyExpandSlideElementsExcludeSections(slideElems, sectionId)));
+      const slidesData = await getSectionSlides(slideElem.uri);
+      if (slidesData?.length > 0) {
+        const [css, slideElems] = slidesData;
+        elems.push(...(await recursivelyExpandSlideElementsExcludeSections(slideElems, sectionId)));
+      }
     } else if (slideElem.type === 'Paragraph' || slideElem.type === 'Slide') {
       elems.push(slideElem);
     } else if (slideElem.type === 'Section') {
