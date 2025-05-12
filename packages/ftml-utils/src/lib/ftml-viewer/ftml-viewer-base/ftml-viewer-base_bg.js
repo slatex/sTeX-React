@@ -49,9 +49,7 @@ function passStringToWasm0(arg, malloc, realloc) {
         WASM_VECTOR_LEN = buf.length;
         return ptr;
     }
-    if(!arg){
-        arg='';
-    }
+
     let len = arg.length;
     let ptr = malloc(len, 1) >>> 0;
 
@@ -2036,38 +2034,38 @@ export function __wbindgen_cb_drop(arg0) {
     return ret;
 };
 
-export function __wbindgen_closure_wrapper17025(arg0, arg1, arg2) {
-    const ret = makeMutClosure(arg0, arg1, 3864, __wbg_adapter_61);
+export function __wbindgen_closure_wrapper17101(arg0, arg1, arg2) {
+    const ret = makeMutClosure(arg0, arg1, 3872, __wbg_adapter_61);
     return addHeapObject(ret);
 };
 
-export function __wbindgen_closure_wrapper17027(arg0, arg1, arg2) {
-    const ret = makeMutClosure(arg0, arg1, 3864, __wbg_adapter_64);
+export function __wbindgen_closure_wrapper17103(arg0, arg1, arg2) {
+    const ret = makeMutClosure(arg0, arg1, 3872, __wbg_adapter_64);
     return addHeapObject(ret);
 };
 
-export function __wbindgen_closure_wrapper18872(arg0, arg1, arg2) {
-    const ret = makeClosure(arg0, arg1, 4178, __wbg_adapter_67);
+export function __wbindgen_closure_wrapper18948(arg0, arg1, arg2) {
+    const ret = makeClosure(arg0, arg1, 4186, __wbg_adapter_67);
     return addHeapObject(ret);
 };
 
-export function __wbindgen_closure_wrapper22798(arg0, arg1, arg2) {
-    const ret = makeMutClosure(arg0, arg1, 4907, __wbg_adapter_70);
+export function __wbindgen_closure_wrapper22874(arg0, arg1, arg2) {
+    const ret = makeMutClosure(arg0, arg1, 4915, __wbg_adapter_70);
     return addHeapObject(ret);
 };
 
-export function __wbindgen_closure_wrapper23066(arg0, arg1, arg2) {
-    const ret = makeMutClosure(arg0, arg1, 4945, __wbg_adapter_73);
+export function __wbindgen_closure_wrapper23142(arg0, arg1, arg2) {
+    const ret = makeMutClosure(arg0, arg1, 4953, __wbg_adapter_73);
     return addHeapObject(ret);
 };
 
-export function __wbindgen_closure_wrapper25381(arg0, arg1, arg2) {
-    const ret = makeMutClosure(arg0, arg1, 4983, __wbg_adapter_76);
+export function __wbindgen_closure_wrapper25457(arg0, arg1, arg2) {
+    const ret = makeMutClosure(arg0, arg1, 4991, __wbg_adapter_76);
     return addHeapObject(ret);
 };
 
-export function __wbindgen_closure_wrapper2906(arg0, arg1, arg2) {
-    const ret = makeMutClosure(arg0, arg1, 528, __wbg_adapter_58);
+export function __wbindgen_closure_wrapper7643(arg0, arg1, arg2) {
+    const ret = makeMutClosure(arg0, arg1, 704, __wbg_adapter_58);
     return addHeapObject(ret);
 };
 
