@@ -22,7 +22,7 @@ export function ForMe({
   const [, setResponses] = useState<ProblemResponse[]>([]);
   const [problemIdx, setProblemIdx] = useState(0);
   const [, setIsFrozen] = useState<boolean[]>([]);
-  const [startQuiz, setStartQuiz] = useState(!showButtonFirst);
+  // const [startQuiz, setStartQuiz] = useState(!showButtonFirst);
   const [show, setShow] = useState(true);
   const [showSolution, setShowSolution] = useState(false);
 
@@ -65,30 +65,27 @@ export function ForMe({
   if (isLoadingProblemUris) return <LinearProgress />;
   if (!problemUris.length) {
     return (
-      !showButtonFirst && 
-      <Box p={2} bgcolor="white" border="1px solid #CCC" borderRadius="5px">
-        <Typography variant="h6">For Me</Typography>
-        <Typography variant="body2" color="textSecondary">
-          No Practice Questions Available
-        </Typography>
-      </Box>
+       <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
+        No personalized practice problems for this section
+      </Typography>
     );
   }
 
-  if (!startQuiz) {
-    return (
-      <Button onClick={() => setStartQuiz(true)} variant="contained">
-        {t.ForMe.replace('$1', problemUris.length.toString())}
-      </Button>
-    );
-  }
+  // if (!startQuiz) {
+  //   return (
+  //     <Button onClick={() => setStartQuiz(true)} variant="contained">
+  //       {t.ForMe.replace('$1', problemUris.length.toString())}
+  //     </Button>
+  //   );
+  // }
 
   if (!show) {
-    return (
-      <Button onClick={() => setShow(true)} variant="contained">
-        {t.ForMe.replace('$1', problemUris.length.toString())}
-      </Button>
-    );
+    return null;
+    // (
+    //   <Button onClick={() => setShow(true)} variant="contained">
+    //     {t.ForMe.replace('$1', problemUris.length.toString())}
+    //   </Button>
+    // );
   }
 
   const problemUri = problemUris[problemIdx];

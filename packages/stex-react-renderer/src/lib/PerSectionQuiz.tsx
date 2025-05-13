@@ -1,6 +1,5 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { Box, Button, IconButton, Tooltip, Typography } from '@mui/material';
-import LinearProgress from '@mui/material/LinearProgress';
+import { Box, Button, IconButton, LinearProgress, Tooltip, Typography } from '@mui/material';
 import { getSourceUrl } from '@stex-react/api';
 import { FTMLFragment, ProblemResponse } from '@stex-react/ftml-utils';
 import axios from 'axios';
@@ -30,7 +29,7 @@ export function PerSectionQuiz({
   const [problemIdx, setProblemIdx] = useState(0);
   const [isFrozen, setIsFrozen] = useState<boolean[]>([]);
   const [, forceRerender] = useReducer((x) => x + 1, 0);
-  const [startQuiz, setStartQuiz] = useState(!showButtonFirst);
+  // const [startQuiz, setStartQuiz] = useState(!showButtonFirst);
   const [show, setShow] = useState(true);
   const [showSolution, setShowSolution] = useState(false);
 
@@ -46,21 +45,30 @@ export function PerSectionQuiz({
   }, [sectionUri]);
 
 
-  if (isLoadingProblemUris) return null;
-  if (!problemUris.length) return !showButtonFirst && <i>No problems found.</i>;
-  if (!startQuiz) {
+if (isLoadingProblemUris) return <LinearProgress />;
+  if (!problemUris.length) {
     return (
-      <Button onClick={() => setStartQuiz(true)} variant="contained">
-        {t.perSectionQuizButton.replace('$1', problemUris.length.toString())}
-      </Button>
+      <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
+        No practice problems for this section
+      </Typography>
     );
-  }
+  }  if (!problemUris.length) return !showButtonFirst && <i>No problems found.</i>;
+
+  // if (!startQuiz) {
+  //   return (
+  //     <Button onClick={() => setStartQuiz(true)} variant="contained">
+  //       {t.perSectionQuizButton.replace('$1', problemUris.length.toString())}
+  //     </Button>
+  //   );
+  // }
   if (!show) {
-    return (
-      <Button onClick={() => setShow(true)} variant="contained">
-        {t.perSectionQuizButton.replace('$1', problemUris.length.toString())}
-      </Button>
-    );
+    return null;
+    // TODO ALEA4-P3
+    // (
+    //   <Button onClick={() => setShow(true)} variant="contained">
+    //     {t.perSectionQuizButton.replace('$1', problemUris.length.toString())}
+    //   </Button>
+    // );
   }
   if (isLoadingProblemUris) return <LinearProgress />;
 

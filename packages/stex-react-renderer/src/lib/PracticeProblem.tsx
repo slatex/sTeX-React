@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Box } from '@mui/material';
+import { Button, Box, Tabs, Tab } from '@mui/material';
 import { PerSectionQuiz } from './PerSectionQuiz';
 import { ForMe } from './ForMe';
 import { getLocaleObject } from './lang/utils';
@@ -14,6 +14,11 @@ const PracticeProblem: React.FC<PracticeProblemProps> = ({ sectionUri, showHideB
   const [showProblems, setShowProblems] = useState(false);
   const router = useRouter();
   const { quiz: t } = getLocaleObject(router);
+  const [tabValue, setTabValue] = useState(0);
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
 
   return (
     <Box>
@@ -30,13 +35,34 @@ const PracticeProblem: React.FC<PracticeProblemProps> = ({ sectionUri, showHideB
 
       {showProblems && (
         <Box>
-          <Box mb={2}>
-            <PerSectionQuiz sectionUri={sectionUri} showHideButton={showHideButton} />
-          </Box>
-
-          <Box mb={2}>
-            <ForMe sectionUri={sectionUri} showHideButton={showHideButton} />
-          </Box>
+          <Tabs 
+            value={tabValue} 
+            onChange={handleTabChange} 
+            sx={{ mb: 2 }}
+          >
+            <Tab label="ALL PROBLEMS" />
+            <Tab label="FOR ME" />
+          </Tabs>
+          
+          {tabValue === 0 && (
+            <Box mb={2}>
+              <PerSectionQuiz 
+                sectionUri={sectionUri} 
+                showHideButton={false} 
+                showButtonFirst={false} 
+              />
+            </Box>
+          )}
+          
+          {tabValue === 1 && (
+            <Box mb={2}>
+              <ForMe 
+                sectionUri={sectionUri} 
+                showHideButton={false} 
+                showButtonFirst={false} 
+              />
+            </Box>
+          )}
 
           <Button
             variant="contained"
