@@ -16,6 +16,10 @@ const PracticeProblem: React.FC<PracticeProblemProps> = ({ sectionUri, showHideB
   const { quiz: t } = getLocaleObject(router);
   const [tabValue, setTabValue] = useState(0);
 
+  // Caching states
+  const [perSectionProblemUris, setPerSectionProblemUris] = useState<string[] | null>(null);
+  const [formeProblemUris, setFormeProblemUris] = useState<string[] | null>(null);
+
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
@@ -40,8 +44,8 @@ const PracticeProblem: React.FC<PracticeProblemProps> = ({ sectionUri, showHideB
             onChange={handleTabChange} 
             sx={{ mb: 2 }}
           >
-            <Tab label="ALL PROBLEMS" />
-            <Tab label="FOR ME" />
+            <Tab label={t.perSectionQuizButton}/>
+            <Tab label={t.ForMe} />
           </Tabs>
           
           {tabValue === 0 && (
@@ -50,6 +54,8 @@ const PracticeProblem: React.FC<PracticeProblemProps> = ({ sectionUri, showHideB
                 sectionUri={sectionUri} 
                 showHideButton={false} 
                 showButtonFirst={false} 
+                 cachedProblemUris={perSectionProblemUris}
+                setCachedProblemUris={setPerSectionProblemUris}
               />
             </Box>
           )}
@@ -60,6 +66,8 @@ const PracticeProblem: React.FC<PracticeProblemProps> = ({ sectionUri, showHideB
                 sectionUri={sectionUri} 
                 showHideButton={false} 
                 showButtonFirst={false} 
+                cachedProblemUris={formeProblemUris}
+                setCachedProblemUris={setFormeProblemUris}
               />
             </Box>
           )}

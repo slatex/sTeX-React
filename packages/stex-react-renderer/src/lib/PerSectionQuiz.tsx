@@ -17,14 +17,20 @@ export function PerSectionQuiz({
   sectionUri,
   showButtonFirst = true,
   showHideButton = false,
+   cachedProblemUris,
+  setCachedProblemUris,
 }: {
   sectionUri: string;
   showButtonFirst?: boolean;
   showHideButton?: boolean;
+  cachedProblemUris: string[] | null;
+  setCachedProblemUris: (uris: string[]) => void;
 }) {
   const t = getLocaleObject(useRouter()).quiz;
-  const [problemUris, setProblemUris] = useState<string[]>([]);
-  const [isLoadingProblemUris, setIsLoadingProblemUris] = useState<boolean>(true);
+  const [problemUris, setProblemUris] = useState<string[]>(cachedProblemUris || []);
+  const [isLoadingProblemUris, setIsLoadingProblemUris] = useState<boolean>(!cachedProblemUris);
+  // const [problemUris, setProblemUris] = useState<string[]>([]);
+  // const [isLoadingProblemUris, setIsLoadingProblemUris] = useState<boolean>(true);
   const [responses, setResponses] = useState<ProblemResponse[]>([]);
   const [problemIdx, setProblemIdx] = useState(0);
   const [isFrozen, setIsFrozen] = useState<boolean[]>([]);
@@ -34,15 +40,17 @@ export function PerSectionQuiz({
   const [showSolution, setShowSolution] = useState(false);
 
   useEffect(() => {
-    if (!sectionUri) return;
+     if (cachedProblemUris) return;
+    //  if (!sectionUri) return;
     setIsLoadingProblemUris(true);
     axios
       .get(`/api/get-problems-by-section?sectionUri=${encodeURIComponent(sectionUri)}`)
       .then((resp) => {
         setProblemUris(resp.data);
+        setCachedProblemUris(resp.data);
         setIsLoadingProblemUris(false);
       }, console.error);
-  }, [sectionUri]);
+  }, [sectionUri,cachedProblemUris]);
 
 
 if (isLoadingProblemUris) return <LinearProgress />;

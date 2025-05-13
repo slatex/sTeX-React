@@ -11,14 +11,20 @@ export function ForMe({
   sectionUri,
   showButtonFirst = true,
   showHideButton = false,
+   cachedProblemUris,
+  setCachedProblemUris,
 }: {
   sectionUri: string;
   showButtonFirst?: boolean;
   showHideButton?: boolean;
+  cachedProblemUris: string[] | null;
+  setCachedProblemUris: (uris: string[]) => void;
 }) {
   const t = getLocaleObject(useRouter()).quiz;
-  const [problemUris, setProblemUris] = useState<string[]>([]);
-  const [isLoadingProblemUris, setIsLoadingProblemUris] = useState<boolean>(true);
+  const [problemUris, setProblemUris] = useState<string[]>(cachedProblemUris || []);
+  const [isLoadingProblemUris, setIsLoadingProblemUris] = useState<boolean>(!cachedProblemUris);
+  // const [problemUris, setProblemUris] = useState<string[]>([]);
+  // const [isLoadingProblemUris, setIsLoadingProblemUris] = useState<boolean>(true);
   const [, setResponses] = useState<ProblemResponse[]>([]);
   const [problemIdx, setProblemIdx] = useState(0);
   const [, setIsFrozen] = useState<boolean[]>([]);
@@ -27,8 +33,9 @@ export function ForMe({
   const [showSolution, setShowSolution] = useState(false);
 
   useEffect(() => {
+     if (cachedProblemUris) return;
+    setIsLoadingProblemUris(true);
     const fetchProblemUris = async () => {
-      setIsLoadingProblemUris(true);
       try {
         const data = await getDefiniedaInSection(sectionUri);
         const URIs = data?.flatMap((item) => item.conceptUri) || [];
@@ -45,9 +52,8 @@ export function ForMe({
         const extractedProblemIds =
           fetchedResponse?.['learning-objects']?.map((lo: any) => lo['learning-object']) || [];
 
-        setProblemUris(extractedProblemIds);
-        setResponses(Array(extractedProblemIds.length).fill(null));
-        setIsFrozen(Array(extractedProblemIds.length).fill(false));
+         setProblemUris(extractedProblemIds);
+        setCachedProblemUris(extractedProblemIds);
       } catch (error) {
         console.error('Error fetching problem URIs:', error);
       } finally {
@@ -56,7 +62,7 @@ export function ForMe({
     };
 
     fetchProblemUris();
-  }, [sectionUri]);
+  }, [sectionUri, cachedProblemUris]);
 
   const handleViewSource = (uri: string) => {
     window.open(uri, '_blank');
