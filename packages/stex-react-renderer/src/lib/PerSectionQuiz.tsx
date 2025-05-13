@@ -2,18 +2,59 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Button, IconButton, Tooltip, Typography } from '@mui/material';
 import LinearProgress from '@mui/material/LinearProgress';
 import { getSourceUrl } from '@stex-react/api';
-import { FTMLFragment, ProblemResponse } from '@stex-react/ftml-utils';
+import { FTMLFragment, getFlamsServer, ProblemResponse } from '@stex-react/ftml-utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { useEffect, useReducer, useState } from 'react';
-import { ListStepper } from './QuizDisplay';
+import { useEffect, useState } from 'react';
 import { getLocaleObject } from './lang/utils';
+import { getProblemState } from './ProblemDisplay';
+import { ListStepper } from './QuizDisplay';
 
 export function handleViewSource(problemUri: string) {
   getSourceUrl(problemUri).then((sourceLink) => {
     if (sourceLink) window.open(sourceLink, '_blank');
   });
 }
+
+function UriProblemViewer({
+  uri,
+  isSubmitted,
+  setIsSubmitted,
+  response,
+  setResponse,
+}: {
+  uri: string;
+  isSubmitted: boolean;
+  setIsSubmitted: (isSubmitted: boolean) => void;
+  response: ProblemResponse | undefined;
+  setResponse: (response: ProblemResponse | undefined) => void;
+}) {
+  const [solution, setSolution] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    setSolution(undefined);
+    getFlamsServer().solution({ uri }).then(setSolution);
+  }, [uri]);
+  const problemState = getProblemState(isSubmitted, solution, response);
+
+  return (
+    <Box>
+      <FTMLFragment
+        key={`${uri}-${problemState.type}`}
+        fragment={{ uri }}
+        allowHovers={isSubmitted}
+        problemStates={new Map([[uri, problemState]])}
+        onProblem={(response) => {
+          setResponse(response);
+        }}
+      />
+      <Button onClick={() => setIsSubmitted(true)} disabled={isSubmitted} variant="contained">
+        Submit
+      </Button>
+    </Box>
+  );
+}
+
 export function PerSectionQuiz({
   sectionUri,
   showButtonFirst = true,
@@ -26,10 +67,9 @@ export function PerSectionQuiz({
   const t = getLocaleObject(useRouter()).quiz;
   const [problemUris, setProblemUris] = useState<string[]>([]);
   const [isLoadingProblemUris, setIsLoadingProblemUris] = useState<boolean>(true);
-  const [responses, setResponses] = useState<ProblemResponse[]>([]);
+  const [responses, setResponses] = useState<(ProblemResponse | undefined)[]>([]);
   const [problemIdx, setProblemIdx] = useState(0);
-  const [isFrozen, setIsFrozen] = useState<boolean[]>([]);
-  const [, forceRerender] = useReducer((x) => x + 1, 0);
+  const [isSubmitted, setIsSubmitted] = useState<boolean[]>([]);
   const [startQuiz, setStartQuiz] = useState(!showButtonFirst);
   const [show, setShow] = useState(true);
   const [showSolution, setShowSolution] = useState(false);
@@ -42,9 +82,10 @@ export function PerSectionQuiz({
       .then((resp) => {
         setProblemUris(resp.data);
         setIsLoadingProblemUris(false);
+        setIsSubmitted(resp.data.map(() => false));
+        setResponses(resp.data.map(() => undefined));
       }, console.error);
   }, [sectionUri]);
-
 
   if (isLoadingProblemUris) return null;
   if (!problemUris.length) return !showButtonFirst && <i>No problems found.</i>;
@@ -97,12 +138,27 @@ export function PerSectionQuiz({
           </Tooltip>
         </IconButton>
       </Box>
-      {/* TODO ALEA4-P3 problem.header && (
-        <div style={{ color: '#555', marginTop: '10px' }}>{mmtHTMLToReact(problem.header)}</div>
-      )}*/}
       <Box mb="10px">
-        <FTMLFragment key={problemUri} fragment={{ uri: problemUri }} />
-        {/*<ProblemDisplay
+        <UriProblemViewer
+          key={problemUri}
+          uri={problemUri}
+          isSubmitted={isSubmitted[problemIdx]}
+          setIsSubmitted={(v) =>
+            setIsSubmitted((prev) => {
+              prev[problemIdx] = v;
+              return [...prev];
+            })
+          }
+          response={responses[problemIdx]}
+          setResponse={(v) =>
+            setResponses((prev) => {
+              prev[problemIdx] = v;
+              return [...prev];
+            })
+          }
+        />
+        {/* TODO ALEA4-P3
+        <ProblemDisplay
           r={response}
           uri={problemUris[problemIdx]}
           showPoints={false}
@@ -140,7 +196,7 @@ export function PerSectionQuiz({
           </Box>
         )}
         {showHideButton && (
-          <Button onClick={() => setShow(false)} variant="contained">
+          <Button onClick={() => setShow(false)} variant="contained" color="secondary">
             {t.hideProblems}
           </Button>
         )}

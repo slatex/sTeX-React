@@ -92,7 +92,7 @@ const SectionReview = ({
   if (!definedConcepts?.length) return null;
 
   return (
-    <Box maxWidth="var(--document-width)">
+    <Box>
       <Accordion>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
@@ -126,8 +126,6 @@ const SectionReview = ({
               </Tooltip>
             ))}
           </Box>
-          {/* <PerSectionQuiz sectionUri={sectionUri} showHideButton={true} /> */}
-          {/* TODO ALEA4-ForMe */}
           <PracticeProblem sectionUri={sectionUri} showHideButton={true} />
         </AccordionDetails>
       </Accordion>
