@@ -13,8 +13,6 @@ import {
   TableRow,
   Tooltip,
   Typography,
-  useMediaQuery,
-  useTheme,
 } from '@mui/material';
 import { CoverageSnap } from '@stex-react/utils';
 import dayjs from 'dayjs';
@@ -36,16 +34,13 @@ interface CoverageTableProps {
 }
 
 export function CoverageTable({ snaps, sectionNames, onEdit, onDelete }: CoverageTableProps) {
-  const theme = useTheme();
-  const isSmall = useMediaQuery(theme.breakpoints.down('sm'));
-
   return (
     <TableContainer component={Paper} elevation={2} sx={{ borderRadius: 2, mb: 3 }}>
-      <Table sx={{ minWidth: 650 }} size={isSmall ? 'small' : 'medium'}>
+      <Table sx={{ minWidth: 650 }} size="medium">
         <TableHead>
           <TableRow sx={{ bgcolor: 'primary.light' }}>
             <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Date</TableCell>
-            <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Covered Section</TableCell>
+            <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Got-to</TableCell>
             <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Target Section</TableCell>
             <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Clip</TableCell>
             <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Quiz</TableCell>

@@ -100,7 +100,7 @@ export function CoverageForm({
 
       <Grid item xs={12} md={6}>
         <FormControl fullWidth>
-          <InputLabel id="section-name-select-label">Actually Covered Section</InputLabel>
+          <InputLabel id="section-name-select-label">Actually Got-to</InputLabel>
           <Select
             labelId="section-name-select-label"
             value={formData.sectionName}
@@ -108,7 +108,7 @@ export function CoverageForm({
               setFormData({ ...formData, sectionName: e.target.value as string });
             }}
             name="sectionName"
-            label="Actually Covered Section"
+            label="Actually Got-to"
           >
             <MenuItem value="">
               <em>None</em>

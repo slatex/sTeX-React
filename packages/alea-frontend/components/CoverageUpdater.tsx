@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography, Paper } from '@mui/material';
+import { Box, Typography, Paper, useTheme } from '@mui/material';
 import { CoverageSnap } from '@stex-react/utils';
 import { Section } from '../types';
 import { CoverageTable } from './CoverageTable';
 import { CoverageForm } from './CoverageForm';
-import { CoverageMobileList } from './CoverageMobileList';
-import { useMediaQuery, useTheme } from '@mui/material';
 
 export function getUriForSectionName(sectionName: string, sectionNames: Section[]): string {
   const section = sectionNames.find(({ title }) => title.trim() === sectionName);
@@ -54,10 +52,7 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: CoverageUpdat
     slideNumber: undefined,
   });
 
-  const [availableSlides, setAvailableSlides] = useState<{ [sectionId: string]: any[] }>({});
-
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   useEffect(() => {
     const lastSnap = getSectionNameForUri(
@@ -158,23 +153,13 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: CoverageUpdat
             Coverage Entries ({snaps.length})
           </Typography>
 
-          {isMobile ? (
-            <CoverageMobileList
-              snaps={snaps}
-              sectionNames={sectionNames}
-              availableSlides={availableSlides}
-              onEdit={handleEditItem}
-              onDelete={handleDeleteItem}
-            />
-          ) : (
-            <CoverageTable
-              snaps={snaps}
-              sectionNames={sectionNames}
-              availableSlides={availableSlides}
-              onEdit={handleEditItem}
-              onDelete={handleDeleteItem}
-            />
-          )}
+          <CoverageTable
+            snaps={snaps}
+            sectionNames={sectionNames}
+            availableSlides={{}}
+            onEdit={handleEditItem}
+            onDelete={handleDeleteItem}
+          />
         </>
       ) : (
         <Box

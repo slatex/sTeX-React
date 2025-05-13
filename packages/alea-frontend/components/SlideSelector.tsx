@@ -11,7 +11,6 @@ interface SlidePickerProps {
   slideUri: string;
   setSlideUri: (uri: string, slideNumber: number) => void;
   sectionNames: Section[];
-  setAvailableSlides?: (slides: { [sectionId: string]: any[] }) => void;
 }
 
 interface SlideData {
@@ -41,7 +40,6 @@ export function SlidePicker({
   slideUri,
   setSlideUri,
   sectionNames,
-  setAvailableSlides,
 }: SlidePickerProps) {
   const [availableSlides, setLocalAvailableSlides] = useState<AvailableSlides>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -56,7 +54,6 @@ export function SlidePicker({
     const fetchSlides = async () => {
       if (!sectionUri) {
         setLocalAvailableSlides({});
-        if (setAvailableSlides) setAvailableSlides({});
         return;
       }
       setIsLoading(true);
@@ -65,7 +62,6 @@ export function SlidePicker({
         setIsLoading(false);
         setError('Section not found');
         setLocalAvailableSlides({});
-        if (setAvailableSlides) setAvailableSlides({});
         return;
       }
       try {
@@ -105,19 +101,16 @@ export function SlidePicker({
               .filter((slide: any) => slide.uri);
           }
           setLocalAvailableSlides(processedSlides);
-          if (setAvailableSlides) setAvailableSlides(processedSlides);
           if (Object.values(processedSlides).flat().length === 0) {
             setError('No slides found for this section');
           }
         } else {
           setError('No slides found for this section');
           setLocalAvailableSlides({});
-          if (setAvailableSlides) setAvailableSlides({});
         }
       } catch (error) {
         setError('Failed to load slides');
         setLocalAvailableSlides({});
-        if (setAvailableSlides) setAvailableSlides({});
       } finally {
         setIsLoading(false);
       }
@@ -159,7 +152,7 @@ export function SlidePicker({
     <>
       {!sectionUri && (
         <Alert severity="info" sx={{ mb: 2 }}>
-          Please select a section to view available slides
+          Please select a got-to to view available slides
         </Alert>
       )}
       <Paper
@@ -185,7 +178,7 @@ export function SlidePicker({
         >
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Typography variant="h6" sx={{ fontWeight: 'medium' }}>
-              {sectionUri ? `Slides for: ${sectionDisplayName}` : 'No Section Selected'}
+              {sectionUri ? `Slides for: ${sectionDisplayName}` : 'No got-to selected'}
             </Typography>
           </Box>
           {sectionUri && (
@@ -263,7 +256,7 @@ export function SlidePicker({
             </>
           ) : (
             <Typography variant="body2" sx={{ p: 2 }}>
-              No slides found for this section
+              No slides found for this got-to
             </Typography>
           )}
         </Box>
