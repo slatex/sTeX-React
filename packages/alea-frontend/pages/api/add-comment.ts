@@ -97,6 +97,7 @@ export default async function handler(req, res) {
     commentType,
     questionStatus,
     isAnonymous,
+    uri
   } = req.body as Comment;
 
   if (!statement || isPrivate === undefined || isAnonymous === undefined) {
@@ -121,8 +122,8 @@ export default async function handler(req, res) {
   }
   const results = await executeAndEndSet500OnError(
     `INSERT INTO comments
-      (archive, filepath, statement, parentCommentId, threadId, courseId, courseTerm, selectedText, isPrivate, commentType, questionStatus, isAnonymous, userId, userName, userEmail, isDeleted, isEdited)
-      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (archive, filepath, statement, parentCommentId, threadId, courseId, courseTerm, selectedText, isPrivate, commentType, questionStatus, isAnonymous, userId, userName, userEmail, isDeleted, isEdited ,uri)
+      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ?)`,
     [
       archive,
       filepath,
@@ -141,6 +142,7 @@ export default async function handler(req, res) {
       isAnonymous ? null : userEmail,
       0,
       0,
+      uri
     ],
     res
   );
