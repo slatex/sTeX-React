@@ -9,6 +9,7 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { Box, Button, CircularProgress, Dialog, IconButton } from '@mui/material';
 import { FTMLProblemWithSolution, TimerEvent, TimerEventType } from '@stex-react/api';
 import { FTMLFragment, ProblemResponse, ProblemResponseType } from '@stex-react/ftml-utils';
+import { isEmptyResponse } from '@stex-react/quiz-utils';
 import { shouldUseDrawer } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useEffect, useReducer, useState } from 'react';
@@ -64,7 +65,8 @@ function IndexEntry({
   isHomeWork: boolean;
 }) {
   const { quiz: t } = getLocaleObject(useRouter());
-  const isCorrectnessKnown = isFrozen && points !== undefined;
+  const isCorrectnessKnown =
+    isFrozen && points !== undefined && points !== null && Number.isFinite(points);
   const isPartiallyCorrect = points && points > 0;
   const totalPoints = problem.problem.total_points ?? 1;
   const isCorrect = points === totalPoints;
@@ -134,7 +136,7 @@ function ProblemNavigation({
 }: {
   problems: Record<string, FTMLProblemWithSolution>;
   responses: Record<string, ProblemResponse | undefined>;
-  points: Record<string, number | undefined>;
+  points: Record<string, number>;
   problemIdx: number;
   isFrozen: boolean;
   showClock: boolean;
@@ -213,7 +215,7 @@ function computeResult(
   problems: Record<string, FTMLProblemWithSolution>,
   responses: Record<string, ProblemResponse | undefined>
 ) {
-  const points: { [problemId: string]: number | undefined } = {};
+  const points: { [problemId: string]: number } = {};
   for (const problemId of Object.keys(problems ?? {})) {
     const r = responses[problemId];
     const p = problems[problemId];
@@ -247,9 +249,7 @@ export function QuizDisplay({
 }) {
   const isHomeWork = homeworkId ? true : false;
   const { quiz: t } = getLocaleObject(useRouter());
-  const [points, setPoints] = useState<{
-    [problemId: string]: number | undefined;
-  }>({});
+  const [points, setPoints] = useState<{ [problemId: string]: number }>({});
   const [responses, setResponses] = useState<Record<string, ProblemResponse | undefined>>({});
   const [problemIdx, setProblemIdx] = useState(0);
   const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
@@ -337,13 +337,13 @@ export function QuizDisplay({
             />
           )}
         </Box>
-
         <Box my="10px">
           <ProblemDisplay
             r={response}
             problem={problem}
             isFrozen={isFrozen}
             onResponseUpdate={(response) => {
+              if (isEmptyResponse(response)) return;
               forceRerender();
               const problemId = problemIds[problemIdx];
               setResponses((prev) => {
@@ -354,7 +354,6 @@ export function QuizDisplay({
             }}
           />
         </Box>
-
         <ListStepper
           idx={problemIdx}
           listSize={problemIds.length}

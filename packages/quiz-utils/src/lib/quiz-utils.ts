@@ -1,4 +1,4 @@
-import { AnswerClass, Phase, QuizWithStatus } from '@stex-react/api';
+import { AnswerClass, Phase, ProblemResponse, QuizWithStatus } from '@stex-react/api';
 
 export const PROBLEM_PARSED_MARKER = 'problem-parsed';
 
@@ -27,6 +27,19 @@ export function getQuizPhase(q: QuizWithStatus) {
   if (now < q.quizEndTs) return Phase.STARTED;
   if (now < q.feedbackReleaseTs) return Phase.ENDED;
   return Phase.FEEDBACK_RELEASED;
+}
+
+export function isEmptyResponse(response: ProblemResponse) {
+  for (const r of response.responses) {
+    if (r.type === 'Fillinsol') {
+      if (r.value.trim().length > 0) return false;
+    } else if (r.type === 'MultipleChoice') {
+      if (r.value.length > 0 && r.value.some((v) => v)) return false;
+    } else if (r.type === 'SingleChoice') {
+      if (r.value !== undefined && r.value !== null) return false;
+    }
+  }
+  return true;
 }
 
 export const DEFAULT_ANSWER_CLASSES: Readonly<AnswerClass[]> = [

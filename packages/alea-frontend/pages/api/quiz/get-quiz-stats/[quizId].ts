@@ -41,11 +41,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const quiz = getQuiz(quizId);
   const perProblemStats: { [problemKey: string]: PerProblemStats } = {};
   for (const [problemId, problemWithSolution] of Object.entries(quiz.problems)) {
-    const total_points = problemWithSolution.problem.total_points;
+    const maxPoints = problemWithSolution.problem.total_points ?? 1;
     const header = problemWithSolution.problem.title_html ?? '';
     perProblemStats[problemId] = {
       header,
-      maxPoints: total_points,
+      maxPoints,
       satisfactory: 0,
       pass: 0,
       fail: 0,

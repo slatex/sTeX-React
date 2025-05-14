@@ -58,6 +58,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         title: quiz.title,
         problems: quiz.problems,
+        css: quiz.css,
 
         updatedAt: Date.now(),
         updatedBy: userId,

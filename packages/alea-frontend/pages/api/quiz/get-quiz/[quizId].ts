@@ -121,6 +121,7 @@ export default async function handler(
     currentServerTs: Date.now(),
     ...quizTimes,
     phase,
+    css: quizInfo.css,
     problems: reorderBasedOnUserId(isModerator, problems, userId),
     responses,
   } as GetQuizResponse);

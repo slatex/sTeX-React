@@ -17,6 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     manuallySetPhase,
     title,
     problems,
+    css,
   } = req.body as QuizWithStatus;
 
   const userId = await getUserIdIfAuthorizedOrSetError(
@@ -41,7 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     title,
     problems,
-
+    css,
     updatedAt: Date.now(),
     updatedBy: userId,
   };
