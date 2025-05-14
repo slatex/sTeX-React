@@ -20,8 +20,6 @@ interface SlideData {
   uri: string;
   slideType?: string;
   paragraphs?: any[];
-  preNotes?: any[];
-  postNotes?: any[];
   sectionId?: string;
   slide?: {
     html?: string;
@@ -265,33 +263,4 @@ export function SlidePicker({
   );
 }
 
-export function getSlideNameByUri(uri: string, availableSlides: { [key: string]: any[] }): string {
-  if (!uri) return '';
 
-  for (const sectionId in availableSlides) {
-    const slide = availableSlides[sectionId]?.find((s) => s.uri === uri);
-    if (slide?.title) return slide.title;
-  }
-
-  if (typeof uri === 'string') {
-    if (uri.includes('mathhub.info')) {
-      const urlParams = new URLSearchParams(uri.split('?')[1]);
-      const slideNumber = urlParams.get('slide') || '1';
-      return `Slide ${slideNumber}`;
-    }
-
-    const slideMatch = uri.match(/slide-(\d+)$/);
-    const slideNumber = slideMatch ? slideMatch[1] : '1';
-
-    if (uri.includes('/')) {
-      const parts = uri.split('/');
-      if (parts.length > 1) {
-        return `Slide ${slideNumber}`;
-      }
-    }
-
-    return `Slide ${slideNumber}`;
-  }
-
-  return String(uri);
-}

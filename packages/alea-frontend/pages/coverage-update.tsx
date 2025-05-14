@@ -8,7 +8,6 @@ import {
   Typography,
   Container,
   Paper,
-  useTheme,
   Alert,
   Backdrop,
   CircularProgress,
@@ -62,8 +61,6 @@ const CoverageUpdatePage: NextPage = () => {
     type: 'success' | 'error';
     message: string;
   } | null>(null);
-
-  const theme = useTheme();
 
   useEffect(() => {
     axios.get('/api/get-coverage-timeline').then((resp) => setCoverageTimeline(resp.data));
