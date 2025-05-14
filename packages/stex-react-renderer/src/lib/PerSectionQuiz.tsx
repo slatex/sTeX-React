@@ -64,8 +64,8 @@ export function PerSectionQuiz({
   sectionUri: string;
   showButtonFirst?: boolean;
   showHideButton?: boolean;
-  cachedProblemUris: string[] | null;
-  setCachedProblemUris: (uris: string[]) => void;
+  cachedProblemUris?: string[] | null;
+  setCachedProblemUris?: (uris: string[]) => void;
 }) {
   const t = getLocaleObject(useRouter()).quiz;
   const [problemUris, setProblemUris] = useState<string[]>(cachedProblemUris || []);
@@ -84,7 +84,9 @@ export function PerSectionQuiz({
       .get(`/api/get-problems-by-section?sectionUri=${encodeURIComponent(sectionUri)}`)
       .then((resp) => {
         setProblemUris(resp.data);
-        setCachedProblemUris(resp.data);
+        if (setCachedProblemUris) {
+          setCachedProblemUris(resp.data);
+        }
         setIsLoadingProblemUris(false);
         setIsSubmitted(resp.data.map(() => false));
         setResponses(resp.data.map(() => undefined));
