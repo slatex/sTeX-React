@@ -200,9 +200,14 @@ export async function getDefiniedaInSection(uri: string): Promise<ConceptAndDefi
 }
 
 export async function getProblemsForConcept(conceptUri: string) {
-  const learningObjects = await server.learningObjects({ uri: conceptUri }, true);
-  if (!learningObjects) return [];
-  return learningObjects.filter((obj) => obj[1].type === 'Problem').map((obj) => obj[0]);
+  try {
+    const learningObjects = await server.learningObjects({ uri: conceptUri }, true);
+    if (!learningObjects) return [];
+    return learningObjects.filter((obj) => obj[1].type === 'Problem').map((obj) => obj[0]);
+  } catch (error) {
+    console.error('Error fetching problems for:', conceptUri);
+    return [];
+  }
 }
 
 export async function getProblemsForSection(sectionUri: string): Promise<string[]> {
