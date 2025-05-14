@@ -15,6 +15,10 @@ export function getMMTCustomId(tag: string) {
   return MMT_CUSTOM_ID_PREFIX + tag;
 }
 
+export async function waitForNSeconds(n_sec: number) {
+  return new Promise((resolve) => setTimeout(resolve, n_sec * 1000));
+}
+
 export function getCustomTag(id: string) {
   if (!id?.startsWith(MMT_CUSTOM_ID_PREFIX)) return undefined;
   return id.substring(MMT_CUSTOM_ID_PREFIX.length);
