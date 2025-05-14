@@ -70,12 +70,9 @@ export function PerSectionQuiz({
   const t = getLocaleObject(useRouter()).quiz;
   const [problemUris, setProblemUris] = useState<string[]>(cachedProblemUris || []);
   const [isLoadingProblemUris, setIsLoadingProblemUris] = useState<boolean>(!cachedProblemUris);
-  // const [problemUris, setProblemUris] = useState<string[]>([]);
-  // const [isLoadingProblemUris, setIsLoadingProblemUris] = useState<boolean>(true);
   const [responses, setResponses] = useState<(ProblemResponse | undefined)[]>([]);
   const [problemIdx, setProblemIdx] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState<boolean[]>([]);
-  // const [startQuiz, setStartQuiz] = useState(!showButtonFirst);
   const [show, setShow] = useState(true);
   const [showSolution, setShowSolution] = useState(false);
 
@@ -102,7 +99,6 @@ export function PerSectionQuiz({
       </Typography>
     );
   }
-  if (!problemUris.length) return !showButtonFirst && <i>No problems found.</i>;
 
   // if (!startQuiz) {
   //   return (
