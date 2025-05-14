@@ -1,6 +1,6 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Button, IconButton, LinearProgress, Tooltip, Typography } from '@mui/material';
-import { getDefiniedaInSection, getLearningObjects, ProblemResponse } from '@stex-react/api';
+import { getDefiniedaInSection, getLearningObjects } from '@stex-react/api';
 import { FTMLFragment } from '@stex-react/ftml-utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -11,7 +11,7 @@ export function ForMe({
   sectionUri,
   showButtonFirst = true,
   showHideButton = false,
-   cachedProblemUris,
+  cachedProblemUris,
   setCachedProblemUris,
 }: {
   sectionUri: string;
@@ -25,15 +25,15 @@ export function ForMe({
   const [isLoadingProblemUris, setIsLoadingProblemUris] = useState<boolean>(!cachedProblemUris);
   // const [problemUris, setProblemUris] = useState<string[]>([]);
   // const [isLoadingProblemUris, setIsLoadingProblemUris] = useState<boolean>(true);
-  const [, setResponses] = useState<ProblemResponse[]>([]);
+  // const [, setResponses] = useState<ProblemResponse[]>([]);
   const [problemIdx, setProblemIdx] = useState(0);
-  const [, setIsFrozen] = useState<boolean[]>([]);
+  // const [, setIsFrozen] = useState<boolean[]>([]);
   // const [startQuiz, setStartQuiz] = useState(!showButtonFirst);
   const [show, setShow] = useState(true);
   const [showSolution, setShowSolution] = useState(false);
 
   useEffect(() => {
-     if (cachedProblemUris) return;
+    if (cachedProblemUris) return;
     setIsLoadingProblemUris(true);
     const fetchProblemUris = async () => {
       try {
@@ -52,7 +52,7 @@ export function ForMe({
         const extractedProblemIds =
           fetchedResponse?.['learning-objects']?.map((lo: any) => lo['learning-object']) || [];
 
-         setProblemUris(extractedProblemIds);
+        setProblemUris(extractedProblemIds);
         setCachedProblemUris(extractedProblemIds);
       } catch (error) {
         console.error('Error fetching problem URIs:', error);
@@ -62,7 +62,7 @@ export function ForMe({
     };
 
     fetchProblemUris();
-  }, [sectionUri, cachedProblemUris]);
+  }, [sectionUri, cachedProblemUris, setCachedProblemUris]);
 
   const handleViewSource = (uri: string) => {
     window.open(uri, '_blank');
@@ -71,7 +71,7 @@ export function ForMe({
   if (isLoadingProblemUris) return <LinearProgress />;
   if (!problemUris.length) {
     return (
-       <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
+      <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
         No personalized practice problems for this section
       </Typography>
     );

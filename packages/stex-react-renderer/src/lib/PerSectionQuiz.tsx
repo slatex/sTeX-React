@@ -17,7 +17,7 @@ export function PerSectionQuiz({
   sectionUri,
   showButtonFirst = true,
   showHideButton = false,
-   cachedProblemUris,
+  cachedProblemUris,
   setCachedProblemUris,
 }: {
   sectionUri: string;
@@ -40,7 +40,7 @@ export function PerSectionQuiz({
   const [showSolution, setShowSolution] = useState(false);
 
   useEffect(() => {
-     if (cachedProblemUris) return;
+    if (cachedProblemUris) return;
     //  if (!sectionUri) return;
     setIsLoadingProblemUris(true);
     axios
@@ -50,17 +50,17 @@ export function PerSectionQuiz({
         setCachedProblemUris(resp.data);
         setIsLoadingProblemUris(false);
       }, console.error);
-  }, [sectionUri,cachedProblemUris]);
+  }, [sectionUri, cachedProblemUris, setCachedProblemUris]);
 
-
-if (isLoadingProblemUris) return <LinearProgress />;
+  if (isLoadingProblemUris) return <LinearProgress />;
   if (!problemUris.length) {
     return (
       <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
         No practice problems for this section
       </Typography>
     );
-  }  if (!problemUris.length) return !showButtonFirst && <i>No problems found.</i>;
+  }
+  if (!problemUris.length) return !showButtonFirst && <i>No problems found.</i>;
 
   // if (!startQuiz) {
   //   return (

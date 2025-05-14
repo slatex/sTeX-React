@@ -66,7 +66,7 @@ export const de = {
     sureFinish: 'Sind Sie sicher, dass Sie den Vorgang abschließen möchten?',
     showSolution: 'Lösung anzeigen',
     hideSolution: 'Lösung ausblenden',
-    practiceProblem : 'Übungsproblem',
+    practiceProblem : 'Übungsproblem anzeigen',
     perSectionQuizButton: 'Alle probleme',
     ForMe : 'Für mich',
     hideProblems: 'Probleme ausblenden',

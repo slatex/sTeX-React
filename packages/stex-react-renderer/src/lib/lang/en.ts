@@ -66,7 +66,7 @@ export const en = {
     sureFinish: 'Are you sure you want to finish?',
     showSolution: 'Show Solution',
     hideSolution: 'Hide Solution',
-    practiceProblem: 'Practice Problem',
+    practiceProblem: 'Show Practice Problem',
     perSectionQuizButton: 'All Problems',
     ForMe : 'For Me',
     hideProblems: 'Hide All Problems',

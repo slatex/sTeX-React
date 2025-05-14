@@ -1,9 +1,9 @@
+import { Box, Button, Tab, Tabs } from '@mui/material';
+import { useRouter } from 'next/router';
 import React, { useState } from 'react';
-import { Button, Box, Tabs, Tab } from '@mui/material';
-import { PerSectionQuiz } from './PerSectionQuiz';
 import { ForMe } from './ForMe';
 import { getLocaleObject } from './lang/utils';
-import { useRouter } from 'next/router';
+import { PerSectionQuiz } from './PerSectionQuiz';
 
 interface PracticeProblemProps {
   sectionUri: string;
@@ -39,42 +39,38 @@ const PracticeProblem: React.FC<PracticeProblemProps> = ({ sectionUri, showHideB
 
       {showProblems && (
         <Box>
-          <Tabs 
-            value={tabValue} 
-            onChange={handleTabChange} 
-            sx={{ mb: 2 }}
-          >
-            <Tab label={t.perSectionQuizButton}/>
+          <Tabs value={tabValue} onChange={handleTabChange} sx={{ mb: 2 }}>
             <Tab label={t.ForMe} />
+            <Tab label={t.perSectionQuizButton} />
           </Tabs>
-          
+
           {tabValue === 0 && (
             <Box mb={2}>
-              <PerSectionQuiz 
-                sectionUri={sectionUri} 
-                showHideButton={false} 
-                showButtonFirst={false} 
-                 cachedProblemUris={perSectionProblemUris}
-                setCachedProblemUris={setPerSectionProblemUris}
-              />
-            </Box>
-          )}
-          
-          {tabValue === 1 && (
-            <Box mb={2}>
-              <ForMe 
-                sectionUri={sectionUri} 
-                showHideButton={false} 
-                showButtonFirst={false} 
+              <ForMe
+                sectionUri={sectionUri}
+                showHideButton={false}
+                showButtonFirst={false}
                 cachedProblemUris={formeProblemUris}
                 setCachedProblemUris={setFormeProblemUris}
               />
             </Box>
           )}
 
+          {tabValue === 1 && (
+            <Box mb={2}>
+              <PerSectionQuiz
+                sectionUri={sectionUri}
+                showHideButton={false}
+                showButtonFirst={false}
+                cachedProblemUris={perSectionProblemUris}
+                setCachedProblemUris={setPerSectionProblemUris}
+              />
+            </Box>
+          )}
+
           <Button
             variant="contained"
-            color="secondary"
+            color="primary"
             onClick={() => setShowProblems(false)}
             sx={{ marginTop: '10px' }}
           >
