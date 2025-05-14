@@ -9,7 +9,6 @@ import {
   Container,
   Paper,
   useTheme,
-  useMediaQuery,
   Alert,
   Backdrop,
   CircularProgress,
@@ -65,7 +64,6 @@ const CoverageUpdatePage: NextPage = () => {
   } | null>(null);
 
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     axios.get('/api/get-coverage-timeline').then((resp) => setCoverageTimeline(resp.data));
@@ -169,10 +167,10 @@ const CoverageUpdatePage: NextPage = () => {
 
           <FormControl
             variant="outlined"
-            fullWidth={isMobile}
+            fullWidth
             sx={{
               my: 2,
-              minWidth: { xs: '100%', sm: '200px' },
+              minWidth: '200px',
             }}
           >
             <InputLabel id="course-select-label">Course</InputLabel>
@@ -213,9 +211,8 @@ const CoverageUpdatePage: NextPage = () => {
             sx={{
               mt: 3,
               display: 'flex',
-              flexDirection: { xs: 'column', sm: 'row' },
-              alignItems: { xs: 'stretch', sm: 'center' },
-              justifyContent: 'space-between',
+              flexDirection: 'column',
+              alignItems: 'stretch',
               gap: 2,
             }}
           >
@@ -224,10 +221,10 @@ const CoverageUpdatePage: NextPage = () => {
               color="primary"
               size="large"
               onClick={handleSave}
-              fullWidth={isMobile}
+              fullWidth
               sx={{
                 py: 1.5,
-                maxWidth: { xs: '100%', sm: '200px' },
+                maxWidth: '200px',
               }}
             >
               Save Changes
@@ -238,7 +235,7 @@ const CoverageUpdatePage: NextPage = () => {
               color="error"
               sx={{
                 fontWeight: 'medium',
-                textAlign: { xs: 'center', sm: 'right' },
+                textAlign: 'center',
               }}
             >
               Your changes will not be saved until you click 'Save Changes'.
