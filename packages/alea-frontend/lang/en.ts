@@ -165,9 +165,9 @@ export const en = {
     firstName: 'First Name',
     lastName: 'Last Name',
     email: 'Email',
-    languages: 'Languages',
+    languages: 'Languages spoken',
     studyProgram: 'Study Program',
-    semester: 'Semester',
+    semester: 'Enrolled semester',
     save: 'Save',
 
     dataAlea: 'Your Data in ALᴇA',

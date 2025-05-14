@@ -9,8 +9,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const { firstName, lastName, email, studyProgram, semester, languages } = req.body;
 
-  if (!firstName || !lastName || !email) {
-    return res.status(400).json({ error: 'Missing required fields' });
+  if (!firstName && !lastName && !email && !studyProgram && !semester && !languages) {
+    return res.status(400).json({ error: 'At least one field must be provided' });
   }
 
   const result = await executeAndEndSet500OnError(
