@@ -165,15 +165,18 @@ export const MaAI_COURSES: {
   advpt: {
     courseName: 'Advanced Programming Techniques',
   },
+  atdl: {
+    courseName: 'Advanced Topics in Deep Learning',
+  },
   algprog: {
     courseName: 'Algebra of Programming',
   },
   aloa: {
     courseName: 'Algebraic and Logical Aspects of Automata Theory',
   },
-  algbioinf: {
-    courseName: 'Algorithmic Bioinformatics',
-  },
+  // algbioinf: {
+  //   courseName: 'Algorithmic Bioinformatics',
+  // },
   approxc: {
     courseName: 'Approximate Computing',
   },
@@ -183,45 +186,45 @@ export const MaAI_COURSES: {
   'ai-2': {
     courseName: 'Artificial Intelligence II',
   },
-  aml: {
-    courseName: 'Artificial Motor Learning',
-  },
+  // aml: {
+  //   courseName: 'Artificial Motor Learning',
+  // },
   biosig: {
     courseName: 'Biomedical Signal Analysis',
   },
   cnaid: {
     courseName: 'Cognitive Neuroscience for AI Developers',
   },
-  compmri: {
-    courseName: 'Computational Magnetic Resonance Imaging',
-  },
-  compneurotech: {
-    courseName: 'Computational Neurotechnology / Numerische Neurotechnologie',
-  },
+  // compmri: {
+  //   courseName: 'Computational Magnetic Resonance Imaging',
+  // },
+  // compneurotech: {
+  //   courseName: 'Computational Neurotechnology / Numerische Neurotechnologie',
+  // },
   cpac: {
     courseName: 'Computational Photography and Capture',
   },
   compvp: {
     courseName: 'Computational Visual Perception',
   },
-  ra: {
-    courseName: 'Computer Architecture',
-  },
+  // ra: {
+  //   courseName: 'Computer Architecture',
+  // },
   cv: {
     courseName: 'Computer Vision',
   },
-  connmob: {
-    courseName: 'Connected Mobility and Autonomous Driving',
-  },
+  // connmob: {
+  //   courseName: 'Connected Mobility and Autonomous Driving',
+  // },
   dl: {
     courseName: 'Deep Learning',
   },
   dlfo: {
     courseName: 'Description Logic and Formal Ontologies',
   },
-  es: {
-    courseName: 'Eingebettete Systeme',
-  },
+  // es: {
+  //   courseName: 'Eingebettete Systeme',
+  // },
   fv: {
     courseName: 'Formal Verification',
   },
@@ -231,23 +234,26 @@ export const MaAI_COURSES: {
   hrc: {
     courseName: 'Human-Robot Co-Adaptation',
   },
-  isf: {
-    courseName: 'Inertial Sensor Fusion',
-  },
+  // isf: {
+  //   courseName: 'Inertial Sensor Fusion',
+  // },
   infovis: {
     courseName: 'Informationsvisualisierung',
   },
-  idf: {
-    courseName: 'Intent Detection and Feedback',
-  },
-  'impip/mipia': {
-    courseName: 'Interventional Medical Image Processing',
-  },
-  ident: {
-    courseName: 'Introduction to Dependently Typed Programming',
-  },
-  xml: {
-    courseName: 'Introduction to Explainable Machine Learning',
+  // idf: {
+  //   courseName: 'Intent Detection and Feedback',
+  // },
+  // 'impip/mipia': {
+  //   courseName: 'Interventional Medical Image Processing',
+  // },
+  // ident: {
+  //   courseName: 'Introduction to Dependently Typed Programming',
+  // },
+  // xml: {
+  //   courseName: 'Introduction to Explainable Machine Learning',
+  // },
+  krmath: {
+    courseName: 'Knowledge Representation for Mathematical Theories',
   },
   kommpar: {
     courseName: 'Kommunikation und parallele Prozesse',
@@ -261,21 +267,24 @@ export const MaAI_COURSES: {
   mlts: {
     courseName: 'Machine Learning for Time Series Deluxe',
   },
-  'dmip/mipda': {
-    courseName: 'Medical Image Processing for Diagnostic Applications ',
+  mlts_basic: {
+    courseName: 'Machine Learning for Time Series',
   },
+  // 'dmip/mipda': {
+  //   courseName: 'Medical Image Processing for Diagnostic Applications ',
+  // },
   made: {
     courseName: 'Methods of Advanced Data Engineering',
   },
-  mw: {
-    courseName: 'Middleware - Cloud Computing',
-  },
+  // mw: {
+  //   courseName: 'Middleware - Cloud Computing',
+  // },
   ml: {
     courseName: 'Modallogik',
   },
-  mbprog: {
-    courseName: 'Monad-based Programming',
-  },
+  // mbprog: {
+  //   courseName: 'Monad-based Programming',
+  // },
   mmsec: {
     courseName: 'Multimedia Security',
   },
@@ -285,9 +294,9 @@ export const MaAI_COURSES: {
   nocl: {
     courseName: 'Nonclassical Logics in Computer Science',
   },
-  psys: {
-    courseName: 'Parallele Systeme',
-  },
+  // psys: {
+  //   courseName: 'Parallele Systeme',
+  // },
   pa: {
     courseName: 'Pattern Analysis',
   },
@@ -308,6 +317,9 @@ export const MaAI_COURSES: {
   },
   si: {
     courseName: 'Swarm Intelligence',
+  },
+  smai: {
+    courseName: 'Symbolic Methods for Artificial Intelligence',
   },
   vds: {
     courseName: 'Verifikation digitaler Systeme',
@@ -336,8 +348,11 @@ export const MaAI_COURSES: {
   compimagproj: {
     courseName: 'Computational Imaging Project',
   },
-  radl: {
-    courseName: 'Computer Architechtures for Deep Learning Applications',
+  // radl: {
+  //   courseName: 'Computer Architechtures for Deep Learning Applications',
+  // },
+  digalchemy: {
+    courseName: 'Digital alchemy',
   },
   fabproj: {
     courseName: 'Fabrication Project',
@@ -345,18 +360,21 @@ export const MaAI_COURSES: {
   handsonrar: {
     courseName: 'Hands on Rehabilitation and Assistive Robotics',
   },
+  idealab: {
+    courseName: 'Image and Data Analysis: Engage in your own research project at the IDEA lab',
+  },
   innolabpro: {
     courseName: 'Innovationslabor für Wearable und Ubiquitous Computing',
   },
-  prism: {
-    courseName: 'Intelligent Sensorimotor Systems Lab PRISM',
-  },
+  // prism: {
+  //   courseName: 'Intelligent Sensorimotor Systems Lab PRISM',
+  // },
   intvisproj: {
     courseName: 'Interactive Visualization Project',
   },
-  'llr+': {
-    courseName: 'Legged Locomotion of Robots Deluxe',
-  },
+  // 'llr+': {
+  //   courseName: 'Legged Locomotion of Robots Deluxe',
+  // },
   mastproj: {
     courseName: 'Master Projekt Datenmanagement',
   },
@@ -372,8 +390,11 @@ export const MaAI_COURSES: {
   digirealpr: {
     courseName: 'Project Digital Reality DigiRealPR',
   },
-  iiml: {
-    courseName: 'Project Intraoperative Imaging and Machine Learning IIML',
+  // iiml: {
+  //   courseName: 'Project Intraoperative Imaging and Machine Learning IIML',
+  // },
+  projmkr: {
+    courseName: 'Project Mathematical Knowledge Representation',
   },
   projmap: {
     courseName: 'Project Music and Audio Processing ProjMAP',
@@ -383,6 +404,9 @@ export const MaAI_COURSES: {
   },
   prl: {
     courseName: 'Project Representation Learning PRL',
+  },
+  projsnlp: {
+    courseName: 'Project Symbolic Natural Language Processing',
   },
   'oss-proj': {
     courseName: 'Projekt Applied Software Engineering OSS-PROJ',
@@ -421,7 +445,7 @@ export const MaAI_COURSES: {
     courseName: 'Blender Seminar',
   },
   ets: {
-    courseName: 'Blickfang: KI-getriebene Modellierung und Analyse von Eye-Tracking-Daten',
+    courseName: 'Catching your eyes: AI-driven modeling and analysis of eye-tracking data',
   },
   semcogsurob: {
     courseName: 'Cognitive Surgical Robotics',
@@ -429,9 +453,9 @@ export const MaAI_COURSES: {
   dipsylab: {
     courseName: 'Digital Psychology Lab',
   },
-  semdpdl: {
-    courseName: 'Digital Pathology and Deep Learning',
-  },
+  // semdpdl: {
+  //   courseName: 'Digital Pathology and Deep Learning',
+  // },
   advmlad: {
     courseName: 'Erweitertes maschinelles Lernen für Anomalieerkennung',
   },
@@ -447,6 +471,9 @@ export const MaAI_COURSES: {
   semhitl: {
     courseName: 'Humans in the Loop: The Design of Interactive AI Systems',
   },
+  llr: {
+    courseName: 'Legged locomotion of Robots',
+  },
   mlinmri: {
     courseName: 'Machine Learning in MRI',
   },
@@ -459,9 +486,9 @@ export const MaAI_COURSES: {
   eaisem2: {
     courseName: 'Philosophy of AI',
   },
-  semadvdl: {
-    courseName: 'Seminar Advanced Deep Learning',
-  },
+  // semadvdl: {
+  //   courseName: 'Seminar Advanced Deep Learning',
+  // },
   autoinf: {
     courseName: 'Seminar Automata over Infinite Words',
   },
@@ -474,15 +501,18 @@ export const MaAI_COURSES: {
   semdl: {
     courseName: 'Seminar Deep Learning',
   },
+  semethdig: {
+    courseName: 'Seminar Ethik der Digitalisierung',
+  },
   grahs: {
     courseName: 'Seminar Graphical Data Processing',
   },
   invhs: {
     courseName: 'Seminar Inverse Rendering',
   },
-  madi40: {
-    courseName: 'Seminar Machine Learning and Data Analytics for Industry 4.0',
-  },
+  // madi40: {
+  //   courseName: 'Seminar Machine Learning and Data Analytics for Industry 4.0',
+  // },
   map: {
     courseName: 'Seminar Multi-Core Architectures and Programming',
   },
@@ -492,23 +522,29 @@ export const MaAI_COURSES: {
   semnom: {
     courseName: 'Seminar Nominal Quantities and Automation',
   },
-  neura: {
-    courseName: 'Seminar Novel Computer Architechtures',
-  },
+  // neura: {
+  //   courseName: 'Seminar Novel Computer Architechtures',
+  // },
   semsurgrobhardw: {
     courseName: 'Seminar Surgical Robotics Hardware',
   },
   semsurgrobsoftw: {
     courseName: 'Seminar Surgical Robotics Software',
   },
-  thinfsem: {
-    courseName: 'Seminar Theoretische Informatik',
-  },
+  // thinfsem: {
+  //   courseName: 'Seminar Theoretische Informatik',
+  // },
   vchs: {
     courseName: 'Seminar Visual Computing',
   },
   semwuv: {
     courseName: 'Seminar Wissenrepräsentation und verarbeitung',
+  },
+  surgrob_sem: {
+    courseName: 'Surgical Robotics',
+  },
+  topcat: {
+    courseName: 'Topics of Category Theory',
   },
   traco: {
     courseName: 'Tracking Olympiad',
@@ -564,4 +600,25 @@ export const MaAI_COURSES: {
   stfl: { courseName: 'Statik und Festigkeitslehre' },
   'aud-mt': { courseName: 'Algorithmen und Datenstrukturen für MT' },
   'alg-ks': { courseName: 'Algorithmik kontinuierlicher Systeme' },
+  'minors-ai': {
+    courseName: 'Minors in AI Master\'s program',
+  },
+  'biomed-eng': {
+    courseName: 'Biomedical Engineering',
+  },
+  'bus-econ': {
+    courseName: 'Business Economics',
+  },
+  'comp-graphics': {
+    courseName: 'Computer Graphics',
+  },
+  'high-perf-comp': {
+    courseName: 'High Performance Computing',
+  },
+  'math-data-sci': {
+    courseName: 'Mathematical Data Science',
+  },
+  'robotics-auto': {
+    courseName: 'Robotics & Automation',
+  },
 };
