@@ -1,21 +1,22 @@
 import EditIcon from '@mui/icons-material/Edit';
 import {
-    Button,
-    Checkbox,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    FormControl,
-    InputLabel,
-    ListItemText,
-    MenuItem,
-    Select,
-    Stack,
-    TextField,
-    Typography,
+  Button,
+  Checkbox,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControl,
+  InputLabel,
+  ListItemText,
+  MenuItem,
+  Select,
+  Stack,
+  TextField,
+  Typography,
 } from '@mui/material';
 import { Language, myprofile, updateUserProfile } from '@stex-react/api';
+import { isFauId } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { getLocaleObject } from '../../lang/utils';
@@ -33,6 +34,7 @@ export function EditProfileDialog({ open, onClose, profileData, userId, onSave }
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
     if (profileData) {
@@ -47,6 +49,20 @@ export function EditProfileDialog({ open, onClose, profileData, userId, onSave }
     }
   }, [profileData]);
 
+  useEffect(() => {
+    if (!profileData) return;
+
+    const isDifferent =
+      profileData.firstName !== formData.firstName ||
+      profileData.lastName !== formData.lastName ||
+      profileData.email !== formData.email ||
+      profileData.studyProgram !== formData.studyProgram ||
+      profileData.semester !== formData.semester ||
+      profileData.languages !== formData.languages;
+
+    setHasChanges(isDifferent);
+  }, [formData, profileData]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -54,6 +70,8 @@ export function EditProfileDialog({ open, onClose, profileData, userId, onSave }
       [name]: value,
     }));
   };
+
+  const isFAUId = isFauId(userId);
 
   const handleSubmit = async () => {
     setIsLoading(true);
@@ -112,7 +130,6 @@ export function EditProfileDialog({ open, onClose, profileData, userId, onSave }
     'SS25',
     'WS25-26',
   ];
-  
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -131,6 +148,7 @@ export function EditProfileDialog({ open, onClose, profileData, userId, onSave }
             value={formData.firstName}
             onChange={handleChange}
             variant="outlined"
+            disabled={isFAUId}
           />
           <TextField
             fullWidth
@@ -139,6 +157,7 @@ export function EditProfileDialog({ open, onClose, profileData, userId, onSave }
             value={formData.lastName}
             onChange={handleChange}
             variant="outlined"
+            disabled={isFAUId}
           />
           <TextField
             fullWidth
@@ -198,7 +217,6 @@ export function EditProfileDialog({ open, onClose, profileData, userId, onSave }
                 </MenuItem>
               ))}
             </Select>
-
           </FormControl>
         </Stack>
       </DialogContent>
@@ -210,7 +228,7 @@ export function EditProfileDialog({ open, onClose, profileData, userId, onSave }
           onClick={handleSubmit}
           variant="contained"
           color="primary"
-          disabled={isLoading}
+          disabled={isLoading || !hasChanges}
           startIcon={<EditIcon />}
         >
           {isLoading ? 'Saving...' : 'Save Changes'}
