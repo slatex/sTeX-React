@@ -1,11 +1,18 @@
-import { Box, Button, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import {
-  DocumentURI,
-  TOCElem,
-  getAuthHeaders,
-  getCourseInfo,
-  getDocumentSections,
-} from '@stex-react/api';
+  Box,
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Typography,
+  Container,
+  Paper,
+  Alert,
+  Backdrop,
+  CircularProgress,
+} from '@mui/material';
+import { TOCElem, getAuthHeaders, getCourseInfo, getDocumentSections } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import {
   CourseInfo,
@@ -19,12 +26,7 @@ import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import { CoverageUpdater } from '../components/CoverageUpdater';
 import MainLayout from '../layouts/MainLayout';
-
-export interface Section {
-  id: string;
-  title: string;
-  uri: DocumentURI;
-}
+import { Section } from '../types';
 
 function getSectionNames(data: TOCElem, level = 0): Section[] {
   const sections: Section[] = [];
@@ -54,6 +56,11 @@ const CoverageUpdatePage: NextPage = () => {
   const [coverageTimeline, setCoverageTimeline] = useState<CoverageTimeline>({});
   const { mmtUrl } = useContext(ServerLinksContext);
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
+  const [loading, setLoading] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<{
+    type: 'success' | 'error';
+    message: string;
+  } | null>(null);
 
   useEffect(() => {
     axios.get('/api/get-coverage-timeline').then((resp) => setCoverageTimeline(resp.data));
@@ -68,6 +75,7 @@ const CoverageUpdatePage: NextPage = () => {
   useEffect(() => {
     const getSections = async () => {
       if (!Object.keys(courses).length) return;
+      setLoading(true);
       try {
         const sectionPromises = Object.keys(courses).map(async (courseId) => {
           const { notes } = courses[courseId];
@@ -88,6 +96,12 @@ const CoverageUpdatePage: NextPage = () => {
         setAllSectionNames(secNames);
       } catch (error) {
         console.error('Failed to fetch all sections:', error);
+        setSaveMessage({
+          type: 'error',
+          message: 'Failed to fetch sections. Please try again.',
+        });
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -104,52 +118,132 @@ const CoverageUpdatePage: NextPage = () => {
     setSectionNames(allSectionNames[courseId] || []);
   }, [allSectionNames, courseId, router.isReady]);
 
+  const handleSave = async () => {
+    const confirmText = "Did you make sure to click 'Add' button to add entries to the table?";
+    if (!confirm(confirmText)) return;
+
+    setLoading(true);
+    try {
+      const body = { courseId, snaps };
+      const headers = getAuthHeaders();
+      await axios.post('/api/set-coverage-timeline', body, { headers });
+      setSaveMessage({
+        type: 'success',
+        message: 'Coverage data saved successfully!',
+      });
+
+      setTimeout(() => {
+        setSaveMessage(null);
+      }, 3000);
+    } catch (error) {
+      console.error('Error saving coverage:', error);
+      setSaveMessage({
+        type: 'error',
+        message: 'Failed to save coverage data. Please try again.',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <MainLayout title="Coverage Update | ALeA">
-      <Box px="10px" m="auto" maxWidth="1200px" display="flex" flexDirection="column">
-        <FormControl sx={{ my: '10px', width: '150px' }}>
-          <InputLabel id="course-select-label">Course</InputLabel>
-          <Select
-            labelId="course-select-label"
-            value={courseId ?? 'ai-2'}
-            onChange={(e) => {
-              const { pathname, query } = router;
-              query.courseId = e.target.value;
-              router.replace({ pathname, query });
-            }}
-            label="Course"
-          >
-            {Object.keys(courses).map((courseId) => (
-              <MenuItem key={courseId} value={courseId}>
-                {courseId}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        <CoverageUpdater snaps={snaps} setSnaps={setSnaps} sectionNames={sectionNames} />
-        <Button
-          variant="contained"
-          onClick={() => {
-            const confirmText =
-              "Did you make sure to click 'Add' button to add entries to the table?";
-            if (!confirm(confirmText)) return;
-
-            const body = { courseId, snaps };
-            const headers = getAuthHeaders();
-            axios.post('/api/set-coverage-timeline', body, { headers }).then(
-              () => console.log('Saved coverage.'),
-              (e) => alert(e)
-            );
+      <Container maxWidth="xl">
+        <Paper
+          elevation={3}
+          sx={{
+            p: { xs: 2, sm: 3 },
+            my: 3,
+            borderRadius: 2,
+            overflow: 'hidden',
           }}
-          sx={{ mt: '15px' }}
         >
-          Save
-        </Button>
-        <span style={{ color: 'red', display: 'flex', marginTop: '10px' }}>
-          Your changes will not be saved till you click &apos;Save&apos;.
-        </span>
-      </Box>
+          <Typography variant="h4" component="h1" gutterBottom color="primary">
+            Coverage Update
+          </Typography>
+
+          <FormControl
+            variant="outlined"
+            fullWidth
+            sx={{
+              my: 2,
+              minWidth: '200px',
+            }}
+          >
+            <InputLabel id="course-select-label">Course</InputLabel>
+            <Select
+              labelId="course-select-label"
+              value={courseId ?? 'ai-2'}
+              onChange={(e) => {
+                const { pathname, query } = router;
+                query.courseId = e.target.value;
+                router.replace({ pathname, query });
+              }}
+              label="Course"
+            >
+              {Object.keys(courses).map((courseId) => (
+                <MenuItem key={courseId} value={courseId}>
+                  {courseId}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          {saveMessage && (
+            <Alert severity={saveMessage.type} sx={{ mb: 2 }} onClose={() => setSaveMessage(null)}>
+              {saveMessage.message}
+            </Alert>
+          )}
+
+          <Box
+            sx={{
+              mt: 2,
+              overflow: 'auto',
+            }}
+          >
+            <CoverageUpdater snaps={snaps} setSnaps={setSnaps} sectionNames={sectionNames} />
+          </Box>
+
+          <Box
+            sx={{
+              mt: 3,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'stretch',
+              gap: 2,
+            }}
+          >
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              onClick={handleSave}
+              fullWidth
+              sx={{
+                py: 1.5,
+                maxWidth: '200px',
+              }}
+            >
+              Save Changes
+            </Button>
+
+            <Typography
+              variant="body2"
+              color="error"
+              sx={{
+                fontWeight: 'medium',
+                textAlign: 'center',
+              }}
+            >
+              Your changes will not be saved until you click 'Save Changes'.
+            </Typography>
+          </Box>
+        </Paper>
+      </Container>
+
+      <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={loading}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </MainLayout>
   );
 };
