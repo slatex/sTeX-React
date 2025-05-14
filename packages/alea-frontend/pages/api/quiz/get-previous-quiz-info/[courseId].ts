@@ -92,7 +92,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         problemByProblemId[problemId] = problems[problemId];
       }
       const maxPoints = Object.values(problemByProblemId).reduce(
-        (acc, p) => acc + p.problem.total_points,
+        (acc, p) => acc + (p.problem.total_points ?? 1),
         0
       );
       for (const r of recorrectionInfo || []) {
