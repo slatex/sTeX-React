@@ -75,6 +75,7 @@ export function PerSectionQuiz({
   const [isSubmitted, setIsSubmitted] = useState<boolean[]>([]);
   const [show, setShow] = useState(true);
   const [showSolution, setShowSolution] = useState(false);
+  const [startQuiz, setStartQuiz] = useState(!showButtonFirst);
 
   useEffect(() => {
     if (cachedProblemUris) return;
@@ -102,23 +103,21 @@ export function PerSectionQuiz({
     );
   }
 
-  // if (!startQuiz) {
-  //   return (
-  //     <Button onClick={() => setStartQuiz(true)} variant="contained">
-  //       {t.perSectionQuizButton.replace('$1', problemUris.length.toString())}
-  //     </Button>
-  //   );
-  // }
-  if (!show) {
-    return null;
-    // TODO ALEA4-P3
-    // (
-    //   <Button onClick={() => setShow(true)} variant="contained">
-    //     {t.perSectionQuizButton.replace('$1', problemUris.length.toString())}
-    //   </Button>
-    // );
+  if (!startQuiz) {
+    return (
+      <Button onClick={() => setStartQuiz(true)} variant="contained">
+        {t.perSectionQuizButton.replace('$1', problemUris.length.toString())}
+      </Button>
+    );
   }
-  if (isLoadingProblemUris) return <LinearProgress />;
+
+  if (!show) {
+    return (
+      <Button onClick={() => setShow(true)} variant="contained">
+        {t.perSectionQuizButton.replace('$1', problemUris.length.toString())}
+      </Button>
+    );
+  }
 
   const problemUri = problemUris[problemIdx];
   // TODO ALEA4-P3 const response = responses[problemIdx];
