@@ -1,6 +1,6 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Button, IconButton, LinearProgress, Tooltip, Typography } from '@mui/material';
-import { getDefiniedaInSection, getLearningObjects, ProblemResponse } from '@stex-react/api';
+import { getDefiniedaInSection, getLearningObjects } from '@stex-react/api';
 import { FTMLFragment } from '@stex-react/ftml-utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -11,24 +11,26 @@ export function ForMe({
   sectionUri,
   showButtonFirst = true,
   showHideButton = false,
+  cachedProblemUris,
+  setCachedProblemUris,
 }: {
   sectionUri: string;
   showButtonFirst?: boolean;
   showHideButton?: boolean;
+  cachedProblemUris: string[] | null;
+  setCachedProblemUris: (uris: string[]) => void;
 }) {
   const t = getLocaleObject(useRouter()).quiz;
-  const [problemUris, setProblemUris] = useState<string[]>([]);
-  const [isLoadingProblemUris, setIsLoadingProblemUris] = useState<boolean>(true);
-  const [, setResponses] = useState<ProblemResponse[]>([]);
+  const [problemUris, setProblemUris] = useState<string[]>(cachedProblemUris || []);
+  const [isLoadingProblemUris, setIsLoadingProblemUris] = useState<boolean>(!cachedProblemUris);
   const [problemIdx, setProblemIdx] = useState(0);
-  const [, setIsFrozen] = useState<boolean[]>([]);
-  const [startQuiz, setStartQuiz] = useState(!showButtonFirst);
   const [show, setShow] = useState(true);
   const [showSolution, setShowSolution] = useState(false);
 
   useEffect(() => {
+    if (cachedProblemUris) return;
+    setIsLoadingProblemUris(true);
     const fetchProblemUris = async () => {
-      setIsLoadingProblemUris(true);
       try {
         const data = await getDefiniedaInSection(sectionUri);
         const URIs = data?.flatMap((item) => item.conceptUri) || [];
@@ -46,8 +48,7 @@ export function ForMe({
           fetchedResponse?.['learning-objects']?.map((lo: any) => lo['learning-object']) || [];
 
         setProblemUris(extractedProblemIds);
-        setResponses(Array(extractedProblemIds.length).fill(null));
-        setIsFrozen(Array(extractedProblemIds.length).fill(false));
+        setCachedProblemUris(extractedProblemIds);
       } catch (error) {
         console.error('Error fetching problem URIs:', error);
       } finally {
@@ -56,7 +57,7 @@ export function ForMe({
     };
 
     fetchProblemUris();
-  }, [sectionUri]);
+  }, [sectionUri, cachedProblemUris, setCachedProblemUris]);
 
   const handleViewSource = (uri: string) => {
     window.open(uri, '_blank');
@@ -65,31 +66,13 @@ export function ForMe({
   if (isLoadingProblemUris) return <LinearProgress />;
   if (!problemUris.length) {
     return (
-      !showButtonFirst && 
-      <Box p={2} bgcolor="white" border="1px solid #CCC" borderRadius="5px">
-        <Typography variant="h6">For Me</Typography>
-        <Typography variant="body2" color="textSecondary">
-          No Practice Questions Available
-        </Typography>
-      </Box>
+      <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
+        No personalized practice problems for this section
+      </Typography>
     );
   }
 
-  if (!startQuiz) {
-    return (
-      <Button onClick={() => setStartQuiz(true)} variant="contained">
-        {t.ForMe.replace('$1', problemUris.length.toString())}
-      </Button>
-    );
-  }
-
-  if (!show) {
-    return (
-      <Button onClick={() => setShow(true)} variant="contained">
-        {t.ForMe.replace('$1', problemUris.length.toString())}
-      </Button>
-    );
-  }
+  if (!show) return null;
 
   const problemUri = problemUris[problemIdx];
 
