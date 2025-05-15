@@ -40,17 +40,8 @@ const PracticeProblem: React.FC<PracticeProblemProps> = ({ sectionUri, showHideB
     const fetchAllProblems = React.useCallback(() => {
     if (!sectionUri) return;
     
-    if (!formeProblemUris) {
-      import('./ForMe').then(({ ForMe }) => {
-        setShowProblems(true);
-      });
-    }
-    
-    if (!perSectionProblemUris) {
-      import('./PerSectionQuiz').then(({ PerSectionQuiz }) => {
-        setShowProblems(true);
-      });
-    }
+    if (!formeProblemUris) setTabValue(0);
+    if (!perSectionProblemUris) setTabValue(1);
   }, [sectionUri, formeProblemUris, perSectionProblemUris]);
 
   useEffect(() => {
