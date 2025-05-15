@@ -184,12 +184,19 @@ async function getLastUpdatedNotes(courseId: string): Promise<ResourceDisplayInf
     const coverageData = await getCoverageTimeline();
     const courseData = coverageData[courseId];
     if (courseData && courseData.length > 0) {
-      const timestamp = coverageData[courseId].reduce((acc, curr) => {
-        return acc > curr.timestamp_ms ? acc : curr.timestamp_ms;
-      }, coverageData[courseId][0].timestamp);
-      const description = `Last Updated: ${dayjs(timestamp).format('YYYY-MM-DD')}`;
-      const timeAgo = calculateTimeAgo(timestamp);
-      return { description, timeAgo, timestamp };
+      const entriesWithSectionName = courseData.filter(
+        (entry) => entry.sectionName && entry.sectionName.trim() !== ''
+      );
+
+      if (entriesWithSectionName.length > 0) {
+        const timestamp = entriesWithSectionName.reduce((acc, curr) => {
+          return acc > curr.timestamp_ms ? acc : curr.timestamp_ms;
+        }, entriesWithSectionName[0].timestamp_ms);
+
+        const description = `Last Updated: ${dayjs(timestamp).format('YYYY-MM-DD')}`;
+        const timeAgo = calculateTimeAgo(timestamp.toString());
+        return { description, timeAgo, timestamp: timestamp.toString() };
+      }
     }
     return { description: null, timeAgo: null, timestamp: null };
   } catch (error) {
