@@ -111,10 +111,12 @@ const CourseNotesPage: NextPage = () => {
       try {
         const response = await axios.get('/api/get-coverage-timeline');
         const currentSemData: CoverageSnap[] = response.data[courseId] || [];
-        const coverageData = currentSemData.map((item) => ({
-          uri: item.sectionName,
-          timestamp: item.timestamp_ms,
-        }));
+        const coverageData = currentSemData
+          .filter((item) => item.sectionName)
+          .map((item) => ({
+            uri: item.sectionName,
+            timestamp: item.timestamp_ms,
+          }));
         setGottos(coverageData);
       } catch (error) {
         setGottos([]);
