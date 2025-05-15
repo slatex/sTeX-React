@@ -4,6 +4,7 @@ import {
   CourseInfo,
   createCourseInfo,
   getParamFromUri,
+  waitForNSeconds,
 } from '@stex-react/utils';
 import axios from 'axios';
 import { FLAMSServer } from './flams';
@@ -200,9 +201,19 @@ export async function getDefiniedaInSection(uri: string): Promise<ConceptAndDefi
 }
 
 export async function getProblemsForConcept(conceptUri: string) {
-  const learningObjects = await server.learningObjects({ uri: conceptUri }, true);
-  if (!learningObjects) return [];
-  return learningObjects.filter((obj) => obj[1].type === 'Problem').map((obj) => obj[0]);
+  const MAX_RETRIES = 3;
+  for (let i = 0; i < MAX_RETRIES; i++) {
+    try {
+      const learningObjects = await server.learningObjects({ uri: conceptUri }, true);
+      if (!learningObjects) return [];
+      return learningObjects.filter((obj) => obj[1].type === 'Problem').map((obj) => obj[0]);
+    } catch (error) {
+      console.warn('Error fetching problems for:', conceptUri);
+      await waitForNSeconds(2*i*i);
+    }
+  }
+  console.error(`After ${MAX_RETRIES} failed to fetch problems for: [${conceptUri}] `);
+  return [];
 }
 
 export async function getProblemsForSection(sectionUri: string): Promise<string[]> {
