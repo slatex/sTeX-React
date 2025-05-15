@@ -20,9 +20,9 @@ const PracticeProblem: React.FC<PracticeProblemProps> = ({ sectionUri, showHideB
   const [perSectionProblemUris, setPerSectionProblemUris] = useState<string[] | null>(null);
   const [formeProblemUris, setFormeProblemUris] = useState<string[] | null>(null);
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = React.useCallback((event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
-  };
+  }, []);
 
   return (
     <Box>

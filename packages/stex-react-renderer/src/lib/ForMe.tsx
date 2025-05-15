@@ -23,12 +23,7 @@ export function ForMe({
   const t = getLocaleObject(useRouter()).quiz;
   const [problemUris, setProblemUris] = useState<string[]>(cachedProblemUris || []);
   const [isLoadingProblemUris, setIsLoadingProblemUris] = useState<boolean>(!cachedProblemUris);
-  // const [problemUris, setProblemUris] = useState<string[]>([]);
-  // const [isLoadingProblemUris, setIsLoadingProblemUris] = useState<boolean>(true);
-  // const [, setResponses] = useState<ProblemResponse[]>([]);
   const [problemIdx, setProblemIdx] = useState(0);
-  // const [, setIsFrozen] = useState<boolean[]>([]);
-  // const [startQuiz, setStartQuiz] = useState(!showButtonFirst);
   const [show, setShow] = useState(true);
   const [showSolution, setShowSolution] = useState(false);
 
@@ -77,22 +72,7 @@ export function ForMe({
     );
   }
 
-  // if (!startQuiz) {
-  //   return (
-  //     <Button onClick={() => setStartQuiz(true)} variant="contained">
-  //       {t.ForMe.replace('$1', problemUris.length.toString())}
-  //     </Button>
-  //   );
-  // }
-
-  if (!show) {
-    return null;
-    // (
-    //   <Button onClick={() => setShow(true)} variant="contained">
-    //     {t.ForMe.replace('$1', problemUris.length.toString())}
-    //   </Button>
-    // );
-  }
+  if (!show) return null;
 
   const problemUri = problemUris[problemIdx];
 
