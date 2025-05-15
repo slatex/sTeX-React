@@ -1,6 +1,6 @@
 import { Box, Button, Tab, Tabs } from '@mui/material';
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ForMe } from './ForMe';
 import { getLocaleObject } from './lang/utils';
 import { PerSectionQuiz } from './PerSectionQuiz';
@@ -8,9 +8,10 @@ import { PerSectionQuiz } from './PerSectionQuiz';
 interface PracticeProblemProps {
   sectionUri: string;
   showHideButton?: boolean;
+  isAccordionOpen?: boolean;
 }
 
-const PracticeProblem: React.FC<PracticeProblemProps> = ({ sectionUri, showHideButton }) => {
+const PracticeProblem: React.FC<PracticeProblemProps> = ({ sectionUri, showHideButton, isAccordionOpen }) => {
   const [showProblems, setShowProblems] = useState(false);
   const router = useRouter();
   const { quiz: t } = getLocaleObject(router);
@@ -23,6 +24,40 @@ const PracticeProblem: React.FC<PracticeProblemProps> = ({ sectionUri, showHideB
   const handleTabChange = React.useCallback((event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   }, []);
+
+  const [forMeTabLabel, setForMeTabLabel] = useState(t.ForMe.replace('$1', '0'));
+  const [perSectionTabLabel, setPerSectionTabLabel] = useState(t.perSectionQuizButton.replace('$1', '0'));
+
+  useEffect(() => {
+    if (formeProblemUris?.length) {
+      setForMeTabLabel(t.ForMe.replace('$1', formeProblemUris.length.toString()));
+    }
+    if (perSectionProblemUris?.length) {
+      setPerSectionTabLabel(t.perSectionQuizButton.replace('$1', perSectionProblemUris.length.toString()));
+    }
+  }, [formeProblemUris, perSectionProblemUris, t.ForMe, t.perSectionQuizButton]);
+
+    const fetchAllProblems = React.useCallback(() => {
+    if (!sectionUri) return;
+    
+    if (!formeProblemUris) {
+      import('./ForMe').then(({ ForMe }) => {
+        setShowProblems(true);
+      });
+    }
+    
+    if (!perSectionProblemUris) {
+      import('./PerSectionQuiz').then(({ PerSectionQuiz }) => {
+        setShowProblems(true);
+      });
+    }
+  }, [sectionUri, formeProblemUris, perSectionProblemUris]);
+
+  useEffect(() => {
+    if (isAccordionOpen) {
+      fetchAllProblems();
+    }
+  }, [isAccordionOpen, fetchAllProblems]);
 
   return (
     <Box>
@@ -40,8 +75,8 @@ const PracticeProblem: React.FC<PracticeProblemProps> = ({ sectionUri, showHideB
       {showProblems && (
         <Box>
           <Tabs value={tabValue} onChange={handleTabChange} sx={{ mb: 2 }}>
-            <Tab label={t.ForMe} />
-            <Tab label={t.perSectionQuizButton} />
+            <Tab label={forMeTabLabel} />
+            <Tab label={perSectionTabLabel} />
           </Tabs>
 
           {tabValue === 0 && (

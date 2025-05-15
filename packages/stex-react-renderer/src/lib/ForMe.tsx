@@ -1,11 +1,51 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Button, IconButton, LinearProgress, Tooltip, Typography } from '@mui/material';
-import { getDefiniedaInSection, getLearningObjects } from '@stex-react/api';
-import { FTMLFragment } from '@stex-react/ftml-utils';
+import { getDefiniedaInSection, getLearningObjects, getSourceUrl } from '@stex-react/api';
+import { FTMLFragment, getFlamsServer, ProblemResponse } from '@stex-react/ftml-utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { getLocaleObject } from './lang/utils';
+import { getProblemState } from './ProblemDisplay';
 import { ListStepper } from './QuizDisplay';
+
+function UriProblemViewer({
+  uri,
+  isSubmitted,
+  setIsSubmitted,
+  response,
+  setResponse,
+}: {
+  uri: string;
+  isSubmitted: boolean;
+  setIsSubmitted: (isSubmitted: boolean) => void;
+  response: ProblemResponse | undefined;
+  setResponse: (response: ProblemResponse | undefined) => void;
+}) {
+  const [solution, setSolution] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    setSolution(undefined);
+    getFlamsServer().solution({ uri }).then(setSolution);
+  }, [uri]);
+  const problemState = getProblemState(isSubmitted, solution, response);
+
+  return (
+    <Box>
+      <FTMLFragment
+        key={`${uri}-${problemState.type}`}
+        fragment={{ uri }}
+        allowHovers={isSubmitted}
+        problemStates={new Map([[uri, problemState]])}
+        onProblem={(response) => {
+          setResponse(response);
+        }}
+      />
+      <Button onClick={() => setIsSubmitted(true)} disabled={isSubmitted} variant="contained">
+        Submit
+      </Button>
+    </Box>
+  );
+}
 
 export function ForMe({
   sectionUri,
@@ -24,8 +64,10 @@ export function ForMe({
   const [problemUris, setProblemUris] = useState<string[]>(cachedProblemUris || []);
   const [isLoadingProblemUris, setIsLoadingProblemUris] = useState<boolean>(!cachedProblemUris);
   const [problemIdx, setProblemIdx] = useState(0);
+  const [isSubmitted, setIsSubmitted] = useState<boolean[]>([]);
+  const [responses, setResponses] = useState<(ProblemResponse | undefined)[]>([]);
   const [show, setShow] = useState(true);
-  const [showSolution, setShowSolution] = useState(false);
+  const [startQuiz, setStartQuiz] = useState(!showButtonFirst);
 
   useEffect(() => {
     if (cachedProblemUris) return;
@@ -49,6 +91,8 @@ export function ForMe({
 
         setProblemUris(extractedProblemIds);
         setCachedProblemUris(extractedProblemIds);
+        setIsSubmitted(extractedProblemIds.map(() => false));
+        setResponses(extractedProblemIds.map(() => undefined));
       } catch (error) {
         console.error('Error fetching problem URIs:', error);
       } finally {
@@ -59,8 +103,16 @@ export function ForMe({
     fetchProblemUris();
   }, [sectionUri, cachedProblemUris, setCachedProblemUris]);
 
+  useEffect(() => {
+    if (!problemUris.length) return;
+    setIsSubmitted(problemUris.map(() => false));
+    setResponses(problemUris.map(() => undefined));
+  }, [problemUris]);
+
   const handleViewSource = (uri: string) => {
-    window.open(uri, '_blank');
+    getSourceUrl(uri).then((sourceLink) => {
+      if (sourceLink) window.open(sourceLink, '_blank');
+    });
   };
 
   if (isLoadingProblemUris) return <LinearProgress />;
@@ -72,10 +124,23 @@ export function ForMe({
     );
   }
 
-  if (!show) return null;
+  if (!startQuiz) {
+    return (
+      <Button onClick={() => setStartQuiz(true)} variant="contained">
+        {t.ForMe.replace('$1', problemUris.length.toString())}
+      </Button>
+    );
+  }
+
+  if (!show) {
+    return (
+      <Button onClick={() => setShow(true)} variant="contained">
+        {t.ForMe.replace('$1', problemUris.length.toString())}
+      </Button>
+    );
+  }
 
   const problemUri = problemUris[problemIdx];
-
   if (!problemUri) return <>error: [{problemUri}] </>;
 
   return (
@@ -96,7 +161,6 @@ export function ForMe({
           listSize={problemUris.length}
           onChange={(idx) => {
             setProblemIdx(idx);
-            setShowSolution(false);
           }}
         />
         <IconButton onClick={() => handleViewSource(problemUri)} sx={{ float: 'right' }}>
@@ -106,16 +170,32 @@ export function ForMe({
         </IconButton>
       </Box>
       <Box mb="10px">
-        <FTMLFragment key={problemUri} fragment={{ uri: problemUri }} />
+        <UriProblemViewer
+          key={problemUri}
+          uri={problemUri}
+          isSubmitted={isSubmitted[problemIdx]}
+          setIsSubmitted={(v) =>
+            setIsSubmitted((prev) => {
+              prev[problemIdx] = v;
+              return [...prev];
+            })
+          }
+          response={responses[problemIdx]}
+          setResponse={(v) =>
+            setResponses((prev) => {
+              prev[problemIdx] = v;
+              return [...prev];
+            })
+          }
+        />
       </Box>
       <Box
         mb={2}
         sx={{ display: 'flex', gap: '10px', flexDirection: 'column', alignItems: 'flex-start' }}
       >
-        {showSolution && <Box mb="10px"></Box>}
         {showHideButton && (
-          <Button onClick={() => setShow(false)} variant="contained">
-            {t.hideForMe || t.hideProblems}
+          <Button onClick={() => setShow(false)} variant="contained" color="secondary">
+            {t.hideProblems}
           </Button>
         )}
       </Box>
