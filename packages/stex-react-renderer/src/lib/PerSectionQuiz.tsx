@@ -98,7 +98,7 @@ export function PerSectionQuiz({
   if (!problemUris.length) {
     return (
       <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
-        No practice problems for this section
+        {t.NoPracticeProblemsAll}
       </Typography>
     );
   }

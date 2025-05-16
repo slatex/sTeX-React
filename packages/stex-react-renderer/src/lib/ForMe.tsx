@@ -119,7 +119,7 @@ export function ForMe({
   if (!problemUris.length) {
     return (
       <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
-        No personalized practice problems for this section
+        {t.NoPracticeProblemsForMe}
       </Typography>
     );
   }

@@ -70,6 +70,10 @@ export const de = {
     hideProblems: 'Probleme ausblenden',
     hideForMe: 'Für mich ausblenden',
     hidepracticeProblem: 'Übungsprobleme ausblenden',
+    NoPracticeProblemsForMe:
+      'Keine personalisierten Übungsprobleme für diesen Abschnitt verfügbar',
+      NoPracticeProblemsAll:
+      'Keine Übungsprobleme für diesen Abschnitt verfügbar',
     answer: 'Antwort',
     point: 'Punkt',
     submit: 'Senden',

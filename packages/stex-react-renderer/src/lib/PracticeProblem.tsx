@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { ForMe } from './ForMe';
 import { getLocaleObject } from './lang/utils';
 import { PerSectionQuiz } from './PerSectionQuiz';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import {PRIMARY_COL, SECONDARY_COL } from '@stex-react/utils';
 
 interface PracticeProblemProps {
   sectionUri: string;
@@ -25,8 +27,8 @@ const PracticeProblem: React.FC<PracticeProblemProps> = ({ sectionUri, showHideB
     setTabValue(newValue);
   }, []);
 
-  const [forMeTabLabel, setForMeTabLabel] = useState(t.ForMe.replace('$1', '0'));
-  const [perSectionTabLabel, setPerSectionTabLabel] = useState(t.perSectionQuizButton.replace('$1', '0'));
+  const [forMeTabLabel, setForMeTabLabel] = useState(t.ForMe.replace('$1', '...'));
+  const [perSectionTabLabel, setPerSectionTabLabel] = useState(t.perSectionQuizButton.replace('$1', '...'));
 
   useEffect(() => {
     if (formeProblemUris?.length) {
@@ -61,12 +63,54 @@ const PracticeProblem: React.FC<PracticeProblemProps> = ({ sectionUri, showHideB
       )}
 
       {showProblems && (
-        <Box>
-          <Tabs value={tabValue} onChange={handleTabChange} sx={{ mb: 2 }}>
-            <Tab label={forMeTabLabel} />
-            <Tab label={perSectionTabLabel} />
-          </Tabs>
-
+        <Box >
+          <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+          <Tabs
+            value={tabValue}
+            onChange={handleTabChange}
+            sx={{
+              minHeight: '48px',
+              '& .MuiTabs-indicator': {
+                display: 'none',
+              },
+              '& .MuiTab-root': {
+                minHeight: '48px',
+                paddingX: 3,
+                textTransform: 'none',
+                color: 'rgb(134, 131, 131)',
+                fontSize: '15px',
+                fontWeight: 500,
+                borderRadius: '4px 4px 0 0',
+                marginRight: '4px',
+                backgroundColor: 'transparent',
+                position: 'relative',
+                top: '1px',
+                zIndex: 1,
+                '&:hover': {
+                  backgroundColor: SECONDARY_COL,
+                },
+              },
+              '& .Mui-selected': {
+                color: PRIMARY_COL,
+                fontWeight: 600,
+                backgroundColor: 'rgba(0, 83, 138, 0.04)',
+                borderLeft: '1px solid #203360',
+                borderRight: '1px solid #203360',
+                borderTop: '1px solid #203360',
+                borderBottom: 'none', 
+                zIndex: 2, 
+              },
+            }}
+          >
+              <Tab label={forMeTabLabel} />
+              <Tab label={perSectionTabLabel} />
+            </Tabs>
+           <VisibilityOffIcon 
+              onClick={() => setShowProblems(false)} 
+              sx={{ cursor: 'pointer', ml: 2, color: 'gray' }} 
+              titleAccess={t.hidepracticeProblem}
+            />
+          </Box>
           {tabValue === 0 && (
             <Box mb={2}>
               <ForMe

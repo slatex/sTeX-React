@@ -70,6 +70,8 @@ export const en = {
     hideProblems: 'Hide All Problems',
     hideForMe: 'Hide For Me',
     hidepracticeProblem: 'Hide Practice Problems',
+    NoPracticeProblemsForMe: 'No personalized practice problems available for this section',
+    NoPracticeProblemsAll: 'No practice problems available for this section',
     answer: 'Answer',
     point: 'Point',
     submit: 'Submit',
