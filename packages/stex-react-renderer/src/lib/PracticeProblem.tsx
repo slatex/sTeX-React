@@ -37,18 +37,15 @@ const PracticeProblem: React.FC<PracticeProblemProps> = ({ sectionUri, showHideB
     }
   }, [formeProblemUris, perSectionProblemUris, t.ForMe, t.perSectionQuizButton]);
 
-    const fetchAllProblems = React.useCallback(() => {
-    if (!sectionUri) return;
-    
-    if (!formeProblemUris) setTabValue(0);
-    if (!perSectionProblemUris) setTabValue(1);
-  }, [sectionUri, formeProblemUris, perSectionProblemUris]);
+    useEffect(() => {
+      if (isAccordionOpen) {
+        if(!sectionUri) return
+        setShowProblems(true);
+        setTabValue(0);
+        setTimeout(() => setTabValue(1), 0);
+      }
+    }, [isAccordionOpen, sectionUri]);
 
-  useEffect(() => {
-    if (isAccordionOpen) {
-      fetchAllProblems();
-    }
-  }, [isAccordionOpen, fetchAllProblems]);
 
   return (
     <Box>
