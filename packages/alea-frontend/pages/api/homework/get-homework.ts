@@ -2,6 +2,7 @@ import {
   AnswerResponse,
   FTMLProblemWithSolution,
   getHomeworkPhase,
+  GetHomeworkResponse,
   GradingInfo,
   HomeworkInfo,
   HomeworkPhase,
@@ -144,18 +145,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const responses: Record<string, ProblemResponse> = {};
   const answers = await getAllAnswersForHomeworkOrSetError(userId, homeworkId, undefined, res);
   if (!answers) return;
-  for (const problemId in homework.problems) {
-    const problemAnswers = answers[problemId];
-    if (!responses[problemId]) {
-      responses[problemId] = {
+  for (const uri in homework.problems) {
+    const problemAnswers = answers[uri];
+    if (!responses[uri]) {
+      responses[uri] = {
         // TODO ALEA4-P7
-        uri: '',
-        responses: [], 
+        uri, 
+        responses: [],
       };
     }
     Object.entries(problemAnswers || {}).forEach(([subProblemId, answerEntry]) => {
       // TODO ALEA4-P7
-      responses[problemId].responses[subProblemId] = answerEntry.answer;
+      responses[uri].responses[subProblemId] = answerEntry.answer;
     });
   }
   const gradingInfo: Record<string, Record<string, GradingInfo[]>> = {};
@@ -168,5 +169,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   }
 
-  res.status(200).json({}); // TODO ALEA4-P7 { homework, responses, gradingInfo } as GetHomeworkResponse);
+  res.status(200).json({ homework, responses, gradingInfo } as GetHomeworkResponse);
 }
