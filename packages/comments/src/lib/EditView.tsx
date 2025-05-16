@@ -3,6 +3,8 @@ import {
   Comment,
   CommentType,
   QuestionStatus,
+  SlideType,
+  TOCElem,
   addComment,
   editComment,
   getUserInfo,
@@ -13,6 +15,7 @@ import { useEffect, useState } from 'react';
 import { discardDraft, retrieveDraft, saveDraft } from './comment-helpers';
 import { getLocaleObject } from './lang/utils';
 import { MystEditor } from '@stex-react/myst';
+import axios from 'axios';
 
 interface EditViewProps {
   file: FileLocation;
@@ -25,6 +28,7 @@ interface EditViewProps {
   hidden?: boolean;
   onCancel?: () => void;
   onUpdate: () => void;
+  selectedSectionTOC?: TOCElem;
 }
 
 export function EditView({
@@ -38,6 +42,7 @@ export function EditView({
   hidden = false,
   onCancel = undefined,
   onUpdate,
+  selectedSectionTOC = undefined,
 }: EditViewProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -60,9 +65,25 @@ export function EditView({
     setInputText(retreived || '');
   }, [file, parentId, existingComment]);
 
-  function getNewComment(): Comment {
+  async function getCurrentSlideUri(courseId: string, sectionId: string) {
+    const response = await axios.get('/api/get-slides', {
+      params: { courseId, sectionIds: sectionId },
+    });
+
+    if (response.data[sectionId][0].slideType === SlideType.FRAME) {
+      return response.data[sectionId][0].slide.uri;
+    } else if (response.data[sectionId][0].slideType === SlideType.TEXT) {
+      return response.data[sectionId][0].paragraphs[0].uri;
+    }
+  }
+
+  async function getNewComment(): Promise<Comment> {
     const courseTerm = courseId ? CURRENT_TERM : undefined;
     const isQuestion = needsResponse && !parentId && !isPrivateNote;
+    const sectionId =
+      selectedSectionTOC && 'id' in selectedSectionTOC ? selectedSectionTOC.id : undefined;
+    const slideUri = await getCurrentSlideUri(courseId, sectionId ?? '');
+
     return {
       commentId: -1,
       archive: file?.archive,
@@ -77,6 +98,7 @@ export function EditView({
       questionStatus: isQuestion ? QuestionStatus.UNANSWERED : undefined,
       selectedText,
       userName,
+      uri: slideUri ?? '',
     };
   }
 
@@ -86,7 +108,8 @@ export function EditView({
       if (existingComment) {
         await editComment(existingComment.commentId, inputText);
       } else {
-        await addComment(getNewComment());
+        const newComment = await getNewComment();
+        await addComment(newComment);
       }
       onUpdate();
     } catch (err) {
@@ -101,11 +124,7 @@ export function EditView({
   };
 
   return (
-    <fieldset
-      hidden={hidden}
-      disabled={isLoading}
-      style={{ border: 0, margin: 0, padding: 0 }}
-    >
+    <fieldset hidden={hidden} disabled={isLoading} style={{ border: 0, margin: 0, padding: 0 }}>
       <div style={{ marginBottom: '5px' }}>
         <MystEditor
           name="comment-edit"

@@ -56,6 +56,7 @@ export interface Comment {
   updatedTimestampSec?: number;
 
   childComments?: Comment[];
+  uri?: string;
   // TODO: Someway to specify location in the doc.
 }
 
