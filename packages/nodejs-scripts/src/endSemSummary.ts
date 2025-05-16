@@ -2,6 +2,7 @@ import { getAllQuizzes } from '@stex-react/node-utils';
 import mysql from 'serverless-mysql';
 import fs from 'fs';
 import { exit } from 'process';
+import { QuizWithStatus } from '@stex-react/api';
 
 const db = mysql({
   config: {
@@ -14,7 +15,7 @@ const db = mysql({
 });
 
 const TO_BE_EXCUSED = {
-  'ai-1': {
+  /*'ai-1': {
     'quiz-e02ee9f5': [
       'li24qeku', // Xinyue Zhang
       'ki61hevu', // Jingxuan Yang
@@ -24,7 +25,7 @@ const TO_BE_EXCUSED = {
     'quiz-0bc0d1ca': [
       'er86inin', // Mahmoud Mohamed
     ],
-  },
+  },*/
 };
 
 export interface QuizData {
@@ -47,7 +48,7 @@ export function endSemSummary() {
   }
   const TO_EXCLUDE_QUIZZES = ['quiz-bc71f711'];
   const TOP_N = 10;
-  const quizzes: any[] = getAllQuizzes()
+  const quizzes: QuizWithStatus[] = getAllQuizzes()
     .sort((a, b) => a.quizStartTs - b.quizStartTs)
     .filter(
       (quiz) =>
@@ -57,9 +58,8 @@ export function endSemSummary() {
   const MAX_POINTS: Record<string, number> = {};
   for (const quiz of quizzes) {
     MAX_POINTS[quiz.id] = 0;
-    for (const problemStr of Object.values(quiz.problems)) {
-      // TODO ALEA4-P6 const problem = getProblem(problemStr as string, undefined);
-      // MAX_POINTS[quiz.id] += problem.points;
+    for (const ftmlProblem of Object.values(quiz.problems)) {
+       MAX_POINTS[quiz.id] += ftmlProblem?.problem?.total_points ?? 1;
     }
   }
 
