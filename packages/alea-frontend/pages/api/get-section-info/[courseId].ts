@@ -182,10 +182,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const allSections: SectionInfo[] = [];
   for (const elem of tocContent) {
     const elemSections = getAllSections(elem);
-    if(Array.isArray(elemSections)) allSections.push(...elemSections);
-    else if(elemSections) allSections.push(elemSections);
+    if (Array.isArray(elemSections)) allSections.push(...elemSections);
+    else if (elemSections) allSections.push(elemSections);
   }
-  const coverageData = getCoverageData()[courseId].filter((snap) => snap.sectionName);
+  const coverageData = (getCoverageData()[courseId] ?? []).filter((snap) => snap.sectionName);
   if (coverageData?.length) addCoverageInfo(allSections, coverageData);
   // TODO ALEA4-S5
   // const videoSlides = await getVideoToSlidesMap(courseId);
