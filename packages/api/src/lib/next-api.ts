@@ -1,6 +1,5 @@
-import { FileLocation } from '@stex-react/utils';
-import { SmileyCognitiveValues } from './lmp';
 import { SlideElement } from './ftml-viewer-base';
+import { SmileyCognitiveValues } from './lmp';
 
 export interface CardsWithSmileys {
   conceptUri: string;
@@ -12,6 +11,7 @@ export interface CardsWithSmileys {
 
 export interface SectionInfo {
   id: string;
+  uri: string;
   level: number /* top level nodes have level 0 */;
   title: string;
   clipId?: string;

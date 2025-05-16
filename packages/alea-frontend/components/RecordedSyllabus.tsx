@@ -1,14 +1,24 @@
+import DownloadIcon from '@mui/icons-material/Download';
 import OndemandVideoIcon from '@mui/icons-material/OndemandVideo';
-import { Box, IconButton, Tab, Tabs } from '@mui/material';
+import {
+  Box,
+  IconButton,
+  Tab,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Tabs,
+} from '@mui/material';
 import { GetHistoricalSyllabusResponse, SectionInfo, SyllabusRow } from '@stex-react/api';
+import { MystViewer } from '@stex-react/myst';
+import { CURRENT_TERM } from '@stex-react/utils';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
-import { useRouter } from 'next/router';
-import DownloadIcon from '@mui/icons-material/Download';
-import { CURRENT_TERM } from '@stex-react/utils';
-import { MystViewer } from '@stex-react/myst';
 
 function joinerForLevel(level: number) {
   switch (level) {
@@ -129,35 +139,39 @@ function SyllabusTable({
 
   return (
     <>
-      <table>
-        <tr>
-          <th style={{ textAlign: 'left' }}>{t.date}</th>
-          <th style={{ textAlign: 'left' }}>{t.topics}</th>
-          {hasAnyVideoClip && <th style={{ textAlign: 'left' }}>{t.video}</th>}
-        </tr>
-        {rows.map(({ timestamp_ms, topics, clipId }, idx) => (
-          <tr key={`${timestamp_ms}`} style={{ border: '1px solid black' }}>
-            <td style={{ textAlign: 'center', minWidth: '110px' }}>
-              <b>{idx + 1}.&nbsp;</b>
-              {dayjs(timestamp_ms).format(showYear ? 'DD-MMM-YY' : 'DD-MMM')}
-            </td>
-            <td style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {topics ? <MystViewer content={topics} /> : 'Topics unexpectedly empty'}
-            </td>
-            {hasAnyVideoClip && (
-              <td>
-                {clipId?.length > 0 && (
-                  <a href={`https://fau.tv/clip/id/${clipId}`} target="_blank" rel="noreferrer">
-                    <IconButton size="large" sx={{ m: '10px' }}>
-                      <OndemandVideoIcon />
-                    </IconButton>
-                  </a>
-                )}
-              </td>
-            )}
-          </tr>
-        ))}
-      </table>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell sx={{ textAlign: 'left' }}>{t.date}</TableCell>
+            <TableCell sx={{ textAlign: 'left' }}>{t.topics}</TableCell>
+            {hasAnyVideoClip && <TableCell style={{ textAlign: 'left' }}>{t.video}</TableCell>}
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {rows.map(({ timestamp_ms, topics, clipId }, idx) => (
+            <TableRow key={`${timestamp_ms}`} >
+              <TableCell sx={{ textAlign: 'center', minWidth: '110px' }}>
+                <b>{idx + 1}.&nbsp;</b>
+                {dayjs(timestamp_ms).format(showYear ? 'DD-MMM-YY' : 'DD-MMM')}
+              </TableCell>
+              <TableCell sx={{ overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: 'unset' }}>
+                {topics ? <MystViewer content={topics} /> : 'Topics unexpectedly empty'}
+              </TableCell>
+              {hasAnyVideoClip && (
+                <TableCell>
+                  {clipId?.length > 0 && (
+                    <a href={`https://fau.tv/clip/id/${clipId}`} target="_blank" rel="noreferrer">
+                      <IconButton size="large" sx={{ m: '10px' }}>
+                        <OndemandVideoIcon />
+                      </IconButton>
+                    </a>
+                  )}
+                </TableCell>
+              )}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
       <IconButton onClick={() => downloadSyllabusData(rows, courseId, semester ?? CURRENT_TERM)}>
         <DownloadIcon />
       </IconButton>

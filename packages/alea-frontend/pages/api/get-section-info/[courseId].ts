@@ -1,8 +1,15 @@
-import { ClipInfo, getCourseInfo, SectionInfo } from '@stex-react/api';
+import {
+  ClipInfo,
+  getCourseInfo,
+  getDocumentSections,
+  SectionInfo,
+  TOCElem,
+} from '@stex-react/api';
 import { CoverageSnap } from '@stex-react/utils';
 import { readdir, readFile } from 'fs/promises';
 import { convert } from 'html-to-text';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { getCoverageData } from '../get-coverage-timeline';
 
 const CACHE_EXPIRY_TIME = 60 * 60 * 1000;
 export const CACHED_VIDEO_SLIDESMAP: Record<string, any> = {};
@@ -49,26 +56,38 @@ async function getVideoToSlidesMap(courseId: string) {
   return CACHED_VIDEO_SLIDESMAP[courseId];
 }
 
-/* TODO ALEA4-S5
-function getAllSections(data: SectionsAPIData, level = 0): SectionInfo | SectionInfo[] {
-  if (data.title?.length) {
-    const title = convert(data.title);
+function getAllSections(data: TOCElem, level = 0): SectionInfo | SectionInfo[] | undefined {
+  const { type } = data;
+  if (type === 'Paragraph' || type === 'Slide') return undefined;
+  if (type === 'Section') {
+    const secInfo: SectionInfo = {
+      id: data.id,
+      uri: data.uri,
+      level,
+      title: convert(data.title),
+      children: [],
+    };
+
     const children: SectionInfo[] = [];
-    for (const c of data.children || []) {
+    for (const c of data.children) {
       const subNodes = getAllSections(c, level + 1);
-      if (subNodes instanceof Array) children.push(...subNodes);
+      if (!subNodes) continue;
+      if (Array.isArray(subNodes)) children.push(...subNodes);
       else children.push(subNodes);
     }
-    return { id: data.id, title, level, children } as SectionInfo;
+    secInfo.children = children;
+    return secInfo;
+  } else {
+    const children: SectionInfo[] = [];
+    for (const c of data.children ?? []) {
+      const subNodes = getAllSections(c, level);
+      if (!subNodes) continue;
+      if (Array.isArray(subNodes)) children.push(...subNodes);
+      else children.push(subNodes);
+    }
+    return children.length > 0 ? children : undefined;
   }
-  const sections: SectionInfo[] = [];
-  for (const c of data.children || []) {
-    const subNodes = getAllSections(c, level);
-    if (subNodes instanceof Array) sections.push(...subNodes);
-    else sections.push(subNodes);
-  }
-  return sections;
-}*/
+}
 
 function getSectionsInOrder(nodes: SectionInfo[]): SectionInfo[] {
   const nodeList = [] as SectionInfo[];
@@ -79,13 +98,13 @@ function getSectionsInOrder(nodes: SectionInfo[]): SectionInfo[] {
   return nodeList;
 }
 
-export function addVideoInfo(sections: SectionInfo[], snaps: CoverageSnap[]) {
+export function addCoverageInfo(sections: SectionInfo[], snaps: CoverageSnap[]) {
   const inOrderList = getSectionsInOrder(sections);
   let snapIdx = 0;
   for (const section of inOrderList) {
     section.clipId = snaps[snapIdx].clipId;
     section.timestamp_ms = snaps[snapIdx].timestamp_ms;
-    if (section.title === snaps[snapIdx].sectionName) snapIdx++;
+    if (section.uri === snaps[snapIdx].sectionName) snapIdx++;
     if (snapIdx >= snaps.length) break;
   }
   return;
@@ -156,22 +175,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.status(404).send(`Course not found [${courseId}]`);
     return;
   }
+  const { notes } = courses[courseId];
 
+  const tocContent = (await getDocumentSections(notes))[1];
+
+  const allSections: SectionInfo[] = [];
+  for (const elem of tocContent) {
+    const elemSections = getAllSections(elem);
+    if(Array.isArray(elemSections)) allSections.push(...elemSections);
+    else if(elemSections) allSections.push(elemSections);
+  }
+  const coverageData = getCoverageData()[courseId].filter((snap) => snap.sectionName);
+  if (coverageData?.length) addCoverageInfo(allSections, coverageData);
   // TODO ALEA4-S5
-  // const { notesArchive, notesFilepath } = courses[courseId];
-  // const docSections = await getDocumentSections(
-  //   process.env.NEXT_PUBLIC_MMT_URL,
-  //   notesArchive,
-  //   notesFilepath
-  // );
-  // const allSections = getAllSections(docSections) as SectionInfo[];
-  // const coverageData = getCoverageData()[courseId].filter((snap) => snap.sectionName);
-  // if (coverageData?.length) addVideoInfo(allSections, coverageData);
   // const videoSlides = await getVideoToSlidesMap(courseId);
   // const slideCounts = await getSlideCounts(courseId, res);
   // if (videoSlides && Object.keys(videoSlides).length > 0) {
   //   addClipInfo(allSections, slideCounts, videoSlides);
   // }
-  // res.status(200).send(allSections);
-  res.status(200).send([]);
+  res.status(200).send(allSections);
 }
