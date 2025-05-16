@@ -106,7 +106,7 @@ export async function getHomeworkOrSetError(
   res: NextApiResponse
 ): Promise<HomeworkInfo | undefined> {
   const homeworks: any[] = await executeDontEndSet500OnError(
-    `SELECT id, title, givenTs, dueTs, feedbackReleaseTs, courseId, courseInstance ${
+    `SELECT id, title, givenTs, dueTs, feedbackReleaseTs, courseId, css, courseInstance ${
       getProblems ? ', problems' : ''
     } 
     FROM homework 
@@ -130,7 +130,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const homework: HomeworkInfo = await getHomeworkOrSetError(+homeworkId, true, res);
   if (!homework) return;
 
-  homework.problems = JSON.parse(homework.problems as any);
+  homework.problems = JSON.parse(homework.problems.toString());
+  homework.css = JSON.parse(homework.css?.toString() ?? "[]");
   const phase = getHomeworkPhase(homework);
 
   const { courseId, courseInstance } = homework;

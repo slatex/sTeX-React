@@ -92,6 +92,7 @@ const HomeworkManager = ({ courseId }) => {
       feedbackReleaseTs: dayjs(feedbackReleaseTs).format('YYYY-MM-DDTHH:mm:ssZ'),
       title,
       problems,
+      css,
       ...(id ? { id } : {}),
     };
 
