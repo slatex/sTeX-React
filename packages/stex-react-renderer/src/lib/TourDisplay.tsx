@@ -191,7 +191,7 @@ function TourItemDisplay({
           url={`/:vollki/frag?path=${item.uri}&lang=${lang}`}
           modifyRendered={getChildrenOfBodyNode}
         />*/}
-        TODO ALEA4-M2
+        TODO ALEA4-G2
       </Box>
 
       <Divider />
@@ -422,12 +422,12 @@ export function TourDisplay({
   const [understoodUri, setUnderstoodUriList] = useState([] as string[]);
   const [tempShowUri, setTempShowUri] = useState([] as string[]);
   const { mmtUrl } = useContext(ServerLinksContext);
-
+  
   useEffect(() => {
     if (!tourId?.length) return;
-    const tourInfoUrl = `${mmtUrl}/:vollki/tour?path=${tourId}&user=nulluser&lang=${language}`;
+    const tourInfoUrl = '';// `${}/:vollki/tour?path=${tourId}&user=nulluser&lang=${language}`;
     setFetchingItems(true);
-    // TODO ALEA4-M2
+    // TODO ALEA4-G2
     axios.get(tourInfoUrl).then((r) => {
       setFetchingItems(false);
       const apiEntries: TourAPIEntry[] = r.data;
@@ -443,7 +443,7 @@ export function TourDisplay({
         setAllItemsMap(getTourItemMap(apiEntries, smileyVals));
       });
     });
-  }, [tourId, language, mmtUrl]);
+  }, [tourId, language]);
 
   useEffect(() => {
     setDisplayItemList(getDisplayItemList(allItemsMap, understoodUri, tempShowUri));

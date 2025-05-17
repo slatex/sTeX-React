@@ -331,7 +331,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
         <ExpandableContextMenu uri={getSlideUri(currentSlide)} />
       </Box>
       {slides.length ? (
-        // TODO ALEA4-hack: Without border box, the content spills out of the container.
+        // TODO ALEA4-S2 hack: Without border box, the content spills out of the container.
         <Box id="slide-renderer-container" sx={{ '& *': { boxSizing: 'border-box' } }}>
           <SlideRenderer key={slideNum} slide={currentSlide} />
         </Box>

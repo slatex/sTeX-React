@@ -1,11 +1,11 @@
 import { createInstance, MatomoProvider } from '@jonkoops/matomo-tracker-react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { setDebugLog, setServerUrl } from '@stex-react/ftml-utils';
 import { MathJaxContext } from '@stex-react/mathjax';
 import { PositionProvider, ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { PRIMARY_COL, SECONDARY_COL } from '@stex-react/utils';
 import { AppProps } from 'next/app';
 import './styles.scss';
-import { setDebugLog, setServerUrl } from '@stex-react/ftml-utils';
 
 setDebugLog();
 setServerUrl(process.env['NEXT_PUBLIC_FLAMS_URL']!);
@@ -54,12 +54,7 @@ const theme = createTheme({
 
 function CustomApp({ Component, pageProps }: AppProps) {
   return (
-    <ServerLinksContext.Provider
-      value={{
-        mmtUrl: process.env.NEXT_PUBLIC_MMT_URL,
-        gptUrl: process.env.NEXT_PUBLIC_GPT_URL,
-      }}
-    >
+    <ServerLinksContext.Provider value={{ gptUrl: process.env.NEXT_PUBLIC_GPT_URL }}>
       <MatomoProvider value={instance}>
         <ThemeProvider theme={theme}>
           <MathJaxContext>

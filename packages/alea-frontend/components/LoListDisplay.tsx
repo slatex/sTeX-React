@@ -4,11 +4,8 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
 import SchoolIcon from '@mui/icons-material/School';
 import { alpha, Box, IconButton, Paper, TextField, Tooltip, Typography } from '@mui/material';
-import { getLearningObjectShtml, LoType } from '@stex-react/api';
-import {
-  PracticeQuestions,
-  ServerLinksContext,
-} from '@stex-react/stex-react-renderer';
+import { LoType } from '@stex-react/api';
+import { PracticeQuestions, ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { capitalizeFirstLetter } from '@stex-react/utils';
 import { memo, useContext, useEffect, useState } from 'react';
 import { CartItem } from './lo-explorer/LoCartModal';
@@ -97,7 +94,6 @@ export const LoViewer: React.FC<{ uri: string; uriType: LoType }> = ({ uri, uriT
   const [learningObject, setLearningObject] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { mmtUrl } = useContext(ServerLinksContext);
 
   useEffect(() => {
     if (!uri?.length) return;
@@ -105,7 +101,8 @@ export const LoViewer: React.FC<{ uri: string; uriType: LoType }> = ({ uri, uriT
       try {
         setLoading(true);
         setError(null);
-        const learningObject = await getLearningObjectShtml(mmtUrl, uri);
+        // TODO ALEA4-L1
+        const learningObject = ''; //await getLearningObjectShtml( uri);
 
         setLearningObject(learningObject.replace(/body/g, 'div').replace(/html/g, 'div'));
         setLoading(false);
@@ -115,7 +112,7 @@ export const LoViewer: React.FC<{ uri: string; uriType: LoType }> = ({ uri, uriT
       }
     }
     fetchLo();
-  }, [uri, mmtUrl]);
+  }, [uri]);
 
   return (
     <Box sx={{ padding: 2, border: '1px solid #ccc', borderRadius: 4, backgroundColor: '#f9f9f9' }}>
@@ -190,7 +187,6 @@ const LoListDisplay = ({
   handleAddToCart: (uri: string, uriType: string) => void;
   handleRemoveFromCart: (uri: string, uriType: string) => void;
 }) => {
-  const { mmtUrl } = useContext(ServerLinksContext);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [showReverseRelation, setShowReverseRelation] = useState(false);
   const [reverseRelationConcept, setReverseRelationConcept] = useState<string>('');
@@ -213,7 +209,6 @@ const LoListDisplay = ({
     <Box sx={{ display: 'flex', gap: '16px', marginTop: '20px' }}>
       {showReverseRelation && (
         <LoReverseRelations
-          mmtUrl={mmtUrl}
           concept={reverseRelationConcept}
           cart={cart}
           handleAddToCart={handleAddToCart}

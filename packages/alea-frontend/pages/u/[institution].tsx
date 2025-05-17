@@ -243,7 +243,6 @@ export async function getStaticProps({ params, locale }) {
       },
     };
   }
-  const mmtUrl = 'https://stexmmt.mathhub.info';
   const allCourses = await getCourseInfo();
 
   const courses =

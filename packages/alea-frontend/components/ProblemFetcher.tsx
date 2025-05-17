@@ -14,7 +14,6 @@ const ProblemFetcher = ({
   response?: ProblemResponse;
   onResponseUpdate?: (response: ProblemResponse | undefined, quotient: number) => void;
 }) => {
-  const { mmtUrl } = useContext(ServerLinksContext);
   const [problem, setProblem] = useState<FTMLProblemWithSolution | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -38,7 +37,7 @@ const ProblemFetcher = ({
           },
           solution: '',
         };
-        /*const problemHtml = await getLearningObjectShtml(mmtUrl, problemUri);
+        /*const problemHtml = await getLearningObjectShtml(problemUri);
         const fetchedProblem = getProblem(problemHtml, '');
         setProblem(fetchedProblem);*/
         if (!isFrozen) onResponseUpdate(undefined, 0);
@@ -49,7 +48,7 @@ const ProblemFetcher = ({
       }
     };
     fetchProblem();
-  }, [problemUri, mmtUrl]);
+  }, [problemUri]);
 
   if (!problemUri) {
     return <i>No problem link provided.</i>;
