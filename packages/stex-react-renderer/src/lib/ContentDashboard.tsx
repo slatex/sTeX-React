@@ -291,11 +291,12 @@ export function ContentDashboard({
       const resp = await axios.get('/api/get-coverage-timeline');
       const snaps = (resp.data as CoverageTimeline)?.[courseId];
       if (!snaps?.length) return;
-      const endSec = snaps[snaps.length - 1].sectionName;
-      const shadowTopLevel: TOCElem = { type: 'SkippedSection', children: toc };
-      const covered = getCoveredSections(endSec, shadowTopLevel);
-      console.log('sectionUris', covered);
-      setCoveredSectionUris(covered);
+      const endSec = snaps.reverse().find((snap) => !!snap.sectionName)?.sectionName;
+      if (endSec) {
+        const shadowTopLevel: TOCElem = { type: 'SkippedSection', children: toc };
+        const covered = getCoveredSections(endSec, shadowTopLevel);
+        setCoveredSectionUris(covered);
+      }
     }
     getCoverageInfo();
   }, [courseId, coveredSectionIds, toc]);

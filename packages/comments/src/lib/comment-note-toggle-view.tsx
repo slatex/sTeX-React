@@ -9,6 +9,7 @@ import { NotesView } from './notes-view';
 import { FileLocation, PRIMARY_COL, SECONDARY_COL } from '@stex-react/utils';
 import { getLocaleObject } from './lang/utils';
 import { useRouter } from 'next/router';
+import { URI } from '@stex-react/api';
 
 function TabPanel(props: {
   children?: React.ReactNode;
@@ -29,14 +30,14 @@ function TabPanel(props: {
 }
 
 export function CommentNoteToggleView({
-  file,
+  uri,
   defaultPrivate,
   selectedText = undefined,
   selectedElement = undefined,
   allNotesMode = false,
   extraPanel = undefined,
 }: {
-  file: FileLocation;
+  uri: URI;
   defaultPrivate: boolean;
   selectedText?: string;
   selectedElement?: any;
@@ -110,7 +111,7 @@ export function CommentNoteToggleView({
       </Box>
       <TabPanel value={value} index={0}>
         <NotesView
-          file={file}
+          file={{archive: 'TODO ALEA4-N8.1', filepath: uri}}
           selectedText={selectedText}
           selectedElement={selectedElement}
           allNotesMode={allNotesMode}
@@ -118,7 +119,7 @@ export function CommentNoteToggleView({
       </TabPanel>
       <TabPanel value={value} index={1}>
         <CommentSection
-          file={file}
+          file={{archive: 'TODO ALEA4-N8.1', filepath: uri}}
           selectedText={selectedText}
           selectedElement={selectedElement}
           allCommentsMode={allNotesMode}

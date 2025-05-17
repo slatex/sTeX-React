@@ -19,7 +19,7 @@ import { FTMLFragment } from '@stex-react/ftml-utils';
 import { ExpandableContextMenu } from '@stex-react/stex-react-renderer';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { Dispatch, Fragment, memo, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, memo, SetStateAction, useEffect, useState } from 'react';
 import { setSlideNumAndSectionId } from '../pages/course-view/[courseId]';
 import styles from '../styles/slide-deck.module.scss';
 
@@ -168,16 +168,18 @@ function SlideRenderer({ slide }: { slide: Slide }) {
   if (!slide) return <>No slide</>;
   if (slide.slideType === SlideType.FRAME) {
     return (
-      <FTMLFragment key={slide.slide?.html.length ?? 0} fragment={{ html: slide.slide?.html }} />
+      <Box fragment-uri={slide.slide?.uri} fragment-kind="Slide">
+        <FTMLFragment key={slide.slide?.uri} fragment={{ html: slide.slide?.html }} />
+      </Box>
     );
   } else if (slide.slideType === SlideType.TEXT) {
     return (
       <Box className={styles['text-frame']}>
         {slide.paragraphs?.map((p, idx) => (
-          <Fragment key={idx}>
-            <FTMLFragment fragment={{ html: p.html }} />
+          <Box key={p.uri} fragment-uri={p.uri} fragment-kind="Paragraph">
+            <FTMLFragment key={p.uri} fragment={{ html: p.html }} />
             {idx < slide.paragraphs.length - 1 && <br />}
-          </Fragment>
+          </Box>
         ))}
       </Box>
     );

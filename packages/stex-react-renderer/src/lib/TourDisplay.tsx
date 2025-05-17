@@ -421,7 +421,6 @@ export function TourDisplay({
   const [fetchingItems, setFetchingItems] = useState(false);
   const [understoodUri, setUnderstoodUriList] = useState([] as string[]);
   const [tempShowUri, setTempShowUri] = useState([] as string[]);
-  const { mmtUrl } = useContext(ServerLinksContext);
   
   useEffect(() => {
     if (!tourId?.length) return;
