@@ -1,4 +1,4 @@
-import { Box, Button, Tab, Tabs } from '@mui/material';
+import { Box, Button, Tab, Tabs, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import React, { useState, useEffect } from 'react';
 import { ForMe } from './ForMe';
@@ -48,6 +48,15 @@ const PracticeProblem: React.FC<PracticeProblemProps> = ({ sectionUri, showHideB
       }
     }, [isAccordionOpen, sectionUri]);
 
+  if (isAccordionOpen) {
+    if(formeProblemUris?.length===0 && perSectionProblemUris?.length===0) {
+      return (
+        <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary', mb: 2 }}>
+          No practice problems available
+        </Typography>
+      );
+    }
+  }
 
   return (
     <Box>
