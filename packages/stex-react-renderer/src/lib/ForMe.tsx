@@ -66,7 +66,7 @@ export function ForMe({
   const [problemIdx, setProblemIdx] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState<boolean[]>([]);
   const [responses, setResponses] = useState<(ProblemResponse | undefined)[]>([]);
-  const [show, setShow] = useState(true);
+  const [, setShow] = useState(true);
 
   useEffect(() => {
     if (cachedProblemUris) return;

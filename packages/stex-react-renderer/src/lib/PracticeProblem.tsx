@@ -1,11 +1,11 @@
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { Box, Button, Tab, Tabs, Typography } from '@mui/material';
+import { PRIMARY_COL, SECONDARY_COL } from '@stex-react/utils';
 import { useRouter } from 'next/router';
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ForMe } from './ForMe';
 import { getLocaleObject } from './lang/utils';
 import { PerSectionQuiz } from './PerSectionQuiz';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import {PRIMARY_COL, SECONDARY_COL } from '@stex-react/utils';
 
 interface PracticeProblemProps {
   sectionUri: string;
@@ -13,7 +13,11 @@ interface PracticeProblemProps {
   isAccordionOpen?: boolean;
 }
 
-const PracticeProblem: React.FC<PracticeProblemProps> = ({ sectionUri, showHideButton, isAccordionOpen }) => {
+const PracticeProblem: React.FC<PracticeProblemProps> = ({
+  sectionUri,
+  showHideButton,
+  isAccordionOpen,
+}) => {
   const [showProblems, setShowProblems] = useState(false);
   const router = useRouter();
   const { quiz: t } = getLocaleObject(router);
@@ -28,28 +32,32 @@ const PracticeProblem: React.FC<PracticeProblemProps> = ({ sectionUri, showHideB
   }, []);
 
   const [forMeTabLabel, setForMeTabLabel] = useState(t.ForMe.replace('$1', '...'));
-  const [perSectionTabLabel, setPerSectionTabLabel] = useState(t.perSectionQuizButton.replace('$1', '...'));
+  const [perSectionTabLabel, setPerSectionTabLabel] = useState(
+    t.perSectionQuizButton.replace('$1', '...')
+  );
 
   useEffect(() => {
     if (formeProblemUris?.length) {
       setForMeTabLabel(t.ForMe.replace('$1', formeProblemUris.length.toString()));
     }
     if (perSectionProblemUris?.length) {
-      setPerSectionTabLabel(t.perSectionQuizButton.replace('$1', perSectionProblemUris.length.toString()));
+      setPerSectionTabLabel(
+        t.perSectionQuizButton.replace('$1', perSectionProblemUris.length.toString())
+      );
     }
   }, [formeProblemUris, perSectionProblemUris, t.ForMe, t.perSectionQuizButton]);
 
-    useEffect(() => {
-      if (isAccordionOpen) {
-        if(!sectionUri) return
-        setShowProblems(true);
-        setTabValue(0);
-        setTimeout(() => setTabValue(1), 0);
-      }
-    }, [isAccordionOpen, sectionUri]);
+  useEffect(() => {
+    if (isAccordionOpen) {
+      if (!sectionUri) return;
+      setShowProblems(true);
+      setTabValue(0);
+      setTimeout(() => setTabValue(1), 0);
+    }
+  }, [isAccordionOpen, sectionUri]);
 
   if (isAccordionOpen) {
-    if(formeProblemUris?.length===0 && perSectionProblemUris?.length===0) {
+    if (formeProblemUris?.length === 0 && perSectionProblemUris?.length === 0) {
       return (
         <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary', mb: 2 }}>
           No practice problems available
@@ -72,51 +80,51 @@ const PracticeProblem: React.FC<PracticeProblemProps> = ({ sectionUri, showHideB
       )}
 
       {showProblems && (
-        <Box >
-          <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-          <Tabs
-            value={tabValue}
-            onChange={handleTabChange}
-            sx={{
-              minHeight: '48px',
-              '& .MuiTabs-indicator': {
-                display: 'none',
-              },
-              '& .MuiTab-root': {
+        <Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Tabs
+              value={tabValue}
+              onChange={handleTabChange}
+              sx={{
                 minHeight: '48px',
-                paddingX: 3,
-                textTransform: 'none',
-                color: 'rgb(134, 131, 131)',
-                fontSize: '15px',
-                fontWeight: 500,
-                borderRadius: '4px 4px 0 0',
-                marginRight: '4px',
-                backgroundColor: 'transparent',
-                position: 'relative',
-                top: '1px',
-                zIndex: 1,
-                '&:hover': {
-                  backgroundColor: SECONDARY_COL,
+                '& .MuiTabs-indicator': {
+                  display: 'none',
                 },
-              },
-              '& .Mui-selected': {
-                color: PRIMARY_COL,
-                fontWeight: 600,
-                backgroundColor: 'rgba(0, 83, 138, 0.04)',
-                borderLeft: '1px solid #203360',
-                borderRight: '1px solid #203360',
-                borderTop: '1px solid #203360',
-                borderBottom: 'none', 
-                zIndex: 2, 
-              },
-            }}
-          >
+                '& .MuiTab-root': {
+                  minHeight: '48px',
+                  paddingX: 3,
+                  textTransform: 'none',
+                  color: 'rgb(134, 131, 131)',
+                  fontSize: '15px',
+                  fontWeight: 500,
+                  borderRadius: '4px 4px 0 0',
+                  marginRight: '4px',
+                  backgroundColor: 'transparent',
+                  position: 'relative',
+                  top: '1px',
+                  zIndex: 1,
+                  '&:hover': {
+                    backgroundColor: SECONDARY_COL,
+                  },
+                },
+                '& .Mui-selected': {
+                  color: PRIMARY_COL,
+                  fontWeight: 600,
+                  backgroundColor: 'rgba(0, 83, 138, 0.04)',
+                  borderLeft: '1px solid #203360',
+                  borderRight: '1px solid #203360',
+                  borderTop: '1px solid #203360',
+                  borderBottom: 'none',
+                  zIndex: 2,
+                },
+              }}
+            >
               <Tab label={forMeTabLabel} />
               <Tab label={perSectionTabLabel} />
             </Tabs>
-           <VisibilityOffIcon 
-              onClick={() => setShowProblems(false)} 
-              sx={{ cursor: 'pointer', ml: 2, color: 'gray' }} 
+            <VisibilityOffIcon
+              onClick={() => setShowProblems(false)}
+              sx={{ cursor: 'pointer', ml: 2, color: 'gray' }}
               titleAccess={t.hidepracticeProblem}
             />
           </Box>
