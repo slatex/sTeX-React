@@ -1,12 +1,12 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Button, IconButton, LinearProgress, Tooltip, Typography } from '@mui/material';
 import { getDefiniedaInSection, getLearningObjects, getSourceUrl } from '@stex-react/api';
-import { FTMLFragment, getFlamsServer, ProblemResponse } from '@stex-react/ftml-utils';
+import { ProblemResponse } from '@stex-react/ftml-utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { getLocaleObject } from './lang/utils';
-import { ListStepper } from './QuizDisplay';
 import { UriProblemViewer } from './PerSectionQuiz';
+import { ListStepper } from './QuizDisplay';
 
 export function ForMe({
   sectionUri,
