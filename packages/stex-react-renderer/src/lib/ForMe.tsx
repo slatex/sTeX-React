@@ -5,47 +5,8 @@ import { FTMLFragment, getFlamsServer, ProblemResponse } from '@stex-react/ftml-
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { getLocaleObject } from './lang/utils';
-import { getProblemState } from './ProblemDisplay';
 import { ListStepper } from './QuizDisplay';
-
-function UriProblemViewer({
-  uri,
-  isSubmitted,
-  setIsSubmitted,
-  response,
-  setResponse,
-}: {
-  uri: string;
-  isSubmitted: boolean;
-  setIsSubmitted: (isSubmitted: boolean) => void;
-  response: ProblemResponse | undefined;
-  setResponse: (response: ProblemResponse | undefined) => void;
-}) {
-  const [solution, setSolution] = useState<string | undefined>(undefined);
-
-  useEffect(() => {
-    setSolution(undefined);
-    getFlamsServer().solution({ uri }).then(setSolution);
-  }, [uri]);
-  const problemState = getProblemState(isSubmitted, solution, response);
-
-  return (
-    <Box>
-      <FTMLFragment
-        key={`${uri}-${problemState.type}`}
-        fragment={{ uri }}
-        allowHovers={isSubmitted}
-        problemStates={new Map([[uri, problemState]])}
-        onProblem={(response) => {
-          setResponse(response);
-        }}
-      />
-      <Button onClick={() => setIsSubmitted(true)} disabled={isSubmitted} variant="contained">
-        Submit
-      </Button>
-    </Box>
-  );
-}
+import { UriProblemViewer } from './PerSectionQuiz';
 
 export function ForMe({
   sectionUri,

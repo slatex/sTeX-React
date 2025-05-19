@@ -15,7 +15,7 @@ export function handleViewSource(problemUri: string) {
   });
 }
 
-function UriProblemViewer({
+export function UriProblemViewer({
   uri,
   isSubmitted,
   setIsSubmitted,
