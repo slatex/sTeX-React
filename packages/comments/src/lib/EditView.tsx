@@ -3,20 +3,17 @@ import {
   Comment,
   CommentType,
   QuestionStatus,
-  SlideType,
-  TOCElem,
+  URI,
   addComment,
   editComment,
-  getUserInfo,
+  getUserInfo
 } from '@stex-react/api';
+import { MystEditor } from '@stex-react/myst';
 import { CURRENT_TERM, FileLocation } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { discardDraft, retrieveDraft, saveDraft } from './comment-helpers';
 import { getLocaleObject } from './lang/utils';
-import { MystEditor } from '@stex-react/myst';
-import { URI } from '@stex-react/api';
-import axios from 'axios';
 
 interface EditViewProps {
   file: FileLocation;
@@ -29,7 +26,7 @@ interface EditViewProps {
   hidden?: boolean;
   onCancel?: () => void;
   onUpdate: () => void;
-  uri?:URI;
+  uri?: URI;
 }
 
 export function EditView({
@@ -66,7 +63,7 @@ export function EditView({
     setInputText(retreived || '');
   }, [file, parentId, existingComment]);
 
-  async function getNewComment(): Promise<Comment> {
+  function getNewComment() {
     const courseTerm = courseId ? CURRENT_TERM : undefined;
     const isQuestion = needsResponse && !parentId && !isPrivateNote;
 
@@ -94,8 +91,7 @@ export function EditView({
       if (existingComment) {
         await editComment(existingComment.commentId, inputText);
       } else {
-        const newComment = await getNewComment();
-        await addComment(newComment);
+        await addComment(getNewComment());
       }
       onUpdate();
     } catch (err) {

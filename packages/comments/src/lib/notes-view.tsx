@@ -1,6 +1,6 @@
 import { Refresh } from '@mui/icons-material';
 import { Box, IconButton } from '@mui/material';
-import { Comment, getUserInfo, URI } from '@stex-react/api';
+import { Comment, getUserInfo } from '@stex-react/api';
 import { FileLocation } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
