@@ -60,13 +60,13 @@ export const SettingsTab = ({
           </Box>
         </Card>
       </Box>
-      <Box sx={{ flex: '1 1 50%' }}>
-        <Card variant="outlined" sx={{ height: '100%' }}>
-          <Box sx={{ p: 2, bgcolor: 'primary.light', color: 'white' }}>
-            <Typography variant="h6">{t.accountInformation}</Typography>
-          </Box>
-          <Box sx={{ p: 3 }}>
-            {userInfo?.userId?.startsWith('fake_') && (
+      {userInfo?.userId?.startsWith('fake_') && (
+        <Box sx={{ flex: '1 1 50%' }}>
+          <Card variant="outlined" sx={{ height: '100%' }}>
+            <Box sx={{ p: 2, bgcolor: 'primary.light', color: 'white' }}>
+              <Typography variant="h6">{t.accountInformation}</Typography>
+            </Box>
+            <Box sx={{ p: 3 }}>
               <Box sx={{ mb: 3, p: 2, bgcolor: 'grey.100', borderRadius: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                   Test Account Settings
@@ -90,23 +90,23 @@ export const SettingsTab = ({
                   </Button>
                 </Box>
               </Box>
-            )}
 
-            <Typography variant="body1">
-              Account Type:{' '}
-              <strong>
-                {userInfo.userId.startsWith(ANON_USER_ID_PREFIX) ? 'Anonymous' : 'Registered'}
-              </strong>
-            </Typography>
+              <Typography variant="body1">
+                Account Type:{' '}
+                <strong>
+                  {userInfo.userId.startsWith(ANON_USER_ID_PREFIX) ? 'Anonymous' : 'Registered'}
+                </strong>
+              </Typography>
 
-            {!isVerifiedUser && !userInfo.userId.startsWith(ANON_USER_ID_PREFIX) && (
-              <Box sx={{ mt: 2, p: 2, bgcolor: 'warning.light', borderRadius: 1 }}>
-                <Typography>{l.verifcationMessage}</Typography>
-              </Box>
-            )}
-          </Box>
-        </Card>
-      </Box>
+              {!isVerifiedUser && !userInfo.userId.startsWith(ANON_USER_ID_PREFIX) && (
+                <Box sx={{ mt: 2, p: 2, bgcolor: 'warning.light', borderRadius: 1 }}>
+                  <Typography>{l.verifcationMessage}</Typography>
+                </Box>
+              )}
+            </Box>
+          </Card>
+        </Box>
+      )}
     </Box>
   );
 };

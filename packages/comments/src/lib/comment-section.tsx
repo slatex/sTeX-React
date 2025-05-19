@@ -172,7 +172,7 @@ export function CommentSection({
   useEffect(() => {
     getUserInfo().then((userInfo) => setCanAddComment(!!userInfo?.userId));
     canModerateComment(courseId, CURRENT_TERM).then(setCanModerate);
-  }, []);
+  }, [courseId]);
 
   useEffect(() => {
     getPublicCommentTrees(file).then((c) => setCommentsFromStore(c));

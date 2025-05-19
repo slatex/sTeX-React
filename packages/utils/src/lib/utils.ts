@@ -1,5 +1,4 @@
 import { getOuterHTML } from 'domutils';
-import { FileLocation } from './file-location';
 
 export const BG_COLOR = 'hsl(210, 20%, 98%)';
 export const IS_SERVER = typeof window === 'undefined';
@@ -15,6 +14,10 @@ export function getMMTCustomId(tag: string) {
   return MMT_CUSTOM_ID_PREFIX + tag;
 }
 
+export async function waitForNSeconds(n_sec: number) {
+  return new Promise((resolve) => setTimeout(resolve, n_sec * 1000));
+}
+
 export function getCustomTag(id: string) {
   if (!id?.startsWith(MMT_CUSTOM_ID_PREFIX)) return undefined;
   return id.substring(MMT_CUSTOM_ID_PREFIX.length);
@@ -25,9 +28,33 @@ export function shouldUseDrawer(windowWidth?: number) {
   return windowWidth ? windowWidth < 800 : true;
 }
 
-export interface FileInfo extends FileLocation {
-  url: string;
-  source?: string;
+export function extractRepoAndFilepath(sourceUrl?: string): {
+  project: string | null;
+  filepath: string | null;
+} {
+  if (!sourceUrl) return { project: null, filepath: null };
+  try {
+    const url = new URL(sourceUrl);
+    const pathname = url.pathname;
+    const parts = pathname.split('/').filter((part) => part !== ''); // Split and remove empty strings
+
+    const dashIndex = parts.indexOf('-');
+
+    if (dashIndex !== -1 && dashIndex > 0) {
+      const projectParts = parts.slice(0, dashIndex);
+      const filepathParts = parts.slice(dashIndex + 2); // Skip 'blob' and the branch/commit
+
+      const project = projectParts.join('/');
+      const filepath = filepathParts.join('/');
+
+      return { project, filepath };
+    } else {
+      return { project: null, filepath: null };
+    }
+  } catch (error) {
+    console.error(`Invalid URL [${sourceUrl}]:`, error);
+    return { project: null, filepath: null };
+  }
 }
 
 export function convertHtmlNodeToPlain(htmlNode?: any) {
@@ -53,7 +80,6 @@ export function getParamFromUri(uri: string, param: string) {
     return undefined;
   }
 }
-
 
 // Not crypto-safe.
 export function simpleNumberHash(str: string) {
@@ -88,8 +114,7 @@ export function PathToTour2(tourId: string) {
 
 export function isFauId(id: string) {
   return id?.length === 8 && !id.includes('@');
-} 
-
+}
 
 export function fixDuplicateLabels<T extends { label: string }>(RAW: T[]) {
   const fixed = [...RAW]; // create a copy;

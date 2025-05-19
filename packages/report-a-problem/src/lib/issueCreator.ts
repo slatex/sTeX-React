@@ -1,5 +1,5 @@
-import { getAuthHeaders } from '@stex-react/api';
-import { FileInfo } from '@stex-react/utils';
+import { getAuthHeaders, getSourceUrl, URI } from '@stex-react/api';
+import { extractRepoAndFilepath as extractProjectAndFilepath } from '@stex-react/utils';
 import axios from 'axios';
 
 const THREE_BACKTICKS = '```';
@@ -13,32 +13,42 @@ export enum IssueCategory {
   CONTENT = 'CONTENT',
   DISPLAY = 'DISPLAY',
 }
+export interface SelectionContext {
+  fragmentUri: URI;
+  fragmentKind: 'Section' | 'Paragraph' | 'Slide';
+  source?: string;
+}
+async function addSources(context: SelectionContext[]): Promise<SelectionContext[]> {
+  return await Promise.all(
+    context.map((item) => getSourceUrl(item.fragmentUri).then((source) => ({ ...item, source })))
+  );
+}
 
-function createSectionHierarchy(context: FileInfo[]) {
+async function createSectionHierarchy(context: SelectionContext[]) {
   if (!context?.length) return '';
-  let returnVal =
-    '### The selected text was in the following section hierarchy:\n\n';
+  let returnVal = '### The selected text was in the following section hierarchy:\n\n';
   if (context.length > 1) returnVal += '**_INNERMOST SECTION FIRST_**\n\n';
 
   returnVal += context
     .map(
-      (sectionInfo, idx) =>
-        `${idx + 1}. GitLab: ${
-          sectionInfo.source
-        }<br/>FetchURL: https://stexmmt.mathhub.info/${sectionInfo.url}`
+      (contextItem, idx) =>
+        `${idx + 1}. (${contextItem.fragmentKind}) GitLab: ${contextItem.source}<br/>Uri: ${
+          contextItem.fragmentUri
+        } `
     )
     .join('\n\n');
+
   return returnVal;
 }
 
-function createIssueBody(
+async function createIssueBody(
   type: IssueType,
   desc: string,
   selectedText: string,
   userName: string,
-  context: FileInfo[]
+  context: SelectionContext[]
 ) {
-  const sectionHierarchy = createSectionHierarchy(context);
+  const sectionHierarchy = await createSectionHierarchy(context);
   const user = userName || 'a user';
 
   return `A content ${type.toString()} was logged by "${user}" at the following url:
@@ -60,24 +70,22 @@ ${sectionHierarchy}`;
 
 function getNewIssueUrl(category: IssueCategory, projectId: string) {
   if (category === IssueCategory.CONTENT) {
-    return `https://gl.mathhub.info/api/v4/projects/${encodeURIComponent(
-      projectId
-    )}/issues`;
+    return `https://gl.mathhub.info/api/v4/projects/${encodeURIComponent(projectId)}/issues`;
   }
   return 'https://api.github.com/repos/slatex/sTeX-React/issues';
 }
 
-function createIssueData(
+async function createIssueData(
   type: IssueType,
   category: IssueCategory,
   desc: string,
   selectedText: string,
-  context: FileInfo[],
+  context: SelectionContext[],
   userName: string,
   title?: string
 ) {
-  const filepath = context?.[0]?.filepath;
-  const body = createIssueBody(type, desc, selectedText, userName, context);
+  const { filepath } = extractProjectAndFilepath(context[0]?.source);
+  const body = await createIssueBody(type, desc, selectedText, userName, context);
   return {
     title: title || `User reported ${type.toString()} ${filepath}`,
     ...(category === IssueCategory.DISPLAY
@@ -90,17 +98,19 @@ export async function createNewIssue(
   category: IssueCategory,
   desc: string,
   selectedText: string,
-  context: FileInfo[],
+  context: SelectionContext[],
   userName: string,
   title?: string
 ) {
-  const projectId = context?.[0]?.archive || 'sTeX/meta-inf';
-  const data = createIssueData(
+  const withSourceContext = await addSources(context);
+  const { project } = extractProjectAndFilepath(withSourceContext[0]?.source);
+  const projectId = project || 'sTeX/meta-inf';
+  const data = await createIssueData(
     type,
     category,
     desc,
     selectedText,
-    context,
+    withSourceContext,
     userName,
     title
   );
@@ -118,13 +128,13 @@ export async function createNewIssue(
     );
     return response.data['issue_url'];
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return null;
   }
 }
 
-export function issuesUrlList(context: FileInfo[]) {
-  const projectId = context?.[0]?.archive;
-  if (!projectId) return 'https://github.com/slatex/sTeX-React/issues';
-  return `https://gl.mathhub.info/${projectId}/-/issues`;
+export function issuesUrlList(context: SelectionContext[]) {
+  const { project } = extractProjectAndFilepath(context?.[0]?.source);
+  if (!project) return 'https://github.com/slatex/sTeX-React/issues';
+  return `https://gl.mathhub.info/${project}/-/issues`;
 }

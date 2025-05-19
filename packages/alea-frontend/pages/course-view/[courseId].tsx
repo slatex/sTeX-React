@@ -392,7 +392,7 @@ const CourseViewPage: NextPage = () => {
               </Box>
             )}
             <CommentNoteToggleView
-              file={{ archive: 'TODO ALEA4-N8.1', filepath: 'TODO ALEA4-N8.1' }}
+              uri={'TODO ALEA4-N8.1' }
               selectedSectionTOC={selectedSectionTOC}
               defaultPrivate={true}
               extraPanel={{

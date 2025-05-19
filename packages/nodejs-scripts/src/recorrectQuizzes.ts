@@ -54,7 +54,7 @@ async function getCorrectedPoints(
       return JSON.parse(r.response) as ProblemResponse;
     });
     const feedbacks = (await batchGradeHex([[problems[problemId].solution, responses]]))?.[0];
-    for (let i = 0; i < responses.length; i++) {
+    for (let i = 0; i < (feedbacks?.length ?? 0); i++) {
       const feedback = feedbacks[i];
       const gradingDbData = byProblemId[problemId][i];
       const correctedPoints = computePointsFromFeedbackJson(problem, feedback);

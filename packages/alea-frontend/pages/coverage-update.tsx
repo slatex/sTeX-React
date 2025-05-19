@@ -1,19 +1,18 @@
 import {
+  Alert,
+  Backdrop,
   Box,
   Button,
+  CircularProgress,
+  Container,
   FormControl,
   InputLabel,
   MenuItem,
+  Paper,
   Select,
   Typography,
-  Container,
-  Paper,
-  Alert,
-  Backdrop,
-  CircularProgress,
 } from '@mui/material';
 import { TOCElem, getAuthHeaders, getCourseInfo, getDocumentSections } from '@stex-react/api';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import {
   CourseInfo,
   CoverageSnap,
@@ -23,7 +22,7 @@ import {
 import axios from 'axios';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CoverageUpdater } from '../components/CoverageUpdater';
 import MainLayout from '../layouts/MainLayout';
 import { Section } from '../types';
@@ -54,7 +53,6 @@ const CoverageUpdatePage: NextPage = () => {
   const [sectionNames, setSectionNames] = useState<Section[]>([]);
   const [snaps, setSnaps] = useState<CoverageSnap[]>([]);
   const [coverageTimeline, setCoverageTimeline] = useState<CoverageTimeline>({});
-  const { mmtUrl } = useContext(ServerLinksContext);
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
   const [loading, setLoading] = useState(false);
   const [saveMessage, setSaveMessage] = useState<{
@@ -67,10 +65,8 @@ const CoverageUpdatePage: NextPage = () => {
   }, []);
 
   useEffect(() => {
-    if (mmtUrl) {
-      getCourseInfo().then(setCourses);
-    }
-  }, [mmtUrl]);
+    getCourseInfo().then(setCourses);
+  }, []);
 
   useEffect(() => {
     const getSections = async () => {
@@ -106,7 +102,7 @@ const CoverageUpdatePage: NextPage = () => {
     };
 
     getSections();
-  }, [mmtUrl, courses]);
+  }, [courses]);
 
   useEffect(() => {
     if (!router.isReady || !courseId?.length) return;
@@ -235,7 +231,7 @@ const CoverageUpdatePage: NextPage = () => {
                 textAlign: 'center',
               }}
             >
-              Your changes will not be saved until you click 'Save Changes'.
+              Your changes will not be saved until you click &apos;Save Changes&apos;.
             </Typography>
           </Box>
         </Paper>

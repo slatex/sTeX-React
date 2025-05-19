@@ -1,6 +1,5 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { Box, Button, IconButton, Tooltip, Typography } from '@mui/material';
-import LinearProgress from '@mui/material/LinearProgress';
+import { Box, Button, IconButton, LinearProgress, Tooltip, Typography } from '@mui/material';
 import { getSourceUrl } from '@stex-react/api';
 import { FTMLFragment, getFlamsServer, ProblemResponse } from '@stex-react/ftml-utils';
 import axios from 'axios';
@@ -59,36 +58,51 @@ export function PerSectionQuiz({
   sectionUri,
   showButtonFirst = true,
   showHideButton = false,
+  cachedProblemUris,
+  setCachedProblemUris,
 }: {
   sectionUri: string;
   showButtonFirst?: boolean;
   showHideButton?: boolean;
+  cachedProblemUris?: string[] | null;
+  setCachedProblemUris?: (uris: string[]) => void;
 }) {
   const t = getLocaleObject(useRouter()).quiz;
-  const [problemUris, setProblemUris] = useState<string[]>([]);
-  const [isLoadingProblemUris, setIsLoadingProblemUris] = useState<boolean>(true);
+  const [problemUris, setProblemUris] = useState<string[]>(cachedProblemUris || []);
+  const [isLoadingProblemUris, setIsLoadingProblemUris] = useState<boolean>(!cachedProblemUris);
   const [responses, setResponses] = useState<(ProblemResponse | undefined)[]>([]);
   const [problemIdx, setProblemIdx] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState<boolean[]>([]);
-  const [startQuiz, setStartQuiz] = useState(!showButtonFirst);
   const [show, setShow] = useState(true);
   const [showSolution, setShowSolution] = useState(false);
+  const [startQuiz, setStartQuiz] = useState(!showButtonFirst);
 
   useEffect(() => {
-    if (!sectionUri) return;
+    if (cachedProblemUris) return;
+    //  if (!sectionUri) return;
     setIsLoadingProblemUris(true);
     axios
       .get(`/api/get-problems-by-section?sectionUri=${encodeURIComponent(sectionUri)}`)
       .then((resp) => {
         setProblemUris(resp.data);
+        if (setCachedProblemUris) {
+          setCachedProblemUris(resp.data);
+        }
         setIsLoadingProblemUris(false);
         setIsSubmitted(resp.data.map(() => false));
         setResponses(resp.data.map(() => undefined));
       }, console.error);
-  }, [sectionUri]);
+  }, [sectionUri, cachedProblemUris, setCachedProblemUris]);
 
-  if (isLoadingProblemUris) return null;
-  if (!problemUris.length) return !showButtonFirst && <i>No problems found.</i>;
+  if (isLoadingProblemUris) return <LinearProgress />;
+  if (!problemUris.length) {
+    return (
+      <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
+        No practice problems for this section
+      </Typography>
+    );
+  }
+
   if (!startQuiz) {
     return (
       <Button onClick={() => setStartQuiz(true)} variant="contained">
@@ -96,6 +110,7 @@ export function PerSectionQuiz({
       </Button>
     );
   }
+
   if (!show) {
     return (
       <Button onClick={() => setShow(true)} variant="contained">
@@ -103,7 +118,6 @@ export function PerSectionQuiz({
       </Button>
     );
   }
-  if (isLoadingProblemUris) return <LinearProgress />;
 
   const problemUri = problemUris[problemIdx];
   // TODO ALEA4-P3 const response = responses[problemIdx];

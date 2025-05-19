@@ -53,15 +53,15 @@ export const ProfileTab = ({
                   { label: t.semester, value: profileData.semester },
                   { label: t.languages, value: profileData.languages },
                 ].map((field) => (
-                  <Box key={field.label} sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Box key={field.label} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Typography
                       variant="body1"
-                      sx={{ fontWeight: 'bold', color: 'text.secondary', minWidth: 140 }}
+                      sx={{ fontWeight: 'bold', color: 'text.primary', minWidth: 160, display: 'flex', justifyContent: 'space-between' }}
                     >
-                      {field.label}:
+                      {field.label} <span>:</span>
                     </Typography>
                     <Typography variant="body1" sx={{ color: 'text.primary' }}>
-                      {field.value || '-'}
+                      { field.value || '-'}
                     </Typography>
                   </Box>
                 ))}

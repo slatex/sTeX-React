@@ -57,7 +57,7 @@ export async function updateHomeworkHistoryOrSetError(
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
-  const { id, title, givenTs, dueTs, feedbackReleaseTs, problems } =
+  const { id, title, givenTs, dueTs, feedbackReleaseTs, css, problems } =
     req.body as UpdateHomeworkRequest;
   if (!id) return res.status(400).send('homework id is missing');
 
@@ -79,8 +79,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const newVersionNo = currentHomework.versionNo + 1;
   const result = await executeAndEndSet500OnError(
-    'UPDATE homework SET versionNo = ?, title = ?, givenTs = ?, dueTs = ?, feedbackReleaseTs=?, problems = ? WHERE id = ?',
-    [newVersionNo, title, givenTs, dueTs, feedbackReleaseTs, JSON.stringify(problems), id],
+    'UPDATE homework SET versionNo = ?, title = ?, givenTs = ?, dueTs = ?, feedbackReleaseTs=?, css = ?, problems = ? WHERE id = ?',
+    [
+      newVersionNo,
+      title,
+      givenTs,
+      dueTs,
+      feedbackReleaseTs,
+      JSON.stringify(css),
+      JSON.stringify(problems),
+      id,
+    ],
     res
   );
   if (!result) return;

@@ -1,10 +1,10 @@
 import { Button, CircularProgress } from '@mui/material';
 import { getCourseInfo } from '@stex-react/api';
-import { DocProblemBrowser, ServerLinksContext } from '@stex-react/stex-react-renderer';
+import { DocProblemBrowser } from '@stex-react/stex-react-renderer';
 import { CourseInfo } from '@stex-react/utils';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
 
@@ -16,11 +16,10 @@ const CourseProblemsPage: NextPage = () => {
   const startSecNameExcl = router.query.startSecNameExcl as string;
   const endSecNameIncl = router.query.endSecNameIncl as string;
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
-  const { mmtUrl } = useContext(ServerLinksContext);
 
   useEffect(() => {
-    if (mmtUrl) getCourseInfo().then(setCourses);
-  }, [mmtUrl]);
+    getCourseInfo().then(setCourses);
+  }, []);
 
   if (!router.isReady || !courses) return <CircularProgress />;
   const courseInfo = courses[courseId];

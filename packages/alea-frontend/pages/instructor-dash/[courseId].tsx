@@ -1,10 +1,9 @@
 import { Box, Tab, Tabs } from '@mui/material';
 import { canAccessResource, getCourseInfo } from '@stex-react/api';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { Action, CourseInfo, CURRENT_TERM, ResourceName } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import CourseAccessControlDashboard from '../../components/CourseAccessControlDashboard';
 import HomeworkManager from '../../components/HomeworkManager';
 import { GradingInterface } from '../../components/nap/GradingInterface';
@@ -99,7 +98,6 @@ const InstructorDash: NextPage = () => {
   const courseId = router.query.courseId as string;
   const tab = router.query.tab as TabName;
 
-  const { mmtUrl } = useContext(ServerLinksContext);
   const [courses, setCourses] = useState<Record<string, CourseInfo> | undefined>(undefined);
 
   const [accessibleTabs, setAccessibleTabs] = useState<TabName[]>([]);
@@ -118,8 +116,8 @@ const InstructorDash: NextPage = () => {
     );
   };
   useEffect(() => {
-    if (mmtUrl) getCourseInfo().then(setCourses);
-  }, [mmtUrl]);
+    getCourseInfo().then(setCourses);
+  }, []);
 
   useEffect(() => {
     if (!courseId) return;

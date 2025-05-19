@@ -143,8 +143,8 @@ export const de = {
     lastName: 'Nachname',
     email: 'E-Mail',
     studyProgram: 'Studiengang',
-    semester: 'Semester',
-    languages: 'Sprachen',
+    semester: 'Eingeschriebenes Semester',
+    languages: 'Gesprochene Sprachen',
     save: 'Speichern',
 
     dataAlea: 'Ihre Daten im ALᴇA-System',

@@ -4,20 +4,12 @@ import {
   CourseInfo,
   createCourseInfo,
   getParamFromUri,
+  waitForNSeconds,
 } from '@stex-react/utils';
 import axios from 'axios';
 import { FLAMSServer } from './flams';
 import { ArchiveIndex, FTMLProblem, Institution, ProblemResponse } from './flams-types';
 const server = new FLAMSServer(process.env['NEXT_PUBLIC_FLAMS_URL']!);
-
-///////////////////
-// :sTeX/loraw
-///////////////////
-export async function getLearningObjectShtml(mmtUrl: string, objectId: string) {
-  const url = `${mmtUrl}/:sTeX/loraw?${objectId}`;
-  const resp = await axios.get(url);
-  return resp.data as string;
-}
 
 export async function getDocumentSections(notesUri: string) {
   return (await server.contentToc({ uri: notesUri })) ?? [[], []];
@@ -39,50 +31,7 @@ export function computePointsFromFeedbackJson(
   if (fraction === undefined || fraction === null) return NaN;
   return fraction * (problem.total_points ?? 1);
 }
-///////////////////////
-// :sTeX/browser?menu
-///////////////////////
-export interface FileNode {
-  label: string;
 
-  // TODO: remove the link field after mmt removes it.
-  link?: string;
-  archive?: string;
-  filepath?: string;
-
-  children?: FileNode[];
-
-  // This field is populated by frontend.
-  autoOpen?: boolean;
-}
-
-// TODO: remove this function after mmt populates archive and filepath.
-function populateArchiveAndFilepath(nodes?: FileNode[]) {
-  if (!nodes) return;
-  for (const node of nodes) {
-    if (node.link?.includes('xhtml')) {
-      const match = /archive=([^&]+)&filepath=([^"]+xhtml)/g.exec(node.link);
-      node.archive = match?.[1];
-      node.filepath = match?.[2];
-    }
-    if (node.children) populateArchiveAndFilepath(node.children);
-  }
-}
-
-let CACHED_DOCUMENT_TREE: FileNode[] | undefined = undefined;
-export async function getDocumentTree(mmtUrl: string) {
-  if (mmtUrl === null || mmtUrl === undefined) return [];
-  if (!CACHED_DOCUMENT_TREE) {
-    const resp = await axios.get(`${mmtUrl}/:sTeX/browser?menu`);
-    CACHED_DOCUMENT_TREE = resp.data as FileNode[];
-    populateArchiveAndFilepath(CACHED_DOCUMENT_TREE);
-  }
-  return CACHED_DOCUMENT_TREE;
-}
-
-//////////////////
-// /:sTeX/docidx
-//////////////////
 export enum DocIdxType {
   course = 'course',
   library = 'library',
@@ -178,9 +127,6 @@ export function getFTMLForConceptView(conceptUri: string) {
   return `<span data-ftml-term="OMID" data-ftml-head="${conceptUri}" data-ftml-comp>${name}</span>`;
 }
 
-/////////////////////
-// :sTeX/definienda
-/////////////////////
 export interface ConceptAndDefinition {
   conceptUri: string;
   definitionUri: string;
@@ -200,9 +146,19 @@ export async function getDefiniedaInSection(uri: string): Promise<ConceptAndDefi
 }
 
 export async function getProblemsForConcept(conceptUri: string) {
-  const learningObjects = await server.learningObjects({ uri: conceptUri }, true);
-  if (!learningObjects) return [];
-  return learningObjects.filter((obj) => obj[1].type === 'Problem').map((obj) => obj[0]);
+  const MAX_RETRIES = 3;
+  for (let i = 0; i < MAX_RETRIES; i++) {
+    try {
+      const learningObjects = await server.learningObjects({ uri: conceptUri }, true);
+      if (!learningObjects) return [];
+      return learningObjects.filter((obj) => obj[1].type === 'Problem').map((obj) => obj[0]);
+    } catch (error) {
+      console.warn('Error fetching problems for:', conceptUri);
+      await waitForNSeconds(2*i*i);
+    }
+  }
+  console.error(`After ${MAX_RETRIES} failed to fetch problems for: [${conceptUri}] `);
+  return [];
 }
 
 export async function getProblemsForSection(sectionUri: string): Promise<string[]> {
@@ -218,11 +174,6 @@ export async function getProblemsForSection(sectionUri: string): Promise<string[
     })
   );
   return Array.from(uniqueProblemUrls);
-}
-
-export async function getUriFragment(URI: string) {
-  const resp = await axios.get(`https://stexmmt.mathhub.info//:sTeX/fragment?${URI}`);
-  return resp.data as string;
 }
 
 export function conceptUriToName(uri: string) {
@@ -249,25 +200,6 @@ export interface SparqlResponse {
   results?: {
     bindings: Record<string, { type: string; value: string }>[];
   };
-}
-export async function sparqlQuery(mmtUrl: string, query: string) {
-  const resp = await axios.post(`${mmtUrl}/:query/sparql`, query, {
-    headers: { 'Content-Type': 'text/plain' },
-  });
-  return resp.data as SparqlResponse;
-}
-
-function getSparlQueryForDependencies(archive: string, filepath: string) {
-  const lastDot = filepath.lastIndexOf('.');
-  filepath = filepath.slice(0, lastDot) + '.omdoc';
-  const omdoc = `http://mathhub.info/${archive}/${filepath}`;
-  return `SELECT DISTINCT ?x WHERE {
-  <${omdoc}#> (<http://mathhub.info/ulo#crossrefs>|<http://mathhub.info/ulo#specifies>|<http://mathhub.info/ulo#contains>|<http://mathhub.info/ulo#has-language-module>)+/<http://mathhub.info/ulo#crossrefs> ?x .
-  ?x <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://mathhub.info/ulo#constant> .
-  MINUS {
-    <${omdoc}#> (<http://mathhub.info/ulo#crossrefs>|<http://mathhub.info/ulo#specifies>|<http://mathhub.info/ulo#contains>|<http://mathhub.info/ulo#has-language-module>)+/(<http://mathhub.info/ulo#defines>|^<http://mathhub.info/ulo#docref>) ?x .
-  }.
-}`;
 }
 
 async function getQueryResults(query: string) {
@@ -359,12 +291,12 @@ export const getSparqlQueryForLoRelationToNonDimConcept = (uri: string) => {
                               }`;
   return query;
 };
-export const getProblemObject = async (mmtUrl: string, problemIdPrefix: string) => {
+export const getProblemObject = async (problemIdPrefix: string) => {
   if (!problemIdPrefix) {
     console.error('Problem ID prefix is required');
     return null;
   }
-  const query = `
+  return `
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX ulo: <http://mathhub.info/ulo#>
 
@@ -374,14 +306,6 @@ export const getProblemObject = async (mmtUrl: string, problemIdPrefix: string) 
       FILTER(CONTAINS(STR(?learningObject), "${encodeURI(problemIdPrefix)}"))
     }
   `;
-
-  try {
-    const res = await sparqlQuery(mmtUrl, query);
-    return res.results?.bindings[0]?.['learningObject']?.value ?? null;
-  } catch (error) {
-    console.error('Error executing SPARQL query:', error);
-    throw error;
-  }
 };
 
 export function getSparlQueryForNonDimConcepts() {
@@ -442,6 +366,7 @@ export function getSparqlQueryForLoString(loString: string, loTypes?: LoType[]) 
     LIMIT 300`;
   return query;
 }
+
 export function getSparqlQueryForNonDimConceptsAsLoRelation(
   conceptUris: string[],
   relations: LoRelationToNonDimConcept[],

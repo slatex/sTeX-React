@@ -15,7 +15,6 @@ import LoListDisplay from '../LoListDisplay';
 import { fetchLoFromConceptsAsLoRelations } from './LoFilterAndSearch';
 
 export function LoReverseRelations({
-  mmtUrl,
   concept,
   cart,
   handleAddToCart,
@@ -23,7 +22,6 @@ export function LoReverseRelations({
   openDialog,
   handleCloseDialog,
 }: {
-  mmtUrl: string;
   concept: string;
   cart: CartItem[];
   handleAddToCart: (uri: string, uriType: LoType) => void;
@@ -48,7 +46,7 @@ export function LoReverseRelations({
       setLoading(true);
       try {
         const chosenConcept = concept ? [concept] : [];
-        const fetchedLoUris = await fetchLoFromConceptsAsLoRelations(mmtUrl, chosenConcept, [
+        const fetchedLoUris = await fetchLoFromConceptsAsLoRelations(chosenConcept, [
           'crossrefs',
           'defines',
           'example-for',
@@ -71,7 +69,7 @@ export function LoReverseRelations({
       }
     };
     fetchData();
-  }, [mmtUrl, concept]);
+  }, [concept]);
 
   useEffect(() => {
     setSelectedUri(filteredUris.length > 0 ? filteredUris[0] : '');

@@ -10,11 +10,12 @@ import {
 } from '@stex-react/api';
 import { ProblemResponse } from '@stex-react/ftml-utils';
 import { GradingContext, QuizDisplay, ShowGradingFor } from '@stex-react/stex-react-renderer';
+import { isFauId } from '@stex-react/utils';
+import { injectCss } from '@stex-react/ftml-utils';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { ForceFauLogin } from '../components/ForceFAULogin';
 import MainLayout from '../layouts/MainLayout';
-import { isFauId } from '@stex-react/utils';
 
 const HomeworkDocPage: React.FC = () => {
   const router = useRouter();
@@ -54,7 +55,7 @@ const HomeworkDocPage: React.FC = () => {
     }
     getHomework(+id).then((hwInfo) => {
       setHwInfo(hwInfo);
-      const problemObj: { [problemId: string]: FTMLProblemWithSolution } = {};
+      for (const e of hwInfo.homework.css ?? []) injectCss(e);
       setProblems(hwInfo.homework.problems);
       setResponses(hwInfo.responses);
     });

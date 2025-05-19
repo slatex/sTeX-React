@@ -2,11 +2,10 @@ import SchoolIcon from '@mui/icons-material/School';
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import { canAccessResource, getCourseInfo, getUserInfo } from '@stex-react/api';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { Action, CourseInfo, CURRENT_TERM, isFauId, ResourceName } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ForceFauLogin } from '../../components/ForceFAULogin';
 import HomeworkPerformanceTable from '../../components/HomeworkPerformanceTable';
 import { getLocaleObject } from '../../lang/utils';
@@ -20,7 +19,6 @@ const HomeworkPage: NextPage = () => {
 
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
   const [forceFauLogin, setForceFauLogin] = useState(false);
-  const { mmtUrl } = useContext(ServerLinksContext);
   const [userId, setUserId] = useState(null);
   const [enrolled, setIsEnrolled] = useState<boolean | undefined>(undefined);
 
@@ -46,8 +44,8 @@ const HomeworkPage: NextPage = () => {
   }, [courseId]);
 
   useEffect(() => {
-    if (mmtUrl) getCourseInfo().then(setCourses);
-  }, [mmtUrl]);
+    getCourseInfo().then(setCourses);
+  }, []);
 
   if (!router.isReady || !courses) return <CircularProgress />;
 

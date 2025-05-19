@@ -26,12 +26,11 @@ import { FTMLFragment } from '@stex-react/ftml-utils';
 import { PRIMARY_COL, PathToTour } from '@stex-react/utils';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import ConceptHistoryTable from './ConceptHistoryTable';
 import { PracticeQuestions } from './PracticeQuestions';
 import { SelfAssessmentDialogRow } from './SelfAssessmentDialog';
 import { getLocaleObject } from './lang/utils';
-import { ServerLinksContext } from './stex-react-renderer';
 
 const extractLastWordAfterQuestionMark = (url: string) => {
   if (!url) return url;
@@ -148,7 +147,6 @@ export function CompetencyTable({
   const [problemIds, setProblemIds] = useState<string[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [concept, setConcept] = useState<string>('');
-  const { mmtUrl } = useContext(ServerLinksContext);
   const combinedData: {
     conceptUri: string;
     values: NumericCognitiveValues | GenericCognitiveValues;
@@ -178,7 +176,7 @@ export function CompetencyTable({
       }
     }
     fetchProblemIds();
-  }, [conceptUris, mmtUrl, fetchProblem]);
+  }, [conceptUris, fetchProblem]);
 
   const handleCloseDialog = () => {
     setShowHistory(false);
