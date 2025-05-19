@@ -67,7 +67,6 @@ export function ForMe({
   const [isSubmitted, setIsSubmitted] = useState<boolean[]>([]);
   const [responses, setResponses] = useState<(ProblemResponse | undefined)[]>([]);
   const [show, setShow] = useState(true);
-  const [startQuiz, setStartQuiz] = useState(!showButtonFirst);
 
   useEffect(() => {
     if (cachedProblemUris) return;
@@ -121,22 +120,6 @@ export function ForMe({
       <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
         {t.NoPracticeProblemsForMe}
       </Typography>
-    );
-  }
-
-  if (!startQuiz) {
-    return (
-      <Button onClick={() => setStartQuiz(true)} variant="contained">
-        {t.ForMe.replace('$1', problemUris.length.toString())}
-      </Button>
-    );
-  }
-
-  if (!show) {
-    return (
-      <Button onClick={() => setShow(true)} variant="contained">
-        {t.ForMe.replace('$1', problemUris.length.toString())}
-      </Button>
     );
   }
 
