@@ -1,5 +1,3 @@
-import { ForMe } from "../ForMe";
-
 export const de = {
   // content dashboard
   expandCollapseAll: 'Alles anzeigen/Minimieren',
@@ -66,12 +64,16 @@ export const de = {
     sureFinish: 'Sind Sie sicher, dass Sie den Vorgang abschließen möchten?',
     showSolution: 'Lösung anzeigen',
     hideSolution: 'Lösung ausblenden',
-    practiceProblem : 'Übungsproblem anzeigen',
-    perSectionQuizButton: 'Alle probleme',
-    ForMe : 'Für mich',
+    practiceProblem : 'Übungsprobleme anzeigen',
+    perSectionQuizButton: 'Alle probleme ($1)',
+    ForMe : 'Für mich ($1)',
     hideProblems: 'Probleme ausblenden',
     hideForMe: 'Für mich ausblenden',
     hidepracticeProblem: 'Übungsprobleme ausblenden',
+    NoPracticeProblemsForMe:
+      'Keine personalisierten Übungsprobleme für diesen Abschnitt verfügbar',
+      NoPracticeProblemsAll:
+      'Keine Übungsprobleme für diesen Abschnitt verfügbar',
     answer: 'Antwort',
     point: 'Punkt',
     submit: 'Senden',

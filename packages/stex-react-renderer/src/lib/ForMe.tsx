@@ -1,10 +1,11 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Button, IconButton, LinearProgress, Tooltip, Typography } from '@mui/material';
-import { getDefiniedaInSection, getLearningObjects } from '@stex-react/api';
-import { FTMLFragment } from '@stex-react/ftml-utils';
+import { getDefiniedaInSection, getLearningObjects, getSourceUrl } from '@stex-react/api';
+import { ProblemResponse } from '@stex-react/ftml-utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { getLocaleObject } from './lang/utils';
+import { UriProblemViewer } from './PerSectionQuiz';
 import { ListStepper } from './QuizDisplay';
 
 export function ForMe({
@@ -24,8 +25,9 @@ export function ForMe({
   const [problemUris, setProblemUris] = useState<string[]>(cachedProblemUris || []);
   const [isLoadingProblemUris, setIsLoadingProblemUris] = useState<boolean>(!cachedProblemUris);
   const [problemIdx, setProblemIdx] = useState(0);
-  const [show, setShow] = useState(true);
-  const [showSolution, setShowSolution] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState<boolean[]>([]);
+  const [responses, setResponses] = useState<(ProblemResponse | undefined)[]>([]);
+  const [, setShow] = useState(true);
 
   useEffect(() => {
     if (cachedProblemUris) return;
@@ -49,6 +51,8 @@ export function ForMe({
 
         setProblemUris(extractedProblemIds);
         setCachedProblemUris(extractedProblemIds);
+        setIsSubmitted(extractedProblemIds.map(() => false));
+        setResponses(extractedProblemIds.map(() => undefined));
       } catch (error) {
         console.error('Error fetching problem URIs:', error);
       } finally {
@@ -59,23 +63,28 @@ export function ForMe({
     fetchProblemUris();
   }, [sectionUri, cachedProblemUris, setCachedProblemUris]);
 
+  useEffect(() => {
+    if (!problemUris.length) return;
+    setIsSubmitted(problemUris.map(() => false));
+    setResponses(problemUris.map(() => undefined));
+  }, [problemUris]);
+
   const handleViewSource = (uri: string) => {
-    window.open(uri, '_blank');
+    getSourceUrl(uri).then((sourceLink) => {
+      if (sourceLink) window.open(sourceLink, '_blank');
+    });
   };
 
   if (isLoadingProblemUris) return <LinearProgress />;
   if (!problemUris.length) {
     return (
       <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
-        No personalized practice problems for this section
+        {t.NoPracticeProblemsForMe}
       </Typography>
     );
   }
 
-  if (!show) return null;
-
   const problemUri = problemUris[problemIdx];
-
   if (!problemUri) return <>error: [{problemUri}] </>;
 
   return (
@@ -96,7 +105,6 @@ export function ForMe({
           listSize={problemUris.length}
           onChange={(idx) => {
             setProblemIdx(idx);
-            setShowSolution(false);
           }}
         />
         <IconButton onClick={() => handleViewSource(problemUri)} sx={{ float: 'right' }}>
@@ -106,16 +114,32 @@ export function ForMe({
         </IconButton>
       </Box>
       <Box mb="10px">
-        <FTMLFragment key={problemUri} fragment={{ uri: problemUri }} />
+        <UriProblemViewer
+          key={problemUri}
+          uri={problemUri}
+          isSubmitted={isSubmitted[problemIdx]}
+          setIsSubmitted={(v) =>
+            setIsSubmitted((prev) => {
+              prev[problemIdx] = v;
+              return [...prev];
+            })
+          }
+          response={responses[problemIdx]}
+          setResponse={(v) =>
+            setResponses((prev) => {
+              prev[problemIdx] = v;
+              return [...prev];
+            })
+          }
+        />
       </Box>
       <Box
         mb={2}
         sx={{ display: 'flex', gap: '10px', flexDirection: 'column', alignItems: 'flex-start' }}
       >
-        {showSolution && <Box mb="10px"></Box>}
         {showHideButton && (
-          <Button onClick={() => setShow(false)} variant="contained">
-            {t.hideForMe || t.hideProblems}
+          <Button onClick={() => setShow(false)} variant="contained" color="secondary">
+            {t.hideProblems}
           </Button>
         )}
       </Box>
