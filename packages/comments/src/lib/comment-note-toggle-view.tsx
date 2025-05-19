@@ -28,16 +28,13 @@ function TabPanel(props: { children?: React.ReactNode; index: number; value: num
 
 export function CommentNoteToggleView({
   uri,
-  selectedSectionTOC,
   defaultPrivate,
   selectedText = undefined,
   selectedElement = undefined,
   allNotesMode = false,
   extraPanel = undefined,
-  currentSlideNum = undefined,
 }: {
   uri: URI;
-  selectedSectionTOC?: TOCElem;
   defaultPrivate: boolean;
   selectedText?: string;
   selectedElement?: any;
@@ -46,7 +43,6 @@ export function CommentNoteToggleView({
     label: any;
     panelContent: any;
   };
-  currentSlideNum?: number;
 }) {
   const t = getLocaleObject(useRouter());
   const [value, setValue] = useState(extraPanel ? 2 : defaultPrivate ? 0 : 1);
@@ -114,17 +110,15 @@ export function CommentNoteToggleView({
           selectedText={selectedText}
           selectedElement={selectedElement}
           allNotesMode={allNotesMode}
-          currentSlideNum={currentSlideNum}
         />
       </TabPanel>
       <TabPanel value={value} index={1}>
         <CommentSection
           file={{archive: 'TODO ALEA4-N8.1', filepath: uri}}
-          selectedSectionTOC={selectedSectionTOC}
+          uri={uri}
           selectedText={selectedText}
           selectedElement={selectedElement}
           allCommentsMode={allNotesMode}
-          currentSlideNum={currentSlideNum}
         />
       </TabPanel>
       {extraPanel && (

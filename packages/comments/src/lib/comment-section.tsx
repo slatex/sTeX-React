@@ -2,7 +2,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import { Box, Button, CircularProgress, Dialog, IconButton, Menu, MenuItem } from '@mui/material';
-import { canModerateComment, Comment, getUserInfo, TOCElem } from '@stex-react/api';
+import { canModerateComment, Comment, getUserInfo, URI } from '@stex-react/api';
 import { ReactNode, useEffect, useReducer, useRef, useState } from 'react';
 import { CommentFilters } from './comment-filters';
 import { getPublicCommentTrees, refreshAllComments } from './comment-store-manager';
@@ -10,10 +10,10 @@ import { CommentReply } from './CommentReply';
 import { CommentView } from './CommentView';
 
 import { Refresh } from '@mui/icons-material';
-import styles from './comments.module.scss';
 import { CURRENT_TERM, FileLocation } from '@stex-react/utils';
-import { getLocaleObject } from './lang/utils';
 import { useRouter } from 'next/router';
+import styles from './comments.module.scss';
+import { getLocaleObject } from './lang/utils';
 
 function RenderTree({
   comment,
@@ -122,20 +122,18 @@ export function ButtonAndDialog({
 
 export function CommentSection({
   file,
-  selectedSectionTOC,
+  uri,
   startDisplay = true,
   selectedText = undefined,
   selectedElement = undefined,
   allCommentsMode = false,
-  currentSlideNum = undefined,
 }: {
   file: FileLocation;
-  selectedSectionTOC?: TOCElem;
+  uri?:URI;
   startDisplay?: boolean;
   selectedText?: string;
   selectedElement?: any;
   allCommentsMode?: boolean;
-  currentSlideNum?: number;
 }) {
   const router = useRouter();
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
@@ -221,8 +219,7 @@ export function CommentSection({
           selectedElement={selectedElement}
           onUpdate={() => refreshComments()}
           onCancel={undefined}
-          selectedSectionTOC={selectedSectionTOC}
-          currentSlideNum={currentSlideNum}
+          uri={uri}
         />
       )}
 

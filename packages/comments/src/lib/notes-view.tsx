@@ -1,6 +1,6 @@
 import { Refresh } from '@mui/icons-material';
 import { Box, IconButton } from '@mui/material';
-import { Comment, getUserInfo } from '@stex-react/api';
+import { Comment, getUserInfo, URI } from '@stex-react/api';
 import { FileLocation } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -15,13 +15,11 @@ export function NotesView({
   selectedText = undefined,
   selectedElement = undefined,
   allNotesMode = false,
-  currentSlideNum = undefined,
 }: {
   file: FileLocation;
   selectedText?: string;
   selectedElement?: any;
   allNotesMode?: boolean;
-  currentSlideNum?: number;
 }) {
   const t = getLocaleObject(useRouter());
   const [userId, setUserId] = useState<string | undefined>(undefined);
@@ -76,7 +74,6 @@ export function NotesView({
           selectedElement={selectedElement}
           onUpdate={() => refreshNotes()}
           onCancel={undefined}
-          currentSlideNum={currentSlideNum}
         />
       )}
 

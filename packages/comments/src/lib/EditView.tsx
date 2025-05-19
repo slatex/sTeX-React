@@ -15,6 +15,7 @@ import { useEffect, useState } from 'react';
 import { discardDraft, retrieveDraft, saveDraft } from './comment-helpers';
 import { getLocaleObject } from './lang/utils';
 import { MystEditor } from '@stex-react/myst';
+import { URI } from '@stex-react/api';
 import axios from 'axios';
 
 interface EditViewProps {
@@ -28,8 +29,7 @@ interface EditViewProps {
   hidden?: boolean;
   onCancel?: () => void;
   onUpdate: () => void;
-  selectedSectionTOC?: TOCElem;
-  currentSlideNum?: number;
+  uri?:URI;
 }
 
 export function EditView({
@@ -43,8 +43,7 @@ export function EditView({
   hidden = false,
   onCancel = undefined,
   onUpdate,
-  selectedSectionTOC = undefined,
-  currentSlideNum = undefined,
+  uri,
 }: EditViewProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -67,40 +66,9 @@ export function EditView({
     setInputText(retreived || '');
   }, [file, parentId, existingComment]);
 
-  async function getCurrentSlideUri(courseId: string, sectionId: string) {
-    const response = await axios.get('/api/get-slides', {
-      params: { courseId, sectionIds: sectionId },
-    });
-    if (!response.data || !response.data[sectionId]) {
-      console.warn('No Slide data found for section : ', sectionId);
-      return undefined;
-    }
-    const slides = response.data[sectionId];
-    if (!currentSlideNum || currentSlideNum > slides.length) {
-      console.warn('Invalid slide number : ', currentSlideNum);
-      return undefined;
-    }
-    const currentSlide = slides[currentSlideNum - 1];
-    if (!currentSlide) {
-      return undefined;
-    }
-    switch (currentSlide.slideType) {
-      case SlideType.FRAME:
-        return currentSlide.slide?.uri;
-      case SlideType.TEXT:
-        return currentSlide.paragraphs?.[0]?.uri;
-      default:
-        console.warn('unknow slide type :', currentSlide.slideType);
-        return undefined;
-    }
-  }
-
   async function getNewComment(): Promise<Comment> {
     const courseTerm = courseId ? CURRENT_TERM : undefined;
     const isQuestion = needsResponse && !parentId && !isPrivateNote;
-    const sectionId =
-      selectedSectionTOC && 'id' in selectedSectionTOC ? selectedSectionTOC.id : undefined;
-    const slideUri = await getCurrentSlideUri(courseId, sectionId ?? '');
 
     return {
       commentId: -1,
@@ -116,7 +84,7 @@ export function EditView({
       questionStatus: isQuestion ? QuestionStatus.UNANSWERED : undefined,
       selectedText,
       userName,
-      uri: slideUri ?? '',
+      uri: uri,
     };
   }
 
