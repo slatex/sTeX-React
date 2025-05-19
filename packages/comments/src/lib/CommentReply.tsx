@@ -1,7 +1,7 @@
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import TextsmsIcon from '@mui/icons-material/Textsms';
 import { Box, Checkbox, FormControlLabel } from '@mui/material';
-import { getUserInfo } from '@stex-react/api';
+import { getUserInfo, TOCElem, URI } from '@stex-react/api';
 import { FileLocation } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -20,6 +20,7 @@ interface CommentReplyProps {
   hidden?: boolean;
   onCancel?: () => void;
   onUpdate: () => void;
+  uri?:URI;
 }
 
 export function CommentReply({
@@ -32,6 +33,7 @@ export function CommentReply({
   hidden = false,
   onCancel,
   onUpdate,
+  uri,
 }: CommentReplyProps) {
   const t = getLocaleObject(useRouter());
   const [name, setName] = useState<string | undefined>(undefined);
@@ -85,6 +87,7 @@ export function CommentReply({
           placeholder={placeholder}
           onCancel={onCancel}
           onUpdate={onUpdate}
+          uri={uri}
         />
       </div>
     </Box>

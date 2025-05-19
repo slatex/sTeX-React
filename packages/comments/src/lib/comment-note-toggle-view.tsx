@@ -9,13 +9,10 @@ import { NotesView } from './notes-view';
 import { FileLocation, PRIMARY_COL, SECONDARY_COL } from '@stex-react/utils';
 import { getLocaleObject } from './lang/utils';
 import { useRouter } from 'next/router';
+import { TOCElem } from '@stex-react/api';
 import { URI } from '@stex-react/api';
 
-function TabPanel(props: {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}) {
+function TabPanel(props: { children?: React.ReactNode; index: number; value: number }) {
   const { children, value, index, ...other } = props;
 
   return (
@@ -62,9 +59,9 @@ export function CommentNoteToggleView({
           sx={{
             '& .MuiTab-root': {
               fontWeight: 'bold',
-              ':hover': { background: '#DDD' }, 
+              ':hover': { background: '#DDD' },
               background: '#DDD',
-              
+
               borderRadius: '10px 10px 0 0',
               borderBottom: `2px solid ${PRIMARY_COL}`,
               borderTop: `2px solid #AAA`,
@@ -104,9 +101,7 @@ export function CommentNoteToggleView({
               </Box>
             }
           />
-          {extraPanel && (
-            <Tab sx={{ flexGrow: '1' }} label={extraPanel.label} />
-          )}
+          {extraPanel && <Tab sx={{ flexGrow: '1' }} label={extraPanel.label} />}
         </Tabs>
       </Box>
       <TabPanel value={value} index={0}>
@@ -120,6 +115,7 @@ export function CommentNoteToggleView({
       <TabPanel value={value} index={1}>
         <CommentSection
           file={{archive: 'TODO ALEA4-N8.1', filepath: uri}}
+          uri={uri}
           selectedText={selectedText}
           selectedElement={selectedElement}
           allCommentsMode={allNotesMode}
