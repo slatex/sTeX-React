@@ -29,6 +29,7 @@ interface EditViewProps {
   onCancel?: () => void;
   onUpdate: () => void;
   selectedSectionTOC?: TOCElem;
+  currentSlideNum?: number;
 }
 
 export function EditView({
@@ -43,6 +44,7 @@ export function EditView({
   onCancel = undefined,
   onUpdate,
   selectedSectionTOC = undefined,
+  currentSlideNum = undefined,
 }: EditViewProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -69,11 +71,27 @@ export function EditView({
     const response = await axios.get('/api/get-slides', {
       params: { courseId, sectionIds: sectionId },
     });
-
-    if (response.data[sectionId][0].slideType === SlideType.FRAME) {
-      return response.data[sectionId][0].slide.uri;
-    } else if (response.data[sectionId][0].slideType === SlideType.TEXT) {
-      return response.data[sectionId][0].paragraphs[0].uri;
+    if (!response.data || !response.data[sectionId]) {
+      console.warn('No Slide data found for section : ', sectionId);
+      return undefined;
+    }
+    const slides = response.data[sectionId];
+    if (!currentSlideNum || currentSlideNum > slides.length) {
+      console.warn('Invalid slide number : ', currentSlideNum);
+      return undefined;
+    }
+    const currentSlide = slides[currentSlideNum - 1];
+    if (!currentSlide) {
+      return undefined;
+    }
+    switch (currentSlide.slideType) {
+      case SlideType.FRAME:
+        return currentSlide.slide?.uri;
+      case SlideType.TEXT:
+        return currentSlide.paragraphs?.[0]?.uri;
+      default:
+        console.warn('unknow slide type :', currentSlide.slideType);
+        return undefined;
     }
   }
 

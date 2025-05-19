@@ -405,6 +405,7 @@ const CourseViewPage: NextPage = () => {
                   </Box>
                 ),
               }}
+              currentSlideNum={slideNum}
             />
           </Box>
         </Box>

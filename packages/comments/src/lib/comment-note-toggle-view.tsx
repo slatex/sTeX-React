@@ -33,6 +33,7 @@ export function CommentNoteToggleView({
   selectedElement = undefined,
   allNotesMode = false,
   extraPanel = undefined,
+  currentSlideNum = undefined,
 }: {
   file: FileLocation;
   selectedSectionTOC?: TOCElem;
@@ -44,6 +45,7 @@ export function CommentNoteToggleView({
     label: any;
     panelContent: any;
   };
+  currentSlideNum?: number;
 }) {
   const t = getLocaleObject(useRouter());
   const [value, setValue] = useState(extraPanel ? 2 : defaultPrivate ? 0 : 1);
@@ -111,6 +113,7 @@ export function CommentNoteToggleView({
           selectedText={selectedText}
           selectedElement={selectedElement}
           allNotesMode={allNotesMode}
+          currentSlideNum={currentSlideNum}
         />
       </TabPanel>
       <TabPanel value={value} index={1}>
@@ -120,6 +123,7 @@ export function CommentNoteToggleView({
           selectedText={selectedText}
           selectedElement={selectedElement}
           allCommentsMode={allNotesMode}
+          currentSlideNum={currentSlideNum}
         />
       </TabPanel>
       {extraPanel && (

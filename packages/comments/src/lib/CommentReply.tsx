@@ -21,6 +21,7 @@ interface CommentReplyProps {
   onCancel?: () => void;
   onUpdate: () => void;
   selectedSectionTOC?: TOCElem;
+  currentSlideNum?: number;
 }
 
 export function CommentReply({
@@ -34,6 +35,7 @@ export function CommentReply({
   onCancel,
   onUpdate,
   selectedSectionTOC,
+  currentSlideNum,
 }: CommentReplyProps) {
   const t = getLocaleObject(useRouter());
   const [name, setName] = useState<string | undefined>(undefined);
@@ -88,6 +90,7 @@ export function CommentReply({
           onCancel={onCancel}
           onUpdate={onUpdate}
           selectedSectionTOC={selectedSectionTOC}
+          currentSlideNum={currentSlideNum}
         />
       </div>
     </Box>

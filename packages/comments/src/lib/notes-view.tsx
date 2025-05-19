@@ -15,11 +15,13 @@ export function NotesView({
   selectedText = undefined,
   selectedElement = undefined,
   allNotesMode = false,
+  currentSlideNum = undefined,
 }: {
   file: FileLocation;
   selectedText?: string;
   selectedElement?: any;
   allNotesMode?: boolean;
+  currentSlideNum?: number;
 }) {
   const t = getLocaleObject(useRouter());
   const [userId, setUserId] = useState<string | undefined>(undefined);
@@ -74,6 +76,7 @@ export function NotesView({
           selectedElement={selectedElement}
           onUpdate={() => refreshNotes()}
           onCancel={undefined}
+          currentSlideNum={currentSlideNum}
         />
       )}
 

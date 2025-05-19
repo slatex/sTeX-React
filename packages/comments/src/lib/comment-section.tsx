@@ -127,6 +127,7 @@ export function CommentSection({
   selectedText = undefined,
   selectedElement = undefined,
   allCommentsMode = false,
+  currentSlideNum = undefined,
 }: {
   file: FileLocation;
   selectedSectionTOC?: TOCElem;
@@ -134,6 +135,7 @@ export function CommentSection({
   selectedText?: string;
   selectedElement?: any;
   allCommentsMode?: boolean;
+  currentSlideNum?: number;
 }) {
   const router = useRouter();
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
@@ -220,6 +222,7 @@ export function CommentSection({
           onUpdate={() => refreshComments()}
           onCancel={undefined}
           selectedSectionTOC={selectedSectionTOC}
+          currentSlideNum={currentSlideNum}
         />
       )}
 
