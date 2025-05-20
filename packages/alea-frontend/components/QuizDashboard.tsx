@@ -62,10 +62,10 @@ const QuizDurationInfo = ({ quizStartTs, quizEndTs, feedbackReleaseTs }) => {
         marginTop: '5px',
       }}
     >
-      <p style={{ color: '#1e4620' }}>
+      <Typography sx={{ color: '#1e4620' }}>
         Quiz is <strong>{`${quizDuration} minutes`}</strong> long, and it will take additional{' '}
         <strong>{`${feedbackDuration} minutes`}</strong> for feedback release
-      </p>
+      </Typography>
     </Box>
   );
 };
@@ -96,7 +96,8 @@ function validateQuizUpdate(
     ) {
       return {
         valid: false,
-        reason: 'Cannot update quiz: Quiz has already started, and problems cannot be added, removed, or changed.',
+        reason:
+          'Cannot update quiz: Quiz has already started, and problems cannot be added, removed, or changed.',
       };
     }
   }
@@ -309,7 +310,11 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
       <i>{Object.keys(problems).length} problems found.</i>
       <br />
 
-      {selectedQuiz && <b style={{ color: 'red' }}>{formErrorReason}</b>}
+      {selectedQuiz && (
+        <Typography sx={{ color: 'red' }} component="span" fontWeight="bold">
+          {formErrorReason}
+        </Typography>
+      )}
       <br />
       {accessType == 'MUTATE' && (
         <Button
@@ -332,8 +337,12 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
 
             if (!isNew && stats.totalStudents > 0) {
               const originalProblems = selectedQuiz?.problems || {};
-              const validation = validateQuizUpdate(originalProblems, problems, stats.totalStudents);
-              
+              const validation = validateQuizUpdate(
+                originalProblems,
+                problems,
+                stats.totalStudents
+              );
+
               if (!validation.valid) {
                 alert(`Cannot update quiz: ${validation.reason}`);
                 setIsUpdating(false);
