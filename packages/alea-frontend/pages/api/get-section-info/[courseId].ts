@@ -1,5 +1,6 @@
 import {
   ClipInfo,
+  ClipMetaData,
   getCourseInfo,
   getDocumentSections,
   SectionInfo,
@@ -110,40 +111,32 @@ export function addCoverageInfo(sections: SectionInfo[], snaps: CoverageSnap[]) 
   return;
 }
 
-function addClipInfo(
-  allSections: SectionInfo[],
-  slideCounts: { [key: string]: number },
-  jsonData: any
-) {
-  const clipDataMap: { [sectionId: string]: { [slideIndex: number]: ClipInfo[] } } = {};
+function addClipInfo(allSections: SectionInfo[], jsonData: any) {
+  const clipDataMap: { [sectionId: string]: { [slideUri: number]: ClipInfo[] } } = {};
 
   Object.entries(jsonData).forEach(
-    ([videoId, videoData]: [string, { extracted_content: { [timeStamp: number]: ClipInfo } }]) => {
-      const extractedContent: { [timeStamp: number]: ClipInfo } = videoData.extracted_content;
+    ([videoId, videoData]: [
+      string,
+      { extracted_content: { [timeStamp: number]: ClipMetaData } }
+    ]) => {
+      const extractedContent: { [timeStamp: number]: ClipMetaData } = videoData.extracted_content;
       if (!extractedContent) return;
       Object.entries(extractedContent).forEach(([timeStamp, clipData]) => {
-        const { sectionId, slideIndex } = clipData;
-        if (!sectionId || slideIndex === null) return;
+        const { sectionId, slideUri } = clipData;
+        if (!sectionId || !slideUri) return;
         if (!clipDataMap[sectionId]) {
-          const totalSlides = slideCounts[sectionId] || 0;
           clipDataMap[sectionId] = {};
-          for (let i = 1; i <= totalSlides; i++) {
-            clipDataMap[sectionId][i] = [];
-          }
         }
-        if (!clipDataMap[sectionId][slideIndex]) {
-          clipDataMap[sectionId][slideIndex] = [];
+        if (!clipDataMap[sectionId][slideUri]) {
+          clipDataMap[sectionId][slideUri] = [];
         }
-
-        clipDataMap[sectionId][slideIndex].push({
+        clipDataMap[sectionId][slideUri].push({
           video_id: videoId,
           start_time: clipData.start_time,
           end_time: clipData.end_time,
           //donot remove ocr_slide_content and slideContent
           // (kept it for debugging purpose when needed)
           // ocr_slide_content: clipData.ocr_slide_content,
-          title: clipData.title,
-          thumbnail: clipData.thumbnail,
           // slideContent: clipData.slideContent,
         });
       });
@@ -155,11 +148,7 @@ function addClipInfo(
         section.clipInfo = clipDataMap[section.id];
       } else {
         section.clipInfo = {};
-        for (let i = 1; i <= (slideCounts[section.id] || 0); i++) {
-          section.clipInfo[i] = [];
-        }
       }
-
       if (section.children && section.children.length > 0) {
         processSections(section.children);
       }
@@ -187,11 +176,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
   const coverageData = (getCoverageData()[courseId] ?? []).filter((snap) => snap.sectionName);
   if (coverageData?.length) addCoverageInfo(allSections, coverageData);
-  // TODO ALEA4-S5
-  // const videoSlides = await getVideoToSlidesMap(courseId);
-  // const slideCounts = await getSlideCounts(courseId, res);
-  // if (videoSlides && Object.keys(videoSlides).length > 0) {
-  //   addClipInfo(allSections, slideCounts, videoSlides);
-  // }
+  const videoSlides = await getVideoToSlidesMap(courseId);
+  if (videoSlides && Object.keys(videoSlides).length > 0) {
+    addClipInfo(allSections, videoSlides);
+  }
   res.status(200).send(allSections);
 }
