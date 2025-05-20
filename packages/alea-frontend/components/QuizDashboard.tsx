@@ -16,12 +16,11 @@ import {
 } from '@stex-react/api';
 import { getQuizPhase } from '@stex-react/quiz-utils';
 import { SafeHtml } from '@stex-react/react-utils';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { Action, CourseInfo, CURRENT_TERM, ResourceName, roundToMinutes } from '@stex-react/utils';
 import axios, { AxiosResponse } from 'axios';
 import dayjs from 'dayjs';
 import type { NextPage } from 'next';
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CheckboxWithTimestamp } from './CheckBoxWithTimestamp';
 import { QuizFileReader } from './QuizFileReader';
 import { QuizStatsDisplay } from './QuizStatsDisplay';
@@ -97,7 +96,6 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [canAccess, setCanAccess] = useState(false);
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
-  const { mmtUrl } = useContext(ServerLinksContext);
   const isNew = isNewQuiz(selectedQuizId);
 
   const selectedQuiz = quizzes.find((quiz) => quiz.id === selectedQuizId);
@@ -164,7 +162,7 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
   }, [quizStartTs, quizEndTs]);
   useEffect(() => {
     getCourseInfo().then(setCourses);
-  }, [mmtUrl]);
+  }, []);
 
   useEffect(() => {
     async function checkHasAccessAndGetTypeOfAccess() {
@@ -273,7 +271,9 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
           ))}
         </Select>
       </FormControl>
-      {accessType == 'MUTATE' && <QuizFileReader setCss={setCss} setTitle={setTitle} setProblems={setProblems} />}
+      {accessType == 'MUTATE' && (
+        <QuizFileReader setCss={setCss} setTitle={setTitle} setProblems={setProblems} />
+      )}
       <br />
       <i>{Object.keys(problems).length} problems found.</i>
       <br />

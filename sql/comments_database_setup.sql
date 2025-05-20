@@ -240,6 +240,7 @@ CREATE TABLE homework (
     courseId VARCHAR(255),                
     courseInstance VARCHAR(255),
     problems JSON,
+    css JSON,
     updaterId VARCHAR(255),
 
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

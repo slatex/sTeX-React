@@ -9,13 +9,12 @@ import {
   getUserInfo,
 } from '@stex-react/api';
 import { FTMLFragment } from '@stex-react/ftml-utils';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { Action, CURRENT_TERM, CourseInfo, ResourceName, isFauId } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Fragment, useContext, useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { ForceFauLogin } from '../../components/ForceFAULogin';
 import QuizPerformanceTable from '../../components/QuizPerformanceTable';
 import { getLocaleObject } from '../../lang/utils';
@@ -141,7 +140,6 @@ const QuizDashPage: NextPage = () => {
 
   const [quizList, setQuizList] = useState<QuizStubInfo[]>([]);
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
-  const { mmtUrl } = useContext(ServerLinksContext);
 
   const now = Date.now();
   const upcomingQuizzes = quizList.filter(({ quizStartTs }) => quizStartTs > now);
@@ -161,8 +159,8 @@ const QuizDashPage: NextPage = () => {
   });
 
   useEffect(() => {
-    if (mmtUrl) getCourseInfo().then(setCourses);
-  }, [mmtUrl]);
+    getCourseInfo().then(setCourses);
+  }, []);
 
   useEffect(() => {
     if (!courseId) return;
@@ -236,12 +234,7 @@ const QuizDashPage: NextPage = () => {
         </Typography>
 
         <Typography variant="body1" sx={{ color: '#333' }}>
-          <a
-            href="/quiz/quiz-a7175e81"
-            target="_blank"
-            rel="noreferrer"
-            style={{ color: 'blue' }}
-          >
+          <a href="/quiz/quiz-a7175e81" target="_blank" rel="noreferrer" style={{ color: 'blue' }}>
             {t.this}
           </a>
           &nbsp;{t.demoQuizText}

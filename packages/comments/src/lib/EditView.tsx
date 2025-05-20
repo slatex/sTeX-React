@@ -3,16 +3,17 @@ import {
   Comment,
   CommentType,
   QuestionStatus,
+  URI,
   addComment,
   editComment,
-  getUserInfo,
+  getUserInfo
 } from '@stex-react/api';
+import { MystEditor } from '@stex-react/myst';
 import { CURRENT_TERM, FileLocation } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { discardDraft, retrieveDraft, saveDraft } from './comment-helpers';
 import { getLocaleObject } from './lang/utils';
-import { MystEditor } from '@stex-react/myst';
 
 interface EditViewProps {
   file: FileLocation;
@@ -25,6 +26,7 @@ interface EditViewProps {
   hidden?: boolean;
   onCancel?: () => void;
   onUpdate: () => void;
+  uri?: URI;
 }
 
 export function EditView({
@@ -38,6 +40,7 @@ export function EditView({
   hidden = false,
   onCancel = undefined,
   onUpdate,
+  uri,
 }: EditViewProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -60,9 +63,10 @@ export function EditView({
     setInputText(retreived || '');
   }, [file, parentId, existingComment]);
 
-  function getNewComment(): Comment {
+  function getNewComment() {
     const courseTerm = courseId ? CURRENT_TERM : undefined;
     const isQuestion = needsResponse && !parentId && !isPrivateNote;
+
     return {
       commentId: -1,
       archive: file?.archive,
@@ -77,6 +81,7 @@ export function EditView({
       questionStatus: isQuestion ? QuestionStatus.UNANSWERED : undefined,
       selectedText,
       userName,
+      uri: uri,
     };
   }
 
@@ -101,11 +106,7 @@ export function EditView({
   };
 
   return (
-    <fieldset
-      hidden={hidden}
-      disabled={isLoading}
-      style={{ border: 0, margin: 0, padding: 0 }}
-    >
+    <fieldset hidden={hidden} disabled={isLoading} style={{ border: 0, margin: 0, padding: 0 }}>
       <div style={{ marginBottom: '5px' }}>
         <MystEditor
           name="comment-edit"

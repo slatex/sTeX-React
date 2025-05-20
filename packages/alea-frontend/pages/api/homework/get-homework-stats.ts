@@ -4,6 +4,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { checkIfGetOrSetError, executeAndEndSet500OnError } from '../comment-utils';
 import { getGradingItemsOrSetError } from '../common-homework-utils';
 import { getHomeworkOrSetError } from './get-homework';
+import { HomeWork } from '@mui/icons-material';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfGetOrSetError(req, res)) return;
@@ -13,6 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const instanceId = (req.query.courseInstance as string) ?? CURRENT_TERM;
   const homework = await getHomeworkOrSetError(homeworkId, true, res);
   homework.problems = JSON.parse(homework.problems.toString());
+  homework.css = JSON.parse(homework.css.toString());
   const totalStudentAttend =
     (
       await executeAndEndSet500OnError(

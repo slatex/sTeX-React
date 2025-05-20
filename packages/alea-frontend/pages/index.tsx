@@ -348,7 +348,6 @@ const StudentHomePage: NextPage = ({ filteredCourses }: { filteredCourses: Cours
     home: { newHome: n },
   } = getLocaleObject(router);
 
-  const { mmtUrl } = useContext(ServerLinksContext);
   useEffect(() => {
     async function resourcesAccessToUser() {
       const resources = await getResourcesForUser();
@@ -361,7 +360,7 @@ const StudentHomePage: NextPage = ({ filteredCourses }: { filteredCourses: Cours
       setResourcesForInstructor(resourceAccessToInstructor);
     }
     resourcesAccessToUser();
-  }, [mmtUrl]);
+  }, []);
 
   if (loggedIn) {
     return (

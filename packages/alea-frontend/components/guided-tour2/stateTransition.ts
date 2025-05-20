@@ -128,7 +128,6 @@ function updateNewStateWithNextLo(
 }
 
 async function moveOnAction(
-  mmtUrl: string,
   state: GuidedTourState,
   nextIndex: number,
   currentConceptUri: string
@@ -168,12 +167,11 @@ async function moveOnAction(
     const nextAction = { actionType: 'end' } as UserAction;
     return { newState, nextAction, newMessages };
   }
-  return await startNewConcept(newState, mmtUrl, nextIndex, true);
+  return await startNewConcept(newState, nextIndex, true);
 }
 
 async function startNewConcept(
   newState: GuidedTourState,
-  mmtUrl: string,
   nextIndex: number,
   needsInitialization: boolean
 ) {
@@ -181,7 +179,7 @@ async function startNewConcept(
   const nextConceptUri = newState.leafConceptUris[nextIndex];
   const nextConceptName = conceptUriToName(nextConceptUri);
   const response = await getLearningObjects([nextConceptUri]);
-  const result = await structureLearningObjects(mmtUrl, response['learning-objects']);
+  const result = await structureLearningObjects(response['learning-objects']);
   newState.focusConceptLo = result;
 
   newState.focusConceptInitialized = !needsInitialization;
@@ -384,7 +382,6 @@ const findNextAvailableIndex = (
 };
 
 export async function stateTransition(
-  mmtUrl: string,
   state: GuidedTourState,
   action: UserAction
 ): Promise<{ newState: GuidedTourState; newMessages: ChatMessage[]; nextAction: UserAction }> {
@@ -404,7 +401,7 @@ export async function stateTransition(
   if (action.chosenOption === 'MARK_AS_KNOWN') {
     assert(action.targetConceptUri);
     if (action.targetConceptUri === currentConceptUri) {
-      return await moveOnAction(mmtUrl, newState, nextIndex, currentConceptUri);
+      return await moveOnAction( newState, nextIndex, currentConceptUri);
     } else {
       if (!newState.completedConceptUris.includes(action.targetConceptUri))
         newState.completedConceptUris.push(action.targetConceptUri);
@@ -416,13 +413,13 @@ export async function stateTransition(
     newState.completedConceptUris = newState.completedConceptUris.filter(
       (completedUri) => completedUri !== action.targetConceptUri
     );
-    return startNewConcept(newState, mmtUrl, index, false);
+    return startNewConcept(newState, index, false);
   } else if (action.chosenOption === 'NAVIGATE') {
     assert(action.targetConceptUri);
     const index = newState.leafConceptUris.indexOf(action.targetConceptUri);
-    return startNewConcept(newState, mmtUrl, index, false);
+    return startNewConcept(newState, index, false);
   } else if (action.chosenOption === 'MOVE_ON') {
-    return moveOnAction(mmtUrl, newState, nextIndex, currentConceptUri);
+    return moveOnAction(newState, nextIndex, currentConceptUri);
   } else if (action.chosenOption === 'DONT_MOVE_ON') {
     return dontMoveOnAction(newState, action, currentConceptName);
   } else if (!state.focusConceptInitialized) {

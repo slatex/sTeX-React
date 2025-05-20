@@ -5,6 +5,7 @@ import {
   ClipInfo,
   SectionInfo,
   Slide,
+  SlideType,
   TOCElem,
   getCourseInfo,
   getDocumentSections,
@@ -187,6 +188,7 @@ const CourseViewPage: NextPage = () => {
   const [autoSync, setAutoSync] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [toc, setToc] = useState<TOCElem[]>([]);
+  const [currentSlideUri, setCurrentSlideUri] = useState<string>('');
 
   const selectedSectionTOC = useMemo(() => {
     return findSection(toc, sectionId);
@@ -363,6 +365,7 @@ const CourseViewPage: NextPage = () => {
                   setPreNotes(slide?.preNotes.map((p) => p.html) || []);
                   setPostNotes(slide?.postNotes.map((p) => p.html) || []);
                   const slideUri = getSlideUri(slide);
+                  setCurrentSlideUri(slideUri || '');
                   if (
                     slidesClipInfo &&
                     slidesClipInfo[sectionId] &&
@@ -397,7 +400,7 @@ const CourseViewPage: NextPage = () => {
               </Box>
             )}
             <CommentNoteToggleView
-              file={{ archive: 'TODO ALEA4-N8.1', filepath: 'TODO ALEA4-N8.1' }}
+              uri={currentSlideUri}
               defaultPrivate={true}
               extraPanel={{
                 label: t.instructorNotes,

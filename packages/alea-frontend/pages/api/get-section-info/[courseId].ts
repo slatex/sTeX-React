@@ -105,7 +105,7 @@ export function addCoverageInfo(sections: SectionInfo[], snaps: CoverageSnap[]) 
   for (const section of inOrderList) {
     section.clipId = snaps[snapIdx].clipId;
     section.timestamp_ms = snaps[snapIdx].timestamp_ms;
-    if (section.uri === snaps[snapIdx].sectionName) snapIdx++;
+    if (section.uri === snaps[snapIdx].sectionUri) snapIdx++;
     if (snapIdx >= snaps.length) break;
   }
   return;
@@ -174,7 +174,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (Array.isArray(elemSections)) allSections.push(...elemSections);
     else if (elemSections) allSections.push(elemSections);
   }
-  const coverageData = (getCoverageData()[courseId] ?? []).filter((snap) => snap.sectionName);
+  const coverageData = (getCoverageData()[courseId] ?? []).filter((snap) => snap.sectionUri);
   if (coverageData?.length) addCoverageInfo(allSections, coverageData);
   const videoSlides = await getVideoToSlidesMap(courseId);
   if (videoSlides && Object.keys(videoSlides).length > 0) {

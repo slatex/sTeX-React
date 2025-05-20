@@ -62,6 +62,7 @@ const SectionReview = ({
   const [definedConcepts, setDefinedConcepts] = useState<ConceptAndDefinition[] | null>(null);
   const [URIs, setURIs] = useState<string[]>([]);
   const t = getLocaleObject(useRouter());
+  const [isAccordionExpanded, setIsAccordionExpanded] = useState(false);
 
   useEffect(() => {
     if (!isLoggedIn()) return;
@@ -93,7 +94,7 @@ const SectionReview = ({
 
   return (
     <Box>
-      <Accordion>
+      <Accordion onChange={(_, isExpanded) => setIsAccordionExpanded(isExpanded)}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           sx={{ '& .MuiAccordionSummary-content': { overflow: 'hidden' } }}
@@ -126,7 +127,7 @@ const SectionReview = ({
               </Tooltip>
             ))}
           </Box>
-          <PracticeProblem sectionUri={sectionUri} showHideButton={true} />
+          <PracticeProblem sectionUri={sectionUri} showHideButton={true} isAccordionOpen={isAccordionExpanded} />
         </AccordionDetails>
       </Accordion>
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} fullWidth={true} maxWidth="lg">

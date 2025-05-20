@@ -20,9 +20,8 @@ import {
   Typography,
 } from '@mui/material';
 import { getCourseInfo } from '@stex-react/api';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { CourseInfo } from '@stex-react/utils';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface SectionDetails {
   name: string;
@@ -49,12 +48,11 @@ export const CourseConceptsDialog = ({
   const [processedOptions, setProcessedOptions] = useState<{ label: string; value: string }[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const { mmtUrl } = useContext(ServerLinksContext);
   const selectAllKey = 'Select All';
 
   useEffect(() => {
-    if (mmtUrl) getCourseInfo().then(setCourses);
-  }, [mmtUrl]);
+    getCourseInfo().then(setCourses);
+  }, []);
 
   useEffect(() => {
     async function getSections() {
@@ -62,13 +60,13 @@ export const CourseConceptsDialog = ({
       for (const courseId of Object.keys(courses)) {
         //TODO ALEA4-L1
         // const { notesArchive: archive, notesFilepath: filepath } = courses[courseId];
-        // const docSections = await getDocumentSections(mmtUrl, archive, filepath);
+        // const docSections = await getDocumentSections(archive, filepath);
         // secDetails[courseId] = getSectionDetails(docSections);
       }
       setAllSectionDetails(secDetails);
     }
     getSections();
-  }, [mmtUrl, courses]);
+  }, [courses]);
 
   const handleCourseChange = (event: SelectChangeEvent) => {
     const courseId: string = event.target.value;
@@ -86,7 +84,6 @@ export const CourseConceptsDialog = ({
     try {
       //TODO ALEA4-L1
       // const definedConcepts = await getDefiniedaInDoc(
-      //   mmtUrl,
       //   selectedSection?.archive,
       //   selectedSection?.filepath
       // );

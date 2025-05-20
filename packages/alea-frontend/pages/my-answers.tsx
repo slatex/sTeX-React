@@ -115,14 +115,12 @@ function AnswerItemDisplay({
   answer: AnswerResponse;
   onDelete: (id: number) => void;
 }) {
-  const { mmtUrl } = useContext(ServerLinksContext);
-
   const [problem, setProblem] = useState<FTMLProblemWithSolution | undefined>();
   const [answerText, setAnswerText] = useState<ProblemResponse>();
   const [gradingInfos, setGradingInfos] = useState<GradingInfo[]>([]);
   useEffect(() => {
     // TODO ALEA4-P4
-    // getLearningObjectShtml(mmtUrl, answer.questionId).then((p) => {
+    // getLearningObjectShtml(answer.questionId).then((p) => {
     //  setProblem(getProblem(p, ''));
     //});
     // let answers = {};
@@ -134,7 +132,8 @@ function AnswerItemDisplay({
     //   autogradableResponses: [],
     // });
     // getGradingItems(answer.id, +answer.subProblemId).then((g) => setGradingInfos(g));
-  }, [answer.questionId, mmtUrl]);
+  }, [answer.questionId]);
+
   return (
     <Box>
       <ProblemDisplay

@@ -383,7 +383,6 @@ function GradingItemDisplay({
   onNextGradingItem: () => void;
   onPrevGradingItem: () => void;
 }) {
-  const { mmtUrl } = useContext(ServerLinksContext);
   const [studentResponse, setStudentResponse] = useState<ProblemResponse | undefined>(undefined);
   const [problem, setProblem] = useState<FTMLProblemWithSolution | null>(
     questionMap[questionId] || null
@@ -423,8 +422,8 @@ function GradingItemDisplay({
       try {
         // TODO ALEA4-P4
         // const problemIdPrefix = questionId.replace(/\?[^?]*$/, '');
-        // const problemObject = await getProblemObject(mmtUrl, problemIdPrefix);
-        // const problemHtml = await getLearningObjectShtml(mmtUrl, problemObject);
+        // const problemObject = await getProblemObject(problemIdPrefix);
+        // const problemHtml = await getLearningObjectShtml(problemObject);
         // setProblem(getProblem(problemHtml, ''));
       } catch (error) {
         console.error('Error fetching problem:', error);

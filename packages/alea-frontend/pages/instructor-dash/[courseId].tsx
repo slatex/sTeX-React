@@ -1,10 +1,9 @@
 import { Box, Tab, Tabs } from '@mui/material';
 import { canAccessResource, getCourseInfo } from '@stex-react/api';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { Action, CourseInfo, CURRENT_TERM, ResourceName } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import CourseAccessControlDashboard from '../../components/CourseAccessControlDashboard';
 import HomeworkManager from '../../components/HomeworkManager';
 import { GradingInterface } from '../../components/nap/GradingInterface';
@@ -13,6 +12,7 @@ import QuizDashboard from '../../components/QuizDashboard';
 import { StudyBuddyModeratorStats } from '../../components/StudyBuddyModeratorStats';
 import MainLayout from '../../layouts/MainLayout';
 import { CourseHeader } from '../course-home/[courseId]';
+import CoverageUpdatePage from '../../components/coverage-update';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -26,7 +26,8 @@ type TabName =
   | 'homework-grading'
   | 'quiz-dashboard'
   | 'study-buddy'
-  | 'peer-review';
+  | 'peer-review'
+  | 'lecture-schedule';
 
 const TAB_ACCESS_REQUIREMENTS: Record<TabName, { resource: ResourceName; actions: Action[] }> = {
   'access-control': { resource: ResourceName.COURSE_ACCESS, actions: [Action.ACCESS_CONTROL] },
@@ -41,8 +42,8 @@ const TAB_ACCESS_REQUIREMENTS: Record<TabName, { resource: ResourceName; actions
   },
   'peer-review': { resource: ResourceName.COURSE_PEERREVIEW, actions: [Action.MUTATE] },
   'study-buddy': { resource: ResourceName.COURSE_STUDY_BUDDY, actions: [Action.MODERATE] },
+  'lecture-schedule': { resource: ResourceName.COURSE_ACCESS, actions: [Action.ACCESS_CONTROL] },
 };
-
 function ChosenTab({ tabName, courseId }: { tabName: TabName; courseId: string }) {
   switch (tabName) {
     case 'access-control':
@@ -57,6 +58,8 @@ function ChosenTab({ tabName, courseId }: { tabName: TabName; courseId: string }
       return <StudyBuddyModeratorStats courseId={courseId} />;
     case 'peer-review':
       return <InstructorPeerReviewViewing courseId={courseId}></InstructorPeerReviewViewing>;
+    case 'lecture-schedule':
+      return <CoverageUpdatePage />;
     default:
       return null;
   }
@@ -92,6 +95,7 @@ const TAB_MAX_WIDTH: Record<TabName, string | undefined> = {
   'homework-manager': '900px',
   'quiz-dashboard': '900px',
   'study-buddy': '900px',
+  'lecture-schedule': '1200px',
 };
 
 const InstructorDash: NextPage = () => {
@@ -99,7 +103,6 @@ const InstructorDash: NextPage = () => {
   const courseId = router.query.courseId as string;
   const tab = router.query.tab as TabName;
 
-  const { mmtUrl } = useContext(ServerLinksContext);
   const [courses, setCourses] = useState<Record<string, CourseInfo> | undefined>(undefined);
 
   const [accessibleTabs, setAccessibleTabs] = useState<TabName[]>([]);
@@ -118,8 +121,8 @@ const InstructorDash: NextPage = () => {
     );
   };
   useEffect(() => {
-    if (mmtUrl) getCourseInfo().then(setCourses);
-  }, [mmtUrl]);
+    getCourseInfo().then(setCourses);
+  }, []);
 
   useEffect(() => {
     if (!courseId) return;

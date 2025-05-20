@@ -1,5 +1,3 @@
-import { ForMe } from "../ForMe";
-
 export const en = {
   // content dashboard
   expandCollapseAll: 'Expand/collapse all',
@@ -66,12 +64,14 @@ export const en = {
     sureFinish: 'Are you sure you want to finish?',
     showSolution: 'Show Solution',
     hideSolution: 'Hide Solution',
-    practiceProblem: 'Show Practice Problem',
-    perSectionQuizButton: 'All Problems',
-    ForMe : 'For Me',
+    practiceProblem: 'Show Practice Problems',
+    perSectionQuizButton: 'All Problems ($1)',
+    ForMe : 'For Me ($1)',
     hideProblems: 'Hide All Problems',
     hideForMe: 'Hide For Me',
     hidepracticeProblem: 'Hide Practice Problems',
+    NoPracticeProblemsForMe: 'No personalized practice problems available for this section',
+    NoPracticeProblemsAll: 'No practice problems available for this section',
     answer: 'Answer',
     point: 'Point',
     submit: 'Submit',

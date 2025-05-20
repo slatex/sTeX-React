@@ -1,30 +1,19 @@
 import CheckIcon from '@mui/icons-material/Check';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Dialog,
-  IconButton,
-  Menu,
-  MenuItem,
-} from '@mui/material';
-import { canModerateComment, Comment, getUserInfo } from '@stex-react/api';
+import { Box, Button, CircularProgress, Dialog, IconButton, Menu, MenuItem } from '@mui/material';
+import { canModerateComment, Comment, getUserInfo, URI } from '@stex-react/api';
 import { ReactNode, useEffect, useReducer, useRef, useState } from 'react';
 import { CommentFilters } from './comment-filters';
-import {
-  getPublicCommentTrees,
-  refreshAllComments,
-} from './comment-store-manager';
+import { getPublicCommentTrees, refreshAllComments } from './comment-store-manager';
 import { CommentReply } from './CommentReply';
 import { CommentView } from './CommentView';
 
 import { Refresh } from '@mui/icons-material';
-import styles from './comments.module.scss';
 import { CURRENT_TERM, FileLocation } from '@stex-react/utils';
-import { getLocaleObject } from './lang/utils';
 import { useRouter } from 'next/router';
+import styles from './comments.module.scss';
+import { getLocaleObject } from './lang/utils';
 
 function RenderTree({
   comment,
@@ -82,9 +71,7 @@ function getFilteredComments(comments: Comment[], filters: CommentFilters) {
     isAnonymous: false,
     isPrivate: false,
   };
-  topShadowComment.childComments = comments.map(
-    (comment) => structuredClone(comment) as Comment
-  );
+  topShadowComment.childComments = comments.map((comment) => structuredClone(comment) as Comment);
   filters.filterHidden(topShadowComment);
   return topShadowComment.childComments;
 }
@@ -135,12 +122,14 @@ export function ButtonAndDialog({
 
 export function CommentSection({
   file,
+  uri,
   startDisplay = true,
   selectedText = undefined,
   selectedElement = undefined,
   allCommentsMode = false,
 }: {
   file: FileLocation;
+  uri?:URI;
   startDisplay?: boolean;
   selectedText?: string;
   selectedElement?: any;
@@ -169,24 +158,19 @@ export function CommentSection({
   // Menu Crap end
 
   // If the value wrapped in useRef actually never changes, we can dereference right in the declaration.
-  const filters = useRef(
-    new CommentFilters(forceUpdate, allCommentsMode, allCommentsMode)
-  ).current;
+  const filters = useRef(new CommentFilters(forceUpdate, allCommentsMode, allCommentsMode)).current;
   const [commentsFromStore, setCommentsFromStore] = useState([] as Comment[]);
   const [canAddComment, setCanAddComment] = useState(false);
   const [canModerate, setCanModerate] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const filteredComments = getFilteredComments(commentsFromStore, filters);
-  const numComments = filteredComments.reduce(
-    (sum, comment) => sum + treeSize(comment),
-    0
-  );
+  const numComments = filteredComments.reduce((sum, comment) => sum + treeSize(comment), 0);
 
   useEffect(() => {
     getUserInfo().then((userInfo) => setCanAddComment(!!userInfo?.userId));
     canModerateComment(courseId, CURRENT_TERM).then(setCanModerate);
-  }, []);
+  }, [courseId]);
 
   useEffect(() => {
     getPublicCommentTrees(file).then((c) => setCommentsFromStore(c));
@@ -235,6 +219,7 @@ export function CommentSection({
           selectedElement={selectedElement}
           onUpdate={() => refreshComments()}
           onCancel={undefined}
+          uri={uri}
         />
       )}
 
@@ -243,12 +228,7 @@ export function CommentSection({
         file={file}
         refreshComments={() => refreshComments()}
       />
-      <Menu
-        id="filter-menu"
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-      >
+      <Menu id="filter-menu" anchorEl={anchorEl} open={open} onClose={handleClose}>
         <MenuItem onClick={closeAnd(() => filters.onShowHidden())}>
           {filters.showHidden ? <CheckIcon /> : <CheckBoxOutlineBlankIcon />}
           &nbsp;{t.showHidden}
