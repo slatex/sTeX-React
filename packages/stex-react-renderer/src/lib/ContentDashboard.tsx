@@ -291,7 +291,7 @@ export function ContentDashboard({
       const resp = await axios.get('/api/get-coverage-timeline');
       const snaps = (resp.data as CoverageTimeline)?.[courseId];
       if (!snaps?.length) return;
-      const endSec = snaps[snaps.length - 1].sectionName;
+      const endSec = snaps[snaps.length - 1].sectionUri;
       const shadowTopLevel: TOCElem = { type: 'SkippedSection', children: toc };
       const covered = getCoveredSections(endSec, shadowTopLevel);
       console.log('sectionUris', covered);

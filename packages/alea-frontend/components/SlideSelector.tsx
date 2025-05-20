@@ -7,6 +7,7 @@ import { Section } from '../types';
 import { FTMLFragment } from '@stex-react/ftml-utils';
 
 interface SlidePickerProps {
+  courseId: string;
   sectionUri: string;
   slideUri: string;
   setSlideUri: (uri: string, slideNumber: number) => void;
@@ -34,6 +35,7 @@ interface AvailableSlides {
 }
 
 export function SlidePicker({
+  courseId,
   sectionUri,
   slideUri,
   setSlideUri,
@@ -63,8 +65,6 @@ export function SlidePicker({
         return;
       }
       try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const courseId = urlParams.get('courseId') || '';
         const response = await axios.get(
           `/api/get-slides?courseId=${courseId}&sectionIds=${section.id}`
         );
@@ -114,7 +114,7 @@ export function SlidePicker({
       }
     };
     fetchSlides();
-  }, [sectionUri, sectionNames]);
+  }, [sectionUri, sectionNames, courseId]);
 
   const constructUriFromId = (id: string, sectionId: string): string => {
     const slideMatch = id.match(/slide-(\d+)$/);
@@ -262,5 +262,3 @@ export function SlidePicker({
     </>
   );
 }
-
-

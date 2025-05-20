@@ -85,7 +85,7 @@ export function addVideoInfo(sections: SectionInfo[], snaps: CoverageSnap[]) {
   for (const section of inOrderList) {
     section.clipId = snaps[snapIdx].clipId;
     section.timestamp_ms = snaps[snapIdx].timestamp_ms;
-    if (section.title === snaps[snapIdx].sectionName) snapIdx++;
+    if (section.title === snaps[snapIdx].sectionUri) snapIdx++;
     if (snapIdx >= snaps.length) break;
   }
   return;

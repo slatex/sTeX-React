@@ -1,3 +1,4 @@
+import React, { Dispatch, SetStateAction, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -22,21 +23,26 @@ import QuizIcon from '@mui/icons-material/Quiz';
 import SaveIcon from '@mui/icons-material/Save';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
 
+interface FormData {
+  sectionName: string;
+  sectionUri: string;
+  clipId: string;
+  selectedTimestamp: number;
+  targetSectionName: string;
+  targetSectionUri: string;
+  isQuizScheduled: boolean;
+  slideUri: string;
+  slideNumber?: number;
+}
+
 interface CoverageFormProps {
-  formData: {
-    sectionName: string;
-    clipId: string;
-    selectedTimestamp: number;
-    targetSectionName: string;
-    isQuizScheduled: boolean;
-    slideUri: string;
-    slideNumber?: number;
-  };
-  setFormData: (data: any) => void;
+  formData: FormData;
+  setFormData: Dispatch<SetStateAction<FormData>>;
   sectionNames: Section[];
   isEditing: boolean;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: FormData) => void;
   onCancel: () => void;
+  courseId: string;
 }
 
 export function CoverageForm({
@@ -46,8 +52,40 @@ export function CoverageForm({
   isEditing,
   onSubmit,
   onCancel,
+  courseId,
 }: CoverageFormProps) {
-  const duplicateIds: string[] = findDuplicates(sectionNames.map(({ id }) => id));
+  const duplicateTitles: string[] = findDuplicates(sectionNames.map(({ title }) => title.trim()));
+
+  useEffect(() => {
+    let updatedData = { ...formData };
+    let dataChanged = false;
+
+    if (formData.sectionName && formData.sectionName.trim() !== '' && !formData.sectionUri) {
+      const section = sectionNames.find((s) => s.title.trim() === formData.sectionName.trim());
+      if (section) {
+        updatedData.sectionUri = section.uri;
+        dataChanged = true;
+      }
+    }
+
+    if (
+      formData.targetSectionName &&
+      formData.targetSectionName.trim() !== '' &&
+      !formData.targetSectionUri
+    ) {
+      const targetSection = sectionNames.find(
+        (s) => s.title.trim() === formData.targetSectionName.trim()
+      );
+      if (targetSection) {
+        updatedData.targetSectionUri = targetSection.uri;
+        dataChanged = true;
+      }
+    }
+
+    if (dataChanged) {
+      setFormData(updatedData);
+    }
+  }, [formData, sectionNames]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
@@ -67,6 +105,54 @@ export function CoverageForm({
 
   const handleSlideUriChange = (uri: string, slideNumber: number) => {
     setFormData({ ...formData, slideUri: uri, slideNumber });
+  };
+
+  const handleSectionChange = (event: any) => {
+    const selectedUri = event.target.value as string;
+
+    if (!selectedUri) {
+      setFormData({
+        ...formData,
+        sectionUri: '',
+        sectionName: '',
+        slideUri: '',
+        slideNumber: undefined,
+      });
+      return;
+    }
+
+    const selectedSection = sectionNames.find((section) => section.uri === selectedUri);
+    if (selectedSection) {
+      setFormData({
+        ...formData,
+        sectionUri: selectedUri,
+        sectionName: selectedSection.title.trim(),
+        slideUri: '',
+        slideNumber: undefined,
+      });
+    }
+  };
+
+  const handleTargetSectionChange = (event: any) => {
+    const selectedUri = event.target.value as string;
+
+    if (!selectedUri) {
+      setFormData({
+        ...formData,
+        targetSectionUri: '',
+        targetSectionName: '',
+      });
+      return;
+    }
+
+    const selectedSection = sectionNames.find((section) => section.uri === selectedUri);
+    if (selectedSection) {
+      setFormData({
+        ...formData,
+        targetSectionUri: selectedUri,
+        targetSectionName: selectedSection.title.trim(),
+      });
+    }
   };
 
   return (
@@ -103,29 +189,28 @@ export function CoverageForm({
           <InputLabel id="section-name-select-label">Actually Got-to</InputLabel>
           <Select
             labelId="section-name-select-label"
-            value={formData.sectionName}
-            onChange={(e) => {
-              setFormData({ ...formData, sectionName: e.target.value as string });
-            }}
-            name="sectionName"
+            value={formData.sectionUri}
+            onChange={handleSectionChange}
+            name="sectionUri"
             label="Actually Got-to"
           >
             <MenuItem value="">
               <em>None</em>
             </MenuItem>
-            {sectionNames.map(({ title, id }) => {
-              const isDuplicate = duplicateIds.includes(id);
+            {sectionNames.map((section) => {
+              const isDuplicate = duplicateTitles.includes(section.title.trim());
+
               return (
                 <MenuItem
-                  key={id}
-                  value={title.trim()}
+                  key={section.uri}
+                  value={section.uri}
                   sx={{
                     backgroundColor: isDuplicate ? 'rgba(255, 0, 0, 0.1)' : undefined,
                     borderLeft: isDuplicate ? '3px solid red' : undefined,
                     pl: isDuplicate ? 1 : undefined,
                   }}
                 >
-                  {title}
+                  {section.title}
                 </MenuItem>
               );
             })}
@@ -138,29 +223,28 @@ export function CoverageForm({
           <InputLabel id="target-section-select-label">Target Section</InputLabel>
           <Select
             labelId="target-section-select-label"
-            value={formData.targetSectionName}
-            onChange={(e) => {
-              setFormData({ ...formData, targetSectionName: e.target.value as string });
-            }}
-            name="targetSectionName"
+            value={formData.targetSectionUri}
+            onChange={handleTargetSectionChange}
+            name="targetSectionUri"
             label="Target Section"
           >
             <MenuItem value="">
               <em>None</em>
             </MenuItem>
-            {sectionNames.map(({ title, id }) => {
-              const isDuplicate = duplicateIds.includes(id);
+            {sectionNames.map((section) => {
+              const isDuplicate = duplicateTitles.includes(section.title.trim());
+
               return (
                 <MenuItem
-                  key={title}
-                  value={title.trim()}
+                  key={section.uri}
+                  value={section.uri}
                   sx={{
                     backgroundColor: isDuplicate ? 'rgba(255, 0, 0, 0.1)' : undefined,
                     borderLeft: isDuplicate ? '3px solid red' : undefined,
                     pl: isDuplicate ? 1 : undefined,
                   }}
                 >
-                  {title}
+                  {section.title}
                 </MenuItem>
               );
             })}
@@ -174,9 +258,8 @@ export function CoverageForm({
           Slide Selection
         </Typography>
         <SlidePicker
-          sectionUri={
-            sectionNames.find((s) => s.title.trim() === formData.sectionName.trim())?.uri || ''
-          }
+          courseId={courseId}
+          sectionUri={formData.sectionUri}
           slideUri={formData.slideUri}
           setSlideUri={handleSlideUriChange}
           sectionNames={sectionNames}
@@ -219,7 +302,7 @@ export function CoverageForm({
 
           <Button
             variant="contained"
-            color={isEditing ? 'primary' : 'primary'}
+            color="primary"
             onClick={() => onSubmit(formData)}
             startIcon={isEditing ? <SaveIcon /> : <AddIcon />}
           >
@@ -230,3 +313,5 @@ export function CoverageForm({
     </Grid>
   );
 }
+
+export default CoverageForm;
