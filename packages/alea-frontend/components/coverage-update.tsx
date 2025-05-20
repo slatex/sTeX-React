@@ -74,7 +74,6 @@ const CoverageUpdatePage: NextPage = () => {
   const [snaps, setSnaps] = useState<CoverageSnap[]>([]);
   const [savedSnaps, setSavedSnaps] = useState<CoverageSnap[]>([]);
   const [coverageTimeline, setCoverageTimeline] = useState<CoverageTimeline>({});
-  const { mmtUrl } = useContext(ServerLinksContext);
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
   const [loading, setLoading] = useState(false);
   const [saveMessage, setSaveMessage] = useState<{
@@ -201,10 +200,8 @@ const CoverageUpdatePage: NextPage = () => {
   }, []);
 
   useEffect(() => {
-    if (mmtUrl) {
-      getCourseInfo().then(setCourses);
-    }
-  }, [mmtUrl]);
+     getCourseInfo().then(setCourses);    
+  },[] );
 
   useEffect(() => {
     const getSections = async () => {
@@ -240,7 +237,7 @@ const CoverageUpdatePage: NextPage = () => {
     };
 
     getSections();
-  }, [mmtUrl, courses]);
+  }, [courses]);
 
   useEffect(() => {
     if (!router.isReady || !courseId?.length) return;
