@@ -123,7 +123,7 @@ function getCoverageHover(info?: SectionCoverageInfo) {
   if (!endTime_ms) return `Covered: ${startTimeDisplay} to -`;
   const endTimeDisplay = dayjs(endTime_ms).format('DD MMM');
   if (startTimeDisplay.substring(3, 6) === endTimeDisplay.substring(3, 6)) {
-    return `Covered: ${startTimeDisplay.substring(0,2)} to ${endTimeDisplay}`;
+    return `Covered: ${startTimeDisplay.substring(0, 2)} to ${endTimeDisplay}`;
   }
   return `Covered: ${startTimeDisplay} to ${endTimeDisplay}`;
 }
@@ -297,17 +297,17 @@ interface SectionCoverageInfo {
 
 function getPerSectionCoverageInfo(topLevel: TOCElem, coverageData: CoverageSnap[]) {
   const perSectionCoverageInfo: Record<URI, SectionCoverageInfo> = {};
-  coverageData = coverageData?.filter((snap) => snap.sectionName);
+  coverageData = coverageData?.filter((snap) => snap.sectionUri);
   if (!coverageData?.length) return perSectionCoverageInfo;
   const [preOrdered, postOrdered] = getOrderedSections(topLevel);
   const firstSectionNotStarted = coverageData.map((snap) => {
-    return getNextSectionInList(snap.sectionName, preOrdered);
+    return getNextSectionInList(snap.sectionUri, preOrdered);
   });
 
   const lastSectionCompleted = coverageData.map((snap) => {
     const isPartial = Number.isFinite(snap.slideNumber);
-    if (isPartial) return getPrevSectionInList(snap.sectionName, postOrdered);
-    return snap.sectionName;
+    if (isPartial) return getPrevSectionInList(snap.sectionUri, postOrdered);
+    return snap.sectionUri;
   });
 
   console.log('coverageData', coverageData);
@@ -330,7 +330,7 @@ function getPerSectionCoverageInfo(topLevel: TOCElem, coverageData: CoverageSnap
       if (!firstSectionNotStarted[currLecIdx]) break;
     }
     const currentSnap = coverageData[currLecIdx];
-    if (!currentSnap?.sectionName) break;
+    if (!currentSnap?.sectionUri) break;
     perSectionCoverageInfo[secUri] = {
       startTime_ms: currentSnap.timestamp_ms,
       //lastLectureIdx: currLecIdx,
@@ -340,7 +340,7 @@ function getPerSectionCoverageInfo(topLevel: TOCElem, coverageData: CoverageSnap
   for (const secUri of postOrdered) {
     if (currLecIdx >= coverageData.length) break;
     const currentSnap = coverageData[currLecIdx];
-    if (!currentSnap.sectionName) break;
+    if (!currentSnap.sectionUri) break;
     perSectionCoverageInfo[secUri].endTime_ms = currentSnap.timestamp_ms;
     perSectionCoverageInfo[secUri].lastLectureIdx = currLecIdx;
 

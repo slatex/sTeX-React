@@ -81,12 +81,12 @@ export function createCourseInfo(
 
 export interface CoverageSnap {
   timestamp_ms: number;
-  sectionName?: string;
+  sectionUri?: string;
   clipId?: string; // https://fau.tv/clip/id/{clipId}
-  targetSectionName?: string;
+  targetSectionUri?: string;
   isQuizScheduled?: boolean;
-  slideUri?: string; 
-  slideNumber?: number;
+  slideUri?: string;
+  slideNumber?: number; //Don't use this anywhere , use slideUri instead
 }
 
 export interface CoverageTimeline {
@@ -601,7 +601,7 @@ export const MaAI_COURSES: {
   'aud-mt': { courseName: 'Algorithmen und Datenstrukturen für MT' },
   'alg-ks': { courseName: 'Algorithmik kontinuierlicher Systeme' },
   'minors-ai': {
-    courseName: 'Minors in AI Master\'s program',
+    courseName: "Minors in AI Master's program",
   },
   'biomed-eng': {
     courseName: 'Biomedical Engineering',
