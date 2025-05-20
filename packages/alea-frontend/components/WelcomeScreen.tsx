@@ -218,11 +218,9 @@ async function getLastUpdatedNotes(courseId: string): Promise<ResourceDisplayInf
           ? `Last Updated: ${formattedDate}\n${pendingUpdates} updates pending`
           : `Last Updated: ${formattedDate}`;
 
-      const timeAgo = pendingUpdates > 0 ? null : calculateTimeAgo(lastUpdatedTimestamp.toString());
-
       return {
         description,
-        timeAgo,
+        timeAgo: null,
         timestamp: lastUpdatedTimestamp.toString(),
       };
     }
