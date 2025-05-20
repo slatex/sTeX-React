@@ -1,4 +1,5 @@
-import { FTMLProblemWithSolution } from "./quiz";
+import { CSS } from './flams-types';
+import { FTMLProblemWithSolution } from './quiz';
 
 export type HomeworkPhase =
   | 'UNSET'
@@ -15,6 +16,7 @@ export interface HomeworkInfo {
   feedbackReleaseTs: string;
   courseId: string;
   courseInstance: string;
+  css: CSS[];
   problems: Record<string, FTMLProblemWithSolution>;
 }
 

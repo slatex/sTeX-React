@@ -9,8 +9,9 @@ import { SearchResult, SearchResultView } from '../components/SearchResultView';
 import MainLayout from '../layouts/MainLayout';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 
-function getSearchRequest(query: string, types: string, mmtUrl: string) {
-  const url = `${mmtUrl}/:sTeX/search?query=${encodeURIComponent(query)}`;
+function getSearchRequest(query: string, types: string, ) {
+  // TODO ALEA4-N12
+  const url = `/:sTeX/search?query=${encodeURIComponent(query)}`;
   if (!types) return url;
   return url + `&types=${types}`;
 }
@@ -23,7 +24,6 @@ export const SearchPage: NextPage = () => {
   const [totalHits, setTotalHits] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-  const { mmtUrl } = useContext(ServerLinksContext);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -33,7 +33,7 @@ export const SearchPage: NextPage = () => {
     }
     setIsLoading(true);
     setResults([]);
-    axios.get(getSearchRequest(query, types, mmtUrl)).then(
+    axios.get(getSearchRequest(query, types)).then(
       (r) => {
         setIsLoading(false);
         setResults(r.data as SearchResult[]);

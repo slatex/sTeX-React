@@ -29,7 +29,7 @@ import TrafficLightIndicator from './TrafficLightIndicator';
 import { Solutions } from '@stex-react/ftml-utils';
 import { computePointsFromFeedbackJson, FTMLProblemWithSolution, ProblemResponse } from '@stex-react/api';
 
-export const ServerLinksContext = createContext({ mmtUrl: '', gptUrl: '' });
+export const ServerLinksContext = createContext({ gptUrl: '' });
 
 
 export function getPoints(problem: FTMLProblemWithSolution, response?: ProblemResponse) {

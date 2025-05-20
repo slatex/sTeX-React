@@ -16,7 +16,7 @@ import {
   Typography,
 } from '@mui/material';
 import { ClipDetails, ClipInfo } from '@stex-react/api';
-import { localStore, PathToTour2 } from '@stex-react/utils';
+import { localStore, PathToTour, PathToTour2 } from '@stex-react/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import {
@@ -180,7 +180,6 @@ const MediaItem = ({
   const prevAutoSyncRef = useRef(false);
   const router = useRouter();
   const [concepts, setConcepts] = useState<string[]>([]);
-  const { mmtUrl } = useContext(ServerLinksContext);
 
   const getDefinedConcepts = async (sectionId: string) => {
     if (!sectionId || !courseDocSections) return [];
@@ -188,7 +187,7 @@ const MediaItem = ({
     // const ancestors = getAncestors(undefined, undefined, String(sectionId), courseDocSections);
     //const sectionParentInfo = lastFileNode(ancestors);
     //const { archive, filepath } = sectionParentInfo;
-    const definedConcepts = []; // TODO ALEA4-S6 await getDefiniedaInDoc(mmtUrl, archive, filepath);
+    const definedConcepts = []; // TODO ALEA4-S6 await getDefiniedaInDoc( archive, filepath);
     if (!definedConcepts || definedConcepts.length === 0) return [];
     return [...new Set(definedConcepts.flatMap((data) => data.symbols))];
   };
@@ -484,7 +483,7 @@ const MediaItem = ({
                   >
                     {uri.split('?').pop()}
                   </Typography>
-                  <Link href={PathToTour2(uri)} target="_blank" style={{ textDecoration: 'none' }}>
+                  <Link href={PathToTour(uri)} target="_blank" style={{ textDecoration: 'none' }}>
                     <Tooltip title="Take a guided tour" arrow>
                       <IconButton
                         sx={{

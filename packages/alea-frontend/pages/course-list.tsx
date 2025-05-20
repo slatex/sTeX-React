@@ -1,31 +1,27 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Typography } from '@mui/material';
 import { ArchiveIndex, DocIdxType, getCourseInfo, getDocIdx, Institution } from '@stex-react/api';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { CourseInfo, PRIMARY_COL } from '@stex-react/utils';
 import { NextPage } from 'next';
 import Link from 'next/link';
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import MainLayout from '../layouts/MainLayout';
 import { CourseThumb } from './u/[institution]';
 
 const CourseList: NextPage = () => {
-  const { mmtUrl } = useContext(ServerLinksContext);
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
   const [docIdx, setDocIdx] = useState<(ArchiveIndex | Institution)[]>([]);
   useEffect(() => {
     const fetchData = async () => {
-      if (mmtUrl) {
-        const docIdxData = await getDocIdx(mmtUrl);
-        console.log({ docIdxData });
-        setDocIdx(docIdxData);
+      const docIdxData = await getDocIdx();
+      console.log({ docIdxData });
+      setDocIdx(docIdxData);
 
-        const courseInfoData = await getCourseInfo();
-        setCourses(courseInfoData);
-      }
+      const courseInfoData = await getCourseInfo();
+      setCourses(courseInfoData);
     };
     fetchData();
-  }, [mmtUrl]);
+  }, []);
   const groupedCourses: { [institution: string]: CourseInfo[] } = {};
   Object.values(courses).forEach((course) => {
     if (!groupedCourses[course.institution]) {

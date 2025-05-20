@@ -73,7 +73,6 @@ function SectionPicker({
   sectionParentId: string;
   onChange: (value: string) => void;
 }) {
-  const { mmtUrl } = useContext(ServerLinksContext);
   const [sections, setSectionNames] = useState<{ name: string; parentFile: FileLocation }[]>([]);
   const fileLoc = stringToFileLoc(sectionParentId);
 
@@ -82,12 +81,12 @@ function SectionPicker({
       // TODO ALEA4-M3
       // const archive = 'MiKoMH/AI';
       // const filepath = 'course/notes/notes1.tex';
-      // const docSections = await getDocumentSections(mmtUrl, archive, filepath);
+      // const docSections = await getDocumentSections(archive, filepath);
       // const s = getSectionNames(docSections);
       // setSectionNames(s);
     }
     getSections();
-  }, [mmtUrl]);
+  }, []);
 
   return (
     <>
@@ -117,7 +116,6 @@ function SectionPicker({
         href={
           ''
           // TODO ALEA4-M3
-          // mmtUrl +
           // fullDocumentUrl({
           //   archive: fileLoc.archive,
           //   filepath: fileLoc.filepath.replace('.tex', '.xhtml'),
@@ -150,7 +148,6 @@ function AssignmentValueInput({
   value: string;
   onChange: (value: string) => void;
 }) {
-  const { mmtUrl } = useContext(ServerLinksContext);
   const isSectionStex = assignKey.startsWith('SECTION_STEX');
   const isSectionTidyStex = assignKey.startsWith('SECTION_TIDY_STEX');
   if (isSectionStex || isSectionTidyStex)
@@ -187,7 +184,7 @@ function AssignmentValueInput({
         ))}
       {isUriDefMd && (
         <a
-          href={`${mmtUrl}/:sTeX/declaration?${value}`}
+          href={`/:sTeX/declaration?${value}`}
           style={{ textDecoration: 'underline' }}
           target="_blank"
         >

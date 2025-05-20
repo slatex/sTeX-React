@@ -357,13 +357,10 @@ const handleResourceClick = (
 };
 
 function MyCourses({ enrolledCourseIds }) {
-  const { mmtUrl } = useContext(ServerLinksContext);
   const [allCourses, setAllCourses] = useState<Record<string, CourseInfo>>({});
   useEffect(() => {
-    getCourseInfo().then((res) => {
-      setAllCourses(res);
-    });
-  }, [mmtUrl]);
+    getCourseInfo().then(setAllCourses);
+  }, []);
   return (
     <>
       <Typography

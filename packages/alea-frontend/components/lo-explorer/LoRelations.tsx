@@ -1,4 +1,5 @@
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { Accordion, AccordionDetails, AccordionSummary, Box, Typography } from '@mui/material';
 import {
   ALL_DIM_CONCEPT_PAIR,
   ALL_LO_RELATION_TYPES,
@@ -8,17 +9,11 @@ import {
   getSparqlQueryForLoRelationToNonDimConcept,
   LoRelationToDimAndConceptPair,
   LoRelationToNonDimConcept,
-  sparqlQuery,
   SparqlResponse,
 } from '@stex-react/api';
-import { Accordion, AccordionDetails, AccordionSummary, Box, Typography } from '@mui/material';
+import { DimAndURIListDisplay, URIListDisplay } from '@stex-react/stex-react-renderer';
 import { capitalizeFirstLetter, PRIMARY_COL } from '@stex-react/utils';
-import {
-  DimAndURIListDisplay,
-  ServerLinksContext,
-  URIListDisplay,
-} from '@stex-react/stex-react-renderer';
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 function processDimAndConceptData(result: SparqlResponse) {
   try {
@@ -104,7 +99,6 @@ const LoRelations = ({
   uri: string;
   displayReverseRelation?: (conceptUri: string) => void;
 }) => {
-  const { mmtUrl } = useContext(ServerLinksContext);
   const [data, setData] = useState<Record<AllLoRelationTypes, string>>({
     objective: '',
     precondition: '',
@@ -123,8 +117,8 @@ const LoRelations = ({
         const nonDimConceptQuery = getSparqlQueryForLoRelationToNonDimConcept(uri);
 
         const [dimConceptResult, nonDimConceptResult] = await Promise.all([
-          sparqlQuery(mmtUrl, dimConceptQuery),
-          sparqlQuery(mmtUrl, nonDimConceptQuery),
+          undefined, // sparqlQuery(dimConceptQuery), // TODO ALEA4-L1
+          undefined, // sparqlQuery(nonDimConceptQuery),
         ]);
 
         const dimConceptData = processDimAndConceptData(dimConceptResult);

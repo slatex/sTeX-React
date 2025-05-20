@@ -1,16 +1,15 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, IconButton, Tooltip } from '@mui/material';
 import LinearProgress from '@mui/material/LinearProgress';
-import { FTMLProblemWithSolution, getLearningObjectShtml } from '@stex-react/api';
+import { FTMLProblemWithSolution } from '@stex-react/api';
 import { ProblemResponse } from '@stex-react/ftml-utils';
 import { SafeHtml } from '@stex-react/react-utils';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useReducer, useState } from 'react';
+import { useEffect, useReducer, useState } from 'react';
+import { handleViewSource } from './PerSectionQuiz';
 import { ProblemDisplay } from './ProblemDisplay';
 import { ListStepper } from './QuizDisplay';
 import { getLocaleObject } from './lang/utils';
-import { ServerLinksContext } from './stex-react-renderer';
-import { handleViewSource } from './PerSectionQuiz';
 
 function SourceIcon({ problemUri }: { problemUri: string }) {
   return (
@@ -29,7 +28,6 @@ export function PracticeQuestions({
   showButtonFirst?: boolean;
 }) {
   const t = getLocaleObject(useRouter()).quiz;
-  const { mmtUrl } = useContext(ServerLinksContext);
   const [problems, setProblems] = useState<FTMLProblemWithSolution[]>([]);
   const [isLoadingProblems, setIsLoadingProblems] = useState<boolean>(true);
   const [responses, setResponses] = useState<ProblemResponse[]>([]);
@@ -39,16 +37,18 @@ export function PracticeQuestions({
   const [showSolution, setShowSolution] = useState(false);
 
   useEffect(() => {
-    const problems$ = problemUris.map((p) => getLearningObjectShtml(mmtUrl, p));
+    // TODO ALEA4-P3
+    /*
+    const problems = problemStrs.map((p) => getProblem(p, ''));
     setIsLoadingProblems(true);
+    const problems$ =  problemUris.map((p) => getLearningObjectShtml( p));
     Promise.all(problems$).then((problemStrs) => {
-      // TODO ALEA4-P4 const problems = problemStrs.map((p) => getProblem(p, ''));
       // setProblems(problems);
       // setResponses(problems.map((p) => defaultProblemResponse(p)));
       setIsFrozen(problems.map(() => false));
       setIsLoadingProblems(false);
-    });
-  }, [problemUris, mmtUrl]);
+    });*/
+  }, [problemUris]);
 
   if (!problemUris.length) return !showButtonFirst && <i>No problems found.</i>;
   if (isLoadingProblems) return <LinearProgress />;

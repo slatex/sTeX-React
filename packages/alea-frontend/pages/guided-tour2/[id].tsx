@@ -1,11 +1,6 @@
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
-import {
-  conceptUriToName,
-  getLeafConcepts,
-  getLearningObjects,
-  getLearningObjectShtml,
-  LoType,
-} from '@stex-react/api';
+import { conceptUriToName, getLeafConcepts, getLearningObjects, LoType } from '@stex-react/api';
+import { ProblemResponse } from '@stex-react/ftml-utils';
 import { LayoutWithFixedMenu, ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { shouldUseDrawer } from '@stex-react/utils';
 import { useRouter } from 'next/router';
@@ -22,17 +17,16 @@ import {
 } from '../../constants/messages';
 import MainLayout from '../../layouts/MainLayout';
 import styles from '../../styles/guided-tour.module.scss';
-import { ProblemResponse } from '@stex-react/ftml-utils';
 
 export const structureLearningObjects = async (
-  mmtUrl: string,
   learningObjects: { 'learning-object': string; type: LoType }[]
 ) => {
   const structured: Partial<Record<LoType, { uris: string[]; currentIdx: number }>> = {};
   const problemUrls = learningObjects
     .filter((o) => o.type === 'problem')
     .map((o) => o['learning-object']);
-  const problemStrs$ = problemUrls.map((uri) => getLearningObjectShtml(mmtUrl, uri));
+  // TODO ALEA4-G1
+  const problemStrs$ = [Promise.resolve('')]; //problemUrls.map((uri) => getLearningObjectShtml(uri));
   const isAutogradable: Record<string, boolean> = {};
   const problemStrs = await Promise.all(problemStrs$);
   for (let i = 0; i < problemUrls.length; i++) {
@@ -205,7 +199,6 @@ const GuidedTours = () => {
   const [userAction, setUserAction] = useState<UserAction | undefined>(undefined);
   const [problemResponse, setProblemResponse] = useState<ProblemResponse | undefined>(undefined);
   const [quotient, setQuotient] = useState<number>(0);
-  const { mmtUrl } = useContext(ServerLinksContext);
   const [pendingMessages, setPendingMessages] = useState<ChatMessage[]>([]);
   const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
 
@@ -230,7 +223,7 @@ const GuidedTours = () => {
         const focusConceptIdx = 0;
         const firstLeafConceptName = conceptUriToName(leafConceptUris[focusConceptIdx]);
         const response = await getLearningObjects([leafConceptUris[focusConceptIdx]]);
-        const focusConceptLo = await structureLearningObjects(mmtUrl, response['learning-objects']);
+        const focusConceptLo = await structureLearningObjects(response['learning-objects']);
         setTourState({
           targetConceptUri,
           leafConceptUris,
@@ -259,7 +252,7 @@ const GuidedTours = () => {
   }, [router.isReady]);
 
   const onAction = async (action: UserAction) => {
-    const { newState, newMessages, nextAction } = await stateTransition(mmtUrl, tourState, action);
+    const { newState, newMessages, nextAction } = await stateTransition(tourState, action);
     setTourState(newState);
     // TODO: Remove this 'skipConvUpdate' hack once we have separated out UserAction and UserConvOptions.
     const skipConvUpdate = action.chosenOption === 'MARK_AS_KNOWN' && !nextAction;

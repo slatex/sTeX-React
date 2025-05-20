@@ -1,19 +1,10 @@
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Box, IconButton } from '@mui/material';
-import {
-  FTMLProblemWithSolution,
-  GradingWithAnswer,
-  getLearningObjectShtml,
-} from '@stex-react/api';
+import { FTMLProblemWithSolution, GradingWithAnswer } from '@stex-react/api';
 import { ProblemResponse } from '@stex-react/ftml-utils';
-import {
-  GradingContext,
-  ProblemDisplay,
-  ServerLinksContext,
-  ShowGradingFor,
-} from '@stex-react/stex-react-renderer';
+import { GradingContext, ProblemDisplay, ShowGradingFor } from '@stex-react/stex-react-renderer';
 import dayjs from 'dayjs';
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 export function PeerReviewGradedItemDisplay({
   grade,
   onDelete,
@@ -21,15 +12,13 @@ export function PeerReviewGradedItemDisplay({
   grade: GradingWithAnswer;
   onDelete: (id: number) => void;
 }) {
-  const { mmtUrl } = useContext(ServerLinksContext);
-
   const [problem, setProblem] = useState<FTMLProblemWithSolution>();
   const [answerText, setAnswerText] = useState<ProblemResponse>();
   useEffect(() => {
-    getLearningObjectShtml(mmtUrl, grade.questionId).then((p) => {
-      // setProblem(getProblem(p, ''));
-    });
     // TODO ALEA4-P4
+    // //getLearningObjectShtml(grade.questionId).then((p) => {
+    // setProblem(getProblem(p, ''));
+    //});
     // setAnswerText({
     //   freeTextResponses: { [grade.subProblemId]: grade.answer },
     //   autogradableResponses: [],

@@ -98,7 +98,6 @@ const SearchCourseNotes = ({
   const [searchQuery, setSearchQuery] = useState<string>(query);
   const [references, setReferences] = useState<GptSearchResult[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const { mmtUrl } = useContext(ServerLinksContext);
   const [sectionData, setSectionData] = useState<undefined>();
 
   useEffect(() => {
@@ -107,13 +106,13 @@ const SearchCourseNotes = ({
 
   useEffect(() => {
     const fetchSectionData = async () => {
-      if (!mmtUrl || !courseId) return;
+      if (!courseId) return;
       try {
         const courseInfo = await getCourseInfo();
         //TODO ALEA4-N12
         // const { notesArchive: archive, notesFilepath: filepath } = courseInfo[courseId] || {};
         // if (archive && filepath) {
-        //   const sections = await getDocumentSections(mmtUrl, archive, filepath);
+        //   const sections = await getDocumentSections( archive, filepath);
         //   setSectionData(sections);
         // }
       } catch (error) {
@@ -122,7 +121,7 @@ const SearchCourseNotes = ({
     };
 
     fetchSectionData();
-  }, [courseId, mmtUrl]);
+  }, [courseId]);
 
   async function handleSearch() {
     if (!searchQuery || !courseId) return;

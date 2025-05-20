@@ -85,8 +85,11 @@ async function getSlidesFromToc(elems: TOCElem[], bySection: Record<string, Slid
   for (const elem of elems) {
     if (elem.type === 'Section') {
       const secId = elem.id;
-      const [css, slideElems] = await getSectionSlides(elem.uri);
-      bySection[secId] = await recursivelyExpandSlideElementsExcludeSections(slideElems, secId);
+      const slideData = await getSectionSlides(elem.uri);
+      if (slideData) {
+        const [css, slideElems] = slideData;
+        bySection[secId] = await recursivelyExpandSlideElementsExcludeSections(slideElems, secId);
+      }
     }
     if ('children' in elem) {
       await getSlidesFromToc(elem.children, bySection);

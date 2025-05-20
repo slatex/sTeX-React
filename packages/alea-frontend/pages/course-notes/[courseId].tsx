@@ -59,15 +59,18 @@ const SearchDialog = ({ open, onClose, courseId }) => {
   };*/
 };
 
-const SectionWrap: React.FC<{
+const FragmentWrap: React.FC<{
   uri: string;
+  fragmentKind: 'Section' | 'Slide' | 'Paragraph';
   children: ReactNode;
   uriToTitle: Record<string, string>;
-}> = ({ uri, children, uriToTitle }) => {
+}> = ({ uri, fragmentKind, children, uriToTitle }) => {
   return (
-    <Box>
+    <Box fragment-uri={uri} fragment-kind={fragmentKind}>
       {children}
-      <SectionReview sectionUri={uri} sectionTitle={uriToTitle[uri] ?? ''} />
+      {fragmentKind === 'Section' && (
+        <SectionReview sectionUri={uri} sectionTitle={uriToTitle[uri] ?? ''} />
+      )}
     </Box>
   );
 };
@@ -111,10 +114,12 @@ const CourseNotesPage: NextPage = () => {
       try {
         const response = await axios.get('/api/get-coverage-timeline');
         const currentSemData: CoverageSnap[] = response.data[courseId] || [];
-        const coverageData = currentSemData.map((item) => ({
-          uri: item.sectionUri,
-          timestamp: item.timestamp_ms,
-        }));
+        const coverageData = currentSemData
+          .filter((item) => item.sectionUri)
+          .map((item) => ({
+            uri: item.sectionUri,
+            timestamp: item.timestamp_ms,
+          }));
         setGottos(coverageData);
       } catch (error) {
         setGottos([]);
@@ -141,9 +146,15 @@ const CourseNotesPage: NextPage = () => {
           key={notes}
           document={{ uri: notes, toc: { Predefined: toc }, gottos }}
           onFragment={(uri, kind) => {
-            if (kind.type === 'Section') {
+            if (kind.type === 'Section' || kind.type === 'Slide') {
+              //|| kind.type==='Paragraph' // 'Paragraph' causes jumps on hover* TODO ALEA4-N8.1
               return (ch) => (
-                <SectionWrap uri={uri} children={ch} uriToTitle={uriToTitle.current} />
+                <FragmentWrap
+                  uri={uri}
+                  fragmentKind={kind.type}
+                  children={ch}
+                  uriToTitle={uriToTitle.current}
+                />
               );
             }
           }}
