@@ -198,7 +198,7 @@ export function CoverageForm({
               <em>None</em>
             </MenuItem>
             {sectionNames.map((section) => {
-              const isDuplicate = duplicateTitles.includes(section.title.trim());
+              const isDuplicate = false;// duplicateTitles.includes(section.title.trim());
 
               return (
                 <MenuItem

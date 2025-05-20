@@ -5,11 +5,6 @@ import { Section } from '../types';
 import { CoverageTable } from './CoverageTable';
 import { CoverageForm } from './CoverageForm';
 
-export function getUriForSectionName(sectionName: string, sectionNames: Section[]): string {
-  const section = sectionNames.find(({ title }) => title.trim() === sectionName);
-  return section?.uri || '';
-}
-
 export function getSectionNameForUri(uri: string, sectionNames: Section[]): string {
   const section = sectionNames.find(({ uri: sectionUri }) => sectionUri === uri);
   return section?.title.trim() || '';
