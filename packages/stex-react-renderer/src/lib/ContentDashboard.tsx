@@ -378,8 +378,6 @@ export function ContentDashboard({
       if (!courseId || !toc?.length) return;
       const resp = await axios.get('/api/get-coverage-timeline');
       const snaps = (resp.data as CoverageTimeline)?.[courseId];
-      if (!snaps?.length) return;
-      const endSec = snaps[snaps.length - 1].sectionUri;
       const shadowTopLevel: TOCElem = { type: 'SkippedSection', children: toc };
       setPerSectionCoverageInfo(getPerSectionCoverageInfo(shadowTopLevel, snaps));
     }
