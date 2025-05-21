@@ -18,7 +18,7 @@ import {
   Box,
   Typography,
 } from '@mui/material';
-import { recorrectQuiz } from '@stex-react/api';
+import { recorrectQuiz, FTMLProblemWithSolution } from '@stex-react/api';
 
 interface RecorrectionChange {
   gradingId: number;
@@ -26,6 +26,14 @@ interface RecorrectionChange {
   oldPoints: number;
   newPoints: number;
   studentId?: string;
+}
+
+// For the recorrectQuiz API response
+interface RecorrectionApiResponse {
+  changedCount: number;
+  changes: RecorrectionChange[];
+  missingProblems: string[];
+  problems: Record<string, { title_html: string } | FTMLProblemWithSolution>;
 }
 
 interface RecorrectionDialogProps {
@@ -46,6 +54,7 @@ export const RecorrectionDialog: React.FC<RecorrectionDialogProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isDryRun, setIsDryRun] = useState(true);
   const [changes, setChanges] = useState<RecorrectionChange[]>([]);
+  const [titles, setTitles] = useState<Record<string, { title_html: string } | FTMLProblemWithSolution>>({});
   const [changedCount, setChangedCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -66,6 +75,7 @@ export const RecorrectionDialog: React.FC<RecorrectionDialogProps> = ({
       const result = await recorrectQuiz(quizId, courseId, courseTerm, true);
       setChanges(result.changes);
       setChangedCount(result.changedCount);
+      setTitles(result.problems);
       setIsDryRun(true);
     } catch (err) {
       setError('Failed to preview recorrection: ' + (err.message || 'Unknown error'));
@@ -129,31 +139,67 @@ export const RecorrectionDialog: React.FC<RecorrectionDialogProps> = ({
               <Table stickyHeader size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Student ID</TableCell>
                     <TableCell>Problem ID</TableCell>
-                    <TableCell align="right">Old Points</TableCell>
-                    <TableCell align="right">New Points</TableCell>
-                    <TableCell align="right">Difference</TableCell>
+                    <TableCell>Reason</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {changes.map((change) => (
-                    <TableRow key={change.gradingId}>
-                      <TableCell>{change.studentId || 'Unknown'}</TableCell>
+                  {Array.from(
+                    new Set(changes.map((change) => change.problemId))
+                  ).map((problemId) => {
+                    const problem = titles[problemId];
+                    const title =
+                      'title_html' in problem && typeof problem.title_html === 'string'
+                        ? problem.title_html
+                        : problemId;
+                    return (
+                      <TableRow key={problemId}>
+                        <TableCell>
+                          {title}
+                        </TableCell>
+                        <TableCell>
+                          <input
+                            type="text"
+                            placeholder="Enter reason/description"
+                            style={{ width: '100%' }}
+                            value={''}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TableContainer component={Paper} sx={{ mt: 2, maxHeight: 400 }}>
+              <Table stickyHeader size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Problem ID</TableCell>
+                    <TableCell align="right">Old Points</TableCell>
+                    <TableCell align="right">New Points</TableCell>
+                    <TableCell align="right">Number of Entry</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                    {Array.from(
+                    changes.reduce((acc, change) => {
+                      if (!acc.has(change.problemId)) {
+                      // Count number of entries for this problemId
+                      const count = changes.filter(c => c.problemId === change.problemId && c.studentId).length;
+                      acc.set(change.problemId, { ...change, entryCount: count });
+                      }
+                      return acc;
+                    }, new Map<string, { entryCount: number } & RecorrectionChange>())
+                    .values()
+                    ).map((change) => (
+                    <TableRow key={change.problemId}>
                       <TableCell>{change.problemId}</TableCell>
                       <TableCell align="right">{change.oldPoints.toFixed(2)}</TableCell>
                       <TableCell align="right">{change.newPoints.toFixed(2)}</TableCell>
-                      <TableCell 
-                        align="right"
-                        sx={{
-                          color: change.newPoints > change.oldPoints ? 'green' : 'red',
-                          fontWeight: 'bold'
-                        }}
-                      >
-                        {(change.newPoints - change.oldPoints).toFixed(2)}
-                      </TableCell>
+                      <TableCell align="right">{change.entryCount}</TableCell>
                     </TableRow>
-                  ))}
+                    ))}
                 </TableBody>
               </Table>
             </TableContainer>

@@ -138,10 +138,19 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       console.info('No grading records needed recorrection.');
     }
 
+    // Build problemsWithTitleHtml for response
+    const problemsWithTitleHtml = {};
+    for (const [problemId, problemObj] of Object.entries(quiz.problems)) {
+      problemsWithTitleHtml[problemId] = {
+        title_html: problemObj.problem?.title_html || '',
+      };
+    }
+
     return res.status(200).json({
       changedCount: changes.length,
       changes,
       missingProblems: missingIds,
+      problems: problemsWithTitleHtml,
     });
   } catch (error) {
     console.error('Error in recorrection:', error);
