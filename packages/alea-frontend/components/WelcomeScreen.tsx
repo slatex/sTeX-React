@@ -28,7 +28,6 @@ import {
   QuestionStatus,
   UserInfo,
 } from '@stex-react/api';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import {
   Action,
   CourseInfo,
@@ -41,7 +40,7 @@ import {
 import dayjs from 'dayjs';
 import Link from 'next/link';
 import { NextRouter, useRouter } from 'next/router';
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 import { BannerSection, CourseCard, VollKiInfoSection } from '../pages';
@@ -91,6 +90,10 @@ const getTimeAgoColor = (timestamp: string | null): string => {
 };
 
 const getColoredDescription = (text: string) => {
+  if (text?.includes('updates pending')) {
+    return <span style={{ color: 'red' }}>{text}</span>;
+  }
+
   const match = text.match(/(Unanswered Questions|Ungraded Problems) - (\d+)\/(\d+)/);
   if (match) {
     const [, keyword, count, total] = match;
@@ -183,25 +186,57 @@ async function getLastUpdatedNotes(courseId: string): Promise<ResourceDisplayInf
   try {
     const coverageData = await getCoverageTimeline();
     const courseData = coverageData[courseId];
-    if (courseData && courseData.length > 0) {
-      const entriesWithSectionName = courseData.filter(
-        (entry) => entry.sectionName && entry.sectionName.trim() !== ''
-      );
 
-      if (entriesWithSectionName.length > 0) {
-        const timestamp = entriesWithSectionName.reduce((acc, curr) => {
-          return acc > curr.timestamp_ms ? acc : curr.timestamp_ms;
-        }, entriesWithSectionName[0].timestamp_ms);
-
-        const description = `Last Updated: ${dayjs(timestamp).format('YYYY-MM-DD')}`;
-        const timeAgo = calculateTimeAgo(timestamp.toString());
-        return { description, timeAgo, timestamp: timestamp.toString() };
-      }
+    if (!courseData || courseData.length === 0) {
+      return { description: 'No updates available', timeAgo: null, timestamp: null };
     }
-    return { description: null, timeAgo: null, timestamp: null };
+
+    const entriesWithSection = courseData.filter(
+      (entry) => entry.sectionUri && entry.sectionUri.trim() !== ''
+    );
+
+    let latestValidUpdate = null;
+    if (entriesWithSection.length > 0) {
+      latestValidUpdate = entriesWithSection.reduce(
+        (latest, current) =>
+          dayjs(current.timestamp_ms).isAfter(dayjs(latest.timestamp_ms)) ? current : latest,
+        entriesWithSection[0]
+      );
+    }
+
+    const lastUpdatedTimestamp = latestValidUpdate?.timestamp_ms ?? null;
+
+    const pendingUpdates = courseData.filter((entry) => {
+      return !entry.sectionUri && entry.timestamp_ms < Date.now();
+    }).length;
+
+    if (lastUpdatedTimestamp) {
+      const formattedDate = dayjs(lastUpdatedTimestamp).format('YYYY-MM-DD');
+
+      const description =
+        pendingUpdates > 0
+          ? `Last Updated: ${formattedDate}\n${pendingUpdates} updates pending`
+          : `Last Updated: ${formattedDate}`;
+
+      return {
+        description,
+        timeAgo: null,
+        timestamp: lastUpdatedTimestamp.toString(),
+      };
+    }
+
+    if (pendingUpdates > 0) {
+      return {
+        description: `${pendingUpdates} updates pending`,
+        timeAgo: null,
+        timestamp: null,
+      };
+    }
+
+    return { description: 'No updates available', timeAgo: null, timestamp: null };
   } catch (error) {
     console.error('Error fetching course data:', error);
-    return { description: null, timeAgo: null, timestamp: null };
+    return { description: 'Failed to load updates', timeAgo: null, timestamp: null };
   }
 }
 
@@ -290,7 +325,7 @@ const handleResourceClick = (
   const { courseId, name } = resource;
   let url = '';
   if (name === ResourceName.COURSE_NOTES) {
-    url = `coverage-update?courseId=${courseId}`;
+    url = `instructor-dash/${courseId}?tab=lecture-schedule`;
   } else if (name === ResourceName.COURSE_HOMEWORK) {
     if (action === Action.INSTRUCTOR_GRADING) {
       url = `instructor-dash/${courseId}?tab=homework-grading`;

@@ -186,7 +186,7 @@ function SlideRenderer({ slide }: { slide: Slide }) {
   }
 }
 
-function getSlideUri(slide: Slide) {
+export function getSlideUri(slide: Slide) {
   if (!slide) return undefined;
   if (slide.slideType === SlideType.FRAME) {
     return slide.slide?.uri;
@@ -217,7 +217,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
   slideNum?: number;
   slidesClipInfo?: {
     [sectionId: string]: {
-      [slideNumber: number]: ClipInfo[];
+      [slideUri: string]: ClipInfo[];
     };
   };
   topLevelDocUrl?: string;
@@ -269,7 +269,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
     const selectedSlide = slides[slideNum - 1];
     setCurrentSlide(selectedSlide);
     onSlideChange?.(selectedSlide);
-  }, [sectionId, loadedSectionId, slides, slideNum, router]);
+  }, [sectionId, loadedSectionId, slides, slideNum, router, slidesClipInfo]);
 
   function formatDuration(seconds: number) {
     const hours = Math.floor(seconds / 3600);
@@ -287,31 +287,31 @@ export const SlideDeck = memo(function SlidesFromUrl({
   function getClipsFromVideoData(
     slidesClipInfo: {
       [sectionId: string]: {
-        [slideNumber: number]: ClipInfo[];
+        [slideUri: string]: ClipInfo[];
       };
     },
     sectionId: string,
-    slideIndex: number
+    slideUri: string
   ) {
-    if (!slidesClipInfo || !slidesClipInfo[sectionId] || !slidesClipInfo[sectionId][slideIndex])
+    if (!slidesClipInfo || !slidesClipInfo[sectionId] || !slidesClipInfo[sectionId][slideUri])
       return [];
 
-    return (slidesClipInfo[sectionId]?.[slideIndex] || []).map((item, index) => ({
-      id: (index + 1).toString(),
-      video_id: item.video_id,
-      title: `Clip no. ${index + 1} of slide ${slideIndex} - ${
-        item.title || 'Untitled'
-      } || VideoId : ${item.video_id}`,
-      thumbnail: item.thumbnail || 'https://courses.voll-ki.fau.de/fau_kwarc.png',
-      start_time: item.start_time,
-      end_time: item.end_time,
-      duration: `${formatDuration((item.end_time ?? 0) - (item.start_time ?? 0))} (${formatDuration(
-        item.start_time ?? 0
-      )} → ${formatDuration(item.end_time ?? 0)})`,
-    }));
+    return (slidesClipInfo[sectionId]?.[slideUri] || []).map((item, index) => {
+      return {
+        id: (index + 1).toString(),
+        video_id: item.video_id,
+        title: `Clip no. ${index + 1}  || VideoId : ${item.video_id}`,
+        thumbnail: 'https://courses.voll-ki.fau.de/fau_kwarc.png',
+        start_time: item.start_time,
+        end_time: item.end_time,
+        duration: `${formatDuration(
+          (item.end_time ?? 0) - (item.start_time ?? 0)
+        )} (${formatDuration(item.start_time ?? 0)} → ${formatDuration(item.end_time ?? 0)})`,
+      };
+    });
   }
 
-  const clips = getClipsFromVideoData(slidesClipInfo, sectionId, slideNum);
+  const clips = getClipsFromVideoData(slidesClipInfo, sectionId, getSlideUri(currentSlide));
 
   if (isLoading) {
     return (
@@ -373,7 +373,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
         )}
 
         <Box display="flex" justifyContent="flex-end" flex={1}>
-          {!audioOnly && slides.length > 0 && videoLoaded && (
+          {!audioOnly && slides.length > 0 && videoLoaded && clips.length > 0 && (
             <ClipSelector clips={clips} onClipChange={onClipChange} />
           )}
           <SlideNavBar

@@ -1,14 +1,9 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, Paper, useTheme } from '@mui/material';
 import { CoverageSnap } from '@stex-react/utils';
 import { Section } from '../types';
 import { CoverageTable } from './CoverageTable';
 import { CoverageForm } from './CoverageForm';
-
-export function getUriForSectionName(sectionName: string, sectionNames: Section[]): string {
-  const section = sectionNames.find(({ title }) => title.trim() === sectionName);
-  return section?.uri || '';
-}
 
 export function getSectionNameForUri(uri: string, sectionNames: Section[]): string {
   const section = sectionNames.find(({ uri: sectionUri }) => sectionUri === uri);
@@ -34,49 +29,76 @@ export function getNoonTimestampOnSameDay(timestamp: number) {
   return new Date(timestamp).setHours(12, 0, 0, 0);
 }
 
+function convertSnapToEntry(snap: CoverageSnap, index: number): any {
+  return {
+    id: `${snap.timestamp_ms}-${index}`,
+    timestamp_ms: snap.timestamp_ms,
+    sectionName: getSectionNameForUri(snap.sectionUri || '', []),
+    sectionUri: snap.sectionUri || '',
+    targetSectionName: getSectionNameForUri(snap.targetSectionUri || '', []),
+    targetSectionUri: snap.targetSectionUri || '',
+    clipId: snap.clipId || '',
+    isQuizScheduled: snap.isQuizScheduled || false,
+    slideUri: snap.slideUri || '',
+    slideNumber: snap.slideNumber,
+  };
+}
+
 interface CoverageUpdaterProps {
+  courseId: string;
   snaps: CoverageSnap[];
   setSnaps: React.Dispatch<React.SetStateAction<CoverageSnap[]>>;
   sectionNames: Section[];
 }
 
-export function CoverageUpdater({ snaps, setSnaps, sectionNames }: CoverageUpdaterProps) {
+export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: CoverageUpdaterProps) {
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [formData, setFormData] = useState({
     sectionName: '',
+    sectionUri: '',
     clipId: '',
     selectedTimestamp: Date.now(),
     targetSectionName: '',
+    targetSectionUri: '',
     isQuizScheduled: false,
     slideUri: '',
-    slideNumber: undefined,
+    slideNumber: undefined as number | undefined,
   });
 
   const theme = useTheme();
 
   useEffect(() => {
-    const lastSnap = getSectionNameForUri(
-      snaps[snaps.length - 1]?.sectionName,
-      sectionNames
-    ).trim();
-    setFormData((prev) => ({ ...prev, sectionName: lastSnap }));
+    if (snaps.length > 0) {
+      const lastSnapUri = snaps[snaps.length - 1]?.sectionUri;
+      const lastSnapName = getSectionNameForUri(lastSnapUri || '', sectionNames).trim();
+      setFormData((prev) => ({
+        ...prev,
+        sectionName: lastSnapName,
+        sectionUri: lastSnapUri || '',
+      }));
+    }
   }, [snaps, sectionNames]);
 
   useEffect(() => {
     setFormData((prev) => ({ ...prev, slideUri: '' }));
-  }, [formData.sectionName]);
+  }, [formData.sectionName, formData.sectionUri]);
 
   const handleEditItem = (index: number) => {
     const itemToEdit = snaps[index];
-    const sectionNameToEdit = getSectionNameForUri(itemToEdit.sectionName, sectionNames).trim();
+    const sectionNameToEdit = getSectionNameForUri(
+      itemToEdit.sectionUri || '',
+      sectionNames
+    ).trim();
     const targetSectionNameToEdit = getSectionNameForUri(
-      itemToEdit.targetSectionName,
+      itemToEdit.targetSectionUri || '',
       sectionNames
     ).trim();
 
     setFormData({
       sectionName: sectionNameToEdit || '',
+      sectionUri: itemToEdit.sectionUri || '',
       targetSectionName: targetSectionNameToEdit || '',
+      targetSectionUri: itemToEdit.targetSectionUri || '',
       clipId: itemToEdit.clipId || '',
       selectedTimestamp: itemToEdit.timestamp_ms || Date.now(),
       isQuizScheduled: itemToEdit.isQuizScheduled || false,
@@ -93,19 +115,10 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: CoverageUpdat
   };
 
   const handleSubmitForm = (formData: any) => {
-    const sectionToAdd = formData.sectionName?.length
-      ? getUriForSectionName(formData.sectionName, sectionNames)
-      : '';
-
-    const targetSectionToAdd = formData.targetSectionName?.length
-      ? getUriForSectionName(formData.targetSectionName, sectionNames)
-      : '';
-
-    const newItem = {
-      sectionId: sectionNames.find(({ title }) => title === formData.sectionName)?.id,
+    const newItem: CoverageSnap = {
       timestamp_ms: formData.selectedTimestamp,
-      sectionName: sectionToAdd,
-      targetSectionName: targetSectionToAdd,
+      sectionUri: formData.sectionUri,
+      targetSectionUri: formData.targetSectionUri,
       clipId: formData.clipId,
       isQuizScheduled: formData.isQuizScheduled,
       slideUri: formData.slideUri,
@@ -123,9 +136,11 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: CoverageUpdat
 
     setFormData({
       sectionName: '',
+      sectionUri: '',
       clipId: '',
       selectedTimestamp: Date.now(),
       targetSectionName: '',
+      targetSectionUri: '',
       isQuizScheduled: false,
       slideUri: '',
       slideNumber: undefined,
@@ -135,15 +150,26 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: CoverageUpdat
   const handleCancelEdit = () => {
     setFormData({
       sectionName: '',
+      sectionUri: '',
       clipId: '',
       selectedTimestamp: Date.now(),
       targetSectionName: '',
+      targetSectionUri: '',
       isQuizScheduled: false,
       slideUri: '',
       slideNumber: undefined,
     });
     setEditIndex(null);
   };
+
+  const coverageEntries = snaps.map((snap, index) => {
+    const entry = convertSnapToEntry(snap, index);
+
+    entry.sectionName = getSectionNameForUri(snap.sectionUri || '', sectionNames);
+    entry.targetSectionName = getSectionNameForUri(snap.targetSectionUri || '', sectionNames);
+
+    return entry;
+  });
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -154,9 +180,7 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: CoverageUpdat
           </Typography>
 
           <CoverageTable
-            snaps={snaps}
-            sectionNames={sectionNames}
-            availableSlides={{}}
+            entries={coverageEntries}
             onEdit={handleEditItem}
             onDelete={handleDeleteItem}
           />
@@ -200,6 +224,7 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: CoverageUpdat
         </Typography>
 
         <CoverageForm
+          courseId={courseId}
           formData={formData}
           setFormData={setFormData}
           sectionNames={sectionNames}
@@ -211,3 +236,4 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: CoverageUpdat
     </Box>
   );
 }
+export default CoverageUpdater;

@@ -123,7 +123,7 @@ function getCoverageHover(info?: SectionCoverageInfo) {
   if (!endTime_ms) return `Covered: ${startTimeDisplay} to -`;
   const endTimeDisplay = dayjs(endTime_ms).format('DD MMM');
   if (startTimeDisplay.substring(3, 6) === endTimeDisplay.substring(3, 6)) {
-    return `Covered: ${startTimeDisplay.substring(0,2)} to ${endTimeDisplay}`;
+    return `Covered: ${startTimeDisplay.substring(0, 2)} to ${endTimeDisplay}`;
   }
   return `Covered: ${startTimeDisplay} to ${endTimeDisplay}`;
 }
@@ -260,16 +260,16 @@ export function getCoveredSections(endSecUri: string, elem: TOCElem | undefined)
 function getOrderedSections(elem: TOCElem): [URI[], URI[]] {
   const preOrderedList: URI[] = [];
   const postOrderedList: URI[] = [];
-  if (!elem) return [preOrderedList, postOrderedList];
-  if (elem.type === 'Section') preOrderedList.push(elem.uri);
+  if (!elem) return [postOrderedList, preOrderedList];
+  if (elem.type === 'Section') postOrderedList.push(elem.uri);
   if ('children' in elem && elem.children.length) {
     for (const c of elem.children) {
       const [subPreList, subPostList] = getOrderedSections(c);
-      preOrderedList.push(...subPreList);
-      postOrderedList.push(...subPostList);
+      postOrderedList.push(...subPreList);
+      preOrderedList.push(...subPostList);
     }
   }
-  if (elem.type === 'Section') postOrderedList.push(elem.uri);
+  if (elem.type === 'Section') preOrderedList.push(elem.uri);
   return [preOrderedList, postOrderedList];
 }
 
@@ -297,58 +297,43 @@ interface SectionCoverageInfo {
 
 function getPerSectionCoverageInfo(topLevel: TOCElem, coverageData: CoverageSnap[]) {
   const perSectionCoverageInfo: Record<URI, SectionCoverageInfo> = {};
-  coverageData = coverageData?.filter((snap) => snap.sectionName);
+  coverageData = coverageData?.filter((snap) => snap.sectionUri);
   if (!coverageData?.length) return perSectionCoverageInfo;
   const [preOrdered, postOrdered] = getOrderedSections(topLevel);
   const firstSectionNotStarted = coverageData.map((snap) => {
-    return getNextSectionInList(snap.sectionName, preOrdered);
+    return getNextSectionInList(snap.sectionUri, postOrdered);
   });
 
   const lastSectionCompleted = coverageData.map((snap) => {
     const isPartial = Number.isFinite(snap.slideNumber);
-    if (isPartial) return getPrevSectionInList(snap.sectionName, postOrdered);
-    return snap.sectionName;
+    if (isPartial) return getPrevSectionInList(snap.sectionUri, preOrdered);
+    return snap.sectionUri;
   });
 
-  console.log('coverageData', coverageData);
-  console.log('preOrdered', preOrdered);
-  console.log('firstSectionNotStarted', firstSectionNotStarted);
-  console.log('lastSectionCompleted', lastSectionCompleted);
-
   let currLecIdx = 0;
-  for (const secUri of preOrdered) {
-    if (
-      secUri ===
-      'https://mathhub.info?a=courses/FAU/AI/course&p=rational-decisions/sec&d=vpi&l=en&e=section'
-    ) {
-      console.log('currLecIdx', currLecIdx);
-      console.log('firstSectionNotStarted[currLecIdx]', firstSectionNotStarted[currLecIdx]);
-      console.log('firstSectionNotStarted[currLecIdx+1]', firstSectionNotStarted[currLecIdx + 1]);
-    }
-    if (secUri === firstSectionNotStarted[currLecIdx]) {
+  for (const secUri of postOrdered) {
+    while (secUri === firstSectionNotStarted[currLecIdx]) {
       currLecIdx++;
       if (!firstSectionNotStarted[currLecIdx]) break;
     }
     const currentSnap = coverageData[currLecIdx];
-    if (!currentSnap?.sectionName) break;
+    if (!currentSnap?.sectionUri) break;
     perSectionCoverageInfo[secUri] = {
       startTime_ms: currentSnap.timestamp_ms,
       //lastLectureIdx: currLecIdx,
     };
   }
   currLecIdx = 0;
-  for (const secUri of postOrdered) {
+  for (const secUri of preOrdered) {
     if (currLecIdx >= coverageData.length) break;
     const currentSnap = coverageData[currLecIdx];
-    if (!currentSnap.sectionName) break;
+    if (!currentSnap.sectionUri) break;
     perSectionCoverageInfo[secUri].endTime_ms = currentSnap.timestamp_ms;
     perSectionCoverageInfo[secUri].lastLectureIdx = currLecIdx;
 
-    if (secUri === lastSectionCompleted[currLecIdx]) currLecIdx++;
+    while (secUri === lastSectionCompleted[currLecIdx]) currLecIdx++;
     if (!firstSectionNotStarted[currLecIdx]) break;
-  }
-  console.log('perSectionCoverageInfo', perSectionCoverageInfo);
-  return perSectionCoverageInfo;
+  }return perSectionCoverageInfo;
 }
 
 export function ContentDashboard({
