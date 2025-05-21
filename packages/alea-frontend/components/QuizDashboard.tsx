@@ -79,27 +79,26 @@ function validateQuizUpdate(
   newProblems: Record<string, FTMLProblemWithSolution>,
   totalStudents: number
 ) {
-  if (totalStudents > 0) {
-    const originalURIs = Object.values(originalProblems)
-      .map((p) => p.problem?.uri || '')
-      .filter(Boolean)
-      .sort();
+  if (totalStudents === 0) return { valid: true };
+  const originalURIs = Object.values(originalProblems)
+    .map((p) => p.problem?.uri || '')
+    .filter(Boolean)
+    .sort();
 
-    const newURIs = Object.values(newProblems)
-      .map((p) => p.problem?.uri || '')
-      .filter(Boolean)
-      .sort();
+  const newURIs = Object.values(newProblems)
+    .map((p) => p.problem?.uri || '')
+    .filter(Boolean)
+    .sort();
 
-    if (
-      originalURIs.length !== newURIs.length ||
-      originalURIs.some((uri, idx) => uri !== newURIs[idx])
-    ) {
-      return {
-        valid: false,
-        reason:
-          'Cannot update quiz: Quiz has already started, and problems cannot be added, removed, or changed.',
-      };
-    }
+  if (
+    originalURIs.length !== newURIs.length ||
+    originalURIs.some((uri, idx) => uri !== newURIs[idx])
+  ) {
+    return {
+      valid: false,
+      reason:
+        'Quiz has already started, and problems cannot be added, removed, or replaced with problems with different URI.',
+    };
   }
 
   return { valid: true };
