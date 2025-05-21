@@ -24,6 +24,7 @@ import { useEffect, useState } from 'react';
 import { CheckboxWithTimestamp } from './CheckBoxWithTimestamp';
 import { QuizFileReader } from './QuizFileReader';
 import { QuizStatsDisplay } from './QuizStatsDisplay';
+import { RecorrectionDialog } from './RecorrectionDialog';
 
 const NEW_QUIZ_ID = 'New';
 
@@ -138,6 +139,8 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
     problems,
     title
   );
+
+  const [recorrectionDialogOpen, setRecorrectionDialogOpen] = useState(false);
 
   useEffect(() => {
     axios
@@ -377,8 +380,24 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
           DELETE QUIZ
         </Button>
       )}
-      <br />
-      <br />
+      {!isNew && accessType === 'MUTATE' && (
+        <Box mt={2} mb={2}>
+          <Button 
+            variant="contained" 
+            color="primary" 
+             onClick={() => setRecorrectionDialogOpen(true)}
+          >     
+            Recorrection
+          </Button>
+          <RecorrectionDialog
+            open={recorrectionDialogOpen}
+            onClose={() => setRecorrectionDialogOpen(false)}
+            quizId={selectedQuizId}
+            courseId={courseId}
+            courseTerm={courseTerm}
+          />
+        </Box>
+      )}
       {!isNew && (
         <a href={`/quiz/${selectedQuizId}`} target="_blank">
           <Button variant="contained">

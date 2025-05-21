@@ -93,3 +93,19 @@ export async function getPreviousQuizInfo(courseId: string) {
   });
   return resp.data as GetPreviousQuizInfoResponse;
 }
+
+export async function recorrectQuiz(
+  quizId: string,
+  courseId: string,
+  courseTerm: string,
+  dryRun: boolean
+) {
+  const response = await axios.post('/api/quiz/recorrect', {
+    quizId, courseId, courseTerm, dryRun
+  }, {
+    headers: { 'Content-Type': 'application/json' }
+  });
+
+  return response.data;
+}
+
