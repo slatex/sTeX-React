@@ -98,10 +98,11 @@ export async function recorrectQuiz(
   quizId: string,
   courseId: string,
   courseTerm: string,
-  dryRun: boolean
+  dryRun: boolean,
+  reasons: Record<string, string>,
 ) {
   const response = await axios.post('/api/quiz/recorrect', {
-    quizId, courseId, courseTerm, dryRun
+    quizId, courseId, courseTerm, dryRun, reasons
   }, {
     headers: { 'Content-Type': 'application/json' }
   });

@@ -1,24 +1,23 @@
-//RecorrectionDialog.tsx
-import React, { useState, useEffect } from 'react';
 import {
+  Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  CircularProgress,
-  Box,
   Typography,
 } from '@mui/material';
-import { recorrectQuiz, FTMLProblemWithSolution } from '@stex-react/api';
+import { FTMLProblemWithSolution, recorrectQuiz } from '@stex-react/api';
+import React, { useEffect, useState } from 'react';
 
 interface RecorrectionChange {
   gradingId: number;
@@ -46,7 +45,10 @@ export const RecorrectionDialog: React.FC<RecorrectionDialogProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isDryRun, setIsDryRun] = useState(true);
   const [changes, setChanges] = useState<RecorrectionChange[]>([]);
-  const [titles, setTitles] = useState<Record<string, { title_html: string } | FTMLProblemWithSolution>>({});
+  const [titles, setTitles] = useState<
+    Record<string, { title_html: string } | FTMLProblemWithSolution>
+  >({});
+  const [reasons, setReasons] = useState<Record<string, string>>({});
   const [changedCount, setChangedCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -61,9 +63,8 @@ export const RecorrectionDialog: React.FC<RecorrectionDialogProps> = ({
     setIsLoading(true);
     setError(null);
     setSuccess(false);
-    
     try {
-      const result = await recorrectQuiz(quizId, courseId, courseTerm, true);
+      const result = await recorrectQuiz(quizId, courseId, courseTerm, true, reasons);
       setChanges(result.changes);
       setChangedCount(result.changedCount);
       setTitles(result.problems);
@@ -79,9 +80,8 @@ export const RecorrectionDialog: React.FC<RecorrectionDialogProps> = ({
     setIsLoading(true);
     setError(null);
     setSuccess(false);
-    
     try {
-      const result = await recorrectQuiz(quizId, courseId, courseTerm, false);
+      const result = await recorrectQuiz(quizId, courseId, courseTerm, false, reasons);
       setChanges(result.changes);
       setChangedCount(result.changedCount);
       setIsDryRun(false);
@@ -130,34 +130,40 @@ export const RecorrectionDialog: React.FC<RecorrectionDialogProps> = ({
                 <TableHead>
                   <TableRow>
                     <TableCell>Problem ID</TableCell>
-                    <TableCell>Reason</TableCell>
+                    <TableCell>Reason For Recorrection</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {Array.from(
-                    new Set(changes.map((change) => change.problemId))
-                  ).map((problemId) => {
-                    const problem = titles[problemId];
-                    const title =
-                      'title_html' in problem && typeof problem.title_html === 'string'
-                        ? problem.title_html
-                        : problemId;
-                    return (
-                      <TableRow key={problemId}>
-                        <TableCell>
-                          {title}
-                        </TableCell>
-                        <TableCell>
-                          <input
-                            type="text"
-                            placeholder="Enter reason/description"
-                            style={{ width: '100%' }}
-                            value={''}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                  {Array.from(new Set(changes.map((change) => change.problemId))).map(
+                    (problemId) => {
+                      const problem = titles[problemId];
+                      const title =
+                        'title_html' in problem && typeof problem.title_html === 'string'
+                          ? problem.title_html
+                          : problemId;
+                      return (
+                        <TableRow key={problemId}>
+                          <TableCell>
+                            {title}: {problemId}{' '}
+                          </TableCell>
+                          <TableCell>
+                            <input
+                              type="text"
+                              placeholder="Enter reason for recorrection"
+                              style={{ width: '100%' }}
+                              value={reasons[problemId] || ''}
+                              onChange={(e) => {
+                                setReasons((prev) => ({
+                                  ...prev,
+                                  [problemId]: e.target.value,
+                                }));
+                              }}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      );
+                    }
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>
@@ -172,23 +178,41 @@ export const RecorrectionDialog: React.FC<RecorrectionDialogProps> = ({
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                    {Array.from(
-                    changes.reduce((acc, change) => {
-                      if (!acc.has(change.problemId)) {
-                      const count = changes.filter(c => c.problemId === change.problemId && c.studentId).length;
-                      acc.set(change.problemId, { ...change, entryCount: count });
-                      }
-                      return acc;
-                    }, new Map<string, { entryCount: number } & RecorrectionChange>())
-                    .values()
-                    ).map((change) => (
+                  {Array.from(
+                    changes
+                      .reduce((acc, change) => {
+                        if (!acc.has(change.problemId)) {
+                          const count = changes.filter(
+                            (c) => c.problemId === change.problemId && c.studentId
+                          ).length;
+                          acc.set(change.problemId, { ...change, entryCount: count });
+                        }
+                        return acc;
+                      }, new Map<string, { entryCount: number } & RecorrectionChange>())
+                      .values()
+                  ).map((change) => (
                     <TableRow key={change.problemId}>
-                      <TableCell>{change.problemId}</TableCell>
+                      <TableCell>
+                        {(() => {
+                          const problem = titles[change.problemId];
+                          const title =
+                            problem &&
+                            'title_html' in problem &&
+                            typeof problem.title_html === 'string'
+                              ? problem.title_html
+                              : change.problemId;
+                          return (
+                            <>
+                              {title}: {change.problemId}
+                            </>
+                          );
+                        })()}
+                      </TableCell>
                       <TableCell align="right">{change.oldPoints.toFixed(2)}</TableCell>
                       <TableCell align="right">{change.newPoints.toFixed(2)}</TableCell>
                       <TableCell align="right">{change.entryCount}</TableCell>
                     </TableRow>
-                    ))}
+                  ))}
                 </TableBody>
               </Table>
             </TableContainer>
@@ -198,9 +222,7 @@ export const RecorrectionDialog: React.FC<RecorrectionDialogProps> = ({
             No submissions need correction. All points are already correct.
           </DialogContentText>
         ) : (
-          <DialogContentText>
-            Loading preview of changes...
-          </DialogContentText>
+          <DialogContentText>Loading preview of changes...</DialogContentText>
         )}
       </DialogContent>
       <DialogActions>
