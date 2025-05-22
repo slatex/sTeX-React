@@ -174,13 +174,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (Array.isArray(elemSections)) allSections.push(...elemSections);
     else if (elemSections) allSections.push(elemSections);
   }
-  const coverageData = (
-    getCoverageData([
-      `${process.env.RECORDED_SYLLABUS_DIR + '/' + 'current-sem.json'}`,
-      `${process.env.RECORDED_SYLLABUS_DIR + '/' + 'archive/WS24-25-URI/WS24-25-final-uri.json'}`,
-    ])[courseId] ?? []
-  ).filter((snap) => snap.sectionUri);
-
+  const coverageData = (getCoverageData()[courseId] ?? []).filter((snap) => snap.sectionUri);
   if (coverageData?.length) addCoverageInfo(allSections, coverageData);
   const videoSlides = await getVideoToSlidesMap(courseId);
   if (videoSlides && Object.keys(videoSlides).length > 0) {
