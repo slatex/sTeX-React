@@ -79,7 +79,7 @@ export function createCourseInfo(
   };
 }
 
-export interface CoverageSnap {
+export interface LectureEntry {
   timestamp_ms: number;
   sectionUri?: string;
   clipId?: string; // https://fau.tv/clip/id/{clipId}
@@ -90,7 +90,7 @@ export interface CoverageSnap {
 }
 
 export interface CoverageTimeline {
-  [courseId: string]: CoverageSnap[];
+  [courseId: string]: LectureEntry[];
 }
 
 export const COURSES_INFO: { [courseId: string]: CourseInfo } = {
