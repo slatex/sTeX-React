@@ -30,7 +30,10 @@ export function updateQuizRecorrectionInfo(quizId: string, recorrectionInfo: Qui
       ({
         ...existingQuiz,
         version: existingQuiz.version + 1,
-        recorrectionInfo,
+        recorrectionInfo: [
+          ...(Array.isArray(existingQuiz.recorrectionInfo) ? existingQuiz.recorrectionInfo : []),
+          ...(Array.isArray(recorrectionInfo) ? recorrectionInfo : [recorrectionInfo]),
+        ],
         updatedAt: Date.now(),
       } as QuizWithStatus)
   );
