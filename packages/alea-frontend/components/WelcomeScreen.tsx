@@ -28,7 +28,6 @@ import {
   QuestionStatus,
   UserInfo,
 } from '@stex-react/api';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import {
   Action,
   CourseInfo,
@@ -41,7 +40,7 @@ import {
 import dayjs from 'dayjs';
 import Link from 'next/link';
 import { NextRouter, useRouter } from 'next/router';
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 import { BannerSection, CourseCard, VollKiInfoSection } from '../pages';
@@ -208,12 +207,7 @@ async function getLastUpdatedNotes(courseId: string): Promise<ResourceDisplayInf
     const lastUpdatedTimestamp = latestValidUpdate?.timestamp_ms ?? null;
 
     const pendingUpdates = courseData.filter((entry) => {
-      const hasNoSection = !entry.sectionUri || entry.sectionUri.trim() === '';
-      return (
-        lastUpdatedTimestamp &&
-        hasNoSection &&
-        dayjs(entry.timestamp_ms).isAfter(dayjs(lastUpdatedTimestamp))
-      );
+      return !entry.sectionUri && entry.timestamp_ms < Date.now();
     }).length;
 
     if (lastUpdatedTimestamp) {
@@ -224,11 +218,9 @@ async function getLastUpdatedNotes(courseId: string): Promise<ResourceDisplayInf
           ? `Last Updated: ${formattedDate}\n${pendingUpdates} updates pending`
           : `Last Updated: ${formattedDate}`;
 
-      const timeAgo = pendingUpdates > 0 ? null : calculateTimeAgo(lastUpdatedTimestamp.toString());
-
       return {
         description,
-        timeAgo,
+        timeAgo: null,
         timestamp: lastUpdatedTimestamp.toString(),
       };
     }

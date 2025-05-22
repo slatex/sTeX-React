@@ -17,7 +17,7 @@ export interface SectionInfo {
   title: string;
   clipId?: string;
   clipInfo?: {
-    [slideIndex: number]: ClipInfo[];
+    [slideUri: string]: ClipInfo[];
   };
   timestamp_ms?: number;
 
@@ -55,11 +55,16 @@ export interface ClipInfo {
   video_id: string;
   start_time?: number;
   end_time?: number;
+}
+export interface ClipMetaData {
+  start_time?: number;
+  end_time?: number;
   sectionId?: string;
-  title?: string;
-  slideIndex?: number;
-  thumbnail?: string;
+  sectionTitle?: string;
+  sectionUri?: string;
+  slideUri?: string;
   slideContent?: string;
+  slideHtml?: string;
   ocr_slide_content?: string;
 }
 

@@ -62,15 +62,46 @@ const QuizDurationInfo = ({ quizStartTs, quizEndTs, feedbackReleaseTs }) => {
         marginTop: '5px',
       }}
     >
-      <p style={{ color: '#1e4620' }}>
+      <Typography sx={{ color: '#1e4620' }}>
         Quiz is <strong>{`${quizDuration} minutes`}</strong> long, and it will take additional{' '}
         <strong>{`${feedbackDuration} minutes`}</strong> for feedback release
-      </p>
+      </Typography>
     </Box>
   );
 };
+
 interface QuizDashboardProps {
   courseId: string;
+}
+
+function validateQuizUpdate(
+  originalProblems: Record<string, FTMLProblemWithSolution>,
+  newProblems: Record<string, FTMLProblemWithSolution>,
+  totalStudents: number
+) {
+  if (totalStudents === 0) return { valid: true };
+  const originalURIs = Object.values(originalProblems)
+    .map((p) => p.problem?.uri || '')
+    .filter(Boolean)
+    .sort();
+
+  const newURIs = Object.values(newProblems)
+    .map((p) => p.problem?.uri || '')
+    .filter(Boolean)
+    .sort();
+
+  if (
+    originalURIs.length !== newURIs.length ||
+    originalURIs.some((uri, idx) => uri !== newURIs[idx])
+  ) {
+    return {
+      valid: false,
+      reason:
+        'Quiz has already started, and problems cannot be added, removed, or replaced with problems with different URI.',
+    };
+  }
+
+  return { valid: true };
 }
 
 const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
@@ -278,7 +309,11 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
       <i>{Object.keys(problems).length} problems found.</i>
       <br />
 
-      {selectedQuiz && <b style={{ color: 'red' }}>{formErrorReason}</b>}
+      {selectedQuiz && (
+        <Typography sx={{ color: 'red' }} component="span" fontWeight="bold">
+          {formErrorReason}
+        </Typography>
+      )}
       <br />
       {accessType == 'MUTATE' && (
         <Button
@@ -298,6 +333,22 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
               manuallySetPhase,
               problems,
             } as QuizWithStatus;
+
+            if (!isNew && stats.totalStudents > 0) {
+              const originalProblems = selectedQuiz?.problems || {};
+              const validation = validateQuizUpdate(
+                originalProblems,
+                problems,
+                stats.totalStudents
+              );
+
+              if (!validation.valid) {
+                alert(`Cannot update quiz: ${validation.reason}`);
+                setIsUpdating(false);
+                return;
+              }
+            }
+
             let resp: AxiosResponse;
             try {
               resp = await (isNew ? createQuiz(quiz) : updateQuiz(quiz));

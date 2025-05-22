@@ -24,8 +24,8 @@ import { NextPage } from 'next';
 import Link from 'next/link';
 import { NextRouter, useRouter } from 'next/router';
 import { Fragment, useEffect, useMemo, useState } from 'react';
-import { SlideDeck } from '../../components/SlideDeck';
-import { VideoDisplay } from '../../components/VideoDisplay';
+import { getSlideUri, SlideDeck } from '../../components/SlideDeck';
+import { SlidesUriToIndexMap, VideoDisplay } from '../../components/VideoDisplay';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
 import { Header } from '../../components/Header';
@@ -92,7 +92,7 @@ function populateSlidesClipInfos(
   sections: SectionInfo[],
   slidesClipInfo: {
     [sectionId: string]: {
-      [slideNumber: number]: ClipInfo[];
+      [slideUri: string]: ClipInfo[];
     };
   }
 ) {
@@ -168,11 +168,12 @@ const CourseViewPage: NextPage = () => {
   const [slideCounts, setSlideCounts] = useState<{
     [sectionId: string]: number;
   }>({});
+  const [slidesUriToIndexMap, setSlidesUriToIndexMap] = useState<SlidesUriToIndexMap>({});
 
   const [clipIds, setClipIds] = useState<{ [sectionId: string]: string }>({});
   const [slidesClipInfo, setSlidesClipInfo] = useState<{
     [sectionId: string]: {
-      [slideNumber: number]: ClipInfo[];
+      [slideUri: string]: ClipInfo[];
     };
   }>({});
   const [currentClipId, setCurrentClipId] = useState('');
@@ -214,6 +215,9 @@ const CourseViewPage: NextPage = () => {
     axios
       .get(`/api/get-slide-counts`, { params: { courseId } })
       .then((resp) => setSlideCounts(resp.data));
+    axios
+      .get(`/api/get-slide-uri-to-index-mapping`, { params: { courseId } })
+      .then((resp) => setSlidesUriToIndexMap(resp.data));
   }, [router.isReady, courses, courseId]);
 
   useEffect(() => {
@@ -314,7 +318,7 @@ const CourseViewPage: NextPage = () => {
         drawerAnchor="left"
       >
         <Box display="flex" minHeight="100svh">
-          <Box maxWidth="800px" margin="0 auto" width="100%" pl="4px" >
+          <Box maxWidth="800px" margin="0 auto" width="100%" pl="4px">
             <Box display="flex" alignItems="center" justifyContent="space-between">
               <ToggleModeButton
                 viewMode={viewMode}
@@ -347,7 +351,7 @@ const CourseViewPage: NextPage = () => {
                 setTimestampSec={setTimestampSec}
                 currentSlideClipInfo={currentSlideClipInfo}
                 videoExtractedData={videoExtractedData}
-                courseDocSections={[]}
+                slidesUriToIndexMap={slidesUriToIndexMap}
                 autoSync={autoSync}
                 onVideoLoad={handleVideoLoad}
               />
@@ -360,24 +364,20 @@ const CourseViewPage: NextPage = () => {
                 onSlideChange={(slide: Slide) => {
                   setPreNotes(slide?.preNotes.map((p) => p.html) || []);
                   setPostNotes(slide?.postNotes.map((p) => p.html) || []);
-                  if (slide) {
-                    const uri = slide.slideType === SlideType.FRAME ? 
-                      slide.slide?.uri : 
-                      slide.paragraphs?.[0]?.uri;
-                    setCurrentSlideUri(uri || '');
-                  }
+                  const slideUri = getSlideUri(slide);
+                  setCurrentSlideUri(slideUri || '');
                   if (
                     slidesClipInfo &&
                     slidesClipInfo[sectionId] &&
-                    slidesClipInfo[sectionId][slideNum]
+                    slidesClipInfo[sectionId][slideUri]
                   ) {
-                    const slideClips = slidesClipInfo[sectionId][slideNum];
+                    const slideClips = slidesClipInfo[sectionId][slideUri];
                     if (!Array.isArray(slideClips)) {
                       return;
                     }
                     const matchedClip = slideClips.find((clip) => clip.video_id === currentClipId);
                     setCurrentSlideClipInfo(matchedClip || slideClips[0]);
-                  }
+                  } else setCurrentSlideClipInfo(null);
                 }}
                 goToNextSection={goToNextSection}
                 goToPrevSection={goToPrevSection}

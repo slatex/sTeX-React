@@ -95,7 +95,7 @@ const TAB_MAX_WIDTH: Record<TabName, string | undefined> = {
   'homework-manager': '900px',
   'quiz-dashboard': '900px',
   'study-buddy': '900px',
-  'lecture-schedule': '900px',
+  'lecture-schedule': '1200px',
 };
 
 const InstructorDash: NextPage = () => {
