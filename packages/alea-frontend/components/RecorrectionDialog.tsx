@@ -28,14 +28,6 @@ interface RecorrectionChange {
   studentId?: string;
 }
 
-// For the recorrectQuiz API response
-interface RecorrectionApiResponse {
-  changedCount: number;
-  changes: RecorrectionChange[];
-  missingProblems: string[];
-  problems: Record<string, { title_html: string } | FTMLProblemWithSolution>;
-}
-
 interface RecorrectionDialogProps {
   open: boolean;
   onClose: () => void;
@@ -59,7 +51,6 @@ export const RecorrectionDialog: React.FC<RecorrectionDialogProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  // Load preview automatically when dialog opens
   useEffect(() => {
     if (open) {
       handlePreview();
@@ -104,7 +95,6 @@ export const RecorrectionDialog: React.FC<RecorrectionDialogProps> = ({
 
   const handleClose = () => {
     if (success) {
-      // Reload page to reflect changes
       window.location.reload();
     } else {
       onClose();
@@ -185,7 +175,6 @@ export const RecorrectionDialog: React.FC<RecorrectionDialogProps> = ({
                     {Array.from(
                     changes.reduce((acc, change) => {
                       if (!acc.has(change.problemId)) {
-                      // Count number of entries for this problemId
                       const count = changes.filter(c => c.problemId === change.problemId && c.studentId).length;
                       acc.set(change.problemId, { ...change, entryCount: count });
                       }
