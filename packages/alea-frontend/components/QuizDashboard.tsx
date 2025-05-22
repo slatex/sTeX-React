@@ -1,4 +1,7 @@
 import { OpenInNew } from '@mui/icons-material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import UpdateIcon from '@mui/icons-material/Update';
 import { Box, Button, FormControl, InputLabel, MenuItem, Select, Typography } from '@mui/material';
 import {
   canAccessResource,
@@ -327,6 +330,7 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
           <Button
             disabled={!!formErrorReason || isUpdating}
             variant="contained"
+            startIcon={<UpdateIcon />}
             onClick={async (e) => {
               setIsUpdating(true);
               const quiz = {
@@ -376,7 +380,12 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
           </Button>
         )}
         {accessType == 'MUTATE' && !isNew && (
-          <Button onClick={() => handleDelete(selectedQuizId)} variant="contained" color="error">
+          <Button
+            onClick={() => handleDelete(selectedQuizId)}
+            variant="contained"
+            color="error"
+            startIcon={<DeleteIcon />}
+          >
             DELETE QUIZ
           </Button>
         )}
@@ -385,6 +394,7 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
             <Button
               variant="contained"
               color="primary"
+              startIcon={<EditIcon />}
               onClick={() => setRecorrectionDialogOpen(true)}
             >
               Recorrection
