@@ -1,6 +1,6 @@
 import {
   Action,
-  CoverageSnap,
+  LectureEntry,
   CoverageTimeline,
   CURRENT_TERM,
   ResourceName,
@@ -19,7 +19,7 @@ function backupFileName() {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
-  const snaps = req.body.snaps as CoverageSnap[];
+  const snaps = req.body.snaps as LectureEntry[];
   const courseId = req.body.courseId as string;
 
   try {
