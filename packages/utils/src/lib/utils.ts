@@ -236,3 +236,14 @@ export function truncateText(text: string, maxLength: number) {
   }
   return text;
 }
+export const formatTime = (seconds: number) => {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secondsLeft = Math.floor(seconds % 60);
+
+  if (hours > 0) {
+    return `${hours} hr ${minutes} min ${secondsLeft} sec`;
+  } else {
+    return `${minutes} min ${secondsLeft} sec`;
+  }
+};
