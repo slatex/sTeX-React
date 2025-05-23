@@ -430,15 +430,32 @@ export const en = {
     peerGrading: 'Peer Grading',
   },
   resource: {
-    updateGoTo: 'Update Got-tos',
+    updatesyllabus: 'Update Syllabus',
     quiz: 'Quizzes',
     homework: 'Homeworks',
     forum: 'Forum',
     welcome: 'Welcome',
     peerReview: 'Peer Review',
     studyBuddy: 'Study Buddy',
+    lastUpdated: 'Last Updated',
+    ago: 'ago',
+    updates: 'updates',
+    pending: 'pending',
+    noUpdatesAvailable: 'No updates available',
+    failedToLoadUpdates:'Failed to load updates',
+    ungradedProblems: 'Ungraded Problems',
+    unansweredQuestions: 'Unanswered Questions',
+    latestQuiz:'Latest Quiz',
+    latestHomework:'Latest Homework',
+    noHomeworkAvailable:'No homework available'
   },
-  recorrection: {
+  syllabus:{
+    syllabusEntries:'Syllabus Entries',
+    noSyllabusEntriesYet:'No syllabus entries yet',
+    editsectionentry:'Edit Section Entry',
+    addnewsection:'Add New Section'
+  } ,
+recorrection: {
     quizRecorrection: 'Quiz Recorrection',
     previewRecorrection: 'Preview of Recorrection Changes',
     problemId: 'Problem ID',

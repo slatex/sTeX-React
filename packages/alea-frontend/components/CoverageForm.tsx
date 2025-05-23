@@ -16,7 +16,7 @@ import {
 import dayjs from 'dayjs';
 import { Section } from '../types';
 import { SlidePicker } from './SlideSelector';
-import { findDuplicates, getNoonTimestampOnSameDay } from './CoverageUpdater';
+import { getNoonTimestampOnSameDay } from './CoverageUpdater';
 import AddIcon from '@mui/icons-material/Add';
 import ClearIcon from '@mui/icons-material/Clear';
 import QuizIcon from '@mui/icons-material/Quiz';
@@ -54,8 +54,6 @@ export function CoverageForm({
   onCancel,
   courseId,
 }: CoverageFormProps) {
-  const duplicateTitles: string[] = findDuplicates(sectionNames.map(({ title }) => title.trim()));
-
   useEffect(() => {
     let updatedData = { ...formData };
     let dataChanged = false;
@@ -186,34 +184,22 @@ export function CoverageForm({
 
       <Grid item xs={12} md={6}>
         <FormControl fullWidth>
-          <InputLabel id="section-name-select-label">Actually Got-to</InputLabel>
+          <InputLabel id="section-name-select-label">Section (actually) Completed</InputLabel>
           <Select
             labelId="section-name-select-label"
             value={formData.sectionUri}
             onChange={handleSectionChange}
             name="sectionUri"
-            label="Actually Got-to"
+            label="Section (actually) Completed"
           >
             <MenuItem value="">
               <em>None</em>
             </MenuItem>
-            {sectionNames.map((section) => {
-              const isDuplicate = false;// duplicateTitles.includes(section.title.trim());
-
-              return (
-                <MenuItem
-                  key={section.uri}
-                  value={section.uri}
-                  sx={{
-                    backgroundColor: isDuplicate ? 'rgba(255, 0, 0, 0.1)' : undefined,
-                    borderLeft: isDuplicate ? '3px solid red' : undefined,
-                    pl: isDuplicate ? 1 : undefined,
-                  }}
-                >
-                  {section.title}
-                </MenuItem>
-              );
-            })}
+            {sectionNames.map((section) => (
+              <MenuItem key={section.uri} value={section.uri}>
+                {section.title}
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
       </Grid>
@@ -231,23 +217,11 @@ export function CoverageForm({
             <MenuItem value="">
               <em>None</em>
             </MenuItem>
-            {sectionNames.map((section) => {
-              const isDuplicate = duplicateTitles.includes(section.title.trim());
-
-              return (
-                <MenuItem
-                  key={section.uri}
-                  value={section.uri}
-                  sx={{
-                    backgroundColor: isDuplicate ? 'rgba(255, 0, 0, 0.1)' : undefined,
-                    borderLeft: isDuplicate ? '3px solid red' : undefined,
-                    pl: isDuplicate ? 1 : undefined,
-                  }}
-                >
-                  {section.title}
-                </MenuItem>
-              );
-            })}
+            {sectionNames.map((section) => (
+              <MenuItem key={section.uri} value={section.uri}>
+                {section.title}
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
       </Grid>
