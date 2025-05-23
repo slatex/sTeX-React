@@ -17,7 +17,9 @@ import {
   Typography,
 } from '@mui/material';
 import { FTMLProblemWithSolution, recorrectQuiz } from '@stex-react/api';
+import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
+import { getLocaleObject } from '../lang/utils';
 
 interface RecorrectionChange {
   gradingId: number;
@@ -42,6 +44,8 @@ export const RecorrectionDialog: React.FC<RecorrectionDialogProps> = ({
   courseId,
   courseTerm,
 }) => {
+  const router = useRouter();
+  const { recorrection: t } = getLocaleObject(router);
   const [isLoading, setIsLoading] = useState(false);
   const [isDryRun, setIsDryRun] = useState(true);
   const [changes, setChanges] = useState<RecorrectionChange[]>([]);
@@ -103,7 +107,7 @@ export const RecorrectionDialog: React.FC<RecorrectionDialogProps> = ({
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-      <DialogTitle>Quiz Recorrection</DialogTitle>
+      <DialogTitle>{t.quizRecorrection}</DialogTitle>
       <DialogContent>
         {isLoading ? (
           <Box display="flex" justifyContent="center" p={3}>
@@ -119,7 +123,7 @@ export const RecorrectionDialog: React.FC<RecorrectionDialogProps> = ({
           <>
             <DialogContentText>
               <Typography variant="subtitle1" color="primary" fontWeight="bold" gutterBottom>
-                Preview of Recorrection Changes
+                {t.previewRecorrection}
               </Typography>
               {isDryRun
                 ? `${changedCount} submissions will be updated if you apply this recorrection:`
@@ -129,8 +133,12 @@ export const RecorrectionDialog: React.FC<RecorrectionDialogProps> = ({
               <Table stickyHeader size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Problem ID</TableCell>
-                    <TableCell>Reason For Recorrection</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}>
+                      {t.problemId}
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}>
+                      {t.recorrectionReason}
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -143,14 +151,31 @@ export const RecorrectionDialog: React.FC<RecorrectionDialogProps> = ({
                           : problemId;
                       return (
                         <TableRow key={problemId}>
-                          <TableCell>
+                          <TableCell
+                            sx={{
+                              verticalAlign: 'middle',
+                              fontWeight: 500,
+                              maxWidth: 300,
+                              wordBreak: 'break-word',
+                            }}
+                          >
                             {title}: {problemId}{' '}
                           </TableCell>
-                          <TableCell>
+                          <TableCell sx={{ verticalAlign: 'middle', maxWidth: 400 }}>
                             <input
                               type="text"
-                              placeholder="Enter reason for recorrection"
-                              style={{ width: '100%' }}
+                              placeholder={t.recorrectionReasonPlaceholder}
+                              style={{
+                                width: '100%',
+                                padding: '8px 12px',
+                                border: '1px solid #ccc',
+                                borderRadius: '4px',
+                                fontSize: '14px',
+                                background: '#fafafa',
+                                boxSizing: 'border-box',
+                                outline: 'none',
+                                transition: 'border-color 0.2s',
+                              }}
                               value={reasons[problemId] || ''}
                               onChange={(e) => {
                                 setReasons((prev) => ({
@@ -158,6 +183,8 @@ export const RecorrectionDialog: React.FC<RecorrectionDialogProps> = ({
                                   [problemId]: e.target.value,
                                 }));
                               }}
+                              onFocus={(e) => (e.target.style.borderColor = '#1976d2')}
+                              onBlur={(e) => (e.target.style.borderColor = '#ccc')}
                             />
                           </TableCell>
                         </TableRow>
@@ -171,10 +198,27 @@ export const RecorrectionDialog: React.FC<RecorrectionDialogProps> = ({
               <Table stickyHeader size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Problem ID</TableCell>
-                    <TableCell align="right">Old Points</TableCell>
-                    <TableCell align="right">New Points</TableCell>
-                    <TableCell align="right">Number of Entry</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}>
+                      {t.problemId}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}
+                    >
+                      {t.oldpoints}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}
+                    >
+                      {t.newpoints}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}
+                    >
+                      {t.numberOfEntries}
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -191,8 +235,11 @@ export const RecorrectionDialog: React.FC<RecorrectionDialogProps> = ({
                       }, new Map<string, { entryCount: number } & RecorrectionChange>())
                       .values()
                   ).map((change) => (
-                    <TableRow key={change.problemId}>
-                      <TableCell>
+                    <TableRow
+                      key={change.problemId}
+                      sx={{ '&:nth-of-type(odd)': { backgroundColor: '#fafafa' } }}
+                    >
+                      <TableCell sx={{ fontWeight: 500, maxWidth: 300, wordBreak: 'break-word' }}>
                         {(() => {
                           const problem = titles[change.problemId];
                           const title =
@@ -208,9 +255,15 @@ export const RecorrectionDialog: React.FC<RecorrectionDialogProps> = ({
                           );
                         })()}
                       </TableCell>
-                      <TableCell align="right">{change.oldPoints.toFixed(2)}</TableCell>
-                      <TableCell align="right">{change.newPoints.toFixed(2)}</TableCell>
-                      <TableCell align="right">{change.entryCount}</TableCell>
+                      <TableCell align="right" sx={{ color: '#b71c1c', fontWeight: 500 }}>
+                        {change.oldPoints.toFixed(2)}
+                      </TableCell>
+                      <TableCell align="right" sx={{ color: '#1b5e20', fontWeight: 500 }}>
+                        {change.newPoints.toFixed(2)}
+                      </TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 500 }}>
+                        {change.entryCount}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -218,11 +271,9 @@ export const RecorrectionDialog: React.FC<RecorrectionDialogProps> = ({
             </TableContainer>
           </>
         ) : changes.length === 0 && changedCount === 0 ? (
-          <DialogContentText>
-            No submissions need correction. All points are already correct.
-          </DialogContentText>
+          <DialogContentText>{t.noChangetoApply}</DialogContentText>
         ) : (
-          <DialogContentText>Loading preview of changes...</DialogContentText>
+          <DialogContentText>{t.loadingPreviewOfChanges}</DialogContentText>
         )}
       </DialogContent>
       <DialogActions>
@@ -231,7 +282,7 @@ export const RecorrectionDialog: React.FC<RecorrectionDialogProps> = ({
         </Button>
         {!success && changes.length > 0 && isDryRun && (
           <Button onClick={handleApply} color="primary" variant="contained" disabled={isLoading}>
-            Apply Recorrection
+            {t.ApplyRecorrection}
           </Button>
         )}
       </DialogActions>
