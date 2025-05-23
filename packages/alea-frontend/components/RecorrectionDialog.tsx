@@ -20,6 +20,7 @@ import { FTMLProblemWithSolution, recorrectQuiz } from '@stex-react/api';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
+import ProblemIdPreview from './ProblemIdPreview';
 
 interface RecorrectionChange {
   gradingId: number;
@@ -73,6 +74,7 @@ export const RecorrectionDialog: React.FC<RecorrectionDialogProps> = ({
       setChangedCount(result.changedCount);
       setTitles(result.problems);
       setIsDryRun(true);
+      console.log('preview result', result);
     } catch (err) {
       setError('Failed to preview recorrection: ' + (err.message || 'Unknown error'));
     } finally {
@@ -104,6 +106,8 @@ export const RecorrectionDialog: React.FC<RecorrectionDialogProps> = ({
       onClose();
     }
   };
+
+  //const problemIds = getParamFromUri(problemId, d);
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
@@ -151,16 +155,16 @@ export const RecorrectionDialog: React.FC<RecorrectionDialogProps> = ({
                           : problemId;
                       return (
                         <TableRow key={problemId}>
-                          <TableCell
+                            <TableCell
                             sx={{
                               verticalAlign: 'middle',
                               fontWeight: 500,
                               maxWidth: 300,
                               wordBreak: 'break-word',
                             }}
-                          >
-                            {title}: {problemId}{' '}
-                          </TableCell>
+                            >
+                            {title} <ProblemIdPreview uri={problemId} param="d" />
+                            </TableCell>
                           <TableCell sx={{ verticalAlign: 'middle', maxWidth: 400 }}>
                             <input
                               type="text"
@@ -250,7 +254,7 @@ export const RecorrectionDialog: React.FC<RecorrectionDialogProps> = ({
                               : change.problemId;
                           return (
                             <>
-                              {title}: {change.problemId}
+                              {title} <ProblemIdPreview uri={change.problemId} param="d" />
                             </>
                           );
                         })()}
