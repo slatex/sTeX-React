@@ -39,7 +39,7 @@ const AllCommentsPage: NextPage = () => {
               {fileLocToString(section)}
               <OpenInNewIcon />
             </a>
-            <CommentSection file={section} allCommentsMode={true} />
+            <CommentSection uri={"todo alea4"} allCommentsMode={true} />
           </Box>
         ))}
       </Box>
