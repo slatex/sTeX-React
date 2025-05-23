@@ -1,5 +1,4 @@
-import { Comment } from '@stex-react/api';
-import { FileLocation, fileLocToString } from '@stex-react/utils';
+import { Comment, URI } from '@stex-react/api';
 
 export function organizeHierarchically(flatComments: Comment[]) {
   // console.log('organizeHierarchically triggered');
@@ -69,23 +68,23 @@ export function getTotalComments(comments?: Comment[]): number {
 
 const DRAFT_KEY_PREFIX = 'DRAFT';
 
-function getDraftKey(f: FileLocation, commentId: number) {
-  const parts = [DRAFT_KEY_PREFIX, fileLocToString(f)];
+function getDraftKey(uri: URI, commentId: number) {
+  const parts = [DRAFT_KEY_PREFIX, uri];
   if (commentId) parts.push(commentId.toString());
   return parts.join(':');
 }
 
-export function retrieveDraft(f: FileLocation, commentId: number) {
-  const key = getDraftKey(f, commentId);
+export function retrieveDraft(uri: URI, commentId: number) {
+  const key = getDraftKey(uri, commentId);
   return localStorage.getItem(key);
 }
 
-export function saveDraft(f: FileLocation, commentId: number, draft: string) {
-  const key = getDraftKey(f, commentId);
+export function saveDraft(uri: URI, commentId: number, draft: string) {
+  const key = getDraftKey(uri, commentId);
   localStorage.setItem(key, draft);
 }
 
-export function discardDraft(f: FileLocation, commentId: number) {
-  const key = getDraftKey(f, commentId);
+export function discardDraft(uri: URI, commentId: number) {
+  const key = getDraftKey(uri, commentId);
   localStorage.removeItem(key);
 }

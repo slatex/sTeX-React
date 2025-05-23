@@ -1,3 +1,4 @@
+import { RecorrectionDialog } from "../components/RecorrectionDialog";
 import StudentHomePage from "../pages";
 
 export const de = {
@@ -425,4 +426,18 @@ export const de = {
     latestHomework:'neueste Hausaufgaben',
     noHomeworkAvailable:'Keine Hausaufgaben verfügbar'
   },
+  recorrection:{
+    quizRecorrection: 'Quiz-Rekorrektur',
+    previewRecorrection:'Vorschau der Änderungen der Wiederholung',
+    problemId: 'Problem-ID',
+    recorrectionReason: 'Grund für die Rekorrektur',
+    recorrectionReasonPlaceholder: 'Geben Sie den Grund für die Rekorrektur ein',
+    oldpoints: 'Alte Punkte',
+    newpoints: 'Neue Punkte',
+    numberOfEntries: 'Anzahl der Einträge',
+    noSubmissions: 'Keine Einreichungen gefunden',
+    noChangetoApply: 'Keine Änderungen zum Anwenden gefunden',
+    loadingPreviewOfChanges: 'Laden der Vorschau der Änderungen...',
+    ApplyRecorrection: 'Rekorrektur anwenden',
+  }
 };

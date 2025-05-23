@@ -1,3 +1,5 @@
+import { RecorrectionDialog } from "../components/RecorrectionDialog";
+
 export const en = {
   home: {
     header: 'ALeA based Courses at FAU',
@@ -452,5 +454,18 @@ export const en = {
     noSyllabusEntriesYet:'No syllabus entries yet',
     editsectionentry:'Edit Section Entry',
     addnewsection:'Add New Section'
-  }
+  } ,
+recorrection: {
+    quizRecorrection: 'Quiz Recorrection',
+    previewRecorrection: 'Preview of Recorrection Changes',
+    problemId: 'Problem ID',
+    recorrectionReason: 'Reason for Recorrection',
+    recorrectionReasonPlaceholder: 'Please enter the reason for recorrection',
+    oldpoints: 'Old Points',
+    newpoints: 'New Points',
+    numberOfEntries: 'Number of Entries',
+    noChangetoApply: 'No changes to apply',
+    loadingPreviewOfChanges: 'Loading preview of changes...',
+    ApplyRecorrection: 'Apply Recorrection',
+  },
 };
