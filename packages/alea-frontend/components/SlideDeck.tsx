@@ -14,7 +14,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { ClipInfo, Slide, SlideType } from '@stex-react/api';
+import { ClipInfo, Slide, SlideType, getSlides } from '@stex-react/api';
 import { FTMLFragment } from '@stex-react/ftml-utils';
 import { ExpandableContextMenu } from '@stex-react/stex-react-renderer';
 import axios from 'axios';
@@ -242,10 +242,8 @@ export const SlideDeck = memo(function SlidesFromUrl({
     setIsLoading(true);
     setSlides([]);
     const loadingSectionId = sectionId;
-    axios.get('/api/get-slides', { params: { courseId, sectionIds: sectionId } }).then((r) => {
+    getSlides(courseId, sectionId).then((slides) => {
       if (isCancelled) return;
-      const slides: Slide[] = r.data?.[sectionId] || [];
-
       setIsLoading(false);
       setSlides(slides);
       setLoadedSectionId(loadingSectionId);

@@ -42,10 +42,7 @@ export function CommentView({
                 parentId={comment.commentId}
                 isPrivateNote={!!comment.isPrivate}
                 postAnonymously={comment.isAnonymous}
-                file={{
-                  archive: comment.archive || '',
-                  filepath: comment.filepath || '',
-                }}
+                uri={"todo alea4"}
                 existingComment={comment}
                 onCancel={() => setEditingComment(false)}
                 onUpdate={() => {
@@ -57,16 +54,13 @@ export function CommentView({
                 hidden={!commentReplyOpen}
                 parentId={comment.commentId}
                 isPrivateNote={!!comment.isPrivate}
-                file={{
-                  archive: comment.archive || '',
-                  filepath: comment.filepath || '',
-                }}
+                uri={"todo alea4"}
                 onCancel={() => {
                   setCommentReplyOpen(false);
                   let { archive, filepath } = comment;
                   archive = archive || '';
                   filepath = filepath || '';
-                  discardDraft({ archive, filepath }, comment.commentId);
+                  discardDraft("todo alea4", comment.commentId);
                 }}
                 onUpdate={() => {
                   setCommentReplyOpen(false);

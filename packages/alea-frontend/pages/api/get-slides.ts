@@ -97,7 +97,7 @@ async function getSlidesFromToc(elems: TOCElem[], bySection: Record<string, Slid
   }
 }
 
-export async function getSlides(notesUri: string) {
+export async function getSlidesForCourse(notesUri: string) {
   const toc = (await getDocumentSections(notesUri))[1];
   const bySection: { [sectionId: string]: Slide[] } = {};
   await getSlidesFromToc(toc, bySection);
@@ -128,7 +128,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
   const sectionIdArr = sectionIds.split(',');
   if (!CACHED_SLIDES[courseId]) {
-    CACHED_SLIDES[courseId] = await getSlides(courseInfo.notes);
+    CACHED_SLIDES[courseId] = await getSlidesForCourse(courseInfo.notes);
   }
   const data: { [sectionId: string]: Slide[] } = {};
   for (const secId of sectionIdArr) {

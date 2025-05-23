@@ -10,18 +10,18 @@ import { CommentReply } from './CommentReply';
 import { CommentView } from './CommentView';
 
 import { Refresh } from '@mui/icons-material';
-import { CURRENT_TERM, FileLocation } from '@stex-react/utils';
+import { CURRENT_TERM } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import styles from './comments.module.scss';
 import { getLocaleObject } from './lang/utils';
 
 function RenderTree({
   comment,
-  file,
+  uri,
   refreshComments,
 }: {
   comment: Comment;
-  file: FileLocation;
+  uri: URI;
   refreshComments: () => void;
 }) {
   return (
@@ -32,7 +32,7 @@ function RenderTree({
           <RenderTree
             key={child.commentId}
             comment={child}
-            file={file}
+            uri={uri}
             refreshComments={refreshComments}
           />
         ))}
@@ -43,11 +43,11 @@ function RenderTree({
 
 export function CommentTree({
   comments,
-  file,
+  uri,
   refreshComments,
 }: {
   comments: Comment[];
-  file: FileLocation;
+  uri: URI;
   refreshComments: () => void;
 }) {
   return (
@@ -56,7 +56,7 @@ export function CommentTree({
         <RenderTree
           key={comment.commentId}
           comment={comment}
-          file={file}
+          uri={uri}
           refreshComments={refreshComments}
         />
       ))}
@@ -121,15 +121,13 @@ export function ButtonAndDialog({
 }
 
 export function CommentSection({
-  file,
   uri,
   startDisplay = true,
   selectedText = undefined,
   selectedElement = undefined,
   allCommentsMode = false,
 }: {
-  file: FileLocation;
-  uri?:URI;
+  uri: URI;
   startDisplay?: boolean;
   selectedText?: string;
   selectedElement?: any;
@@ -173,14 +171,14 @@ export function CommentSection({
   }, [courseId]);
 
   useEffect(() => {
-    getPublicCommentTrees(file).then((c) => setCommentsFromStore(c));
-  }, [file?.archive, file?.filepath, filters]);
+    getPublicCommentTrees(uri).then((c) => setCommentsFromStore(c));
+  }, [uri, filters]);
 
   const refreshComments = async () => {
     setIsRefreshing(true);
     try {
       await refreshAllComments();
-      getPublicCommentTrees(file).then((comments) => {
+      getPublicCommentTrees(uri).then((comments) => {
         setCommentsFromStore(comments);
         setIsRefreshing(false);
       });
@@ -213,19 +211,18 @@ export function CommentSection({
         <CommentReply
           placeholder={numComments ? t.joinDiscussion : t.startDiscussion}
           parentId={0}
-          file={file}
+          uri={uri}
           isPrivateNote={false}
           selectedText={selectedText}
           selectedElement={selectedElement}
           onUpdate={() => refreshComments()}
           onCancel={undefined}
-          uri={uri}
         />
       )}
 
       <CommentTree
         comments={filteredComments}
-        file={file}
+        uri={uri}
         refreshComments={() => refreshComments()}
       />
       <Menu id="filter-menu" anchorEl={anchorEl} open={open} onClose={handleClose}>

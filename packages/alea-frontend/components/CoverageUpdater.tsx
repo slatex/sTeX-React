@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Paper, useTheme } from '@mui/material';
-import { CoverageSnap } from '@stex-react/utils';
+import { LectureEntry } from '@stex-react/utils';
 import { Section } from '../types';
 import { CoverageTable } from './CoverageTable';
 import { CoverageForm } from './CoverageForm';
@@ -10,26 +10,11 @@ export function getSectionNameForUri(uri: string, sectionNames: Section[]): stri
   return section?.title.trim() || '';
 }
 
-export function findDuplicates(arr: string[]): string[] {
-  const duplicates: string[] = [];
-  const seen: { [key: string]: boolean } = {};
-
-  for (let i = 0; i < arr.length; i++) {
-    const item = arr[i];
-    if (seen[item]) {
-      duplicates.push(item);
-    } else {
-      seen[item] = true;
-    }
-  }
-  return duplicates;
-}
-
 export function getNoonTimestampOnSameDay(timestamp: number) {
   return new Date(timestamp).setHours(12, 0, 0, 0);
 }
 
-function convertSnapToEntry(snap: CoverageSnap, index: number): any {
+function convertSnapToEntry(snap: LectureEntry, index: number): any {
   return {
     id: `${snap.timestamp_ms}-${index}`,
     timestamp_ms: snap.timestamp_ms,
@@ -46,8 +31,8 @@ function convertSnapToEntry(snap: CoverageSnap, index: number): any {
 
 interface CoverageUpdaterProps {
   courseId: string;
-  snaps: CoverageSnap[];
-  setSnaps: React.Dispatch<React.SetStateAction<CoverageSnap[]>>;
+  snaps: LectureEntry[];
+  setSnaps: React.Dispatch<React.SetStateAction<LectureEntry[]>>;
   sectionNames: Section[];
 }
 
@@ -115,7 +100,7 @@ export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: Cov
   };
 
   const handleSubmitForm = (formData: any) => {
-    const newItem: CoverageSnap = {
+    const newItem: LectureEntry = {
       timestamp_ms: formData.selectedTimestamp,
       sectionUri: formData.sectionUri,
       targetSectionUri: formData.targetSectionUri,
@@ -175,10 +160,6 @@ export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: Cov
     <Box sx={{ width: '100%' }}>
       {snaps.length > 0 ? (
         <>
-          <Typography variant="h6" gutterBottom sx={{ mt: 2, mb: 3 }}>
-            Coverage Entries ({snaps.length})
-          </Typography>
-
           <CoverageTable
             entries={coverageEntries}
             onEdit={handleEditItem}
@@ -197,7 +178,7 @@ export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: Cov
           }}
         >
           <Typography variant="body1" color="text.secondary" gutterBottom>
-            No coverage entries yet
+            No syllabus entries yet
           </Typography>
           <Typography variant="body2" color="text.secondary">
             Use the form below to add your first entry
@@ -220,7 +201,7 @@ export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: Cov
           gutterBottom
           color={editIndex !== null ? 'primary' : 'textPrimary'}
         >
-          {editIndex !== null ? 'Edit Coverage Entry' : 'Add New Coverage Entry'}
+          {editIndex !== null ? 'Edit Lecture Entry' : 'Add New Lecture'}
         </Typography>
 
         <CoverageForm
