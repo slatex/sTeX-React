@@ -23,6 +23,22 @@ export function updateQuiz(quizId, updatedQuizFunc: (existingQuiz: QuizWithStatu
   writeQuizFile(updatedQuiz);
 }
 
+export function updateQuizRecorrectionInfo(quizId: string, recorrectionInfo: QuizWithStatus['recorrectionInfo']) {
+  updateQuiz(
+    quizId,
+    (existingQuiz) =>
+      ({
+        ...existingQuiz,
+        version: existingQuiz.version + 1,
+        recorrectionInfo: [
+          ...(Array.isArray(existingQuiz.recorrectionInfo) ? existingQuiz.recorrectionInfo : []),
+          ...(Array.isArray(recorrectionInfo) ? recorrectionInfo : [recorrectionInfo]),
+        ],
+        updatedAt: Date.now(),
+      } as QuizWithStatus)
+  );
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
   const quiz = req.body as QuizWithStatus;
@@ -59,7 +75,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         title: quiz.title,
         problems: quiz.problems,
         css: quiz.css,
-
+        recorrectionInfo: existingQuiz.recorrectionInfo,
         updatedAt: Date.now(),
         updatedBy: userId,
       } as QuizWithStatus)

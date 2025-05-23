@@ -1,4 +1,7 @@
 import { OpenInNew } from '@mui/icons-material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import UpdateIcon from '@mui/icons-material/Update';
 import { Box, Button, FormControl, InputLabel, MenuItem, Select, Typography } from '@mui/material';
 import {
   canAccessResource,
@@ -24,6 +27,7 @@ import { useEffect, useState } from 'react';
 import { CheckboxWithTimestamp } from './CheckBoxWithTimestamp';
 import { QuizFileReader } from './QuizFileReader';
 import { QuizStatsDisplay } from './QuizStatsDisplay';
+import { RecorrectionDialog } from './RecorrectionDialog';
 
 const NEW_QUIZ_ID = 'New';
 
@@ -139,6 +143,8 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
     title
   );
 
+  const [recorrectionDialogOpen, setRecorrectionDialogOpen] = useState(false);
+
   useEffect(() => {
     axios
       .get(`/api/quiz/get-all-quizzes?courseId=${courseId}&courseTerm=${courseTerm}`, {
@@ -223,6 +229,10 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
   if (!selectedQuiz && !isNew) return <>Error</>;
 
   async function handleDelete(quizId: string) {
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this quiz? This action cannot be undone.'
+    );
+    if (!confirmed) return;
     await deleteQuiz(quizId, courseId, courseTerm);
     setQuizzes(quizzes.filter((quiz) => quiz.id !== quizId));
     setSelectedQuizId(NEW_QUIZ_ID);
@@ -315,70 +325,90 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
         </Typography>
       )}
       <br />
-      {accessType == 'MUTATE' && (
-        <Button
-          disabled={!!formErrorReason || isUpdating}
-          variant="contained"
-          onClick={async (e) => {
-            setIsUpdating(true);
-            const quiz = {
-              id: selectedQuizId,
-              css,
-              title,
-              courseId,
-              courseTerm,
-              quizStartTs,
-              quizEndTs,
-              feedbackReleaseTs,
-              manuallySetPhase,
-              problems,
-            } as QuizWithStatus;
-
-            if (!isNew && stats.totalStudents > 0) {
-              const originalProblems = selectedQuiz?.problems || {};
-              const validation = validateQuizUpdate(
-                originalProblems,
+      <Box display="flex" gap={2} alignItems="center" mt={2} mb={2}>
+        {accessType == 'MUTATE' && (
+          <Button
+            disabled={!!formErrorReason || isUpdating}
+            variant="contained"
+            startIcon={<UpdateIcon />}
+            onClick={async (e) => {
+              setIsUpdating(true);
+              const quiz = {
+                id: selectedQuizId,
+                css,
+                title,
+                courseId,
+                courseTerm,
+                quizStartTs,
+                quizEndTs,
+                feedbackReleaseTs,
+                manuallySetPhase,
                 problems,
-                stats.totalStudents
-              );
+              } as QuizWithStatus;
 
-              if (!validation.valid) {
-                alert(`Cannot update quiz: ${validation.reason}`);
-                setIsUpdating(false);
-                return;
+              if (!isNew && stats.totalStudents > 0) {
+                const originalProblems = selectedQuiz?.problems || {};
+                const validation = validateQuizUpdate(
+                  originalProblems,
+                  problems,
+                  stats.totalStudents
+                );
+
+                if (!validation.valid) {
+                  alert(`Cannot update quiz: ${validation.reason}`);
+                  setIsUpdating(false);
+                  return;
+                }
               }
-            }
 
-            let resp: AxiosResponse;
-            try {
-              resp = await (isNew ? createQuiz(quiz) : updateQuiz(quiz));
-            } catch (e) {
-              alert(e);
+              let resp: AxiosResponse;
+              try {
+                resp = await (isNew ? createQuiz(quiz) : updateQuiz(quiz));
+              } catch (e) {
+                alert(e);
+                location.reload();
+              }
+              if (![200, 204].includes(resp.status)) {
+                alert(`Error: ${resp.status} ${resp.statusText}`);
+              } else {
+                alert(`Quiz ${isNew ? 'created' : 'updated'} successfully.`);
+              }
               location.reload();
-            }
-            if (![200, 204].includes(resp.status)) {
-              alert(`Error: ${resp.status} ${resp.statusText}`);
-            } else {
-              alert(`Quiz ${isNew ? 'created' : 'updated'} successfully.`);
-            }
-            location.reload();
-          }}
-        >
-          {isNew ? 'Create New Quiz' : 'Update Quiz'}
-        </Button>
-      )}
-      <br />
-      {accessType == 'MUTATE' && !isNew && (
-        <Button
-          onClick={() => handleDelete(selectedQuizId)}
-          variant="contained"
-          sx={{ mt: '10px' }}
-        >
-          DELETE QUIZ
-        </Button>
-      )}
-      <br />
-      <br />
+            }}
+          >
+            {isNew ? 'Create New Quiz' : 'Update Quiz'}
+          </Button>
+        )}
+        {accessType == 'MUTATE' && !isNew && (
+          <Button
+            onClick={() => handleDelete(selectedQuizId)}
+            variant="contained"
+            color="error"
+            startIcon={<DeleteIcon />}
+          >
+            DELETE QUIZ
+          </Button>
+        )}
+        {!isNew && accessType === 'MUTATE' && (
+          <Box mt={2} mb={2}>
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<EditIcon />}
+              onClick={() => setRecorrectionDialogOpen(true)}
+            >
+              Recorrection
+            </Button>
+            <RecorrectionDialog
+              open={recorrectionDialogOpen}
+              onClose={() => setRecorrectionDialogOpen(false)}
+              quizId={selectedQuizId}
+              courseId={courseId}
+              courseTerm={courseTerm}
+            />
+          </Box>
+        )}
+      </Box>
       {!isNew && (
         <a href={`/quiz/${selectedQuizId}`} target="_blank">
           <Button variant="contained">
