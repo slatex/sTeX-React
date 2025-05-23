@@ -46,11 +46,19 @@ import MainLayout from '../layouts/MainLayout';
 import { BannerSection, CourseCard, VollKiInfoSection } from '../pages';
 import { CourseThumb } from '../pages/u/[institution]';
 
+interface ColorInfo {
+  color: string;
+  type: 'updates_pending' | 'progress' | 'default';
+  value?: number;
+  max?: number;
+}
+
 interface ResourceDisplayInfo {
   description: string | null;
   timeAgo: string | null;
   timestamp: string | null;
   quizId?: string | null;
+  colorInfo?: ColorInfo;
 }
 
 const EXCLUDED_RESOURCES = [ResourceName.COURSE_STUDY_BUDDY, ResourceName.COURSE_ACCESS];
@@ -67,7 +75,7 @@ const getResourceDisplayText = (name: ResourceName, router: NextRouter) => {
     return r.homework;
   }
   if (name === ResourceName.COURSE_NOTES) {
-    return r.updateGoTo;
+    return r.updatesyllabus;
   }
   return name.replace('COURSE_', ' ').replace('_', ' ');
 };
@@ -89,31 +97,11 @@ const getTimeAgoColor = (timestamp: string | null): string => {
   return 'red';
 };
 
-const getColoredDescription = (text: string) => {
-  if (text?.includes('updates pending')) {
-    return <span style={{ color: 'red' }}>{text}</span>;
+const getColoredDescription = (text: string, colorInfo?: ColorInfo) => {
+  if (!colorInfo) {
+    return <span style={{ color: 'text.secondary' }}>{text}</span>;
   }
-
-  const match = text.match(/(Unanswered Questions|Ungraded Problems) - (\d+)\/(\d+)/);
-  if (match) {
-    const [, keyword, count, total] = match;
-    const value = parseInt(count, 10);
-    const max = parseInt(total, 10);
-    const percentage = max > 0 ? ((max - value) / max) * 100 : 0;
-    let color = 'inherit';
-
-    if (max == 0 && value == 0) {
-      color = 'text.secondary';
-    } else if (percentage < 30) {
-      color = 'red';
-    } else if (percentage < 70) {
-      color = 'orange';
-    } else {
-      color = 'green';
-    }
-    return <span style={{ color }}>{text}</span>;
-  }
-  return <span style={{ color: 'text.secondary' }}>{text}</span>;
+  return <span style={{ color: colorInfo.color }}>{text}</span>;
 };
 
 const getResourceIcon = (name: ResourceName) => {
@@ -135,60 +123,127 @@ const getResourceIcon = (name: ResourceName) => {
   }
 };
 
-async function getCommentsInfo(courseId: string) {
+async function getCommentsInfo(courseId: string, router: NextRouter) {
+  const { resource: r } = getLocaleObject(router);
   const comments = await getCourseInstanceThreads(courseId, CURRENT_TERM);
   const questions = comments.filter((comment) => comment.commentType === CommentType.QUESTION);
   const unanswered = questions.filter(
     (comment) => comment.questionStatus === QuestionStatus.UNANSWERED
   ).length;
+  const percentage =
+    questions.length > 0 ? ((questions.length - unanswered) / questions.length) * 100 : 0;
+  let color = 'inherit';
+  if (questions.length === 0 && unanswered === 0) {
+    color = 'text.secondary';
+  } else if (percentage < 30) {
+    color = 'red';
+  } else if (percentage < 70) {
+    color = 'orange';
+  } else {
+    color = 'green';
+  }
   return {
-    description: `Unanswered Questions - ${unanswered}/${questions.length}  `,
+    description: `${r.unansweredQuestions} - ${unanswered}/${questions.length}  `,
     timeAgo: null,
     timestamp: null,
+    colorInfo: {
+      color,
+      type: 'progress' as const,
+      value: unanswered,
+      max: questions.length,
+    },
   };
 }
 
-async function getLastUpdatedQuiz(courseId: string): Promise<ResourceDisplayInfo> {
+async function getLastUpdatedQuiz(
+  courseId: string,
+  router: NextRouter
+): Promise<ResourceDisplayInfo> {
+  const { resource: r } = getLocaleObject(router);
+
   try {
     const quizList = await getCourseQuizList(courseId);
     const latestQuiz = quizList.reduce((acc, curr) => {
       return acc.quizStartTs > curr.quizStartTs ? acc : curr;
     }, quizList[0]);
     const timestamp = latestQuiz.quizStartTs;
-    const description = `Latest Quiz: ${dayjs(timestamp).format('YYYY-MM-DD')}`;
+    const description = `${r.latestQuiz}: ${dayjs(timestamp).format('YYYY-MM-DD')}`;
     const timeAgo = calculateTimeAgo(timestamp.toString());
-    return { description, timeAgo, timestamp: timestamp.toString(), quizId: latestQuiz.quizId };
+    return {
+      description,
+      timeAgo,
+      timestamp: timestamp.toString(),
+      quizId: latestQuiz.quizId,
+      colorInfo: {
+        color: 'text.secondary',
+        type: 'default' as const,
+      },
+    };
   } catch (error) {
     console.error('Error fetching course data:', error);
     return { description: null, timeAgo: null, timestamp: null };
   }
 }
 
-async function getLastUpdatedHomework(courseId: string): Promise<ResourceDisplayInfo> {
+async function getLastUpdatedHomework(
+  courseId: string,
+  router: NextRouter
+): Promise<ResourceDisplayInfo> {
+  const { resource: r } = getLocaleObject(router);
+
   try {
     const homeworkList = await getHomeworkList(courseId);
     if (homeworkList.length === 0) {
-      return { description: 'No homework available', timeAgo: null, timestamp: null };
+      return {
+        description: r.noHomeworkAvailable || 'No homework available',
+        timeAgo: null,
+        timestamp: null,
+        colorInfo: {
+          color: 'text.secondary',
+          type: 'default' as const,
+        },
+      };
     }
     const timestamp = homeworkList.reduce((acc, curr) => {
       return acc > dayjs(curr.givenTs).valueOf() ? acc : dayjs(curr.givenTs).valueOf();
     }, dayjs(homeworkList[0].givenTs).valueOf());
-    const description = `Latest Homework: ${dayjs(timestamp).format('YYYY-MM-DD')}`;
+    const description = `${r.latestHomework}: ${dayjs(timestamp).format('YYYY-MM-DD')}`;
     const timeAgo = calculateTimeAgo(timestamp.toString());
-    return { description, timeAgo, timestamp: timestamp.toString() };
+    return {
+      description,
+      timeAgo,
+      timestamp: timestamp.toString(),
+      colorInfo: {
+        color: 'text.secondary',
+        type: 'default' as const,
+      },
+    };
   } catch (error) {
     console.error('Error fetching course data:', error);
     return { description: null, timeAgo: null, timestamp: null };
   }
 }
 
-async function getLastUpdatedNotes(courseId: string): Promise<ResourceDisplayInfo> {
+async function getLastUpdatedNotes(
+  courseId: string,
+  router: NextRouter
+): Promise<ResourceDisplayInfo> {
+  const { resource: r } = getLocaleObject(router);
+
   try {
     const coverageData = await getCoverageTimeline();
     const courseData = coverageData[courseId];
 
     if (!courseData || courseData.length === 0) {
-      return { description: 'No updates available', timeAgo: null, timestamp: null };
+      return {
+        description: r.noUpdatesAvailable || 'No updates available',
+        timeAgo: null,
+        timestamp: null,
+        colorInfo: {
+          color: 'text.secondary',
+          type: 'default' as const,
+        },
+      };
     }
 
     const entriesWithSection = courseData.filter(
@@ -215,39 +270,95 @@ async function getLastUpdatedNotes(courseId: string): Promise<ResourceDisplayInf
 
       const description =
         pendingUpdates > 0
-          ? `Last Updated: ${formattedDate}\n${pendingUpdates} updates pending`
-          : `Last Updated: ${formattedDate}`;
+          ? `${r.lastUpdated}: ${formattedDate}\n${pendingUpdates} ${r.updates} ${r.pending}`
+          : `${r.lastUpdated}: ${formattedDate}`;
 
       return {
         description,
         timeAgo: null,
         timestamp: lastUpdatedTimestamp.toString(),
+        colorInfo: {
+          color: pendingUpdates > 0 ? 'red' : 'text.secondary',
+          type: pendingUpdates > 0 ? ('updates_pending' as const) : ('default' as const),
+        },
       };
     }
 
     if (pendingUpdates > 0) {
       return {
-        description: `${pendingUpdates} updates pending`,
+        description: `${pendingUpdates} ${r.updates} ${r.pending}`,
         timeAgo: null,
         timestamp: null,
+        colorInfo: {
+          color: 'red',
+          type: 'updates_pending' as const,
+        },
       };
     }
 
-    return { description: 'No updates available', timeAgo: null, timestamp: null };
+    return {
+      description: r.noUpdatesAvailable || 'No updates available',
+      timeAgo: null,
+      timestamp: null,
+      colorInfo: {
+        color: 'text.secondary',
+        type: 'default' as const,
+      },
+    };
   } catch (error) {
     console.error('Error fetching course data:', error);
-    return { description: 'Failed to load updates', timeAgo: null, timestamp: null };
+    return {
+      description: r.failedToLoadUpdates || 'Failed to load updates',
+      timeAgo: null,
+      timestamp: null,
+      colorInfo: {
+        color: 'text.secondary',
+        type: 'default' as const,
+      },
+    };
   }
 }
 
-async function getUngradedProblems(courseId: string): Promise<ResourceDisplayInfo> {
+async function getUngradedProblems(
+  courseId: string,
+  router: NextRouter
+): Promise<ResourceDisplayInfo> {
+  const { resource: r } = getLocaleObject(router);
+
   try {
     const response = (await getCourseGradingItems(courseId)).gradingItems;
     const ungradedProblems = response.filter(
       (problem) => problem.numSubProblemsGraded !== problem.numSubProblemsAnswered
     );
-    const description = `Ungraded Problems - ${ungradedProblems.length}/${response.length}`;
-    return { description, timeAgo: null, timestamp: null };
+
+    const percentage =
+      response.length > 0
+        ? ((response.length - ungradedProblems.length) / response.length) * 100
+        : 0;
+    let color = 'inherit';
+
+    if (response.length === 0 && ungradedProblems.length === 0) {
+      color = 'text.secondary';
+    } else if (percentage < 30) {
+      color = 'red';
+    } else if (percentage < 70) {
+      color = 'orange';
+    } else {
+      color = 'green';
+    }
+
+    const description = `${r.ungradedProblems} - ${ungradedProblems.length}/${response.length}`;
+    return {
+      description,
+      timeAgo: null,
+      timestamp: null,
+      colorInfo: {
+        color,
+        type: 'progress' as const,
+        value: ungradedProblems.length,
+        max: response.length,
+      },
+    };
   } catch (error) {
     console.error('Error fetching course data:', error);
     return { description: null, timeAgo: null, timestamp: null };
@@ -258,41 +369,56 @@ async function getLastUpdatedDescriptions({
   courseId,
   name,
   action,
+  router,
 }: {
   courseId: string;
   name: ResourceName;
   action: Action;
+  router: NextRouter;
 }): Promise<ResourceDisplayInfo> {
   let description = null;
   let timeAgo = null;
   let timestamp = null;
   let quizId = null;
+  let colorInfo = undefined;
 
   switch (name) {
     case ResourceName.COURSE_NOTES:
-      ({ description, timeAgo, timestamp } = await getLastUpdatedNotes(courseId));
+      ({ description, timeAgo, timestamp, colorInfo } = await getLastUpdatedNotes(
+        courseId,
+        router
+      ));
       break;
     case ResourceName.COURSE_HOMEWORK:
       if (action === Action.MUTATE) {
-        ({ description, timeAgo, timestamp } = await getLastUpdatedHomework(courseId));
+        ({ description, timeAgo, timestamp, colorInfo } = await getLastUpdatedHomework(
+          courseId,
+          router
+        ));
       } else if (action === Action.INSTRUCTOR_GRADING) {
-        ({ description, timeAgo, timestamp: timestamp } = await getUngradedProblems(courseId));
+        ({ description, timeAgo, timestamp, colorInfo } = await getUngradedProblems(
+          courseId,
+          router
+        ));
       }
       break;
     case ResourceName.COURSE_QUIZ:
-      ({ description, timeAgo, timestamp, quizId } = await getLastUpdatedQuiz(courseId));
+      ({ description, timeAgo, timestamp, quizId, colorInfo } = await getLastUpdatedQuiz(
+        courseId,
+        router
+      ));
       if (quizId) {
         description = `Latest Quiz: ${dayjs(parseInt(timestamp)).format('YYYY-MM-DD HH:mm:ss')}`;
       }
       break;
     case ResourceName.COURSE_COMMENTS:
-      ({ description, timeAgo, timestamp } = await getCommentsInfo(courseId));
+      ({ description, timeAgo, timestamp, colorInfo } = await getCommentsInfo(courseId, router));
       break;
     default:
       break;
   }
 
-  return { description, timeAgo, timestamp, quizId };
+  return { description, timeAgo, timestamp, quizId, colorInfo };
 }
 
 const groupByCourseId = (resources: CourseResourceAction[]) => {
@@ -325,7 +451,7 @@ const handleResourceClick = (
   const { courseId, name } = resource;
   let url = '';
   if (name === ResourceName.COURSE_NOTES) {
-    url = `instructor-dash/${courseId}?tab=lecture-schedule`;
+    url = `instructor-dash/${courseId}?tab=syllabus`;
   } else if (name === ResourceName.COURSE_HOMEWORK) {
     if (action === Action.INSTRUCTOR_GRADING) {
       url = `instructor-dash/${courseId}?tab=homework-grading`;
@@ -408,9 +534,10 @@ function ResourceCard({
         acc.timeAgo = [...new Set([...acc.timeAgo, value.timeAgo])];
         acc.timestamp = [...new Set([...acc.timestamp, value.timestamp])];
         acc.quizId = [...new Set([...acc.quizId, value.quizId])];
+        acc.colorInfo = [...acc.colorInfo, value.colorInfo].filter(Boolean);
         return acc;
       },
-      { description: [], timeAgo: [], timestamp: [], quizId: [] }
+      { description: [], timeAgo: [], timestamp: [], quizId: [], colorInfo: [] }
     );
 
   const timeAgoColor = getTimeAgoColor(resourceDescriptions.timestamp[0]);
@@ -457,7 +584,7 @@ function ResourceCard({
                   .filter((d) => d !== null)
                   .map((d, index) => (
                     <Typography key={index} sx={{ fontSize: '14px', whiteSpace: 'pre-line' }}>
-                      {getColoredDescription(d)}
+                      {getColoredDescription(d, resourceDescriptions.colorInfo[index])}
                     </Typography>
                   ))}
               </Box>
@@ -546,12 +673,14 @@ function WelcomeScreen({
               courseId,
               name: resource.name,
               action: action,
-            }).then(({ description, timeAgo, timestamp, quizId }) => {
+              router,
+            }).then(({ description, timeAgo, timestamp, quizId, colorInfo }) => {
               newDescriptions[`${courseId}-${resource.name}-${action}`] = {
                 description,
                 timeAgo,
                 timestamp,
                 quizId,
+                colorInfo,
               };
             });
             fetchPromises.push(promise);
@@ -564,7 +693,7 @@ function WelcomeScreen({
     };
 
     fetchDescriptions();
-  }, [groupedResources]);
+  }, [groupedResources, router]);
 
   return (
     <MainLayout title="Instructor Dashboard | ALeA">

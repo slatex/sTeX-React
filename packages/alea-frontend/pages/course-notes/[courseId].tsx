@@ -10,7 +10,7 @@ import {
 import { getCourseInfo, getDocumentSections, TOCElem } from '@stex-react/api';
 import { FTMLDocument, FTMLSetup } from '@stex-react/ftml-utils';
 import { SectionReview, TrafficLightIndicator } from '@stex-react/stex-react-renderer';
-import { CourseInfo, CoverageSnap, PRIMARY_COL } from '@stex-react/utils';
+import { CourseInfo, LectureEntry, PRIMARY_COL } from '@stex-react/utils';
 import axios from 'axios';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -113,7 +113,7 @@ const CourseNotesPage: NextPage = () => {
     async function fetchGottos() {
       try {
         const response = await axios.get('/api/get-coverage-timeline');
-        const currentSemData: CoverageSnap[] = response.data[courseId] || [];
+        const currentSemData: LectureEntry[] = response.data[courseId] || [];
         const coverageData = currentSemData
           .filter((item) => item.sectionUri)
           .map((item) => ({

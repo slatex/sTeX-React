@@ -50,77 +50,109 @@ export function SlidePicker({
   );
   const sectionDisplayName = section ? section.title.trim() : 'Unknown Section';
 
+  const constructUriFromId = (id: string, sectionId: string): string => {
+    const slideMatch = id.match(/slide-(\d+)$/);
+    const slideNumber = slideMatch ? slideMatch[1] : '1';
+    return `https://mathhub.info?a=courses/FAU/meta-inf&p=${sectionId}/snip&d=${sectionId}&l=en&e=paragraph&slide=${slideNumber}`;
+  };
+
+  const processSlideData = (rawSlides: any[], sectionId: string): SlideData[] => {
+    return rawSlides
+      .map((slide: any, index: number) => {
+        let slideUri = '';
+        if (slide.uri) {
+          slideUri = slide.uri;
+        } else if (slide.slide && slide.slide.uri) {
+          slideUri = slide.slide.uri;
+        } else if (slide.id) {
+          slideUri = constructUriFromId(slide.id, sectionId);
+        } else {
+          slideUri = constructUriFromId(`slide-${index + 1}`, sectionId);
+        }
+
+        return {
+          ...slide,
+          uri: slideUri,
+          id: slide.id || `slide-${index + 1}`,
+          title: slide.title || `Slide ${index + 1}`,
+          index: index,
+          sectionId: sectionId,
+        };
+      })
+      .filter((slide: any) => slide.uri);
+  };
+
+  const processApiResponse = (responseData: any): AvailableSlides => {
+    const processedSlides: AvailableSlides = {};
+
+    for (const sectionId in responseData) {
+      if (!Array.isArray(responseData[sectionId])) {
+        processedSlides[sectionId] = [];
+        continue;
+      }
+      processedSlides[sectionId] = processSlideData(responseData[sectionId], sectionId);
+    }
+
+    return processedSlides;
+  };
+
+  const fetchSlidesFromApi = async (sectionId: string): Promise<AvailableSlides> => {
+    const response = await axios.get(
+      `/api/get-slides?courseId=${courseId}&sectionIds=${sectionId}`
+    );
+
+    if (!response.data || Object.keys(response.data).length === 0) {
+      throw new Error('No slides found for this section');
+    }
+
+    return processApiResponse(response.data);
+  };
+
+  const validateProcessedSlides = (processedSlides: AvailableSlides): void => {
+    const totalSlides = Object.values(processedSlides).flat().length;
+    if (totalSlides === 0) {
+      throw new Error('No slides found for this section');
+    }
+  };
+
+  const resetSlideState = (): void => {
+    setLocalAvailableSlides({});
+    setError(null);
+  };
+
+  const handleFetchError = (error: any): void => {
+    const errorMessage = error.message || 'Failed to load slides';
+    setError(errorMessage);
+    setLocalAvailableSlides({});
+  };
+
   useEffect(() => {
     const fetchSlides = async () => {
       if (!sectionUri) {
-        setLocalAvailableSlides({});
+        resetSlideState();
         return;
       }
-      setIsLoading(true);
-      setError(null);
+
       if (!section?.id) {
         setIsLoading(false);
         setError('Section not found');
         setLocalAvailableSlides({});
         return;
       }
+      setIsLoading(true);
+      setError(null);
       try {
-        const response = await axios.get(
-          `/api/get-slides?courseId=${courseId}&sectionIds=${section.id}`
-        );
-        if (response.data && Object.keys(response.data).length > 0) {
-          const processedSlides: AvailableSlides = {};
-          for (const sectionId in response.data) {
-            if (!Array.isArray(response.data[sectionId])) {
-              processedSlides[sectionId] = [];
-              continue;
-            }
-            processedSlides[sectionId] = response.data[sectionId]
-              .map((slide: any, index: number) => {
-                let slideUri = '';
-                if (slide.uri) {
-                  slideUri = slide.uri;
-                } else if (slide.slide && slide.slide.uri) {
-                  slideUri = slide.slide.uri;
-                } else if (slide.id) {
-                  slideUri = constructUriFromId(slide.id, sectionId);
-                } else {
-                  slideUri = constructUriFromId(`slide-${index + 1}`, sectionId);
-                }
-                return {
-                  ...slide,
-                  uri: slideUri,
-                  id: slide.id || `slide-${index + 1}`,
-                  title: slide.title || `Slide ${index + 1}`,
-                  index: index,
-                  sectionId: sectionId,
-                };
-              })
-              .filter((slide: any) => slide.uri);
-          }
-          setLocalAvailableSlides(processedSlides);
-          if (Object.values(processedSlides).flat().length === 0) {
-            setError('No slides found for this section');
-          }
-        } else {
-          setError('No slides found for this section');
-          setLocalAvailableSlides({});
-        }
+        const processedSlides = await fetchSlidesFromApi(section.id);
+        validateProcessedSlides(processedSlides);
+        setLocalAvailableSlides(processedSlides);
       } catch (error) {
-        setError('Failed to load slides');
-        setLocalAvailableSlides({});
+        handleFetchError(error);
       } finally {
         setIsLoading(false);
       }
     };
     fetchSlides();
   }, [sectionUri, sectionNames, courseId]);
-
-  const constructUriFromId = (id: string, sectionId: string): string => {
-    const slideMatch = id.match(/slide-(\d+)$/);
-    const slideNumber = slideMatch ? slideMatch[1] : '1';
-    return `https://mathhub.info?a=courses/FAU/meta-inf&p=${sectionId}/snip&d=${sectionId}&l=en&e=paragraph&slide=${slideNumber}`;
-  };
 
   const getSlideOptions = () => {
     if (!section?.id || !availableSlides[section.id]) return [];
@@ -150,7 +182,7 @@ export function SlidePicker({
     <>
       {!sectionUri && (
         <Alert severity="info" sx={{ mb: 2 }}>
-          Please select a got-to to view available slides
+          Please select a section (actually) completed to view available slides
         </Alert>
       )}
       <Paper
@@ -176,7 +208,7 @@ export function SlidePicker({
         >
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Typography variant="h6" sx={{ fontWeight: 'medium' }}>
-              {sectionUri ? `Slides for: ${sectionDisplayName}` : 'No got-to selected'}
+              {sectionUri ? `Slides for: ${sectionDisplayName}` : 'No section selected'}
             </Typography>
           </Box>
           {sectionUri && (
@@ -254,7 +286,7 @@ export function SlidePicker({
             </>
           ) : (
             <Typography variant="body2" sx={{ p: 2 }}>
-              No slides found for this got-to
+              No slides found for this section
             </Typography>
           )}
         </Box>
