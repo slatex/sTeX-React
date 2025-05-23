@@ -103,7 +103,7 @@ const CoverageUpdatePage: NextPage = () => {
 
   const handleRouteChangeStart = useCallback(
     (url: string) => {
-      if (currentTab === 'lecture-schedule' && hasUnsavedChanges()) {
+      if (currentTab === 'syllabus' && hasUnsavedChanges()) {
         const urlObj = new URL(url, window.location.origin);
         const targetTab = urlObj.searchParams.get('tab');
 
@@ -112,7 +112,7 @@ const CoverageUpdatePage: NextPage = () => {
           target: { url, tab: targetTab },
         });
 
-        if (targetTab !== 'lecture-schedule') {
+        if (targetTab !== 'syllabus') {
           console.log('Preventing navigation due to unsaved changes');
 
           router.events.emit('routeChangeError');
@@ -143,11 +143,7 @@ const CoverageUpdatePage: NextPage = () => {
     router.events.on('routeChangeStart', handleRouteChangeStart);
 
     const handleTabChange = () => {
-      if (
-        previousTab === 'lecture-schedule' &&
-        currentTab !== 'lecture-schedule' &&
-        hasUnsavedChanges()
-      ) {
+      if (previousTab === 'syllabus' && currentTab !== 'syllabus' && hasUnsavedChanges()) {
         console.log('Tab changed via query params with unsaved changes');
 
         setShowUnsavedDialog(true);
@@ -167,16 +163,10 @@ const CoverageUpdatePage: NextPage = () => {
     if (router.isReady && currentTab) {
       console.log(`Tab changed: ${previousTab} -> ${currentTab}`);
 
-      if (
-        previousTab === 'lecture-schedule' &&
-        currentTab !== 'lecture-schedule' &&
-        hasUnsavedChanges()
-      ) {
+      if (previousTab === 'syllabus' && currentTab !== 'syllabus' && hasUnsavedChanges()) {
         console.log('Unsaved changes detected during tab change');
 
-        setPendingNavigation(
-          `${window.location.pathname}?tab=lecture-schedule&courseId=${courseId}`
-        );
+        setPendingNavigation(`${window.location.pathname}?tab=syllabus&courseId=${courseId}`);
         setShowUnsavedDialog(true);
       }
 

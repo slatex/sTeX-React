@@ -160,10 +160,6 @@ export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: Cov
     <Box sx={{ width: '100%' }}>
       {snaps.length > 0 ? (
         <>
-          <Typography variant="h6" gutterBottom sx={{ mt: 2, mb: 3 }}>
-            Syllabus Entries ({snaps.length})
-          </Typography>
-
           <CoverageTable
             entries={coverageEntries}
             onEdit={handleEditItem}
@@ -205,7 +201,7 @@ export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: Cov
           gutterBottom
           color={editIndex !== null ? 'primary' : 'textPrimary'}
         >
-          {editIndex !== null ? 'Edit Section Entry' : 'Add New Section'}
+          {editIndex !== null ? 'Edit Lecture Entry' : 'Add New Lecture'}
         </Typography>
 
         <CoverageForm
