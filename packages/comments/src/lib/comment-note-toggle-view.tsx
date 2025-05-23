@@ -106,7 +106,7 @@ export function CommentNoteToggleView({
       </Box>
       <TabPanel value={value} index={0}>
         <NotesView
-          file={{archive: 'TODO ALEA4-N8.1', filepath: uri}}
+          uri={uri}
           selectedText={selectedText}
           selectedElement={selectedElement}
           allNotesMode={allNotesMode}
@@ -114,7 +114,6 @@ export function CommentNoteToggleView({
       </TabPanel>
       <TabPanel value={value} index={1}>
         <CommentSection
-          file={{archive: 'TODO ALEA4-N8.1', filepath: uri}}
           uri={uri}
           selectedText={selectedText}
           selectedElement={selectedElement}

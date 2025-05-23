@@ -68,7 +68,7 @@ export function isSpam(status?: HiddenStatus) {
 }
 
 export interface GetCommentsRequest {
-  files: FileLocation[];
+  uris: string[];
 }
 
 export interface EditCommentRequest {
