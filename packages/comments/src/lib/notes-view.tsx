@@ -1,7 +1,6 @@
 import { Refresh } from '@mui/icons-material';
 import { Box, IconButton } from '@mui/material';
-import { Comment, getUserInfo } from '@stex-react/api';
-import { FileLocation } from '@stex-react/utils';
+import { Comment, getUserInfo, URI } from '@stex-react/api';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { getPrivateNotes, refreshAllComments } from './comment-store-manager';
@@ -11,12 +10,12 @@ import { CommentView } from './CommentView';
 import { getLocaleObject } from './lang/utils';
 
 export function NotesView({
-  file,
+  uri,
   selectedText = undefined,
   selectedElement = undefined,
   allNotesMode = false,
 }: {
-  file: FileLocation;
+  uri: URI;
   selectedText?: string;
   selectedElement?: any;
   allNotesMode?: boolean;
@@ -27,7 +26,7 @@ export function NotesView({
 
   const refreshNotes = () => {
     refreshAllComments().then((_) => {
-      getPrivateNotes(file).then((c) => setNotes(c));
+      getPrivateNotes(uri).then((c) => setNotes(c));
     });
   };
   useEffect(() => {
@@ -35,8 +34,8 @@ export function NotesView({
   }, []);
   useEffect(() => {
     if (!userId) return;
-    getPrivateNotes(file).then((c) => setNotes(c));
-  }, [file?.archive, file?.filepath, userId]);
+    getPrivateNotes(uri).then((c) => setNotes(c));
+  }, [uri, userId]);
 
   if (!userId)
     return (
@@ -68,7 +67,7 @@ export function NotesView({
         <CommentReply
           placeholder={t.createPrivate}
           parentId={0}
-          file={file}
+          uri={uri}
           isPrivateNote={true}
           selectedText={selectedText}
           selectedElement={selectedElement}
