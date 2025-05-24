@@ -95,27 +95,15 @@ export function ProblemViewer({
   onResponseUpdate,
   isFrozen,
   r,
-  submitAnswer,
 }: {
   problem: FTMLProblemWithSolution;
   onResponseUpdate?: (response: ProblemResponse) => void;
   isFrozen: boolean;
   r?: ProblemResponse;
-  submitAnswer: (answer: string) => void;
 }) {
   const problemState = getProblemState(isFrozen, problem.solution, r);
   const { html, uri } = problem.problem;
-  const [subProblemCounter, setSubProblemCounter] = useState(0);
-  // const [haveSubproblem, setHaveSubproblem] = useState(false);
-  // if (problem.problem.subProblems != null) setHaveSubproblem(true);
-  console.log(problem.problem.subProblems);
-  const [answer, setAnsewr] = useState('');
-  function onSaveClick() {
-    submitAnswer(answer);
-  }
-  function onAnswerChanged(value: string) {
-    setAnsewr(value);
-  }
+  const isHaveSubProblems = problem.problem.subProblems != null;
   return (
     <FTMLFragment
       key={uri}
@@ -127,69 +115,34 @@ export function ProblemViewer({
       }}
       onFragment={(uri, kind) => {
         if (kind.type === 'Problem') {
-          if (problem.problem.subProblems != null) setSubProblemCounter(subProblemCounter + 1);
-          return (ch) => <AnswerAccepter ch={ch} uri={uri}></AnswerAccepter>;
+          return (ch) => (
+            <Box>
+              {ch}
+              <AnswerAccepter
+                isHaveSubProblems={isHaveSubProblems}
+                isFrozen={isFrozen}
+                uri={uri}
+              ></AnswerAccepter>
+            </Box>
+          );
         }
       }}
     />
   );
 }
 
-function AnswerAccepter({ ch, uri }: { ch: any; uri: string }) {
-  const isFrozen = false;
-  const [answer, setAnsewr] = useState('');
-  console.log(ch)
-  console.log(uri)
-  function onSaveClick() {
-    return;
-  }
-  return (
-    <Box>
-      {ch}
-      <Box display="flex" alignItems="flex-start">
-        <Box flexGrow={1}>
-          <MystEditor
-            name={`answer-${Math.random()}`}
-            placeholder={'...'}
-            value={answer}
-            onValueChange={(c) => setAnsewr(c)}
-          />
-        </Box>
-        <IconButton disabled={isFrozen} onClick={onSaveClick} sx={{ ml: 2 }}>
-          <SaveIcon />
-        </IconButton>
-      </Box>
-    </Box>
-  );
-}
-export function ProblemDisplay({
+function AnswerAccepter({
   uri,
-  problem,
+  isHaveSubProblems,
   isFrozen,
-  r,
-  showPoints = true,
-  onResponseUpdate,
-  onFreezeResponse,
 }: {
-  uri?: string;
-  problem: FTMLProblemWithSolution | undefined;
+  uri: string;
+  isHaveSubProblems: boolean;
   isFrozen: boolean;
-  r?: ProblemResponse;
-  showPoints?: boolean;
-  onResponseUpdate?: (r: ProblemResponse) => void;
-  onFreezeResponse?: () => void;
 }) {
+  const [answer, setAnsewr] = useState('');
+  const subId = isHaveSubProblems ? +uri.charAt(uri.length - 1) : 0;
   const router = useRouter();
-  const [userId, setUserId] = useState('');
-  useEffect(() => {
-    getUserInfo().then((u: UserInfo | undefined) => {
-      if (u) {
-        setUserId(u.userId as string);
-      }
-    });
-  }, []);
-  if (!problem) return <CircularProgress />;
-  const isEffectivelyFrozen = isFrozen;
 
   async function saveAnswer({
     problemId,
@@ -214,6 +167,53 @@ export function ProblemDisplay({
       alert('Failed to save answers. Please try again.');
     }
   }
+  if (isHaveSubProblems && isNaN(subId)) return;
+  async function onSaveClick() {
+    await saveAnswer({ freeTextResponses: answer, problemId: uri, subId: uri });
+  }
+  return (
+    <Box display="flex" alignItems="flex-start">
+      <Box flexGrow={1}>
+        <MystEditor
+          name={`answer-${Math.random()}`}
+          placeholder={'...'}
+          value={answer}
+          onValueChange={(c) => setAnsewr(c)}
+        />
+      </Box>
+      <IconButton disabled={isFrozen} onClick={onSaveClick} sx={{ ml: 2 }}>
+        <SaveIcon />
+      </IconButton>
+    </Box>
+  );
+}
+export function ProblemDisplay({
+  uri,
+  problem,
+  isFrozen,
+  r,
+  showPoints = true,
+  onResponseUpdate,
+  onFreezeResponse,
+}: {
+  uri?: string;
+  problem: FTMLProblemWithSolution | undefined;
+  isFrozen: boolean;
+  r?: ProblemResponse;
+  showPoints?: boolean;
+  onResponseUpdate?: (r: ProblemResponse) => void;
+  onFreezeResponse?: () => void;
+}) {
+  const [userId, setUserId] = useState('');
+  useEffect(() => {
+    getUserInfo().then((u: UserInfo | undefined) => {
+      if (u) {
+        setUserId(u.userId as string);
+      }
+    });
+  }, []);
+  if (!problem) return <CircularProgress />;
+  const isEffectivelyFrozen = isFrozen;
 
   return (
     <Card
@@ -230,13 +230,6 @@ export function ProblemDisplay({
           problem={problem}
           isFrozen={isEffectivelyFrozen}
           r={r}
-          submitAnswer={(d) => {
-            saveAnswer({
-              freeTextResponses: d,
-              problemId: problem.problem.uri,
-              subId: problem.problem.uri,
-            });
-          }}
           onResponseUpdate={onResponseUpdate}
         />
         {onFreezeResponse && !isEffectivelyFrozen && r && (
