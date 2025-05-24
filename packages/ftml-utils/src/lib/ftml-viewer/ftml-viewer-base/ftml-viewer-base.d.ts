@@ -124,6 +124,28 @@ export interface OMDocDocument {
     children: OMDocDocumentElement[];
 }
 
+export type FragmentKind = ({ type: "Section" } & SectionLevel) | ({ type: "Paragraph" } & ParagraphKind) | { type: "Slide" } | { type: "Problem"; is_sub_problem: boolean; is_autogradable: boolean };
+
+/**
+ * An entry in a table of contents. Either:
+ * 1. a section; the title is assumed to be an HTML string, or
+ * 2. an inputref to some other document; the URI is the one for the
+ *    inputref itself; not the referenced Document. For the TOC,
+ *    which document is inputrefed is actually irrelevant.
+ */
+export type TOCElem = { type: "Section"; title: string | undefined; uri: DocumentElementURI; id: string; children: TOCElem[] } | { type: "SkippedSection"; children: TOCElem[] } | { type: "Inputref"; uri: DocumentURI; title: string | undefined; id: string; children: TOCElem[] } | { type: "Paragraph"; styles: Name[]; kind: ParagraphKind } | { type: "Slide" };
+
+/**
+ * A section that has been \"covered\" at the specified timestamp; will be marked accordingly
+ * in the TOC.
+ */
+export interface Gotto {
+    uri: DocumentElementURI;
+    timestamp?: Timestamp | undefined;
+}
+
+export type OMDoc = ({ type: "Slide" } & OMDocSlide) | ({ type: "Document" } & OMDocDocument) | ({ type: "Section" } & OMDocSection) | ({ type: "DocModule" } & OMDocModule<OMDocDocumentElement>) | ({ type: "Module" } & OMDocModule<OMDocDeclaration>) | ({ type: "DocMorphism" } & OMDocMorphism<OMDocDocumentElement>) | ({ type: "Morphism" } & OMDocMorphism<OMDocDeclaration>) | ({ type: "DocStructure" } & OMDocStructure<OMDocDocumentElement>) | ({ type: "Structure" } & OMDocStructure<OMDocDeclaration>) | ({ type: "DocExtension" } & OMDocExtension<OMDocDocumentElement>) | ({ type: "Extension" } & OMDocExtension<OMDocDeclaration>) | ({ type: "SymbolDeclaration" } & OMDocSymbol) | ({ type: "Variable" } & OMDocVariable) | ({ type: "Paragraph" } & OMDocParagraph) | ({ type: "Problem" } & OMDocProblem) | { type: "Term"; uri: DocumentElementURI; term: Term } | { type: "DocReference"; uri: DocumentURI; title: string | undefined } | ({ type: "Other" } & string);
+
 export interface OMDocSymbol {
     uri: SymbolURI;
     df: Term | undefined;
@@ -166,28 +188,6 @@ export interface OMDocModule<E> {
     signature: Language | undefined;
     children: E[];
 }
-
-export type FragmentKind = ({ type: "Section" } & SectionLevel) | ({ type: "Paragraph" } & ParagraphKind) | { type: "Slide" } | { type: "Problem"; is_sub_problem: boolean; is_autogradable: boolean };
-
-/**
- * An entry in a table of contents. Either:
- * 1. a section; the title is assumed to be an HTML string, or
- * 2. an inputref to some other document; the URI is the one for the
- *    inputref itself; not the referenced Document. For the TOC,
- *    which document is inputrefed is actually irrelevant.
- */
-export type TOCElem = { type: "Section"; title: string | undefined; uri: DocumentElementURI; id: string; children: TOCElem[] } | { type: "SkippedSection"; children: TOCElem[] } | { type: "Inputref"; uri: DocumentURI; title: string | undefined; id: string; children: TOCElem[] } | { type: "Paragraph"; styles: Name[]; kind: ParagraphKind } | { type: "Slide" };
-
-/**
- * A section that has been \"covered\" at the specified timestamp; will be marked accordingly
- * in the TOC.
- */
-export interface Gotto {
-    uri: DocumentElementURI;
-    timestamp?: Timestamp | undefined;
-}
-
-export type OMDoc = ({ type: "Slide" } & OMDocSlide) | ({ type: "Document" } & OMDocDocument) | ({ type: "Section" } & OMDocSection) | ({ type: "DocModule" } & OMDocModule<OMDocDocumentElement>) | ({ type: "Module" } & OMDocModule<OMDocDeclaration>) | ({ type: "DocMorphism" } & OMDocMorphism<OMDocDocumentElement>) | ({ type: "Morphism" } & OMDocMorphism<OMDocDeclaration>) | ({ type: "DocStructure" } & OMDocStructure<OMDocDocumentElement>) | ({ type: "Structure" } & OMDocStructure<OMDocDeclaration>) | ({ type: "DocExtension" } & OMDocExtension<OMDocDocumentElement>) | ({ type: "Extension" } & OMDocExtension<OMDocDeclaration>) | ({ type: "SymbolDeclaration" } & OMDocSymbol) | ({ type: "Variable" } & OMDocVariable) | ({ type: "Paragraph" } & OMDocParagraph) | ({ type: "Problem" } & OMDocProblem) | { type: "Term"; uri: DocumentElementURI; term: Term } | { type: "DocReference"; uri: DocumentURI; title: string | undefined } | ({ type: "Other" } & string);
 
 export type LeptosContinuation = (e:HTMLDivElement,o:LeptosContext) => void;
 
@@ -360,12 +360,6 @@ export interface QueryFilter {
 
 export type SectionLevel = "Part" | "Chapter" | "Section" | "Subsection" | "Subsubsection" | "Paragraph" | "Subparagraph";
 
-export type Name = string;
-
-export type LOKind = { type: "Definition" } | { type: "Example" } | ({ type: "Problem" } & CognitiveDimension) | ({ type: "SubProblem" } & CognitiveDimension);
-
-export type Language = "en" | "de" | "fr" | "ro" | "ar" | "bg" | "ru" | "fi" | "tr" | "sl";
-
 export type ModuleURI = string;
 
 export type SymbolURI = string;
@@ -379,6 +373,12 @@ export type DocumentURI = string;
 export type URI = string;
 
 export type ArgSpec = ArgMode[];
+
+export type LOKind = { type: "Definition" } | { type: "Example" } | ({ type: "Problem" } & CognitiveDimension) | ({ type: "SubProblem" } & CognitiveDimension);
+
+export type Language = "en" | "de" | "fr" | "ro" | "ar" | "bg" | "ru" | "fi" | "tr" | "sl";
+
+export type Name = string;
 
 export type CSS = { Link: string } | { Inline: string } | { Class: { name: string; css: string } };
 

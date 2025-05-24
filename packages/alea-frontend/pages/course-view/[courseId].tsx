@@ -308,7 +308,10 @@ const CourseViewPage: NextPage = () => {
               toc={toc}
               selectedSection={sectionId}
               onClose={() => setShowDashboard(false)}
-              onSectionClick={(sectionId: string) => setSlideNumAndSectionId(router, 1, sectionId)}
+              onSectionClick={(sectionId: string) => {
+                setAutoSync(false);
+                setSlideNumAndSectionId(router, 1, sectionId);
+              }}
             />
           )
         }

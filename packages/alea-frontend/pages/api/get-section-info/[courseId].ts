@@ -6,7 +6,7 @@ import {
   SectionInfo,
   TOCElem,
 } from '@stex-react/api';
-import { CoverageSnap } from '@stex-react/utils';
+import { LectureEntry } from '@stex-react/utils';
 import { readdir, readFile } from 'fs/promises';
 import { convert } from 'html-to-text';
 import { NextApiRequest, NextApiResponse } from 'next';
@@ -99,7 +99,7 @@ function getSectionsInOrder(nodes: SectionInfo[]): SectionInfo[] {
   return nodeList;
 }
 
-export function addCoverageInfo(sections: SectionInfo[], snaps: CoverageSnap[]) {
+export function addCoverageInfo(sections: SectionInfo[], snaps: LectureEntry[]) {
   const inOrderList = getSectionsInOrder(sections);
   let snapIdx = 0;
   for (const section of inOrderList) {

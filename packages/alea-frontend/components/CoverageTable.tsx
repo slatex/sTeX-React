@@ -51,7 +51,7 @@ export function CoverageTable({ entries, onEdit, onDelete }: CoverageTableProps)
         <TableHead>
           <TableRow sx={{ bgcolor: 'primary.light' }}>
             <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Date</TableCell>
-            <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Got-to</TableCell>
+            <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Section Completed</TableCell>
             <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Slide</TableCell>
             <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Target Section</TableCell>
             <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Clip</TableCell>

@@ -10,13 +10,14 @@ import {
 import { getCourseInfo, getDocumentSections, TOCElem } from '@stex-react/api';
 import { FTMLDocument, FTMLSetup } from '@stex-react/ftml-utils';
 import { SectionReview, TrafficLightIndicator } from '@stex-react/stex-react-renderer';
-import { CourseInfo, CoverageSnap, PRIMARY_COL } from '@stex-react/utils';
+import { CourseInfo, LectureEntry, PRIMARY_COL } from '@stex-react/utils';
 import axios from 'axios';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import SearchCourseNotes from '../../components/SearchCourseNotes';
 import MainLayout from '../../layouts/MainLayout';
+import { CommentButton } from '@stex-react/comments';
 
 const SearchDialog = ({ open, onClose, courseId }) => {
   return (
@@ -67,9 +68,16 @@ const FragmentWrap: React.FC<{
 }> = ({ uri, fragmentKind, children, uriToTitle }) => {
   return (
     <Box fragment-uri={uri} fragment-kind={fragmentKind}>
-      {children}
-      {fragmentKind === 'Section' && (
-        <SectionReview sectionUri={uri} sectionTitle={uriToTitle[uri] ?? ''} />
+      {fragmentKind === 'Section' ? (
+        <>
+          {children}
+          <SectionReview sectionUri={uri} sectionTitle={uriToTitle[uri] ?? ''} />
+        </>
+      ) : (
+        <Box display="flex" justifyContent="space-between">
+          <Box flex={1}>{children}</Box>
+          <CommentButton url={uri} />
+        </Box>
       )}
     </Box>
   );
@@ -113,7 +121,7 @@ const CourseNotesPage: NextPage = () => {
     async function fetchGottos() {
       try {
         const response = await axios.get('/api/get-coverage-timeline');
-        const currentSemData: CoverageSnap[] = response.data[courseId] || [];
+        const currentSemData: LectureEntry[] = response.data[courseId] || [];
         const coverageData = currentSemData
           .filter((item) => item.sectionUri)
           .map((item) => ({
@@ -146,8 +154,7 @@ const CourseNotesPage: NextPage = () => {
           key={notes}
           document={{ uri: notes, toc: { Predefined: toc }, gottos }}
           onFragment={(uri, kind) => {
-            if (kind.type === 'Section' || kind.type === 'Slide') {
-              //|| kind.type==='Paragraph' // 'Paragraph' causes jumps on hover* TODO ALEA4-N8.1
+            if (kind.type === 'Section' || kind.type === 'Slide' || kind.type === 'Paragraph') {
               return (ch) => (
                 <FragmentWrap
                   uri={uri}
