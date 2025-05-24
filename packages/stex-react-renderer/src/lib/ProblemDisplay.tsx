@@ -1,4 +1,4 @@
-import { Box, Button, Card, CircularProgress, Typography } from '@mui/material';
+import { Box, Button, Card, CircularProgress, IconButton, Typography } from '@mui/material';
 import {
   AnswerUpdateEntry,
   CognitiveDimension,
@@ -14,7 +14,9 @@ import { FTMLFragment, ProblemResponse, ProblemState, Solutions } from '@stex-re
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { getPoints } from './stex-react-renderer';
-
+import { MystEditor } from '@stex-react/myst';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import SaveIcon from '@mui/icons-material/Save';
 export function PointsInfo({ points }: { points: number | undefined }) {
   return (
     <Typography variant="h6" sx={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -80,8 +82,10 @@ export function getProblemState(
 ): ProblemState {
   if (!isFrozen) return { type: 'Interactive', current_response };
   if (!solution) return { type: 'Finished', current_response };
-  const sol = Solutions.from_jstring(solution.replace(/^"|"$/g, ""));
-  const feedback = current_response ? sol?.check_response(current_response) : sol?.default_feedback();
+  const sol = Solutions.from_jstring(solution.replace(/^"|"$/g, ''));
+  const feedback = current_response
+    ? sol?.check_response(current_response)
+    : sol?.default_feedback();
   if (!feedback) return { type: 'Finished', current_response }; // Something went wrong!!
   return { type: 'Graded', feedback: feedback.to_json() };
 }
@@ -91,15 +95,27 @@ export function ProblemViewer({
   onResponseUpdate,
   isFrozen,
   r,
+  submitAnswer,
 }: {
   problem: FTMLProblemWithSolution;
   onResponseUpdate?: (response: ProblemResponse) => void;
   isFrozen: boolean;
   r?: ProblemResponse;
+  submitAnswer: (answer: string) => void;
 }) {
   const problemState = getProblemState(isFrozen, problem.solution, r);
   const { html, uri } = problem.problem;
-
+  const [subProblemCounter, setSubProblemCounter] = useState(0);
+  // const [haveSubproblem, setHaveSubproblem] = useState(false);
+  // if (problem.problem.subProblems != null) setHaveSubproblem(true);
+  console.log(problem.problem.subProblems);
+  const [answer, setAnsewr] = useState('');
+  function onSaveClick() {
+    submitAnswer(answer);
+  }
+  function onAnswerChanged(value: string) {
+    setAnsewr(value);
+  }
   return (
     <FTMLFragment
       key={uri}
@@ -109,10 +125,43 @@ export function ProblemViewer({
       onProblem={(response) => {
         onResponseUpdate?.(response);
       }}
+      onFragment={(uri, kind) => {
+        if (kind.type === 'Problem') {
+          if (problem.problem.subProblems != null) setSubProblemCounter(subProblemCounter + 1);
+          return (ch) => <AnswerAccepter ch={ch} uri={uri}></AnswerAccepter>;
+        }
+      }}
     />
   );
 }
 
+function AnswerAccepter({ ch, uri }: { ch: any; uri: string }) {
+  const isFrozen = false;
+  const [answer, setAnsewr] = useState('');
+  console.log(ch)
+  console.log(uri)
+  function onSaveClick() {
+    return;
+  }
+  return (
+    <Box>
+      {ch}
+      <Box display="flex" alignItems="flex-start">
+        <Box flexGrow={1}>
+          <MystEditor
+            name={`answer-${Math.random()}`}
+            placeholder={'...'}
+            value={answer}
+            onValueChange={(c) => setAnsewr(c)}
+          />
+        </Box>
+        <IconButton disabled={isFrozen} onClick={onSaveClick} sx={{ ml: 2 }}>
+          <SaveIcon />
+        </IconButton>
+      </Box>
+    </Box>
+  );
+}
 export function ProblemDisplay({
   uri,
   problem,
@@ -142,26 +191,23 @@ export function ProblemDisplay({
   if (!problem) return <CircularProgress />;
   const isEffectivelyFrozen = isFrozen;
 
-  async function saveAnswers({
+  async function saveAnswer({
     problemId,
-    uri,
+    subId,
     freeTextResponses,
   }: {
     problemId: string;
-    uri?: string;
-    freeTextResponses: Record<string, string>;
+    subId?: string;
+    freeTextResponses: string;
   }) {
     try {
-      const promises = Object.keys(freeTextResponses).map((idx) =>
-        createAnswer({
-          answer: freeTextResponses[idx],
-          questionId: uri ? uri : problemId,
-          questionTitle: router.query?.title as string,
-          subProblemId: idx,
-          courseId: router.query.courseId as string,
-        })
-      );
-      await Promise.all(promises);
+      createAnswer({
+        answer: freeTextResponses,
+        questionId: uri ? uri : problemId,
+        questionTitle: router.query?.title as string,
+        subProblemId: subId ?? '',
+        courseId: router.query.courseId as string,
+      });
       console.log('All answers saved successfully!');
     } catch (error) {
       console.error('Error saving answers:', error);
@@ -184,6 +230,13 @@ export function ProblemDisplay({
           problem={problem}
           isFrozen={isEffectivelyFrozen}
           r={r}
+          submitAnswer={(d) => {
+            saveAnswer({
+              freeTextResponses: d,
+              problemId: problem.problem.uri,
+              subId: problem.problem.uri,
+            });
+          }}
           onResponseUpdate={onResponseUpdate}
         />
         {onFreezeResponse && !isEffectivelyFrozen && r && (
