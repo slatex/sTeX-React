@@ -28,6 +28,7 @@ import { CheckboxWithTimestamp } from './CheckBoxWithTimestamp';
 import { QuizFileReader } from './QuizFileReader';
 import { QuizStatsDisplay } from './QuizStatsDisplay';
 import { RecorrectionDialog } from './RecorrectionDialog';
+import { ExcusedAccordion } from './ExcusedAccordion';
 
 const NEW_QUIZ_ID = 'New';
 
@@ -417,6 +418,12 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
           </Button>
         </a>
       )}
+
+      {!isNew && (
+        <Box mt={2} mb={2}>
+        <ExcusedAccordion quizId={selectedQuizId} courseId={courseId} courseInstance={courseTerm} />
+        </Box>
+        )}
 
       <QuizStatsDisplay
         stats={stats}

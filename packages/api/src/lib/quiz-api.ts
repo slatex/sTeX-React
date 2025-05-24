@@ -2,6 +2,8 @@ import axios, { AxiosError } from 'axios';
 import { ProblemResponse } from './ftml-viewer-base';
 import { getAuthHeaders } from './lmp';
 import {
+  excused,
+  excusedResponse,
   GetPreviousQuizInfoResponse,
   GetQuizResponse,
   InsertAnswerRequest,
@@ -110,3 +112,27 @@ export async function recorrectQuiz(
   return response.data;
 }
 
+//excused quiz creation
+export async function createExcused (quizId: string, userId:string, courseId: string, courseInstance: string){
+	return await axios.post(
+		'/api/quiz/create-excused', 
+		{ quizId, courseId, courseInstance},
+    {
+      headers: getAuthHeaders(),
+    }
+  );
+}
+
+export async function getExcused(quizId: string, courseId: string, courseInstance: string) {
+  const resp = await axios.get(
+    `/api/quiz/get-excused-stats?quizId=${quizId}&courseId=${courseId}&courseInstance=${courseInstance}`,
+    { headers: getAuthHeaders() }
+  );
+  return resp.data as excusedResponse[];
+}
+
+export async function deleteExcused(quiz: excused) {
+  return await axios.post('/api/quiz/delete-exused', quiz, {
+    headers: getAuthHeaders(),
+  });
+}
