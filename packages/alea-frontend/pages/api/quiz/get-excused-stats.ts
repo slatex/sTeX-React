@@ -6,14 +6,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const { quizId, userId, courseId, courseInstance } = req.body;
+  // Read from req.query for GET requests
+  const { quizId, courseId, courseInstance } = req.query;
 
   const query = `SELECT userId, quizId, courseId, courseInstance FROM excused
        WHERE quizId = ? AND courseId = ? AND courseInstance = ?`;
-  const result = await executeAndEndSet500OnError(query, [quizId, courseId, courseInstance], res);
-  if (!result || result.length === 0) {
-    return res.status(404).json({ error: 'User not found' });
-  }
+  const result = await  executeAndEndSet500OnError(query, [quizId, courseId, courseInstance], res);
+  console.log('Excused stats retrieval result:', result);
 
-  return res.status(200).json({ userId, quizId, courseId, courseInstance });
+  // Return the actual result
+  return res.status(200).json(result);
 }

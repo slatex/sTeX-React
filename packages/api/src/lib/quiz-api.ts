@@ -116,7 +116,7 @@ export async function recorrectQuiz(
 export async function createExcused (quizId: string, userId:string, courseId: string, courseInstance: string){
 	return await axios.post(
 		'/api/quiz/create-excused', 
-		{ quizId, courseId, courseInstance},
+		{ userId, quizId, courseId, courseInstance},
     {
       headers: getAuthHeaders(),
     }
@@ -132,7 +132,7 @@ export async function getExcused(quizId: string, courseId: string, courseInstanc
 }
 
 export async function deleteExcused(quiz: excused) {
-  return await axios.post('/api/quiz/delete-exused', quiz, {
+  return await axios.post('/api/quiz/delete-excused', quiz, {
     headers: getAuthHeaders(),
   });
 }

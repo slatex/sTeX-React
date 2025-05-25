@@ -19,7 +19,8 @@ export function ExcusedAccordion({ quizId, courseId, courseInstance }) {
 
   async function handleCreate() {
     if (!newUserId.trim()) return;
-    await createExcused(newUserId.trim(), quizId, courseId, courseInstance);
+    console.log('Creating excused for userId:', newUserId);
+    await createExcused(quizId, newUserId.trim() , courseId, courseInstance);
     setNewUserId('');
     fetchExcused();
   }
@@ -47,8 +48,8 @@ export function ExcusedAccordion({ quizId, courseId, courseInstance }) {
           </Button>
         </Box>
         <ul>
-          {excusedList.map((e) => (
-            <li key={e.userId}>
+          {excusedList.map((e, idx) => (
+            <li key={e.userId + '-' + idx}>
               {e.userId}
               <IconButton onClick={() => handleDelete(e.userId)} size="small" color="error">
                 <DeleteIcon fontSize="small" />
