@@ -140,7 +140,8 @@ function AnswerAccepter({
   isHaveSubProblems: boolean;
   isFrozen: boolean;
 }) {
-  const [answer, setAnsewr] = useState('');
+  const name = `answer-${uri}`;
+  const [answer, setAnsewr] = useState(localStorage.getItem(name) ?? '');
   const subId = isHaveSubProblems ? +uri.charAt(uri.length - 1) : 0;
   const router = useRouter();
 
@@ -171,15 +172,14 @@ function AnswerAccepter({
   async function onSaveClick() {
     await saveAnswer({ freeTextResponses: answer, problemId: uri, subId: uri });
   }
+  function onAnswerChange(c: string) {
+    setAnsewr(c);
+    localStorage.setItem(name, c);
+  }
   return (
     <Box display="flex" alignItems="flex-start">
       <Box flexGrow={1}>
-        <MystEditor
-          name={`answer-${Math.random()}`}
-          placeholder={'...'}
-          value={answer}
-          onValueChange={(c) => setAnsewr(c)}
-        />
+        <MystEditor name={name} placeholder={'...'} value={answer} onValueChange={onAnswerChange} />
       </Box>
       <IconButton disabled={isFrozen} onClick={onSaveClick} sx={{ ml: 2 }}>
         <SaveIcon />
