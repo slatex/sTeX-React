@@ -179,7 +179,13 @@ function AnswerAccepter({
   return (
     <Box display="flex" alignItems="flex-start">
       <Box flexGrow={1}>
-        <MystEditor name={name} placeholder={'...'} value={answer} onValueChange={onAnswerChange} />
+        <MystEditor
+          name={name}
+          editingEnabled={!isFrozen}
+          placeholder={'...'}
+          value={answer}
+          onValueChange={onAnswerChange}
+        />
       </Box>
       <IconButton disabled={isFrozen} onClick={onSaveClick} sx={{ ml: 2 }}>
         <SaveIcon />
