@@ -9,6 +9,9 @@ import { getAllQuizzes } from '@stex-react/node-utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { queryGradingDbAndEndSet500OnError } from '../grading-db-utils';
 import { updateQuizRecorrectionInfo } from './update-quiz';
+import { checkIfPostOrSetError } from '../comment-utils';
+import {  Action, ResourceName } from '@stex-react/utils';
+import { getUserIdIfAuthorizedOrSetError } from '../access-control/resource-utils';
 
 interface GradingDbData {
   gradingId: number;
@@ -64,7 +67,7 @@ async function getCorrectedPoints(
 function validateRequestBody(req: NextApiRequest, res: NextApiResponse): boolean {
   const { quizId, courseId, courseTerm } = req.body;
   if (!quizId || !courseId || !courseTerm) {
-    res.status(400).json({ error: 'Missing required parameters' });
+    res.status(400).send('Missing required parameters');
     return false;
   }
   return true;
@@ -109,7 +112,7 @@ function prepareRecorrectionInfo(reasons): RecorrectionInfo[] {
     recorrectedTs: new Date().toISOString(),
   }));
 }
-
+// to do replace problemId with problemUri
 function prepareProblemTitles(quiz): Record<string, { title_html: string }> {
   const problemsWithTitleHtml: Record<string, { title_html: string }> = {};
   for (const [problemId, problemObj] of Object.entries(quiz.problems) as [
@@ -123,19 +126,25 @@ function prepareProblemTitles(quiz): Record<string, { title_html: string }> {
   return problemsWithTitleHtml;
 }
 
-async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  //add acl check
+  if (!checkIfPostOrSetError(req, res)) return;
   const { quizId, courseId, courseTerm, dryRun, reasons } = req.body;
-  console.log('Recorrection request:', { quizId, courseId, courseTerm, dryRun, reasons });
+  const userID = await getUserIdIfAuthorizedOrSetError(
+    req,
+    res,
+    ResourceName.COURSE_QUIZ,
+    Action.MUTATE,
+    { courseId, instanceId: courseTerm }    
+  );
+  if (!userID) return;
+
 
   if (!validateRequestBody(req, res)) return;
-
+  // TO DO
   try {
     const quiz = findQuiz(quizId, courseId, courseTerm);
-    if (!quiz) return res.status(404).json({ error: 'Quiz not found' });
+    if (!quiz) return res.status(404).send('Quiz not found');
 
     const results: GradingDbData[] = await queryGradingDbAndEndSet500OnError(
       'SELECT gradingId, userId, problemId, quizId, response, points FROM grading WHERE quizId = ?',
@@ -159,23 +168,13 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       updateQuizRecorrectionInfo(quiz.id, recorrectionInfo);
     }
 
-    if (Object.keys(missingIds).length > 0) {
-      console.warn(
-        'Some grading records could not be recorrected due to missing problems:',
-        missingIds
-      );
-    }
-
-    if (changes.length === 0) {
-      console.info('No grading records needed recorrection.');
-    }
-
     const problems = prepareProblemTitles(quiz);
 
     return res.status(200).json({
       changedCount: changes.length,
       changes,
-      missingProblems: missingIds,
+      //missingProblemUri not missingProblems
+      missingProblemUri: missingIds,
       problems,
     });
   } catch (error) {
@@ -183,5 +182,3 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(500).json({ error: 'Internal server error' });
   }
 }
-
-export default handler;

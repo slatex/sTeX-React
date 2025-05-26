@@ -101,22 +101,34 @@ export async function recorrectQuiz(
   courseId: string,
   courseTerm: string,
   dryRun: boolean,
-  reasons: Record<string, string>,
+  reasons: Record<string, string>
 ) {
-  const response = await axios.post('/api/quiz/recorrect', {
-    quizId, courseId, courseTerm, dryRun, reasons
-  }, {
-    headers: { 'Content-Type': 'application/json' }
-  });
+  const response = await axios.post(
+    '/api/quiz/recorrect',
+    {
+      quizId,
+      courseId,
+      courseTerm,
+      dryRun,
+      reasons,
+    },
+    {
+      headers: getAuthHeaders(),
+    }
+  );
 
   return response.data;
 }
 
-//excused quiz creation
-export async function createExcused (quizId: string, userId:string, courseId: string, courseInstance: string){
-	return await axios.post(
-		'/api/quiz/create-excused', 
-		{ userId, quizId, courseId, courseInstance},
+export async function createExcused(
+  quizId: string,
+  userId: string,
+  courseId: string,
+  courseInstance: string
+) {
+  return await axios.post(
+    '/api/quiz/create-excused',
+    { userId, quizId, courseId, courseInstance },
     {
       headers: getAuthHeaders(),
     }
@@ -126,7 +138,7 @@ export async function createExcused (quizId: string, userId:string, courseId: st
 export async function getExcused(quizId: string, courseId: string, courseInstance: string) {
   const resp = await axios.get(
     `/api/quiz/get-excused-stats?quizId=${quizId}&courseId=${courseId}&courseInstance=${courseInstance}`,
-    { headers: getAuthHeaders() }
+    { headers: getAuthHeaders(), }
   );
   return resp.data as excusedResponse[];
 }
@@ -135,4 +147,25 @@ export async function deleteExcused(quiz: excused) {
   return await axios.post('/api/quiz/delete-excused', quiz, {
     headers: getAuthHeaders(),
   });
+}
+
+export async function generateEndSemesterSummary(
+  courseId: string,
+  courseTerm: string,
+  excludeQuizzes: string[] = [],
+  topN: number
+) {
+  const response = await axios.post(
+    '/api/quiz/end-semester-summary',
+    {
+      courseId,
+      courseTerm,
+      excludeQuizzes,
+      topN,
+    },
+    {
+      headers: getAuthHeaders(),
+    }
+  );
+  return response.data;
 }

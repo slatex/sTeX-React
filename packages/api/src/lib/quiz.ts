@@ -237,8 +237,6 @@ export interface PreviousQuizInfo {
   maxPoints: number;
   recorrectionInfo?: RecorrectionInfo[];
 }
-
-//Excused quiz info
 export interface excused{
 	userId : string;
 	quizId : string;

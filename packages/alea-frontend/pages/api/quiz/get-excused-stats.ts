@@ -1,13 +1,24 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { executeAndEndSet500OnError } from '../comment-utils';
+import { getUserIdIfAuthorizedOrSetError } from '../access-control/resource-utils';
+import { Action, ResourceName } from '@stex-react/utils';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
+    return res.status(405).send("Method Not Allowed");
   }
 
-  // Read from req.query for GET requests
-  const { quizId, courseId, courseInstance } = req.query;
+  const quizId = req.query.quizId as string;
+  const courseId = req.query.courseId as string;
+  const courseInstance = req.query.courseInstance as string;
+  const userID = await getUserIdIfAuthorizedOrSetError(
+    req,
+    res,
+    ResourceName.COURSE_QUIZ,
+    Action.MUTATE,
+    { courseId, instanceId: courseInstance }    
+  );
+  if (!userID) return;
 
   const query = `SELECT userId, quizId, courseId, courseInstance FROM excused
        WHERE quizId = ? AND courseId = ? AND courseInstance = ?`;

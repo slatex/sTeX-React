@@ -164,14 +164,16 @@ export function ExcusedAccordion({ quizId, courseId, courseInstance }) {
               size="small"
               value={newUserId}
               onChange={(e) => setNewUserId(e.target.value)}
-              onKeyDown={handleKeyPress} 
+              onKeyDown={handleKeyPress}
               disabled={creating}
               sx={{ flexGrow: 1 }}
-              startAdornment={
-                <InputAdornment position="start">
-                  <PersonIcon color="action" />
-                </InputAdornment>
-              }
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <PersonIcon color="action" />
+                  </InputAdornment>
+                ),
+              }}
             />
             <Button
               variant="contained"

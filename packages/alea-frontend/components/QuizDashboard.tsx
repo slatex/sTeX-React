@@ -29,6 +29,7 @@ import { QuizFileReader } from './QuizFileReader';
 import { QuizStatsDisplay } from './QuizStatsDisplay';
 import { RecorrectionDialog } from './RecorrectionDialog';
 import { ExcusedAccordion } from './ExcusedAccordion';
+import { EndSemSumAccordion } from './EndSemSumAccordion';
 
 const NEW_QUIZ_ID = 'New';
 
@@ -243,6 +244,9 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
 
   return (
     <Box m="auto" maxWidth="800px" p="10px">
+      <Box mb={2}>
+        <EndSemSumAccordion courseId={courseId} courseInstance={courseTerm} /> 
+      </Box>
       {accessType == 'PREVIEW_ONLY' && (
         <Typography fontSize={16} color="red">
           You don&apos;t have access to mutate this course Quizzes
