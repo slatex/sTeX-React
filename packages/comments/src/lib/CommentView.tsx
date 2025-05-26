@@ -3,19 +3,14 @@ import { useState } from 'react';
 import { CommentLabel } from './CommentLabel';
 import { CommentReply } from './CommentReply';
 import { EditView } from './EditView';
+import { fileLocToString } from '@stex-react/utils';
 
 import { MystViewer } from '@stex-react/myst';
 import { discardDraft } from './comment-helpers';
 import styles from './comments.module.scss';
 import { SelectedInfo } from './selected-info';
 
-export function CommentView({
-  comment,
-  onUpdate,
-}: {
-  comment: Comment;
-  onUpdate: () => void;
-}) {
+export function CommentView({ comment, onUpdate }: { comment: Comment; onUpdate: () => void }) {
   const [commentReplyOpen, setCommentReplyOpen] = useState(false);
   const [editingComment, setEditingComment] = useState(false);
 
@@ -38,11 +33,11 @@ export function CommentView({
                 </div>
               )}
               <EditView
+                uri={comment.uri}
                 hidden={!editingComment}
                 parentId={comment.commentId}
                 isPrivateNote={!!comment.isPrivate}
                 postAnonymously={comment.isAnonymous}
-                uri={"todo alea4"}
                 existingComment={comment}
                 onCancel={() => setEditingComment(false)}
                 onUpdate={() => {
@@ -51,16 +46,13 @@ export function CommentView({
                 }}
               />
               <CommentReply
+                uri={comment.uri}
                 hidden={!commentReplyOpen}
                 parentId={comment.commentId}
                 isPrivateNote={!!comment.isPrivate}
-                uri={"todo alea4"}
                 onCancel={() => {
                   setCommentReplyOpen(false);
-                  let { archive, filepath } = comment;
-                  archive = archive || '';
-                  filepath = filepath || '';
-                  discardDraft("todo alea4", comment.commentId);
+                  discardDraft(comment.uri ?? '', comment.commentId);
                 }}
                 onUpdate={() => {
                   setCommentReplyOpen(false);

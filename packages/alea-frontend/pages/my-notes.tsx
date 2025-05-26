@@ -32,7 +32,7 @@ const MyNotesPage: NextPage = () => {
               {fileLocToString(section)}
               <OpenInNewIcon />
             </a>
-            <NotesView uri={"todo alea4"} allNotesMode={true} />
+            <NotesView uri={'/TODO ALEA4-N8.1'} allNotesMode={true} />
           </Box>
         ))}
       </Box>

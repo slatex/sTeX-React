@@ -10,7 +10,7 @@ import { getLocaleObject } from './lang/utils';
 import { SelectedInfo } from './selected-info';
 
 interface CommentReplyProps {
-  uri: URI;
+  uri?: URI;
   isPrivateNote: boolean;
   parentId?: number;
   placeholder?: string;
