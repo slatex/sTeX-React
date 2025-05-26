@@ -64,14 +64,6 @@ async function getCorrectedPoints(
   return { results: withCorrectedPoints, missingIds };
 }
 
-function validateRequestBody(req: NextApiRequest, res: NextApiResponse): boolean {
-  const { quizId, courseId, courseTerm } = req.body;
-  if (!quizId || !courseId || !courseTerm) {
-    res.status(400).send('Missing required parameters');
-    return false;
-  }
-  return true;
-}
 
 function findQuiz(quizId: string, courseId: string, courseTerm: string) {
   const allQuizzes = getAllQuizzes();
@@ -106,8 +98,8 @@ async function applyChangesToDb(changes, res: NextApiResponse): Promise<void> {
 }
 
 function prepareRecorrectionInfo(reasons): RecorrectionInfo[] {
-  return Object.entries(reasons).map(([problemId, description]) => ({
-    problemId,
+  return Object.entries(reasons).map(([problemUri, description]) => ({
+    problemUri: problemUri,
     description: String(description),
     recorrectedTs: new Date().toISOString(),
   }));
@@ -115,11 +107,11 @@ function prepareRecorrectionInfo(reasons): RecorrectionInfo[] {
 // to do replace problemId with problemUri
 function prepareProblemTitles(quiz): Record<string, { title_html: string }> {
   const problemsWithTitleHtml: Record<string, { title_html: string }> = {};
-  for (const [problemId, problemObj] of Object.entries(quiz.problems) as [
+  for (const [problemUri, problemObj] of Object.entries(quiz.problems) as [
     string,
     FTMLProblemWithSolution
   ][]) {
-    problemsWithTitleHtml[problemId] = {
+    problemsWithTitleHtml[problemUri] = {
       title_html: problemObj.problem?.title_html || '',
     };
   }
@@ -129,6 +121,9 @@ function prepareProblemTitles(quiz): Record<string, { title_html: string }> {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
   const { quizId, courseId, courseTerm, dryRun, reasons } = req.body;
+  if (!quizId || !courseId || !courseTerm) {
+    return res.status(422).send('Missing required parameters');
+  }
   const userID = await getUserIdIfAuthorizedOrSetError(
     req,
     res,
@@ -139,8 +134,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!userID) return;
 
 
-  if (!validateRequestBody(req, res)) return;
-  // TO DO
   try {
     const quiz = findQuiz(quizId, courseId, courseTerm);
     if (!quiz) return res.status(404).send('Quiz not found');
@@ -172,7 +165,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).json({
       changedCount: changes.length,
       changes,
-      //missingProblemUri not missingProblems
       missingProblemUri: missingIds,
       problems,
     });

@@ -9,7 +9,7 @@ export enum Phase {
 }
 
 export interface RecorrectionInfo {
-  problemId: string;
+  problemUri: string;
   problemHeader?: string;
   recorrectedTs: string; // ISO string
   description: string;

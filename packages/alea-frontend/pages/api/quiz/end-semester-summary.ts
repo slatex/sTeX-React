@@ -156,10 +156,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     console.log('csvLines', csvLines);
-    // Write CSV to file and log location
-    // const writeLocation = `/srv/data/quiz-info/end-sem-summary.csv`;
-    // fs.writeFileSync(writeLocation, csvLines.join('\n'));
-    // console.log(`Wrote to ${writeLocation}`);
+
     return res.status(200).json({
       message: 'End semester summary generated successfully',
       csvData: csvLines.join('\n')
