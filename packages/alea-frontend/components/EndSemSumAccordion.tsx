@@ -178,21 +178,36 @@ export const EndSemSumAccordion: React.FC<EndSemSumAccordionProps> = ({
                 ))}
               </FormGroup>
               <Box sx={{ mb: 2 }}>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                  Enter number of top performers to include in the summary:
-                </Typography>
-                <input
-                  type="number"
-                  min={1}
-                  value={topN}
-                  onChange={(e) => setTopN(parseInt(e.target.value))}
-                  style={{
-                    padding: '6px 10px',
-                    borderRadius: '4px',
-                    border: '1px solid #ccc',
-                    width: '100%',
+                <Typography
+                  variant="body2"
+                  color="primary"
+                  sx={{
+                    mb: 1,
+                    fontWeight: 500,
+                    fontSize: '1rem',
+                    letterSpacing: 0.2,
                   }}
-                />
+                >
+                  Student quizzes Top{' '}
+                  <input
+                    type="number"
+                    min={1}
+                    value={topN}
+                    onChange={(e) => setTopN(parseInt(e.target.value))}
+                    style={{
+                      width: 50,
+                      margin: '0 6px',
+                      padding: '2px 6px',
+                      borderRadius: '4px',
+                      border: '1px solid #ccc',
+                      fontWeight: 600,
+                      fontSize: '1rem',
+                      textAlign: 'center',
+                      color: '#1976d2',
+                    }}
+                  />
+                  scores
+                </Typography>
               </Box>
 
               <Button

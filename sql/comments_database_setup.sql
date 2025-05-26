@@ -264,7 +264,7 @@ CREATE TABLE homeworkHistory (
     PRIMARY KEY (id, versionNo)   
 );
 
-	CREATE TABLE excused(
+CREATE TABLE excused(
     id int PRIMARY KEY AUTO_INCREMENT,
     userId varchar(255) NOT NULL,
     quizId varchar(255) NOT NULL,

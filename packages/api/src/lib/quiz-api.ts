@@ -138,7 +138,7 @@ export async function createExcused(
 export async function getExcused(quizId: string, courseId: string, courseInstance: string) {
   const resp = await axios.get(
     `/api/quiz/get-excused-stats?quizId=${quizId}&courseId=${courseId}&courseInstance=${courseInstance}`,
-    { headers: getAuthHeaders(), }
+    { headers: getAuthHeaders() }
   );
   return resp.data as excusedResponse[];
 }

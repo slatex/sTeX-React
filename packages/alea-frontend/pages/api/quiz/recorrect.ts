@@ -127,7 +127,6 @@ function prepareProblemTitles(quiz): Record<string, { title_html: string }> {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  //add acl check
   if (!checkIfPostOrSetError(req, res)) return;
   const { quizId, courseId, courseTerm, dryRun, reasons } = req.body;
   const userID = await getUserIdIfAuthorizedOrSetError(

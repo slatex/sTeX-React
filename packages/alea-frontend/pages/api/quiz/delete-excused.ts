@@ -16,7 +16,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   );
   if (!userID) return;
   const query = 'DELETE FROM excused WHERE userId = ? AND quizId = ?' ;
-  const result = await executeAndEndSet500OnError(query, [userId, quizId], res);
-  console.log('Excused quiz deletion result:', result);
+  await executeAndEndSet500OnError(query, [userId, quizId], res);
   res.status(200).end();
 }

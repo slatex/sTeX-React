@@ -23,8 +23,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const query = `SELECT userId, quizId, courseId, courseInstance FROM excused
        WHERE quizId = ? AND courseId = ? AND courseInstance = ?`;
   const result = await  executeAndEndSet500OnError(query, [quizId, courseId, courseInstance], res);
-  console.log('Excused stats retrieval result:', result);
-
-  // Return the actual result
   return res.status(200).json(result);
 }
