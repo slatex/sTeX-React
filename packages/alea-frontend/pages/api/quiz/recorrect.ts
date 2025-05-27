@@ -170,6 +170,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   } catch (error) {
     console.error('Error in recorrection:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).send("Internal server error");
   }
 }

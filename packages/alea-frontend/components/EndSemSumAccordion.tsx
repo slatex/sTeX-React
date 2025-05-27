@@ -87,6 +87,7 @@ export const EndSemSumAccordion: React.FC<EndSemSumAccordionProps> = ({
       if (result?.csvData) {
         downloadFile(result.csvData, `summary_${courseId}_${courseInstance}.csv`, 'text/csv');
         setSuccess(result.message || 'Summary generated and downloaded successfully!');
+        setTimeout(() => setSuccess(''), 3000);
       } else {
         throw new Error('CSV data not available');
       }
@@ -119,17 +120,17 @@ export const EndSemSumAccordion: React.FC<EndSemSumAccordionProps> = ({
       </AccordionSummary>
       <AccordionDetails>
         <Box>
-          {/* {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
+           {error && (
+          <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>
+            {error}
+          </Alert>
+        )}
 
-          {success && (
-            <Alert severity="success" sx={{ mb: 2 }}>
-              {success}
-            </Alert>
-          )} */}
+        {success && (
+          <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess('')}>
+            {success}
+          </Alert>
+        )}
 
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
             Select quizzes to exclude from the end semester summary calculation:

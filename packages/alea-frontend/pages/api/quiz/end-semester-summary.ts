@@ -28,6 +28,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     excludeQuizzes = [] ,
     topN
   } = req.body;
+  
+  if (!courseId || !courseTerm) {
+    return res.status(400).send("courseId and courseTerm are required");
+  }
 
   const userID = await getUserIdIfAuthorizedOrSetError(
     req,
@@ -37,10 +41,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     { courseId, instanceId: courseTerm }    
   );
   if (!userID) return;
-
-  if (!courseId || !courseTerm) {
-    return res.status(400).send("courseId and courseTerm are required");
-  }
 
   try {
     const quizzes: QuizWithStatus[] = getAllQuizzes()
