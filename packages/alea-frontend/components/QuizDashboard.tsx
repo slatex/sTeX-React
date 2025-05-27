@@ -23,7 +23,7 @@ import { Action, CourseInfo, CURRENT_TERM, ResourceName, roundToMinutes } from '
 import axios, { AxiosResponse } from 'axios';
 import dayjs from 'dayjs';
 import type { NextPage } from 'next';
-import { injectCss } from 'packages/api/src/lib/ftml-viewer-base';
+import { injectCss } from '@stex-react/ftml-utils';
 import { useEffect, useState } from 'react';
 import { CheckboxWithTimestamp } from './CheckBoxWithTimestamp';
 import { QuizFileReader } from './QuizFileReader';
