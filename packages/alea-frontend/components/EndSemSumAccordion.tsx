@@ -189,7 +189,7 @@ export const EndSemSumAccordion: React.FC<EndSemSumAccordionProps> = ({
                     letterSpacing: 0.2,
                   }}
                 >
-                  Student quizzes Top{' '}
+                   Final score is based on top{' '}
                   <input
                     type="number"
                     min={1}
@@ -207,7 +207,7 @@ export const EndSemSumAccordion: React.FC<EndSemSumAccordionProps> = ({
                       color: '#1976d2',
                     }}
                   />
-                  scores
+                  quiz scores
                 </Typography>
               </Box>
 
