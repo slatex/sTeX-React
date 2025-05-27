@@ -7,8 +7,8 @@ import { Box, IconButton, TextField, Tooltip } from '@mui/material';
 import { TOCElem, URI } from '@stex-react/api';
 import {
   convertHtmlStringToPlain,
-  LectureEntry,
   CoverageTimeline,
+  LectureEntry,
   PRIMARY_COL,
 } from '@stex-react/utils';
 import axios from 'axios';
@@ -305,7 +305,7 @@ function getPerSectionLectureInfo(topLevel: TOCElem, lectureData: LectureEntry[]
   });
 
   const lastSectionCompleted = lectureData.map((snap) => {
-    const isPartial = Number.isFinite(snap.slideNumber);
+    const isPartial = !!snap.slideUri && !!snap.slideNumber;
     if (isPartial) return getPrevSectionInList(snap.sectionUri, preOrdered);
     return snap.sectionUri;
   });
@@ -320,7 +320,7 @@ function getPerSectionLectureInfo(topLevel: TOCElem, lectureData: LectureEntry[]
     if (!currentSnap?.sectionUri) break;
     perSectionLectureInfo[secUri] = {
       startTime_ms: currentSnap.timestamp_ms,
-      //lastLectureIdx: currLecIdx,
+      // firstLectureIdx: currLecIdx,
     };
   }
   currLecIdx = 0;
