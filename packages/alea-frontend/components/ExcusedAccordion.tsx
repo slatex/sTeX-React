@@ -59,7 +59,6 @@ export function ExcusedAccordion({ quizId, courseId, courseInstance }) {
     setSuccess('');
 
     try {
-      console.log('Creating excused for userId:', newUserId);
       await createExcused(quizId, newUserId.trim(), courseId, courseInstance);
       setNewUserId('');
       setSuccess(`Student ${newUserId.trim()} added to excused list`);

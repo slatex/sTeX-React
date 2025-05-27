@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getAllQuizzes } from '@stex-react/node-utils';
-import { excused, getExcused, QuizWithStatus } from '@stex-react/api';
+import { Excused, getExcused, QuizWithStatus } from '@stex-react/api';
 import { queryGradingDbAndEndSet500OnError } from '../grading-db-utils';
 import { checkIfPostOrSetError } from '../comment-utils';
 import { getUserIdIfAuthorizedOrSetError } from '../access-control/resource-utils';
@@ -86,7 +86,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     for (const quiz of quizzes) {
       try {
         const excusedStudents = await getExcused(quiz.id, courseId, courseTerm);
-        excusedData[quiz.id] = excusedStudents.map((e: excused) => e.userId);
+        excusedData[quiz.id] = excusedStudents;
       } catch (error) {
         console.warn(`Failed to get excused students for quiz ${quiz.id}:`, error);
         excusedData[quiz.id] = [];
@@ -154,8 +154,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       line.push(to2DecimalPoints(userData.sumTopN));
       csvLines.push(line.join(','));
     }
-
-    console.log('csvLines', csvLines);
 
     return res.status(200).json({
       message: 'End semester summary generated successfully',

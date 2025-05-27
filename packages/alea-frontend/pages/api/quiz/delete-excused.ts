@@ -6,7 +6,9 @@ import { Action, ResourceName } from '@stex-react/utils';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
   const { quizId, userId, courseId, courseInstance } = req.body;
-  if (!quizId) return res.status(422).send(`Missing Quiz id.`);
+  if(!quizId || !userId || !courseId || !courseInstance) {
+    return res.status(422).send('Missing required fields: quizId, userId, courseId, or courseInstance.');
+  }
   const userID = await getUserIdIfAuthorizedOrSetError(
     req,
     res,
@@ -16,6 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   );
   if (!userID) return;
   const query = 'DELETE FROM excused WHERE userId = ? AND quizId = ?' ;
-  await executeAndEndSet500OnError(query, [userId, quizId], res);
+  const result = await executeAndEndSet500OnError(query, [userId, quizId], res);
+  if (!result) return ;
   res.status(200).end();
 }

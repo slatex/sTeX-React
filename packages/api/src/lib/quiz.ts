@@ -1,4 +1,4 @@
-import { CSS, ProblemResponse, FTMLProblem, ProblemResponseType } from './flams-types';
+import { CSS, FTMLProblem, ProblemResponse } from './flams-types';
 
 export enum Phase {
   UNSET = 'UNSET',
@@ -237,15 +237,15 @@ export interface PreviousQuizInfo {
   maxPoints: number;
   recorrectionInfo?: RecorrectionInfo[];
 }
-export interface excused{
-	userId : string;
-	quizId : string;
-	courseId: string;
-  courseInstance : string;
+export interface Excused {
+  userId: string;
+  quizId: string;
+  courseId: string;
+  courseInstance: string;
 }
-export interface excusedResponse{
-	userId : string;
-	quizId : string;
-	courseId: string;
-  courseInstance : string;
+export interface ExcusedResponse {
+  userId: string;
+  quizId: string;
+  courseId: string;
+  courseInstance: string;
 }

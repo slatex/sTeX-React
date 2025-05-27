@@ -2,8 +2,7 @@ import axios, { AxiosError } from 'axios';
 import { ProblemResponse } from './ftml-viewer-base';
 import { getAuthHeaders } from './lmp';
 import {
-  excused,
-  excusedResponse,
+  Excused,
   GetPreviousQuizInfoResponse,
   GetQuizResponse,
   InsertAnswerRequest,
@@ -140,10 +139,10 @@ export async function getExcused(quizId: string, courseId: string, courseInstanc
     `/api/quiz/get-excused-stats?quizId=${quizId}&courseId=${courseId}&courseInstance=${courseInstance}`,
     { headers: getAuthHeaders() }
   );
-  return resp.data as excusedResponse[];
+  return resp.data as string[];
 }
 
-export async function deleteExcused(quiz: excused) {
+export async function deleteExcused(quiz: Excused) {
   return await axios.post('/api/quiz/delete-excused', quiz, {
     headers: getAuthHeaders(),
   });
