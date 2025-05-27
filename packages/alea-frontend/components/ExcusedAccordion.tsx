@@ -68,22 +68,8 @@ export function ExcusedAccordion({ quizId, courseId, courseInstance }) {
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
       console.error('Error creating excused:', err);
-      if (err.response) {
-        if (err.response.status === 409) {
-          setError(
-            typeof err.response.data === 'string'
-              ? err.response.data
-              : 'Student is already excused for this quiz.'
-          );
-        } else if (err.response.status === 422) {
-          setError('Missing required information. Please try again.');
-        } else {
-          setError(
-            typeof err.response.data === 'string'
-              ? err.response.data
-              : 'Failed to add student to excused list'
-          );
-        }
+      if (err.response && typeof err.response.data === 'string') {
+        setError(err.response.data);
       } else if (err.message) {
         setError(err.message);
       } else {
