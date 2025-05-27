@@ -23,6 +23,7 @@ import { Action, CourseInfo, CURRENT_TERM, ResourceName, roundToMinutes } from '
 import axios, { AxiosResponse } from 'axios';
 import dayjs from 'dayjs';
 import type { NextPage } from 'next';
+import { injectCss } from 'packages/api/src/lib/ftml-viewer-base';
 import { useEffect, useState } from 'react';
 import { CheckboxWithTimestamp } from './CheckBoxWithTimestamp';
 import { QuizFileReader } from './QuizFileReader';
@@ -153,6 +154,9 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
       .then((res) => {
         const allQuizzes: QuizWithStatus[] = res.data;
         allQuizzes?.sort((a, b) => b.quizStartTs - a.quizStartTs);
+        for (const q of allQuizzes ?? []) {
+          for (const css of q.css) injectCss(css);
+        }
         setQuizzes(allQuizzes);
         if (allQuizzes?.length) setSelectedQuizId(allQuizzes[0].id);
       });
