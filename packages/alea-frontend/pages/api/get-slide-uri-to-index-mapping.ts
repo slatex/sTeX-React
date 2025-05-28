@@ -1,6 +1,6 @@
 import { getCourseInfo } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { CACHED_SLIDES, getSlidesForCourse,  } from './get-slides';
+import { getSlidesForCourse } from './get-slides';
 
 export async function getSlideUriToIndexMapping(courseId: string, res: NextApiResponse) {
   const courses = await getCourseInfo();
@@ -10,13 +10,9 @@ export async function getSlideUriToIndexMapping(courseId: string, res: NextApiRe
     return;
   }
 
-  if (!CACHED_SLIDES[courseId]) {
-    CACHED_SLIDES[courseId] = await getSlidesForCourse(courseInfo.notes);
-  }
-
+  const allCourseSlides = await getSlidesForCourse(courseId, courseInfo.notes);
   const uriToIndexMap: { [sectionId: string]: { [slideUri: string]: number } } = {};
-
-  for (const [sectionId, slides] of Object.entries(CACHED_SLIDES[courseId])) {
+  for (const [sectionId, slides] of Object.entries(allCourseSlides)) {
     const sectionMap: { [slideUri: string]: number } = {};
     slides.forEach((slide, index) => {
       if (slide.slide?.uri) {
