@@ -48,7 +48,7 @@ function RecorrectionInfoDisp({ recorrectionInfo }: { recorrectionInfo?: Recorre
                 <Typography variant="body1">
                   {t.theProblem}{' '}
                   <b>
-                    <SafeHtml html={r.problemHeader || r.problemId} />
+                    <SafeHtml html={r.problemHeader || r.problemUri} />
                   </b>
                   &nbsp;{t.wasRecorrected} ({dayjs(r.recorrectedTs).format('MMM DD')}).
                   <br />

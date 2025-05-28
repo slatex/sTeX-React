@@ -455,7 +455,7 @@ export const en = {
     editsectionentry:'Edit Section Entry',
     addnewsection:'Add New Section'
   } ,
-recorrection: {
+  recorrection: {
     quizRecorrection: 'Quiz Recorrection',
     previewRecorrection: 'Preview of Recorrection Changes',
     problemId: 'Problem ID',
