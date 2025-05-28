@@ -155,6 +155,7 @@ export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: Cov
 
     return entry;
   });
+  const sectionOrder = sectionNames.map((s) => s.title.trim());
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -164,6 +165,15 @@ export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: Cov
             entries={coverageEntries}
             onEdit={handleEditItem}
             onDelete={handleDeleteItem}
+            sectionList={sectionNames}
+            sectionOrder={sectionOrder}
+            courseStartDate={
+              snaps.length > 0
+                ? new Date(Math.min(...snaps.map((snap) => snap.timestamp_ms)))
+                    .toISOString()
+                    .split('T')[0]
+                : undefined
+            }
           />
         </>
       ) : (
