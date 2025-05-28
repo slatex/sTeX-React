@@ -8,7 +8,7 @@ import {
   getCourseQuizList,
   getUserInfo,
 } from '@stex-react/api';
-import { FTMLFragment } from '@stex-react/ftml-utils';
+import { FTMLFragment, injectCss } from '@stex-react/ftml-utils';
 import { Action, CURRENT_TERM, CourseInfo, ResourceName, isFauId } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import { NextPage } from 'next';
@@ -164,8 +164,13 @@ const QuizDashPage: NextPage = () => {
 
   useEffect(() => {
     if (!courseId) return;
-    console.log('courseId', courseId);
-    getCourseQuizList(courseId).then(setQuizList);
+    getCourseQuizList(courseId).then(res => {
+      const quizzes = res as QuizStubInfo[];
+      for (const quiz of quizzes) {
+        for( const css of quiz.css) injectCss(css)
+        }
+      setQuizList(quizzes);
+    });
   }, [courseId]);
   useEffect(() => {
     if (!courseId) return;
