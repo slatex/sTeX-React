@@ -244,9 +244,3 @@ export interface Excused {
   courseId: string;
   courseInstance: string;
 }
-export interface ExcusedResponse {
-  userId: string;
-  quizId: string;
-  courseId: string;
-  courseInstance: string;
-}

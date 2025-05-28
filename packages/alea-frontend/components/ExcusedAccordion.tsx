@@ -1,26 +1,26 @@
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import PersonIcon from '@mui/icons-material/Person';
+import SchoolIcon from '@mui/icons-material/School';
 import {
   Accordion,
-  AccordionSummary,
   AccordionDetails,
-  Typography,
-  TextField,
-  Button,
-  Box,
-  IconButton,
-  Chip,
+  AccordionSummary,
   Alert,
+  Box,
+  Button,
+  Chip,
   CircularProgress,
   Divider,
-  Paper,
+  IconButton,
   InputAdornment,
+  Paper,
+  TextField,
+  Typography,
 } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import DeleteIcon from '@mui/icons-material/Delete';
-import PersonIcon from '@mui/icons-material/Person';
-import AddIcon from '@mui/icons-material/Add';
-import SchoolIcon from '@mui/icons-material/School';
-import { useEffect, useState } from 'react';
 import { createExcused, deleteExcused, getExcused } from '@stex-react/api';
+import { useEffect, useState } from 'react';
 
 export function ExcusedAccordion({ quizId, courseId, courseInstance }) {
   const [excusedList, setExcusedList] = useState([]);

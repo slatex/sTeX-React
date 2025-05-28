@@ -1,68 +1,49 @@
-import React, { useEffect, useState } from 'react';
+import DownloadIcon from '@mui/icons-material/Download';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
   Accordion,
-  AccordionSummary,
   AccordionDetails,
-  Typography,
-  FormGroup,
-  FormControlLabel,
-  Checkbox,
-  Button,
-  Box,
+  AccordionSummary,
   Alert,
+  Box,
+  Button,
+  Checkbox,
   CircularProgress,
+  FormControlLabel,
+  FormGroup,
+  TextField,
+  Typography,
 } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import DownloadIcon from '@mui/icons-material/Download';
-import { getCourseQuizList } from '@stex-react/api';
+import { generateEndSemesterSummary, QuizWithStatus } from '@stex-react/api';
 import { SafeHtml } from '@stex-react/react-utils';
-import { generateEndSemesterSummary } from '@stex-react/api';
 import { downloadFile } from '@stex-react/utils';
+import React, { useEffect, useState } from 'react';
 
 interface EndSemSumAccordionProps {
   courseId: string;
   courseInstance: string;
+  quizzes?: QuizWithStatus[];
+  setQuizzes?: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
 export const EndSemSumAccordion: React.FC<EndSemSumAccordionProps> = ({
   courseId,
   courseInstance,
+  quizzes: quizzesProp,
+  setQuizzes: setQuizzesProp,
 }) => {
-  type QuizInfo = { id: string; quizStartTs: number; quizEndTs: number; title: string };
-  const [quizzes, setQuizzes] = useState<QuizInfo[]>([]);
+  const quizzes = quizzesProp || [];
   const [excludedQuizzes, setExcludedQuizzes] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [topN, setTopN] = useState<number>(10); 
+  const [topN, setTopN] = useState<number>(10);
   useEffect(() => {
-    const fetchQuizzes = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const fetchedQuizzes = await getCourseQuizList(courseId);
-        console.log('Fetched quizzes:', fetchedQuizzes);
-        setQuizzes(
-          fetchedQuizzes.map((q) => ({
-            id: q.quizId,
-            quizStartTs: q.quizStartTs,
-            quizEndTs: q.quizEndTs,
-            title: q.title,
-          }))
-        );
-      } catch (err) {
-        console.error('Error fetching quizzes:', err);
-        setError('Failed to fetch quizzes. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (courseId) {
-      fetchQuizzes();
+    if (quizzesProp) {
+      return;
     }
-  }, [courseId]);
+  }, [quizzesProp]);
 
   const handleQuizToggle = (quizId: string) => {
     setExcludedQuizzes((prev) =>
@@ -70,20 +51,17 @@ export const EndSemSumAccordion: React.FC<EndSemSumAccordionProps> = ({
     );
   };
 
-  const handleSelectAll = () => {
-    if (excludedQuizzes.length === quizzes.length) {
-      setExcludedQuizzes([]);
-    } else {
-      setExcludedQuizzes(quizzes.map((quiz) => quiz.id));
-    }
-  };
-
   const handleGenerateSummary = async () => {
     try {
       setGenerating(true);
       setError(null);
       setSuccess(null);
-      const result = await generateEndSemesterSummary(courseId, courseInstance, excludedQuizzes, topN);
+      const result = await generateEndSemesterSummary(
+        courseId,
+        courseInstance,
+        excludedQuizzes,
+        topN
+      );
       if (result?.csvData) {
         downloadFile(result.csvData, `summary_${courseId}_${courseInstance}.csv`, 'text/csv');
         setSuccess(result.message || 'Summary generated and downloaded successfully!');
@@ -120,20 +98,24 @@ export const EndSemSumAccordion: React.FC<EndSemSumAccordionProps> = ({
       </AccordionSummary>
       <AccordionDetails>
         <Box>
-           {error && (
-          <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>
-            {error}
-          </Alert>
-        )}
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>
+              {error}
+            </Alert>
+          )}
 
-        {success && (
-          <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess('')}>
-            {success}
-          </Alert>
-        )}
+          {success && (
+            <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess('')}>
+              {success}
+            </Alert>
+          )}
 
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
             Select quizzes to exclude from the end semester summary calculation:
+          </Typography>
+
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+            {excludedQuizzes.length} of {quizzes.length} quizzes excluded
           </Typography>
 
           {loading ? (
@@ -145,15 +127,6 @@ export const EndSemSumAccordion: React.FC<EndSemSumAccordionProps> = ({
             <Typography color="text.secondary">No quizzes found for this course.</Typography>
           ) : (
             <>
-              <Box sx={{ mb: 2 }}>
-                <Button size="small" variant="outlined" onClick={handleSelectAll} sx={{ mb: 1 }}>
-                  {excludedQuizzes.length === quizzes.length ? 'Deselect All' : 'Select All'}
-                </Button>
-                <Typography variant="body2" color="text.secondary">
-                  {excludedQuizzes.length} of {quizzes.length} quizzes excluded
-                </Typography>
-              </Box>
-
               <FormGroup sx={{ maxHeight: '300px', overflowY: 'auto', mb: 2 }}>
                 {quizzes.map((quiz) => (
                   <FormControlLabel
@@ -189,22 +162,25 @@ export const EndSemSumAccordion: React.FC<EndSemSumAccordionProps> = ({
                     letterSpacing: 0.2,
                   }}
                 >
-                   Final score is based on top{' '}
-                  <input
+                  Final score is based on top{' '}
+                  <TextField
                     type="number"
-                    min={1}
                     value={topN}
                     onChange={(e) => setTopN(parseInt(e.target.value))}
-                    style={{
-                      width: 50,
-                      margin: '0 6px',
-                      padding: '2px 6px',
-                      borderRadius: '4px',
-                      border: '1px solid #ccc',
-                      fontWeight: 600,
-                      fontSize: '1rem',
-                      textAlign: 'center',
-                      color: '#1976d2',
+                    size="small"
+                    inputProps={{
+                      min: 1,
+                      style: { textAlign: 'center', width: 60 },
+                    }}
+                    sx={{
+                      mx: 1,
+                      '& input': {
+                        fontWeight: 600,
+                        fontSize: '1rem',
+                        color: 'primary.main',
+                        p: '2px 6px',
+                        borderRadius: '4px',
+                      },
                     }}
                   />
                   quiz scores
