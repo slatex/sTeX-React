@@ -76,7 +76,7 @@ const FragmentWrap: React.FC<{
       ) : (
         <Box display="flex" justifyContent="space-between">
           <Box flex={1}>{children}</Box>
-          <CommentButton url={uri} />
+          <CommentButton url={uri} fragmentKind={fragmentKind} />
         </Box>
       )}
     </Box>

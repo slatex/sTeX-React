@@ -67,7 +67,7 @@ export function CommentsIcon({ numComments }: { numComments: number }) {
   );
 }
 
-export function CommentButton({ url = '' }: { url?: string }) {
+export function CommentButton({ url = '', fragmentKind }: { url?: string; fragmentKind?: string }) {
   const [numPublicComments, setNumPublicComments] = useState(0);
   const [numPrivateNotes, setNumPrivateNotes] = useState(0);
   const [open, setOpen] = useState(false);
@@ -127,7 +127,7 @@ export function CommentButton({ url = '' }: { url?: string }) {
               </Box>
             ) : (
               <span>
-                {t.addToSlide}
+                {fragmentKind === 'Slide' ? t.addToSlide : t.addToParagraph}
                 <br />
                 {t.selectionSuggestion}
               </span>
