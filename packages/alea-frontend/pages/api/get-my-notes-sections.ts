@@ -5,11 +5,11 @@ export default async function handler(req, res) {
   if (!userId) return;
 
   const results: any[] = await executeAndEndSet500OnError(
-    `SELECT archive, filepath, MAX(updatedtimestamp) AS updatedTimestamp
-    FROM comments
-    WHERE isPrivate = 1 AND userId = ?
-    GROUP BY archive, filepath
-    ORDER BY updatedTimestamp DESC`,
+    `SELECT uri, courseId, courseTerm, MAX(updatedtimestamp) AS updatedTimestamp
+     FROM comments
+     WHERE isPrivate = 1 AND userId = ?
+     GROUP BY uri, courseId, courseTerm
+     ORDER BY courseId, courseTerm DESC, updatedTimestamp DESC`,
     [userId],
     res
   );
