@@ -159,6 +159,7 @@ export interface QuizStubInfo {
   quizStartTs: number;
   quizEndTs: number;
   title: string;
+  css: CSS[];
 }
 
 export function getTotalElapsedTime(events: TimerEvent[]) {
