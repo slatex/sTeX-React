@@ -33,14 +33,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).send("courseId and courseTerm are required");
   }
 
-  const userID = await getUserIdIfAuthorizedOrSetError(
+  const instructorId = await getUserIdIfAuthorizedOrSetError(
     req,
     res,
     ResourceName.COURSE_QUIZ,
     Action.MUTATE,
     { courseId, instanceId: courseTerm }    
   );
-  if (!userID) return;
+  if (!instructorId) return;
 
   try {
     const quizzes: QuizWithStatus[] = getAllQuizzes()

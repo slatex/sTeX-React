@@ -266,8 +266,8 @@ CREATE TABLE homeworkHistory (
 
 CREATE TABLE excused(
     id int PRIMARY KEY AUTO_INCREMENT,
-    userId varchar(255),
-    quizId varchar(255),
-    courseId VARCHAR(255),                
-    courseInstance VARCHAR(255)
+    userId varchar(255) NOT NULL,
+    quizId varchar(255) NOT NULL,
+    courseId VARCHAR(255) NOT NULL,                
+    courseInstance VARCHAR(255) NOT NULL
 );

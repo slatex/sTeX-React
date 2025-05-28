@@ -124,14 +124,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!quizId || !courseId || !courseTerm) {
     return res.status(422).send('Missing required parameters');
   }
-  const userID = await getUserIdIfAuthorizedOrSetError(
+  const instructorId = await getUserIdIfAuthorizedOrSetError(
     req,
     res,
     ResourceName.COURSE_QUIZ,
     Action.MUTATE,
     { courseId, instanceId: courseTerm }    
   );
-  if (!userID) return;
+  if (!instructorId) return;
 
 
   try {

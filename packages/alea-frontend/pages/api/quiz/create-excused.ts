@@ -9,14 +9,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if(!quizId || !userId || !courseId || !courseInstance) {
     return res.status(422).send('Missing required fields: quizId, userId, courseId, or courseInstance.');
   }
-  const userID = await getUserIdIfAuthorizedOrSetError(
+  const instructorId = await getUserIdIfAuthorizedOrSetError(
       req,
       res,
       ResourceName.COURSE_QUIZ,
       Action.MUTATE,
       { courseId, instanceId: courseInstance }    
     );
-    if (!userID) return;
+    if (!instructorId) return;
 
   const checkQuery = 'SELECT 1 FROM excused WHERE userId = ? AND quizId = ? LIMIT 1';
   const checkResult = await executeAndEndSet500OnError(checkQuery, [userId, quizId], res);
