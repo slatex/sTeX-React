@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { CommentLabel } from './CommentLabel';
 import { CommentReply } from './CommentReply';
 import { EditView } from './EditView';
-import { fileLocToString } from '@stex-react/utils';
 
 import { MystViewer } from '@stex-react/myst';
 import { discardDraft } from './comment-helpers';

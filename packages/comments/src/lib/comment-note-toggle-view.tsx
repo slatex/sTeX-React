@@ -1,16 +1,15 @@
-import { Box, Tab, Tabs } from '@mui/material';
-import PublicIcon from '@mui/icons-material/Public';
-import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
+import PersonIcon from '@mui/icons-material/Person';
+import PublicIcon from '@mui/icons-material/Public';
+import { Box, Tab, Tabs } from '@mui/material';
 import Typography from '@mui/material/Typography';
+import { URI } from '@stex-react/api';
+import { PRIMARY_COL } from '@stex-react/utils';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { CommentSection } from './comment-section';
-import { NotesView } from './notes-view';
-import { FileLocation, PRIMARY_COL, SECONDARY_COL } from '@stex-react/utils';
 import { getLocaleObject } from './lang/utils';
-import { useRouter } from 'next/router';
-import { TOCElem } from '@stex-react/api';
-import { URI } from '@stex-react/api';
+import { NotesView } from './notes-view';
 
 function TabPanel(props: { children?: React.ReactNode; index: number; value: number }) {
   const { children, value, index, ...other } = props;
