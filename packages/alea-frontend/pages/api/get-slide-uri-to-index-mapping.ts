@@ -12,9 +12,9 @@ export async function getSlideUriToIndexMapping(courseId: string, res: NextApiRe
 
   const allCourseSlides = await getSlidesForCourse(courseId, courseInfo.notes);
   const uriToIndexMap: { [sectionId: string]: { [slideUri: string]: number } } = {};
-  for (const [sectionId, slides] of Object.entries(allCourseSlides)) {
+  for (const [sectionId, slidesWithCSS] of Object.entries(allCourseSlides)) {
     const sectionMap: { [slideUri: string]: number } = {};
-    slides.forEach((slide, index) => {
+    slidesWithCSS.slides.forEach((slide, index) => {
       if (slide.slide?.uri) {
         sectionMap[slide.slide?.uri] = index;
       }

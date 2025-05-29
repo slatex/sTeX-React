@@ -12,8 +12,8 @@ export async function getSlideCounts(courseId: string, res: NextApiResponse) {
 
   const allCourseSlides = await getSlidesForCourse(courseId, courseInfo.notes);
   const data: { [sectionId: string]: number } = {};
-  for (const [secId, slides] of Object.entries(allCourseSlides)) {
-    data[secId] = slides.length;
+  for (const [secId, slidesWithCSS] of Object.entries(allCourseSlides)) {
+    data[secId] = slidesWithCSS.slides.length;
   }
   return data;
 }
