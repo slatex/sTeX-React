@@ -74,7 +74,7 @@ export const SearchPage: NextPage = () => {
           )}
           {results.map((result) => (
             <SearchResultView
-              key={"TODO ALeA4"}
+              key={"TODO ALeA4 N12"}
               result={result}
             />
           ))}
