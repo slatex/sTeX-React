@@ -44,7 +44,15 @@ const TAB_ACCESS_REQUIREMENTS: Record<TabName, { resource: ResourceName; actions
   'study-buddy': { resource: ResourceName.COURSE_STUDY_BUDDY, actions: [Action.MODERATE] },
   'syllabus': { resource: ResourceName.COURSE_ACCESS, actions: [Action.ACCESS_CONTROL] },
 };
-function ChosenTab({ tabName, courseId }: { tabName: TabName; courseId: string }) {
+function ChosenTab({
+  tabName,
+  courseId,
+  quizId,
+}: {
+  tabName: TabName;
+  courseId: string;
+  quizId?: string;
+}) {
   switch (tabName) {
     case 'access-control':
       return <CourseAccessControlDashboard courseId={courseId} />;
@@ -53,7 +61,7 @@ function ChosenTab({ tabName, courseId }: { tabName: TabName; courseId: string }
     case 'homework-grading':
       return <GradingInterface isPeerGrading={false} courseId={courseId} />;
     case 'quiz-dashboard':
-      return <QuizDashboard courseId={courseId} />;
+      return <QuizDashboard courseId={courseId} quizId={quizId} />;
     case 'study-buddy':
       return <StudyBuddyModeratorStats courseId={courseId} />;
     case 'peer-review':
@@ -111,10 +119,14 @@ const InstructorDash: NextPage = () => {
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setCurrentTabIdx(newValue);
     const selectedTab = accessibleTabs[newValue];
+    const newQuery = { ...router.query, tab: selectedTab } as Record<string, string>;
+    if (selectedTab !== 'quiz-dashboard') {
+      delete newQuery.quizId;
+    }
     router.push(
       {
         pathname: router.pathname,
-        query: { ...router.query, tab: selectedTab },
+        query: newQuery,
       },
       undefined,
       { shallow: true }
@@ -153,6 +165,22 @@ const InstructorDash: NextPage = () => {
     }
     checkTabAccess();
   }, [courseId, tab]);
+
+  useEffect(() => {
+    if (tab !== 'quiz-dashboard' && router.query.quizId) {
+      const cleanedQuery = { ...router.query };
+      delete cleanedQuery.quizId;
+
+      router.replace(
+        {
+          pathname: router.pathname,
+          query: cleanedQuery,
+        },
+        undefined,
+        { shallow: true }
+      );
+    }
+  }, [tab,router]);
 
   const courseInfo = courses?.[courseId];
 

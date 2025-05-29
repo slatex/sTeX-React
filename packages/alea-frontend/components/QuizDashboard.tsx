@@ -17,13 +17,14 @@ import {
   QuizWithStatus,
   updateQuiz,
 } from '@stex-react/api';
+import { injectCss } from '@stex-react/ftml-utils';
 import { getQuizPhase } from '@stex-react/quiz-utils';
 import { SafeHtml } from '@stex-react/react-utils';
 import { Action, CourseInfo, CURRENT_TERM, ResourceName, roundToMinutes } from '@stex-react/utils';
 import axios, { AxiosResponse } from 'axios';
 import dayjs from 'dayjs';
 import type { NextPage } from 'next';
-import { injectCss } from '@stex-react/ftml-utils';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { CheckboxWithTimestamp } from './CheckBoxWithTimestamp';
 import { QuizFileReader } from './QuizFileReader';
@@ -77,6 +78,7 @@ const QuizDurationInfo = ({ quizStartTs, quizEndTs, feedbackReleaseTs }) => {
 
 interface QuizDashboardProps {
   courseId: string;
+  quizId?: string;
 }
 
 function validateQuizUpdate(
@@ -109,8 +111,11 @@ function validateQuizUpdate(
   return { valid: true };
 }
 
-const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
-  const [selectedQuizId, setSelectedQuizId] = useState<string>(NEW_QUIZ_ID);
+const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId, quizId }) => {
+  const router = useRouter();
+  const [selectedQuizId, setSelectedQuizId] = useState<string>(
+    (router.query.quizId as string) || NEW_QUIZ_ID
+  );
 
   const [title, setTitle] = useState<string>('');
   const [quizStartTs, setQuizStartTs] = useState<number>(roundToMinutes(Date.now()));
@@ -158,12 +163,27 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
           for (const css of q.css) injectCss(css);
         }
         setQuizzes(allQuizzes);
-        if (allQuizzes?.length) setSelectedQuizId(allQuizzes[0].id);
+        const queryQuizId = router.query.quizId as string | undefined;
+
+        const validQuiz = allQuizzes.find((q) => q.id === queryQuizId);
+
+        if ((!queryQuizId || (!validQuiz && !isNew)) && allQuizzes.length > 0) {
+          const firstQuizId = allQuizzes[0].id;
+          setSelectedQuizId(firstQuizId);
+          router.replace(
+            {
+              pathname: router.pathname,
+              query: { ...router.query, quizId: firstQuizId },
+            },
+            undefined,
+            { shallow: true }
+          );
+        }
       });
-  }, [courseId, courseTerm]);
+  }, [courseId, courseTerm, isNew, router]);
 
   useEffect(() => {
-    if (!selectedQuizId || selectedQuizId === NEW_QUIZ_ID) return;
+    if (!selectedQuizId || selectedQuizId === NEW_QUIZ_ID || quizzes.length === 0) return;
 
     getQuizStats(selectedQuizId, courseId, courseTerm).then(setStats);
     const interval = setInterval(() => {
@@ -251,7 +271,22 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
           You don&apos;t have access to mutate this course Quizzes
         </Typography>
       )}
-      <Select value={selectedQuizId} onChange={(e) => setSelectedQuizId(e.target.value)}>
+      <Select
+        value={selectedQuizId}
+        onChange={(e) => {
+          const newQuizId = e.target.value;
+          console.log('Selected quiz ID:', newQuizId);
+          setSelectedQuizId(newQuizId);
+          router.push(
+            {
+              pathname: router.pathname,
+              query: { ...router.query, quizId: newQuizId },
+            },
+            undefined,
+            { shallow: true }
+          );
+        }}
+      >
         {accessType == 'MUTATE' ? (
           <MenuItem value="New">New</MenuItem>
         ) : (
