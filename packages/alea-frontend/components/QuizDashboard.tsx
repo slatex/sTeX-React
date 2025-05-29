@@ -24,7 +24,6 @@ import { Action, CourseInfo, CURRENT_TERM, ResourceName, roundToMinutes } from '
 import axios, { AxiosResponse } from 'axios';
 import dayjs from 'dayjs';
 import type { NextPage } from 'next';
-import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { CheckboxWithTimestamp } from './CheckBoxWithTimestamp';
 import { EndSemSumAccordion } from './EndSemSumAccordion';
@@ -81,6 +80,7 @@ const QuizDurationInfo = ({ quizStartTs, quizEndTs, feedbackReleaseTs }) => {
 interface QuizDashboardProps {
   courseId: string;
   quizId?: string;
+  onQuizIdChange?: (quizId: string) => void;
 }
 
 function validateQuizUpdate(
@@ -113,11 +113,8 @@ function validateQuizUpdate(
   return { valid: true };
 }
 
-const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId, quizId }) => {
-  const router = useRouter();
-  const [selectedQuizId, setSelectedQuizId] = useState<string>(
-    (router.query.quizId as string) || NEW_QUIZ_ID
-  );
+const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId, quizId, onQuizIdChange }) => {
+  const selectedQuizId = quizId || NEW_QUIZ_ID;
 
   const [title, setTitle] = useState<string>('');
   const [quizStartTs, setQuizStartTs] = useState<number>(roundToMinutes(Date.now()));
@@ -165,24 +162,14 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId, quizId }) => {
           for (const css of q.css) injectCss(css);
         }
         setQuizzes(allQuizzes);
-        const queryQuizId = router.query.quizId as string | undefined;
+        const validQuiz = allQuizzes.find((q) => q.id === quizId);
 
-        const validQuiz = allQuizzes.find((q) => q.id === queryQuizId);
-
-        if ((!queryQuizId || (!validQuiz && !isNew)) && allQuizzes.length > 0) {
-          const firstQuizId = allQuizzes[0].id;
-          setSelectedQuizId(firstQuizId);
-          router.replace(
-            {
-              pathname: router.pathname,
-              query: { ...router.query, quizId: firstQuizId },
-            },
-            undefined,
-            { shallow: true }
-          );
+        if (quizId !== NEW_QUIZ_ID && (!quizId || !validQuiz) && allQuizzes.length > 0) {
+          onQuizIdChange?.(allQuizzes[0].id);
+          console.log('Setting quiz ID to first available:', onQuizIdChange);
         }
       });
-  }, [courseId, courseTerm, isNew, router]);
+  }, [courseId, courseTerm, isNew, onQuizIdChange, quizId]);
 
   useEffect(() => {
     if (!selectedQuizId || selectedQuizId === NEW_QUIZ_ID || quizzes.length === 0) return;
@@ -260,8 +247,10 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId, quizId }) => {
     );
     if (!confirmed) return;
     await deleteQuiz(quizId, courseId, courseTerm);
-    setQuizzes(quizzes.filter((quiz) => quiz.id !== quizId));
-    setSelectedQuizId(NEW_QUIZ_ID);
+    const remainingQuizzes = quizzes.filter((quiz) => quiz.id !== quizId);
+    setQuizzes(remainingQuizzes);
+    const fallbackQuizId = remainingQuizzes[0]?.id || 'New';
+    onQuizIdChange?.(fallbackQuizId);
   }
 
   if (!canAccess) return <>Unauthorized</>;
@@ -288,15 +277,7 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId, quizId }) => {
         onChange={(e) => {
           const newQuizId = e.target.value;
           console.log('Selected quiz ID:', newQuizId);
-          setSelectedQuizId(newQuizId);
-          router.push(
-            {
-              pathname: router.pathname,
-              query: { ...router.query, quizId: newQuizId },
-            },
-            undefined,
-            { shallow: true }
-          );
+          onQuizIdChange?.(newQuizId);
         }}
       >
         {accessType == 'MUTATE' ? (
