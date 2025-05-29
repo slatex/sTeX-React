@@ -16,12 +16,12 @@ import {
   sendNotification,
 } from './comment-utils';
 
-function linkToComment({ threadId, courseId, courseTerm}: any) {
+function linkToComment({ threadId, courseId, courseTerm, pageUrl }: any) {
   if (threadId && courseId && courseTerm === CURRENT_TERM) {
     return `/forum/${courseId}/${threadId}`;
   }
   if (courseId) return `/forum/${courseId}`;
-  return '/';
+  return pageUrl || '/';
 }
 
 async function sendCommentAlert(
@@ -96,6 +96,7 @@ export default async function handler(req, res) {
     questionStatus,
     isAnonymous,
     uri,
+    pageUrl,
   } = req.body as Comment;
 
   if (!statement || isPrivate === undefined || isAnonymous === undefined) {
@@ -120,8 +121,8 @@ export default async function handler(req, res) {
   }
   const results = await executeAndEndSet500OnError(
     `INSERT INTO comments
-      (archive, filepath, statement, parentCommentId, threadId, courseId, courseTerm, selectedText, isPrivate, commentType, questionStatus, isAnonymous, userId, userName, userEmail, isDeleted, isEdited ,uri)
-      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ?)`,
+      (archive, filepath, statement, parentCommentId, threadId, courseId, courseTerm, selectedText, isPrivate, commentType, questionStatus, isAnonymous, userId, userName, userEmail, isDeleted, isEdited ,uri, pageUrl)
+      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ?, ?)`,
     [
       archive,
       filepath,
@@ -141,6 +142,7 @@ export default async function handler(req, res) {
       0,
       0,
       uri,
+      pageUrl,
     ],
     res
   );
@@ -168,7 +170,7 @@ export default async function handler(req, res) {
     userId,
     isPrivate,
     commentType === CommentType.QUESTION,
-    linkToComment({ threadId, courseId, courseTerm}),
+    linkToComment({ threadId, courseId, courseTerm, pageUrl }),
     courseId,
     courseTerm
   );

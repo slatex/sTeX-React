@@ -34,6 +34,8 @@ CREATE TABLE comments (
     updatedTimestamp timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+ALTER TABLE comments ADD COLUMN pageUrl VARCHAR(255),ADD COLUMN uri VARCHAR(255);
+
 CREATE TABLE updateHistory (
    updateId int PRIMARY KEY AUTO_INCREMENT,
     ownerId varchar(255),
