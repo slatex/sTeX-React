@@ -17,6 +17,7 @@ import {
   QuizWithStatus,
   updateQuiz,
 } from '@stex-react/api';
+import { injectCss } from '@stex-react/ftml-utils';
 import { getQuizPhase } from '@stex-react/quiz-utils';
 import { SafeHtml } from '@stex-react/react-utils';
 import { Action, CourseInfo, CURRENT_TERM, ResourceName, roundToMinutes } from '@stex-react/utils';
@@ -25,6 +26,8 @@ import dayjs from 'dayjs';
 import type { NextPage } from 'next';
 import { useEffect, useState } from 'react';
 import { CheckboxWithTimestamp } from './CheckBoxWithTimestamp';
+import { EndSemSumAccordion } from './EndSemSumAccordion';
+import { ExcusedAccordion } from './ExcusedAccordion';
 import { QuizFileReader } from './QuizFileReader';
 import { QuizStatsDisplay } from './QuizStatsDisplay';
 import { RecorrectionDialog } from './RecorrectionDialog';
@@ -153,6 +156,9 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
       .then((res) => {
         const allQuizzes: QuizWithStatus[] = res.data;
         allQuizzes?.sort((a, b) => b.quizStartTs - a.quizStartTs);
+        for (const q of allQuizzes ?? []) {
+          for (const css of q.css) injectCss(css);
+        }
         setQuizzes(allQuizzes);
         if (allQuizzes?.length) setSelectedQuizId(allQuizzes[0].id);
       });
@@ -242,6 +248,16 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
 
   return (
     <Box m="auto" maxWidth="800px" p="10px">
+      <Box mb={2}>
+        {quizzes.length > 0 && (
+          <EndSemSumAccordion
+            courseId={courseId}
+            courseInstance={courseTerm}
+            quizzes={quizzes}
+            setQuizzes={setQuizzes}
+          />
+        )}
+      </Box>
       {accessType == 'PREVIEW_ONLY' && (
         <Typography fontSize={16} color="red">
           You don&apos;t have access to mutate this course Quizzes
@@ -416,6 +432,16 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
             <OpenInNew />
           </Button>
         </a>
+      )}
+
+      {!isNew && (
+        <Box mt={2} mb={2}>
+          <ExcusedAccordion
+            quizId={selectedQuizId}
+            courseId={courseId}
+            courseInstance={courseTerm}
+          />
+        </Box>
       )}
 
       <QuizStatsDisplay
