@@ -1,4 +1,4 @@
-import { CourseResourceAction, FileLocation } from '@stex-react/utils';
+import { CourseResourceAction } from '@stex-react/utils';
 import axios, { AxiosError } from 'axios';
 import {
   BlogPost,

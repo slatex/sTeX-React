@@ -1,4 +1,3 @@
-import { FileLocation } from '@stex-react/utils';
 
 export enum HiddenStatus {
   UNHIDDEN = 'UNHIDDEN',
