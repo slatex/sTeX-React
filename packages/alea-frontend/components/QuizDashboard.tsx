@@ -79,6 +79,8 @@ const QuizDurationInfo = ({ quizStartTs, quizEndTs, feedbackReleaseTs }) => {
 
 interface QuizDashboardProps {
   courseId: string;
+  quizId?: string;
+  onQuizIdChange?: (quizId: string) => void;
 }
 
 function validateQuizUpdate(
@@ -111,8 +113,8 @@ function validateQuizUpdate(
   return { valid: true };
 }
 
-const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
-  const [selectedQuizId, setSelectedQuizId] = useState<string>(NEW_QUIZ_ID);
+const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId, quizId, onQuizIdChange }) => {
+  const selectedQuizId = quizId || NEW_QUIZ_ID;
 
   const [title, setTitle] = useState<string>('');
   const [quizStartTs, setQuizStartTs] = useState<number>(roundToMinutes(Date.now()));
@@ -160,12 +162,17 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
           for (const css of q.css) injectCss(css);
         }
         setQuizzes(allQuizzes);
-        if (allQuizzes?.length) setSelectedQuizId(allQuizzes[0].id);
+        const validQuiz = allQuizzes.find((q) => q.id === quizId);
+
+        if (quizId !== NEW_QUIZ_ID && (!quizId || !validQuiz) && allQuizzes.length > 0) {
+          onQuizIdChange?.(allQuizzes[0].id);
+          console.log('Setting quiz ID to first available:', onQuizIdChange);
+        }
       });
-  }, [courseId, courseTerm]);
+  }, [courseId, courseTerm, isNew, onQuizIdChange, quizId]);
 
   useEffect(() => {
-    if (!selectedQuizId || selectedQuizId === NEW_QUIZ_ID) return;
+    if (!selectedQuizId || selectedQuizId === NEW_QUIZ_ID || quizzes.length === 0) return;
 
     getQuizStats(selectedQuizId, courseId, courseTerm).then(setStats);
     const interval = setInterval(() => {
@@ -240,8 +247,10 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
     );
     if (!confirmed) return;
     await deleteQuiz(quizId, courseId, courseTerm);
-    setQuizzes(quizzes.filter((quiz) => quiz.id !== quizId));
-    setSelectedQuizId(NEW_QUIZ_ID);
+    const remainingQuizzes = quizzes.filter((quiz) => quiz.id !== quizId);
+    setQuizzes(remainingQuizzes);
+    const fallbackQuizId = remainingQuizzes[0]?.id || 'New';
+    onQuizIdChange?.(fallbackQuizId);
   }
 
   if (!canAccess) return <>Unauthorized</>;
@@ -263,7 +272,14 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
           You don&apos;t have access to mutate this course Quizzes
         </Typography>
       )}
-      <Select value={selectedQuizId} onChange={(e) => setSelectedQuizId(e.target.value)}>
+      <Select
+        value={selectedQuizId}
+        onChange={(e) => {
+          const newQuizId = e.target.value;
+          console.log('Selected quiz ID:', newQuizId);
+          onQuizIdChange?.(newQuizId);
+        }}
+      >
         {accessType == 'MUTATE' ? (
           <MenuItem value="New">New</MenuItem>
         ) : (
