@@ -6,17 +6,17 @@ import {
   URI,
   addComment,
   editComment,
-  getUserInfo
+  getUserInfo,
 } from '@stex-react/api';
 import { MystEditor } from '@stex-react/myst';
-import { CURRENT_TERM, FileLocation } from '@stex-react/utils';
+import { CURRENT_TERM } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { discardDraft, retrieveDraft, saveDraft } from './comment-helpers';
 import { getLocaleObject } from './lang/utils';
 
 interface EditViewProps {
-  file: FileLocation;
+  uri?: URI;
   isPrivateNote: boolean;
   postAnonymously: boolean;
   parentId?: number;
@@ -26,11 +26,10 @@ interface EditViewProps {
   hidden?: boolean;
   onCancel?: () => void;
   onUpdate: () => void;
-  uri?: URI;
 }
 
 export function EditView({
-  file,
+  uri,
   isPrivateNote,
   postAnonymously = false,
   selectedText = undefined,
@@ -40,7 +39,6 @@ export function EditView({
   hidden = false,
   onCancel = undefined,
   onUpdate,
-  uri,
 }: EditViewProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -59,9 +57,9 @@ export function EditView({
 
   useEffect(() => {
     if (existingComment) return;
-    const retreived = retrieveDraft(file, parentId);
+    const retreived = retrieveDraft(uri ?? '', parentId);
     setInputText(retreived || '');
-  }, [file, parentId, existingComment]);
+  }, [uri, parentId, existingComment]);
 
   function getNewComment() {
     const courseTerm = courseId ? CURRENT_TERM : undefined;
@@ -69,8 +67,7 @@ export function EditView({
 
     return {
       commentId: -1,
-      archive: file?.archive,
-      filepath: file?.filepath,
+      uri: uri,
       parentCommentId: parentId,
       courseId,
       courseTerm,
@@ -81,7 +78,6 @@ export function EditView({
       questionStatus: isQuestion ? QuestionStatus.UNANSWERED : undefined,
       selectedText,
       userName,
-      uri: uri,
     };
   }
 
@@ -100,7 +96,7 @@ export function EditView({
       alert(t.updateFailure);
       return;
     }
-    discardDraft(file, parentId);
+    discardDraft(uri ?? '', parentId);
     setIsLoading(false);
     if (!existingComment) setInputText('');
   };
@@ -114,7 +110,7 @@ export function EditView({
           value={inputText}
           onValueChange={(v) => {
             setInputText(v);
-            saveDraft(file, parentId, v);
+            saveDraft(uri ?? '', parentId, v);
           }}
         />
         {!existingComment && !parentId && !isPrivateNote ? (

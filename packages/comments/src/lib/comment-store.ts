@@ -1,11 +1,10 @@
-import { Comment } from '@stex-react/api';
-import { FileLocation } from '@stex-react/utils';
+import { Comment, URI } from '@stex-react/api';
 import { organizeHierarchically } from './comment-helpers';
 
 export class CommentStore {
   private storedPublicComments: Comment[] | undefined = undefined;
   private storedPrivateNotes: Comment[] | undefined = undefined;
-  constructor(private fileLoc: FileLocation) {}
+  constructor(private uri: URI) {}
 
   public setComments(flatComments: Comment[]) {
     this.storedPublicComments = organizeHierarchically(

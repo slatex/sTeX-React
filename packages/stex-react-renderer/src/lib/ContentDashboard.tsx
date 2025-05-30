@@ -7,8 +7,8 @@ import { Box, IconButton, TextField, Tooltip } from '@mui/material';
 import { TOCElem, URI } from '@stex-react/api';
 import {
   convertHtmlStringToPlain,
-  CoverageSnap,
   CoverageTimeline,
+  LectureEntry,
   PRIMARY_COL,
 } from '@stex-react/utils';
 import axios from 'axios';
@@ -114,7 +114,7 @@ function applyFilter(
   return nodes.map((n) => applyFilterOne(n, searchTerms)).filter((n) => n) as any;
 }
 
-function getCoverageHover(info?: SectionCoverageInfo) {
+function getLectureHover(info?: SectionLectureInfo) {
   if (!info) return '';
   const { startTime_ms, endTime_ms } = info;
   if (!startTime_ms) return 'Not yet covered';
@@ -133,7 +133,7 @@ function RenderTree({
   level,
   defaultOpen,
   selectedSection,
-  perSectionCoverageInfo,
+  perSectionLectureInfo,
   preAdornment,
   onSectionClick,
 }: {
@@ -141,7 +141,7 @@ function RenderTree({
   level: number;
   defaultOpen: boolean;
   selectedSection: string;
-  perSectionCoverageInfo: Record<URI, SectionCoverageInfo>;
+  perSectionLectureInfo: Record<URI, SectionLectureInfo>;
   preAdornment?: (sectionId: string) => JSX.Element;
   onSectionClick?: (sectionId: string, sectionUri: string) => void;
 }) {
@@ -152,16 +152,16 @@ function RenderTree({
 
   const itemClassName = level === 0 ? styles['level0_dashboard_item'] : styles['dashboard_item'];
   const isSelected = selectedSection === node.tocElem.id;
-  const secCoverageInfo = perSectionCoverageInfo[node.tocElem.uri];
-  const coverageHover = getCoverageHover(secCoverageInfo);
+  const secLectureInfo = perSectionLectureInfo[node.tocElem.uri];
+  const lectureHover = getLectureHover(secLectureInfo);
 
   return (
     <Box
       key={(node.tocElem as any).id}
       sx={{
         py: '6px',
-        backgroundColor: secCoverageInfo?.endTime_ms
-          ? (secCoverageInfo.lastLectureIdx ?? 0) % 2 === 0
+        backgroundColor: secLectureInfo?.endTime_ms
+          ? (secLectureInfo.lastLectureIdx ?? 0) % 2 === 0
             ? '#FFC'
             : '#FFC' //'#D1FFCC'
           : undefined,
@@ -200,8 +200,8 @@ function RenderTree({
           }}
         >
           {preAdornment ? preAdornment(node.tocElem.id) : null}
-          {coverageHover ? (
-            <Tooltip title={<span style={{ fontSize: 'medium' }}>{coverageHover}</span>}>
+          {lectureHover ? (
+            <Tooltip title={<span style={{ fontSize: 'medium' }}>{lectureHover}</span>}>
               <span>{convertHtmlStringToPlain(node.tocElem.title || 'Untitled')}</span>
             </Tooltip>
           ) : (
@@ -230,7 +230,7 @@ function RenderTree({
                 node={child}
                 level={level + 1}
                 defaultOpen={defaultOpen}
-                perSectionCoverageInfo={perSectionCoverageInfo}
+                perSectionLectureInfo={perSectionLectureInfo}
                 selectedSection={selectedSection}
                 preAdornment={preAdornment}
                 onSectionClick={onSectionClick}
@@ -289,23 +289,23 @@ function getPrevSectionInList(sectionUri?: URI, uriList?: URI[]) {
   return uriList[idx - 1];
 }
 
-interface SectionCoverageInfo {
+interface SectionLectureInfo {
   startTime_ms?: number;
   endTime_ms?: number;
   lastLectureIdx?: number;
 }
 
-function getPerSectionCoverageInfo(topLevel: TOCElem, coverageData: CoverageSnap[]) {
-  const perSectionCoverageInfo: Record<URI, SectionCoverageInfo> = {};
-  coverageData = coverageData?.filter((snap) => snap.sectionUri);
-  if (!coverageData?.length) return perSectionCoverageInfo;
+function getPerSectionLectureInfo(topLevel: TOCElem, lectureData: LectureEntry[]) {
+  const perSectionLectureInfo: Record<URI, SectionLectureInfo> = {};
+  lectureData = lectureData?.filter((snap) => snap.sectionUri);
+  if (!lectureData?.length) return perSectionLectureInfo;
   const [preOrdered, postOrdered] = getOrderedSections(topLevel);
-  const firstSectionNotStarted = coverageData.map((snap) => {
+  const firstSectionNotStarted = lectureData.map((snap) => {
     return getNextSectionInList(snap.sectionUri, postOrdered);
   });
 
-  const lastSectionCompleted = coverageData.map((snap) => {
-    const isPartial = Number.isFinite(snap.slideNumber);
+  const lastSectionCompleted = lectureData.map((snap) => {
+    const isPartial = !!snap.slideUri && !!snap.slideNumber;
     if (isPartial) return getPrevSectionInList(snap.sectionUri, preOrdered);
     return snap.sectionUri;
   });
@@ -316,24 +316,25 @@ function getPerSectionCoverageInfo(topLevel: TOCElem, coverageData: CoverageSnap
       currLecIdx++;
       if (!firstSectionNotStarted[currLecIdx]) break;
     }
-    const currentSnap = coverageData[currLecIdx];
+    const currentSnap = lectureData[currLecIdx];
     if (!currentSnap?.sectionUri) break;
-    perSectionCoverageInfo[secUri] = {
+    perSectionLectureInfo[secUri] = {
       startTime_ms: currentSnap.timestamp_ms,
-      //lastLectureIdx: currLecIdx,
+      // firstLectureIdx: currLecIdx,
     };
   }
   currLecIdx = 0;
   for (const secUri of preOrdered) {
-    if (currLecIdx >= coverageData.length) break;
-    const currentSnap = coverageData[currLecIdx];
+    if (currLecIdx >= lectureData.length) break;
+    const currentSnap = lectureData[currLecIdx];
     if (!currentSnap.sectionUri) break;
-    perSectionCoverageInfo[secUri].endTime_ms = currentSnap.timestamp_ms;
-    perSectionCoverageInfo[secUri].lastLectureIdx = currLecIdx;
+    perSectionLectureInfo[secUri].endTime_ms = currentSnap.timestamp_ms;
+    perSectionLectureInfo[secUri].lastLectureIdx = currLecIdx;
 
     while (secUri === lastSectionCompleted[currLecIdx]) currLecIdx++;
     if (!firstSectionNotStarted[currLecIdx]) break;
-  }return perSectionCoverageInfo;
+  }
+  return perSectionLectureInfo;
 }
 
 export function ContentDashboard({
@@ -354,8 +355,8 @@ export function ContentDashboard({
   const t = getLocaleObject(useRouter());
   const [filterStr, setFilterStr] = useState('');
   const [defaultOpen, setDefaultOpen] = useState(true);
-  const [perSectionCoverageInfo, setPerSectionCoverageInfo] = useState<
-    Record<URI, SectionCoverageInfo>
+  const [perSectionLectureInfo, setPerSectionLectureInfo] = useState<
+    Record<URI, SectionLectureInfo>
   >({});
 
   useEffect(() => {
@@ -364,7 +365,7 @@ export function ContentDashboard({
       const resp = await axios.get('/api/get-coverage-timeline');
       const snaps = (resp.data as CoverageTimeline)?.[courseId];
       const shadowTopLevel: TOCElem = { type: 'SkippedSection', children: toc };
-      setPerSectionCoverageInfo(getPerSectionCoverageInfo(shadowTopLevel, snaps));
+      setPerSectionLectureInfo(getPerSectionLectureInfo(shadowTopLevel, snaps));
     }
     getCoverageInfo();
   }, [courseId, toc]);
@@ -413,7 +414,7 @@ export function ContentDashboard({
           level={0}
           defaultOpen={defaultOpen}
           selectedSection={selectedSection}
-          perSectionCoverageInfo={perSectionCoverageInfo}
+          perSectionLectureInfo={perSectionLectureInfo}
           preAdornment={preAdornment}
           onSectionClick={onSectionClick}
         />

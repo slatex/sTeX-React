@@ -25,6 +25,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
+import { FTMLFragment } from '@stex-react/ftml-utils';
 
 function RecorrectionInfoDisp({ recorrectionInfo }: { recorrectionInfo?: RecorrectionInfo[] }) {
   const { quizPerformanceTable: t } = getLocaleObject(useRouter());
@@ -47,7 +48,7 @@ function RecorrectionInfoDisp({ recorrectionInfo }: { recorrectionInfo?: Recorre
                 <Typography variant="body1">
                   {t.theProblem}{' '}
                   <b>
-                    <SafeHtml html={r.problemHeader || r.problemId} />
+                    <SafeHtml html={r.problemHeader || r.problemUri} />
                   </b>
                   &nbsp;{t.wasRecorrected} ({dayjs(r.recorrectedTs).format('MMM DD')}).
                   <br />
@@ -118,7 +119,7 @@ function QuizPerformanceTable({
                   >
                     <Box display="flex" alignItems="center">
                       <Link href={`/quiz/${quiz.quizId}`} style={{ marginRight: '5px' }}>
-                        {convertHtmlStringToPlain(quiz.title)}
+                         <FTMLFragment key={quiz.title ?? ''} fragment ={{  html: quiz.title ?? '<i>Untitled</i>' }} />
                       </Link>
                       <RecorrectionInfoDisp
                         recorrectionInfo={previousQuizData?.quizInfo[quiz.quizId]?.recorrectionInfo}

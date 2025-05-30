@@ -1,4 +1,3 @@
-import { FileLocation } from '@stex-react/utils';
 
 export enum HiddenStatus {
   UNHIDDEN = 'UNHIDDEN',
@@ -68,7 +67,7 @@ export function isSpam(status?: HiddenStatus) {
 }
 
 export interface GetCommentsRequest {
-  files: FileLocation[];
+  uris: string[];
 }
 
 export interface EditCommentRequest {

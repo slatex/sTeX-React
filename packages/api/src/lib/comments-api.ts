@@ -1,4 +1,4 @@
-import { CourseResourceAction, FileLocation } from '@stex-react/utils';
+import { CourseResourceAction } from '@stex-react/utils';
 import axios, { AxiosError } from 'axios';
 import {
   BlogPost,
@@ -50,8 +50,8 @@ export async function deleteComment(commentId: number) {
   await commentRequest(`/api/delete-comment/${commentId}`, 'POST');
 }
 
-export async function getComments(files: FileLocation[]): Promise<Comment[]> {
-  const comments: Comment[] = await commentRequest(`/api/get-comments`, 'POST', { files });
+export async function getComments(uris: string[]): Promise<Comment[]> {
+  const comments: Comment[] = await commentRequest(`/api/get-comments`, 'POST', { uris });
   return comments;
 }
 

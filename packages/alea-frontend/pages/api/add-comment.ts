@@ -16,14 +16,12 @@ import {
   sendNotification,
 } from './comment-utils';
 
-function linkToComment({ threadId, courseId, courseTerm, archive, filepath }: any) {
-  // if (threadId && courseId && courseTerm === CURRENT_TERM) {
-  //   return `/forum/${courseId}/${threadId}`;
-  // }
-  // if (archive && filepath) return PathToArticle({ archive, filepath });
-  // if (courseId) return `/forum/${courseId}`;
-  // return PathToArticle({ archive: archive || '', filepath: filepath || '' });
-  return '/TODO ALEA4-N8.1';
+function linkToComment({ threadId, courseId, courseTerm}: any) {
+  if (threadId && courseId && courseTerm === CURRENT_TERM) {
+    return `/forum/${courseId}/${threadId}`;
+  }
+  if (courseId) return `/forum/${courseId}`;
+  return '/';
 }
 
 async function sendCommentAlert(
@@ -97,7 +95,7 @@ export default async function handler(req, res) {
     commentType,
     questionStatus,
     isAnonymous,
-    uri
+    uri,
   } = req.body as Comment;
 
   if (!statement || isPrivate === undefined || isAnonymous === undefined) {
@@ -142,7 +140,7 @@ export default async function handler(req, res) {
       isAnonymous ? null : userEmail,
       0,
       0,
-      uri
+      uri,
     ],
     res
   );
@@ -170,7 +168,7 @@ export default async function handler(req, res) {
     userId,
     isPrivate,
     commentType === CommentType.QUESTION,
-    linkToComment({ threadId, courseId, courseTerm, archive, filepath }),
+    linkToComment({ threadId, courseId, courseTerm}),
     courseId,
     courseTerm
   );

@@ -53,24 +53,21 @@ export async function processResults(
 }
 
 export default async function handler(req, res) {
-  const { files } = req.body as GetCommentsRequest;
-  if (!files?.length) {
+  const { uris } = req.body as GetCommentsRequest;
+  if (!uris?.length) {
     res.status(200).json([]);
     return;
   }
-  if (files.some(({ archive, filepath }) => !archive || !filepath)) {
-    res.status(400).json({ error: 'Invalid input' });
-    return;
-  }
+
 
   const userId = (await getUserId(req)) || '';
-  const fileConstraint = Array(files.length)
-    .fill('(archive = ? AND filepath = ?)')
+  const fileConstraint = Array(uris.length)
+    .fill('(uri = ?)')
     .join(' OR ');
 
   const query = `SELECT * FROM comments WHERE (isPrivate != 1 OR userId = ? ) AND ( ${fileConstraint} )`;
   const queryValues = [userId];
-  files.forEach(({ archive, filepath }) => queryValues.push(archive, filepath));
+  uris.forEach((uri) => queryValues.push(uri));
 
   const results = await executeDontEndSet500OnError(query, queryValues, res);
   if (!results) return;

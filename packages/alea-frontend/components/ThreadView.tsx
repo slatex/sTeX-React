@@ -113,7 +113,7 @@ export function ThreadView({ courseId, threadId }: { courseId: string; threadId:
             <VisibilityIcon />
           </Button>
         ))}
-      <CommentTree comments={threadComments} file={fileLoc} refreshComments={() => doUpdate()} />
+      <CommentTree comments={threadComments} uri={threadComments[0].uri} refreshComments={() => doUpdate()} />
     </>
   );
 }

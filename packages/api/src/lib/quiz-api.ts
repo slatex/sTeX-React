@@ -2,6 +2,7 @@ import axios, { AxiosError } from 'axios';
 import { ProblemResponse } from './ftml-viewer-base';
 import { getAuthHeaders } from './lmp';
 import {
+  Excused,
   GetPreviousQuizInfoResponse,
   GetQuizResponse,
   InsertAnswerRequest,
@@ -92,4 +93,78 @@ export async function getPreviousQuizInfo(courseId: string) {
     headers,
   });
   return resp.data as GetPreviousQuizInfoResponse;
+}
+
+export async function recorrectQuiz(
+  quizId: string,
+  courseId: string,
+  courseTerm: string,
+  dryRun: boolean,
+  reasons: Record<string, string>
+) {
+  const response = await axios.post(
+    '/api/quiz/recorrect',
+    {
+      quizId,
+      courseId,
+      courseTerm,
+      dryRun,
+      reasons,
+    },
+    {
+      headers: getAuthHeaders(),
+    }
+  );
+
+  return response.data;
+}
+
+export async function createExcused(
+  quizId: string,
+  userId: string,
+  courseId: string,
+  courseInstance: string
+) {
+  return await axios.post(
+    '/api/quiz/create-excused',
+    { userId, quizId, courseId, courseInstance },
+    {
+      headers: getAuthHeaders(),
+    }
+  );
+}
+
+export async function getExcused(quizId: string, courseId: string, courseInstance: string) {
+  const resp = await axios.get(
+    `/api/quiz/get-excused-students?quizId=${quizId}&courseId=${courseId}&courseInstance=${courseInstance}`,
+    { headers: getAuthHeaders() }
+  );
+  return resp.data as string[];
+}
+
+export async function deleteExcused(quiz: Excused) {
+  return await axios.post('/api/quiz/delete-excused', quiz, {
+    headers: getAuthHeaders(),
+  });
+}
+
+export async function generateEndSemesterSummary(
+  courseId: string,
+  courseTerm: string,
+  excludeQuizzes: string[] = [],
+  topN: number
+) {
+  const response = await axios.post(
+    '/api/quiz/end-semester-summary',
+    {
+      courseId,
+      courseTerm,
+      excludeQuizzes,
+      topN,
+    },
+    {
+      headers: getAuthHeaders(),
+    }
+  );
+  return response.data;
 }

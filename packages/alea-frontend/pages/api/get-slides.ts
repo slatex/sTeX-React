@@ -97,7 +97,7 @@ async function getSlidesFromToc(elems: TOCElem[], bySection: Record<string, Slid
   }
 }
 
-export async function getSlides(notesUri: string) {
+async function computeSlidesForDoc(notesUri: string) {
   const toc = (await getDocumentSections(notesUri))[1];
   const bySection: { [sectionId: string]: Slide[] } = {};
   await getSlidesFromToc(toc, bySection);
@@ -109,9 +109,16 @@ const globalCache = global as any;
 if (!globalCache.G_CACHED_SLIDES) {
   globalCache.G_CACHED_SLIDES = {};
 }
-export const CACHED_SLIDES: {
+const CACHED_SLIDES: {
   [courseId: string]: { [sectionId: string]: Slide[] };
 } = globalCache.G_CACHED_SLIDES;
+
+export async function getSlidesForCourse(courseId: string, notesUri: string) {
+  if (!CACHED_SLIDES[courseId]) {
+    CACHED_SLIDES[courseId] = await computeSlidesForDoc(notesUri);
+  }
+  return CACHED_SLIDES[courseId];
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const courseId = req.query.courseId as string;
@@ -127,12 +134,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return;
   }
   const sectionIdArr = sectionIds.split(',');
-  if (!CACHED_SLIDES[courseId]) {
-    CACHED_SLIDES[courseId] = await getSlides(courseInfo.notes);
-  }
+  const allCourseSlides = await getSlidesForCourse(courseId, courseInfo.notes);
   const data: { [sectionId: string]: Slide[] } = {};
   for (const secId of sectionIdArr) {
-    data[secId] = CACHED_SLIDES[courseId][secId];
+    data[secId] = allCourseSlides[secId];
   }
 
   return res.status(200).json(data);

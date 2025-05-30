@@ -13,17 +13,16 @@ import {
   DialogActions,
 } from '@mui/material';
 import { TOCElem, getAuthHeaders, getCourseInfo, getDocumentSections } from '@stex-react/api';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import {
   CourseInfo,
-  CoverageSnap,
+  LectureEntry,
   CoverageTimeline,
   convertHtmlStringToPlain,
 } from '@stex-react/utils';
 import axios from 'axios';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { CoverageUpdater } from './CoverageUpdater';
 import { Section } from '../types';
 import { createContext } from 'react';
@@ -71,8 +70,8 @@ const CoverageUpdatePage: NextPage = () => {
   const currentTab = router.query.tab as string;
   const [allSectionNames, setAllSectionNames] = useState<{ [courseId: string]: Section[] }>({});
   const [sectionNames, setSectionNames] = useState<Section[]>([]);
-  const [snaps, setSnaps] = useState<CoverageSnap[]>([]);
-  const [savedSnaps, setSavedSnaps] = useState<CoverageSnap[]>([]);
+  const [snaps, setSnaps] = useState<LectureEntry[]>([]);
+  const [savedSnaps, setSavedSnaps] = useState<LectureEntry[]>([]);
   const [coverageTimeline, setCoverageTimeline] = useState<CoverageTimeline>({});
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
   const [loading, setLoading] = useState(false);
@@ -104,7 +103,7 @@ const CoverageUpdatePage: NextPage = () => {
 
   const handleRouteChangeStart = useCallback(
     (url: string) => {
-      if (currentTab === 'lecture-schedule' && hasUnsavedChanges()) {
+      if (currentTab === 'syllabus' && hasUnsavedChanges()) {
         const urlObj = new URL(url, window.location.origin);
         const targetTab = urlObj.searchParams.get('tab');
 
@@ -113,7 +112,7 @@ const CoverageUpdatePage: NextPage = () => {
           target: { url, tab: targetTab },
         });
 
-        if (targetTab !== 'lecture-schedule') {
+        if (targetTab !== 'syllabus') {
           console.log('Preventing navigation due to unsaved changes');
 
           router.events.emit('routeChangeError');
@@ -144,11 +143,7 @@ const CoverageUpdatePage: NextPage = () => {
     router.events.on('routeChangeStart', handleRouteChangeStart);
 
     const handleTabChange = () => {
-      if (
-        previousTab === 'lecture-schedule' &&
-        currentTab !== 'lecture-schedule' &&
-        hasUnsavedChanges()
-      ) {
+      if (previousTab === 'syllabus' && currentTab !== 'syllabus' && hasUnsavedChanges()) {
         console.log('Tab changed via query params with unsaved changes');
 
         setShowUnsavedDialog(true);
@@ -168,16 +163,10 @@ const CoverageUpdatePage: NextPage = () => {
     if (router.isReady && currentTab) {
       console.log(`Tab changed: ${previousTab} -> ${currentTab}`);
 
-      if (
-        previousTab === 'lecture-schedule' &&
-        currentTab !== 'lecture-schedule' &&
-        hasUnsavedChanges()
-      ) {
+      if (previousTab === 'syllabus' && currentTab !== 'syllabus' && hasUnsavedChanges()) {
         console.log('Unsaved changes detected during tab change');
 
-        setPendingNavigation(
-          `${window.location.pathname}?tab=lecture-schedule&courseId=${courseId}`
-        );
+        setPendingNavigation(`${window.location.pathname}?tab=syllabus&courseId=${courseId}`);
         setShowUnsavedDialog(true);
       }
 
@@ -200,8 +189,8 @@ const CoverageUpdatePage: NextPage = () => {
   }, []);
 
   useEffect(() => {
-     getCourseInfo().then(setCourses);    
-  },[] );
+    getCourseInfo().then(setCourses);
+  }, []);
 
   useEffect(() => {
     const getSections = async () => {
@@ -327,7 +316,7 @@ const CoverageUpdatePage: NextPage = () => {
             }}
           >
             <Typography variant="h4" component="h1" gutterBottom color="primary">
-              Coverage Update for {courseId}
+              Syllabus for {courseId}
             </Typography>
 
             {saveMessage && (
