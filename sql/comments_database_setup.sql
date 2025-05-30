@@ -31,10 +31,12 @@ CREATE TABLE comments (
     userEmail varchar(255),
 
     postedTimestamp timestamp DEFAULT CURRENT_TIMESTAMP,
-    updatedTimestamp timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updatedTimestamp timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    uri VARCHAR(1023),
+    pageUrl VARCHAR(1023)
 );
 
-ALTER TABLE comments ADD COLUMN pageUrl VARCHAR(255),ADD COLUMN uri VARCHAR(255);
 
 CREATE TABLE updateHistory (
    updateId int PRIMARY KEY AUTO_INCREMENT,
