@@ -78,6 +78,7 @@ export function EditView({
       questionStatus: isQuestion ? QuestionStatus.UNANSWERED : undefined,
       selectedText,
       userName,
+      pageUrl: typeof window !== 'undefined' ? window.location.href : undefined,
     };
   }
 

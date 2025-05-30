@@ -56,6 +56,7 @@ export interface Comment {
 
   childComments?: Comment[];
   uri?: string;
+  pageUrl?: string;
   // TODO: Someway to specify location in the doc.
 }
 
