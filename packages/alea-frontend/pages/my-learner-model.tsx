@@ -9,16 +9,12 @@ import {
 } from '@mui/material';
 import { ConceptCompetenceInfo, getMyCompleteModel } from '@stex-react/api';
 import { CompetencyTable } from '@stex-react/stex-react-renderer';
-import { FileLocation } from '@stex-react/utils';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 
-export interface NotesSection extends FileLocation {
-  updatedTimestampSec: number;
-}
 
 const MyLearnerModelPage: NextPage = () => {
   const router = useRouter();

@@ -1,4 +1,3 @@
-import { FileLocation } from '@stex-react/utils';
 
 export enum HiddenStatus {
   UNHIDDEN = 'UNHIDDEN',
@@ -57,6 +56,7 @@ export interface Comment {
 
   childComments?: Comment[];
   uri?: string;
+  pageUrl?: string;
   // TODO: Someway to specify location in the doc.
 }
 

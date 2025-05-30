@@ -1,14 +1,11 @@
 import { Box } from '@mui/material';
 import { SafeHtml } from '@stex-react/react-utils';
-import {
-  convertHtmlStringToPlain,
-  FileLocation
-} from '@stex-react/utils';
+import { convertHtmlStringToPlain } from '@stex-react/utils';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import styles from '../styles/search.module.scss';
 
-export interface SearchResult extends FileLocation {
+export interface SearchResult {
   title: string;
   html: string;
 }
@@ -29,8 +26,9 @@ export function SearchResultView({ result }: { result: SearchResult }) {
 
   return (
     <>
-      <span className={styles.result_header_project}>{result.archive}</span>
-      <i className={styles.result_header_sourcefile}>{result.filepath}</i>
+      {/* TODO ALEA4-N12 */}
+      {/* <span className={styles.result_header_project}>{result.archive}</span>
+      <i className={styles.result_header_sourcefile}>{result.filepath}</i> */}
       <Link
         href={
           // TODO ALEA4-N12
@@ -48,10 +46,7 @@ export function SearchResultView({ result }: { result: SearchResult }) {
       <Box sx={{ mb: '20px' }}>
         <SafeHtml html={result.html} />
         {snippetParts.map((part, idx) => (
-          <span
-            key={idx}
-            style={{ fontWeight: part.isEm ? 'bold' : 'regular' }}
-          >
+          <span key={idx} style={{ fontWeight: part.isEm ? 'bold' : 'regular' }}>
             {part.text}&nbsp;
           </span>
         ))}
