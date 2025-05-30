@@ -1,6 +1,7 @@
 import { SlideElement } from './ftml-viewer-base';
 import { SmileyCognitiveValues } from './lmp';
 import axios from 'axios';
+import { CSS } from './ftml-viewer-base';
 
 export interface CardsWithSmileys {
   conceptUri: string;
@@ -67,14 +68,24 @@ export interface ClipMetaData {
   slideHtml?: string;
   ocr_slide_content?: string;
 }
-
+export interface SlidesWithCSS {
+  slides: Slide[];
+  css: CSS[];
+}
 export interface GetSlidesResponse {
-  [sectionId: string]: Slide[];
+  [sectionId: string]: SlidesWithCSS;
 }
 
-export async function getSlides(courseId: string, sectionId: string): Promise<Slide[]> {
+export async function getSlides(
+  courseId: string,
+  sectionId: string
+): Promise<{ slides: Slide[]; css: CSS[] }> {
   const response = await axios.get<GetSlidesResponse>('/api/get-slides', {
-    params: { courseId, sectionIds: sectionId }
+    params: { courseId, sectionIds: sectionId },
   });
-  return response.data[sectionId] || [];
+  const sectionData = response.data[sectionId];
+  return {
+    slides: sectionData?.slides || [],
+    css: sectionData?.css || [],
+  };
 }

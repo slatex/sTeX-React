@@ -9,51 +9,70 @@ import {
   getSectionSlides,
 } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
+
 interface SlidesWithCSS {
   slides: Slide[];
   css: CSS[];
 }
+
+function mergeWithoutDuplicates(existingCSS: CSS[], newCSS: CSS[]): CSS[] {
+  const cssSet = new Set<string>();
+  const result: CSS[] = [...existingCSS];
+
+  existingCSS.forEach((css) => cssSet.add(JSON.stringify(css)));
+
+  (newCSS ?? []).forEach((cssItem) => {
+    const cssString = JSON.stringify(cssItem);
+    if (!cssSet.has(cssString)) {
+      cssSet.add(cssString);
+      result.push(cssItem);
+    }
+  });
+
+  return result;
+}
+
+async function processInputrefAndMergeResults(
+  inputrefUri: string,
+  sectionId: string,
+  accumulatedCSS: CSS[]
+): Promise<{ slides: Slide[]; css: CSS[] }> {
+  const slidesData = await getSectionSlides(inputrefUri);
+  if (!slidesData?.length) {
+    return { slides: [], css: accumulatedCSS };
+  }
+
+  const [css, slideElems] = slidesData;
+  const result = await recursivelyExpandSlideElementsExcludeSections(slideElems, sectionId);
+
+  let mergedCSS = accumulatedCSS;
+  if (css && Array.isArray(css)) {
+    mergedCSS = mergeWithoutDuplicates(mergedCSS, css);
+  }
+  mergedCSS = mergeWithoutDuplicates(mergedCSS, result.css);
+
+  return {
+    slides: result.slides,
+    css: mergedCSS,
+  };
+}
+
 async function recursivelyExpandSlideElementsExcludeSections(
   slideElems: SlideElement[],
-  sectionId: string,
-  accumulatedCSS: CSS[] = []
+  sectionId: string
 ): Promise<{ slides: Slide[]; css: CSS[] }> {
   const elems: (Extract<SlideElement, { type: 'Paragraph' | 'Slide' }> | Slide)[] = [];
-  const cssSet = new Set<string>();
-  accumulatedCSS.forEach((css) => cssSet.add(JSON.stringify(css)));
+  let accumulatedCSS: CSS[] = [];
+
   for (const slideElem of slideElems) {
     if (slideElem.type === 'Inputref') {
-      const slidesData = await getSectionSlides(slideElem.uri);
-      if (slidesData?.length > 0) {
-        const [css, slideElems] = slidesData;
-        if (css && Array.isArray(css)) {
-          css.forEach((cssItem) => {
-            const cssString = JSON.stringify(cssItem);
-            if (!cssSet.has(cssString)) {
-              cssSet.add(cssString);
-              accumulatedCSS.push(cssItem);
-            }
-          });
-        }
-
-        const result = await recursivelyExpandSlideElementsExcludeSections(
-          slideElems,
-          sectionId,
-          accumulatedCSS
-        );
-        elems.push(...result.slides);
-        result.css.forEach((cssItem) => {
-          const cssString = JSON.stringify(cssItem);
-          if (!cssSet.has(cssString)) {
-            cssSet.add(cssString);
-            accumulatedCSS.push(cssItem);
-          }
-        });
-      }
+      const result = await processInputrefAndMergeResults(slideElem.uri, sectionId, accumulatedCSS);
+      elems.push(...result.slides);
+      accumulatedCSS = result.css;
     } else if (slideElem.type === 'Paragraph' || slideElem.type === 'Slide') {
       elems.push(slideElem);
     } else if (slideElem.type === 'Section') {
-      continue;
+      continue; // Skip sub-sections
     }
   }
 
@@ -120,14 +139,12 @@ async function getSlidesFromToc(elems: TOCElem[], bySection: Record<string, Slid
       const slideData = await getSectionSlides(elem.uri);
       if (slideData) {
         const [css, slideElems] = slideData;
-        const result = await recursivelyExpandSlideElementsExcludeSections(
-          slideElems,
-          secId,
-          css || []
-        );
+        const result = await recursivelyExpandSlideElementsExcludeSections(slideElems, secId);
+        const finalCSS = mergeWithoutDuplicates(css, result.css);
+
         bySection[secId] = {
           slides: result.slides,
-          css: result.css,
+          css: finalCSS,
         };
       }
     }
