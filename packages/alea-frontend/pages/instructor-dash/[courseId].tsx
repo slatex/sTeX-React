@@ -13,7 +13,7 @@ import { StudyBuddyModeratorStats } from '../../components/StudyBuddyModeratorSt
 import MainLayout from '../../layouts/MainLayout';
 import { CourseHeader } from '../course-home/[courseId]';
 import CoverageUpdatePage from '../../components/coverage-update';
-import { updateRouterQuery } from '@stex-react/utils';
+import { updateRouterQuery } from '@stex-react/react-utils';
 interface TabPanelProps {
   children?: React.ReactNode;
   value: number;
