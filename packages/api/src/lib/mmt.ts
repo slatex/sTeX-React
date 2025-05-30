@@ -154,7 +154,7 @@ export async function getProblemsForConcept(conceptUri: string) {
       return learningObjects.filter((obj) => obj[1].type === 'Problem').map((obj) => obj[0]);
     } catch (error) {
       console.warn('Error fetching problems for:', conceptUri);
-      await waitForNSeconds(2*i*i);
+      await waitForNSeconds(2 * i * i);
     }
   }
   console.error(`After ${MAX_RETRIES} failed to fetch problems for: [${conceptUri}] `);
@@ -178,8 +178,7 @@ export async function getProblemsForSection(sectionUri: string): Promise<string[
 
 export function conceptUriToName(uri: string) {
   if (!uri) return uri;
-  const lastIndex = uri.lastIndexOf('?');
-  return uri.substring(lastIndex + 1);
+  return getParamFromUri(uri, 's') ?? uri;
 }
 //////////////////
 // :query/sparql
@@ -202,7 +201,7 @@ export interface SparqlResponse {
   };
 }
 
-async function getQueryResults(query: string) {
+export async function getQueryResults(query: string) {
   try {
     const resp = await axios.post(
       `${process.env['NEXT_PUBLIC_FLAMS_URL']}/api/backend/query`,
@@ -216,6 +215,20 @@ async function getQueryResults(query: string) {
     console.error('Error executing SPARQL query:', error);
     throw error;
   }
+}
+export async function getConceptDependencies(conceptUri: string) {
+  const query = `SELECT DISTINCT ?dependency WHERE {
+  ?loname rdf:type ulo:definition .
+  ?loname ulo:defines <${conceptUri}> .
+  ?loname ulo:crossrefs ?dependency .
+}`;
+  const sparqlResponse = await getQueryResults(query);
+
+  const dependencies: string[] = [];
+  for (const binding of sparqlResponse.results?.bindings || []) {
+    dependencies.push(binding['dependency'].value);
+  }
+  return dependencies;
 }
 
 export async function getSectionDependencies(sectionUri: string) {
@@ -333,7 +346,7 @@ PREFIX ulo: <http://mathhub.info/ulo#>
 SELECT DISTINCT ?x
 WHERE {
 ?lo ?type ?b.
-?b ulo:crossrefs ?x.
+?b ulo:po-symbol ?x.
 ?lo rdf:type ?loType .
 
  FILTER(!CONTAINS(STR(?x), "?term")).

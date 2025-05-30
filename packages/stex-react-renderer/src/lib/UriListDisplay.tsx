@@ -1,7 +1,7 @@
 import { Visibility } from '@mui/icons-material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { Box, IconButton, Typography } from '@mui/material';
-import { BloomDimension } from '@stex-react/api';
+import { BloomDimension, conceptUriToName } from '@stex-react/api';
 import { DimIcon } from './SelfAssessmentDialog';
 
 function toBloomDimension(key: string): BloomDimension {
@@ -14,7 +14,9 @@ function toBloomDimension(key: string): BloomDimension {
 }
 
 function getBloomDimesionAndUriList(data: string) {
-  return data.split(',').map((dimAndURI) => {
+  const uniqueEntries = Array.from(new Set(data.split(',')));
+
+  return uniqueEntries.map((dimAndURI) => {
     const [key, value] = dimAndURI.split(':');
     const dim = toBloomDimension(key);
     const uri = decodeURIComponent(value);
@@ -50,8 +52,14 @@ export function URIListDisplay({ uris, displayReverseRelation }: URIListDisplayP
     <Box>
       {uris?.map((uri, index, array) => (
         <span key={index}>
-          {/*mmtHTMLToReact(getMMTHtml(uri))*/}
-          TODO ALEA4-L1
+          <a
+            href={uri}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ textDecoration: 'none', color: '#1976d2' }}
+          >
+            {conceptUriToName(uri)}
+          </a>
           <IconButton
             size="small"
             onClick={() => handleCopy(uri)}

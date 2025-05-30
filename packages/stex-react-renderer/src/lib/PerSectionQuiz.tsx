@@ -21,12 +21,16 @@ export function UriProblemViewer({
   setIsSubmitted,
   response,
   setResponse,
+  setQuotient,
+  hideSubmitButton = false,
 }: {
   uri: string;
   isSubmitted: boolean;
   setIsSubmitted: (isSubmitted: boolean) => void;
   response: ProblemResponse | undefined;
   setResponse: (response: ProblemResponse | undefined) => void;
+  setQuotient?: (quotient: number) => void;
+  hideSubmitButton?: boolean;
 }) {
   const [solution, setSolution] = useState<string | undefined>(undefined);
 
@@ -35,7 +39,11 @@ export function UriProblemViewer({
     getFlamsServer().solution({ uri }).then(setSolution);
   }, [uri]);
   const problemState = getProblemState(isSubmitted, solution, response);
-
+  useEffect(() => {
+    if (problemState.type === 'Graded' && setQuotient) {
+      setQuotient(problemState.feedback?.score_fraction ?? 0);
+    }
+  }, [problemState]);
   return (
     <Box>
       <FTMLFragment
@@ -44,12 +52,14 @@ export function UriProblemViewer({
         allowHovers={isSubmitted}
         problemStates={new Map([[uri, problemState]])}
         onProblem={(response) => {
-          setResponse(response);
+          setResponse?.(response);
         }}
       />
-      <Button onClick={() => setIsSubmitted(true)} disabled={isSubmitted} variant="contained">
-        Submit
-      </Button>
+      {!hideSubmitButton && (
+        <Button onClick={() => setIsSubmitted(true)} disabled={isSubmitted} variant="contained">
+          Submit
+        </Button>
+      )}
     </Box>
   );
 }

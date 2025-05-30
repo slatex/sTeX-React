@@ -5,6 +5,8 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import {
   BloomDimension,
+  conceptUriToName,
+  getConceptDependencies,
   getUriSmileys,
   SmileyCognitiveValues,
   smileyToLevel,
@@ -19,6 +21,7 @@ import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 import { SelfAssessmentDialog, ServerLinksContext } from './stex-react-renderer';
 import styles from './styles/tour-display.module.scss';
 import { useOnScreen } from './useOnScreen';
+import { FTMLFragment } from '@stex-react/ftml-utils';
 
 const NAV_MENU_ID = 'list-container';
 const EXPANSION_BOX_ID = 'expansion-box';
@@ -191,7 +194,8 @@ function TourItemDisplay({
           url={`/:vollki/frag?path=${item.uri}&lang=${lang}`}
           modifyRendered={getChildrenOfBodyNode}
         />*/}
-        TODO ALEA4-G2
+        //TODO ALEA4-G2
+        {/* <FTMLFragment key={item.uri} fragment={{ uri: item.uri }} /> */}
       </Box>
 
       <Divider />
@@ -421,28 +425,71 @@ export function TourDisplay({
   const [fetchingItems, setFetchingItems] = useState(false);
   const [understoodUri, setUnderstoodUriList] = useState([] as string[]);
   const [tempShowUri, setTempShowUri] = useState([] as string[]);
-  
+
+  async function buildDependencyTree(
+    rootUri: string,
+    maxDepth = 3,
+    maxConcepts = 25
+  ): Promise<TourAPIEntry[]> {
+    const visited = new Set<string>();
+    const reverseGraph: Map<string, Set<string>> = new Map();
+
+    async function recurse(uri: string, depth: number) {
+      if (visited.size >= maxConcepts || depth > maxDepth || visited.has(uri)) return;
+
+      visited.add(uri);
+      const dependencies = await getConceptDependencies(uri);
+
+      for (const dep of dependencies) {
+        if (!reverseGraph.has(dep)) reverseGraph.set(dep, new Set());
+        reverseGraph.get(dep)!.add(uri);
+        await recurse(dep, depth + 1);
+        if (visited.size >= maxConcepts) break;
+      }
+
+      if (!reverseGraph.has(uri)) reverseGraph.set(uri, new Set());
+    }
+
+    await recurse(rootUri, 0);
+
+    const entries: TourAPIEntry[] = [...visited].map((uri) => ({
+      id: uri,
+      title: conceptUriToName(uri),
+      successors: [...(reverseGraph.get(uri) ?? [])],
+    }));
+
+    return entries;
+  }
+
+  async function fetchAndSetTourItems(sectionUri: string) {
+    try {
+      const apiEntries = await buildDependencyTree(sectionUri);
+      const tourUris = apiEntries.map((e) => e.id);
+      const smileyVals = await getUriSmileys(tourUris);
+      const understood: string[] = [];
+      for (const uri of tourUris) {
+        if (isConceptUnderstood(smileyVals.get(uri))) {
+          understood.push(uri);
+        }
+      }
+
+      setUnderstoodUriList(understood);
+      setAllItemsMap(getTourItemMap(apiEntries, smileyVals));
+    } catch (error) {
+      console.error('Failed to fetch and process tour items:', error);
+    }
+  }
+
   useEffect(() => {
     if (!tourId?.length) return;
-    const tourInfoUrl = '';// `${}/:vollki/tour?path=${tourId}&user=nulluser&lang=${language}`;
-    setFetchingItems(true);
-    // TODO ALEA4-G2
-    axios.get(tourInfoUrl).then((r) => {
+
+    const fetchTourItems = async () => {
+      setFetchingItems(true);
+      await fetchAndSetTourItems(tourId);
       setFetchingItems(false);
-      const apiEntries: TourAPIEntry[] = r.data;
-      const tourUris = apiEntries.map((e) => e.id);
-      getUriSmileys(tourUris).then((smileyVals) => {
-        const understood = [];
-        for (const uri of tourUris) {
-          if (isConceptUnderstood(smileyVals.get(uri))) {
-            understood.push(uri);
-          }
-        }
-        setUnderstoodUriList(understood);
-        setAllItemsMap(getTourItemMap(apiEntries, smileyVals));
-      });
-    });
-  }, [tourId, language]);
+    };
+    fetchTourItems();
+  }, [tourId]);
 
   useEffect(() => {
     setDisplayItemList(getDisplayItemList(allItemsMap, understoodUri, tempShowUri));

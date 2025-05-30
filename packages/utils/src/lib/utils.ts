@@ -81,6 +81,15 @@ export function getParamFromUri(uri: string, param: string) {
   }
 }
 
+export function getParamsFromUri(uri: string, params: string[]) {
+  try {
+    const url = new URL(uri);
+    return params.map((param) => url.searchParams.get(param));
+  } catch {
+    return params.map((param) => undefined);
+  }
+}
+
 // Not crypto-safe.
 export function simpleNumberHash(str: string) {
   let hash = 0;
