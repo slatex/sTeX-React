@@ -14,13 +14,14 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { ClipInfo, Slide, SlideType, getSlides } from '@stex-react/api';
+import { ClipInfo, Slide, SlideType, getSlides, CSS } from '@stex-react/api';
 import { FTMLFragment } from '@stex-react/ftml-utils';
 import { ExpandableContextMenu } from '@stex-react/stex-react-renderer';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { Dispatch, memo, SetStateAction, useEffect, useState } from 'react';
 import { setSlideNumAndSectionId } from '../pages/course-view/[courseId]';
+import { injectCss } from '@stex-react/ftml-utils';
 import styles from '../styles/slide-deck.module.scss';
 
 export function SlideNavBar({
@@ -231,10 +232,17 @@ export const SlideDeck = memo(function SlidesFromUrl({
   videoLoaded?: boolean;
 }) {
   const [slides, setSlides] = useState<Slide[]>([]);
+  const [css, setCss] = useState<CSS[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadedSectionId, setLoadedSectionId] = useState('');
   const [currentSlide, setCurrentSlide] = useState(undefined as Slide | undefined);
   const router = useRouter();
+
+  useEffect(() => {
+    (css ?? []).forEach((cssItem) => {
+      injectCss(cssItem);
+    });
+  }, [css]);
 
   useEffect(() => {
     let isCancelled = false;
@@ -242,13 +250,17 @@ export const SlideDeck = memo(function SlidesFromUrl({
     setIsLoading(true);
     setSlides([]);
     const loadingSectionId = sectionId;
-    getSlides(courseId, sectionId).then((slides) => {
+    getSlides(courseId, sectionId).then((result) => {
       if (isCancelled) return;
       setIsLoading(false);
-      setSlides(slides);
+      if (Array.isArray(result)) {
+        setSlides(result);
+      } else if (result && Array.isArray(result.slides)) {
+        setSlides(result.slides);
+        if (result.css) setCss(result.css);
+      }
       setLoadedSectionId(loadingSectionId);
     });
-
     return () => {
       isCancelled = true; // avoids race condition on rapid deckId changes.
     };
