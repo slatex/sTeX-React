@@ -56,6 +56,11 @@ function buttonProps(color: string) {
   };
 }
 
+function isValidContextForComments(context: SelectionContext[]) {
+  const nearestFragmentKind = context?.[0]?.fragmentKind;
+  return ['Paragraph', 'Section', 'Slide'].includes(nearestFragmentKind) && !!context[0].fragmentUri;
+}
+
 export function ReportProblemPopover(props: Props) {
   const t = getLocaleObject(useRouter());
   const { clientRect, isCollapsed, textContent, commonAncestor } = useTextSelection();
@@ -70,12 +75,8 @@ export function ReportProblemPopover(props: Props) {
   const [newIssueUrl, setNewIssueUrl] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
 
-  const nearestFragmentKind = context?.[0]?.fragmentKind;
-  const validContextForComments =
-    ['Paragraph', 'Section', 'Slide'].includes(nearestFragmentKind) &&
-    !!context[0].fragmentUri &&
-    false; /* enable when fixed: TODO ALEA4-N8.1 */
-  
+  const validContextForComments = isValidContextForComments(selectedContext);
+
   return (
     <>
       <Portal mount={props.mount}>
