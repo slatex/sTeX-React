@@ -13,7 +13,7 @@ import { checkIfPostOrSetError } from '../comment-utils';
 import {  Action, ResourceName } from '@stex-react/utils';
 import { getUserIdIfAuthorizedOrSetError } from '../access-control/resource-utils';
 
-interface GradingDbData {
+export interface GradingDbData {
   gradingId: number;
   problemId: string;
   quizId: string;
@@ -22,11 +22,11 @@ interface GradingDbData {
   userId?: string;
 }
 
-interface GradingDbDataWithCorrectedPoints extends GradingDbData {
+export interface GradingDbDataWithCorrectedPoints extends GradingDbData {
   correctedPoints: number;
 }
 
-async function getCorrectedPoints(
+export async function getCorrectedPoints(
   problems: { [problemUri: string]: FTMLProblemWithSolution },
   responses: GradingDbData[]
 ): Promise<{ results: GradingDbDataWithCorrectedPoints[]; missingIds: Record<string, number> }> {
@@ -50,7 +50,7 @@ async function getCorrectedPoints(
     const responses: ProblemResponse[] = byProblemId[problemId].map((r) => {
       return JSON.parse(r.response) as ProblemResponse;
     });
-    console.log('Responses for problemId', problemId, responses);
+    // console.log('Responses for problemId', problemId, responses);
 
     const feedbacks = (await batchGradeHex([[problems[problemId].solution, responses]]))?.[0];
     for (let i = 0; i < (feedbacks?.length ?? 0); i++) {
@@ -72,7 +72,7 @@ function findQuiz(quizId: string, courseId: string, courseTerm: string) {
   );
 }
 
-function filterChangedResults(results: GradingDbDataWithCorrectedPoints[]) {
+export function filterChangedResults(results: GradingDbDataWithCorrectedPoints[]) {
   return results.filter((result) => Math.abs(result.correctedPoints - result.points) > 0.01);
 }
 

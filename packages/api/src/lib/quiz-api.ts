@@ -115,7 +115,6 @@ export async function recorrectQuiz(
       headers: getAuthHeaders(),
     }
   );
-
   return response.data;
 }
 
@@ -166,5 +165,17 @@ export async function generateEndSemesterSummary(
       headers: getAuthHeaders(),
     }
   );
+  return response.data;
+}
+
+export async function checkPendingRecorrections() {
+  const response = await axios.post(
+    '/api/quiz/recorrect-all',
+    {},
+    {
+      headers: getAuthHeaders(),
+    }
+  );
+
   return response.data;
 }
