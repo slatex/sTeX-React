@@ -36,14 +36,14 @@ function templateToFormData(template: Template): CreateGptProblemsRequest {
   };
 }
 
-// function getGitlabUrl({ archive, filepath }: "TODO ALeA4 M3") {
+// function getGitlabUrl({ archive, filepath }: "TODO ALeA4-M3") {
 //   if (filepath.endsWith('.xhtml')) filepath = filepath.replace('.xhtml', '.tex');
 //   return `https://gl.mathhub.info/${archive}/-/blob/main/source/${filepath}`;
 // }
 
-function getSectionNames(): { name: string; parentFile: "TODO ALeA4 M3" }[] {
+function getSectionNames(): { name: string; parentFile: "TODO ALeA4-M3" }[] {
   const names = [];
-  /* TODO ALeA4 M3-M3
+  /* TODO ALeA4-M3
   if (data.title?.length)
     names.push({
       name: '\xa0'.repeat(level * 4) + convertHtmlStringToPlain(data.title),
@@ -72,12 +72,12 @@ function SectionPicker({
   sectionParentId: string;
   onChange: (value: string) => void;
 }) {
-  const [sections, setSectionNames] = useState<{ name: string; parentFile: "TODO ALeA4 M3"  }[]>([]); 
-  // const fileLoc = stringToFileLoc(sectionParentId); TODO ALeA4 M3
+  const [sections, setSectionNames] = useState<{ name: string; parentFile: "TODO ALeA4-M3"  }[]>([]); 
+  // const fileLoc = stringToFileLoc(sectionParentId); TODO ALeA4-M3
 
   useEffect(() => {
     async function getSections() {
-      // TODO ALeA4 M3-M3
+      // TODO ALeA4-M3
       // const archive = 'MiKoMH/AI';
       // const filepath = 'course/notes/notes1.tex';
       // const docSections = await getDocumentSections(archive, filepath);
@@ -101,8 +101,8 @@ function SectionPicker({
           {sections.map((option) => {
             return (
               <MenuItem
-                key={"TODO ALeA4 M3"}
-                // value={TODO ALeA4 M3} 
+                key={"TODO ALeA4-M3"}
+                // value={TODO ALeA4-M3} 
               >
                 {option.name}
               </MenuItem>
@@ -114,7 +114,7 @@ function SectionPicker({
       <a
         href={
           ''
-          // TODO ALeA4 M3-M3
+          // TODO ALeA4-M3
           // fullDocumentUrl({
           //   archive: fileLoc.archive,
           //   filepath: fileLoc.filepath.replace('.tex', '.xhtml'),
@@ -155,7 +155,7 @@ function AssignmentValueInput({
 
   const isUriDefMd = assignKey.startsWith('URI_DEF_MD');
   const isFetchStex = assignKey.startsWith('FETCH_STEX');
-  // const fileLoc = isFetchStex && stringToFileLoc(value); TODO ALeA4 M3 M3
+  // const fileLoc = isFetchStex && stringToFileLoc(value); TODO ALeA4-M3
   return (
     <>
       <TextField
