@@ -14,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const videoData = CACHED_VIDEO_SLIDESMAP[courseId as string]?.[videoId as string];
-  if (!videoData || !videoData.extracted_content) return;
+  if (!videoData?.extracted_content) return res.status(404).send('Video data not found');
 
   return res.status(200).json(videoData.extracted_content);
 }

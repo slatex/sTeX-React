@@ -1,4 +1,5 @@
 import {
+  ClipData,
   ClipInfo,
   ClipMetaData,
   getCourseInfo,
@@ -13,7 +14,11 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { getCoverageData } from '../get-coverage-timeline';
 
 const CACHE_EXPIRY_TIME = 60 * 60 * 1000;
-export const CACHED_VIDEO_SLIDESMAP: Record<string, any> = {};
+export const CACHED_VIDEO_SLIDESMAP: Record<
+  string /* courseId*/,
+  Record<string /* videoId */, { extracted_content: { [timestampSec: number]: ClipData } }>
+> = {};
+
 let CACHE_REFRESH_TIME: number | undefined = undefined;
 let CACHE_PROMISE: Promise<void> | null = null;
 

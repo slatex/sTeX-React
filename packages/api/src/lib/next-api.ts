@@ -1,7 +1,6 @@
-import { SlideElement } from './ftml-viewer-base';
-import { SmileyCognitiveValues } from './lmp';
 import axios from 'axios';
-import { CSS } from './ftml-viewer-base';
+import { CSS, SlideElement } from './ftml-viewer-base';
+import { SmileyCognitiveValues } from './lmp';
 
 export interface CardsWithSmileys {
   conceptUri: string;
@@ -76,11 +75,15 @@ export interface GetSlidesResponse {
   [sectionId: string]: SlidesWithCSS;
 }
 
+// Can use for 'https://courses.voll-ki.fau.de' for faster debugging and/or to get latest server data.
+// You will need some use CORS unblocker. eg https://chromewebstore.google.com/detail/cors-unblock/lfhmikememgdcahcdlaciloancbhjino
+const BASE_SLIDES_DATA_URL = '';
+
 export async function getSlides(
   courseId: string,
   sectionId: string
 ): Promise<{ slides: Slide[]; css: CSS[] }> {
-  const response = await axios.get<GetSlidesResponse>('/api/get-slides', {
+  const response = await axios.get<GetSlidesResponse>(`${BASE_SLIDES_DATA_URL}/api/get-slides`, {
     params: { courseId, sectionIds: sectionId },
   });
   const sectionData = response.data[sectionId];
@@ -88,4 +91,34 @@ export async function getSlides(
     slides: sectionData?.slides || [],
     css: sectionData?.css || [],
   };
+}
+
+export async function getSlideCounts(courseId: string) {
+  const response = await axios.get(`${BASE_SLIDES_DATA_URL}/api/get-slide-counts`, {
+    params: { courseId },
+  });
+  return response.data as { [sectionId: string]: number };
+}
+
+export async function getSlideUriToIndexMapping(courseId: string) {
+  const response = await axios.get(`${BASE_SLIDES_DATA_URL}/api/get-slide-uri-to-index-mapping`, {
+    params: { courseId },
+  });
+  return response.data as { [sectionId: string]: { [slideUri: string]: number } };
+}
+
+export interface ClipData {
+  sectionId: string;
+  slideIndex: number;
+  title: string;
+  start_time: number;
+  end_time: number;
+  thumbnail?: string;
+}
+
+export async function getSlideDetails(courseId: string, clipId: string) {
+  const resp = await axios.get(
+    `${BASE_SLIDES_DATA_URL}/api/get-slide-details/${courseId}/${clipId}`
+  );
+  return resp.data as { [timestampSec: number]: ClipData };
 }
