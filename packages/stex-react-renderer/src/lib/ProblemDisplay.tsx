@@ -104,24 +104,30 @@ export function ProblemViewer({
   const problemState = getProblemState(isFrozen, problem.solution, r);
   const { html, uri } = problem.problem;
   const isHaveSubProblems = problem.problem.subProblems != null;
+  const problemStates = new Map([[uri, problemState]]);
+  problem.problem?.subProblems?.forEach((c) => {
+    problemStates.set(c.id, getProblemState(isFrozen, c.solution, r));
+  });
   return (
     <FTMLFragment
       key={uri}
       fragment={{ html, uri }}
       allowHovers={isFrozen}
-      problemStates={new Map([[uri, problemState]])}
+      problemStates={problemStates}
       onProblem={(response) => {
         onResponseUpdate?.(response);
       }}
-      onFragment={(uri, kind) => {
+      onFragment={(problemId, kind) => {
         if (kind.type === 'Problem') {
           return (ch) => (
             <Box>
               {ch}
               <AnswerAccepter
+                masterProblemId={uri}
                 isHaveSubProblems={isHaveSubProblems}
+                problemTitle={problem.problem.title_html??""}
                 isFrozen={isFrozen}
-                uri={uri}
+                problemId={problemId}
               ></AnswerAccepter>
             </Box>
           );
@@ -132,35 +138,38 @@ export function ProblemViewer({
 }
 
 function AnswerAccepter({
-  uri,
+  problemId,
+  masterProblemId,
   isHaveSubProblems,
   isFrozen,
+  problemTitle,
 }: {
-  uri: string;
+  problemId: string;
+  masterProblemId: string;
   isHaveSubProblems: boolean;
   isFrozen: boolean;
+  problemTitle: string;
 }) {
-  const name = `answer-${uri}`;
+  const name = `answer-${problemId}`;
   const [answer, setAnsewr] = useState(localStorage.getItem(name) ?? '');
-  const subId = isHaveSubProblems ? +uri.charAt(uri.length - 1) : 0;
+  const subId = isHaveSubProblems ? +problemId.charAt(problemId.length - 1) : 0;
   const router = useRouter();
 
   async function saveAnswer({
-    problemId,
     subId,
     freeTextResponses,
   }: {
-    problemId: string;
     subId?: string;
     freeTextResponses: string;
   }) {
     try {
       createAnswer({
         answer: freeTextResponses,
-        questionId: uri ? uri : problemId,
-        questionTitle: router.query?.title as string,
+        questionId: masterProblemId ? masterProblemId : problemId,
+        questionTitle: problemTitle,
         subProblemId: subId ?? '',
         courseId: router.query.courseId as string,
+        homeworkId: +(router.query.id ?? 0),
       });
       console.log('All answers saved successfully!');
     } catch (error) {
@@ -170,7 +179,7 @@ function AnswerAccepter({
   }
   if (isHaveSubProblems && isNaN(subId)) return;
   async function onSaveClick() {
-    await saveAnswer({ freeTextResponses: answer, problemId: uri, subId: uri });
+    await saveAnswer({ freeTextResponses: answer, subId: problemId });
   }
   function onAnswerChange(c: string) {
     setAnsewr(c);

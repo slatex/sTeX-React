@@ -23,7 +23,7 @@ function getProblemsFromQuiz(quiz: Quiz): Record<string, FTMLProblemWithSolution
           problem.subProblems.push({
             solution: quiz.solutions[item],
             answerclasses: [],
-            id: item[-1],
+            id: item,
           });
         }
       }
