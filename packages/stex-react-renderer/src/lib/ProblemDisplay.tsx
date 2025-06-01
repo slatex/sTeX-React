@@ -4,6 +4,7 @@ import {
   CognitiveDimension,
   FTMLProblemWithSolution,
   ProblemAnswerEvent,
+  ResponseWithSubProblemId,
   SymbolURI,
   UserInfo,
   createAnswer,
@@ -12,7 +13,7 @@ import {
 } from '@stex-react/api';
 import { FTMLFragment, ProblemResponse, ProblemState, Solutions } from '@stex-react/ftml-utils';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { getPoints } from './stex-react-renderer';
 import { MystEditor } from '@stex-react/myst';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
@@ -24,7 +25,7 @@ export function PointsInfo({ points }: { points: number | undefined }) {
     </Typography>
   );
 }
-
+export const AnswerContext = createContext<Record<string, ResponseWithSubProblemId>>({});
 function transformData(dimensionAndURI: string[], quotient: number): AnswerUpdateEntry[] {
   const conceptUpdate: { [url: string]: AnswerUpdateEntry } = {};
 
@@ -125,7 +126,7 @@ export function ProblemViewer({
               <AnswerAccepter
                 masterProblemId={uri}
                 isHaveSubProblems={isHaveSubProblems}
-                problemTitle={problem.problem.title_html??""}
+                problemTitle={problem.problem.title_html ?? ''}
                 isFrozen={isFrozen}
                 problemId={problemId}
               ></AnswerAccepter>
@@ -150,8 +151,14 @@ function AnswerAccepter({
   isFrozen: boolean;
   problemTitle: string;
 }) {
+  const previousAnswer = useContext(AnswerContext);
   const name = `answer-${problemId}`;
-  const [answer, setAnsewr] = useState(localStorage.getItem(name) ?? '');
+  const serverAnswer =
+    previousAnswer[masterProblemId].responses.find((c) => c.subProblemId === problemId)?.answer ??
+    null;
+  const [answer, setAnsewr] = useState<string>(
+    serverAnswer ? serverAnswer : localStorage.getItem(name) ?? ''
+  );
   const subId = isHaveSubProblems ? +problemId.charAt(problemId.length - 1) : 0;
   const router = useRouter();
 
