@@ -15,46 +15,15 @@ interface SlidesWithCSS {
   css: CSS[];
 }
 
-function mergeWithoutDuplicates(existingCSS: CSS[], newCSS: CSS[]): CSS[] {
-  const cssSet = new Set<string>();
-  const result: CSS[] = [...existingCSS];
-
-  existingCSS.forEach((css) => cssSet.add(JSON.stringify(css)));
-
+function mergeIntoAccWithoutDuplicates(acc: CSS[], newCSS: CSS[]) {
+  const cssSet = new Set<string>(acc.map((css) => JSON.stringify(css)));
   (newCSS ?? []).forEach((cssItem) => {
     const cssString = JSON.stringify(cssItem);
     if (!cssSet.has(cssString)) {
       cssSet.add(cssString);
-      result.push(cssItem);
+      acc.push(cssItem);
     }
   });
-
-  return result;
-}
-
-async function processInputrefAndMergeResults(
-  inputrefUri: string,
-  sectionId: string,
-  accumulatedCSS: CSS[]
-): Promise<{ slides: Slide[]; css: CSS[] }> {
-  const slidesData = await getSectionSlides(inputrefUri);
-  if (!slidesData?.length) {
-    return { slides: [], css: accumulatedCSS };
-  }
-
-  const [css, slideElems] = slidesData;
-  const result = await recursivelyExpandSlideElementsExcludeSections(slideElems, sectionId);
-
-  let mergedCSS = accumulatedCSS;
-  if (css && Array.isArray(css)) {
-    mergedCSS = mergeWithoutDuplicates(mergedCSS, css);
-  }
-  mergedCSS = mergeWithoutDuplicates(mergedCSS, result.css);
-
-  return {
-    slides: result.slides,
-    css: mergedCSS,
-  };
 }
 
 async function recursivelyExpandSlideElementsExcludeSections(
@@ -62,13 +31,17 @@ async function recursivelyExpandSlideElementsExcludeSections(
   sectionId: string
 ): Promise<{ slides: Slide[]; css: CSS[] }> {
   const elems: (Extract<SlideElement, { type: 'Paragraph' | 'Slide' }> | Slide)[] = [];
-  let accumulatedCSS: CSS[] = [];
+  const accumulatedCSS: CSS[] = [];
 
   for (const slideElem of slideElems) {
     if (slideElem.type === 'Inputref') {
-      const result = await processInputrefAndMergeResults(slideElem.uri, sectionId, accumulatedCSS);
-      elems.push(...result.slides);
-      accumulatedCSS = result.css;
+      const slidesData = await getSectionSlides(slideElem.uri);
+      if (slidesData?.length > 0) {
+        const [css, slideElems] = slidesData;
+        const result = await recursivelyExpandSlideElementsExcludeSections(slideElems, sectionId);
+        elems.push(...result.slides);
+        mergeIntoAccWithoutDuplicates(accumulatedCSS, [...css, ...result.css]);
+      }
     } else if (slideElem.type === 'Paragraph' || slideElem.type === 'Slide') {
       elems.push(slideElem);
     } else if (slideElem.type === 'Section') {
@@ -140,11 +113,11 @@ async function getSlidesFromToc(elems: TOCElem[], bySection: Record<string, Slid
       if (slideData) {
         const [css, slideElems] = slideData;
         const result = await recursivelyExpandSlideElementsExcludeSections(slideElems, secId);
-        const finalCSS = mergeWithoutDuplicates(css, result.css);
+        mergeIntoAccWithoutDuplicates(css, result.css);
 
         bySection[secId] = {
           slides: result.slides,
-          css: finalCSS,
+          css,
         };
       }
     }
