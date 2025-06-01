@@ -318,7 +318,7 @@ export function CreateGptProblemsForm({
             <tr style={{ border: '1px solid black' }}>
               <td>URI_DEF_MD (deprecated)</td>
               <td style={{ border: '1px solid black', padding: '0 10px' }}>
-                Value is interpreted as an MMT URI
+                Value is interpreted as a URI
               </td>
               <td>Template marker replaced by the concept definition (markdown)</td>
             </tr>
