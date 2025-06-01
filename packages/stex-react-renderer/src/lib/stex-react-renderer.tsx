@@ -10,7 +10,7 @@ import { DocProblemBrowser } from './DocProblemBrowser';
 import { ExpandableContextMenu } from './ExpandableContextMenu';
 import { GradingCreator } from './GradingCreator';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
-import { PerSectionQuiz } from './PerSectionQuiz';
+import { PerSectionQuiz, UriProblemViewer } from './PerSectionQuiz';
 import { PracticeQuestions } from './PracticeQuestions';
 import { ProblemDisplay } from './ProblemDisplay';
 import { ListStepper, QuizDisplay } from './QuizDisplay';
@@ -173,5 +173,6 @@ export {
   TrafficLightIndicator,
   TourDisplay,
   URIListDisplay,
+  UriProblemViewer
 };
 export type { TourAPIEntry };

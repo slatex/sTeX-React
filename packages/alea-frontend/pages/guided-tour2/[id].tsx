@@ -4,6 +4,7 @@ import { ProblemResponse } from '@stex-react/ftml-utils';
 import { LayoutWithFixedMenu } from '@stex-react/stex-react-renderer';
 import { shouldUseDrawer } from '@stex-react/utils';
 import { useRouter } from 'next/router';
+import { UriProblemViewer } from 'packages/stex-react-renderer/src/lib/PerSectionQuiz';
 import { useEffect, useState } from 'react';
 import { GuidedTour2Navigation } from '../../components/guided-tour2/GuidedTour2Navigation';
 import { stateTransition } from '../../components/guided-tour2/stateTransition';
@@ -16,7 +17,6 @@ import {
 } from '../../constants/messages';
 import MainLayout from '../../layouts/MainLayout';
 import styles from '../../styles/guided-tour.module.scss';
-import { UriProblemViewer } from 'packages/stex-react-renderer/src/lib/PerSectionQuiz';
 export const structureLearningObjects = async (
   learningObjects: { 'learning-object': string; type: LoType }[]
 ) => {
@@ -93,7 +93,7 @@ function ChatMessageDisplay({
   isFrozen?: boolean;
   isSubmitted: boolean;
   setProblemResponse?: (response: ProblemResponse | undefined) => void;
-  setQuotient?: (quotient: number) => void;
+  setQuotient?: (quotient: number | undefined) => void;
 }) {
   if (message.type === 'text') {
     return <Typography variant="body1" dangerouslySetInnerHTML={{ __html: message.text }} />;
@@ -102,11 +102,9 @@ function ChatMessageDisplay({
       <UriProblemViewer
         uri={message.loUri}
         isSubmitted={isSubmitted}
-        setIsSubmitted={(isSubmitted) => undefined}
         response={problemResponse}
         setResponse={setProblemResponse}
         setQuotient={setQuotient}
-        hideSubmitButton
       />
     );
   } else {
@@ -173,6 +171,7 @@ function UserActionDisplay({
       <Button
         onClick={() => {
           setIsSubmitted(true);
+          // TODO ALEA4-L1 This seems wrong. quotient will not be set at this point. 
           onResponse({ ...action, response: problemResponse, quotient });
         }}
         variant="contained"
@@ -194,7 +193,7 @@ const GuidedTours = () => {
   const [userAction, setUserAction] = useState<UserAction | undefined>(undefined);
   const [problemResponse, setProblemResponse] = useState<ProblemResponse | undefined>(undefined);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
-  const [quotient, setQuotient] = useState<number>(0);
+  const [quotient, setQuotient] = useState<number|undefined>(undefined);
   const [pendingMessages, setPendingMessages] = useState<ChatMessage[]>([]);
   const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
 

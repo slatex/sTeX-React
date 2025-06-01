@@ -5,13 +5,13 @@ import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
 import SchoolIcon from '@mui/icons-material/School';
 import { alpha, Box, IconButton, Paper, TextField, Tooltip, Typography } from '@mui/material';
 import { LoType } from '@stex-react/api';
-import { PracticeQuestions } from '@stex-react/stex-react-renderer';
+import { FTMLFragment } from '@stex-react/ftml-utils';
+import { UriProblemViewer } from '@stex-react/stex-react-renderer';
 import { capitalizeFirstLetter, getParamsFromUri } from '@stex-react/utils';
 import { memo, useState } from 'react';
 import { CartItem } from './lo-explorer/LoCartModal';
 import LoRelations from './lo-explorer/LoRelations';
 import { LoReverseRelations } from './lo-explorer/LoReverseRelation';
-import { FTMLFragment } from '@stex-react/ftml-utils';
 
 interface UrlData {
   projectName: string;
@@ -135,8 +135,7 @@ export const DetailsPanel: React.FC<DetailsPanelProps> = memo(
         <LoRelations uri={selectedUri} displayReverseRelation={displayReverseRelation} />
         {!!selectedUri &&
           (uriType === 'problem' ? (
-            //TODO ALEA4-L1
-            <PracticeQuestions problemIds={[selectedUri]} />
+            <UriProblemViewer uri={selectedUri} isSubmitted={true} />
           ) : (
             <LoViewer uri={selectedUri} uriType={uriType} />
           ))}

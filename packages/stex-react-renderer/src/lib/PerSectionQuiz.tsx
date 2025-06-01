@@ -17,20 +17,18 @@ export function handleViewSource(problemUri: string) {
 
 export function UriProblemViewer({
   uri,
-  isSubmitted,
+  isSubmitted = false,
   setIsSubmitted,
   response,
   setResponse,
   setQuotient,
-  hideSubmitButton = false,
 }: {
   uri: string;
-  isSubmitted: boolean;
-  setIsSubmitted: (isSubmitted: boolean) => void;
-  response: ProblemResponse | undefined;
-  setResponse: (response: ProblemResponse | undefined) => void;
-  setQuotient?: (quotient: number) => void;
-  hideSubmitButton?: boolean;
+  isSubmitted?: boolean;
+  setIsSubmitted?: (isSubmitted: boolean) => void;
+  response?: ProblemResponse;
+  setResponse?: (response: ProblemResponse | undefined) => void;
+  setQuotient?: (quotient: number | undefined) => void;
 }) {
   const [solution, setSolution] = useState<string | undefined>(undefined);
 
@@ -38,12 +36,15 @@ export function UriProblemViewer({
     setSolution(undefined);
     getFlamsServer().solution({ uri }).then(setSolution);
   }, [uri]);
-  const problemState = getProblemState(isSubmitted, solution, response);
+
   useEffect(() => {
-    if (problemState.type === 'Graded' && setQuotient) {
-      setQuotient(problemState.feedback?.score_fraction ?? 0);
+    const state = getProblemState(isSubmitted, solution, response);
+    if (state.type === 'Graded') {
+      setQuotient?.(state.feedback?.score_fraction);
     }
-  }, [problemState]);
+  }, [isSubmitted, response, solution]);
+
+  const problemState = getProblemState(isSubmitted, solution, response);
   return (
     <Box>
       <FTMLFragment
@@ -55,7 +56,7 @@ export function UriProblemViewer({
           setResponse?.(response);
         }}
       />
-      {!hideSubmitButton && (
+      {setIsSubmitted && (
         <Button onClick={() => setIsSubmitted(true)} disabled={isSubmitted} variant="contained">
           Submit
         </Button>
