@@ -1,4 +1,5 @@
 import {
+  CSS,
   Slide,
   SlideElement,
   SlideType,
@@ -9,17 +10,37 @@ import {
 } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
 
+interface SlidesWithCSS {
+  slides: Slide[];
+  css: CSS[];
+}
+
+function mergeIntoAccWithoutDuplicates(acc: CSS[], newCSS: CSS[]) {
+  const cssSet = new Set<string>(acc.map((css) => JSON.stringify(css)));
+  (newCSS ?? []).forEach((cssItem) => {
+    const cssString = JSON.stringify(cssItem);
+    if (!cssSet.has(cssString)) {
+      cssSet.add(cssString);
+      acc.push(cssItem);
+    }
+  });
+}
+
 async function recursivelyExpandSlideElementsExcludeSections(
   slideElems: SlideElement[],
   sectionId: string
-): Promise<Slide[]> {
+): Promise<{ slides: Slide[]; css: CSS[] }> {
   const elems: (Extract<SlideElement, { type: 'Paragraph' | 'Slide' }> | Slide)[] = [];
+  const accumulatedCSS: CSS[] = [];
+
   for (const slideElem of slideElems) {
     if (slideElem.type === 'Inputref') {
       const slidesData = await getSectionSlides(slideElem.uri);
       if (slidesData?.length > 0) {
         const [css, slideElems] = slidesData;
-        elems.push(...(await recursivelyExpandSlideElementsExcludeSections(slideElems, sectionId)));
+        const result = await recursivelyExpandSlideElementsExcludeSections(slideElems, sectionId);
+        elems.push(...result.slides);
+        mergeIntoAccWithoutDuplicates(accumulatedCSS, [...css, ...result.css]);
       }
     } else if (slideElem.type === 'Paragraph' || slideElem.type === 'Slide') {
       elems.push(slideElem);
@@ -28,18 +49,21 @@ async function recursivelyExpandSlideElementsExcludeSections(
     }
   }
 
-  if (elems.length === 0) return [];
+  if (elems.length === 0) return { slides: [], css: accumulatedCSS };
 
   if (elems.every((e) => 'type' in e && e.type === 'Paragraph')) {
-    return [
-      {
-        slideType: SlideType.TEXT,
-        paragraphs: elems,
-        preNotes: [],
-        postNotes: [],
-        sectionId,
-      },
-    ];
+    return {
+      slides: [
+        {
+          slideType: SlideType.TEXT,
+          paragraphs: elems,
+          preNotes: [],
+          postNotes: [],
+          sectionId,
+        },
+      ],
+      css: accumulatedCSS,
+    };
   }
 
   const finalSlides: Slide[] = [];
@@ -78,17 +102,23 @@ async function recursivelyExpandSlideElementsExcludeSections(
       sectionId,
     });
   }
-  return finalSlides;
+  return { slides: finalSlides, css: accumulatedCSS };
 }
 
-async function getSlidesFromToc(elems: TOCElem[], bySection: Record<string, Slide[]>) {
+async function getSlidesFromToc(elems: TOCElem[], bySection: Record<string, SlidesWithCSS>) {
   for (const elem of elems) {
     if (elem.type === 'Section') {
       const secId = elem.id;
       const slideData = await getSectionSlides(elem.uri);
       if (slideData) {
         const [css, slideElems] = slideData;
-        bySection[secId] = await recursivelyExpandSlideElementsExcludeSections(slideElems, secId);
+        const result = await recursivelyExpandSlideElementsExcludeSections(slideElems, secId);
+        mergeIntoAccWithoutDuplicates(css, result.css);
+
+        bySection[secId] = {
+          slides: result.slides,
+          css,
+        };
       }
     }
     if ('children' in elem) {
@@ -99,18 +129,17 @@ async function getSlidesFromToc(elems: TOCElem[], bySection: Record<string, Slid
 
 async function computeSlidesForDoc(notesUri: string) {
   const toc = (await getDocumentSections(notesUri))[1];
-  const bySection: { [sectionId: string]: Slide[] } = {};
+  const bySection: { [sectionId: string]: SlidesWithCSS } = {};
   await getSlidesFromToc(toc, bySection);
   return bySection;
 }
 
-// Use global cache to persist between requests in dev/local
 const globalCache = global as any;
 if (!globalCache.G_CACHED_SLIDES) {
   globalCache.G_CACHED_SLIDES = {};
 }
 const CACHED_SLIDES: {
-  [courseId: string]: { [sectionId: string]: Slide[] };
+  [courseId: string]: { [sectionId: string]: SlidesWithCSS };
 } = globalCache.G_CACHED_SLIDES;
 
 export async function getSlidesForCourse(courseId: string, notesUri: string) {
@@ -135,7 +164,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
   const sectionIdArr = sectionIds.split(',');
   const allCourseSlides = await getSlidesForCourse(courseId, courseInfo.notes);
-  const data: { [sectionId: string]: Slide[] } = {};
+  const data: { [sectionId: string]: SlidesWithCSS } = {};
   for (const secId of sectionIdArr) {
     data[secId] = allCourseSlides[secId];
   }
