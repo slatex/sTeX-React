@@ -5,6 +5,7 @@ import {
   ALL_LO_RELATION_TYPES,
   ALL_NON_DIM_CONCEPT,
   AllLoRelationTypes,
+  getQueryResults,
   getSparqlQueryForLoRelationToDimAndConceptPair,
   getSparqlQueryForLoRelationToNonDimConcept,
   LoRelationToDimAndConceptPair,
@@ -25,17 +26,18 @@ function processDimAndConceptData(result: SparqlResponse) {
         .filter((data: string) => data.startsWith('http://mathhub.info/ulo#cognitive-dimension='))
         .map((data: string) => {
           const encodedValue = data.split('=')[1];
-          return decodeURIComponent(encodedValue);
+          const decoded = decodeURIComponent(encodedValue);
+          return decoded.split('cd-').pop();
         });
-      const crossRefs = relatedData
-        .filter((data: string) => data.startsWith('http://mathhub.info/ulo#crossrefs='))
+      const poSymbols = relatedData
+        .filter((data: string) => data.startsWith('http://mathhub.info/ulo#po-symbol='))
         .map((data: string) => {
-          const encodedValue = data.split('=')[1];
+          const encodedValue = data.split('#po-symbol=')[1];
           const decodedValue = decodeURIComponent(encodedValue);
           return decodedValue.endsWith('#') ? decodedValue.slice(0, -1) : decodedValue;
         });
       const combinedData = cognitiveDimensions.flatMap((dim) =>
-        crossRefs.map((ref) => `${dim}:${encodeURIComponent(ref)}`)
+        poSymbols.map((symbol) => `${dim}:${encodeURIComponent(symbol)}`)
       );
 
       if (!groupedData[relationValue]) {
@@ -80,13 +82,14 @@ function NonDimensionalUriListDisplay({
   data: string;
   displayReverseRelation?: (conceptUri: string) => void;
 }) {
+  const uniqueUris = Array.from(new Set(data.split(',')));
   return (
     <Box border="1px solid black" mb="10px" bgcolor="white">
       <Typography fontWeight="bold" sx={{ p: '10px' }}>
         {title}&nbsp;
       </Typography>
       <Box borderTop="1px solid #AAA" p="5px" display="flex" flexWrap="wrap">
-        <URIListDisplay uris={data.split(',')} displayReverseRelation={displayReverseRelation} />
+        <URIListDisplay uris={uniqueUris} displayReverseRelation={displayReverseRelation} />
       </Box>
     </Box>
   );
@@ -117,8 +120,8 @@ const LoRelations = ({
         const nonDimConceptQuery = getSparqlQueryForLoRelationToNonDimConcept(uri);
 
         const [dimConceptResult, nonDimConceptResult] = await Promise.all([
-          undefined, // sparqlQuery(dimConceptQuery), // TODO ALEA4-L1
-          undefined, // sparqlQuery(nonDimConceptQuery),
+          getQueryResults(dimConceptQuery),
+          getQueryResults(nonDimConceptQuery),
         ]);
 
         const dimConceptData = processDimAndConceptData(dimConceptResult);

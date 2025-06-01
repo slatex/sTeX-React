@@ -68,7 +68,7 @@ const MyNotesPage: NextPage = () => {
                     p="10px"
                     m="10px"
                   >
-                    {/* TODO ALeA4: FTMLFragment won't render slides using URI - it uses HTML. This case will be handled later */}
+                    {/* TODO ALeA4-N8: FTMLFragment won't render slides using URI - it uses HTML. This case will be handled later */}
                     <FTMLFragment fragment={{ uri: section.uri }} />
                     <NotesView uri={section.uri} allNotesMode={true} />
                   </Box>

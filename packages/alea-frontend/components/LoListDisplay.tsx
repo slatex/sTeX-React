@@ -5,9 +5,10 @@ import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
 import SchoolIcon from '@mui/icons-material/School';
 import { alpha, Box, IconButton, Paper, TextField, Tooltip, Typography } from '@mui/material';
 import { LoType } from '@stex-react/api';
-import { PracticeQuestions, ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { capitalizeFirstLetter } from '@stex-react/utils';
-import { memo, useContext, useEffect, useState } from 'react';
+import { FTMLFragment } from '@stex-react/ftml-utils';
+import { UriProblemViewer } from '@stex-react/stex-react-renderer';
+import { capitalizeFirstLetter, getParamsFromUri } from '@stex-react/utils';
+import { memo, useState } from 'react';
 import { CartItem } from './lo-explorer/LoCartModal';
 import LoRelations from './lo-explorer/LoRelations';
 import { LoReverseRelations } from './lo-explorer/LoReverseRelation';
@@ -15,40 +16,37 @@ import { LoReverseRelations } from './lo-explorer/LoReverseRelation';
 interface UrlData {
   projectName: string;
   topic: string;
-  fileName: string;
+  fileName?: string;
   icon?: JSX.Element;
 }
+
 export function getUrlInfo(url: string): UrlData {
-  const [archive, filePath] = ['', '']; // TODO ALEA4-L1
-  const fileParts = filePath.split('/');
-  const fileName = fileParts[fileParts.length - 1].split('.')[0];
-  let projectName = '';
-  let topic = '';
+  const [archiveRaw, filePathRaw, topicRaw] = getParamsFromUri(url, ['a', 'p', 'd']);
+  const archive = archiveRaw || 'Unknown Archive';
+  const filePath = filePathRaw || 'Unknown File';
+  const topic = topicRaw || 'Unknown Topic';
   let icon = null;
+  let projectName = 'Unknown Archive';
   const projectParts = archive.split('/');
+  const fileParts = filePath.split('/');
+  const fileName = fileParts[0];
   if (archive.startsWith('courses/')) {
-    projectName = projectParts[2];
-    topic = fileParts[0];
+    projectName = `${projectParts[1]}/${projectParts[2]}`;
     icon = <SchoolIcon sx={{ color: 'primary.main', fontSize: '18px' }} />;
   } else if (archive.startsWith('problems/')) {
     projectName = projectParts[1];
-    topic = fileParts[0];
     icon = <Quiz sx={{ color: 'primary.main', fontSize: '18px' }} />;
   } else if (archive.startsWith('KwarcMH/')) {
     projectName = projectParts[0];
-    topic = fileParts[0];
     icon = <SchoolIcon sx={{ color: 'primary.main', fontSize: '18px' }} />;
   } else if (archive.startsWith('smglom/')) {
     projectName = projectParts[0];
-    topic = projectParts[1];
     icon = <Book sx={{ color: 'primary.main', fontSize: '18px' }} />;
   } else if (archive.startsWith('mkohlhase/')) {
     projectName = projectParts[0];
-    topic = fileParts[0];
     icon = <SupervisedUserCircle sx={{ color: 'primary.main', fontSize: '18px' }} />;
   } else if (archive.startsWith('talks/')) {
     projectName = projectParts[0];
-    topic = projectParts[1];
     icon = <MicExternalOn sx={{ color: 'primary.main', fontSize: '18px' }} />;
   }
 
@@ -56,7 +54,9 @@ export function getUrlInfo(url: string): UrlData {
 }
 
 export const handleStexCopy = (uri: string, uriType: LoType) => {
-  const [archive, filePath] = ['', '']; // TODO ALEA4-L1
+  const [archiveRaw, filePathRaw] = getParamsFromUri(uri, ['a', 'p']);
+  const archive = archiveRaw || 'Unknown Archive';
+  const filePath = filePathRaw || 'Unknown File';
   let stexSource = '';
   switch (uriType) {
     case 'problem':
@@ -77,52 +77,26 @@ export const handleStexCopy = (uri: string, uriType: LoType) => {
 
 export function UrlNameExtractor({ url }: { url: string }) {
   const { projectName, topic, fileName, icon } = getUrlInfo(url);
-  if (!projectName) {
+  const isValidProject = projectName && projectName !== 'Unknown Archive';
+  const isValidFile = fileName && fileName !== 'Unknown File';
+  if (!isValidProject) {
     return <Box>{url}</Box>;
   }
   return (
     <Box display="flex" flexWrap="wrap" sx={{ gap: '5px' }}>
       {projectName}
       {icon && icon}
+      {isValidFile && <span>{fileName}</span>}
       {topic}
-      <Box sx={{ wordBreak: 'break-word' }}>{fileName}</Box>
     </Box>
   );
 }
 
 export const LoViewer: React.FC<{ uri: string; uriType: LoType }> = ({ uri, uriType }) => {
-  const [learningObject, setLearningObject] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    if (!uri?.length) return;
-    async function fetchLo() {
-      try {
-        setLoading(true);
-        setError(null);
-        // TODO ALEA4-L1
-        const learningObject = ''; //await getLearningObjectShtml( uri);
-
-        setLearningObject(learningObject.replace(/body/g, 'div').replace(/html/g, 'div'));
-        setLoading(false);
-      } catch (err) {
-        setError(err.message || 'Failed to fetch example.');
-        setLoading(false);
-      }
-    }
-    fetchLo();
-  }, [uri]);
-
   return (
     <Box sx={{ padding: 2, border: '1px solid #ccc', borderRadius: 4, backgroundColor: '#f9f9f9' }}>
-      {loading ? (
-        <Typography>Loading...</Typography>
-      ) : error ? (
-        <Typography color="error">Error: {error}</Typography>
-      ) : learningObject ? (
-        //mmtHTMLToReact(learningObject)
-        <Typography>TODO ALEA4-L1</Typography>
+      {uri ? (
+        <FTMLFragment key={uri} fragment={{ uri: uri }} />
       ) : (
         <Typography>No {uriType} found.</Typography>
       )}
@@ -142,6 +116,7 @@ export const DetailsPanel: React.FC<DetailsPanelProps> = memo(
       <Box
         sx={{
           flex: 2,
+          minWidth: '250px',
           background: 'rgba(240, 255, 240, 0.9)',
           borderRadius: '8px',
           padding: '16px',
@@ -160,7 +135,7 @@ export const DetailsPanel: React.FC<DetailsPanelProps> = memo(
         <LoRelations uri={selectedUri} displayReverseRelation={displayReverseRelation} />
         {!!selectedUri &&
           (uriType === 'problem' ? (
-            <PracticeQuestions problemIds={[selectedUri]} />
+            <UriProblemViewer uri={selectedUri} isSubmitted={true} />
           ) : (
             <LoViewer uri={selectedUri} uriType={uriType} />
           ))}
@@ -206,7 +181,7 @@ const LoListDisplay = ({
     );
   });
   return (
-    <Box sx={{ display: 'flex', gap: '16px', marginTop: '20px' }}>
+    <Box sx={{ display: 'flex', gap: '16px', marginTop: '20px', flexWrap: 'wrap' }}>
       {showReverseRelation && (
         <LoReverseRelations
           concept={reverseRelationConcept}
@@ -220,6 +195,7 @@ const LoListDisplay = ({
       <Box
         sx={{
           flex: 1,
+          minWidth: '250px',
           background: 'rgba(240, 240, 255, 0.9)',
           borderRadius: '8px',
           padding: '16px',

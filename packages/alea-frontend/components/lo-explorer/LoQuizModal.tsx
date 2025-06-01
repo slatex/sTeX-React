@@ -1,6 +1,7 @@
 import { Alert, Box, Button, Modal, Snackbar, Typography } from '@mui/material';
 import { useMemo, useState } from 'react';
 import { CartItem } from './LoCartModal';
+import { getParamsFromUri } from '@stex-react/utils';
 
 interface QuizModalProps {
   open: boolean;
@@ -23,15 +24,13 @@ const LoQuizModal: React.FC<QuizModalProps> = ({ open, onClose, selectedItems })
       '\\begin{document}',
       '\\begin{assignment}[title={TODO},number=TODO,given=TODO,due=TODO]',
     ];
-    const dynamicLines = [];
-    // TODO ALEA4-L2
-    // selectedItems
-    // `  .filter((i) => i.uriType === 'problem')
-    //   .map((item) => {
-    //     const [archive, filePath] = extractProjectIdAndFilepath(item.uri, '');
-    //     return `       \\includeproblem[pts=TODO,archive=${archive}]{${filePath}}`;
-    //   })
-    // .join('\n');
+    const dynamicLines = selectedItems
+      .filter((i) => i.uriType === 'problem')
+      .map((item) => {
+        const [archive, filePath] = getParamsFromUri(item.uri, ['a', 'p']);
+        return `       \\includeproblem[pts=TODO,archive=${archive}]{${filePath}}`;
+      })
+      .join('\n');
     const closingLines = ['\\end{assignment}', '\\end{document}'];
 
     return `${staticLines.join('\n')}\n${dynamicLines}\n${closingLines.join('\n')}`;
