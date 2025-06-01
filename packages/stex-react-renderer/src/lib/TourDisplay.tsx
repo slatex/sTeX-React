@@ -58,9 +58,6 @@ function getSuccessorChain(item: TourItem, allItemsMap: Map<string, TourItem>) {
   }
   return succChain;
 }
-const RenderedMmtMemo = memo(({ html }: { html: string }) => {
-  return <SafeHtml html={html} />;
-});
 
 function isConceptUnderstood(val?: SmileyCognitiveValues) {
   const r = smileyToLevel(val?.Remember);
@@ -90,7 +87,7 @@ function ItemBreadcrumbs({
           return (
             <li key={uri} onClick={() => scrollToItem(item)}>
               <a>
-                <RenderedMmtMemo html={item.header} />
+                <FTMLFragment key={item.header} fragment={{ html: item.header }} />
               </a>
             </li>
           );
@@ -113,7 +110,7 @@ function ItemBreadcrumbs({
                   scrollToItem(dep);
                 }}
               >
-                <RenderedMmtMemo html={dep.header} />
+                <FTMLFragment key={dep.header} fragment={{ html: dep.header }} />
               </Button>
             );
           })}
@@ -153,7 +150,7 @@ function TourItemDisplay({
     <Box id={expandedItemId(item)} maxWidth="600px" width="100%" ref={ref}>
       <Box display="flex" alignItems="start" mt="15px" mb="5px" justifyContent="space-between">
         <h3 style={{ margin: 0 }}>
-          <RenderedMmtMemo html={item.header} />
+          <FTMLFragment key={item.header} fragment={{ html: item.header }} />
         </h3>
         <Box mx="10px" height="30px" sx={{ whiteSpace: 'nowrap' }}>
           <Box display="flex" alignItems="center" gap="5px" zIndex={10}>
@@ -303,7 +300,7 @@ function listItemText(item: TourItem, isIntersecting: boolean) {
   return (
     <Box>
       <span style={{ fontWeight }}>
-        <RenderedMmtMemo html={item.header} />
+        <FTMLFragment key={item.header} fragment={{ html: item.header }} />
       </span>
     </Box>
   );
