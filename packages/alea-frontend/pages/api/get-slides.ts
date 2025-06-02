@@ -14,6 +14,10 @@ interface SlidesWithCSS {
   slides: Slide[];
   css: CSS[];
 }
+interface CachedCourseSlides {
+  timestamp: number;
+  data: { [sectionId: string]: SlidesWithCSS };
+}
 
 function mergeIntoAccWithoutDuplicates(acc: CSS[], newCSS: CSS[]) {
   const cssSet = new Set<string>(acc.map((css) => JSON.stringify(css)));
@@ -139,14 +143,36 @@ if (!globalCache.G_CACHED_SLIDES) {
   globalCache.G_CACHED_SLIDES = {};
 }
 const CACHED_SLIDES: {
-  [courseId: string]: { [sectionId: string]: SlidesWithCSS };
+  [courseId: string]: CachedCourseSlides;
 } = globalCache.G_CACHED_SLIDES;
 
 export async function getSlidesForCourse(courseId: string, notesUri: string) {
-  if (!CACHED_SLIDES[courseId]) {
-    CACHED_SLIDES[courseId] = await computeSlidesForDoc(notesUri);
+  const now = Date.now();
+  const TTL = 20 * 60 * 1000;
+  const cacheEntry = CACHED_SLIDES[courseId];
+
+  if (cacheEntry && now - cacheEntry.timestamp < TTL) {
+    return cacheEntry.data;
   }
-  return CACHED_SLIDES[courseId];
+  const REVALIDATING = new Map<string, Promise<void>>();
+
+  if (cacheEntry) {
+    if (!REVALIDATING.has(courseId)) {
+      const promise = computeSlidesForDoc(notesUri).then((newSlides) => {
+        CACHED_SLIDES[courseId] = { data: newSlides, timestamp: Date.now() };
+        REVALIDATING.delete(courseId);
+      });
+      REVALIDATING.set(courseId, promise);
+    }
+    return cacheEntry.data;
+  }
+
+  const slides = await computeSlidesForDoc(notesUri);
+  CACHED_SLIDES[courseId] = {
+    data: slides,
+    timestamp: Date.now(),
+  };
+  return slides;
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
