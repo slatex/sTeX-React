@@ -1,25 +1,23 @@
 import { FTMLProblemWithSolution } from '@stex-react/api';
 import { getAllQuizzes } from '@stex-react/node-utils';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { isMemberOfAcl } from '../acl-utils/acl-common-utils';
+import { checkIfPostOrSetError, getUserIdOrSetError } from '../comment-utils';
 import { queryGradingDbAndEndSet500OnError } from '../grading-db-utils';
-import { checkIfGetOrSetError, checkIfPostOrSetError, getUserIdOrSetError } from '../comment-utils';
-import { Action, ResourceName } from '@stex-react/utils';
-import { getUserIdIfAuthorizedOrSetError } from '../access-control/resource-utils';
 import {
   filterChangedResults,
   getCorrectedPoints,
   GradingDbData,
   prepareProblemTitles,
 } from './recorrect';
-import { isMemberOfAcl } from '../acl-utils/acl-common-utils';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
 
   const userId = await getUserIdOrSetError(req, res);
+  if (!userId) return;
   const isSysAdmin = await isMemberOfAcl('sys-admin', userId);
-  console.log('isSysAdmin', isSysAdmin, userId);
-  if (!isSysAdmin) return;
+  if (!isSysAdmin) return res.status(403).send('Forbidden');
 
   try {
     const quizzes = getAllQuizzes();
@@ -71,7 +69,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     for (const quiz of quizzes) {
       Object.assign(problemTitles, prepareProblemTitles(quiz));
     }
-    console.log('problemUri', problemTitles);
 
     return res.status(200).json({
       totalChanges: changedResults.length,
