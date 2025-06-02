@@ -48,6 +48,7 @@ import { DateView } from '@stex-react/react-utils';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import AclDisplay from '../components/AclDisplay';
+import RecorrectionChecker from '../components/RecorrectionChecker';
 
 const SysAdmin: NextPage = () => {
   const router = useRouter();
@@ -255,6 +256,7 @@ const SysAdmin: NextPage = () => {
             ACL Page
           </Button>
         </Link>
+          <RecorrectionChecker />
         <Box
           sx={{
             m: '0 auto',
