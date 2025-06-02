@@ -22,6 +22,7 @@ import {
 import {
   conceptUriToName,
   getCourseInfo,
+  getDefiniedaInSection,
   getDocumentSections,
   getSectionDependencies,
   TOCElem,
@@ -106,10 +107,10 @@ export const CourseConceptsDialog = ({
     }
     setLoading(true);
     try {
-      const definedConcepts = await getSectionDependencies(selectedSection?.uri);
-      const conceptsUri = [...new Set(definedConcepts)];
+      const concepts = await getDefiniedaInSection(selectedSection?.uri);
+      const uniqueConceptUris = [...new Set(concepts.map((c) => c.conceptUri))];
       setProcessedOptions(
-        [...conceptsUri].map((uri) => ({
+        uniqueConceptUris.map((uri) => ({
           label: `${conceptUriToName(uri)} (${uri})`,
           value: uri,
         }))
