@@ -31,6 +31,8 @@ import { ExcusedAccordion } from './ExcusedAccordion';
 import { QuizFileReader } from './QuizFileReader';
 import { QuizStatsDisplay } from './QuizStatsDisplay';
 import { RecorrectionDialog } from './RecorrectionDialog';
+import { validateQuizUpdate } from '../pages/api/quiz/validate-quiz-update';
+import ProblemIdPreview from './ProblemIdPreview';
 
 const NEW_QUIZ_ID = 'New';
 
@@ -81,36 +83,6 @@ interface QuizDashboardProps {
   courseId: string;
   quizId?: string;
   onQuizIdChange?: (quizId: string) => void;
-}
-
-function validateQuizUpdate(
-  originalProblems: Record<string, FTMLProblemWithSolution>,
-  newProblems: Record<string, FTMLProblemWithSolution>,
-  totalStudents: number
-) {
-  if (totalStudents === 0) return { valid: true };
-  const originalURIs = Object.values(originalProblems)
-    .map((p) => p.problem?.uri || '')
-    .filter(Boolean)
-    .sort();
-
-  const newURIs = Object.values(newProblems)
-    .map((p) => p.problem?.uri || '')
-    .filter(Boolean)
-    .sort();
-
-  if (
-    originalURIs.length !== newURIs.length ||
-    originalURIs.some((uri, idx) => uri !== newURIs[idx])
-  ) {
-    return {
-      valid: false,
-      reason:
-        'Quiz has already started, and problems cannot be added, removed, or replaced with problems with different URI.',
-    };
-  }
-
-  return { valid: true };
 }
 
 const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId, quizId, onQuizIdChange }) => {
@@ -383,9 +355,8 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId, quizId, onQuizI
                   problems,
                   stats.totalStudents
                 );
-
                 if (!validation.valid) {
-                  alert(`Cannot update quiz: ${validation.reason}`);
+                  alert(`Cannot update quiz: Uri not found ${validation.notFoundURIs.join(', ')}`);
                   setIsUpdating(false);
                   return;
                 }
