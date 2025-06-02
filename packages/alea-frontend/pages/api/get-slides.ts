@@ -165,7 +165,7 @@ async function refreshCache(courseId: string, notesUri: string) {
 export async function getSlidesForCourse(courseId: string, notesUri: string) {
   const now = Date.now();
   const cacheEntry = CACHED_SLIDES[courseId];
-  if (cacheEntry && now - cacheEntry.timestamp < SLIDE_EXPIRY_TIME) {
+  if (cacheEntry && now - cacheEntry.timestamp < SLIDE_EXPIRY_TIME_MS) {
     return cacheEntry.data;
   }
   if (cacheEntry) {
