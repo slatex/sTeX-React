@@ -273,7 +273,6 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId, quizId, onQuizI
         value={selectedQuizId}
         onChange={(e) => {
           const newQuizId = e.target.value;
-          console.log('Selected quiz ID:', newQuizId);
           onQuizIdChange?.(newQuizId);
         }}
       >
