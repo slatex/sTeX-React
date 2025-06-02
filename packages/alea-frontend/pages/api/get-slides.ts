@@ -169,11 +169,12 @@ export async function getSlidesForCourse(courseId: string, notesUri: string) {
     return cacheEntry.data;
   }
   if (cacheEntry) {
-    refreshCache(courseId, notesUri);
+    refreshCache(courseId, notesUri); // background refresh
+    return cacheEntry.data;
   } else {
     await refreshCache(courseId, notesUri);
+    return CACHED_SLIDES[courseId]?.data || {};
   }
-  return cacheEntry.data || {};
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
