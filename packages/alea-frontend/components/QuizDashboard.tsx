@@ -166,21 +166,19 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId, quizId, onQuizI
 
         if (quizId !== NEW_QUIZ_ID && (!quizId || !validQuiz) && allQuizzes.length > 0) {
           onQuizIdChange?.(allQuizzes[0].id);
-          console.log('Setting quiz ID to first available:', onQuizIdChange);
         }
       });
   }, [courseId, courseTerm, isNew, onQuizIdChange, quizId]);
 
   useEffect(() => {
     if (!selectedQuizId || selectedQuizId === NEW_QUIZ_ID || quizzes.length === 0) return;
-
     getQuizStats(selectedQuizId, courseId, courseTerm).then(setStats);
     const interval = setInterval(() => {
       getQuizStats(selectedQuizId, courseId, courseTerm).then(setStats);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [selectedQuizId]);
+  }, [selectedQuizId, courseId, courseTerm, quizzes]);
 
   useEffect(() => {
     if (selectedQuizId === NEW_QUIZ_ID) {

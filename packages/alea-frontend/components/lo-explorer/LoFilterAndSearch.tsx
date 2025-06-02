@@ -300,7 +300,11 @@ function constructLearningObjects(bindings: any[]): Record<LoType, string[]> {
       console.error(`Unknown learning object type: ${typeKey}`);
       return;
     }
-    learningObjectsByType[typeKey].push(lo?.value);
+    const loValue = lo?.value;
+    const loArray = learningObjectsByType[typeKey];
+    if (loValue && !loArray.includes(loValue)) {
+      loArray.push(loValue);
+    }
   });
   return learningObjectsByType;
 }
