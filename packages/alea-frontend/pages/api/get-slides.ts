@@ -10,7 +10,7 @@ import {
 } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-const SLIDE_EXPIRY_TIME = 20 * 60 * 1000;
+const SLIDE_EXPIRY_TIME_MS = 20 * 60 * 1000; // 20 min
 interface SlidesWithCSS {
   slides: Slide[];
   css: CSS[];
