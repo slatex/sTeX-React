@@ -31,13 +31,40 @@ import { ExcusedAccordion } from './ExcusedAccordion';
 import { QuizFileReader } from './QuizFileReader';
 import { QuizStatsDisplay } from './QuizStatsDisplay';
 import { RecorrectionDialog } from './RecorrectionDialog';
-import { validateQuizUpdate } from '../pages/api/quiz/validate-quiz-update';
-import ProblemIdPreview from './ProblemIdPreview';
 
 const NEW_QUIZ_ID = 'New';
 
 function isNewQuiz(quizId: string) {
   return quizId === NEW_QUIZ_ID;
+}
+
+export function validateQuizUpdate(
+  originalProblems: Record<string, FTMLProblemWithSolution>,
+  newProblems: Record<string, FTMLProblemWithSolution>,
+  totalStudents: number
+) {
+  if (totalStudents === 0) return { valid: true };
+  const originalURIs = Object.values(originalProblems)
+    .map((p) => p.problem?.uri || '')
+    .filter(Boolean)
+    .sort();
+
+  const newURIs = Object.values(newProblems)
+    .map((p) => p.problem?.uri || '')
+    .filter(Boolean)
+    .sort();
+
+  if (
+    originalURIs.length !== newURIs.length ||
+    originalURIs.some((uri, idx) => uri !== newURIs[idx])
+  ) {
+    const notFoundURIs = originalURIs.filter((uri) => !newURIs.includes(uri));
+    return {
+      valid: false,
+      notFoundURIs,
+    };
+  }
+  return { valid: true };
 }
 
 function getFormErrorReason(
