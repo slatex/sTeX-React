@@ -10,6 +10,7 @@ import {
 } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
 
+const SLIDE_EXPIRY_TIME = 20 * 60 * 1000;
 interface SlidesWithCSS {
   slides: Slide[];
   css: CSS[];
@@ -146,33 +147,33 @@ const CACHED_SLIDES: {
   [courseId: string]: CachedCourseSlides;
 } = globalCache.G_CACHED_SLIDES;
 
+const CACHE_PROMISES = new Map<string, Promise<{ [sectionId: string]: SlidesWithCSS }>>();
+async function refreshCache(courseId: string, notesUri: string) {
+  if (!CACHE_PROMISES.has(courseId)) {
+    const promise = computeSlidesForDoc(notesUri)
+      .then((newSlides) => {
+        CACHED_SLIDES[courseId] = { data: newSlides, timestamp: Date.now() };
+        return newSlides;
+      })
+      .finally(() => {
+        CACHE_PROMISES.delete(courseId);
+      });
+    CACHE_PROMISES.set(courseId, promise);
+  }
+  return await CACHE_PROMISES.get(courseId)!;
+}
 export async function getSlidesForCourse(courseId: string, notesUri: string) {
   const now = Date.now();
-  const TTL = 20 * 60 * 1000;
   const cacheEntry = CACHED_SLIDES[courseId];
-
-  if (cacheEntry && now - cacheEntry.timestamp < TTL) {
+  if (cacheEntry && now - cacheEntry.timestamp < SLIDE_EXPIRY_TIME) {
     return cacheEntry.data;
   }
-  const REVALIDATING = new Map<string, Promise<void>>();
-
   if (cacheEntry) {
-    if (!REVALIDATING.has(courseId)) {
-      const promise = computeSlidesForDoc(notesUri).then((newSlides) => {
-        CACHED_SLIDES[courseId] = { data: newSlides, timestamp: Date.now() };
-        REVALIDATING.delete(courseId);
-      });
-      REVALIDATING.set(courseId, promise);
-    }
-    return cacheEntry.data;
+    refreshCache(courseId, notesUri);
+  } else {
+    await refreshCache(courseId, notesUri);
   }
-
-  const slides = await computeSlidesForDoc(notesUri);
-  CACHED_SLIDES[courseId] = {
-    data: slides,
-    timestamp: Date.now(),
-  };
-  return slides;
+  return cacheEntry.data || {};
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
