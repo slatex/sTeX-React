@@ -1,3 +1,4 @@
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import {
   Box,
   Button,
@@ -20,6 +21,7 @@ import { checkPendingRecorrections } from '@stex-react/api';
 import Link from 'next/link';
 import React, { useState } from 'react';
 import { GradingDbData } from '../pages/api/quiz/recorrect';
+import ProblemIdPreview from './ProblemIdPreview';
 
 interface RecorrectionQuizData {
   courseId: string;
@@ -27,37 +29,19 @@ interface RecorrectionQuizData {
   quizId: string;
   changes: GradingDbData[];
 }
-
 interface RecorrectionData {
   totalChanges: number;
   changesByQuiz: RecorrectionQuizData[];
   missingProblemUri: Record<string, number>;
 }
 
-interface RecorrectionCheckerProps {
-  buttonText?: string;
-  buttonColor?: 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning';
-  buttonVariant?: 'text' | 'outlined' | 'contained';
-  disabled?: boolean;
-  sx?: object;
-}
-
-const RecorrectionChecker: React.FC<RecorrectionCheckerProps> = ({
-  buttonText = 'Check Pending Recorrection',
-  buttonColor = 'primary',
-  buttonVariant = 'contained',
-  disabled = false,
-  sx = {
-    display: 'flex',
-    alignItems: 'center',
-    margin: '10px auto',
-  },
-}) => {
+const RecorrectionChecker: React.FC = () => {
   const [recorrectionData, setRecorrectionData] = useState<RecorrectionData | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
   const [copiedLinks, setCopiedLinks] = useState<Set<string>>(new Set());
+  const [titles, setTitles] = useState<Record<string, { title_html: string }>>({});
 
   const handleCheckRecorrectionClick = async () => {
     try {
@@ -67,6 +51,11 @@ const RecorrectionChecker: React.FC<RecorrectionCheckerProps> = ({
       const data = await checkPendingRecorrections();
       setRecorrectionData(data);
       setDialogOpen(true);
+      if (data.problems) {
+        setTitles(data.problems);
+      } else {
+        setTitles({});
+      }
     } catch (e) {
       console.error('Error checking recorrection:', e);
       setError(e instanceof Error ? e.message : 'An error occurred');
@@ -76,11 +65,11 @@ const RecorrectionChecker: React.FC<RecorrectionCheckerProps> = ({
   };
 
   const handleCloseDialog = () => {
-  setDialogOpen(false);
-  setRecorrectionData(null);
-  setError('');
-  setCopiedLinks(new Set());
-};
+    setDialogOpen(false);
+    setRecorrectionData(null);
+    setError('');
+    setCopiedLinks(new Set());
+  };
 
   const formatQuizLink = (courseId: string, courseTerm: string, quizId: string) => {
     return `/instructor-dash/${courseId}?tab=quiz-dashboard&quizId=${quizId}`;
@@ -95,7 +84,6 @@ const RecorrectionChecker: React.FC<RecorrectionCheckerProps> = ({
       .writeText(fullUrl)
       .then(() => {
         setCopiedLinks((prev) => new Set(prev).add(linkKey));
-        // Reset after 2 seconds
         setTimeout(() => {
           setCopiedLinks((prev) => {
             const newSet = new Set(prev);
@@ -112,14 +100,18 @@ const RecorrectionChecker: React.FC<RecorrectionCheckerProps> = ({
   return (
     <>
       <Button
-        sx={sx}
-        variant={buttonVariant}
-        color={buttonColor}
-        disabled={disabled || isLoading}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          margin: '10px auto',
+        }}
+        variant="contained"
+        color="primary"
+        disabled={isLoading}
         onClick={handleCheckRecorrectionClick}
         startIcon={isLoading ? <CircularProgress size={20} /> : null}
       >
-        {isLoading ? 'Checking...' : buttonText}
+        {isLoading ? 'Checking...' : 'Check Pending Recorrection'}
       </Button>
 
       <Dialog
@@ -150,7 +142,7 @@ const RecorrectionChecker: React.FC<RecorrectionCheckerProps> = ({
 
               {recorrectionData.totalChanges === 0 ? (
                 <Box sx={{ textAlign: 'center', py: 4 }}>
-                  <Typography variant="h6" color="success.main">
+                  <Typography variant="h6" color="primary">
                     No corrections needed
                   </Typography>
                 </Box>
@@ -167,7 +159,6 @@ const RecorrectionChecker: React.FC<RecorrectionCheckerProps> = ({
                     </TableHead>
                     <TableBody>
                       {recorrectionData.changesByQuiz.map((item) =>
-                        // Group changes by problemId to show each question separately
                         Object.entries(
                           item.changes.reduce((acc, change) => {
                             if (!acc[change.problemId]) acc[change.problemId] = [];
@@ -181,9 +172,20 @@ const RecorrectionChecker: React.FC<RecorrectionCheckerProps> = ({
                             <TableCell>{item.courseId}</TableCell>
                             <TableCell>{item.quizId}</TableCell>
                             <TableCell>
-                              <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
-                                {problemId}
-                              </Typography>
+                              {(() => {
+                                const problem = titles[problemId];
+                                const title =
+                                  problem &&
+                                  'title_html' in problem &&
+                                  typeof problem.title_html === 'string'
+                                    ? problem.title_html
+                                    : problemId;
+                                return (
+                                  <>
+                                    {title} <ProblemIdPreview uri={problemId} param="d" />
+                                  </>
+                                );
+                              })()}
                             </TableCell>
                             <TableCell>
                               <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
@@ -202,20 +204,35 @@ const RecorrectionChecker: React.FC<RecorrectionCheckerProps> = ({
                                     View Quiz ({problemChanges.length} entries)
                                   </Button>
                                 </Link>
-                                <Button
-                                  size="small"
-                                  variant="outlined"
-                                  color="secondary"
+                                <Box
+                                  component="span"
+                                  sx={{
+                                    cursor: 'pointer',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: 0.5,
+                                    ml: 1,
+                                    textDecoration: 'underline dotted',
+                                    '&:hover': { color: '#1976d2' },
+                                    fontSize: 14,
+                                  }}
                                   onClick={() =>
                                     handleCopyLink(item.courseId, item.courseTerm, item.quizId)
                                   }
                                 >
                                   {copiedLinks.has(
                                     `${item.courseId}-${item.courseTerm}-${item.quizId}`
-                                  )
-                                    ? 'Copied'
-                                    : 'Copy Link'}
-                                </Button>
+                                  ) ? (
+                                    <Typography
+                                      component="span"
+                                      sx={{ fontSize: 12, fontWeight: 500, color: '#4caf50' }}
+                                    >
+                                      Copied
+                                    </Typography>
+                                  ) : (
+                                    <ContentCopyIcon sx={{ fontSize: 16 }} />
+                                  )}
+                                </Box>
                               </Box>
                             </TableCell>
                           </TableRow>

@@ -50,7 +50,6 @@ export async function getCorrectedPoints(
     const responses: ProblemResponse[] = byProblemId[problemId].map((r) => {
       return JSON.parse(r.response) as ProblemResponse;
     });
-    // console.log('Responses for problemId', problemId, responses);
 
     const feedbacks = (await batchGradeHex([[problems[problemId].solution, responses]]))?.[0];
     for (let i = 0; i < (feedbacks?.length ?? 0); i++) {
@@ -104,8 +103,8 @@ function prepareRecorrectionInfo(reasons): RecorrectionInfo[] {
     recorrectedTs: new Date().toISOString(),
   }));
 }
-// to do replace problemId with problemUri
-function prepareProblemTitles(quiz): Record<string, { title_html: string }> {
+
+export function prepareProblemTitles(quiz): Record<string, { title_html: string }> {
   const problemsWithTitleHtml: Record<string, { title_html: string }> = {};
   for (const [problemUri, problemObj] of Object.entries(quiz.problems) as [
     string,
