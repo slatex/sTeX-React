@@ -10,9 +10,14 @@ import {
 } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
 
+const SLIDE_EXPIRY_TIME_MS = 20 * 60 * 1000; // 20 min
 interface SlidesWithCSS {
   slides: Slide[];
   css: CSS[];
+}
+interface CachedCourseSlides {
+  timestamp: number;
+  data: { [sectionId: string]: SlidesWithCSS };
 }
 
 function mergeIntoAccWithoutDuplicates(acc: CSS[], newCSS: CSS[]) {
@@ -139,14 +144,37 @@ if (!globalCache.G_CACHED_SLIDES) {
   globalCache.G_CACHED_SLIDES = {};
 }
 const CACHED_SLIDES: {
-  [courseId: string]: { [sectionId: string]: SlidesWithCSS };
+  [courseId: string]: CachedCourseSlides;
 } = globalCache.G_CACHED_SLIDES;
 
-export async function getSlidesForCourse(courseId: string, notesUri: string) {
-  if (!CACHED_SLIDES[courseId]) {
-    CACHED_SLIDES[courseId] = await computeSlidesForDoc(notesUri);
+const CACHE_PROMISES = new Map<string, Promise<{ [sectionId: string]: SlidesWithCSS }>>();
+async function refreshCache(courseId: string, notesUri: string) {
+  if (!CACHE_PROMISES.has(courseId)) {
+    const promise = computeSlidesForDoc(notesUri)
+      .then((newSlides) => {
+        CACHED_SLIDES[courseId] = { data: newSlides, timestamp: Date.now() };
+        return newSlides;
+      })
+      .finally(() => {
+        CACHE_PROMISES.delete(courseId);
+      });
+    CACHE_PROMISES.set(courseId, promise);
   }
-  return CACHED_SLIDES[courseId];
+  return await CACHE_PROMISES.get(courseId)!;
+}
+export async function getSlidesForCourse(courseId: string, notesUri: string) {
+  const now = Date.now();
+  const cacheEntry = CACHED_SLIDES[courseId];
+  if (cacheEntry && now - cacheEntry.timestamp < SLIDE_EXPIRY_TIME_MS) {
+    return cacheEntry.data;
+  }
+  if (cacheEntry) {
+    refreshCache(courseId, notesUri); // background refresh
+    return cacheEntry.data;
+  } else {
+    await refreshCache(courseId, notesUri);
+    return CACHED_SLIDES[courseId]?.data || {};
+  }
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
