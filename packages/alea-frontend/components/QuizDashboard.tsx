@@ -59,9 +59,11 @@ export function validateQuizUpdate(
     originalURIs.some((uri, idx) => uri !== newURIs[idx])
   ) {
     const notFoundURIs = originalURIs.filter((uri) => !newURIs.includes(uri));
+    const newUriFound = newURIs.filter((uri) => !originalURIs.includes(uri));
     return {
       valid: false,
       notFoundURIs,
+      newUriFound,
     };
   }
   return { valid: true };
@@ -382,7 +384,11 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId, quizId, onQuizI
                   stats.totalStudents
                 );
                 if (!validation.valid) {
-                  alert(`Cannot update quiz: Uri not found ${validation.notFoundURIs.join(', ')}`);
+                  if (validation.newUriFound.length > 0) {
+                    alert(`Cannot update quiz: New URIs found ${validation.newUriFound[0]}`);
+                  } else if (validation.notFoundURIs.length > 0) {
+                    alert(`Cannot update quiz: URIs not found ${validation.notFoundURIs[0]}`);
+                  }
                   setIsUpdating(false);
                   return;
                 }
