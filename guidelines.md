@@ -22,9 +22,9 @@ Prefer `sx` props over inline styles for better maintainability and theming supp
 
 ## 2. State Management
 
-### 2.1 Avoid Creating State Variables When Data Can Be Derived
+### 2.1 Derived State Optimization
 
-Creating redundant state variables can lead to unnecessary memory usage and inconsistent states. Instead, derive values directly when possible.
+Avoid creating redundant state variables when values can be derived from existing state. This practice reduces memory usage and prevents state synchronization issues.
 
 ```diff
 - const [files, setFiles] = useState<string>([]);
@@ -44,15 +44,59 @@ Creating redundant state variables can lead to unnecessary memory usage and inco
 + }, []);
 ```
 
-## 3. Component Structure & Code Organization
+### 2.2 State Grouping
 
-### 3.1 Avoid Large Files; Split Into Multiple Components
+When multiple state variables are interdependent, consolidate them into a single state object.
 
-Break large components into smaller, reusable ones for better readability and maintainability.
+```ts
+// Recommended
+const [user, setUser] = useState({ name: "John", age: 25 });
 
-### 3.2 Use Meaningful Component and File Names
+// Avoid
+const [name, setName] = useState("John");
+const [age, setAge] = useState(25);
+```
 
-Ensure file names clearly describe their purpose.
+### 2.3 State Consistency
+
+Maintain state consistency by deriving values rather than storing redundant information.
+
+```ts
+// Avoid
+const [count, setCount] = useState(4);
+const [isEven, setIsEven] = useState(true);
+
+// Recommended
+const isEven = count % 2 === 0;
+```
+
+### 2.4 State Structure
+
+Keep state structure flat and avoid unnecessary nesting.
+
+```ts
+// Avoid
+const [user, setUser] = useState({
+  address: {
+    location: {
+      street: "MG Road"
+    }
+  }
+});
+
+// Recommended
+const [address, setAddress] = useState({ street: "MG Road" });
+```
+
+## 3. Component Architecture
+
+### 3.1 Component Size and Modularity
+
+Maintain manageable component sizes by breaking down complex components into smaller, reusable units.
+
+### 3.2 Naming Conventions
+
+Use descriptive and meaningful names for components and files that clearly indicate their purpose.
 
 ```diff
 - alea-frontend/pages/myPage.tsx
