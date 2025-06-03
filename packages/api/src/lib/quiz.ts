@@ -19,10 +19,11 @@ export interface FTMLProblemWithSolution {
   problem: FTMLProblemWithSubProblems;
   solution?: string;
 }
-export interface FTMLProblemWithSubProblems extends FTMLProblem{
-  subProblems:SubProblemData[]
-  
+
+export interface FTMLProblemWithSubProblems extends FTMLProblem {
+  subProblems?: SubProblemData[];
 }
+
 export interface QuizWithStatus {
   id: string;
   version: number;

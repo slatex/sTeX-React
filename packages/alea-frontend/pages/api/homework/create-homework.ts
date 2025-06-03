@@ -8,9 +8,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!checkIfPostOrSetError(req, res)) return;
   const { title, givenTs, dueTs, feedbackReleaseTs, courseId, courseInstance, css, problems } =
     req.body as CreateHomeworkRequest;
-  for (const [key, value] of Object.entries(problems)) {
-    console.log(value.solution);
-  }
   const userId = await getUserIdIfAuthorizedOrSetError(
     req,
     res,

@@ -1,3 +1,4 @@
+import SaveIcon from '@mui/icons-material/Save';
 import { Box, Button, Card, CircularProgress, IconButton, Typography } from '@mui/material';
 import {
   AnswerUpdateEntry,
@@ -12,12 +13,11 @@ import {
   postAnswerToLMP,
 } from '@stex-react/api';
 import { FTMLFragment, ProblemResponse, ProblemState, Solutions } from '@stex-react/ftml-utils';
+import { MystEditor } from '@stex-react/myst';
 import { useRouter } from 'next/router';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { getPoints } from './stex-react-renderer';
-import { MystEditor } from '@stex-react/myst';
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import SaveIcon from '@mui/icons-material/Save';
+
 export function PointsInfo({ points }: { points: number | undefined }) {
   return (
     <Typography variant="h6" sx={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -25,7 +25,9 @@ export function PointsInfo({ points }: { points: number | undefined }) {
     </Typography>
   );
 }
+
 export const AnswerContext = createContext<Record<string, ResponseWithSubProblemId>>({});
+
 function transformData(dimensionAndURI: string[], quotient: number): AnswerUpdateEntry[] {
   const conceptUpdate: { [url: string]: AnswerUpdateEntry } = {};
 
