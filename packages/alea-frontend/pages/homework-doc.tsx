@@ -6,10 +6,16 @@ import {
   GetHomeworkResponse,
   getUserInfo,
   GradingInfo,
+  ResponseWithSubProblemId,
   UserInfo,
 } from '@stex-react/api';
 import { ProblemResponse } from '@stex-react/ftml-utils';
-import { GradingContext, QuizDisplay, ShowGradingFor } from '@stex-react/stex-react-renderer';
+import {
+  GradingContext,
+  AnswerContext,
+  QuizDisplay,
+  ShowGradingFor,
+} from '@stex-react/stex-react-renderer';
 import { isFauId } from '@stex-react/utils';
 import { injectCss } from '@stex-react/ftml-utils';
 import { useRouter } from 'next/router';
@@ -41,11 +47,10 @@ const HomeworkDocPage: React.FC = () => {
   const courseId = hwInfo?.homework.courseId;
   const instanceId = hwInfo?.homework.courseInstance;
 
-  const [responses, setResponses] = useState<{
-    [problemId: string]: ProblemResponse;
-  }>({});
+  const [answers, setAnswers] = useState<Record<string, ResponseWithSubProblemId>>({});
 
   const id = router.query.id as string;
+  const [responses, setResponses] = useState<Record<string, ProblemResponse>>();
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -57,7 +62,15 @@ const HomeworkDocPage: React.FC = () => {
       setHwInfo(hwInfo);
       for (const e of hwInfo.homework.css ?? []) injectCss(e);
       setProblems(hwInfo.homework.problems);
-      setResponses(hwInfo.responses);
+      setAnswers(hwInfo.responses);
+      const mildleToMapProblemResponse: Record<string, ProblemResponse> = {};
+      Object.entries(answers).forEach(([id, answers]) => {
+        mildleToMapProblemResponse[id] = { uri: id, responses: [] };
+        answers.responses.forEach(
+          (c) => (mildleToMapProblemResponse[id].responses[c.subProblemId] = c.answer)
+        );
+      });
+      setResponses(mildleToMapProblemResponse);
     });
   }, [router.isReady, id]);
 
@@ -88,14 +101,15 @@ const HomeworkDocPage: React.FC = () => {
               studentId: 'fake_abc',
             }}
           >
-            <QuizDisplay
-              isFrozen={phase !== 'GIVEN'}
-              showPerProblemTime={false}
-              problems={problems}
-              existingResponses={responses}
-              homeworkId={+id}
-              onResponse={async (problemId, response) => {
-                /*for (const [idx, answer] of Object.entries(response.freeTextResponses)) {
+            <AnswerContext.Provider value={hwInfo.responses}>
+              <QuizDisplay
+                isFrozen={phase !== 'GIVEN'}
+                showPerProblemTime={false}
+                problems={problems}
+                existingResponses={responses}
+                homeworkId={+id}
+                onResponse={async (problemId, response) => {
+                  /*for (const [idx, answer] of Object.entries(response.freeTextResponses)) {
                   const answerAccepted = await createAnswer({
                     homeworkId: +id,
                     questionId: problemId,
@@ -109,8 +123,9 @@ const HomeworkDocPage: React.FC = () => {
                     location.reload();
                   }
                 } TODO ALEA4-P4*/
-              }}
-            />
+                }}
+              />
+            </AnswerContext.Provider>
           </GradingContext.Provider>
         )}
       </Box>

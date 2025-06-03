@@ -16,8 +16,12 @@ export interface RecorrectionInfo {
 }
 
 export interface FTMLProblemWithSolution {
-  problem: FTMLProblem;
+  problem: FTMLProblemWithSubProblems;
   solution?: string;
+}
+
+export interface FTMLProblemWithSubProblems extends FTMLProblem {
+  subProblems?: SubProblemData[];
 }
 
 export interface QuizWithStatus {

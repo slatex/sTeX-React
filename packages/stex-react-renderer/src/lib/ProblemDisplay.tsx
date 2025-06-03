@@ -1,9 +1,11 @@
-import { Box, Button, Card, CircularProgress, Typography } from '@mui/material';
+import SaveIcon from '@mui/icons-material/Save';
+import { Box, Button, Card, CircularProgress, IconButton, Typography } from '@mui/material';
 import {
   AnswerUpdateEntry,
   CognitiveDimension,
   FTMLProblemWithSolution,
   ProblemAnswerEvent,
+  ResponseWithSubProblemId,
   SymbolURI,
   UserInfo,
   createAnswer,
@@ -11,8 +13,9 @@ import {
   postAnswerToLMP,
 } from '@stex-react/api';
 import { FTMLFragment, ProblemResponse, ProblemState, Solutions } from '@stex-react/ftml-utils';
+import { MystEditor } from '@stex-react/myst';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { getPoints } from './stex-react-renderer';
 
 export function PointsInfo({ points }: { points: number | undefined }) {
@@ -22,6 +25,8 @@ export function PointsInfo({ points }: { points: number | undefined }) {
     </Typography>
   );
 }
+
+export const AnswerContext = createContext<Record<string, ResponseWithSubProblemId>>({});
 
 function transformData(dimensionAndURI: string[], quotient: number): AnswerUpdateEntry[] {
   const conceptUpdate: { [url: string]: AnswerUpdateEntry } = {};
@@ -80,8 +85,10 @@ export function getProblemState(
 ): ProblemState {
   if (!isFrozen) return { type: 'Interactive', current_response };
   if (!solution) return { type: 'Finished', current_response };
-  const sol = Solutions.from_jstring(solution.replace(/^"|"$/g, ""));
-  const feedback = current_response ? sol?.check_response(current_response) : sol?.default_feedback();
+  const sol = Solutions.from_jstring(solution.replace(/^"|"$/g, ''));
+  const feedback = current_response
+    ? sol?.check_response(current_response)
+    : sol?.default_feedback();
   if (!feedback) return { type: 'Finished', current_response }; // Something went wrong!!
   return { type: 'Graded', feedback: feedback.to_json() };
 }
@@ -99,20 +106,111 @@ export function ProblemViewer({
 }) {
   const problemState = getProblemState(isFrozen, problem.solution, r);
   const { html, uri } = problem.problem;
-
+  const isHaveSubProblems = problem.problem.subProblems != null;
+  const problemStates = new Map([[uri, problemState]]);
+  problem.problem?.subProblems?.forEach((c) => {
+    problemStates.set(c.id, getProblemState(isFrozen, c.solution, r));
+  });
   return (
     <FTMLFragment
       key={uri}
       fragment={{ html, uri }}
       allowHovers={isFrozen}
-      problemStates={new Map([[uri, problemState]])}
+      problemStates={problemStates}
       onProblem={(response) => {
         onResponseUpdate?.(response);
+      }}
+      onFragment={(problemId, kind) => {
+        if (kind.type === 'Problem') {
+          return (ch) => (
+            <Box>
+              {ch}
+              <AnswerAccepter
+                masterProblemId={uri}
+                isHaveSubProblems={isHaveSubProblems}
+                problemTitle={problem.problem.title_html ?? ''}
+                isFrozen={isFrozen}
+                problemId={problemId}
+              ></AnswerAccepter>
+            </Box>
+          );
+        }
       }}
     />
   );
 }
 
+function AnswerAccepter({
+  problemId,
+  masterProblemId,
+  isHaveSubProblems,
+  isFrozen,
+  problemTitle,
+}: {
+  problemId: string;
+  masterProblemId: string;
+  isHaveSubProblems: boolean;
+  isFrozen: boolean;
+  problemTitle: string;
+}) {
+  const previousAnswer = useContext(AnswerContext);
+  const name = `answer-${problemId}`;
+  const serverAnswer =
+    previousAnswer[masterProblemId].responses.find((c) => c.subProblemId === problemId)?.answer ??
+    null;
+  const [answer, setAnsewr] = useState<string>(
+    serverAnswer ? serverAnswer : localStorage.getItem(name) ?? ''
+  );
+  const subId = isHaveSubProblems ? +problemId.charAt(problemId.length - 1) : 0;
+  const router = useRouter();
+
+  async function saveAnswer({
+    subId,
+    freeTextResponses,
+  }: {
+    subId?: string;
+    freeTextResponses: string;
+  }) {
+    try {
+      createAnswer({
+        answer: freeTextResponses,
+        questionId: masterProblemId ? masterProblemId : problemId,
+        questionTitle: problemTitle,
+        subProblemId: subId ?? '',
+        courseId: router.query.courseId as string,
+        homeworkId: +(router.query.id ?? 0),
+      });
+      console.log('All answers saved successfully!');
+    } catch (error) {
+      console.error('Error saving answers:', error);
+      alert('Failed to save answers. Please try again.');
+    }
+  }
+  if (isHaveSubProblems && isNaN(subId)) return;
+  async function onSaveClick() {
+    await saveAnswer({ freeTextResponses: answer, subId: problemId });
+  }
+  function onAnswerChange(c: string) {
+    setAnsewr(c);
+    localStorage.setItem(name, c);
+  }
+  return (
+    <Box display="flex" alignItems="flex-start">
+      <Box flexGrow={1}>
+        <MystEditor
+          name={name}
+          editingEnabled={!isFrozen}
+          placeholder={'...'}
+          value={answer}
+          onValueChange={onAnswerChange}
+        />
+      </Box>
+      <IconButton disabled={isFrozen} onClick={onSaveClick} sx={{ ml: 2 }}>
+        <SaveIcon />
+      </IconButton>
+    </Box>
+  );
+}
 export function ProblemDisplay({
   uri,
   problem,
@@ -130,7 +228,6 @@ export function ProblemDisplay({
   onResponseUpdate?: (r: ProblemResponse) => void;
   onFreezeResponse?: () => void;
 }) {
-  const router = useRouter();
   const [userId, setUserId] = useState('');
   useEffect(() => {
     getUserInfo().then((u: UserInfo | undefined) => {
@@ -141,33 +238,6 @@ export function ProblemDisplay({
   }, []);
   if (!problem) return <CircularProgress />;
   const isEffectivelyFrozen = isFrozen;
-
-  async function saveAnswers({
-    problemId,
-    uri,
-    freeTextResponses,
-  }: {
-    problemId: string;
-    uri?: string;
-    freeTextResponses: Record<string, string>;
-  }) {
-    try {
-      const promises = Object.keys(freeTextResponses).map((idx) =>
-        createAnswer({
-          answer: freeTextResponses[idx],
-          questionId: uri ? uri : problemId,
-          questionTitle: router.query?.title as string,
-          subProblemId: idx,
-          courseId: router.query.courseId as string,
-        })
-      );
-      await Promise.all(promises);
-      console.log('All answers saved successfully!');
-    } catch (error) {
-      console.error('Error saving answers:', error);
-      alert('Failed to save answers. Please try again.');
-    }
-  }
 
   return (
     <Card

@@ -12,7 +12,7 @@ import { GradingCreator } from './GradingCreator';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
 import { PerSectionQuiz, UriProblemViewer } from './PerSectionQuiz';
 import { PracticeQuestions } from './PracticeQuestions';
-import { ProblemDisplay } from './ProblemDisplay';
+import { AnswerContext, ProblemDisplay } from './ProblemDisplay';
 import { ListStepper, QuizDisplay } from './QuizDisplay';
 import SectionReview from './SectionReview';
 import {
@@ -154,6 +154,7 @@ export {
   ExpandableContextMenu,
   FixedPositionMenu,
   GradingContext,
+  AnswerContext,
   GradingCreator,
   GradingDisplay,
   LayoutWithFixedMenu,
