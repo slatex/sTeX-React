@@ -17,7 +17,6 @@
     "paths": {
       "@stex-react/api": ["packages/api/src/index.ts"],
       "@stex-react/comments": ["packages/comments/src/index.ts"],
-      "@stex-react/ftml-utils": ["packages/ftml-utils/src/index.ts"],
       "@stex-react/mathjax": ["packages/mathjax/src/index.ts"],
       "@stex-react/myst": ["packages/myst/src/index.ts"],
       "@stex-react/node-utils": ["packages/node-utils/src/index.ts"],

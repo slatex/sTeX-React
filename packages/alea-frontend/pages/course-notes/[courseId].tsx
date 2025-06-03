@@ -1,3 +1,5 @@
+import { FTMLDocument, FTMLSetup } from '@kwarc/ftml-react';
+import { FTML } from '@kwarc/ftml-viewer';
 import {
   Box,
   Button,
@@ -7,8 +9,8 @@ import {
   DialogContent,
   DialogTitle,
 } from '@mui/material';
-import { getCourseInfo, getDocumentSections, TOCElem } from '@stex-react/api';
-import { FTMLDocument, FTMLSetup } from '@stex-react/ftml-utils';
+import { getCourseInfo, getDocumentSections } from '@stex-react/api';
+import { CommentButton } from '@stex-react/comments';
 import { SectionReview, TrafficLightIndicator } from '@stex-react/stex-react-renderer';
 import { CourseInfo, LectureEntry, PRIMARY_COL } from '@stex-react/utils';
 import axios from 'axios';
@@ -17,7 +19,6 @@ import { useRouter } from 'next/router';
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import SearchCourseNotes from '../../components/SearchCourseNotes';
 import MainLayout from '../../layouts/MainLayout';
-import { CommentButton } from '@stex-react/comments';
 
 const SearchDialog = ({ open, onClose, courseId }) => {
   return (
@@ -83,7 +84,7 @@ const FragmentWrap: React.FC<{
   );
 };
 
-function getSectionUriToTitle(toc: TOCElem[], uriToTitle: Record<string, string>) {
+function getSectionUriToTitle(toc: FTML.TOCElem[], uriToTitle: Record<string, string>) {
   for (const elem of toc) {
     if (elem.type === 'Section') {
       uriToTitle[elem.uri] = elem.title;
@@ -99,7 +100,7 @@ const CourseNotesPage: NextPage = () => {
   const courseId = router.query.courseId as string;
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
   const [gottos, setGottos] = useState<{ uri: string; timestamp: number }[] | undefined>(undefined);
-  const [toc, setToc] = useState<TOCElem[] | undefined>(undefined);
+  const [toc, setToc] = useState<FTML.TOCElem[] | undefined>(undefined);
   const uriToTitle = useRef<Record<string, string>>({});
 
   useEffect(() => {
@@ -152,7 +153,7 @@ const CourseNotesPage: NextPage = () => {
       <FTMLSetup>
         <FTMLDocument
           key={notes}
-          document={{ uri: notes, toc: { Predefined: toc }, gottos }}
+          document={{ type: 'FromBackend', uri: notes, toc: { Predefined: toc }, gottos }}
           onFragment={(uri, kind) => {
             if (kind.type === 'Section' || kind.type === 'Slide' || kind.type === 'Paragraph') {
               return (ch) => (

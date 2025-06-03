@@ -1,4 +1,6 @@
-import { GradingAnswerClass, GradingInfo, ProblemResponse, ReviewType } from '@stex-react/api';
+import { FTML } from '@kwarc/ftml-viewer';
+import { GradingAnswerClass, GradingInfo, ReviewType } from '@stex-react/api';
+
 import { Action, CURRENT_TERM, ResourceName } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { isUserIdAuthorizedForAny } from '../access-control/resource-utils';
@@ -97,10 +99,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const problemAnswers = answers[questionId];
     const subProblemIdToAnswerId = convertToSubProblemIdToAnswerId(problemAnswers);
     const grades = await getAllGradingsOrSetError(subProblemIdToAnswerId, res);
-    const response: ProblemResponse = {
+    const response: FTML.ProblemResponse = {
       // TODO ALEA4-P4
       uri: '',
-      responses: []
+      responses: [],
       // freeTextResponses: {},
     };
 
@@ -132,9 +134,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!answers) return;
 
   const problemAnswers = answers[questionId];
-  const response: ProblemResponse = {
+  const response: FTML.ProblemResponse = {
     uri: '',
-    responses: []
+    responses: [],
     // TODO ALEA4-P4 autogradableResponses: [],
     //freeTextResponses: {},
   };

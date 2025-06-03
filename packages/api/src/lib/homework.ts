@@ -1,4 +1,4 @@
-import { CSS } from './flams-types';
+import { FTML } from '@kwarc/ftml-viewer';
 import { FTMLProblemWithSolution } from './quiz';
 
 export type HomeworkPhase =
@@ -16,7 +16,7 @@ export interface HomeworkInfo {
   feedbackReleaseTs: string;
   courseId: string;
   courseInstance: string;
-  css: CSS[];
+  css: FTML.CSS[];
   problems: Record<string, FTMLProblemWithSolution>;
 }
 

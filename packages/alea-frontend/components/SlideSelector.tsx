@@ -1,7 +1,8 @@
+import { FTMLFragment } from '@kwarc/ftml-react';
+import { FTML } from '@kwarc/ftml-viewer';
 import LayersClearIcon from '@mui/icons-material/LayersClear';
 import { Alert, Box, Button, Card, CardContent, Paper, Typography } from '@mui/material';
-import { CSS, getSlides } from '@stex-react/api';
-import { FTMLFragment, injectCss } from '@stex-react/ftml-utils';
+import { getSlides } from '@stex-react/api';
 import { PRIMARY_COL } from '@stex-react/utils';
 import { useEffect, useState } from 'react';
 import { Section } from '../types';
@@ -30,7 +31,7 @@ interface SlideData {
 }
 export interface SlidesWithCSS {
   slides: SlideData[];
-  css: CSS[];
+  css: FTML.CSS[];
 }
 
 interface AvailableSlides {
@@ -116,7 +117,7 @@ export function SlidePicker({
     if (section?.id && availableSlides[section.id]?.css) {
       const cssData = availableSlides[section.id].css;
       cssData.forEach((css) => {
-        injectCss(css);
+        FTML.injectCss(css);
       });
     }
   }, [availableSlides, section?.id]);
@@ -238,7 +239,7 @@ export function SlidePicker({
                     {selectedSlide.html ? (
                       <FTMLFragment
                         key={selectedSlide.uri}
-                        fragment={{ html: selectedSlide.html }}
+                        fragment={{ type: 'HtmlString', html: selectedSlide.html }}
                       />
                     ) : selectedSlide.originalData.slideType === 'TEXT' &&
                       Array.isArray(selectedSlide.originalData.paragraphs) ? (

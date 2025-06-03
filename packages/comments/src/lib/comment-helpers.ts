@@ -1,4 +1,5 @@
-import { Comment, URI } from '@stex-react/api';
+import { Comment} from '@stex-react/api';
+import {FTML} from '@kwarc/ftml-viewer';
 
 export function organizeHierarchically(flatComments: Comment[]) {
   // console.log('organizeHierarchically triggered');
@@ -68,23 +69,23 @@ export function getTotalComments(comments?: Comment[]): number {
 
 const DRAFT_KEY_PREFIX = 'DRAFT';
 
-function getDraftKey(uri: URI, commentId: number) {
+function getDraftKey(uri: FTML.URI, commentId: number) {
   const parts = [DRAFT_KEY_PREFIX, uri];
   if (commentId) parts.push(commentId.toString());
   return parts.join(':');
 }
 
-export function retrieveDraft(uri: URI, commentId: number) {
+export function retrieveDraft(uri: FTML.URI, commentId: number) {
   const key = getDraftKey(uri, commentId);
   return localStorage.getItem(key);
 }
 
-export function saveDraft(uri: URI, commentId: number, draft: string) {
+export function saveDraft(uri: FTML.URI, commentId: number, draft: string) {
   const key = getDraftKey(uri, commentId);
   localStorage.setItem(key, draft);
 }
 
-export function discardDraft(uri: URI, commentId: number) {
+export function discardDraft(uri: FTML.URI, commentId: number) {
   const key = getDraftKey(uri, commentId);
   localStorage.removeItem(key);
 }

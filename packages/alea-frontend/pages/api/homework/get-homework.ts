@@ -1,3 +1,4 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import {
   AnswerResponse,
   FTMLProblemWithSolution,
@@ -6,7 +7,6 @@ import {
   GradingInfo,
   HomeworkInfo,
   HomeworkPhase,
-  ProblemResponse,
 } from '@stex-react/api';
 import { Action, ResourceName } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
@@ -131,7 +131,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!homework) return;
 
   homework.problems = JSON.parse(homework.problems.toString());
-  homework.css = JSON.parse(homework.css?.toString() ?? "[]");
+  homework.css = JSON.parse(homework.css?.toString() ?? '[]');
   const phase = getHomeworkPhase(homework);
 
   const { courseId, courseInstance } = homework;
@@ -143,7 +143,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const isModerator = await isUserIdAuthorizedForAny(userId, [hwModeratorAction]);
   homework.problems = getPhaseAppropriateProblems(homework.problems, isModerator, phase);
 
-  const responses: Record<string, ProblemResponse> = {};
+  const responses: Record<string, FTML.ProblemResponse> = {};
   const answers = await getAllAnswersForHomeworkOrSetError(userId, homeworkId, undefined, res);
   if (!answers) return;
   for (const uri in homework.problems) {
@@ -151,7 +151,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!responses[uri]) {
       responses[uri] = {
         // TODO ALEA4-P7
-        uri, 
+        uri,
         responses: [],
       };
     }

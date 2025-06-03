@@ -3,7 +3,8 @@ import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
 import { getLocaleObject } from '../lang/utils';
 import { QuizFileReader } from './QuizFileReader';
-import { FTMLProblemWithSolution, CSS } from '@stex-react/api';
+import { FTMLProblemWithSolution } from '@stex-react/api';
+import { FTML } from '@kwarc/ftml-viewer';
 import { SafeHtml } from '@stex-react/react-utils';
 
 const HomeworkForm = ({
@@ -30,7 +31,7 @@ const HomeworkForm = ({
   feedbackReleaseTs: Date;
   setFeedbackReleaseTs: (value: Date) => void;
   setTitle: (title: string) => void;
-  setCss: (css: CSS[]) => void;
+  setCss: (css: FTML.CSS[]) => void;
   problems: Record<string, FTMLProblemWithSolution>;
   setProblems: (problems: Record<string, FTMLProblemWithSolution>) => void;
   id: number | null;

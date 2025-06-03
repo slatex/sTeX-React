@@ -1,13 +1,12 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import { Box } from '@mui/material';
-import { FTMLProblemWithSolution, CSS } from '@stex-react/api';
-import { Quiz, FTMLQuizElement } from '@stex-react/ftml-utils';
+import { FTMLProblemWithSolution } from '@stex-react/api';
 import React from 'react';
 
-
-function getProblemsFromQuiz(quiz: Quiz): Record<string, FTMLProblemWithSolution> {
+function getProblemsFromQuiz(quiz: FTML.Quiz): Record<string, FTMLProblemWithSolution> {
   const result: Record<string, FTMLProblemWithSolution> = {};
 
-  function processQuizElement(element: FTMLQuizElement) {
+  function processQuizElement(element: FTML.QuizElement) {
     if ('Problem' in element) {
       const problem = element.Problem;
       const solution = quiz.solutions[problem.uri] || '';
@@ -29,7 +28,7 @@ export function QuizFileReader({
 }: {
   setTitle: (title: string) => void;
   setProblems: (problems: Record<string, FTMLProblemWithSolution>) => void;
-  setCss: (css: CSS[]) => void;
+  setCss: (css: FTML.CSS[]) => void;
 }) {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -39,7 +38,7 @@ export function QuizFileReader({
       console.log(e.target?.result);
       const contents = e.target?.result as string;
       try {
-        const parsedJson = JSON.parse(contents) as Quiz;
+        const parsedJson = JSON.parse(contents) as FTML.Quiz;
         console.log(parsedJson);
         // Check if the parsed content is a valid JSON object before updating the state
         if (typeof parsedJson === 'object' && parsedJson !== null) {

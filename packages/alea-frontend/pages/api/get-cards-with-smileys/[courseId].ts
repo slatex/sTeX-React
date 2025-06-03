@@ -1,10 +1,10 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import {
   CardsWithSmileys,
   getCourseInfo,
   getDefiniedaInSection,
   getDocumentSections,
   getUriSmileys,
-  TOCElem,
 } from '@stex-react/api';
 
 export const EXCLUDED_CHAPTERS = ['Preface', 'Administrativa', 'Resources'];
@@ -23,7 +23,7 @@ interface TopLevelSection {
   sectionTitle: string;
 }
 
-function getChapterAndSections(toc: TOCElem, chapterTitle = ''): TopLevelSection[] {
+function getChapterAndSections(toc: FTML.TOCElem, chapterTitle = ''): TopLevelSection[] {
   if (toc.type === 'Paragraph' || toc.type === 'Slide') {
     return [];
   }

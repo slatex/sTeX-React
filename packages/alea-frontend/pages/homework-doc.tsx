@@ -1,3 +1,4 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import { Box } from '@mui/material';
 import {
   FTMLProblemWithSolution,
@@ -8,10 +9,8 @@ import {
   GradingInfo,
   UserInfo,
 } from '@stex-react/api';
-import { ProblemResponse } from '@stex-react/ftml-utils';
 import { GradingContext, QuizDisplay, ShowGradingFor } from '@stex-react/stex-react-renderer';
 import { isFauId } from '@stex-react/utils';
-import { injectCss } from '@stex-react/ftml-utils';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { ForceFauLogin } from '../components/ForceFAULogin';
@@ -42,7 +41,7 @@ const HomeworkDocPage: React.FC = () => {
   const instanceId = hwInfo?.homework.courseInstance;
 
   const [responses, setResponses] = useState<{
-    [problemId: string]: ProblemResponse;
+    [problemId: string]: FTML.ProblemResponse;
   }>({});
 
   const id = router.query.id as string;
@@ -55,7 +54,7 @@ const HomeworkDocPage: React.FC = () => {
     }
     getHomework(+id).then((hwInfo) => {
       setHwInfo(hwInfo);
-      for (const e of hwInfo.homework.css ?? []) injectCss(e);
+      for (const e of hwInfo.homework.css ?? []) FTML.injectCss(e);
       setProblems(hwInfo.homework.problems);
       setResponses(hwInfo.responses);
     });

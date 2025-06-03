@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ProblemResponse } from './flams-types';
+import { FTML } from '@kwarc/ftml-viewer';
 import { HomeworkInfo, HomeworkPhase, HomeworkStatsInfo, HomeworkStub } from './homework';
 import { getAuthHeaders } from './lmp';
 import { GradingInfo } from './nap';
@@ -28,7 +28,7 @@ export function getHomeworkPhase(homework: HomeworkInfo): HomeworkPhase {
 
 export interface GetHomeworkResponse {
   homework: HomeworkInfo;
-  responses: Record<string, ProblemResponse>;
+  responses: Record<string, FTML.ProblemResponse>;
   gradingInfo: Record<string, Record<string, GradingInfo[]>>;
 }
 

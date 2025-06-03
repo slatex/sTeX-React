@@ -1,7 +1,6 @@
-import { DocumentURI } from '@stex-react/api';
-
+import { FTML } from '@kwarc/ftml-viewer';
 export interface Section {
   id: string;
   title: string;
-  uri: DocumentURI;
-} 
+  uri: FTML.DocumentURI;
+}

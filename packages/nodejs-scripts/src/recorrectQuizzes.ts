@@ -1,12 +1,13 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import {
   batchGradeHex,
   computePointsFromFeedbackJson,
   FTMLProblemWithSolution,
-  ProblemResponse,
 } from '@stex-react/api';
 import { getAllQuizzes } from '@stex-react/node-utils';
 import { exit } from 'process';
 import mysql from 'serverless-mysql';
+
 
 const db = mysql({
   config: {
@@ -50,8 +51,8 @@ async function getCorrectedPoints(
       missing_ids[problemId] = (missing_ids[problemId] || 0) + 1;
       continue;
     }
-    const responses: ProblemResponse[] = byProblemId[problemId].map((r) => {
-      return JSON.parse(r.response) as ProblemResponse;
+    const responses: FTML.ProblemResponse[] = byProblemId[problemId].map((r) => {
+      return JSON.parse(r.response) as FTML.ProblemResponse;
     });
     const feedbacks = (await batchGradeHex([[problems[problemId].solution, responses]]))?.[0];
     for (let i = 0; i < (feedbacks?.length ?? 0); i++) {

@@ -1,16 +1,15 @@
+import { FTMLFragment } from '@kwarc/ftml-react';
+import { FTML } from '@kwarc/ftml-viewer';
 import { Box, Button, Card, CircularProgress, Typography } from '@mui/material';
 import {
   AnswerUpdateEntry,
-  CognitiveDimension,
   FTMLProblemWithSolution,
   ProblemAnswerEvent,
-  SymbolURI,
   UserInfo,
   createAnswer,
   getUserInfo,
   postAnswerToLMP,
 } from '@stex-react/api';
-import { FTMLFragment, ProblemResponse, ProblemState, Solutions } from '@stex-react/ftml-utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { getPoints } from './stex-react-renderer';
@@ -43,7 +42,7 @@ function transformData(dimensionAndURI: string[], quotient: number): AnswerUpdat
   return Object.values(conceptUpdate);
 }
 
-function getUpdates(objectives: [CognitiveDimension, SymbolURI][] | undefined, quotient: number) {
+function getUpdates(objectives: [FTML.CognitiveDimension, FTML.SymbolURI][] | undefined, quotient: number) {
   if (!objectives) return [];
   const dimensionAndURI = objectives.map(([dim, uri]) => `${dim}:${uri}`);
   return transformData(dimensionAndURI, quotient);
@@ -52,7 +51,7 @@ function getUpdates(objectives: [CognitiveDimension, SymbolURI][] | undefined, q
 function handleSubmit(
   problem: FTMLProblemWithSolution,
   uri: string,
-  response: ProblemResponse,
+  response: FTML.ProblemResponse,
   userId: string
 ) {
   const maxPoint = problem.problem?.total_points ?? 1;
@@ -76,12 +75,14 @@ function handleSubmit(
 export function getProblemState(
   isFrozen: boolean,
   solution?: string,
-  current_response?: ProblemResponse
-): ProblemState {
+  current_response?: FTML.ProblemResponse
+): FTML.ProblemState {
   if (!isFrozen) return { type: 'Interactive', current_response };
   if (!solution) return { type: 'Finished', current_response };
-  const sol = Solutions.from_jstring(solution.replace(/^"|"$/g, ""));
-  const feedback = current_response ? sol?.check_response(current_response) : sol?.default_feedback();
+  const sol = FTML.Solutions.from_jstring(solution.replace(/^"|"$/g, ''));
+  const feedback = current_response
+    ? sol?.check_response(current_response)
+    : sol?.default_feedback();
   if (!feedback) return { type: 'Finished', current_response }; // Something went wrong!!
   return { type: 'Graded', feedback: feedback.to_json() };
 }
@@ -93,9 +94,9 @@ export function ProblemViewer({
   r,
 }: {
   problem: FTMLProblemWithSolution;
-  onResponseUpdate?: (response: ProblemResponse) => void;
+  onResponseUpdate?: (response: FTML.ProblemResponse) => void;
   isFrozen: boolean;
-  r?: ProblemResponse;
+  r?: FTML.ProblemResponse;
 }) {
   const problemState = getProblemState(isFrozen, problem.solution, r);
   const { html, uri } = problem.problem;
@@ -103,7 +104,7 @@ export function ProblemViewer({
   return (
     <FTMLFragment
       key={uri}
-      fragment={{ html, uri }}
+      fragment={{ type: 'HtmlString', html, uri }}
       allowHovers={isFrozen}
       problemStates={new Map([[uri, problemState]])}
       onProblem={(response) => {
@@ -125,9 +126,9 @@ export function ProblemDisplay({
   uri?: string;
   problem: FTMLProblemWithSolution | undefined;
   isFrozen: boolean;
-  r?: ProblemResponse;
+  r?: FTML.ProblemResponse;
   showPoints?: boolean;
-  onResponseUpdate?: (r: ProblemResponse) => void;
+  onResponseUpdate?: (r: FTML.ProblemResponse) => void;
   onFreezeResponse?: () => void;
 }) {
   const router = useRouter();

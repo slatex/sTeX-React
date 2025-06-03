@@ -1,5 +1,6 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import axios, { AxiosError } from 'axios';
-import { ProblemResponse } from './ftml-viewer-base';
+
 import { getAuthHeaders } from './lmp';
 import {
   Excused,
@@ -14,7 +15,7 @@ import {
 export async function insertQuizResponse(
   quizId: string,
   problemId: string,
-  r: ProblemResponse
+  r: FTML.ProblemResponse
 ): Promise<boolean> {
   const req: InsertAnswerRequest = {
     quizId,
