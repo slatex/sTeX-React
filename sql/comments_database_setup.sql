@@ -237,7 +237,7 @@ CREATE TABLE ReviewRequest   (
 CREATE TABLE homework (
     id INT PRIMARY KEY AUTO_INCREMENT,
     versionNo INT,
-    title VARCHAR(255),          
+    title VARCHAR(1023),          
     givenTs TIMESTAMP,
     dueTs TIMESTAMP,                  
     feedbackReleaseTs TIMESTAMP,                  
