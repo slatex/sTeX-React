@@ -1,3 +1,5 @@
+import { FLAMSServer, ProblemFeedbackJson } from '@kwarc/flams';
+import { FTML } from '@kwarc/ftml-viewer';
 import {
   COURSES_INFO,
   CURRENT_TERM,
@@ -7,8 +9,6 @@ import {
   waitForNSeconds,
 } from '@stex-react/utils';
 import axios from 'axios';
-import { FTML } from '@kwarc/ftml-viewer';
-import {FLAMSServer} from '@kwarc/flams'
 
 const server = new FLAMSServer(process.env['NEXT_PUBLIC_FLAMS_URL']!);
 
@@ -16,11 +16,13 @@ export async function getDocumentSections(notesUri: string) {
   return (await server.contentToc({ uri: notesUri })) ?? [[], []];
 }
 
-export async function getFTMLQuiz(uri: string) {
+export async function getFTMLQuiz(uri: string): Promise<FTML.Quiz | undefined> {
   return await server.quiz({ uri });
 }
 
-export async function batchGradeHex(submissions: [string, (FTML.ProblemResponse | undefined)[]][]) {
+export async function batchGradeHex(
+  submissions: [string, (FTML.ProblemResponse | undefined)[]][]
+): Promise<ProblemFeedbackJson[][] | undefined> {
   return await server.batchGradeHex(...submissions);
 }
 

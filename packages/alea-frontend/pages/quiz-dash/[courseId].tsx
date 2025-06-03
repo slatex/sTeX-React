@@ -168,7 +168,7 @@ const QuizDashPage: NextPage = () => {
     getCourseQuizList(courseId).then((res) => {
       const quizzes = res as QuizStubInfo[];
       for (const quiz of quizzes) {
-        for (const css of quiz.css) FTML.injectCss(css);
+        for (const css of quiz.css || []) FTML.injectCss(css);
       }
       setQuizList(quizzes);
     });

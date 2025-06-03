@@ -159,7 +159,7 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId, quizId, onQuizI
         const allQuizzes: QuizWithStatus[] = res.data;
         allQuizzes?.sort((a, b) => b.quizStartTs - a.quizStartTs);
         for (const q of allQuizzes ?? []) {
-          for (const css of q.css) FTML.injectCss(css);
+          for (const css of q.css || []) FTML.injectCss(css);
         }
         setQuizzes(allQuizzes);
         const validQuiz = allQuizzes.find((q) => q.id === quizId);
