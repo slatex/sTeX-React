@@ -29,7 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   let query = '';
   let params: string[] = [];
   if (toBeAdded) {
-    if (!(acl.isOpen || (await isCurrentUserMemberOfAClupdater(aclId, res, req))))
+    if (!(acl?.isOpen || (await isCurrentUserMemberOfAClupdater(aclId, res, req))))
       return res.status(403).end();
     if (isAclMember) query = 'select id from AccessControlList where id=?';
     else query = 'select userId from userInfo where userId=?';

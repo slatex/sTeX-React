@@ -28,8 +28,12 @@ export function getHomeworkPhase(homework: HomeworkInfo): HomeworkPhase {
 
 export interface GetHomeworkResponse {
   homework: HomeworkInfo;
-  responses: Record<string, FTML.ProblemResponse>;
+  responses: Record<string, ResponseWithSubProblemId>;
   gradingInfo: Record<string, Record<string, GradingInfo[]>>;
+}
+export interface ResponseWithSubProblemId {
+  problemId: string;
+  responses: { subProblemId: string; answer: string }[];
 }
 
 export async function getHomework(id: number) {

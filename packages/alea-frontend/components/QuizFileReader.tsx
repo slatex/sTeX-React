@@ -1,15 +1,32 @@
 import { FTML } from '@kwarc/ftml-viewer';
 import { Box } from '@mui/material';
-import { FTMLProblemWithSolution } from '@stex-react/api';
+import { FTMLProblemWithSolution, FTMLProblemWithSubProblems } from '@stex-react/api';
 import React from 'react';
 
 function getProblemsFromQuiz(quiz: FTML.Quiz): Record<string, FTMLProblemWithSolution> {
   const result: Record<string, FTMLProblemWithSolution> = {};
-
+  function findSubProblem(str1: string, str2: string) {
+    const shorter = str1.length < str2.length ? str1 : str2;
+    const longer = str1.length < str2.length ? str2 : str1;
+    return str1.length != str2.length ? longer.startsWith(shorter) : false;
+  }
   function processQuizElement(element: FTML.QuizElement) {
     if ('Problem' in element) {
-      const problem = element.Problem;
+      const problem = element.Problem as FTMLProblemWithSubProblems;
+
       const solution = quiz.solutions[problem.uri] || '';
+      for (const item of Object.keys(quiz.solutions)) {
+        if (findSubProblem(item, problem.uri)) {
+          if (problem.subProblems == null) {
+            problem.subProblems = [];
+          }
+          problem.subProblems.push({
+            solution: quiz.solutions[item],
+            answerclasses: [],
+            id: item,
+          });
+        }
+      }
       result[problem.uri] = { problem, solution };
     } else if ('Section' in element) {
       element.Section.elements.forEach(processQuizElement);
