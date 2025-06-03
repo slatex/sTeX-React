@@ -1,4 +1,5 @@
 import {
+  CSS,
   Slide,
   SlideElement,
   SlideType,
@@ -9,17 +10,42 @@ import {
 } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
 
+const SLIDE_EXPIRY_TIME_MS = 20 * 60 * 1000; // 20 min
+interface SlidesWithCSS {
+  slides: Slide[];
+  css: CSS[];
+}
+interface CachedCourseSlides {
+  timestamp: number;
+  data: { [sectionId: string]: SlidesWithCSS };
+}
+
+function mergeIntoAccWithoutDuplicates(acc: CSS[], newCSS: CSS[]) {
+  const cssSet = new Set<string>(acc.map((css) => JSON.stringify(css)));
+  (newCSS ?? []).forEach((cssItem) => {
+    const cssString = JSON.stringify(cssItem);
+    if (!cssSet.has(cssString)) {
+      cssSet.add(cssString);
+      acc.push(cssItem);
+    }
+  });
+}
+
 async function recursivelyExpandSlideElementsExcludeSections(
   slideElems: SlideElement[],
   sectionId: string
-): Promise<Slide[]> {
+): Promise<{ slides: Slide[]; css: CSS[] }> {
   const elems: (Extract<SlideElement, { type: 'Paragraph' | 'Slide' }> | Slide)[] = [];
+  const accumulatedCSS: CSS[] = [];
+
   for (const slideElem of slideElems) {
     if (slideElem.type === 'Inputref') {
       const slidesData = await getSectionSlides(slideElem.uri);
       if (slidesData?.length > 0) {
         const [css, slideElems] = slidesData;
-        elems.push(...(await recursivelyExpandSlideElementsExcludeSections(slideElems, sectionId)));
+        const result = await recursivelyExpandSlideElementsExcludeSections(slideElems, sectionId);
+        elems.push(...result.slides);
+        mergeIntoAccWithoutDuplicates(accumulatedCSS, [...css, ...result.css]);
       }
     } else if (slideElem.type === 'Paragraph' || slideElem.type === 'Slide') {
       elems.push(slideElem);
@@ -28,18 +54,21 @@ async function recursivelyExpandSlideElementsExcludeSections(
     }
   }
 
-  if (elems.length === 0) return [];
+  if (elems.length === 0) return { slides: [], css: accumulatedCSS };
 
   if (elems.every((e) => 'type' in e && e.type === 'Paragraph')) {
-    return [
-      {
-        slideType: SlideType.TEXT,
-        paragraphs: elems,
-        preNotes: [],
-        postNotes: [],
-        sectionId,
-      },
-    ];
+    return {
+      slides: [
+        {
+          slideType: SlideType.TEXT,
+          paragraphs: elems,
+          preNotes: [],
+          postNotes: [],
+          sectionId,
+        },
+      ],
+      css: accumulatedCSS,
+    };
   }
 
   const finalSlides: Slide[] = [];
@@ -78,17 +107,23 @@ async function recursivelyExpandSlideElementsExcludeSections(
       sectionId,
     });
   }
-  return finalSlides;
+  return { slides: finalSlides, css: accumulatedCSS };
 }
 
-async function getSlidesFromToc(elems: TOCElem[], bySection: Record<string, Slide[]>) {
+async function getSlidesFromToc(elems: TOCElem[], bySection: Record<string, SlidesWithCSS>) {
   for (const elem of elems) {
     if (elem.type === 'Section') {
       const secId = elem.id;
       const slideData = await getSectionSlides(elem.uri);
       if (slideData) {
         const [css, slideElems] = slideData;
-        bySection[secId] = await recursivelyExpandSlideElementsExcludeSections(slideElems, secId);
+        const result = await recursivelyExpandSlideElementsExcludeSections(slideElems, secId);
+        mergeIntoAccWithoutDuplicates(css, result.css);
+
+        bySection[secId] = {
+          slides: result.slides,
+          css,
+        };
       }
     }
     if ('children' in elem) {
@@ -97,21 +132,50 @@ async function getSlidesFromToc(elems: TOCElem[], bySection: Record<string, Slid
   }
 }
 
-export async function getSlidesForCourse(notesUri: string) {
+async function computeSlidesForDoc(notesUri: string) {
   const toc = (await getDocumentSections(notesUri))[1];
-  const bySection: { [sectionId: string]: Slide[] } = {};
+  const bySection: { [sectionId: string]: SlidesWithCSS } = {};
   await getSlidesFromToc(toc, bySection);
   return bySection;
 }
 
-// Use global cache to persist between requests in dev/local
 const globalCache = global as any;
 if (!globalCache.G_CACHED_SLIDES) {
   globalCache.G_CACHED_SLIDES = {};
 }
-export const CACHED_SLIDES: {
-  [courseId: string]: { [sectionId: string]: Slide[] };
+const CACHED_SLIDES: {
+  [courseId: string]: CachedCourseSlides;
 } = globalCache.G_CACHED_SLIDES;
+
+const CACHE_PROMISES = new Map<string, Promise<{ [sectionId: string]: SlidesWithCSS }>>();
+async function refreshCache(courseId: string, notesUri: string) {
+  if (!CACHE_PROMISES.has(courseId)) {
+    const promise = computeSlidesForDoc(notesUri)
+      .then((newSlides) => {
+        CACHED_SLIDES[courseId] = { data: newSlides, timestamp: Date.now() };
+        return newSlides;
+      })
+      .finally(() => {
+        CACHE_PROMISES.delete(courseId);
+      });
+    CACHE_PROMISES.set(courseId, promise);
+  }
+  return await CACHE_PROMISES.get(courseId)!;
+}
+export async function getSlidesForCourse(courseId: string, notesUri: string) {
+  const now = Date.now();
+  const cacheEntry = CACHED_SLIDES[courseId];
+  if (cacheEntry && now - cacheEntry.timestamp < SLIDE_EXPIRY_TIME_MS) {
+    return cacheEntry.data;
+  }
+  if (cacheEntry) {
+    refreshCache(courseId, notesUri); // background refresh
+    return cacheEntry.data;
+  } else {
+    await refreshCache(courseId, notesUri);
+    return CACHED_SLIDES[courseId]?.data || {};
+  }
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const courseId = req.query.courseId as string;
@@ -127,12 +191,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return;
   }
   const sectionIdArr = sectionIds.split(',');
-  if (!CACHED_SLIDES[courseId]) {
-    CACHED_SLIDES[courseId] = await getSlidesForCourse(courseInfo.notes);
-  }
-  const data: { [sectionId: string]: Slide[] } = {};
+  const allCourseSlides = await getSlidesForCourse(courseId, courseInfo.notes);
+  const data: { [sectionId: string]: SlidesWithCSS } = {};
   for (const secId of sectionIdArr) {
-    data[secId] = CACHED_SLIDES[courseId][secId];
+    data[secId] = allCourseSlides[secId];
   }
 
   return res.status(200).json(data);

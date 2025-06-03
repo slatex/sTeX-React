@@ -19,12 +19,36 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { getCourseInfo } from '@stex-react/api';
+import {
+  conceptUriToName,
+  getCourseInfo,
+  getDefiniedaInSection,
+  getDocumentSections,
+  getSectionDependencies,
+  TOCElem,
+} from '@stex-react/api';
 import { CourseInfo } from '@stex-react/utils';
 import React, { useEffect, useState } from 'react';
 
+export function getSectionDetails(tocElems: TOCElem[]): SectionDetails[] {
+  const sections: SectionDetails[] = [];
+  for (const tocElem of tocElems) {
+    if (tocElem.type === 'Section') {
+      sections.push({
+        name: tocElem.title,
+        id: tocElem.id,
+        uri: tocElem.uri,
+      });
+    }
+    if ('children' in tocElem && Array.isArray(tocElem.children)) {
+      sections.push(...getSectionDetails(tocElem.children));
+    }
+  }
+  return sections;
+}
 interface SectionDetails {
   name: string;
+  id?: string;
   uri?: string;
 }
 
@@ -55,17 +79,18 @@ export const CourseConceptsDialog = ({
   }, []);
 
   useEffect(() => {
-    async function getSections() {
+    async function getCourseSections() {
       const secDetails: Record<string, SectionDetails[]> = {};
       for (const courseId of Object.keys(courses)) {
-        //TODO ALEA4-L1
-        // const { notesArchive: archive, notesFilepath: filepath } = courses[courseId];
-        // const docSections = await getDocumentSections(archive, filepath);
-        // secDetails[courseId] = getSectionDetails(docSections);
+        const notes = courses?.[courseId]?.notes;
+        if (!notes) continue;
+        getDocumentSections(notes).then(([css, toc]) => {
+          secDetails[courseId] = getSectionDetails(toc);
+        });
       }
       setAllSectionDetails(secDetails);
     }
-    getSections();
+    getCourseSections();
   }, [courses]);
 
   const handleCourseChange = (event: SelectChangeEvent) => {
@@ -82,18 +107,14 @@ export const CourseConceptsDialog = ({
     }
     setLoading(true);
     try {
-      //TODO ALEA4-L1
-      // const definedConcepts = await getDefiniedaInDoc(
-      //   selectedSection?.archive,
-      //   selectedSection?.filepath
-      // );
-      // const conceptsUri = [...new Set(definedConcepts.flatMap((data) => data.symbols))];
-      // setProcessedOptions(
-      //   [...conceptsUri].map((uri) => ({
-      //     label: `${uri.split('?').pop()} (${uri})`,
-      //     value: uri,
-      //   }))
-      // );
+      const concepts = await getDefiniedaInSection(selectedSection?.uri);
+      const uniqueConceptUris = [...new Set(concepts.map((c) => c.conceptUri))];
+      setProcessedOptions(
+        uniqueConceptUris.map((uri) => ({
+          label: `${conceptUriToName(uri)} (${uri})`,
+          value: uri,
+        }))
+      );
     } catch (error) {
       console.error('Error fetching concepts:', error);
     } finally {
@@ -203,7 +224,7 @@ export const CourseConceptsDialog = ({
                   renderTags={(value, getTagProps) =>
                     value.map((option, index) => (
                       <Chip
-                        label={option.value.split('?').pop()}
+                        label={conceptUriToName(option.value)}
                         {...getTagProps({ index })}
                         key={index}
                         color="primary"

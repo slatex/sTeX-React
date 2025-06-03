@@ -20,6 +20,7 @@ export default async function handler(
       quizStartTs: q.quizStartTs,
       quizEndTs: q.quizEndTs,
       title: q.title,
+      css: q.css,
     }));
 
   res.status(200).json(quizzesInfo);

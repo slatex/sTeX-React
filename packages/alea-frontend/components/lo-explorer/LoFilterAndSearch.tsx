@@ -18,9 +18,12 @@ import {
   ALL_LO_TYPES,
   ALL_NON_DIM_CONCEPT,
   AllLoRelationTypes,
+  conceptUriToName,
+  getQueryResults,
   getSparlQueryForDimConcepts,
   getSparlQueryForNonDimConcepts,
   getSparqlQueryForDimConceptsAsLoRelation,
+  getSparqlQueryForLoString,
   getSparqlQueryForNonDimConceptsAsLoRelation,
   LoRelationToDimAndConceptPair,
   LoRelationToNonDimConcept,
@@ -39,14 +42,14 @@ async function fetchConceptList(): Promise<Record<string, string>> {
   const nonDimConceptQuery = getSparlQueryForNonDimConcepts();
   const dimConceptQuery = getSparlQueryForDimConcepts();
   const [nonDimBindings, dimBindings] = await Promise.all([
-    undefined, //sparqlQuery( nonDimConceptQuery), TODO ALEA4-L1
-    undefined, //sparqlQuery( dimConceptQuery),
+    getQueryResults(nonDimConceptQuery),
+    getQueryResults(dimConceptQuery),
   ]);
   const bindings = [...nonDimBindings.results.bindings, ...dimBindings.results.bindings];
   const conceptsList = {};
   bindings.forEach((binding) => {
     const uri = binding.x.value;
-    const key = uri.split('?').pop();
+    const key = conceptUriToName(uri);
     conceptsList[key] = uri;
   });
   return conceptsList;
@@ -297,7 +300,11 @@ function constructLearningObjects(bindings: any[]): Record<LoType, string[]> {
       console.error(`Unknown learning object type: ${typeKey}`);
       return;
     }
-    learningObjectsByType[typeKey].push(lo?.value);
+    const loValue = lo?.value;
+    const loArray = learningObjectsByType[typeKey];
+    if (loValue && !loArray.includes(loValue)) {
+      loArray.push(loValue);
+    }
   });
   return learningObjectsByType;
 }
@@ -312,14 +319,12 @@ export async function fetchLoFromConceptsAsLoRelations(
   if (loTypes?.length === 0) {
     loTypes = [...ALL_LO_TYPES];
   }
-  const bindings = [];
+  let bindings = [];
   if (concepts?.length === 0) {
-    // TODO ALEA4-L1
-    /*const query = getSparqlQueryForLoString(loString, loTypes);
-    const response = await sparqlQuery(query);
+    const query = getSparqlQueryForLoString(loString, loTypes);
+    const response = await getQueryResults(query);
     bindings = response.results?.bindings;
-    return constructLearningObjects(bindings);*/
-    return {} as any;
+    return constructLearningObjects(bindings);
   }
   if (relations.length === 0) {
     relations = [...ALL_LO_RELATION_TYPES];
@@ -337,7 +342,7 @@ export async function fetchLoFromConceptsAsLoRelations(
       loTypes,
       loString
     );
-    const response = undefined as any; // TODO ALEA4-L1 await sparqlQuery(query);
+    const response = await getQueryResults(query);
     if (response?.results?.bindings) {
       bindings.push(...response.results.bindings);
     }
@@ -350,7 +355,7 @@ export async function fetchLoFromConceptsAsLoRelations(
       loTypes,
       loString
     );
-    const response = undefined as any; // TODO ALEA4-L1 await sparqlQuery(query);
+    const response = await getQueryResults(query);
     if (response?.results?.bindings) {
       bindings.push(...response.results.bindings);
     }

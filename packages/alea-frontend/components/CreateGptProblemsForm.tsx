@@ -22,7 +22,6 @@ import {
 } from '@mui/material';
 import { CreateGptProblemsRequest, Template } from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { FileLocation, fileLocToString, stringToFileLoc } from '@stex-react/utils';
 import { ChangeEvent, useContext, useEffect, useState } from 'react';
 
 function templateToFormData(template: Template): CreateGptProblemsRequest {
@@ -37,14 +36,14 @@ function templateToFormData(template: Template): CreateGptProblemsRequest {
   };
 }
 
-function getGitlabUrl({ archive, filepath }: FileLocation) {
-  if (filepath.endsWith('.xhtml')) filepath = filepath.replace('.xhtml', '.tex');
-  return `https://gl.mathhub.info/${archive}/-/blob/main/source/${filepath}`;
-}
+// function getGitlabUrl({ archive, filepath }: "TODO ALeA4-M3") {
+//   if (filepath.endsWith('.xhtml')) filepath = filepath.replace('.xhtml', '.tex');
+//   return `https://gl.mathhub.info/${archive}/-/blob/main/source/${filepath}`;
+// }
 
-function getSectionNames(): { name: string; parentFile: FileLocation }[] {
+function getSectionNames(): { name: string; parentFile: "TODO ALeA4-M3" }[] {
   const names = [];
-  /* TODO ALEA4-M3
+  /* TODO ALeA4-M3
   if (data.title?.length)
     names.push({
       name: '\xa0'.repeat(level * 4) + convertHtmlStringToPlain(data.title),
@@ -73,12 +72,12 @@ function SectionPicker({
   sectionParentId: string;
   onChange: (value: string) => void;
 }) {
-  const [sections, setSectionNames] = useState<{ name: string; parentFile: FileLocation }[]>([]);
-  const fileLoc = stringToFileLoc(sectionParentId);
+  const [sections, setSectionNames] = useState<{ name: string; parentFile: "TODO ALeA4-M3"  }[]>([]); 
+  // const fileLoc = stringToFileLoc(sectionParentId); TODO ALeA4-M3
 
   useEffect(() => {
     async function getSections() {
-      // TODO ALEA4-M3
+      // TODO ALeA4-M3
       // const archive = 'MiKoMH/AI';
       // const filepath = 'course/notes/notes1.tex';
       // const docSections = await getDocumentSections(archive, filepath);
@@ -102,8 +101,8 @@ function SectionPicker({
           {sections.map((option) => {
             return (
               <MenuItem
-                key={option.name + option.parentFile.filepath}
-                value={fileLocToString(option.parentFile)}
+                key={"TODO ALeA4-M3"}
+                // value={TODO ALeA4-M3} 
               >
                 {option.name}
               </MenuItem>
@@ -115,7 +114,7 @@ function SectionPicker({
       <a
         href={
           ''
-          // TODO ALEA4-M3
+          // TODO ALeA4-M3
           // fullDocumentUrl({
           //   archive: fileLoc.archive,
           //   filepath: fileLoc.filepath.replace('.tex', '.xhtml'),
@@ -124,17 +123,17 @@ function SectionPicker({
         style={{ textDecoration: 'underline' }}
         target="_blank"
       >
-        {sections
+        {/* {sections
           .find(
             ({ parentFile: { archive, filepath } }) =>
               archive === fileLoc.archive && filepath === fileLoc.filepath
           )
-          ?.name?.trim() || ''}
+          ?.name?.trim() || ''} */}
       </a>
       &nbsp;
-      <a href={getGitlabUrl(fileLoc)} style={{ textDecoration: 'underline' }} target="_blank">
+      {/* <a href={getGitlabUrl(fileLoc)} style={{ textDecoration: 'underline' }} target="_blank">
         Gitlab Link
-      </a>
+      </a> */}
     </>
   );
 }
@@ -156,7 +155,7 @@ function AssignmentValueInput({
 
   const isUriDefMd = assignKey.startsWith('URI_DEF_MD');
   const isFetchStex = assignKey.startsWith('FETCH_STEX');
-  const fileLoc = isFetchStex && stringToFileLoc(value);
+  // const fileLoc = isFetchStex && stringToFileLoc(value); TODO ALeA4-M3
   return (
     <>
       <TextField
@@ -171,7 +170,7 @@ function AssignmentValueInput({
           {assignKey}
         </a>
       )}
-      {isFetchStex &&
+      {/* {isFetchStex &&
         (fileLoc?.archive && fileLoc?.filepath ? (
           <a href={getGitlabUrl(fileLoc)} style={{ textDecoration: 'underline' }} target="_blank">
             Link
@@ -181,7 +180,7 @@ function AssignmentValueInput({
             Must be of the form{' '}
             <span style={{ backgroundColor: '#AAA', padding: '0 3px' }}>archive||filepath</span>
           </>
-        ))}
+        ))} */}
       {isUriDefMd && (
         <a
           href={`/:sTeX/declaration?${value}`}
@@ -319,7 +318,7 @@ export function CreateGptProblemsForm({
             <tr style={{ border: '1px solid black' }}>
               <td>URI_DEF_MD (deprecated)</td>
               <td style={{ border: '1px solid black', padding: '0 10px' }}>
-                Value is interpreted as an MMT URI
+                Value is interpreted as a URI
               </td>
               <td>Template marker replaced by the concept definition (markdown)</td>
             </tr>

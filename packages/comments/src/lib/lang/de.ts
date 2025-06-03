@@ -1,6 +1,7 @@
 export const de = {
   // comment button
   addToSlide: 'Fügen Sie dieser Folie einen Kommentar hinzu',
+  addToParagraph:'Füge diesem Absatz einen Kommentar hinzu',
   selectionSuggestion:
     'Die Auswahl eines Ausschnitts ermöglicht Kommentare, die direkt zu diesem Ausschnitt gehören',
   andMore: '…und mehr',

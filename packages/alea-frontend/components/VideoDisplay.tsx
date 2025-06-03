@@ -1,8 +1,8 @@
 import { FastForward, InfoOutlined, MusicNote } from '@mui/icons-material';
 import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
 import SettingsIcon from '@mui/icons-material/Settings';
 import VideocamIcon from '@mui/icons-material/Videocam';
-import CloseIcon from '@mui/icons-material/Close';
 import {
   Box,
   Button,
@@ -15,7 +15,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { ClipDetails, ClipInfo, getSectionDependencies } from '@stex-react/api';
+import { ClipDetails, ClipInfo, getDefiniedaInSection } from '@stex-react/api';
 import { formatTime, getParamFromUri, localStore, PathToTour2 } from '@stex-react/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
@@ -31,9 +31,10 @@ import {
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
 
-import { ClipData, setSlideNumAndSectionId } from '../pages/course-view/[courseId]';
-import Link from 'next/link';
+import { ClipData } from '@stex-react/api';
 import Image from 'next/image';
+import Link from 'next/link';
+import { setSlideNumAndSectionId } from '../pages/course-view/[courseId]';
 
 export default function SeekVideo({
   currentSlideClipInfo,
@@ -202,8 +203,8 @@ const MediaItem = ({
     }
     setLoadingConcepts(true);
     try {
-      const definedConcepts = await getSectionDependencies(sectionUri);
-      const result = definedConcepts ?? [];
+      const definedConcepts = await getDefiniedaInSection(sectionUri);
+      const result = definedConcepts.map((concept) => concept.conceptUri) ?? [];
       conceptsCache.current[sectionUri] = result;
 
       setConceptsUri(result);
@@ -488,7 +489,7 @@ const MediaItem = ({
                   marginBottom: '8px',
                 }}
               >
-                Concepts in this slide
+                Concepts in this section
               </Typography>
               {loadingConcepts ? (
                 <Box sx={{ textAlign: 'center', mt: 2 }}>
@@ -572,7 +573,7 @@ const MediaItem = ({
                 marginTop: '12px',
               }}
             >
-              No concepts available for the current slide
+              No new concepts defined in this section
             </Typography>
           )}
 

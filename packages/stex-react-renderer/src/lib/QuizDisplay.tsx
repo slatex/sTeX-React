@@ -10,7 +10,7 @@ import { Box, Button, CircularProgress, Dialog, IconButton } from '@mui/material
 import { FTMLProblemWithSolution, TimerEvent, TimerEventType } from '@stex-react/api';
 import { FTMLFragment, ProblemResponse, ProblemResponseType } from '@stex-react/ftml-utils';
 import { isEmptyResponse } from '@stex-react/quiz-utils';
-import { shouldUseDrawer } from '@stex-react/utils';
+import { convertHtmlStringToPlain, shouldUseDrawer } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useEffect, useReducer, useState } from 'react';
 import { getLocaleObject } from './lang/utils';
@@ -324,7 +324,7 @@ export function QuizDisplay({
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <h2>
             {t.problem} {problemIdx + 1} {t.of} {problemIds.length}&nbsp;
-            <FTMLFragment fragment={{ html: problem.problem.title_html ?? '<i>Untitled</i>' }} />
+            <FTMLFragment key={problem.problem.html ?? ''} fragment ={{  html: problem.problem.title_html ?? '<i>Untitled</i>' }} />
           </h2>
           {(!!quizEndTs || showPerProblemTime) && (
             <QuizTimer

@@ -1,4 +1,4 @@
-import { CSS, ProblemResponse, FTMLProblem, ProblemResponseType } from './flams-types';
+import { CSS, FTMLProblem, ProblemResponse } from './flams-types';
 
 export enum Phase {
   UNSET = 'UNSET',
@@ -9,7 +9,7 @@ export enum Phase {
 }
 
 export interface RecorrectionInfo {
-  problemId: string;
+  problemUri: string;
   problemHeader?: string;
   recorrectedTs: string; // ISO string
   description: string;
@@ -162,6 +162,7 @@ export interface QuizStubInfo {
   quizStartTs: number;
   quizEndTs: number;
   title: string;
+  css: CSS[];
 }
 
 export function getTotalElapsedTime(events: TimerEvent[]) {
@@ -239,4 +240,10 @@ export interface PreviousQuizInfo {
   averageScore: number;
   maxPoints: number;
   recorrectionInfo?: RecorrectionInfo[];
+}
+export interface Excused {
+  userId: string;
+  quizId: string;
+  courseId: string;
+  courseInstance: string;
 }

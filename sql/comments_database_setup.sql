@@ -31,8 +31,12 @@ CREATE TABLE comments (
     userEmail varchar(255),
 
     postedTimestamp timestamp DEFAULT CURRENT_TIMESTAMP,
-    updatedTimestamp timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updatedTimestamp timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    uri VARCHAR(1023),
+    pageUrl VARCHAR(1023)
 );
+
 
 CREATE TABLE updateHistory (
    updateId int PRIMARY KEY AUTO_INCREMENT,
@@ -233,7 +237,7 @@ CREATE TABLE ReviewRequest   (
 CREATE TABLE homework (
     id INT PRIMARY KEY AUTO_INCREMENT,
     versionNo INT,
-    title VARCHAR(255),          
+    title VARCHAR(1023),          
     givenTs TIMESTAMP,
     dueTs TIMESTAMP,                  
     feedbackReleaseTs TIMESTAMP,                  
@@ -262,4 +266,12 @@ CREATE TABLE homeworkHistory (
     createdAt TIMESTAMP,
     
     PRIMARY KEY (id, versionNo)   
+);
+
+CREATE TABLE excused(
+    id int PRIMARY KEY AUTO_INCREMENT,
+    userId varchar(255) NOT NULL,
+    quizId varchar(255) NOT NULL,
+    courseId VARCHAR(255) NOT NULL,                
+    courseInstance VARCHAR(255) NOT NULL
 );

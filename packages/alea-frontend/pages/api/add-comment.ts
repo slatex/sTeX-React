@@ -16,14 +16,12 @@ import {
   sendNotification,
 } from './comment-utils';
 
-function linkToComment({ threadId, courseId, courseTerm, archive, filepath }: any) {
-  // if (threadId && courseId && courseTerm === CURRENT_TERM) {
-  //   return `/forum/${courseId}/${threadId}`;
-  // }
-  // if (archive && filepath) return PathToArticle({ archive, filepath });
-  // if (courseId) return `/forum/${courseId}`;
-  // return PathToArticle({ archive: archive || '', filepath: filepath || '' });
-  return '/TODO ALEA4-N8.1';
+function linkToComment({ threadId, courseId, courseTerm, pageUrl }: any) {
+  if (threadId && courseId && courseTerm === CURRENT_TERM) {
+    return `/forum/${courseId}/${threadId}`;
+  }
+  if (courseId) return `/forum/${courseId}`;
+  return pageUrl || '/';
 }
 
 async function sendCommentAlert(
@@ -97,7 +95,8 @@ export default async function handler(req, res) {
     commentType,
     questionStatus,
     isAnonymous,
-    uri
+    uri,
+    pageUrl,
   } = req.body as Comment;
 
   if (!statement || isPrivate === undefined || isAnonymous === undefined) {
@@ -122,8 +121,8 @@ export default async function handler(req, res) {
   }
   const results = await executeAndEndSet500OnError(
     `INSERT INTO comments
-      (archive, filepath, statement, parentCommentId, threadId, courseId, courseTerm, selectedText, isPrivate, commentType, questionStatus, isAnonymous, userId, userName, userEmail, isDeleted, isEdited ,uri)
-      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ?)`,
+      (archive, filepath, statement, parentCommentId, threadId, courseId, courseTerm, selectedText, isPrivate, commentType, questionStatus, isAnonymous, userId, userName, userEmail, isDeleted, isEdited ,uri, pageUrl)
+      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ?, ?)`,
     [
       archive,
       filepath,
@@ -142,7 +141,8 @@ export default async function handler(req, res) {
       isAnonymous ? null : userEmail,
       0,
       0,
-      uri
+      uri,
+      pageUrl,
     ],
     res
   );
@@ -170,7 +170,7 @@ export default async function handler(req, res) {
     userId,
     isPrivate,
     commentType === CommentType.QUESTION,
-    linkToComment({ threadId, courseId, courseTerm, archive, filepath }),
+    linkToComment({ threadId, courseId, courseTerm, pageUrl }),
     courseId,
     courseTerm
   );

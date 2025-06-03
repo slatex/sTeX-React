@@ -29,7 +29,7 @@ import { useEffect, useState } from 'react';
 import CompetencyTable from './CompetencyTable';
 import PracticeProblem from './PracticeProblem';
 import { getLocaleObject } from './lang/utils';
-import { DimIcon, PerSectionQuiz } from './stex-react-renderer';
+import { DimIcon } from './stex-react-renderer';
 import styles from './styles/competency-indicator.module.scss';
 
 function CompetencyBar({ dim, val }: { dim: BloomDimension; val: number }) {
@@ -127,7 +127,11 @@ const SectionReview = ({
               </Tooltip>
             ))}
           </Box>
-          <PracticeProblem sectionUri={sectionUri} showHideButton={true} isAccordionOpen={isAccordionExpanded} />
+          <PracticeProblem
+            sectionUri={sectionUri}
+            showHideButton={true}
+            isAccordionOpen={isAccordionExpanded}
+          />
         </AccordionDetails>
       </Accordion>
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} fullWidth={true} maxWidth="lg">

@@ -6,7 +6,7 @@ import {
   URI,
   addComment,
   editComment,
-  getUserInfo
+  getUserInfo,
 } from '@stex-react/api';
 import { MystEditor } from '@stex-react/myst';
 import { CURRENT_TERM } from '@stex-react/utils';
@@ -16,7 +16,7 @@ import { discardDraft, retrieveDraft, saveDraft } from './comment-helpers';
 import { getLocaleObject } from './lang/utils';
 
 interface EditViewProps {
-  uri: URI;
+  uri?: URI;
   isPrivateNote: boolean;
   postAnonymously: boolean;
   parentId?: number;
@@ -57,7 +57,7 @@ export function EditView({
 
   useEffect(() => {
     if (existingComment) return;
-    const retreived = retrieveDraft(uri, parentId);
+    const retreived = retrieveDraft(uri ?? '', parentId);
     setInputText(retreived || '');
   }, [uri, parentId, existingComment]);
 
@@ -78,6 +78,7 @@ export function EditView({
       questionStatus: isQuestion ? QuestionStatus.UNANSWERED : undefined,
       selectedText,
       userName,
+      pageUrl: typeof window !== 'undefined' ? window.location.href : undefined,
     };
   }
 
@@ -96,7 +97,7 @@ export function EditView({
       alert(t.updateFailure);
       return;
     }
-    discardDraft(uri, parentId);
+    discardDraft(uri ?? '', parentId);
     setIsLoading(false);
     if (!existingComment) setInputText('');
   };
@@ -110,7 +111,7 @@ export function EditView({
           value={inputText}
           onValueChange={(v) => {
             setInputText(v);
-            saveDraft(uri, parentId, v);
+            saveDraft(uri ?? '', parentId, v);
           }}
         />
         {!existingComment && !parentId && !isPrivateNote ? (

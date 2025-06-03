@@ -29,21 +29,7 @@ const eventTypeMapping: { [key: string]: string } = {
 };
 
 function getProblemUrl(url: string): string {
-  const parts = url.split('/');
-  const startIndex = 3;
-  let endIndex = parts.indexOf('problems') + 1;
-
-  if (endIndex === 0) {
-    endIndex = startIndex + 2;
-  }
-
-  const archive = parts.slice(startIndex, endIndex).join('/');
-  const filepath = parts.slice(endIndex).join('/').split('?')[0];
-
-  return `https://stexmmt.mathhub.info/:sTeX/browser/fulldocument?archive=${archive}&filepath=${filepath.replace(
-    '.omdoc',
-    '.xhtml'
-  )}`;
+  return 'TODO ALEA4-P1';
 }
 
 function EventRow({ data, prevValues }: { data: HistoryItem; prevValues: any }) {

@@ -155,16 +155,16 @@ export const RecorrectionDialog: React.FC<RecorrectionDialogProps> = ({
                           : problemId;
                       return (
                         <TableRow key={problemId}>
-                            <TableCell
+                          <TableCell
                             sx={{
                               verticalAlign: 'middle',
                               fontWeight: 500,
                               maxWidth: 300,
                               wordBreak: 'break-word',
                             }}
-                            >
+                          >
                             {title} <ProblemIdPreview uri={problemId} param="d" />
-                            </TableCell>
+                          </TableCell>
                           <TableCell sx={{ verticalAlign: 'middle', maxWidth: 400 }}>
                             <input
                               type="text"
@@ -229,11 +229,15 @@ export const RecorrectionDialog: React.FC<RecorrectionDialogProps> = ({
                   {Array.from(
                     changes
                       .reduce((acc, change) => {
-                        if (!acc.has(change.problemId)) {
+                        const key = `${change.problemId}-${change.oldPoints}-${change.newPoints}`;
+                        if (!acc.has(key)) {
                           const count = changes.filter(
-                            (c) => c.problemId === change.problemId && c.studentId
+                            (c) =>
+                              c.problemId === change.problemId &&
+                              c.oldPoints === change.oldPoints &&
+                              c.newPoints === change.newPoints
                           ).length;
-                          acc.set(change.problemId, { ...change, entryCount: count });
+                          acc.set(key, { ...change, entryCount: count });
                         }
                         return acc;
                       }, new Map<string, { entryCount: number } & RecorrectionChange>())

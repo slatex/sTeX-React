@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
-import { Box, Typography, Alert, Button, Paper, Card, CardContent } from '@mui/material';
 import LayersClearIcon from '@mui/icons-material/LayersClear';
-import axios from 'axios';
+import { Alert, Box, Button, Card, CardContent, Paper, Typography } from '@mui/material';
+import { CSS, getSlides } from '@stex-react/api';
+import { FTMLFragment, injectCss } from '@stex-react/ftml-utils';
 import { PRIMARY_COL } from '@stex-react/utils';
+import { useEffect, useState } from 'react';
 import { Section } from '../types';
-import { FTMLFragment } from '@stex-react/ftml-utils';
 
 interface SlidePickerProps {
   courseId: string;
@@ -13,7 +13,6 @@ interface SlidePickerProps {
   setSlideUri: (uri: string, slideNumber: number) => void;
   sectionNames: Section[];
 }
-
 interface SlideData {
   id: string;
   title: string;
@@ -29,9 +28,13 @@ interface SlideData {
   };
   [key: string]: any;
 }
+export interface SlidesWithCSS {
+  slides: SlideData[];
+  css: CSS[];
+}
 
 interface AvailableSlides {
-  [sectionId: string]: SlideData[];
+  [sectionId: string]: SlidesWithCSS;
 }
 
 export function SlidePicker({
@@ -44,7 +47,6 @@ export function SlidePicker({
   const [availableSlides, setLocalAvailableSlides] = useState<AvailableSlides>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-
   const section = sectionNames.find(
     ({ uri }) => uri && sectionUri && uri.trim() === sectionUri.trim()
   );
@@ -82,34 +84,18 @@ export function SlidePicker({
       .filter((slide: any) => slide.uri);
   };
 
-  const processApiResponse = (responseData: any): AvailableSlides => {
+  const fetchSlidesFromApi = async (sectionId: string): Promise<AvailableSlides> => {
+    const { slides, css } = await getSlides(courseId, sectionId);
     const processedSlides: AvailableSlides = {};
-
-    for (const sectionId in responseData) {
-      if (!Array.isArray(responseData[sectionId])) {
-        processedSlides[sectionId] = [];
-        continue;
-      }
-      processedSlides[sectionId] = processSlideData(responseData[sectionId], sectionId);
-    }
-
+    processedSlides[sectionId] = { slides: processSlideData(slides, sectionId), css };
     return processedSlides;
   };
 
-  const fetchSlidesFromApi = async (sectionId: string): Promise<AvailableSlides> => {
-    const response = await axios.get(
-      `/api/get-slides?courseId=${courseId}&sectionIds=${sectionId}`
-    );
-
-    if (!response.data || Object.keys(response.data).length === 0) {
-      throw new Error('No slides found for this section');
-    }
-
-    return processApiResponse(response.data);
-  };
-
   const validateProcessedSlides = (processedSlides: AvailableSlides): void => {
-    const totalSlides = Object.values(processedSlides).flat().length;
+    const totalSlides = Object.values(processedSlides).reduce(
+      (acc, section) => acc + section.slides.length,
+      0
+    );
     if (totalSlides === 0) {
       throw new Error('No slides found for this section');
     }
@@ -125,6 +111,15 @@ export function SlidePicker({
     setError(errorMessage);
     setLocalAvailableSlides({});
   };
+
+  useEffect(() => {
+    if (section?.id && availableSlides[section.id]?.css) {
+      const cssData = availableSlides[section.id].css;
+      cssData.forEach((css) => {
+        injectCss(css);
+      });
+    }
+  }, [availableSlides, section?.id]);
 
   useEffect(() => {
     const fetchSlides = async () => {
@@ -157,10 +152,10 @@ export function SlidePicker({
   const getSlideOptions = () => {
     if (!section?.id || !availableSlides[section.id]) return [];
 
-    return availableSlides[section.id]
+    return availableSlides[section.id].slides
       .filter((slide) => slide.slideType !== 'TEXT')
       .map((slide, idx) => {
-        let label = `Slide ${idx + 1}`;
+        const label = `Slide ${idx + 1}`;
         return {
           uri: slide.uri,
           html: slide.slide?.html,

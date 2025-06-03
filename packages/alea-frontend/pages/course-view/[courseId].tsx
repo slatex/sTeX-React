@@ -2,13 +2,16 @@ import { VideoCameraBack } from '@mui/icons-material';
 import ArticleIcon from '@mui/icons-material/Article';
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import {
+  ClipData,
   ClipInfo,
-  SectionInfo,
-  Slide,
-  SlideType,
-  TOCElem,
   getCourseInfo,
   getDocumentSections,
+  getSlideCounts,
+  getSlideDetails,
+  getSlideUriToIndexMapping,
+  SectionInfo,
+  Slide,
+  TOCElem,
 } from '@stex-react/api';
 import { CommentNoteToggleView } from '@stex-react/comments';
 import { FTMLFragment, injectCss } from '@stex-react/ftml-utils';
@@ -28,7 +31,6 @@ import { getSlideUri, SlideDeck } from '../../components/SlideDeck';
 import { SlidesUriToIndexMap, VideoDisplay } from '../../components/VideoDisplay';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
-import { Header } from '../../components/Header';
 
 function RenderElements({ elements }: { elements: string[] }) {
   return (
@@ -126,14 +128,6 @@ function getSections(tocElems: TOCElem[]): string[] {
   }
   return sectionIds;
 }
-export interface ClipData {
-  sectionId: string;
-  slideIndex: number;
-  title: string;
-  start_time: number;
-  end_time: number;
-  thumbnail?: string;
-}
 
 function findSection(
   toc: TOCElem[],
@@ -212,12 +206,8 @@ const CourseViewPage: NextPage = () => {
       setCourseSections(getSections(toc));
       for (const e of css) injectCss(e);
     });
-    axios
-      .get(`/api/get-slide-counts`, { params: { courseId } })
-      .then((resp) => setSlideCounts(resp.data));
-    axios
-      .get(`/api/get-slide-uri-to-index-mapping`, { params: { courseId } })
-      .then((resp) => setSlidesUriToIndexMap(resp.data));
+    getSlideCounts(courseId).then(setSlideCounts);
+    getSlideUriToIndexMapping(courseId).then(setSlidesUriToIndexMap);
   }, [router.isReady, courses, courseId]);
 
   useEffect(() => {
@@ -231,12 +221,11 @@ const CourseViewPage: NextPage = () => {
       setSlidesClipInfo(slidesClipInfo);
     });
   }, [courseId, router.isReady]);
+
   useEffect(() => {
     if (!router.isReady || !courseId?.length || !currentClipId) return;
-    axios
-      .get(`/api/get-slide-details/${courseId}/${currentClipId}`)
-      .then((resp) => setVideoExtractedData(resp.data));
-  }, [courseId, currentClipId]);
+    getSlideDetails(courseId, currentClipId).then(setVideoExtractedData);
+  }, [courseId, currentClipId, router.isReady]);
 
   useEffect(() => {
     if (!router.isReady) return;

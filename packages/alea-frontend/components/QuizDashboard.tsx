@@ -17,6 +17,7 @@ import {
   QuizWithStatus,
   updateQuiz,
 } from '@stex-react/api';
+import { injectCss } from '@stex-react/ftml-utils';
 import { getQuizPhase } from '@stex-react/quiz-utils';
 import { SafeHtml } from '@stex-react/react-utils';
 import { Action, CourseInfo, CURRENT_TERM, ResourceName, roundToMinutes } from '@stex-react/utils';
@@ -25,6 +26,8 @@ import dayjs from 'dayjs';
 import type { NextPage } from 'next';
 import { useEffect, useState } from 'react';
 import { CheckboxWithTimestamp } from './CheckBoxWithTimestamp';
+import { EndSemSumAccordion } from './EndSemSumAccordion';
+import { ExcusedAccordion } from './ExcusedAccordion';
 import { QuizFileReader } from './QuizFileReader';
 import { QuizStatsDisplay } from './QuizStatsDisplay';
 import { RecorrectionDialog } from './RecorrectionDialog';
@@ -33,6 +36,37 @@ const NEW_QUIZ_ID = 'New';
 
 function isNewQuiz(quizId: string) {
   return quizId === NEW_QUIZ_ID;
+}
+
+export function validateQuizUpdate(
+  originalProblems: Record<string, FTMLProblemWithSolution>,
+  newProblems: Record<string, FTMLProblemWithSolution>,
+  totalStudents: number
+) {
+  if (totalStudents === 0) return { valid: true };
+  const originalURIs = Object.values(originalProblems)
+    .map((p) => p.problem?.uri || '')
+    .filter(Boolean)
+    .sort();
+
+  const newURIs = Object.values(newProblems)
+    .map((p) => p.problem?.uri || '')
+    .filter(Boolean)
+    .sort();
+
+  if (
+    originalURIs.length !== newURIs.length ||
+    originalURIs.some((uri, idx) => uri !== newURIs[idx])
+  ) {
+    const notFoundURIs = originalURIs.filter((uri) => !newURIs.includes(uri));
+    const newUriFound = newURIs.filter((uri) => !originalURIs.includes(uri));
+    return {
+      valid: false,
+      notFoundURIs,
+      newUriFound,
+    };
+  }
+  return { valid: true };
 }
 
 function getFormErrorReason(
@@ -76,40 +110,12 @@ const QuizDurationInfo = ({ quizStartTs, quizEndTs, feedbackReleaseTs }) => {
 
 interface QuizDashboardProps {
   courseId: string;
+  quizId?: string;
+  onQuizIdChange?: (quizId: string) => void;
 }
 
-function validateQuizUpdate(
-  originalProblems: Record<string, FTMLProblemWithSolution>,
-  newProblems: Record<string, FTMLProblemWithSolution>,
-  totalStudents: number
-) {
-  if (totalStudents === 0) return { valid: true };
-  const originalURIs = Object.values(originalProblems)
-    .map((p) => p.problem?.uri || '')
-    .filter(Boolean)
-    .sort();
-
-  const newURIs = Object.values(newProblems)
-    .map((p) => p.problem?.uri || '')
-    .filter(Boolean)
-    .sort();
-
-  if (
-    originalURIs.length !== newURIs.length ||
-    originalURIs.some((uri, idx) => uri !== newURIs[idx])
-  ) {
-    return {
-      valid: false,
-      reason:
-        'Quiz has already started, and problems cannot be added, removed, or replaced with problems with different URI.',
-    };
-  }
-
-  return { valid: true };
-}
-
-const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
-  const [selectedQuizId, setSelectedQuizId] = useState<string>(NEW_QUIZ_ID);
+const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId, quizId, onQuizIdChange }) => {
+  const selectedQuizId = quizId || NEW_QUIZ_ID;
 
   const [title, setTitle] = useState<string>('');
   const [quizStartTs, setQuizStartTs] = useState<number>(roundToMinutes(Date.now()));
@@ -153,21 +159,27 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
       .then((res) => {
         const allQuizzes: QuizWithStatus[] = res.data;
         allQuizzes?.sort((a, b) => b.quizStartTs - a.quizStartTs);
+        for (const q of allQuizzes ?? []) {
+          for (const css of q.css) injectCss(css);
+        }
         setQuizzes(allQuizzes);
-        if (allQuizzes?.length) setSelectedQuizId(allQuizzes[0].id);
+        const validQuiz = allQuizzes.find((q) => q.id === quizId);
+
+        if (quizId !== NEW_QUIZ_ID && (!quizId || !validQuiz) && allQuizzes.length > 0) {
+          onQuizIdChange?.(allQuizzes[0].id);
+        }
       });
-  }, [courseId, courseTerm]);
+  }, [courseId, courseTerm, isNew, onQuizIdChange, quizId]);
 
   useEffect(() => {
-    if (!selectedQuizId || selectedQuizId === NEW_QUIZ_ID) return;
-
+    if (!selectedQuizId || selectedQuizId === NEW_QUIZ_ID || quizzes.length === 0) return;
     getQuizStats(selectedQuizId, courseId, courseTerm).then(setStats);
     const interval = setInterval(() => {
       getQuizStats(selectedQuizId, courseId, courseTerm).then(setStats);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [selectedQuizId]);
+  }, [selectedQuizId, courseId, courseTerm, quizzes]);
 
   useEffect(() => {
     if (selectedQuizId === NEW_QUIZ_ID) {
@@ -234,20 +246,38 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
     );
     if (!confirmed) return;
     await deleteQuiz(quizId, courseId, courseTerm);
-    setQuizzes(quizzes.filter((quiz) => quiz.id !== quizId));
-    setSelectedQuizId(NEW_QUIZ_ID);
+    const remainingQuizzes = quizzes.filter((quiz) => quiz.id !== quizId);
+    setQuizzes(remainingQuizzes);
+    const fallbackQuizId = remainingQuizzes[0]?.id || 'New';
+    onQuizIdChange?.(fallbackQuizId);
   }
 
   if (!canAccess) return <>Unauthorized</>;
 
   return (
     <Box m="auto" maxWidth="800px" p="10px">
+      <Box mb={2}>
+        {quizzes.length > 0 && (
+          <EndSemSumAccordion
+            courseId={courseId}
+            courseInstance={courseTerm}
+            quizzes={quizzes}
+            setQuizzes={setQuizzes}
+          />
+        )}
+      </Box>
       {accessType == 'PREVIEW_ONLY' && (
         <Typography fontSize={16} color="red">
           You don&apos;t have access to mutate this course Quizzes
         </Typography>
       )}
-      <Select value={selectedQuizId} onChange={(e) => setSelectedQuizId(e.target.value)}>
+      <Select
+        value={selectedQuizId}
+        onChange={(e) => {
+          const newQuizId = e.target.value;
+          onQuizIdChange?.(newQuizId);
+        }}
+      >
         {accessType == 'MUTATE' ? (
           <MenuItem value="New">New</MenuItem>
         ) : (
@@ -353,9 +383,12 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
                   problems,
                   stats.totalStudents
                 );
-
                 if (!validation.valid) {
-                  alert(`Cannot update quiz: ${validation.reason}`);
+                  if (validation.newUriFound.length > 0) {
+                    alert(`Cannot update quiz: New URIs found ${validation.newUriFound[0]}`);
+                  } else if (validation.notFoundURIs.length > 0) {
+                    alert(`Cannot update quiz: URIs not found ${validation.notFoundURIs[0]}`);
+                  }
                   setIsUpdating(false);
                   return;
                 }
@@ -416,6 +449,16 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId }) => {
             <OpenInNew />
           </Button>
         </a>
+      )}
+
+      {!isNew && (
+        <Box mt={2} mb={2}>
+          <ExcusedAccordion
+            quizId={selectedQuizId}
+            courseId={courseId}
+            courseInstance={courseTerm}
+          />
+        </Box>
       )}
 
       <QuizStatsDisplay

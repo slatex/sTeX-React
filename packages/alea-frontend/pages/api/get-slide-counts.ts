@@ -1,6 +1,6 @@
 import { getCourseInfo } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { CACHED_SLIDES, getSlidesForCourse } from './get-slides';
+import { getSlidesForCourse } from './get-slides';
 
 export async function getSlideCounts(courseId: string, res: NextApiResponse) {
   const courses = await getCourseInfo();
@@ -10,12 +10,10 @@ export async function getSlideCounts(courseId: string, res: NextApiResponse) {
     return;
   }
 
-  if (!CACHED_SLIDES[courseId]) {
-    CACHED_SLIDES[courseId] = await getSlidesForCourse(courseInfo.notes);
-  }
+  const allCourseSlides = await getSlidesForCourse(courseId, courseInfo.notes);
   const data: { [sectionId: string]: number } = {};
-  for (const [secId, slides] of Object.entries(CACHED_SLIDES[courseId])) {
-    data[secId] = slides.length;
+  for (const [secId, slidesWithCSS] of Object.entries(allCourseSlides)) {
+    data[secId] = slidesWithCSS.slides.length;
   }
   return data;
 }
