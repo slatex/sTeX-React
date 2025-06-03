@@ -37,6 +37,37 @@ function isNewQuiz(quizId: string) {
   return quizId === NEW_QUIZ_ID;
 }
 
+export function validateQuizUpdate(
+  originalProblems: Record<string, FTMLProblemWithSolution>,
+  newProblems: Record<string, FTMLProblemWithSolution>,
+  totalStudents: number
+) {
+  if (totalStudents === 0) return { valid: true };
+  const originalURIs = Object.values(originalProblems)
+    .map((p) => p.problem?.uri || '')
+    .filter(Boolean)
+    .sort();
+
+  const newURIs = Object.values(newProblems)
+    .map((p) => p.problem?.uri || '')
+    .filter(Boolean)
+    .sort();
+
+  if (
+    originalURIs.length !== newURIs.length ||
+    originalURIs.some((uri, idx) => uri !== newURIs[idx])
+  ) {
+    const notFoundURIs = originalURIs.filter((uri) => !newURIs.includes(uri));
+    const newUriFound = newURIs.filter((uri) => !originalURIs.includes(uri));
+    return {
+      valid: false,
+      notFoundURIs,
+      newUriFound,
+    };
+  }
+  return { valid: true };
+}
+
 function getFormErrorReason(
   quizStartTs: number,
   quizEndTs: number,
@@ -80,36 +111,6 @@ interface QuizDashboardProps {
   courseId: string;
   quizId?: string;
   onQuizIdChange?: (quizId: string) => void;
-}
-
-function validateQuizUpdate(
-  originalProblems: Record<string, FTMLProblemWithSolution>,
-  newProblems: Record<string, FTMLProblemWithSolution>,
-  totalStudents: number
-) {
-  if (totalStudents === 0) return { valid: true };
-  const originalURIs = Object.values(originalProblems)
-    .map((p) => p.problem?.uri || '')
-    .filter(Boolean)
-    .sort();
-
-  const newURIs = Object.values(newProblems)
-    .map((p) => p.problem?.uri || '')
-    .filter(Boolean)
-    .sort();
-
-  if (
-    originalURIs.length !== newURIs.length ||
-    originalURIs.some((uri, idx) => uri !== newURIs[idx])
-  ) {
-    return {
-      valid: false,
-      reason:
-        'Quiz has already started, and problems cannot be added, removed, or replaced with problems with different URI.',
-    };
-  }
-
-  return { valid: true };
 }
 
 const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId, quizId, onQuizIdChange }) => {
@@ -273,7 +274,6 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId, quizId, onQuizI
         value={selectedQuizId}
         onChange={(e) => {
           const newQuizId = e.target.value;
-          console.log('Selected quiz ID:', newQuizId);
           onQuizIdChange?.(newQuizId);
         }}
       >
@@ -382,9 +382,12 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId, quizId, onQuizI
                   problems,
                   stats.totalStudents
                 );
-
                 if (!validation.valid) {
-                  alert(`Cannot update quiz: ${validation.reason}`);
+                  if (validation.newUriFound.length > 0) {
+                    alert(`Cannot update quiz: New URIs found ${validation.newUriFound[0]}`);
+                  } else if (validation.notFoundURIs.length > 0) {
+                    alert(`Cannot update quiz: URIs not found ${validation.notFoundURIs[0]}`);
+                  }
                   setIsUpdating(false);
                   return;
                 }
