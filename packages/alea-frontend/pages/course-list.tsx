@@ -1,6 +1,7 @@
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Typography } from '@mui/material';
-import { ArchiveIndex, DocIdxType, getCourseInfo, getDocIdx, Institution } from '@stex-react/api';
+import { DocIdxType, getCourseInfo, getDocIdx } from '@stex-react/api';
+import { FTML } from '@kwarc/ftml-viewer';
 import { CourseInfo, PRIMARY_COL } from '@stex-react/utils';
 import { NextPage } from 'next';
 import Link from 'next/link';
@@ -10,7 +11,7 @@ import { CourseThumb } from './u/[institution]';
 
 const CourseList: NextPage = () => {
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
-  const [docIdx, setDocIdx] = useState<(ArchiveIndex | Institution)[]>([]);
+  const [docIdx, setDocIdx] = useState<(FTML.ArchiveIndex | FTML.Institution)[]>([]);
   useEffect(() => {
     const fetchData = async () => {
       const docIdxData = await getDocIdx();
@@ -30,7 +31,7 @@ const CourseList: NextPage = () => {
     groupedCourses[course.institution].push(course);
   });
 
-  const universities = docIdx.filter((doc) => doc.type === DocIdxType.university) as Institution[];
+  const universities = docIdx.filter((doc) => doc.type === DocIdxType.university) as FTML.Institution[];
   return (
     <MainLayout title="Course-List | ALeA">
       <Box m="0 auto" maxWidth="800px">

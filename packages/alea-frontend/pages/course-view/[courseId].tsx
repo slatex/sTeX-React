@@ -1,3 +1,5 @@
+import { FTMLFragment } from '@kwarc/ftml-react';
+import { FTML } from '@kwarc/ftml-viewer';
 import { VideoCameraBack } from '@mui/icons-material';
 import ArticleIcon from '@mui/icons-material/Article';
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
@@ -11,10 +13,8 @@ import {
   getSlideUriToIndexMapping,
   SectionInfo,
   Slide,
-  TOCElem,
 } from '@stex-react/api';
 import { CommentNoteToggleView } from '@stex-react/comments';
-import { FTMLFragment, injectCss } from '@stex-react/ftml-utils';
 import { SafeHtml } from '@stex-react/react-utils';
 import {
   ContentDashboard,
@@ -37,7 +37,7 @@ function RenderElements({ elements }: { elements: string[] }) {
     <>
       {elements.map((e, idx) => (
         <Fragment key={idx}>
-          <FTMLFragment fragment={{ html: e }} />
+          <FTMLFragment fragment={{ type: 'HtmlString', html: e }} />
           {idx < elements.length - 1 && <br />}
         </Fragment>
       ))}
@@ -116,7 +116,7 @@ export function setSlideNumAndSectionId(router: NextRouter, slideNum: number, se
   router.push({ pathname, query });
 }
 
-function getSections(tocElems: TOCElem[]): string[] {
+function getSections(tocElems: FTML.TOCElem[]): string[] {
   const sectionIds: string[] = [];
   for (const tocElem of tocElems) {
     if (tocElem.type === 'Section') {
@@ -130,9 +130,9 @@ function getSections(tocElems: TOCElem[]): string[] {
 }
 
 function findSection(
-  toc: TOCElem[],
+  toc: FTML.TOCElem[],
   sectionId: string
-): Extract<TOCElem, { type: 'Section' }> | undefined {
+): Extract<FTML.TOCElem, { type: 'Section' }> | undefined {
   for (const tocElem of toc) {
     if (tocElem.type === 'Section' && tocElem.id === sectionId) {
       return tocElem;
@@ -181,7 +181,7 @@ const CourseViewPage: NextPage = () => {
   const [timestampSec, setTimestampSec] = useState(0);
   const [autoSync, setAutoSync] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
-  const [toc, setToc] = useState<TOCElem[]>([]);
+  const [toc, setToc] = useState<FTML.TOCElem[]>([]);
   const [currentSlideUri, setCurrentSlideUri] = useState<string>('');
 
   const selectedSectionTOC = useMemo(() => {
@@ -204,7 +204,7 @@ const CourseViewPage: NextPage = () => {
     getDocumentSections(notes).then(([css, toc]) => {
       setToc(toc);
       setCourseSections(getSections(toc));
-      for (const e of css) injectCss(e);
+      for (const e of css) FTML.injectCss(e);
     });
     getSlideCounts(courseId).then(setSlideCounts);
     getSlideUriToIndexMapping(courseId).then(setSlidesUriToIndexMap);

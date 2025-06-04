@@ -1,34 +1,35 @@
+
 import {
-  Box,
-  Button,
-  Typography,
-  Container,
-  Paper,
   Alert,
   Backdrop,
+  Box,
+  Button,
   CircularProgress,
+  Container,
   Dialog,
-  DialogTitle,
-  DialogContent,
   DialogActions,
   Fab,
+  DialogContent,
+  DialogTitle,
+  Paper,
+  Typography,
 } from '@mui/material';
-import { TOCElem, getAuthHeaders, getCourseInfo, getDocumentSections } from '@stex-react/api';
+import { getAuthHeaders, getCourseInfo, getDocumentSections } from '@stex-react/api';
 import {
   CourseInfo,
-  LectureEntry,
   CoverageTimeline,
+  LectureEntry,
   convertHtmlStringToPlain,
   PRIMARY_COL,
 } from '@stex-react/utils';
 import axios from 'axios';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useEffect, useState, useCallback } from 'react';
-import { CoverageUpdater } from './CoverageUpdater';
+import { createContext, useCallback, useEffect, useState } from 'react';
 import { Section } from '../types';
 import { createContext } from 'react';
 import SaveIcon from '@mui/icons-material/Save';
+import { CoverageUpdater } from './CoverageUpdater';
 
 export const UnsavedChangesContext = createContext<{
   hasUnsavedChanges: () => boolean;
@@ -48,7 +49,7 @@ export const UnsavedChangesContext = createContext<{
   handleNavigationCancel: () => {},
 });
 
-function getSectionNames(data: TOCElem, level = 0): Section[] {
+function getSectionNames(data: FTML.TOCElem, level = 0): Section[] {
   const sections: Section[] = [];
 
   if (data.type === 'Section' && data.title) {

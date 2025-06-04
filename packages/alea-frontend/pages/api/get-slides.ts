@@ -1,9 +1,7 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import {
-  CSS,
   Slide,
-  SlideElement,
   SlideType,
-  TOCElem,
   getCourseInfo,
   getDocumentSections,
   getSectionSlides,
@@ -13,14 +11,14 @@ import { NextApiRequest, NextApiResponse } from 'next';
 const SLIDE_EXPIRY_TIME_MS = 20 * 60 * 1000; // 20 min
 interface SlidesWithCSS {
   slides: Slide[];
-  css: CSS[];
+  css: FTML.CSS[];
 }
 interface CachedCourseSlides {
   timestamp: number;
   data: { [sectionId: string]: SlidesWithCSS };
 }
 
-function mergeIntoAccWithoutDuplicates(acc: CSS[], newCSS: CSS[]) {
+function mergeIntoAccWithoutDuplicates(acc: FTML.CSS[], newCSS: FTML.CSS[]) {
   const cssSet = new Set<string>(acc.map((css) => JSON.stringify(css)));
   (newCSS ?? []).forEach((cssItem) => {
     const cssString = JSON.stringify(cssItem);
@@ -32,11 +30,11 @@ function mergeIntoAccWithoutDuplicates(acc: CSS[], newCSS: CSS[]) {
 }
 
 async function recursivelyExpandSlideElementsExcludeSections(
-  slideElems: SlideElement[],
+  slideElems: FTML.SlideElement[],
   sectionId: string
-): Promise<{ slides: Slide[]; css: CSS[] }> {
-  const elems: (Extract<SlideElement, { type: 'Paragraph' | 'Slide' }> | Slide)[] = [];
-  const accumulatedCSS: CSS[] = [];
+): Promise<{ slides: Slide[]; css: FTML.CSS[] }> {
+  const elems: (Extract<FTML.SlideElement, { type: 'Paragraph' | 'Slide' }> | Slide)[] = [];
+  const accumulatedCSS: FTML.CSS[] = [];
 
   for (const slideElem of slideElems) {
     if (slideElem.type === 'Inputref') {
@@ -72,7 +70,7 @@ async function recursivelyExpandSlideElementsExcludeSections(
   }
 
   const finalSlides: Slide[] = [];
-  let inWaitParas: Extract<SlideElement, { type: 'Paragraph' }>[] = [];
+  let inWaitParas: Extract<FTML.SlideElement, { type: 'Paragraph' }>[] = [];
   for (const elem of elems) {
     const lastSlide = finalSlides.length > 0 ? finalSlides[finalSlides.length - 1] : undefined;
     if ('slideType' in elem) {
@@ -110,7 +108,7 @@ async function recursivelyExpandSlideElementsExcludeSections(
   return { slides: finalSlides, css: accumulatedCSS };
 }
 
-async function getSlidesFromToc(elems: TOCElem[], bySection: Record<string, SlidesWithCSS>) {
+async function getSlidesFromToc(elems: FTML.TOCElem[], bySection: Record<string, SlidesWithCSS>) {
   for (const elem of elems) {
     if (elem.type === 'Section') {
       const secId = elem.id;

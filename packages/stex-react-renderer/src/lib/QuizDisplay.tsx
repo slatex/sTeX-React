@@ -1,3 +1,5 @@
+import { FTMLFragment } from '@kwarc/ftml-react';
+import { FTML } from '@kwarc/ftml-viewer';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckBox from '@mui/icons-material/CheckBox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
@@ -8,9 +10,8 @@ import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { Box, Button, CircularProgress, Dialog, IconButton } from '@mui/material';
 import { FTMLProblemWithSolution, TimerEvent, TimerEventType } from '@stex-react/api';
-import { FTMLFragment, ProblemResponse, ProblemResponseType } from '@stex-react/ftml-utils';
 import { isEmptyResponse } from '@stex-react/quiz-utils';
-import { convertHtmlStringToPlain, shouldUseDrawer } from '@stex-react/utils';
+import { shouldUseDrawer } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useEffect, useReducer, useState } from 'react';
 import { getLocaleObject } from './lang/utils';
@@ -20,7 +21,7 @@ import { QuizSubmitConfirm } from './QuizSubmitConfirm';
 import { QuizTimer, Timer, timerEvent } from './QuizTimer';
 import { getPoints } from './stex-react-renderer';
 
-function isNonEmptyResponse(resp: ProblemResponseType) {
+function isNonEmptyResponse(resp: FTML.ProblemResponseType) {
   if (resp.type === 'MultipleChoice') {
     return resp.value.length > 0 && resp.value.some((r) => r);
   } else if (resp.type === 'SingleChoice') {
@@ -31,7 +32,7 @@ function isNonEmptyResponse(resp: ProblemResponseType) {
   return false;
 }
 
-function numInputsResponded(r: ProblemResponse | undefined) {
+function numInputsResponded(r: FTML.ProblemResponse | undefined) {
   if (!r) return 0;
   return r.responses.reduce<number>((prev, resp) => prev + (isNonEmptyResponse(resp) ? 1 : 0), 0);
 }
@@ -54,7 +55,7 @@ function IndexEntry({
   isHomeWork,
 }: {
   problem: FTMLProblemWithSolution;
-  response: ProblemResponse | undefined;
+  response: FTML.ProblemResponse | undefined;
   points: number | undefined;
   idx: number;
   selectedIdx: number;
@@ -135,7 +136,7 @@ function ProblemNavigation({
   isHomeWork,
 }: {
   problems: Record<string, FTMLProblemWithSolution>;
-  responses: Record<string, ProblemResponse | undefined>;
+  responses: Record<string, FTML.ProblemResponse | undefined>;
   points: Record<string, number>;
   problemIdx: number;
   isFrozen: boolean;
@@ -213,7 +214,7 @@ export function ListStepper({
 
 function computeResult(
   problems: Record<string, FTMLProblemWithSolution>,
-  responses: Record<string, ProblemResponse | undefined>
+  responses: Record<string, FTML.ProblemResponse | undefined>
 ) {
   const points: { [problemId: string]: number } = {};
   for (const problemId of Object.keys(problems ?? {})) {
@@ -237,12 +238,12 @@ export function QuizDisplay({
   quizEndTs?: number;
   showPerProblemTime: boolean;
   problems: Record<string, FTMLProblemWithSolution>;
-  existingResponses: { [problemId: string]: ProblemResponse };
+  existingResponses: { [problemId: string]: FTML.ProblemResponse };
   isFrozen: boolean;
-  onResponse?: (problemId: string, r: ProblemResponse) => void;
+  onResponse?: (problemId: string, r: FTML.ProblemResponse) => void;
   onSubmit?: (
     events: TimerEvent[],
-    responses: { [problemId: string]: ProblemResponse | undefined },
+    responses: { [problemId: string]: FTML.ProblemResponse | undefined },
     result: { [problemId: string]: number | undefined }
   ) => void;
   homeworkId?: number;
@@ -250,7 +251,7 @@ export function QuizDisplay({
   const isHomeWork = homeworkId ? true : false;
   const { quiz: t } = getLocaleObject(useRouter());
   const [points, setPoints] = useState<{ [problemId: string]: number }>({});
-  const [responses, setResponses] = useState<Record<string, ProblemResponse | undefined>>({});
+  const [responses, setResponses] = useState<Record<string, FTML.ProblemResponse | undefined>>({});
   const [problemIdx, setProblemIdx] = useState(0);
   const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
   const [events, setEvents] = useState<TimerEvent[]>([]);
@@ -266,7 +267,7 @@ export function QuizDisplay({
     if (numQ === 0) return;
     setEvents([timerEvent(TimerEventType.SWITCH, 0)]);
 
-    const rs: Record<string, ProblemResponse | undefined> = {};
+    const rs: Record<string, FTML.ProblemResponse | undefined> = {};
     for (const problemId of Object.keys(problems ?? {})) {
       const e = existingResponses[problemId];
       rs[problemId] = e;
@@ -324,7 +325,13 @@ export function QuizDisplay({
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <h2>
             {t.problem} {problemIdx + 1} {t.of} {problemIds.length}&nbsp;
-            <FTMLFragment key={problem.problem.html ?? ''} fragment ={{  html: problem.problem.title_html ?? '<i>Untitled</i>' }} />
+            <FTMLFragment
+              key={problem.problem.html ?? ''}
+              fragment={{
+                type: 'HtmlString',
+                html: problem.problem.title_html ?? '<i>Untitled</i>',
+              }}
+            />
           </h2>
           {(!!quizEndTs || showPerProblemTime) && (
             <QuizTimer

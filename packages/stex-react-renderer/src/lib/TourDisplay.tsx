@@ -1,3 +1,4 @@
+import { FTMLFragment } from '@kwarc/ftml-react';
 import CloseIcon from '@mui/icons-material/Close';
 import { Box, Button, CircularProgress, Divider, IconButton } from '@mui/material';
 import List from '@mui/material/List';
@@ -11,17 +12,14 @@ import {
   SmileyCognitiveValues,
   smileyToLevel,
 } from '@stex-react/api';
-import { SafeHtml } from '@stex-react/react-utils';
 import { shouldUseDrawer, simpleHash } from '@stex-react/utils';
-import axios from 'axios';
 import { useRouter } from 'next/router';
-import { memo, useContext, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getLocaleObject } from './lang/utils';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
-import { SelfAssessmentDialog, ServerLinksContext } from './stex-react-renderer';
+import { SelfAssessmentDialog } from './stex-react-renderer';
 import styles from './styles/tour-display.module.scss';
 import { useOnScreen } from './useOnScreen';
-import { FTMLFragment } from '@stex-react/ftml-utils';
 
 const NAV_MENU_ID = 'list-container';
 const EXPANSION_BOX_ID = 'expansion-box';
@@ -87,7 +85,10 @@ function ItemBreadcrumbs({
           return (
             <li key={uri} onClick={() => scrollToItem(item)}>
               <a>
-                <FTMLFragment key={item.header} fragment={{ html: item.header }} />
+                <FTMLFragment
+                  key={item.header}
+                  fragment={{ type: 'HtmlString', html: item.header }}
+                />
               </a>
             </li>
           );
@@ -110,7 +111,10 @@ function ItemBreadcrumbs({
                   scrollToItem(dep);
                 }}
               >
-                <FTMLFragment key={dep.header} fragment={{ html: dep.header }} />
+                <FTMLFragment
+                  key={dep.header}
+                  fragment={{ type: 'HtmlString', html: dep.header }}
+                />
               </Button>
             );
           })}
@@ -150,7 +154,7 @@ function TourItemDisplay({
     <Box id={expandedItemId(item)} maxWidth="600px" width="100%" ref={ref}>
       <Box display="flex" alignItems="start" mt="15px" mb="5px" justifyContent="space-between">
         <h3 style={{ margin: 0 }}>
-          <FTMLFragment key={item.header} fragment={{ html: item.header }} />
+          <FTMLFragment key={item.header} fragment={{ type: 'HtmlString', html: item.header }} />
         </h3>
         <Box mx="10px" height="30px" sx={{ whiteSpace: 'nowrap' }}>
           <Box display="flex" alignItems="center" gap="5px" zIndex={10}>
@@ -300,7 +304,7 @@ function listItemText(item: TourItem, isIntersecting: boolean) {
   return (
     <Box>
       <span style={{ fontWeight }}>
-        <FTMLFragment key={item.header} fragment={{ html: item.header }} />
+        <FTMLFragment key={item.header} fragment={{ type: 'HtmlString', html: item.header }} />
       </span>
     </Box>
   );

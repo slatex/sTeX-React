@@ -1,3 +1,5 @@
+import { FTMLFragment } from '@kwarc/ftml-react';
+import { FTML } from '@kwarc/ftml-viewer';
 import { InsertLink, LinkOff } from '@mui/icons-material';
 import FirstPageIcon from '@mui/icons-material/FirstPage';
 import LastPageIcon from '@mui/icons-material/LastPage';
@@ -14,14 +16,12 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { ClipInfo, Slide, SlideType, getSlides, CSS } from '@stex-react/api';
-import { FTMLFragment } from '@stex-react/ftml-utils';
+import { ClipInfo, getSlides, Slide, SlideType } from '@stex-react/api';
 import { ExpandableContextMenu } from '@stex-react/stex-react-renderer';
-import axios from 'axios';
 import { useRouter } from 'next/router';
 import { Dispatch, memo, SetStateAction, useEffect, useState } from 'react';
 import { setSlideNumAndSectionId } from '../pages/course-view/[courseId]';
-import { injectCss } from '@stex-react/ftml-utils';
+
 import styles from '../styles/slide-deck.module.scss';
 
 export function SlideNavBar({
@@ -170,7 +170,10 @@ function SlideRenderer({ slide }: { slide: Slide }) {
   if (slide.slideType === SlideType.FRAME) {
     return (
       <Box fragment-uri={slide.slide?.uri} fragment-kind="Slide">
-        <FTMLFragment key={slide.slide?.uri} fragment={{ html: slide.slide?.html }} />
+        <FTMLFragment
+          key={slide.slide?.uri}
+          fragment={{ type: 'HtmlString', html: slide.slide?.html }}
+        />
       </Box>
     );
   } else if (slide.slideType === SlideType.TEXT) {
@@ -178,7 +181,7 @@ function SlideRenderer({ slide }: { slide: Slide }) {
       <Box className={styles['text-frame']}>
         {slide.paragraphs?.map((p, idx) => (
           <Box key={p.uri} fragment-uri={p.uri} fragment-kind="Paragraph">
-            <FTMLFragment key={p.uri} fragment={{ html: p.html }} />
+            <FTMLFragment key={p.uri} fragment={{ type: 'HtmlString', html: p.html }} />
             {idx < slide.paragraphs.length - 1 && <br />}
           </Box>
         ))}
@@ -232,7 +235,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
   videoLoaded?: boolean;
 }) {
   const [slides, setSlides] = useState<Slide[]>([]);
-  const [css, setCss] = useState<CSS[]>([]);
+  const [css, setCss] = useState<FTML.CSS[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadedSectionId, setLoadedSectionId] = useState('');
   const [currentSlide, setCurrentSlide] = useState(undefined as Slide | undefined);
@@ -240,7 +243,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
 
   useEffect(() => {
     (css ?? []).forEach((cssItem) => {
-      injectCss(cssItem);
+      FTML.injectCss(cssItem);
     });
   }, [css]);
 

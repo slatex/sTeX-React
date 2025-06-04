@@ -1,3 +1,4 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import { Box } from '@mui/material';
 import {
   FTMLProblemWithSolution,
@@ -9,7 +10,6 @@ import {
   ResponseWithSubProblemId,
   UserInfo,
 } from '@stex-react/api';
-import { ProblemResponse } from '@stex-react/ftml-utils';
 import {
   GradingContext,
   AnswerContext,
@@ -17,7 +17,6 @@ import {
   ShowGradingFor,
 } from '@stex-react/stex-react-renderer';
 import { isFauId } from '@stex-react/utils';
-import { injectCss } from '@stex-react/ftml-utils';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { ForceFauLogin } from '../components/ForceFAULogin';
@@ -50,7 +49,7 @@ const HomeworkDocPage: React.FC = () => {
   const [answers, setAnswers] = useState<Record<string, ResponseWithSubProblemId>>({});
 
   const id = router.query.id as string;
-  const [responses, setResponses] = useState<Record<string, ProblemResponse>>();
+  const [responses, setResponses] = useState<Record<string, FTML.ProblemResponse>>();
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -60,10 +59,10 @@ const HomeworkDocPage: React.FC = () => {
     }
     getHomework(+id).then((hwInfo) => {
       setHwInfo(hwInfo);
-      for (const e of hwInfo.homework.css ?? []) injectCss(e);
+      for (const e of hwInfo.homework.css ?? []) FTML.injectCss(e);
       setProblems(hwInfo.homework.problems);
       setAnswers(hwInfo.responses);
-      const mildleToMapProblemResponse: Record<string, ProblemResponse> = {};
+      const mildleToMapProblemResponse: Record<string, FTML.ProblemResponse> = {};
       Object.entries(answers).forEach(([id, answers]) => {
         mildleToMapProblemResponse[id] = { uri: id, responses: [] };
         answers.responses.forEach(

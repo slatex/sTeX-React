@@ -1,5 +1,5 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import axios from 'axios';
-import { CSS, SlideElement } from './ftml-viewer-base';
 import { SmileyCognitiveValues } from './lmp';
 
 export interface CardsWithSmileys {
@@ -31,10 +31,10 @@ export enum SlideType {
 
 export interface Slide {
   slideType: SlideType;
-  paragraphs?: Extract<SlideElement, { type: 'Paragraph' }>[];
-  slide?: Extract<SlideElement, { type: 'Slide' }>;
-  preNotes: Extract<SlideElement, { type: 'Paragraph' }>[];
-  postNotes: Extract<SlideElement, { type: 'Paragraph' }>[];
+  paragraphs?: Extract<FTML.SlideElement, { type: 'Paragraph' }>[];
+  slide?: Extract<FTML.SlideElement, { type: 'Slide' }>;
+  preNotes: Extract<FTML.SlideElement, { type: 'Paragraph' }>[];
+  postNotes: Extract<FTML.SlideElement, { type: 'Paragraph' }>[];
   sectionId: string;
 }
 
@@ -69,7 +69,7 @@ export interface ClipMetaData {
 }
 export interface SlidesWithCSS {
   slides: Slide[];
-  css: CSS[];
+  css: FTML.CSS[];
 }
 export interface GetSlidesResponse {
   [sectionId: string]: SlidesWithCSS;
@@ -82,7 +82,7 @@ const BASE_SLIDES_DATA_URL = '';
 export async function getSlides(
   courseId: string,
   sectionId: string
-): Promise<{ slides: Slide[]; css: CSS[] }> {
+): Promise<{ slides: Slide[]; css: FTML.CSS[] }> {
   const response = await axios.get<GetSlidesResponse>(`${BASE_SLIDES_DATA_URL}/api/get-slides`, {
     params: { courseId, sectionIds: sectionId },
   });

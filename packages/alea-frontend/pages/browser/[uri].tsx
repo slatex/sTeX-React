@@ -1,5 +1,5 @@
+import { FTMLDocument } from '@kwarc/ftml-react';
 import { Box } from '@mui/material';
-import { FTMLDocument } from '@stex-react/ftml-utils';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import MainLayout from '../../layouts/MainLayout';
@@ -10,7 +10,11 @@ const BrowserPage: NextPage = () => {
 
   return (
     <MainLayout title="sTeX Browser">
-      {uri ? <FTMLDocument document={{ uri, toc: 'GET' }} /> : <Box>No URI provided</Box>}
+      {uri ? (
+        <FTMLDocument document={{ type: 'FromBackend', uri, toc: 'GET' }} />
+      ) : (
+        <Box>No URI provided</Box>
+      )}
     </MainLayout>
   );
 };

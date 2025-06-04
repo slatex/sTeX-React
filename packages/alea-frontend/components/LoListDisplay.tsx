@@ -1,3 +1,4 @@
+import { FTMLFragment } from '@kwarc/ftml-react';
 import { Book, MicExternalOn, Quiz, SupervisedUserCircle } from '@mui/icons-material';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -5,7 +6,6 @@ import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
 import SchoolIcon from '@mui/icons-material/School';
 import { alpha, Box, IconButton, Paper, TextField, Tooltip, Typography } from '@mui/material';
 import { LoType } from '@stex-react/api';
-import { FTMLFragment } from '@stex-react/ftml-utils';
 import { UriProblemViewer } from '@stex-react/stex-react-renderer';
 import { capitalizeFirstLetter, getParamsFromUri } from '@stex-react/utils';
 import { memo, useState } from 'react';
@@ -96,7 +96,7 @@ export const LoViewer: React.FC<{ uri: string; uriType: LoType }> = ({ uri, uriT
   return (
     <Box sx={{ padding: 2, border: '1px solid #ccc', borderRadius: 4, backgroundColor: '#f9f9f9' }}>
       {uri ? (
-        <FTMLFragment key={uri} fragment={{ uri: uri }} />
+        <FTMLFragment key={uri} fragment={{ type: 'FromBackend', uri: uri }} />
       ) : (
         <Typography>No {uriType} found.</Typography>
       )}

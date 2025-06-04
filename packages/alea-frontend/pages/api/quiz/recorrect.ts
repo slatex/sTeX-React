@@ -2,7 +2,6 @@ import {
   batchGradeHex,
   computePointsFromFeedbackJson,
   FTMLProblemWithSolution,
-  ProblemResponse,
   RecorrectionInfo,
 } from '@stex-react/api';
 import { getAllQuizzes } from '@stex-react/node-utils';
@@ -10,8 +9,9 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { queryGradingDbAndEndSet500OnError } from '../grading-db-utils';
 import { updateQuizRecorrectionInfo } from './update-quiz';
 import { checkIfPostOrSetError } from '../comment-utils';
-import {  Action, ResourceName } from '@stex-react/utils';
+import { Action, ResourceName } from '@stex-react/utils';
 import { getUserIdIfAuthorizedOrSetError } from '../access-control/resource-utils';
+import { FTML } from '@kwarc/ftml-viewer';
 
 export interface GradingDbData {
   gradingId: number;
@@ -47,8 +47,8 @@ export async function getCorrectedPoints(
       continue;
     }
 
-    const responses: ProblemResponse[] = byProblemId[problemId].map((r) => {
-      return JSON.parse(r.response) as ProblemResponse;
+    const responses: FTML.ProblemResponse[] = byProblemId[problemId].map((r) => {
+      return JSON.parse(r.response) as FTML.ProblemResponse;
     });
 
     const feedbacks = (await batchGradeHex([[problems[problemId].solution, responses]]))?.[0];
@@ -62,7 +62,6 @@ export async function getCorrectedPoints(
 
   return { results: withCorrectedPoints, missingIds };
 }
-
 
 function findQuiz(quizId: string, courseId: string, courseTerm: string) {
   const allQuizzes = getAllQuizzes();
@@ -128,10 +127,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res,
     ResourceName.COURSE_QUIZ,
     Action.MUTATE,
-    { courseId, instanceId: courseTerm }    
+    { courseId, instanceId: courseTerm }
   );
   if (!instructorId) return;
-
 
   try {
     const quiz = findQuiz(quizId, courseId, courseTerm);
@@ -169,6 +167,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   } catch (error) {
     console.error('Error in recorrection:', error);
-    return res.status(500).send("Internal server error");
+    return res.status(500).send('Internal server error');
   }
 }
