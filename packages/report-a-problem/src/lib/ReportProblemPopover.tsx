@@ -1,21 +1,13 @@
 import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
-import {
-  Box,
-  Button,
-  Dialog,
-  DialogActions,
-  IconButton,
-  Snackbar,
-  Tooltip,
-} from '@mui/material';
+import { Box, Button, Dialog, DialogActions, IconButton, Snackbar, Tooltip } from '@mui/material';
 import { CommentNoteToggleView } from '@stex-react/comments';
-import { getSectionInfo, SECONDARY_COL, FileInfo } from '@stex-react/utils';
+import { SECONDARY_COL } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { PropsWithChildren, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { issuesUrlList } from './issueCreator';
+import { issuesUrlList, SelectionContext } from './issueCreator';
 import { getLocaleObject } from './lang/utils';
 import { ReportProblemDialog } from './ReportProblemDialog';
 import { useTextSelection } from './useTextSelection';
@@ -30,13 +22,15 @@ function Portal(props: PropsWithChildren<{ mount?: HTMLElement }>) {
   return createPortal(props.children, props.mount || document.body);
 }
 
-function getContext(node?: Node): FileInfo[] {
+function getContext(node?: Node): SelectionContext[] {
   if (!node) return [];
   try {
     const parentContext = getContext(node.parentNode as Node);
-    const sectionUrl = (node as any).attributes?.['section-url']?.value;
-    if (!sectionUrl) return parentContext;
-    return [getSectionInfo(sectionUrl), ...parentContext];
+    const fragmentUri = (node as any).attributes?.['fragment-uri']?.value;
+    const fragmentKind = (node as any).attributes?.['fragment-kind']?.value;
+
+    if (!fragmentUri) return parentContext;
+    return [{ fragmentUri, fragmentKind }, ...parentContext];
   } catch (e) {
     console.error(e);
     console.error(node);
@@ -62,20 +56,26 @@ function buttonProps(color: string) {
   };
 }
 
+function isValidContextForComments(context: SelectionContext[]) {
+  const nearestFragmentKind = context?.[0]?.fragmentKind;
+  return ['Paragraph', 'Section', 'Slide'].includes(nearestFragmentKind) && !!context[0].fragmentUri;
+}
+
 export function ReportProblemPopover(props: Props) {
   const t = getLocaleObject(useRouter());
-  const { clientRect, isCollapsed, textContent, commonAncestor } =
-    useTextSelection();
+  const { clientRect, isCollapsed, textContent, commonAncestor } = useTextSelection();
   const context = getContext(commonAncestor);
 
   const [open, setOpen] = useState(false);
   const [ncdOpen, setNcdOpen] = useState(false);
   const [selectedText, setSelectedText] = useState('');
-  const [selectedContext, setSelectedContext] = useState<FileInfo[]>([]);
+  const [selectedContext, setSelectedContext] = useState<SelectionContext[]>([]);
 
   const [snackBarOpen, setSnackbarOpen] = useState(false);
   const [newIssueUrl, setNewIssueUrl] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
+
+  const validContextForComments = isValidContextForComments(selectedContext);
 
   return (
     <>
@@ -88,7 +88,7 @@ export function ReportProblemPopover(props: Props) {
               top: `${clientRect.top - 50}px`,
             }}
           >
-            {context?.[0]?.archive && (
+            {validContextForComments && (
               <Tooltip title={t.notesAndComments}>
                 <IconButton
                   sx={{ ...buttonProps(SECONDARY_COL), ml: '5px' }}
@@ -125,18 +125,11 @@ export function ReportProblemPopover(props: Props) {
         onClose={() => setSnackbarOpen(false)}
         message={newIssueUrl ? t.newIssueCreated : t.somethingWrong}
         action={
-          <a
-            href={newIssueUrl || issuesUrlList(context)}
-            target="_blank"
-            rel="noreferrer"
-          >
+          <a href={newIssueUrl || issuesUrlList(context)} target="_blank" rel="noreferrer">
             <b style={{ color: 'dodgerblue' }}>
               {t.seeIssue}
               {newIssueUrl ? '' : 'S'}&nbsp;
-              <OpenInNewIcon
-                fontSize="small"
-                sx={{ verticalAlign: 'bottom' }}
-              />
+              <OpenInNewIcon fontSize="small" sx={{ verticalAlign: 'bottom' }} />
             </b>
           </a>
         }
@@ -153,12 +146,12 @@ export function ReportProblemPopover(props: Props) {
           }
         }}
       />
-      {selectedContext?.[0]?.archive && selectedContext[0].filepath && ncdOpen && (
+      {validContextForComments && ncdOpen && (
         <Dialog onClose={() => setNcdOpen(false)} open={ncdOpen} maxWidth="lg">
           <Box onClick={(e) => e.stopPropagation()}>
             <CommentNoteToggleView
               defaultPrivate={isPrivate}
-              file={selectedContext[0]}
+              uri={selectedContext[0].fragmentUri}
               selectedText={selectedText}
               selectedElement={commonAncestor}
             />

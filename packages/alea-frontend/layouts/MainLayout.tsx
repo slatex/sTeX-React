@@ -1,9 +1,10 @@
 import { useMatomo } from '@jonkoops/matomo-tracker-react';
-import { Box, Button, Drawer, IconButton, Toolbar, Typography } from '@mui/material';
-import GpsFixedIcon from '@mui/icons-material/GpsFixed';
+import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import GpsFixedIcon from '@mui/icons-material/GpsFixed';
+import { Box, Button, IconButton, Toolbar } from '@mui/material';
 import { ReportProblemPopover } from '@stex-react/report-a-problem';
+import { PositionContext } from '@stex-react/stex-react-renderer';
 import { PRIMARY_COL, SECONDARY_COL } from '@stex-react/utils';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -11,8 +12,6 @@ import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import { Header } from '../components/Header';
 import { getLocaleObject } from '../lang/utils';
-import { PositionContext } from 'packages/stex-react-renderer/src/lib/mmtParser';
-import { ChevronRight, ChevronLeft } from '@mui/icons-material';
 function SessionResetSlider() {
   const [open, setOpen] = useState(false);
 
@@ -130,12 +129,10 @@ const RecordingComponent = () => {
 export default function MainLayout({
   title,
   children,
-  showBrowserAutocomplete = false,
   bgColor,
 }: {
   title?: string;
   children: any;
-  showBrowserAutocomplete?: boolean;
   bgColor?: string;
 }) {
   const { trackPageView } = useMatomo();
@@ -170,7 +167,7 @@ export default function MainLayout({
       </Head>
 
       <main style={{ flexGrow: 1 }}>
-        <Header showBrowserAutocomplete={showBrowserAutocomplete} />
+        <Header />
         <ReportProblemPopover />
         {/*<Typography
           sx={{ color: 'red', fontWeight: 'bold', textAlign: 'center' }}

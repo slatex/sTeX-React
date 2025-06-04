@@ -1,6 +1,7 @@
 export const en = {
   // comment button
   addToSlide: 'Add a comment to this slide',
+  addToParagraph: 'Add a comment to this paragraph',
   selectionSuggestion:
     'Selecting a region allows comments localized to the region',
   andMore: '…and more',

@@ -1,5 +1,10 @@
-import { GetPreviousQuizInfoResponse, Phase, PreviousQuizInfo, Problem } from '@stex-react/api';
-import { getProblem, getQuizPhase } from '@stex-react/quiz-utils';
+import {
+  FTMLProblemWithSolution,
+  GetPreviousQuizInfoResponse,
+  Phase,
+  PreviousQuizInfo,
+} from '@stex-react/api';
+import { getQuizPhase } from '@stex-react/quiz-utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getUserIdOrSetError } from '../../comment-utils';
 import { queryGradingDbAndEndSet500OnError } from '../../grading-db-utils';
@@ -69,7 +74,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
   const courseId = req.query.courseId as string;
-  const userScores = {}; // await getUserScoresOrSet500Error(userId, res); Disable to avoid performance issues
+  const userScores = {}; // await getUserScoresOrSet500Error(userId, res); Disable to avoid performance issues
   if (!userScores) return;
 
   const quizAverages = await getQuizAveragesOrSet500Error(res);
@@ -80,18 +85,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   allQuizzes
     .filter((q) => q.courseId === courseId)
     .filter((q) => getQuizPhase(q) === Phase.FEEDBACK_RELEASED)
-    .map((quiz) => {
+    .forEach((quiz) => {
       const { problems, recorrectionInfo } = quiz;
-      const problemByProblemId: { [problemId: string]: Problem } = {};
+      const problemByProblemId: { [problemId: string]: FTMLProblemWithSolution } = {};
       for (const problemId in problems) {
-        problemByProblemId[problemId] = getProblem(problems[problemId]);
+        problemByProblemId[problemId] = problems[problemId];
       }
       const maxPoints = Object.values(problemByProblemId).reduce(
-        (acc, { points }) => acc + points,
+        (acc, p) => acc + (p.problem.total_points ?? 1),
         0
       );
       for (const r of recorrectionInfo || []) {
-        r.problemHeader = problemByProblemId[r.problemId].header;
+        const problem = problemByProblemId[r.problemUri];
+        r.problemHeader = problem && problem.problem ? (problem.problem.title_html ?? '') : '';
       }
       const quizId = quiz.id;
       quizInfo[quizId] = {

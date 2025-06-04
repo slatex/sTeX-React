@@ -54,9 +54,8 @@ interface D3DagInfo {
 async function fetchDataForDag(
   tourId: string,
   language: string,
-  mmtUrl: string
 ): Promise<D3DagInfo> {
-  const tourInfoUrl = `${mmtUrl}/:vollki/tour?path=${tourId}&user=nulluser&lang=${language}`;
+  const tourInfoUrl = `TODO ALEA4-M2/:vollki/tour?path=${tourId}&user=nulluser&lang=${language}`;
   const apiEntries: TourAPIEntry[] = (await axios.get(tourInfoUrl)).data;
   const tourUris = apiEntries.map((e) => e.id);
   const weights = await getUriWeights(tourUris);
@@ -175,14 +174,12 @@ export function UserModelVisualization({
 }) {
   const [d3DagInfo, setD3DagInfo] = useState(null as D3DagInfo);
   const [forceCount, forceUpdate] = useReducer((x) => x + 1, 0);
-  const { mmtUrl } = useContext(ServerLinksContext);
-
   renderD3Dag(d3DagInfo);
   useEffect(() => {
     console.log(forceCount);
-    fetchDataForDag(tourId, language, mmtUrl).then((i) => setD3DagInfo(i));
+    fetchDataForDag(tourId, language).then((i) => setD3DagInfo(i));
     // set node size instead of constraining to fit
-  }, [tourId, language, forceCount, mmtUrl]);
+  }, [tourId, language, forceCount]);
 
   return (
     <Box sx={{ backgroundColor: 'black' }}>

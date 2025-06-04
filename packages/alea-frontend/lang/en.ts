@@ -1,3 +1,5 @@
+import { RecorrectionDialog } from "../components/RecorrectionDialog";
+
 export const en = {
   home: {
     header: 'ALeA based Courses at FAU',
@@ -158,10 +160,27 @@ export const en = {
     goToTour: 'Go To Tour',
   },
   myProfile: {
+    profile: 'Profile',
+    Settings: 'Settings',
+    dataExport: 'Data Export',
+    personalInfo: 'Personal Information',
+    firstName: 'First Name',
+    lastName: 'Last Name',
+    email: 'Email',
+    languages: 'Languages spoken',
+    studyProgram: 'Study Program',
+    semester: 'Enrolled semester',
+    save: 'Save',
+
+    dataAlea: 'Your Data in ALᴇA',
+    displaySettings: 'Display Settings',
+    accountInformation: 'Account Information',
+
     myNotes: 'My notes',
     myCompetencyData: 'My competency data',
     learnerModelPriming: 'Learner Model Priming',
-
+    myAnswers: 'My Answers',
+    myGrading: 'My Grading',
     downloadData: 'Download Your Data',
     downloadNotes: 'Download your notes and comments',
     downloadProfile: 'Download your profile data',
@@ -407,11 +426,46 @@ export const en = {
       'Note: These problems are only to aid your learning. They do not cover the course material exhaustively and there are no guarantees that the problems are correct or that they are representative of the kinds of problems that will be on the quizzes or the exam.',
     backToAllCourseProblems: 'Back to all course problems',
   },
+  peerGrading: {
+    peerGrading: 'Peer Grading',
+  },
   resource: {
-    updateGoTo: 'Update Got-tos',
+    updatesyllabus: 'Update Syllabus',
     quiz: 'Quizzes',
     homework: 'Homeworks',
     forum: 'Forum',
     welcome: 'Welcome',
+    peerReview: 'Peer Review',
+    studyBuddy: 'Study Buddy',
+    lastUpdated: 'Last Updated',
+    ago: 'ago',
+    updates: 'updates',
+    pending: 'pending',
+    noUpdatesAvailable: 'No updates available',
+    failedToLoadUpdates:'Failed to load updates',
+    ungradedProblems: 'Ungraded Problems',
+    unansweredQuestions: 'Unanswered Questions',
+    latestQuiz:'Latest Quiz',
+    latestHomework:'Latest Homework',
+    noHomeworkAvailable:'No homework available'
+  },
+  syllabus:{
+    syllabusEntries:'Syllabus Entries',
+    noSyllabusEntriesYet:'No syllabus entries yet',
+    editsectionentry:'Edit Section Entry',
+    addnewsection:'Add New Section'
+  } ,
+  recorrection: {
+    quizRecorrection: 'Quiz Recorrection',
+    previewRecorrection: 'Preview of Recorrection Changes',
+    problemId: 'Problem ID',
+    recorrectionReason: 'Reason for Recorrection',
+    recorrectionReasonPlaceholder: 'Please enter the reason for recorrection',
+    oldpoints: 'Old Points',
+    newpoints: 'New Points',
+    numberOfEntries: 'Number of Entries',
+    noChangetoApply: 'No changes to apply',
+    loadingPreviewOfChanges: 'Loading preview of changes...',
+    ApplyRecorrection: 'Apply Recorrection',
   },
 };

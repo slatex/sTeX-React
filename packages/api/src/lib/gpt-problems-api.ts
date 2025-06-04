@@ -57,7 +57,7 @@ export async function getEval(runId: string, completionIdx: number) {
   return resp.data as CompletionEval;
 }
 
-export interface SearchResult {
+export interface GptSearchResult {
   archive: string;
   filepath: string;
   courseId: string;
@@ -71,5 +71,5 @@ export async function searchCourseNotes(query: string, courseId: string) {
       headers: getAuthHeaders(),
     }
   );
-  return resp.data as { sources: SearchResult[] };
+  return resp.data as { sources: GptSearchResult[] };
 }

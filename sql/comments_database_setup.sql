@@ -31,8 +31,12 @@ CREATE TABLE comments (
     userEmail varchar(255),
 
     postedTimestamp timestamp DEFAULT CURRENT_TIMESTAMP,
-    updatedTimestamp timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updatedTimestamp timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    uri VARCHAR(1023),
+    pageUrl VARCHAR(1023)
 );
+
 
 CREATE TABLE updateHistory (
    updateId int PRIMARY KEY AUTO_INCREMENT,
@@ -76,6 +80,9 @@ CREATE TABLE userInfo (
     firstName VARCHAR(255),
     lastName VARCHAR(255),
     email VARCHAR(255),
+    languages VARCHAR(255),
+    studyProgram VARCHAR(255),
+    semester VARCHAR(255),
     notificationSeenTs VARCHAR(255),
     showTrafficLight BOOLEAN DEFAULT TRUE,
     showSectionReview BOOLEAN DEFAULT TRUE,
@@ -199,6 +206,7 @@ CREATE TABLE Grading  (
   PRIMARY KEY (id),
   FOREIGN KEY (answerId) REFERENCES Answer (id) ON DELETE CASCADE
 );
+
 CREATE TABLE GradingAnswerClass  (
   id int UNSIGNED NOT NULL AUTO_INCREMENT,
   gradingId int UNSIGNED NOT NULL,
@@ -214,6 +222,7 @@ CREATE TABLE GradingAnswerClass  (
   PRIMARY KEY (id),
   FOREIGN KEY (gradingId) REFERENCES Grading (id) ON DELETE CASCADE
 );
+
 CREATE TABLE ReviewRequest   (
   id int UNSIGNED NOT NULL AUTO_INCREMENT,
   reviewType enum('INSTRUCTOR','PEER') NOT NULL,
@@ -228,13 +237,14 @@ CREATE TABLE ReviewRequest   (
 CREATE TABLE homework (
     id INT PRIMARY KEY AUTO_INCREMENT,
     versionNo INT,
-    title VARCHAR(255),          
+    title VARCHAR(1023),          
     givenTs TIMESTAMP,
     dueTs TIMESTAMP,                  
     feedbackReleaseTs TIMESTAMP,                  
     courseId VARCHAR(255),                
     courseInstance VARCHAR(255),
     problems JSON,
+    css JSON,
     updaterId VARCHAR(255),
 
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -436,3 +446,10 @@ ALTER TABLE JobPost
 ADD COLUMN createdByUserId VARCHAR(50),
 ADD CONSTRAINT fk_createdByUser
 FOREIGN KEY (createdByUserId) REFERENCES userInfo(userId);
+CREATE TABLE excused(
+    id int PRIMARY KEY AUTO_INCREMENT,
+    userId varchar(255) NOT NULL,
+    quizId varchar(255) NOT NULL,
+    courseId VARCHAR(255) NOT NULL,                
+    courseInstance VARCHAR(255) NOT NULL
+);

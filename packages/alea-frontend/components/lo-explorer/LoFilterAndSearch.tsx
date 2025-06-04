@@ -8,9 +8,9 @@ import {
   createFilterOptions,
   FormControl,
   ListItemText,
+  TextField,
   Tooltip,
   Typography,
-  TextField,
 } from '@mui/material';
 import {
   ALL_DIM_CONCEPT_PAIR,
@@ -18,6 +18,8 @@ import {
   ALL_LO_TYPES,
   ALL_NON_DIM_CONCEPT,
   AllLoRelationTypes,
+  conceptUriToName,
+  getQueryResults,
   getSparlQueryForDimConcepts,
   getSparlQueryForNonDimConcepts,
   getSparqlQueryForDimConceptsAsLoRelation,
@@ -26,11 +28,9 @@ import {
   LoRelationToDimAndConceptPair,
   LoRelationToNonDimConcept,
   LoType,
-  sparqlQuery,
 } from '@stex-react/api';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { capitalizeFirstLetter } from '@stex-react/utils';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArchiveMap } from '.';
 import styles from '../../styles/lo-explorer.module.scss';
 import { getUrlInfo } from '../LoListDisplay';
@@ -38,18 +38,18 @@ import { CourseConceptsDialog } from './CourseConceptDialog';
 
 let cachedConceptsList: Record<string, string> | null = null;
 
-async function fetchConceptList(mmtUrl: string): Promise<Record<string, string>> {
+async function fetchConceptList(): Promise<Record<string, string>> {
   const nonDimConceptQuery = getSparlQueryForNonDimConcepts();
   const dimConceptQuery = getSparlQueryForDimConcepts();
   const [nonDimBindings, dimBindings] = await Promise.all([
-    sparqlQuery(mmtUrl, nonDimConceptQuery),
-    sparqlQuery(mmtUrl, dimConceptQuery),
+    getQueryResults(nonDimConceptQuery),
+    getQueryResults(dimConceptQuery),
   ]);
   const bindings = [...nonDimBindings.results.bindings, ...dimBindings.results.bindings];
   const conceptsList = {};
   bindings.forEach((binding) => {
     const uri = binding.x.value;
-    const key = uri.split('?').pop();
+    const key = conceptUriToName(uri);
     conceptsList[key] = uri;
   });
   return conceptsList;
@@ -110,7 +110,6 @@ const LoTypeSelect = ({
   chosenLoTypes: LoType[];
   setChosenLoTypes: React.Dispatch<React.SetStateAction<LoType[]>>;
 }) => {
-
   const handleLoTypesChange = (_e: any, newValue: LoType[]) => {
     setChosenLoTypes(newValue);
   };
@@ -122,7 +121,7 @@ const LoTypeSelect = ({
         limitTags={2}
         value={chosenLoTypes}
         onChange={handleLoTypesChange}
-        options={ALL_LO_TYPES} 
+        options={ALL_LO_TYPES}
         disableCloseOnSelect
         getOptionLabel={(option) => capitalizeFirstLetter(option)}
         renderOption={(props, option, { selected }) => (
@@ -248,7 +247,6 @@ const RelationWithLOSelect = ({
   chosenRelations: AllLoRelationTypes[];
   setChosenRelations: React.Dispatch<React.SetStateAction<AllLoRelationTypes[]>>;
 }) => {
-
   const handleRelationChange = (_e: any, newValue: AllLoRelationTypes[]) => {
     setChosenRelations(newValue);
   };
@@ -262,7 +260,6 @@ const RelationWithLOSelect = ({
           value={chosenRelations}
           onChange={handleRelationChange}
           disableCloseOnSelect
-
           options={ALL_LO_RELATION_TYPES}
           renderInput={(params) => <TextField {...params} label="Relation with Learning Object" />}
           renderOption={(props, option, { selected }) => (
@@ -271,7 +268,6 @@ const RelationWithLOSelect = ({
               <ListItemText primary={capitalizeFirstLetter(option)} />
             </li>
           )}
-
           renderTags={(value: AllLoRelationTypes[], getTagProps) =>
             value.map((relation, index) => (
               <Chip
@@ -304,13 +300,16 @@ function constructLearningObjects(bindings: any[]): Record<LoType, string[]> {
       console.error(`Unknown learning object type: ${typeKey}`);
       return;
     }
-    learningObjectsByType[typeKey].push(lo?.value);
+    const loValue = lo?.value;
+    const loArray = learningObjectsByType[typeKey];
+    if (loValue && !loArray.includes(loValue)) {
+      loArray.push(loValue);
+    }
   });
   return learningObjectsByType;
 }
 
 export async function fetchLoFromConceptsAsLoRelations(
-  mmtUrl: string,
   concepts: string[],
   relations: AllLoRelationTypes[],
   loString?: string,
@@ -323,7 +322,7 @@ export async function fetchLoFromConceptsAsLoRelations(
   let bindings = [];
   if (concepts?.length === 0) {
     const query = getSparqlQueryForLoString(loString, loTypes);
-    const response = await sparqlQuery(mmtUrl, query);
+    const response = await getQueryResults(query);
     bindings = response.results?.bindings;
     return constructLearningObjects(bindings);
   }
@@ -343,7 +342,7 @@ export async function fetchLoFromConceptsAsLoRelations(
       loTypes,
       loString
     );
-    const response = await sparqlQuery(mmtUrl, query);
+    const response = await getQueryResults(query);
     if (response?.results?.bindings) {
       bindings.push(...response.results.bindings);
     }
@@ -356,7 +355,7 @@ export async function fetchLoFromConceptsAsLoRelations(
       loTypes,
       loString
     );
-    const response = await sparqlQuery(mmtUrl, query);
+    const response = await getQueryResults(query);
     if (response?.results?.bindings) {
       bindings.push(...response.results.bindings);
     }
@@ -388,20 +387,19 @@ const LoFilterAndSearch = ({
   const [isSearching, setIsSearching] = useState(false);
   const [conceptsList, setConceptsList] = useState<Record<string, string>>({});
   const [open, setOpen] = useState(false);
-  const { mmtUrl } = useContext(ServerLinksContext);
 
   useEffect(() => {
     async function fetchAndSetConceptList() {
       if (cachedConceptsList) {
         setConceptsList(cachedConceptsList);
       } else {
-        const fetchedConceptsList = await fetchConceptList(mmtUrl);
+        const fetchedConceptsList = await fetchConceptList();
         cachedConceptsList = fetchedConceptsList;
         setConceptsList(fetchedConceptsList);
       }
     }
     fetchAndSetConceptList();
-  }, [mmtUrl]);
+  }, []);
 
   const handleSubmit = async () => {
     if (chosenConcepts?.length === 0 && !searchString.trim()) {
@@ -410,7 +408,6 @@ const LoFilterAndSearch = ({
     try {
       setIsSearching(true);
       const loUris = await fetchLoFromConceptsAsLoRelations(
-        mmtUrl,
         chosenConcepts,
         chosenRelations,
         searchString,

@@ -1,26 +1,15 @@
 import AddCommentIcon from '@mui/icons-material/AddComment';
 import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
-import {
-  Box,
-  Button,
-  Dialog,
-  DialogActions,
-  IconButton,
-  Tooltip,
-} from '@mui/material';
+import { Box, Button, Dialog, DialogActions, IconButton, Tooltip } from '@mui/material';
 import { Comment } from '@stex-react/api';
 import { MystViewer } from '@stex-react/myst';
-import { getSectionInfo } from '@stex-react/utils';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
-import { getTotalComments } from './comment-helpers';
+import { useState, useEffect } from 'react';
 import { CommentNoteToggleView } from './comment-note-toggle-view';
-import {
-  getPrivateNotes,
-  getPublicCommentTrees,
-} from './comment-store-manager';
 import { getLocaleObject } from './lang/utils';
+import { getPrivateNotes, getPublicCommentTrees } from './comment-store-manager';
+import { getTotalComments } from './comment-helpers';
 
 function buttonProps(backgroundColor: string) {
   return {
@@ -78,8 +67,7 @@ export function CommentsIcon({ numComments }: { numComments: number }) {
   );
 }
 
-export function CommentButton({ url = '' }: { url?: string }) {
-  const { archive, filepath } = getSectionInfo(url);
+export function CommentButton({ url = '', fragmentKind }: { url?: string; fragmentKind?: string }) {
   const [numPublicComments, setNumPublicComments] = useState(0);
   const [numPrivateNotes, setNumPrivateNotes] = useState(0);
   const [open, setOpen] = useState(false);
@@ -89,21 +77,21 @@ export function CommentButton({ url = '' }: { url?: string }) {
   const t = getLocaleObject(useRouter());
 
   useEffect(() => {
-    if (!archive || !filepath) {
+    if (!url) {
       setNumPublicComments(0);
       return;
     }
-    getPublicCommentTrees({ archive, filepath }).then((comments) => {
+    getPublicCommentTrees(url).then((comments) => {
       setNumPublicComments(getTotalComments(comments));
       setTopComment(comments?.[0]);
     });
-    getPrivateNotes({ archive, filepath }).then((comments) => {
+    getPrivateNotes(url).then((comments) => {
       setNumPrivateNotes(getTotalComments(comments));
       setTopNote(comments?.[0]);
     });
-  }, [archive, filepath, open]);
+  }, [url, open]);
 
-  if (!archive || !filepath) return null;
+  if (!url) return null;
 
   return (
     <Box>
@@ -139,7 +127,7 @@ export function CommentButton({ url = '' }: { url?: string }) {
               </Box>
             ) : (
               <span>
-                {t.addToSlide}
+                {fragmentKind === 'Slide' ? t.addToSlide : t.addToParagraph}
                 <br />
                 {t.selectionSuggestion}
               </span>
@@ -164,10 +152,7 @@ export function CommentButton({ url = '' }: { url?: string }) {
       )}
       {open && (
         <Dialog onClose={() => setOpen(false)} open={open} maxWidth="lg">
-          <CommentNoteToggleView
-            defaultPrivate={defaultPrivate}
-            file={{ archive, filepath }}
-          />
+          <CommentNoteToggleView defaultPrivate={defaultPrivate} uri={url} />
           <DialogActions sx={{ p: '0' }}>
             <Button onClick={() => setOpen(false)}>{t.close}</Button>
           </DialogActions>

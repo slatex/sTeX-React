@@ -1,4 +1,4 @@
-import { Quiz } from '@stex-react/api';
+import { QuizWithStatus } from '@stex-react/api';
 import { doesQuizExist, writeQuizFile } from '@stex-react/node-utils';
 import { Action, ResourceName } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
@@ -17,7 +17,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     manuallySetPhase,
     title,
     problems,
-  } = req.body as Quiz;
+    css,
+  } = req.body as QuizWithStatus;
 
   const userId = await getUserIdIfAuthorizedOrSetError(
     req,
@@ -41,7 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     title,
     problems,
-
+    css,
     updatedAt: Date.now(),
     updatedBy: userId,
   };

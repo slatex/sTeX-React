@@ -5,10 +5,8 @@ import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CloseIcon from '@mui/icons-material/Close';
 import ShieldIcon from '@mui/icons-material/Shield';
 import {
-  Autocomplete,
   Button,
   Checkbox,
-  Chip,
   FormControlLabel,
   IconButton,
   List,
@@ -16,31 +14,28 @@ import {
   ListItemIcon,
   ListItemText,
   Switch,
-  TextField,
   Typography,
 } from '@mui/material';
 import Box from '@mui/material/Box';
 import {
   CreateAnswerClassRequest,
   createGrading,
+  FTMLProblemWithSolution,
   getAnswersWithGrading,
   getCourseGradingItems,
-  getLearningObjectShtml,
-  getProblemObject,
   GradingInfo,
   GradingItem,
   HomeworkInfo,
-  Problem,
-  ProblemResponse,
   Tristate,
 } from '@stex-react/api';
-import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
+import { ProblemResponse } from '@stex-react/ftml-utils';
+import { SafeHtml } from '@stex-react/react-utils';
 import {
-  mmtHTMLToReact,
+  GradingContext,
   ProblemDisplay,
   ServerLinksContext,
+  ShowGradingFor,
 } from '@stex-react/stex-react-renderer';
-import { GradingContext } from 'packages/stex-react-renderer/src/lib/SubProblemAnswer';
 import {
   Dispatch,
   SetStateAction,
@@ -51,7 +46,7 @@ import {
   useRef,
   useState,
 } from 'react';
-
+import { MultiItemSelector } from './MultiItemsSelector';
 const MULTI_SELECT_FIELDS = ['homeworkId', 'questionId', 'studentId'] as const;
 const ALL_SORT_FIELDS = ['homeworkDate', 'questionTitle', 'updatedAt', 'studentId'] as const;
 const DEFAULT_SORT_ORDER: Record<SortField, 'ASC' | 'DESC'> = {
@@ -63,72 +58,15 @@ const DEFAULT_SORT_ORDER: Record<SortField, 'ASC' | 'DESC'> = {
 type MultSelectField = (typeof MULTI_SELECT_FIELDS)[number];
 type SortField = (typeof ALL_SORT_FIELDS)[number];
 
-async function fetchAndProcessProblem(questionId: string, mmtUrl: string) {
-  const problemIdPrefix = questionId.replace(/\?[^?]*$/, '');
-  const problemObject = await getProblemObject(mmtUrl, problemIdPrefix);
-  const problemHtml = await getLearningObjectShtml(mmtUrl, problemObject);
-  const problemId = hackAwayProblemId(problemHtml);
-  return getProblem(problemId, '');
-}
-function MultiItemSelector<T>({
-  selectedValues,
-  allValues,
-  label,
-  onUpdate,
-}: {
-  selectedValues: T[];
-  allValues: { value: T; title: string }[];
-  label: string;
-  onUpdate: (value: T[]) => void;
-}) {
-  return (
-    <Autocomplete
-      multiple
-      id={`${label}-filter`}
-      options={allValues}
-      isOptionEqualToValue={(option, value) => option.value === value.value}
-      disableCloseOnSelect
-      getOptionLabel={(option) => option.title}
-      limitTags={2}
-      value={selectedValues.map((v) => allValues.find((a) => a.value === v))}
-      onChange={(e, newValue) => {
-        onUpdate(newValue.map((v) => v.value));
-      }}
-      renderOption={(props, option, { selected }) => {
-        const { key, ...optionProps } = props;
-        return (
-          <li key={key} {...optionProps}>
-            <Checkbox checked={selected} />
-            {option.title ? mmtHTMLToReact(option.title) : (option.value ?? 'unset').toString()}
-          </li>
-        );
-      }}
-      renderTags={(value, getTagProps) => {
-        return value.map((option, index) => (
-          <Chip
-            key={index}
-            {...getTagProps({ index })}
-            label={
-              option.title ? mmtHTMLToReact(option.title) : option.value.toString().substring(0, 30)
-            }
-          />
-        ));
-      }}
-      renderInput={(params) => <TextField {...params} label={label} />}
-      sx={{ minWidth: 300 }}
-    />
-  );
-}
-
 function getSelectedGradingItems(
   items: GradingItem[],
   params: SortAndFilterParams,
   homeworkMap: Record<string, HomeworkInfo>,
-  questionMap: Record<string, Problem>
+  questionMap: Record<string, FTMLProblemWithSolution>
 ) {
   function getValue(item: GradingItem, field: SortField) {
     if (field === 'homeworkDate') return homeworkMap[item.homeworkId]?.givenTs;
-    if (field === 'questionTitle') return questionMap[item.questionId]?.header;
+    if (field === 'questionTitle') return item.questionId + '(TODO ALEA4-P4)'; // questionMap[item.questionId]?.problem;
     if (field === 'studentId') return item.studentId;
     if (field === 'updatedAt') return item.updatedAt;
   }
@@ -171,45 +109,49 @@ function getSelectedGradingItems(
 function GradingListSortFields({
   sortAndFilterParams,
   setSortAndFilterParams,
+  isPeerGrading,
 }: {
   sortAndFilterParams: SortAndFilterParams;
+  isPeerGrading: boolean;
   setSortAndFilterParams: Dispatch<SetStateAction<SortAndFilterParams>>;
 }) {
   const { sortingFields, sortOrders } = sortAndFilterParams;
   return (
     <Box display="flex" rowGap={1} columnGap={2} alignItems="center" flexWrap="wrap">
       Sort:
-      {sortingFields.map((item) => (
-        <Button
-          key={item}
-          variant="outlined"
-          onClick={(e) => {
-            e.stopPropagation();
-            setSortAndFilterParams((prev) => ({
-              ...prev,
-              sortingFields: [item, ...prev.sortingFields.filter((f) => f !== item)],
-            }));
-          }}
-          sx={{ py: 0 }}
-        >
-          {item}&nbsp;
-          <IconButton
+      {sortingFields
+        .filter((i) => (isPeerGrading ? i !== 'studentId' : i))
+        .map((item) => (
+          <Button
+            key={item}
+            variant="outlined"
             onClick={(e) => {
               e.stopPropagation();
-
               setSortAndFilterParams((prev) => ({
                 ...prev,
-                sortOrders: {
-                  ...prev.sortOrders,
-                  [item]: sortOrders[item] === 'ASC' ? 'DESC' : 'ASC',
-                },
+                sortingFields: [item, ...prev.sortingFields.filter((f) => f !== item)],
               }));
             }}
+            sx={{ py: 0 }}
           >
-            {sortOrders[item] === 'ASC' ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
-          </IconButton>
-        </Button>
-      ))}
+            {item}&nbsp;
+            <IconButton
+              onClick={(e) => {
+                e.stopPropagation();
+
+                setSortAndFilterParams((prev) => ({
+                  ...prev,
+                  sortOrders: {
+                    ...prev.sortOrders,
+                    [item]: sortOrders[item] === 'ASC' ? 'DESC' : 'ASC',
+                  },
+                }));
+              }}
+            >
+              {sortOrders[item] === 'ASC' ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
+            </IconButton>
+          </Button>
+        ))}
       <IconButton
         onClick={() => {
           setSortAndFilterParams((prev) => ({
@@ -256,16 +198,22 @@ function GradingItemOrganizer({
   questionMap,
   homeworkMap,
   sortAndFilterParams,
+  isPeerGrading,
   setSortAndFilterParams,
 }: {
   gradingItems: GradingItem[];
-  questionMap: Record<string, Problem>;
+  questionMap: Record<string, FTMLProblemWithSolution>;
   homeworkMap: Record<string, HomeworkInfo>;
   sortAndFilterParams: SortAndFilterParams;
+  isPeerGrading: boolean;
   setSortAndFilterParams: Dispatch<SetStateAction<SortAndFilterParams>>;
 }) {
   const allQuestions = useMemo(
-    () => Object.entries(questionMap).map(([id, p]) => ({ value: id, title: p.header })),
+    () =>
+      Object.entries(questionMap).map(([id, p]) => ({
+        value: id,
+        title: p.problem.title_html,
+      })),
     [questionMap]
   );
   const allHomeworks = useMemo(
@@ -302,17 +250,19 @@ function GradingItemOrganizer({
             }))
           }
         />
-        <MultiItemSelector
-          label="Students"
-          selectedValues={sortAndFilterParams.multiSelectField.studentId}
-          allValues={allStudentIds}
-          onUpdate={(studentId) =>
-            setSortAndFilterParams((prev) => ({
-              ...prev,
-              multiSelectField: { ...prev.multiSelectField, studentId },
-            }))
-          }
-        />
+        {!isPeerGrading && (
+          <MultiItemSelector
+            label="Students"
+            selectedValues={sortAndFilterParams.multiSelectField.studentId}
+            allValues={allStudentIds}
+            onUpdate={(studentId) =>
+              setSortAndFilterParams((prev) => ({
+                ...prev,
+                multiSelectField: { ...prev.multiSelectField, studentId },
+              }))
+            }
+          />
+        )}
       </Box>
       <Box my={1}>
         <Button
@@ -333,6 +283,7 @@ function GradingItemOrganizer({
         </Button>
       </Box>
       <GradingListSortFields
+        isPeerGrading={isPeerGrading}
         sortAndFilterParams={sortAndFilterParams}
         setSortAndFilterParams={setSortAndFilterParams}
       />
@@ -345,11 +296,18 @@ function GradingItemsList({
   onSelectItem,
   homeworkMap,
   problemMap,
+  isPeerGrading,
 }: {
   gradingItems: GradingItem[];
-  onSelectItem: (homeworkId: number, problemId: string, studentId: string) => void;
+  onSelectItem: (
+    homeworkId: number,
+    problemId: string,
+    studentId: string,
+    answerId: number
+  ) => void;
   homeworkMap: Record<string, HomeworkInfo>;
-  problemMap: Record<string, Problem>;
+  problemMap: Record<string, FTMLProblemWithSolution>;
+  isPeerGrading: boolean;
 }) {
   return (
     <Box maxHeight="50vh" overflow="scroll">
@@ -360,6 +318,7 @@ function GradingItemsList({
               homeworkId,
               questionId,
               studentId,
+              answerId,
               numSubProblemsAnswered,
               numSubProblemsGraded,
               numSubProblemsInstructorGraded,
@@ -368,7 +327,7 @@ function GradingItemsList({
           ) => (
             <ListItemButton
               key={`${homeworkId}-${questionId}-${studentId}`}
-              onClick={(e) => onSelectItem(homeworkId, questionId, studentId)}
+              onClick={(e) => onSelectItem(homeworkId, questionId, studentId, answerId)}
               sx={{ py: 0, bgcolor: idx % 2 === 0 ? '#f0f0f0' : '#ffffff' }}
             >
               <ListItemIcon>
@@ -380,18 +339,18 @@ function GradingItemsList({
               </ListItemIcon>
               <ListItemText
                 primary={
-                  problemMap[questionId]?.header
-                    ? mmtHTMLToReact(problemMap[questionId].header)
-                    : questionId
+                  <SafeHtml html={problemMap[questionId]?.problem.title_html ?? questionId} />
                 }
                 secondary={
                   <>
-                    {!homeworkId
-                      ? 'Not Homework'
-                      : homeworkMap[homeworkId]?.title
-                      ? mmtHTMLToReact(homeworkMap[homeworkId].title)
-                      : 'HW ' + homeworkId}
-                    &nbsp;({studentId})
+                    {!homeworkId ? (
+                      'Not Homework'
+                    ) : homeworkMap[homeworkId]?.title ? (
+                      <SafeHtml html={homeworkMap[homeworkId].title} />
+                    ) : (
+                      'HW ' + homeworkId
+                    )}
+                    &nbsp;{isPeerGrading ? '' : `(${studentId})`}
                   </>
                 }
               />
@@ -407,20 +366,27 @@ function GradingItemDisplay({
   homeworkId,
   questionId,
   studentId,
+  answerId,
   questionMap,
+  courseId,
+  isPeerGrading,
   onNextGradingItem,
   onPrevGradingItem,
 }: {
   homeworkId: number;
   questionId: string;
   studentId: string;
-  questionMap: Record<string, Problem>;
+  answerId: number;
+  courseId: string;
+  isPeerGrading?: boolean;
+  questionMap: Record<string, FTMLProblemWithSolution>;
   onNextGradingItem: () => void;
   onPrevGradingItem: () => void;
 }) {
-  const { mmtUrl } = useContext(ServerLinksContext);
-  const [studentResponse, setStudentResponse] = useState<ProblemResponse>(undefined);
-  const [problem, setProblem] = useState<Problem | null>(questionMap[questionId] || null);
+  const [studentResponse, setStudentResponse] = useState<ProblemResponse | undefined>(undefined);
+  const [problem, setProblem] = useState<FTMLProblemWithSolution | null>(
+    questionMap[questionId] || null
+  );
   const [subProblemIdToAnswerId, setSubProblemIdToAnswerId] = useState<Record<string, number>>({});
   const [subProblemInfoToGradingInfo, setSubProblemInfoToGradingInfo] = useState<
     Record<string, GradingInfo[]>
@@ -430,9 +396,14 @@ function GradingItemDisplay({
     setStudentResponse(undefined);
     setSubProblemIdToAnswerId({});
     setSubProblemInfoToGradingInfo({});
-    getAnswersWithGrading(homeworkId, questionId, studentId).then((r) => {
+    getAnswersWithGrading(
+      homeworkId,
+      questionId,
+      isPeerGrading ? null : studentId,
+      answerId,
+      courseId
+    ).then((r) => {
       setStudentResponse(r.answers);
-      console.log(r.answers);
       setSubProblemIdToAnswerId(r.subProblemIdToAnswerId);
       setSubProblemInfoToGradingInfo(r.subProblemIdToGrades);
     });
@@ -449,8 +420,11 @@ function GradingItemDisplay({
     }
     const fetchProblem = async () => {
       try {
-        const fetchedProblem = await fetchAndProcessProblem(questionId, mmtUrl);
-        setProblem(fetchedProblem);
+        // TODO ALEA4-P4
+        // const problemIdPrefix = questionId.replace(/\?[^?]*$/, '');
+        // const problemObject = await getProblemObject(problemIdPrefix);
+        // const problemHtml = await getLearningObjectShtml(problemObject);
+        // setProblem(getProblem(problemHtml, ''));
       } catch (error) {
         console.error('Error fetching problem:', error);
       }
@@ -464,6 +438,7 @@ function GradingItemDisplay({
         value={{
           isGrading: true,
           showGrading: true,
+          showGradingFor: ShowGradingFor.INSTRUCTOR,
           gradingInfo: { [questionId]: subProblemInfoToGradingInfo },
           studentId,
           onNewGrading: async (
@@ -486,8 +461,7 @@ function GradingItemDisplay({
         <ProblemDisplay
           isFrozen={true}
           r={studentResponse}
-          debug={true}
-          problemId={questionId}
+          // problemId={questionId} TODO ALEA4-P4
           problem={problem}
           onResponseUpdate={() => {
             console.log('onResponseUpdate');
@@ -497,7 +471,6 @@ function GradingItemDisplay({
     </Box>
   );
 }
-
 interface SortAndFilterParams {
   multiSelectField: Record<MultSelectField, (string | number)[]>;
   isGraded: Tristate;
@@ -508,7 +481,13 @@ interface SortAndFilterParams {
   showPracticeOnly: boolean;
 }
 
-export function GradingInterface({ courseId }: { courseId: string }) {
+export function GradingInterface({
+  isPeerGrading,
+  courseId,
+}: {
+  isPeerGrading: boolean;
+  courseId: string;
+}) {
   const [sortAndFilterParams, setSortAndFilterParams] = useState<SortAndFilterParams>({
     multiSelectField: {
       homeworkId: [],
@@ -519,15 +498,15 @@ export function GradingInterface({ courseId }: { courseId: string }) {
     isInstructorGraded: Tristate.UNKNOWN,
     sortingFields: [...ALL_SORT_FIELDS],
     sortOrders: DEFAULT_SORT_ORDER,
-    showHomeworkOnly: true,
+    showHomeworkOnly: !isPeerGrading,
     showPracticeOnly: false,
   });
   const [gradingItems, setGradingItems] = useState<GradingItem[]>([]);
   const homeworkMap = useRef<Record<string, HomeworkInfo>>({});
-  const questionMap = useRef<Record<string, Problem>>({});
+  const questionMap = useRef<Record<string, FTMLProblemWithSolution>>({});
 
   const [selected, setSelected] = useState<
-    { homeworkId: number; questionId: string; studentId: string } | undefined
+    { homeworkId: number; questionId: string; studentId: string; answerId: number } | undefined
   >(undefined);
 
   const selectedGradedItems = useMemo(
@@ -550,11 +529,11 @@ export function GradingInterface({ courseId }: { courseId: string }) {
         return acc;
       }, {} as Record<string, HomeworkInfo>);
       questionMap.current = res.homeworks.reduce((acc, c) => {
-        for (const [id, problemStr] of Object.entries(c.problems || {})) {
-          acc[id] = getProblem(problemStr);
+        for (const [id, problem] of Object.entries(c.problems || {})) {
+          acc[id] = problem;
         }
         return acc;
-      }, {} as Record<string, Problem>);
+      }, {} as Record<string, FTMLProblemWithSolution>);
     });
   }, [courseId]);
 
@@ -598,6 +577,7 @@ export function GradingInterface({ courseId }: { courseId: string }) {
         questionMap={questionMap.current}
         homeworkMap={homeworkMap.current}
         gradingItems={gradingItems}
+        isPeerGrading={isPeerGrading}
         sortAndFilterParams={sortAndFilterParams}
         setSortAndFilterParams={setSortAndFilterParams}
       />
@@ -610,8 +590,9 @@ export function GradingInterface({ courseId }: { courseId: string }) {
             gradingItems={selectedGradedItems}
             homeworkMap={homeworkMap.current}
             problemMap={questionMap.current}
-            onSelectItem={(homeworkId, questionId, studentId) =>
-              setSelected({ homeworkId, questionId, studentId })
+            isPeerGrading={isPeerGrading}
+            onSelectItem={(homeworkId, questionId, studentId, answerId) =>
+              setSelected({ homeworkId, questionId, studentId, answerId })
             }
           />
         </Box>
@@ -619,6 +600,7 @@ export function GradingInterface({ courseId }: { courseId: string }) {
           {selected ? (
             <GradingItemDisplay
               {...selected}
+              courseId={courseId}
               questionMap={questionMap.current}
               onNextGradingItem={() => {
                 const idx = selectedGradedItems.findIndex(
@@ -630,8 +612,8 @@ export function GradingInterface({ courseId }: { courseId: string }) {
 
                 if (idx === selectedGradedItems.length - 1) return;
                 const newIdx = idx === -1 ? 0 : idx + 1;
-                const { homeworkId, questionId, studentId } = selectedGradedItems[newIdx];
-                setSelected({ homeworkId, questionId, studentId });
+                const { homeworkId, questionId, studentId, answerId } = selectedGradedItems[newIdx];
+                setSelected({ homeworkId, questionId, studentId, answerId });
               }}
               onPrevGradingItem={() => {
                 const idx = selectedGradedItems.findIndex(
@@ -643,8 +625,8 @@ export function GradingInterface({ courseId }: { courseId: string }) {
 
                 if (idx === 0) return;
                 const newIdx = idx === 0 ? selectedGradedItems.length - 1 : idx - 1;
-                const { homeworkId, questionId, studentId } = selectedGradedItems[newIdx];
-                setSelected({ homeworkId, questionId, studentId });
+                const { homeworkId, questionId, studentId, answerId } = selectedGradedItems[newIdx];
+                setSelected({ homeworkId, questionId, studentId, answerId });
               }}
             />
           ) : (

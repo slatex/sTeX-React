@@ -1,24 +1,20 @@
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { Accordion, AccordionDetails, AccordionSummary, Box, Typography } from '@mui/material';
 import {
   ALL_DIM_CONCEPT_PAIR,
   ALL_LO_RELATION_TYPES,
   ALL_NON_DIM_CONCEPT,
   AllLoRelationTypes,
+  getQueryResults,
   getSparqlQueryForLoRelationToDimAndConceptPair,
   getSparqlQueryForLoRelationToNonDimConcept,
   LoRelationToDimAndConceptPair,
   LoRelationToNonDimConcept,
-  sparqlQuery,
   SparqlResponse,
 } from '@stex-react/api';
-import { Accordion, AccordionDetails, AccordionSummary, Box, Typography } from '@mui/material';
+import { DimAndURIListDisplay, URIListDisplay } from '@stex-react/stex-react-renderer';
 import { capitalizeFirstLetter, PRIMARY_COL } from '@stex-react/utils';
-import {
-  DimAndURIListDisplay,
-  ServerLinksContext,
-  URIListDisplay,
-} from '@stex-react/stex-react-renderer';
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 function processDimAndConceptData(result: SparqlResponse) {
   try {
@@ -30,17 +26,18 @@ function processDimAndConceptData(result: SparqlResponse) {
         .filter((data: string) => data.startsWith('http://mathhub.info/ulo#cognitive-dimension='))
         .map((data: string) => {
           const encodedValue = data.split('=')[1];
-          return decodeURIComponent(encodedValue);
+          const decoded = decodeURIComponent(encodedValue);
+          return decoded.split('cd-').pop();
         });
-      const crossRefs = relatedData
-        .filter((data: string) => data.startsWith('http://mathhub.info/ulo#crossrefs='))
+      const poSymbols = relatedData
+        .filter((data: string) => data.startsWith('http://mathhub.info/ulo#po-symbol='))
         .map((data: string) => {
-          const encodedValue = data.split('=')[1];
+          const encodedValue = data.split('#po-symbol=')[1];
           const decodedValue = decodeURIComponent(encodedValue);
           return decodedValue.endsWith('#') ? decodedValue.slice(0, -1) : decodedValue;
         });
       const combinedData = cognitiveDimensions.flatMap((dim) =>
-        crossRefs.map((ref) => `${dim}:${encodeURIComponent(ref)}`)
+        poSymbols.map((symbol) => `${dim}:${encodeURIComponent(symbol)}`)
       );
 
       if (!groupedData[relationValue]) {
@@ -85,13 +82,14 @@ function NonDimensionalUriListDisplay({
   data: string;
   displayReverseRelation?: (conceptUri: string) => void;
 }) {
+  const uniqueUris = Array.from(new Set(data.split(',')));
   return (
     <Box border="1px solid black" mb="10px" bgcolor="white">
       <Typography fontWeight="bold" sx={{ p: '10px' }}>
         {title}&nbsp;
       </Typography>
       <Box borderTop="1px solid #AAA" p="5px" display="flex" flexWrap="wrap">
-        <URIListDisplay uris={data.split(',')} displayReverseRelation={displayReverseRelation} />
+        <URIListDisplay uris={uniqueUris} displayReverseRelation={displayReverseRelation} />
       </Box>
     </Box>
   );
@@ -104,7 +102,6 @@ const LoRelations = ({
   uri: string;
   displayReverseRelation?: (conceptUri: string) => void;
 }) => {
-  const { mmtUrl } = useContext(ServerLinksContext);
   const [data, setData] = useState<Record<AllLoRelationTypes, string>>({
     objective: '',
     precondition: '',
@@ -123,8 +120,8 @@ const LoRelations = ({
         const nonDimConceptQuery = getSparqlQueryForLoRelationToNonDimConcept(uri);
 
         const [dimConceptResult, nonDimConceptResult] = await Promise.all([
-          sparqlQuery(mmtUrl, dimConceptQuery),
-          sparqlQuery(mmtUrl, nonDimConceptQuery),
+          getQueryResults(dimConceptQuery),
+          getQueryResults(nonDimConceptQuery),
         ]);
 
         const dimConceptData = processDimAndConceptData(dimConceptResult);

@@ -9,13 +9,7 @@ import { discardDraft } from './comment-helpers';
 import styles from './comments.module.scss';
 import { SelectedInfo } from './selected-info';
 
-export function CommentView({
-  comment,
-  onUpdate,
-}: {
-  comment: Comment;
-  onUpdate: () => void;
-}) {
+export function CommentView({ comment, onUpdate }: { comment: Comment; onUpdate: () => void }) {
   const [commentReplyOpen, setCommentReplyOpen] = useState(false);
   const [editingComment, setEditingComment] = useState(false);
 
@@ -38,14 +32,11 @@ export function CommentView({
                 </div>
               )}
               <EditView
+                uri={comment.uri}
                 hidden={!editingComment}
                 parentId={comment.commentId}
                 isPrivateNote={!!comment.isPrivate}
                 postAnonymously={comment.isAnonymous}
-                file={{
-                  archive: comment.archive || '',
-                  filepath: comment.filepath || '',
-                }}
                 existingComment={comment}
                 onCancel={() => setEditingComment(false)}
                 onUpdate={() => {
@@ -54,19 +45,13 @@ export function CommentView({
                 }}
               />
               <CommentReply
+                uri={comment.uri}
                 hidden={!commentReplyOpen}
                 parentId={comment.commentId}
                 isPrivateNote={!!comment.isPrivate}
-                file={{
-                  archive: comment.archive || '',
-                  filepath: comment.filepath || '',
-                }}
                 onCancel={() => {
                   setCommentReplyOpen(false);
-                  let { archive, filepath } = comment;
-                  archive = archive || '';
-                  filepath = filepath || '';
-                  discardDraft({ archive, filepath }, comment.commentId);
+                  discardDraft(comment.uri ?? '', comment.commentId);
                 }}
                 onUpdate={() => {
                   setCommentReplyOpen(false);

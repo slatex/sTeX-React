@@ -15,10 +15,9 @@ import {
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import { getUserInfo } from '@stex-react/api';
-import { FileInfo } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { createNewIssue, IssueCategory, IssueType } from './issueCreator';
+import { createNewIssue, IssueCategory, IssueType, SelectionContext } from './issueCreator';
 import { getLocaleObject } from './lang/utils';
 
 const TYPO_CATEGORY_INPUT = 'TYPO';
@@ -33,7 +32,7 @@ export function ReportProblemDialog({
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   selectedText: string;
-  context: FileInfo[];
+  context: SelectionContext[];
   onCreateIssue: (issueUrl: string) => void;
 }) {
   const t = getLocaleObject(useRouter());
@@ -216,7 +215,7 @@ export function ReportProblemDialog({
               );
               onCreateIssue(issueLink);
             } catch (e) {
-              console.log(e);
+              console.error(e);
               alert('We encountered an error: ' + e);
               onCreateIssue('');
             } finally {

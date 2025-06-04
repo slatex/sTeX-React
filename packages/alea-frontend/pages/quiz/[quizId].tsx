@@ -2,17 +2,16 @@ import SchoolIcon from '@mui/icons-material/School';
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import {
   canAccessResource,
+  FTMLProblemWithSolution,
   getQuiz,
   GetQuizResponse,
   getUserInfo,
   insertQuizResponse,
   Phase,
-  Problem,
   UserInfo,
 } from '@stex-react/api';
-import { getProblem, hackAwayProblemId } from '@stex-react/quiz-utils';
 import { QuizDisplay } from '@stex-react/stex-react-renderer';
-import { Action, CURRENT_TERM, localStore, ResourceName } from '@stex-react/utils';
+import { Action, CURRENT_TERM, isFauId, localStore, ResourceName } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -21,6 +20,8 @@ import { ForceFauLogin } from '../../components/ForceFAULogin';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
 import { handleEnrollment } from '../course-home/[courseId]';
+import { isEmptyResponse } from 'packages/quiz-utils/src/lib/quiz-utils';
+import { injectCss } from '@stex-react/ftml-utils';
 
 function ToBeStarted({ quizStartTs }: { quizStartTs?: number }) {
   const [showReload, setShowReload] = useState(false);
@@ -102,13 +103,13 @@ const QuizPage: NextPage = () => {
   const quizId = router.query.quizId as string;
   const { quiz: q } = getLocaleObject(router);
 
-  const [problems, setProblems] = useState<{ [problemId: string]: Problem }>({});
+  const [problems, setProblems] = useState<{ [problemId: string]: FTMLProblemWithSolution }>({});
   const [finished, setFinished] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo | undefined | null>(null);
   const [quizInfo, setQuizInfo] = useState<GetQuizResponse | undefined>(undefined);
   const [moderatorPhase, setModeratorPhase] = useState<Phase>(undefined);
-  const [debuggerMode, setDebuggerMode] = useState<boolean>(false);
   const [enrolled, setIsEnrolled] = useState<boolean | undefined>(undefined);
+  const [isModerator, setIsModerator] = useState<boolean>(false);
   const clientQuizEndTimeMs = getClientEndTimeMs(quizInfo);
   const clientQuizStartTimeMs = getClientStartTimeMs(quizInfo);
 
@@ -128,20 +129,17 @@ const QuizPage: NextPage = () => {
     getUserInfo().then((i) => {
       const uid = i?.userId;
       if (!uid) return;
-      setForceFauLogin(uid.length !== 8 || uid.includes('@'));
+      isFauId(uid) ? setForceFauLogin(false) : setForceFauLogin(true);
     });
   }, []);
 
   useEffect(() => {
     if (!quizId) return;
     getQuiz(quizId).then((quizInfo) => {
+      for (const e of quizInfo.css || []) injectCss(e);
+
       setQuizInfo(quizInfo);
-      const problemObj: { [problemId: string]: Problem } = {};
-      Object.keys(quizInfo.problems).map((problemId) => {
-        const html = hackAwayProblemId(quizInfo.problems[problemId]);
-        problemObj[problemId] = getProblem(html, undefined);
-      });
-      setProblems(problemObj);
+      setProblems(quizInfo.problems);
     });
   }, [quizId]);
 
@@ -177,15 +175,12 @@ const QuizPage: NextPage = () => {
       courseId,
       instanceId,
     }).then((isModerator) => {
+      setIsModerator(isModerator);
       if (!isModerator) return;
       const p =
         'Hello moderator! Do you want to see the quiz in feedback release phase (press OK) or quiz started phase (press Cancel)?';
       const moderatorPhase = confirm(p) ? Phase.FEEDBACK_RELEASED : Phase.STARTED;
       setModeratorPhase(moderatorPhase);
-      if (moderatorPhase === Phase.FEEDBACK_RELEASED) {
-        const debugMessage = 'Would you like to view the quiz in debugger mode?';
-        setDebuggerMode(confirm(debugMessage));
-      }
     });
   }, [courseId, instanceId]);
 
@@ -259,14 +254,15 @@ const QuizPage: NextPage = () => {
           />
         ) : (
           <QuizDisplay
-            debug={debuggerMode}
             isFrozen={phase !== Phase.STARTED}
             showPerProblemTime={false}
             problems={problems}
             quizEndTs={clientQuizEndTimeMs}
             existingResponses={quizInfo?.responses}
             onResponse={async (problemId, response) => {
-              if (!quizId?.length) return;
+              if (!quizId?.length || phase !== Phase.STARTED || isModerator) return;
+              if (isEmptyResponse(response)) return;
+              console.log('inserting response', problemId, response);
               const answerAccepted = await insertQuizResponse(quizId, problemId, response);
               if (!answerAccepted) {
                 alert('Answers are no longer being accepted');

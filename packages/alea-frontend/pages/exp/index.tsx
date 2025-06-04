@@ -9,9 +9,7 @@ import { localStore } from '@stex-react/utils';
 import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useState } from 'react';
-import { BrowserAutocomplete } from '../../components/BrowserAutocomplete';
 import { SearchBar } from '../../components/SearchBar';
-import { ToursAutocomplete } from '../../components/ToursAutocomplete';
 import MainLayout from '../../layouts/MainLayout';
 
 function ExternalButtonLink({ href, text }: { href: string; text: string }) {
@@ -112,7 +110,7 @@ const ExperimentsHome: NextPage = () => {
             </Box>
             <Box>
               <h2>System Info</h2>
-              MMT server: {process.env.NEXT_PUBLIC_MMT_URL}
+              FLAMS server: {process.env.NEXT_PUBLIC_FLAMS_URL}
               <br />
               LMP server: {process.env.NEXT_PUBLIC_LMP_URL}
               <br />
@@ -124,20 +122,14 @@ const ExperimentsHome: NextPage = () => {
               <ExternalButtonLink href="https://courses-staging.kwarc.info" text="Staging" />
             </Box>
             <Box>
-              <h2>MMT Servers</h2>
-              <ExternalButtonLink href="https://stexmmt.mathhub.info/:sTeX" text="Production" />
-              <ExternalButtonLink
-                href="https://building.beta.vollki.kwarc.info/:sTeX"
-                text="Beta (mmt.beta....)"
-              />
+              <h2>FLAMS Servers</h2>
+              <ExternalButtonLink href="https://mathhub.info" text="Production" />
               <ExternalButtonLink
                 href="https://building.beta.vollki.kwarc.info/:sTeX"
                 text="(Unstable!) Building (building.beta...)"
               />
             </Box>
             &nbsp;&nbsp;
-            <BrowserAutocomplete />
-            <ToursAutocomplete />
             <SearchBar />
             <Box m="10px" width="fit-content">
               <SelfAssessment2

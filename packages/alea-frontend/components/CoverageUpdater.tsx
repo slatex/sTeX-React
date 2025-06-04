@@ -1,76 +1,115 @@
-import ClearIcon from '@mui/icons-material/Clear';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import {
-  Box,
-  Button,
-  Checkbox,
-  FormControl,
-  FormControlLabel,
-  IconButton,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-} from '@mui/material';
-import { CoverageSnap, PRIMARY_COL } from '@stex-react/utils';
-import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
-interface FormWithListProps {
-  snaps: CoverageSnap[];
-  setSnaps: React.Dispatch<React.SetStateAction<CoverageSnap[]>>;
-  sectionNames: string[];
-}
-function findDuplicates(arr: string[]): string[] {
-  const duplicates: string[] = [];
-  const seen: { [key: string]: boolean } = {};
+import React, { useState, useEffect } from 'react';
+import { Box, Typography, Paper, useTheme } from '@mui/material';
+import { LectureEntry } from '@stex-react/utils';
+import { Section } from '../types';
+import { CoverageTable } from './CoverageTable';
+import { CoverageForm } from './CoverageForm';
 
-  for (let i = 0; i < arr.length; i++) {
-    const item = arr[i];
-
-    if (seen[item]) {
-      duplicates.push(item);
-    } else {
-      seen[item] = true;
-    }
-  }
-
-  return duplicates;
+export function getSectionNameForUri(uri: string, sectionNames: Section[]): string {
+  const section = sectionNames.find(({ uri: sectionUri }) => sectionUri === uri);
+  return section?.title.trim() || '';
 }
 
-export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListProps) {
-  const [sectionName, setSectionName] = useState('');
-  const [clipId, setClipId] = useState('');
-  const [selectedTimestamp, setSelectedTimestamp] = useState(Date.now());
-  const [editIndex, setEditIndex] = useState<number | null>(null); // New state for edit index
-  const [targetSectionName, setTargetSectionName] = useState('');
-  const [isQuizScheduled, setIsQuizScheduled] = useState(false);
+export function getNoonTimestampOnSameDay(timestamp: number) {
+  return new Date(timestamp).setHours(12, 0, 0, 0);
+}
+
+function convertSnapToEntry(snap: LectureEntry, index: number): any {
+  return {
+    id: `${snap.timestamp_ms}-${index}`,
+    timestamp_ms: snap.timestamp_ms,
+    sectionName: getSectionNameForUri(snap.sectionUri || '', []),
+    sectionUri: snap.sectionUri || '',
+    targetSectionName: getSectionNameForUri(snap.targetSectionUri || '', []),
+    targetSectionUri: snap.targetSectionUri || '',
+    clipId: snap.clipId || '',
+    isQuizScheduled: snap.isQuizScheduled || false,
+    slideUri: snap.slideUri || '',
+    slideNumber: snap.slideNumber,
+  };
+}
+
+interface CoverageUpdaterProps {
+  courseId: string;
+  snaps: LectureEntry[];
+  setSnaps: React.Dispatch<React.SetStateAction<LectureEntry[]>>;
+  sectionNames: Section[];
+}
+
+export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: CoverageUpdaterProps) {
+  const [editIndex, setEditIndex] = useState<number | null>(null);
+  const [formData, setFormData] = useState({
+    sectionName: '',
+    sectionUri: '',
+    clipId: '',
+    selectedTimestamp: Date.now(),
+    targetSectionName: '',
+    targetSectionUri: '',
+    isQuizScheduled: false,
+    slideUri: '',
+    slideNumber: undefined as number | undefined,
+  });
+
+  const theme = useTheme();
 
   useEffect(() => {
-    setSectionName(snaps[snaps.length - 1]?.sectionName);
-  }, [snaps]);
+    if (snaps.length > 0) {
+      const lastSnapUri = snaps[snaps.length - 1]?.sectionUri;
+      const lastSnapName = getSectionNameForUri(lastSnapUri || '', sectionNames).trim();
+      setFormData((prev) => ({
+        ...prev,
+        sectionName: lastSnapName,
+        sectionUri: lastSnapUri || '',
+      }));
+    }
+  }, [snaps, sectionNames]);
 
-  const duplicateNames: string[] = findDuplicates(sectionNames.map((option) => option.trim()));
+  useEffect(() => {
+    setFormData((prev) => ({ ...prev, slideUri: '' }));
+  }, [formData.sectionName, formData.sectionUri]);
 
-  function setNoonDefaultTime(timestamp: number) {
-    return new Date(timestamp).setHours(12, 0, 0, 0);
-  }
+  const handleEditItem = (index: number) => {
+    const itemToEdit = snaps[index];
+    const sectionNameToEdit = getSectionNameForUri(
+      itemToEdit.sectionUri || '',
+      sectionNames
+    ).trim();
+    const targetSectionNameToEdit = getSectionNameForUri(
+      itemToEdit.targetSectionUri || '',
+      sectionNames
+    ).trim();
 
-  const handleAddItem = () => {
-    const sectionToAdd = sectionName?.length ? sectionName : '';
-    const targetSectionToAdd = targetSectionName?.length ? targetSectionName : '';
+    setFormData({
+      sectionName: sectionNameToEdit || '',
+      sectionUri: itemToEdit.sectionUri || '',
+      targetSectionName: targetSectionNameToEdit || '',
+      targetSectionUri: itemToEdit.targetSectionUri || '',
+      clipId: itemToEdit.clipId || '',
+      selectedTimestamp: itemToEdit.timestamp_ms || Date.now(),
+      isQuizScheduled: itemToEdit.isQuizScheduled || false,
+      slideUri: itemToEdit.slideUri || '',
+      slideNumber: itemToEdit.slideNumber || undefined,
+    });
 
-    // Create the new item object
-    const newItem = {
-      timestamp_ms: selectedTimestamp,
-      sectionName: sectionToAdd,
-      targetSectionName: targetSectionToAdd,
-      clipId,
-      isQuizScheduled,
+    setEditIndex(index);
+  };
+
+  const handleDeleteItem = (index: number) => {
+    const updatedSnaps = snaps.filter((_, i) => i !== index);
+    setSnaps(updatedSnaps);
+  };
+
+  const handleSubmitForm = (formData: any) => {
+    const newItem: LectureEntry = {
+      timestamp_ms: formData.selectedTimestamp,
+      sectionUri: formData.sectionUri,
+      targetSectionUri: formData.targetSectionUri,
+      clipId: formData.clipId,
+      isQuizScheduled: formData.isQuizScheduled,
+      slideUri: formData.slideUri,
+      slideNumber: formData.slideNumber,
     };
 
-    // Add the new item to the list or update the existing one if editing
     if (editIndex !== null) {
       const updatedSnaps = [...snaps];
       updatedSnaps[editIndex] = newItem;
@@ -80,202 +119,102 @@ export function CoverageUpdater({ snaps, setSnaps, sectionNames }: FormWithListP
       setSnaps([...snaps, newItem]);
     }
 
-    setSectionName('');
-    setTargetSectionName('');
-    setClipId('');
-    setSelectedTimestamp(Date.now());
-    setIsQuizScheduled(false);
-  };
-
-  const handleEditItem = (index: number) => {
-    const itemToEdit = snaps[index];
-    setSectionName(itemToEdit.sectionName);
-    setTargetSectionName(itemToEdit.targetSectionName);
-    setClipId(itemToEdit.clipId || '');
-    setSelectedTimestamp(itemToEdit.timestamp_ms);
-    setIsQuizScheduled(itemToEdit.isQuizScheduled);
-    setEditIndex(index);
+    setFormData({
+      sectionName: '',
+      sectionUri: '',
+      clipId: '',
+      selectedTimestamp: Date.now(),
+      targetSectionName: '',
+      targetSectionUri: '',
+      isQuizScheduled: false,
+      slideUri: '',
+      slideNumber: undefined,
+    });
   };
 
   const handleCancelEdit = () => {
-    setSectionName('');
-    setClipId('');
-    setTargetSectionName('');
-    setSelectedTimestamp(Date.now());
-    setIsQuizScheduled(false);
+    setFormData({
+      sectionName: '',
+      sectionUri: '',
+      clipId: '',
+      selectedTimestamp: Date.now(),
+      targetSectionName: '',
+      targetSectionUri: '',
+      isQuizScheduled: false,
+      slideUri: '',
+      slideNumber: undefined,
+    });
     setEditIndex(null);
   };
 
+  const coverageEntries = snaps.map((snap, index) => {
+    const entry = convertSnapToEntry(snap, index);
+
+    entry.sectionName = getSectionNameForUri(snap.sectionUri || '', sectionNames);
+    entry.targetSectionName = getSectionNameForUri(snap.targetSectionUri || '', sectionNames);
+
+    return entry;
+  });
+
   return (
-    <Box mt="10px" sx={{ display: 'flex', flexDirection: 'column' }}>
-      <table>
-        {snaps.map((item, idx) => (
-          <tr key={item.timestamp_ms} style={{ border: '1px solid black' }}>
-            <td style={{ textAlign: 'center', border: '1px solid black' }}>
-              <b>{idx + 1}. </b>
-              {dayjs(item.timestamp_ms).format('YYYY-MM-DD')}
-            </td>
-            <td
-              style={{
-                maxWidth: '300px',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                padding: '10px',
-                border: '1px solid black',
-              }}
-            >
-              {item.sectionName}
-            </td>
-            <td
-              style={{
-                maxWidth: '300px',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                border: '1px solid black',
-                padding: '10px',
-              }}
-            >
-              {item.targetSectionName}
-            </td>
-            <td style={{ border: '1px solid black' }}>
-              {item.clipId?.length ? (
-                <a
-                  href={`https://fau.tv/clip/id/${item.clipId}`}
-                  style={{ textDecoration: 'underline' }}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {item.clipId}
-                  <OpenInNewIcon fontSize="small" sx={{ mb: '-4px' }} />
-                </a>
-              ) : (
-                <i>None</i>
-              )}
-            </td>
-            <td />
-            <td style={{ borderRight: '1px solid black' }}>
-              {item.isQuizScheduled ? 'Quiz Scheduled' : ''}
-            </td>
-            <td>
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <IconButton onClick={() => handleEditItem(idx)}>
-                  <EditIcon sx={{ color: PRIMARY_COL }} />
-                </IconButton>
-                <IconButton
-                  onClick={() => {
-                    const updatedSnaps = snaps.filter((_, i) => i !== idx);
-                    setSnaps(updatedSnaps);
-                  }}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </Box>
-            </td>
-          </tr>
-        ))}
-      </table>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
-        <TextField
-          label="Date"
-          type="date"
-          value={dayjs(selectedTimestamp).format('YYYY-MM-DD')}
-          onChange={(e) => {
-            const timestamp = Date.parse(e.target.value);
-            setSelectedTimestamp(setNoonDefaultTime(timestamp));
+    <Box sx={{ width: '100%' }}>
+      {snaps.length > 0 ? (
+        <>
+          <CoverageTable
+            entries={coverageEntries}
+            onEdit={handleEditItem}
+            onDelete={handleDeleteItem}
+          />
+        </>
+      ) : (
+        <Box
+          sx={{
+            py: 5,
+            textAlign: 'center',
+            bgcolor: 'background.paper',
+            borderRadius: 2,
+            border: `1px dashed ${theme.palette.divider}`,
+            mb: 4,
           }}
-          InputLabelProps={{
-            shrink: true,
-          }}
-          sx={{ m: '20px 5px 0' }}
+        >
+          <Typography variant="body1" color="text.secondary" gutterBottom>
+            No syllabus entries yet
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Use the form below to add your first entry
+          </Typography>
+        </Box>
+      )}
+
+      <Paper
+        elevation={3}
+        sx={{
+          p: { xs: 2, sm: 3 },
+          mt: 4,
+          mb: 3,
+          borderRadius: 2,
+          border: editIndex !== null ? `1px solid ${theme.palette.primary.main}` : 'none',
+        }}
+      >
+        <Typography
+          variant="h6"
+          gutterBottom
+          color={editIndex !== null ? 'primary' : 'textPrimary'}
+        >
+          {editIndex !== null ? 'Edit Lecture Entry' : 'Add New Lecture'}
+        </Typography>
+
+        <CoverageForm
+          courseId={courseId}
+          formData={formData}
+          setFormData={setFormData}
+          sectionNames={sectionNames}
+          isEditing={editIndex !== null}
+          onSubmit={handleSubmitForm}
+          onCancel={handleCancelEdit}
         />
-        {/* Section Name Field */}
-        <FormControl sx={{ m: '20px 5px 0' }}>
-          <InputLabel id="section-name-select-label">Section Name</InputLabel>
-          <Select
-            labelId="section-name-select-label"
-            value={sectionName}
-            onChange={(e) => setSectionName(e.target.value)}
-            label="Section Name"
-            sx={{ minWidth: '300px', width: '100%' }}
-          >
-            <MenuItem value="">
-              <em>None</em>
-            </MenuItem>
-            {sectionNames.map((option) => {
-              const isDuplicate = duplicateNames.includes(option.trim());
-
-              return (
-                <MenuItem
-                  key={option}
-                  value={option.trim()}
-                  sx={{ backgroundColor: isDuplicate ? 'red' : undefined }}
-                >
-                  {option}
-                </MenuItem>
-              );
-            })}
-          </Select>
-        </FormControl>
-        <FormControl sx={{ m: '20px 5px 0' }}>
-          <InputLabel id="target-section-select-label">Target Section</InputLabel>
-          <Select
-            labelId="target-section-select-label"
-            value={targetSectionName}
-            onChange={(e) => setTargetSectionName(e.target.value)}
-            label="Target Section"
-            sx={{ minWidth: '300px', width: '100%' }}
-          >
-            <MenuItem value="">
-              <em>None</em>
-            </MenuItem>
-            {sectionNames.map((option) => {
-              const isDuplicate = duplicateNames.includes(option.trim());
-
-              return (
-                <MenuItem
-                  key={option}
-                  value={option.trim()}
-                  sx={{ backgroundColor: isDuplicate ? 'red' : undefined }}
-                >
-                  {option}
-                </MenuItem>
-              );
-            })}
-          </Select>
-        </FormControl>
-
-        <TextField
-          label="ClipId"
-          value={clipId}
-          onChange={(e) => setClipId(e.target.value)}
-          sx={{ m: '20px 5px 0', minWidth: '200px' }}
-        />
-
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={isQuizScheduled}
-              onChange={(e) => setIsQuizScheduled(e.target.checked)}
-            />
-          }
-          label="Quiz"
-        />
-
-        {editIndex !== null ? (
-          <Box sx={{ display: 'flex', mt: '20px', mr: '10px' }}>
-            <Button variant="contained" color="primary" onClick={handleAddItem}>
-              Update
-            </Button>
-            <IconButton onClick={() => handleCancelEdit()}>
-              <ClearIcon sx={{ color: PRIMARY_COL, fontSize: 'large', variant: 'contained' }} />
-            </IconButton>
-          </Box>
-        ) : (
-          <Button variant="contained" onClick={handleAddItem} sx={{ mt: '20px' }}>
-            Add
-          </Button>
-        )}
-      </Box>
+      </Paper>
     </Box>
   );
 }
+export default CoverageUpdater;

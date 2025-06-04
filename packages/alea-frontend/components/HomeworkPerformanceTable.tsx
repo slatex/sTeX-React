@@ -9,12 +9,12 @@ import {
   Typography,
 } from '@mui/material';
 import { HomeworkStub, LearnerHomeworkInfo, getHomeworkList } from '@stex-react/api';
-import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import { PRIMARY_COL } from '@stex-react/utils';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
+import { SafeHtml } from '@stex-react/react-utils';
 
 function HomeworkPerformanceTable({ courseId }: { courseId: string }) {
   const { homeworkPerformanceTable: t, homework: tHW } = getLocaleObject(useRouter());
@@ -89,7 +89,7 @@ function HomeworkPerformanceTable({ courseId }: { courseId: string }) {
                     onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
                     onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
                   >
-                    {mmtHTMLToReact(homework.title)}
+                    <SafeHtml html={homework.title} />
                   </Link>
                 </TableCell>
                 <TableCell sx={{ color: PRIMARY_COL, wordBreak: 'break-word', minWidth: '100px' }}>

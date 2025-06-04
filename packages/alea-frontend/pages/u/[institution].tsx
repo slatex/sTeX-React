@@ -245,8 +245,7 @@ export async function getStaticProps({ params, locale }) {
       },
     };
   }
-  const mmtUrl = 'https://stexmmt.mathhub.info';
-  const allCourses = await getCourseInfo(mmtUrl);
+  const allCourses = await getCourseInfo();
 
   const courses =
     params.institution === 'others'
@@ -256,7 +255,7 @@ export async function getStaticProps({ params, locale }) {
               !PARTNERED_UNIVERSITIES.map((uni) => uni.code).includes(allCourses[key].institution)
           )
           .map((key) => allCourses[key])
-      : await getCourseInfo(mmtUrl, params.institution);
+      : await getCourseInfo(params.institution);
 
   return {
     props: {

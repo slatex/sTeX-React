@@ -1,25 +1,28 @@
+import { InsertLink, LinkOff } from '@mui/icons-material';
 import FirstPageIcon from '@mui/icons-material/FirstPage';
 import LastPageIcon from '@mui/icons-material/LastPage';
+import MovieIcon from '@mui/icons-material/Movie';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import { Badge, Popover, Typography } from '@mui/material';
-import MovieIcon from '@mui/icons-material/Movie';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import { Box, IconButton, LinearProgress, Tooltip } from '@mui/material';
-import { ClipInfo, Slide } from '@stex-react/api';
 import {
-  ContentWithHighlight,
-  DocumentWidthSetter,
-  DisplayReason,
-  ExpandableContextMenu,
-} from '@stex-react/stex-react-renderer';
-import { XhtmlContentUrl } from '@stex-react/utils';
+  Badge,
+  Box,
+  IconButton,
+  LinearProgress,
+  Popover,
+  Tooltip,
+  Typography,
+} from '@mui/material';
+import { ClipInfo, Slide, SlideType, getSlides, CSS } from '@stex-react/api';
+import { FTMLFragment } from '@stex-react/ftml-utils';
+import { ExpandableContextMenu } from '@stex-react/stex-react-renderer';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { Dispatch, memo, SetStateAction, useEffect, useState } from 'react';
 import { setSlideNumAndSectionId } from '../pages/course-view/[courseId]';
+import { injectCss } from '@stex-react/ftml-utils';
 import styles from '../styles/slide-deck.module.scss';
-import { InsertLink, LinkOff } from '@mui/icons-material';
 
 export function SlideNavBar({
   slideNum,
@@ -162,6 +165,37 @@ const ClipSelector = ({
   );
 };
 
+function SlideRenderer({ slide }: { slide: Slide }) {
+  if (!slide) return <>No slide</>;
+  if (slide.slideType === SlideType.FRAME) {
+    return (
+      <Box fragment-uri={slide.slide?.uri} fragment-kind="Slide">
+        <FTMLFragment key={slide.slide?.uri} fragment={{ html: slide.slide?.html }} />
+      </Box>
+    );
+  } else if (slide.slideType === SlideType.TEXT) {
+    return (
+      <Box className={styles['text-frame']}>
+        {slide.paragraphs?.map((p, idx) => (
+          <Box key={p.uri} fragment-uri={p.uri} fragment-kind="Paragraph">
+            <FTMLFragment key={p.uri} fragment={{ html: p.html }} />
+            {idx < slide.paragraphs.length - 1 && <br />}
+          </Box>
+        ))}
+      </Box>
+    );
+  }
+}
+
+export function getSlideUri(slide: Slide) {
+  if (!slide) return undefined;
+  if (slide.slideType === SlideType.FRAME) {
+    return slide.slide?.uri;
+  } else if (slide.slideType === SlideType.TEXT) {
+    return slide.paragraphs?.[0]?.uri;
+  }
+}
+
 export const SlideDeck = memo(function SlidesFromUrl({
   courseId,
   sectionId,
@@ -184,7 +218,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
   slideNum?: number;
   slidesClipInfo?: {
     [sectionId: string]: {
-      [slideNumber: number]: ClipInfo[];
+      [slideUri: string]: ClipInfo[];
     };
   };
   topLevelDocUrl?: string;
@@ -198,10 +232,17 @@ export const SlideDeck = memo(function SlidesFromUrl({
   videoLoaded?: boolean;
 }) {
   const [slides, setSlides] = useState<Slide[]>([]);
+  const [css, setCss] = useState<CSS[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadedSectionId, setLoadedSectionId] = useState('');
   const [currentSlide, setCurrentSlide] = useState(undefined as Slide | undefined);
   const router = useRouter();
+
+  useEffect(() => {
+    (css ?? []).forEach((cssItem) => {
+      injectCss(cssItem);
+    });
+  }, [css]);
 
   useEffect(() => {
     let isCancelled = false;
@@ -209,20 +250,22 @@ export const SlideDeck = memo(function SlidesFromUrl({
     setIsLoading(true);
     setSlides([]);
     const loadingSectionId = sectionId;
-    axios.get(`/api/get-slides/${courseId}/${sectionId}`).then((r) => {
+    getSlides(courseId, sectionId).then((result) => {
       if (isCancelled) return;
-      const slides: Slide[] = r.data?.[sectionId] || [];
-
       setIsLoading(false);
-      setSlides(slides);
+      if (Array.isArray(result)) {
+        setSlides(result);
+      } else if (result && Array.isArray(result.slides)) {
+        setSlides(result.slides);
+        if (result.css) setCss(result.css);
+      }
       setLoadedSectionId(loadingSectionId);
     });
-
     return () => {
       isCancelled = true; // avoids race condition on rapid deckId changes.
     };
   }, [courseId, sectionId]);
-  const contentUrl = XhtmlContentUrl(currentSlide?.archive, currentSlide?.filepath);
+
   useEffect(() => {
     if (!slides?.length || loadedSectionId !== sectionId) return;
     if (slideNum < 1) {
@@ -235,8 +278,8 @@ export const SlideDeck = memo(function SlidesFromUrl({
     }
     const selectedSlide = slides[slideNum - 1];
     setCurrentSlide(selectedSlide);
-    if (onSlideChange) onSlideChange(selectedSlide);
-  }, [sectionId, loadedSectionId, slides, slideNum, router, onSlideChange]);
+    onSlideChange?.(selectedSlide);
+  }, [sectionId, loadedSectionId, slides, slideNum, router, slidesClipInfo]);
 
   function formatDuration(seconds: number) {
     const hours = Math.floor(seconds / 3600);
@@ -254,31 +297,31 @@ export const SlideDeck = memo(function SlidesFromUrl({
   function getClipsFromVideoData(
     slidesClipInfo: {
       [sectionId: string]: {
-        [slideNumber: number]: ClipInfo[];
+        [slideUri: string]: ClipInfo[];
       };
     },
     sectionId: string,
-    slideIndex: number
+    slideUri: string
   ) {
-    if (!slidesClipInfo || !slidesClipInfo[sectionId] || !slidesClipInfo[sectionId][slideIndex])
+    if (!slidesClipInfo || !slidesClipInfo[sectionId] || !slidesClipInfo[sectionId][slideUri])
       return [];
 
-    return (slidesClipInfo[sectionId]?.[slideIndex] || []).map((item, index) => ({
-      id: (index + 1).toString(),
-      video_id: item.video_id,
-      title: `Clip no. ${index + 1} of slide ${slideIndex} - ${
-        item.title || 'Untitled'
-      } || VideoId : ${item.video_id}`,
-      thumbnail: item.thumbnail || 'https://courses.voll-ki.fau.de/fau_kwarc.png',
-      start_time: item.start_time,
-      end_time: item.end_time,
-      duration: `${formatDuration((item.end_time ?? 0) - (item.start_time ?? 0))} (${formatDuration(
-        item.start_time ?? 0
-      )} → ${formatDuration(item.end_time ?? 0)})`,
-    }));
+    return (slidesClipInfo[sectionId]?.[slideUri] || []).map((item, index) => {
+      return {
+        id: (index + 1).toString(),
+        video_id: item.video_id,
+        title: `Clip no. ${index + 1}  || VideoId : ${item.video_id}`,
+        thumbnail: 'https://courses.voll-ki.fau.de/fau_kwarc.png',
+        start_time: item.start_time,
+        end_time: item.end_time,
+        duration: `${formatDuration(
+          (item.end_time ?? 0) - (item.start_time ?? 0)
+        )} (${formatDuration(item.start_time ?? 0)} → ${formatDuration(item.end_time ?? 0)})`,
+      };
+    });
   }
 
-  const clips = getClipsFromVideoData(slidesClipInfo, sectionId, slideNum);
+  const clips = getClipsFromVideoData(slidesClipInfo, sectionId, getSlideUri(currentSlide));
 
   if (isLoading) {
     return (
@@ -297,17 +340,13 @@ export const SlideDeck = memo(function SlidesFromUrl({
       mt={navOnTop ? '-55px' : '0px'}
     >
       <Box sx={{ position: 'absolute', right: '20px' }}>
-        <ExpandableContextMenu contentUrl={contentUrl} />
+        <ExpandableContextMenu uri={getSlideUri(currentSlide)} />
       </Box>
       {slides.length ? (
-        <DocumentWidthSetter>
-          <ContentWithHighlight
-            topLevelDocUrl={topLevelDocUrl}
-            mmtHtml={currentSlide?.slideContent || ''}
-            displayReason={DisplayReason.SLIDES}
-            renderWrapperParams={{ 'section-url': contentUrl }}
-          />
-        </DocumentWidthSetter>
+        // TODO ALEA4-S2 hack: Without border box, the content spills out of the container.
+        <Box id="slide-renderer-container" sx={{ '& *': { boxSizing: 'border-box' } }}>
+          <SlideRenderer key={slideNum} slide={currentSlide} />
+        </Box>
       ) : (
         <Box
           height="574px"
@@ -344,7 +383,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
         )}
 
         <Box display="flex" justifyContent="flex-end" flex={1}>
-          {!audioOnly && slides.length > 0 && videoLoaded && (
+          {!audioOnly && slides.length > 0 && videoLoaded && clips.length > 0 && (
             <ClipSelector clips={clips} onClipChange={onClipChange} />
           )}
           <SlideNavBar

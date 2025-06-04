@@ -1,3 +1,5 @@
+import { CSS, FTMLProblem, ProblemResponse } from './flams-types';
+
 export enum Phase {
   UNSET = 'UNSET',
   NOT_STARTED = 'NOT_STARTED',
@@ -7,13 +9,22 @@ export enum Phase {
 }
 
 export interface RecorrectionInfo {
-  problemId: string;
+  problemUri: string;
   problemHeader?: string;
   recorrectedTs: string; // ISO string
   description: string;
 }
 
-export interface Quiz {
+export interface FTMLProblemWithSolution {
+  problem: FTMLProblemWithSubProblems;
+  solution?: string;
+}
+
+export interface FTMLProblemWithSubProblems extends FTMLProblem {
+  subProblems?: SubProblemData[];
+}
+
+export interface QuizWithStatus {
   id: string;
   version: number;
 
@@ -25,7 +36,8 @@ export interface Quiz {
   manuallySetPhase: Phase;
 
   title: string;
-  problems: { [problemId: string]: string };
+  problems: Record<string, FTMLProblemWithSolution>;
+  css: CSS[];
 
   recorrectionInfo?: RecorrectionInfo[];
 
@@ -37,60 +49,6 @@ export enum Tristate {
   TRUE = 'TRUE',
   FALSE = 'FALSE',
   UNKNOWN = 'UNKNOWN',
-}
-
-export enum QuadState {
-  TRUE = 'TRUE',
-  FALSE = 'FALSE',
-  UNKNOWN = 'UNKNOWN',
-
-  // Only for multi-answer MCQs. When the question creator has created an invalid option.
-  // After the students have taken the quiz, if an option is marked as 'any',
-  // the response to that option will not affect the correctness of the problem.
-  ANY = 'ANY',
-}
-
-export interface Option {
-  shouldSelect: QuadState;
-  value: { outerHTML: string; textContent?: string };
-  feedbackHtml: string;
-  optionId: string;
-}
-
-export enum InputType {
-  MCQ = 'MCQ', // multiple choice, multiple correct answers
-  SCQ = 'SCQ', // multiple choice, single correct answer
-  FILL_IN = 'FILL_IN',
-}
-
-export enum FillInAnswerClassType {
-  exact = 'exact',
-  numrange = 'numrange',
-  regex = 'regex',
-}
-
-export interface FillInAnswerClass {
-  type: FillInAnswerClassType;
-  verdict: boolean;
-  feedbackHtml?: string;
-
-  startNum?: number;
-  endNum?: number;
-  regex?: string;
-  exactMatch?: string;
-}
-
-export interface FillInBox {
-  solution: string;
-  inline: boolean;
-}
-
-export interface Input {
-  type: InputType;
-  options?: Option[]; // For MCQ and SCQ types.
-  fillInAnswerClasses?: FillInAnswerClass[]; // For FILL_IN type.
-  inline: boolean;
-  ignoreForScoring?: boolean;
 }
 
 export interface SubProblemData {
@@ -112,21 +70,8 @@ export interface Problem {
   objectives: string;
   preconditions: string;
   statement: { outerHTML: string };
-  inputs: Input[];
   points: number;
   subProblemData: SubProblemData[];
-}
-
-export interface AutogradableResponse {
-  type: InputType;
-  filledInAnswer?: string;
-  singleOptionIdx?: string;
-  multipleOptionIdxs?: { [index: string]: boolean };
-}
-
-export interface ProblemResponse {
-  autogradableResponses: AutogradableResponse[];
-  freeTextResponses?: Record<string, string>; // subProblemId -> response
 }
 
 export interface PerProblemStats {
@@ -186,15 +131,16 @@ export interface GetQuizResponse {
   feedbackReleaseTs?: number;
 
   phase: Phase;
+  css: CSS[];
 
-  problems: { [problemId: string]: string };
+  problems: { [problemId: string]: FTMLProblemWithSolution };
   responses: { [problemId: string]: ProblemResponse };
 }
 
 export interface InsertAnswerRequest {
   quizId: string;
   problemId: string;
-  responses: AutogradableResponse[];
+  responses: ProblemResponse;
 
   browserTimestamp_ms: number;
 }
@@ -209,7 +155,7 @@ export interface DiligenceAndPerformanceData {
 }
 export interface UserAnonData {
   userData: { [userId: string]: DiligenceAndPerformanceData };
-  quizzes: Quiz[];
+  quizzes: QuizWithStatus[];
 }
 
 export interface QuizStubInfo {
@@ -217,6 +163,7 @@ export interface QuizStubInfo {
   quizStartTs: number;
   quizEndTs: number;
   title: string;
+  css: CSS[];
 }
 
 export function getTotalElapsedTime(events: TimerEvent[]) {
@@ -294,4 +241,10 @@ export interface PreviousQuizInfo {
   averageScore: number;
   maxPoints: number;
   recorrectionInfo?: RecorrectionInfo[];
+}
+export interface Excused {
+  userId: string;
+  quizId: string;
+  courseId: string;
+  courseInstance: string;
 }

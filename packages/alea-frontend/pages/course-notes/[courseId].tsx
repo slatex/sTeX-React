@@ -1,22 +1,23 @@
-import SearchIcon from '@mui/icons-material/Search';
 import {
+  Box,
   Button,
   CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  IconButton,
 } from '@mui/material';
-import { getCourseInfo } from '@stex-react/api';
-import { ServerLinksContext, StexReactRenderer } from '@stex-react/stex-react-renderer';
-import { CourseInfo, PRIMARY_COL, XhtmlContentUrl } from '@stex-react/utils';
+import { getCourseInfo, getDocumentSections, TOCElem } from '@stex-react/api';
+import { FTMLDocument, FTMLSetup } from '@stex-react/ftml-utils';
+import { SectionReview, TrafficLightIndicator } from '@stex-react/stex-react-renderer';
+import { CourseInfo, LectureEntry, PRIMARY_COL } from '@stex-react/utils';
+import axios from 'axios';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import SearchCourseNotes from '../../components/SearchCourseNotes';
-import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
+import { CommentButton } from '@stex-react/comments';
 
 const SearchDialog = ({ open, onClose, courseId }) => {
   return (
@@ -34,21 +35,9 @@ const SearchDialog = ({ open, onClose, courseId }) => {
       </DialogActions>
     </Dialog>
   );
-};
-
-const CourseNotesPage: NextPage = () => {
-  const router = useRouter();
-  const { home } = getLocaleObject(router);
-  const t = home.courseThumb;
-  const courseId = router.query.courseId as string;
-  const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
-  const { mmtUrl } = useContext(ServerLinksContext);
+  /*
+  <SearchDialog open={dialogOpen} onClose={handleDialogClose} courseId={courseId} />
   const [dialogOpen, setDialogOpen] = useState(false);
-
-  useEffect(() => {
-    if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
-  }, [mmtUrl]);
-
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
@@ -68,33 +57,119 @@ const CourseNotesPage: NextPage = () => {
 
   const handleDialogClose = () => {
     setDialogOpen(false);
-  };
+  };*/
+};
 
-  if (!router.isReady || !courses) return <CircularProgress />;
+const FragmentWrap: React.FC<{
+  uri: string;
+  fragmentKind: 'Section' | 'Slide' | 'Paragraph';
+  children: ReactNode;
+  uriToTitle: Record<string, string>;
+}> = ({ uri, fragmentKind, children, uriToTitle }) => {
+  return (
+    <Box fragment-uri={uri} fragment-kind={fragmentKind}>
+      {fragmentKind === 'Section' ? (
+        <>
+          {children}
+          <SectionReview sectionUri={uri} sectionTitle={uriToTitle[uri] ?? ''} />
+        </>
+      ) : (
+        <Box display="flex" justifyContent="space-between">
+          <Box flex={1}>{children}</Box>
+          <CommentButton url={uri} fragmentKind={fragmentKind} />
+        </Box>
+      )}
+    </Box>
+  );
+};
+
+function getSectionUriToTitle(toc: TOCElem[], uriToTitle: Record<string, string>) {
+  for (const elem of toc) {
+    if (elem.type === 'Section') {
+      uriToTitle[elem.uri] = elem.title;
+    }
+    if ('children' in elem) {
+      getSectionUriToTitle(elem.children, uriToTitle);
+    }
+  }
+}
+
+const CourseNotesPage: NextPage = () => {
+  const router = useRouter();
+  const courseId = router.query.courseId as string;
+  const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
+  const [gottos, setGottos] = useState<{ uri: string; timestamp: number }[] | undefined>(undefined);
+  const [toc, setToc] = useState<TOCElem[] | undefined>(undefined);
+  const uriToTitle = useRef<Record<string, string>>({});
+
+  useEffect(() => {
+    getCourseInfo().then(setCourses);
+  }, []);
+
+  useEffect(() => {
+    const notes = courses?.[courseId]?.notes;
+    if (!notes) return;
+    setToc(undefined);
+    getDocumentSections(notes).then(([css, toc]) => {
+      setToc(toc);
+      uriToTitle.current = {};
+      getSectionUriToTitle(toc, uriToTitle.current);
+    });
+  }, [router.isReady, courses, courseId]);
+
+  useEffect(() => {
+    async function fetchGottos() {
+      try {
+        const response = await axios.get('/api/get-coverage-timeline');
+        const currentSemData: LectureEntry[] = response.data[courseId] || [];
+        const coverageData = currentSemData
+          .filter((item) => item.sectionUri)
+          .map((item) => ({
+            uri: item.sectionUri,
+            timestamp: item.timestamp_ms,
+          }));
+        setGottos(coverageData);
+      } catch (error) {
+        setGottos([]);
+        console.error('Error fetching gottos:', error);
+      }
+    }
+    if (courseId) fetchGottos();
+  }, [courseId]);
+
+  if (!router.isReady || !courses || !gottos || !toc) {
+    return <CircularProgress />;
+  }
   const courseInfo = courses[courseId];
   if (!courseInfo) {
     router.replace('/');
     return <>Course Not Found!</>;
   }
-  const url = XhtmlContentUrl(courseInfo.notesArchive, courseInfo.notesFilepath);
+  const { notes } = courseInfo;
 
   return (
-    <MainLayout title={(courseId || '').toUpperCase() + ` ${t.notes} | ALeA`}>
-      <IconButton
-        onClick={handleSearchClick}
-        style={{
-          position: 'fixed',
-          right: '10px',
-          top: '80px',
-          zIndex: 1000,
-          background: '#FFFFFFF0',
-          transform: 'scale(1.1)',
-        }}
-      >
-        <SearchIcon style={{ color: PRIMARY_COL }} />
-      </IconButton>
-      <SearchDialog open={dialogOpen} onClose={handleDialogClose} courseId={courseId} />
-      <StexReactRenderer contentUrl={url} topOffset={64} />
+    <MainLayout title={courseId.toUpperCase()}>
+      <FTMLSetup>
+        <FTMLDocument
+          key={notes}
+          document={{ uri: notes, toc: { Predefined: toc }, gottos }}
+          onFragment={(uri, kind) => {
+            if (kind.type === 'Section' || kind.type === 'Slide' || kind.type === 'Paragraph') {
+              return (ch) => (
+                <FragmentWrap
+                  uri={uri}
+                  fragmentKind={kind.type}
+                  children={ch}
+                  uriToTitle={uriToTitle.current}
+                />
+              );
+            }
+          }}
+          onSectionTitle={(uri, lvl) => {
+            return <TrafficLightIndicator sectionUri={uri} />;
+          }}
+        />
+      </FTMLSetup>
     </MainLayout>
   );
 };

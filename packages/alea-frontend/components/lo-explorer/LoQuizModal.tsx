@@ -1,7 +1,7 @@
 import { Alert, Box, Button, Modal, Snackbar, Typography } from '@mui/material';
 import { useMemo, useState } from 'react';
 import { CartItem } from './LoCartModal';
-import { extractProjectIdAndFilepath } from '@stex-react/utils';
+import { getParamsFromUri } from '@stex-react/utils';
 
 interface QuizModalProps {
   open: boolean;
@@ -27,7 +27,7 @@ const LoQuizModal: React.FC<QuizModalProps> = ({ open, onClose, selectedItems })
     const dynamicLines = selectedItems
       .filter((i) => i.uriType === 'problem')
       .map((item) => {
-        const [archive, filePath] = extractProjectIdAndFilepath(item.uri, '');
+        const [archive, filePath] = getParamsFromUri(item.uri, ['a', 'p']);
         return `       \\includeproblem[pts=TODO,archive=${archive}]{${filePath}}`;
       })
       .join('\n');

@@ -18,22 +18,15 @@ import {
   CardsWithSmileys,
   SmileyLevel,
   getAuthHeaders,
-  getCourseInfo,
   isLoggedIn,
   smileyToLevel,
 } from '@stex-react/api';
-import { ServerLinksContext, mmtHTMLToReact } from '@stex-react/stex-react-renderer';
-import {
-  PRIMARY_COL,
-  SECONDARY_COL,
-  Window,
-  XhtmlContentUrl,
-  stableShuffle,
-} from '@stex-react/utils';
-import axios from 'axios';
+import { SafeHtml } from '@stex-react/react-utils';
 import { ConfigureLevelSlider } from '@stex-react/stex-react-renderer';
+import { PRIMARY_COL, SECONDARY_COL, Window, stableShuffle } from '@stex-react/utils';
+import axios from 'axios';
 import { useRouter } from 'next/router';
-import { Dispatch, Fragment, SetStateAction, useContext, useEffect, useState } from 'react';
+import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
 import { FlashCardMode, FlashCards } from './FlashCards';
 
@@ -219,7 +212,7 @@ function CoverageConfigurator({
                     }}
                   >
                     <b style={{ display: 'block', color: PRIMARY_COL, fontSize: 'large' }}>
-                      {mmtHTMLToReact(chapterTitle)}
+                      <SafeHtml html={chapterTitle} />
                     </b>
                   </ListItemButton>
                 </ListItem>
@@ -240,7 +233,7 @@ function CoverageConfigurator({
                     primary={
                       <Box sx={{ fontSize: '14px' }}>
                         <b style={{ display: 'block', color: PRIMARY_COL }}>
-                          {mmtHTMLToReact(sectionTitle)}
+                          <SafeHtml html={sectionTitle} />
                         </b>
                         <b style={{ color: SECONDARY_COL }}>
                           {loggedIn && selectedCards.length + '/'}
@@ -286,6 +279,7 @@ function CoverageConfigurator({
     </>
   );
 }
+
 function ReviseAndDrillButtons({
   selectedCards,
   start,
@@ -380,22 +374,16 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
     Understand: 0,
   });
   const [checkedChapterIdxs, setCheckedChapterIdxs] = useState<number[]>([]);
-  const [topLevelDocUrl, setTopLevelDocUrl] = useState<string | undefined>(undefined);
   const [started, setStarted] = useState(false);
   const [mode, setMode] = useState(FlashCardMode.REVISION_MODE);
   const [shuffle, setShuffle] = useState(true);
-  const { mmtUrl } = useContext(ServerLinksContext);
 
   const loggedIn = isLoggedIn();
 
   const sectionCounts = getSectionCounts(levels, loggedIn, courseCards);
   const selectedChapters = checkedChapterIdxs.map((idx) => sectionCounts[idx].sectionTitle);
   const selectedCards = getSelectedCards(mode, shuffle, sectionCounts, selectedChapters);
-  useEffect(() => {
-    getCourseInfo(mmtUrl).then((c) =>
-      setTopLevelDocUrl(XhtmlContentUrl(c[courseId]?.notesArchive, c[courseId]?.notesFilepath))
-    );
-  }, [courseId, mmtUrl]);
+
   useEffect(() => {
     if (!courseId) return;
     setIsLoading(true);
@@ -417,9 +405,11 @@ export function DrillConfigurator({ courseId }: { courseId: string }) {
   if (started) {
     return (
       <FlashCards
-        topLevelDocUrl={topLevelDocUrl}
         mode={mode}
-        cards={selectedCards.map((card) => ({ uri: card.uri, instances: [] }))}
+        cards={selectedCards.map((card) => ({
+          conceptUri: card.conceptUri,
+          definitionUri: card.definitionUri,
+        }))}
         onFinish={() => setStarted(false)}
       />
     );

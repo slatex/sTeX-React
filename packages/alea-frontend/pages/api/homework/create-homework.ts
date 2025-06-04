@@ -6,7 +6,7 @@ import { CreateHomeworkRequest } from '@stex-react/api';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
-  const { title, givenTs, dueTs, feedbackReleaseTs, courseId, courseInstance, problems } =
+  const { title, givenTs, dueTs, feedbackReleaseTs, courseId, courseInstance, css, problems } =
     req.body as CreateHomeworkRequest;
   const userId = await getUserIdIfAuthorizedOrSetError(
     req,
@@ -17,8 +17,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   );
   if (!userId) return;
   const result = await executeAndEndSet500OnError(
-    'INSERT INTO homework (versionNo, title, givenTs, dueTs, feedbackReleaseTs, courseId, courseInstance, problems, updaterId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-    [0, title, givenTs, dueTs, feedbackReleaseTs, courseId, courseInstance, JSON.stringify(problems), userId],
+    'INSERT INTO homework (versionNo, title, givenTs, dueTs, feedbackReleaseTs, courseId, courseInstance, css, problems, updaterId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    [
+      0,
+      title,
+      givenTs,
+      dueTs,
+      feedbackReleaseTs,
+      courseId,
+      courseInstance,
+      JSON.stringify(css),
+      JSON.stringify(problems),
+      userId,
+    ],
     res
   );
   if (!result) return;

@@ -1,22 +1,15 @@
-import LinkIcon from '@mui/icons-material/Link';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import IntegrationInstructionsIcon from '@mui/icons-material/IntegrationInstructions';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { IconButton, Menu, MenuItem, Snackbar } from '@mui/material';
-import { useContext, useState } from 'react';
-import { getSectionInfo } from '@stex-react/utils';
-import { RenderOptions } from './RendererDisplayOptions';
-import { getLocaleObject } from './lang/utils';
+import { IconButton, Menu, MenuItem } from '@mui/material';
+import { getSourceUrl } from '@stex-react/api';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import { getLocaleObject } from './lang/utils';
 
-export function ExpandableContextMenu({
-  sectionLink,
-  contentUrl,
-}: {
-  sectionLink?: string;
-  contentUrl: string;
-}) {
+export function ExpandableContextMenu({ uri }: { uri?: string }) {
   const t = getLocaleObject(useRouter());
+  const [sourceUrl, setSourceUrl] = useState<string | undefined>(undefined);
   // menu crap start
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -29,12 +22,14 @@ export function ExpandableContextMenu({
   };
   // menu crap end
 
-  const { renderOptions: { noFrills} } = useContext(RenderOptions);
-  const [snackBarOpen, setSnackbarOpen] = useState(false);
+  useEffect(() => {
+    if (!uri) return;
+    setSourceUrl(undefined);
+    getSourceUrl(uri).then(setSourceUrl);
+  }, [uri]);
 
-  const sourceUrl = getSectionInfo(contentUrl).source;
+  if (!sourceUrl) return null;
 
-  if (noFrills) return null;
   return (
     <>
       <IconButton
@@ -55,13 +50,6 @@ export function ExpandableContextMenu({
         <MoreVertIcon />
       </IconButton>
 
-      {/*Snackbar only displayed on copy link button click.*/}
-      <Snackbar
-        open={snackBarOpen}
-        autoHideDuration={4000}
-        onClose={() => setSnackbarOpen(false)}
-        message={t.linkCopied}
-      />
       <Menu
         id="comment-menu"
         anchorEl={anchorEl}
@@ -69,19 +57,6 @@ export function ExpandableContextMenu({
         onClose={handleClose}
         MenuListProps={{ 'aria-labelledby': 'basic-button' }}
       >
-        {sectionLink && (
-          <MenuItem
-            onClick={(e) => {
-              e.stopPropagation();
-              navigator.clipboard.writeText(sectionLink);
-              setSnackbarOpen(true);
-              handleClose();
-            }}
-          >
-            <LinkIcon />
-            &nbsp;{t.copySectionLink}
-          </MenuItem>
-        )}
         <MenuItem
           onClick={(e) => {
             e.stopPropagation();

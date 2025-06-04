@@ -1,11 +1,10 @@
 import { CircularProgress } from '@mui/material';
-import { getCourseInfo, getDocumentSections, SectionsAPIData } from '@stex-react/api';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
+import { getCourseInfo, getDocumentSections, TOCElem } from '@stex-react/api';
 import { CourseInfo } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import ProblemList from '../../components/ProblemList';
-import { useContext, useEffect, useState } from 'react';
 import MainLayout from '../../layouts/MainLayout';
 
 const CourseProblemsPage: NextPage = () => {
@@ -13,24 +12,27 @@ const CourseProblemsPage: NextPage = () => {
   const courseId = router.query.courseId as string;
 
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
-  const [sectionsData, setSectionsData] = useState<SectionsAPIData | undefined>(undefined);
-  const { mmtUrl } = useContext(ServerLinksContext);
+  const [sectionsData, setSectionsData] = useState<TOCElem[] | undefined>(undefined);
 
   useEffect(() => {
-    if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
-  }, [mmtUrl]);
+    getCourseInfo().then(setCourses);
+  }, []);
 
   useEffect(() => {
-    if (!courses || !courseId) return;
-    const courseInfo = courses?.[courseId];
-    if (!courseInfo) {
-      router.replace('/');
-      return;
+    async function fetchSectionData() {
+      if (!courses || !courseId) return;
+      const courseInfo = courses?.[courseId];
+      if (!courseInfo) {
+        router.replace('/');
+        return;
+      }
+      const { notes } = courseInfo;
+      const docSections = await getDocumentSections(notes);
+      const tocContent = docSections[1];
+      setSectionsData(tocContent);
     }
-
-    const { notesArchive, notesFilepath } = courseInfo;
-    getDocumentSections(mmtUrl, notesArchive, notesFilepath).then(setSectionsData);
-  }, [courses, courseId]);
+    fetchSectionData();
+  }, [courses, courseId, router]);
 
   if (!router.isReady || !courses) return <CircularProgress />;
   if (!sectionsData) return <CircularProgress />;

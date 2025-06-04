@@ -1,9 +1,21 @@
 import FeedIcon from '@mui/icons-material/Feed';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import { Box, Button, IconButton, Tooltip, Typography, useMediaQuery } from '@mui/material';
-import { checkUserExist, getCourseInfo, getResourcesForUserId, isLoggedIn } from '@stex-react/api';
+import {
+  getCourseInfo,
+  getFTMLQuiz,
+  getResourcesForUser,
+  isLoggedIn,
+  updateUserInfoFromToken,
+} from '@stex-react/api';
 import { ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { Action, CourseInfo, CourseResourceAction, PRIMARY_COL } from '@stex-react/utils';
+import {
+  Action,
+  CourseInfo,
+  CourseResourceAction,
+  CURRENT_TERM,
+  PRIMARY_COL,
+} from '@stex-react/utils';
 import { NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -17,7 +29,7 @@ function getInstructor(courseData: CourseInfo, currentSemester: string) {
   for (const instance of courseData.instances) {
     if (instance.semester === currentSemester) {
       if (instance.instructors && instance.instructors.length > 0) {
-        return instance.instructors[0].name;
+        return instance.instructors[0];
       }
     }
   }
@@ -91,7 +103,7 @@ export const PARTNERED_UNIVERSITIES = [
   },
 ];
 
-const FEATURED_COURSES = ['ai-1', 'ai-2', 'gdp', 'iwgs-2', 'lbs'];
+const FEATURED_COURSES = ['ai-1', 'ai-2', 'gdp', 'iwgs-2', 'krmt', 'smai'];
 
 export const BannerSection = ({ tight = false }: { tight?: boolean }) => {
   const router = useRouter();
@@ -241,13 +253,12 @@ export function VollKiInfoSection({ bgcolor = '#F5F5F5' }: { bgcolor?: string })
   );
 }
 
-export function CourseCard({ key, course }) {
+export function CourseCard({ course }) {
   const { imageLink: courseImage, courseName, courseId, institution, instructors } = course;
-  const instructor = getInstructor(course, 'SS24') ?? instructors[0].name;
+  const instructor = getInstructor(course, CURRENT_TERM) ?? instructors[0];
   return (
     <Link href={`/course-home/${courseId}`}>
       <Box
-        key={key}
         sx={{
           cursor: 'pointer',
           boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2)',
@@ -268,7 +279,7 @@ export function CourseCard({ key, course }) {
           height={120}
           width={courseId === 'iwgs-1' ? 100 : 200}
           src={courseImage}
-          alt="couse-image"
+          alt="course-image"
           style={{ borderRadius: '10px' }}
         />
         <Box sx={{ display: 'flex', flexDirection: 'column', marginTop: '10px' }}>
@@ -280,7 +291,7 @@ export function CourseCard({ key, course }) {
               color: '#003786',
             }}
           >
-            {courseName.length > 50 ? courseId.toUpperCase() : courseName}
+            {courseName.length > 45 ? courseId.toUpperCase() : courseName}
           </Typography>
           <Typography sx={{ fontSize: '14px', padding: '5px' }}>{institution}</Typography>
           <Typography sx={{ fontSize: '14px', padding: '5px' }}>{instructor}</Typography>
@@ -325,24 +336,31 @@ const StudentHomePage: NextPage = ({ filteredCourses }: { filteredCourses: Cours
   const router = useRouter();
   const [resourcesForInstructor, setResourcesForInstructor] = useState<CourseResourceAction[]>([]);
   useEffect(() => {
-    checkUserExist();
+    updateUserInfoFromToken();
+    getFTMLQuiz(
+      'https://mathhub.info/?a=courses/FAU/AI/hwexam&p=general/quizzes&d=pretest&l=en'
+    ).then((quiz) => {
+      console.log('quiz', quiz);
+    });
   }, []);
+
   const {
     home: { newHome: n },
   } = getLocaleObject(router);
 
-  const { mmtUrl } = useContext(ServerLinksContext);
   useEffect(() => {
     async function resourcesAccessToUser() {
-      const resources = await getResourcesForUserId(mmtUrl);
-      const resourceAccessToInstructor =( resources.map((item) => ({
-        ...item,
-        actions: item.actions.filter((action) => action !== Action.TAKE),
-      }))).filter((resource)=>resource.actions.length>0)
+      const resources = await getResourcesForUser();
+      const resourceAccessToInstructor = resources
+        .map((item) => ({
+          ...item,
+          actions: item.actions.filter((action) => action !== Action.TAKE),
+        }))
+        .filter((resource) => resource.actions.length > 0);
       setResourcesForInstructor(resourceAccessToInstructor);
     }
     resourcesAccessToUser();
-  }, [mmtUrl]);
+  }, []);
 
   if (loggedIn) {
     return (
@@ -503,8 +521,7 @@ const StudentHomePage: NextPage = ({ filteredCourses }: { filteredCourses: Cours
 export default StudentHomePage;
 
 export async function getStaticProps() {
-  const mmtUrl = 'https://stexmmt.mathhub.info';
-  const courses = await getCourseInfo(mmtUrl);
+  const courses = await getCourseInfo();
   const filteredKeys = Object.keys(courses).filter((key) =>
     FEATURED_COURSES.includes(courses[key].courseId)
   );

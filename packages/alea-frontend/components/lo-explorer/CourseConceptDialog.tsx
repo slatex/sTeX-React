@@ -20,44 +20,36 @@ import {
   Typography,
 } from '@mui/material';
 import {
+  conceptUriToName,
   getCourseInfo,
-  getDefiniedaInDoc,
+  getDefiniedaInSection,
   getDocumentSections,
-  SectionsAPIData,
+  getSectionDependencies,
+  TOCElem,
 } from '@stex-react/api';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { convertHtmlStringToPlain, CourseInfo } from '@stex-react/utils';
-import React, { useContext, useEffect, useState } from 'react';
+import { CourseInfo } from '@stex-react/utils';
+import React, { useEffect, useState } from 'react';
 
-interface SectionDetails {
-  name: string;
-  archive?: string;
-  filepath?: string;
-}
-
-function getSectionDetails(
-  data: SectionsAPIData,
-  level = 0,
-  parentArchive?: string,
-  parentFilepath?: string
-): SectionDetails[] {
+export function getSectionDetails(tocElems: TOCElem[]): SectionDetails[] {
   const sections: SectionDetails[] = [];
-  const inheritedArchive = parentArchive;
-  const inheritedFilepath = parentFilepath;
-  if (data.title?.length) {
-    sections.push({
-      name: '\xa0'.repeat(level * 4) + convertHtmlStringToPlain(data.title),
-      archive: inheritedArchive,
-      filepath: inheritedFilepath,
-    });
-  }
-
-  for (const child of data.children || []) {
-    sections.push(
-      ...getSectionDetails(child, level + (data.title?.length ? 1 : 0), data.archive, data.filepath)
-    );
+  for (const tocElem of tocElems) {
+    if (tocElem.type === 'Section') {
+      sections.push({
+        name: tocElem.title,
+        id: tocElem.id,
+        uri: tocElem.uri,
+      });
+    }
+    if ('children' in tocElem && Array.isArray(tocElem.children)) {
+      sections.push(...getSectionDetails(tocElem.children));
+    }
   }
   return sections;
+}
+interface SectionDetails {
+  name: string;
+  id?: string;
+  uri?: string;
 }
 
 export const CourseConceptsDialog = ({
@@ -80,25 +72,26 @@ export const CourseConceptsDialog = ({
   const [processedOptions, setProcessedOptions] = useState<{ label: string; value: string }[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const { mmtUrl } = useContext(ServerLinksContext);
   const selectAllKey = 'Select All';
 
   useEffect(() => {
-    if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
-  }, [mmtUrl]);
+    getCourseInfo().then(setCourses);
+  }, []);
 
   useEffect(() => {
-    async function getSections() {
+    async function getCourseSections() {
       const secDetails: Record<string, SectionDetails[]> = {};
       for (const courseId of Object.keys(courses)) {
-        const { notesArchive: archive, notesFilepath: filepath } = courses[courseId];
-        const docSections = await getDocumentSections(mmtUrl, archive, filepath);
-        secDetails[courseId] = getSectionDetails(docSections);
+        const notes = courses?.[courseId]?.notes;
+        if (!notes) continue;
+        getDocumentSections(notes).then(([css, toc]) => {
+          secDetails[courseId] = getSectionDetails(toc);
+        });
       }
       setAllSectionDetails(secDetails);
     }
-    getSections();
-  }, [mmtUrl, courses]);
+    getCourseSections();
+  }, [courses]);
 
   const handleCourseChange = (event: SelectChangeEvent) => {
     const courseId: string = event.target.value;
@@ -114,15 +107,11 @@ export const CourseConceptsDialog = ({
     }
     setLoading(true);
     try {
-      const definedConcepts = await getDefiniedaInDoc(
-        mmtUrl,
-        selectedSection?.archive,
-        selectedSection?.filepath
-      );
-      const conceptsUri = [...new Set(definedConcepts.flatMap((data) => data.symbols))];
+      const concepts = await getDefiniedaInSection(selectedSection?.uri);
+      const uniqueConceptUris = [...new Set(concepts.map((c) => c.conceptUri))];
       setProcessedOptions(
-        [...conceptsUri].map((uri) => ({
-          label: `${uri.split('?').pop()} (${uri})`,
+        uniqueConceptUris.map((uri) => ({
+          label: `${conceptUriToName(uri)} (${uri})`,
           value: uri,
         }))
       );
@@ -235,7 +224,7 @@ export const CourseConceptsDialog = ({
                   renderTags={(value, getTagProps) =>
                     value.map((option, index) => (
                       <Chip
-                        label={option.value.split('?').pop()}
+                        label={conceptUriToName(option.value)}
                         {...getTagProps({ index })}
                         key={index}
                         color="primary"

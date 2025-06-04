@@ -1,20 +1,14 @@
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
-import {
-  conceptUriToName,
-  getLeafConcepts,
-  getLearningObjects,
-  getLearningObjectShtml,
-  LoType,
-  ProblemResponse,
-} from '@stex-react/api';
-import { LayoutWithFixedMenu, ServerLinksContext } from '@stex-react/stex-react-renderer';
+import { conceptUriToName, getLeafConcepts, getLearningObjects, LoType } from '@stex-react/api';
+import { ProblemResponse } from '@stex-react/ftml-utils';
+import { LayoutWithFixedMenu } from '@stex-react/stex-react-renderer';
 import { shouldUseDrawer } from '@stex-react/utils';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useState } from 'react';
+import { UriProblemViewer } from 'packages/stex-react-renderer/src/lib/PerSectionQuiz';
+import { useEffect, useState } from 'react';
 import { GuidedTour2Navigation } from '../../components/guided-tour2/GuidedTour2Navigation';
 import { stateTransition } from '../../components/guided-tour2/stateTransition';
 import { LoViewer } from '../../components/LoListDisplay';
-import ProblemFetcher from '../../components/ProblemFetcher';
 import {
   ACTION_VERBALIZATION_OPTIONS,
   ActionName,
@@ -23,26 +17,10 @@ import {
 } from '../../constants/messages';
 import MainLayout from '../../layouts/MainLayout';
 import styles from '../../styles/guided-tour.module.scss';
-
 export const structureLearningObjects = async (
-  mmtUrl: string,
   learningObjects: { 'learning-object': string; type: LoType }[]
 ) => {
   const structured: Partial<Record<LoType, { uris: string[]; currentIdx: number }>> = {};
-  const problemUrls = learningObjects
-    .filter((o) => o.type === 'problem')
-    .map((o) => o['learning-object']);
-  const problemStrs$ = problemUrls.map((uri) => getLearningObjectShtml(mmtUrl, uri));
-  const isAutogradable: Record<string, boolean> = {};
-  const problemStrs = await Promise.all(problemStrs$);
-  for (let i = 0; i < problemUrls.length; i++) {
-    const url = problemUrls[i];
-    const problemStr = problemStrs[i];
-    isAutogradable[url] =
-      problemStr.includes('data-problem-mcb') ||
-      problemStr.includes('data-problem-scb') ||
-      problemStr.includes('data-problem-fillinsol');
-  }
 
   learningObjects.forEach((item) => {
     const { type } = item;
@@ -50,8 +28,9 @@ export const structureLearningObjects = async (
     if (!structured[type]) {
       structured[type] = { uris: [], currentIdx: -1 };
     }
-    if (type !== 'problem' || isAutogradable[learningObject]) {
-      if (!learningObject.includes('.de.')) structured[type].uris.push(learningObject);
+
+    if (!learningObject.includes('.de.')) {
+      structured[type]!.uris.push(learningObject);
     }
   });
 
@@ -61,7 +40,7 @@ export const structureLearningObjects = async (
 // TODO: Split this into UserConvOptions and UserAction.
 // UserConvOptions (actionType, options, optionVerbalization ) are used to display options to the user.
 // UserAction is the actual action taken by user (chosenOption, targetConceptUri, repsonse, quotient).
-// UserAction can be outside the UserConvOptions 
+// UserAction can be outside the UserConvOptions
 // stateTransition should take UserAction as input and return UserConvOptions as output.
 export interface UserAction {
   actionType: 'problem' | 'choose-option' | 'end' | 'out-of-conversation';
@@ -105,22 +84,27 @@ function ChatMessageDisplay({
   message,
   problemResponse,
   isFrozen,
+  isSubmitted,
   setProblemResponse,
+  setQuotient,
 }: {
   message: ChatMessage;
   problemResponse?: ProblemResponse;
   isFrozen?: boolean;
-  setProblemResponse?: (response: ProblemResponse, quotient: number) => void;
+  isSubmitted: boolean;
+  setProblemResponse?: (response: ProblemResponse | undefined) => void;
+  setQuotient?: (quotient: number | undefined) => void;
 }) {
   if (message.type === 'text') {
     return <Typography variant="body1" dangerouslySetInnerHTML={{ __html: message.text }} />;
-  } else if (message.type === 'problem') {
+  } else if (message.type === 'problem' && message.loUri) {
     return (
-      <ProblemFetcher
-        isFrozen={isFrozen}
-        problemUri={message.loUri}
+      <UriProblemViewer
+        uri={message.loUri}
+        isSubmitted={isSubmitted}
         response={problemResponse}
-        onResponseUpdate={(r, q) => setProblemResponse(r, q)}
+        setResponse={setProblemResponse}
+        setQuotient={setQuotient}
       />
     );
   } else {
@@ -157,11 +141,13 @@ function UserActionDisplay({
   problemResponse,
   quotient,
   onResponse,
+  setIsSubmitted,
 }: {
   action: UserAction;
   problemResponse?: ProblemResponse;
   quotient?: number;
   onResponse: (responded: UserAction) => void;
+  setIsSubmitted: (isSubmitted: boolean) => void;
 }) {
   if (action.actionType === 'choose-option') {
     return (
@@ -184,6 +170,8 @@ function UserActionDisplay({
     return (
       <Button
         onClick={() => {
+          setIsSubmitted(true);
+          // TODO ALEA4-L1 This seems wrong. quotient will not be set at this point. 
           onResponse({ ...action, response: problemResponse, quotient });
         }}
         variant="contained"
@@ -204,8 +192,8 @@ const GuidedTours = () => {
   const [tourState, setTourState] = useState<GuidedTourState | undefined>(undefined);
   const [userAction, setUserAction] = useState<UserAction | undefined>(undefined);
   const [problemResponse, setProblemResponse] = useState<ProblemResponse | undefined>(undefined);
-  const [quotient, setQuotient] = useState<number>(0);
-  const { mmtUrl } = useContext(ServerLinksContext);
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+  const [quotient, setQuotient] = useState<number|undefined>(undefined);
   const [pendingMessages, setPendingMessages] = useState<ChatMessage[]>([]);
   const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
 
@@ -230,7 +218,7 @@ const GuidedTours = () => {
         const focusConceptIdx = 0;
         const firstLeafConceptName = conceptUriToName(leafConceptUris[focusConceptIdx]);
         const response = await getLearningObjects([leafConceptUris[focusConceptIdx]]);
-        const focusConceptLo = await structureLearningObjects(mmtUrl, response['learning-objects']);
+        const focusConceptLo = await structureLearningObjects(response['learning-objects']);
         setTourState({
           targetConceptUri,
           leafConceptUris,
@@ -259,7 +247,7 @@ const GuidedTours = () => {
   }, [router.isReady]);
 
   const onAction = async (action: UserAction) => {
-    const { newState, newMessages, nextAction } = await stateTransition(mmtUrl, tourState, action);
+    const { newState, newMessages, nextAction } = await stateTransition(tourState, action);
     setTourState(newState);
     // TODO: Remove this 'skipConvUpdate' hack once we have separated out UserAction and UserConvOptions.
     const skipConvUpdate = action.chosenOption === 'MARK_AS_KNOWN' && !nextAction;
@@ -277,6 +265,8 @@ const GuidedTours = () => {
     ]);
     setPendingMessages(newMessages.slice(1));
     setUserAction(nextAction);
+    setProblemResponse(undefined);
+    setIsSubmitted(false);
   };
 
   if (!tourState) return <CircularProgress />;
@@ -341,10 +331,9 @@ const GuidedTours = () => {
                         ? problemResponse
                         : messages[index + 1]?.userAction?.response
                     }
-                    setProblemResponse={(r, q) => {
-                      setProblemResponse(r);
-                      setQuotient(q);
-                    }}
+                    setProblemResponse={setProblemResponse}
+                    setQuotient={setQuotient}
+                    isSubmitted={isSubmitted}
                   />
                 </Box>
               </Box>
@@ -356,6 +345,7 @@ const GuidedTours = () => {
                   problemResponse={problemResponse}
                   quotient={quotient}
                   onResponse={onAction}
+                  setIsSubmitted={setIsSubmitted}
                 />
               </Box>
             )}

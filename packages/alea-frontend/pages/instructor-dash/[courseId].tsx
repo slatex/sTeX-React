@@ -1,18 +1,19 @@
 import { Box, Tab, Tabs } from '@mui/material';
 import { canAccessResource, getCourseInfo } from '@stex-react/api';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { Action, CourseInfo, CURRENT_TERM, ResourceName } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import CourseAccessControlDashboard from '../../components/CourseAccessControlDashboard';
 import HomeworkManager from '../../components/HomeworkManager';
 import { GradingInterface } from '../../components/nap/GradingInterface';
+import InstructorPeerReviewViewing from '../../components/peer-review/InstructorPeerReviewViewing';
 import QuizDashboard from '../../components/QuizDashboard';
 import { StudyBuddyModeratorStats } from '../../components/StudyBuddyModeratorStats';
 import MainLayout from '../../layouts/MainLayout';
 import { CourseHeader } from '../course-home/[courseId]';
-
+import CoverageUpdatePage from '../../components/coverage-update';
+import { updateRouterQuery } from '@stex-react/react-utils';
 interface TabPanelProps {
   children?: React.ReactNode;
   value: number;
@@ -24,28 +25,53 @@ type TabName =
   | 'homework-manager'
   | 'homework-grading'
   | 'quiz-dashboard'
-  | 'study-buddy';
+  | 'study-buddy'
+  | 'peer-review'
+  | 'syllabus';
 
 const TAB_ACCESS_REQUIREMENTS: Record<TabName, { resource: ResourceName; actions: Action[] }> = {
   'access-control': { resource: ResourceName.COURSE_ACCESS, actions: [Action.ACCESS_CONTROL] },
   'homework-manager': { resource: ResourceName.COURSE_HOMEWORK, actions: [Action.MUTATE] },
-  'homework-grading': { resource: ResourceName.COURSE_HOMEWORK, actions: [Action.INSTRUCTOR_GRADING] },
-  'quiz-dashboard': { resource: ResourceName.COURSE_QUIZ, actions: [Action.MUTATE, Action.PREVIEW] },
-  'study-buddy': { resource: ResourceName.COURSE_STUDY_BUDDY, actions: [Action.MODERATE] }
+  'homework-grading': {
+    resource: ResourceName.COURSE_HOMEWORK,
+    actions: [Action.INSTRUCTOR_GRADING],
+  },
+  'quiz-dashboard': {
+    resource: ResourceName.COURSE_QUIZ,
+    actions: [Action.MUTATE, Action.PREVIEW],
+  },
+  'peer-review': { resource: ResourceName.COURSE_PEERREVIEW, actions: [Action.MUTATE] },
+  'study-buddy': { resource: ResourceName.COURSE_STUDY_BUDDY, actions: [Action.MODERATE] },
+  'syllabus': { resource: ResourceName.COURSE_ACCESS, actions: [Action.ACCESS_CONTROL] },
 };
-
-function ChosenTab({ tabName, courseId }: { tabName: TabName; courseId: string }) {
+function ChosenTab({
+  tabName,
+  courseId,
+  quizId,
+  onQuizIdChange,
+}: {
+  tabName: TabName;
+  courseId: string;
+  quizId?: string;
+  onQuizIdChange?: (id: string) => void;
+}) {
   switch (tabName) {
     case 'access-control':
       return <CourseAccessControlDashboard courseId={courseId} />;
     case 'homework-manager':
       return <HomeworkManager courseId={courseId} />;
     case 'homework-grading':
-      return <GradingInterface courseId={courseId} />;
+      return <GradingInterface isPeerGrading={false} courseId={courseId} />;
     case 'quiz-dashboard':
-      return <QuizDashboard courseId={courseId} />;
+      return (
+        <QuizDashboard courseId={courseId} quizId={quizId} onQuizIdChange={onQuizIdChange} />
+      );
     case 'study-buddy':
       return <StudyBuddyModeratorStats courseId={courseId} />;
+    case 'peer-review':
+      return <InstructorPeerReviewViewing courseId={courseId}></InstructorPeerReviewViewing>;
+    case 'syllabus':
+      return <CoverageUpdatePage />;
     default:
       return null;
   }
@@ -74,32 +100,46 @@ const TabPanel = (props: TabPanelProps) => {
   );
 };
 
+const TAB_MAX_WIDTH: Record<TabName, string | undefined> = {
+  'access-control': '900px',
+  'homework-grading': undefined,
+  'peer-review': undefined,
+  'homework-manager': '900px',
+  'quiz-dashboard': '900px',
+  'study-buddy': '900px',
+  'syllabus': '1200px',
+};
+
 const InstructorDash: NextPage = () => {
   const router = useRouter();
   const courseId = router.query.courseId as string;
   const tab = router.query.tab as TabName;
 
-  const { mmtUrl } = useContext(ServerLinksContext);
   const [courses, setCourses] = useState<Record<string, CourseInfo> | undefined>(undefined);
 
   const [accessibleTabs, setAccessibleTabs] = useState<TabName[]>([]);
   const [currentTabIdx, setCurrentTabIdx] = useState<number>(0);
 
+  const [quizId, setQuizId] = useState<string | undefined>(router.query.quizId as string);
+
+  const handleQuizIdChange = (newQuizId: string) => {
+    if (quizId === newQuizId) return; 
+    setQuizId(newQuizId);
+    updateRouterQuery(router, { quizId: newQuizId }, true);
+  };
+
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setCurrentTabIdx(newValue);
     const selectedTab = accessibleTabs[newValue];
-    router.push(
-      {
-        pathname: router.pathname,
-        query: { ...router.query, tab: selectedTab },
-      },
-      undefined,
-      { shallow: true }
-    );
+    const newQuery = { ...router.query, tab: selectedTab } as Record<string, string>;
+    if (selectedTab !== 'quiz-dashboard') {
+      delete newQuery.quizId;
+    }
+    updateRouterQuery(router, newQuery, false);
   };
   useEffect(() => {
-    if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
-  }, [mmtUrl]);
+    getCourseInfo().then(setCourses);
+  }, []);
 
   useEffect(() => {
     if (!courseId) return;
@@ -112,24 +152,23 @@ const InstructorDash: NextPage = () => {
             break;
           }
         }
-      }      
+      }
       setAccessibleTabs(tabs);
       if (tab && tabs.includes(tab)) {
         setCurrentTabIdx(tabs.indexOf(tab));
       } else {
         setCurrentTabIdx(0);
-        router.replace(
-          {
-            pathname: router.pathname,
-            query: { ...router.query, tab: tabs[0] },
-          },
-          undefined,
-          { shallow: true }
-        );
+        updateRouterQuery(router, { tab: tabs[0] }, true);
       }
     }
     checkTabAccess();
   }, [courseId, tab]);
+
+  useEffect(() => {
+  if (tab !== 'quiz-dashboard' && router.query.quizId) {
+    updateRouterQuery(router, { quizId: undefined }, true);
+  }
+}, [tab, router]);
 
   const courseInfo = courses?.[courseId];
 
@@ -144,7 +183,7 @@ const InstructorDash: NextPage = () => {
         sx={{
           width: '100%',
           margin: 'auto',
-          maxWidth: tab === 'homework-grading' ? undefined : '900px',
+          maxWidth: TAB_MAX_WIDTH[accessibleTabs[currentTabIdx]],
         }}
       >
         <Tabs
@@ -168,7 +207,7 @@ const InstructorDash: NextPage = () => {
         </Tabs>
         {accessibleTabs.map((tabName, index) => (
           <TabPanel key={tabName} value={currentTabIdx} index={index}>
-            <ChosenTab tabName={tabName} courseId={courseId} />
+            <ChosenTab tabName={tabName} courseId={courseId} quizId={quizId} onQuizIdChange={handleQuizIdChange}/>
           </TabPanel>
         ))}
       </Box>

@@ -1,13 +1,13 @@
 import {
   AnswerResponse,
+  FTMLProblemWithSolution,
   getHomeworkPhase,
   GetHomeworkResponse,
   GradingInfo,
   HomeworkInfo,
   HomeworkPhase,
-  ProblemResponse,
+  ResponseWithSubProblemId,
 } from '@stex-react/api';
-import { removeAnswerInfo } from '@stex-react/quiz-utils';
 import { Action, ResourceName } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { isUserIdAuthorizedForAny, ResourceActionParams } from '../access-control/resource-utils';
@@ -23,10 +23,10 @@ import {
 } from '../nap/get-answers-with-grading';
 
 function getPhaseAppropriateProblems(
-  problems: { [problemId: string]: string },
+  problems: { [problemId: string]: FTMLProblemWithSolution },
   isModerator: boolean,
   phase: HomeworkPhase
-): { [problemId: string]: string } {
+): { [problemId: string]: FTMLProblemWithSolution } {
   if (isModerator) return problems;
   switch (phase) {
     case 'FEEDBACK_RELEASED':
@@ -35,7 +35,7 @@ function getPhaseAppropriateProblems(
     case 'GIVEN': {
       const problemsCopy = {};
       for (const problemId in problems) {
-        problemsCopy[problemId] = removeAnswerInfo(problems[problemId]);
+        problemsCopy[problemId] = { problem: problems[problemId].problem, solution: undefined };
       }
       return problemsCopy;
     }
@@ -78,12 +78,16 @@ export async function getAllAnswersForQuestion(
   questionId: string,
   res: NextApiResponse
 ) {
-  const answerEntries = await executeAndEndSet500OnError<AnswerResponse[]>(`
+  const answerEntries = await executeAndEndSet500OnError<AnswerResponse[]>(
+    `
     SELECT questionId, subProblemId, answer, id
     FROM Answer
     WHERE questionId = ? AND userId = ?
     ORDER BY questionId, subProblemId
-  `, [questionId, userId], res);
+  `,
+    [questionId, userId],
+    res
+  );
 
   if (!answerEntries) return;
 
@@ -102,7 +106,7 @@ export async function getHomeworkOrSetError(
   res: NextApiResponse
 ): Promise<HomeworkInfo | undefined> {
   const homeworks: any[] = await executeDontEndSet500OnError(
-    `SELECT id, title, givenTs, dueTs, feedbackReleaseTs, courseId, courseInstance ${
+    `SELECT id, title, givenTs, dueTs, feedbackReleaseTs, courseId, css, courseInstance ${
       getProblems ? ', problems' : ''
     } 
     FROM homework 
@@ -126,7 +130,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const homework: HomeworkInfo = await getHomeworkOrSetError(+homeworkId, true, res);
   if (!homework) return;
 
-  homework.problems = JSON.parse(homework.problems as any);
+  homework.problems = JSON.parse(homework.problems.toString());
+  homework.css = JSON.parse(homework.css?.toString() ?? '[]');
   const phase = getHomeworkPhase(homework);
 
   const { courseId, courseInstance } = homework;
@@ -138,19 +143,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const isModerator = await isUserIdAuthorizedForAny(userId, [hwModeratorAction]);
   homework.problems = getPhaseAppropriateProblems(homework.problems, isModerator, phase);
 
-  const responses: Record<string, ProblemResponse> = {};
+  const responses: Record<string, ResponseWithSubProblemId> = {};
   const answers = await getAllAnswersForHomeworkOrSetError(userId, homeworkId, undefined, res);
   if (!answers) return;
-  for (const problemId in homework.problems) {
-    const problemAnswers = answers[problemId];
-    if (!responses[problemId]) {
-      responses[problemId] = {
-        autogradableResponses: [],
-        freeTextResponses: {},
+  for (const uri in homework.problems) {
+    const problemAnswers = answers[uri];
+    if (!responses[uri]) {
+      responses[uri] = {
+        // TODO ALEA4-P7
+        problemId: uri,
+        responses: [],
       };
     }
     Object.entries(problemAnswers || {}).forEach(([subProblemId, answerEntry]) => {
-      responses[problemId].freeTextResponses[subProblemId] = answerEntry.answer;
+      // TODO ALEA4-P7
+      responses[uri].responses.push({
+        subProblemId: subProblemId,
+        answer: answerEntry.answer,
+      });
     });
   }
   const gradingInfo: Record<string, Record<string, GradingInfo[]>> = {};

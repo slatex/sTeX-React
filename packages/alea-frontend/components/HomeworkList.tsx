@@ -14,10 +14,10 @@ import {
   Typography,
 } from '@mui/material';
 import { getHomework, HomeworkInfo, HomeworkStub } from '@stex-react/api';
-import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
 import { getLocaleObject } from '../lang/utils';
+import { SafeHtml } from '@stex-react/react-utils';
 
 const HomeworkList = ({
   homeworkStubs,
@@ -93,7 +93,7 @@ const HomeworkList = ({
               return (
                 <TableRow key={homework.id}>
                   <TableCell>
-                    {mmtHTMLToReact(homework.title)}
+                    <SafeHtml html={homework.title} />
                     <a
                       href={`/homework-doc?id=${homework.id}&courseId=${homework.courseId}`}
                       target="_blank"

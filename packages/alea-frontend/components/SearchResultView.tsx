@@ -1,15 +1,11 @@
 import { Box } from '@mui/material';
-import {
-  convertHtmlStringToPlain,
-  FileLocation,
-  PathToArticle,
-  texPathToXhtml,
-} from '@stex-react/utils';
+import { SafeHtml } from '@stex-react/react-utils';
+import { convertHtmlStringToPlain } from '@stex-react/utils';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import styles from '../styles/search.module.scss';
 
-export interface SearchResult extends FileLocation {
+export interface SearchResult {
   title: string;
   html: string;
 }
@@ -30,25 +26,27 @@ export function SearchResultView({ result }: { result: SearchResult }) {
 
   return (
     <>
-      <span className={styles.result_header_project}>{result.archive}</span>
-      <i className={styles.result_header_sourcefile}>{result.filepath}</i>
+      {/* TODO ALEA4-N12 */}
+      {/* <span className={styles.result_header_project}>{result.archive}</span>
+      <i className={styles.result_header_sourcefile}>{result.filepath}</i> */}
       <Link
-        href={PathToArticle({
-          archive: result.archive,
-          filepath: texPathToXhtml(result.filepath),
-        })}
+        href={
+          // TODO ALEA4-N12
+          // PathToArticle({
+          //   archive: result.archive,
+          //   filepath: texPathToXhtml(result.filepath),
+          // })}
+          ''
+        }
         passHref
       >
         <a className={styles.result_title}>{result.title}</a>
       </Link>
 
       <Box sx={{ mb: '20px' }}>
-        {/*mmtHTMLToReact(result.html, true)*/}
+        <SafeHtml html={result.html} />
         {snippetParts.map((part, idx) => (
-          <span
-            key={idx}
-            style={{ fontWeight: part.isEm ? 'bold' : 'regular' }}
-          >
+          <span key={idx} style={{ fontWeight: part.isEm ? 'bold' : 'regular' }}>
             {part.text}&nbsp;
           </span>
         ))}

@@ -1,6 +1,6 @@
-import { AutogradableResponse, GetQuizResponse, Phase, ProblemResponse } from '@stex-react/api';
+import { FTMLProblemWithSolution, GetQuizResponse, Phase } from '@stex-react/api';
 import { getQuiz, getQuizTimes } from '@stex-react/node-utils';
-import { getQuizPhase, removeAnswerInfo } from '@stex-react/quiz-utils';
+import { getQuizPhase } from '@stex-react/quiz-utils';
 import { Action, ResourceName, simpleNumberHash } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import {
@@ -9,6 +9,7 @@ import {
 } from '../../access-control/resource-utils';
 import { getUserIdOrSetError } from '../../comment-utils';
 import { queryGradingDbAndEndSet500OnError } from '../../grading-db-utils';
+//import { ProblemResponse } from '@stex-react/ftml-utils';
 
 async function getUserQuizResponseOrSetError(quizId: string, userId: string, res: NextApiResponse) {
   const results: any[] = await queryGradingDbAndEndSet500OnError(
@@ -24,12 +25,11 @@ async function getUserQuizResponseOrSetError(quizId: string, userId: string, res
     res
   );
   if (!results) return undefined;
-  const resp: { [problemId: string]: ProblemResponse } = {};
+  const resp: { [problemId: string]: any } = {};
 
   for (const r of results) {
     const { problemId, response } = r;
-    const responses: AutogradableResponse[] = JSON.parse(response);
-    resp[problemId] = { autogradableResponses: responses, freeTextResponses: {} };
+    resp[problemId] = JSON.parse(response) as any;
   }
   return resp;
 }
@@ -46,30 +46,30 @@ function shuffleArray(arr: any[], seed: number) {
 
 function reorderBasedOnUserId(
   isModerator: boolean,
-  problems: { [problemId: string]: string },
+  problems: { [problemId: string]: FTMLProblemWithSolution },
   userId: string
 ) {
   if (isModerator) return problems;
 
   const problemIds = Object.keys(problems);
   shuffleArray(problemIds, simpleNumberHash(userId));
-  const shuffled: { [problemId: string]: string } = {};
+  const shuffled: { [problemId: string]: FTMLProblemWithSolution } = {};
   problemIds.forEach((problemId) => (shuffled[problemId] = problems[problemId]));
   return shuffled;
 }
 
 function getPhaseAppropriateProblems(
-  problems: { [problemId: string]: string },
+  problems: { [problemId: string]: FTMLProblemWithSolution },
   isModerator: boolean,
   phase: Phase
-): { [problemId: string]: string } {
+): { [problemId: string]: FTMLProblemWithSolution } {
   if (isModerator) return problems;
   switch (phase) {
     case Phase.STARTED:
     case Phase.ENDED: {
       const problemsCopy = {};
       for (const problemId in problems) {
-        problemsCopy[problemId] = removeAnswerInfo(problems[problemId]);
+        problemsCopy[problemId] = { problem: problems[problemId].problem, solution: undefined };
       }
       return problemsCopy;
     }
@@ -81,7 +81,10 @@ function getPhaseAppropriateProblems(
   }
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<string | GetQuizResponse>
+) {
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
 
@@ -89,21 +92,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const quizInfo = getQuiz(quizId);
   const { courseTerm, courseId } = quizInfo;
   if (!quizInfo) {
-    res.status(400).json({ message: `Quiz not found: [${quizId}]` });
+    res.status(400).send(`Quiz not found: [${quizId}]`);
     return;
   }
-  const moderatorActions : ResourceActionParams[] = [
+  const moderatorActions: ResourceActionParams[] = [
     {
-      name : ResourceName.COURSE_QUIZ,
+      name: ResourceName.COURSE_QUIZ,
       action: Action.MUTATE,
       variables: { courseId, instanceId: courseTerm },
     },
     {
-      name : ResourceName.COURSE_QUIZ,
-      action : Action.PREVIEW,
-      variables : { courseId, instanceId : courseTerm }
-    }
-  ]
+      name: ResourceName.COURSE_QUIZ,
+      action: Action.PREVIEW,
+      variables: { courseId, instanceId: courseTerm },
+    },
+  ];
   const isModerator = await isUserIdAuthorizedForAny(userId, moderatorActions);
 
   const phase = getQuizPhase(quizInfo);
@@ -118,6 +121,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     currentServerTs: Date.now(),
     ...quizTimes,
     phase,
+    css: quizInfo.css,
     problems: reorderBasedOnUserId(isModerator, problems, userId),
     responses,
   } as GetQuizResponse);

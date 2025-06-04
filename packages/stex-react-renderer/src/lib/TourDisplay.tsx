@@ -1,41 +1,27 @@
 import CloseIcon from '@mui/icons-material/Close';
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Divider,
-  IconButton,
-} from '@mui/material';
+import { Box, Button, CircularProgress, Divider, IconButton } from '@mui/material';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import {
   BloomDimension,
+  conceptUriToName,
+  getConceptDependencies,
   getUriSmileys,
-  NumericCognitiveValues,
   SmileyCognitiveValues,
   smileyToLevel,
 } from '@stex-react/api';
-import {
-  getChildrenOfBodyNode,
-  IS_MMT_VIEWER,
-  shouldUseDrawer,
-  simpleHash,
-} from '@stex-react/utils';
+import { SafeHtml } from '@stex-react/react-utils';
+import { shouldUseDrawer, simpleHash } from '@stex-react/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { memo, useContext, useEffect, useRef, useState } from 'react';
-import { ContentFromUrl } from './ContentFromUrl';
 import { getLocaleObject } from './lang/utils';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
-import { mmtHTMLToReact } from './mmtParser';
-import {
-  DisplayReason,
-  SelfAssessmentDialog,
-  ServerLinksContext,
-} from './stex-react-renderer';
+import { SelfAssessmentDialog, ServerLinksContext } from './stex-react-renderer';
 import styles from './styles/tour-display.module.scss';
 import { useOnScreen } from './useOnScreen';
+import { FTMLFragment } from '@stex-react/ftml-utils';
 
 const NAV_MENU_ID = 'list-container';
 const EXPANSION_BOX_ID = 'expansion-box';
@@ -72,9 +58,6 @@ function getSuccessorChain(item: TourItem, allItemsMap: Map<string, TourItem>) {
   }
   return succChain;
 }
-const RenderedMmtMemo = memo(({ html }: { html: string }) => {
-  return <>{mmtHTMLToReact(html)}</>;
-});
 
 function isConceptUnderstood(val?: SmileyCognitiveValues) {
   const r = smileyToLevel(val?.Remember);
@@ -104,7 +87,7 @@ function ItemBreadcrumbs({
           return (
             <li key={uri} onClick={() => scrollToItem(item)}>
               <a>
-                <RenderedMmtMemo html={item.header} />
+                <FTMLFragment key={item.header} fragment={{ html: item.header }} />
               </a>
             </li>
           );
@@ -127,7 +110,7 @@ function ItemBreadcrumbs({
                   scrollToItem(dep);
                 }}
               >
-                <RenderedMmtMemo html={dep.header} />
+                <FTMLFragment key={dep.header} fragment={{ html: dep.header }} />
               </Button>
             );
           })}
@@ -164,21 +147,10 @@ function TourItemDisplay({
   }, [isVisible]);
 
   return (
-    <Box
-      id={expandedItemId(item)}
-      maxWidth={IS_MMT_VIEWER ? undefined : '600px'}
-      width="100%"
-      ref={ref}
-    >
-      <Box
-        display="flex"
-        alignItems="start"
-        mt="15px"
-        mb="5px"
-        justifyContent="space-between"
-      >
+    <Box id={expandedItemId(item)} maxWidth="600px" width="100%" ref={ref}>
+      <Box display="flex" alignItems="start" mt="15px" mb="5px" justifyContent="space-between">
         <h3 style={{ margin: 0 }}>
-          <RenderedMmtMemo html={item.header} />
+          <FTMLFragment key={item.header} fragment={{ html: item.header }} />
         </h3>
         <Box mx="10px" height="30px" sx={{ whiteSpace: 'nowrap' }}>
           <Box display="flex" alignItems="center" gap="5px" zIndex={10}>
@@ -192,16 +164,14 @@ function TourItemDisplay({
                 {t.hide}
               </Button>
             )}
-            {!IS_MMT_VIEWER && (
-              <SelfAssessmentDialog
-                dims={[BloomDimension.Remember, BloomDimension.Understand]}
-                uri={item.uri}
-                htmlName={item.header}
-                onUpdate={(v: SmileyCognitiveValues) => {
-                  if (isConceptUnderstood(v)) onUnderstood();
-                }}
-              />
-            )}
+            <SelfAssessmentDialog
+              dims={[BloomDimension.Remember, BloomDimension.Understand]}
+              uri={item.uri}
+              htmlName={item.header}
+              onUpdate={(v: SmileyCognitiveValues) => {
+                if (isConceptUnderstood(v)) onUnderstood();
+              }}
+            />
           </Box>
 
           {/*
@@ -214,17 +184,15 @@ function TourItemDisplay({
           </Button>*/}
         </Box>
       </Box>
-      <ItemBreadcrumbs
-        item={item}
-        allItemsMap={allItemsMap}
-        addToTempShowUri={addToTempShowUri}
-      />
+      <ItemBreadcrumbs item={item} allItemsMap={allItemsMap} addToTempShowUri={addToTempShowUri} />
       <Box sx={{ mt: '20px' }}>
-        <ContentFromUrl
+        {/*<ContentFromUrl
           displayReason={DisplayReason.GUIDED_TOUR}
           url={`/:vollki/frag?path=${item.uri}&lang=${lang}`}
           modifyRendered={getChildrenOfBodyNode}
-        />
+        />*/}
+        //TODO ALEA4-G2
+        {/* <FTMLFragment key={item.uri} fragment={{ uri: item.uri }} /> */}
       </Box>
 
       <Divider />
@@ -253,9 +221,7 @@ function computeOrderedList(
   if (alreadyPreset) return;
 
   if (callStack.has(currentId)) {
-    console.error(
-      `Circular dependency detected: ${currentId} is already in the call stack`
-    );
+    console.error(`Circular dependency detected: ${currentId} is already in the call stack`);
     return;
   }
 
@@ -318,24 +284,14 @@ function getDisplayItemList(
   understoodUri: string[],
   tempShowUri: string[]
 ): TourItem[] {
-  const rootItem = Array.from(tourItemMap.values()).find(
-    (item) => !item.successors?.length
-  );
+  const rootItem = Array.from(tourItemMap.values()).find((item) => !item.successors?.length);
   if (!rootItem) return [];
 
   if (understoodUri.includes(rootItem.uri)) {
     return [rootItem];
   }
   const orderedList: TourItem[] = [];
-  computeOrderedList(
-    tourItemMap,
-    understoodUri,
-    tempShowUri,
-    rootItem.uri,
-    0,
-    orderedList,
-    false
-  );
+  computeOrderedList(tourItemMap, understoodUri, tempShowUri, rootItem.uri, 0, orderedList, false);
   return orderedList;
 }
 
@@ -344,7 +300,7 @@ function listItemText(item: TourItem, isIntersecting: boolean) {
   return (
     <Box>
       <span style={{ fontWeight }}>
-        <RenderedMmtMemo html={item.header} />
+        <FTMLFragment key={item.header} fragment={{ html: item.header }} />
       </span>
     </Box>
   );
@@ -356,11 +312,7 @@ function LeftGuide({ children, level }: { children: any; level: number }) {
       {Array(level)
         .fill(0)
         .map((_, idx) => (
-          <Box
-            display="inline"
-            key={idx}
-            sx={{ ml: `10px`, borderLeft: '1px solid #BBB' }}
-          ></Box>
+          <Box display="inline" key={idx} sx={{ ml: `10px`, borderLeft: '1px solid #BBB' }}></Box>
         ))}
       <Box display="flex" p="0" alignItems="center">
         <span
@@ -446,9 +398,7 @@ function scrollNavToShowVisibleItems(
   const idx = items.findIndex((item) => itemVisibility[item.hash]);
   if (idx < 0) return;
   const container = document.getElementById(NAV_MENU_ID);
-  const displayItem = document.getElementById(
-    navMenuItemId(items[idx > 0 ? idx - 1 : idx])
-  );
+  const displayItem = document.getElementById(navMenuItemId(items[idx > 0 ? idx - 1 : idx]));
   if (!container || !displayItem) return;
   container.scrollTop = displayItem.offsetTop;
 }
@@ -472,33 +422,74 @@ export function TourDisplay({
   const [fetchingItems, setFetchingItems] = useState(false);
   const [understoodUri, setUnderstoodUriList] = useState([] as string[]);
   const [tempShowUri, setTempShowUri] = useState([] as string[]);
-  const { mmtUrl } = useContext(ServerLinksContext);
+
+  async function buildDependencyTree(
+    rootUri: string,
+    maxDepth = 3,
+    maxConcepts = 25
+  ): Promise<TourAPIEntry[]> {
+    const visited = new Set<string>();
+    const reverseGraph: Map<string, Set<string>> = new Map();
+
+    async function recurse(uri: string, depth: number) {
+      if (visited.size >= maxConcepts || depth > maxDepth || visited.has(uri)) return;
+
+      visited.add(uri);
+      const dependencies = await getConceptDependencies(uri);
+
+      for (const dep of dependencies) {
+        if (!reverseGraph.has(dep)) reverseGraph.set(dep, new Set());
+        reverseGraph.get(dep)!.add(uri);
+        await recurse(dep, depth + 1);
+        if (visited.size >= maxConcepts) break;
+      }
+
+      if (!reverseGraph.has(uri)) reverseGraph.set(uri, new Set());
+    }
+
+    await recurse(rootUri, 0);
+
+    const entries: TourAPIEntry[] = [...visited].map((uri) => ({
+      id: uri,
+      title: conceptUriToName(uri),
+      successors: [...(reverseGraph.get(uri) ?? [])],
+    }));
+
+    return entries;
+  }
+
+  async function fetchAndSetTourItems(sectionUri: string) {
+    try {
+      const apiEntries = await buildDependencyTree(sectionUri);
+      const tourUris = apiEntries.map((e) => e.id);
+      const smileyVals = await getUriSmileys(tourUris);
+      const understood: string[] = [];
+      for (const uri of tourUris) {
+        if (isConceptUnderstood(smileyVals.get(uri))) {
+          understood.push(uri);
+        }
+      }
+
+      setUnderstoodUriList(understood);
+      setAllItemsMap(getTourItemMap(apiEntries, smileyVals));
+    } catch (error) {
+      console.error('Failed to fetch and process tour items:', error);
+    }
+  }
 
   useEffect(() => {
     if (!tourId?.length) return;
-    const tourInfoUrl = `${mmtUrl}/:vollki/tour?path=${tourId}&user=nulluser&lang=${language}`;
-    setFetchingItems(true);
-    axios.get(tourInfoUrl).then((r) => {
+
+    const fetchTourItems = async () => {
+      setFetchingItems(true);
+      await fetchAndSetTourItems(tourId);
       setFetchingItems(false);
-      const apiEntries: TourAPIEntry[] = r.data;
-      const tourUris = apiEntries.map((e) => e.id);
-      getUriSmileys(tourUris).then((smileyVals) => {
-        const understood = [];
-        for (const uri of tourUris) {
-          if (isConceptUnderstood(smileyVals.get(uri))) {
-            understood.push(uri);
-          }
-        }
-        setUnderstoodUriList(understood);
-        setAllItemsMap(getTourItemMap(apiEntries, smileyVals));
-      });
-    });
-  }, [tourId, language, mmtUrl]);
+    };
+    fetchTourItems();
+  }, [tourId]);
 
   useEffect(() => {
-    setDisplayItemList(
-      getDisplayItemList(allItemsMap, understoodUri, tempShowUri)
-    );
+    setDisplayItemList(getDisplayItemList(allItemsMap, understoodUri, tempShowUri));
   }, [allItemsMap, understoodUri, tempShowUri]);
 
   useEffect(() => {
@@ -548,12 +539,7 @@ export function TourDisplay({
       showDashboard={showDashboard}
       setShowDashboard={setShowDashboard}
     >
-      <Box
-        id={EXPANSION_BOX_ID}
-        sx={{ overflowY: 'auto' }}
-        flexGrow={1}
-        flexBasis="600px"
-      >
+      <Box id={EXPANSION_BOX_ID} sx={{ overflowY: 'auto' }} flexGrow={1} flexBasis="600px">
         <Box mx="10px">
           {displayItemList.map((item) => (
             <TourItemDisplay

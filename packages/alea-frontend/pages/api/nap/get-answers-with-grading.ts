@@ -1,14 +1,12 @@
-import {
-  GetAnswersWithGradingResponse,
-  GradingAnswerClass,
-  GradingInfo,
-  ProblemResponse,
-  ReviewType,
-} from '@stex-react/api';
-import { Action, ResourceName } from '@stex-react/utils';
+import { GradingAnswerClass, GradingInfo, ProblemResponse, ReviewType } from '@stex-react/api';
+import { Action, CURRENT_TERM, ResourceName } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getUserIdIfAuthorizedOrSetError } from '../access-control/resource-utils';
-import { checkIfQueryParameterExistOrSetError, executeAndEndSet500OnError } from '../comment-utils';
+import { isUserIdAuthorizedForAny } from '../access-control/resource-utils';
+import {
+  checkIfQueryParameterExistOrSetError,
+  executeAndEndSet500OnError,
+  getUserIdOrSetError,
+} from '../comment-utils';
 import {
   getAllAnswersForHomeworkOrSetError,
   getAllAnswersForQuestion,
@@ -76,64 +74,105 @@ export function convertToSubProblemIdToAnswerId(
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (!checkIfQueryParameterExistOrSetError(req, res, ['questionId', 'studentId'])) return;
+  if (!checkIfQueryParameterExistOrSetError(req, res, ['questionId'])) return;
   const questionId = req.query.questionId as string;
-  const studentId = req.query.studentId as string;
+  let studentId: null | string = req.query?.studentId as string;
   const homeworkId = +(req.query.homeworkId as string);
+  const answerId = +(req.query.answerId as string);
+  const courseId = req.query.courseId as string;
+  const instanceId = (req.query.courseInstance as string) ?? CURRENT_TERM;
+  if (!studentId) {
+    const userIdquery = await executeAndEndSet500OnError<any[]>(
+      `select userId from Answer where id = ?`,
+      [answerId],
+      res
+    );
 
+    studentId = (userIdquery[0]?.userId as string) ?? '';
+  }
   if (!homeworkId || isNaN(homeworkId)) {
     const answers = await getAllAnswersForQuestion(studentId, questionId, res);
     if (!answers) return;
+
     const problemAnswers = answers[questionId];
     const subProblemIdToAnswerId = convertToSubProblemIdToAnswerId(problemAnswers);
     const grades = await getAllGradingsOrSetError(subProblemIdToAnswerId, res);
     const response: ProblemResponse = {
-      autogradableResponses: [],
-      freeTextResponses: {},
+      // TODO ALEA4-P4
+      uri: '',
+      responses: []
+      // freeTextResponses: {},
     };
 
     Object.entries(problemAnswers || {}).forEach(([subProblemId, answerEntry]) => {
-      response.freeTextResponses[subProblemId] = answerEntry.answer;
+      // TODO ALEA4-P4
+      response.responses[subProblemId] = answerEntry.answer;
     });
-    res.send({
+    /*res.send({
       answers: response,
       subProblemIdToAnswerId,
       subProblemIdToGrades: grades,
-    } as GetAnswersWithGradingResponse);
-
+    } as GetAnswersWithGradingResponse);*/ // TODO ALEA4-P4
+    res.send(undefined);
     return;
   }
 
   const homework = await getHomeworkOrSetError(homeworkId, false, res);
   if (!homework) return;
-  const checkerId = await getUserIdIfAuthorizedOrSetError(
-    req,
-    res,
-    ResourceName.COURSE_HOMEWORK,
-    Action.INSTRUCTOR_GRADING,
-    { courseId: homework.courseId, instanceId: homework.courseInstance }
-  );
-  if (!checkerId) return;
+  // const checkerId = await getUserIdIfAuthorizedOrSetError(
+  //   req,
+  //   res,
+  //   ResourceName.COURSE_HOMEWORK,
+  //   Action.INSTRUCTOR_GRADING,
+  //   { courseId: homework.courseId, instanceId: homework.courseInstance }
+  // );
+  // if (!checkerId) return;
 
   const answers = await getAllAnswersForHomeworkOrSetError(studentId, homeworkId, questionId, res);
   if (!answers) return;
 
   const problemAnswers = answers[questionId];
   const response: ProblemResponse = {
-    autogradableResponses: [],
-    freeTextResponses: {},
+    uri: '',
+    responses: []
+    // TODO ALEA4-P4 autogradableResponses: [],
+    //freeTextResponses: {},
   };
 
   Object.entries(problemAnswers || {}).forEach(([subProblemId, answerEntry]) => {
-    response.freeTextResponses[subProblemId] = answerEntry.answer;
+    // TODO ALEA4-P4
+    response.responses[subProblemId] = answerEntry.answer;
   });
 
   const subProblemIdToAnswerId = convertToSubProblemIdToAnswerId(problemAnswers);
   const grades = await getAllGradingsOrSetError(subProblemIdToAnswerId, res);
+  const userId = await getUserIdOrSetError(req, res);
+  if (!userId) return;
+  const isInstructor = await isUserIdAuthorizedForAny(userId, [
+    {
+      name: ResourceName.COURSE_HOMEWORK,
+      action: Action.INSTRUCTOR_GRADING,
+      variables: { courseId: courseId, instanceId: instanceId },
+    },
+  ]);
+  if (!isInstructor) {
+    const isStudent = await isUserIdAuthorizedForAny(userId, [
+      {
+        name: ResourceName.COURSE_HOMEWORK,
+        action: Action.TAKE,
+        variables: {
+          courseId,
+          instanceId,
+        },
+      },
+    ]);
+    if (!isStudent) return;
+  }
   if (!grades) return;
-  res.send({
+  /*res.send({
     answers: response,
     subProblemIdToAnswerId,
-    subProblemIdToGrades: grades,
-  } as GetAnswersWithGradingResponse);
+    subProblemIdToGrades: isInstructor ? grades : null,
+  } as GetAnswersWithGradingResponse);*/ // TODO ALEA4-P4
+  res.send(undefined);
 }

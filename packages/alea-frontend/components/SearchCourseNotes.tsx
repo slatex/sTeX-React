@@ -1,63 +1,36 @@
 import SearchIcon from '@mui/icons-material/Search';
 import {
-    Box,
-    IconButton,
-    InputAdornment,
-    LinearProgress,
-    TextField,
-    Tooltip,
-    Typography,
+  Box,
+  IconButton,
+  InputAdornment,
+  LinearProgress,
+  TextField,
+  Tooltip,
+  Typography,
 } from '@mui/material';
-import {
-    getCourseInfo,
-    getDocumentSections,
-    isSection,
-    searchCourseNotes,
-    SearchResult,
-    SectionsAPIData,
-} from '@stex-react/api';
-import {
-    DocumentWidthSetter,
-    ExpandableContent,
-    mmtHTMLToReact,
-    ServerLinksContext,
-} from '@stex-react/stex-react-renderer';
-import { PRIMARY_COL, XhtmlContentUrl } from '@stex-react/utils';
+import { getCourseInfo, GptSearchResult, searchCourseNotes } from '@stex-react/api';
+import { SafeHtml } from '@stex-react/react-utils';
+import { ServerLinksContext } from '@stex-react/stex-react-renderer';
+import { PRIMARY_COL } from '@stex-react/utils';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 import { useContext, useEffect, useState } from 'react';
 
-function findNearestSection(
+function findAncestorsForFile<T>(
   archive: string,
   filepath: string,
-  rootNode: SectionsAPIData | undefined
-): SectionsAPIData {
-  if (!rootNode) return null;
-  const ancestors = findAncestorsForFile(archive, filepath, rootNode);
-  if (!ancestors) return null;
-  const sectionChild = ancestors.at(-1).children.find((c) => isSection(c));
-  if (sectionChild) return sectionChild;
-
-  for (let i = ancestors.length - 1; i >= 0; i--) {
-    if (isSection(ancestors[i])) return ancestors[i];
-  }
-  return null;
-}
-
-function findAncestorsForFile(
-  archive: string,
-  filepath: string,
-  rootNode: SectionsAPIData
-): SectionsAPIData[] | null {
-  if (archive === rootNode.archive && filepath === rootNode.filepath) {
-    return [rootNode];
-  }
-  if (!rootNode.children?.length) return null;
-  for (const child of rootNode.children) {
-    const result = findAncestorsForFile(archive, filepath, child);
-    if (result) return [rootNode, ...result];
-  }
+  rootNode: T // SectionsAPIData
+): T[] | null {
+  // TODO ALEA4-N12
+  // if (archive === rootNode.archive && filepath === rootNode.filepath) {
+  //   return [rootNode];
+  // }
+  // if (!rootNode.children?.length) return null;
+  // for (const child of rootNode.children) {
+  //   const result = findAncestorsForFile(archive, filepath, child);
+  //   if (result) return [rootNode, ...result];
+  // }
   return null;
 }
 
@@ -67,46 +40,48 @@ function ResultDocument({
   sectionData,
   onClose,
 }: {
-  reference: SearchResult;
+  reference: GptSearchResult;
   courseId: string;
-  sectionData: SectionsAPIData;
+  sectionData: any; // SectionsAPIData;
   onClose?: any;
 }) {
-  const parentIdData = findNearestSection(
-    reference.archive,
-    `${reference.filepath}.xhtml`,
-    sectionData
-  );
+  const parentIdData = null;
+  // TODO ALEA4-N12
+  //  = findNearestSection(
+  //   reference.archive,
+  //   `${reference.filepath}.xhtml`,
+  //   sectionData
+  // );
   return (
-    <DocumentWidthSetter>
-      <Box
+    <Box
+      sx={{
+        borderRadius: '5px',
+        my: '20px',
+        p: '5px',
+        boxShadow: '5px 5px 10px gray',
+      }}
+    >
+      <Typography
+        variant="h6"
         sx={{
-          borderRadius: '5px',
-          my: '20px',
-          p: '5px',
-          boxShadow: '5px 5px 10px gray',
+          fontWeight: 'bold',
+          my: '10px',
+          color: PRIMARY_COL,
+          textAlign: 'center',
         }}
       >
-        <Typography
-          variant="h6"
-          sx={{
-            fontWeight: 'bold',
-            my: '10px',
-            color: PRIMARY_COL,
-            textAlign: 'center',
-          }}
-        >
-          <Link href={`/course-notes/${courseId}?inDocPath=~${parentIdData?.id}`} onClick={onClose}>
-            {mmtHTMLToReact(parentIdData?.title || '')}
-          </Link>
-        </Typography>
-        <hr />
+        <Link href={`/course-notes/${courseId}?inDocPath=~${parentIdData?.id}`} onClick={onClose}>
+          <SafeHtml html={parentIdData?.title || ''} />
+        </Link>
+      </Typography>
+      <hr />
+      {/* TODO ALEA4-N12
         <ExpandableContent
-          contentUrl={XhtmlContentUrl(reference.archive, `${reference.filepath}.xhtml`)}
+          contentUrl={"we will use FTMLVIEWER"}
           noFurtherExpansion
         />
-      </Box>
-    </DocumentWidthSetter>
+        */}
+    </Box>
   );
 }
 
@@ -121,10 +96,9 @@ const SearchCourseNotes = ({
 }) => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState<string>(query);
-  const [references, setReferences] = useState<SearchResult[]>([]);
+  const [references, setReferences] = useState<GptSearchResult[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const { mmtUrl } = useContext(ServerLinksContext);
-  const [sectionData, setSectionData] = useState<SectionsAPIData | undefined>();
+  const [sectionData, setSectionData] = useState<undefined>();
 
   useEffect(() => {
     handleSearch();
@@ -132,21 +106,22 @@ const SearchCourseNotes = ({
 
   useEffect(() => {
     const fetchSectionData = async () => {
-      if (!mmtUrl || !courseId) return;
+      if (!courseId) return;
       try {
-        const courseInfo = await getCourseInfo(mmtUrl);
-        const { notesArchive: archive, notesFilepath: filepath } = courseInfo[courseId] || {};
-        if (archive && filepath) {
-          const sections = await getDocumentSections(mmtUrl, archive, filepath);
-          setSectionData(sections);
-        }
+        const courseInfo = await getCourseInfo();
+        //TODO ALEA4-N12
+        // const { notesArchive: archive, notesFilepath: filepath } = courseInfo[courseId] || {};
+        // if (archive && filepath) {
+        //   const sections = await getDocumentSections( archive, filepath);
+        //   setSectionData(sections);
+        // }
       } catch (error) {
         console.error('Error fetching section data:', error);
       }
     };
 
     fetchSectionData();
-  }, [courseId, mmtUrl]);
+  }, [courseId]);
 
   async function handleSearch() {
     if (!searchQuery || !courseId) return;

@@ -24,35 +24,30 @@ import {
   InputAdornment,
   TextField,
 } from '@mui/material';
-import {
-  ContentFromUrl,
-  DisplayReason,
-  DocumentWidthSetter,
-  ServerLinksContext,
-} from '@stex-react/stex-react-renderer';
+import { FTMLDocument } from '@stex-react/ftml-utils';
 import {
   Action,
   BG_COLOR,
   CourseInfo,
   CURRENT_TERM,
   INSTRUCTOR_RESOURCE_AND_ACTION,
+  isFauId,
   ResourceName,
-  XhtmlContentUrl,
 } from '@stex-react/utils';
 import { NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useRef, useState } from 'react';
-import { RecordedSyllabus } from '../../components/RecordedSyllabus';
+import { useEffect, useRef, useState } from 'react';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
+import { RecordedSyllabus } from 'packages/alea-frontend/components/RecordedSyllabus';
 
 export function getCourseEnrollmentAcl(courseId: string, instanceId: string) {
   return `${courseId}-${instanceId}-enrollments`;
 }
 export async function handleEnrollment(userId: string, courseId: string, currentTerm: string) {
-  if (!userId || userId.length !== 8 || userId.includes('@')) {
+  if (!userId || !isFauId(userId)) {
     alert('Please Login Using FAU Id.');
     return false;
   }
@@ -73,10 +68,10 @@ export async function handleEnrollment(userId: string, courseId: string, current
   }
 }
 
-function CourseComponentLink({ href, children }: { href: string; children: any }) {
+function CourseComponentLink({ href, children, sx }: { href: string; children: any; sx?: any }) {
   return (
     <Link href={href}>
-      <Button variant="contained" sx={{ width: '100%', height: '48px', fontSize: '16px' }}>
+      <Button variant="contained" sx={{ width: '100%', height: '48px', fontSize: '16px', ...sx }}>
         {children}
       </Button>
     </Link>
@@ -109,7 +104,7 @@ export function CourseHeader({
       </Box>
     );
   }
-  const allowCrop = ['ai-1', 'ai-2', 'lbs'].includes(courseId);
+  const allowCrop = ['ai-1', 'ai-2', 'lbs', 'smai'].includes(courseId);
   return (
     <Box textAlign="center">
       <Link href={`/course-home/${courseId}`}>
@@ -158,7 +153,6 @@ const CourseHomePage: NextPage = () => {
   const courseId = router.query.courseId as string;
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState('');
-  const { mmtUrl } = useContext(ServerLinksContext);
   const [isInstructor, setIsInstructor] = useState(false);
   const [userId, setUserId] = useState<string | undefined>(undefined);
   const [enrolled, setIsEnrolled] = useState<boolean | undefined>(undefined);
@@ -170,8 +164,8 @@ const CourseHomePage: NextPage = () => {
   }, []);
 
   useEffect(() => {
-    if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
-  }, [mmtUrl]);
+    getCourseInfo().then(setCourses);
+  }, []);
 
   useEffect(() => {
     if (!courseId) return;
@@ -210,7 +204,8 @@ const CourseHomePage: NextPage = () => {
     return <>Course Not Found!</>;
   }
 
-  const { notesLink, slidesLink, cardsLink, forumLink, quizzesLink, hasQuiz } = courseInfo;
+  const { notesLink, slidesLink, cardsLink, forumLink, quizzesLink, hasQuiz, notes, landing } =
+    courseInfo;
 
   const locale = router.locale || 'en';
   const { home, courseHome: tCourseHome, quiz: q } = getLocaleObject(router);
@@ -275,7 +270,7 @@ const CourseHomePage: NextPage = () => {
               <QuizIcon fontSize="large" />
             </CourseComponentLink>
           )}
-          {['lbs', 'ai-1'].includes(courseId) && (
+          {['lbs', 'ai-1', 'smai'].includes(courseId) && (
             <CourseComponentLink href={`/homework/${courseId}`}>
               {t.homeworks}&nbsp;
               <AssignmentTurnedInIcon fontSize="large" />
@@ -290,7 +285,10 @@ const CourseHomePage: NextPage = () => {
             <Image src="/practice_problems.svg" width={35} height={35} alt="" />
           </CourseComponentLink>
           {isInstructor && (
-            <CourseComponentLink href={`/instructor-dash/${courseId}`}>
+            <CourseComponentLink
+              href={`/instructor-dash/${courseId}`}
+              sx={{ backgroundColor: '#4565af' }}
+            >
               {<p>{t.instructorDashBoard}</p>}&nbsp;
               <PersonIcon fontSize="large" />
             </CourseComponentLink>
@@ -358,19 +356,7 @@ const CourseHomePage: NextPage = () => {
             />
           </Box>
         )}
-        <br />
-        <DocumentWidthSetter>
-          <ContentFromUrl
-            displayReason={DisplayReason.NOTES}
-            url={XhtmlContentUrl(
-              courseInfo.notesArchive,
-              `${courseInfo.landingFilepath}.${locale}.xhtml`
-            )}
-          />
-        </DocumentWidthSetter>
-        <br />
-        <br />
-
+        <FTMLDocument document={{ uri: landing, toc: undefined }} />
         <RecordedSyllabus courseId={courseId} />
       </Box>
     </MainLayout>

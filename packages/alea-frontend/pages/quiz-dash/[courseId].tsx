@@ -8,13 +8,13 @@ import {
   getCourseQuizList,
   getUserInfo,
 } from '@stex-react/api';
-import { ServerLinksContext, mmtHTMLToReact } from '@stex-react/stex-react-renderer';
-import { Action, CURRENT_TERM, CourseInfo, ResourceName } from '@stex-react/utils';
+import { FTMLFragment, injectCss } from '@stex-react/ftml-utils';
+import { Action, CURRENT_TERM, CourseInfo, ResourceName, isFauId } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Fragment, useContext, useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { ForceFauLogin } from '../../components/ForceFAULogin';
 import QuizPerformanceTable from '../../components/QuizPerformanceTable';
 import { getLocaleObject } from '../../lang/utils';
@@ -28,14 +28,15 @@ function QuizThumbnail({ quiz }: { quiz: QuizStubInfo }) {
       <Link href={`/quiz/${quizId}`}>
         <Card
           sx={{
-            backgroundColor: 'hsl(210, 20%, 95%)',
             border: '1px solid #CCC',
             p: '10px',
             my: '10px',
             width: 'fit-content',
           }}
         >
-          <Box>{mmtHTMLToReact(title)}</Box>
+          <Box>
+            <FTMLFragment key={title} fragment={{ html: title }} />
+          </Box>
           <Box>
             <b>
               {dayjs(quizStartTs).format('MMM-DD HH:mm')} to {dayjs(quizEndTs).format('HH:mm')}
@@ -139,7 +140,6 @@ const QuizDashPage: NextPage = () => {
 
   const [quizList, setQuizList] = useState<QuizStubInfo[]>([]);
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
-  const { mmtUrl } = useContext(ServerLinksContext);
 
   const now = Date.now();
   const upcomingQuizzes = quizList.filter(({ quizStartTs }) => quizStartTs > now);
@@ -154,18 +154,23 @@ const QuizDashPage: NextPage = () => {
       const uid = i?.userId;
       setUserId(i?.userId);
       if (!uid) return;
-      setForceFauLogin(uid.length !== 8 || uid.includes('@'));
+      isFauId(uid) ? setForceFauLogin(false) : setForceFauLogin(true);
     });
   });
 
   useEffect(() => {
-    if (mmtUrl) getCourseInfo(mmtUrl).then(setCourses);
-  }, [mmtUrl]);
+    getCourseInfo().then(setCourses);
+  }, []);
 
   useEffect(() => {
     if (!courseId) return;
-    console.log('courseId', courseId);
-    getCourseQuizList(courseId).then(setQuizList);
+    getCourseQuizList(courseId).then(res => {
+      const quizzes = res as QuizStubInfo[];
+      for (const quiz of quizzes) {
+        for( const css of quiz.css) injectCss(css)
+        }
+      setQuizList(quizzes);
+    });
   }, [courseId]);
   useEffect(() => {
     if (!courseId) return;
@@ -234,14 +239,7 @@ const QuizDashPage: NextPage = () => {
         </Typography>
 
         <Typography variant="body1" sx={{ color: '#333' }}>
-          <a
-            href={
-              courseId === 'gdp' ? '/quiz/old/problems%2Fgdp' : '/quiz/old/MAAI%20(may)%20-%20small'
-            }
-            target="_blank"
-            rel="noreferrer"
-            style={{ color: 'blue' }}
-          >
+          <a href="/quiz/quiz-a7175e81" target="_blank" rel="noreferrer" style={{ color: 'blue' }}>
             {t.this}
           </a>
           &nbsp;{t.demoQuizText}

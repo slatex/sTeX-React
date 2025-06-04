@@ -1,4 +1,4 @@
-import { Phase, Quiz } from '@stex-react/api';
+import { Phase, QuizWithStatus } from '@stex-react/api';
 import axios from 'axios';
 import { createMocks } from 'node-mocks-http';
 import createQuiz from '../pages/api/quiz/create-quiz';
@@ -16,7 +16,7 @@ export function mockQuizData({
   problems = {},
   courseId = 'ai-1',
   courseTerm = CURRENT_TERM,
-}): Quiz {
+}): QuizWithStatus {
   return {
     id: '',
     version: -1,

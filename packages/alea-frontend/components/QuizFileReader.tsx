@@ -1,27 +1,51 @@
 import { Box } from '@mui/material';
-import { simpleHash } from '@stex-react/utils';
+import { FTMLProblemWithSolution, CSS, FTMLProblemWithSubProblems } from '@stex-react/api';
+import { Quiz, FTMLQuizElement } from '@stex-react/ftml-utils';
 import React from 'react';
 
-interface QuizJson {
-  title: string;
-  problems: string[];
-}
-
-function problemsListToObjectWithId(problems: string[]) {
-  const problemObj: { [problemId: string]: string } = {};
-  for (const problem of problems) {
-    const problemId = simpleHash(problem);
-    problemObj[problemId] = problem;
+function getProblemsFromQuiz(quiz: Quiz): Record<string, FTMLProblemWithSolution> {
+  const result: Record<string, FTMLProblemWithSolution> = {};
+  function findSubProblem(str1: string, str2: string) {
+    const shorter = str1.length < str2.length ? str1 : str2;
+    const longer = str1.length < str2.length ? str2 : str1;
+    return str1.length != str2.length ? longer.startsWith(shorter) : false;
   }
-  return problemObj;
+  function processQuizElement(element: FTMLQuizElement) {
+    if ('Problem' in element) {
+      const problem = element.Problem as FTMLProblemWithSubProblems;
+
+      const solution = quiz.solutions[problem.uri] || '';
+      for (const item of Object.keys(quiz.solutions)) {
+        if (findSubProblem(item, problem.uri)) {
+          if (problem.subProblems == null) {
+            problem.subProblems = [];
+          }
+          problem.subProblems.push({
+            solution: quiz.solutions[item],
+            answerclasses: [],
+            id: item,
+          });
+        }
+      }
+      result[problem.uri] = { problem, solution };
+    } else if ('Section' in element) {
+      element.Section.elements.forEach(processQuizElement);
+    }
+  }
+
+  quiz.elements.forEach(processQuizElement);
+  console.log(result);
+  return result;
 }
 
 export function QuizFileReader({
+  setCss,
   setTitle,
   setProblems,
 }: {
   setTitle: (title: string) => void;
-  setProblems: (problems: { [problemId: string]: string }) => void;
+  setProblems: (problems: Record<string, FTMLProblemWithSolution>) => void;
+  setCss: (css: CSS[]) => void;
 }) {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -31,12 +55,13 @@ export function QuizFileReader({
       console.log(e.target?.result);
       const contents = e.target?.result as string;
       try {
-        const parsedJson = JSON.parse(contents) as QuizJson;
+        const parsedJson = JSON.parse(contents) as Quiz;
         console.log(parsedJson);
         // Check if the parsed content is a valid JSON object before updating the state
         if (typeof parsedJson === 'object' && parsedJson !== null) {
-          setProblems(problemsListToObjectWithId(parsedJson.problems));
+          setProblems(getProblemsFromQuiz(parsedJson));
           setTitle(parsedJson.title);
+          setCss(parsedJson.css);
         } else {
           alert('Invalid JSON file.');
         }

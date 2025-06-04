@@ -30,7 +30,7 @@ export enum ResourceName {
   COURSE_COMMENTS = 'COURSE_COMMENTS',
   COURSE_STUDY_BUDDY = 'COURSE_STUDY_BUDDY',
   COURSE_HOMEWORK = 'COURSE_HOMEWORK',
-
+  COURSE_PEERREVIEW = 'COURSE_PEERREVIEW',
   // Resources related to all courses.
   ALL_COMMENTS = 'ALL_COMMENTS',
   ALL_STUDY_BUDDY = 'ALL_STUDY_BUDDY',
@@ -128,6 +128,17 @@ export const ALL_RESOURCE_TYPES: ResourceType[] = [
       { type: ComponentType.FIXED, value: 'instance' },
       { name: 'instanceId', type: ComponentType.VARIABLE, value: CURRENT_TERM },
       { type: ComponentType.FIXED, value: 'comments' },
+    ],
+  },
+  {
+    name: ResourceName.COURSE_PEERREVIEW,
+    possibleActions: [Action.MUTATE],
+    components: [
+      { type: ComponentType.FIXED, value: 'course' },
+      { name: 'courseId', type: ComponentType.VARIABLE },
+      { type: ComponentType.FIXED, value: 'instance' },
+      { name: 'instanceId', type: ComponentType.VARIABLE, value: CURRENT_TERM },
+      { type: ComponentType.FIXED, value: 'peer-review' },
     ],
   },
   {

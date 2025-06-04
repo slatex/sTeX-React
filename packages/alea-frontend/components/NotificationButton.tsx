@@ -158,8 +158,12 @@ function NotificationButton({ bgColor }: { bgColor?: string }) {
         sx={{ '& .MuiMenu-list': { pb: 0 } }}
       >
         {sortedItems.slice(0, 7).map((item, idx) => (
-          <Link key={item.link} href={item.link} target={getLinkTarget(item.notificationType)}>
-            <MenuItem key={idx} onClick={handleClose}>
+          <Link 
+            key={`${item.link}-${item.postedTimestamp}`} 
+            href={item.link} 
+            target={getLinkTarget(item.notificationType)}
+          >
+            <MenuItem onClick={handleClose}>
               <Box display="flex" alignItems="center">
                 <Box marginRight="10px">
                   <NotificationIcon type={item.notificationType} />

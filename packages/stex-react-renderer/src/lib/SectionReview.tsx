@@ -15,25 +15,21 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import LinearProgress from '@mui/material/LinearProgress';
 import {
   BloomDimension,
-  DefiniendaItem,
+  ConceptAndDefinition,
   NumericCognitiveValues,
   SHOW_DIMENSIONS,
-  getDefiniedaInDoc,
+  getDefiniedaInSection,
   getUriWeights,
   isLoggedIn,
 } from '@stex-react/api';
-import { BG_COLOR, getSectionInfo } from '@stex-react/utils';
+import { SafeHtml } from '@stex-react/react-utils';
+import { BG_COLOR } from '@stex-react/utils';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import CompetencyTable from './CompetencyTable';
-import { PerSectionQuiz } from './PerSectionQuiz';
-import { RenderOptions } from './RendererDisplayOptions';
+import PracticeProblem from './PracticeProblem';
 import { getLocaleObject } from './lang/utils';
-import {
-  DimIcon,
-  ServerLinksContext,
-  mmtHTMLToReact,
-} from './stex-react-renderer';
+import { DimIcon } from './stex-react-renderer';
 import styles from './styles/competency-indicator.module.scss';
 
 function CompetencyBar({ dim, val }: { dim: BloomDimension; val: number }) {
@@ -55,34 +51,30 @@ function CompetencyBar({ dim, val }: { dim: BloomDimension; val: number }) {
 }
 
 const SectionReview = ({
-  contentUrl,
+  sectionUri,
   sectionTitle,
 }: {
-  contentUrl: string;
+  sectionUri: string;
   sectionTitle: string;
 }) => {
-  const [competencyData, setCompetencyData] = useState<
-    NumericCognitiveValues[] | null
-  >(null);
+  const [competencyData, setCompetencyData] = useState<NumericCognitiveValues[] | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
-  const [definedData, setDefinedData] = useState<DefiniendaItem[] | null>(null);
-  const { archive, filepath } = getSectionInfo(contentUrl);
-  const { mmtUrl } = useContext(ServerLinksContext);
-  const { renderOptions } = useContext(RenderOptions);
+  const [definedConcepts, setDefinedConcepts] = useState<ConceptAndDefinition[] | null>(null);
   const [URIs, setURIs] = useState<string[]>([]);
   const t = getLocaleObject(useRouter());
+  const [isAccordionExpanded, setIsAccordionExpanded] = useState(false);
 
   useEffect(() => {
     if (!isLoggedIn()) return;
-    getDefiniedaInDoc(mmtUrl, archive, filepath).then(setDefinedData);
-  }, [archive, filepath, mmtUrl]);
+    getDefiniedaInSection(sectionUri).then(setDefinedConcepts);
+  }, [sectionUri]);
 
   useEffect(() => {
-    if (!definedData) return;
-    const URIs = [...new Set(definedData.flatMap((data) => data.symbols))];
+    if (!definedConcepts) return;
+    const URIs = [...new Set(definedConcepts.flatMap((data) => data.conceptUri))];
     setURIs(URIs);
     getUriWeights(URIs).then((data) => setCompetencyData(data));
-  }, [definedData]);
+  }, [definedConcepts]);
 
   function refetchCompetencyData() {
     if (!URIs?.length) return;
@@ -98,11 +90,11 @@ const SectionReview = ({
     return acc;
   }, {} as { [competency: string]: number });
 
-  if (!definedData?.length || renderOptions.noFrills) return null;
+  if (!definedConcepts?.length) return null;
 
   return (
-    <Box maxWidth="var(--document-width)">
-      <Accordion>
+    <Box>
+      <Accordion onChange={(_, isExpanded) => setIsAccordionExpanded(isExpanded)}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           sx={{ '& .MuiAccordionSummary-content': { overflow: 'hidden' } }}
@@ -113,20 +105,17 @@ const SectionReview = ({
                 <CompetencyBar key={dim} dim={dim} val={averages[dim]} />
               ))}
             </Box>
-            <span style={{ color: 'gray', whiteSpace: 'nowrap' }}>
-              {t.review}
-            </span>
+            <span style={{ color: 'gray', whiteSpace: 'nowrap' }}>{t.review}</span>
             &nbsp;
-            <b>{mmtHTMLToReact(sectionTitle)}</b>
+            <b>
+              <SafeHtml html={sectionTitle} />
+            </b>
           </Box>
         </AccordionSummary>
         <AccordionDetails>
           <Box className={styles['details-competence-bar-container']}>
             {SHOW_DIMENSIONS.map((dim) => (
-              <Tooltip
-                key={dim}
-                title={`${dim}: ${(averages[dim] * 100).toFixed(1)}%`}
-              >
+              <Tooltip key={dim} title={`${dim}: ${(averages[dim] * 100).toFixed(1)}%`}>
                 <Box
                   className={styles['details-competence-bar']}
                   bgcolor={BG_COLOR}
@@ -138,15 +127,14 @@ const SectionReview = ({
               </Tooltip>
             ))}
           </Box>
-          <PerSectionQuiz archive={archive} filepath={filepath} showHideButton={true}/>
+          <PracticeProblem
+            sectionUri={sectionUri}
+            showHideButton={true}
+            isAccordionOpen={isAccordionExpanded}
+          />
         </AccordionDetails>
       </Accordion>
-      <Dialog
-        open={openDialog}
-        onClose={() => setOpenDialog(false)}
-        fullWidth={true}
-        maxWidth="lg"
-      >
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} fullWidth={true} maxWidth="lg">
         <DialogTitle>
           <b>{t.details}</b>
         </DialogTitle>
@@ -154,7 +142,7 @@ const SectionReview = ({
           {competencyData ? (
             <DialogContentText>
               <CompetencyTable
-                URIs={URIs}
+                conceptUris={URIs}
                 competencyData={competencyData}
                 onValueUpdate={refetchCompetencyData}
               />
@@ -162,11 +150,7 @@ const SectionReview = ({
           ) : null}
         </DialogContent>
         <DialogActions style={{ justifyContent: 'center' }}>
-          <Button
-            onClick={() => setOpenDialog(false)}
-            color="primary"
-            variant="contained"
-          >
+          <Button onClick={() => setOpenDialog(false)} color="primary" variant="contained">
             {t.close}
           </Button>
         </DialogActions>

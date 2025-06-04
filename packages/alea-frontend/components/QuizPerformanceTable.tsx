@@ -1,3 +1,4 @@
+import InfoIcon from '@mui/icons-material/Info';
 import {
   Box,
   Paper,
@@ -16,23 +17,17 @@ import {
   RecorrectionInfo,
   getPreviousQuizInfo,
 } from '@stex-react/api';
+import { SafeHtml } from '@stex-react/react-utils';
+import { NoMaxWidthTooltip } from '@stex-react/stex-react-renderer';
 import { PRIMARY_COL, convertHtmlStringToPlain } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import InfoIcon from '@mui/icons-material/Info';
-import { getLocaleObject } from '../lang/utils';
 import { useRouter } from 'next/router';
-import {
-  NoMaxWidthTooltip,
-  mmtHTMLToReact,
-} from '@stex-react/stex-react-renderer';
+import { useEffect, useState } from 'react';
+import { getLocaleObject } from '../lang/utils';
+import { FTMLFragment } from '@stex-react/ftml-utils';
 
-function RecorrectionInfoDisp({
-  recorrectionInfo,
-}: {
-  recorrectionInfo?: RecorrectionInfo[];
-}) {
+function RecorrectionInfoDisp({ recorrectionInfo }: { recorrectionInfo?: RecorrectionInfo[] }) {
   const { quizPerformanceTable: t } = getLocaleObject(useRouter());
   if (!recorrectionInfo?.length) return null;
   return (
@@ -52,11 +47,12 @@ function RecorrectionInfoDisp({
               <li key={idx} style={{ marginBottom: '10px' }}>
                 <Typography variant="body1">
                   {t.theProblem}{' '}
-                  <b>{mmtHTMLToReact(r.problemHeader || r.problemId)}</b>
-                  &nbsp;{t.wasRecorrected} (
-                  {dayjs(r.recorrectedTs).format('MMM DD')}).
+                  <b>
+                    <SafeHtml html={r.problemHeader || r.problemUri} />
+                  </b>
+                  &nbsp;{t.wasRecorrected} ({dayjs(r.recorrectedTs).format('MMM DD')}).
                   <br />
-                  {mmtHTMLToReact(r.description)}
+                  <SafeHtml html={r.description} />
                 </Typography>
               </li>
             ))}
@@ -79,8 +75,7 @@ function QuizPerformanceTable({
   header: string;
 }) {
   const { quizPerformanceTable: t } = getLocaleObject(useRouter());
-  const [previousQuizData, setPreviousQuizData] =
-    useState<GetPreviousQuizInfoResponse>();
+  const [previousQuizData, setPreviousQuizData] = useState<GetPreviousQuizInfoResponse>();
   useEffect(() => {
     getPreviousQuizInfo(courseId).then(setPreviousQuizData);
   }, [courseId]);
@@ -123,39 +118,29 @@ function QuizPerformanceTable({
                     }}
                   >
                     <Box display="flex" alignItems="center">
-                      <Link
-                        href={`/quiz/${quiz.quizId}`}
-                        style={{ marginRight: '5px' }}
-                      >
-                        {convertHtmlStringToPlain(quiz.title)}
+                      <Link href={`/quiz/${quiz.quizId}`} style={{ marginRight: '5px' }}>
+                         <FTMLFragment key={quiz.title ?? ''} fragment ={{  html: quiz.title ?? '<i>Untitled</i>' }} />
                       </Link>
                       <RecorrectionInfoDisp
-                        recorrectionInfo={
-                          previousQuizData?.quizInfo[quiz.quizId]
-                            ?.recorrectionInfo
-                        }
+                        recorrectionInfo={previousQuizData?.quizInfo[quiz.quizId]?.recorrectionInfo}
                       />
                     </Box>
                   </TableCell>
                   <TableCell>
                     <Tooltip
-                      title={`${dayjs(quiz.quizStartTs).format(
-                        'MMM-DD HH:mm'
-                      )} to ${dayjs(quiz.quizEndTs).format('MMM-DD HH:mm')}`}
+                      title={`${dayjs(quiz.quizStartTs).format('MMM-DD HH:mm')} to ${dayjs(
+                        quiz.quizEndTs
+                      ).format('MMM-DD HH:mm')}`}
                     >
                       <span>{dayjs(quiz.quizStartTs).format('MMM-DD')}</span>
                     </Tooltip>
                   </TableCell>
-                  <TableCell>
-                    {previousQuizData?.quizInfo[quiz.quizId]?.maxPoints}
-                  </TableCell>
+                  <TableCell>{previousQuizData?.quizInfo[quiz.quizId]?.maxPoints}</TableCell>
                   <TableCell>
                     {previousQuizData?.quizInfo[quiz.quizId]?.score?.toFixed(2)}
                   </TableCell>
                   <TableCell>
-                    {previousQuizData?.quizInfo[
-                      quiz.quizId
-                    ]?.averageScore?.toFixed(2)}
+                    {previousQuizData?.quizInfo[quiz.quizId]?.averageScore?.toFixed(2)}
                   </TableCell>
                 </TableRow>
               ))}

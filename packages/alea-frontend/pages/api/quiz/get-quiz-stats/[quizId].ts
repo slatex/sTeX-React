@@ -1,5 +1,4 @@
 import { PerProblemStats, QuizStatsResponse } from '@stex-react/api';
-import { getProblem } from '@stex-react/quiz-utils';
 import { Action, ResourceName } from '@stex-react/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getUserIdIfAuthorizedOrSetError } from '../../access-control/resource-utils';
@@ -41,11 +40,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const quiz = getQuiz(quizId);
   const perProblemStats: { [problemKey: string]: PerProblemStats } = {};
-  for (const [problemId, problemStr] of Object.entries(quiz.problems)) {
-    const { points, header } = getProblem(problemStr, '');
+  for (const [problemId, problemWithSolution] of Object.entries(quiz.problems)) {
+    const maxPoints = problemWithSolution.problem.total_points ?? 1;
+    const header = problemWithSolution.problem.title_html ?? '';
     perProblemStats[problemId] = {
       header,
-      maxPoints: points,
+      maxPoints,
       satisfactory: 0,
       pass: 0,
       fail: 0,

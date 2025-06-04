@@ -33,7 +33,7 @@ export async function addRemoveMember(
   let query = '';
   let params: string[] = [];
   if (toBeAdded) {
-    if (!(acl.isOpen || (await isCurrentUserMemberOfAClupdater(aclId, res, req))))
+    if (!(acl?.isOpen || (await isCurrentUserMemberOfAClupdater(aclId, res, req))))
       return { status: 403 };
     if (isAclMember) query = 'select id from AccessControlList where id=?';
     else query = 'select userId from userInfo where userId=?';

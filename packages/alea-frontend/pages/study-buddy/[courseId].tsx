@@ -18,7 +18,6 @@ import {
   GetStudyBuddiesResponse,
   getStudyBuddyList,
   getStudyBuddyUserInfo,
-  getUserInfo,
   isLoggedIn,
   Languages,
   MeetType,
@@ -26,14 +25,11 @@ import {
   setActive,
   StudyBuddy,
   updateStudyBuddyInfo,
-  UserInfo,
 } from '@stex-react/api';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { BG_COLOR, CourseInfo, MaAI_COURSES } from '@stex-react/utils';
 import { NextPage } from 'next';
-import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { StudyBuddyForm } from '../../components/StudyBuddyForm';
 import { StudyBuddyListing, StudyBuddyListingTable } from '../../components/StudyBuddyListingTable';
 import { getLocaleObject } from '../../lang/utils';
@@ -78,22 +74,18 @@ const StudyBuddyPage: NextPage = () => {
     languages: Languages.Deutsch,
     active: false,
   });
-  const [userInfo, setUserInfo] = useState<UserInfo | undefined>(null);
   const [agreed, setAgreed] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
   const masterCourses = MaAI_COURSES;
-  const { mmtUrl } = useContext(ServerLinksContext);
   const refetchStudyBuddyLists = useCallback(() => {
     if (!courseId || !fromServer?.active) return;
     if (courseId) getStudyBuddyList(courseId).then(setAllBuddies);
   }, [courseId, fromServer?.active]);
+
   useEffect(() => {
-    getUserInfo().then(setUserInfo);
+    getCourseInfo().then(setCourses);
   }, []);
-  useEffect(() => {
-    getCourseInfo(mmtUrl).then(setCourses);
-  }, [mmtUrl]);
 
   useEffect(() => {
     refetchStudyBuddyLists();
@@ -119,10 +111,7 @@ const StudyBuddyPage: NextPage = () => {
   const notSignedUp = !fromServer;
 
   return (
-    <MainLayout
-      title={(courseId || '').toUpperCase() + ` Study Buddy | ALeA`}
-      bgColor={BG_COLOR}
-    >
+    <MainLayout title={(courseId || '').toUpperCase() + ` Study Buddy | ALeA`} bgColor={BG_COLOR}>
       <CourseHeader courseName={courseName} imageLink={courseInfo?.imageLink} courseId={courseId} />
       <Box maxWidth="900px" m="auto" px="10px" display="flex" flexDirection="column">
         {notSignedUp || isEditing ? (

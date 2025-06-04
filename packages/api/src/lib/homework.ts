@@ -1,3 +1,6 @@
+import { CSS } from './flams-types';
+import { FTMLProblemWithSolution } from './quiz';
+
 export type HomeworkPhase =
   | 'UNSET'
   | 'NOT_GIVEN'
@@ -13,7 +16,8 @@ export interface HomeworkInfo {
   feedbackReleaseTs: string;
   courseId: string;
   courseInstance: string;
-  problems: Record<string, string>;
+  css: CSS[];
+  problems: Record<string, FTMLProblemWithSolution>;
 }
 
 export type HomeworkStub = Omit<HomeworkInfo, 'problems'>;

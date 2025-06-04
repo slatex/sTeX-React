@@ -12,10 +12,8 @@ import {
   getUriWeights,
   isLoggedIn,
 } from '@stex-react/api';
-import { getSectionInfo } from '@stex-react/utils';
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import CompetencyTable from './CompetencyTable';
-import { ServerLinksContext } from './stex-react-renderer';
 
 const trafficLightStyle = {
   width: '30px',
@@ -58,19 +56,19 @@ function getText(averageUnderstand: number): string {
   }
 }
 
-const TrafficLightIndicator = ({ contentUrl }: { contentUrl: string }) => {
-  const { archive, filepath } = getSectionInfo(contentUrl);
-  const { mmtUrl } = useContext(ServerLinksContext);
+const TrafficLightIndicator = ({ sectionUri }: { sectionUri: string }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [competencyData, setCompetencyData] = useState<NumericCognitiveValues[] | null>(null);
-  const [URIs, setURIs] = useState<string[]>([]);
+  const [prereqs, setPrereqs] = useState<string[] | null>(null);
+
   useEffect(() => {
     if (!isLoggedIn()) return;
-    getSectionDependencies(mmtUrl, archive, filepath).then((uris) => {
-      setURIs(uris);
-      getUriWeights(uris).then((data) => setCompetencyData(data));
+
+    getSectionDependencies(sectionUri).then((dependencies) => {
+      setPrereqs(dependencies);
+      getUriWeights(dependencies).then((data) => setCompetencyData(data));
     });
-  }, [archive, filepath, mmtUrl]);
+  }, [sectionUri]);
 
   const handleBoxClick = () => {
     setDialogOpen(true);
@@ -80,8 +78,11 @@ const TrafficLightIndicator = ({ contentUrl }: { contentUrl: string }) => {
     setDialogOpen(false);
   };
   function refetchCompetencyData() {
-    if (!URIs?.length) return;
-    getUriWeights(URIs).then((data) => setCompetencyData(data));
+    if (!prereqs?.length) {
+      setCompetencyData([]);
+      return;
+    }
+    getUriWeights(prereqs).then((data) => setCompetencyData(data));
   }
 
   const averageUnderstand = competencyData?.length
@@ -89,7 +90,7 @@ const TrafficLightIndicator = ({ contentUrl }: { contentUrl: string }) => {
       competencyData.length
     : 0;
 
-  if (!URIs?.length) return null;
+  if (!prereqs?.length) return null;
 
   return (
     <>
@@ -151,7 +152,7 @@ const TrafficLightIndicator = ({ contentUrl }: { contentUrl: string }) => {
           {competencyData ? (
             <DialogContentText>
               <CompetencyTable
-                URIs={URIs}
+                conceptUris={prereqs}
                 competencyData={competencyData}
                 onValueUpdate={refetchCompetencyData}
                 showTour={true}

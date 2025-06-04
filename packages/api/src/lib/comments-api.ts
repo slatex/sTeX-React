@@ -1,4 +1,4 @@
-import { CourseResourceAction, FileLocation } from '@stex-react/utils';
+import { CourseResourceAction } from '@stex-react/utils';
 import axios, { AxiosError } from 'axios';
 import {
   BlogPost,
@@ -50,8 +50,8 @@ export async function deleteComment(commentId: number) {
   await commentRequest(`/api/delete-comment/${commentId}`, 'POST');
 }
 
-export async function getComments(files: FileLocation[]): Promise<Comment[]> {
-  const comments: Comment[] = await commentRequest(`/api/get-comments`, 'POST', { files });
+export async function getComments(uris: string[]): Promise<Comment[]> {
+  const comments: Comment[] = await commentRequest(`/api/get-comments`, 'POST', { uris });
   return comments;
 }
 
@@ -137,6 +137,35 @@ export async function getUserInformation() {
     cachedUserInformation = resp.data;
   }
   return cachedUserInformation;
+}
+
+export async function getUserProfile() {
+  try {
+    const response = await axios.get('/api/get-user-profile', { headers: getAuthHeaders() });
+    return response.data;
+  } catch (err) {
+    const error = err as AxiosError;
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      logoutAndGetToLoginPage();
+    }
+    throw new Error('Failed to fetch user profile');
+  }
+}
+
+export async function updateUserProfile(
+  userId: string,
+  firstName: string,
+  lastName: string,
+  email: string,
+  studyProgram: string,
+  semester: string,
+  languages: string
+) {
+  return await axios.post(
+    '/api/update-user-profile',
+    { userId, firstName, lastName, email, studyProgram, semester, languages },
+    { headers: getAuthHeaders() }
+  );
 }
 
 export async function updateTrafficLightStatus(trafficStatus: boolean) {
@@ -285,15 +314,19 @@ export async function generateApfelToken(userId: string, time: number) {
   return response.data;
 }
 
-export async function checkUserExist() {
-  const response = await axios.post('/api/check-user-exist', {}, { headers: getAuthHeaders() });
+export async function updateUserInfoFromToken() {
+  const response = await axios.post(
+    '/api/update-user-info-from-token',
+    {},
+    { headers: getAuthHeaders() }
+  );
   return response.data;
 }
 
-export async function getResourcesForUserId(mmtUrl: string) {
+export async function getResourcesForUser() {
   const response = await axios.post(
-    '/api/get-resources-for-userid',
-    { mmtUrl },
+    '/api/get-resources-for-user',
+    {},
     { headers: getAuthHeaders() }
   );
   return response.data as CourseResourceAction[];

@@ -2,6 +2,7 @@ import {
   Alert,
   Box,
   Button,
+  css,
   Dialog,
   DialogActions,
   DialogContent,
@@ -14,7 +15,9 @@ import { useEffect, useState } from 'react';
 import {
   createHomework,
   CreateHomeworkRequest,
+  CSS,
   deleteHomework,
+  FTMLProblemWithSolution,
   getHomeworkList,
   getHomeworkStats,
   HomeworkInfo,
@@ -34,7 +37,7 @@ function timestampNow() {
 }
 
 function timestampEOD() {
-  let date = new Date();
+  const date = new Date();
   date.setHours(23, 59, 59);
   return date;
 }
@@ -44,7 +47,7 @@ const HomeworkManager = ({ courseId }) => {
   const [stats, setStats] = useState<HomeworkStatsInfo | null>(null);
   const [id, setId] = useState<number | null>(null);
   const [title, setTitle] = useState('');
-  const [problems, setProblems] = useState<Record<string, string>>({});
+  const [problems, setProblems] = useState<Record<string, FTMLProblemWithSolution>>({});
   const [givenTs, setGivenTs] = useState(timestampNow());
   const [dueTs, setDueTs] = useState(timestampEOD());
   const [feedbackReleaseTs, setFeedbackReleaseTs] = useState(timestampEOD());
@@ -53,6 +56,7 @@ const HomeworkManager = ({ courseId }) => {
   const [view, setView] = useState<'list' | 'create' | 'edit'>('list');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedHomeworkId, setSelectedHomeworkId] = useState<number | null>(null);
+  const [css, setCss] = useState<CSS[]>([]);
 
   const getHomeworks = async () => {
     try {
@@ -82,12 +86,13 @@ const HomeworkManager = ({ courseId }) => {
   }, [view, courseId]);
 
   const handleSave = async () => {
-    let body = {
+    const body = {
       givenTs: dayjs(givenTs).format('YYYY-MM-DDTHH:mm:ssZ'),
       dueTs: dayjs(dueTs).format('YYYY-MM-DDTHH:mm:ssZ'),
       feedbackReleaseTs: dayjs(feedbackReleaseTs).format('YYYY-MM-DDTHH:mm:ssZ'),
       title,
       problems,
+      css,
       ...(id ? { id } : {}),
     };
 
@@ -205,6 +210,7 @@ const HomeworkManager = ({ courseId }) => {
             title={title}
             givenTs={givenTs}
             dueTs={dueTs}
+            setCss={setCss}
             feedbackReleaseTs={feedbackReleaseTs}
             setGivenTs={(givenTs) => {
               setGivenTs(givenTs);

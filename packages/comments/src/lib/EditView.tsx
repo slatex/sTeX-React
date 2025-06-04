@@ -3,19 +3,20 @@ import {
   Comment,
   CommentType,
   QuestionStatus,
+  URI,
   addComment,
   editComment,
   getUserInfo,
 } from '@stex-react/api';
-import { CURRENT_TERM, FileLocation } from '@stex-react/utils';
+import { MystEditor } from '@stex-react/myst';
+import { CURRENT_TERM } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { discardDraft, retrieveDraft, saveDraft } from './comment-helpers';
 import { getLocaleObject } from './lang/utils';
-import { MystEditor } from '@stex-react/myst';
 
 interface EditViewProps {
-  file: FileLocation;
+  uri?: URI;
   isPrivateNote: boolean;
   postAnonymously: boolean;
   parentId?: number;
@@ -28,7 +29,7 @@ interface EditViewProps {
 }
 
 export function EditView({
-  file,
+  uri,
   isPrivateNote,
   postAnonymously = false,
   selectedText = undefined,
@@ -56,17 +57,17 @@ export function EditView({
 
   useEffect(() => {
     if (existingComment) return;
-    const retreived = retrieveDraft(file, parentId);
+    const retreived = retrieveDraft(uri ?? '', parentId);
     setInputText(retreived || '');
-  }, [file, parentId, existingComment]);
+  }, [uri, parentId, existingComment]);
 
-  function getNewComment(): Comment {
+  function getNewComment() {
     const courseTerm = courseId ? CURRENT_TERM : undefined;
     const isQuestion = needsResponse && !parentId && !isPrivateNote;
+
     return {
       commentId: -1,
-      archive: file?.archive,
-      filepath: file?.filepath,
+      uri: uri,
       parentCommentId: parentId,
       courseId,
       courseTerm,
@@ -77,6 +78,7 @@ export function EditView({
       questionStatus: isQuestion ? QuestionStatus.UNANSWERED : undefined,
       selectedText,
       userName,
+      pageUrl: typeof window !== 'undefined' ? window.location.href : undefined,
     };
   }
 
@@ -95,17 +97,13 @@ export function EditView({
       alert(t.updateFailure);
       return;
     }
-    discardDraft(file, parentId);
+    discardDraft(uri ?? '', parentId);
     setIsLoading(false);
     if (!existingComment) setInputText('');
   };
 
   return (
-    <fieldset
-      hidden={hidden}
-      disabled={isLoading}
-      style={{ border: 0, margin: 0, padding: 0 }}
-    >
+    <fieldset hidden={hidden} disabled={isLoading} style={{ border: 0, margin: 0, padding: 0 }}>
       <div style={{ marginBottom: '5px' }}>
         <MystEditor
           name="comment-edit"
@@ -113,7 +111,7 @@ export function EditView({
           value={inputText}
           onValueChange={(v) => {
             setInputText(v);
-            saveDraft(file, parentId, v);
+            saveDraft(uri ?? '', parentId, v);
           }}
         />
         {!existingComment && !parentId && !isPrivateNote ? (

@@ -1,4 +1,3 @@
-import { FileLocation } from '@stex-react/utils';
 
 export enum HiddenStatus {
   UNHIDDEN = 'UNHIDDEN',
@@ -56,6 +55,8 @@ export interface Comment {
   updatedTimestampSec?: number;
 
   childComments?: Comment[];
+  uri?: string;
+  pageUrl?: string;
   // TODO: Someway to specify location in the doc.
 }
 
@@ -67,7 +68,7 @@ export function isSpam(status?: HiddenStatus) {
 }
 
 export interface GetCommentsRequest {
-  files: FileLocation[];
+  uris: string[];
 }
 
 export interface EditCommentRequest {

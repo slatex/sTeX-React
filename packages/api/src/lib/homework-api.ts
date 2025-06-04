@@ -1,8 +1,8 @@
 import axios from 'axios';
-import { HomeworkStatsInfo, HomeworkInfo, HomeworkPhase, HomeworkStub } from './homework';
+import { ProblemResponse } from './flams-types';
+import { HomeworkInfo, HomeworkPhase, HomeworkStatsInfo, HomeworkStub } from './homework';
 import { getAuthHeaders } from './lmp';
 import { GradingInfo } from './nap';
-import { ProblemResponse } from './quiz';
 
 export async function getHomeworkList(courseId: string) {
   const resp = await axios.get(`/api/homework/get-homework-list?courseId=${courseId}`, {
@@ -28,8 +28,12 @@ export function getHomeworkPhase(homework: HomeworkInfo): HomeworkPhase {
 
 export interface GetHomeworkResponse {
   homework: HomeworkInfo;
-  responses: Record<string, ProblemResponse>;
+  responses: Record<string, ResponseWithSubProblemId>;
   gradingInfo: Record<string, Record<string, GradingInfo[]>>;
+}
+export interface ResponseWithSubProblemId {
+  problemId: string;
+  responses: { subProblemId: string; answer: string }[];
 }
 
 export async function getHomework(id: number) {

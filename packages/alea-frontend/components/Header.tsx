@@ -5,15 +5,14 @@ import { Box, Button, IconButton, Menu, MenuItem, Toolbar, Tooltip } from '@mui/
 import AppBar from '@mui/material/AppBar';
 import { getUserInfo, isLoggedIn, logout } from '@stex-react/api';
 import { CountryFlag, useScrollDirection } from '@stex-react/react-utils';
+import { PRIMARY_COL } from '@stex-react/utils';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { BrowserAutocomplete } from '../components/BrowserAutocomplete';
 import { getLocaleObject } from '../lang/utils';
 import styles from '../styles/header.module.scss';
 import NotificationButton from './NotificationButton';
-import { PRIMARY_COL } from '@stex-react/utils';
 
 export const HIDE_BANNER_ITEM = 'hide-survey-banner';
 
@@ -129,13 +128,7 @@ function LanguageButton() {
   );
 }
 
-export function Header({
-  showBrowserAutocomplete,
-  headerBgColor,
-}: {
-  showBrowserAutocomplete: boolean;
-  headerBgColor?: string;
-}) {
+export function Header({ headerBgColor }: { headerBgColor?: string }) {
   const loggedIn = isLoggedIn();
   const router = useRouter();
   const { header: t } = getLocaleObject(router);
@@ -180,11 +173,6 @@ export function Header({
             </Box>
           </Tooltip>
         </Link>
-        {showBrowserAutocomplete && (
-          <Box sx={{ mx: '40px', maxWidth: '600px' }} flex="1">
-            <BrowserAutocomplete />
-          </Box>
-        )}
         <Box>
           <Box display="flex" alignItems="center">
             <NotificationButton bgColor="#ced9f2" />

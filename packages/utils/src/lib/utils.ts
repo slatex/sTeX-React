@@ -1,34 +1,50 @@
 import { getOuterHTML } from 'domutils';
-import { FileLocation } from './file-location';
 
 export const BG_COLOR = 'hsl(210, 20%, 98%)';
 export const IS_SERVER = typeof window === 'undefined';
 export const localStore = IS_SERVER ? undefined : localStorage;
 export const Window = IS_SERVER ? undefined : window;
-export const IS_MMT_VIEWER = IS_SERVER ? false : (window as any).SHOW_FILE_BROWSER !== undefined;
 export const PRIMARY_COL = '#203360';
 export const PRIMARY_COL_DARK_HOVER = '#162343';
 export const SECONDARY_COL = '#8c9fb1';
 
-export const MMT_CUSTOM_ID_PREFIX = '__mmt-custom-';
-
-export function getMMTCustomId(tag: string) {
-  return MMT_CUSTOM_ID_PREFIX + tag;
+export async function waitForNSeconds(n_sec: number) {
+  return new Promise((resolve) => setTimeout(resolve, n_sec * 1000));
 }
 
-export function getCustomTag(id: string) {
-  if (!id?.startsWith(MMT_CUSTOM_ID_PREFIX)) return undefined;
-  return id.substring(MMT_CUSTOM_ID_PREFIX.length);
-}
 
 export function shouldUseDrawer(windowWidth?: number) {
   if (!windowWidth) windowWidth = Window?.innerWidth;
   return windowWidth ? windowWidth < 800 : true;
 }
 
-export interface FileInfo extends FileLocation {
-  url: string;
-  source?: string;
+export function extractRepoAndFilepath(sourceUrl?: string): {
+  project: string | null;
+  filepath: string | null;
+} {
+  if (!sourceUrl) return { project: null, filepath: null };
+  try {
+    const url = new URL(sourceUrl);
+    const pathname = url.pathname;
+    const parts = pathname.split('/').filter((part) => part !== ''); // Split and remove empty strings
+
+    const dashIndex = parts.indexOf('-');
+
+    if (dashIndex !== -1 && dashIndex > 0) {
+      const projectParts = parts.slice(0, dashIndex);
+      const filepathParts = parts.slice(dashIndex + 2); // Skip 'blob' and the branch/commit
+
+      const project = projectParts.join('/');
+      const filepath = filepathParts.join('/');
+
+      return { project, filepath };
+    } else {
+      return { project: null, filepath: null };
+    }
+  } catch (error) {
+    console.error(`Invalid URL [${sourceUrl}]:`, error);
+    return { project: null, filepath: null };
+  }
 }
 
 export function convertHtmlNodeToPlain(htmlNode?: any) {
@@ -46,45 +62,22 @@ export function convertHtmlStringToPlain(htmlStr: string) {
   return tempDivElement.textContent || tempDivElement.innerText || '';
 }
 
-export function getSectionInfo(url: string): FileInfo {
-  if (!url) url = '';
-  const match = /archive=([^&]+)&filepath=([^&]+)/g.exec(url);
-  const archive = match?.[1] || '';
-  const filepath = match?.[2] || '';
-  const sourcePath = filepath.replace('xhtml', 'tex');
-  const source = sourceFileUrl(archive, sourcePath);
-  return {
-    url: url.replace('/document?', '/fulldocument?'),
-    archive,
-    filepath,
-    source,
-  };
+export function getParamFromUri(uri: string, param: string) {
+  try {
+    const url = new URL(uri);
+    return url.searchParams.get(param);
+  } catch {
+    return undefined;
+  }
 }
 
-export function extractProjectIdAndFilepath(problemId: string, fileExtension = '.tex') {
-  const url = problemId.replace('http://mathhub.info/', '').replace(/\?en.*/, '');
-  const parts = url.split('/');
-  const defaultProjectParts = 2;
-  let projectParts;
-  if (parts[0] === 'courses' || parts[0] === 'sTeX') {
-    projectParts = 4;
-  } else {
-    projectParts = Math.min(defaultProjectParts, parts.length - 2);
+export function getParamsFromUri(uri: string, params: string[]) {
+  try {
+    const url = new URL(uri);
+    return params.map((param) => url.searchParams.get(param));
+  } catch {
+    return params.map((param) => undefined);
   }
-  const archive = parts.slice(0, projectParts).join('/');
-  const filePath = parts.slice(projectParts).join('/').replace('.omdoc', fileExtension);
-  return [archive, filePath];
-}
-
-export function urlWithContextParams(url: string, locale: string, topLevelUrl?: string) {
-  const sectionInfo = getSectionInfo(topLevelUrl ?? '');
-  if (!sectionInfo) return '';
-  const { archive, filepath } = sectionInfo;
-  if (url.endsWith('language=')) {
-    // Horrible hack.
-    return `${url}${locale}&contextArchive=${archive}&contextFilepath=${filepath}`;
-  }
-  return `${url}&language=${locale}&contextArchive=${archive}&contextFilepath=${filepath}`;
 }
 
 // Not crypto-safe.
@@ -109,23 +102,6 @@ export function simpleHash(str?: string) {
   return hash.toString(36);
 }
 
-export function XhtmlContentUrl(projectId: string, xhtmlFilepath: string) {
-  return `/:sTeX/document?archive=${projectId}&filepath=${xhtmlFilepath}`;
-}
-
-export function fullDocumentUrl({ archive, filepath }: FileLocation) {
-  return `/:sTeX/fulldocument?archive=${archive}&filepath=${filepath}`;
-}
-
-export function XhtmlTopDocumentContentUrl({ archive, filepath }: FileLocation) {
-  return `/:sTeX/documentTop?archive=${archive}&filepath=${filepath}`;
-}
-
-export function PathToArticle({ archive, filepath }: FileLocation) {
-  const path = `:sTeX/document?archive=${archive}&filepath=${filepath}`;
-  return `/browser/${encodeURIComponent(path)}`;
-}
-
 export function PathToTour(tourId: string) {
   const encoded = encodeURIComponent(tourId);
   return `/guided-tour/${encoded}`;
@@ -134,16 +110,9 @@ export function PathToTour2(tourId: string) {
   const encoded = encodeURIComponent(tourId);
   return `/guided-tour2/${encoded}`;
 }
-export function texPathToXhtml(texFilepath: string) {
-  return texFilepath.slice(0, -3) + 'xhtml';
-}
 
-export function xhtmlPathToTex(xhtmlFilepath: string) {
-  return xhtmlFilepath.slice(0, -5) + 'tex';
-}
-
-export function sourceFileUrl(projectId: string, texFilepath: string) {
-  return `https://gl.mathhub.info/${projectId}/-/blob/main/source/${texFilepath}`;
+export function isFauId(id: string) {
+  return id?.length === 8 && !id.includes('@');
 }
 
 export function fixDuplicateLabels<T extends { label: string }>(RAW: T[]) {
@@ -163,14 +132,6 @@ export function fixDuplicateLabels<T extends { label: string }>(RAW: T[]) {
     }
   }
   return fixed;
-}
-
-export function isFauId(userId: string): boolean {
-  return userId.length === 8 && !userId.includes('@');
-}
-
-export function getChildrenOfBodyNode(bodyNode: any) {
-  return bodyNode?.props?.children;
 }
 
 export function getCookie(name: string) {
@@ -306,3 +267,20 @@ export function isBusinessDomain(domain?: string) {
     'yopmail.com',
   ].includes(domain);
 }
+export function truncateText(text: string, maxLength: number) {
+  if (text.length > maxLength) {
+    text = text.substring(0, maxLength) + '...';
+  }
+  return text;
+}
+export const formatTime = (seconds: number) => {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secondsLeft = Math.floor(seconds % 60);
+
+  if (hours > 0) {
+    return `${hours} hr ${minutes} min ${secondsLeft} sec`;
+  } else {
+    return `${minutes} min ${secondsLeft} sec`;
+  }
+};

@@ -1,3 +1,6 @@
+import { RecorrectionDialog } from "../components/RecorrectionDialog";
+import StudentHomePage from "../pages";
+
 export const de = {
   home: {
     header: 'ALeA basierte Kurse an der FAU',
@@ -133,10 +136,27 @@ export const de = {
     header: 'Systemaktualisierung',
   },
   myProfile: {
+    profile: 'Profil',
+    Settings: 'Einstellungen',
+    dataExport: 'Datenexport',
+    personalInfo : 'Persönliche Informationen',
+    firstName: 'Vorname',
+    lastName: 'Nachname',
+    email: 'E-Mail',
+    studyProgram: 'Studiengang',
+    semester: 'Eingeschriebenes Semester',
+    languages: 'Gesprochene Sprachen',
+    save: 'Speichern',
+
+    dataAlea: 'Ihre Daten im ALᴇA-System',
+    displaySettings: 'Anzeigeeinstellungen',
+    accountInformation: 'Kontoinformationen',
+
     myNotes: 'Meine Notizen',
     myCompetencyData: 'Meine Kompetenzdaten',
     learnerModelPriming: 'Fundament des Lernendenmodells',
-
+    myAnswers: 'Meine Antworten',
+    myGrading: 'Meine Bewertung',
     downloadData: 'Laden Sie Ihre Daten herunter',
     downloadNotes: 'Laden Sie Ihre Notizen und Kommentare herunter',
     downloadProfile: 'Laden Sie Ihre Profildaten herunter',
@@ -383,11 +403,41 @@ export const de = {
       'Hinweis: Diese Probleme dienen nur dazu, Ihnen beim Lernen zu helfen. Sie decken das Kursmaterial nicht vollständig ab und es gibt keine Garantie dafür, dass die Probleme korrekt sind oder dass sie repräsentativ für die Art von Problemen sind, die in den Tests oder der Prüfung behandelt werden.',
     backToAllCourseProblems: 'Zurück zu allen Kursproblemen',
   },
+  peerGrading: {
+    peerGrading: 'Benotung durch Gleichaltrige',
+  },
   resource: {
-    updateGoTo: 'aktualisieren Got-tos',
+    updatesyllabus: 'Aktualisierungen des Lehrplans',
     quiz: 'Quizze',
     homework: 'Hausaufgaben',
     forum: 'Forum',
     welcome: 'Willkommen',
+    peerReview: 'Peer Review',
+    studyBuddy: 'Study Buddy',
+    lastUpdated: 'Zuletzt aktualisiert',
+    ago: 'vor',
+    updates: 'Aktualisierungen',
+    pending: 'Ausstehend',
+    noUpdatesAvailable: 'Keine Aktualisierungen verfügbar',
+    failedToLoadUpdates: 'Aktualisierungen konnten nicht geladen werden',
+    ungradedProblems:'Unbenotete Aufgaben',
+    unansweredQuestions:'Unbeantwortete Fragen',
+    latestQuiz:'Neuestes Quiz',
+    latestHomework:'neueste Hausaufgaben',
+    noHomeworkAvailable:'Keine Hausaufgaben verfügbar'
   },
+  recorrection:{
+    quizRecorrection: 'Quiz-Rekorrektur',
+    previewRecorrection:'Vorschau der Änderungen der Wiederholung',
+    problemId: 'Problem-ID',
+    recorrectionReason: 'Grund für die Rekorrektur',
+    recorrectionReasonPlaceholder: 'Geben Sie den Grund für die Rekorrektur ein',
+    oldpoints: 'Alte Punkte',
+    newpoints: 'Neue Punkte',
+    numberOfEntries: 'Anzahl der Einträge',
+    noSubmissions: 'Keine Einreichungen gefunden',
+    noChangetoApply: 'Keine Änderungen zum Anwenden gefunden',
+    loadingPreviewOfChanges: 'Laden der Vorschau der Änderungen...',
+    ApplyRecorrection: 'Rekorrektur anwenden',
+  }
 };

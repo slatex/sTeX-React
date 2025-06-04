@@ -7,43 +7,33 @@ import IndeterminateCheckBoxIcon from '@mui/icons-material/IndeterminateCheckBox
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { Box, Button, CircularProgress, Dialog, IconButton } from '@mui/material';
-import {
-  AutogradableResponse,
-  InputType,
-  Problem,
-  ProblemResponse,
-  TimerEvent,
-  TimerEventType,
-} from '@stex-react/api';
-import { getPoints } from '@stex-react/quiz-utils';
-import { shouldUseDrawer } from '@stex-react/utils';
+import { FTMLProblemWithSolution, TimerEvent, TimerEventType } from '@stex-react/api';
+import { FTMLFragment, ProblemResponse, ProblemResponseType } from '@stex-react/ftml-utils';
+import { isEmptyResponse } from '@stex-react/quiz-utils';
+import { convertHtmlStringToPlain, shouldUseDrawer } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useEffect, useReducer, useState } from 'react';
-import { defaultAutogradableResponse } from './InlineProblemDisplay';
 import { getLocaleObject } from './lang/utils';
 import { FixedPositionMenu, LayoutWithFixedMenu } from './LayoutWithFixedMenu';
-import { mmtHTMLToReact } from './mmtParser';
 import { ProblemDisplay } from './ProblemDisplay';
 import { QuizSubmitConfirm } from './QuizSubmitConfirm';
 import { QuizTimer, Timer, timerEvent } from './QuizTimer';
+import { getPoints } from './stex-react-renderer';
 
-function isNonEmptyResponse(resp: AutogradableResponse) {
-  switch (resp.type) {
-    case InputType.FILL_IN:
-      return !!resp.filledInAnswer;
-    case InputType.SCQ:
-      return !!resp.singleOptionIdx?.length;
-    case InputType.MCQ:
-      return Object.values(resp.multipleOptionIdxs ?? {}).some((v) => v === true);
+function isNonEmptyResponse(resp: ProblemResponseType) {
+  if (resp.type === 'MultipleChoice') {
+    return resp.value.length > 0 && resp.value.some((r) => r);
+  } else if (resp.type === 'SingleChoice') {
+    return resp.value !== undefined;
+  } else if (resp.type === 'Fillinsol') {
+    return resp.value.length > 0;
   }
   return false;
 }
 
-function numInputsResponded(r: ProblemResponse) {
-  return r.autogradableResponses.reduce(
-    (prev, resp) => prev + (isNonEmptyResponse(resp) ? 1 : 0),
-    0
-  );
+function numInputsResponded(r: ProblemResponse | undefined) {
+  if (!r) return 0;
+  return r.responses.reduce<number>((prev, resp) => prev + (isNonEmptyResponse(resp) ? 1 : 0), 0);
 }
 
 function roundedScore(points: { [problemId: string]: number | undefined }) {
@@ -63,8 +53,8 @@ function IndexEntry({
   onSelect,
   isHomeWork,
 }: {
-  problem: Problem;
-  response: ProblemResponse;
+  problem: FTMLProblemWithSolution;
+  response: ProblemResponse | undefined;
   points: number | undefined;
   idx: number;
   selectedIdx: number;
@@ -75,9 +65,11 @@ function IndexEntry({
   isHomeWork: boolean;
 }) {
   const { quiz: t } = getLocaleObject(useRouter());
-  const isCorrectnessKnown = isFrozen && points !== undefined;
+  const isCorrectnessKnown =
+    isFrozen && points !== undefined && points !== null && Number.isFinite(points);
   const isPartiallyCorrect = points && points > 0;
-  const isCorrect = points === problem.points;
+  const totalPoints = problem.problem.total_points ?? 1;
+  const isCorrect = points === totalPoints;
   const color = isHomeWork
     ? '#333'
     : isCorrectnessKnown
@@ -88,9 +80,10 @@ function IndexEntry({
       : 'red'
     : '#333';
   const responded = numInputsResponded(response);
+  const numInputs = response?.responses?.length ?? 1;
   const respondedIcon = isFrozen ? (
     <span style={{ width: '24px' }}></span>
-  ) : responded === problem.inputs.length ? (
+  ) : responded === numInputs ? (
     <CheckBox />
   ) : responded === 0 ? (
     <CheckBoxOutlineBlankIcon />
@@ -141,9 +134,9 @@ function ProblemNavigation({
   onSelect,
   isHomeWork,
 }: {
-  problems: { [problemId: string]: Problem };
-  responses: { [problemId: string]: ProblemResponse };
-  points: { [problemId: string]: number | undefined };
+  problems: Record<string, FTMLProblemWithSolution>;
+  responses: Record<string, ProblemResponse | undefined>;
+  points: Record<string, number>;
   problemIdx: number;
   isFrozen: boolean;
   showClock: boolean;
@@ -219,14 +212,14 @@ export function ListStepper({
 }
 
 function computeResult(
-  problems: { [problemId: string]: Problem },
-  responses: { [problemId: string]: ProblemResponse }
+  problems: Record<string, FTMLProblemWithSolution>,
+  responses: Record<string, ProblemResponse | undefined>
 ) {
-  const points: { [problemId: string]: number | undefined } = {};
+  const points: { [problemId: string]: number } = {};
   for (const problemId of Object.keys(problems ?? {})) {
     const r = responses[problemId];
-    const q = problems[problemId];
-    points[problemId] = getPoints(q, r);
+    const p = problems[problemId];
+    points[problemId] = getPoints(p, r);
   }
   return points;
 }
@@ -239,34 +232,25 @@ export function QuizDisplay({
   showPerProblemTime = false,
   existingResponses,
   isFrozen,
-  debug = false,
-  showRecordOption = false,
   homeworkId,
 }: {
   quizEndTs?: number;
   showPerProblemTime: boolean;
-  problems: { [problemId: string]: Problem };
+  problems: Record<string, FTMLProblemWithSolution>;
   existingResponses: { [problemId: string]: ProblemResponse };
   isFrozen: boolean;
-  debug?: boolean;
   onResponse?: (problemId: string, r: ProblemResponse) => void;
   onSubmit?: (
-    name: string | undefined,
     events: TimerEvent[],
-    responses: { [problemId: string]: ProblemResponse },
+    responses: { [problemId: string]: ProblemResponse | undefined },
     result: { [problemId: string]: number | undefined }
   ) => void;
-  showRecordOption?: boolean;
   homeworkId?: number;
 }) {
   const isHomeWork = homeworkId ? true : false;
   const { quiz: t } = getLocaleObject(useRouter());
-  const [points, setPoints] = useState<{
-    [problemId: string]: number | undefined;
-  }>({});
-  const [responses, setResponses] = useState<{
-    [problemId: string]: ProblemResponse;
-  }>({});
+  const [points, setPoints] = useState<{ [problemId: string]: number }>({});
+  const [responses, setResponses] = useState<Record<string, ProblemResponse | undefined>>({});
   const [problemIdx, setProblemIdx] = useState(0);
   const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
   const [events, setEvents] = useState<TimerEvent[]>([]);
@@ -280,27 +264,12 @@ export function QuizDisplay({
   useEffect(() => {
     const numQ = Object.keys(problems ?? {}).length || 0;
     if (numQ === 0) return;
-    console.log(problems);
-    console.log(existingResponses);
     setEvents([timerEvent(TimerEventType.SWITCH, 0)]);
 
-    const rs: { [problemId: string]: ProblemResponse } = {};
+    const rs: Record<string, ProblemResponse | undefined> = {};
     for (const problemId of Object.keys(problems ?? {})) {
       const e = existingResponses[problemId];
-      const problem = problems[problemId];
-      const { inputs, subProblemData } = problem;
-      rs[problemId] = {
-        autogradableResponses: inputs.map((input, idx) => {
-          if (e?.autogradableResponses[idx]) return e.autogradableResponses[idx];
-          return defaultAutogradableResponse(input);
-        }),
-        freeTextResponses: (subProblemData || []).reduce((acc, v, idx) => {
-          const key = idx.toString();
-          const existing = e?.freeTextResponses[key];
-          acc[key] = existing || '';
-          return acc;
-        }, {} as Record<string, string>),
-      };
+      rs[problemId] = e;
     }
     setResponses(rs);
   }, [problems, existingResponses]);
@@ -355,7 +324,7 @@ export function QuizDisplay({
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <h2>
             {t.problem} {problemIdx + 1} {t.of} {problemIds.length}&nbsp;
-            {problem.header && <>({mmtHTMLToReact(problem.header)})</>}
+            <FTMLFragment key={problem.problem.html ?? ''} fragment ={{  html: problem.problem.title_html ?? '<i>Untitled</i>' }} />
           </h2>
           {(!!quizEndTs || showPerProblemTime) && (
             <QuizTimer
@@ -368,27 +337,23 @@ export function QuizDisplay({
             />
           )}
         </Box>
-
         <Box my="10px">
           <ProblemDisplay
             r={response}
-            //problemUrl={problemUrl}
-            debug={debug}
-            problemId={problemIds[problemIdx]}
             problem={problem}
             isFrozen={isFrozen}
             onResponseUpdate={(response) => {
+              if (isEmptyResponse(response)) return;
               forceRerender();
               const problemId = problemIds[problemIdx];
               setResponses((prev) => {
                 prev[problemId] = response;
                 return prev;
               });
-              if (onResponse) onResponse(problemId, response);
+              onResponse?.(problemId, response);
             }}
           />
         </Box>
-
         <ListStepper
           idx={problemIdx}
           listSize={problemIds.length}
@@ -404,13 +369,13 @@ export function QuizDisplay({
               {t.finish}
             </Button>
           )
-        ) : !Object.values(points).some((s) => s === undefined) ? (
+        ) : Object.values(points).every((s) => s !== undefined && !Number.isNaN(s)) ? (
           !isHomeWork && (
             <i style={{ margin: '20px 0', color: '#333', fontSize: '26px' }}>
               {t.youScored.replace('$1', roundedScore(points)).replace(
                 '$2',
                 Object.values(problems)
-                  .reduce((a, b) => a + b.points, 0)
+                  .reduce((a, b) => a + (b.problem.total_points ?? 1), 0)
                   .toString()
               )}
             </i>
@@ -424,14 +389,13 @@ export function QuizDisplay({
         <Dialog open={showSubmitDialog} onClose={() => setShowSubmitDialog(false)}>
           <QuizSubmitConfirm
             left={Object.values(responses).filter((r) => !numInputsResponded(r)).length}
-            onClose={(submit, name) => {
+            onClose={(submit) => {
               setShowSubmitDialog(false);
               if (!submit) return;
 
-              onSubmit(name, events, responses, points);
+              onSubmit(events, responses, points);
               setEvents((prev) => [...prev, timerEvent(TimerEventType.SUBMIT)]);
             }}
-            showRecordOption={false} /*showRecordOption removed because of 'demo quiz'*/
           />
         </Dialog>
       )}

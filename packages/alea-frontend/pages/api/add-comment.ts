@@ -5,7 +5,7 @@ import {
   GrantReason,
   NotificationType,
 } from '@stex-react/api';
-import { CURRENT_TERM, PathToArticle } from '@stex-react/utils';
+import { CURRENT_TERM } from '@stex-react/utils';
 import axios from 'axios';
 import { canUserModerateComments } from './access-control/resource-utils';
 import {
@@ -16,13 +16,12 @@ import {
   sendNotification,
 } from './comment-utils';
 
-function linkToComment({ threadId, courseId, courseTerm, archive, filepath }: any) {
+function linkToComment({ threadId, courseId, courseTerm, pageUrl }: any) {
   if (threadId && courseId && courseTerm === CURRENT_TERM) {
     return `/forum/${courseId}/${threadId}`;
   }
-  if (archive && filepath) return PathToArticle({ archive, filepath });
   if (courseId) return `/forum/${courseId}`;
-  return PathToArticle({ archive: archive || '', filepath: filepath || '' });
+  return pageUrl || '/';
 }
 
 async function sendCommentAlert(
@@ -96,6 +95,8 @@ export default async function handler(req, res) {
     commentType,
     questionStatus,
     isAnonymous,
+    uri,
+    pageUrl,
   } = req.body as Comment;
 
   if (!statement || isPrivate === undefined || isAnonymous === undefined) {
@@ -120,8 +121,8 @@ export default async function handler(req, res) {
   }
   const results = await executeAndEndSet500OnError(
     `INSERT INTO comments
-      (archive, filepath, statement, parentCommentId, threadId, courseId, courseTerm, selectedText, isPrivate, commentType, questionStatus, isAnonymous, userId, userName, userEmail, isDeleted, isEdited)
-      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (archive, filepath, statement, parentCommentId, threadId, courseId, courseTerm, selectedText, isPrivate, commentType, questionStatus, isAnonymous, userId, userName, userEmail, isDeleted, isEdited ,uri, pageUrl)
+      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ?, ?)`,
     [
       archive,
       filepath,
@@ -140,6 +141,8 @@ export default async function handler(req, res) {
       isAnonymous ? null : userEmail,
       0,
       0,
+      uri,
+      pageUrl,
     ],
     res
   );
@@ -167,7 +170,7 @@ export default async function handler(req, res) {
     userId,
     isPrivate,
     commentType === CommentType.QUESTION,
-    linkToComment({ threadId, courseId, courseTerm, archive, filepath }),
+    linkToComment({ threadId, courseId, courseTerm, pageUrl }),
     courseId,
     courseTerm
   );

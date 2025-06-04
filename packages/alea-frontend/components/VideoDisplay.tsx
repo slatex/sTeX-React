@@ -1,8 +1,8 @@
-import { FastForward, InfoOutlined, MusicNote, OpenInNew } from '@mui/icons-material';
+import { FastForward, InfoOutlined, MusicNote } from '@mui/icons-material';
 import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
 import SettingsIcon from '@mui/icons-material/Settings';
 import VideocamIcon from '@mui/icons-material/Videocam';
-import CloseIcon from '@mui/icons-material/Close';
 import {
   Box,
   Button,
@@ -15,33 +15,26 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import {
-  ClipDetails,
-  ClipInfo,
-  getAncestors,
-  getDefiniedaInDoc,
-  lastFileNode,
-  SectionsAPIData,
-} from '@stex-react/api';
-import { localStore, PathToTour2 } from '@stex-react/utils';
+import { ClipDetails, ClipInfo, getDefiniedaInSection } from '@stex-react/api';
+import { formatTime, getParamFromUri, localStore, PathToTour2 } from '@stex-react/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import {
   Dispatch,
   MutableRefObject,
   SetStateAction,
-  useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
 
-import { ClipData, setSlideNumAndSectionId } from '../pages/course-view/[courseId]';
-import { ServerLinksContext } from '@stex-react/stex-react-renderer';
-import Link from 'next/link';
+import { ClipData } from '@stex-react/api';
 import Image from 'next/image';
+import Link from 'next/link';
+import { setSlideNumAndSectionId } from '../pages/course-view/[courseId]';
 
 export default function SeekVideo({
   currentSlideClipInfo,
@@ -152,11 +145,16 @@ interface Marker {
     description?: string;
     thumbnail?: string;
     sectionId?: string;
-    slideIndex?: number;
+    sectionUri?: string;
+    slideUri?: string;
     ocr_slide_content?: string;
   };
 }
-
+export interface SlidesUriToIndexMap {
+  [sectionId: string]: {
+    [slideUri: string]: number;
+  };
+}
 const MediaItem = ({
   audioOnly,
   videoId,
@@ -165,7 +163,7 @@ const MediaItem = ({
   markers,
   clipId,
   clipIds,
-  courseDocSections,
+  slidesUriToIndexMap,
   autoSync,
 }: {
   audioOnly: boolean;
@@ -175,186 +173,222 @@ const MediaItem = ({
   sub?: string;
   timestampSec?: number;
   markers?: Marker[];
-  courseDocSections?: SectionsAPIData;
+  slidesUriToIndexMap?: SlidesUriToIndexMap;
   autoSync?: boolean;
 }) => {
   const playerRef = useRef<HTMLVideoElement | HTMLAudioElement>(null);
   const videoPlayer = useRef<any>(null);
+  const autoSyncRef = useRef(autoSync);
+  const lastSyncedMarkerTime = useRef<number | null>(null);
   const [tooltip, setTooltip] = useState<string>('');
   const [overlay, setOverlay] = useState<{ title: string; description: string } | null>(null);
-  const lastMarkerRef = useRef<number | null>(null);
-  const autoSyncRef = useRef(autoSync);
-  const prevAutoSyncRef = useRef(false);
   const router = useRouter();
-  const [concepts, setConcepts] = useState<string[]>([]);
-  const { mmtUrl } = useContext(ServerLinksContext);
+  const [conceptsUri, setConceptsUri] = useState<string[]>([]);
+  const [loadingConcepts, setLoadingConcepts] = useState(false);
+  const conceptsCache = useRef<Record<string, string[]>>({});
+  const markersInDescOrder = useMemo(() => {
+    return [...markers].sort((a, b) => b.time - a.time);
+  }, [markers]);
 
-  const getDefinedConcepts = async (sectionId: string) => {
-    if (!sectionId || !courseDocSections) return [];
-    const ancestors = getAncestors(undefined, undefined, String(sectionId), courseDocSections);
-    const sectionParentInfo = lastFileNode(ancestors);
-    const { archive, filepath } = sectionParentInfo;
-    const definedConcepts = await getDefiniedaInDoc(mmtUrl, archive, filepath);
-    if (!definedConcepts || definedConcepts.length === 0) return [];
-    return [...new Set(definedConcepts.flatMap((data) => data.symbols))];
-  };
+  const handleMarkerClick = async (marker: Marker) => {
+    const sectionUri = marker?.data?.sectionUri;
+    if (!sectionUri) return;
+    if (conceptsCache.current[sectionUri]) {
+      setConceptsUri(conceptsCache.current[sectionUri]);
+      setOverlay({
+        title: marker.label ?? 'Untitled',
+        description: marker.data.description ?? 'No Description Available',
+      });
+      return;
+    }
+    setLoadingConcepts(true);
+    try {
+      const definedConcepts = await getDefiniedaInSection(sectionUri);
+      const result = definedConcepts.map((concept) => concept.conceptUri) ?? [];
+      conceptsCache.current[sectionUri] = result;
 
-  const handleMarkerClick = async (marker: any) => {
-    const definedConcepts = await getDefinedConcepts(marker.data.sectionId);
-    setConcepts(definedConcepts ?? []);
+      setConceptsUri(result);
+    } catch (err) {
+      console.error('Error loading concepts:', err);
+      setConceptsUri([]);
+    } finally {
+      setLoadingConcepts(false);
+    }
     setOverlay({
       title: marker.label ?? 'Untitled',
       description: marker.data.description ?? 'No Description Available',
     });
   };
-
+  const handleCurrentMarkerUpdate = ({
+    videoPlayer,
+    markers,
+    handleMarkerClick,
+  }: {
+    videoPlayer: any;
+    markers: Marker[];
+    handleMarkerClick: (marker: Marker) => void;
+  }) => {
+    const currentTime = videoPlayer.current.currentTime();
+    const markersInDescOrder = markers.slice().sort((a, b) => b.time - a.time);
+    const markerIndex = markersInDescOrder.findIndex((marker) => marker.time <= currentTime);
+    if (markerIndex < 0) return;
+    const newMarker = markersInDescOrder[markerIndex];
+    handleMarkerClick(newMarker);
+  };
   useEffect(() => {
     autoSyncRef.current = autoSync;
   }, [autoSync]);
 
   useEffect(() => {
-    if (audioOnly) {
-      return;
-    } else {
-      if (playerRef.current) {
-        videoPlayer.current = videojs(playerRef.current, {
-          controls: !audioOnly,
-          preload: 'auto',
-          autoplay: true,
-          sources: [{ src: videoId, type: 'video/mp4' }],
-        });
-        const controlBar = playerRef.current.parentNode.querySelector(
-          '.vjs-control-bar'
-        ) as HTMLElement;
-        if (controlBar) {
-          controlBar.style.paddingBottom = '30px';
-          controlBar.style.paddingTop = '10px';
-          controlBar.style.position = 'absolute';
-          controlBar.style.zIndex = '9999';
-        }
+    if (audioOnly || !playerRef.current) return;
+    const player = videojs(playerRef.current, {
+      controls: !audioOnly,
+      preload: 'auto',
+      autoplay: true,
+      sources: [{ src: videoId, type: 'video/mp4' }],
+    });
+    videoPlayer.current = player;
+    const controlBar = playerRef.current.parentNode?.querySelector(
+      '.vjs-control-bar'
+    ) as HTMLElement;
+    if (controlBar) {
+      controlBar.style.paddingBottom = '30px';
+      controlBar.style.paddingTop = '10px';
+      controlBar.style.position = 'absolute';
+      controlBar.style.zIndex = '1000';
+    }
+    const progressBar = playerRef.current.parentNode?.querySelector(
+      '.vjs-progress-holder'
+    ) as HTMLElement;
+    if (progressBar) {
+      progressBar.style.marginTop = '20px';
+    }
+    const bigPlayButton = playerRef.current.parentNode?.querySelector('.vjs-big-play-button');
+    const playIcon = bigPlayButton?.querySelector('.vjs-icon-placeholder') as HTMLElement;
+    if (playIcon) {
+      playIcon.style.bottom = '5px';
+      playIcon.style.paddingRight = '25px';
+    }
+    const textTrackDisplay = playerRef.current.parentNode?.querySelector(
+      '.vjs-text-track-display'
+    ) as HTMLElement;
+    if (textTrackDisplay) {
+      Object.assign(textTrackDisplay.style, {
+        insetBlock: '0px',
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        right: '0',
+        bottom: '0',
+        margin: '0',
+        padding: '0',
+      });
+    }
 
-        const progressBar = playerRef.current.parentNode.querySelector(
-          '.vjs-progress-holder'
-        ) as HTMLElement;
-        if (progressBar) {
-          progressBar.style.marginTop = '20px';
-        }
+    return () => {
+      player.dispose();
+      videoPlayer.current = null;
+    };
+  }, [videoId, audioOnly]);
+  useEffect(() => {
+    const player = videoPlayer.current;
+    if (!player) return;
 
-        const bigPlayButton = playerRef.current.parentNode.querySelector('.vjs-big-play-button');
-        if (bigPlayButton) {
-          const playIcon = bigPlayButton.querySelector('.vjs-icon-placeholder') as HTMLElement;
-          if (playIcon) {
-            playIcon.style.bottom = '5px';
-            playIcon.style.paddingRight = '25px';
-          }
-        }
+    const onLoadedMetadata = () => {
+      const progressHolder = player.controlBar.progressControl.seekBar.el();
+      const videoDuration = player.duration();
+      const createdMarkers: HTMLElement[] = [];
 
-        const textTrackDisplay = playerRef.current.parentNode.querySelector(
-          '.vjs-text-track-display'
-        ) as HTMLElement;
-        if (textTrackDisplay) {
-          Object.assign(textTrackDisplay.style, {
-            insetBlock: '0px',
+      markers.forEach((marker) => {
+        if (marker.time < videoDuration) {
+          const el = document.createElement('div');
+          el.className = 'custom-marker';
+          el.dataset.label = marker.label;
+          el.dataset.time = marker.time.toString();
+          el.dataset.sectionId = marker.data.sectionId;
+          el.dataset.slideUri = marker.data.slideUri;
+
+          Object.assign(el.style, {
             position: 'absolute',
             top: '0',
-            left: '0',
-            right: '0',
-            bottom: '0',
-            margin: '0',
-            padding: '0',
+            width: '6px',
+            height: '100%',
+            backgroundColor: 'yellow',
+            left: `${(marker.time / videoDuration) * 100}%`,
+            zIndex: '10',
+            cursor: 'pointer',
           });
+
+          el.addEventListener('mouseenter', () =>
+            setTooltip(`${marker.label} - ${formatTime(marker.time)}s`)
+          );
+          el.addEventListener('mouseleave', () => setTooltip(''));
+          el.addEventListener('click', () => handleMarkerClick(marker));
+
+          progressHolder.appendChild(el);
+          createdMarkers.push(el);
         }
+      });
 
-        videoPlayer.current.on('loadedmetadata', () => {
-          const progressHolder = videoPlayer.current.controlBar.progressControl.seekBar.el();
-          const videoDuration = videoPlayer.current.duration();
-          if (timestampSec) videoPlayer.current.currentTime(timestampSec);
-
-          markers.forEach((marker) => {
-            if (marker.time < videoDuration) {
-              const markerElement = document.createElement('div');
-              markerElement.className = 'custom-marker';
-              markerElement.dataset.label = marker.label;
-              markerElement.dataset.time = marker.time.toString();
-              markerElement.dataset.sectionId = marker.data.sectionId;
-              markerElement.dataset.slideIndex = String(marker.data.slideIndex);
-
-              Object.assign(markerElement.style, {
-                position: 'absolute',
-                top: '0',
-                width: '6px',
-                height: '100%',
-                backgroundColor: 'yellow',
-                left: `${(marker.time / videoDuration) * 100}%`,
-                zIndex: '10',
-                cursor: 'pointer',
-              });
-
-              markerElement.addEventListener('mouseenter', () =>
-                setTooltip(`${marker.label} - ${marker.time}s`)
-              );
-              markerElement.addEventListener('mouseleave', () => setTooltip(''));
-              markerElement.addEventListener('click', () => handleMarkerClick(marker));
-
-              progressHolder.appendChild(markerElement);
-            }
-          });
-        });
-        const markersInDescOrder: Marker[] = markers.sort((a, b) => b.time - a.time);
-        videoPlayer.current.on('playing', () => {
-          setOverlay(null);
-        });
-        videoPlayer.current.on('pause', () => {
-          const currentTime = videoPlayer.current.currentTime();
-          const markerIndex = markersInDescOrder.findIndex((marker) => marker.time <= currentTime);
-          if (markerIndex < 0) return;
-          const newMarker = markersInDescOrder[markerIndex];
-          handleMarkerClick(newMarker);
-        });
-
-        videoPlayer.current.on('timeupdate', () => {
-          const currentTime = videoPlayer.current.currentTime();
-          const availableMarkers = Array.from(
-            document.querySelectorAll('.custom-marker')
-          ) as HTMLElement[];
-
-          let latestMarker: HTMLElement | null = null;
-          for (const marker of availableMarkers) {
-            const markerTime = parseInt(marker.dataset.time, 10);
-            if (currentTime >= markerTime) {
-              marker.style.backgroundColor = 'green';
-              if (!latestMarker) {
-                latestMarker = marker;
-              }
-            } else {
-              marker.style.backgroundColor = 'yellow';
-            }
-          }
-          if (markersInDescOrder.length === 0) return;
-          const markerIndex = markersInDescOrder.findIndex((marker) => marker.time <= currentTime);
-          if (markerIndex < 0) return;
-          const newMarker = markersInDescOrder[markerIndex];
-          if (
-            lastMarkerRef.current !== newMarker.time ||
-            (prevAutoSyncRef.current === false && autoSyncRef.current === true)
-          ) {
-            lastMarkerRef.current = newMarker.time;
-            if (autoSyncRef.current && clipIds?.[newMarker?.data?.sectionId] === clipId) {
-              setSlideNumAndSectionId(
-                router,
-                newMarker?.data?.slideIndex,
-                newMarker?.data?.sectionId
-              );
-            }
-          }
-          prevAutoSyncRef.current = autoSyncRef.current;
-        });
-      }
-    }
-    return () => {
-      playerRef.current?.pause();
+      if (timestampSec) player.currentTime(timestampSec);
     };
-  }, [markers, timestampSec, videoId]);
+
+    player.on('loadedmetadata', onLoadedMetadata);
+    return () => {
+      player.off('loadedmetadata', onLoadedMetadata);
+    };
+  }, [markers, timestampSec]);
+  useEffect(() => {
+    const player = videoPlayer.current;
+    if (!player) return;
+
+    const onPause = () => handleCurrentMarkerUpdate({ videoPlayer, markers, handleMarkerClick });
+    const onSeeked = () => handleCurrentMarkerUpdate({ videoPlayer, markers, handleMarkerClick });
+
+    player.on('playing', () => setOverlay(null));
+    player.on('pause', onPause);
+    player.on('seeked', onSeeked);
+
+    return () => {
+      player.off('pause', onPause);
+      player.off('seeked', onSeeked);
+    };
+  }, [markers]);
+  useEffect(() => {
+    const player = videoPlayer.current;
+    if (!player) return;
+
+    const onTimeUpdate = () => {
+      const currentTime = player.currentTime();
+      const availableMarkers = Array.from(
+        document.querySelectorAll('.custom-marker')
+      ) as HTMLElement[];
+
+      for (const marker of availableMarkers) {
+        const markerTime = parseInt(marker.dataset.time, 10);
+        marker.style.backgroundColor = currentTime >= markerTime ? 'green' : 'yellow';
+      }
+
+      if (!autoSyncRef.current || markersInDescOrder.length === 0) return;
+
+      const latestMarker = markersInDescOrder.find((marker) => marker.time <= currentTime);
+      if (!latestMarker) return;
+
+      const sectionId = latestMarker.data?.sectionId;
+      const slideUri = latestMarker.data?.slideUri;
+      const slideIndex = slidesUriToIndexMap?.[sectionId]?.[slideUri];
+
+      if (lastSyncedMarkerTime.current !== latestMarker.time && clipIds?.[sectionId] === clipId) {
+        lastSyncedMarkerTime.current = latestMarker.time;
+        setSlideNumAndSectionId(router, (slideIndex ?? -1) + 1, sectionId);
+      }
+    };
+
+    player.on('timeupdate', onTimeUpdate);
+    return () => {
+      player.off('timeupdate', onTimeUpdate);
+    };
+  }, [markersInDescOrder, clipIds, slidesUriToIndexMap, router, clipId]);
 
   useEffect(() => {
     if (videoPlayer.current && timestampSec !== undefined) {
@@ -443,7 +477,7 @@ const MediaItem = ({
             flexDirection: 'column',
           }}
         >
-          {concepts && concepts.length > 0 ? (
+          {conceptsUri && conceptsUri.length > 0 ? (
             <>
               <Typography
                 variant="h5"
@@ -455,67 +489,79 @@ const MediaItem = ({
                   marginBottom: '8px',
                 }}
               >
-                Concepts in this slide
+                Concepts in this section
               </Typography>
-
-              {concepts.map((uri, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    width: '90%',
-                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                    color: '#fff',
-                    padding: '12px',
-                    borderRadius: '10px',
-                    textAlign: 'center',
-                    display: 'flex',
-                    marginBottom: '10px',
-                    transition: 'transform 0.5s ease-in-out',
-                    '&:hover': {
-                      transform: 'rotateY(10deg)',
-                    },
-                  }}
-                >
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      fontSize: '1.2rem',
-                      fontWeight: '600',
-
-                      whiteSpace: 'normal',
-                      wordWrap: 'break-word',
-                      width: '85%',
-                    }}
-                    title={uri}
-                  >
-                    {uri.split('?').pop()}
+              {loadingConcepts ? (
+                <Box sx={{ textAlign: 'center', mt: 2 }}>
+                  <CircularProgress color="primary" />
+                  <Typography variant="body2" color="white" mt={1}>
+                    Loading concepts...
                   </Typography>
-                  <Link href={PathToTour2(uri)} target="_blank" style={{ textDecoration: 'none' }}>
-                    <Tooltip title="Take a guided tour" arrow>
-                      <IconButton
-                        sx={{
-                          backgroundColor: '#fff',
-                          borderRadius: '50%',
-                          padding: '2px',
-                          '&:hover': {
-                            backgroundColor: '#f0f0f0',
-                            transform: 'scale(1.2)',
-                            transition: 'transform 0.2s ease-in-out',
-                          },
-                        }}
-                      >
-                        <Image
-                          src="/guidedTour.png"
-                          alt="Tour Logo"
-                          width={25}
-                          height={25}
-                          priority
-                        />
-                      </IconButton>
-                    </Tooltip>
-                  </Link>
                 </Box>
-              ))}
+              ) : (
+                conceptsUri.map((uri, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      width: '90%',
+                      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                      color: '#fff',
+                      padding: '12px',
+                      borderRadius: '10px',
+                      textAlign: 'center',
+                      display: 'flex',
+                      marginBottom: '10px',
+                      transition: 'transform 0.5s ease-in-out',
+                      '&:hover': {
+                        transform: 'rotateY(10deg)',
+                      },
+                    }}
+                  >
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontSize: '1.2rem',
+                        fontWeight: '600',
+
+                        whiteSpace: 'normal',
+                        wordWrap: 'break-word',
+                        width: '85%',
+                      }}
+                      title={uri}
+                    >
+                      {getParamFromUri(uri, 's') ?? uri}
+                    </Typography>
+                    <Link
+                      href={PathToTour2(uri)}
+                      target="_blank"
+                      style={{ textDecoration: 'none' }}
+                    >
+                      <Tooltip title="Take a guided tour" arrow>
+                        <IconButton
+                          sx={{
+                            backgroundColor: '#fff',
+                            borderRadius: '50%',
+                            padding: '2px',
+                            '&:hover': {
+                              backgroundColor: '#f0f0f0',
+                              transform: 'scale(1.2)',
+                              transition: 'transform 0.2s ease-in-out',
+                            },
+                          }}
+                        >
+                          <Image
+                            src="/guidedTour.png"
+                            alt="Tour Logo"
+                            width={25}
+                            height={25}
+                            priority
+                          />
+                        </IconButton>
+                      </Tooltip>
+                    </Link>
+                  </Box>
+                ))
+              )}
             </>
           ) : (
             <Typography
@@ -527,7 +573,7 @@ const MediaItem = ({
                 marginTop: '12px',
               }}
             >
-              No concepts available for the current slide
+              No new concepts defined in this section
             </Typography>
           )}
 
@@ -557,17 +603,6 @@ function DraggableOverlay({ showOverlay, setShowOverlay, data }) {
   const [position, setPosition] = useState({ x: 100, y: 100 });
   const [dragging, setDragging] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const formatTime = (seconds) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secondsLeft = Math.floor(seconds % 60);
-
-    if (hours > 0) {
-      return `${hours} hr ${minutes} min ${secondsLeft} sec`;
-    } else {
-      return `${minutes} min ${secondsLeft} sec`;
-    }
-  };
   const handleMouseDown = (e) => {
     setDragging(true);
     setOffset({
@@ -639,7 +674,7 @@ export function VideoDisplay({
   currentSlideClipInfo,
   audioOnly,
   videoExtractedData,
-  courseDocSections,
+  slidesUriToIndexMap,
   autoSync,
   onVideoLoad,
 }: {
@@ -653,7 +688,7 @@ export function VideoDisplay({
   videoExtractedData?: {
     [timestampSec: number]: ClipData;
   };
-  courseDocSections?: SectionsAPIData;
+  slidesUriToIndexMap?: SlidesUriToIndexMap;
   autoSync?: boolean;
   onVideoLoad: (status: boolean) => void;
 }) {
@@ -668,16 +703,17 @@ export function VideoDisplay({
   const extractedValues = Object.values(videoExtractedData || {});
   const markers = extractedValues
     .filter((item: any) => {
-      return (item.sectionId || '').trim() !== '' && item.slideIndex !== null;
+      return (item.sectionId || '').trim() !== '' && (item.slideUri || '').trim() !== '';
     })
     .map((item: any) => ({
       time: Math.floor(item.start_time ?? 0),
-      label: item.title || 'Untitled',
+      label: item.sectionTitle || 'Untitled',
       data: {
         thumbnail: item.thumbnail || null,
         ocr_slide_content: item.ocr_slide_content || null,
         sectionId: item.sectionId,
-        slideIndex: item.slideIndex,
+        sectionUri: item.sectionUri,
+        slideUri: item.slideUri,
       },
     }));
 
@@ -712,7 +748,7 @@ export function VideoDisplay({
   if (!videoId)
     return (
       <Box sx={{ mb: '25px', position: 'relative' }}>
-        <i> Video not available for this section</i>
+        <i>Video not available for this section</i>
       </Box>
     );
 
@@ -732,7 +768,7 @@ export function VideoDisplay({
           audioOnly={audioOnly}
           sub={clipDetails?.sub}
           markers={markers}
-          courseDocSections={courseDocSections}
+          slidesUriToIndexMap={slidesUriToIndexMap}
           autoSync={autoSync}
         />
         <Box sx={{ display: 'flex', m: '-4px 0 10px' }}>

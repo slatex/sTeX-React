@@ -1,8 +1,7 @@
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import TextsmsIcon from '@mui/icons-material/Textsms';
 import { Box, Checkbox, FormControlLabel } from '@mui/material';
-import { getUserInfo } from '@stex-react/api';
-import { FileLocation } from '@stex-react/utils';
+import { getUserInfo, TOCElem, URI } from '@stex-react/api';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { EditView } from './EditView';
@@ -11,7 +10,7 @@ import { getLocaleObject } from './lang/utils';
 import { SelectedInfo } from './selected-info';
 
 interface CommentReplyProps {
-  file: FileLocation;
+  uri?: URI;
   isPrivateNote: boolean;
   parentId?: number;
   placeholder?: string;
@@ -23,7 +22,7 @@ interface CommentReplyProps {
 }
 
 export function CommentReply({
-  file,
+  uri,
   isPrivateNote,
   parentId = 0,
   placeholder = '',
@@ -78,7 +77,7 @@ export function CommentReply({
         <SelectedInfo text={selectedText} />
         <EditView
           parentId={parentId}
-          file={file}
+          uri={uri}
           isPrivateNote={isPrivateNote}
           postAnonymously={postAnonymously}
           selectedText={selectedText}

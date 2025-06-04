@@ -1,74 +1,65 @@
 import { CommentStore } from './comment-store';
-import { Comment, getComments, RequestAggregator } from '@stex-react/api';
-import {
-  FileLocation,
-  FileLocationEquals,
-  fileLocToString,
-  stringToFileLoc,
-} from '@stex-react/utils';
+import { Comment, getComments, RequestAggregator, URI } from '@stex-react/api';
 import { from, lastValueFrom, map } from 'rxjs';
 
 const COMMENT_STORE_MAP = new Map<string, CommentStore>();
-const COMMENTS_FETCHER = new RequestAggregator<FileLocation, Comment[]>(
+const COMMENTS_FETCHER = new RequestAggregator<string, Comment[]>(
   undefined,
-  FileLocationEquals,
-  fileLocToString,
-  stringToFileLoc,
-  (files: FileLocation[]) => from(getComments(files)),
-  (comments: Comment[], requests: FileLocation[]) => {
+  (u1: string, u2: string) => u1 === u2,
+  (uri: string) => uri,
+  (uri: string) => uri,
+  (uris: string[]) => from(getComments(uris)),
+  (comments: Comment[], requests: string[]) => {
     for (const req of requests) {
       const fileComments = (comments || []).filter(
-        (comment) =>
-          comment.archive === req.archive && comment.filepath === req.filepath
+        (comment) => comment.uri === req
       );
       getExistingOrNewStore(req).setComments(fileComments);
     }
   }
 );
 
-function getStore(f: FileLocation) {
-  return COMMENT_STORE_MAP.get(fileLocToString(f));
+function getStore(uri: URI) {
+  return COMMENT_STORE_MAP.get(uri);
 }
 
-function addStore(f: FileLocation, store: CommentStore) {
-  return COMMENT_STORE_MAP.set(fileLocToString(f), store);
+function addStore(uri: URI, store: CommentStore) {
+  return COMMENT_STORE_MAP.set(uri, store);
 }
 
-function getExistingOrNewStore(f: FileLocation) {
-  const store = getStore(f);
+function getExistingOrNewStore(uri: URI) {
+  const store = getStore(uri);
   if (store) return store;
-  const newStore = new CommentStore(f);
-  addStore(f, newStore);
+  const newStore = new CommentStore(uri);
+  addStore(uri, newStore);
   return newStore;
 }
 
 export async function refreshAllComments() {
-  const files: FileLocation[] = [];
-  COMMENT_STORE_MAP.forEach((_value, key) => files.push(stringToFileLoc(key)));
-  await lastValueFrom(COMMENTS_FETCHER.informWhenReady(files));
+  const uris: URI[] = [];
+  COMMENT_STORE_MAP.forEach((_value, key) => uris.push(key));
+  await lastValueFrom(COMMENTS_FETCHER.informWhenReady(uris));
 }
 
-export async function getPublicCommentTrees(
-  file: FileLocation
-): Promise<Comment[]> {
+export async function getPublicCommentTrees(uri: URI): Promise<Comment[]> {
   // Too many comments sections. Clear everything and let the cache get rebuilt.
   if (COMMENT_STORE_MAP.size > 500) COMMENT_STORE_MAP.clear();
 
-  const inStore = getStore(file)?.getPublicCommentTrees();
+  const inStore = getStore(uri)?.getPublicCommentTrees();
   if (inStore) return inStore;
   return await lastValueFrom(
-    COMMENTS_FETCHER.informWhenReady([file]).pipe(
-      map((_) => getStore(file)?.getPublicCommentTrees() || [])
+    COMMENTS_FETCHER.informWhenReady([uri]).pipe(
+      map((_) => getStore(uri)?.getPublicCommentTrees() || [])
     )
   );
 }
 
-export async function getPrivateNotes(file: FileLocation): Promise<Comment[]> {
-  const inStore = getStore(file)?.getPrivateNotes();
+export async function getPrivateNotes(uri: URI): Promise<Comment[]> {
+  const inStore = getStore(uri)?.getPrivateNotes();
   if (inStore) return inStore;
   return await lastValueFrom(
-    COMMENTS_FETCHER.informWhenReady([file]).pipe(
-      map((_) => getStore(file)?.getPrivateNotes() || [])
+    COMMENTS_FETCHER.informWhenReady([uri]).pipe(
+      map((_) => getStore(uri)?.getPrivateNotes() || [])
     )
   );
 }

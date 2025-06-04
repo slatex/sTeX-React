@@ -1,4 +1,5 @@
 import TimelineIcon from '@mui/icons-material/Timeline';
+import { Box, Button, Link, Typography } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -12,38 +13,30 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import Tooltip from '@mui/material/Tooltip';
-
-import { Box, Button, Link, Typography } from '@mui/material';
 import {
   BloomDimension,
+  GenericCognitiveValues,
+  NumericCognitiveValues,
   SHOW_DIMENSIONS,
-  getProblemIdsForConcept,
+  getFTMLForConceptView,
+  getProblemsForConcept,
   uriWeightToSmileyLevel,
 } from '@stex-react/api';
+import { FTMLFragment } from '@stex-react/ftml-utils';
 import { PRIMARY_COL, PathToTour } from '@stex-react/utils';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import ConceptHistoryTable from './ConceptHistoryTable';
 import { PracticeQuestions } from './PracticeQuestions';
 import { SelfAssessmentDialogRow } from './SelfAssessmentDialog';
 import { getLocaleObject } from './lang/utils';
-import { mmtHTMLToReact } from './mmtParser';
-import { ServerLinksContext } from './stex-react-renderer';
 
 const extractLastWordAfterQuestionMark = (url: string) => {
   if (!url) return url;
   const parts = url.split('?');
   return parts[parts.length - 1];
 };
-
-export function getMMTHtml(uri: string) {
-  const lastWord = extractLastWordAfterQuestionMark(uri);
-  const hoverLink = `/:sTeX/fragment?${uri}`;
-  const clickLink = `/:sTeX/declaration?${uri}`;
-  const highlightParent = Math.random() * 1000000;
-  return `<span data-overlay-link-click="${clickLink}" data-highlight-parent="${highlightParent}" data-overlay-link-hover="${hoverLink}" class="symcomp group-highlight rustex-contents">${lastWord}</span>`;
-}
 
 function QuizIconWithProblemsCount({ problemIds }: { problemIds: string[] }) {
   return (
@@ -69,12 +62,11 @@ function QuizIconWithProblemsCount({ problemIds }: { problemIds: string[] }) {
   );
 }
 
-function QuizButton({ uri, mmtUrl }: { uri: string; mmtUrl?: string }) {
+function QuizButton({ uri }: { uri: string }) {
   const [problemList, setProblemList] = useState<string[]>([]);
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   useEffect(() => {
-    if (!mmtUrl) return;
-    getProblemIdsForConcept(mmtUrl, uri).then(setProblemList);
+    getProblemsForConcept(uri).then(setProblemList);
   }, [uri]);
   if (problemList.length === 0) {
     return null;
@@ -128,16 +120,21 @@ function QuizButton({ uri, mmtUrl }: { uri: string; mmtUrl?: string }) {
   );
 }
 
+export function ConceptView({ uri }: { uri: string }) {
+  const html = getFTMLForConceptView(uri);
+  return <FTMLFragment key={uri} fragment={{ html }} />;
+}
+
 export function CompetencyTable({
-  URIs,
+  conceptUris,
   competencyData,
   onValueUpdate,
   showTour,
   defaultSort,
   fetchProblem = true,
 }: {
-  URIs: string[];
-  competencyData: any[];
+  conceptUris: string[];
+  competencyData: (NumericCognitiveValues | GenericCognitiveValues)[];
   onValueUpdate?: () => void;
   showTour?: boolean;
   defaultSort?: boolean;
@@ -150,14 +147,27 @@ export function CompetencyTable({
   const [problemIds, setProblemIds] = useState<string[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [concept, setConcept] = useState<string>('');
-  const { mmtUrl } = useContext(ServerLinksContext);
-  const combinedData: { concepts: string; values: any }[] = [];
+  const combinedData: {
+    conceptUri: string;
+    values: NumericCognitiveValues | GenericCognitiveValues;
+  }[] = useMemo(() => {
+    const data = [];
+    for (let i = 0; i < conceptUris.length; i++) {
+      data.push({
+        conceptUri: conceptUris[i],
+        values: competencyData[i],
+      });
+    }
+    return data;
+  }, [conceptUris, competencyData]);
+
   const CONCEPT_COLUMN = 'concepts';
+
   useEffect(() => {
     async function fetchProblemIds() {
       try {
         if (!fetchProblem) return;
-        const promises = URIs.map((uri) => getProblemIdsForConcept(mmtUrl, uri));
+        const promises = conceptUris.map((uri) => getProblemsForConcept(uri));
         const results = await Promise.all(promises);
         const flattenedProblemIds = results.flat();
         setProblemIds(flattenedProblemIds);
@@ -166,15 +176,7 @@ export function CompetencyTable({
       }
     }
     fetchProblemIds();
-  }, [URIs, mmtUrl]);
-
-  for (let i = 0; i < URIs.length; i++) {
-    const newObj = {
-      values: competencyData[i],
-      concepts: URIs[i],
-    };
-    combinedData.push(newObj);
-  }
+  }, [conceptUris, fetchProblem]);
 
   const handleCloseDialog = () => {
     setShowHistory(false);
@@ -189,8 +191,8 @@ export function CompetencyTable({
     setShowAllQuizes(!showAllQuizzes);
   }
 
-  if (!URIs?.length || !competencyData?.length) return <p>Loading data... </p>;
-  /*8const handleRequestSort = (property: string) => {
+  if (!conceptUris?.length || !competencyData?.length) return <p>Loading data... </p>;
+  /*const handleRequestSort = (property: string) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
@@ -262,14 +264,16 @@ export function CompetencyTable({
           <TableBody>
             {combinedData.map((row, index) => (
               <TableRow key={index}>
-                <TableCell>{mmtHTMLToReact(getMMTHtml(row.concepts))}</TableCell>
+                <TableCell>
+                  <ConceptView uri={row.conceptUri} />
+                </TableCell>
                 <TableCell>
                   <Tooltip
                     title="View how you reached the current competency level"
                     placement="right-start"
                   >
                     <TimelineIcon
-                      onClick={() => handleHistoryClick(row.concepts)}
+                      onClick={() => handleHistoryClick(row.conceptUri)}
                       sx={{ cursor: 'pointer' }}
                     />
                   </Tooltip>
@@ -279,9 +283,9 @@ export function CompetencyTable({
                     <Tooltip
                       title={
                         <SelfAssessmentDialogRow
-                          htmlName={extractLastWordAfterQuestionMark(URIs[index])}
+                          htmlName={extractLastWordAfterQuestionMark(conceptUris[index])}
                           dim={dimension}
-                          uri={URIs[index]}
+                          uri={conceptUris[index]}
                           dimText={false}
                           selectedLevel={uriWeightToSmileyLevel(Number(row.values[dimension]))}
                           onValueUpdate={onValueUpdate}
@@ -304,7 +308,7 @@ export function CompetencyTable({
                     }}
                   >
                     <Link
-                      href={PathToTour(URIs[index])}
+                      href={PathToTour(conceptUris[index])}
                       target="_blank"
                       sx={{ marginRight: '10px' }}
                     >
@@ -317,7 +321,7 @@ export function CompetencyTable({
                         priority={true}
                       />
                     </Link>
-                    <QuizButton uri={URIs[index]} mmtUrl={mmtUrl} />
+                    <QuizButton uri={conceptUris[index]} />
                   </TableCell>
                 )}
               </TableRow>

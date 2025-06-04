@@ -1,10 +1,33 @@
 import { Box, Typography } from '@mui/material';
 import { HomeworkStatsInfo } from '@stex-react/api';
-import { mmtHTMLToReact } from '@stex-react/stex-react-renderer';
 import { useRouter } from 'next/router';
 import Chart from 'react-google-charts';
 import { getLocaleObject } from '../lang/utils';
-import { BarChart } from '../pages/quiz/results';
+import { SafeHtml } from '@stex-react/react-utils';
+
+export function BarChart({
+  data,
+  column1,
+  column2,
+}: {
+  data: { key: string; value: number }[];
+  column1: string;
+  column2: string;
+}) {
+  // Enter a dummy value if there isn't any data, to following error from Google charts :
+  // `Data column(s) for axis #0 cannot be of type string`
+  const vals = data?.length ? data.map((d) => [d.key, d.value]) : [['', 0]];
+  return (
+    <Chart
+      chartType="ColumnChart"
+      data={[[column1, column2], ...vals]}
+      width="100%"
+      height="400px"
+      options={{ vAxis: { minValue: 0 } }}
+      legendToggle
+    />
+  );
+}
 
 const HomeworkStats = ({ title, stats }: { title: string; stats: HomeworkStatsInfo }) => {
   const { homeworkManager: t } = getLocaleObject(useRouter());
@@ -16,7 +39,7 @@ const HomeworkStats = ({ title, stats }: { title: string; stats: HomeworkStatsIn
       }}
     >
       <Typography variant="h6" my={3}>
-        {t.homeworkStats} for <b>{mmtHTMLToReact(title)}</b>
+        {t.homeworkStats} for <b><SafeHtml html={title} /></b>
       </Typography>
       <h3>
         Homework attempted by <b style={{ color: 'red' }}>{stats?.totalStudentAttend}</b> students
