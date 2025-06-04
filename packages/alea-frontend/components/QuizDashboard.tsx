@@ -1,4 +1,3 @@
-import { FTML } from '@kwarc/ftml-viewer';
 import { OpenInNew } from '@mui/icons-material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -30,6 +29,7 @@ import { ExcusedAccordion } from './ExcusedAccordion';
 import { QuizFileReader } from './QuizFileReader';
 import { QuizStatsDisplay } from './QuizStatsDisplay';
 import { RecorrectionDialog } from './RecorrectionDialog';
+import { FTML } from '@kwarc/ftml-viewer';
 
 const NEW_QUIZ_ID = 'New';
 
@@ -159,7 +159,7 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId, quizId, onQuizI
         const allQuizzes: QuizWithStatus[] = res.data;
         allQuizzes?.sort((a, b) => b.quizStartTs - a.quizStartTs);
         for (const q of allQuizzes ?? []) {
-          for (const css of q.css || []) FTML.injectCss(css);
+          for (const css of q.css) FTML.injectCss(css);
         }
         setQuizzes(allQuizzes);
         const validQuiz = allQuizzes.find((q) => q.id === quizId);
@@ -383,7 +383,7 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId, quizId, onQuizI
                   stats.totalStudents
                 );
                 if (!validation.valid) {
-                  if (validation.newUriFound.length > 0) {
+                  if (validation.newUriFound.length > 0 ) {
                     alert(`Cannot update quiz: New URIs found ${validation.newUriFound[0]}`);
                   } else if (validation.notFoundURIs.length > 0) {
                     alert(`Cannot update quiz: URIs not found ${validation.notFoundURIs[0]}`);

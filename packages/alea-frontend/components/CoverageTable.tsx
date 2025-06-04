@@ -21,7 +21,7 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
 import QuizHandler from './QuizHandler';
 
-interface CoverageEntry {
+export interface CoverageEntry {
   id: string;
   timestamp_ms: number;
   sectionName: string;
@@ -42,7 +42,9 @@ interface CoverageTableProps {
 }
 
 interface CoverageRowProps {
+  courseId: string;
   item: CoverageEntry;
+  entries: CoverageEntry[];
   originalIndex: number;
   onEdit: (index: number) => void;
   onDelete: (index: number) => void;
@@ -65,7 +67,7 @@ const formatSectionWithSlide = (sectionName: string, slideNumber?: number, slide
   }
 };
 
-function CoverageRow({ item, originalIndex, onEdit, onDelete }: CoverageRowProps) {
+function CoverageRow({ courseId, item, entries, originalIndex, onEdit, onDelete }: CoverageRowProps) {
   const now = dayjs();
   const itemDate = dayjs(item.timestamp_ms);
   const isPast = itemDate.isBefore(now, 'day');
@@ -176,13 +178,11 @@ function CoverageRow({ item, originalIndex, onEdit, onDelete }: CoverageRowProps
         )}
       </TableCell>
       <TableCell>
-        {item.isQuizScheduled ? (
-          <Chip icon={<QuizIcon />} label="Scheduled" size="small" color="warning" />
-        ) : (
-          <Typography variant="body2" color="text.secondary">
-            <i>No Quiz</i>
-          </Typography>
-        )}
+        <QuizHandler
+         courseId={courseId}
+         entries={entries}
+         currentEntry={item}  
+        />
       </TableCell>
       <TableCell>
         <Box sx={{ display: 'flex', gap: 1 }}>
@@ -222,7 +222,7 @@ function CoverageRow({ item, originalIndex, onEdit, onDelete }: CoverageRowProps
   );
 }
 
-export function CoverageTable({ entries, onEdit, onDelete }: CoverageTableProps) {
+export function CoverageTable({ courseId, entries, onEdit, onDelete }: CoverageTableProps) {
   const sortedEntries = [...entries].sort((a, b) => a.timestamp_ms - b.timestamp_ms);
 
   return (
@@ -252,8 +252,10 @@ export function CoverageTable({ entries, onEdit, onDelete }: CoverageTableProps)
             
             return (
               <CoverageRow
+                courseId={courseId}
                 key={`${item.timestamp_ms}-${idx}`}
                 item={item}
+                entries={entries}
                 originalIndex={originalIndex}
                 onEdit={onEdit}
                 onDelete={onDelete}
