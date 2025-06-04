@@ -18,8 +18,8 @@ import dayjs from 'dayjs';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import QuizIcon from '@mui/icons-material/Quiz';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
+import QuizHandler from './QuizHandler';
 
 interface CoverageEntry {
   id: string;
@@ -35,14 +35,14 @@ interface CoverageEntry {
 }
 
 interface CoverageTableProps {
+  courseId : string;
   entries: CoverageEntry[];
   onEdit: (index: number) => void;
   onDelete: (index: number) => void;
 }
 
-export function CoverageTable({ entries, onEdit, onDelete }: CoverageTableProps) {
+export function CoverageTable({ courseId,entries, onEdit, onDelete }: CoverageTableProps) {
   const now = dayjs();
-
   const sortedEntries = [...entries].sort((a, b) => a.timestamp_ms - b.timestamp_ms);
 
   return (
@@ -159,13 +159,11 @@ export function CoverageTable({ entries, onEdit, onDelete }: CoverageTableProps)
                   )}
                 </TableCell>
                 <TableCell>
-                  {item.isQuizScheduled ? (
-                    <Chip icon={<QuizIcon />} label="Scheduled" size="small" color="warning" />
-                  ) : (
-                    <Typography variant="body2" color="text.secondary">
-                      <i>No Quiz</i>
-                    </Typography>
-                  )}
+                  <QuizHandler 
+                    courseId={courseId}
+                    entries={entries}
+                    currentEntry={item}
+                  />
                 </TableCell>
                 <TableCell>
                   <Box sx={{ display: 'flex', gap: 1 }}>

@@ -161,6 +161,7 @@ export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: Cov
       {snaps.length > 0 ? (
         <>
           <CoverageTable
+            courseId={courseId}
             entries={coverageEntries}
             onEdit={handleEditItem}
             onDelete={handleDeleteItem}
