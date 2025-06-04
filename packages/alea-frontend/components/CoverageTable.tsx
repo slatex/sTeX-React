@@ -149,7 +149,7 @@ export function CoverageTable({ entries, onEdit, onDelete }: CoverageTableProps)
                             fontWeight: 'bold'
                           }}
                         >
-                          Please fill section
+   Update pending
                         </Typography>
                         <Typography 
                           variant="body2" 
