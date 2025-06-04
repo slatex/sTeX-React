@@ -11,6 +11,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Fab,
 } from '@mui/material';
 import { TOCElem, getAuthHeaders, getCourseInfo, getDocumentSections } from '@stex-react/api';
 import {
@@ -18,6 +19,7 @@ import {
   LectureEntry,
   CoverageTimeline,
   convertHtmlStringToPlain,
+  PRIMARY_COL,
 } from '@stex-react/utils';
 import axios from 'axios';
 import { NextPage } from 'next';
@@ -26,6 +28,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { CoverageUpdater } from './CoverageUpdater';
 import { Section } from '../types';
 import { createContext } from 'react';
+import SaveIcon from '@mui/icons-material/Save';
 
 export const UnsavedChangesContext = createContext<{
   hasUnsavedChanges: () => boolean;
@@ -352,21 +355,6 @@ const CoverageUpdatePage: NextPage = () => {
                 gap: 2,
               }}
             >
-              <Button
-                variant="contained"
-                color="primary"
-                size="large"
-                onClick={handleSave}
-                fullWidth
-                disabled={!hasUnsavedChanges()}
-                sx={{
-                  py: 1.5,
-                  maxWidth: '200px',
-                }}
-              >
-                Save Changes
-              </Button>
-
               <Typography
                 variant="body2"
                 color="error"
@@ -378,6 +366,29 @@ const CoverageUpdatePage: NextPage = () => {
                 Your changes will not be saved until you click 'Save Changes'.
               </Typography>
             </Box>
+            {hasUnsavedChanges() && (
+              <Fab
+                color="primary"
+                size="large"
+                onClick={handleSave}
+                disabled={loading}
+                sx={{
+                  position: 'fixed',
+                  bottom: '20px',
+                  right: '20px',
+                  border: `2px solid ${PRIMARY_COL}`,
+                  boxShadow: '0px 8px 15px rgba(0, 0, 0, 0.3)',
+                  transition: 'all 0.3s ease 0s',
+                  ':hover': {
+                    boxShadow: '0px 15px 20px rgba(0, 0, 0, 0.4)',
+                    transform: 'translateY(-2px)',
+                  },
+                  zIndex: 1000,
+                }}
+              >
+                <SaveIcon />
+              </Fab>
+            )}
           </Paper>
         </Container>
 
