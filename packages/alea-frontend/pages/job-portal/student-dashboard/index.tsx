@@ -1,40 +1,39 @@
-import React, { useEffect, useState } from 'react';
 import {
-  Card,
-  CardContent,
-  Typography,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Grid,
-  Button,
-  Link,
-  CircularProgress,
-  Box,
-  Avatar,
-  TextField,
-  Snackbar,
-  Alert,
-  TableContainer,
-  Paper,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-  Chip,
-  Tooltip,
-} from '@mui/material';
-import {
+  Cancel,
+  CheckCircle,
+  Description,
   Email,
+  PendingActions,
   Phone,
   School,
-  Description,
-  CheckCircle,
-  Cancel,
-  PendingActions,
 } from '@mui/icons-material';
+import {
+  Alert,
+  Avatar,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  Link,
+  Paper,
+  Snackbar,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import {
   canAccessResource,
   getJobApplicationsByUserId,
@@ -49,8 +48,7 @@ import {
 import { Action, CURRENT_TERM, ResourceName } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import MainLayout from 'packages/alea-frontend/layouts/MainLayout';
-import { RecruiterJobsPanel } from 'packages/alea-frontend/components/job-portal/RecruiterJobsPanel';
-import RecruiterJobDialog from 'packages/alea-frontend/components/job-portal/RecruiterJobDialog';
+import React, { useEffect, useState } from 'react';
 
 const AppliedJobsDialog = ({ appliedJobs, setAppliedJobs, open, onClose }) => {
   async function handleAcceptOffer(jobApplication: JobApplicationInfo) {
@@ -368,7 +366,7 @@ const StudentDashboard = () => {
     if (!validateFields()) return;
 
     try {
-      await updateStudentProfile(formData);
+      await updateStudentProfile(formData as any); // TODO JP
       setStudent(formData);
       setDialogOpen(false);
       setSnackbarOpen(true);

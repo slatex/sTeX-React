@@ -35,6 +35,7 @@ export default function StudentRegistration() {
     courses: '',
     gpa: '',
     about: '',
+    userId: '',
   });
   const [errors, setErrors] = useState({
     email: '',

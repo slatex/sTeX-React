@@ -10,11 +10,11 @@ import {
 } from '@stex-react/api';
 import { Action, CURRENT_TERM, ResourceName } from '@stex-react/utils';
 import { useRouter } from 'next/router';
-import JpLayoutWithSidebar from 'packages/alea-frontend/layouts/JpLayoutWithSidebar';
+import JpLayoutWithSidebar from '../../../layouts/JpLayoutWithSidebar';
 import { useEffect, useState } from 'react';
 import { Add, Assignment, Cancel, Chat, EmojiPeople, SvgIconComponent } from '@mui/icons-material';
-import { UserProfileCard } from 'packages/alea-frontend/components/job-portal/UserProfileCard';
-import { JobCard } from 'packages/alea-frontend/components/job-portal/JobCard';
+import { UserProfileCard } from '../../../components/job-portal/UserProfileCard';
+import { JobCard } from '../../../components/job-portal/JobCard';
 
 export const DashboardJobSection = ({
   title,

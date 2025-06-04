@@ -1,20 +1,13 @@
-import JpLayoutWithSidebar from 'packages/alea-frontend/layouts/JpLayoutWithSidebar';
-import StudentProfile from '../dashboard/profile';
-import EmojiPeopleIcon from '@mui/icons-material/EmojiPeople';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import CancelIcon from '@mui/icons-material/Cancel';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
-import EventIcon from '@mui/icons-material/Event';
-import BusinessIcon from '@mui/icons-material/Business';
-import WorkIcon from '@mui/icons-material/Work';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import ChatIcon from '@mui/icons-material/Chat';
-import React, { useEffect, useState } from 'react';
-import { Box, Typography, Grid, CircularProgress, Chip, Icon, Card } from '@mui/material';
+import EmojiPeopleIcon from '@mui/icons-material/EmojiPeople';
+import { Box, Card, Chip, CircularProgress, Grid, Icon, Typography } from '@mui/material';
 import { getJobApplicationsByUserId } from '@stex-react/api';
+import JpLayoutWithSidebar from '../../../layouts/JpLayoutWithSidebar';
+import { useEffect, useState } from 'react';
 import Chart from 'react-google-charts';
-import { JobStatsChart } from './dashboard';
+import JobStatsChart from './dashboard';
 
 const StudentStats = () => {
   const [applications, setApplications] = useState([]);
@@ -233,7 +226,7 @@ const StudentStats = () => {
               />
             </Box>
           </Grid> */}
-          <JobStatsChart applicationData={applications} />
+          {/* <JobStatsChart applicationData={applications} />  TODO JP*/}
           <Grid item xs={12} sm={6} md={4}>
             <Box sx={{ padding: 2, border: '1px solid #ddd', borderRadius: 2 }}>
               <Typography variant="subtitle1">Total Applications</Typography>

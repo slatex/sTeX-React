@@ -1,6 +1,6 @@
 import { Cancel, CheckCircle, Send, Visibility } from "@mui/icons-material";
 import { Dialog, DialogContent, DialogTitle, IconButton, List, ListItem, ListItemText, Tooltip } from "@mui/material";
-import { ApplicantProfile, JobPostInfo, StudentData } from "@stex-react/api";
+import { ApplicantWithProfile, JobPostInfo, StudentData } from "@stex-react/api";
 
 export const ApplicantActionDialog=({
     openDialog,
@@ -14,12 +14,12 @@ export const ApplicantActionDialog=({
   }:{
     openDialog: boolean;
     selectedJob: JobPostInfo;
-    applicants: ApplicantProfile[];
+    applicants: ApplicantWithProfile[];
     handleCloseDialog: () => void;
     handleViewProfile: (profile: StudentData) => void;
-    handleAcceptApplication: (applicant: ApplicantProfile) =>Promise<void>;
-    handleRejectApplication: (applicant: ApplicantProfile)=>Promise<void>;
-    handleMakeOffer: (applicant: ApplicantProfile) => Promise<void>;
+    handleAcceptApplication: (applicant: ApplicantWithProfile) =>Promise<void>;
+    handleRejectApplication: (applicant: ApplicantWithProfile)=>Promise<void>;
+    handleMakeOffer: (applicant: ApplicantWithProfile) => Promise<void>;
   
   }) => {
     return (

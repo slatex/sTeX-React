@@ -194,7 +194,7 @@ const JpLayoutWithSidebar = ({
           overflow: 'hidden',
         }}
       >
-        <Header showBrowserAutocomplete={false} headerBgColor="#f9f5f2" />
+        <Header headerBgColor="#f9f5f2" />
         <Box
           sx={{
             overflowY: 'auto',

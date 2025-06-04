@@ -272,6 +272,7 @@ const RecruiterProfileDialog = ({
       position: position,
       mobile: mobile,
       altMobile: altMobile,
+      userId: 'TODO JP',
     },
     organizationInfo: {
       id: id,
@@ -283,6 +284,7 @@ const RecruiterProfileDialog = ({
       companyType: companyType,
       officeAddress: officeAddress,
       officePincode: officePincode,
+      domain: 'TODO JP',
     },
   });
 
@@ -339,6 +341,7 @@ const RecruiterProfileDialog = ({
       await updateRecruiterProfile({
         ...formData.recruiterDetails,
         organizationId: id,
+        socialLinks: 'TODO JP',
       });
       setIsOpen(false);
     }

@@ -1,15 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import { Business, Email, Work } from '@mui/icons-material';
 import {
+  Avatar,
+  Box,
+  Button,
   Card,
   CardContent,
-  Typography,
-  Grid,
-  Box,
   CircularProgress,
-  Avatar,
-  Button,
+  Grid,
+  Typography,
 } from '@mui/material';
-import { Work, Email, Business } from '@mui/icons-material';
 import {
   canAccessResource,
   getJobPosts,
@@ -19,14 +18,14 @@ import {
   OrganizationData,
   RecruiterAndOrgData,
   RecruiterData,
-  updateRecruiterProfile,
 } from '@stex-react/api';
-import { useRouter } from 'next/router';
 import { Action, CURRENT_TERM, ResourceName } from '@stex-react/utils';
+import { useRouter } from 'next/router';
+import React, { useEffect, useState } from 'react';
+import RecruiterProfileDialog from '../../../../alea-frontend/components/job-portal/RecruiterProfileDialog';
 import MainLayout from '../../../../alea-frontend/layouts/MainLayout';
 import RecruiterJobDialog from '../../../components/job-portal/RecruiterJobDialog';
 import { RecruiterJobsPanel } from '../../../components/job-portal/RecruiterJobsPanel';
-import RecruiterProfileDialog from '../../../../alea-frontend/components/job-portal/RecruiterProfileDialog';
 
 const HeaderSection = () => (
   <Box
@@ -205,6 +204,7 @@ const RecruiterDashboard = () => {
     companyType: '',
     officeAddress: '',
     officePincode: '',
+    domain: '',
   });
   const [loading, setLoading] = useState(true);
   const [accessCheckLoading, setAccessCheckLoading] = useState(true);
@@ -236,10 +236,10 @@ const RecruiterDashboard = () => {
       const recruiterData = await getRecruiterProfile();
       setRecruiter(recruiterData);
       const organizationId = recruiterData?.organizationId;
-      if (recruiterData.hasDefinedOrg === 0) {
+      /* TODO JP if (recruiterData.hasDefinedOrg === 0) { 
         setIsOpen(true);
         await updateRecruiterProfile({ ...recruiterData, hasDefinedOrg: 1 });
-      }
+      }*/
       if (organizationId) {
         const orgData = await getOrganizationProfile(organizationId);
         setOrganizationData(orgData);
@@ -292,7 +292,7 @@ const RecruiterDashboard = () => {
       </Box>
     );
   }
-  const { name, email, position, hasDefinedOrg } = recruiter;
+  const { name, email, position /*hasDefinedOrg TODO JP*/ } = recruiter;
 
   const {
     companyName,
@@ -309,13 +309,15 @@ const RecruiterDashboard = () => {
 
   return (
     <MainLayout title="Recruiter Dashboard | Job Portal">
-      {(!hasDefinedOrg || isOpen) && (
-        <RecruiterProfileDialog
-          isOpen={isOpen}
-          setIsOpen={setIsOpen}
-          recruiterAndOrgData={recruiterAndOrgData}
-        />
-      )}
+      {
+        /* TODO JP (!hasDefinedOrg ||*/ isOpen && (
+          <RecruiterProfileDialog
+            isOpen={isOpen}
+            setIsOpen={setIsOpen}
+            recruiterAndOrgData={recruiterAndOrgData}
+          />
+        )
+      }
 
       <Box>
         <HeaderSection />

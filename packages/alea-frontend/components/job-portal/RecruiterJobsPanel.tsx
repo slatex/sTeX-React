@@ -44,7 +44,7 @@ import {
   updateJobApplication,
   JobApplicationInfo,
   StudentData,
-  ApplicantProfile,
+  ApplicantWithProfile,
 } from '@stex-react/api';
 import { useEffect, useState } from 'react';
 import JobPostInfoForm from './JobPostInfoForm';
@@ -136,7 +136,7 @@ export function RecruiterJobsPanel({
   const [jobData, setJobData] = useState<JobPostInfo>(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedJob, setSelectedJob] = useState<JobPostInfo>(null);
-  const [applicants, setApplicants] = useState<ApplicantProfile[]>([]);
+  const [applicants, setApplicants] = useState<ApplicantWithProfile[]>([]);
 
   const [openProfileDialog, setOpenProfileDialog] = useState(false);
   const [selectedStudentProfile, setSelectedStudentProfile] = useState(null);
@@ -162,7 +162,7 @@ export function RecruiterJobsPanel({
   async function viewApplicants(job: JobPostInfo) {
     const applications = await getJobApplicationsByJobPost(job?.id);
     console.log({ applications });
-    const applicant: ApplicantProfile[] = await Promise.all(
+    const applicant: ApplicantWithProfile[] = await Promise.all(
       applications.map(async (application) => {
         const studentProfile = await getStudentProfileUsingUserId(application.applicantId);
         return { ...application, studentProfile };
@@ -189,19 +189,19 @@ export function RecruiterJobsPanel({
     setSelectedStudentProfile(null);
   };
 
-  async function handleAcceptApplication(applicant: ApplicantProfile) {
+  async function handleAcceptApplication(applicant: ApplicantWithProfile) {
     const application = { ...applicant, applicationStatus: 'ACCEPTED', recruiterAction: 'ACCEPT' };
     const res = await updateJobApplication(application);
     setOpenDialog(false);
   }
 
-  async function handleRejectApplication(applicant: ApplicantProfile) {
+  async function handleRejectApplication(applicant: ApplicantWithProfile) {
     const application = { ...applicant, applicationStatus: 'REJECTED', recruiterAction: 'REJECT' };
     const res = await updateJobApplication(application);
     setOpenDialog(false);
   }
 
-  async function handleMakeOffer(applicant: ApplicantProfile) {
+  async function handleMakeOffer(applicant: ApplicantWithProfile) {
     const application = {
       ...applicant,
       applicationStatus: 'OFFERED',
