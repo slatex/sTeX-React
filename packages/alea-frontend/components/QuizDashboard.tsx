@@ -1,3 +1,4 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import { OpenInNew } from '@mui/icons-material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -6,7 +7,6 @@ import { Box, Button, FormControl, InputLabel, MenuItem, Select, Typography } fr
 import {
   canAccessResource,
   createQuiz,
-  CSS,
   deleteQuiz,
   FTMLProblemWithSolution,
   getAuthHeaders,
@@ -17,7 +17,6 @@ import {
   QuizWithStatus,
   updateQuiz,
 } from '@stex-react/api';
-import { injectCss } from '@stex-react/ftml-utils';
 import { getQuizPhase } from '@stex-react/quiz-utils';
 import { SafeHtml } from '@stex-react/react-utils';
 import { Action, CourseInfo, CURRENT_TERM, ResourceName, roundToMinutes } from '@stex-react/utils';
@@ -123,7 +122,7 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId, quizId, onQuizI
   const [feedbackReleaseTs, setFeedbackReleaseTs] = useState<number>(roundToMinutes(Date.now()));
   const [courseTerm, setCourseTerm] = useState<string>(CURRENT_TERM);
   const [manuallySetPhase, setManuallySetPhase] = useState<Phase>(Phase.UNSET);
-  const [css, setCss] = useState<CSS[]>([]);
+  const [css, setCss] = useState<FTML.CSS[]>([]);
   const [quizzes, setQuizzes] = useState<QuizWithStatus[]>([]);
   const [problems, setProblems] = useState<Record<string, FTMLProblemWithSolution>>({});
   const [stats, setStats] = useState<QuizStatsResponse>({
@@ -160,7 +159,7 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId, quizId, onQuizI
         const allQuizzes: QuizWithStatus[] = res.data;
         allQuizzes?.sort((a, b) => b.quizStartTs - a.quizStartTs);
         for (const q of allQuizzes ?? []) {
-          for (const css of q.css) injectCss(css);
+          for (const css of q.css || []) FTML.injectCss(css);
         }
         setQuizzes(allQuizzes);
         const validQuiz = allQuizzes.find((q) => q.id === quizId);

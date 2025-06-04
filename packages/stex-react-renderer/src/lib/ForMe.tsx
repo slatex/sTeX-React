@@ -1,7 +1,7 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Button, IconButton, LinearProgress, Tooltip, Typography } from '@mui/material';
 import { getDefiniedaInSection, getLearningObjects, getSourceUrl } from '@stex-react/api';
-import { ProblemResponse } from '@stex-react/ftml-utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { getLocaleObject } from './lang/utils';
@@ -26,7 +26,7 @@ export function ForMe({
   const [isLoadingProblemUris, setIsLoadingProblemUris] = useState<boolean>(!cachedProblemUris);
   const [problemIdx, setProblemIdx] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState<boolean[]>([]);
-  const [responses, setResponses] = useState<(ProblemResponse | undefined)[]>([]);
+  const [responses, setResponses] = useState<(FTML.ProblemResponse | undefined)[]>([]);
   const [, setShow] = useState(true);
 
   useEffect(() => {

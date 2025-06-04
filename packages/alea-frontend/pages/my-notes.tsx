@@ -1,11 +1,11 @@
 import { Box, CircularProgress, Typography } from '@mui/material';
 import { getMyNotesSections } from '@stex-react/api';
 import { NotesView } from '@stex-react/comments';
-import { FTMLFragment } from '@stex-react/ftml-utils';
 import { PRIMARY_COL } from '@stex-react/utils';
 import type { NextPage } from 'next';
 import { useEffect, useState } from 'react';
 import MainLayout from '../layouts/MainLayout';
+import { FTMLFragment } from '@kwarc/ftml-react';
 
 export interface NotesSection {
   uri: string;
@@ -69,7 +69,7 @@ const MyNotesPage: NextPage = () => {
                     m="10px"
                   >
                     {/* TODO ALeA4-N8: FTMLFragment won't render slides using URI - it uses HTML. This case will be handled later */}
-                    <FTMLFragment fragment={{ uri: section.uri }} />
+                    <FTMLFragment fragment={{ type: 'FromBackend', uri: section.uri }} />
                     <NotesView uri={section.uri} allNotesMode={true} />
                   </Box>
                 ))}

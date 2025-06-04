@@ -1,14 +1,11 @@
 import { createInstance, MatomoProvider } from '@jonkoops/matomo-tracker-react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { setDebugLog, setServerUrl } from '@stex-react/ftml-utils';
 import { MathJaxContext } from '@stex-react/mathjax';
 import { PositionProvider, ServerLinksContext } from '@stex-react/stex-react-renderer';
 import { PRIMARY_COL, SECONDARY_COL } from '@stex-react/utils';
 import { AppProps } from 'next/app';
 import './styles.scss';
 
-setDebugLog();
-setServerUrl(process.env['NEXT_PUBLIC_FLAMS_URL']!);
 
 const instance = createInstance({
   urlBase: 'https://matomo.kwarc.info',

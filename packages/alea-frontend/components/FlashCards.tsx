@@ -1,3 +1,4 @@
+import { FTMLFragment } from '@kwarc/ftml-react';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CloseIcon from '@mui/icons-material/Close';
@@ -24,7 +25,6 @@ import {
   isLoggedIn,
   smileyToLevel,
 } from '@stex-react/api';
-import { FTMLFragment } from '@stex-react/ftml-utils';
 import { SafeHtml } from '@stex-react/react-utils';
 import {
   FixedPositionMenu,
@@ -178,7 +178,12 @@ function FlashCardBack({
             '& *': { fontSize: 'large !important' },
           }}
         >
-          {definitionUri && <FTMLFragment key={definitionUri} fragment={{ uri: definitionUri }} />}
+          {definitionUri && (
+            <FTMLFragment
+              key={definitionUri}
+              fragment={{ type: 'FromBackend', uri: definitionUri }}
+            />
+          )}
         </Box>
       </Box>
 

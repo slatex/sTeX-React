@@ -2,13 +2,14 @@ import CheckIcon from '@mui/icons-material/Check';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import { Box, Button, CircularProgress, Dialog, IconButton, Menu, MenuItem } from '@mui/material';
-import { canModerateComment, Comment, getUserInfo, URI } from '@stex-react/api';
+import { canModerateComment, Comment, getUserInfo } from '@stex-react/api';
 import { ReactNode, useEffect, useReducer, useRef, useState } from 'react';
 import { CommentFilters } from './comment-filters';
 import { getPublicCommentTrees, refreshAllComments } from './comment-store-manager';
 import { CommentReply } from './CommentReply';
 import { CommentView } from './CommentView';
 
+import { FTML } from '@kwarc/ftml-viewer';
 import { Refresh } from '@mui/icons-material';
 import { CURRENT_TERM } from '@stex-react/utils';
 import { useRouter } from 'next/router';
@@ -21,7 +22,7 @@ function RenderTree({
   refreshComments,
 }: {
   comment: Comment;
-  uri: URI;
+  uri: FTML.URI;
   refreshComments: () => void;
 }) {
   return (
@@ -47,7 +48,7 @@ export function CommentTree({
   refreshComments,
 }: {
   comments: Comment[];
-  uri: URI;
+  uri: FTML.URI;
   refreshComments: () => void;
 }) {
   return (
@@ -127,7 +128,7 @@ export function CommentSection({
   selectedElement = undefined,
   allCommentsMode = false,
 }: {
-  uri: URI;
+  uri: FTML.URI;
   startDisplay?: boolean;
   selectedText?: string;
   selectedElement?: any;

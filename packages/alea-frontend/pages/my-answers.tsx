@@ -1,3 +1,4 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import { SettingsBackupRestore } from '@mui/icons-material';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
@@ -21,20 +22,18 @@ import {
   Tristate,
   UserInfo,
 } from '@stex-react/api';
-import { ProblemResponse } from '@stex-react/ftml-utils';
+import { SafeHtml } from '@stex-react/react-utils';
 import {
   GradingDisplay,
-  ProblemDisplay,
-  ServerLinksContext,
+  ProblemDisplay
 } from '@stex-react/stex-react-renderer';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { Dispatch, SetStateAction, useContext, useEffect, useMemo, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import { MultiItemSelector } from '../components/nap/MultiItemsSelector';
 import MainLayout from '../layouts/MainLayout';
-import { SafeHtml } from '@stex-react/react-utils';
 const MULTI_SELECT_FIELDS = ['courseId', 'questionId', 'courseInstance'] as const;
 const ALL_SORT_FIELDS = ['courseId', 'questionTitle', 'updatedAt', 'courseInstance'] as const;
 const DEFAULT_SORT_ORDER: Record<SortField, 'ASC' | 'DESC'> = {
@@ -116,7 +115,7 @@ function AnswerItemDisplay({
   onDelete: (id: number) => void;
 }) {
   const [problem, setProblem] = useState<FTMLProblemWithSolution | undefined>();
-  const [answerText, setAnswerText] = useState<ProblemResponse>();
+  const [answerText, setAnswerText] = useState<FTML.ProblemResponse>();
   const [gradingInfos, setGradingInfos] = useState<GradingInfo[]>([]);
   useEffect(() => {
     // TODO ALEA4-P4

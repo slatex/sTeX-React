@@ -1,7 +1,8 @@
+import { FTMLFragment, getFlamsServer } from '@kwarc/ftml-react';
+import { FTML } from '@kwarc/ftml-viewer';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, Button, IconButton, LinearProgress, Tooltip, Typography } from '@mui/material';
 import { getSourceUrl } from '@stex-react/api';
-import { FTMLFragment, getFlamsServer, ProblemResponse } from '@stex-react/ftml-utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -26,8 +27,8 @@ export function UriProblemViewer({
   uri: string;
   isSubmitted?: boolean;
   setIsSubmitted?: (isSubmitted: boolean) => void;
-  response?: ProblemResponse;
-  setResponse?: (response: ProblemResponse | undefined) => void;
+  response?: FTML.ProblemResponse;
+  setResponse?: (response: FTML.ProblemResponse | undefined) => void;
   setQuotient?: (quotient: number | undefined) => void;
 }) {
   const [solution, setSolution] = useState<string | undefined>(undefined);
@@ -49,7 +50,7 @@ export function UriProblemViewer({
     <Box>
       <FTMLFragment
         key={`${uri}-${problemState.type}`}
-        fragment={{ uri }}
+        fragment={{ type: 'FromBackend', uri }}
         allowHovers={isSubmitted}
         problemStates={new Map([[uri, problemState]])}
         onProblem={(response) => {
@@ -81,7 +82,7 @@ export function PerSectionQuiz({
   const t = getLocaleObject(useRouter()).quiz;
   const [problemUris, setProblemUris] = useState<string[]>(cachedProblemUris || []);
   const [isLoadingProblemUris, setIsLoadingProblemUris] = useState<boolean>(!cachedProblemUris);
-  const [responses, setResponses] = useState<(ProblemResponse | undefined)[]>([]);
+  const [responses, setResponses] = useState<(FTML.ProblemResponse | undefined)[]>([]);
   const [problemIdx, setProblemIdx] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState<boolean[]>([]);
   const [show, setShow] = useState(true);
