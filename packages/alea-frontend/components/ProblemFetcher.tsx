@@ -1,7 +1,7 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import { FTMLProblemWithSolution } from '@stex-react/api';
-import { ProblemResponse } from '@stex-react/ftml-utils';
-import { getPoints, ProblemDisplay, ServerLinksContext } from '@stex-react/stex-react-renderer';
-import { useContext, useEffect, useState } from 'react';
+import { getPoints, ProblemDisplay } from '@stex-react/stex-react-renderer';
+import { useEffect, useState } from 'react';
 
 const ProblemFetcher = ({
   problemUri,
@@ -11,8 +11,8 @@ const ProblemFetcher = ({
 }: {
   problemUri: string;
   isFrozen: boolean;
-  response?: ProblemResponse;
-  onResponseUpdate?: (response: ProblemResponse | undefined, quotient: number) => void;
+  response?: FTML.ProblemResponse;
+  onResponseUpdate?: (response: FTML.ProblemResponse | undefined, quotient: number) => void;
 }) => {
   const [problem, setProblem] = useState<FTMLProblemWithSolution | null>(null);
   const [loading, setLoading] = useState(false);

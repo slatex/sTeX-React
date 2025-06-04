@@ -1,7 +1,7 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Box, IconButton } from '@mui/material';
 import { FTMLProblemWithSolution, GradingWithAnswer } from '@stex-react/api';
-import { ProblemResponse } from '@stex-react/ftml-utils';
 import { GradingContext, ProblemDisplay, ShowGradingFor } from '@stex-react/stex-react-renderer';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
@@ -13,7 +13,7 @@ export function PeerReviewGradedItemDisplay({
   onDelete: (id: number) => void;
 }) {
   const [problem, setProblem] = useState<FTMLProblemWithSolution>();
-  const [answerText, setAnswerText] = useState<ProblemResponse>();
+  const [answerText, setAnswerText] = useState<FTML.ProblemResponse>();
   useEffect(() => {
     // TODO ALEA4-P4
     // //getLearningObjectShtml(grade.questionId).then((p) => {

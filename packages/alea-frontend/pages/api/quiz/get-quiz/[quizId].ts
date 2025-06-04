@@ -9,7 +9,6 @@ import {
 } from '../../access-control/resource-utils';
 import { getUserIdOrSetError } from '../../comment-utils';
 import { queryGradingDbAndEndSet500OnError } from '../../grading-db-utils';
-//import { ProblemResponse } from '@stex-react/ftml-utils';
 
 async function getUserQuizResponseOrSetError(quizId: string, userId: string, res: NextApiResponse) {
   const results: any[] = await queryGradingDbAndEndSet500OnError(

@@ -1,3 +1,4 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import { SettingsBackupRestore } from '@mui/icons-material';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
@@ -28,23 +29,20 @@ import {
   HomeworkInfo,
   Tristate,
 } from '@stex-react/api';
-import { ProblemResponse } from '@stex-react/ftml-utils';
 import { SafeHtml } from '@stex-react/react-utils';
 import {
   GradingContext,
   ProblemDisplay,
-  ServerLinksContext,
-  ShowGradingFor,
+  ShowGradingFor
 } from '@stex-react/stex-react-renderer';
 import {
   Dispatch,
   SetStateAction,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useRef,
-  useState,
+  useState
 } from 'react';
 import { MultiItemSelector } from './MultiItemsSelector';
 const MULTI_SELECT_FIELDS = ['homeworkId', 'questionId', 'studentId'] as const;
@@ -383,7 +381,9 @@ function GradingItemDisplay({
   onNextGradingItem: () => void;
   onPrevGradingItem: () => void;
 }) {
-  const [studentResponse, setStudentResponse] = useState<ProblemResponse | undefined>(undefined);
+  const [studentResponse, setStudentResponse] = useState<FTML.ProblemResponse | undefined>(
+    undefined
+  );
   const [problem, setProblem] = useState<FTMLProblemWithSolution | null>(
     questionMap[questionId] || null
   );

@@ -1,5 +1,6 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import { Box, CircularProgress } from '@mui/material';
-import { TOCElem, getDocumentSections } from '@stex-react/api';
+import { getDocumentSections } from '@stex-react/api';
 import { BG_COLOR, shouldUseDrawer } from '@stex-react/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
@@ -31,7 +32,7 @@ export function DocProblemBrowser({
     uri: '',
   });
   const [problemCounts, setProblemCounts] = useState<{ [id: string]: number }>({});
-  const [toc, setToc] = useState<TOCElem[]>([]);
+  const [toc, setToc] = useState<FTML.TOCElem[]>([]);
 
   // TODO ALEA4-P1
   //const ancestors = getAncestors(undefined, undefined, selectedSection, docSections);
@@ -98,10 +99,7 @@ export function DocProblemBrowser({
           </>
         )}
         {selectedSection?.uri && (
-          <PerSectionQuiz
-            sectionUri={selectedSection.uri}
-            showButtonFirst={false}
-          />
+          <PerSectionQuiz sectionUri={selectedSection.uri} showButtonFirst={false} />
         )}
         <br />
         <b style={{ color: 'red' }}>{t.warning}</b>

@@ -1,7 +1,7 @@
 import { Box } from '@mui/material';
 import { getLatestUpdatedSections } from '@stex-react/api';
 import { CommentSection } from '@stex-react/comments';
-import { FTMLFragment } from '@stex-react/ftml-utils';
+import { FTMLFragment } from '@kwarc/ftml-react';
 import type { NextPage } from 'next';
 import { useEffect, useState } from 'react';
 import MainLayout from '../layouts/MainLayout';

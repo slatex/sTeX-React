@@ -1,4 +1,5 @@
-import { getAuthHeaders, getSourceUrl, URI } from '@stex-react/api';
+import { FTML } from '@kwarc/ftml-viewer';
+import { getAuthHeaders, getSourceUrl } from '@stex-react/api';
 import { extractRepoAndFilepath as extractProjectAndFilepath } from '@stex-react/utils';
 import axios from 'axios';
 
@@ -14,7 +15,7 @@ export enum IssueCategory {
   DISPLAY = 'DISPLAY',
 }
 export interface SelectionContext {
-  fragmentUri: URI;
+  fragmentUri: FTML.URI;
   fragmentKind: 'Section' | 'Paragraph' | 'Slide';
   source?: string;
 }

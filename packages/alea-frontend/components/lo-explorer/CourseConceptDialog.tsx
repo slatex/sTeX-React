@@ -25,12 +25,12 @@ import {
   getDefiniedaInSection,
   getDocumentSections,
   getSectionDependencies,
-  TOCElem,
 } from '@stex-react/api';
+import { FTML } from '@kwarc/ftml-viewer';
 import { CourseInfo } from '@stex-react/utils';
 import React, { useEffect, useState } from 'react';
 
-export function getSectionDetails(tocElems: TOCElem[]): SectionDetails[] {
+export function getSectionDetails(tocElems: FTML.TOCElem[]): SectionDetails[] {
   const sections: SectionDetails[] = [];
   for (const tocElem of tocElems) {
     if (tocElem.type === 'Section') {

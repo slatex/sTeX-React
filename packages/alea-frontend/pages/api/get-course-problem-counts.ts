@@ -1,16 +1,10 @@
-import {
-  DocumentElementURI,
-  TOCElem,
-  getCourseInfo,
-  getDocumentSections,
-  getProblemsForSection,
-} from '@stex-react/api';
+import { FTML } from '@kwarc/ftml-viewer';
+import { getCourseInfo, getDocumentSections, getProblemsForSection } from '@stex-react/api';
 import { NextApiRequest, NextApiResponse } from 'next';
-
 export const EXCLUDED_CHAPTERS = ['Preface', 'Administrativa', 'Resources'];
 
 interface CourseCacheInfo {
-  problems: Record<DocumentElementURI, string[]>;
+  problems: Record<FTML.DocumentElementURI, string[]>;
   lastUpdatedTs_ms: number;
 }
 
@@ -47,8 +41,8 @@ export async function getProblemsBySection(sectionUri: string) {
   return problems;
 }
 
-function collectSectionUris(toc: TOCElem[]): DocumentElementURI[] {
-  const result: DocumentElementURI[] = [];
+function collectSectionUris(toc: FTML.TOCElem[]): FTML.DocumentElementURI[] {
+  const result: FTML.DocumentElementURI[] = [];
   for (const elem of toc) {
     if (elem.type === 'Section' && elem.uri) result.push(elem.uri);
     if ('children' in elem) result.push(...collectSectionUris(elem.children));
@@ -56,11 +50,11 @@ function collectSectionUris(toc: TOCElem[]): DocumentElementURI[] {
   return result;
 }
 
-async function fetchProblems(notesUri: string): Promise<Record<DocumentElementURI, string[]>> {
+async function fetchProblems(notesUri: string): Promise<Record<FTML.DocumentElementURI, string[]>> {
   const tocContent = (await getDocumentSections(notesUri))[1];
   const sectionUris = collectSectionUris(tocContent);
 
-  const problems: Record<DocumentElementURI, string[]> = {};
+  const problems: Record<FTML.DocumentElementURI, string[]> = {};
   await Promise.all(
     sectionUris.map(async (uri) => {
       problems[uri] = await getProblemsForSection(uri);
@@ -79,5 +73,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     Object.entries(problems).map(([uri, problems]) => [uri, problems.length])
   );
 
-  res.status(200).json(counts as Record<DocumentElementURI, number>);
+  res.status(200).json(counts as Record<FTML.DocumentElementURI, number>);
 }

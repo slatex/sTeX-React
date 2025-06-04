@@ -1,6 +1,7 @@
+import {FTML} from '@kwarc/ftml-viewer';
 import { Refresh } from '@mui/icons-material';
 import { Box, IconButton } from '@mui/material';
-import { Comment, getUserInfo, URI } from '@stex-react/api';
+import { Comment, getUserInfo} from '@stex-react/api';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { getPrivateNotes, refreshAllComments } from './comment-store-manager';
@@ -15,7 +16,7 @@ export function NotesView({
   selectedElement = undefined,
   allNotesMode = false,
 }: {
-  uri: URI;
+  uri: FTML.URI;
   selectedText?: string;
   selectedElement?: any;
   allNotesMode?: boolean;

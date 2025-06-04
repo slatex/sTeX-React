@@ -1,5 +1,5 @@
 import { Box, Button, List, ListItem, ListItemText, Paper, Typography } from '@mui/material';
-import { TOCElem } from '@stex-react/api';
+import { FTML } from '@kwarc/ftml-viewer';
 import { SafeHtml } from '@stex-react/react-utils';
 import { PRIMARY_COL } from '@stex-react/utils';
 import axios from 'axios';
@@ -15,7 +15,7 @@ interface TitleMetadata {
   sectionTitle: string;
 }
 
-const extractTitlesAndSectionUri = (toc: TOCElem | null, chapterTitle = ''): TitleMetadata[] => {
+const extractTitlesAndSectionUri = (toc: FTML.TOCElem | null, chapterTitle = ''): TitleMetadata[] => {
   if (!toc || toc.type === 'Paragraph' || toc.type === 'Slide') {
     return [];
   }
@@ -37,7 +37,7 @@ const extractTitlesAndSectionUri = (toc: TOCElem | null, chapterTitle = ''): Tit
 };
 
 interface ProblemListProps {
-  courseSections: TOCElem[];
+  courseSections: FTML.TOCElem[];
   courseId: string;
 }
 

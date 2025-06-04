@@ -1,8 +1,8 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, IconButton, Tooltip } from '@mui/material';
 import LinearProgress from '@mui/material/LinearProgress';
 import { FTMLProblemWithSolution } from '@stex-react/api';
-import { ProblemResponse } from '@stex-react/ftml-utils';
 import { SafeHtml } from '@stex-react/react-utils';
 import { useRouter } from 'next/router';
 import { useEffect, useReducer, useState } from 'react';
@@ -30,7 +30,7 @@ export function PracticeQuestions({
   const t = getLocaleObject(useRouter()).quiz;
   const [problems, setProblems] = useState<FTMLProblemWithSolution[]>([]);
   const [isLoadingProblems, setIsLoadingProblems] = useState<boolean>(true);
-  const [responses, setResponses] = useState<ProblemResponse[]>([]);
+  const [responses, setResponses] = useState<FTML.ProblemResponse[]>([]);
   const [problemIdx, setProblemIdx] = useState(0);
   const [isFrozen, setIsFrozen] = useState<boolean[]>([]);
   const [, forceRerender] = useReducer((x) => x + 1, 0);

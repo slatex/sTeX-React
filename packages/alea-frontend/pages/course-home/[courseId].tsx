@@ -24,7 +24,6 @@ import {
   InputAdornment,
   TextField,
 } from '@mui/material';
-import { FTMLDocument } from '@stex-react/ftml-utils';
 import {
   Action,
   BG_COLOR,
@@ -38,10 +37,11 @@ import { NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { RecordedSyllabus } from 'packages/alea-frontend/components/RecordedSyllabus';
 import { useEffect, useRef, useState } from 'react';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
-import { RecordedSyllabus } from 'packages/alea-frontend/components/RecordedSyllabus';
+import { FTMLDocument } from '@kwarc/ftml-react';
 
 export function getCourseEnrollmentAcl(courseId: string, instanceId: string) {
   return `${courseId}-${instanceId}-enrollments`;
@@ -356,7 +356,7 @@ const CourseHomePage: NextPage = () => {
             />
           </Box>
         )}
-        <FTMLDocument document={{ uri: landing, toc: undefined }} />
+        <FTMLDocument document={{ type: 'FromBackend', uri: landing, toc: undefined }} />
         <RecordedSyllabus courseId={courseId} />
       </Box>
     </MainLayout>

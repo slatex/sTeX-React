@@ -1,6 +1,6 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import { conceptUriToName, getLeafConcepts, getLearningObjects, LoType } from '@stex-react/api';
-import { ProblemResponse } from '@stex-react/ftml-utils';
 import { LayoutWithFixedMenu } from '@stex-react/stex-react-renderer';
 import { shouldUseDrawer } from '@stex-react/utils';
 import { useRouter } from 'next/router';
@@ -55,7 +55,7 @@ export interface UserAction {
   targetConceptUri?: string;
 
   // Only for problems:
-  response?: ProblemResponse;
+  response?: FTML.ProblemResponse;
   quotient?: number;
 }
 
@@ -89,10 +89,10 @@ function ChatMessageDisplay({
   setQuotient,
 }: {
   message: ChatMessage;
-  problemResponse?: ProblemResponse;
+  problemResponse?: FTML.ProblemResponse;
   isFrozen?: boolean;
   isSubmitted: boolean;
-  setProblemResponse?: (response: ProblemResponse | undefined) => void;
+  setProblemResponse?: (response: FTML.ProblemResponse | undefined) => void;
   setQuotient?: (quotient: number | undefined) => void;
 }) {
   if (message.type === 'text') {
@@ -144,7 +144,7 @@ function UserActionDisplay({
   setIsSubmitted,
 }: {
   action: UserAction;
-  problemResponse?: ProblemResponse;
+  problemResponse?: FTML.ProblemResponse;
   quotient?: number;
   onResponse: (responded: UserAction) => void;
   setIsSubmitted: (isSubmitted: boolean) => void;
@@ -171,7 +171,7 @@ function UserActionDisplay({
       <Button
         onClick={() => {
           setIsSubmitted(true);
-          // TODO ALEA4-L1 This seems wrong. quotient will not be set at this point. 
+          // TODO ALEA4-L1 This seems wrong. quotient will not be set at this point.
           onResponse({ ...action, response: problemResponse, quotient });
         }}
         variant="contained"
@@ -191,9 +191,11 @@ const GuidedTours = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [tourState, setTourState] = useState<GuidedTourState | undefined>(undefined);
   const [userAction, setUserAction] = useState<UserAction | undefined>(undefined);
-  const [problemResponse, setProblemResponse] = useState<ProblemResponse | undefined>(undefined);
+  const [problemResponse, setProblemResponse] = useState<FTML.ProblemResponse | undefined>(
+    undefined
+  );
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
-  const [quotient, setQuotient] = useState<number|undefined>(undefined);
+  const [quotient, setQuotient] = useState<number | undefined>(undefined);
   const [pendingMessages, setPendingMessages] = useState<ChatMessage[]>([]);
   const [showDashboard, setShowDashboard] = useState(!shouldUseDrawer());
 

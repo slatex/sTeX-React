@@ -1,3 +1,4 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import {
   AnswerResponse,
   FTMLProblemWithSolution,

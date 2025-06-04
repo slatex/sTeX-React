@@ -1,4 +1,5 @@
-import { CognitiveDimension, QuizWithStatus, SymbolURI } from '@stex-react/api';
+import {QuizWithStatus} from '@stex-react/api';
+import {FTML} from '@kwarc/ftml-viewer'
 import { getAllQuizzes } from '@stex-react/node-utils';
 import fs from 'fs';
 
@@ -10,8 +11,8 @@ export interface Quiz {
 
 interface ProblemLmsInfo {
   total_points: number;
-  preconditions: [CognitiveDimension, SymbolURI][];
-  objectives: [CognitiveDimension, SymbolURI][];
+  preconditions: [FTML.CognitiveDimension, FTML.SymbolURI][];
+  objectives: [FTML.CognitiveDimension, FTML.SymbolURI][];
   // todo add more.
 }
 

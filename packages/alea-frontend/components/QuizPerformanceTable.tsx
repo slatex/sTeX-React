@@ -1,3 +1,4 @@
+import { FTMLFragment } from '@kwarc/ftml-react';
 import InfoIcon from '@mui/icons-material/Info';
 import {
   Box,
@@ -19,13 +20,12 @@ import {
 } from '@stex-react/api';
 import { SafeHtml } from '@stex-react/react-utils';
 import { NoMaxWidthTooltip } from '@stex-react/stex-react-renderer';
-import { PRIMARY_COL, convertHtmlStringToPlain } from '@stex-react/utils';
+import { PRIMARY_COL } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { getLocaleObject } from '../lang/utils';
-import { FTMLFragment } from '@stex-react/ftml-utils';
 
 function RecorrectionInfoDisp({ recorrectionInfo }: { recorrectionInfo?: RecorrectionInfo[] }) {
   const { quizPerformanceTable: t } = getLocaleObject(useRouter());
@@ -119,7 +119,10 @@ function QuizPerformanceTable({
                   >
                     <Box display="flex" alignItems="center">
                       <Link href={`/quiz/${quiz.quizId}`} style={{ marginRight: '5px' }}>
-                         <FTMLFragment key={quiz.title ?? ''} fragment ={{  html: quiz.title ?? '<i>Untitled</i>' }} />
+                        <FTMLFragment
+                          key={quiz.title ?? ''}
+                          fragment={{ type: 'HtmlString', html: quiz.title ?? '<i>Untitled</i>' }}
+                        />
                       </Link>
                       <RecorrectionInfoDisp
                         recorrectionInfo={previousQuizData?.quizInfo[quiz.quizId]?.recorrectionInfo}

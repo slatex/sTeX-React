@@ -1,10 +1,11 @@
-import { Comment, URI } from '@stex-react/api';
+import { FTML } from '@kwarc/ftml-viewer';
+import { Comment } from '@stex-react/api';
 import { organizeHierarchically } from './comment-helpers';
 
 export class CommentStore {
   private storedPublicComments: Comment[] | undefined = undefined;
   private storedPrivateNotes: Comment[] | undefined = undefined;
-  constructor(private uri: URI) {}
+  constructor(private uri: FTML.URI) {}
 
   public setComments(flatComments: Comment[]) {
     this.storedPublicComments = organizeHierarchically(

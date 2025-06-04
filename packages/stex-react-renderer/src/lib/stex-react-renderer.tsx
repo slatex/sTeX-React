@@ -1,3 +1,4 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import { Tooltip } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { tooltipClasses, TooltipProps } from '@mui/material/Tooltip';
@@ -24,18 +25,17 @@ import {
 } from './SelfAssessmentDialog';
 import { GradingContext, GradingDisplay, ShowGradingFor } from './SubProblemAnswer';
 import { TourAPIEntry, TourDisplay } from './TourDisplay';
-import { DimAndURIListDisplay, URIListDisplay } from './UriListDisplay';
 import TrafficLightIndicator from './TrafficLightIndicator';
-import { Solutions } from '@stex-react/ftml-utils';
-import { computePointsFromFeedbackJson, FTMLProblemWithSolution, ProblemResponse } from '@stex-react/api';
+import { DimAndURIListDisplay, URIListDisplay } from './UriListDisplay';
+
+import { computePointsFromFeedbackJson, FTMLProblemWithSolution } from '@stex-react/api';
 
 export const ServerLinksContext = createContext({ gptUrl: '' });
 
-
-export function getPoints(problem: FTMLProblemWithSolution, response?: ProblemResponse) {
+export function getPoints(problem: FTMLProblemWithSolution, response?: FTML.ProblemResponse) {
   if (!response) return 0;
   if (!problem?.solution) return NaN;
-  const s = Solutions.from_jstring(problem.solution);
+  const s = FTML.Solutions.from_jstring(problem.solution);
   const feedbackJson = s?.check_response(response);
   return computePointsFromFeedbackJson(problem.problem, feedbackJson);
 }
@@ -171,9 +171,10 @@ export {
   SelfAssessment2,
   SelfAssessmentDialog,
   ShowGradingFor,
-  TrafficLightIndicator,
   TourDisplay,
+  TrafficLightIndicator,
   URIListDisplay,
   UriProblemViewer
 };
 export type { TourAPIEntry };
+
