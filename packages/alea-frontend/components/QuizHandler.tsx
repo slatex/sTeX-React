@@ -71,7 +71,7 @@ export default function QuizHandler({ courseId, entries, currentEntry }: QuizHan
     .finally(() => {
       setLoading(false);
     });
-}, [courseId, courseTerm, JSON.stringify(entries)]);
+}, [courseId, courseTerm]);
 
 
   const findQuizForEntry = (entry: CoverageEntry) =>
