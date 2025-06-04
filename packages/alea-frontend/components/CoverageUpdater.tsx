@@ -77,7 +77,7 @@ export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: Cov
           block: 'start',
           inline: 'nearest',
         });
-      }, 100);
+      },);
     }
   }, [editIndex]);
 

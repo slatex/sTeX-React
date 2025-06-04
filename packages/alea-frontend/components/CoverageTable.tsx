@@ -40,6 +40,13 @@ interface CoverageTableProps {
   onDelete: (index: number) => void;
 }
 
+interface CoverageRowProps {
+  item: CoverageEntry;
+  originalIndex: number;
+  onEdit: (index: number) => void;
+  onDelete: (index: number) => void;
+}
+
 const formatSectionWithSlide = (sectionName: string, slideNumber?: number, slideUri?: string) => {
   if (!sectionName) return <i>-</i>;
 
@@ -57,9 +64,164 @@ const formatSectionWithSlide = (sectionName: string, slideNumber?: number, slide
   }
 };
 
-export function CoverageTable({ entries, onEdit, onDelete }: CoverageTableProps) {
+function CoverageRow({ item, originalIndex, onEdit, onDelete }: CoverageRowProps) {
   const now = dayjs();
+  const itemDate = dayjs(item.timestamp_ms);
+  const isPast = itemDate.isBefore(now, 'day');
+  const isFuture = itemDate.isAfter(now, 'day');
+  const isToday = itemDate.isSame(now, 'day');
+  const isNoSection = !item.sectionName || item.sectionName.trim() === '';
+  const shouldHighlightNoSection = isNoSection && (isPast || isToday);
+  
+  let backgroundColor = 'inherit';
+  let hoverBackgroundColor = 'action.hover';
+  if (shouldHighlightNoSection) {
+    backgroundColor = 'rgba(244, 67, 54, 0.15)'; 
+    hoverBackgroundColor = 'rgba(244, 67, 54, 0.20)';
+  } else if (isPast) {
+    backgroundColor = 'rgba(237, 247, 237, 0.5)';
+    hoverBackgroundColor = 'rgba(237, 247, 237, 0.7)';
+  } else if (isFuture) {
+    backgroundColor = 'rgba(255, 243, 224, 0.5)';
+    hoverBackgroundColor = 'rgba(255, 243, 224, 0.7)';
+  }
 
+  return (
+    <TableRow
+      sx={{
+        backgroundColor,
+        '&:hover': {
+          backgroundColor: hoverBackgroundColor,
+        },
+      }}
+    >
+      <TableCell>
+        <Typography
+          variant="body2"
+          fontWeight="medium"
+          sx={{
+            color: isPast ? 'success.main' : isFuture ? 'warning.main' : 'text.primary',
+            fontWeight: 'bold',
+          }}
+        >
+          {itemDate.format('YYYY-MM-DD')}
+        </Typography>
+      </TableCell>
+      <TableCell
+        sx={{
+          maxWidth: '250px',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        <Tooltip title={item.sectionName || (shouldHighlightNoSection ? 'No Section - Please fill this field' : 'No Section')}>
+          {shouldHighlightNoSection ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  color: 'error.main', 
+                  fontStyle: 'italic',
+                  fontWeight: 'bold'
+                }}
+              >
+              Update pending
+              </Typography>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  color: 'error.main',
+                  animation: 'blink 1.5s infinite'
+                }}
+              >
+                ⚠️
+              </Typography>
+            </Box>
+          ) : (
+            formatSectionWithSlide(item.sectionName, item.slideNumber, item.slideUri)
+          )}
+        </Tooltip>
+      </TableCell>
+      <TableCell
+        sx={{
+          maxWidth: '200px',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        <Tooltip title={item.targetSectionName || 'No Target'}>
+          <Typography variant="body2">{item.targetSectionName || <i>-</i>}</Typography>
+        </Tooltip>
+      </TableCell>
+      <TableCell>
+        {item.clipId?.length ? (
+          <Button
+            variant="outlined"
+            size="small"
+            href={`https://fau.tv/clip/id/${item.clipId}`}
+            target="_blank"
+            rel="noreferrer"
+            startIcon={<OpenInNewIcon />}
+            sx={{ textTransform: 'none' }}
+          >
+            {item.clipId}
+          </Button>
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            <i>-</i>
+          </Typography>
+        )}
+      </TableCell>
+      <TableCell>
+        {item.isQuizScheduled ? (
+          <Chip icon={<QuizIcon />} label="Scheduled" size="small" color="warning" />
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            <i>No Quiz</i>
+          </Typography>
+        )}
+      </TableCell>
+      <TableCell>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <IconButton
+            size="small"
+            color="primary"
+            onClick={() => onEdit(originalIndex)}
+            sx={{
+              boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
+              },
+              transition: 'all 0.2s',
+            }}
+          >
+            <EditIcon fontSize="small" />
+          </IconButton>
+          <IconButton
+            size="small"
+            color="error"
+            onClick={() => onDelete(originalIndex)}
+            sx={{
+              boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
+              },
+              transition: 'all 0.2s',
+            }}
+          >
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        </Box>
+      </TableCell>
+    </TableRow>
+  );
+}
+
+export function CoverageTable({ entries, onEdit, onDelete }: CoverageTableProps) {
   const sortedEntries = [...entries].sort((a, b) => a.timestamp_ms - b.timestamp_ms);
 
   return (
@@ -85,162 +247,16 @@ export function CoverageTable({ entries, onEdit, onDelete }: CoverageTableProps)
         </TableHead>
         <TableBody>
           {sortedEntries.map((item, idx) => {
-            const itemDate = dayjs(item.timestamp_ms);
-            const isPast = itemDate.isBefore(now, 'day');
-            const isFuture = itemDate.isAfter(now, 'day');
-            const isToday = itemDate.isSame(now, 'day');
-            const isNoSection = !item.sectionName || item.sectionName.trim() === '';
-            const shouldHighlightNoSection = isNoSection && (isPast || isToday);
-
             const originalIndex = entries.findIndex((entry) => entry.id === item.id);
-
             
-            let backgroundColor = 'inherit';
-            let hoverBackgroundColor = 'action.hover';
-            if (shouldHighlightNoSection) {
-              backgroundColor = 'rgba(244, 67, 54, 0.15)'; 
-              hoverBackgroundColor = 'rgba(244, 67, 54, 0.20)';
-            } else if (isPast) {
-              backgroundColor = 'rgba(237, 247, 237, 0.5)';
-              hoverBackgroundColor = 'rgba(237, 247, 237, 0.7)';
-            } else if (isFuture) {
-              backgroundColor = 'rgba(255, 243, 224, 0.5)';
-              hoverBackgroundColor = 'rgba(255, 243, 224, 0.7)';
-            }
-
             return (
-              <TableRow
+              <CoverageRow
                 key={`${item.timestamp_ms}-${idx}`}
-                sx={{
-                  backgroundColor,
-                  '&:hover': {
-                    backgroundColor: hoverBackgroundColor,
-                  },
-                }}
-              >
-                <TableCell>
-                  <Typography
-                    variant="body2"
-                    fontWeight="medium"
-                    sx={{
-                      color: isPast ? 'success.main' : isFuture ? 'warning.main' : 'text.primary',
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    {itemDate.format('YYYY-MM-DD')}
-                  </Typography>
-                </TableCell>
-                <TableCell
-                  sx={{
-                    maxWidth: '250px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  <Tooltip title={item.sectionName || (shouldHighlightNoSection ? 'No Section - Please fill this field' : 'No Section')}>
-                    {shouldHighlightNoSection ? (
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Typography 
-                          variant="body2" 
-                          sx={{ 
-                            color: 'error.main', 
-                            fontStyle: 'italic',
-                            fontWeight: 'bold'
-                          }}
-                        >
-   Update pending
-                        </Typography>
-                        <Typography 
-                          variant="body2" 
-                          sx={{ 
-                            color: 'error.main',
-                            animation: 'blink 1.5s infinite'
-                          }}
-                        >
-                          ⚠️
-                        </Typography>
-                      </Box>
-                    ) : (
-                      formatSectionWithSlide(item.sectionName, item.slideNumber, item.slideUri)
-                    )}
-                  </Tooltip>
-                </TableCell>
-                <TableCell
-                  sx={{
-                    maxWidth: '200px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  <Tooltip title={item.targetSectionName || 'No Target'}>
-                    <Typography variant="body2">{item.targetSectionName || <i>-</i>}</Typography>
-                  </Tooltip>
-                </TableCell>
-                <TableCell>
-                  {item.clipId?.length ? (
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      href={`https://fau.tv/clip/id/${item.clipId}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      startIcon={<OpenInNewIcon />}
-                      sx={{ textTransform: 'none' }}
-                    >
-                      {item.clipId}
-                    </Button>
-                  ) : (
-                    <Typography variant="body2" color="text.secondary">
-                      <i>-</i>
-                    </Typography>
-                  )}
-                </TableCell>
-                <TableCell>
-                  {item.isQuizScheduled ? (
-                    <Chip icon={<QuizIcon />} label="Scheduled" size="small" color="warning" />
-                  ) : (
-                    <Typography variant="body2" color="text.secondary">
-                      <i>No Quiz</i>
-                    </Typography>
-                  )}
-                </TableCell>
-                <TableCell>
-                  <Box sx={{ display: 'flex', gap: 1 }}>
-                    <IconButton
-                      size="small"
-                      color="primary"
-                      onClick={() => onEdit(originalIndex)}
-                      sx={{
-                        boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-                        '&:hover': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
-                        },
-                        transition: 'all 0.2s',
-                      }}
-                    >
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={() => onDelete(originalIndex)}
-                      sx={{
-                        boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-                        '&:hover': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
-                        },
-                        transition: 'all 0.2s',
-                      }}
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </Box>
-                </TableCell>
-              </TableRow>
+                item={item}
+                originalIndex={originalIndex}
+                onEdit={onEdit}
+                onDelete={onDelete}
+              />
             );
           })}
         </TableBody>
