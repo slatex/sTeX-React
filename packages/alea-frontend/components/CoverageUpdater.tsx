@@ -71,13 +71,11 @@ export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: Cov
 
   useEffect(() => {
     if (editIndex !== null && formRef.current) {
-      setTimeout(() => {
-        formRef.current?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
-          inline: 'nearest',
-        });
-      },);
+      formRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+        inline: 'nearest',
+      });
     }
   }, [editIndex]);
 

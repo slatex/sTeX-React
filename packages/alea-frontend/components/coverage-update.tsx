@@ -1,4 +1,4 @@
-
+import { FTML } from '@kwarc/ftml-viewer';
 import {
   Alert,
   Backdrop,
@@ -27,7 +27,6 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { createContext, useCallback, useEffect, useState } from 'react';
 import { Section } from '../types';
-import { createContext } from 'react';
 import SaveIcon from '@mui/icons-material/Save';
 import { CoverageUpdater } from './CoverageUpdater';
 
