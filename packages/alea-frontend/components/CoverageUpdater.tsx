@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Box, Typography, Paper, useTheme } from '@mui/material';
 import { LectureEntry } from '@stex-react/utils';
 import { Section } from '../types';
@@ -51,6 +51,7 @@ export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: Cov
   });
 
   const theme = useTheme();
+  const formRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (snaps.length > 0) {
@@ -67,6 +68,16 @@ export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: Cov
   useEffect(() => {
     setFormData((prev) => ({ ...prev, slideUri: '' }));
   }, [formData.sectionName, formData.sectionUri]);
+
+  useEffect(() => {
+    if (editIndex !== null && formRef.current) {
+      formRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+        inline: 'nearest',
+      });
+    }
+  }, [editIndex]);
 
   const handleEditItem = (index: number) => {
     const itemToEdit = snaps[index];
@@ -155,7 +166,6 @@ export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: Cov
 
     return entry;
   });
-
   return (
     <Box sx={{ width: '100%' }}>
       {snaps.length > 0 ? (
@@ -187,6 +197,7 @@ export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: Cov
       )}
 
       <Paper
+        ref={formRef}
         elevation={3}
         sx={{
           p: { xs: 2, sm: 3 },
