@@ -122,6 +122,8 @@ export function ProblemViewer({
       onProblem={(response) => {
         onResponseUpdate?.(response);
       }}
+      /*
+       TODO (Behrooz): This is needed only for non-autogradable problems.
       onFragment={(problemId, kind) => {
         if (kind.type === 'Problem') {
           return (ch) => (
@@ -138,6 +140,7 @@ export function ProblemViewer({
           );
         }
       }}
+      */
     />
   );
 }
