@@ -311,103 +311,91 @@ interface CoverageEntry {
 // const result = calculateLectureProgress(yourEntries, yourSectionList);
 
 
-function calculateLectureProgress(entries: CoverageEntry[], sectionList: Array<{ title: string; uri: string }>) {
+function calculateLectureProgress(
+  entries: CoverageEntry[],
+  sectionList: Array<{ title: string; uri: string }>
+) {
   const normalize = (s: string) => s?.trim().toLowerCase() || '';
   const today = new Date();
-  today.setHours(0, 0, 0, 0); // Reset time to start of day for accurate comparison
-  
-  // Map section names to order in sectionList
-  const sectionToOrder = new Map<string, number>();
-  sectionList.forEach((section, index) => {
-    sectionToOrder.set(normalize(section.title), index);
-  });
-  
-  const completedSections: Array<{ order: number; sectionName: string; date: string }> = [];
-  const targetSections: Array<{ order: number; sectionName: string; date: string }> = [];
-  const pendingUpdates: Array<{ order: number; sectionName: string; targetSectionName: string; date: string; status: string }> = [];
-  
-  entries.forEach(entry => {
-    const completedName = normalize(entry.sectionName);
-    const targetName = normalize(entry.targetSectionName);
-    const entryDate = new Date(entry.timestamp_ms);
-    const dateString = entryDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
-    
-    console.log(`Processing entry: "${entry.sectionName}" -> "${entry.targetSectionName}" (${dateString})`);
-    
-    // Check if this is an "Update pending" or incomplete entry
-    const isUpdatePending = !entry.sectionName?.trim() || 
-                           entry.sectionName?.toLowerCase().includes('update') ||
-                           entry.sectionName?.toLowerCase().includes('pending') ||
-                           entry.sectionName === 'Update pending' ||
-                           // If sectionName doesn't match any known section but targetSection does
-                           (entry.sectionName?.trim() && !sectionToOrder.has(completedName) && sectionToOrder.has(targetName));
-    
-    if (isUpdatePending && entry.targetSectionName?.trim()) {
-      console.log(`Detected pending update: "${entry.sectionName}" for target "${entry.targetSectionName}"`);
-      // This is a pending update - check if target matches our section list
-      if (sectionToOrder.has(targetName)) {
-        const order = sectionToOrder.get(targetName)!;
-        pendingUpdates.push({
-          order,
-          sectionName: entry.sectionName || 'Update pending',
-          targetSectionName: entry.targetSectionName,
-          date: dateString,
-          status: 'pending'
-        });
-      } else {
-        pendingUpdates.push({
-          order: -1,
-          sectionName: entry.sectionName || 'Update pending',
-          targetSectionName: entry.targetSectionName,
-          date: dateString,
-          status: 'target not matched'
-        });
+  today.setHours(0, 0, 0, 0);
+
+  // Map section titles to their order index
+  const sectionToOrder = new Map(sectionList.map((s, i) => [normalize(s.title), i]));
+
+  // Helper to push unique sections by order
+  function pushUnique(arr: any[], item: any, orderKey = 'order') {
+    if (!arr.some(x => x[orderKey] === item[orderKey])) arr.push(item);
+  }
+
+  // Helper: find surrounding target sections for a given completed section order
+  function findSurroundingTargetIndexes(
+    completedOrder: number,
+    targets: { order: number; sectionName: string }[]
+  ) {
+    let prevTarget: { order: number; sectionName: string } | null = null;
+    let nextTarget: { order: number; sectionName: string } | null = null;
+
+    for (const target of targets) {
+      if (target.order < completedOrder) {
+        if (!prevTarget || target.order > prevTarget.order) prevTarget = target;
+      } else if (target.order > completedOrder) {
+        if (!nextTarget || target.order < nextTarget.order) nextTarget = target;
       }
+    }
+    return { prevTarget, nextTarget };
+  }
+
+  const completedSections: { order: number; sectionName: string; date: string }[] = [];
+  const targetSections: { order: number; sectionName: string; date: string }[] = [];
+  const pendingUpdates: {
+    order: number;
+    sectionName: string;
+    targetSectionName: string;
+    date: string;
+    status: string;
+  }[] = [];
+
+  // Classify entries into completed, target, and pending
+  entries.forEach(({ sectionName, targetSectionName, timestamp_ms }) => {
+    const completedName = normalize(sectionName);
+    const targetName = normalize(targetSectionName);
+    const entryDate = new Date(timestamp_ms);
+    const dateString = entryDate.toISOString().split('T')[0];
+
+    const isUpdatePending =
+      !sectionName?.trim() ||
+      sectionName.toLowerCase().includes('update') ||
+      sectionName.toLowerCase().includes('pending') ||
+      sectionName === 'Update pending' ||
+      (sectionName?.trim() && !sectionToOrder.has(completedName) && sectionToOrder.has(targetName));
+
+    if (isUpdatePending && targetSectionName?.trim()) {
+      const order = sectionToOrder.get(targetName) ?? -1;
+      const status = order === -1 ? 'target not matched' : 'pending';
+
+      pendingUpdates.push({ order, sectionName: sectionName || 'Update pending', targetSectionName, date: dateString, status });
     } else {
-      // Handle completed sections
-      if (entry.sectionName?.trim() && sectionToOrder.has(completedName)) {
-        const order = sectionToOrder.get(completedName)!;
-        if (!completedSections.find(c => c.order === order)) {
-          completedSections.push({
-            order,
-            sectionName: entry.sectionName,
-            date: dateString
-          });
-        }
+      if (sectionName?.trim() && sectionToOrder.has(completedName)) {
+        pushUnique(completedSections, { order: sectionToOrder.get(completedName)!, sectionName, date: dateString });
       }
     }
-    
-    // Handle target sections
-    if (entry.targetSectionName?.trim() && sectionToOrder.has(targetName)) {
-      const order = sectionToOrder.get(targetName)!;
-      if (!targetSections.find(t => t.order === order)) {
-        targetSections.push({
-          order,
-          sectionName: entry.targetSectionName,
-          date: dateString
-        });
-      }
+
+    if (targetSectionName?.trim() && sectionToOrder.has(targetName)) {
+      pushUnique(targetSections, { order: sectionToOrder.get(targetName)!, sectionName: targetSectionName, date: dateString });
     }
   });
-  
-  // Identify overdue pending updates
-  const overduePending = pendingUpdates.filter(pending => {
-    const pendingDate = new Date(pending.date);
-    pendingDate.setHours(0, 0, 0, 0);
-    return pendingDate <= today && pending.status === 'pending';
+
+  // Sort all arrays by order
+  [completedSections, targetSections, pendingUpdates].forEach(arr => arr.sort((a, b) => a.order - b.order));
+
+  // Filter overdue pending updates
+  const overduePending = pendingUpdates.filter(p => {
+    const pDate = new Date(p.date);
+    pDate.setHours(0, 0, 0, 0);
+    return p.status === 'pending' && pDate <= today;
   });
-  
-  completedSections.sort((a, b) => a.order - b.order);
-  targetSections.sort((a, b) => a.order - b.order);
-  pendingUpdates.sort((a, b) => a.order - b.order);
-  
-  console.log('Completed Sections:', completedSections.map(c => `${c.order}: ${c.sectionName}`));
-  console.log('Target Sections:', targetSections.map(t => `${t.order}: ${t.sectionName}`));
-  console.log('Pending Updates:', pendingUpdates.map(p => `${p.order}: ${p.targetSectionName} (${p.status}) - ${p.date}`));
-  console.log('Overdue Pending:', overduePending.map(p => `${p.order}: ${p.targetSectionName} - ${p.date}`));
-  
+
   if (completedSections.length === 0 && pendingUpdates.length === 0) {
-    console.log('No completed lectures found.');
     return {
       status: 'No completed lectures',
       currentLecture: -1,
@@ -418,113 +406,116 @@ function calculateLectureProgress(entries: CoverageEntry[], sectionList: Array<{
     };
   }
 
-  // Get the latest entry (either completed or pending)
-  const latestCompleted = completedSections.length > 0 ? completedSections[completedSections.length - 1] : null;
-  const latestPending = pendingUpdates.length > 0 ? pendingUpdates[pendingUpdates.length - 1] : null;
-  
-  // Determine current status based on latest entry and overdue items
-  let status = 'on-track';
-  let currentLecture = -1;
-  let progressDifferenceByIndex = 0;
-  let comments: string[] = [];
-  
-  // Check if we're ahead by comparing each completed section with target sections using for loop
+  const latestCompleted = completedSections.at(-1) ?? null;
+  const latestPending = pendingUpdates.at(-1) ?? null;
+
+  // Check ahead status by comparing completed to target, including slightly ahead/behind
   let maxAheadCount = 0;
-  let aheadSections: Array<{ completedSection: string; targetIndex: number; completedIndex: number; aheadBy: number }> = [];
-  
-  // Loop through each completed section to check if it appears ahead in target sections
+  const aheadSections: Array<{ sectionName: string; aheadBy: number }> = [];
+  const comments: string[] = [];
+  let status = 'on-track';
+
   for (let i = 0; i < completedSections.length; i++) {
-    const completedSection = completedSections[i];
-    
-    // Find this completed section in the target sections array
-    for (let j = 0; j < targetSections.length; j++) {
-      const targetSection = targetSections[j];
-      
-      // If section names match (normalized comparison)
-      if (normalize(completedSection.sectionName) === normalize(targetSection.sectionName)) {
-        // Check if completed section index is less than target section index (we're ahead)
-        if (i < j) {
-          const aheadBy = j - i; // How many positions ahead
-          aheadSections.push({
-            completedSection: completedSection.sectionName,
-            targetIndex: j,
-            completedIndex: i,
-            aheadBy: aheadBy
-          });
-          
-          // Track the maximum ahead count
-          if (aheadBy > maxAheadCount) {
-            maxAheadCount = aheadBy;
-          }
+    const comp = completedSections[i];
+    const compOrder = comp.order;
+    const targetIndex = targetSections.findIndex(t => normalize(t.sectionName) === normalize(comp.sectionName));
+
+    if (targetIndex !== -1) {
+      // Completed section is directly in targetSections
+      if (i < targetIndex) {
+        const aheadBy = targetIndex - i;
+        if (aheadBy > 0) {
+          aheadSections.push({ sectionName: comp.sectionName, aheadBy });
+          if (aheadBy > maxAheadCount) maxAheadCount = aheadBy;
         }
-        break; // Found the match, no need to continue inner loop
+      }
+    } else {
+      // Completed section NOT found in targetSections
+      // Check if it falls between two target sections
+      const { prevTarget, nextTarget } = findSurroundingTargetIndexes(compOrder, targetSections);
+
+      if (prevTarget && nextTarget) {
+        const distToPrev = compOrder - prevTarget.order;
+        const distToNext = nextTarget.order - compOrder;
+
+        if (distToPrev < distToNext) {
+          comments.push(
+            `Section "${comp.sectionName}" is slightly ahead between "${prevTarget.sectionName}" and "${nextTarget.sectionName}"`
+          );
+          if (status === 'on-track' || status.startsWith('slightly behind')) status = 'slightly ahead';
+        } else {
+          comments.push(
+            `Section "${comp.sectionName}" is slightly behind between "${prevTarget.sectionName}" and "${nextTarget.sectionName}"`
+          );
+          if (status === 'on-track' || status.startsWith('slightly ahead')) status = 'slightly behind';
+        }
+      } else if (prevTarget && !nextTarget) {
+        comments.push(`Section "${comp.sectionName}" is beyond last target "${prevTarget.sectionName}" - considered slightly ahead`);
+        if (status === 'on-track' || status.startsWith('slightly behind')) status = 'slightly ahead';
+      } else if (!prevTarget && nextTarget) {
+        comments.push(`Section "${comp.sectionName}" is before first target "${nextTarget.sectionName}" - considered slightly behind`);
+        if (status === 'on-track' || status.startsWith('slightly ahead')) status = 'slightly behind';
+      } else {
+        comments.push(`Section "${comp.sectionName}" does not match any known target section`);
+        if (status === 'on-track') status = 'target not matched';
       }
     }
   }
-  
-  // Set ahead status if we found any ahead sections
+
+  let progressDifferenceByIndex = 0;
+  const currentLecture = latestCompleted?.order ?? -1;
+
   if (maxAheadCount > 0) {
     status = `${maxAheadCount} lecture${maxAheadCount > 1 ? 's' : ''} ahead`;
-    progressDifferenceByIndex = -maxAheadCount; // Negative for ahead
-    comments.push(`Ahead sections: ${aheadSections.map(a => `${a.completedSection} (${a.aheadBy} ahead)`).join(', ')}`);
+    progressDifferenceByIndex = -maxAheadCount;
+    comments.push(`Ahead sections: ${aheadSections.map(a => `${a.sectionName} (${a.aheadBy} ahead)`).join(', ')}`);
   }
-  
-  // Set current lecture if we have completed sections
-  if (latestCompleted) {
-    currentLecture = latestCompleted.order;
-  }
-  
-  // ALSO check for pending updates logic (check both conditions)
+
   if (overduePending.length > 0) {
-    currentLecture = latestCompleted ? latestCompleted.order : -1;
-    
-    // Count how many lectures behind based on overdue pending updates
     const lecturesBehind = overduePending.length;
-    
-    // If we're ahead but also have overdue items, combine the status
+
     if (maxAheadCount > 0) {
       status = `${maxAheadCount} lecture${maxAheadCount > 1 ? 's' : ''} ahead but ${lecturesBehind} overdue`;
+      progressDifferenceByIndex = -maxAheadCount + lecturesBehind;
     } else {
       status = `${lecturesBehind} lecture${lecturesBehind > 1 ? 's' : ''} behind`;
-    }
-    
-    const overdueNames = overduePending.map(p => p.targetSectionName);
-    comments.push(`Overdue: ${overdueNames.join(', ')}`);
-    
-    // Adjust progress difference to account for overdue items
-    if (maxAheadCount > 0) {
-      progressDifferenceByIndex = -maxAheadCount + lecturesBehind; // Reduce the ahead count by overdue items
-    } else {
       progressDifferenceByIndex = lecturesBehind;
     }
-    
+
+    comments.push(`Overdue: ${overduePending.map(p => p.targetSectionName).join(', ')}`);
   } else if (latestPending && (!latestCompleted || new Date(latestPending.date) >= new Date(latestCompleted.date))) {
-    // Latest entry is a pending update but not overdue
-    currentLecture = latestCompleted ? latestCompleted.order : -1;
-    
     if (latestPending.status === 'target not matched') {
-      // If we're ahead but target not matched, keep ahead status but add comment
-      if (maxAheadCount === 0) {
-        status = 'target not matched';
-      }
+      if (status === 'on-track') status = 'target not matched';
       comments.push(`Latest entry "${latestPending.targetSectionName}" does not match any section in the curriculum`);
     } else {
-      // Check if we're on track for future targets
       const targetDate = new Date(latestPending.date);
-      if (targetDate > today && maxAheadCount === 0) {
+      if (targetDate > today && status === 'on-track') {
         status = 'on-track';
-        comments.push(`Next target: "${latestPending.targetSectionName}" due ${latestPending.date}`);
-      } else if (maxAheadCount > 0) {
-        comments.push(`Next target: "${latestPending.targetSectionName}" due ${latestPending.date}`);
       }
+      comments.push(`Next target: "${latestPending.targetSectionName}" due ${latestPending.date}`);
     }
   }
-  
-  console.log('Progress Status:', status);
-  if (comments.length > 0) {
-    console.log('Comments:', comments.join('; '));
+
+  // === ADDITIONAL "over X lectures ahead/behind" LOGIC ===
+  if (latestCompleted && targetSections.length > 0) {
+    const targetOrders = targetSections.map(t => t.order);
+    const firstTargetOrder = Math.min(...targetOrders);
+    const lastTargetOrder = Math.max(...targetOrders);
+    const completedOrder = latestCompleted.order;
+
+    if (completedOrder > lastTargetOrder) {
+      const overAheadBy = completedOrder - lastTargetOrder;
+      status = `over ${overAheadBy} lecture${overAheadBy > 1 ? 's' : ''} ahead`;
+      progressDifferenceByIndex = -overAheadBy;
+      comments.push(`Latest completed "${latestCompleted.sectionName}" is ${overAheadBy} beyond the last target "${targetSections.at(-1)?.sectionName}"`);
+    } else if (completedOrder < firstTargetOrder) {
+      const overBehindBy = firstTargetOrder - completedOrder;
+      status = `over ${overBehindBy} lecture${overBehindBy > 1 ? 's' : ''} behind`;
+      progressDifferenceByIndex = overBehindBy;
+      comments.push(`Latest completed "${latestCompleted.sectionName}" is ${overBehindBy} before the first target "${targetSections.at(0)?.sectionName}"`);
+    }
   }
-  
+
   return {
     status,
     currentLecture,
@@ -532,21 +523,27 @@ function calculateLectureProgress(entries: CoverageEntry[], sectionList: Array<{
     targetSections,
     pendingUpdates,
     overduePending,
-    latestCompleted: latestCompleted ? {
-      name: latestCompleted.sectionName,
-      order: latestCompleted.order,
-      date: latestCompleted.date
-    } : null,
-    latestPending: latestPending ? {
-      targetName: latestPending.targetSectionName,
-      order: latestPending.order,
-      date: latestPending.date,
-      status: latestPending.status
-    } : null,
+    latestCompleted: latestCompleted
+      ? { name: latestCompleted.sectionName, order: latestCompleted.order, date: latestCompleted.date }
+      : null,
+    latestPending: latestPending
+      ? {
+          targetName: latestPending.targetSectionName,
+          order: latestPending.order,
+          date: latestPending.date,
+          status: latestPending.status
+        }
+      : null,
     progressDifferenceByIndex,
     comments
   };
 }
+
+
+
+
+
+
 
 
 
