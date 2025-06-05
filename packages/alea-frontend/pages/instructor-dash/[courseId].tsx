@@ -63,9 +63,7 @@ function ChosenTab({
     case 'homework-grading':
       return <GradingInterface isPeerGrading={false} courseId={courseId} />;
     case 'quiz-dashboard':
-      return (
-        <QuizDashboard courseId={courseId} quizId={quizId} onQuizIdChange={onQuizIdChange} />
-      );
+      return <QuizDashboard courseId={courseId} quizId={quizId} onQuizIdChange={onQuizIdChange} />;
     case 'study-buddy':
       return <StudyBuddyModeratorStats courseId={courseId} />;
     case 'peer-review':
@@ -120,10 +118,16 @@ const InstructorDash: NextPage = () => {
   const [accessibleTabs, setAccessibleTabs] = useState<TabName[]>([]);
   const [currentTabIdx, setCurrentTabIdx] = useState<number>(0);
 
-  const [quizId, setQuizId] = useState<string | undefined>(router.query.quizId as string);
+  const [quizId, setQuizId] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (router.isReady) {
+      setQuizId(router.query.quizId as string);
+    }
+  }, [router.isReady, router.query.quizId]);
 
   const handleQuizIdChange = (newQuizId: string) => {
-    if (quizId === newQuizId) return; 
+    if (quizId === newQuizId) return;
     setQuizId(newQuizId);
     updateRouterQuery(router, { quizId: newQuizId }, true);
   };
@@ -165,10 +169,10 @@ const InstructorDash: NextPage = () => {
   }, [courseId, tab]);
 
   useEffect(() => {
-  if (tab !== 'quiz-dashboard' && router.query.quizId) {
-    updateRouterQuery(router, { quizId: undefined }, true);
-  }
-}, [tab, router]);
+    if (tab !== 'quiz-dashboard' && router.query.quizId) {
+      updateRouterQuery(router, { quizId: undefined }, true);
+    }
+  }, [tab, router]);
 
   const courseInfo = courses?.[courseId];
 
@@ -207,7 +211,12 @@ const InstructorDash: NextPage = () => {
         </Tabs>
         {accessibleTabs.map((tabName, index) => (
           <TabPanel key={tabName} value={currentTabIdx} index={index}>
-            <ChosenTab tabName={tabName} courseId={courseId} quizId={quizId} onQuizIdChange={handleQuizIdChange}/>
+            <ChosenTab
+              tabName={tabName}
+              courseId={courseId}
+              quizId={quizId}
+              onQuizIdChange={handleQuizIdChange}
+            />
           </TabPanel>
         ))}
       </Box>
