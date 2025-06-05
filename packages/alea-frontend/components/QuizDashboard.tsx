@@ -163,6 +163,7 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId, quizId, onQuizI
         }
         setQuizzes(allQuizzes);
         const validQuiz = allQuizzes.find((q) => q.id === quizId);
+        
         if (quizId !== NEW_QUIZ_ID && (!quizId || !validQuiz) && allQuizzes.length > 0) {
           onQuizIdChange?.(allQuizzes[0].id);
         }
