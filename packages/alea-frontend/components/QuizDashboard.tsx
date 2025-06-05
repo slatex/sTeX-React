@@ -9,7 +9,7 @@ import {
   createQuiz,
   deleteQuiz,
   FTMLProblemWithSolution,
-  getAllQuiz,
+  getAllQuizzes,
   getCourseInfo,
   getQuizStats,
   Phase,
@@ -152,7 +152,7 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId, quizId, onQuizI
 
   useEffect(() => {
     async function fetchQuizzes() {
-      const allQuizzes: QuizWithStatus[] = await getAllQuiz(courseId, courseTerm);
+      const allQuizzes: QuizWithStatus[] = await getAllQuizzes(courseId, courseTerm);
       allQuizzes?.sort((a, b) => b.quizStartTs - a.quizStartTs);
       for (const q of allQuizzes ?? []) {
         for (const css of q.css || []) FTML.injectCss(css);

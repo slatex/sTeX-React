@@ -38,7 +38,7 @@ export default function QuizHandler({ currentEntry, quiz }: QuizHandlerProps) {
 
   return (
     <Typography variant="body2" color="text.secondary">
-      <i>No Quiz</i>
+      <i>-</i>
     </Typography>
   );
 }

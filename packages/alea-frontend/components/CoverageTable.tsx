@@ -16,7 +16,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { getAllQuiz, QuizWithStatus } from '@stex-react/api';
+import { getAllQuizzes, QuizWithStatus } from '@stex-react/api';
 import { CURRENT_TERM } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
@@ -235,7 +235,7 @@ export function CoverageTable({ courseId, entries, onEdit, onDelete }: CoverageT
   useEffect(() => {
     async function fetchQuizzes() {
       try {
-        const allQuizzes = await getAllQuiz(courseId, courseTerm);
+        const allQuizzes = await getAllQuizzes(courseId, courseTerm);
         const map: QuizMatchMap = {};
         entries.forEach((entry) => {
           const match = allQuizzes.find(
