@@ -163,7 +163,6 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId, quizId, onQuizI
         }
         setQuizzes(allQuizzes);
         const validQuiz = allQuizzes.find((q) => q.id === quizId);
-
         if (quizId !== NEW_QUIZ_ID && (!quizId || !validQuiz) && allQuizzes.length > 0) {
           onQuizIdChange?.(allQuizzes[0].id);
         }
@@ -383,7 +382,7 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId, quizId, onQuizI
                   stats.totalStudents
                 );
                 if (!validation.valid) {
-                  if (validation.newUriFound.length > 0 ) {
+                  if (validation.newUriFound.length > 0) {
                     alert(`Cannot update quiz: New URIs found ${validation.newUriFound[0]}`);
                   } else if (validation.notFoundURIs.length > 0) {
                     alert(`Cannot update quiz: URIs not found ${validation.notFoundURIs[0]}`);
