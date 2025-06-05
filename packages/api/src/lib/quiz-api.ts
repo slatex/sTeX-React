@@ -180,3 +180,12 @@ export async function checkPendingRecorrections() {
 
   return response.data;
 }
+
+export async function getAllQuiz(courseId: string, courseTerm: string) {
+  const resp = await axios.get(
+    `/api/quiz/get-all-quizzes?courseId=${courseId}&courseTerm=${courseTerm}`,
+    { headers: getAuthHeaders() }
+  );
+  return resp.data;
+}
+

@@ -9,18 +9,18 @@ import {
   createQuiz,
   deleteQuiz,
   FTMLProblemWithSolution,
-  getAuthHeaders,
+  getAllQuiz,
   getCourseInfo,
   getQuizStats,
   Phase,
   QuizStatsResponse,
   QuizWithStatus,
-  updateQuiz,
+  updateQuiz
 } from '@stex-react/api';
 import { getQuizPhase } from '@stex-react/quiz-utils';
 import { SafeHtml } from '@stex-react/react-utils';
 import { Action, CourseInfo, CURRENT_TERM, ResourceName, roundToMinutes } from '@stex-react/utils';
-import axios, { AxiosResponse } from 'axios';
+import { AxiosResponse } from 'axios';
 import dayjs from 'dayjs';
 import type { NextPage } from 'next';
 import { useEffect, useState } from 'react';
@@ -151,24 +151,20 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId, quizId, onQuizI
   const [recorrectionDialogOpen, setRecorrectionDialogOpen] = useState(false);
 
   useEffect(() => {
-    axios
-      .get(`/api/quiz/get-all-quizzes?courseId=${courseId}&courseTerm=${courseTerm}`, {
-        headers: getAuthHeaders(),
-      })
-      .then((res) => {
-        const allQuizzes: QuizWithStatus[] = res.data;
-        allQuizzes?.sort((a, b) => b.quizStartTs - a.quizStartTs);
-        for (const q of allQuizzes ?? []) {
-          for (const css of q.css || []) FTML.injectCss(css);
-        }
-        setQuizzes(allQuizzes);
-        const validQuiz = allQuizzes.find((q) => q.id === quizId);
-        
-        if (quizId !== NEW_QUIZ_ID && (!quizId || !validQuiz) && allQuizzes.length > 0) {
-          onQuizIdChange?.(allQuizzes[0].id);
-        }
-      });
-  }, [courseId, courseTerm, isNew, onQuizIdChange, quizId]);
+    async function fetchQuizzes() {
+      const allQuizzes: QuizWithStatus[] = await getAllQuiz(courseId, courseTerm);
+      allQuizzes?.sort((a, b) => b.quizStartTs - a.quizStartTs);
+      for (const q of allQuizzes ?? []) {
+        for (const css of q.css || []) FTML.injectCss(css);
+      }
+      setQuizzes(allQuizzes);
+      const validQuiz = allQuizzes.find((q) => q.id === quizId);
+      if (quizId !== NEW_QUIZ_ID && (!quizId || !validQuiz) && allQuizzes.length > 0) {
+        onQuizIdChange?.(allQuizzes[0].id);
+      }
+    }
+    fetchQuizzes().catch((err) => console.error("Failed to fetch Quiz", err));
+  }, [courseId, courseTerm, onQuizIdChange, quizId]);
 
   useEffect(() => {
     if (!selectedQuizId || selectedQuizId === NEW_QUIZ_ID || quizzes.length === 0) return;

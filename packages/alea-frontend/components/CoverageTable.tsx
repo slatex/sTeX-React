@@ -1,8 +1,10 @@
-import React from 'react';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import SlideshowIcon from '@mui/icons-material/Slideshow';
 import {
   Box,
   Button,
-  Chip,
   IconButton,
   Paper,
   Table,
@@ -14,12 +16,12 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import { getAllQuiz, QuizWithStatus } from '@stex-react/api';
+import { CURRENT_TERM } from '@stex-react/utils';
 import dayjs from 'dayjs';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import SlideshowIcon from '@mui/icons-material/Slideshow';
+import { useEffect, useState } from 'react';
 import QuizHandler from './QuizHandler';
+const courseTerm = CURRENT_TERM;
 
 export interface CoverageEntry {
   id: string;
@@ -34,17 +36,20 @@ export interface CoverageEntry {
   slideNumber?: number;
 }
 
+interface QuizMatchMap {
+  [timestamp_ms: number]: QuizWithStatus | null;
+}
+
 interface CoverageTableProps {
-  courseId : string;
+  courseId: string;
   entries: CoverageEntry[];
   onEdit: (index: number) => void;
   onDelete: (index: number) => void;
 }
 
 interface CoverageRowProps {
-  courseId: string;
   item: CoverageEntry;
-  entries: CoverageEntry[];
+  quizMatch: QuizWithStatus | null;
   originalIndex: number;
   onEdit: (index: number) => void;
   onDelete: (index: number) => void;
@@ -67,7 +72,7 @@ const formatSectionWithSlide = (sectionName: string, slideNumber?: number, slide
   }
 };
 
-function CoverageRow({ courseId, item, entries, originalIndex, onEdit, onDelete }: CoverageRowProps) {
+function CoverageRow({ item, quizMatch, originalIndex, onEdit, onDelete }: CoverageRowProps) {
   const now = dayjs();
   const itemDate = dayjs(item.timestamp_ms);
   const isPast = itemDate.isBefore(now, 'day');
@@ -75,11 +80,11 @@ function CoverageRow({ courseId, item, entries, originalIndex, onEdit, onDelete 
   const isToday = itemDate.isSame(now, 'day');
   const isNoSection = !item.sectionName || item.sectionName.trim() === '';
   const shouldHighlightNoSection = isNoSection && (isPast || isToday);
-  
+
   let backgroundColor = 'inherit';
   let hoverBackgroundColor = 'action.hover';
   if (shouldHighlightNoSection) {
-    backgroundColor = 'rgba(244, 67, 54, 0.15)'; 
+    backgroundColor = 'rgba(244, 67, 54, 0.15)';
     hoverBackgroundColor = 'rgba(244, 67, 54, 0.20)';
   } else if (isPast) {
     backgroundColor = 'rgba(237, 247, 237, 0.5)';
@@ -118,24 +123,29 @@ function CoverageRow({ courseId, item, entries, originalIndex, onEdit, onDelete 
           whiteSpace: 'nowrap',
         }}
       >
-        <Tooltip title={item.sectionName || (shouldHighlightNoSection ? 'No Section - Please fill this field' : 'No Section')}>
+        <Tooltip
+          title={
+            item.sectionName ||
+            (shouldHighlightNoSection ? 'No Section - Please fill this field' : 'No Section')
+          }
+        >
           {shouldHighlightNoSection ? (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography 
-                variant="body2" 
-                sx={{ 
-                  color: 'error.main', 
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'error.main',
                   fontStyle: 'italic',
-                  fontWeight: 'bold'
+                  fontWeight: 'bold',
                 }}
               >
-              Update pending
+                Update pending
               </Typography>
-              <Typography 
-                variant="body2" 
-                sx={{ 
+              <Typography
+                variant="body2"
+                sx={{
                   color: 'error.main',
-                  animation: 'blink 1.5s infinite'
+                  animation: 'blink 1.5s infinite',
                 }}
               >
                 ⚠️
@@ -178,11 +188,7 @@ function CoverageRow({ courseId, item, entries, originalIndex, onEdit, onDelete 
         )}
       </TableCell>
       <TableCell>
-        <QuizHandler
-         courseId={courseId}
-         entries={entries}
-         currentEntry={item}  
-        />
+        <QuizHandler currentEntry={item} quiz={quizMatch} />
       </TableCell>
       <TableCell>
         <Box sx={{ display: 'flex', gap: 1 }}>
@@ -224,6 +230,27 @@ function CoverageRow({ courseId, item, entries, originalIndex, onEdit, onDelete 
 
 export function CoverageTable({ courseId, entries, onEdit, onDelete }: CoverageTableProps) {
   const sortedEntries = [...entries].sort((a, b) => a.timestamp_ms - b.timestamp_ms);
+  const [quizMatchMap, setQuizMatchMap] = useState<QuizMatchMap>({});
+
+  useEffect(() => {
+    async function fetchQuizzes() {
+      try {
+        const allQuizzes = await getAllQuiz(courseId, courseTerm);
+        const map: QuizMatchMap = {};
+        entries.forEach((entry) => {
+          const match = allQuizzes.find(
+            (quiz) => Math.abs(quiz.quizStartTs - entry.timestamp_ms) < 12 * 60 * 60 * 1000
+          );
+          map[entry.timestamp_ms] = match || null;
+        });
+        setQuizMatchMap(map);
+      } catch (err) {
+        console.error('Error fetching quizzes:', err);
+      }
+    }
+
+    fetchQuizzes();
+  }, [courseId]);
 
   return (
     <TableContainer component={Paper} elevation={2} sx={{ borderRadius: 2, mb: 3 }}>
@@ -249,13 +276,12 @@ export function CoverageTable({ courseId, entries, onEdit, onDelete }: CoverageT
         <TableBody>
           {sortedEntries.map((item, idx) => {
             const originalIndex = entries.findIndex((entry) => entry.id === item.id);
-            
+
             return (
               <CoverageRow
-                courseId={courseId}
                 key={`${item.timestamp_ms}-${idx}`}
                 item={item}
-                entries={entries}
+                quizMatch={quizMatchMap[item.timestamp_ms] || null}
                 originalIndex={originalIndex}
                 onEdit={onEdit}
                 onDelete={onDelete}
