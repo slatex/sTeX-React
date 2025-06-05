@@ -1,4 +1,5 @@
 import { FTML } from '@kwarc/ftml-viewer';
+import SaveIcon from '@mui/icons-material/Save';
 import {
   Alert,
   Backdrop,
@@ -8,18 +9,19 @@ import {
   Container,
   Dialog,
   DialogActions,
-  Fab,
   DialogContent,
   DialogTitle,
+  Fab,
   Paper,
   Typography,
 } from '@mui/material';
+import { keyframes } from '@mui/system';
 import { getAuthHeaders, getCourseInfo, getDocumentSections } from '@stex-react/api';
 import {
+  convertHtmlStringToPlain,
   CourseInfo,
   CoverageTimeline,
   LectureEntry,
-  convertHtmlStringToPlain,
   PRIMARY_COL,
 } from '@stex-react/utils';
 import axios from 'axios';
@@ -27,7 +29,6 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { createContext, useCallback, useEffect, useState } from 'react';
 import { Section } from '../types';
-import SaveIcon from '@mui/icons-material/Save';
 import { CoverageUpdater } from './CoverageUpdater';
 
 export const UnsavedChangesContext = createContext<{
@@ -66,6 +67,18 @@ function getSectionNames(data: FTML.TOCElem, level = 0): Section[] {
   }
   return sections;
 }
+
+const bounce = keyframes`
+  0% { transform: rotate(0) translateY(0px); }
+  15% { transform: rotate(5deg) translateY(-4px); }
+  30% { transform: rotate(-5deg) translateY(-8px);}
+  45% { transform: rotate(4deg) translateY(-12px); }
+  60% { transform: rotate(-4deg) translateY(-12px); }
+  75% { transform: rotate(2deg) translateY(-8px); }
+  85% { transform: rotate(-2deg) translateY(-4px); }
+  92% { transform: rotate(1deg) translateY(-2px); }
+  100% { transform: rotate(0) translateY(0px); }
+`;
 
 const CoverageUpdatePage: NextPage = () => {
   const router = useRouter();
@@ -346,48 +359,51 @@ const CoverageUpdatePage: NextPage = () => {
               />
             </Box>
 
-            <Box
-              sx={{
-                mt: 3,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'stretch',
-                gap: 2,
-              }}
-            >
-              <Typography
-                variant="body2"
-                color="error"
-                sx={{
-                  fontWeight: 'medium',
-                  textAlign: 'center',
-                }}
-              >
-                Your changes will not be saved until you click 'Save Changes'.
-              </Typography>
-            </Box>
             {hasUnsavedChanges() && (
-              <Fab
-                color="primary"
-                size="large"
-                onClick={handleSave}
-                disabled={loading}
-                sx={{
-                  position: 'fixed',
-                  bottom: '20px',
-                  right: '20px',
-                  border: `2px solid ${PRIMARY_COL}`,
-                  boxShadow: '0px 8px 15px rgba(0, 0, 0, 0.3)',
-                  transition: 'all 0.3s ease 0s',
-                  ':hover': {
-                    boxShadow: '0px 15px 20px rgba(0, 0, 0, 0.4)',
-                    transform: 'translateY(-2px)',
-                  },
-                  zIndex: 1000,
-                }}
-              >
-                <SaveIcon />
-              </Fab>
+              <>
+                <Box
+                  sx={{
+                    mt: 3,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'stretch',
+                    gap: 2,
+                  }}
+                >
+                  <Typography
+                    variant="h4"
+                    color="error"
+                    sx={{
+                      fontWeight: 'medium',
+                      textAlign: 'center',
+                    }}
+                  >
+                    You have unsaved changes.
+                  </Typography>
+                </Box>
+                <Fab
+                  color="secondary"
+                  size="large"
+                  onClick={handleSave}
+                  disabled={loading}
+                  sx={{
+                    position: 'fixed',
+                    bottom: '40px',
+                    right: '40px',
+                    border: `2px solid ${PRIMARY_COL}`,
+                    boxShadow: '0px 8px 15px rgba(0, 0, 0, 0.3)',
+                    transition: 'all 0.3s ease 0s',
+                    animation: `${bounce} 1s infinite ease`,
+                    ':hover': {
+                      boxShadow: '0px 15px 20px rgba(0, 0, 0, 0.4)',
+                      transform: 'translateY(-2px)',
+                    },
+                    zIndex: 1000,
+                  }}
+                >
+                  <SaveIcon />
+                </Fab>
+              </>
             )}
           </Paper>
         </Container>
