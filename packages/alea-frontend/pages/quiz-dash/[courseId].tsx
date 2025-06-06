@@ -1,3 +1,5 @@
+import { FTMLFragment } from '@kwarc/ftml-react';
+import { FTML } from '@kwarc/ftml-viewer';
 import SchoolIcon from '@mui/icons-material/School';
 import { Box, Button, Card, CircularProgress, Typography } from '@mui/material';
 import Alert from '@mui/material/Alert';
@@ -8,7 +10,6 @@ import {
   getCourseQuizList,
   getUserInfo,
 } from '@stex-react/api';
-import { FTMLFragment, injectCss } from '@stex-react/ftml-utils';
 import { Action, CURRENT_TERM, CourseInfo, ResourceName, isFauId } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import { NextPage } from 'next';
@@ -35,7 +36,7 @@ function QuizThumbnail({ quiz }: { quiz: QuizStubInfo }) {
           }}
         >
           <Box>
-            <FTMLFragment key={title} fragment={{ html: title }} />
+            <FTMLFragment key={title} fragment={{ type: 'HtmlString', html: title }} />
           </Box>
           <Box>
             <b>
@@ -164,11 +165,11 @@ const QuizDashPage: NextPage = () => {
 
   useEffect(() => {
     if (!courseId) return;
-    getCourseQuizList(courseId).then(res => {
+    getCourseQuizList(courseId).then((res) => {
       const quizzes = res as QuizStubInfo[];
       for (const quiz of quizzes) {
-        for( const css of quiz.css) injectCss(css)
-        }
+        for (const css of quiz.css || []) FTML.injectCss(css);
+      }
       setQuizList(quizzes);
     });
   }, [courseId]);

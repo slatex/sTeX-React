@@ -1,4 +1,6 @@
-import { AnswerClass, Phase, ProblemResponse, QuizWithStatus } from '@stex-react/api';
+import { AnswerClass, Phase,QuizWithStatus } from '@stex-react/api';
+import { FTML } from '@kwarc/ftml-viewer';
+
 
 export const PROBLEM_PARSED_MARKER = 'problem-parsed';
 
@@ -29,7 +31,7 @@ export function getQuizPhase(q: QuizWithStatus) {
   return Phase.FEEDBACK_RELEASED;
 }
 
-export function isEmptyResponse(response: ProblemResponse) {
+export function isEmptyResponse(response: FTML.ProblemResponse) {
   for (const r of response.responses) {
     if (r.type === 'Fillinsol') {
       if (r.value.trim().length > 0) return false;

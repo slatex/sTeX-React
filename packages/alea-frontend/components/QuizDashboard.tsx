@@ -1,3 +1,4 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import { OpenInNew } from '@mui/icons-material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -6,22 +7,20 @@ import { Box, Button, FormControl, InputLabel, MenuItem, Select, Typography } fr
 import {
   canAccessResource,
   createQuiz,
-  CSS,
   deleteQuiz,
   FTMLProblemWithSolution,
-  getAuthHeaders,
+  getAllQuizzes,
   getCourseInfo,
   getQuizStats,
   Phase,
   QuizStatsResponse,
   QuizWithStatus,
-  updateQuiz,
+  updateQuiz
 } from '@stex-react/api';
-import { injectCss } from '@stex-react/ftml-utils';
 import { getQuizPhase } from '@stex-react/quiz-utils';
 import { SafeHtml } from '@stex-react/react-utils';
 import { Action, CourseInfo, CURRENT_TERM, ResourceName, roundToMinutes } from '@stex-react/utils';
-import axios, { AxiosResponse } from 'axios';
+import { AxiosResponse } from 'axios';
 import dayjs from 'dayjs';
 import type { NextPage } from 'next';
 import { useEffect, useState } from 'react';
@@ -123,7 +122,7 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId, quizId, onQuizI
   const [feedbackReleaseTs, setFeedbackReleaseTs] = useState<number>(roundToMinutes(Date.now()));
   const [courseTerm, setCourseTerm] = useState<string>(CURRENT_TERM);
   const [manuallySetPhase, setManuallySetPhase] = useState<Phase>(Phase.UNSET);
-  const [css, setCss] = useState<CSS[]>([]);
+  const [css, setCss] = useState<FTML.CSS[]>([]);
   const [quizzes, setQuizzes] = useState<QuizWithStatus[]>([]);
   const [problems, setProblems] = useState<Record<string, FTMLProblemWithSolution>>({});
   const [stats, setStats] = useState<QuizStatsResponse>({
@@ -152,24 +151,20 @@ const QuizDashboard: NextPage<QuizDashboardProps> = ({ courseId, quizId, onQuizI
   const [recorrectionDialogOpen, setRecorrectionDialogOpen] = useState(false);
 
   useEffect(() => {
-    axios
-      .get(`/api/quiz/get-all-quizzes?courseId=${courseId}&courseTerm=${courseTerm}`, {
-        headers: getAuthHeaders(),
-      })
-      .then((res) => {
-        const allQuizzes: QuizWithStatus[] = res.data;
-        allQuizzes?.sort((a, b) => b.quizStartTs - a.quizStartTs);
-        for (const q of allQuizzes ?? []) {
-          for (const css of q.css) injectCss(css);
-        }
-        setQuizzes(allQuizzes);
-        const validQuiz = allQuizzes.find((q) => q.id === quizId);
-
-        if (quizId !== NEW_QUIZ_ID && (!quizId || !validQuiz) && allQuizzes.length > 0) {
-          onQuizIdChange?.(allQuizzes[0].id);
-        }
-      });
-  }, [courseId, courseTerm, isNew, onQuizIdChange, quizId]);
+    async function fetchQuizzes() {
+      const allQuizzes: QuizWithStatus[] = await getAllQuizzes(courseId, courseTerm);
+      allQuizzes?.sort((a, b) => b.quizStartTs - a.quizStartTs);
+      for (const q of allQuizzes ?? []) {
+        for (const css of q.css || []) FTML.injectCss(css);
+      }
+      setQuizzes(allQuizzes);
+      const validQuiz = allQuizzes.find((q) => q.id === quizId);
+      if (quizId !== NEW_QUIZ_ID && (!quizId || !validQuiz) && allQuizzes.length > 0) {
+        onQuizIdChange?.(allQuizzes[0].id);
+      }
+    }
+    fetchQuizzes().catch((err) => console.error("Failed to fetch Quiz", err));
+  }, [courseId, courseTerm, onQuizIdChange, quizId]);
 
   useEffect(() => {
     if (!selectedQuizId || selectedQuizId === NEW_QUIZ_ID || quizzes.length === 0) return;

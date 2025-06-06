@@ -1,5 +1,6 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import axios, { AxiosError } from 'axios';
-import { ProblemResponse } from './ftml-viewer-base';
+
 import { getAuthHeaders } from './lmp';
 import {
   Excused,
@@ -14,7 +15,7 @@ import {
 export async function insertQuizResponse(
   quizId: string,
   problemId: string,
-  r: ProblemResponse
+  r: FTML.ProblemResponse
 ): Promise<boolean> {
   const req: InsertAnswerRequest = {
     quizId,
@@ -179,3 +180,12 @@ export async function checkPendingRecorrections() {
 
   return response.data;
 }
+
+export async function getAllQuizzes(courseId: string, courseTerm: string) {
+  const resp = await axios.get(
+    `/api/quiz/get-all-quizzes?courseId=${courseId}&courseTerm=${courseTerm}`,
+    { headers: getAuthHeaders() }
+  );
+  return resp.data;
+}
+

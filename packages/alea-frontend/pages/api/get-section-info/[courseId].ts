@@ -1,3 +1,4 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import {
   ClipData,
   ClipInfo,
@@ -5,7 +6,6 @@ import {
   getCourseInfo,
   getDocumentSections,
   SectionInfo,
-  TOCElem,
 } from '@stex-react/api';
 import { LectureEntry } from '@stex-react/utils';
 import { readdir, readFile } from 'fs/promises';
@@ -62,7 +62,7 @@ async function getVideoToSlidesMap(courseId: string) {
   return CACHED_VIDEO_SLIDESMAP[courseId];
 }
 
-function getAllSections(data: TOCElem, level = 0): SectionInfo | SectionInfo[] | undefined {
+function getAllSections(data: FTML.TOCElem, level = 0): SectionInfo | SectionInfo[] | undefined {
   const { type } = data;
   if (type === 'Paragraph' || type === 'Slide') return undefined;
   if (type === 'Section') {

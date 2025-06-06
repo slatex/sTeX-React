@@ -1,3 +1,4 @@
+import { FTMLFragment } from '@kwarc/ftml-react';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import { Box, Button, Link, Typography } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
@@ -22,7 +23,6 @@ import {
   getProblemsForConcept,
   uriWeightToSmileyLevel,
 } from '@stex-react/api';
-import { FTMLFragment } from '@stex-react/ftml-utils';
 import { PRIMARY_COL, PathToTour } from '@stex-react/utils';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
@@ -122,7 +122,7 @@ function QuizButton({ uri }: { uri: string }) {
 
 export function ConceptView({ uri }: { uri: string }) {
   const html = getFTMLForConceptView(uri);
-  return <FTMLFragment key={uri} fragment={{ html }} />;
+  return <FTMLFragment key={uri} fragment={{ type: 'HtmlString', html }} />;
 }
 
 export function CompetencyTable({

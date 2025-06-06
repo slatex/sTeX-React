@@ -1,3 +1,5 @@
+import { FLAMSServer, ProblemFeedbackJson } from '@kwarc/flams';
+import { FTML } from '@kwarc/ftml-viewer';
 import {
   COURSES_INFO,
   CURRENT_TERM,
@@ -7,24 +9,25 @@ import {
   waitForNSeconds,
 } from '@stex-react/utils';
 import axios from 'axios';
-import { FLAMSServer } from './flams';
-import { ArchiveIndex, FTMLProblem, Institution, ProblemResponse } from './flams-types';
+
 const server = new FLAMSServer(process.env['NEXT_PUBLIC_FLAMS_URL']!);
 
 export async function getDocumentSections(notesUri: string) {
   return (await server.contentToc({ uri: notesUri })) ?? [[], []];
 }
 
-export async function getFTMLQuiz(uri: string) {
+export async function getFTMLQuiz(uri: string): Promise<FTML.Quiz | undefined> {
   return await server.quiz({ uri });
 }
 
-export async function batchGradeHex(submissions: [string, (ProblemResponse | undefined)[]][]) {
+export async function batchGradeHex(
+  submissions: [string, (FTML.ProblemResponse | undefined)[]][]
+): Promise<ProblemFeedbackJson[][] | undefined> {
   return await server.batchGradeHex(...submissions);
 }
 
 export function computePointsFromFeedbackJson(
-  problem: FTMLProblem,
+  problem: FTML.QuizProblem,
   feedbackJson?: { score_fraction: number }
 ) {
   const fraction = feedbackJson?.score_fraction;
@@ -42,15 +45,15 @@ export interface Person {
   name: string;
 }
 
-let CACHED_ARCHIVE_INDEX: ArchiveIndex[] | undefined = undefined;
-let CACHED_INSTITUTION_INDEX: Institution[] | undefined = undefined;
+let CACHED_ARCHIVE_INDEX: FTML.ArchiveIndex[] | undefined = undefined;
+let CACHED_INSTITUTION_INDEX: FTML.Institution[] | undefined = undefined;
 
 export async function getDocIdx(institution?: string) {
   if (!CACHED_ARCHIVE_INDEX) {
     const res = await server.index();
     if (res) {
-      CACHED_INSTITUTION_INDEX = res[0] as Institution[];
-      CACHED_ARCHIVE_INDEX = res[1] as ArchiveIndex[];
+      CACHED_INSTITUTION_INDEX = res[0] as FTML.Institution[];
+      CACHED_ARCHIVE_INDEX = res[1] as FTML.ArchiveIndex[];
       CACHED_ARCHIVE_INDEX.forEach((doc) => {
         if (doc.type === 'course') {
           doc.instances = doc.instances?.map((i) => ({

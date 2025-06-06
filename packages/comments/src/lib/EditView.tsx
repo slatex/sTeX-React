@@ -1,9 +1,9 @@
+import {FTML} from '@kwarc/ftml-viewer';
 import { Box, Button, Checkbox, FormControlLabel } from '@mui/material';
 import {
   Comment,
   CommentType,
   QuestionStatus,
-  URI,
   addComment,
   editComment,
   getUserInfo,
@@ -16,7 +16,7 @@ import { discardDraft, retrieveDraft, saveDraft } from './comment-helpers';
 import { getLocaleObject } from './lang/utils';
 
 interface EditViewProps {
-  uri?: URI;
+  uri?: FTML.URI;
   isPrivateNote: boolean;
   postAnonymously: boolean;
   parentId?: number;

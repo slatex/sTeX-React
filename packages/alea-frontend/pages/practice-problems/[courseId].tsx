@@ -1,5 +1,6 @@
 import { CircularProgress } from '@mui/material';
-import { getCourseInfo, getDocumentSections, TOCElem } from '@stex-react/api';
+import { getCourseInfo, getDocumentSections } from '@stex-react/api';
+import { FTML } from '@kwarc/ftml-viewer';
 import { CourseInfo } from '@stex-react/utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
@@ -12,7 +13,7 @@ const CourseProblemsPage: NextPage = () => {
   const courseId = router.query.courseId as string;
 
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo } | undefined>(undefined);
-  const [sectionsData, setSectionsData] = useState<TOCElem[] | undefined>(undefined);
+  const [sectionsData, setSectionsData] = useState<FTML.TOCElem[] | undefined>(undefined);
 
   useEffect(() => {
     getCourseInfo().then(setCourses);

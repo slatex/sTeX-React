@@ -1,3 +1,4 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import SchoolIcon from '@mui/icons-material/School';
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import {
@@ -15,13 +16,12 @@ import { Action, CURRENT_TERM, isFauId, localStore, ResourceName } from '@stex-r
 import dayjs from 'dayjs';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
+import { isEmptyResponse } from 'packages/quiz-utils/src/lib/quiz-utils';
 import { useEffect, useState } from 'react';
 import { ForceFauLogin } from '../../components/ForceFAULogin';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
 import { handleEnrollment } from '../course-home/[courseId]';
-import { isEmptyResponse } from 'packages/quiz-utils/src/lib/quiz-utils';
-import { injectCss } from '@stex-react/ftml-utils';
 
 function ToBeStarted({ quizStartTs }: { quizStartTs?: number }) {
   const [showReload, setShowReload] = useState(false);
@@ -136,7 +136,7 @@ const QuizPage: NextPage = () => {
   useEffect(() => {
     if (!quizId) return;
     getQuiz(quizId).then((quizInfo) => {
-      for (const e of quizInfo.css || []) injectCss(e);
+      for (const e of quizInfo.css || []) FTML.injectCss(e);
 
       setQuizInfo(quizInfo);
       setProblems(quizInfo.problems);
