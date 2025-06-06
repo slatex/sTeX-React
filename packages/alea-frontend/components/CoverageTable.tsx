@@ -21,7 +21,6 @@ import { CURRENT_TERM } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import QuizHandler from './QuizHandler';
-const courseTerm = CURRENT_TERM;
 
 export interface CoverageEntry {
   id: string;
@@ -207,6 +206,7 @@ function CoverageRow({ item, quizMatch, originalIndex, onEdit, onDelete }: Cover
           >
             <EditIcon fontSize="small" />
           </IconButton>
+
           <IconButton
             size="small"
             color="error"
@@ -235,7 +235,7 @@ export function CoverageTable({ courseId, entries, onEdit, onDelete }: CoverageT
   useEffect(() => {
     async function fetchQuizzes() {
       try {
-        const allQuizzes = await getAllQuizzes(courseId, courseTerm);
+        const allQuizzes = await getAllQuizzes(courseId, CURRENT_TERM);
         const map: QuizMatchMap = {};
         entries.forEach((entry) => {
           const match = allQuizzes.find(

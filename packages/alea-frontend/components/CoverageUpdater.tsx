@@ -1,9 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Box, Typography, Paper, useTheme } from '@mui/material';
+import {
+  Box,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Paper,
+  Typography,
+  useTheme,
+} from '@mui/material';
 import { LectureEntry } from '@stex-react/utils';
+import { useEffect, useState } from 'react';
 import { Section } from '../types';
+import { CoverageForm, FormData } from './CoverageForm';
 import { CoverageTable } from './CoverageTable';
-import { CoverageForm } from './CoverageForm';
 
 export function getSectionNameForUri(uri: string, sectionNames: Section[]): string {
   const section = sectionNames.find(({ uri: sectionUri }) => sectionUri === uri);
@@ -32,27 +40,31 @@ function convertSnapToEntry(snap: LectureEntry, index: number): any {
 interface CoverageUpdaterProps {
   courseId: string;
   snaps: LectureEntry[];
-  setSnaps: React.Dispatch<React.SetStateAction<LectureEntry[]>>;
   sectionNames: Section[];
+  handleSave: (snaps: LectureEntry[]) => void;
 }
 
-export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: CoverageUpdaterProps) {
-  const [editIndex, setEditIndex] = useState<number | null>(null);
-  const [formData, setFormData] = useState({
+export function CoverageUpdater({
+  courseId,
+  snaps,
+  sectionNames,
+  handleSave,
+}: CoverageUpdaterProps) {
+  const [formData, setFormData] = useState<FormData>({
     sectionName: '',
     sectionUri: '',
     clipId: '',
-    selectedTimestamp: Date.now(),
+    timestamp_ms: Date.now(),
     targetSectionName: '',
     targetSectionUri: '',
     isQuizScheduled: false,
     slideUri: '',
     slideNumber: undefined as number | undefined,
   });
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editIndex, setEditIndex] = useState<number | null>(null);
 
   const theme = useTheme();
-  const formRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     if (snaps.length > 0) {
       const lastSnapUri = snaps[snaps.length - 1]?.sectionUri;
@@ -65,49 +77,25 @@ export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: Cov
     }
   }, [snaps, sectionNames]);
 
-  useEffect(() => {
-    setFormData((prev) => ({ ...prev, slideUri: '' }));
-  }, [formData.sectionName, formData.sectionUri]);
-
-  useEffect(() => {
-    if (editIndex !== null && formRef.current) {
-      formRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-        inline: 'nearest',
-      });
-    }
-  }, [editIndex]);
-
-  const handleEditItem = (index: number) => {
-    const itemToEdit = snaps[index];
-    const sectionNameToEdit = getSectionNameForUri(
-      itemToEdit.sectionUri || '',
-      sectionNames
-    ).trim();
-    const targetSectionNameToEdit = getSectionNameForUri(
-      itemToEdit.targetSectionUri || '',
-      sectionNames
-    ).trim();
-
-    setFormData({
-      sectionName: sectionNameToEdit || '',
-      sectionUri: itemToEdit.sectionUri || '',
-      targetSectionName: targetSectionNameToEdit || '',
-      targetSectionUri: itemToEdit.targetSectionUri || '',
-      clipId: itemToEdit.clipId || '',
-      selectedTimestamp: itemToEdit.timestamp_ms || Date.now(),
-      isQuizScheduled: itemToEdit.isQuizScheduled || false,
-      slideUri: itemToEdit.slideUri || '',
-      slideNumber: itemToEdit.slideNumber || undefined,
-    });
-
-    setEditIndex(index);
+  const handleDeleteItem = (index: number) => {
+    if (!confirm('Are you sure you want to delete this entry?')) return;
+    const updatedSnaps = snaps.filter((_, i) => i !== index);
+    handleSave(updatedSnaps);
   };
 
-  const handleDeleteItem = (index: number) => {
-    const updatedSnaps = snaps.filter((_, i) => i !== index);
-    setSnaps(updatedSnaps);
+  const handleCancelEdit = () => {
+    setFormData({
+      sectionName: '',
+      sectionUri: '',
+      clipId: '',
+      timestamp_ms: Date.now(),
+      targetSectionName: '',
+      targetSectionUri: '',
+      isQuizScheduled: false,
+      slideUri: '',
+      slideNumber: undefined,
+    });
+    setEditIndex(null);
   };
 
   const handleSubmitForm = (formData: any) => {
@@ -120,52 +108,51 @@ export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: Cov
       slideUri: formData.slideUri,
       slideNumber: formData.slideNumber,
     };
-
-    if (editIndex !== null) {
-      const updatedSnaps = [...snaps];
-      updatedSnaps[editIndex] = newItem;
-      setSnaps(updatedSnaps);
-      setEditIndex(null);
-    } else {
-      setSnaps([...snaps, newItem]);
-    }
-
     setFormData({
       sectionName: '',
       sectionUri: '',
       clipId: '',
-      selectedTimestamp: Date.now(),
+      timestamp_ms: Date.now(),
       targetSectionName: '',
       targetSectionUri: '',
       isQuizScheduled: false,
       slideUri: '',
       slideNumber: undefined,
     });
+    handleSave([...snaps, newItem]);
   };
 
-  const handleCancelEdit = () => {
-    setFormData({
-      sectionName: '',
-      sectionUri: '',
-      clipId: '',
-      selectedTimestamp: Date.now(),
-      targetSectionName: '',
-      targetSectionUri: '',
-      isQuizScheduled: false,
-      slideUri: '',
-      slideNumber: undefined,
-    });
+  const handleEditDialogOpen = (entry: FormData, index: number) => {
+    console.log("setformdata", entry.slideUri);
+
+    setFormData({ ...entry });
+    setEditIndex(index);
+    setEditDialogOpen(true);
+  };
+
+  const handleEditDialogClose = () => {
+    setEditDialogOpen(false);
+    handleCancelEdit();
     setEditIndex(null);
+  };
+
+  const handleEditDialogSave = (data: FormData) => {
+    if (editIndex === null) {
+      return;
+    }
+    const updatedSnaps = [...snaps];
+    updatedSnaps[editIndex] = { ...data };
+    handleSave(updatedSnaps);
+    handleEditDialogClose();
   };
 
   const coverageEntries = snaps.map((snap, index) => {
     const entry = convertSnapToEntry(snap, index);
-
     entry.sectionName = getSectionNameForUri(snap.sectionUri || '', sectionNames);
     entry.targetSectionName = getSectionNameForUri(snap.targetSectionUri || '', sectionNames);
-
     return entry;
   });
+
   return (
     <Box sx={{ width: '100%' }}>
       {snaps.length > 0 ? (
@@ -173,7 +160,7 @@ export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: Cov
           <CoverageTable
             courseId={courseId}
             entries={coverageEntries}
-            onEdit={handleEditItem}
+            onEdit={(idx) => handleEditDialogOpen(coverageEntries[idx], idx)}
             onDelete={handleDeleteItem}
           />
         </>
@@ -196,35 +183,45 @@ export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: Cov
           </Typography>
         </Box>
       )}
-
+      <Dialog open={editDialogOpen} onClose={handleEditDialogClose} maxWidth="md" fullWidth>
+        <DialogTitle>Edit Coverage Entry</DialogTitle>
+        <DialogContent>
+          <br />
+          <CoverageForm
+            formData={formData}
+            setFormData={setFormData}
+            sectionNames={sectionNames}
+            isEditing={true}
+            onSubmit={handleEditDialogSave}
+            onCancel={handleEditDialogClose}
+            courseId={courseId}
+          />
+        </DialogContent>
+      </Dialog>
       <Paper
-        ref={formRef}
         elevation={3}
         sx={{
           p: { xs: 2, sm: 3 },
           mt: 4,
           mb: 3,
           borderRadius: 2,
-          border: editIndex !== null ? `1px solid ${theme.palette.primary.main}` : 'none',
         }}
       >
-        <Typography
-          variant="h6"
-          gutterBottom
-          color={editIndex !== null ? 'primary' : 'textPrimary'}
-        >
-          {editIndex !== null ? 'Edit Lecture Entry' : 'Add New Lecture'}
+        <Typography variant="h6" gutterBottom color={'textPrimary'}>
+          Add New Lecture
         </Typography>
 
-        <CoverageForm
-          courseId={courseId}
-          formData={formData}
-          setFormData={setFormData}
-          sectionNames={sectionNames}
-          isEditing={editIndex !== null}
-          onSubmit={handleSubmitForm}
-          onCancel={handleCancelEdit}
-        />
+        {!editDialogOpen && (
+          <CoverageForm
+            courseId={courseId}
+            formData={formData}
+            setFormData={setFormData}
+            sectionNames={sectionNames}
+            isEditing={false}
+            onSubmit={handleSubmitForm}
+            onCancel={handleCancelEdit}
+          />
+        )}
       </Paper>
     </Box>
   );
