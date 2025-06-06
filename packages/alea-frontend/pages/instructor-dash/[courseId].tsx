@@ -118,7 +118,13 @@ const InstructorDash: NextPage = () => {
   const [accessibleTabs, setAccessibleTabs] = useState<TabName[] | undefined>(undefined); // undefined means loading
   const [currentTabIdx, setCurrentTabIdx] = useState<number>(0);
 
-  const [quizId, setQuizId] = useState<string | undefined>(router.query.quizId as string);
+  const [quizId, setQuizId] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (router.isReady) {
+      setQuizId(router.query.quizId as string);
+    }
+  }, [router.isReady, router.query.quizId]);
 
   const handleQuizIdChange = (newQuizId: string) => {
     if (quizId === newQuizId) return;

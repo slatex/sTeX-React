@@ -1,12 +1,10 @@
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import QuizIcon from '@mui/icons-material/Quiz';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
 import {
   Box,
   Button,
-  Chip,
   IconButton,
   Paper,
   Table,
@@ -18,9 +16,13 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import { getAllQuizzes, QuizWithStatus } from '@stex-react/api';
+import { CURRENT_TERM } from '@stex-react/utils';
 import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
+import QuizHandler from './QuizHandler';
 
-interface CoverageEntry {
+export interface CoverageEntry {
   id: string;
   timestamp_ms: number;
   sectionName: string;
@@ -33,7 +35,12 @@ interface CoverageEntry {
   slideNumber?: number;
 }
 
+interface QuizMatchMap {
+  [timestamp_ms: number]: QuizWithStatus | null;
+}
+
 interface CoverageTableProps {
+  courseId: string;
   entries: CoverageEntry[];
   onEdit: (index: number) => void;
   onDelete: (index: number) => void;
@@ -41,6 +48,7 @@ interface CoverageTableProps {
 
 interface CoverageRowProps {
   item: CoverageEntry;
+  quizMatch: QuizWithStatus | null;
   originalIndex: number;
   onEdit: (index: number) => void;
   onDelete: (index: number) => void;
@@ -63,7 +71,7 @@ const formatSectionWithSlide = (sectionName: string, slideNumber?: number, slide
   }
 };
 
-function CoverageRow({ item, originalIndex, onEdit, onDelete }: CoverageRowProps) {
+function CoverageRow({ item, quizMatch, originalIndex, onEdit, onDelete }: CoverageRowProps) {
   const now = dayjs();
   const itemDate = dayjs(item.timestamp_ms);
   const isPast = itemDate.isBefore(now, 'day');
@@ -179,13 +187,7 @@ function CoverageRow({ item, originalIndex, onEdit, onDelete }: CoverageRowProps
         )}
       </TableCell>
       <TableCell>
-        {item.isQuizScheduled ? (
-          <Chip icon={<QuizIcon />} label="Scheduled" size="small" color="warning" />
-        ) : (
-          <Typography variant="body2" color="text.secondary">
-            <i>No Quiz</i>
-          </Typography>
-        )}
+        <QuizHandler currentEntry={item} quiz={quizMatch} />
       </TableCell>
       <TableCell>
         <Box sx={{ display: 'flex', gap: 1 }}>
@@ -226,8 +228,29 @@ function CoverageRow({ item, originalIndex, onEdit, onDelete }: CoverageRowProps
   );
 }
 
-export function CoverageTable({ entries, onEdit, onDelete }: CoverageTableProps) {
+export function CoverageTable({ courseId, entries, onEdit, onDelete }: CoverageTableProps) {
   const sortedEntries = [...entries].sort((a, b) => a.timestamp_ms - b.timestamp_ms);
+  const [quizMatchMap, setQuizMatchMap] = useState<QuizMatchMap>({});
+
+  useEffect(() => {
+    async function fetchQuizzes() {
+      try {
+        const allQuizzes = await getAllQuizzes(courseId, CURRENT_TERM);
+        const map: QuizMatchMap = {};
+        entries.forEach((entry) => {
+          const match = allQuizzes.find(
+            (quiz) => Math.abs(quiz.quizStartTs - entry.timestamp_ms) < 12 * 60 * 60 * 1000
+          );
+          map[entry.timestamp_ms] = match || null;
+        });
+        setQuizMatchMap(map);
+      } catch (err) {
+        console.error('Error fetching quizzes:', err);
+      }
+    }
+
+    fetchQuizzes();
+  }, [courseId]);
 
   return (
     <TableContainer component={Paper} elevation={2} sx={{ borderRadius: 2, mb: 3 }}>
@@ -258,6 +281,7 @@ export function CoverageTable({ entries, onEdit, onDelete }: CoverageTableProps)
               <CoverageRow
                 key={`${item.timestamp_ms}-${idx}`}
                 item={item}
+                quizMatch={quizMatchMap[item.timestamp_ms] || null}
                 originalIndex={originalIndex}
                 onEdit={onEdit}
                 onDelete={onDelete}

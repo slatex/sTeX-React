@@ -158,6 +158,7 @@ export function CoverageUpdater({
       {snaps.length > 0 ? (
         <>
           <CoverageTable
+            courseId={courseId}
             entries={coverageEntries}
             onEdit={(idx) => handleEditDialogOpen(coverageEntries[idx], idx)}
             onDelete={handleDeleteItem}
