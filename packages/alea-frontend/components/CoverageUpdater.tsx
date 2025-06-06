@@ -34,9 +34,10 @@ interface CoverageUpdaterProps {
   snaps: LectureEntry[];
   setSnaps: React.Dispatch<React.SetStateAction<LectureEntry[]>>;
   sectionNames: Section[];
+  handleSave: () => void;
 }
 
-export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: CoverageUpdaterProps) {
+export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames, handleSave }: CoverageUpdaterProps) {
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [formData, setFormData] = useState({
     sectionName: '',
@@ -141,6 +142,7 @@ export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: Cov
       slideUri: '',
       slideNumber: undefined,
     });
+    handleSave();
   };
 
   const handleCancelEdit = () => {

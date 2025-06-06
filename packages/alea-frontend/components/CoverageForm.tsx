@@ -55,7 +55,7 @@ export function CoverageForm({
   courseId,
 }: CoverageFormProps) {
   useEffect(() => {
-    let updatedData = { ...formData };
+    const updatedData = { ...formData };
     let dataChanged = false;
 
     if (formData.sectionName && formData.sectionName.trim() !== '' && !formData.sectionUri) {
