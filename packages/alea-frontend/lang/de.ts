@@ -424,6 +424,8 @@ export const de = {
     unansweredQuestions:'Unbeantwortete Fragen',
     latestQuiz:'Neuestes Quiz',
     pastQuiz: 'Vergangenes Quiz',
+    prepared: 'Vorbereitet',
+    getPrepared: 'Mach Dich Bereit',
     prepareQuiz : 'Quiz vorbereiten',
     futureQuizzesReady: 'Bevorstehendes Quiz',
     latestHomework:'neueste Hausaufgaben',

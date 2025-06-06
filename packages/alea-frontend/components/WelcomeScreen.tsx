@@ -169,7 +169,6 @@ async function getLastUpdatedQuiz(
     const timestamp = latestQuiz.quizStartTs;
     const description = `${r.pastQuiz}: ${dayjs(timestamp).format('YYYY-MM-DD')}`;
     const timeAgo = null;
-
     const coverageQuizData = await getCoverageTimeline();
     const courseQuizData = coverageQuizData[courseId];
     if (courseQuizData && courseQuizData.length > 0) {
@@ -219,15 +218,13 @@ async function getLastUpdatedQuiz(
 
           if (quizNotReady) {
             return {
-              description: `${r.futureQuizzesReady, r.prepareQuiz}: ${dayjs(quizNotReady.timestamp_ms).format(
-                'YYYY-MM-DD'
-              )}`,
+              description: `${r.futureQuizzesReady, r.prepareQuiz}: ${dayjs(quizNotReady.timestamp_ms).format('YYYY-MM-DD')}\n ${r.getPrepared}`,
               timeAgo: calculateTimeAgo(quizNotReady.timestamp_ms.toString()),
               timestamp: quizNotReady.timestamp_ms.toString(),
               quizId: null,
               colorInfo: {
-                color: 'text.secondary',
-                type: 'default' as const,
+                color: 'orange',
+                type: 'updates_pending',
               },
             };
           }
@@ -237,20 +234,17 @@ async function getLastUpdatedQuiz(
       if (futureQuizzesReady) {
         const timestamp = futureQuizzesReady.quiz.quizStartTs;
         return {
-          description: `${r.futureQuizzesReady}: ${dayjs(timestamp).format(
-            'YYYY-MM-DD'
-          )}`,
+          description: `${r.futureQuizzesReady}: ${dayjs(timestamp).format('YYYY-MM-DD')}\n ${r.prepared}`,
           timeAgo: calculateTimeAgo(timestamp.toString()),
           timestamp: timestamp.toString(),
           quizId: futureQuizzesReady.quizId,
           colorInfo: {
-            color: 'text.secondary',
+            color: 'blue',
             type: 'default' as const,
           },
         };
       }
     }
-
     return {
       description,
       timeAgo,

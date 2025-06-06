@@ -447,6 +447,9 @@ export const en = {
     unansweredQuestions: 'Unanswered Questions',
     latestQuiz:'Latest Quiz',
     pastQuiz: 'Past Quiz',
+    prepareQuiz : 'Prepare Quiz' ,
+    prepared: 'Prepared',
+    getPrepared: 'Get Prepared',
     futureQuizzesReady :'Upcoming Quiz',
     latestHomework:'Latest Homework',
     noHomeworkAvailable:'No homework available'
