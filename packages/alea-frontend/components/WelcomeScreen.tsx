@@ -26,6 +26,7 @@ import {
   getHomeworkList,
   getUserInfo,
   QuestionStatus,
+  QuizStubInfo,
   UserInfo,
 } from '@stex-react/api';
 import {
@@ -173,6 +174,7 @@ async function getLastUpdatedQuiz(
     const courseQuizData = coverageQuizData[courseId];
     if (courseQuizData && courseQuizData.length > 0) {
       const entriesWithSection = courseQuizData.filter((entry) => entry.isQuizScheduled);
+
       const matchQuizEntry = entriesWithSection
         .map((entry) => {
           const matchQuiz = quizList.find(
@@ -202,10 +204,11 @@ async function getLastUpdatedQuiz(
         };
       }
 
-      let futureQuizzesReady: (typeof quizList)[0] | null = null;
+      let futureQuizzesReady: { entry: number; quiz: QuizStubInfo } | null = null;
+
       futureQuizzesReady =
         matchQuizEntry
-          .filter((m) => dayjs(m.quiz.quizStartTs).isAfter(today))
+          .filter((m) => m.quiz.quizStartTs && dayjs(m.quiz.quizStartTs).isAfter(today))
           .sort((a, b) => a.quiz.quizStartTs - b.quiz.quizStartTs)[0] || null;
 
       if (!futureQuizzesReady) {
@@ -215,10 +218,11 @@ async function getLastUpdatedQuiz(
 
         if (futureEntryNotReady) {
           const quizNotReady = futureEntryNotReady[0];
-
           if (quizNotReady) {
             return {
-              description: `${r.futureQuizzesReady, r.prepareQuiz}: ${dayjs(quizNotReady.timestamp_ms).format('YYYY-MM-DD')}\n ${r.getPrepared}`,
+              description: `${r.futureQuizzesReady}: ${dayjs(quizNotReady.timestamp_ms).format(
+                'YYYY-MM-DD'
+              )}\n ${r.getPrepared}`,
               timeAgo: calculateTimeAgo(quizNotReady.timestamp_ms.toString()),
               timestamp: quizNotReady.timestamp_ms.toString(),
               quizId: null,
@@ -234,10 +238,12 @@ async function getLastUpdatedQuiz(
       if (futureQuizzesReady) {
         const timestamp = futureQuizzesReady.quiz.quizStartTs;
         return {
-          description: `${r.futureQuizzesReady}: ${dayjs(timestamp).format('YYYY-MM-DD')}\n ${r.prepared}`,
+          description: `${r.futureQuizzesReady}: ${dayjs(timestamp).format('YYYY-MM-DD')}\n ${
+            r.prepared
+          }`,
           timeAgo: calculateTimeAgo(timestamp.toString()),
           timestamp: timestamp.toString(),
-          quizId: futureQuizzesReady.quizId,
+          quizId: futureQuizzesReady.quiz.quizId,
           colorInfo: {
             color: 'blue',
             type: 'default' as const,
