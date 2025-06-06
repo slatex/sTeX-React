@@ -423,6 +423,11 @@ export const de = {
     ungradedProblems:'Unbenotete Aufgaben',
     unansweredQuestions:'Unbeantwortete Fragen',
     latestQuiz:'Neuestes Quiz',
+    pastQuiz: 'Vergangenes Quiz',
+    prepared: 'Vorbereitet',
+    getPrepared: 'Mach Dich Bereit',
+    prepareQuiz : 'Quiz vorbereiten',
+    futureQuizzesReady: 'Bevorstehendes Quiz',
     latestHomework:'neueste Hausaufgaben',
     noHomeworkAvailable:'Keine Hausaufgaben verfügbar'
   },
