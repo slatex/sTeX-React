@@ -175,6 +175,11 @@ export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: Cov
             entries={coverageEntries}
             onEdit={handleEditItem}
             onDelete={handleDeleteItem}
+            sectionList={sectionNames.map(({ title, uri }) => ({
+              id: uri,
+              title,
+              uri,
+            }))}
           />
         </>
       ) : (

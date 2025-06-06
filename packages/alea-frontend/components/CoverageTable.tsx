@@ -45,6 +45,7 @@ interface CoverageTableProps {
   entries: CoverageEntry[];
   onEdit: (index: number) => void;
   onDelete: (index: number) => void;
+  sectionList: Array<{ id: string; title: string; uri: string }>;
 }
 
 interface CoverageRowProps {
@@ -228,7 +229,85 @@ function CoverageRow({ item, quizMatch, originalIndex, onEdit, onDelete }: Cover
   );
 }
 
-export function CoverageTable({ courseId, entries, onEdit, onDelete }: CoverageTableProps) {
+function calculateLectureProgress(
+  entries: CoverageEntry[],
+  sectionList: Array<{ title: string; uri: string }>
+) {
+  const normalize = (s: string) => s?.trim().toLowerCase() || '';
+  const sectionToIndex = new Map(sectionList.map((s, i) => [normalize(s.title), i]));
+  const targetSectionsWithIndices = entries
+    .map((entry) => {
+      const normalizedName = normalize(entry.targetSectionName);
+      const index = sectionToIndex.get(normalizedName);
+      return index !== undefined ? { targetSectionName: entry.targetSectionName, index } : null;
+    })
+    .filter(Boolean) as Array<{ targetSectionName: string; index: number }>;
+  let lastFilledSectionEntry: CoverageEntry | null = null;
+  for (const entry of entries) {
+    if (entry.sectionName && entry.sectionName.trim() !== '') {
+      lastFilledSectionEntry = entry;
+    }
+  }
+  const lastFilledSectionIdx =
+    sectionToIndex.get(normalize(lastFilledSectionEntry?.sectionName)) ?? -1;
+
+  const lastEligibleTargetSectionIdx =
+    sectionToIndex.get(normalize(lastFilledSectionEntry?.targetSectionName)) ?? -1;
+  let progressStatus = '';
+  if (lastEligibleTargetSectionIdx !== -1 && lastFilledSectionIdx !== -1) {
+    let progressCovered = 0;
+    let totalTarget = 0;
+    for (const s of targetSectionsWithIndices) {
+      if (s.index <= lastFilledSectionIdx) progressCovered++;
+      if (s.index <= lastEligibleTargetSectionIdx) totalTarget++;
+    }
+    const isLastSectionInTargets = targetSectionsWithIndices.some(
+      (s) => s.index === lastFilledSectionIdx
+    );
+    if (!isLastSectionInTargets) {
+      progressCovered += 0.5;
+    }
+    const difference = progressCovered - totalTarget;
+    const absDiff = Math.abs(difference);
+    let description = '';
+    const roundedBottom = Math.floor(absDiff);
+    const roundedUp = Math.ceil(absDiff);
+
+    const fractionalPart = absDiff - roundedBottom;
+    if (absDiff === 0) {
+      description = 'on track';
+    } else if (absDiff < 1) {
+      description = difference > 0 ? 'slightly ahead' : 'slightly behind';
+    } else if (fractionalPart < 0.9 && fractionalPart > 0) {
+      const lecturesCount = difference > 0 ? roundedBottom : roundedUp;
+      description = `Over ${lecturesCount} lecture${lecturesCount !== 1 ? 's' : ''} ${
+        difference > 0 ? 'ahead' : 'behind'
+      } `;
+    } else {
+      description = ` ${Math.round(absDiff)} lectures ${difference > 0 ? 'ahead' : 'behind'}`;
+    }
+
+    progressStatus = description;
+  }
+  return progressStatus || 'Progress unknown';
+}
+
+const getProgressStatusColor = (status: string) => {
+  if (status.includes('ahead')) return 'success.main';
+  if (status.includes('behind')) return 'error.main';
+  if (status.includes('on track')) return 'success.main';
+  return 'info.main';
+};
+
+const getProgressIcon = (status: string) => {
+  if (status.includes('ahead')) return '🚀';
+  if (status.includes('behind')) return '⚠️';
+  if (status.includes('on track')) return '✅';
+  return '📊';
+};
+
+export function CoverageTable({ courseId,entries, onEdit, onDelete, sectionList }: CoverageTableProps) {
+  const status = calculateLectureProgress(entries, sectionList);
   const sortedEntries = [...entries].sort((a, b) => a.timestamp_ms - b.timestamp_ms);
   const [quizMatchMap, setQuizMatchMap] = useState<QuizMatchMap>({});
 
@@ -251,46 +330,124 @@ export function CoverageTable({ courseId, entries, onEdit, onDelete }: CoverageT
 
     fetchQuizzes();
   }, [courseId]);
-
+  
   return (
-    <TableContainer component={Paper} elevation={2} sx={{ borderRadius: 2, mb: 3 }}>
+    <Box>
+      <Paper 
+        elevation={3} 
+        sx={{
+          p: 3,
+          mb: 3,
+          borderRadius: 3,
+          background: 'linear-gradient(135deg, rgba(25, 118, 210, 0.05) 0%, rgba(25, 118, 210, 0.1) 100%)',
+          border: `2px solid ${getProgressStatusColor(status)}`,
+          position: 'relative',
+          overflow: 'hidden',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '4px',
+            background: `linear-gradient(90deg, ${getProgressStatusColor(status)}, transparent)`,
+          }
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box
+            sx={{
+              fontSize: '2rem',
+              animation: status.includes('behind') ? 'pulse 2s infinite' : 'none',
+            }}
+          >
+            {getProgressIcon(status)}
+          </Box>
+          <Box sx={{ flex: 1 }}>
+            <Typography 
+              variant="h6" 
+              sx={{ 
+                fontWeight: 'bold',
+                color: 'text.primary',
+                mb: 0.5
+              }}
+            >
+              Lecture Progress Status
+            </Typography>
+            <Typography 
+              variant="h5" 
+              sx={{ 
+                fontWeight: 'bold',
+                color: getProgressStatusColor(status),
+                textTransform: 'capitalize',
+                letterSpacing: '0.5px'
+              }}
+            >
+              {status}
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              minWidth: '60px',
+              height: '60px',
+              borderRadius: '50%',
+              bgcolor: getProgressStatusColor(status),
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: 0.1,
+              fontSize: '1.5rem'
+            }}
+          >
+            📚
+          </Box>
+        </Box>
+      </Paper>
+
       <style>
         {`
           @keyframes blink {
             0%, 50% { opacity: 1; }
             51%, 100% { opacity: 0.3; }
           }
+          @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+          }
         `}
       </style>
-      <Table sx={{ minWidth: 650 }} size="medium">
-        <TableHead>
-          <TableRow sx={{ bgcolor: 'primary.light' }}>
-            <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Date</TableCell>
-            <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Section Completed</TableCell>
-            <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Target Section</TableCell>
-            <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Clip</TableCell>
-            <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Quiz</TableCell>
-            <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Actions</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {sortedEntries.map((item, idx) => {
-            const originalIndex = entries.findIndex((entry) => entry.id === item.id);
 
-            return (
-              <CoverageRow
-                key={`${item.timestamp_ms}-${idx}`}
-                item={item}
-                quizMatch={quizMatchMap[item.timestamp_ms] || null}
-                originalIndex={originalIndex}
-                onEdit={onEdit}
-                onDelete={onDelete}
-              />
-            );
-          })}
-        </TableBody>
-      </Table>
-    </TableContainer>
+      <TableContainer component={Paper} elevation={2} sx={{ borderRadius: 2, mb: 3 }}>
+        <Table sx={{ minWidth: 650 }} size="medium">
+          <TableHead>
+            <TableRow sx={{ bgcolor: 'primary.light' }}>
+              <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Date</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Section Completed</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Target Section</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Clip</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Quiz</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {sortedEntries.map((item, idx) => {
+              const originalIndex = entries.findIndex((entry) => entry.id === item.id);
+
+              return (
+                <CoverageRow
+                  key={`${item.timestamp_ms}-${idx}`}
+                  item={item}
+                  quizMatch={quizMatchMap[item.timestamp_ms] || null}
+                  originalIndex={originalIndex}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                />
+              );
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
   );
 }
 
