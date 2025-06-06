@@ -194,7 +194,9 @@ const QuizComponent = ({
   return (
     <Accordion expanded={showQuiz} onChange={() => setShowQuiz(!showQuiz)}>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography variant="h6">Generate Quiz Questions</Typography>
+        <Typography variant="h6" flexGrow={1}>
+          Generate Quiz Questions
+        </Typography>
         {!showQuiz && (
           <Button onClick={handleGenerate} variant="contained" size="small" disabled={loading}>
             {loading ? 'Generating...' : 'Generate'}
@@ -204,7 +206,7 @@ const QuizComponent = ({
 
       <AccordionDetails>
         {questions.length > 0 && (
-          <Paper sx={{ borderRadius: 3, p: 1.5 }}>
+          <Paper sx={{ borderRadius: 3, p: 1.5, boxShadow: '0px -2px 10px rgba(0, 0, 0, 0.25)' }}>
             <Typography variant="h5" mb={1}>
               Quiz - Question {currentIdx + 1} of {questions.length}
             </Typography>
