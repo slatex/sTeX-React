@@ -1,8 +1,13 @@
-import React, { Dispatch, SetStateAction, useEffect } from 'react';
+import AddIcon from '@mui/icons-material/Add';
+import ClearIcon from '@mui/icons-material/Clear';
+import QuizIcon from '@mui/icons-material/Quiz';
+import SaveIcon from '@mui/icons-material/Save';
+import SlideshowIcon from '@mui/icons-material/Slideshow';
 import {
   Box,
   Button,
   Checkbox,
+  Divider,
   FormControl,
   FormControlLabel,
   Grid,
@@ -11,29 +16,18 @@ import {
   Select,
   TextField,
   Typography,
-  Divider,
 } from '@mui/material';
+import { LectureEntry } from '@stex-react/utils';
 import dayjs from 'dayjs';
+import React, { Dispatch, SetStateAction, useEffect } from 'react';
 import { Section } from '../types';
-import { SlidePicker } from './SlideSelector';
 import { getNoonTimestampOnSameDay } from './CoverageUpdater';
-import AddIcon from '@mui/icons-material/Add';
-import ClearIcon from '@mui/icons-material/Clear';
-import QuizIcon from '@mui/icons-material/Quiz';
-import SaveIcon from '@mui/icons-material/Save';
-import SlideshowIcon from '@mui/icons-material/Slideshow';
+import { SlidePicker } from './SlideSelector';
 
-interface FormData {
+export type FormData = LectureEntry & {
   sectionName: string;
-  sectionUri: string;
-  clipId: string;
-  selectedTimestamp: number;
   targetSectionName: string;
-  targetSectionUri: string;
-  isQuizScheduled: boolean;
-  slideUri: string;
-  slideNumber?: number;
-}
+};
 
 interface CoverageFormProps {
   formData: FormData;
@@ -94,14 +88,14 @@ export function CoverageForm({
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const timestamp = Date.parse(e.target.value);
-    setFormData({ ...formData, selectedTimestamp: getNoonTimestampOnSameDay(timestamp) });
+    setFormData({ ...formData, timestamp_ms: getNoonTimestampOnSameDay(timestamp) });
   };
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, isQuizScheduled: e.target.checked });
   };
 
-  const handleSlideUriChange = (uri: string, slideNumber: number) => {
+  const handleSlideUriChange = (uri: string | undefined, slideNumber: number | undefined) => {
     setFormData({ ...formData, slideUri: uri, slideNumber });
   };
 
@@ -161,7 +155,7 @@ export function CoverageForm({
           label="Date"
           type="date"
           name="date"
-          value={dayjs(formData.selectedTimestamp).format('YYYY-MM-DD')}
+          value={dayjs(formData.timestamp_ms).format('YYYY-MM-DD')}
           onChange={handleDateChange}
           InputLabelProps={{
             shrink: true,
@@ -236,7 +230,7 @@ export function CoverageForm({
           sectionUri={formData.sectionUri}
           slideUri={formData.slideUri}
           setSlideUri={handleSlideUriChange}
-          sectionNames={sectionNames}
+          allCourseSections={sectionNames}
         />
       </Grid>
 

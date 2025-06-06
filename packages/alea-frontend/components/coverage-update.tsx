@@ -6,9 +6,9 @@ import {
   CircularProgress,
   Container,
   Paper,
+  Snackbar,
   Typography,
 } from '@mui/material';
-import { keyframes } from '@mui/system';
 import { getAuthHeaders, getCourseInfo, getDocumentSections } from '@stex-react/api';
 import {
   convertHtmlStringToPlain,
@@ -17,7 +17,6 @@ import {
   LectureEntry,
 } from '@stex-react/utils';
 import axios from 'axios';
-import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { Section } from '../types';
@@ -42,23 +41,9 @@ function getSectionNames(data: FTML.TOCElem, level = 0): Section[] {
   return sections;
 }
 
-const bounce = keyframes`
-  0% { transform: rotate(0) translateY(0px); }
-  15% { transform: rotate(5deg) translateY(-4px); }
-  30% { transform: rotate(-5deg) translateY(-8px);}
-  45% { transform: rotate(4deg) translateY(-12px); }
-  60% { transform: rotate(-4deg) translateY(-12px); }
-  75% { transform: rotate(2deg) translateY(-8px); }
-  85% { transform: rotate(-2deg) translateY(-4px); }
-  92% { transform: rotate(1deg) translateY(-2px); }
-  100% { transform: rotate(0) translateY(0px); }
-`;
-
-const CoverageUpdatePage: NextPage = () => {
+const CoverageUpdateTab = () => {
   const router = useRouter();
   const courseId = router.query.courseId as string;
-  const currentTab = router.query.tab as string;
-  const [allSectionNames, setAllSectionNames] = useState<{ [courseId: string]: Section[] }>({});
   const [sectionNames, setSectionNames] = useState<Section[]>([]);
   const [snaps, setSnaps] = useState<LectureEntry[]>([]);
   const [coverageTimeline, setCoverageTimeline] = useState<CoverageTimeline>({});
@@ -81,26 +66,15 @@ const CoverageUpdatePage: NextPage = () => {
 
   useEffect(() => {
     const getSections = async () => {
-      if (!Object.keys(courses).length) return;
+      const courseInfo = courses?.[courseId];
+      if (!courseInfo) return;
+      const { notes: notesUri } = courseInfo;
       setLoading(true);
       try {
-        const sectionPromises = Object.keys(courses).map(async (courseId) => {
-          const { notes } = courses[courseId];
-          try {
-            const tocResp = await getDocumentSections(notes);
-            const docSections = tocResp[1];
-            return { courseId, sections: docSections.flatMap((d) => getSectionNames(d)) };
-          } catch (error) {
-            console.error(`Failed to fetch sections for ${courseId}:`, error);
-            return { courseId, sections: [] };
-          }
-        });
-        const results = await Promise.all(sectionPromises);
-        const secNames = results.reduce((acc, { courseId, sections }) => {
-          acc[courseId] = sections;
-          return acc;
-        }, {} as { [courseId: string]: Section[] });
-        setAllSectionNames(secNames);
+        const tocResp = await getDocumentSections(notesUri);
+        const docSections = tocResp[1];
+        const sections = docSections.flatMap((d) => getSectionNames(d));
+        setSectionNames(sections);
       } catch (error) {
         console.error('Failed to fetch all sections:', error);
         setSaveMessage({
@@ -113,7 +87,7 @@ const CoverageUpdatePage: NextPage = () => {
     };
 
     getSections();
-  }, [courses]);
+  }, [courses, courseId]);
 
   useEffect(() => {
     if (!router.isReady || !courseId?.length) return;
@@ -121,26 +95,17 @@ const CoverageUpdatePage: NextPage = () => {
     setSnaps(courseSnaps);
   }, [coverageTimeline, courseId, router.isReady]);
 
-  useEffect(() => {
-    if (!router.isReady || !courseId?.length) return;
-    setSectionNames(allSectionNames[courseId] || []);
-  }, [allSectionNames, courseId, router.isReady]);
-
-  const handleSave = async () => {
+  const handleSave = async (newSnaps: LectureEntry[]) => {
     setLoading(true);
     try {
-      const body = { courseId, snaps };
+      const body = { courseId, snaps: newSnaps };
       const headers = getAuthHeaders();
       await axios.post('/api/set-coverage-timeline', body, { headers });
-      setSnaps(JSON.parse(JSON.stringify(snaps))); // Create a deep copy
+      setSnaps(newSnaps);
       setSaveMessage({
         type: 'success',
         message: 'Coverage data saved successfully!',
       });
-
-      setTimeout(() => {
-        setSaveMessage(null);
-      }, 3000);
     } catch (error) {
       console.error('Error saving coverage:', error);
       setSaveMessage({
@@ -172,17 +137,18 @@ const CoverageUpdatePage: NextPage = () => {
             Syllabus for {courseId}
           </Typography>
 
-          {saveMessage && (
-            <Alert severity={saveMessage.type} sx={{ mb: 2 }} onClose={() => setSaveMessage(null)}>
-              {saveMessage.message}
-            </Alert>
-          )}
+          <Snackbar
+            open={!!saveMessage}
+            autoHideDuration={8000}
+            onClose={() => setSaveMessage(null)}
+          >
+            <Alert severity={saveMessage?.type}>{saveMessage?.message}</Alert>
+          </Snackbar>
 
           <Box sx={{ mt: 2, overflow: 'auto' }}>
             <CoverageUpdater
               courseId={courseId}
               snaps={snaps}
-              setSnaps={setSnaps}
               sectionNames={sectionNames}
               handleSave={handleSave}
             />
@@ -197,4 +163,4 @@ const CoverageUpdatePage: NextPage = () => {
   );
 };
 
-export default CoverageUpdatePage;
+export default CoverageUpdateTab;

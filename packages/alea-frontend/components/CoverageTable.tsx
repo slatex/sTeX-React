@@ -1,4 +1,8 @@
-import React from 'react';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import QuizIcon from '@mui/icons-material/Quiz';
+import SlideshowIcon from '@mui/icons-material/Slideshow';
 import {
   Box,
   Button,
@@ -15,11 +19,6 @@ import {
   Typography,
 } from '@mui/material';
 import dayjs from 'dayjs';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import QuizIcon from '@mui/icons-material/Quiz';
-import SlideshowIcon from '@mui/icons-material/Slideshow';
 
 interface CoverageEntry {
   id: string;
@@ -72,11 +71,11 @@ function CoverageRow({ item, originalIndex, onEdit, onDelete }: CoverageRowProps
   const isToday = itemDate.isSame(now, 'day');
   const isNoSection = !item.sectionName || item.sectionName.trim() === '';
   const shouldHighlightNoSection = isNoSection && (isPast || isToday);
-  
+
   let backgroundColor = 'inherit';
   let hoverBackgroundColor = 'action.hover';
   if (shouldHighlightNoSection) {
-    backgroundColor = 'rgba(244, 67, 54, 0.15)'; 
+    backgroundColor = 'rgba(244, 67, 54, 0.15)';
     hoverBackgroundColor = 'rgba(244, 67, 54, 0.20)';
   } else if (isPast) {
     backgroundColor = 'rgba(237, 247, 237, 0.5)';
@@ -115,24 +114,29 @@ function CoverageRow({ item, originalIndex, onEdit, onDelete }: CoverageRowProps
           whiteSpace: 'nowrap',
         }}
       >
-        <Tooltip title={item.sectionName || (shouldHighlightNoSection ? 'No Section - Please fill this field' : 'No Section')}>
+        <Tooltip
+          title={
+            item.sectionName ||
+            (shouldHighlightNoSection ? 'No Section - Please fill this field' : 'No Section')
+          }
+        >
           {shouldHighlightNoSection ? (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography 
-                variant="body2" 
-                sx={{ 
-                  color: 'error.main', 
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'error.main',
                   fontStyle: 'italic',
-                  fontWeight: 'bold'
+                  fontWeight: 'bold',
                 }}
               >
-              Update pending
+                Update pending
               </Typography>
-              <Typography 
-                variant="body2" 
-                sx={{ 
+              <Typography
+                variant="body2"
+                sx={{
                   color: 'error.main',
-                  animation: 'blink 1.5s infinite'
+                  animation: 'blink 1.5s infinite',
                 }}
               >
                 ⚠️
@@ -200,6 +204,7 @@ function CoverageRow({ item, originalIndex, onEdit, onDelete }: CoverageRowProps
           >
             <EditIcon fontSize="small" />
           </IconButton>
+
           <IconButton
             size="small"
             color="error"
@@ -248,7 +253,7 @@ export function CoverageTable({ entries, onEdit, onDelete }: CoverageTableProps)
         <TableBody>
           {sortedEntries.map((item, idx) => {
             const originalIndex = entries.findIndex((entry) => entry.id === item.id);
-            
+
             return (
               <CoverageRow
                 key={`${item.timestamp_ms}-${idx}`}
