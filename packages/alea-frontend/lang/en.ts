@@ -446,6 +446,8 @@ export const en = {
     ungradedProblems: 'Ungraded Problems',
     unansweredQuestions: 'Unanswered Questions',
     latestQuiz:'Latest Quiz',
+    pastQuiz: 'Past Quiz',
+    futureQuizzesReady :'Upcoming Quiz',
     latestHomework:'Latest Homework',
     noHomeworkAvailable:'No homework available'
   },

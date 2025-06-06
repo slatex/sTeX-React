@@ -167,15 +167,97 @@ async function getLastUpdatedQuiz(
       return acc.quizStartTs > curr.quizStartTs ? acc : curr;
     }, quizList[0]);
     const timestamp = latestQuiz.quizStartTs;
-    const description = `${r.latestQuiz}: ${dayjs(timestamp).format('YYYY-MM-DD')}`;
-    const timeAgo = calculateTimeAgo(timestamp.toString());
+    const description = `${r.pastQuiz}: ${dayjs(timestamp).format('YYYY-MM-DD')}`;
+    const timeAgo = null;
+
+    const coverageQuizData = await getCoverageTimeline();
+    const courseQuizData = coverageQuizData[courseId];
+    if (courseQuizData && courseQuizData.length > 0) {
+      const entriesWithSection = courseQuizData.filter((entry) => entry.isQuizScheduled);
+      const matchQuizEntry = entriesWithSection
+        .map((entry) => {
+          const matchQuiz = quizList.find(
+            (quiz) => Math.abs(quiz.quizStartTs - entry.timestamp_ms) < 12 * 60 * 60 * 1000
+          );
+          return {
+            entry: entry.timestamp_ms,
+            quiz: matchQuiz || null,
+          };
+        })
+        .filter((matchQuiz) => matchQuiz.quiz != null);
+
+      const today = dayjs().startOf('day');
+      const todaysQuiz = matchQuizEntry.find((m) => dayjs(m.quiz.quizStartTs).isSame(today, 'day'));
+
+      if (todaysQuiz) {
+        const timestamp = todaysQuiz.quiz.quizStartTs;
+        return {
+          description: `${r.latestQuiz} (Today): ${dayjs(timestamp).format('YYYY-MM-DD')}`,
+          timeAgo: calculateTimeAgo(timestamp.toString()),
+          timestamp: timestamp.toString(),
+          quizId: todaysQuiz.quiz.quizId,
+          colorInfo: {
+            color: 'green',
+            type: 'default' as const,
+          },
+        };
+      }
+
+      let futureQuizzesReady: (typeof quizList)[0] | null = null;
+      futureQuizzesReady =
+        matchQuizEntry
+          .filter((m) => dayjs(m.quiz.quizStartTs).isAfter(today))
+          .sort((a, b) => a.quiz.quizStartTs - b.quiz.quizStartTs)[0] || null;
+
+      if (!futureQuizzesReady) {
+        const futureEntryNotReady = entriesWithSection.filter((entry) =>
+          dayjs(entry.timestamp_ms).isAfter(today)
+        );
+
+        if (futureEntryNotReady) {
+          const quizNotReady = futureEntryNotReady[0];
+
+          if (quizNotReady) {
+            return {
+              description: `${r.futureQuizzesReady, r.prepareQuiz}: ${dayjs(quizNotReady.timestamp_ms).format(
+                'YYYY-MM-DD'
+              )}`,
+              timeAgo: calculateTimeAgo(quizNotReady.timestamp_ms.toString()),
+              timestamp: quizNotReady.timestamp_ms.toString(),
+              quizId: null,
+              colorInfo: {
+                color: 'text.secondary',
+                type: 'default' as const,
+              },
+            };
+          }
+        }
+      }
+
+      if (futureQuizzesReady) {
+        const timestamp = futureQuizzesReady.quiz.quizStartTs;
+        return {
+          description: `${r.futureQuizzesReady}: ${dayjs(timestamp).format(
+            'YYYY-MM-DD'
+          )}`,
+          timeAgo: calculateTimeAgo(timestamp.toString()),
+          timestamp: timestamp.toString(),
+          quizId: futureQuizzesReady.quizId,
+          colorInfo: {
+            color: 'text.secondary',
+            type: 'default' as const,
+          },
+        };
+      }
+    }
+
     return {
       description,
       timeAgo,
       timestamp: timestamp.toString(),
       quizId: latestQuiz.quizId,
       colorInfo: {
-        color: 'text.secondary',
+        color: 'gray',
         type: 'default' as const,
       },
     };
