@@ -73,3 +73,26 @@ export async function searchCourseNotes(query: string, courseId: string) {
   );
   return resp.data as { sources: GptSearchResult[] };
 }
+export type QuizQuestionType = 'mcq' | 'msq' | 'fill';
+export interface QuizQuestion {
+  question: string;
+  options?: string[];
+  questionType: QuizQuestionType;
+  correctAnswer?: string | string[];
+  explanation?: string;
+}
+interface QuizResponse {
+  quiz: QuizQuestion[];
+}
+export async function generateQuizProblems(
+  courseId: string,
+  sectionId: string,
+  sectionUri: string
+) {
+  const resp = await axios.post(
+    `${process.env['NEXT_PUBLIC_GPT_URL']}/api/generate-quiz-problems`,
+    { courseId, sectionId, sectionUri },
+    { headers: getAuthHeaders() }
+  );
+  return resp.data as QuizResponse;
+}

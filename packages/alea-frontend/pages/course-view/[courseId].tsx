@@ -31,6 +31,7 @@ import { getSlideUri, SlideDeck } from '../../components/SlideDeck';
 import { SlidesUriToIndexMap, VideoDisplay } from '../../components/VideoDisplay';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
+import QuizComponent from 'packages/alea-frontend/components/GenerateQuiz';
 
 function RenderElements({ elements }: { elements: string[] }) {
   return (
@@ -388,6 +389,11 @@ const CourseViewPage: NextPage = () => {
                 <SectionReview
                   sectionUri={selectedSectionTOC.uri}
                   sectionTitle={selectedSectionTOC.title}
+                />
+                <QuizComponent
+                  courseId={courseId}
+                  sectionId={sectionId}
+                  sectionUri={selectedSectionTOC.uri}
                 />
               </Box>
             )}

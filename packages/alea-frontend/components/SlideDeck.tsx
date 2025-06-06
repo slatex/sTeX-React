@@ -1,13 +1,17 @@
-import { InsertLink, LinkOff } from '@mui/icons-material';
-import FirstPageIcon from '@mui/icons-material/FirstPage';
-import LastPageIcon from '@mui/icons-material/LastPage';
+import {
+  FirstPage,
+  InsertLink,
+  LastPage,
+  LinkOff,
+  NavigateBefore,
+  NavigateNext,
+} from '@mui/icons-material';
 import MovieIcon from '@mui/icons-material/Movie';
-import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import {
   Badge,
   Box,
+  Button,
   IconButton,
   LinearProgress,
   Popover,
@@ -24,13 +28,77 @@ import { setSlideNumAndSectionId } from '../pages/course-view/[courseId]';
 import { injectCss } from '@stex-react/ftml-utils';
 import styles from '../styles/slide-deck.module.scss';
 
+export function SlidePopover({
+  slides,
+  anchorEl,
+  onClose,
+}: {
+  slides: Slide[];
+  anchorEl: HTMLElement | null;
+  onClose: () => void;
+}) {
+  const router = useRouter();
+  const open = Boolean(anchorEl);
+
+  if (!slides?.length) return;
+  return (
+    <Popover
+      open={open}
+      anchorEl={anchorEl}
+      onClose={onClose}
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      transformOrigin={{ vertical: 'top', horizontal: 'center' }}
+    >
+      <Box sx={{ width: 320, maxHeight: 400, overflowY: 'auto', padding: 1 }}>
+        {slides.map((slide, idx) => (
+          <Box
+            key={idx}
+            sx={{
+              p: 1,
+              mb: 1,
+              borderRadius: 2,
+              border: '1px solid #ddd',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              '&:hover': {
+                backgroundColor: '#f0f0f0',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              },
+            }}
+            onClick={() => {
+              onClose();
+              setSlideNumAndSectionId(router, idx + 1);
+            }}
+          >
+            <Typography variant="caption" sx={{ color: 'gray', mb: 0.5 }}>
+              Slide {idx + 1}
+            </Typography>
+            <Box
+              sx={{
+                maxHeight: 150,
+                overflow: 'hidden',
+                '& *': { boxSizing: 'border-box' },
+              }}
+            >
+              <SlideRenderer slide={slide} />
+            </Box>
+          </Box>
+        ))}
+      </Box>
+    </Popover>
+  );
+}
+
 export function SlideNavBar({
+  slides,
   slideNum,
   numSlides,
   goToNextSection = undefined,
   goToPrevSection = undefined,
   setAutoSync,
 }: {
+  slides: Slide[];
   slideNum: number;
   numSlides: number;
   goToNextSection?: () => void;
@@ -38,35 +106,80 @@ export function SlideNavBar({
   setAutoSync?: Dispatch<SetStateAction<boolean>>;
 }) {
   const router = useRouter();
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const openPopover = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const closePopover = () => setAnchorEl(null);
+
   return (
-    <Box display="flex" justifyContent="flex-end" alignItems="center">
+    <Box
+      sx={{
+        borderRadius: '12px',
+        backgroundColor: '#f0f0f0',
+        p: 0.5,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 0.5,
+      }}
+    >
       <IconButton
+        size="small"
         onClick={() => {
           setAutoSync(false);
-          if (slideNum > 1) {
-            setSlideNumAndSectionId(router, slideNum - 1);
-          } else {
-            goToPrevSection();
-          }
+          slideNum > 1 ? setSlideNumAndSectionId(router, slideNum - 1) : goToPrevSection();
+        }}
+        sx={{
+          padding: '4px',
+          borderRadius: '12px',
+          '&:hover': {
+            backgroundColor: '#e0e0e0',
+          },
         }}
       >
-        {slideNum == 1 ? <FirstPageIcon /> : <NavigateBeforeIcon />}
+        {slideNum === 1 ? <FirstPage fontSize="small" /> : <NavigateBefore fontSize="small" />}
       </IconButton>
-      <span style={{ fontSize: '18px', marginBottom: '5px' }}>
-        {numSlides === 0 ? 0 : slideNum} / {numSlides}
-      </span>
+
+      <Tooltip title="View all slides of current section" arrow>
+        <Button
+          onClick={openPopover}
+          sx={{
+            px: 1,
+            py: 0.3,
+            backgroundColor: '#ffffff',
+            color: 'text.primary',
+            border: '1px solid #ccc',
+            borderRadius: '24px',
+            boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+            transition: 'all 0.3s ease',
+            '&:hover': {
+              backgroundColor: 'primary.main',
+              color: '#ffffff',
+              transform: 'scale(1.05)',
+            },
+          }}
+        >
+          {slideNum} / {numSlides}
+        </Button>
+      </Tooltip>
+      <SlidePopover slides={slides} anchorEl={anchorEl} onClose={closePopover} />
 
       <IconButton
+        size="small"
         onClick={() => {
           setAutoSync(false);
-          if (slideNum < numSlides) {
-            setSlideNumAndSectionId(router, slideNum + 1);
-          } else {
-            goToNextSection();
-          }
+          slideNum < numSlides ? setSlideNumAndSectionId(router, slideNum + 1) : goToNextSection();
+        }}
+        sx={{
+          padding: '4px',
+          borderRadius: '12px',
+          '&:hover': {
+            backgroundColor: '#e0e0e0',
+          },
         }}
       >
-        {slideNum >= numSlides ? <LastPageIcon /> : <NavigateNextIcon />}
+        {slideNum >= numSlides ? <LastPage fontSize="small" /> : <NavigateNext fontSize="small" />}
       </IconButton>
     </Box>
   );
@@ -387,6 +500,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
             <ClipSelector clips={clips} onClipChange={onClipChange} />
           )}
           <SlideNavBar
+            slides={slides}
             slideNum={slideNum}
             numSlides={slides.length}
             goToNextSection={goToNextSection}
