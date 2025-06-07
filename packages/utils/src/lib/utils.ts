@@ -12,7 +12,6 @@ export async function waitForNSeconds(n_sec: number) {
   return new Promise((resolve) => setTimeout(resolve, n_sec * 1000));
 }
 
-
 export function shouldUseDrawer(windowWidth?: number) {
   if (!windowWidth) windowWidth = Window?.innerWidth;
   return windowWidth ? windowWidth < 800 : true;
@@ -65,18 +64,18 @@ export function convertHtmlStringToPlain(htmlStr: string) {
 export function getParamFromUri(uri: string, param: string) {
   try {
     const url = new URL(uri);
-    return url.searchParams.get(param);
+    return url.searchParams.get(param) ?? undefined;
   } catch {
     return undefined;
   }
 }
 
-export function getParamsFromUri(uri: string, params: string[]) {
+export function getParamsFromUri(uri: string, params: string[]): (string | undefined)[] {
   try {
     const url = new URL(uri);
-    return params.map((param) => url.searchParams.get(param));
+    return params.map((param) => url.searchParams.get(param) || undefined);
   } catch {
-    return params.map((param) => undefined);
+    return params.map((_) => undefined);
   }
 }
 
