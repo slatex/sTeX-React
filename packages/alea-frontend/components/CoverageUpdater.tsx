@@ -51,6 +51,7 @@ export function CoverageUpdater({
   snaps,
   sectionNames,
   handleSave,
+  onProgressStatusChange,
 }: CoverageUpdaterProps) {
   const [formData, setFormData] = useState<FormData>({
     sectionName: '',
@@ -65,6 +66,18 @@ export function CoverageUpdater({
   });
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
+  const handleProgressStatusUpdate = (status: string) => {
+    const updatedSnaps = snaps.map((snap) => ({
+      ...snap,
+      progressStatus: status,
+    }));
+
+    handleSave(updatedSnaps);
+
+    if (onProgressStatusChange) {
+      onProgressStatusChange(status);
+    }
+  };
 
   const theme = useTheme();
   useEffect(() => {
@@ -125,7 +138,7 @@ export function CoverageUpdater({
   };
 
   const handleEditDialogOpen = (entry: FormData, index: number) => {
-    console.log("setformdata", entry.slideUri);
+    console.log('setformdata', entry.slideUri);
 
     setFormData({ ...entry });
     setEditIndex(index);

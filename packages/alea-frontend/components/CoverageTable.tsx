@@ -277,7 +277,7 @@ export function calculateLectureProgress(
 
     const fractionalPart = absDiff - roundedBottom;
     if (absDiff === 0) {
-      description = 'on track';
+      description = 'On track';
     } else if (absDiff < 1) {
       description = difference > 0 ? 'slightly ahead' : 'slightly behind';
     } else if (fractionalPart < 0.9 && fractionalPart > 0) {
