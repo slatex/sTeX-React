@@ -54,6 +54,15 @@ const CoverageUpdateTab = () => {
     message: string;
   } | null>(null);
 
+  const handleProgressStatusChange = (status: string) => {
+    const updatedSnaps = snaps.map((snap) => ({
+      ...snap,
+      progressStatus: status,
+    }));
+
+    handleSave(updatedSnaps);
+  };
+
   useEffect(() => {
     axios.get('/api/get-coverage-timeline').then((resp) => {
       setCoverageTimeline(resp.data);
@@ -151,6 +160,7 @@ const CoverageUpdateTab = () => {
               snaps={snaps}
               sectionNames={sectionNames}
               handleSave={handleSave}
+              onProgressStatusChange={handleProgressStatusChange}
             />
           </Box>
         </Paper>

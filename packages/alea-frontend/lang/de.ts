@@ -424,7 +424,8 @@ export const de = {
     unansweredQuestions:'Unbeantwortete Fragen',
     latestQuiz:'Neuestes Quiz',
     latestHomework:'neueste Hausaufgaben',
-    noHomeworkAvailable:'Keine Hausaufgaben verfügbar'
+    noHomeworkAvailable:'Keine Hausaufgaben verfügbar',
+    progress: 'Fortschritt'
   },
   recorrection:{
     quizRecorrection: 'Quiz-Rekorrektur',

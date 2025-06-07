@@ -229,11 +229,15 @@ async function getLastUpdatedNotes(
   router: NextRouter
 ): Promise<ResourceDisplayInfo> {
   const { resource: r } = getLocaleObject(router);
-
   try {
     const coverageData = await getCoverageTimeline();
     const courseData = coverageData[courseId];
-
+    const targetUsed = courseData?.some(
+      (entry) => entry.targetSectionUri && entry.targetSectionUri.trim() !== ''
+    );
+    const progressStatus = targetUsed
+      ? courseData.find((e) => e.progressStatus)?.progressStatus ?? 'Progress unknown'
+      : null;
     if (!courseData || courseData.length === 0) {
       return {
         description: r.noUpdatesAvailable || 'No updates available',
@@ -268,11 +272,14 @@ async function getLastUpdatedNotes(
     if (lastUpdatedTimestamp) {
       const formattedDate = dayjs(lastUpdatedTimestamp).format('YYYY-MM-DD');
 
-      const description =
-        pendingUpdates > 0
-          ? `${r.lastUpdated}: ${formattedDate}\n${pendingUpdates} ${r.updates} ${r.pending}`
-          : `${r.lastUpdated}: ${formattedDate}`;
+      const descriptionLines = [
+        `${r.lastUpdated}: ${formattedDate}`,
+        ...(pendingUpdates > 0 ? [`${pendingUpdates} ${r.updates} ${r.pending}`] : []),
+        ...(progressStatus ? [`${r.progress}: ${progressStatus}`] : []),
+      ];
 
+      const description = descriptionLines.join('\n');
+      
       return {
         description,
         timeAgo: null,
@@ -286,7 +293,7 @@ async function getLastUpdatedNotes(
 
     if (pendingUpdates > 0) {
       return {
-        description: `${pendingUpdates} ${r.updates} ${r.pending}`,
+        description: `${pendingUpdates} ${r.updates} ${r.pending}\n${r.progress}: ${progressStatus}`,
         timeAgo: null,
         timestamp: null,
         colorInfo: {

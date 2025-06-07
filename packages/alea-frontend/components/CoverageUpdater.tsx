@@ -34,6 +34,7 @@ function convertSnapToEntry(snap: LectureEntry, index: number): any {
     isQuizScheduled: snap.isQuizScheduled || false,
     slideUri: snap.slideUri || '',
     slideNumber: snap.slideNumber,
+    progressStatus: snap.progressStatus || '',
   };
 }
 
@@ -42,6 +43,7 @@ interface CoverageUpdaterProps {
   snaps: LectureEntry[];
   sectionNames: Section[];
   handleSave: (snaps: LectureEntry[]) => void;
+  onProgressStatusChange?: (status: string) => void;
 }
 
 export function CoverageUpdater({
@@ -49,6 +51,7 @@ export function CoverageUpdater({
   snaps,
   sectionNames,
   handleSave,
+  onProgressStatusChange,
 }: CoverageUpdaterProps) {
   const [formData, setFormData] = useState<FormData>({
     sectionName: '',
@@ -63,6 +66,18 @@ export function CoverageUpdater({
   });
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
+  const handleProgressStatusUpdate = (status: string) => {
+    const updatedSnaps = snaps.map((snap) => ({
+      ...snap,
+      progressStatus: status,
+    }));
+
+    handleSave(updatedSnaps);
+
+    if (onProgressStatusChange) {
+      onProgressStatusChange(status);
+    }
+  };
 
   const theme = useTheme();
   useEffect(() => {
@@ -123,7 +138,7 @@ export function CoverageUpdater({
   };
 
   const handleEditDialogOpen = (entry: FormData, index: number) => {
-    console.log("setformdata", entry.slideUri);
+    console.log('setformdata', entry.slideUri);
 
     setFormData({ ...entry });
     setEditIndex(index);
@@ -162,6 +177,12 @@ export function CoverageUpdater({
             entries={coverageEntries}
             onEdit={(idx) => handleEditDialogOpen(coverageEntries[idx], idx)}
             onDelete={handleDeleteItem}
+            onProgressStatusChange={handleProgressStatusUpdate}
+            sectionList={sectionNames.map(({ title, uri }) => ({
+              id: uri,
+              title,
+              uri,
+            }))}
           />
         </>
       ) : (

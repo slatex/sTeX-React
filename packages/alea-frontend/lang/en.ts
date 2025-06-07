@@ -447,7 +447,8 @@ export const en = {
     unansweredQuestions: 'Unanswered Questions',
     latestQuiz:'Latest Quiz',
     latestHomework:'Latest Homework',
-    noHomeworkAvailable:'No homework available'
+    noHomeworkAvailable:'No homework available',
+    progress: 'Progress'
   },
   syllabus:{
     syllabusEntries:'Syllabus Entries',
