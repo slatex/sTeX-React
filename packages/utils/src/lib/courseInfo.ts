@@ -87,6 +87,7 @@ export interface LectureEntry {
   isQuizScheduled?: boolean;
   slideUri?: string;
   slideNumber?: number; //Don't use this anywhere , use slideUri instead
+  progressStatus?:string; 
 }
 
 export interface CoverageTimeline {

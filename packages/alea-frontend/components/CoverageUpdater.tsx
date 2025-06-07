@@ -26,6 +26,7 @@ function convertSnapToEntry(snap: LectureEntry, index: number): any {
     isQuizScheduled: snap.isQuizScheduled || false,
     slideUri: snap.slideUri || '',
     slideNumber: snap.slideNumber,
+    progressStatus: snap.progressStatus || '',
   };
 }
 
@@ -34,9 +35,10 @@ interface CoverageUpdaterProps {
   snaps: LectureEntry[];
   setSnaps: React.Dispatch<React.SetStateAction<LectureEntry[]>>;
   sectionNames: Section[];
+  onProgressStatusChange?: (status: string) => void;
 }
 
-export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: CoverageUpdaterProps) {
+export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames, onProgressStatusChange }: CoverageUpdaterProps) {
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [formData, setFormData] = useState({
     sectionName: '',
@@ -48,10 +50,23 @@ export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: Cov
     isQuizScheduled: false,
     slideUri: '',
     slideNumber: undefined as number | undefined,
+    progressStatus: ''
   });
 
   const theme = useTheme();
   const formRef = useRef<HTMLDivElement>(null);
+  const handleProgressStatusUpdate = (status: string) => {
+    const updatedSnaps = snaps.map((snap) => ({
+      ...snap,
+      progressStatus: status
+    }));
+    
+    setSnaps(updatedSnaps);
+    
+    if (onProgressStatusChange) {
+      onProgressStatusChange(status);
+    }
+  };
 
   useEffect(() => {
     if (snaps.length > 0) {
@@ -100,6 +115,7 @@ export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: Cov
       isQuizScheduled: itemToEdit.isQuizScheduled || false,
       slideUri: itemToEdit.slideUri || '',
       slideNumber: itemToEdit.slideNumber || undefined,
+      progressStatus: ''
     });
 
     setEditIndex(index);
@@ -119,6 +135,7 @@ export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: Cov
       isQuizScheduled: formData.isQuizScheduled,
       slideUri: formData.slideUri,
       slideNumber: formData.slideNumber,
+      progressStatus: formData.progressStatus || '',
     };
 
     if (editIndex !== null) {
@@ -140,6 +157,7 @@ export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: Cov
       isQuizScheduled: false,
       slideUri: '',
       slideNumber: undefined,
+      progressStatus: ''
     });
   };
 
@@ -154,6 +172,7 @@ export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: Cov
       isQuizScheduled: false,
       slideUri: '',
       slideNumber: undefined,
+      progressStatus: ''
     });
     setEditIndex(null);
   };
@@ -163,7 +182,7 @@ export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: Cov
 
     entry.sectionName = getSectionNameForUri(snap.sectionUri || '', sectionNames);
     entry.targetSectionName = getSectionNameForUri(snap.targetSectionUri || '', sectionNames);
-
+    
     return entry;
   });
   return (
@@ -175,6 +194,7 @@ export function CoverageUpdater({ courseId, snaps, setSnaps, sectionNames }: Cov
             entries={coverageEntries}
             onEdit={handleEditItem}
             onDelete={handleDeleteItem}
+            onProgressStatusChange={handleProgressStatusUpdate}
             sectionList={sectionNames.map(({ title, uri }) => ({
               id: uri,
               title,

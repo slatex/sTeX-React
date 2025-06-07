@@ -19,7 +19,7 @@ import {
 import { getAllQuizzes, QuizWithStatus } from '@stex-react/api';
 import { CURRENT_TERM } from '@stex-react/utils';
 import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import QuizHandler from './QuizHandler';
 const courseTerm = CURRENT_TERM;
 
@@ -34,6 +34,7 @@ export interface CoverageEntry {
   isQuizScheduled: boolean;
   slideUri: string;
   slideNumber?: number;
+  progressStatus?: string;
 }
 
 interface QuizMatchMap {
@@ -46,6 +47,7 @@ interface CoverageTableProps {
   onEdit: (index: number) => void;
   onDelete: (index: number) => void;
   sectionList: Array<{ id: string; title: string; uri: string }>;
+  onProgressStatusChange?: (status: string) => void;
 }
 
 interface CoverageRowProps {
@@ -229,7 +231,7 @@ function CoverageRow({ item, quizMatch, originalIndex, onEdit, onDelete }: Cover
   );
 }
 
-function calculateLectureProgress(
+export function calculateLectureProgress(
   entries: CoverageEntry[],
   sectionList: Array<{ title: string; uri: string }>
 ) {
@@ -292,7 +294,20 @@ function calculateLectureProgress(
   return progressStatus || 'Progress unknown';
 }
 
-const getProgressStatusColor = (status: string) => {
+function isTargetSectionUsed(entries: CoverageEntry[]): boolean {
+  return entries.some((entry) => entry.targetSectionName && entry.targetSectionName.trim() !== '');
+}
+
+function countMissingTargetsInFuture(entries: CoverageEntry[]): number {
+  const now = dayjs();
+  return entries.filter(
+    (entry) =>
+      dayjs(entry.timestamp_ms).isAfter(now, 'day') &&
+      (!entry.targetSectionName || entry.targetSectionName.trim() === '')
+  ).length;
+}
+
+export const getProgressStatusColor = (status: string) => {
   if (status.includes('ahead')) return 'success.main';
   if (status.includes('behind')) return 'error.main';
   if (status.includes('on track')) return 'success.main';
@@ -306,11 +321,31 @@ const getProgressIcon = (status: string) => {
   return '📊';
 };
 
-export function CoverageTable({ courseId,entries, onEdit, onDelete, sectionList }: CoverageTableProps) {
+export function CoverageTable({
+  courseId,
+  entries,
+  onEdit,
+  onDelete,
+  sectionList,
+  onProgressStatusChange
+}: CoverageTableProps) {
+  const targetUsed = isTargetSectionUsed(entries);
   const status = calculateLectureProgress(entries, sectionList);
+  const missingTargetsCount = countMissingTargetsInFuture(entries);
   const sortedEntries = [...entries].sort((a, b) => a.timestamp_ms - b.timestamp_ms);
   const [quizMatchMap, setQuizMatchMap] = useState<QuizMatchMap>({});
+  const prevStatusRef = useRef<string>('');
 
+  entries.forEach((entry) => {
+    entry.progressStatus = status;
+  });
+  useEffect(() => {
+    if (onProgressStatusChange && status !== prevStatusRef.current) {
+      prevStatusRef.current = status;
+      onProgressStatusChange(status);
+    }
+  }, [status, onProgressStatusChange]);
+ 
   useEffect(() => {
     async function fetchQuizzes() {
       try {
@@ -330,80 +365,88 @@ export function CoverageTable({ courseId,entries, onEdit, onDelete, sectionList 
 
     fetchQuizzes();
   }, [courseId]);
-  
+
   return (
     <Box>
-      <Paper 
-        elevation={3} 
-        sx={{
-          p: 3,
-          mb: 3,
-          borderRadius: 3,
-          background: 'linear-gradient(135deg, rgba(25, 118, 210, 0.05) 0%, rgba(25, 118, 210, 0.1) 100%)',
-          border: `2px solid ${getProgressStatusColor(status)}`,
-          position: 'relative',
-          overflow: 'hidden',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: '4px',
-            background: `linear-gradient(90deg, ${getProgressStatusColor(status)}, transparent)`,
-          }
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Box
-            sx={{
-              fontSize: '2rem',
-              animation: status.includes('behind') ? 'pulse 2s infinite' : 'none',
-            }}
-          >
-            {getProgressIcon(status)}
-          </Box>
-          <Box sx={{ flex: 1 }}>
-            <Typography 
-              variant="h6" 
-              sx={{ 
-                fontWeight: 'bold',
-                color: 'text.primary',
-                mb: 0.5
+      {targetUsed && (
+        <Paper
+          elevation={3}
+          sx={{
+            p: 3,
+            mb: 3,
+            borderRadius: 3,
+            background:
+              'linear-gradient(135deg, rgba(25, 118, 210, 0.05) 0%, rgba(25, 118, 210, 0.1) 100%)',
+            border: `2px solid ${getProgressStatusColor(status)}`,
+            position: 'relative',
+            overflow: 'hidden',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '4px',
+              background: `linear-gradient(90deg, ${getProgressStatusColor(status)}, transparent)`,
+            },
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box
+              sx={{
+                fontSize: '2rem',
+                animation: status.includes('behind') ? 'pulse 2s infinite' : 'none',
               }}
             >
-              Lecture Progress Status
-            </Typography>
-            <Typography 
-              variant="h5" 
-              sx={{ 
-                fontWeight: 'bold',
-                color: getProgressStatusColor(status),
-                textTransform: 'capitalize',
-                letterSpacing: '0.5px'
+              {getProgressIcon(status)}
+            </Box>
+            <Box sx={{ flex: 1 }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 'bold',
+                  color: 'text.primary',
+                  mb: 0.5,
+                }}
+              >
+                Lecture Progress Status
+              </Typography>
+              <Typography
+                variant="h5"
+                sx={{
+                  fontWeight: 'bold',
+                  color: getProgressStatusColor(status),
+                  textTransform: 'capitalize',
+                  letterSpacing: '0.5px',
+                }}
+              >
+                {status}
+              </Typography>
+              {missingTargetsCount > 0 && (
+                <Typography variant="body2" sx={{ color: 'warning.main', fontWeight: 500 }}>
+                  ⚠️ {missingTargetsCount} lecture{missingTargetsCount !== 1 ? 's' : ''} missing
+                  agenda
+                </Typography>
+              )}
+            </Box>
+            <Box
+              sx={{
+                minWidth: '60px',
+                height: '60px',
+                borderRadius: '50%',
+                bgcolor: getProgressStatusColor(status),
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                opacity: 0.1,
+                fontSize: '1.5rem',
               }}
             >
-              {status}
-            </Typography>
+              📚
+            </Box>
           </Box>
-          <Box
-            sx={{
-              minWidth: '60px',
-              height: '60px',
-              borderRadius: '50%',
-              bgcolor: getProgressStatusColor(status),
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              opacity: 0.1,
-              fontSize: '1.5rem'
-            }}
-          >
-            📚
-          </Box>
-        </Box>
-      </Paper>
-
+        </Paper>
+      )}
       <style>
         {`
           @keyframes blink {

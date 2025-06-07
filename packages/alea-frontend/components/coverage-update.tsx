@@ -87,6 +87,7 @@ const CoverageUpdatePage: NextPage = () => {
   const [allSectionNames, setAllSectionNames] = useState<{ [courseId: string]: Section[] }>({});
   const [sectionNames, setSectionNames] = useState<Section[]>([]);
   const [snaps, setSnaps] = useState<LectureEntry[]>([]);
+  const [progressStatus, setProgressStatus] = useState('');
   const [savedSnaps, setSavedSnaps] = useState<LectureEntry[]>([]);
   const [coverageTimeline, setCoverageTimeline] = useState<CoverageTimeline>({});
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
@@ -262,7 +263,7 @@ const CoverageUpdatePage: NextPage = () => {
 
     setLoading(true);
     try {
-      const body = { courseId, snaps };
+      const body = { courseId, snaps , progressStatus };
       const headers = getAuthHeaders();
       await axios.post('/api/set-coverage-timeline', body, { headers });
       setSavedSnaps(JSON.parse(JSON.stringify(snaps))); // Create a deep copy
@@ -356,6 +357,7 @@ const CoverageUpdatePage: NextPage = () => {
                 snaps={snaps}
                 setSnaps={setSnaps}
                 sectionNames={sectionNames}
+                onProgressStatusChange={setProgressStatus}
               />
             </Box>
 
