@@ -1,11 +1,11 @@
 import QuizIcon from '@mui/icons-material/Quiz';
 import { Button, Chip, Typography } from '@mui/material';
 import { QuizWithStatus } from '@stex-react/api';
+import { LectureEntry } from '@stex-react/utils';
 import Link from 'next/link';
-import { CoverageEntry } from './CoverageTable';
 
 interface QuizHandlerProps {
-  currentEntry: CoverageEntry;
+  currentEntry: LectureEntry;
   quiz: QuizWithStatus | null;
 }
 

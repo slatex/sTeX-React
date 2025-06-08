@@ -19,14 +19,14 @@ import {
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { Section } from '../types';
+import { SecInfo } from '../types';
 import { CoverageUpdater } from './CoverageUpdater';
 
-function getSectionNames(data: FTML.TOCElem, level = 0): Section[] {
-  const sections: Section[] = [];
+function getSecInfo(data: FTML.TOCElem, level = 0): SecInfo[] {
+  const secInfo: SecInfo[] = [];
 
   if (data.type === 'Section' && data.title) {
-    sections.push({
+    secInfo.push({
       id: data.id,
       title: '\xa0'.repeat(level * 4) + convertHtmlStringToPlain(data.title),
       uri: data.uri,
@@ -35,16 +35,16 @@ function getSectionNames(data: FTML.TOCElem, level = 0): Section[] {
   if (data.type === 'SkippedSection' || data.type === 'Section') level++;
   if ('children' in data) {
     for (const child of data.children) {
-      sections.push(...getSectionNames(child, level));
+      secInfo.push(...getSecInfo(child, level));
     }
   }
-  return sections;
+  return secInfo;
 }
 
 const CoverageUpdateTab = () => {
   const router = useRouter();
   const courseId = router.query.courseId as string;
-  const [sectionNames, setSectionNames] = useState<Section[]>([]);
+  const [secInfo, setSecInfo] = useState<Record<FTML.DocumentURI, SecInfo>>({});
   const [snaps, setSnaps] = useState<LectureEntry[]>([]);
   const [coverageTimeline, setCoverageTimeline] = useState<CoverageTimeline>({});
   const [courses, setCourses] = useState<{ [id: string]: CourseInfo }>({});
@@ -82,8 +82,11 @@ const CoverageUpdateTab = () => {
       try {
         const tocResp = await getDocumentSections(notesUri);
         const docSections = tocResp[1];
-        const sections = docSections.flatMap((d) => getSectionNames(d));
-        setSectionNames(sections);
+        const sections = docSections.flatMap((d) => getSecInfo(d));
+        setSecInfo(sections.reduce((acc, s) => {
+          acc[s.uri] = s;
+          return acc;
+        }, {} as Record<FTML.DocumentURI, SecInfo>));
       } catch (error) {
         console.error('Failed to fetch all sections:', error);
         setSaveMessage({
@@ -158,7 +161,7 @@ const CoverageUpdateTab = () => {
             <CoverageUpdater
               courseId={courseId}
               snaps={snaps}
-              sectionNames={sectionNames}
+              secInfo={secInfo}
               handleSave={handleSave}
               onProgressStatusChange={handleProgressStatusChange}
             />

@@ -1,3 +1,4 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
@@ -17,44 +18,23 @@ import {
   Typography,
 } from '@mui/material';
 import { getAllQuizzes, QuizWithStatus } from '@stex-react/api';
-import { CURRENT_TERM } from '@stex-react/utils';
+import { CURRENT_TERM, LectureEntry } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import { useEffect, useRef, useState } from 'react';
+import { SecInfo } from '../types';
 import QuizHandler from './QuizHandler';
-
-export interface CoverageEntry {
-  id: string;
-  timestamp_ms: number;
-  sectionName: string;
-  sectionUri: string;
-  targetSectionName: string;
-  targetSectionUri: string;
-  clipId: string;
-  isQuizScheduled: boolean;
-  slideUri: string;
-  slideNumber?: number;
-  progressStatus?: string;
-}
 
 interface QuizMatchMap {
   [timestamp_ms: number]: QuizWithStatus | null;
 }
 
-interface CoverageTableProps {
-  courseId: string;
-  entries: CoverageEntry[];
-  onEdit: (index: number) => void;
-  onDelete: (index: number) => void;
-  sectionList: Array<{ id: string; title: string; uri: string }>;
-  onProgressStatusChange?: (status: string) => void;
-}
-
 interface CoverageRowProps {
-  item: CoverageEntry;
+  item: LectureEntry;
   quizMatch: QuizWithStatus | null;
   originalIndex: number;
   onEdit: (index: number) => void;
   onDelete: (index: number) => void;
+  secInfo: Record<FTML.DocumentURI, SecInfo>;
 }
 
 const formatSectionWithSlide = (sectionName: string, slideNumber?: number, slideUri?: string) => {
@@ -65,7 +45,7 @@ const formatSectionWithSlide = (sectionName: string, slideNumber?: number, slide
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <SlideshowIcon sx={{ fontSize: 16, color: 'success.main' }} />
         <Typography variant="body2">
-          <strong>Slide {slideNumber}</strong> of {sectionName}
+          <strong>Slide {slideNumber}</strong> of {sectionName.trim()}
         </Typography>
       </Box>
     );
@@ -74,13 +54,20 @@ const formatSectionWithSlide = (sectionName: string, slideNumber?: number, slide
   }
 };
 
-function CoverageRow({ item, quizMatch, originalIndex, onEdit, onDelete }: CoverageRowProps) {
+function CoverageRow({
+  item,
+  quizMatch,
+  originalIndex,
+  onEdit,
+  onDelete,
+  secInfo,
+}: CoverageRowProps) {
   const now = dayjs();
   const itemDate = dayjs(item.timestamp_ms);
   const isPast = itemDate.isBefore(now, 'day');
   const isFuture = itemDate.isAfter(now, 'day');
   const isToday = itemDate.isSame(now, 'day');
-  const isNoSection = !item.sectionName || item.sectionName.trim() === '';
+  const isNoSection = !item.sectionUri;
   const shouldHighlightNoSection = isNoSection && (isPast || isToday);
 
   let backgroundColor = 'inherit';
@@ -95,6 +82,9 @@ function CoverageRow({ item, quizMatch, originalIndex, onEdit, onDelete }: Cover
     backgroundColor = 'rgba(255, 243, 224, 0.5)';
     hoverBackgroundColor = 'rgba(255, 243, 224, 0.7)';
   }
+
+  const sectionTitle = secInfo[item.sectionUri]?.title;
+  const targetSectionTitle = secInfo[item.targetSectionUri]?.title;
 
   return (
     <TableRow
@@ -127,7 +117,7 @@ function CoverageRow({ item, quizMatch, originalIndex, onEdit, onDelete }: Cover
       >
         <Tooltip
           title={
-            item.sectionName ||
+            secInfo[item.sectionUri]?.title ||
             (shouldHighlightNoSection ? 'No Section - Please fill this field' : 'No Section')
           }
         >
@@ -154,7 +144,7 @@ function CoverageRow({ item, quizMatch, originalIndex, onEdit, onDelete }: Cover
               </Typography>
             </Box>
           ) : (
-            formatSectionWithSlide(item.sectionName, item.slideNumber, item.slideUri)
+            formatSectionWithSlide(sectionTitle, item.slideNumber, item.slideUri)
           )}
         </Tooltip>
       </TableCell>
@@ -166,8 +156,10 @@ function CoverageRow({ item, quizMatch, originalIndex, onEdit, onDelete }: Cover
           whiteSpace: 'nowrap',
         }}
       >
-        <Tooltip title={item.targetSectionName || 'No Target'}>
-          <Typography variant="body2">{item.targetSectionName || <i>-</i>}</Typography>
+        <Tooltip title={targetSectionTitle || item.targetSectionUri || 'No Target'}>
+          <Typography variant="body2">
+            {targetSectionTitle || item.targetSectionUri || <i>-</i>}
+          </Typography>
         </Tooltip>
       </TableCell>
       <TableCell>
@@ -232,29 +224,28 @@ function CoverageRow({ item, quizMatch, originalIndex, onEdit, onDelete }: Cover
 }
 
 export function calculateLectureProgress(
-  entries: CoverageEntry[],
-  sectionList: Array<{ title: string; uri: string }>
+  entries: LectureEntry[],
+  secInfo: Record<FTML.DocumentURI, SecInfo>
 ) {
-  const normalize = (s: string) => s?.trim().toLowerCase() || '';
-  const sectionToIndex = new Map(sectionList.map((s, i) => [normalize(s.title), i]));
+  const sectionToIndex = new Map(Object.values(secInfo).map((s, i) => [s.uri, i]));
+  // This is not post order. I think its simply pre-order. I just added this to get rid of compil errors.
   const targetSectionsWithIndices = entries
     .map((entry) => {
-      const normalizedName = normalize(entry.targetSectionName);
-      const index = sectionToIndex.get(normalizedName);
-      return index !== undefined ? { targetSectionName: entry.targetSectionName, index } : null;
+      const index = sectionToIndex.get(entry.targetSectionUri);
+      return index !== undefined ? { targetSectionName: entry.targetSectionUri, index } : null;
     })
     .filter(Boolean) as Array<{ targetSectionName: string; index: number }>;
-  let lastFilledSectionEntry: CoverageEntry | null = null;
+  let lastFilledSectionEntry: LectureEntry | null = null;
   for (const entry of entries) {
-    if (entry.sectionName && entry.sectionName.trim() !== '') {
+    if (entry.sectionUri) {
       lastFilledSectionEntry = entry;
     }
   }
   const lastFilledSectionIdx =
-    sectionToIndex.get(normalize(lastFilledSectionEntry?.sectionName)) ?? -1;
+    sectionToIndex.get(lastFilledSectionEntry?.sectionUri) ?? -1;
 
   const lastEligibleTargetSectionIdx =
-    sectionToIndex.get(normalize(lastFilledSectionEntry?.targetSectionName)) ?? -1;
+    sectionToIndex.get(lastFilledSectionEntry?.targetSectionUri) ?? -1;
   let progressStatus = '';
   if (lastEligibleTargetSectionIdx !== -1 && lastFilledSectionIdx !== -1) {
     let progressCovered = 0;
@@ -294,16 +285,14 @@ export function calculateLectureProgress(
   return progressStatus || 'Progress unknown';
 }
 
-function isTargetSectionUsed(entries: CoverageEntry[]): boolean {
-  return entries.some((entry) => entry.targetSectionName && entry.targetSectionName.trim() !== '');
+function isTargetSectionUsed(entries: LectureEntry[]): boolean {
+  return entries.some((entry) => entry.targetSectionUri);
 }
 
-function countMissingTargetsInFuture(entries: CoverageEntry[]): number {
+function countMissingTargetsInFuture(entries: LectureEntry[]): number {
   const now = dayjs();
   return entries.filter(
-    (entry) =>
-      dayjs(entry.timestamp_ms).isAfter(now, 'day') &&
-      (!entry.targetSectionName || entry.targetSectionName.trim() === '')
+    (entry) => dayjs(entry.timestamp_ms).isAfter(now, 'day') && !entry.targetSectionUri
   ).length;
 }
 
@@ -321,31 +310,40 @@ const getProgressIcon = (status: string) => {
   return '📊';
 };
 
+interface CoverageTableProps {
+  courseId: string;
+  entries: LectureEntry[];
+  secInfo: Record<FTML.DocumentURI, SecInfo>;
+  onEdit: (index: number) => void;
+  onDelete: (index: number) => void;
+  onProgressStatusChange?: (status: string) => void;
+}
 export function CoverageTable({
   courseId,
   entries,
+  secInfo,
   onEdit,
   onDelete,
-  sectionList,
-  onProgressStatusChange
 }: CoverageTableProps) {
   const targetUsed = isTargetSectionUsed(entries);
-  const status = calculateLectureProgress(entries, sectionList);
+  const status = calculateLectureProgress(entries, secInfo);
   const missingTargetsCount = countMissingTargetsInFuture(entries);
   const sortedEntries = [...entries].sort((a, b) => a.timestamp_ms - b.timestamp_ms);
   const [quizMatchMap, setQuizMatchMap] = useState<QuizMatchMap>({});
   const prevStatusRef = useRef<string>('');
 
   entries.forEach((entry) => {
-    entry.progressStatus = status;
+    // entry.progressStatus = status; <-- this is weird and/or wrong.
   });
+  /*
+  Use of callbacks for this problem is wrong!
   useEffect(() => {
     if (onProgressStatusChange && status !== prevStatusRef.current) {
       prevStatusRef.current = status;
       onProgressStatusChange(status);
     }
-  }, [status, onProgressStatusChange]);
- 
+  }, [status, onProgressStatusChange]);*/
+
   useEffect(() => {
     async function fetchQuizzes() {
       try {
@@ -459,7 +457,6 @@ export function CoverageTable({
           }
         `}
       </style>
-
       <TableContainer component={Paper} elevation={2} sx={{ borderRadius: 2, mb: 3 }}>
         <Table sx={{ minWidth: 650 }} size="medium">
           <TableHead>
@@ -474,7 +471,9 @@ export function CoverageTable({
           </TableHead>
           <TableBody>
             {sortedEntries.map((item, idx) => {
-              const originalIndex = entries.findIndex((entry) => entry.id === item.id);
+              const originalIndex = entries.findIndex(
+                (entry) => entry.timestamp_ms === item.timestamp_ms
+              );
 
               return (
                 <CoverageRow
@@ -484,6 +483,7 @@ export function CoverageTable({
                   originalIndex={originalIndex}
                   onEdit={onEdit}
                   onDelete={onDelete}
+                  secInfo={secInfo}
                 />
               );
             })}

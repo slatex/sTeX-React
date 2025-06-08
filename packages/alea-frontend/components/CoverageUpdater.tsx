@@ -1,3 +1,4 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import {
   Box,
   Dialog,
@@ -9,12 +10,15 @@ import {
 } from '@mui/material';
 import { LectureEntry } from '@stex-react/utils';
 import { useEffect, useState } from 'react';
-import { Section } from '../types';
+import { SecInfo } from '../types';
 import { CoverageForm, FormData } from './CoverageForm';
 import { CoverageTable } from './CoverageTable';
 
-export function getSectionNameForUri(uri: string, sectionNames: Section[]): string {
-  const section = sectionNames.find(({ uri: sectionUri }) => sectionUri === uri);
+export function getSectionNameForUri(
+  uri: string,
+  secInfo: Record<FTML.DocumentURI, SecInfo>
+): string {
+  const section = secInfo[uri];
   return section?.title.trim() || '';
 }
 
@@ -26,9 +30,9 @@ function convertSnapToEntry(snap: LectureEntry, index: number): any {
   return {
     id: `${snap.timestamp_ms}-${index}`,
     timestamp_ms: snap.timestamp_ms,
-    sectionName: getSectionNameForUri(snap.sectionUri || '', []),
+    sectionName: getSectionNameForUri(snap.sectionUri || '', {}),
     sectionUri: snap.sectionUri || '',
-    targetSectionName: getSectionNameForUri(snap.targetSectionUri || '', []),
+    targetSectionName: getSectionNameForUri(snap.targetSectionUri || '', {}),
     targetSectionUri: snap.targetSectionUri || '',
     clipId: snap.clipId || '',
     isQuizScheduled: snap.isQuizScheduled || false,
@@ -41,7 +45,7 @@ function convertSnapToEntry(snap: LectureEntry, index: number): any {
 interface CoverageUpdaterProps {
   courseId: string;
   snaps: LectureEntry[];
-  sectionNames: Section[];
+  secInfo: Record<FTML.DocumentURI, SecInfo>;
   handleSave: (snaps: LectureEntry[]) => void;
   onProgressStatusChange?: (status: string) => void;
 }
@@ -49,7 +53,7 @@ interface CoverageUpdaterProps {
 export function CoverageUpdater({
   courseId,
   snaps,
-  sectionNames,
+  secInfo,
   handleSave,
   onProgressStatusChange,
 }: CoverageUpdaterProps) {
@@ -83,14 +87,14 @@ export function CoverageUpdater({
   useEffect(() => {
     if (snaps.length > 0) {
       const lastSnapUri = snaps[snaps.length - 1]?.sectionUri;
-      const lastSnapName = getSectionNameForUri(lastSnapUri || '', sectionNames).trim();
+      const lastSnapName = getSectionNameForUri(lastSnapUri || '', secInfo).trim();
       setFormData((prev) => ({
         ...prev,
         sectionName: lastSnapName,
         sectionUri: lastSnapUri || '',
       }));
     }
-  }, [snaps, sectionNames]);
+  }, [snaps, secInfo]);
 
   const handleDeleteItem = (index: number) => {
     if (!confirm('Are you sure you want to delete this entry?')) return;
@@ -163,8 +167,8 @@ export function CoverageUpdater({
 
   const coverageEntries = snaps.map((snap, index) => {
     const entry = convertSnapToEntry(snap, index);
-    entry.sectionName = getSectionNameForUri(snap.sectionUri || '', sectionNames);
-    entry.targetSectionName = getSectionNameForUri(snap.targetSectionUri || '', sectionNames);
+    entry.sectionName = getSectionNameForUri(snap.sectionUri || '', secInfo);
+    entry.targetSectionName = getSectionNameForUri(snap.targetSectionUri || '', secInfo);
     return entry;
   });
 
@@ -174,7 +178,8 @@ export function CoverageUpdater({
         <>
           <CoverageTable
             courseId={courseId}
-            entries={coverageEntries}
+            entries={snaps}
+            secInfo={secInfo}
             onEdit={(idx) => handleEditDialogOpen(coverageEntries[idx], idx)}
             onDelete={handleDeleteItem}
             onProgressStatusChange={handleProgressStatusUpdate}
@@ -211,7 +216,7 @@ export function CoverageUpdater({
           <CoverageForm
             formData={formData}
             setFormData={setFormData}
-            sectionNames={sectionNames}
+            secInfo={secInfo}
             isEditing={true}
             onSubmit={handleEditDialogSave}
             onCancel={handleEditDialogClose}
@@ -237,7 +242,7 @@ export function CoverageUpdater({
             courseId={courseId}
             formData={formData}
             setFormData={setFormData}
-            sectionNames={sectionNames}
+            secInfo={secInfo}
             isEditing={false}
             onSubmit={handleSubmitForm}
             onCancel={handleCancelEdit}
