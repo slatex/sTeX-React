@@ -5,7 +5,7 @@ import { Alert, Box, Button, Card, CardContent, Paper, Typography } from '@mui/m
 import { getSlides, Slide } from '@stex-react/api';
 import { getParamsFromUri, PRIMARY_COL } from '@stex-react/utils';
 import { useEffect, useState } from 'react';
-import { Section } from '../types';
+import { SecInfo } from '../types';
 
 type SlideData = Slide & {
   title: string;
@@ -20,14 +20,6 @@ export interface SlideDataWithCSS {
 }
 
 const EMPTY_SLIDE_DATA: SlideDataWithCSS = { slides: [], css: [] };
-
-interface SlidePickerProps {
-  courseId: string;
-  sectionUri: string;
-  slideUri: string;
-  setSlideUri: (uri: string | undefined, slideNumber: number | undefined) => void;
-  allCourseSections: Section[];
-}
 
 function getSlideTitle(slide: Slide, index: number) {
   const uri = slide.slide?.uri;
@@ -58,12 +50,20 @@ const getRelevantSlides = async (
   return { slides: relevantSlides, css };
 };
 
+interface SlidePickerProps {
+  courseId: string;
+  sectionUri: string;
+  slideUri: string;
+  setSlideUri: (uri: string | undefined, slideNumber: number | undefined) => void;
+  secInfo: Record<FTML.DocumentURI, SecInfo>;
+}
+
 export function SlidePicker({
   courseId,
   sectionUri,
   slideUri,
   setSlideUri,
-  allCourseSections,
+  secInfo,
 }: SlidePickerProps) {
   const [availableSlides, setLocalAvailableSlides] = useState<SlideDataWithCSS>({
     slides: [],
@@ -71,9 +71,7 @@ export function SlidePicker({
   });
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const section = allCourseSections.find(
-    ({ uri }) => uri && sectionUri && uri.trim() === sectionUri.trim()
-  );
+  const section = secInfo[sectionUri];
   const sectionDisplayName = section ? section.title.trim() : 'Unknown Section';
 
   const resetSlideState = (): void => {
@@ -123,7 +121,7 @@ export function SlidePicker({
       }
     };
     fetchSlides();
-  }, [sectionUri, allCourseSections, courseId, section]);
+  }, [sectionUri, secInfo, courseId, section]);
 
   const slideOptions = availableSlides?.slides ?? [];
   const selectedSlide = slideOptions.find((slide) => slide.uri === slideUri);

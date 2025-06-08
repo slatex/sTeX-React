@@ -1,3 +1,4 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import AddIcon from '@mui/icons-material/Add';
 import ClearIcon from '@mui/icons-material/Clear';
 import QuizIcon from '@mui/icons-material/Quiz';
@@ -20,7 +21,7 @@ import {
 import { LectureEntry } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import React, { Dispatch, SetStateAction, useEffect } from 'react';
-import { Section } from '../types';
+import { SecInfo } from '../types';
 import { getNoonTimestampOnSameDay } from './CoverageUpdater';
 import { SlidePicker } from './SlideSelector';
 
@@ -32,7 +33,7 @@ export type FormData = LectureEntry & {
 interface CoverageFormProps {
   formData: FormData;
   setFormData: Dispatch<SetStateAction<FormData>>;
-  sectionNames: Section[];
+  secInfo: Record<FTML.DocumentURI, SecInfo>;
   isEditing: boolean;
   onSubmit: (data: FormData) => void;
   onCancel: () => void;
@@ -42,7 +43,7 @@ interface CoverageFormProps {
 export function CoverageForm({
   formData,
   setFormData,
-  sectionNames,
+  secInfo,
   isEditing,
   onSubmit,
   onCancel,
@@ -53,7 +54,7 @@ export function CoverageForm({
     let dataChanged = false;
 
     if (formData.sectionName && formData.sectionName.trim() !== '' && !formData.sectionUri) {
-      const section = sectionNames.find((s) => s.title.trim() === formData.sectionName.trim());
+      const section = secInfo[formData.sectionUri];
       if (section) {
         updatedData.sectionUri = section.uri;
         dataChanged = true;
@@ -65,9 +66,7 @@ export function CoverageForm({
       formData.targetSectionName.trim() !== '' &&
       !formData.targetSectionUri
     ) {
-      const targetSection = sectionNames.find(
-        (s) => s.title.trim() === formData.targetSectionName.trim()
-      );
+      const targetSection = secInfo[formData.targetSectionUri];
       if (targetSection) {
         updatedData.targetSectionUri = targetSection.uri;
         dataChanged = true;
@@ -77,7 +76,7 @@ export function CoverageForm({
     if (dataChanged) {
       setFormData(updatedData);
     }
-  }, [formData, sectionNames]);
+  }, [formData, secInfo]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
@@ -113,7 +112,7 @@ export function CoverageForm({
       return;
     }
 
-    const selectedSection = sectionNames.find((section) => section.uri === selectedUri);
+    const selectedSection = secInfo[selectedUri];
     if (selectedSection) {
       setFormData({
         ...formData,
@@ -137,7 +136,7 @@ export function CoverageForm({
       return;
     }
 
-    const selectedSection = sectionNames.find((section) => section.uri === selectedUri);
+    const selectedSection = secInfo[selectedUri];
     if (selectedSection) {
       setFormData({
         ...formData,
@@ -189,7 +188,7 @@ export function CoverageForm({
             <MenuItem value="">
               <em>None</em>
             </MenuItem>
-            {sectionNames.map((section) => (
+            {Object.values(secInfo).map((section) => (
               <MenuItem key={section.uri} value={section.uri}>
                 {section.title}
               </MenuItem>
@@ -211,7 +210,7 @@ export function CoverageForm({
             <MenuItem value="">
               <em>None</em>
             </MenuItem>
-            {sectionNames.map((section) => (
+            {Object.values(secInfo).map((section) => (
               <MenuItem key={section.uri} value={section.uri}>
                 {section.title}
               </MenuItem>
@@ -230,7 +229,7 @@ export function CoverageForm({
           sectionUri={formData.sectionUri}
           slideUri={formData.slideUri}
           setSlideUri={handleSlideUriChange}
-          allCourseSections={sectionNames}
+          secInfo={secInfo}
         />
       </Grid>
 
