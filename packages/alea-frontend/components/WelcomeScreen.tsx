@@ -172,7 +172,15 @@ async function getLastUpdatedQuiz(
     const timeAgo = null;
     const coverageQuizData = await getCoverageTimeline();
     const courseQuizData = coverageQuizData[courseId];
-    if (courseQuizData && courseQuizData.length > 0) {
+
+    // The code here seems over-complicated.
+
+    // 1. if `latestQuiz.timestamp` is in the future (or less than 12 hours ago), return the latest quiz. <-- SAME behavior as before, nothing changes
+    // 2. else find the first quiz that is scheduled in the future:
+    //      2.1 if no quiz is scheduled in the future, return the latest quiz. (grey)
+    //      2.2 if quiz is scheduled in the future, return (orange TODO-like view)
+
+    if (courseQuizData?.length > 0) {
       const entriesWithSection = courseQuizData.filter((entry) => entry.isQuizScheduled);
 
       const matchQuizEntry = entriesWithSection
