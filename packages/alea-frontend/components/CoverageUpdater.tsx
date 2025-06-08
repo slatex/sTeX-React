@@ -38,7 +38,7 @@ function convertSnapToEntry(snap: LectureEntry, index: number): any {
     isQuizScheduled: snap.isQuizScheduled || false,
     slideUri: snap.slideUri || '',
     slideNumber: snap.slideNumber,
-    progressStatus: snap.progressStatus || '',
+    // progressStatus: snap.progressStatus || '', FIX
   };
 }
 
@@ -73,7 +73,7 @@ export function CoverageUpdater({
   const handleProgressStatusUpdate = (status: string) => {
     const updatedSnaps = snaps.map((snap) => ({
       ...snap,
-      progressStatus: status,
+      // progressStatus: status, FIX
     }));
 
     handleSave(updatedSnaps);
@@ -183,11 +183,6 @@ export function CoverageUpdater({
             onEdit={(idx) => handleEditDialogOpen(coverageEntries[idx], idx)}
             onDelete={handleDeleteItem}
             onProgressStatusChange={handleProgressStatusUpdate}
-            sectionList={sectionNames.map(({ title, uri }) => ({
-              id: uri,
-              title,
-              uri,
-            }))}
           />
         </>
       ) : (

@@ -57,7 +57,7 @@ const CoverageUpdateTab = () => {
   const handleProgressStatusChange = (status: string) => {
     const updatedSnaps = snaps.map((snap) => ({
       ...snap,
-      progressStatus: status,
+      // progressStatus: status, FIX
     }));
 
     handleSave(updatedSnaps);
