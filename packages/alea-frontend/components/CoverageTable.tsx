@@ -1,3 +1,4 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
@@ -17,41 +18,23 @@ import {
   Typography,
 } from '@mui/material';
 import { getAllQuizzes, QuizWithStatus } from '@stex-react/api';
-import { CURRENT_TERM } from '@stex-react/utils';
+import { CURRENT_TERM, LectureEntry } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
+import { SecInfo } from '../types';
 import QuizHandler from './QuizHandler';
-
-export interface CoverageEntry {
-  id: string;
-  timestamp_ms: number;
-  sectionName: string;
-  sectionUri: string;
-  targetSectionName: string;
-  targetSectionUri: string;
-  clipId: string;
-  isQuizScheduled: boolean;
-  slideUri: string;
-  slideNumber?: number;
-}
 
 interface QuizMatchMap {
   [timestamp_ms: number]: QuizWithStatus | null;
 }
 
-interface CoverageTableProps {
-  courseId: string;
-  entries: CoverageEntry[];
-  onEdit: (index: number) => void;
-  onDelete: (index: number) => void;
-}
-
 interface CoverageRowProps {
-  item: CoverageEntry;
+  item: LectureEntry;
   quizMatch: QuizWithStatus | null;
   originalIndex: number;
   onEdit: (index: number) => void;
   onDelete: (index: number) => void;
+  secInfo: Record<FTML.DocumentURI, SecInfo>;
 }
 
 const formatSectionWithSlide = (sectionName: string, slideNumber?: number, slideUri?: string) => {
@@ -62,7 +45,7 @@ const formatSectionWithSlide = (sectionName: string, slideNumber?: number, slide
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <SlideshowIcon sx={{ fontSize: 16, color: 'success.main' }} />
         <Typography variant="body2">
-          <strong>Slide {slideNumber}</strong> of {sectionName}
+          <strong>Slide {slideNumber}</strong> of {sectionName.trim()}
         </Typography>
       </Box>
     );
@@ -71,13 +54,20 @@ const formatSectionWithSlide = (sectionName: string, slideNumber?: number, slide
   }
 };
 
-function CoverageRow({ item, quizMatch, originalIndex, onEdit, onDelete }: CoverageRowProps) {
+function CoverageRow({
+  item,
+  quizMatch,
+  originalIndex,
+  onEdit,
+  onDelete,
+  secInfo,
+}: CoverageRowProps) {
   const now = dayjs();
   const itemDate = dayjs(item.timestamp_ms);
   const isPast = itemDate.isBefore(now, 'day');
   const isFuture = itemDate.isAfter(now, 'day');
   const isToday = itemDate.isSame(now, 'day');
-  const isNoSection = !item.sectionName || item.sectionName.trim() === '';
+  const isNoSection = !item.sectionUri;
   const shouldHighlightNoSection = isNoSection && (isPast || isToday);
 
   let backgroundColor = 'inherit';
@@ -92,6 +82,9 @@ function CoverageRow({ item, quizMatch, originalIndex, onEdit, onDelete }: Cover
     backgroundColor = 'rgba(255, 243, 224, 0.5)';
     hoverBackgroundColor = 'rgba(255, 243, 224, 0.7)';
   }
+
+  const sectionTitle = secInfo[item.sectionUri]?.title;
+  const targetSectionTitle = secInfo[item.targetSectionUri]?.title;
 
   return (
     <TableRow
@@ -124,7 +117,7 @@ function CoverageRow({ item, quizMatch, originalIndex, onEdit, onDelete }: Cover
       >
         <Tooltip
           title={
-            item.sectionName ||
+            secInfo[item.sectionUri]?.title ||
             (shouldHighlightNoSection ? 'No Section - Please fill this field' : 'No Section')
           }
         >
@@ -151,7 +144,7 @@ function CoverageRow({ item, quizMatch, originalIndex, onEdit, onDelete }: Cover
               </Typography>
             </Box>
           ) : (
-            formatSectionWithSlide(item.sectionName, item.slideNumber, item.slideUri)
+            formatSectionWithSlide(sectionTitle, item.slideNumber, item.slideUri)
           )}
         </Tooltip>
       </TableCell>
@@ -163,8 +156,10 @@ function CoverageRow({ item, quizMatch, originalIndex, onEdit, onDelete }: Cover
           whiteSpace: 'nowrap',
         }}
       >
-        <Tooltip title={item.targetSectionName || 'No Target'}>
-          <Typography variant="body2">{item.targetSectionName || <i>-</i>}</Typography>
+        <Tooltip title={targetSectionTitle || item.targetSectionUri || 'No Target'}>
+          <Typography variant="body2">
+            {targetSectionTitle || item.targetSectionUri || <i>-</i>}
+          </Typography>
         </Tooltip>
       </TableCell>
       <TableCell>
@@ -228,7 +223,20 @@ function CoverageRow({ item, quizMatch, originalIndex, onEdit, onDelete }: Cover
   );
 }
 
-export function CoverageTable({ courseId, entries, onEdit, onDelete }: CoverageTableProps) {
+interface CoverageTableProps {
+  courseId: string;
+  entries: LectureEntry[];
+  secInfo: Record<FTML.DocumentURI, SecInfo>;
+  onEdit: (index: number) => void;
+  onDelete: (index: number) => void;
+}
+export function CoverageTable({
+  courseId,
+  entries,
+  secInfo,
+  onEdit,
+  onDelete,
+}: CoverageTableProps) {
   const sortedEntries = [...entries].sort((a, b) => a.timestamp_ms - b.timestamp_ms);
   const [quizMatchMap, setQuizMatchMap] = useState<QuizMatchMap>({});
 
@@ -275,7 +283,9 @@ export function CoverageTable({ courseId, entries, onEdit, onDelete }: CoverageT
         </TableHead>
         <TableBody>
           {sortedEntries.map((item, idx) => {
-            const originalIndex = entries.findIndex((entry) => entry.id === item.id);
+            const originalIndex = entries.findIndex(
+              (entry) => entry.timestamp_ms === item.timestamp_ms
+            );
 
             return (
               <CoverageRow
@@ -285,6 +295,7 @@ export function CoverageTable({ courseId, entries, onEdit, onDelete }: CoverageT
                 originalIndex={originalIndex}
                 onEdit={onEdit}
                 onDelete={onDelete}
+                secInfo={secInfo}
               />
             );
           })}
