@@ -213,7 +213,7 @@ async function getLastUpdatedQuiz(
 
   // In this case, the instructor has to perform an action (create a quiz) to we highlight it with orange color.
   return {
-    description: `${r.futureQuizzesReady}: ${dayjs(nextScheduledQuiz.timestamp_ms).format(
+    description: `${r.prepareUpcomingQuiz}: ${dayjs(nextScheduledQuiz.timestamp_ms).format(
       'YYYY-MM-DD'
     )}`,
     timeAgo: calculateTimeAgo(nextScheduledQuiz.timestamp_ms.toString()),
