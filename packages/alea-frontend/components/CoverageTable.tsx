@@ -20,7 +20,7 @@ import {
 import { getAllQuizzes, QuizWithStatus } from '@stex-react/api';
 import { CURRENT_TERM, LectureEntry } from '@stex-react/utils';
 import dayjs from 'dayjs';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SecInfo } from '../types';
 import QuizHandler from './QuizHandler';
 
@@ -37,16 +37,16 @@ interface CoverageRowProps {
   secInfo: Record<FTML.DocumentURI, SecInfo>;
 }
 
-const formatSectionWithSlide = (sectionUri: string, slideNumber?: number, slideUri?: string) => {
-  if (!sectionUri) return <i>-</i>;
-  
-  if (!slideUri) return <Typography variant="body2">{sectionUri.trim()}</Typography>;
+const formatSectionWithSlide = (sectionName: string, slideNumber?: number, slideUri?: string) => {
+  if (!sectionName) return <i>-</i>;
+
+  if (!slideUri) return <Typography variant="body2">{sectionName.trim()}</Typography>;
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
       <SlideshowIcon sx={{ fontSize: 16, color: 'success.main' }} />
       <Typography variant="body2">
-        <strong>Slide {slideNumber}</strong> of {sectionUri.trim()}
+        <strong>Slide {slideNumber}</strong> of {sectionName.trim()}
       </Typography>
     </Box>
   );
@@ -123,20 +123,13 @@ function CoverageRow({
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Typography
                 variant="body2"
-                sx={{
-                  color: 'error.main',
-                  fontStyle: 'italic',
-                  fontWeight: 'bold',
-                }}
+                sx={{ color: 'error.main', fontStyle: 'italic', fontWeight: 'bold' }}
               >
                 Update pending
               </Typography>
               <Typography
                 variant="body2"
-                sx={{
-                  color: 'error.main',
-                  animation: 'blink 1.5s infinite',
-                }}
+                sx={{ color: 'error.main', animation: 'blink 1.5s infinite' }}
               >
                 ⚠️
               </Typography>
@@ -156,7 +149,7 @@ function CoverageRow({
       >
         <Tooltip title={targetSectionTitle || item.targetSectionUri || 'No Target'}>
           <Typography variant="body2">
-            {targetSectionTitle || item.targetSectionUri || <i>-</i>}
+            {targetSectionTitle?.trim() || item.targetSectionUri || <i>-</i>}
           </Typography>
         </Tooltip>
       </TableCell>

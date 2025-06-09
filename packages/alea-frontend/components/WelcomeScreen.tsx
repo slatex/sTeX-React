@@ -1,3 +1,4 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import { Rule, Visibility } from '@mui/icons-material';
 import ArticleIcon from '@mui/icons-material/Article';
 import CommentIcon from '@mui/icons-material/Comment';
@@ -48,10 +49,9 @@ import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 import { BannerSection, CourseCard, VollKiInfoSection } from '../pages';
 import { CourseThumb } from '../pages/u/[institution]';
+import { SecInfo } from '../types';
 import { getSecInfo } from './coverage-update';
 import { calculateLectureProgress } from './CoverageTable';
-import { FTML } from '@kwarc/ftml-viewer';
-import { SecInfo } from '../types';
 
 interface ColorInfo {
   color: string;
@@ -182,15 +182,15 @@ async function getLastUpdatedQuiz(
   const latestQuiz = quizList.reduce((acc, curr) => {
     return acc.quizStartTs > curr.quizStartTs ? acc : curr;
   }, quizList[0]);
-  const firstFutureQuiz = quizList.filter((quiz) =>
-    quiz.quizStartTs > Date.now()
-  ).sort((a, b) => a.quizStartTs - b.quizStartTs)[0];
+  const firstFutureQuiz = quizList
+    .filter((quiz) => quiz.quizStartTs > Date.now())
+    .sort((a, b) => a.quizStartTs - b.quizStartTs)[0];
   const toShowQuiz = firstFutureQuiz || latestQuiz;
   const toShowQuizTs = toShowQuiz.quizStartTs;
 
   const now = Date.now();
   const nextScheduledQuiz = courseQuizData
-     ?.filter((entry) => entry.isQuizScheduled && entry.timestamp_ms > now)
+    ?.filter((entry) => entry.isQuizScheduled && entry.timestamp_ms > now)
     .sort((a, b) => a.timestamp_ms - b.timestamp_ms)[0];
   if (toShowQuizTs > now - 12 * 60 * 60 * 1000 || !nextScheduledQuiz) {
     return {
@@ -266,9 +266,7 @@ export async function getLastUpdatedNotes(
   try {
     const coverageData = await getCoverageTimeline();
     const courseData = coverageData[courseId] ?? [];
-    const targetUsed = courseData.some(
-      (entry) => entry.targetSectionUri && entry.targetSectionUri.trim() !== ''
-    );
+    const targetUsed = courseData.some((entry) => entry.targetSectionUri);
 
     let progressStatus: string | null = null;
 
@@ -305,9 +303,11 @@ export async function getLastUpdatedNotes(
       (entry) => entry.sectionUri && entry.sectionUri.trim() !== ''
     );
 
-    const latestValidUpdate = entriesWithSection.reduce((latest, current) =>
-      dayjs(current.timestamp_ms).isAfter(dayjs(latest.timestamp_ms)) ? current : latest,
-    entriesWithSection[0]);
+    const latestValidUpdate = entriesWithSection.reduce(
+      (latest, current) =>
+        dayjs(current.timestamp_ms).isAfter(dayjs(latest.timestamp_ms)) ? current : latest,
+      entriesWithSection[0]
+    );
 
     const lastUpdatedTimestamp = latestValidUpdate?.timestamp_ms ?? null;
 
@@ -334,10 +334,11 @@ export async function getLastUpdatedNotes(
         },
       };
     }
+    const progressString = progressStatus ? `\n${r.progress}: ${progressStatus}` : '';
 
     if (pendingUpdates > 0) {
       return {
-        description: `${pendingUpdates} ${r.updates} ${r.pending}\n${r.progress}: ${progressStatus ?? 'Progress unknown'}`,
+        description: `${pendingUpdates} ${r.updates} ${r.pending}${progressString}`,
         timeAgo: null,
         timestamp: null,
         colorInfo: {
