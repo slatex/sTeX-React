@@ -177,18 +177,22 @@ async function getLastUpdatedQuiz(
   const latestQuiz = quizList.reduce((acc, curr) => {
     return acc.quizStartTs > curr.quizStartTs ? acc : curr;
   }, quizList[0]);
-  const latestQuizTs = latestQuiz.quizStartTs;
+  const firstFutureQuiz = quizList.filter((quiz) =>
+    quiz.quizStartTs > Date.now()
+  ).sort((a, b) => a.quizStartTs - b.quizStartTs)[0];
+  const toShowQuiz = firstFutureQuiz || latestQuiz;
+  const toShowQuizTs = toShowQuiz.quizStartTs;
 
   const now = Date.now();
   const nextScheduledQuiz = courseQuizData
      ?.filter((entry) => entry.isQuizScheduled && entry.timestamp_ms > now)
     .sort((a, b) => a.timestamp_ms - b.timestamp_ms)[0];
-  if (latestQuizTs > now - 12 * 60 * 60 * 1000 || !nextScheduledQuiz) {
+  if (toShowQuizTs > now - 12 * 60 * 60 * 1000 || !nextScheduledQuiz) {
     return {
-      description: `${r.latestQuiz}: ${dayjs(latestQuizTs).format('YYYY-MM-DD')}`,
-      timeAgo: calculateTimeAgo(latestQuizTs.toString()),
-      timestamp: latestQuizTs.toString(),
-      quizId: latestQuiz.quizId,
+      description: `${r.latestQuiz}: ${dayjs(toShowQuizTs).format('YYYY-MM-DD')}`,
+      timeAgo: calculateTimeAgo(toShowQuizTs.toString()),
+      timestamp: toShowQuizTs.toString(),
+      quizId: toShowQuiz.quizId,
       colorInfo: {
         color: 'gray',
         type: 'default' as const,
