@@ -182,11 +182,11 @@ const OrganizationInfoForm = ({
       onChange={(e) => onChange(e, 'organizationInfo')}
     />
     <TextField
-      label="Office Pincode"
-      name="officePincode"
+      label="Office Postal Code"
+      name="officePostalCode"
       fullWidth
       margin="normal"
-      value={formData.officePincode}
+      value={formData.officePostalCode}
       onChange={(e) => onChange(e, 'organizationInfo')}
     />
   </div>
@@ -258,7 +258,7 @@ const RecruiterProfileDialog = ({
     about,
     companyType,
     officeAddress,
-    officePincode,
+    officePostalCode,
     website,
   } = recruiterAndOrgData;
   interface RecruiterOrganizationFormState {
@@ -283,7 +283,7 @@ const RecruiterProfileDialog = ({
       about: about,
       companyType: companyType,
       officeAddress: officeAddress,
-      officePincode: officePincode,
+      officePostalCode: officePostalCode,
       domain: 'TODO JP',
     },
   });

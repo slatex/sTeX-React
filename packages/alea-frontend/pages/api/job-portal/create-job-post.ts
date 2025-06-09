@@ -15,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   );
   if (!userId) return;
   const {
-    JobCategoryId,
+    jobCategoryId,
     session,
     jobTitle,
     jobDescription,
@@ -31,10 +31,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const result = await executeAndEndSet500OnError(
     `INSERT INTO jobpost 
-      (JobCategoryId,organizationId ,session,jobTitle,jobDescription,trainingLocation,qualification,targetYears,openPositions,currency,stipend,facilities,applicationDeadline) 
+      (jobCategoryId,organizationId ,session,jobTitle,jobDescription,trainingLocation,qualification,targetYears,openPositions,currency,stipend,facilities,applicationDeadline) 
      VALUES (?,?,?, ?, ?, ?,?,?,?,?,?,?,?)`,
     [
-      JobCategoryId,
+      jobCategoryId,
       organizationId,
       session,
       jobTitle,

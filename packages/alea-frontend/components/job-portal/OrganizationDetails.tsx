@@ -114,7 +114,7 @@ export function OrganizationDetails({ data }: { data: OrganizationData }) {
           {[
             ['Website', 'website'],
             ['Office Address', 'officeAddress'],
-            ['Office Pincode', 'officePincode'],
+            ['Office Postal Code', 'officePostalCode'],
           ].map(([label, key]) => (
             <Box key={key} mb={2}>
               {isEditing ? (

@@ -266,12 +266,12 @@ export const TrainingDetailsForm = ({ formData, handleChange }) => {
 };
 
 const JobPostInfoForm = ({
-  JobCategoryId,
+  jobCategoryId,
   onClose,
   jobData,
   onUpdate,
 }: {
-  JobCategoryId: number;
+  jobCategoryId: number;
   onClose: () => void;
   jobData: InitialJobData;
   onUpdate: () => Promise<void>;
@@ -316,11 +316,11 @@ const JobPostInfoForm = ({
     } else {
       const recruiterProfileData = await getRecruiterProfile();
       const organizationId = recruiterProfileData?.organizationId;
-      const createJobPostData = { ...jobPostFormData, JobCategoryId, organizationId };
+      const createJobPostData = { ...jobPostFormData, jobCategoryId, organizationId };
       const updateJobPostData = {
         ...jobPostFormData,
         id: jobData?.id,
-        JobCategoryId,
+        jobCategoryId,
         organizationId,
       };
 

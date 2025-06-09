@@ -125,9 +125,9 @@ export const UserProfileCard = ({
               <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
                 Resume
               </Typography>
-              {(userData as StudentData).resumeURL ? (
+              {(userData as StudentData).resumeUrl ? (
                 <Link
-                  href={(userData as StudentData).resumeURL}
+                  href={(userData as StudentData).resumeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ display: 'flex', alignItems: 'center', gap: 5 }}
@@ -154,7 +154,7 @@ export const UserProfileCard = ({
               [
                 'Organization Address',
                 `${(userData as RecruiterProfileData)?.organization.officeAddress || '-'} ${
-                  (userData as RecruiterProfileData)?.organization.officePincode || '-'
+                  (userData as RecruiterProfileData)?.organization.officePostalCode || '-'
                 }`,
               ],
             ].map(([label, value]) => (

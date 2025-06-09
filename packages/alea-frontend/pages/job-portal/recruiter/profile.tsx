@@ -41,7 +41,7 @@ const ProfileForm = () => {
       website: '',
       about: '',
       officeAddress: '',
-      officePincode: '',
+      officePostalCode: '',
     },
   });
   const [loading, setLoading] = useState(true);
@@ -94,7 +94,7 @@ const ProfileForm = () => {
             website: organizationDetail?.website || '',
             about: organizationDetail?.about || '',
             officeAddress: organizationDetail?.officeAddress || '',
-            officePincode: organizationDetail?.officePincode || '',
+            officePostalCode: organizationDetail?.officePostalCode || '',
           },
         }));
       } catch (error) {

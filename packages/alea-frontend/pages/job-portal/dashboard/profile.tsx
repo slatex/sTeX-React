@@ -44,7 +44,7 @@ export const StudentProfile = ({ student }: { student?: any }) => {
       'Passionate computer science student with interests in machine learning and web development. Currently seeking internship opportunities in software development.',
     courses: 'Data Structures, Algorithms, Machine Learning, Web Development',
     grades: 'GPA: 4.1/5',
-    resumeURL: '#',
+    resumeUrl: '#',
     skills: ['JavaScript', 'React', 'Python', 'Machine Learning', 'SQL', 'Git'],
   };
 
@@ -134,7 +134,7 @@ export const StudentProfile = ({ student }: { student?: any }) => {
                   fontWeight: 'bold',
                   '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.9)' },
                 }}
-                href={profileData.resumeURL}
+                href={profileData.resumeUrl}
                 target="_blank"
               >
                 View Resume

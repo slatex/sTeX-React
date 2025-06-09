@@ -5,7 +5,7 @@ export async function getOrganizationId(organizationName: string, res: NextApiRe
   if (!organizationName) return;
   const result: any = await executeDontEndSet500OnError(
     `SELECT id
-    FROM organizationprofile 
+    FROM organizationProfile 
     WHERE companyName = ?`,
     [organizationName],
     res

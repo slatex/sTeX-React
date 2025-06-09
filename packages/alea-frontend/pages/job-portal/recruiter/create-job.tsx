@@ -130,7 +130,7 @@ const JobPostPage = () => {
     } else {
       const jobPostPayload = {
         ...jobPostFormData,
-        JobCategoryId: selectedJobCategoryId,
+        jobCategoryId: selectedJobCategoryId,
         organizationId: recruiter?.organizationId,
       };
 

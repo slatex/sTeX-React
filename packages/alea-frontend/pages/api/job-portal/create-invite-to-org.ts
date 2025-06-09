@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return;
   }
   const result = await executeAndEndSet500OnError(
-    `INSERT INTO OrgInvitations (inviteruserId, inviteeEmail,organizationId) VALUES (?, ?, ?)`,
+    `INSERT INTO orgInvitations (inviteruserId, inviteeEmail,organizationId) VALUES (?, ?, ?)`,
     [inviterId, email, orgId],
     res
   );

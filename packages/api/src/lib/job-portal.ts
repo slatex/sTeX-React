@@ -1,7 +1,6 @@
 export interface StudentData {
   userId: string;
   name: string;
-  gender: string;
   email: string;
   mobile: string;
   altMobile?: string;
@@ -11,7 +10,7 @@ export interface StudentData {
   yearOfAdmission: string;
   yearOfGraduation: string;
   location: string;
-  resumeURL?: string;
+  resumeUrl?: string;
   socialLinks?: Record<string, string>;
   about?: string;
 }
@@ -38,15 +37,11 @@ export interface OrganizationData {
   website?: string;
   companyType?: string;
   officeAddress?: string;
-  officePincode?: string;
+  officePostalCode?: string;
 }
 
 export type RecruiterAndOrgData = RecruiterData & OrganizationData;
 
-// export enum jobCategories {
-//   Internship = 'internship',
-//   FullTime = 'fulltime',
-// }
 export interface JobCategoryInfo {
   id: number;
   jobCategory: string;
@@ -58,7 +53,7 @@ export interface JobCategoryInfo {
 export interface JobPostInfo {
   id: number;
   organizationId: number;
-  JobCategoryId: number;
+  jobCategoryId: number;
   session: string;
   jobTitle: string;
   jobDescription: string;
@@ -73,7 +68,6 @@ export interface JobPostInfo {
   createdByUserId?: string;
 }
 
-// export type InitialJobData = JobPostInfo | Pick<JobPostInfo, 'session'>;
 export type InitialJobData = Partial<JobPostInfo>;
 export interface JobApplicationInfo {
   id: number;
@@ -87,9 +81,6 @@ export interface JobApplicationInfo {
   createdAt?: string;
 }
 
-// export interface ApplicantProfile extends JobApplicationInfo {
-//   studentProfile: StudentData[];
-// }
 export type ApplicantWithProfile = JobApplicationInfo & {
   jobPostTitle?: string;
   studentProfile: StudentData;

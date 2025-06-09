@@ -7,7 +7,7 @@ export async function checkInviteToOrg(
 ) {
   if (!organizationId || !email) return;
   const result: any = await executeDontEndSet500OnError(
-    `SELECT COUNT(*) AS count FROM OrgInvitations WHERE organizationId = ? AND inviteeEmail = ?`,
+    `SELECT COUNT(*) AS count FROM orgInvitations WHERE organizationId = ? AND inviteeEmail = ?`,
     [organizationId, email],
     res
   );

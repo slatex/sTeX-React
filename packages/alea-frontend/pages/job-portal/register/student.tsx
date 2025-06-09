@@ -23,8 +23,7 @@ export default function StudentRegistration() {
   const [isRegistered, setIsRegistered] = useState(false);
   const [formData, setFormData] = useState<StudentData>({
     name: '',
-    gender: '',
-    resumeURL: '',
+    resumeUrl: '',
     email: '',
     mobile: '',
     altMobile: '',
@@ -147,14 +146,7 @@ export default function StudentRegistration() {
             fullWidth
             margin="normal"
           />
-          <TextField
-            label="Gender"
-            name="gender"
-            value={formData.gender}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-          />
+
           <TextField
             label="Email"
             name="email"
@@ -260,8 +252,8 @@ export default function StudentRegistration() {
           />
           <TextField
             label="Resume URL"
-            name="resumeURL"
-            value={formData.resumeURL}
+            name="resumeUrl"
+            value={formData.resumeUrl}
             onChange={handleChange}
             fullWidth
             margin="normal"

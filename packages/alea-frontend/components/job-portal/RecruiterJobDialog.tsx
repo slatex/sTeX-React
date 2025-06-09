@@ -62,7 +62,7 @@ const RecruiterJobDialog = ({
           )}
           {currentView === 'jobDetails' && (
             <JobPostInfoForm
-              JobCategoryId={selectedJobCategoryId}
+              jobCategoryId={selectedJobCategoryId}
               onClose={onClose}
               jobData={jobData}
               onUpdate={onUpdate}

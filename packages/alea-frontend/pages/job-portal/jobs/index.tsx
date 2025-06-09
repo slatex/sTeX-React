@@ -372,7 +372,7 @@ const Jobs = () => {
                   Address: {selectedOrganization.officeAddress || 'N/A'}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" gutterBottom>
-                  Pincode: {selectedOrganization.officePincode || 'N/A'}
+                  Postal Code: {selectedOrganization.officePostalCode || 'N/A'}
                 </Typography>
                 <Button
                   variant="contained"

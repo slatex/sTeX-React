@@ -3,7 +3,7 @@ import { checkIfGetOrSetError, executeDontEndSet500OnError } from '../comment-ut
 export async function getOrganizationByDomain(domain: string, res: NextApiResponse) {
   if (!domain) return res.status(422).send('Invalid or missing domain.');
   const results: any = await executeDontEndSet500OnError(
-    `SELECT id, companyName, domain FROM organizationprofile WHERE domain = ? LIMIT 1`,
+    `SELECT id, companyName, domain FROM organizationProfile WHERE domain = ? LIMIT 1`,
     [domain],
     res
   );

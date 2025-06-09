@@ -115,7 +115,7 @@ export const ApplicantProfileDialog = ({
                   ResumeURL
                 </Typography>
                 <Typography variant="body2" color="textSecondary">
-                  {selectedStudentProfile.resumeURL}
+                  {selectedStudentProfile.resumeUrl}
                 </Typography>
               </Grid>
               <Grid item xs={12}>

@@ -242,7 +242,7 @@ const ApplicantRow = ({
           }}
         >
           <Tooltip title="View Resume" arrow>
-            <Link href={applicant?.studentProfile?.resumeURL || '#'} passHref legacyBehavior>
+            <Link href={applicant?.studentProfile?.resumeUrl || '#'} passHref legacyBehavior>
               <a target="_blank" rel="noopener noreferrer">
                 <IconButton color="primary">
                   <FileOpen />

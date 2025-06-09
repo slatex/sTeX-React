@@ -25,12 +25,11 @@ const ProfileForm = () => {
     courses: '',
     location: '',
     gpa: '',
-    gender: '',
     programme: '',
     yearOfAdmission: null,
     yearOfGraduation: null,
     socialLinks: {},
-    resumeURL: '',
+    resumeUrl: '',
   });
 
   const [accessCheckLoading, setAccessCheckLoading] = useState(true);
@@ -77,12 +76,11 @@ const ProfileForm = () => {
           courses: res?.courses || '',
           location: res?.location || '',
           gpa: res?.gpa || '',
-          gender: res?.gender || '',
           programme: res?.programme || '',
           yearOfAdmission: res?.yearOfAdmission || null,
           yearOfGraduation: res?.yearOfGraduation || null,
           socialLinks: requiredSocialLinks,
-          resumeURL: res?.resumeURL || '',
+          resumeUrl: res?.resumeUrl || '',
         }));
       } catch (error) {
         console.error('Error fetching student data:', error);
@@ -123,10 +121,9 @@ const ProfileForm = () => {
         gpa: profileData.gpa,
         courses: profileData.courses,
         programme: profileData.programme,
-        gender: profileData.gender,
         yearOfAdmission: profileData.yearOfAdmission,
         yearOfGraduation: profileData.yearOfGraduation,
-        resumeURL: profileData.resumeURL,
+        resumeUrl: profileData.resumeUrl,
         location: profileData.location,
         about: profileData.about,
         socialLinks: JSON.stringify(profileData.socialLinks),
@@ -226,15 +223,6 @@ const ProfileForm = () => {
                   value={profileData.name}
                   onChange={handleChange}
                   name="name"
-                />
-                <TextField
-                  label="Gender"
-                  variant="standard"
-                  fullWidth
-                  sx={{ maxWidth: '350px', m: '30px 0 0' }}
-                  value={profileData.gender || 'N/A'}
-                  onChange={handleChange}
-                  name="gender"
                 />
               </Box>
 
@@ -340,9 +328,9 @@ const ProfileForm = () => {
                   variant="standard"
                   fullWidth
                   sx={{ maxWidth: '350px', m: '20px 0 0' }}
-                  value={profileData.resumeURL}
+                  value={profileData.resumeUrl}
                   onChange={handleChange}
-                  name="resumeURL"
+                  name="resumeUrl"
                 />
               </Box>
 

@@ -7,8 +7,8 @@ import {
 import { OrganizationData } from '@stex-react/api';
 async function getOrganizationProfileById(id: string, res: NextApiResponse) {
   const results: OrganizationData[] = await executeDontEndSet500OnError(
-    `SELECT id,companyName,incorporationYear,isStartup, about, companyType,officeAddress,officePincode,website,domain
-      FROM organizationprofile 
+    `SELECT id,companyName,incorporationYear,isStartup, about, companyType,officeAddress,officePostalCode,website,domain
+      FROM organizationProfile 
       WHERE id = ? 
       `,
     [id],
@@ -24,7 +24,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const recruiter = await getOrganizationProfileById(id, res);
   if (!recruiter) return;
   const result = await executeAndEndSet500OnError(
-    'DELETE FROM organizationprofile WHERE id = ?',
+    'DELETE FROM organizationProfile WHERE id = ?',
     [id],
     res
   );

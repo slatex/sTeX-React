@@ -1,27 +1,11 @@
+import { Delete, Edit, Groups } from '@mui/icons-material';
 import {
-  Cancel,
-  Check,
-  CheckCircle,
-  Delete,
-  Edit,
-  Groups,
-  Send,
-  Visibility,
-} from '@mui/icons-material';
-import {
-  Avatar,
-  Box,
   Button,
-  Card,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  Grid,
   IconButton,
-  List,
-  ListItem,
-  ListItemText,
   Paper,
   Table,
   TableBody,
@@ -30,23 +14,17 @@ import {
   TableHead,
   TableRow,
   Tooltip,
-  Typography,
 } from '@mui/material';
 import {
   deleteJobPost,
   getJobApplicationsByJobPost,
-  getJobApplicationsByUserIdAndJobPostId,
-  getJobPosts,
-  getRecruiterProfile,
   getStudentProfileUsingUserId,
   JobPostInfo,
-  JobCategoryInfo,
   updateJobApplication,
-  JobApplicationInfo,
   StudentData,
   ApplicantWithProfile,
 } from '@stex-react/api';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import JobPostInfoForm from './JobPostInfoForm';
 import { ApplicantActionDialog } from './ApplicantActionDialog';
 import { ApplicantProfileDialog } from './ApplicantProfileDialog';
@@ -58,7 +36,7 @@ const EditJobPost = ({ isEditing, jobData, onClose, onUpdate }) => {
         <DialogTitle>Edit Job Post</DialogTitle>
         <DialogContent>
           <JobPostInfoForm
-            JobCategoryId={jobData?.JobCategoryId}
+            jobCategoryId={jobData?.jobCategoryId}
             onClose={onClose}
             jobData={jobData}
             onUpdate={onUpdate}

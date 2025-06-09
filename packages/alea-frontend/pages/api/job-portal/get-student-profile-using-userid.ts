@@ -10,8 +10,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const userId = req.query.userId as string;
   if (!userId) return;
   const results: any = await executeDontEndSet500OnError(
-    `SELECT name, resumeURL, email, mobile, programme, yearOfAdmission, yearOfGraduation, 
-        courses, grades,gpa,location,gender, about,socialLinks
+    `SELECT name, resumeUrl, email, mobile, programme, yearOfAdmission, yearOfGraduation, 
+        courses, grades,gpa,location, about,socialLinks
     FROM studentprofile 
     WHERE userId = ? 
     `,

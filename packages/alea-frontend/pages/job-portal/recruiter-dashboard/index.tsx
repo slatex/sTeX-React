@@ -124,7 +124,7 @@ const OrganizationInfoCard = ({
   website,
   about,
   officeAddress,
-  officePincode,
+  officePostalCode,
 }: {
   companyName: string;
   isStartup: string;
@@ -133,7 +133,7 @@ const OrganizationInfoCard = ({
   website: string;
   about: string;
   officeAddress: string;
-  officePincode: string;
+  officePostalCode: string;
 }) => (
   <CardContent>
     <Box display="flex" alignItems="center" mb={2}>
@@ -164,7 +164,7 @@ const OrganizationInfoCard = ({
       <strong>Office Address:</strong> {officeAddress || 'N/A'}
     </Typography>
     <Typography>
-      <strong>Office Pincode:</strong> {officePincode || 'N/A'}
+      <strong>Office Postal Code:</strong> {officePostalCode || 'N/A'}
     </Typography>
   </CardContent>
 );
@@ -203,7 +203,7 @@ const RecruiterDashboard = () => {
     website: '',
     companyType: '',
     officeAddress: '',
-    officePincode: '',
+    officePostalCode: '',
     domain: '',
   });
   const [loading, setLoading] = useState(true);
@@ -236,10 +236,6 @@ const RecruiterDashboard = () => {
       const recruiterData = await getRecruiterProfile();
       setRecruiter(recruiterData);
       const organizationId = recruiterData?.organizationId;
-      /* TODO JP if (recruiterData.hasDefinedOrg === 0) { 
-        setIsOpen(true);
-        await updateRecruiterProfile({ ...recruiterData, hasDefinedOrg: 1 });
-      }*/
       if (organizationId) {
         const orgData = await getOrganizationProfile(organizationId);
         setOrganizationData(orgData);
@@ -292,7 +288,7 @@ const RecruiterDashboard = () => {
       </Box>
     );
   }
-  const { name, email, position /*hasDefinedOrg TODO JP*/ } = recruiter;
+  const { name, email, position } = recruiter;
 
   const {
     companyName,
@@ -302,22 +298,20 @@ const RecruiterDashboard = () => {
     website,
     companyType,
     officeAddress,
-    officePincode,
+    officePostalCode,
   } = organizationData;
 
   const recruiterAndOrgData: RecruiterAndOrgData = { ...recruiter, ...organizationData };
 
   return (
     <MainLayout title="Recruiter Dashboard | Job Portal">
-      {
-        /* TODO JP (!hasDefinedOrg ||*/ isOpen && (
-          <RecruiterProfileDialog
-            isOpen={isOpen}
-            setIsOpen={setIsOpen}
-            recruiterAndOrgData={recruiterAndOrgData}
-          />
-        )
-      }
+      {isOpen && (
+        <RecruiterProfileDialog
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
+          recruiterAndOrgData={recruiterAndOrgData}
+        />
+      )}
 
       <Box>
         <HeaderSection />
@@ -348,7 +342,7 @@ const RecruiterDashboard = () => {
                   website={website}
                   about={about}
                   officeAddress={officeAddress}
-                  officePincode={officePincode}
+                  officePostalCode={officePostalCode}
                 />
               </Grid>
             </Grid>

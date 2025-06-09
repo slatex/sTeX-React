@@ -7,7 +7,7 @@ import {
 import { RecruiterData } from '@stex-react/api';
 async function getRecruiterProfileByUserId(userId: string, res: NextApiResponse) {
   const results: RecruiterData[] = await executeDontEndSet500OnError(
-    `SELECT name,userId,email,position,hasDefinedOrg,mobile,altMobile,organizationId,socialLinks,about
+    `SELECT name,userId,email,position,mobile,altMobile,organizationId,socialLinks,about
      FROM recruiterprofile 
      WHERE userId = ? 
      `,

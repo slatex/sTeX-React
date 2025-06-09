@@ -15,7 +15,7 @@ export async function createOrganizationProfile(
     about = null,
     companyType = null,
     officeAddress = null,
-    officePincode = null,
+    officePostalCode = null,
   }: {
     companyName: string;
     domain: string;
@@ -25,14 +25,14 @@ export async function createOrganizationProfile(
     about?: string | null;
     companyType?: string | null;
     officeAddress?: string | null;
-    officePincode?: string | null;
+    officePostalCode?: string | null;
   },
   res: NextApiResponse
 ) {
   if (!companyName || !domain) return res.status(422).send('Missing required params');
   const result = await executeAndEndSet500OnError(
-    `INSERT INTO organizationprofile 
-      (companyName, incorporationYear, isStartup, website, domain, about, companyType, officeAddress, officePincode) 
+    `INSERT INTO organizationProfile 
+      (companyName, incorporationYear, isStartup, website, domain, about, companyType, officeAddress, officePostalCode) 
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       companyName,
@@ -43,7 +43,7 @@ export async function createOrganizationProfile(
       about,
       companyType,
       officeAddress,
-      officePincode,
+      officePostalCode,
     ],
     res
   );
@@ -63,7 +63,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     about,
     companyType,
     officeAddress,
-    officePincode,
+    officePostalCode,
   } = req.body;
 
   const result = await createOrganizationProfile(
@@ -76,7 +76,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       about,
       companyType,
       officeAddress,
-      officePincode,
+      officePostalCode,
     },
     res
   );

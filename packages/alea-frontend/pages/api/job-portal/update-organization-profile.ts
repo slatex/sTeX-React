@@ -22,10 +22,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     about,
     companyType,
     officeAddress,
-    officePincode,
+    officePostalCode,
   } = data;
   const result = await executeAndEndSet500OnError(
-    `UPDATE organizationprofile 
+    `UPDATE organizationProfile 
 SET companyName = ?, 
     incorporationYear = ?, 
     isStartup = ?, 
@@ -33,7 +33,7 @@ SET companyName = ?,
     about = ?, 
     companyType = ?, 
     officeAddress = ?, 
-    officePincode = ?
+    officePostalCode = ?
 WHERE id = ?`,
     [
       companyName,
@@ -43,7 +43,7 @@ WHERE id = ?`,
       about,
       companyType,
       officeAddress,
-      officePincode,
+      officePostalCode,
       id,
     ],
     res

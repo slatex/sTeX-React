@@ -15,7 +15,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!userId) return;
   const {
     name,
-    gender,
     email,
     mobile,
     altMobile,
@@ -25,14 +24,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     yearOfAdmission,
     yearOfGraduation,
     location,
-    resumeURL,
+    resumeUrl,
     socialLinks,
     about,
   } = req.body;
   const result = await executeAndEndSet500OnError(
     `UPDATE studentprofile 
 SET name = ?, 
-    gender=?,
     email = ?, 
     mobile = ?, 
     altMobile=?,
@@ -42,13 +40,12 @@ SET name = ?,
     yearOfAdmission = ?, 
     yearOfGraduation =?,
     location =? ,
-resumeURL=?,
+resumeUrl=?,
 socialLinks=?,
     about = ?
 WHERE userId = ?`,
     [
       name,
-      gender,
       email,
       mobile,
       altMobile,
@@ -58,7 +55,7 @@ WHERE userId = ?`,
       yearOfAdmission,
       yearOfGraduation,
       location,
-      resumeURL,
+      resumeUrl,
       socialLinks,
       about,
       userId,

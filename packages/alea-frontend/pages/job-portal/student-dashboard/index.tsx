@@ -394,7 +394,7 @@ const StudentDashboard = () => {
 
   const {
     name,
-    resumeURL,
+    resumeUrl,
     email,
     mobile,
     programme,
@@ -526,9 +526,9 @@ const StudentDashboard = () => {
                   <Typography variant="h6" gutterBottom>
                     Resume
                   </Typography>
-                  {resumeURL ? (
+                  {resumeUrl ? (
                     <Link
-                      href={resumeURL}
+                      href={resumeUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       underline="none"
@@ -589,7 +589,7 @@ const StudentDashboard = () => {
                 placeholder: 'Tell us about yourself',
                 multiline: true,
               },
-              { label: 'Resume URL', field: 'resumeURL', placeholder: 'Enter your resume link' },
+              { label: 'Resume URL', field: 'resumeUrl', placeholder: 'Enter your resume link' },
             ].map(({ label, field, placeholder, multiline }) => (
               <Grid item xs={12} sm={6} key={field}>
                 <TextField
