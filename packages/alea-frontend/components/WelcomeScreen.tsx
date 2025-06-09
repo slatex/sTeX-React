@@ -26,8 +26,7 @@ import {
   getHomeworkList,
   getUserInfo,
   QuestionStatus,
-  QuizStubInfo,
-  UserInfo,
+  UserInfo
 } from '@stex-react/api';
 import {
   Action,
@@ -168,93 +167,49 @@ async function getLastUpdatedQuiz(
       return acc.quizStartTs > curr.quizStartTs ? acc : curr;
     }, quizList[0]);
     const timestamp = latestQuiz.quizStartTs;
-    const description = `${r.pastQuiz}: ${dayjs(timestamp).format('YYYY-MM-DD')}`;
+    const description = `${r.latestQuiz}: ${dayjs(timestamp).format('YYYY-MM-DD')}`;
     const timeAgo = null;
     const coverageQuizData = await getCoverageTimeline();
     const courseQuizData = coverageQuizData[courseId];
 
-    // The code here seems over-complicated.
-
-    // 1. if `latestQuiz.timestamp` is in the future (or less than 12 hours ago), return the latest quiz. <-- SAME behavior as before, nothing changes
-    // 2. else find the first quiz that is scheduled in the future:
-    //      2.1 if no quiz is scheduled in the future, return the latest quiz. (grey)
-    //      2.2 if quiz is scheduled in the future, return (orange TODO-like view)
+    const now = dayjs();
 
     if (courseQuizData?.length > 0) {
-      const entriesWithSection = courseQuizData.filter((entry) => entry.isQuizScheduled);
+      const nextScheduledQuiz = courseQuizData.find((entry) => {
+        const timestampMs = dayjs(entry.timestamp_ms);
+        return timestampMs.isAfter(now);
+      });
 
-      const matchQuizEntry = entriesWithSection
-        .map((entry) => {
-          const matchQuiz = quizList.find(
-            (quiz) => Math.abs(quiz.quizStartTs - entry.timestamp_ms) < 12 * 60 * 60 * 1000
-          );
-          return {
-            entry: entry.timestamp_ms,
-            quiz: matchQuiz || null,
-          };
-        })
-        .filter((matchQuiz) => matchQuiz.quiz != null);
-
-      const today = dayjs().startOf('day');
-      const todaysQuiz = matchQuizEntry.find((m) => dayjs(m.quiz.quizStartTs).isSame(today, 'day'));
-
-      if (todaysQuiz) {
-        const timestamp = todaysQuiz.quiz.quizStartTs;
-        return {
-          description: `${r.latestQuiz} (Today): ${dayjs(timestamp).format('YYYY-MM-DD')}`,
-          timeAgo: calculateTimeAgo(timestamp.toString()),
-          timestamp: timestamp.toString(),
-          quizId: todaysQuiz.quiz.quizId,
-          colorInfo: {
-            color: 'green',
-            type: 'default' as const,
-          },
-        };
-      }
-
-      let futureQuizzesReady: { entry: number; quiz: QuizStubInfo } | null = null;
-
-      futureQuizzesReady =
-        matchQuizEntry
-          .filter((m) => m.quiz.quizStartTs && dayjs(m.quiz.quizStartTs).isAfter(today))
-          .sort((a, b) => a.quiz.quizStartTs - b.quiz.quizStartTs)[0] || null;
-
-      if (!futureQuizzesReady) {
-        const futureEntryNotReady = entriesWithSection.filter((entry) =>
-          dayjs(entry.timestamp_ms).isAfter(today)
+      if (nextScheduledQuiz) {
+        const matchedQuiz = quizList.find(
+          (quiz) =>
+            Math.abs(quiz.quizStartTs - nextScheduledQuiz.timestamp_ms) < 12 * 60 * 60 * 1000
         );
 
-        if (futureEntryNotReady) {
-          const quizNotReady = futureEntryNotReady[0];
-          if (quizNotReady) {
-            return {
-              description: `${r.futureQuizzesReady}: ${dayjs(quizNotReady.timestamp_ms).format(
-                'YYYY-MM-DD'
-              )}\n ${r.getPrepared}`,
-              timeAgo: calculateTimeAgo(quizNotReady.timestamp_ms.toString()),
-              timestamp: quizNotReady.timestamp_ms.toString(),
-              quizId: null,
-              colorInfo: {
-                color: 'orange',
-                type: 'updates_pending',
-              },
-            };
-          }
+        if (matchedQuiz) {
+          return {
+            description: `${r.futureQuizzesReady}: ${dayjs(matchedQuiz.quizStartTs).format(
+              'YYYY-MM-DD'
+            )}`,
+            timeAgo: calculateTimeAgo(matchedQuiz.quizStartTs.toString()),
+            timestamp: matchedQuiz.quizStartTs.toString(),
+            quizId: matchedQuiz.quizId,
+            colorInfo: {
+              color: 'orange',
+              type: 'updates_pending' as const,
+            },
+          };
         }
-      }
-
-      if (futureQuizzesReady) {
-        const timestamp = futureQuizzesReady.quiz.quizStartTs;
         return {
-          description: `${r.futureQuizzesReady}: ${dayjs(timestamp).format('YYYY-MM-DD')}\n ${
-            r.prepared
-          }`,
-          timeAgo: calculateTimeAgo(timestamp.toString()),
-          timestamp: timestamp.toString(),
-          quizId: futureQuizzesReady.quiz.quizId,
+          description: `${r.futureQuizzesReady}: ${dayjs(nextScheduledQuiz.timestamp_ms).format(
+            'YYYY-MM-DD'
+          )}`,
+          timeAgo: calculateTimeAgo(nextScheduledQuiz.timestamp_ms.toString()),
+          timestamp: nextScheduledQuiz.timestamp_ms.toString(),
+          quizId: null,
           colorInfo: {
-            color: 'blue',
-            type: 'default' as const,
+            color: 'orange',
+            type: 'updates_pending' as const,
           },
         };
       }
