@@ -38,7 +38,6 @@ function convertSnapToEntry(snap: LectureEntry, index: number): any {
     isQuizScheduled: snap.isQuizScheduled || false,
     slideUri: snap.slideUri || '',
     slideNumber: snap.slideNumber,
-    // progressStatus: snap.progressStatus || '', FIX
   };
 }
 
@@ -47,16 +46,9 @@ interface CoverageUpdaterProps {
   snaps: LectureEntry[];
   secInfo: Record<FTML.DocumentURI, SecInfo>;
   handleSave: (snaps: LectureEntry[]) => void;
-  onProgressStatusChange?: (status: string) => void;
 }
 
-export function CoverageUpdater({
-  courseId,
-  snaps,
-  secInfo,
-  handleSave,
-  onProgressStatusChange,
-}: CoverageUpdaterProps) {
+export function CoverageUpdater({ courseId, snaps, secInfo, handleSave }: CoverageUpdaterProps) {
   const [formData, setFormData] = useState<FormData>({
     sectionName: '',
     sectionUri: '',
@@ -70,19 +62,6 @@ export function CoverageUpdater({
   });
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
-  const handleProgressStatusUpdate = (status: string) => {
-    const updatedSnaps = snaps.map((snap) => ({
-      ...snap,
-      // progressStatus: status, FIX
-    }));
-
-    handleSave(updatedSnaps);
-
-    if (onProgressStatusChange) {
-      onProgressStatusChange(status);
-    }
-  };
-
   const theme = useTheme();
   useEffect(() => {
     if (snaps.length > 0) {
@@ -182,7 +161,6 @@ export function CoverageUpdater({
             secInfo={secInfo}
             onEdit={(idx) => handleEditDialogOpen(coverageEntries[idx], idx)}
             onDelete={handleDeleteItem}
-            onProgressStatusChange={handleProgressStatusUpdate}
           />
         </>
       ) : (

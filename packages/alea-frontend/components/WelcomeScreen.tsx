@@ -23,6 +23,7 @@ import {
   getCourseInstanceThreads,
   getCourseQuizList,
   getCoverageTimeline,
+  getDocumentSections,
   getHomeworkList,
   getUserInfo,
   QuestionStatus,
@@ -45,6 +46,10 @@ import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 import { BannerSection, CourseCard, VollKiInfoSection } from '../pages';
 import { CourseThumb } from '../pages/u/[institution]';
+import { getSecInfo } from './coverage-update';
+import { calculateLectureProgress } from './CoverageTable';
+import { FTML } from '@kwarc/ftml-viewer';
+import { SecInfo } from '../types';
 
 interface ColorInfo {
   color: string;
@@ -224,20 +229,37 @@ async function getLastUpdatedHomework(
   }
 }
 
-async function getLastUpdatedNotes(
+export async function getLastUpdatedNotes(
   courseId: string,
   router: NextRouter
 ): Promise<ResourceDisplayInfo> {
   const { resource: r } = getLocaleObject(router);
   try {
     const coverageData = await getCoverageTimeline();
-    const courseData = coverageData[courseId];
-    const targetUsed = courseData?.some(
+    const courseData = coverageData[courseId] ?? [];
+    const targetUsed = courseData.some(
       (entry) => entry.targetSectionUri && entry.targetSectionUri.trim() !== ''
     );
-    const progressStatus = targetUsed
-      ? courseData.find((e) => e.progressStatus)?.progressStatus ?? 'Progress unknown'
-      : null;
+
+    let progressStatus: string | null = null;
+
+    if (targetUsed) {
+      const allCourses = await getCourseInfo();
+      const notesUri = allCourses[courseId]?.notes;
+
+      if (notesUri) {
+        const tocResp = await getDocumentSections(notesUri);
+        const docSections = tocResp[1];
+        const sections = docSections.flatMap((d) => getSecInfo(d));
+        const secInfo = sections.reduce((acc, s) => {
+          acc[s.uri] = { id: s.uri, title: s.title, uri: s.uri };
+          return acc;
+        }, {} as Record<FTML.DocumentURI, SecInfo>);
+
+        progressStatus = calculateLectureProgress(courseData, secInfo);
+      }
+    }
+
     if (!courseData || courseData.length === 0) {
       return {
         description: r.noUpdatesAvailable || 'No updates available',
@@ -245,7 +267,7 @@ async function getLastUpdatedNotes(
         timestamp: null,
         colorInfo: {
           color: 'text.secondary',
-          type: 'default' as const,
+          type: 'default',
         },
       };
     }
@@ -254,20 +276,15 @@ async function getLastUpdatedNotes(
       (entry) => entry.sectionUri && entry.sectionUri.trim() !== ''
     );
 
-    let latestValidUpdate = null;
-    if (entriesWithSection.length > 0) {
-      latestValidUpdate = entriesWithSection.reduce(
-        (latest, current) =>
-          dayjs(current.timestamp_ms).isAfter(dayjs(latest.timestamp_ms)) ? current : latest,
-        entriesWithSection[0]
-      );
-    }
+    const latestValidUpdate = entriesWithSection.reduce((latest, current) =>
+      dayjs(current.timestamp_ms).isAfter(dayjs(latest.timestamp_ms)) ? current : latest,
+    entriesWithSection[0]);
 
     const lastUpdatedTimestamp = latestValidUpdate?.timestamp_ms ?? null;
 
-    const pendingUpdates = courseData.filter((entry) => {
-      return !entry.sectionUri && entry.timestamp_ms < Date.now();
-    }).length;
+    const pendingUpdates = courseData.filter(
+      (entry) => !entry.sectionUri && entry.timestamp_ms < Date.now()
+    ).length;
 
     if (lastUpdatedTimestamp) {
       const formattedDate = dayjs(lastUpdatedTimestamp).format('YYYY-MM-DD');
@@ -278,27 +295,25 @@ async function getLastUpdatedNotes(
         ...(progressStatus ? [`${r.progress}: ${progressStatus}`] : []),
       ];
 
-      const description = descriptionLines.join('\n');
-      
       return {
-        description,
+        description: descriptionLines.join('\n'),
         timeAgo: null,
         timestamp: lastUpdatedTimestamp.toString(),
         colorInfo: {
           color: pendingUpdates > 0 ? 'red' : 'text.secondary',
-          type: pendingUpdates > 0 ? ('updates_pending' as const) : ('default' as const),
+          type: pendingUpdates > 0 ? 'updates_pending' : 'default',
         },
       };
     }
 
     if (pendingUpdates > 0) {
       return {
-        description: `${pendingUpdates} ${r.updates} ${r.pending}\n${r.progress}: ${progressStatus}`,
+        description: `${pendingUpdates} ${r.updates} ${r.pending}\n${r.progress}: ${progressStatus ?? 'Progress unknown'}`,
         timeAgo: null,
         timestamp: null,
         colorInfo: {
           color: 'red',
-          type: 'updates_pending' as const,
+          type: 'updates_pending',
         },
       };
     }
@@ -309,7 +324,7 @@ async function getLastUpdatedNotes(
       timestamp: null,
       colorInfo: {
         color: 'text.secondary',
-        type: 'default' as const,
+        type: 'default',
       },
     };
   } catch (error) {
@@ -320,7 +335,7 @@ async function getLastUpdatedNotes(
       timestamp: null,
       colorInfo: {
         color: 'text.secondary',
-        type: 'default' as const,
+        type: 'default',
       },
     };
   }

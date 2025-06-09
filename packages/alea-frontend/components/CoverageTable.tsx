@@ -37,20 +37,20 @@ interface CoverageRowProps {
   secInfo: Record<FTML.DocumentURI, SecInfo>;
 }
 
-const formatSectionWithSlide = (sectionName: string, slideNumber?: number, slideUri?: string) => {
-  if (!sectionName) return <i>-</i>;
+const formatSectionWithSlide = (sectionUri: string, slideNumber?: number, slideUri?: string) => {
+  if (!sectionUri) return <i>-</i>;
 
   if (slideNumber && slideUri) {
     return (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <SlideshowIcon sx={{ fontSize: 16, color: 'success.main' }} />
         <Typography variant="body2">
-          <strong>Slide {slideNumber}</strong> of {sectionName.trim()}
+          <strong>Slide {slideNumber}</strong> of {sectionUri}
         </Typography>
       </Box>
     );
   } else {
-    return <Typography variant="body2">{sectionName}</Typography>;
+    return <Typography variant="body2">{sectionUri.trim()}</Typography>;
   }
 };
 
@@ -241,8 +241,7 @@ export function calculateLectureProgress(
       lastFilledSectionEntry = entry;
     }
   }
-  const lastFilledSectionIdx =
-    sectionToIndex.get(lastFilledSectionEntry?.sectionUri) ?? -1;
+  const lastFilledSectionIdx = sectionToIndex.get(lastFilledSectionEntry?.sectionUri) ?? -1;
 
   const lastEligibleTargetSectionIdx =
     sectionToIndex.get(lastFilledSectionEntry?.targetSectionUri) ?? -1;
@@ -316,7 +315,6 @@ interface CoverageTableProps {
   secInfo: Record<FTML.DocumentURI, SecInfo>;
   onEdit: (index: number) => void;
   onDelete: (index: number) => void;
-  onProgressStatusChange?: (status: string) => void;
 }
 export function CoverageTable({
   courseId,
@@ -330,19 +328,6 @@ export function CoverageTable({
   const missingTargetsCount = countMissingTargetsInFuture(entries);
   const sortedEntries = [...entries].sort((a, b) => a.timestamp_ms - b.timestamp_ms);
   const [quizMatchMap, setQuizMatchMap] = useState<QuizMatchMap>({});
-  const prevStatusRef = useRef<string>('');
-
-  entries.forEach((entry) => {
-    // entry.progressStatus = status; <-- this is weird and/or wrong.
-  });
-  /*
-  Use of callbacks for this problem is wrong!
-  useEffect(() => {
-    if (onProgressStatusChange && status !== prevStatusRef.current) {
-      prevStatusRef.current = status;
-      onProgressStatusChange(status);
-    }
-  }, [status, onProgressStatusChange]);*/
 
   useEffect(() => {
     async function fetchQuizzes() {

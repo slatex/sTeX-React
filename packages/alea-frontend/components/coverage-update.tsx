@@ -22,7 +22,7 @@ import { useEffect, useState } from 'react';
 import { SecInfo } from '../types';
 import { CoverageUpdater } from './CoverageUpdater';
 
-function getSecInfo(data: FTML.TOCElem, level = 0): SecInfo[] {
+export function getSecInfo(data: FTML.TOCElem, level = 0): SecInfo[] {
   const secInfo: SecInfo[] = [];
 
   if (data.type === 'Section' && data.title) {
@@ -54,15 +54,6 @@ const CoverageUpdateTab = () => {
     message: string;
   } | null>(null);
 
-  const handleProgressStatusChange = (status: string) => {
-    const updatedSnaps = snaps.map((snap) => ({
-      ...snap,
-      // progressStatus: status, FIX
-    }));
-
-    handleSave(updatedSnaps);
-  };
-
   useEffect(() => {
     axios.get('/api/get-coverage-timeline').then((resp) => {
       setCoverageTimeline(resp.data);
@@ -83,10 +74,12 @@ const CoverageUpdateTab = () => {
         const tocResp = await getDocumentSections(notesUri);
         const docSections = tocResp[1];
         const sections = docSections.flatMap((d) => getSecInfo(d));
-        setSecInfo(sections.reduce((acc, s) => {
-          acc[s.uri] = s;
-          return acc;
-        }, {} as Record<FTML.DocumentURI, SecInfo>));
+        setSecInfo(
+          sections.reduce((acc, s) => {
+            acc[s.uri] = s;
+            return acc;
+          }, {} as Record<FTML.DocumentURI, SecInfo>)
+        );
       } catch (error) {
         console.error('Failed to fetch all sections:', error);
         setSaveMessage({
@@ -163,7 +156,6 @@ const CoverageUpdateTab = () => {
               snaps={snaps}
               secInfo={secInfo}
               handleSave={handleSave}
-              onProgressStatusChange={handleProgressStatusChange}
             />
           </Box>
         </Paper>
