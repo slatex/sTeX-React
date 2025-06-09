@@ -88,17 +88,6 @@ function calculateTimeAgo(timestamp: string): string | null {
   return dateTime.isValid() ? dateTime.fromNow() : null;
 }
 
-const getTimeAgoColor = (timestamp: string | null): string => {
-  if (!timestamp) return 'text.secondary';
-  const targetDate = dayjs(parseInt(timestamp));
-  if (!targetDate.isValid()) return 'text.secondary';
-  const daysDifference = targetDate.diff(dayjs(), 'day');
-  if (daysDifference >= 0) return 'darkgreen';
-  if (daysDifference >= -2) return 'lightgreen';
-  if (daysDifference >= -5) return 'orange';
-  return 'red';
-};
-
 const getColoredDescription = (text: string, colorInfo?: ColorInfo) => {
   if (!colorInfo) {
     return <span style={{ color: 'text.secondary' }}>{text}</span>;
@@ -208,7 +197,7 @@ async function getLastUpdatedQuiz(
     timestamp: nextScheduledQuizTs.toString(),
     quizId: null,
     colorInfo: {
-      color: 'orange',
+      color: 'red',
       type: 'updates_pending' as const,
     },
   };
@@ -569,8 +558,6 @@ function ResourceCard({
       { description: [], timeAgo: [], timestamp: [], quizId: [], colorInfo: [] }
     );
 
-  const timeAgoColor = getTimeAgoColor(resourceDescriptions.timestamp[0]);
-
   return (
     <Card
       key={resource.name}
@@ -620,7 +607,12 @@ function ResourceCard({
 
               {resourceDescriptions.timeAgo && (
                 <Typography
-                  sx={{ fontSize: '14px', fontWeight: 'bold', color: timeAgoColor, ml: '4px' }}
+                  sx={{
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                    color: resourceDescriptions.colorInfo[0]?.color,
+                    ml: '4px',
+                  }}
                 >
                   {resourceDescriptions.timeAgo.filter((t) => t !== null).join('\n')}
                 </Typography>
