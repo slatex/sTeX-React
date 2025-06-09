@@ -423,6 +423,7 @@ export const de = {
     prepareUpcomingQuiz: 'Bevorstehendes Quiz vorbereiten',
     latestHomework: 'neueste Hausaufgaben',
     noHomeworkAvailable: 'Keine Hausaufgaben verfügbar',
+    progress: 'Fortschritt'
   },
   recorrection: {
     quizRecorrection: 'Quiz-Rekorrektur',

@@ -22,7 +22,7 @@ import { useEffect, useState } from 'react';
 import { SecInfo } from '../types';
 import { CoverageUpdater } from './CoverageUpdater';
 
-function getSecInfo(data: FTML.TOCElem, level = 0): SecInfo[] {
+export function getSecInfo(data: FTML.TOCElem, level = 0): SecInfo[] {
   const secInfo: SecInfo[] = [];
 
   if (data.type === 'Section' && data.title) {
@@ -72,10 +72,12 @@ const CoverageUpdateTab = () => {
         const tocResp = await getDocumentSections(notesUri);
         const docSections = tocResp[1];
         const sections = docSections.flatMap((d) => getSecInfo(d));
-        setSecInfo(sections.reduce((acc, s) => {
-          acc[s.uri] = s;
-          return acc;
-        }, {} as Record<FTML.DocumentURI, SecInfo>));
+        setSecInfo(
+          sections.reduce((acc, s) => {
+            acc[s.uri] = s;
+            return acc;
+          }, {} as Record<FTML.DocumentURI, SecInfo>)
+        );
       } catch (error) {
         console.error('Failed to fetch all sections:', error);
         setSaveMessage({

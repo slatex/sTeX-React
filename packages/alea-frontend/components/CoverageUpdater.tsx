@@ -48,12 +48,7 @@ interface CoverageUpdaterProps {
   handleSave: (snaps: LectureEntry[]) => void;
 }
 
-export function CoverageUpdater({
-  courseId,
-  snaps,
-  secInfo,
-  handleSave,
-}: CoverageUpdaterProps) {
+export function CoverageUpdater({ courseId, snaps, secInfo, handleSave }: CoverageUpdaterProps) {
   const [formData, setFormData] = useState<FormData>({
     sectionName: '',
     sectionUri: '',
@@ -67,7 +62,6 @@ export function CoverageUpdater({
   });
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
-
   const theme = useTheme();
   useEffect(() => {
     if (snaps.length > 0) {

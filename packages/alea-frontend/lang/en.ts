@@ -447,6 +447,7 @@ export const en = {
     prepareUpcomingQuiz: 'Prepare Upcoming Quiz',
     latestHomework: 'Latest Homework',
     noHomeworkAvailable: 'No homework available',
+    progress: 'Progress'
   },
   recorrection: {
     quizRecorrection: 'Quiz Recorrection',

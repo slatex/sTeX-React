@@ -1,3 +1,4 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import { Rule, Visibility } from '@mui/icons-material';
 import ArticleIcon from '@mui/icons-material/Article';
 import CommentIcon from '@mui/icons-material/Comment';
@@ -23,6 +24,7 @@ import {
   getCourseInstanceThreads,
   getCourseQuizList,
   getCoverageTimeline,
+  getDocumentSections,
   getHomeworkList,
   getUserInfo,
   QuestionStatus,
@@ -47,6 +49,9 @@ import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 import { BannerSection, CourseCard, VollKiInfoSection } from '../pages';
 import { CourseThumb } from '../pages/u/[institution]';
+import { SecInfo } from '../types';
+import { getSecInfo } from './coverage-update';
+import { calculateLectureProgress } from './CoverageTable';
 
 interface ColorInfo {
   color: string;
@@ -166,15 +171,15 @@ async function getLastUpdatedQuiz(
   const latestQuiz = quizList.reduce((acc, curr) => {
     return acc.quizStartTs > curr.quizStartTs ? acc : curr;
   }, quizList[0]);
-  const firstFutureQuiz = quizList.filter((quiz) =>
-    quiz.quizStartTs > Date.now()
-  ).sort((a, b) => a.quizStartTs - b.quizStartTs)[0];
+  const firstFutureQuiz = quizList
+    .filter((quiz) => quiz.quizStartTs > Date.now())
+    .sort((a, b) => a.quizStartTs - b.quizStartTs)[0];
   const toShowQuiz = firstFutureQuiz || latestQuiz;
   const toShowQuizTs = toShowQuiz.quizStartTs;
 
   const now = Date.now();
   const nextScheduledQuiz = courseQuizData
-     ?.filter((entry) => entry.isQuizScheduled && entry.timestamp_ms > now)
+    ?.filter((entry) => entry.isQuizScheduled && entry.timestamp_ms > now)
     .sort((a, b) => a.timestamp_ms - b.timestamp_ms)[0];
   if (toShowQuizTs > now - 12 * 60 * 60 * 1000 || !nextScheduledQuiz) {
     return {
@@ -242,15 +247,34 @@ async function getLastUpdatedHomework(
   }
 }
 
-async function getLastUpdatedNotes(
+export async function getLastUpdatedNotes(
   courseId: string,
   router: NextRouter
 ): Promise<ResourceDisplayInfo> {
   const { resource: r } = getLocaleObject(router);
-
   try {
     const coverageData = await getCoverageTimeline();
-    const courseData = coverageData[courseId];
+    const courseData = coverageData[courseId] ?? [];
+    const targetUsed = courseData.some((entry) => entry.targetSectionUri);
+
+    let progressStatus: string | null = null;
+
+    if (targetUsed) {
+      const allCourses = await getCourseInfo();
+      const notesUri = allCourses[courseId]?.notes;
+
+      if (notesUri) {
+        const tocResp = await getDocumentSections(notesUri);
+        const docSections = tocResp[1];
+        const sections = docSections.flatMap((d) => getSecInfo(d));
+        const secInfo = sections.reduce((acc, s) => {
+          acc[s.uri] = { id: s.uri, title: s.title, uri: s.uri };
+          return acc;
+        }, {} as Record<FTML.DocumentURI, SecInfo>);
+
+        progressStatus = calculateLectureProgress(courseData, secInfo);
+      }
+    }
 
     if (!courseData || courseData.length === 0) {
       return {
@@ -259,7 +283,7 @@ async function getLastUpdatedNotes(
         timestamp: null,
         colorInfo: {
           color: 'text.secondary',
-          type: 'default' as const,
+          type: 'default',
         },
       };
     }
@@ -268,48 +292,47 @@ async function getLastUpdatedNotes(
       (entry) => entry.sectionUri && entry.sectionUri.trim() !== ''
     );
 
-    let latestValidUpdate = null;
-    if (entriesWithSection.length > 0) {
-      latestValidUpdate = entriesWithSection.reduce(
-        (latest, current) =>
-          dayjs(current.timestamp_ms).isAfter(dayjs(latest.timestamp_ms)) ? current : latest,
-        entriesWithSection[0]
-      );
-    }
+    const latestValidUpdate = entriesWithSection.reduce(
+      (latest, current) =>
+        dayjs(current.timestamp_ms).isAfter(dayjs(latest.timestamp_ms)) ? current : latest,
+      entriesWithSection[0]
+    );
 
     const lastUpdatedTimestamp = latestValidUpdate?.timestamp_ms ?? null;
 
-    const pendingUpdates = courseData.filter((entry) => {
-      return !entry.sectionUri && entry.timestamp_ms < Date.now();
-    }).length;
+    const pendingUpdates = courseData.filter(
+      (entry) => !entry.sectionUri && entry.timestamp_ms < Date.now()
+    ).length;
 
     if (lastUpdatedTimestamp) {
       const formattedDate = dayjs(lastUpdatedTimestamp).format('YYYY-MM-DD');
 
-      const description =
-        pendingUpdates > 0
-          ? `${r.lastUpdated}: ${formattedDate}\n${pendingUpdates} ${r.updates} ${r.pending}`
-          : `${r.lastUpdated}: ${formattedDate}`;
+      const descriptionLines = [
+        `${r.lastUpdated}: ${formattedDate}`,
+        ...(pendingUpdates > 0 ? [`${pendingUpdates} ${r.updates} ${r.pending}`] : []),
+        ...(progressStatus ? [`${r.progress}: ${progressStatus}`] : []),
+      ];
 
       return {
-        description,
+        description: descriptionLines.join('\n'),
         timeAgo: null,
         timestamp: lastUpdatedTimestamp.toString(),
         colorInfo: {
           color: pendingUpdates > 0 ? 'red' : 'text.secondary',
-          type: pendingUpdates > 0 ? ('updates_pending' as const) : ('default' as const),
+          type: pendingUpdates > 0 ? 'updates_pending' : 'default',
         },
       };
     }
+    const progressString = progressStatus ? `\n${r.progress}: ${progressStatus}` : '';
 
     if (pendingUpdates > 0) {
       return {
-        description: `${pendingUpdates} ${r.updates} ${r.pending}`,
+        description: `${pendingUpdates} ${r.updates} ${r.pending}${progressString}`,
         timeAgo: null,
         timestamp: null,
         colorInfo: {
           color: 'red',
-          type: 'updates_pending' as const,
+          type: 'updates_pending',
         },
       };
     }
@@ -320,7 +343,7 @@ async function getLastUpdatedNotes(
       timestamp: null,
       colorInfo: {
         color: 'text.secondary',
-        type: 'default' as const,
+        type: 'default',
       },
     };
   } catch (error) {
@@ -331,7 +354,7 @@ async function getLastUpdatedNotes(
       timestamp: null,
       colorInfo: {
         color: 'text.secondary',
-        type: 'default' as const,
+        type: 'default',
       },
     };
   }
