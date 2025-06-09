@@ -26,6 +26,7 @@ import {
   getHomeworkList,
   getUserInfo,
   QuestionStatus,
+  QuizStubInfo,
   UserInfo,
 } from '@stex-react/api';
 import {
@@ -34,6 +35,7 @@ import {
   CourseResourceAction,
   CURRENT_TERM,
   isFauId,
+  LectureEntry,
   PRIMARY_COL,
   ResourceName,
 } from '@stex-react/utils';
@@ -161,28 +163,55 @@ async function getLastUpdatedQuiz(
 ): Promise<ResourceDisplayInfo> {
   const { resource: r } = getLocaleObject(router);
 
+  let quizList: QuizStubInfo[] | undefined = undefined;
+  let courseQuizData: LectureEntry[] = [];
   try {
-    const quizList = await getCourseQuizList(courseId);
-    const latestQuiz = quizList.reduce((acc, curr) => {
-      return acc.quizStartTs > curr.quizStartTs ? acc : curr;
-    }, quizList[0]);
-    const timestamp = latestQuiz.quizStartTs;
-    const description = `${r.latestQuiz}: ${dayjs(timestamp).format('YYYY-MM-DD')}`;
-    const timeAgo = calculateTimeAgo(timestamp.toString());
-    return {
-      description,
-      timeAgo,
-      timestamp: timestamp.toString(),
-      quizId: latestQuiz.quizId,
-      colorInfo: {
-        color: 'text.secondary',
-        type: 'default' as const,
-      },
-    };
+    quizList = await getCourseQuizList(courseId);
+    const coverageQuizData = await getCoverageTimeline();
+    courseQuizData = coverageQuizData[courseId];
   } catch (error) {
     console.error('Error fetching course data:', error);
     return { description: null, timeAgo: null, timestamp: null };
   }
+
+  const latestQuiz = quizList.reduce((acc, curr) => {
+    return acc.quizStartTs > curr.quizStartTs ? acc : curr;
+  }, quizList[0]);
+  const firstFutureQuiz = quizList.filter((quiz) =>
+    quiz.quizStartTs > Date.now()
+  ).sort((a, b) => a.quizStartTs - b.quizStartTs)[0];
+  const toShowQuiz = firstFutureQuiz || latestQuiz;
+  const toShowQuizTs = toShowQuiz.quizStartTs;
+
+  const now = Date.now();
+  const nextScheduledQuiz = courseQuizData
+     ?.filter((entry) => entry.isQuizScheduled && entry.timestamp_ms > now)
+    .sort((a, b) => a.timestamp_ms - b.timestamp_ms)[0];
+  if (toShowQuizTs > now - 12 * 60 * 60 * 1000 || !nextScheduledQuiz) {
+    return {
+      description: `${r.latestQuiz}: ${dayjs(toShowQuizTs).format('YYYY-MM-DD')}`,
+      timeAgo: calculateTimeAgo(toShowQuizTs.toString()),
+      timestamp: toShowQuizTs.toString(),
+      quizId: toShowQuiz.quizId,
+      colorInfo: {
+        color: 'gray',
+        type: 'default' as const,
+      },
+    };
+  }
+
+  const nextScheduledQuizTs = nextScheduledQuiz.timestamp_ms;
+  // In this case, the instructor has to perform an action (create a quiz). To highlight it, we use orange color.
+  return {
+    description: `${r.prepareUpcomingQuiz}: ${dayjs(nextScheduledQuizTs).format('YYYY-MM-DD')}`,
+    timeAgo: calculateTimeAgo(nextScheduledQuizTs.toString()),
+    timestamp: nextScheduledQuizTs.toString(),
+    quizId: null,
+    colorInfo: {
+      color: 'orange',
+      type: 'updates_pending' as const,
+    },
+  };
 }
 
 async function getLastUpdatedHomework(
