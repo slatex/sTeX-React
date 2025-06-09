@@ -420,7 +420,7 @@ export const de = {
     ungradedProblems: 'Unbenotete Aufgaben',
     unansweredQuestions: 'Unbeantwortete Fragen',
     latestQuiz: 'Neuestes Quiz',
-    futureQuizzesReady: 'Bevorstehendes Quiz',
+    prepareUpcomingQuiz: 'Bevorstehendes Quiz vorbereiten',
     latestHomework: 'neueste Hausaufgaben',
     noHomeworkAvailable: 'Keine Hausaufgaben verfügbar',
   },

@@ -444,7 +444,7 @@ export const en = {
     ungradedProblems: 'Ungraded Problems',
     unansweredQuestions: 'Unanswered Questions',
     latestQuiz: 'Latest Quiz',
-    futureQuizzesReady: 'Upcoming Quiz',
+    prepareUpcomingQuiz: 'Prepare Upcoming Quiz',
     latestHomework: 'Latest Homework',
     noHomeworkAvailable: 'No homework available',
   },
