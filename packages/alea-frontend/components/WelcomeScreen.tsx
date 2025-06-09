@@ -181,8 +181,8 @@ async function getLastUpdatedQuiz(
 
   const now = Date.now();
   const nextScheduledQuiz = courseQuizData
-    .sort((a, b) => a.timestamp_ms - b.timestamp_ms)
-    .find((entry) => entry.isQuizScheduled && entry.timestamp_ms > now);
+     ?.filter((entry) => entry.isQuizScheduled && entry.timestamp_ms > now)
+    .sort((a, b) => a.timestamp_ms - b.timestamp_ms)[0];
   if (latestQuizTs > now - 12 * 60 * 60 * 1000 || !nextScheduledQuiz) {
     return {
       description: `${r.latestQuiz}: ${dayjs(latestQuizTs).format('YYYY-MM-DD')}`,
