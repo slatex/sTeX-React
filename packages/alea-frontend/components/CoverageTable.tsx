@@ -40,18 +40,16 @@ interface CoverageRowProps {
 const formatSectionWithSlide = (sectionName: string, slideNumber?: number, slideUri?: string) => {
   if (!sectionName) return <i>-</i>;
 
-  if (slideNumber && slideUri) {
-    return (
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <SlideshowIcon sx={{ fontSize: 16, color: 'success.main' }} />
-        <Typography variant="body2">
-          <strong>Slide {slideNumber}</strong> of {sectionName.trim()}
-        </Typography>
-      </Box>
-    );
-  } else {
-    return <Typography variant="body2">{sectionName}</Typography>;
-  }
+  if (!slideUri) return <Typography variant="body2">{sectionName.trim()}</Typography>;
+
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <SlideshowIcon sx={{ fontSize: 16, color: 'success.main' }} />
+      <Typography variant="body2">
+        <strong>Slide {slideNumber}</strong> of {sectionName.trim()}
+      </Typography>
+    </Box>
+  );
 };
 
 function CoverageRow({
