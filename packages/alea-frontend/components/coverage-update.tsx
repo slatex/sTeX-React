@@ -9,7 +9,7 @@ import {
   Snackbar,
   Typography,
 } from '@mui/material';
-import { getAuthHeaders, getCourseInfo, getDocumentSections } from '@stex-react/api';
+import { getAuthHeaders, getCourseInfo, getCoverageTimeline, getDocumentSections } from '@stex-react/api';
 import {
   convertHtmlStringToPlain,
   CourseInfo,
@@ -55,9 +55,7 @@ const CoverageUpdateTab = () => {
   } | null>(null);
 
   useEffect(() => {
-    axios.get('/api/get-coverage-timeline').then((resp) => {
-      setCoverageTimeline(resp.data);
-    });
+    getCoverageTimeline().then(setCoverageTimeline);
   }, []);
 
   useEffect(() => {

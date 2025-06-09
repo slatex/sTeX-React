@@ -5,13 +5,8 @@ import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/Indeterminate
 import UnfoldLessDoubleIcon from '@mui/icons-material/UnfoldLessDouble';
 import UnfoldMoreDoubleIcon from '@mui/icons-material/UnfoldMoreDouble';
 import { Box, IconButton, TextField, Tooltip } from '@mui/material';
-import {
-  convertHtmlStringToPlain,
-  CoverageTimeline,
-  LectureEntry,
-  PRIMARY_COL,
-} from '@stex-react/utils';
-import axios from 'axios';
+import { getCoverageTimeline } from '@stex-react/api';
+import { convertHtmlStringToPlain, LectureEntry, PRIMARY_COL } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
@@ -42,7 +37,10 @@ function fillCoverage(node: SectionTreeNode, coveredSectionUris: string[]) {
   //node.ended = node.started
 }
 
-function getTopLevelSections(tocElems: FTML.TOCElem[], parentNode: SectionTreeNode): SectionTreeNode[] {
+function getTopLevelSections(
+  tocElems: FTML.TOCElem[],
+  parentNode: SectionTreeNode
+): SectionTreeNode[] {
   return tocElems
     .map((t) => getSectionTree(t, parentNode))
     .filter(Boolean)
@@ -362,8 +360,8 @@ export function ContentDashboard({
   useEffect(() => {
     async function getCoverageInfo() {
       if (!courseId || !toc?.length) return;
-      const resp = await axios.get('/api/get-coverage-timeline');
-      const snaps = (resp.data as CoverageTimeline)?.[courseId];
+      const timeline = await getCoverageTimeline();
+      const snaps = timeline?.[courseId];
       const shadowTopLevel: FTML.TOCElem = { type: 'SkippedSection', children: toc };
       setPerSectionLectureInfo(getPerSectionLectureInfo(shadowTopLevel, snaps));
     }

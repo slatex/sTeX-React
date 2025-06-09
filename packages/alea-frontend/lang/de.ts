@@ -420,9 +420,10 @@ export const de = {
     ungradedProblems: 'Unbenotete Aufgaben',
     unansweredQuestions: 'Unbeantwortete Fragen',
     latestQuiz: 'Neuestes Quiz',
+    prepareUpcomingQuiz: 'Bevorstehendes Quiz vorbereiten',
     latestHomework: 'neueste Hausaufgaben',
     noHomeworkAvailable: 'Keine Hausaufgaben verfügbar',
-    progress: 'Fortschritt',
+    progress: 'Fortschritt'
   },
   recorrection: {
     quizRecorrection: 'Quiz-Rekorrektur',

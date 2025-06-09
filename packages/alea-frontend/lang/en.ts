@@ -444,15 +444,10 @@ export const en = {
     ungradedProblems: 'Ungraded Problems',
     unansweredQuestions: 'Unanswered Questions',
     latestQuiz: 'Latest Quiz',
+    prepareUpcomingQuiz: 'Prepare Upcoming Quiz',
     latestHomework: 'Latest Homework',
     noHomeworkAvailable: 'No homework available',
-    progress: 'Progress',
-  },
-  syllabus: {
-    syllabusEntries: 'Syllabus Entries',
-    noSyllabusEntriesYet: 'No syllabus entries yet',
-    editsectionentry: 'Edit Section Entry',
-    addnewsection: 'Add New Section',
+    progress: 'Progress'
   },
   recorrection: {
     quizRecorrection: 'Quiz Recorrection',
