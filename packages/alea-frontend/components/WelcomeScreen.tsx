@@ -178,30 +178,15 @@ async function getLastUpdatedQuiz(
     return acc.quizStartTs > curr.quizStartTs ? acc : curr;
   }, quizList[0]);
   const latestQuizTs = latestQuiz.quizStartTs;
-  const description = `${r.latestQuiz}: ${dayjs(latestQuizTs).format('YYYY-MM-DD')}`;
-  const latestQuizTimeAgo = calculateTimeAgo(latestQuizTs.toString());
-  const now = Date.now();
-  if (latestQuiz.quizStartTs > now - 12 * 60 * 60 * 1000) {
-    return {
-      description: `${r.latestQuiz}: ${dayjs(latestQuizTs).format('YYYY-MM-DD')}`,
-      timeAgo: latestQuizTimeAgo,
-      timestamp: latestQuizTs.toString(),
-      quizId: latestQuiz.quizId,
-      colorInfo: {
-        color: 'gray',
-        type: 'default' as const,
-      },
-    };
-  }
 
+  const now = Date.now();
   const nextScheduledQuiz = courseQuizData
     .sort((a, b) => a.timestamp_ms - b.timestamp_ms)
     .find((entry) => entry.isQuizScheduled && entry.timestamp_ms > now);
-
-  if (!nextScheduledQuiz) {
+  if (latestQuizTs > now - 12 * 60 * 60 * 1000 || !nextScheduledQuiz) {
     return {
-      description,
-      timeAgo: latestQuizTimeAgo,
+      description: `${r.latestQuiz}: ${dayjs(latestQuizTs).format('YYYY-MM-DD')}`,
+      timeAgo: calculateTimeAgo(latestQuizTs.toString()),
       timestamp: latestQuizTs.toString(),
       quizId: latestQuiz.quizId,
       colorInfo: {
@@ -211,13 +196,12 @@ async function getLastUpdatedQuiz(
     };
   }
 
-  // In this case, the instructor has to perform an action (create a quiz) to we highlight it with orange color.
+  const nextScheduledQuizTs = nextScheduledQuiz.timestamp_ms;
+  // In this case, the instructor has to perform an action (create a quiz). To highlight it, we use orange color.
   return {
-    description: `${r.prepareUpcomingQuiz}: ${dayjs(nextScheduledQuiz.timestamp_ms).format(
-      'YYYY-MM-DD'
-    )}`,
-    timeAgo: calculateTimeAgo(nextScheduledQuiz.timestamp_ms.toString()),
-    timestamp: nextScheduledQuiz.timestamp_ms.toString(),
+    description: `${r.prepareUpcomingQuiz}: ${dayjs(nextScheduledQuizTs).format('YYYY-MM-DD')}`,
+    timeAgo: calculateTimeAgo(nextScheduledQuizTs.toString()),
+    timestamp: nextScheduledQuizTs.toString(),
     quizId: null,
     colorInfo: {
       color: 'orange',
