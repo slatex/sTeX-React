@@ -1,7 +1,8 @@
+import { OpenInNew } from '@mui/icons-material';
 import QuizIcon from '@mui/icons-material/Quiz';
-import { Button, Chip, Typography } from '@mui/material';
+import { Box, Button, Chip, Typography } from '@mui/material';
 import { QuizWithStatus } from '@stex-react/api';
-import { LectureEntry } from '@stex-react/utils';
+import { convertHtmlStringToPlain, LectureEntry } from '@stex-react/utils';
 import Link from 'next/link';
 
 interface QuizHandlerProps {
@@ -20,13 +21,22 @@ export default function QuizHandler({ currentEntry, quiz }: QuizHandlerProps) {
           variant="contained"
           size="small"
           color="primary"
-          startIcon={<QuizIcon />}
+          endIcon={<OpenInNew />}
           sx={{ textTransform: 'none' }}
           component="a"
           target="_blank"
           rel="noopener noreferrer"
         >
-          Open Quiz
+          <Box
+            sx={{
+              textTransform: 'none',
+              maxWidth: '50px',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+          >
+            {convertHtmlStringToPlain(quiz.title)}
+          </Box>
         </Button>
       </Link>
     );
