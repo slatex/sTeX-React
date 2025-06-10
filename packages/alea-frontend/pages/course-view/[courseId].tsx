@@ -4,6 +4,7 @@ import { VideoCameraBack } from '@mui/icons-material';
 import ArticleIcon from '@mui/icons-material/Article';
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import {
+  canAccessResource,
   ClipData,
   ClipInfo,
   getCourseInfo,
@@ -21,7 +22,14 @@ import {
   LayoutWithFixedMenu,
   SectionReview,
 } from '@stex-react/stex-react-renderer';
-import { CourseInfo, localStore, shouldUseDrawer } from '@stex-react/utils';
+import {
+  Action,
+  CourseInfo,
+  CURRENT_TERM,
+  localStore,
+  ResourceName,
+  shouldUseDrawer,
+} from '@stex-react/utils';
 import axios from 'axios';
 import { NextPage } from 'next';
 import Link from 'next/link';
@@ -184,6 +192,7 @@ const CourseViewPage: NextPage = () => {
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [toc, setToc] = useState<FTML.TOCElem[]>([]);
   const [currentSlideUri, setCurrentSlideUri] = useState<string>('');
+  const [isQuizMaker, setIsQUizMaker] = useState(false);
 
   const selectedSectionTOC = useMemo(() => {
     return findSection(toc, sectionId);
@@ -192,6 +201,18 @@ const CourseViewPage: NextPage = () => {
   const handleVideoLoad = (status) => {
     setVideoLoaded(status);
   };
+
+  useEffect(() => {
+    if (!courseId) return;
+    const checkAccess = async () => {
+      const hasAccess = await canAccessResource(ResourceName.COURSE_QUIZ, Action.TAKE, {
+        courseId,
+        instanceId: CURRENT_TERM,
+      });
+      setIsQUizMaker(hasAccess);
+    };
+    checkAccess();
+  }, [courseId]);
 
   useEffect(() => {
     getCourseInfo().then(setCourses);
@@ -390,11 +411,13 @@ const CourseViewPage: NextPage = () => {
                   sectionUri={selectedSectionTOC.uri}
                   sectionTitle={selectedSectionTOC.title}
                 />
-                <QuizComponent
-                  courseId={courseId}
-                  sectionId={sectionId}
-                  sectionUri={selectedSectionTOC.uri}
-                />
+                {isQuizMaker && (
+                  <QuizComponent
+                    courseId={courseId}
+                    sectionId={sectionId}
+                    sectionUri={selectedSectionTOC.uri}
+                  />
+                )}
               </Box>
             )}
             <CommentNoteToggleView
