@@ -161,7 +161,7 @@ function CoverageRow({
             href={`https://fau.tv/clip/id/${item.clipId}`}
             target="_blank"
             rel="noreferrer"
-            startIcon={<OpenInNewIcon />}
+            endIcon={<OpenInNewIcon fontSize="small" />}
             sx={{ textTransform: 'none' }}
           >
             {item.clipId}

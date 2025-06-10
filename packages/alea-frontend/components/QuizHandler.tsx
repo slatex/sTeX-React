@@ -3,7 +3,6 @@ import QuizIcon from '@mui/icons-material/Quiz';
 import { Box, Button, Chip, Typography } from '@mui/material';
 import { QuizWithStatus } from '@stex-react/api';
 import { convertHtmlStringToPlain, LectureEntry } from '@stex-react/utils';
-import Link from 'next/link';
 
 interface QuizHandlerProps {
   currentEntry: LectureEntry;
@@ -16,29 +15,28 @@ export default function QuizHandler({ currentEntry, quiz }: QuizHandlerProps) {
 
   if (quiz) {
     return (
-      <Link href={formatQuizLink(quiz.courseId, quiz.id)} passHref>
-        <Button
-          variant="contained"
-          size="small"
-          color="primary"
-          endIcon={<OpenInNew />}
-          sx={{ textTransform: 'none' }}
-          component="a"
-          target="_blank"
-          rel="noopener noreferrer"
+      <Button
+        variant="outlined"
+        size="small"
+        color="primary"
+        endIcon={<OpenInNew fontSize="small" />}
+        sx={{ textTransform: 'none', px: 0.5 }}
+        component="a"
+        target="_blank"
+        href={formatQuizLink(quiz.courseId, quiz.id)}
+        rel="noopener noreferrer"
+      >
+        <Box
+          sx={{
+            textTransform: 'none',
+            maxWidth: '60px',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}
         >
-          <Box
-            sx={{
-              textTransform: 'none',
-              maxWidth: '50px',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            {convertHtmlStringToPlain(quiz.title)}
-          </Box>
-        </Button>
-      </Link>
+          {convertHtmlStringToPlain(quiz.title)}
+        </Box>
+      </Button>
     );
   }
 
