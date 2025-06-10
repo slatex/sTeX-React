@@ -90,9 +90,11 @@ export async function generateQuizProblems(
   sectionUri: string
 ) {
   const resp = await axios.post(
-    `${process.env['NEXT_PUBLIC_GPT_URL']}/api/generate-quiz-problems`,
+    `/api/gpt-redirect?apiname=generate-quiz-problems`,
     { courseId, sectionId, sectionUri },
-    { headers: getAuthHeaders() }
+    {
+      headers: getAuthHeaders(),
+    }
   );
   return resp.data as QuizResponse;
 }
