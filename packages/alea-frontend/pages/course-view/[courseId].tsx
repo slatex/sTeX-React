@@ -205,7 +205,7 @@ const CourseViewPage: NextPage = () => {
   useEffect(() => {
     if (!courseId) return;
     const checkAccess = async () => {
-      const hasAccess = await canAccessResource(ResourceName.COURSE_QUIZ, Action.TAKE, {
+      const hasAccess = await canAccessResource(ResourceName.COURSE_QUIZ, Action.MUTATE, {
         courseId,
         instanceId: CURRENT_TERM,
       });
