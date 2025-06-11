@@ -1,4 +1,4 @@
-import { RecorrectionDialog } from "../components/RecorrectionDialog";
+import { RecorrectionDialog } from '../components/RecorrectionDialog';
 
 export const en = {
   home: {
@@ -200,6 +200,7 @@ export const en = {
     confirmation: 'Confirmation',
     confirmText: 'Purge my data',
     purgeInstruction: 'Enter this text in the box below to confirm',
+    copyCalendarUrl: 'Copy Calendar URL',
   },
   myLearnerModel: {
     learnerModel: 'Learner Model',
@@ -442,19 +443,19 @@ export const en = {
     updates: 'updates',
     pending: 'pending',
     noUpdatesAvailable: 'No updates available',
-    failedToLoadUpdates:'Failed to load updates',
+    failedToLoadUpdates: 'Failed to load updates',
     ungradedProblems: 'Ungraded Problems',
     unansweredQuestions: 'Unanswered Questions',
-    latestQuiz:'Latest Quiz',
-    latestHomework:'Latest Homework',
-    noHomeworkAvailable:'No homework available'
+    latestQuiz: 'Latest Quiz',
+    latestHomework: 'Latest Homework',
+    noHomeworkAvailable: 'No homework available',
   },
-  syllabus:{
-    syllabusEntries:'Syllabus Entries',
-    noSyllabusEntriesYet:'No syllabus entries yet',
-    editsectionentry:'Edit Section Entry',
-    addnewsection:'Add New Section'
-  } ,
+  syllabus: {
+    syllabusEntries: 'Syllabus Entries',
+    noSyllabusEntriesYet: 'No syllabus entries yet',
+    editsectionentry: 'Edit Section Entry',
+    addnewsection: 'Add New Section',
+  },
   recorrection: {
     quizRecorrection: 'Quiz Recorrection',
     previewRecorrection: 'Preview of Recorrection Changes',

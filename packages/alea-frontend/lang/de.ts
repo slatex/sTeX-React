@@ -176,6 +176,7 @@ export const de = {
     confirmation: 'Bestätigung',
     confirmText: 'Meine Daten löschen',
     purgeInstruction: 'Geben Sie diesen Text zur Bestätigung in das Feld unten ein',
+    copyCalendarUrl: 'Kalender-URL kopieren',
   },
   myLearnerModel: {
     learnerModel: 'Lernendenmodell',
