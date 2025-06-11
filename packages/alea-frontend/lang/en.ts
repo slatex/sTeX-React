@@ -1,3 +1,5 @@
+import { RecorrectionDialog } from '../components/RecorrectionDialog';
+
 export const en = {
   home: {
     header: 'ALeA based Courses at FAU',
@@ -198,6 +200,7 @@ export const en = {
     confirmation: 'Confirmation',
     confirmText: 'Purge my data',
     purgeInstruction: 'Enter this text in the box below to confirm',
+    copyCalendarUrl: 'Copy Calendar URL',
   },
   myLearnerModel: {
     learnerModel: 'Learner Model',
@@ -444,6 +447,14 @@ export const en = {
     ungradedProblems: 'Ungraded Problems',
     unansweredQuestions: 'Unanswered Questions',
     latestQuiz: 'Latest Quiz',
+    latestHomework: 'Latest Homework',
+    noHomeworkAvailable: 'No homework available',
+  },
+  syllabus: {
+    syllabusEntries: 'Syllabus Entries',
+    noSyllabusEntriesYet: 'No syllabus entries yet',
+    editsectionentry: 'Edit Section Entry',
+    addnewsection: 'Add New Section',
     prepareUpcomingQuiz: 'Prepare Upcoming Quiz',
     latestHomework: 'Latest Homework',
     noHomeworkAvailable: 'No homework available',
