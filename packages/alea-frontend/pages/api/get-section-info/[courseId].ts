@@ -95,22 +95,30 @@ function getAllSections(data: FTML.TOCElem, level = 0): SectionInfo | SectionInf
   }
 }
 
-function getSectionsInOrder(nodes: SectionInfo[]): SectionInfo[] {
+function getSectionsInPreOrder(nodes: SectionInfo[]): SectionInfo[] {
   const nodeList = [] as SectionInfo[];
   for (const n of nodes) {
     nodeList.push(n);
-    nodeList.push(...getSectionsInOrder(n.children));
+    nodeList.push(...getSectionsInPreOrder(n.children));
   }
   return nodeList;
 }
 
 export function addCoverageInfo(sections: SectionInfo[], snaps: LectureEntry[]) {
-  const inOrderList = getSectionsInOrder(sections);
+  const preOrderedList = getSectionsInPreOrder(sections);
   let snapIdx = 0;
-  for (const section of inOrderList) {
+  for (const section of preOrderedList) {
     section.clipId = snaps[snapIdx].clipId;
     section.timestamp_ms = snaps[snapIdx].timestamp_ms;
-    if (section.uri === snaps[snapIdx].sectionUri) snapIdx++;
+    while (snapIdx < snaps.length && section.uri === snaps[snapIdx].sectionUri) {
+      // This is a hack to set the clipId to the last snap with the same sectionUri.
+      // Fails when a section is covered in 3 or more lectures (among other cases).
+      // The proper fix would be map multiple snaps to a single section using
+      // getPerSectionLectureInfo from ContentDashboard.tsx
+      section.clipId = snaps[snapIdx].clipId;
+      section.timestamp_ms = snaps[snapIdx].timestamp_ms;
+      snapIdx++;
+    }
     if (snapIdx >= snaps.length) break;
   }
   return;
