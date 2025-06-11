@@ -455,6 +455,10 @@ export const en = {
     noSyllabusEntriesYet: 'No syllabus entries yet',
     editsectionentry: 'Edit Section Entry',
     addnewsection: 'Add New Section',
+    prepareUpcomingQuiz: 'Prepare Upcoming Quiz',
+    latestHomework: 'Latest Homework',
+    noHomeworkAvailable: 'No homework available',
+    progress: 'Progress'
   },
   recorrection: {
     quizRecorrection: 'Quiz Recorrection',

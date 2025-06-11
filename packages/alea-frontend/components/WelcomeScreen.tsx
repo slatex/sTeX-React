@@ -1,3 +1,4 @@
+import { FTML } from '@kwarc/ftml-viewer';
 import { Rule, Visibility } from '@mui/icons-material';
 import ArticleIcon from '@mui/icons-material/Article';
 import CommentIcon from '@mui/icons-material/Comment';
@@ -23,9 +24,11 @@ import {
   getCourseInstanceThreads,
   getCourseQuizList,
   getCoverageTimeline,
+  getDocumentSections,
   getHomeworkList,
   getUserInfo,
   QuestionStatus,
+  QuizStubInfo,
   UserInfo,
 } from '@stex-react/api';
 import {
@@ -34,6 +37,7 @@ import {
   CourseResourceAction,
   CURRENT_TERM,
   isFauId,
+  LectureEntry,
   PRIMARY_COL,
   ResourceName,
 } from '@stex-react/utils';
@@ -45,6 +49,9 @@ import { getLocaleObject } from '../lang/utils';
 import MainLayout from '../layouts/MainLayout';
 import { BannerSection, CourseCard, VollKiInfoSection } from '../pages';
 import { CourseThumb } from '../pages/u/[institution]';
+import { SecInfo } from '../types';
+import { getSecInfo } from './coverage-update';
+import { calculateLectureProgress } from './CoverageTable';
 
 interface ColorInfo {
   color: string;
@@ -85,17 +92,6 @@ function calculateTimeAgo(timestamp: string): string | null {
   const dateTime = dayjs(parseInt(timestamp));
   return dateTime.isValid() ? dateTime.fromNow() : null;
 }
-
-const getTimeAgoColor = (timestamp: string | null): string => {
-  if (!timestamp) return 'text.secondary';
-  const targetDate = dayjs(parseInt(timestamp));
-  if (!targetDate.isValid()) return 'text.secondary';
-  const daysDifference = targetDate.diff(dayjs(), 'day');
-  if (daysDifference >= 0) return 'darkgreen';
-  if (daysDifference >= -2) return 'lightgreen';
-  if (daysDifference >= -5) return 'orange';
-  return 'red';
-};
 
 const getColoredDescription = (text: string, colorInfo?: ColorInfo) => {
   if (!colorInfo) {
@@ -161,28 +157,55 @@ async function getLastUpdatedQuiz(
 ): Promise<ResourceDisplayInfo> {
   const { resource: r } = getLocaleObject(router);
 
+  let quizList: QuizStubInfo[] | undefined = undefined;
+  let courseQuizData: LectureEntry[] = [];
   try {
-    const quizList = await getCourseQuizList(courseId);
-    const latestQuiz = quizList.reduce((acc, curr) => {
-      return acc.quizStartTs > curr.quizStartTs ? acc : curr;
-    }, quizList[0]);
-    const timestamp = latestQuiz.quizStartTs;
-    const description = `${r.latestQuiz}: ${dayjs(timestamp).format('YYYY-MM-DD')}`;
-    const timeAgo = calculateTimeAgo(timestamp.toString());
-    return {
-      description,
-      timeAgo,
-      timestamp: timestamp.toString(),
-      quizId: latestQuiz.quizId,
-      colorInfo: {
-        color: 'text.secondary',
-        type: 'default' as const,
-      },
-    };
+    quizList = await getCourseQuizList(courseId);
+    const coverageQuizData = await getCoverageTimeline();
+    courseQuizData = coverageQuizData[courseId];
   } catch (error) {
     console.error('Error fetching course data:', error);
     return { description: null, timeAgo: null, timestamp: null };
   }
+
+  const latestQuiz = quizList.reduce((acc, curr) => {
+    return acc.quizStartTs > curr.quizStartTs ? acc : curr;
+  }, quizList[0]);
+  const firstFutureQuiz = quizList
+    .filter((quiz) => quiz.quizStartTs > Date.now())
+    .sort((a, b) => a.quizStartTs - b.quizStartTs)[0];
+  const toShowQuiz = firstFutureQuiz || latestQuiz;
+  const toShowQuizTs = toShowQuiz.quizStartTs;
+
+  const now = Date.now();
+  const nextScheduledQuiz = courseQuizData
+    ?.filter((entry) => entry.isQuizScheduled && entry.timestamp_ms > now)
+    .sort((a, b) => a.timestamp_ms - b.timestamp_ms)[0];
+  if (toShowQuizTs > now - 12 * 60 * 60 * 1000 || !nextScheduledQuiz) {
+    return {
+      description: `${r.latestQuiz}: ${dayjs(toShowQuizTs).format('YYYY-MM-DD')}`,
+      timeAgo: calculateTimeAgo(toShowQuizTs.toString()),
+      timestamp: toShowQuizTs.toString(),
+      quizId: toShowQuiz.quizId,
+      colorInfo: {
+        color: 'gray',
+        type: 'default' as const,
+      },
+    };
+  }
+
+  const nextScheduledQuizTs = nextScheduledQuiz.timestamp_ms;
+  // In this case, the instructor has to perform an action (create a quiz). To highlight it, we use orange color.
+  return {
+    description: `${r.prepareUpcomingQuiz}: ${dayjs(nextScheduledQuizTs).format('YYYY-MM-DD')}`,
+    timeAgo: calculateTimeAgo(nextScheduledQuizTs.toString()),
+    timestamp: nextScheduledQuizTs.toString(),
+    quizId: null,
+    colorInfo: {
+      color: 'red',
+      type: 'updates_pending' as const,
+    },
+  };
 }
 
 async function getLastUpdatedHomework(
@@ -224,15 +247,34 @@ async function getLastUpdatedHomework(
   }
 }
 
-async function getLastUpdatedNotes(
+export async function getLastUpdatedNotes(
   courseId: string,
   router: NextRouter
 ): Promise<ResourceDisplayInfo> {
   const { resource: r } = getLocaleObject(router);
-
   try {
     const coverageData = await getCoverageTimeline();
-    const courseData = coverageData[courseId];
+    const courseData = coverageData[courseId] ?? [];
+    const targetUsed = courseData.some((entry) => entry.targetSectionUri);
+
+    let progressStatus: string | null = null;
+
+    if (targetUsed) {
+      const allCourses = await getCourseInfo();
+      const notesUri = allCourses[courseId]?.notes;
+
+      if (notesUri) {
+        const tocResp = await getDocumentSections(notesUri);
+        const docSections = tocResp[1];
+        const sections = docSections.flatMap((d) => getSecInfo(d));
+        const secInfo = sections.reduce((acc, s) => {
+          acc[s.uri] = { id: s.uri, title: s.title, uri: s.uri };
+          return acc;
+        }, {} as Record<FTML.DocumentURI, SecInfo>);
+
+        progressStatus = calculateLectureProgress(courseData, secInfo);
+      }
+    }
 
     if (!courseData || courseData.length === 0) {
       return {
@@ -241,7 +283,7 @@ async function getLastUpdatedNotes(
         timestamp: null,
         colorInfo: {
           color: 'text.secondary',
-          type: 'default' as const,
+          type: 'default',
         },
       };
     }
@@ -250,48 +292,47 @@ async function getLastUpdatedNotes(
       (entry) => entry.sectionUri && entry.sectionUri.trim() !== ''
     );
 
-    let latestValidUpdate = null;
-    if (entriesWithSection.length > 0) {
-      latestValidUpdate = entriesWithSection.reduce(
-        (latest, current) =>
-          dayjs(current.timestamp_ms).isAfter(dayjs(latest.timestamp_ms)) ? current : latest,
-        entriesWithSection[0]
-      );
-    }
+    const latestValidUpdate = entriesWithSection.reduce(
+      (latest, current) =>
+        dayjs(current.timestamp_ms).isAfter(dayjs(latest.timestamp_ms)) ? current : latest,
+      entriesWithSection[0]
+    );
 
     const lastUpdatedTimestamp = latestValidUpdate?.timestamp_ms ?? null;
 
-    const pendingUpdates = courseData.filter((entry) => {
-      return !entry.sectionUri && entry.timestamp_ms < Date.now();
-    }).length;
+    const pendingUpdates = courseData.filter(
+      (entry) => !entry.sectionUri && entry.timestamp_ms < Date.now()
+    ).length;
 
     if (lastUpdatedTimestamp) {
       const formattedDate = dayjs(lastUpdatedTimestamp).format('YYYY-MM-DD');
 
-      const description =
-        pendingUpdates > 0
-          ? `${r.lastUpdated}: ${formattedDate}\n${pendingUpdates} ${r.updates} ${r.pending}`
-          : `${r.lastUpdated}: ${formattedDate}`;
+      const descriptionLines = [
+        `${r.lastUpdated}: ${formattedDate}`,
+        ...(pendingUpdates > 0 ? [`${pendingUpdates} ${r.updates} ${r.pending}`] : []),
+        ...(progressStatus ? [`${r.progress}: ${progressStatus}`] : []),
+      ];
 
       return {
-        description,
+        description: descriptionLines.join('\n'),
         timeAgo: null,
         timestamp: lastUpdatedTimestamp.toString(),
         colorInfo: {
           color: pendingUpdates > 0 ? 'red' : 'text.secondary',
-          type: pendingUpdates > 0 ? ('updates_pending' as const) : ('default' as const),
+          type: pendingUpdates > 0 ? 'updates_pending' : 'default',
         },
       };
     }
+    const progressString = progressStatus ? `\n${r.progress}: ${progressStatus}` : '';
 
     if (pendingUpdates > 0) {
       return {
-        description: `${pendingUpdates} ${r.updates} ${r.pending}`,
+        description: `${pendingUpdates} ${r.updates} ${r.pending}${progressString}`,
         timeAgo: null,
         timestamp: null,
         colorInfo: {
           color: 'red',
-          type: 'updates_pending' as const,
+          type: 'updates_pending',
         },
       };
     }
@@ -302,7 +343,7 @@ async function getLastUpdatedNotes(
       timestamp: null,
       colorInfo: {
         color: 'text.secondary',
-        type: 'default' as const,
+        type: 'default',
       },
     };
   } catch (error) {
@@ -313,7 +354,7 @@ async function getLastUpdatedNotes(
       timestamp: null,
       colorInfo: {
         color: 'text.secondary',
-        type: 'default' as const,
+        type: 'default',
       },
     };
   }
@@ -540,8 +581,6 @@ function ResourceCard({
       { description: [], timeAgo: [], timestamp: [], quizId: [], colorInfo: [] }
     );
 
-  const timeAgoColor = getTimeAgoColor(resourceDescriptions.timestamp[0]);
-
   return (
     <Card
       key={resource.name}
@@ -591,7 +630,12 @@ function ResourceCard({
 
               {resourceDescriptions.timeAgo && (
                 <Typography
-                  sx={{ fontSize: '14px', fontWeight: 'bold', color: timeAgoColor, ml: '4px' }}
+                  sx={{
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                    color: resourceDescriptions.colorInfo[0]?.color,
+                    ml: '4px',
+                  }}
                 >
                   {resourceDescriptions.timeAgo.filter((t) => t !== null).join('\n')}
                 </Typography>
