@@ -188,7 +188,9 @@ const StudentHomePage: NextPage = ({
               ) : null}
             </Tooltip>
           </Link>
-
+          <br />
+              <Button variant='contained'sx={{mt:2}} 
+              onClick={()=>{router.push("/job-portal");}}>Job Portal</Button>
           <h2>{`${t.courseSection} (${CURRENT_TERM})`}</h2>
           <Box display="flex" flexWrap="wrap">
             {Object.values(courses)
