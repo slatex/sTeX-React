@@ -6,12 +6,7 @@ import UnfoldLessDoubleIcon from '@mui/icons-material/UnfoldLessDouble';
 import UnfoldMoreDoubleIcon from '@mui/icons-material/UnfoldMoreDouble';
 import { Box, IconButton, TextField, Tooltip } from '@mui/material';
 import { getCoverageTimeline } from '@stex-react/api';
-import {
-  convertHtmlStringToPlain,
-  getParamsFromUri,
-  LectureEntry,
-  PRIMARY_COL,
-} from '@stex-react/utils';
+import { convertHtmlStringToPlain, LectureEntry, PRIMARY_COL } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
@@ -284,7 +279,7 @@ function getNextSectionInList(sectionUri?: FTML.URI, uriList?: FTML.URI[]) {
   return uriList[idx + 1];
 }
 
-function getPrevSectionNotAChild(
+function getPrevSectionInPostOrderNotAChild(
   sectionUri?: FTML.URI,
   preOrdered?: FTML.URI[],
   postOrdered?: FTML.URI[]
@@ -303,6 +298,25 @@ function getPrevSectionNotAChild(
   return undefined;
 }
 
+function getNextSectionInPreOrderNotAChild(
+  sectionUri?: FTML.URI,
+  preOrdered?: FTML.URI[],
+  postOrdered?: FTML.URI[]
+) {
+  if (!sectionUri || !preOrdered?.length || !postOrdered?.length) return undefined;
+  const idxInPreOrder = preOrdered.findIndex((uri) => uri === sectionUri);
+  const idxInPostOrder = postOrdered.findIndex((uri) => uri === sectionUri);
+  let idx = idxInPreOrder + 1;
+  while (idx < preOrdered.length) {
+    const candidate = preOrdered[idx];
+    const candidateIdxInPostOrder = postOrdered.findIndex((uri) => uri === candidate);
+    const isChild = candidateIdxInPostOrder < idxInPostOrder;
+    if (!isChild) return candidate;
+    idx++;
+  }
+  return undefined;
+}
+
 interface SectionLectureInfo {
   startTime_ms?: number;
   endTime_ms?: number;
@@ -315,17 +329,20 @@ function getPerSectionLectureInfo(topLevel: FTML.TOCElem, lectureData: LectureEn
   if (!lectureData?.length) return perSectionLectureInfo;
   const [preOrdered, postOrdered] = getOrderedSections(topLevel);
   const firstSectionNotStarted = lectureData.map((snap) => {
+    const isPartial = !!snap.slideUri && !!snap.slideNumber;
+    if (!isPartial)
+      return getNextSectionInPreOrderNotAChild(snap.sectionUri, preOrdered, postOrdered);
     return getNextSectionInList(snap.sectionUri, preOrdered);
   });
 
   const lastSectionCompleted = lectureData.map((snap) => {
     const isPartial = !!snap.slideUri && !!snap.slideNumber;
-    if (isPartial) return getPrevSectionNotAChild(snap.sectionUri, preOrdered, postOrdered);
+    if (isPartial)
+      return getPrevSectionInPostOrderNotAChild(snap.sectionUri, preOrdered, postOrdered);
     return snap.sectionUri;
   });
 
-  /*
-  For debugging:
+  /*For debugging:
   const toPrintableStr = (uri?: string) =>
     uri ? getParamsFromUri(uri, ['p', 'd']).join('//') : '<no uri>';
   console.log('postOrdered', postOrdered.map(toPrintableStr));
@@ -350,8 +367,6 @@ function getPerSectionLectureInfo(topLevel: FTML.TOCElem, lectureData: LectureEn
     if (currLecIdx >= lectureData.length) break;
     const currentSnap = lectureData[currLecIdx];
     if (!currentSnap.sectionUri) break;
-    console.log('secUri', secUri, !!perSectionLectureInfo[secUri]);
-    console.log('currentSnap', currentSnap);
     perSectionLectureInfo[secUri].endTime_ms = currentSnap.timestamp_ms;
     perSectionLectureInfo[secUri].lastLectureIdx = currLecIdx;
 
