@@ -5,13 +5,8 @@ import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/Indeterminate
 import UnfoldLessDoubleIcon from '@mui/icons-material/UnfoldLessDouble';
 import UnfoldMoreDoubleIcon from '@mui/icons-material/UnfoldMoreDouble';
 import { Box, IconButton, TextField, Tooltip } from '@mui/material';
-import {
-  convertHtmlStringToPlain,
-  CoverageTimeline,
-  LectureEntry,
-  PRIMARY_COL,
-} from '@stex-react/utils';
-import axios from 'axios';
+import { getCoverageTimeline } from '@stex-react/api';
+import { convertHtmlStringToPlain, LectureEntry, PRIMARY_COL } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
@@ -42,7 +37,10 @@ function fillCoverage(node: SectionTreeNode, coveredSectionUris: string[]) {
   //node.ended = node.started
 }
 
-function getTopLevelSections(tocElems: FTML.TOCElem[], parentNode: SectionTreeNode): SectionTreeNode[] {
+function getTopLevelSections(
+  tocElems: FTML.TOCElem[],
+  parentNode: SectionTreeNode
+): SectionTreeNode[] {
   return tocElems
     .map((t) => getSectionTree(t, parentNode))
     .filter(Boolean)
@@ -261,15 +259,15 @@ function getOrderedSections(elem: FTML.TOCElem): [FTML.URI[], FTML.URI[]] {
   const preOrderedList: FTML.URI[] = [];
   const postOrderedList: FTML.URI[] = [];
   if (!elem) return [postOrderedList, preOrderedList];
-  if (elem.type === 'Section') postOrderedList.push(elem.uri);
+  if (elem.type === 'Section') preOrderedList.push(elem.uri);
   if ('children' in elem && elem.children.length) {
     for (const c of elem.children) {
       const [subPreList, subPostList] = getOrderedSections(c);
-      postOrderedList.push(...subPreList);
       preOrderedList.push(...subPostList);
+      postOrderedList.push(...subPreList);
     }
   }
-  if (elem.type === 'Section') preOrderedList.push(elem.uri);
+  if (elem.type === 'Section') postOrderedList.push(elem.uri);
   return [preOrderedList, postOrderedList];
 }
 
@@ -281,12 +279,42 @@ function getNextSectionInList(sectionUri?: FTML.URI, uriList?: FTML.URI[]) {
   return uriList[idx + 1];
 }
 
-function getPrevSectionInList(sectionUri?: FTML.URI, uriList?: FTML.URI[]) {
-  if (!sectionUri || !uriList?.length) return undefined;
-  const idx = uriList.findIndex((uri) => uri === sectionUri);
-  if (idx === -1) return undefined;
-  if (idx === 0) return undefined; // todo: cleanup
-  return uriList[idx - 1];
+function getPrevSectionInPostOrderNotAChild(
+  sectionUri?: FTML.URI,
+  preOrdered?: FTML.URI[],
+  postOrdered?: FTML.URI[]
+) {
+  if (!sectionUri || !preOrdered?.length || !postOrdered?.length) return undefined;
+  const idxInPostOrder = postOrdered.findIndex((uri) => uri === sectionUri);
+  const idxInPreOrder = preOrdered.findIndex((uri) => uri === sectionUri);
+  let idx = idxInPostOrder - 1;
+  while (idx >= 0) {
+    const candidate = postOrdered[idx];
+    const candidateIdxInPreOrder = preOrdered.findIndex((uri) => uri === candidate);
+    const isChild = candidateIdxInPreOrder > idxInPreOrder;
+    if (!isChild) return candidate;
+    idx--;
+  }
+  return undefined;
+}
+
+function getNextSectionInPreOrderNotAChild(
+  sectionUri?: FTML.URI,
+  preOrdered?: FTML.URI[],
+  postOrdered?: FTML.URI[]
+) {
+  if (!sectionUri || !preOrdered?.length || !postOrdered?.length) return undefined;
+  const idxInPreOrder = preOrdered.findIndex((uri) => uri === sectionUri);
+  const idxInPostOrder = postOrdered.findIndex((uri) => uri === sectionUri);
+  let idx = idxInPreOrder + 1;
+  while (idx < preOrdered.length) {
+    const candidate = preOrdered[idx];
+    const candidateIdxInPostOrder = postOrdered.findIndex((uri) => uri === candidate);
+    const isChild = candidateIdxInPostOrder < idxInPostOrder;
+    if (!isChild) return candidate;
+    idx++;
+  }
+  return undefined;
 }
 
 interface SectionLectureInfo {
@@ -301,17 +329,28 @@ function getPerSectionLectureInfo(topLevel: FTML.TOCElem, lectureData: LectureEn
   if (!lectureData?.length) return perSectionLectureInfo;
   const [preOrdered, postOrdered] = getOrderedSections(topLevel);
   const firstSectionNotStarted = lectureData.map((snap) => {
-    return getNextSectionInList(snap.sectionUri, postOrdered);
+    const isPartial = !!snap.slideUri && !!snap.slideNumber;
+    if (!isPartial)
+      return getNextSectionInPreOrderNotAChild(snap.sectionUri, preOrdered, postOrdered);
+    return getNextSectionInList(snap.sectionUri, preOrdered);
   });
 
   const lastSectionCompleted = lectureData.map((snap) => {
     const isPartial = !!snap.slideUri && !!snap.slideNumber;
-    if (isPartial) return getPrevSectionInList(snap.sectionUri, preOrdered);
+    if (isPartial)
+      return getPrevSectionInPostOrderNotAChild(snap.sectionUri, preOrdered, postOrdered);
     return snap.sectionUri;
   });
 
+  /*For debugging:
+  const toPrintableStr = (uri?: string) =>
+    uri ? getParamsFromUri(uri, ['p', 'd']).join('//') : '<no uri>';
+  console.log('postOrdered', postOrdered.map(toPrintableStr));
+  console.log('preOrdered', preOrdered.map(toPrintableStr));
+  console.log('firstSectionNotStarted', firstSectionNotStarted.map(toPrintableStr));
+  console.log('lastSectionCompleted', lastSectionCompleted.map(toPrintableStr));*/
   let currLecIdx = 0;
-  for (const secUri of postOrdered) {
+  for (const secUri of preOrdered) {
     while (secUri === firstSectionNotStarted[currLecIdx]) {
       currLecIdx++;
       if (!firstSectionNotStarted[currLecIdx]) break;
@@ -324,7 +363,7 @@ function getPerSectionLectureInfo(topLevel: FTML.TOCElem, lectureData: LectureEn
     };
   }
   currLecIdx = 0;
-  for (const secUri of preOrdered) {
+  for (const secUri of postOrdered) {
     if (currLecIdx >= lectureData.length) break;
     const currentSnap = lectureData[currLecIdx];
     if (!currentSnap.sectionUri) break;
@@ -362,8 +401,8 @@ export function ContentDashboard({
   useEffect(() => {
     async function getCoverageInfo() {
       if (!courseId || !toc?.length) return;
-      const resp = await axios.get('/api/get-coverage-timeline');
-      const snaps = (resp.data as CoverageTimeline)?.[courseId];
+      const timeline = await getCoverageTimeline();
+      const snaps = timeline?.[courseId];
       const shadowTopLevel: FTML.TOCElem = { type: 'SkippedSection', children: toc };
       setPerSectionLectureInfo(getPerSectionLectureInfo(shadowTopLevel, snaps));
     }

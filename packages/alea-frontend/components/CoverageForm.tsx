@@ -1,8 +1,14 @@
-import React, { Dispatch, SetStateAction, useEffect } from 'react';
+import { FTML } from '@kwarc/ftml-viewer';
+import AddIcon from '@mui/icons-material/Add';
+import ClearIcon from '@mui/icons-material/Clear';
+import QuizIcon from '@mui/icons-material/Quiz';
+import SaveIcon from '@mui/icons-material/Save';
+import SlideshowIcon from '@mui/icons-material/Slideshow';
 import {
   Box,
   Button,
   Checkbox,
+  Divider,
   FormControl,
   FormControlLabel,
   Grid,
@@ -11,34 +17,23 @@ import {
   Select,
   TextField,
   Typography,
-  Divider,
 } from '@mui/material';
+import { LectureEntry } from '@stex-react/utils';
 import dayjs from 'dayjs';
-import { Section } from '../types';
-import { SlidePicker } from './SlideSelector';
+import React, { Dispatch, SetStateAction, useEffect } from 'react';
+import { SecInfo } from '../types';
 import { getNoonTimestampOnSameDay } from './CoverageUpdater';
-import AddIcon from '@mui/icons-material/Add';
-import ClearIcon from '@mui/icons-material/Clear';
-import QuizIcon from '@mui/icons-material/Quiz';
-import SaveIcon from '@mui/icons-material/Save';
-import SlideshowIcon from '@mui/icons-material/Slideshow';
+import { SlidePicker } from './SlideSelector';
 
-interface FormData {
+export type FormData = LectureEntry & {
   sectionName: string;
-  sectionUri: string;
-  clipId: string;
-  selectedTimestamp: number;
   targetSectionName: string;
-  targetSectionUri: string;
-  isQuizScheduled: boolean;
-  slideUri: string;
-  slideNumber?: number;
-}
+};
 
 interface CoverageFormProps {
   formData: FormData;
   setFormData: Dispatch<SetStateAction<FormData>>;
-  sectionNames: Section[];
+  secInfo: Record<FTML.DocumentURI, SecInfo>;
   isEditing: boolean;
   onSubmit: (data: FormData) => void;
   onCancel: () => void;
@@ -48,18 +43,18 @@ interface CoverageFormProps {
 export function CoverageForm({
   formData,
   setFormData,
-  sectionNames,
+  secInfo,
   isEditing,
   onSubmit,
   onCancel,
   courseId,
 }: CoverageFormProps) {
   useEffect(() => {
-    let updatedData = { ...formData };
+    const updatedData = { ...formData };
     let dataChanged = false;
 
     if (formData.sectionName && formData.sectionName.trim() !== '' && !formData.sectionUri) {
-      const section = sectionNames.find((s) => s.title.trim() === formData.sectionName.trim());
+      const section = secInfo[formData.sectionUri];
       if (section) {
         updatedData.sectionUri = section.uri;
         dataChanged = true;
@@ -71,9 +66,7 @@ export function CoverageForm({
       formData.targetSectionName.trim() !== '' &&
       !formData.targetSectionUri
     ) {
-      const targetSection = sectionNames.find(
-        (s) => s.title.trim() === formData.targetSectionName.trim()
-      );
+      const targetSection = secInfo[formData.targetSectionUri];
       if (targetSection) {
         updatedData.targetSectionUri = targetSection.uri;
         dataChanged = true;
@@ -83,7 +76,7 @@ export function CoverageForm({
     if (dataChanged) {
       setFormData(updatedData);
     }
-  }, [formData, sectionNames]);
+  }, [formData, secInfo]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
@@ -94,14 +87,14 @@ export function CoverageForm({
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const timestamp = Date.parse(e.target.value);
-    setFormData({ ...formData, selectedTimestamp: getNoonTimestampOnSameDay(timestamp) });
+    setFormData({ ...formData, timestamp_ms: getNoonTimestampOnSameDay(timestamp) });
   };
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, isQuizScheduled: e.target.checked });
   };
 
-  const handleSlideUriChange = (uri: string, slideNumber: number) => {
+  const handleSlideUriChange = (uri: string | undefined, slideNumber: number | undefined) => {
     setFormData({ ...formData, slideUri: uri, slideNumber });
   };
 
@@ -119,7 +112,7 @@ export function CoverageForm({
       return;
     }
 
-    const selectedSection = sectionNames.find((section) => section.uri === selectedUri);
+    const selectedSection = secInfo[selectedUri];
     if (selectedSection) {
       setFormData({
         ...formData,
@@ -143,7 +136,7 @@ export function CoverageForm({
       return;
     }
 
-    const selectedSection = sectionNames.find((section) => section.uri === selectedUri);
+    const selectedSection = secInfo[selectedUri];
     if (selectedSection) {
       setFormData({
         ...formData,
@@ -161,7 +154,7 @@ export function CoverageForm({
           label="Date"
           type="date"
           name="date"
-          value={dayjs(formData.selectedTimestamp).format('YYYY-MM-DD')}
+          value={dayjs(formData.timestamp_ms).format('YYYY-MM-DD')}
           onChange={handleDateChange}
           InputLabelProps={{
             shrink: true,
@@ -195,7 +188,7 @@ export function CoverageForm({
             <MenuItem value="">
               <em>None</em>
             </MenuItem>
-            {sectionNames.map((section) => (
+            {Object.values(secInfo).map((section) => (
               <MenuItem key={section.uri} value={section.uri}>
                 {section.title}
               </MenuItem>
@@ -217,7 +210,7 @@ export function CoverageForm({
             <MenuItem value="">
               <em>None</em>
             </MenuItem>
-            {sectionNames.map((section) => (
+            {Object.values(secInfo).map((section) => (
               <MenuItem key={section.uri} value={section.uri}>
                 {section.title}
               </MenuItem>
@@ -236,7 +229,7 @@ export function CoverageForm({
           sectionUri={formData.sectionUri}
           slideUri={formData.slideUri}
           setSlideUri={handleSlideUriChange}
-          sectionNames={sectionNames}
+          secInfo={secInfo}
         />
       </Grid>
 

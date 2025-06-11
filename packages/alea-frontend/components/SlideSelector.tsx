@@ -2,40 +2,60 @@ import { FTMLFragment } from '@kwarc/ftml-react';
 import { FTML } from '@kwarc/ftml-viewer';
 import LayersClearIcon from '@mui/icons-material/LayersClear';
 import { Alert, Box, Button, Card, CardContent, Paper, Typography } from '@mui/material';
-import { getSlides } from '@stex-react/api';
-import { PRIMARY_COL } from '@stex-react/utils';
+import { getSlides, Slide } from '@stex-react/api';
+import { getParamsFromUri, PRIMARY_COL } from '@stex-react/utils';
 import { useEffect, useState } from 'react';
-import { Section } from '../types';
+import { SecInfo } from '../types';
+
+type SlideData = Slide & {
+  title: string;
+  index: number;
+  uri: string;
+  sectionUri: string;
+};
+
+export interface SlideDataWithCSS {
+  slides: SlideData[];
+  css: FTML.CSS[];
+}
+
+const EMPTY_SLIDE_DATA: SlideDataWithCSS = { slides: [], css: [] };
+
+function getSlideTitle(slide: Slide, index: number) {
+  const uri = slide.slide?.uri;
+  const title = getParamsFromUri(uri, ['d', 'e'])
+    .map((p) => (p?.startsWith('section/') ? p.slice(8) : p))
+    .map((p) => (p?.startsWith('slide') ? p.slice(6) : p))
+    .filter((p) => p?.length)
+    .join('/');
+  return title || `Slide ${index + 1}`;
+}
+
+const getRelevantSlides = async (
+  courseId: string,
+  sectionId: string,
+  sectionUri: string
+): Promise<SlideDataWithCSS> => {
+  const { slides, css } = await getSlides(courseId, sectionId);
+  const relevantSlides = slides
+    .map((slide, index) => ({
+      ...slide,
+      uri: slide.slide?.uri,
+      title: getSlideTitle(slide, index),
+      index,
+      sectionUri,
+    }))
+    .filter((slide) => slide.uri); // filters out 'TEXT' slides
+  console.log('relevantSlides', relevantSlides);
+  return { slides: relevantSlides, css };
+};
 
 interface SlidePickerProps {
   courseId: string;
   sectionUri: string;
   slideUri: string;
-  setSlideUri: (uri: string, slideNumber: number) => void;
-  sectionNames: Section[];
-}
-interface SlideData {
-  id: string;
-  title: string;
-  index: number;
-  uri: string;
-  slideType?: string;
-  paragraphs?: any[];
-  sectionId?: string;
-  slide?: {
-    html?: string;
-    type?: string;
-    uri?: string;
-  };
-  [key: string]: any;
-}
-export interface SlidesWithCSS {
-  slides: SlideData[];
-  css: FTML.CSS[];
-}
-
-interface AvailableSlides {
-  [sectionId: string]: SlidesWithCSS;
+  setSlideUri: (uri: string | undefined, slideNumber: number | undefined) => void;
+  secInfo: Record<FTML.DocumentURI, SecInfo>;
 }
 
 export function SlidePicker({
@@ -43,135 +63,74 @@ export function SlidePicker({
   sectionUri,
   slideUri,
   setSlideUri,
-  sectionNames,
+  secInfo,
 }: SlidePickerProps) {
-  const [availableSlides, setLocalAvailableSlides] = useState<AvailableSlides>({});
+  const [availableSlides, setLocalAvailableSlides] = useState<SlideDataWithCSS>({
+    slides: [],
+    css: [],
+  });
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const section = sectionNames.find(
-    ({ uri }) => uri && sectionUri && uri.trim() === sectionUri.trim()
-  );
+  const section = secInfo[sectionUri];
   const sectionDisplayName = section ? section.title.trim() : 'Unknown Section';
 
-  const constructUriFromId = (id: string, sectionId: string): string => {
-    const slideMatch = id.match(/slide-(\d+)$/);
-    const slideNumber = slideMatch ? slideMatch[1] : '1';
-    return `https://mathhub.info?a=courses/FAU/meta-inf&p=${sectionId}/snip&d=${sectionId}&l=en&e=paragraph&slide=${slideNumber}`;
-  };
-
-  const processSlideData = (rawSlides: any[], sectionId: string): SlideData[] => {
-    return rawSlides
-      .map((slide: any, index: number) => {
-        let slideUri = '';
-        if (slide.uri) {
-          slideUri = slide.uri;
-        } else if (slide.slide && slide.slide.uri) {
-          slideUri = slide.slide.uri;
-        } else if (slide.id) {
-          slideUri = constructUriFromId(slide.id, sectionId);
-        } else {
-          slideUri = constructUriFromId(`slide-${index + 1}`, sectionId);
-        }
-
-        return {
-          ...slide,
-          uri: slideUri,
-          id: slide.id || `slide-${index + 1}`,
-          title: slide.title || `Slide ${index + 1}`,
-          index: index,
-          sectionId: sectionId,
-        };
-      })
-      .filter((slide: any) => slide.uri);
-  };
-
-  const fetchSlidesFromApi = async (sectionId: string): Promise<AvailableSlides> => {
-    const { slides, css } = await getSlides(courseId, sectionId);
-    const processedSlides: AvailableSlides = {};
-    processedSlides[sectionId] = { slides: processSlideData(slides, sectionId), css };
-    return processedSlides;
-  };
-
-  const validateProcessedSlides = (processedSlides: AvailableSlides): void => {
-    const totalSlides = Object.values(processedSlides).reduce(
-      (acc, section) => acc + section.slides.length,
-      0
-    );
-    if (totalSlides === 0) {
-      throw new Error('No slides found for this section');
-    }
-  };
-
   const resetSlideState = (): void => {
-    setLocalAvailableSlides({});
+    setLocalAvailableSlides(EMPTY_SLIDE_DATA);
     setError(null);
   };
 
   const handleFetchError = (error: any): void => {
     const errorMessage = error.message || 'Failed to load slides';
     setError(errorMessage);
-    setLocalAvailableSlides({});
+    setLocalAvailableSlides(EMPTY_SLIDE_DATA);
   };
 
   useEffect(() => {
-    if (section?.id && availableSlides[section.id]?.css) {
-      const cssData = availableSlides[section.id].css;
-      cssData.forEach((css) => {
-        FTML.injectCss(css);
-      });
-    }
-  }, [availableSlides, section?.id]);
+    (availableSlides?.css ?? []).forEach((css) => FTML.injectCss(css));
+  }, [availableSlides]);
 
   useEffect(() => {
     const fetchSlides = async () => {
+      console.log('1');
       if (!sectionUri) {
+        console.log('2');
         resetSlideState();
         return;
       }
-
-      if (!section?.id) {
+      console.log('3');
+      if (!section?.uri) {
+        console.log('4');
         setIsLoading(false);
         setError('Section not found');
-        setLocalAvailableSlides({});
+        setLocalAvailableSlides(EMPTY_SLIDE_DATA);
         return;
       }
+      console.log('5');
       setIsLoading(true);
       setError(null);
       try {
-        const processedSlides = await fetchSlidesFromApi(section.id);
-        validateProcessedSlides(processedSlides);
+        const processedSlides = await getRelevantSlides(courseId, section.id, section.uri);
+        console.log('6');
         setLocalAvailableSlides(processedSlides);
       } catch (error) {
+        console.log('7');
         handleFetchError(error);
       } finally {
+        console.log('8');
         setIsLoading(false);
       }
     };
     fetchSlides();
-  }, [sectionUri, sectionNames, courseId]);
+  }, [sectionUri, secInfo, courseId, section]);
 
-  const getSlideOptions = () => {
-    if (!section?.id || !availableSlides[section.id]) return [];
-
-    return availableSlides[section.id].slides
-      .filter((slide) => slide.slideType !== 'TEXT')
-      .map((slide, idx) => {
-        const label = `Slide ${idx + 1}`;
-        return {
-          uri: slide.uri,
-          html: slide.slide?.html,
-          label,
-          slideNumber: idx + 1,
-          originalData: slide,
-        };
-      });
-  };
-
-  const slideOptions = getSlideOptions();
+  const slideOptions = availableSlides?.slides ?? [];
   const selectedSlide = slideOptions.find((slide) => slide.uri === slideUri);
+  console.log('selectedSlide', selectedSlide);
+  console.log('slideOptions', slideOptions);
+  console.log('slideUri', slideUri);
 
   const handleClearSection = () => {
-    setSlideUri(null, 0);
+    setSlideUri(undefined, undefined);
   };
 
   return (
@@ -236,26 +195,17 @@ export function SlidePicker({
               {selectedSlide && (
                 <Card sx={{ mb: 3, overflow: 'hidden' }}>
                   <Box sx={{ height: '300px', overflow: 'auto', borderBottom: '1px solid #eee' }}>
-                    {selectedSlide.html ? (
+                    {selectedSlide.slide?.html ? (
                       <FTMLFragment
                         key={selectedSlide.uri}
-                        fragment={{ type: 'HtmlString', html: selectedSlide.html }}
+                        fragment={{ type: 'HtmlString', html: selectedSlide.slide.html }}
                       />
-                    ) : selectedSlide.originalData.slideType === 'TEXT' &&
-                      Array.isArray(selectedSlide.originalData.paragraphs) ? (
-                      <div style={{ padding: '5px', width: '100%', height: '100%' }}>
-                        {selectedSlide.originalData.paragraphs.map((para, idx) => (
-                          <div key={idx} style={{ marginBottom: '5px' }}>
-                            {para.text || JSON.stringify(para)}
-                          </div>
-                        ))}
-                      </div>
                     ) : (
                       <i>No content</i>
                     )}
                   </Box>
                   <CardContent sx={{ p: 1, backgroundColor: '#f9f9f9' }}>
-                    <Typography variant="subtitle1">{selectedSlide.label}</Typography>
+                    <Typography variant="subtitle1">{selectedSlide.title}</Typography>
                   </CardContent>
                 </Card>
               )}
@@ -274,7 +224,7 @@ export function SlidePicker({
                         fontWeight: slide.uri === selectedSlide?.uri ? 'bold' : 'normal',
                       }}
                     >
-                      {slide.label}
+                      {slide.title}
                     </Button>
                   ))}
                 </Box>

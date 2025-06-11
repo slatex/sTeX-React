@@ -1,5 +1,6 @@
 import { FTML } from '@kwarc/ftml-viewer';
-export interface Section {
+
+export interface SecInfo {
   id: string;
   title: string;
   uri: FTML.DocumentURI;
