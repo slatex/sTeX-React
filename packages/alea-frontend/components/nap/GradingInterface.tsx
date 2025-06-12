@@ -32,8 +32,8 @@ import { ProblemResponse } from '@stex-react/ftml-utils';
 import { SafeHtml } from '@stex-react/react-utils';
 import {
   GradingContext,
+  GradingCreator,
   ProblemDisplay,
-  ServerLinksContext,
   ShowGradingFor,
 } from '@stex-react/stex-react-renderer';
 import {
@@ -192,7 +192,17 @@ function TriStateCheckbox({
     />
   );
 }
-
+function GradingProblem({
+  onNewGrading,
+}: {
+  onNewGrading: (acs: CreateAnswerClassRequest[], feedback: string) => Promise<void>;
+}) {
+  return (
+    <Box>
+      <GradingCreator onNewGrading={onNewGrading} rawAnswerClasses={[]}></GradingCreator>
+    </Box>
+  );
+}
 function GradingItemOrganizer({
   gradingItems,
   questionMap,
@@ -446,7 +456,6 @@ function GradingItemDisplay({
             answerClasses: CreateAnswerClassRequest[],
             customFeedback: string
           ) => {
-            const answerId = subProblemIdToAnswerId[subProblemId];
             if (!answerId) {
               alert('No answerId found for subProblemId ' + subProblemId);
               return;
@@ -468,6 +477,13 @@ function GradingItemDisplay({
           }}
         />
       </GradingContext.Provider>
+
+      <GradingProblem
+        onNewGrading={async (acs, feedback) => {
+          await createGrading({ answerId, answerClasses: acs, customFeedback: feedback });
+          refreshGradingInfo();
+        }}
+      ></GradingProblem>
     </Box>
   );
 }
