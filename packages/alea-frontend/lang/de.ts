@@ -1,6 +1,3 @@
-import { RecorrectionDialog } from "../components/RecorrectionDialog";
-import StudentHomePage from "../pages";
-
 export const de = {
   home: {
     header: 'ALeA basierte Kurse an der FAU',
@@ -139,7 +136,7 @@ export const de = {
     profile: 'Profil',
     Settings: 'Einstellungen',
     dataExport: 'Datenexport',
-    personalInfo : 'Persönliche Informationen',
+    personalInfo: 'Persönliche Informationen',
     firstName: 'Vorname',
     lastName: 'Nachname',
     email: 'E-Mail',
@@ -420,15 +417,17 @@ export const de = {
     pending: 'Ausstehend',
     noUpdatesAvailable: 'Keine Aktualisierungen verfügbar',
     failedToLoadUpdates: 'Aktualisierungen konnten nicht geladen werden',
-    ungradedProblems:'Unbenotete Aufgaben',
-    unansweredQuestions:'Unbeantwortete Fragen',
-    latestQuiz:'Neuestes Quiz',
-    latestHomework:'neueste Hausaufgaben',
-    noHomeworkAvailable:'Keine Hausaufgaben verfügbar'
+    ungradedProblems: 'Unbenotete Aufgaben',
+    unansweredQuestions: 'Unbeantwortete Fragen',
+    latestQuiz: 'Neuestes Quiz',
+    prepareUpcomingQuiz: 'Bevorstehendes Quiz vorbereiten',
+    latestHomework: 'neueste Hausaufgaben',
+    noHomeworkAvailable: 'Keine Hausaufgaben verfügbar',
+    progress: 'Fortschritt'
   },
-  recorrection:{
+  recorrection: {
     quizRecorrection: 'Quiz-Rekorrektur',
-    previewRecorrection:'Vorschau der Änderungen der Wiederholung',
+    previewRecorrection: 'Vorschau der Änderungen der Wiederholung',
     problemId: 'Problem-ID',
     recorrectionReason: 'Grund für die Rekorrektur',
     recorrectionReasonPlaceholder: 'Geben Sie den Grund für die Rekorrektur ein',
@@ -439,5 +438,5 @@ export const de = {
     noChangetoApply: 'Keine Änderungen zum Anwenden gefunden',
     loadingPreviewOfChanges: 'Laden der Vorschau der Änderungen...',
     ApplyRecorrection: 'Rekorrektur anwenden',
-  }
+  },
 };

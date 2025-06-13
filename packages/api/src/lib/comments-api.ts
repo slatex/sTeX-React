@@ -1,4 +1,4 @@
-import { CourseResourceAction } from '@stex-react/utils';
+import { CourseResourceAction, CoverageTimeline } from '@stex-react/utils';
 import axios, { AxiosError } from 'axios';
 import {
   BlogPost,
@@ -334,7 +334,7 @@ export async function getResourcesForUser() {
 
 export async function getCoverageTimeline() {
   const response = await axios.get('/api/get-coverage-timeline');
-  return response.data;
+  return response.data as CoverageTimeline;
 }
 
 export async function getStudentsEnrolledInCourse(courseId: string, instanceId: string) {

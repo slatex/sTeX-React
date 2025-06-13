@@ -1,5 +1,3 @@
-import { RecorrectionDialog } from "../components/RecorrectionDialog";
-
 export const en = {
   home: {
     header: 'ALeA based Courses at FAU',
@@ -442,19 +440,15 @@ export const en = {
     updates: 'updates',
     pending: 'pending',
     noUpdatesAvailable: 'No updates available',
-    failedToLoadUpdates:'Failed to load updates',
+    failedToLoadUpdates: 'Failed to load updates',
     ungradedProblems: 'Ungraded Problems',
     unansweredQuestions: 'Unanswered Questions',
-    latestQuiz:'Latest Quiz',
-    latestHomework:'Latest Homework',
-    noHomeworkAvailable:'No homework available'
+    latestQuiz: 'Latest Quiz',
+    prepareUpcomingQuiz: 'Prepare Upcoming Quiz',
+    latestHomework: 'Latest Homework',
+    noHomeworkAvailable: 'No homework available',
+    progress: 'Progress'
   },
-  syllabus:{
-    syllabusEntries:'Syllabus Entries',
-    noSyllabusEntriesYet:'No syllabus entries yet',
-    editsectionentry:'Edit Section Entry',
-    addnewsection:'Add New Section'
-  } ,
   recorrection: {
     quizRecorrection: 'Quiz Recorrection',
     previewRecorrection: 'Preview of Recorrection Changes',
