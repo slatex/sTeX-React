@@ -198,7 +198,15 @@ export const en = {
     confirmation: 'Confirmation',
     confirmText: 'Purge my data',
     purgeInstruction: 'Enter this text in the box below to confirm',
-    copyCalendarUrl: 'Copy Calendar URL',
+    calendar: {
+      copyCalendarUrl: 'Copy Calendar URL',
+      howTo: 'How to Add Calendar to Google Calendar',
+      stepOne: 'The URL has been copied to your clipboard.',
+      stepTwo: 'Open Google Calendar in your browser.',
+      stepThree: 'On the left, click on “Other calendars” → “+”.',
+      stepFour: 'Select “From URL”.',
+      stepFive: 'Paste the copied URL and click “Add calendar”.',
+    },
   },
   myLearnerModel: {
     learnerModel: 'Learner Model',
@@ -448,7 +456,7 @@ export const en = {
     prepareUpcomingQuiz: 'Prepare Upcoming Quiz',
     latestHomework: 'Latest Homework',
     noHomeworkAvailable: 'No homework available',
-    progress: 'Progress'
+    progress: 'Progress',
   },
   recorrection: {
     quizRecorrection: 'Quiz Recorrection',
