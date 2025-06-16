@@ -150,27 +150,35 @@ const CourseNotesPage: NextPage = () => {
 
   return (
     <MainLayout title={courseId.toUpperCase()}>
-      <FTMLSetup>
-        <FTMLDocument
-          key={notes}
-          document={{ type: 'FromBackend', uri: notes, toc: { Predefined: toc }, gottos }}
-          onFragment={(uri, kind) => {
-            if (kind.type === 'Section' || kind.type === 'Slide' || kind.type === 'Paragraph') {
-              return (ch) => (
-                <FragmentWrap
-                  uri={uri}
-                  fragmentKind={kind.type}
-                  children={ch}
-                  uriToTitle={uriToTitle.current}
-                />
-              );
-            }
-          }}
-          onSectionTitle={(uri, lvl) => {
-            return <TrafficLightIndicator sectionUri={uri} />;
-          }}
-        />
-      </FTMLSetup>
+      <Box
+        sx={{
+          height: '100vh',
+          overflow: 'auto',
+          position: 'relative',
+        }}
+      >
+        <FTMLSetup>
+          <FTMLDocument
+            key={notes}
+            document={{ type: 'FromBackend', uri: notes, toc: { Predefined: toc }, gottos }}
+            onFragment={(uri, kind) => {
+              if (kind.type === 'Section' || kind.type === 'Slide' || kind.type === 'Paragraph') {
+                return (ch) => (
+                  <FragmentWrap
+                    uri={uri}
+                    fragmentKind={kind.type}
+                    children={ch}
+                    uriToTitle={uriToTitle.current}
+                  />
+                );
+              }
+            }}
+            onSectionTitle={(uri, lvl) => {
+              return <TrafficLightIndicator sectionUri={uri} />;
+            }}
+          />
+        </FTMLSetup>
+      </Box>
     </MainLayout>
   );
 };
