@@ -152,7 +152,7 @@ const CourseNotesPage: NextPage = () => {
     <MainLayout title={courseId.toUpperCase()}>
       <Box
         sx={{
-          height: '100vh',
+          height: 'calc(100vh - 120px)',
           overflow: 'auto',
           position: 'relative',
         }}
