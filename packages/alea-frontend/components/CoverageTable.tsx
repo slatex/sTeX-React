@@ -3,6 +3,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
+import InfoIcon from '@mui/icons-material/Info';
 import {
   Box,
   Button,
@@ -208,6 +209,22 @@ function CoverageRow({
           >
             <DeleteIcon fontSize="small" />
           </IconButton>
+          <Tooltip title={item.autoDetected?.clipId ?? "No clip detected "}>
+            <IconButton
+              size="small"
+              color="info"
+             sx={{
+              boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
+              },
+              transition: 'all 0.2s',
+            }}
+            >
+              <InfoIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
         </Box>
       </TableCell>
     </TableRow>
