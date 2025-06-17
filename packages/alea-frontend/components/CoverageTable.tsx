@@ -255,22 +255,6 @@ function CoverageRow({
           >
             <InfoIcon />
           </NoMaxWidthTooltip>
-          {/* <Tooltip title={item.autoDetected?.clipId ?? "No clip detected "}>
-            <IconButton
-              size="small"
-              color="info"
-             sx={{
-              boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-              '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
-              },
-              transition: 'all 0.2s',
-            }}
-            >
-              <InfoIcon fontSize="small" />
-            </IconButton>
-          </Tooltip> */}
         </Box>
       </TableCell>
     </TableRow>
