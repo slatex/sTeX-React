@@ -86,9 +86,13 @@ export interface LectureEntry {
   targetSectionUri?: string;
   isQuizScheduled?: boolean;
   slideUri?: string;
-  slideNumber?: number; // Don't use this anywhere , use slideUri instead
+  slideNumber?: number;  // Don't use this anywhere , use slideUri instead
+  autoDetected?:{
+    clipId?: string;
+    sectionUri?: string; 
+    slideUri?: string; 
+  }
 }
-
 export interface CoverageTimeline {
   [courseId: string]: LectureEntry[];
 }
