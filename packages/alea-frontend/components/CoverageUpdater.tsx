@@ -135,11 +135,12 @@ export function CoverageUpdater({ courseId, snaps, secInfo, handleSave }: Covera
   };
 
   const handleEditDialogSave = (data: FormData) => {
-    if (editIndex === null) {
-      return;
-    }
+    if (editIndex === null) return;
     const updatedSnaps = [...snaps];
-    updatedSnaps[editIndex] = { ...data };
+    updatedSnaps[editIndex] = {
+      ...data,
+      autoDetected: snaps[editIndex].autoDetected,
+    };
     handleSave(updatedSnaps);
     handleEditDialogClose();
   };
