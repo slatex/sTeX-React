@@ -23,7 +23,6 @@ import {
   getCourseInfo,
   getCourseInstanceThreads,
   getCourseQuizList,
-  getCoverageTimeline,
   getDocumentSections,
   getHomeworkList,
   getUserInfo,
@@ -31,6 +30,7 @@ import {
   QuizStubInfo,
   UserInfo,
 } from '@stex-react/api';
+import { getCachedCoverageTimeline } from '@stex-react/react-utils';
 import {
   Action,
   CourseInfo,
@@ -161,7 +161,7 @@ async function getLastUpdatedQuiz(
   let courseQuizData: LectureEntry[] = [];
   try {
     quizList = await getCourseQuizList(courseId);
-    const coverageQuizData = await getCoverageTimeline();
+    const coverageQuizData = await getCachedCoverageTimeline();
     courseQuizData = coverageQuizData[courseId];
   } catch (error) {
     console.error('Error fetching course data:', error);
@@ -253,7 +253,7 @@ export async function getLastUpdatedNotes(
 ): Promise<ResourceDisplayInfo> {
   const { resource: r } = getLocaleObject(router);
   try {
-    const coverageData = await getCoverageTimeline();
+    const coverageData = await getCachedCoverageTimeline();
     const courseData = coverageData[courseId] ?? [];
     const targetUsed = courseData.some((entry) => entry.targetSectionUri);
 
