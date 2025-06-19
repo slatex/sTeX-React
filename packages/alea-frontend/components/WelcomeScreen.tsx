@@ -18,6 +18,7 @@ import {
 } from '@mui/material';
 import {
   CommentType,
+  getCachedCoverageTimeline,
   getCourseGradingItems,
   getCourseIdsForEnrolledUser,
   getCourseInfo,
@@ -30,7 +31,6 @@ import {
   QuizStubInfo,
   UserInfo,
 } from '@stex-react/api';
-import { getCachedCoverageTimeline } from '@stex-react/react-utils';
 import {
   Action,
   CourseInfo,

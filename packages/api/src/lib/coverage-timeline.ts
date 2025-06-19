@@ -10,7 +10,7 @@ function isCacheValid(): boolean {
   return Date.now() < coverageTimelineCacheTS + COVERAGE_CACHE_TTL;
 }
 
-export default async function getCachedCoverageTimeline(): Promise<CoverageTimeline | undefined> {
+export async function getCachedCoverageTimeline(): Promise<CoverageTimeline | undefined> {
   if (isCacheValid()) {
     console.log('Using cached coverage timeline');
     return coverageTimelineCache;
