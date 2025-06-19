@@ -18,7 +18,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { getAllQuizzes, QuizWithStatus } from '@stex-react/api';
+import { getAllQuizzes, getStudentsNumberEnrolledInCourse, QuizWithStatus } from '@stex-react/api';
 import { CURRENT_TERM, LectureEntry } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
@@ -256,14 +256,14 @@ function CoverageRow({
             <IconButton
               size="small"
               color="info"
-             sx={{
-              boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-              '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
-              },
-              transition: 'all 0.2s',
-            }}
+              sx={{
+                boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
+                },
+                transition: 'all 0.2s',
+              }}
             >
               <InfoIcon fontSize="small" />
             </IconButton>
@@ -379,6 +379,7 @@ export function CoverageTable({
   const missingTargetsCount = countMissingTargetsInFuture(entries);
   const sortedEntries = [...entries].sort((a, b) => a.timestamp_ms - b.timestamp_ms);
   const [quizMatchMap, setQuizMatchMap] = useState<QuizMatchMap>({});
+  const [studentCount, setStudentCount] = useState<number | null>(null);
 
   useEffect(() => {
     async function fetchQuizzes() {
@@ -400,8 +401,28 @@ export function CoverageTable({
     fetchQuizzes();
   }, [courseId]);
 
+  useEffect(() => {
+    if (!courseId && !CURRENT_TERM) return;
+    getStudentsNumberEnrolledInCourse(courseId, CURRENT_TERM)
+      .then((res) => {
+        setStudentCount(res.studentCount ?? null);
+      })
+      .catch((err) => {
+        console.error('Error fetching student count:', err);
+        setStudentCount(null);
+      });
+  }, [courseId]);
+
   return (
     <Box>
+      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+
+        {studentCount !== null && (
+          <Typography variant="body1" color="text.secondary">
+            Total Students Enrolled: {studentCount}
+          </Typography>
+        )}
+        </Box>
       {targetUsed && (
         <Paper
           elevation={3}

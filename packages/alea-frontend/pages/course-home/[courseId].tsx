@@ -11,6 +11,7 @@ import {
   addRemoveMember,
   canAccessResource,
   getCourseInfo,
+  getStudentsNumberEnrolledInCourse,
   getUserInfo,
   UserInfo,
 } from '@stex-react/api';
@@ -23,6 +24,7 @@ import {
   IconButton,
   InputAdornment,
   TextField,
+  Typography,
 } from '@mui/material';
 import {
   Action,
@@ -42,6 +44,7 @@ import { useEffect, useRef, useState } from 'react';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
 import { FTMLDocument } from '@kwarc/ftml-react';
+import { useStudentCount } from '../api/useStudentCount';
 
 export function getCourseEnrollmentAcl(courseId: string, instanceId: string) {
   return `${courseId}-${instanceId}-enrollments`;
@@ -178,6 +181,10 @@ const CourseHomePage: NextPage = () => {
     };
     checkAccess();
   }, [courseId]);
+
+  
+  const studentCount = useStudentCount(courseId, CURRENT_TERM);
+  console.log('Student count:', studentCount);
 
   useEffect(() => {
     if (!courseId) return;
@@ -316,6 +323,11 @@ const CourseHomePage: NextPage = () => {
               {q.getEnrolled}
               <SchoolIcon />
             </Button>
+            {studentCount !== null && (
+              <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                {studentCount} {q.numberofStudentEnrolled}
+              </Box>
+            )}
             <Alert severity="info" sx={{ display: 'flex', justifyContent: 'center' }}>
               {q.enrollmentMessage}
             </Alert>

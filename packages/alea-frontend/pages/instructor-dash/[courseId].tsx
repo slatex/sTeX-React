@@ -212,13 +212,16 @@ const InstructorDash: NextPage = () => {
         <Tabs
           value={currentTabIdx}
           onChange={handleChange}
-          variant='scrollable'
+          variant="scrollable"
           scrollButtons="auto"
           aria-label="Instructor Dashboard Tabs"
           sx={{
             overflowX: 'auto',
             '& .MuiTabs-flexContainer': {
-              justifyContent: 'flex-start',
+              justifyContent: {
+                xs: 'flex-start', 
+                md: 'center', 
+              },
             },
             '& .MuiTab-root': {
               fontSize: '14px',
