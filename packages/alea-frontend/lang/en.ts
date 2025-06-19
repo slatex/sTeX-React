@@ -1,5 +1,3 @@
-import { RecorrectionDialog } from '../components/RecorrectionDialog';
-
 export const en = {
   home: {
     header: 'ALeA based Courses at FAU',
@@ -455,8 +453,10 @@ export const en = {
     ungradedProblems: 'Ungraded Problems',
     unansweredQuestions: 'Unanswered Questions',
     latestQuiz: 'Latest Quiz',
+    prepareUpcomingQuiz: 'Prepare Upcoming Quiz',
     latestHomework: 'Latest Homework',
     noHomeworkAvailable: 'No homework available',
+    progress: 'Progress',
   },
   syllabus: {
     syllabusEntries: 'Syllabus Entries',
