@@ -55,7 +55,7 @@ const CoverageUpdateTab = () => {
   } | null>(null);
 
   useEffect(() => {
-    getCoverageTimeline().then(setCoverageTimeline);
+    getCoverageTimeline(true).then(setCoverageTimeline);
   }, []);
 
   useEffect(() => {

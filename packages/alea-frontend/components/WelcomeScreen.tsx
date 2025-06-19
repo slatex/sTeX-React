@@ -18,7 +18,7 @@ import {
 } from '@mui/material';
 import {
   CommentType,
-  getCachedCoverageTimeline,
+  getCoverageTimeline,
   getCourseGradingItems,
   getCourseIdsForEnrolledUser,
   getCourseInfo,
@@ -161,7 +161,7 @@ async function getLastUpdatedQuiz(
   let courseQuizData: LectureEntry[] = [];
   try {
     quizList = await getCourseQuizList(courseId);
-    const coverageQuizData = await getCachedCoverageTimeline();
+    const coverageQuizData = await getCoverageTimeline();
     courseQuizData = coverageQuizData[courseId];
   } catch (error) {
     console.error('Error fetching course data:', error);
@@ -253,7 +253,7 @@ export async function getLastUpdatedNotes(
 ): Promise<ResourceDisplayInfo> {
   const { resource: r } = getLocaleObject(router);
   try {
-    const coverageData = await getCachedCoverageTimeline();
+    const coverageData = await getCoverageTimeline();
     const courseData = coverageData[courseId] ?? [];
     const targetUsed = courseData.some((entry) => entry.targetSectionUri);
 

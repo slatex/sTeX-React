@@ -10,15 +10,14 @@ function isCacheValid(): boolean {
   return Date.now() < coverageTimelineCacheTS + COVERAGE_CACHE_TTL;
 }
 
-export async function getCachedCoverageTimeline(): Promise<CoverageTimeline | undefined> {
-  if (isCacheValid()) {
-    console.log('Using cached coverage timeline');
-    return coverageTimelineCache;
+export async function getCoverageTimeline(forceRefresh = false): Promise<CoverageTimeline> {
+  if (!forceRefresh && isCacheValid()) {
+    return coverageTimelineCache!;
   }
 
-  console.log('Fetching new coverage timeline');
   const response = await axios.get('/api/get-coverage-timeline');
-  coverageTimelineCache = response.data as CoverageTimeline;
+  const coverageTimeline = response.data as CoverageTimeline;
+  coverageTimelineCache = coverageTimeline;
   coverageTimelineCacheTS = Date.now();
-  return coverageTimelineCache;
+  return coverageTimeline;
 }
