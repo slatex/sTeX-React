@@ -40,6 +40,7 @@
     "html-react-parser": "^5.2.0",
     "html-to-text": "^9.0.5",
     "htmlparser2": "^8.0.1",
+    "ical-generator": "^9.0.0",
     "ioredis": "^5.4.1",
     "jsonwebtoken": "^9.0.2",
     "markdown-it": "^13.0.1",
