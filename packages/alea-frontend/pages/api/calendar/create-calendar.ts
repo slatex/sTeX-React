@@ -2,7 +2,7 @@ import { Action, LectureEntry } from '@stex-react/utils';
 import ical, { ICalEventData } from 'ical-generator';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getCoverageData } from '../get-coverage-timeline';
-import { getResourceAndActionOfUser } from '../get-resources-for-user';
+import { getAuthorizedCourseResources } from '../get-resources-for-user';
 
 function generateCalendarEvents(
   coverageData: Record<string, LectureEntry[]>,
@@ -35,7 +35,7 @@ function generateCalendarEvents(
 
 async function getUserEvents(userId: string): Promise<ICalEventData[]> {
   const coverageData = getCoverageData();
-  const resourceAndActions = await getResourceAndActionOfUser(userId);
+  const resourceAndActions = await getAuthorizedCourseResources(userId);
 
   const resourceAccessToInstructor = resourceAndActions
     .map((item) => ({

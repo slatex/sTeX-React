@@ -57,18 +57,6 @@ export const SettingsTab = ({
                 color="primary"
               />
             </Paper>
-            <Box sx={{ p: 2, mt: 2, display: 'flex', justifyContent: 'center' }}>
-              <Button
-                variant="contained"
-                onClick={() =>
-                  navigator.clipboard.writeText(
-                    `https://courses.voll-ki.fau.de/api/calendar/create-calendar?userId=${userInfo?.userId}`
-                  )
-                }
-              >
-                {t.copyCalendarUrl}
-              </Button>
-            </Box>
           </Box>
         </Card>
       </Box>
