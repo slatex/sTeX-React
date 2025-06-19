@@ -18,12 +18,12 @@ import {
 } from '@mui/material';
 import {
   CommentType,
+  getCoverageTimeline,
   getCourseGradingItems,
   getCourseIdsForEnrolledUser,
   getCourseInfo,
   getCourseInstanceThreads,
   getCourseQuizList,
-  getCoverageTimeline,
   getDocumentSections,
   getHomeworkList,
   getUserInfo,
