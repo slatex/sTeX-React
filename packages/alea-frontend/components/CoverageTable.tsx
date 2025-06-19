@@ -34,7 +34,7 @@ interface CoverageRowProps {
   item: LectureEntry;
   quizMatch: QuizWithStatus | null;
   originalIndex: number;
-  onEdit: (index: number) => void;
+  onEdit: (index: number, prefill?: Partial<LectureEntry>) => void;
   onDelete: (index: number) => void;
   secInfo: Record<FTML.DocumentURI, SecInfo>;
 }
@@ -121,24 +121,42 @@ function CoverageRow({
             (shouldHighlightNoSection ? 'No Section - Please fill this field' : 'No Section')
           }
         >
-          {shouldHighlightNoSection ? (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography
-                variant="body2"
-                sx={{ color: 'error.main', fontStyle: 'italic', fontWeight: 'bold' }}
+          <span>
+            {shouldHighlightNoSection ? (
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  cursor: 'pointer',
+                  '&:hover': {
+                    opacity: 0.8,
+                  },
+                }}
+                onClick={() => onEdit(originalIndex, item.autoDetected)}
               >
-                Update pending
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{ color: 'error.main', animation: 'blink 1.5s infinite' }}
-              >
-                ⚠️
-              </Typography>
-            </Box>
-          ) : (
-            formatSectionWithSlide(sectionTitle, item.slideNumber, item.slideUri)
-          )}
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: 'error.main',
+                    fontStyle: 'italic',
+                    fontWeight: 'bold',
+                    textDecoration: 'underline',
+                  }}
+                >
+                  Update pending
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ color: 'error.main', animation: 'blink 1.5s infinite' }}
+                >
+                  ⚠️
+                </Typography>
+              </Box>
+            ) : (
+              formatSectionWithSlide(sectionTitle, item.slideNumber, item.slideUri)
+            )}
+          </span>
         </Tooltip>
       </TableCell>
       <TableCell
@@ -182,7 +200,10 @@ function CoverageRow({
           <IconButton
             size="small"
             color="primary"
-            onClick={() => onEdit(originalIndex)}
+            onClick={() => {
+              const useAutoDetected = !item.sectionUri;
+              onEdit(originalIndex, useAutoDetected ? item.autoDetected : undefined);
+            }}
             sx={{
               boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
               '&:hover': {
@@ -256,14 +277,14 @@ function CoverageRow({
             <IconButton
               size="small"
               color="info"
-             sx={{
-              boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-              '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
-              },
-              transition: 'all 0.2s',
-            }}
+              sx={{
+                boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
+                },
+                transition: 'all 0.2s',
+              }}
             >
               <InfoIcon fontSize="small" />
             </IconButton>
@@ -364,7 +385,7 @@ interface CoverageTableProps {
   courseId: string;
   entries: LectureEntry[];
   secInfo: Record<FTML.DocumentURI, SecInfo>;
-  onEdit: (index: number) => void;
+  onEdit: (index: number, prefill?: Partial<LectureEntry>) => void;
   onDelete: (index: number) => void;
 }
 export function CoverageTable({

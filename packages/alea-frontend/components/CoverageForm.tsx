@@ -24,6 +24,7 @@ import React, { Dispatch, SetStateAction, useEffect } from 'react';
 import { SecInfo } from '../types';
 import { getNoonTimestampOnSameDay } from './CoverageUpdater';
 import { SlidePicker } from './SlideSelector';
+import { getSlides } from '@stex-react/api';
 
 export type FormData = LectureEntry & {
   sectionName: string;
@@ -77,6 +78,20 @@ export function CoverageForm({
       setFormData(updatedData);
     }
   }, [formData, secInfo]);
+
+  useEffect(() => {
+    if (formData.slideUri && formData.sectionUri && formData.slideNumber === undefined) {
+      const section = secInfo[formData.sectionUri];
+      if (section) {
+        getSlides(courseId, section.id).then(({ slides }) => {
+          const index = slides.findIndex((s) => s.slide?.uri === formData.slideUri);
+          if (index >= 0) {
+            handleSlideUriChange(formData.slideUri, index);
+          }
+        });
+      }
+    }
+  }, [formData.slideUri, formData.sectionUri, formData.slideNumber]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
