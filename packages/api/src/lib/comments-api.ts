@@ -343,6 +343,16 @@ export async function getStudentsEnrolledInCourse(courseId: string, instanceId: 
   return response.data;
 }
 
+export async function getStudentCountInCourse(courseId: string, instanceId: string) {
+  const response = await axios.get('/api/get-student-count-in-course', {
+    params: {
+      courseId,
+      instanceId,
+    },
+  });
+  return response.data;
+}
+
 export async function getCourseIdsForEnrolledUser(instanceId?: string) {
   const response = await axios.post(
     '/api/get-courseids-for-enrolled-user',

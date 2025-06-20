@@ -25,6 +25,7 @@ import { useEffect, useState } from 'react';
 import { SecInfo } from '../types';
 import QuizHandler from './QuizHandler';
 import { NoMaxWidthTooltip } from '@stex-react/stex-react-renderer';
+import { useStudentCount } from '../hooks/useStudentCount';
 import { getSectionNameForUri } from './CoverageUpdater';
 import { AutoDetectedTooltipContent } from './AutoDetectedComponent';
 
@@ -382,6 +383,7 @@ export function CoverageTable({
   const missingTargetsCount = countMissingTargetsInFuture(entries);
   const sortedEntries = [...entries].sort((a, b) => a.timestamp_ms - b.timestamp_ms);
   const [quizMatchMap, setQuizMatchMap] = useState<QuizMatchMap>({});
+  const studentCount = useStudentCount(courseId, CURRENT_TERM);
 
   useEffect(() => {
     async function fetchQuizzes() {
@@ -399,12 +401,18 @@ export function CoverageTable({
         console.error('Error fetching quizzes:', err);
       }
     }
-
     fetchQuizzes();
   }, [courseId]);
 
   return (
     <Box>
+      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        {studentCount !== null && (
+          <Typography variant="body1" color="text.secondary">
+            Total Students Enrolled: {studentCount}
+          </Typography>
+        )}
+      </Box>
       {targetUsed && (
         <Paper
           elevation={3}
