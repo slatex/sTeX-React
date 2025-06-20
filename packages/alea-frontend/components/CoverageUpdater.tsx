@@ -50,10 +50,17 @@ interface CoverageUpdaterProps {
   courseId: string;
   snaps: LectureEntry[];
   secInfo: Record<FTML.DocumentURI, SecInfo>;
-  handleSave: (snaps: LectureEntry[]) => void;
+  handleSaveSingle: (entry: LectureEntry) => void;
+  handleDeleteSingle: (timestamp_ms: number) => void;
 }
 
-export function CoverageUpdater({ courseId, snaps, secInfo, handleSave }: CoverageUpdaterProps) {
+export function CoverageUpdater({
+  courseId,
+  snaps,
+  secInfo,
+  handleSaveSingle,
+  handleDeleteSingle,
+}: CoverageUpdaterProps) {
   const [formData, setFormData] = useState<FormData>({
     sectionName: '',
     sectionUri: '',
@@ -83,8 +90,8 @@ export function CoverageUpdater({ courseId, snaps, secInfo, handleSave }: Covera
 
   const handleDeleteItem = (index: number) => {
     if (!confirm('Are you sure you want to delete this entry?')) return;
-    const updatedSnaps = snaps.filter((_, i) => i !== index);
-    handleSave(updatedSnaps);
+    const timestamp = snaps[index].timestamp_ms;
+    handleDeleteSingle(timestamp);
   };
 
   const handleCancelEdit = () => {
@@ -104,7 +111,7 @@ export function CoverageUpdater({ courseId, snaps, secInfo, handleSave }: Covera
 
   const handleSubmitForm = (formData: any) => {
     const newItem: LectureEntry = {
-      timestamp_ms: formData.selectedTimestamp,
+      timestamp_ms: Date.now(),
       sectionUri: formData.sectionUri,
       targetSectionUri: formData.targetSectionUri,
       clipId: formData.clipId,
@@ -123,7 +130,7 @@ export function CoverageUpdater({ courseId, snaps, secInfo, handleSave }: Covera
       slideUri: '',
       slideNumber: undefined,
     });
-    handleSave([...snaps, newItem]);
+    handleSaveSingle(newItem);
   };
 
   const handleEditDialogOpen = (entry: FormData, index: number) => {
@@ -147,7 +154,7 @@ export function CoverageUpdater({ courseId, snaps, secInfo, handleSave }: Covera
       ...data,
       autoDetected: snaps[editIndex].autoDetected,
     };
-    handleSave(updatedSnaps);
+    handleSaveSingle(data);
     handleEditDialogClose();
   };
 

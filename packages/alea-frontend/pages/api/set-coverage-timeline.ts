@@ -19,8 +19,9 @@ function backupFileName() {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (!checkIfPostOrSetError(req, res)) return;
-  const snaps = req.body.snaps as LectureEntry[];
+
   const courseId = req.body.courseId as string;
+  const action = req.body.action || 'update';
 
   try {
     const userId = await getUserIdIfAuthorizedOrSetError(
@@ -29,7 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ResourceName.COURSE_NOTES,
       Action.MUTATE,
       {
-        courseId: courseId,
+        courseId,
         instanceId: CURRENT_TERM,
       }
     );
@@ -37,25 +38,43 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const filePath = process.env.RECORDED_SYLLABUS_DIR + '/' + CURRENT_SEM_FILE;
 
-    // Read the existing file data, if it exists
+    // Read the current file contents
     let existingData: CoverageTimeline = {};
     if (fs.existsSync(filePath)) {
       const fileData = fs.readFileSync(filePath, 'utf-8');
       existingData = JSON.parse(fileData);
     }
 
-    // Create a backup
+    // Backup before changing anything
     fs.writeFileSync(backupFileName(), JSON.stringify(existingData, null, 2));
 
-    // Append the new object to the existing data.
-    existingData[courseId] = snaps;
+    const currentSnaps = existingData[courseId] || [];
 
-    // Write the updated data back to the file
-    fs.writeFileSync(filePath, JSON.stringify(existingData, null, 2));
+    // Replace the row with the same timestamp or add it if new
+    if (action === 'update') {
+      const updatedEntry = req.body.updatedEntry as LectureEntry;
 
-    res.status(200).json({ message: 'snaps updated successfully!' });
+      const newSnaps = [
+        ...currentSnaps.filter((entry) => entry.timestamp_ms !== updatedEntry.timestamp_ms),
+        updatedEntry,
+      ].sort((a, b) => a.timestamp_ms - b.timestamp_ms);
+
+      existingData[courseId] = newSnaps;
+      fs.writeFileSync(filePath, JSON.stringify(existingData, null, 2));
+      return res.status(200).json({ message: 'Entry updated successfully!' });
+    }
+
+    if (action === 'delete') {
+      const timestamp = req.body.timestamp_ms;
+
+      const filteredSnaps = currentSnaps.filter((entry) => entry.timestamp_ms !== timestamp);
+
+      existingData[courseId] = filteredSnaps;
+      fs.writeFileSync(filePath, JSON.stringify(existingData, null, 2));
+      return res.status(200).json({ message: 'Entry deleted successfully!' });
+    }
   } catch (error) {
-    console.error('Error updating snaps:', error);
-    res.status(500).json({ message: 'Error updating snaps' });
+    console.error('Error updating row:', error);
+    res.status(500).json({ message: 'Error updating row' });
   }
 }
