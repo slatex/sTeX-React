@@ -16,6 +16,7 @@ import { SecInfo } from '../types';
 import { CoverageForm, FormData } from './CoverageForm';
 import { CoverageTable } from './CoverageTable';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import { AutoDetectedTooltipContent } from './AutoDetectedComponent';
 
 export function getSectionNameForUri(
   uri: string,
@@ -217,18 +218,10 @@ export function CoverageUpdater({ courseId, snaps, secInfo, handleSave }: Covera
               </Typography>
               <Tooltip
                 title={
-                  <Box sx={{ fontSize: '0.85rem', lineHeight: 1.5 }}>
-                    <div>
-                      <strong>Clip ID:</strong> {formData.autoDetected.clipId || <i>None</i>}
-                    </div>
-                    <div>
-                      <strong>Section:</strong>{' '}
-                      {getSectionName(formData.autoDetected.sectionUri) || <i>None</i>}
-                    </div>
-                    <div>
-                      <strong>Slide URI:</strong> {formData.autoDetected.slideUri || <i>None</i>}
-                    </div>
-                  </Box>
+                  <AutoDetectedTooltipContent
+                    autoDetected={formData.autoDetected}
+                    getSectionName={getSectionName}
+                  />
                 }
                 arrow
                 placement="left"

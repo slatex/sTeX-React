@@ -80,17 +80,15 @@ export function CoverageForm({
   }, [formData, secInfo]);
 
   useEffect(() => {
-    if (formData.slideUri && formData.sectionUri && formData.slideNumber === undefined) {
-      const section = secInfo[formData.sectionUri];
-      if (section) {
-        getSlides(courseId, section.id).then(({ slides }) => {
-          const index = slides.findIndex((s) => s.slide?.uri === formData.slideUri);
-          if (index >= 0) {
-            handleSlideUriChange(formData.slideUri, index);
-          }
-        });
+    if (!formData.slideUri || !formData.sectionUri || formData.slideNumber !== undefined) return;
+    const section = secInfo[formData.sectionUri];
+    if (!section) return;
+    getSlides(courseId, section.id).then(({ slides }) => {
+      const index = slides.findIndex((s) => s.slide?.uri === formData.slideUri);
+      if (index >= 0) {
+        handleSlideUriChange(formData.slideUri, index);
       }
-    }
+    });
   }, [formData.slideUri, formData.sectionUri, formData.slideNumber]);
 
   const handleChange = (

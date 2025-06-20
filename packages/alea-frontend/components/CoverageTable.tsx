@@ -25,6 +25,8 @@ import { useEffect, useState } from 'react';
 import { SecInfo } from '../types';
 import QuizHandler from './QuizHandler';
 import { NoMaxWidthTooltip } from '@stex-react/stex-react-renderer';
+import { getSectionNameForUri } from './CoverageUpdater';
+import { AutoDetectedTooltipContent } from './AutoDetectedComponent';
 
 interface QuizMatchMap {
   [timestamp_ms: number]: QuizWithStatus | null;
@@ -237,40 +239,20 @@ function CoverageRow({
                 maxWidth="600px"
                 color="#1a237e"
                 border="1px solid #CCC"
-                p="5px"
+                p="10px"
                 borderRadius="5px"
                 boxShadow="2px 7px 31px 8px rgba(0, 0, 0, 0.33)"
               >
-                {item.autoDetected?.clipId ? (
-                  <Box>
-                    <Typography variant="body2" fontWeight="bold">
-                      Auto-detected Clip ID:
-                    </Typography>
-                    <Typography variant="body2">{item.autoDetected.clipId}</Typography>
-                  </Box>
-                ) : (
-                  <Typography variant="body2">No clip detected</Typography>
-                )}
-                {item.autoDetected?.sectionUri ? (
-                  <Box>
-                    <Typography variant="body2" fontWeight="bold">
-                      Auto-detected Section URI:
-                    </Typography>
-                    <Typography variant="body2">{item.autoDetected.sectionUri}</Typography>
-                  </Box>
-                ) : (
-                  <Typography variant="body2">No section detected</Typography>
-                )}
-                {item.autoDetected?.slideUri ? (
-                  <Box>
-                    <Typography variant="body2" fontWeight="bold">
-                      Auto-detected Slide URI:
-                    </Typography>
-                    <Typography variant="body2">{item.autoDetected.slideUri}</Typography>
-                  </Box>
-                ) : (
-                  <Typography variant="body2">No slide detected</Typography>
-                )}
+                <Box sx={{ fontSize: '0.85rem', lineHeight: 1.5 }}>
+                  <Typography fontWeight="bold" mb={1}>
+                    Auto-detected Data
+                  </Typography>
+                  <AutoDetectedTooltipContent
+                    autoDetected={item.autoDetected}
+                    getSectionName={(uri) => getSectionNameForUri(uri, secInfo)}
+                    showResolvedSectionName={false}
+                  />
+                </Box>
               </Box>
             }
           >
