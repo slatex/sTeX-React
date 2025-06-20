@@ -37,7 +37,7 @@ export const de = {
       partneredWith:
         'Hochwertige Bildungsinhalte + entwickelt an + angesehenen Institutionen weltweit',
       vollKiProjectInfo:
-        'Das VoLL-KI-Projekt wird vom Bundesministerium für Bildung und Forschung (BMBF) unter der Fördernummer 16DHBKI089 mit fast 5 Millionen Euro gefördert und läuft von Dezember 2021 bis November 2025.',
+        'Das VoLL-KI-Projekt wird vom Bundesministerium für Forschung, Technologie und Raumfahrt (BMFTR) unter der Fördernummer 16DHBKI089 mit fast 5 Millionen Euro gefördert und läuft von Dezember 2021 bis November 2025.',
     },
   },
   login: {
