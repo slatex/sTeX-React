@@ -4,6 +4,8 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  IconButton,
+  Tooltip,
   Paper,
   Typography,
   useTheme,
@@ -13,6 +15,8 @@ import { useEffect, useState } from 'react';
 import { SecInfo } from '../types';
 import { CoverageForm, FormData } from './CoverageForm';
 import { CoverageTable } from './CoverageTable';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import { AutoDetectedTooltipContent } from './AutoDetectedComponent';
 
 export function getSectionNameForUri(
   uri: string,
@@ -38,6 +42,7 @@ function convertSnapToEntry(snap: LectureEntry, index: number): any {
     isQuizScheduled: snap.isQuizScheduled || false,
     slideUri: snap.slideUri || '',
     slideNumber: snap.slideNumber,
+    autoDetected: snap.autoDetected || undefined,
   };
 }
 
@@ -63,6 +68,7 @@ export function CoverageUpdater({ courseId, snaps, secInfo, handleSave }: Covera
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const theme = useTheme();
+  const getSectionName = (uri: string) => getSectionNameForUri(uri, secInfo);
   useEffect(() => {
     if (snaps.length > 0) {
       const lastSnapUri = snaps[snaps.length - 1]?.sectionUri;
@@ -160,7 +166,24 @@ export function CoverageUpdater({ courseId, snaps, secInfo, handleSave }: Covera
             courseId={courseId}
             entries={snaps}
             secInfo={secInfo}
-            onEdit={(idx) => handleEditDialogOpen(coverageEntries[idx], idx)}
+            onEdit={(idx) => {
+              const entry = coverageEntries[idx];
+              const auto = entry.autoDetected;
+
+              const shouldPrefill =
+                entry.sectionUri === '' || entry.sectionUri === 'update-pending';
+
+              const merged = {
+                ...entry,
+                clipId: shouldPrefill ? auto?.clipId || '' : entry.clipId,
+                sectionUri: shouldPrefill ? auto?.sectionUri || '' : entry.sectionUri,
+                slideUri: shouldPrefill ? auto?.slideUri || '' : entry.slideUri,
+                slideNumber: shouldPrefill ? auto?.slideNumber : entry.slideNumber,
+                autoDetected: auto,
+              };
+
+              handleEditDialogOpen(merged, idx);
+            }}
             onDelete={handleDeleteItem}
           />
         </>
@@ -184,7 +207,32 @@ export function CoverageUpdater({ courseId, snaps, secInfo, handleSave }: Covera
         </Box>
       )}
       <Dialog open={editDialogOpen} onClose={handleEditDialogClose} maxWidth="md" fullWidth>
-        <DialogTitle>Edit Coverage Entry</DialogTitle>
+        <DialogTitle
+          sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+        >
+          Edit Coverage Entry
+          {formData.autoDetected && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography variant="body2" color="warning.main" fontWeight="bold">
+                Auto-detected Data
+              </Typography>
+              <Tooltip
+                title={
+                  <AutoDetectedTooltipContent
+                    autoDetected={formData.autoDetected}
+                    getSectionName={getSectionName}
+                  />
+                }
+                arrow
+                placement="left"
+              >
+                <IconButton size="small" color="warning">
+                  <VisibilityIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </Box>
+          )}
+        </DialogTitle>
         <DialogContent>
           <br />
           <CoverageForm
