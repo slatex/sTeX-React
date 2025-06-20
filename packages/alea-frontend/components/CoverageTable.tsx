@@ -3,7 +3,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
-import InfoIcon from '@mui/icons-material/Info';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import {
   Box,
   Button,
@@ -251,7 +251,6 @@ function CoverageRow({
                   <AutoDetectedTooltipContent
                     autoDetected={item.autoDetected}
                     getSectionName={(uri) => getSectionNameForUri(uri, secInfo)}
-                    showResolvedSectionName={false}
                   />
                 </Box>
               </Box>
@@ -269,7 +268,7 @@ function CoverageRow({
                 transition: 'all 0.2s',
               }}
             >
-              <InfoIcon fontSize="small" />
+              <VisibilityIcon fontSize="small" />
             </IconButton>
           </NoMaxWidthTooltip>
         </Box>
