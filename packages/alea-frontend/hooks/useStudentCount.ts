@@ -1,4 +1,4 @@
-import { getStudentsNumberEnrolledInCourse } from '@stex-react/api';
+import { getStudentCountInCourse } from '@stex-react/api';
 import { useEffect, useState } from 'react';
 
 export function useStudentCount(courseId?: string, instanceId?: string) {
@@ -10,7 +10,7 @@ export function useStudentCount(courseId?: string, instanceId?: string) {
       return;
     }
 
-    getStudentsNumberEnrolledInCourse(courseId, instanceId)
+    getStudentCountInCourse(courseId, instanceId)
       .then((res) => {
         setStudentCount(res.studentCount ?? null);
       })

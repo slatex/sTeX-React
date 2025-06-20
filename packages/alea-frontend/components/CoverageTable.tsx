@@ -18,7 +18,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { getAllQuizzes, getStudentsNumberEnrolledInCourse, QuizWithStatus } from '@stex-react/api';
+import { getAllQuizzes, QuizWithStatus } from '@stex-react/api';
 import { CURRENT_TERM, LectureEntry } from '@stex-react/utils';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';

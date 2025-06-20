@@ -9,13 +9,10 @@ export default async function handler(req, res) {
     }
 
     const aclId = getCourseEnrollmentAcl(courseId as string, instanceId as string);
-    const enrolledPersons = await getAclMembers(aclId) ?? [];
+    const enrolledPersons = (await getAclMembers(aclId)) ?? [];
 
     if (enrolledPersons.length === 0) {
-      return res.status(200).json({
-        studentCount: 0,
-        message: 'No students are enrolled in this course.',
-      });
+      return res.status(200).json({ studentCount: 0 });
     }
 
     return res.status(200).json({ studentCount: enrolledPersons.length });

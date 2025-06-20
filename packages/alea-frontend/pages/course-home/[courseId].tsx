@@ -157,7 +157,8 @@ const CourseHomePage: NextPage = () => {
   const [isInstructor, setIsInstructor] = useState(false);
   const [userId, setUserId] = useState<string | undefined>(undefined);
   const [enrolled, setIsEnrolled] = useState<boolean | undefined>(undefined);
-
+  const studentCount = useStudentCount(courseId, CURRENT_TERM);
+  
   useEffect(() => {
     getUserInfo().then((userInfo: UserInfo) => {
       setUserId(userInfo?.userId);
@@ -179,10 +180,6 @@ const CourseHomePage: NextPage = () => {
     };
     checkAccess();
   }, [courseId]);
-
-  
-  const studentCount = useStudentCount(courseId, CURRENT_TERM);
-  console.log('Student count:', studentCount);
 
   useEffect(() => {
     if (!courseId) return;
