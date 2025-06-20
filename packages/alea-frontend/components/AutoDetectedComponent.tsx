@@ -17,7 +17,7 @@ export function AutoDetectedTooltipContent({
   showResolvedSectionName = true,
 }: AutoDetectedTooltipContentProps) {
   if (!autoDetected) {
-    return <Typography variant="body2">No auto-detected data</Typography>;
+    return <Typography variant="body2">No auto-detected data available</Typography>;
   }
 
   const resolvedSection = showResolvedSectionName
