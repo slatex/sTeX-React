@@ -117,8 +117,14 @@ const CoverageUpdateTab = () => {
       );
 
       setSnaps((prevSnaps) => {
-        const filtered = prevSnaps.filter((s) => s.timestamp_ms !== updatedEntry.timestamp_ms);
-        return [...filtered, updatedEntry].sort((a, b) => a.timestamp_ms - b.timestamp_ms);
+        const index = prevSnaps.findIndex((s) => s.timestamp_ms === updatedEntry.timestamp_ms);
+
+        if (index !== -1) {
+          const updated = [...prevSnaps];
+          updated[index] = updatedEntry;
+          return updated;
+        }
+        return [...prevSnaps, updatedEntry].sort((a, b) => a.timestamp_ms - b.timestamp_ms);
       });
 
       setSaveMessage({
