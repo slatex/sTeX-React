@@ -5,7 +5,6 @@ import {
   DialogContent,
   DialogTitle,
   IconButton,
-  Tooltip,
   Paper,
   Typography,
   useTheme,
@@ -17,6 +16,7 @@ import { CoverageForm, FormData } from './CoverageForm';
 import { CoverageTable } from './CoverageTable';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { AutoDetectedTooltipContent } from './AutoDetectedComponent';
+import { NoMaxWidthTooltip } from '@stex-react/stex-react-renderer';
 
 export function getSectionNameForUri(
   uri: string,
@@ -213,23 +213,35 @@ export function CoverageUpdater({ courseId, snaps, secInfo, handleSave }: Covera
           Edit Coverage Entry
           {formData.autoDetected && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography variant="body2" color="warning.main" fontWeight="bold">
+              <Typography variant="body2" color="info.main" fontWeight="bold">
                 Auto-detected Data
               </Typography>
-              <Tooltip
+              <NoMaxWidthTooltip
                 title={
-                  <AutoDetectedTooltipContent
-                    autoDetected={formData.autoDetected}
-                    getSectionName={getSectionName}
-                  />
+                  <Box
+                    sx={{
+                      maxWidth: '600px',
+                      backgroundColor: 'white',
+                      color: '#1a237e',
+                      p: 2,
+                    }}
+                  >
+                    <Box sx={{ fontSize: '0.85rem', lineHeight: 1.5 }}>
+                      <Typography fontWeight="bold" mb={1}>
+                        Auto-detected Data
+                      </Typography>
+                      <AutoDetectedTooltipContent
+                        autoDetected={formData.autoDetected}
+                        getSectionName={getSectionName}
+                      />
+                    </Box>
+                  </Box>
                 }
-                arrow
-                placement="left"
               >
-                <IconButton size="small" color="warning">
+                <IconButton size="small" color="info">
                   <VisibilityIcon fontSize="small" />
                 </IconButton>
-              </Tooltip>
+              </NoMaxWidthTooltip>
             </Box>
           )}
         </DialogTitle>
