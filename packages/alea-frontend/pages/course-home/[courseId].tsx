@@ -11,7 +11,6 @@ import {
   addRemoveMember,
   canAccessResource,
   getCourseInfo,
-  getStudentsNumberEnrolledInCourse,
   getUserInfo,
   UserInfo,
 } from '@stex-react/api';
@@ -24,7 +23,6 @@ import {
   IconButton,
   InputAdornment,
   TextField,
-  Typography,
 } from '@mui/material';
 import {
   Action,
@@ -39,12 +37,12 @@ import { NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { RecordedSyllabus } from 'packages/alea-frontend/components/RecordedSyllabus';
+import { RecordedSyllabus } from '../../components/RecordedSyllabus';
 import { useEffect, useRef, useState } from 'react';
 import { getLocaleObject } from '../../lang/utils';
 import MainLayout from '../../layouts/MainLayout';
 import { FTMLDocument } from '@kwarc/ftml-react';
-import { useStudentCount } from '../api/useStudentCount';
+import { useStudentCount } from '../../hooks/useStudentCount';
 
 export function getCourseEnrollmentAcl(courseId: string, instanceId: string) {
   return `${courseId}-${instanceId}-enrollments`;

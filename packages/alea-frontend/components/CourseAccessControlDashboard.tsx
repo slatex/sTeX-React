@@ -12,6 +12,7 @@ import { Action, CURRENT_TERM, ResourceActionPair } from '@stex-react/utils';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import AclDisplay from './AclDisplay';
+import { useStudentCount } from '../hooks/useStudentCount';
 
 const ALL_SHORT_IDS = [
   'notes',
@@ -123,6 +124,7 @@ const CourseAccessControlDashboard = ({ courseId }) => {
   const [acls, setAcls] = useState<string[]>([]);
   const [newAclId, setNewAclId] = useState('');
   const [error, setError] = useState('');
+  const studentCount = useStudentCount(courseId, CURRENT_TERM);
   const handleAclClick = (aclId: string) => {
     router.push(`/acl/${aclId}`);
   };
@@ -248,6 +250,7 @@ const CourseAccessControlDashboard = ({ courseId }) => {
         ))}
       </Grid>
       <Typography variant="h5">Students</Typography>
+      <Typography variant='h6'>Enrolled Students: {studentCount}</Typography>
       <Grid container spacing={1}>
         {Object.entries(studentAccessResources).map(([shortId, displayName]) => (
           <Grid item xs={6} key={shortId}>

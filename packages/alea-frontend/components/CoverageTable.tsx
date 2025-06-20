@@ -25,6 +25,7 @@ import { useEffect, useState } from 'react';
 import { SecInfo } from '../types';
 import QuizHandler from './QuizHandler';
 import { NoMaxWidthTooltip } from '@stex-react/stex-react-renderer';
+import { useStudentCount } from '../hooks/useStudentCount';
 
 interface QuizMatchMap {
   [timestamp_ms: number]: QuizWithStatus | null;
@@ -379,7 +380,7 @@ export function CoverageTable({
   const missingTargetsCount = countMissingTargetsInFuture(entries);
   const sortedEntries = [...entries].sort((a, b) => a.timestamp_ms - b.timestamp_ms);
   const [quizMatchMap, setQuizMatchMap] = useState<QuizMatchMap>({});
-  const [studentCount, setStudentCount] = useState<number | null>(null);
+  const studentCount = useStudentCount(courseId, CURRENT_TERM);
 
   useEffect(() => {
     async function fetchQuizzes() {
@@ -397,32 +398,18 @@ export function CoverageTable({
         console.error('Error fetching quizzes:', err);
       }
     }
-
     fetchQuizzes();
-  }, [courseId]);
-
-  useEffect(() => {
-    if (!courseId && !CURRENT_TERM) return;
-    getStudentsNumberEnrolledInCourse(courseId, CURRENT_TERM)
-      .then((res) => {
-        setStudentCount(res.studentCount ?? null);
-      })
-      .catch((err) => {
-        console.error('Error fetching student count:', err);
-        setStudentCount(null);
-      });
   }, [courseId]);
 
   return (
     <Box>
       <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-
         {studentCount !== null && (
           <Typography variant="body1" color="text.secondary">
             Total Students Enrolled: {studentCount}
           </Typography>
         )}
-        </Box>
+      </Box>
       {targetUsed && (
         <Paper
           elevation={3}
