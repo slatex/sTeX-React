@@ -9,7 +9,12 @@ import {
   Snackbar,
   Typography,
 } from '@mui/material';
-import { getAuthHeaders, getCourseInfo, getCoverageTimeline, getDocumentSections } from '@stex-react/api';
+import {
+  getAuthHeaders,
+  getCourseInfo,
+  getCoverageTimeline,
+  getDocumentSections,
+} from '@stex-react/api';
 import {
   convertHtmlStringToPlain,
   CourseInfo,
@@ -98,13 +103,24 @@ const CoverageUpdateTab = () => {
     setSnaps(courseSnaps);
   }, [coverageTimeline, courseId, router.isReady]);
 
-  const handleSave = async (newSnaps: LectureEntry[]) => {
+  const handleSaveSingle = async (updatedEntry: LectureEntry) => {
     setLoading(true);
     try {
-      const body = { courseId, snaps: newSnaps };
       const headers = getAuthHeaders();
-      await axios.post('/api/set-coverage-timeline', body, { headers });
-      setSnaps(newSnaps);
+      await axios.post(
+        '/api/set-coverage-timeline',
+        {
+          courseId,
+          updatedEntry,
+        },
+        { headers }
+      );
+
+      setSnaps((prevSnaps) => {
+        const filtered = prevSnaps.filter((s) => s.timestamp_ms !== updatedEntry.timestamp_ms);
+        return [...filtered, updatedEntry].sort((a, b) => a.timestamp_ms - b.timestamp_ms);
+      });
+
       setSaveMessage({
         type: 'success',
         message: 'Coverage data saved successfully!',
@@ -115,6 +131,31 @@ const CoverageUpdateTab = () => {
         type: 'error',
         message: 'Failed to save coverage data. Please try again.',
       });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteSingle = async (timestamp_ms: number) => {
+    setLoading(true);
+    try {
+      const headers = getAuthHeaders();
+      await axios.post(
+        '/api/set-coverage-timeline',
+        {
+          action: 'delete',
+          courseId,
+          timestamp_ms,
+        },
+        { headers }
+      );
+
+      setSnaps((prev) => prev.filter((e) => e.timestamp_ms !== timestamp_ms));
+
+      setSaveMessage({ type: 'success', message: 'Coverage deleted successfully!' });
+    } catch (err) {
+      console.error(err);
+      setSaveMessage({ type: 'error', message: 'Failed to delete coverage' });
     } finally {
       setLoading(false);
     }
@@ -153,7 +194,8 @@ const CoverageUpdateTab = () => {
               courseId={courseId}
               snaps={snaps}
               secInfo={secInfo}
-              handleSave={handleSave}
+              handleSaveSingle={handleSaveSingle}
+              handleDeleteSingle={handleDeleteSingle}
             />
           </Box>
         </Paper>
