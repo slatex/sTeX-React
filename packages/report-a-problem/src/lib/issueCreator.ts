@@ -69,8 +69,8 @@ ${THREE_BACKTICKS}
 ${sectionHierarchy}`;
 }
 
-function getNewIssueUrl(category: IssueCategory, projectId: string) {
-  if (category === IssueCategory.CONTENT) {
+function getNewIssueUrl(category: IssueCategory, projectId: string , context: SelectionContext[]) {
+  if (category === IssueCategory.CONTENT && context?.length > 0) {
     return `https://gl.mathhub.info/api/v4/projects/${encodeURIComponent(projectId)}/issues`;
   }
   return 'https://api.github.com/repos/slatex/sTeX-React/issues';
@@ -116,7 +116,7 @@ export async function createNewIssue(
     title
   );
   try {
-    const createNewIssueUrl = getNewIssueUrl(category, projectId);
+    const createNewIssueUrl = getNewIssueUrl(category, projectId, context);
     const response = await axios.post(
       '/api/create-issue',
       {
