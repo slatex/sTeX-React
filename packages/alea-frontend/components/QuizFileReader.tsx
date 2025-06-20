@@ -13,7 +13,7 @@ function getProblemsFromQuiz(quiz: Quiz): Record<string, FTMLProblemWithSolution
   function processQuizElement(element: FTMLQuizElement) {
     if ('Problem' in element) {
       const problem = element.Problem as FTMLProblemWithSubProblems;
-
+      const answerClasses = quiz.answer_classes[problem.uri];
       const solution = quiz.solutions[problem.uri] || '';
       for (const item of Object.keys(quiz.solutions)) {
         if (findSubProblem(item, problem.uri)) {
@@ -22,19 +22,18 @@ function getProblemsFromQuiz(quiz: Quiz): Record<string, FTMLProblemWithSolution
           }
           problem.subProblems.push({
             solution: quiz.solutions[item],
-            answerclasses: [],
+            answerClasses: quiz.answer_classes[item],
             id: item,
           });
         }
       }
-      result[problem.uri] = { problem, solution };
+      result[problem.uri] = { problem, answerClasses, solution };
     } else if ('Section' in element) {
       element.Section.elements.forEach(processQuizElement);
     }
   }
 
   quiz.elements.forEach(processQuizElement);
-  console.log(result);
   return result;
 }
 
