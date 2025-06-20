@@ -118,6 +118,7 @@ export const de = {
     enrollmentMessage:
       'Bitte melden Sie sich für den Kurs an, um auf Quiz und Hausaufgaben zuzugreifen.',
     getEnrolled: 'sich einschreiben',
+    numberofStudentEnrolled: 'Studenten sind bereits eingeschrieben',
   },
   homework: {
     homeworkDashboard: 'Hausaufgaben-Dashboard',
