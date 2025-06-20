@@ -147,6 +147,7 @@ export const en = {
     practiceProblems: 'Practice Problems',
     enrollmentMessage: 'Please enroll in the course to access quizzes and homework.',
     getEnrolled: 'Get Enrolled',
+    numberofStudentEnrolled: 'students are already enrolled',
   },
   homework: {
     homeworkDashboard: 'Homework Dashboard',
