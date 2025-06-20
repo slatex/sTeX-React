@@ -224,6 +224,7 @@ export function CoverageUpdater({ courseId, snaps, secInfo, handleSave }: Covera
                       backgroundColor: 'white',
                       color: '#1a237e',
                       p: 2,
+                      border: '1px solid #ccc'
                     }}
                   >
                     <Box sx={{ fontSize: '0.85rem', lineHeight: 1.5 }}>
