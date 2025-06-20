@@ -38,7 +38,7 @@ export const en = {
       partneredWith:
         'Top-tier educational content + developed at + esteemed institutions worldwide',
       vollKiProjectInfo:
-        'The VoLL-KI Project is funded by the German Ministry of Research and education (BMBF) under the grant 16DHBKI089 with almost 5 Million Euro and runs Dec. 2021 to November 2025.',
+        'The VoLL-KI Project is funded by the Federal Ministry of Research, Technology and Space (BMFTR) under the grant 16DHBKI089 with almost 5 Million Euro and runs Dec. 2021 to November 2025.',
     },
   },
   login: {
