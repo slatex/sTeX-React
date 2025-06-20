@@ -3,6 +3,7 @@ import ical, { ICalEventData } from 'ical-generator';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getCoverageData } from '../get-coverage-timeline';
 import { getAuthorizedCourseResources } from '../get-resources-for-user';
+import { semesterPeriods, holidays } from '../../../constants/semester-dates';
 
 function generateCalendarEvents(
   coverageData: Record<string, LectureEntry[]>,
@@ -30,6 +31,48 @@ function generateCalendarEvents(
       });
     }
   }
+  return events;
+}
+
+function generateSemesterAndHolidayEvents(): ICalEventData[] {
+  const events: ICalEventData[] = [];
+
+  semesterPeriods.forEach((period) => {
+    events.push({
+      start: new Date(period.semesterStart),
+      allDay: true,
+      summary: `Semester Start : ${period.name}`,
+      description: `Start of ${period.name}`,
+    });
+    events.push({
+      start: new Date(period.semesterEnd),
+      allDay: true,
+      summary: `Semester End : ${period.name}`,
+      description: `End of ${period.name}`,
+    });
+    events.push({
+      start: new Date(period.lectureStart),
+      allDay: true,
+      summary: `Lecture Period Start for Semester : ${period.name}`,
+      description: `Start of lectures for ${period.name}`,
+    });
+    events.push({
+      start: new Date(period.lectureEnd),
+      allDay: true,
+      summary: `Lecture Period End for Semester : ${period.name}`,
+      description: `End of lectures for ${period.name}`,
+    });
+  });
+
+  holidays.forEach((holiday) => {
+    events.push({
+      start: new Date(holiday.date),
+      allDay: true,
+      summary: `Holiday: ${holiday.name}`,
+      description: holiday.lectureFree ? `${holiday.name} (No lectures)` : holiday.name,
+    });
+  });
+
   return events;
 }
 
@@ -75,7 +118,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   });
 
   const events = await getUserEvents(userId);
-  events.forEach((event) => {
+  const semesterAndHolidayEvents = generateSemesterAndHolidayEvents();
+  [...events, ...semesterAndHolidayEvents].forEach((event) => {
     calendar.createEvent(event);
   });
 
