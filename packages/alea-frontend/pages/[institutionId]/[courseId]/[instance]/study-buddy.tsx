@@ -31,11 +31,15 @@ import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 import { RouteErrorDisplay } from '../../../../components/RouteErrorDisplay';
 import { CourseNotFound } from '../../../../components/CourseNotFound';
-import { StudyBuddyForm } from '../../../../components/StudyBuddyForm';
-import { StudyBuddyListing, StudyBuddyListingTable } from '../../../../components/StudyBuddyListingTable';
 import { useRouteValidation } from '../../../../hooks/useRouteValidation';
 import { useAllCourses } from '../../../../hooks/useAllCourses';
-import { useIsLoggedIn } from '@alea/react-utils';
+import {
+  StudyBuddyForm,
+  StudyBuddyListing,
+  StudyBuddyListingTable,
+  useCurrentUser,
+  useIsLoggedIn,
+} from '@alea/react-utils';
 import { getLocaleObject } from '../../../../lang/utils';
 import MainLayout from '../../../../layouts/MainLayout';
 
@@ -70,14 +74,8 @@ function OptOutButton({
 const StudyBuddyPage: NextPage = () => {
   const theme = useTheme();
   const router = useRouter();
-  const {
-    institutionId,
-    courseId,
-    instance,
-    resolvedInstanceId,
-    validationError,
-    isValidating,
-  } = useRouteValidation('study-buddy');
+  const { institutionId, courseId, instance, resolvedInstanceId, validationError, isValidating } =
+    useRouteValidation('study-buddy');
 
   const instanceId = resolvedInstanceId;
   const { studyBuddy: t } = getLocaleObject(router);
@@ -107,7 +105,9 @@ const StudyBuddyPage: NextPage = () => {
   }, [courseId, fromServer?.active, institutionId, instanceId]);
 
   const { loggedIn } = useIsLoggedIn();
-  const { data: courses = {} ,isLoading:courseLoading} = useAllCourses();
+  const { user } = useCurrentUser();
+  const userName = user?.fullName ?? '';
+  const { data: courses = {}, isLoading: courseLoading } = useAllCourses();
 
   useEffect(() => {
     refetchStudyBuddyLists();
@@ -166,9 +166,16 @@ const StudyBuddyPage: NextPage = () => {
               <CardContent>
                 <Typography variant="h5">{t.fillForm}</Typography>
                 <br />
-                <StudyBuddyForm studyBuddy={userInput} onUpdate={(studyBuddy) => setUserInput(studyBuddy)} />
+                <StudyBuddyForm
+                  studyBuddy={userInput}
+                  userName={userName}
+                  labels={t}
+                  onUpdate={(studyBuddy) => setUserInput(studyBuddy)}
+                />
                 <FormControlLabel
-                  control={<Checkbox value={agreed} onChange={(e) => setAgreed(e.target.checked)} />}
+                  control={
+                    <Checkbox value={agreed} onChange={(e) => setAgreed(e.target.checked)} />
+                  }
                   label={t.agreementText}
                 />
               </CardContent>
@@ -213,7 +220,7 @@ const StudyBuddyPage: NextPage = () => {
             <Typography variant="h4">{t.myProfile}</Typography>
             <Card sx={{ mt: '20px' }}>
               <CardContent>
-                <StudyBuddyListing studyBuddy={fromServer} />
+                <StudyBuddyListing studyBuddy={fromServer} labels={t} />
               </CardContent>
               <CardActions>
                 <Button
@@ -246,12 +253,14 @@ const StudyBuddyPage: NextPage = () => {
           studyBuddies={allBuddies?.connected}
           header={t.connected}
           subText={t.connectedSubtext}
+          labels={t}
         />
         <StudyBuddyListingTable
           studyBuddies={allBuddies?.requestReceived}
           header={t.requestReceived}
           actionIcon={<HandshakeIcon color="primary" />}
           subText={t.requestReceivedSubtext}
+          labels={t}
           onAction={(buddy) => {
             connectionRequest(courseId, buddy.userId, institutionId, instanceId).then(async () => {
               refetchStudyBuddyLists();
@@ -264,11 +273,14 @@ const StudyBuddyPage: NextPage = () => {
           header={t.requestSent}
           actionIcon={<CancelIcon color="warning" />}
           subText={t.requestSentSubtext}
+          labels={t}
           onAction={(buddy) => {
-            removeConnectionRequest(courseId, buddy.userId, institutionId, instanceId).then(async () => {
+            removeConnectionRequest(courseId, buddy.userId, institutionId, instanceId).then(
+              async () => {
                 refetchStudyBuddyLists();
                 alert(t.connectionRequestCancelled.replace('$1', buddy.userName));
-            });
+              }
+            );
           }}
         />
         <StudyBuddyListingTable
@@ -276,6 +288,7 @@ const StudyBuddyPage: NextPage = () => {
           header={t.lookingFor}
           subText={t.lookingForSubtext}
           actionIcon={<ThumbUpAltIcon color="primary" />}
+          labels={t}
           onAction={(buddy) => {
             connectionRequest(courseId, buddy.userId, institutionId, instanceId).then(async () => {
               refetchStudyBuddyLists();

@@ -1,3 +1,4 @@
 export * from './lib/quiz';
+export * from './lib/study-buddy';
 export * from './lib/cheatsheet-pdf';
 export * from './lib/cheatsheet-print-pack';
