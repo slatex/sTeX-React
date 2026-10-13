@@ -150,11 +150,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }));
 
   const allProblems = [...practiceProblems, ...examOnlyProblems];
-  const enrichedProblems = allProblems.map((p) => ({
-    ...p,
-    examRefs: examProblemMap.get(p.problemId) ?? [],
-    quizRefs: quizProblemMap.get(p.problemId) ?? [],
-  }));
+  const enrichedProblems = allProblems
+    .map((p) => ({
+      ...p,
+      examRefs: examProblemMap.get(p.problemId) ?? [],
+      quizRefs: quizProblemMap.get(p.problemId) ?? [],
+    }))
+    .sort((a, b) => a.problemId.localeCompare(b.problemId));
 
   return res.status(200).json(enrichedProblems);
 }
