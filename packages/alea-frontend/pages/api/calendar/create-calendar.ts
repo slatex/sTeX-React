@@ -2,7 +2,10 @@ import { Action, LectureEntry } from '@alea/utils';
 import ical, { ICalEventData } from 'ical-generator';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getCoverageData } from '../get-coverage-timeline';
-import { getAuthorizedCourseResources } from '../get-resources-for-user';
+import {
+  filterNamedInstructorResources,
+  getAuthorizedCourseResources,
+} from '../get-resources-for-user';
 import { executeQuery } from '../comment-utils';
 import { getAllCoursesFromDb } from '../get-all-courses';
 interface SemesterInfo {
@@ -161,10 +164,14 @@ async function getUserEvents(
       actions: item.actions.filter((action) => action !== Action.TAKE),
     }))
     .filter((resource) => resource.actions.length > 0);
-  const isInstructor = resourceAccessToInstructor.length > 0;
+  const namedInstructorResources = await filterNamedInstructorResources(
+    userId,
+    resourceAccessToInstructor
+  );
+  const isInstructor = namedInstructorResources.length > 0;
 
   const accessibleResources = isInstructor
-    ? resourceAccessToInstructor
+    ? namedInstructorResources
     : resourceAndActions.filter((resource: any) => resource.actions.includes(Action.TAKE));
 
   const accessibleCourseIds = new Set(
