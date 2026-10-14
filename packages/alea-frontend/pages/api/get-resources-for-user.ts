@@ -10,7 +10,10 @@ import {
 import { NextApiRequest, NextApiResponse } from 'next';
 import { isUserIdAuthorizedForAny } from './access-control/resource-utils';
 import { getUserIdOrSetError } from './comment-utils';
+import { getCourseInfoMetadataFromDb } from './course-metadata/get-course-info-metadata';
 import { getAllCoursesFromDb } from './get-all-courses';
+
+type StoredInstructor = string | { id?: string; name?: string };
 
 function getValidActionsForResource(resourceName: ResourceName): Action[] {
   const resource = ALL_RESOURCE_TYPES.find((resource) => resource.name === resourceName);
@@ -20,11 +23,56 @@ function getValidActionsForResource(resourceName: ResourceName): Action[] {
   return resource.possibleActions;
 }
 
+function hasNamedInstructor(userId: string, instructors: StoredInstructor[] | undefined) {
+  const normalizedUserId = userId.trim().toLowerCase();
+  if (!normalizedUserId || !Array.isArray(instructors)) return false;
+
+  return instructors.some((instructor) => {
+    const instructorId =
+      typeof instructor === 'string' ? instructor : instructor.id ?? instructor.name;
+    return (instructorId ?? '').trim().toLowerCase() === normalizedUserId;
+  });
+}
+
+export async function isUserNamedInstructorForCourse(
+  userId: string,
+  courseId: string,
+  instanceId: string
+) {
+  const metadata = await getCourseInfoMetadataFromDb(courseId, instanceId);
+  return hasNamedInstructor(userId, metadata?.instructors);
+}
+
+export async function filterNamedInstructorResources<
+  T extends { courseId: string; instanceId: string }
+>(userId: string, resources: T[]): Promise<T[]> {
+  const namedInstructorChecks = new Map<string, Promise<boolean>>();
+
+  const isNamedInstructorForCourse = (courseId: string, instanceId: string) => {
+    const cacheKey = `${courseId}:${instanceId}`;
+    const cachedCheck = namedInstructorChecks.get(cacheKey);
+    if (cachedCheck) return cachedCheck;
+
+    const check = isUserNamedInstructorForCourse(userId, courseId, instanceId);
+    namedInstructorChecks.set(cacheKey, check);
+    return check;
+  };
+
+  const filteredResources: T[] = [];
+  for (const resource of resources) {
+    if (await isNamedInstructorForCourse(resource.courseId, resource.instanceId)) {
+      filteredResources.push(resource);
+    }
+  }
+  return filteredResources;
+}
+
 export async function getAuthorizedCourseResources(userId: string, includeUpcomingTerm = false) {
   const courses = await getAllCoursesFromDb();
   const resourceNames = COURSE_SPECIFIC_RESOURCENAMES;
 
   const resourceActions: CourseResourceAction[] = [];
+
   for (const [courseId, course] of Object.entries(courses)) {
     const universityId = course.universityId ?? 'FAU';
     const terms = [
@@ -68,6 +116,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const userId = await getUserIdOrSetError(req, res);
   if (!userId) return;
   const authorizedResourceActions = await getAuthorizedCourseResources(userId, true);
+  const instructorHomeResources = await filterNamedInstructorResources(
+    userId,
+    authorizedResourceActions
+  );
 
-  return res.status(200).json(authorizedResourceActions);
+  return res.status(200).json(instructorHomeResources);
 }
