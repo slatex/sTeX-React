@@ -48,7 +48,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
 function getBaseUrl(req: NextApiRequest) {
   if (process.env.LTI_TOOL_BASE_URL) {
-    return process.env.LTI_TOOL_BASE_URL.replace(/\/$/, '');
+    return process.env.LTI_TOOL_BASE_URL.replace(/\/+$/, '');
   }
 
   const proto = req.headers['x-forwarded-proto'] ?? 'http';
