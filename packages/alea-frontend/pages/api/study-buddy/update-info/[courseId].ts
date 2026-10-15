@@ -5,7 +5,6 @@ import {
   executeAndEndSet500OnError,
   getUserInfo,
 } from '../../comment-utils';
-import { getCurrentTermForCourseId } from '../../get-current-term';
 
 export default async function handler(
   req: NextApiRequest,
@@ -36,11 +35,12 @@ export default async function handler(
   } = req.body as StudyBuddy;
 
   const active = true;
+  const sbCourseId = `${courseId}||${instanceId}`;
 
   let results = undefined;
 
   results = await executeAndEndSet500OnError(
-    'REPLACE INTO StudyBuddyUsers (userName, intro, studyProgram, email, semester, meetType, languages, dayPreference, active, userId, courseId, instanceId, institutionId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    'REPLACE INTO StudyBuddyUsers (userName, intro, studyProgram, email, semester, meetType, languages, dayPreference, active, userId, sbCourseId, courseId, instanceId, institutionId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
     [
       user.fullName,
       intro,
@@ -52,6 +52,7 @@ export default async function handler(
       dayPreference,
       active,
       userId,
+      sbCourseId,
       courseId,
       instanceId,
       institutionId,

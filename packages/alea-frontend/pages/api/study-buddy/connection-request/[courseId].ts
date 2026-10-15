@@ -6,7 +6,6 @@ import {
   getUserInfo,
   sendNotification,
 } from '../../comment-utils';
-import { getCurrentTermForCourseId } from '../../get-current-term';
 
 export default async function handler(
   req: NextApiRequest,
@@ -23,8 +22,8 @@ export default async function handler(
   const instanceId = req.query.instanceId as string;
   const institutionId = req.query.institutionId as string;
 
-  if (!institutionId) {
-    res.status(422).end('Missing required field: institutionId');
+  if (!institutionId || !courseId || !instanceId) {
+    res.status(422).end('Missing required field: institutionId or courseId or instanceId');
     return;
   }
 
@@ -35,9 +34,10 @@ export default async function handler(
     return;
   }
 
+  const sbCourseId = `${courseId}||${instanceId}`;
   const results = await executeAndEndSet500OnError(
-    'INSERT INTO StudyBuddyConnections(senderId, receiverId, courseId, instanceId, institutionId) VALUES (?, ?, ?, ?, ?)',
-    [userId, receiverId, courseId, instanceId, institutionId],
+    'INSERT INTO StudyBuddyConnections(senderId, receiverId, sbCourseId, courseId, instanceId, institutionId) VALUES (?, ?, ?, ?, ?, ?)',
+    [userId, receiverId, sbCourseId, courseId, instanceId, institutionId],
     res
   );
 
