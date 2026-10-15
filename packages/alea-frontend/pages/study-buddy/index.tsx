@@ -171,6 +171,8 @@ function StatsForModerator() {
                   <MenuItem value="WS24-25">WS24-25</MenuItem>
                   <MenuItem value="SS25">SS25</MenuItem>
                   <MenuItem value="WS25-26">WS25-26</MenuItem>
+                  <MenuItem value="SS26">SS26</MenuItem>
+                  <MenuItem value="WS26-27">WS26-27</MenuItem>
                 </Select>
               </FormControl>
             </Box>

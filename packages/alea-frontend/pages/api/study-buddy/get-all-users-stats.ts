@@ -2,7 +2,8 @@ import { AllCoursesStats } from '@alea/spec';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { executeAndEndSet500OnError } from '../comment-utils';
 import { getUserIdIfCanModerateStudyBuddyOrSetError } from '../access-control/resource-utils';
-import { getCurrentTermForCourseId } from '../get-current-term';
+
+const toNumber = (value: unknown) => Number(value ?? 0);
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const userId = await getUserIdIfCanModerateStudyBuddyOrSetError(req, res);
@@ -25,8 +26,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     `
     SELECT 
       COUNT(userId) as TotalUsers, 
-      SUM(CASE WHEN active = 1 THEN 1 ELSE 0 END) as ActiveUsers,
-      SUM(CASE WHEN active = 0 THEN 1 ELSE 0 END) as InactiveUsers 
+      COUNT(CASE WHEN active = 1 THEN 1 END) as ActiveUsers,
+      COUNT(CASE WHEN active = 0 THEN 1 END) as InactiveUsers 
     FROM StudyBuddyUsers
     WHERE instanceId = ? AND institutionId = ?`,
     [instanceId, institutionId],
@@ -34,7 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   );
   const result2: any[] = await executeAndEndSet500OnError(
     `
-    SELECT ROUND(COUNT(*) / 2) AS NumberOfConnections
+    SELECT COUNT(*) DIV 2 AS NumberOfConnections
     FROM StudyBuddyConnections as t1
     WHERE t1.instanceId = ? AND t1.institutionId = ?
     AND EXISTS (
@@ -53,12 +54,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (!result1 || !result2 || !result3) return;
 
+  const totalRequests = toNumber(result3[0].TotalRequests);
+  const numberOfConnections = toNumber(result2[0].NumberOfConnections);
   const combinedResults: AllCoursesStats = {
-    totalUsers: result1[0].TotalUsers,
-    activeUsers: result1[0].ActiveUsers,
-    inactiveUsers: result1[0].InactiveUsers,
-    numberOfConnections: result2[0].NumberOfConnections,
-    unacceptedRequests: result3[0].TotalRequests - result2[0].NumberOfConnections * 2,
+    totalUsers: toNumber(result1[0].TotalUsers),
+    activeUsers: toNumber(result1[0].ActiveUsers),
+    inactiveUsers: toNumber(result1[0].InactiveUsers),
+    numberOfConnections,
+    unacceptedRequests: totalRequests - numberOfConnections * 2,
   };
   res.status(200).json(combinedResults);
 }

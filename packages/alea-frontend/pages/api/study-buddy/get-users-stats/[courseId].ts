@@ -1,8 +1,9 @@
 import { UserStats } from '@alea/spec';
-import { getCurrentTermForCourseId } from '../../get-current-term';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getUserIdIfCanModerateStudyBuddyOrSetError } from '../../access-control/resource-utils';
 import { executeAndEndSet500OnError } from '../../comment-utils';
+
+const toNumber = (value: unknown) => Number(value ?? 0);
 
 export default async function handler(
   req: NextApiRequest,
@@ -23,14 +24,14 @@ export default async function handler(
   const result1: any[] = await executeAndEndSet500OnError(
     `SELECT 
       COUNT(userId) as TotalUsers, 
-      SUM(CASE WHEN active = 1 THEN 1 ELSE 0 END) as ActiveUsers,
-      SUM(CASE WHEN active = 0 THEN 1 ELSE 0 END) as InactiveUsers 
+      COUNT(CASE WHEN active = 1 THEN 1 END) as ActiveUsers,
+      COUNT(CASE WHEN active = 0 THEN 1 END) as InactiveUsers 
     FROM StudyBuddyUsers WHERE courseId = ? AND instanceId = ? AND institutionId = ?`,
     [courseId, instanceId, institutionId],
     res
   );
   const result2: any[] = await executeAndEndSet500OnError(
-    `SELECT ROUND(COUNT(*) / 2) AS NumberOfConnections
+    `SELECT COUNT(*) DIV 2 AS NumberOfConnections
     FROM StudyBuddyConnections as t1
     WHERE t1.courseId = ? AND t1.instanceId = ? AND t1.institutionId = ?
     AND EXISTS (
@@ -81,13 +82,14 @@ export default async function handler(
     receiverId: userIdToAnonymousId.get(item.receiverId),
   }));
 
+  const totalRequests = toNumber(result3[0].TotalRequests);
+  const numberOfConnections = toNumber(result2[0].NumberOfConnections);
   const combinedResults: UserStats = {
-    totalUsers: result1[0].TotalUsers,
-    activeUsers: result1[0].ActiveUsers,
-    inactiveUsers: result1[0].InactiveUsers,
-    numberOfConnections: result2[0].NumberOfConnections,
-    unacceptedRequests:
-      result3[0].TotalRequests - result2[0].NumberOfConnections * 2,
+    totalUsers: toNumber(result1[0].TotalUsers),
+    activeUsers: toNumber(result1[0].ActiveUsers),
+    inactiveUsers: toNumber(result1[0].InactiveUsers),
+    numberOfConnections,
+    unacceptedRequests: totalRequests - numberOfConnections * 2,
     connections: anonymousConnections,
     userIdsAndActiveStatus,
   };
