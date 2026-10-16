@@ -482,7 +482,7 @@ export const SlideDeck = memo(function SlidesFromUrl({
             {
               '--rustex-curr-width': `${containerWidth - 30}px`,
               '--rustex-this-width': `${containerWidth - 30}px`,
-              'max-width': `${containerWidth}px`,
+              'max-width': `${courseId === 'gdi' ? 2000 : containerWidth}px`, // HACK: GDI's slide are huge
               'padding-right': currentSlide?.slideType === SlideType.FRAME ? '30px' : undefined,
               'box-sizing': 'border-box',
               margin: '0 auto',

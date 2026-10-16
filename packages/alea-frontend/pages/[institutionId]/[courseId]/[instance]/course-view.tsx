@@ -11,8 +11,6 @@ import {
   Slide,
   SlidesClipInfo,
 } from '@alea/spec';
-import { CommentNoteToggleView } from '@alea/comments';
-import { SafeHtml } from '@alea/react-utils';
 import {
   ContentDashboard,
   LayoutWithFixedMenu,
@@ -28,11 +26,11 @@ import {
   ResourceName,
   shouldUseDrawer,
 } from '@alea/utils';
-import { setSlideNumAndSectionId, ViewMode } from '../../../../utils/courseViewUtils';
 import { FTML, injectCss } from '@flexiformal/ftml';
 import { contentToc } from '@flexiformal/ftml-backend';
 import { VideoCameraBack } from '@mui/icons-material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
+import SearchIcon from '@mui/icons-material/Search';
 import {
   Box,
   Button,
@@ -48,7 +46,6 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import shadows from '../../../../theme/shadows';
 import axios from 'axios';
 import type { NextPage } from 'next';
 import Link from 'next/link';
@@ -56,16 +53,17 @@ import { useRouter } from 'next/router';
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import CourseViewToolbarIcons from '../../../../components/course-view/CourseViewToolbarIcons';
 import NotesAndCommentsSection from '../../../../components/course-view/NotesAndCommentsSection';
+import { CourseNotFound } from '../../../../components/CourseNotFound';
 import QuizComponent from '../../../../components/GenerateQuiz';
+import { RouteErrorDisplay } from '../../../../components/RouteErrorDisplay';
+import SearchCourseNotes from '../../../../components/SearchCourseNotes';
 import { getSlideUri, SlideDeck } from '../../../../components/SlideDeck';
 import { SlidesUriToIndexMap, VideoDisplay } from '../../../../components/VideoDisplay';
-import { RouteErrorDisplay } from '../../../../components/RouteErrorDisplay';
-import { CourseNotFound } from '../../../../components/CourseNotFound';
-import SearchCourseNotes from '../../../../components/SearchCourseNotes';
 import { useRouteValidation } from '../../../../hooks/useRouteValidation';
 import { getLocaleObject } from '../../../../lang/utils';
 import MainLayout from '../../../../layouts/MainLayout';
-import SearchIcon from '@mui/icons-material/Search';
+import shadows from '../../../../theme/shadows';
+import { setSlideNumAndSectionId, ViewMode } from '../../../../utils/courseViewUtils';
 // DM: if possible, this should use the *actual* uri; uri:undefined should be avoided
 function RenderElements({ elements }: { elements: string[] }) {
   return (
@@ -923,9 +921,9 @@ const CourseViewPage: NextPage = () => {
                   sectionUri={selectedSectionTOC.uri}
                   sectionTitle={selectedSectionTOC.title}
                 />
-                {isQuizMaker && (
+                {/*isQuizMaker && (
                   <QuizComponent key={sectionId} courseId={courseId} sectionId={sectionId} />
-                )}
+                )*/}
               </Stack>
             )}
             <NotesAndCommentsSection currentSlideUri={currentSlideUri} />
