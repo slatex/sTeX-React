@@ -14,6 +14,7 @@ import {
   Chip,
   Tooltip,
   Typography,
+  TextField,
 } from '@mui/material';
 import {
   formatExamLabelDropdown,
@@ -27,7 +28,7 @@ import {
 import { useCurrentUser } from '@alea/react-utils';
 import { getParamFromUri } from '@alea/utils';
 import Router, { useRouter } from 'next/router';
-import { useEffect, useMemo, useState } from 'react';
+import { type ReactNode, useEffect, useMemo, useState } from 'react';
 import { ForMe } from './ForMe';
 import { getLocaleObject } from './lang/utils';
 import { ProblemFilter } from './ProblemFilter';
@@ -83,6 +84,102 @@ export function getProblemType(uri: string): 'quiz' | 'homework' | 'exam' | 'unc
     return 'exam';
   }
   return 'uncategorized';
+}
+
+function getSolutionHtml(payload?: string) {
+  if (!payload?.trim()) return undefined;
+  try {
+    const parsedSolution = FTML.Solutions.from_jstring(payload.replace(/^"|"$/g, ''));
+    const html = parsedSolution
+      ?.to_solutions()
+      .map((solution) => ('Solution' in solution ? solution.Solution.html : undefined))
+      .filter(Boolean)
+      .join('');
+    return html?.trim() ? html : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function SolutionDisplay({
+  problemUri,
+  isSubmitted,
+}: {
+  problemUri: string;
+  isSubmitted: boolean;
+}) {
+  const [solutionHtml, setSolutionHtml] = useState<string | undefined>();
+
+  useEffect(() => {
+    if (!isSubmitted) return;
+    flamsSolution({ uri: problemUri })
+      .then((payload) => setSolutionHtml(getSolutionHtml(payload)))
+      .catch(() => setSolutionHtml(undefined));
+  }, [isSubmitted, problemUri]);
+
+  if (!isSubmitted || !solutionHtml) return null;
+
+  return (
+    <Box
+      sx={{
+        mt: 1.5,
+        p: 1.5,
+        border: '1px solid #2e7d32',
+        borderRadius: 1,
+      }}
+    >
+      <Typography fontWeight="bold" component="span">
+        Solution:{' '}
+      </Typography>
+      <SafeFTMLFragment fragment={{ type: 'HtmlString', html: solutionHtml, uri: problemUri }} />
+    </Box>
+  );
+}
+
+function FreeTextAnswer({ problemUri, isSubmitted }: { problemUri: string; isSubmitted: boolean }) {
+  const answerKey = `practice-answer-${problemUri}`;
+  const [answer, setAnswer] = useState(() =>
+    typeof window === 'undefined' ? '' : window.localStorage.getItem(answerKey) ?? ''
+  );
+
+  function onAnswerChange(value: string) {
+    setAnswer(value);
+    if (typeof window !== 'undefined') window.localStorage.setItem(answerKey, value);
+  }
+
+  return (
+    <Box sx={{ mt: 2 }}>
+      <TextField
+        label={isSubmitted ? 'Submitted answer' : 'Your answer'}
+        value={answer}
+        onChange={(event) => onAnswerChange(event.target.value)}
+        minRows={2}
+        multiline
+        sx={{ width: '100%', maxWidth: 520 }}
+        disabled={isSubmitted}
+      />
+      <SolutionDisplay problemUri={problemUri} isSubmitted={isSubmitted} />
+    </Box>
+  );
+}
+
+function PracticeProblemWrap({
+  children,
+  problemUri,
+  autogradable,
+  isSubmitted,
+}: {
+  children: ReactNode;
+  problemUri: string;
+  autogradable: boolean;
+  isSubmitted: boolean;
+}) {
+  return (
+    <Box>
+      {children}
+      {!autogradable ? <FreeTextAnswer problemUri={problemUri} isSubmitted={isSubmitted} /> : null}
+    </Box>
+  );
 }
 
 export function UriProblemViewer({
@@ -154,6 +251,19 @@ export function UriProblemViewer({
         problemStates={new Map([[uri, problemState]])}
         onProblemResponse={(response) => {
           setResponse?.(response);
+        }}
+        problemWrap={(problemUri, _isSubProblem, autogradable) => {
+          return function WrappedProblem(ch) {
+            return (
+              <PracticeProblemWrap
+                problemUri={problemUri}
+                autogradable={autogradable}
+                isSubmitted={isSubmitted}
+              >
+                {ch}
+              </PracticeProblemWrap>
+            );
+          };
         }}
       />
       {setIsSubmitted && (
