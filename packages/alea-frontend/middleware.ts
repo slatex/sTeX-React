@@ -15,7 +15,14 @@ const DEFAULT_INSTITUTION = 'FAU';
 const ENABLE_REDIRECT = process.env['NEXT_PUBLIC_ENABLE_FAU_REDIRECT'] === 'true';
 const FAU_DOMAIN = process.env['NEXT_PUBLIC_FAU_DOMAIN'];
 const TARGET_DOMAIN = process.env['NEXT_PUBLIC_NON_FAU_DOMAIN'];
-const IDM_ALLOWLIST = ['/login', '/cross-domain-auth', '/api/cross-domain-auth', '/logout'];
+const IDM_ALLOWLIST = [
+  '/login',
+  '/cross-domain-auth',
+  '/api/cross-domain-auth',
+  '/logout',
+  '/collect-email',
+  '/verify',
+];
 
 const INSTITUTION_SET = new Set(Object.keys(UniversityDetail).map((c) => c.toLowerCase()));
 

@@ -14,6 +14,7 @@ const EXEMPT_PREFIXES = [
   '/reset-and-redirect',
   '/anon-login',
   '/logout',
+  '/cross-domain-auth',
   '/auth-callback',
   '/profile',
   '/my-profile',
