@@ -21,13 +21,17 @@ async function getUserScoresOrSet500Error(
   const result: Array<any> = await queryGradingDbAndEndSet500OnError(
     `SELECT g.quizId, SUM(g.points) as score
       FROM grading g
-      WHERE g.userId = ?
-      AND (g.quizId, g.userId, g.problemId, g.browserTimestamp_ms) IN (
-          SELECT quizId, userId, problemId, MAX(browserTimestamp_ms) AS browserTimestamp_ms
+      INNER JOIN (
+          SELECT quizId, userId, problemId, MAX(browserTimestamp_ms) AS ts
           FROM grading
-            WHERE userId = ?
+          WHERE userId = ?
           GROUP BY quizId, userId, problemId
-      )
+      ) latest
+        ON g.quizId = latest.quizId
+       AND g.userId = latest.userId
+       AND g.problemId = latest.problemId
+       AND g.browserTimestamp_ms = latest.ts
+      WHERE g.userId = ?
       GROUP BY g.quizId;`,
     [userId, userId],
     res

@@ -150,15 +150,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const placeholders = quizIds.map(() => '?').join(', ');
 
     const results: any[] = await queryGradingDbAndEndSet500OnError(
-      `SELECT userId, quizId, sum(points) as score
-      FROM grading
-      WHERE (quizId, userId, problemId, browserTimestamp_ms) IN (
-        SELECT quizId, userId, problemId, MAX(browserTimestamp_ms) AS browserTimestamp_ms
+      `SELECT g.userId, g.quizId, SUM(g.points) as score
+      FROM grading g
+      INNER JOIN (
+        SELECT quizId, userId, problemId, MAX(browserTimestamp_ms) AS ts
         FROM grading
         WHERE quizId IN (${placeholders})
         GROUP BY quizId, userId, problemId
-      )
-      GROUP BY userId, quizId`,
+      ) latest
+        ON g.quizId = latest.quizId
+       AND g.userId = latest.userId
+       AND g.problemId = latest.problemId
+       AND g.browserTimestamp_ms = latest.ts
+      GROUP BY g.userId, g.quizId`,
       quizIds,
       res
     );

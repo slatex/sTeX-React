@@ -11,15 +11,19 @@ async function getUserQuizResponseOrSetError(quizId: string, userId: string, res
   const results = await queryGradingDbAndEndSet500OnError<
     { problemId: string; response: string }[]
   >(
-    `SELECT problemId, response
-    FROM grading
-    WHERE (quizId, problemId, browserTimestamp_ms) IN (
-        SELECT quizId, problemId, MAX(browserTimestamp_ms) AS browserTimestamp_ms
+    `SELECT g.problemId, g.response
+    FROM grading g
+    INNER JOIN (
+        SELECT quizId, userId, problemId, MAX(browserTimestamp_ms) AS ts
         FROM grading
         WHERE quizId = ? AND userId = ?
-        GROUP BY problemId
-    )
-    AND quizId = ? AND userId = ?`,
+        GROUP BY quizId, userId, problemId
+    ) latest
+      ON g.quizId = latest.quizId
+     AND g.userId = latest.userId
+     AND g.problemId = latest.problemId
+     AND g.browserTimestamp_ms = latest.ts
+    WHERE g.quizId = ? AND g.userId = ?`,
     [quizId, userId, quizId, userId],
     res
   );

@@ -79,16 +79,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const results2: any[] = await queryGradingDbDontEndSet500OnError(
     `SELECT score, COUNT(*) AS numStudents
     FROM (
-      SELECT userId, SUM(points) as score
-      FROM grading
-      WHERE (quizId, problemId, userId, browserTimestamp_ms) IN (
-        SELECT quizId, problemId, userId, MAX(browserTimestamp_ms) AS browserTimestamp_ms
+      SELECT g.userId, SUM(g.points) as score
+      FROM grading g
+      INNER JOIN (
+        SELECT quizId, problemId, userId, MAX(browserTimestamp_ms) AS ts
         FROM grading
         WHERE quizId = ?
         GROUP BY quizId, problemId, userId
-      )
-      AND quizId = ?
-      GROUP BY userId
+      ) latest
+        ON g.quizId = latest.quizId
+       AND g.problemId = latest.problemId
+       AND g.userId = latest.userId
+       AND g.browserTimestamp_ms = latest.ts
+      WHERE g.quizId = ?
+      GROUP BY g.userId
     ) AS T1
     GROUP BY score`,
     [quizId, quizId],
@@ -120,15 +124,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const results4: any[] = await queryGradingDbAndEndSet500OnError(
-    `SELECT quizId, problemId, points, COUNT(*) AS numStudents from grading 
-    WHERE (quizId, problemId, userId, browserTimestamp_ms) IN ( 
-        SELECT quizId, problemId, userId, MAX(browserTimestamp_ms) AS browserTimestamp_ms
+    `SELECT g.quizId, g.problemId, g.points, COUNT(*) AS numStudents
+    FROM grading g
+    INNER JOIN (
+        SELECT quizId, problemId, userId, MAX(browserTimestamp_ms) AS ts
         FROM grading
-        WHERE quizId= ?
+        WHERE quizId = ?
         GROUP BY quizId, problemId, userId
-    )
-    AND quizId = ?
-    GROUP BY quizId, problemId, points`,
+    ) latest
+      ON g.quizId = latest.quizId
+     AND g.problemId = latest.problemId
+     AND g.userId = latest.userId
+     AND g.browserTimestamp_ms = latest.ts
+    WHERE g.quizId = ?
+    GROUP BY g.quizId, g.problemId, g.points`,
     [quizId, quizId],
     res
   );
